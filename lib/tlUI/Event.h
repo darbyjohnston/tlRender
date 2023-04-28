@@ -83,6 +83,7 @@ namespace tl
         {
             int button = 0;
             int modifiers = 0;
+            math::Vector2i pos;
             bool accept = false;
         };
 
@@ -183,6 +184,7 @@ namespace tl
         struct KeyEvent
         {
             Key key = Key::Unknown;
+            math::Vector2i pos;
             bool accept = false;
         };
     }

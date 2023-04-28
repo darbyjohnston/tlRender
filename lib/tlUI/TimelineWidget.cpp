@@ -254,7 +254,7 @@ namespace tl
         {
             TLRENDER_P();
             event.accept = true;
-            p.mousePressPos = p.mousePos;
+            p.mousePressPos = event.pos;
             if (event.modifiers & static_cast<int>(KeyModifier::Control))
             {
                 p.mouseMode = Private::MouseMode::Scroll;

@@ -34,6 +34,7 @@ namespace tl
             p.scrollAreaType = scrollAreaType;
             p.scrollSize = observer::Value<math::Vector2i>::create();
             p.scrollPos = observer::Value<math::Vector2i>::create();
+            setBackgroundRole(ColorRole::Base);
         }
 
         ScrollArea::ScrollArea() :

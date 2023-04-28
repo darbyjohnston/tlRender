@@ -18,7 +18,7 @@ namespace tl
             std::shared_ptr<imaging::FontSystem> fontSystem;
             imaging::Size frameBufferSize;
             float contentScale = 1.F;
-            std::list<std::weak_ptr<IWidget> > widgets;
+            std::list<std::weak_ptr<IWidget> > topLevelWidgets;
             math::Vector2i cursorPos;
             std::weak_ptr<IWidget> hover;
             std::weak_ptr<IWidget> mousePress;
@@ -82,7 +82,7 @@ namespace tl
         {
             TLRENDER_P();
             widget->setEventLoop(shared_from_this());
-            p.widgets.push_back(widget);
+            p.topLevelWidgets.push_back(widget);
             p.updates |= Update::Size;
             p.updates |= Update::Draw;
         }
@@ -92,6 +92,7 @@ namespace tl
             TLRENDER_P();
             KeyEvent event;
             event.key = key;
+            event.pos = p.cursorPos;
         }
 
         void EventLoop::cursorEnter(bool enter)
@@ -125,12 +126,21 @@ namespace tl
             MouseClickEvent event;
             event.button = button;
             event.modifiers = modifiers;
+            event.pos = p.cursorPos;
             if (press)
             {
-                if (auto widget = p.hover.lock())
+                std::list<std::shared_ptr<IWidget> > widgets;
+                _underCursor(p.cursorPos, widgets);
+                while (!widgets.empty())
                 {
+                    auto widget = widgets.back();
+                    widgets.pop_back();
                     widget->mousePressEvent(event);
-                    p.mousePress = widget;
+                    if (event.accept)
+                    {
+                        p.mousePress = widget;
+                        break;
+                    }
                 }
             }
             else
@@ -157,7 +167,7 @@ namespace tl
             if (_getSizeUpdate())
             {
                 _sizeEvent();
-                for (const auto& i : p.widgets)
+                for (const auto& i : p.topLevelWidgets)
                 {
                     if (auto widget = i.lock())
                     {
@@ -196,7 +206,7 @@ namespace tl
             event.iconLibrary = p.iconLibrary;
             event.fontSystem = p.fontSystem;
             event.contentScale = p.contentScale;
-            for (const auto& i : p.widgets)
+            for (const auto& i : p.topLevelWidgets)
             {
                 if (auto widget = i.lock())
                 {
@@ -220,7 +230,7 @@ namespace tl
         {
             TLRENDER_P();
             bool out = p.updates & Update::Size;
-            for (const auto& i : p.widgets)
+            for (const auto& i : p.topLevelWidgets)
             {
                 if (auto widget = i.lock())
                 {
@@ -258,7 +268,7 @@ namespace tl
                 event.fontInfo[i].size *= p.contentScale;
                 event.fontMetrics[i] = p.fontSystem->getMetrics(event.fontInfo[i]);
             }
-            for (const auto& i : p.widgets)
+            for (const auto& i : p.topLevelWidgets)
             {
                 if (auto widget = i.lock())
                 {
@@ -282,7 +292,7 @@ namespace tl
         {
             TLRENDER_P();
             bool out = p.updates & Update::Draw;
-            for (const auto& i : p.widgets)
+            for (const auto& i : p.topLevelWidgets)
             {
                 if (auto widget = i.lock())
                 {
@@ -326,7 +336,7 @@ namespace tl
                 event.fontMetrics[i] = p.fontSystem->getMetrics(event.fontInfo[i]);
             }
             event.render->setClipRectEnabled(true);
-            for (const auto& i : p.widgets)
+            for (const auto& i : p.topLevelWidgets)
             {
                 if (auto widget = i.lock())
                 {
@@ -364,7 +374,7 @@ namespace tl
             std::list<std::shared_ptr<IWidget> >& out)
         {
             TLRENDER_P();
-            for (const auto& i : p.widgets)
+            for (const auto& i : p.topLevelWidgets)
             {
                 if (auto widget = i.lock())
                 {

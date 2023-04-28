@@ -183,7 +183,7 @@ namespace tl
         void TimelineItem::mouseMoveEvent(ui::MouseMoveEvent& event)
         {
             TLRENDER_P();
-            //event.accept = true;
+            event.accept = true;
             p.mousePos = event.pos;
             if (p.currentTimeDrag)
             {
@@ -198,16 +198,16 @@ namespace tl
             {
                 event.accept = true;
                 p.mousePress = true;
-                p.mousePressPos = p.mousePos;
+                p.mousePressPos = event.pos;
                 if (p.stopOnScrub)
                 {
                     p.timelinePlayer->setPlayback(timeline::Playback::Stop);
                 }
                 const math::BBox2i bbox = _getCurrentTimeBBox();
-                if (bbox.contains(p.mousePos))
+                if (bbox.contains(event.pos))
                 {
                     p.currentTimeDrag = true;
-                    p.timelinePlayer->seek(_posToTime(p.mousePos.x));
+                    p.timelinePlayer->seek(_posToTime(event.pos.x));
                 }
             }
         }
