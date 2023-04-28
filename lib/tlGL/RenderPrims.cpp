@@ -153,6 +153,8 @@ namespace tl
             p.shaders["texture"]->setUniform("color", color);
             p.shaders["texture"]->setUniform("textureSampler", 0);
 
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
             glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
             glBindTexture(GL_TEXTURE_2D, id);
 

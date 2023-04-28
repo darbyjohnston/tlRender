@@ -384,10 +384,12 @@ namespace tl
 
             if (p.waveformWidth > 0)
             {
-                for (int x = p.margin; x < _sizeHint.x - p.margin; x += p.waveformWidth)
+                const int w = _sizeHint.x - p.margin * 2;
+                for (int x = 0; x < w; x += p.waveformWidth)
                 {
                     math::BBox2i bbox(
                         g.min.x +
+                        p.margin +
                         x,
                         g.min.y +
                         p.margin +
@@ -397,10 +399,9 @@ namespace tl
                         _options.waveformHeight);
                     if (bbox.intersects(_viewport))
                     {
-                        const int w = _sizeHint.x - p.margin * 2;
                         const otime::RationalTime time = time::round(otime::RationalTime(
                             p.timeRange.start_time().value() +
-                            (w > 0 ? ((x - p.margin) / static_cast<double>(w)) : 0) *
+                            (w > 0 ? (x / static_cast<double>(w)) : 0) *
                             p.timeRange.duration().value(),
                             p.timeRange.duration().rate()));
                         auto i = p.audioData.find(time);

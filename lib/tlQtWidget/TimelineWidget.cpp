@@ -427,21 +427,27 @@ namespace tl
         {
             TLRENDER_P();
 
-            const int w = width();
-            const int h = height();
+            const int w = _toUI(width());
+            const int h = _toUI(height());
             const float zoomMin = _timelineScale();
-            const float zoomMax = _toUI(w);
+            const float zoomMax = w;
             const float zoomClamped = math::clamp(zoomNew, zoomMin, zoomMax);
 
             const float s = zoomClamped / zoomPrev;
-            const math::Vector2i scrollPosNew(
+            const math::Vector2i scrollPosNew = _toUI(math::Vector2i(
                 (scrollPos.x + focus.x) * s - focus.x,
-                scrollPos.y);
-            const math::Vector2i scrollSize = _fromUI(p.scrollArea->getScrollSize());
+                scrollPos.y));
+            const math::Vector2i scrollSize = p.scrollArea->getScrollSize();
             const math::Vector2i scrollPosClamped(
-                math::clamp(scrollPosNew.x, 0, std::max(static_cast<int>(scrollSize.x * s) - w, 0)),
-                math::clamp(scrollPosNew.y, 0, std::max(static_cast<int>(scrollSize.y * s) - h, 0)));
-            p.scrollArea->setScrollPos(_toUI(scrollPosClamped));
+                math::clamp(
+                    scrollPosNew.x,
+                    0,
+                    std::max(static_cast<int>(scrollSize.x * s) - w, 0)),
+                math::clamp(
+                    scrollPosNew.y,
+                    0,
+                    std::max(static_cast<int>(scrollSize.y * s) - h, 0)));
+            p.scrollArea->setScrollPos(scrollPosClamped);
 
             p.itemOptions.scale = zoomClamped;
             if (p.timelineItem)
@@ -486,13 +492,7 @@ namespace tl
 
         math::BBox2i TimelineWidget::_timelineViewport() const
         {
-            TLRENDER_P();
-            const math::Vector2i& scrollPos = p.scrollArea->getScrollPos();
-            return math::BBox2i(
-                scrollPos.x,
-                scrollPos.y,
-                _toUI(width()),
-                _toUI(height()));
+            return math::BBox2i(0, 0, _toUI(width()), _toUI(height()));
         }
 
         void TimelineWidget::_setViewport(
@@ -509,7 +509,7 @@ namespace tl
             }
         }
 
-        float TimelineWidget::_toUI(float value) const
+        int TimelineWidget::_toUI(int value) const
         {
             const float devicePixelRatio = window()->devicePixelRatio();
             return value * devicePixelRatio;
@@ -521,7 +521,7 @@ namespace tl
             return value * devicePixelRatio;
         }
 
-        float TimelineWidget::_fromUI(float value) const
+        int TimelineWidget::_fromUI(int value) const
         {
             const float devicePixelRatio = window()->devicePixelRatio();
             return devicePixelRatio > 0.F ? (value / devicePixelRatio) : 0.F;

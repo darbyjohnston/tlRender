@@ -294,7 +294,7 @@ namespace tl
                             p.thumbnailWidth,
                             _options.thumbnailHeight);
                         gl::OffscreenBufferOptions options;
-                        options.colorType = imaging::PixelType::RGBA_F32;
+                        options.colorType = imaging::PixelType::RGB_F32;
                         auto buffer = gl::OffscreenBuffer::create(size, options);
                         {
                             gl::OffscreenBufferBinding binding(buffer);
@@ -309,10 +309,12 @@ namespace tl
                                     static_cast<float>(size.h),
                                     -1.F,
                                     1.F));
-                            event.render->clearViewport(imaging::Color4f(1.F, 0.F, 0.F));
+                            event.render->clearViewport(imaging::Color4f(0.F, 0.F, 0.F));
                             if (i.second.image)
                             {
-                                event.render->drawImage(i.second.image, math::BBox2i(0, 0, size.w, size.h));
+                                event.render->drawImage(
+                                    i.second.image,
+                                    math::BBox2i(0, 0, size.w, size.h));
                             }
                         }
                         p.buffers[i.first] = buffer;
@@ -320,10 +322,12 @@ namespace tl
                 }
                 p.videoData.clear();
 
-                for (int x = p.margin; x < _sizeHint.x - p.margin; x += p.thumbnailWidth)
+                const int w = _sizeHint.x - p.margin * 2;
+                for (int x = 0; x < w; x += p.thumbnailWidth)
                 {
-                    math::BBox2i bbox(
+                    const math::BBox2i bbox(
                         g.min.x +
+                        p.margin +
                         x,
                         g.min.y +
                         p.margin +
@@ -333,10 +337,9 @@ namespace tl
                         _options.thumbnailHeight);
                     if (bbox.intersects(_viewport))
                     {
-                        const int w = _sizeHint.x - p.margin * 2;
                         const otime::RationalTime time = time::round(otime::RationalTime(
                             p.timeRange.start_time().value() +
-                            (w > 0 ? ((x - p.margin) / static_cast<double>(w)) : 0) *
+                            (w > 0 ? (x / static_cast<double>(w)) : 0) *
                             p.timeRange.duration().value(),
                             p.timeRange.duration().rate()));
 
