@@ -104,7 +104,7 @@ namespace tl
 
             ///@}
 
-            //! Visiblity.
+            //! Visibility.
             ///@{
 
             //! Is the widget visible?

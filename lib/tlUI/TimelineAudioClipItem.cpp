@@ -252,8 +252,8 @@ namespace tl
             ITimelineItem::sizeEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.displayScale;
-            p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.displayScale;
+            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
+            p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
 
             const int waveformWidth = _options.thumbnails ?
@@ -283,7 +283,7 @@ namespace tl
             ITimelineItem::drawEvent(event);
             if (_geometry.isValid() && _isInsideViewport())
             {
-                const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.displayScale;
+                const int b = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
                 const math::BBox2i g = _geometry;
 
                 //event.render->drawMesh(
@@ -314,7 +314,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            const auto fontInfo = event.getFontInfo(p.fontRole);
+            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
             const math::BBox2i g = _geometry;
 

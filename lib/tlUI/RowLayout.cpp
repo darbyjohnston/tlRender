@@ -137,8 +137,8 @@ namespace tl
             IWidget::sizeEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(p.marginRole) * event.displayScale;
-            p.size.spacing = event.style->getSizeRole(p.spacingRole) * event.displayScale;
+            p.size.margin = event.style->getSizeRole(p.marginRole, event.displayScale);
+            p.size.spacing = event.style->getSizeRole(p.spacingRole, event.displayScale);
 
             _sizeHint = math::Vector2i();
             for (const auto& child : _children)

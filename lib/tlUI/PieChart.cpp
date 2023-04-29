@@ -137,12 +137,12 @@ namespace tl
             IWidget::sizeEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall) * event.displayScale;
-            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall) * event.displayScale;
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
+            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
 
             // Create the percentage labels.
-            const auto fontInfo = event.getFontInfo(p.fontRole);
+            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             p.draw.percentageLabels.clear();
             int percentageWidthMax = 0;
             for (const auto& data : p.data)

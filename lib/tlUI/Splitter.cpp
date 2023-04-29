@@ -125,8 +125,8 @@ namespace tl
             IWidget::sizeEvent(event);
             TLRENDER_P();
 
-            p.size.handle = event.style->getSizeRole(SizeRole::Handle);
-            const int sa = event.style->getSizeRole(SizeRole::ScrollArea);
+            p.size.handle = event.style->getSizeRole(SizeRole::HandleSmall, event.displayScale);
+            const int sa = event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
 
             _sizeHint.x = sa;
             _sizeHint.y = sa;

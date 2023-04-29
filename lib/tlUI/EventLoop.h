@@ -46,6 +46,9 @@ namespace tl
             //! resolutions.
             void setDisplayScale(float);
 
+            //! Set the key focus widget.
+            void setKeyFocus(const std::shared_ptr<IWidget>&);
+
             //! Handle key presses.
             void key(Key, bool press);
 

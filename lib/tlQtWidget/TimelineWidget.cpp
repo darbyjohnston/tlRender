@@ -469,7 +469,7 @@ namespace tl
                 const double duration = timeRange.duration().rescaled_to(1.0).value();
                 if (duration > 0.0)
                 {
-                    const int m = p.style->getSizeRole(ui::SizeRole::MarginSmall);
+                    const int m = p.style->getSizeRole(ui::SizeRole::MarginSmall, 1.F);
                     out = _toUI(width() - m * 2) / duration;
                 }
             }

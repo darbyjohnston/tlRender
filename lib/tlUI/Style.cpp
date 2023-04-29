@@ -80,7 +80,8 @@ namespace tl
             p.sizeRoles[SizeRole::SpacingTool] = 2;
             p.sizeRoles[SizeRole::Border] = 1;
             p.sizeRoles[SizeRole::ScrollArea] = 200;
-            p.sizeRoles[SizeRole::Handle] = 12;
+            p.sizeRoles[SizeRole::Handle] = 10;
+            p.sizeRoles[SizeRole::HandleSmall] = 6;
 
             p.colorRoles[ColorRole::Window] = imaging::Color4f(.2F, .2F, .2F);
             p.colorRoles[ColorRole::Base] = imaging::Color4f(.17F, .17F, .17F);
@@ -117,11 +118,11 @@ namespace tl
             return out;
         }
 
-        int Style::getSizeRole(SizeRole value) const
+        int Style::getSizeRole(SizeRole value, float scale) const
         {
             TLRENDER_P();
             const auto i = p.sizeRoles.find(value);
-            return i != p.sizeRoles.end() ? i->second : 0;
+            return (i != p.sizeRoles.end() ? i->second : 0) * scale;
         }
 
         imaging::Color4f Style::getColorRole(ColorRole value) const
@@ -131,11 +132,17 @@ namespace tl
             return i != p.colorRoles.end() ? i->second : imaging::Color4f();
         }
 
-        imaging::FontInfo Style::getFontRole(FontRole value) const
+        imaging::FontInfo Style::getFontRole(FontRole value, float scale) const
         {
             TLRENDER_P();
+            imaging::FontInfo out;
             const auto i = p.fontRoles.find(value);
-            return i != p.fontRoles.end() ? i->second : imaging::FontInfo();
+            if (i != p.fontRoles.end())
+            {
+                out = i->second;
+            }
+            out.size *= scale;
+            return out;
         }
     }
 }

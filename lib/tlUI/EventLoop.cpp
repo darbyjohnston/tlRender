@@ -78,6 +78,11 @@ namespace tl
             p.updates |= Update::Draw;
         }
 
+        void EventLoop::setKeyFocus(const std::shared_ptr<IWidget>& value)
+        {
+            _p->keyFocus = value;
+        }
+
         void EventLoop::addWidget(const std::shared_ptr<IWidget>& widget)
         {
             TLRENDER_P();
@@ -93,6 +98,37 @@ namespace tl
             KeyEvent event;
             event.key = key;
             event.pos = p.cursorPos;
+            if (press)
+            {
+                if (auto widget = p.keyFocus.lock())
+                {
+                    widget->keyPressEvent(event);
+                    if (event.accept)
+                    {
+                        p.keyPress = widget;
+                    }
+                }
+                if (!event.accept)
+                {
+                    std::list<std::shared_ptr<IWidget> > widgets;
+                    _underCursor(p.cursorPos, widgets);
+                    while (!widgets.empty())
+                    {
+                        auto widget = widgets.back();
+                        widgets.pop_back();
+                        widget->keyPressEvent(event);
+                        if (event.accept)
+                        {
+                            p.keyPress = widget;
+                            break;
+                        }
+                    }
+                }
+            }
+            else if (auto widget = p.keyPress.lock())
+            {
+                widget->keyReleaseEvent(event);
+            }
         }
 
         void EventLoop::cursorEnter(bool enter)
@@ -264,9 +300,8 @@ namespace tl
             event.displayScale = p.displayScale;
             for (auto i : getFontRoleEnums())
             {
-                event.fontInfo[i] = p.style->getFontRole(i);
-                event.fontInfo[i].size *= p.displayScale;
-                event.fontMetrics[i] = p.fontSystem->getMetrics(event.fontInfo[i]);
+                event.fontMetrics[i] = p.fontSystem->getMetrics(
+                    p.style->getFontRole(i, p.displayScale));
             }
             for (const auto& i : p.topLevelWidgets)
             {
@@ -331,9 +366,8 @@ namespace tl
             event.displayScale = p.displayScale;
             for (auto i : getFontRoleEnums())
             {
-                event.fontInfo[i] = p.style->getFontRole(i);
-                event.fontInfo[i].size *= p.displayScale;
-                event.fontMetrics[i] = p.fontSystem->getMetrics(event.fontInfo[i]);
+                event.fontMetrics[i] = p.fontSystem->getMetrics(
+                    p.style->getFontRole(i, p.displayScale));
             }
             event.render->setClipRectEnabled(true);
             for (const auto& i : p.topLevelWidgets)

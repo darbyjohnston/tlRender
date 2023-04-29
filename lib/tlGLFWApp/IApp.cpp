@@ -471,10 +471,10 @@ namespace tl
             switch (action)
             {
             case GLFW_PRESS:
+            case GLFW_REPEAT:
                 app->_p->eventLoop->key(toKey(key), true);
                 break;
             case GLFW_RELEASE:
-            case GLFW_REPEAT:
                 app->_p->eventLoop->key(toKey(key), false);
                 break;
             }

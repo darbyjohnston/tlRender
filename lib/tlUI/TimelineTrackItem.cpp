@@ -147,7 +147,7 @@ namespace tl
             ITimelineItem::sizeEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.displayScale;
+            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
 
             int childrenHeight = 0;
             for (const auto& child : _children)

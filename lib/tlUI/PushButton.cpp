@@ -57,16 +57,16 @@ namespace tl
             IButton::sizeEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall) * event.displayScale;
-            p.size.margin2 = event.style->getSizeRole(SizeRole::MarginInside) * event.displayScale;
-            p.size.border = event.style->getSizeRole(SizeRole::Border) * event.displayScale;
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
+            p.size.margin2 = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);
+            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
 
             _sizeHint = math::Vector2i();
             p.draw.glyphs.clear();
             if (!_text.empty())
             {
                 p.size.fontMetrics = event.getFontMetrics(_fontRole);
-                const auto fontInfo = event.getFontInfo(_fontRole);
+                const auto fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
                 p.size.textSize = event.fontSystem->measure(_text, fontInfo);
                 p.draw.glyphs = event.fontSystem->getGlyphs(_text, fontInfo);
 

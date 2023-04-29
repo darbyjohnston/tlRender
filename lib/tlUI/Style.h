@@ -27,6 +27,7 @@ namespace tl
             Border,
             ScrollArea,
             Handle,
+            HandleSmall,
 
             Count,
             First = None
@@ -92,13 +93,13 @@ namespace tl
                 const std::shared_ptr<system::Context>&);
 
             //! Get a size role.
-            int getSizeRole(SizeRole) const;
+            int getSizeRole(SizeRole, float scale) const;
 
             //! Get a color role.
             imaging::Color4f getColorRole(ColorRole) const;
 
             //! Get a font role.
-            imaging::FontInfo getFontRole(FontRole) const;
+            imaging::FontInfo getFontRole(FontRole, float scale) const;
 
         private:
             TLRENDER_PRIVATE();

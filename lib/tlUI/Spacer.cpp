@@ -45,7 +45,8 @@ namespace tl
         {
             IWidget::sizeEvent(event);
             TLRENDER_P();
-            _sizeHint.x = _sizeHint.y = event.style->getSizeRole(p.spacingRole);
+            _sizeHint.x = _sizeHint.y =
+                event.style->getSizeRole(p.spacingRole, event.displayScale);
         }
     }
 }

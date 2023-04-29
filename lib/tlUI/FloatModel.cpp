@@ -115,7 +115,7 @@ namespace tl
             setValue(p.value->get() + p.largeStep);
         }
 
-        void FloatModel::substractLargeStep()
+        void FloatModel::subtractLargeStep()
         {
             TLRENDER_P();
             setValue(p.value->get() - p.largeStep);

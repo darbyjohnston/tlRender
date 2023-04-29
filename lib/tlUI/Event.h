@@ -39,10 +39,8 @@ namespace tl
             std::shared_ptr<IconLibrary> iconLibrary;
             std::shared_ptr<imaging::FontSystem> fontSystem;
             float displayScale = 1.F;
-            std::map<FontRole, imaging::FontInfo> fontInfo;
             std::map<FontRole, imaging::FontMetrics> fontMetrics;
 
-            imaging::FontInfo getFontInfo(FontRole) const;
             imaging::FontMetrics getFontMetrics(FontRole) const;
         };
 
@@ -54,10 +52,8 @@ namespace tl
             std::shared_ptr<timeline::IRender> render;
             std::shared_ptr<imaging::FontSystem> fontSystem;
             float displayScale = 1.F;
-            std::map<FontRole, imaging::FontInfo> fontInfo;
             std::map<FontRole, imaging::FontMetrics> fontMetrics;
 
-            imaging::FontInfo getFontInfo(FontRole) const;
             imaging::FontMetrics getFontMetrics(FontRole) const;
         };
 

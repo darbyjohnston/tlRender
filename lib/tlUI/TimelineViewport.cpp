@@ -210,7 +210,7 @@ namespace tl
         void TimelineViewport::sizeEvent(const SizeEvent& event)
         {
             IWidget::sizeEvent(event);
-            const int sa = event.style->getSizeRole(SizeRole::ScrollArea);
+            const int sa = event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
             _sizeHint.x = sa;
             _sizeHint.y = sa;
         }

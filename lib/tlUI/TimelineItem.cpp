@@ -138,8 +138,8 @@ namespace tl
             ITimelineItem::sizeEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.displayScale;
-            p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.displayScale;
+            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
+            p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
             p.fontMetrics = event.getFontMetrics(p.fontRole);
 
             int childrenHeight = 0;
@@ -227,7 +227,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            const auto fontInfo = event.getFontInfo(p.fontRole);
+            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const math::BBox2i g = _geometry;
 
             const float frameTick0 = p.timeRange.start_time().value() /
@@ -355,7 +355,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            const auto fontInfo = event.getFontInfo(p.fontRole);
+            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const math::BBox2i g = _geometry;
 
             const otime::RationalTime& currentTime = p.timelinePlayer->observeCurrentTime()->get();

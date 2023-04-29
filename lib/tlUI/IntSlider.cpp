@@ -95,16 +95,20 @@ namespace tl
             IWidget::sizeEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside) * event.displayScale;
-            p.size.border = event.style->getSizeRole(SizeRole::Border) * event.displayScale;
-            p.size.handle = event.style->getSizeRole(SizeRole::Handle) * event.displayScale;
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);
+            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
+            p.size.handle = event.style->getSizeRole(SizeRole::Handle, event.displayScale);
 
             auto fontInfo = imaging::FontInfo();
             fontInfo.size *= event.displayScale;
             p.size.fontMetrics = event.fontSystem->getMetrics(fontInfo);
 
-            _sizeHint.x = event.style->getSizeRole(SizeRole::ScrollArea) + p.size.margin * 2;
-            _sizeHint.y = p.size.fontMetrics.lineHeight + p.size.margin * 2;
+            _sizeHint.x =
+                event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale) +
+                p.size.margin * 2;
+            _sizeHint.y =
+                p.size.fontMetrics.lineHeight +
+                p.size.margin * 2;
         }
 
         void IntSlider::drawEvent(const DrawEvent& event)
@@ -197,6 +201,35 @@ namespace tl
             event.accept = true;
             p.mouse.pressed = false;
             _updates |= Update::Draw;
+        }
+
+        void IntSlider::keyPressEvent(KeyEvent& event)
+        {
+            TLRENDER_P();
+            if (p.model)
+            {
+                switch (event.key)
+                {
+                case Key::Left:
+                    p.model->subtractStep();
+                    break;
+                case Key::Right:
+                    p.model->addStep();
+                    break;
+                case Key::PageUp:
+                    p.model->addLargeStep();
+                    break;
+                case Key::PageDown:
+                    p.model->subtractLargeStep();
+                    break;
+                case Key::Home:
+                    p.model->setValue(p.model->getRange().getMin());
+                    break;
+                case Key::End:
+                    p.model->setValue(p.model->getRange().getMax());
+                    break;
+                }
+            }
         }
 
         math::BBox2i IntSlider::_getSliderGeometry() const

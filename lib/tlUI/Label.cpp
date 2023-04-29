@@ -79,7 +79,7 @@ namespace tl
 
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
 
-            const auto fontInfo = event.getFontInfo(p.fontRole);
+            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
 
             _sizeHint.x = event.fontSystem->measure(p.text, fontInfo).x;

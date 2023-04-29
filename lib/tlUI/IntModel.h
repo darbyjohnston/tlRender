@@ -66,7 +66,7 @@ namespace tl
             void setLargeStep(int);
 
             void addLargeStep();
-            void substractLargeStep();
+            void subtractLargeStep();
 
             ///@}
 

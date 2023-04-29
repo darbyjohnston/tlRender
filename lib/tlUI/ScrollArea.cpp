@@ -118,13 +118,14 @@ namespace tl
             IWidget::sizeEvent(event);
             TLRENDER_P();
 
-            p.size.border = event.style->getSizeRole(SizeRole::Border) * event.displayScale;
+            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
 
             _sizeHint = math::Vector2i();
             switch (p.scrollAreaType)
             {
                 case ScrollAreaType::Horizontal:
-                    _sizeHint.x = event.style->getSizeRole(SizeRole::ScrollArea);
+                    _sizeHint.x =
+                        event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
                     for (const auto& child : _children)
                     {
                         const math::Vector2i& sizeHint = child->getSizeHint();
@@ -132,7 +133,8 @@ namespace tl
                     }
                     break;
                 case ScrollAreaType::Vertical:
-                    _sizeHint.y = event.style->getSizeRole(SizeRole::ScrollArea);
+                    _sizeHint.y =
+                        event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
                     for (const auto& child : _children)
                     {
                         const math::Vector2i& sizeHint = child->getSizeHint();
@@ -141,7 +143,7 @@ namespace tl
                     break;
                 case ScrollAreaType::Both:
                     _sizeHint.x = _sizeHint.y =
-                        event.style->getSizeRole(SizeRole::ScrollArea);
+                        event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
                     break;
             }
             if (p.border)

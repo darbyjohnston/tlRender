@@ -71,8 +71,8 @@ namespace tl
             ITimelineItem::sizeEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.displayScale;
-            p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.displayScale;
+            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
+            p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
 
             _sizeHint = math::Vector2i(
@@ -90,8 +90,8 @@ namespace tl
             TLRENDER_P();
             if (_isInsideViewport())
             {
-                const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.displayScale;
-                const auto fontInfo = event.getFontInfo(p.fontRole);
+                const int b = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
+                const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
                 const auto fontMetrics = event.getFontMetrics(p.fontRole);
                 const math::BBox2i g = _geometry;
 
