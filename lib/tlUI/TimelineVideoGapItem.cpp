@@ -71,8 +71,8 @@ namespace tl
             ITimelineItem::sizeEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.contentScale;
-            p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.contentScale;
+            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.displayScale;
+            p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.displayScale;
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
 
             _sizeHint = math::Vector2i(
@@ -90,10 +90,10 @@ namespace tl
             TLRENDER_P();
             if (_isInsideViewport())
             {
-                const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.contentScale;
+                const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.displayScale;
                 const auto fontInfo = event.getFontInfo(p.fontRole);
                 const auto fontMetrics = event.getFontMetrics(p.fontRole);
-                math::BBox2i g = _geometry;
+                const math::BBox2i g = _geometry;
 
                 //event.render->drawMesh(
                 //    ui::border(g, b, p.margin / 2),
@@ -113,7 +113,7 @@ namespace tl
                         fontMetrics.ascender),
                     event.style->getColorRole(ui::ColorRole::Text));
 
-                math::Vector2i textSize = event.fontSystem->measure(p.durationLabel, fontInfo);
+                const math::Vector2i textSize = event.fontSystem->measure(p.durationLabel, fontInfo);
                 event.render->drawText(
                     event.fontSystem->getGlyphs(p.durationLabel, fontInfo),
                     math::Vector2i(

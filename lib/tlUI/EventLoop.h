@@ -38,11 +38,13 @@ namespace tl
             //! Add a top level widget.
             void addWidget(const std::shared_ptr<IWidget>&);
 
-            //! Set the user interface size.
-            void setSize(const imaging::Size&);
+            //! Set the user interface display resolution.
+            void setDisplaySize(const imaging::Size&);
 
-            //! Set the user interface content scale.
-            void setContentScale(float);
+            //! Set the user interface display scale. This will scale the size
+            //! roles, fonts, and other metrics to support different
+            //! resolutions.
+            void setDisplayScale(float);
 
             //! Handle key presses.
             void key(Key, bool press);

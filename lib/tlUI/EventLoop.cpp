@@ -16,8 +16,8 @@ namespace tl
             std::shared_ptr<Style> style;
             std::shared_ptr<IconLibrary> iconLibrary;
             std::shared_ptr<imaging::FontSystem> fontSystem;
-            imaging::Size frameBufferSize;
-            float contentScale = 1.F;
+            imaging::Size displaySize;
+            float displayScale = 1.F;
             std::list<std::weak_ptr<IWidget> > topLevelWidgets;
             math::Vector2i cursorPos;
             std::weak_ptr<IWidget> hover;
@@ -58,22 +58,22 @@ namespace tl
             return out;
         }
 
-        void EventLoop::setSize(const imaging::Size& value)
+        void EventLoop::setDisplaySize(const imaging::Size& value)
         {
             TLRENDER_P();
-            if (value == p.frameBufferSize )
+            if (value == p.displaySize )
                 return;
-            p.frameBufferSize = value;
+            p.displaySize = value;
             p.updates |= Update::Size;
             p.updates |= Update::Draw;
         }
 
-        void EventLoop::setContentScale(float value)
+        void EventLoop::setDisplayScale(float value)
         {
             TLRENDER_P();
-            if (value == p.contentScale)
+            if (value == p.displayScale)
                 return;
-            p.contentScale = value;
+            p.displayScale = value;
             p.updates |= Update::Size;
             p.updates |= Update::Draw;
         }
@@ -174,8 +174,8 @@ namespace tl
                         widget->setGeometry(math::BBox2i(
                             0,
                             0,
-                            p.frameBufferSize.w,
-                            p.frameBufferSize.h));
+                            p.displaySize.w,
+                            p.displaySize.h));
                     }
                 }
                 _p->updates &= ~static_cast<int>(Update::Size);
@@ -205,7 +205,7 @@ namespace tl
             event.style = p.style;
             event.iconLibrary = p.iconLibrary;
             event.fontSystem = p.fontSystem;
-            event.contentScale = p.contentScale;
+            event.displayScale = p.displayScale;
             for (const auto& i : p.topLevelWidgets)
             {
                 if (auto widget = i.lock())
@@ -261,11 +261,11 @@ namespace tl
             event.style = p.style;
             event.iconLibrary = p.iconLibrary;
             event.fontSystem = p.fontSystem;
-            event.contentScale = p.contentScale;
+            event.displayScale = p.displayScale;
             for (auto i : getFontRoleEnums())
             {
                 event.fontInfo[i] = p.style->getFontRole(i);
-                event.fontInfo[i].size *= p.contentScale;
+                event.fontInfo[i].size *= p.displayScale;
                 event.fontMetrics[i] = p.fontSystem->getMetrics(event.fontInfo[i]);
             }
             for (const auto& i : p.topLevelWidgets)
@@ -328,11 +328,11 @@ namespace tl
             event.iconLibrary = p.iconLibrary;
             event.render = render;
             event.fontSystem = p.fontSystem;
-            event.contentScale = p.contentScale;
+            event.displayScale = p.displayScale;
             for (auto i : getFontRoleEnums())
             {
                 event.fontInfo[i] = p.style->getFontRole(i);
-                event.fontInfo[i].size *= p.contentScale;
+                event.fontInfo[i].size *= p.displayScale;
                 event.fontMetrics[i] = p.fontSystem->getMetrics(event.fontInfo[i]);
             }
             event.render->setClipRectEnabled(true);
@@ -342,7 +342,7 @@ namespace tl
                 {
                     _drawEvent(
                         widget,
-                        math::BBox2i(0, 0, p.frameBufferSize.w, p.frameBufferSize.h),
+                        math::BBox2i(0, 0, p.displaySize.w, p.displaySize.h),
                         event);
                 }
             }

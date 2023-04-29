@@ -57,8 +57,8 @@ namespace tl
             IButton::sizeEvent(event);
             TLRENDER_P();
             
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall) * event.contentScale;
-            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall) * event.contentScale;
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall) * event.displayScale;
+            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall) * event.displayScale;
 
             _sizeHint = math::Vector2i();
             p.draw.glyphs.clear();

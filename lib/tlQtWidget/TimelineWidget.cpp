@@ -210,8 +210,8 @@ namespace tl
         {
             TLRENDER_P();
             const float devicePixelRatio = window()->devicePixelRatio();
-            p.eventLoop->setContentScale(devicePixelRatio);
-            p.eventLoop->setSize(imaging::Size(_toUI(w), _toUI(h)));
+            p.eventLoop->setDisplayScale(devicePixelRatio);
+            p.eventLoop->setDisplaySize(imaging::Size(_toUI(w), _toUI(h)));
 
             const math::Vector2i scrollSize = _fromUI(p.scrollArea->getScrollSize());
             if (p.frameView || scrollSize.x < width())

@@ -120,8 +120,8 @@ namespace tl
             IWidget::sizeEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside) * event.contentScale;
-            p.size.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside) * event.displayScale;
+            p.size.border = event.style->getSizeRole(SizeRole::Border) * event.displayScale;
 
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
             const auto fontInfo = event.getFontInfo(p.fontRole);

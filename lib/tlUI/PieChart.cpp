@@ -137,8 +137,8 @@ namespace tl
             IWidget::sizeEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall) * event.contentScale;
-            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall) * event.contentScale;
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall) * event.displayScale;
+            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall) * event.displayScale;
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
 
             // Create the percentage labels.

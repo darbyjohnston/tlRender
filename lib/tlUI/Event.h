@@ -29,7 +29,7 @@ namespace tl
             std::shared_ptr<Style> style;
             std::shared_ptr<IconLibrary> iconLibrary;
             std::shared_ptr<imaging::FontSystem> fontSystem;
-            float contentScale = 1.F;
+            float displayScale = 1.F;
         };
 
         //! Size event.
@@ -38,7 +38,7 @@ namespace tl
             std::shared_ptr<Style> style;
             std::shared_ptr<IconLibrary> iconLibrary;
             std::shared_ptr<imaging::FontSystem> fontSystem;
-            float contentScale = 1.F;
+            float displayScale = 1.F;
             std::map<FontRole, imaging::FontInfo> fontInfo;
             std::map<FontRole, imaging::FontMetrics> fontMetrics;
 
@@ -53,7 +53,7 @@ namespace tl
             std::shared_ptr<IconLibrary> iconLibrary;
             std::shared_ptr<timeline::IRender> render;
             std::shared_ptr<imaging::FontSystem> fontSystem;
-            float contentScale = 1.F;
+            float displayScale = 1.F;
             std::map<FontRole, imaging::FontInfo> fontInfo;
             std::map<FontRole, imaging::FontMetrics> fontMetrics;
 

@@ -118,7 +118,7 @@ namespace tl
             IWidget::sizeEvent(event);
             TLRENDER_P();
 
-            p.size.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
+            p.size.border = event.style->getSizeRole(SizeRole::Border) * event.displayScale;
 
             _sizeHint = math::Vector2i();
             switch (p.scrollAreaType)

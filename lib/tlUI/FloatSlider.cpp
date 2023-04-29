@@ -95,12 +95,12 @@ namespace tl
             IWidget::sizeEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside) * event.contentScale;
-            p.size.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
-            p.size.handle = event.style->getSizeRole(SizeRole::Handle) * event.contentScale;
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside) * event.displayScale;
+            p.size.border = event.style->getSizeRole(SizeRole::Border) * event.displayScale;
+            p.size.handle = event.style->getSizeRole(SizeRole::Handle) * event.displayScale;
 
             auto fontInfo = imaging::FontInfo();
-            fontInfo.size *= event.contentScale;
+            fontInfo.size *= event.displayScale;
             p.size.fontMetrics = event.fontSystem->getMetrics(fontInfo);
 
             _sizeHint.x = event.style->getSizeRole(SizeRole::ScrollArea) + p.size.margin * 2;

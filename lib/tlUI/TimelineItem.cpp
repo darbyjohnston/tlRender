@@ -138,8 +138,8 @@ namespace tl
             ITimelineItem::sizeEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.contentScale;
-            p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.contentScale;
+            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.displayScale;
+            p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.displayScale;
             p.fontMetrics = event.getFontMetrics(p.fontRole);
 
             int childrenHeight = 0;

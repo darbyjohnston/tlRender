@@ -15,7 +15,7 @@ namespace tl
             bool checkable = false;
             std::string icon;
             bool iconInit = false;
-            float iconContentScale = 1.F;
+            float iconScale = 1.F;
             std::future<std::shared_ptr<imaging::Image> > iconFuture;
         };
 
@@ -102,7 +102,7 @@ namespace tl
         void IButton::tickEvent(const TickEvent& event)
         {
             TLRENDER_P();
-            if (event.contentScale != p.iconContentScale)
+            if (event.displayScale != p.iconScale)
             {
                 p.iconInit = true;
                 p.iconFuture = std::future<std::shared_ptr<imaging::Image> >();
@@ -111,8 +111,8 @@ namespace tl
             if (!p.icon.empty() && p.iconInit)
             {
                 p.iconInit = false;
-                p.iconContentScale = event.contentScale;
-                p.iconFuture = event.iconLibrary->request(p.icon, event.contentScale);
+                p.iconScale = event.displayScale;
+                p.iconFuture = event.iconLibrary->request(p.icon, event.displayScale);
             }
             if (p.iconFuture.valid() &&
                 p.iconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)

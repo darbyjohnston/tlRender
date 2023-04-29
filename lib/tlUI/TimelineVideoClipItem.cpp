@@ -149,8 +149,8 @@ namespace tl
             ITimelineItem::sizeEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.contentScale;
-            p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.contentScale;
+            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.displayScale;
+            p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.displayScale;
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
 
             const int thumbnailWidth = (_options.thumbnails && !p.ioInfo.video.empty()) ?
@@ -181,7 +181,7 @@ namespace tl
             ITimelineItem::drawEvent(event);
             if (_geometry.isValid() && _isInsideViewport())
             {
-                const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.contentScale;
+                const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.displayScale;
                 math::BBox2i g = _geometry;
 
                 //event.render->drawMesh(
