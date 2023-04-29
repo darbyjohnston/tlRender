@@ -22,12 +22,16 @@ namespace tl
             float viewZoom = 1.F;
             bool frameView = true;
             std::function<void(const math::Vector2i&, float)> viewPosAndZoomCallback;
-            std::function<void(void)> frameViewCallback;
-            bool mouseInside = false;
-            bool mousePressed = false;
-            math::Vector2i mousePos;
-            math::Vector2i mousePress;
-            math::Vector2i viewPosMousePress;
+            std::function<void(bool)> frameViewCallback;
+
+            struct MouseData
+            {
+                bool press = false;
+                math::Vector2i pressPos;
+                math::Vector2i viewPos;
+            };
+            MouseData mouse;
+
             std::vector<timeline::VideoData> videoData;
             std::vector<std::shared_ptr<observer::ValueObserver<timeline::VideoData> > > videoDataObservers;
         };
@@ -171,6 +175,10 @@ namespace tl
             {
                 p.viewPosAndZoomCallback(p.viewPos, p.viewZoom);
             }
+            if (p.frameViewCallback)
+            {
+                p.frameViewCallback(p.frameView);
+            }
         }
 
         void TimelineViewport::setViewZoom(float zoom, const math::Vector2i& focus)
@@ -187,24 +195,28 @@ namespace tl
             TLRENDER_P();
             p.frameView = true;
             _updates |= Update::Draw;
+            if (p.frameViewCallback)
+            {
+                p.frameViewCallback(p.frameView);
+            }
         }
 
         void TimelineViewport::viewZoom1To1()
         {
             TLRENDER_P();
-            setViewZoom(1.F, p.mouseInside ? p.mousePos : _viewportCenter());
+            setViewZoom(1.F, _viewportCenter());
         }
 
         void TimelineViewport::viewZoomIn()
         {
             TLRENDER_P();
-            setViewZoom(p.viewZoom * 2.F, p.mouseInside ? p.mousePos : _viewportCenter());
+            setViewZoom(p.viewZoom * 2.F, _viewportCenter());
         }
 
         void TimelineViewport::viewZoomOut()
         {
             TLRENDER_P();
-            setViewZoom(p.viewZoom / 2.F, p.mouseInside ? p.mousePos : _viewportCenter());
+            setViewZoom(p.viewZoom / 2.F, _viewportCenter());
         }
 
         void TimelineViewport::sizeEvent(const SizeEvent& event)
@@ -256,6 +268,75 @@ namespace tl
             event.render->setTransform(transformPrev);
         }
 
+        void TimelineViewport::mouseMoveEvent(MouseMoveEvent& event)
+        {
+            TLRENDER_P();
+            event.accept = true;
+            if (p.mouse.press)
+            {
+                p.viewPos.x = p.mouse.viewPos.x + (event.pos.x - p.mouse.pressPos.x);
+                p.viewPos.y = p.mouse.viewPos.y + (event.pos.y - p.mouse.pressPos.y);
+                p.frameView = false;
+                _updates |= Update::Draw;
+                if (p.viewPosAndZoomCallback)
+                {
+                    p.viewPosAndZoomCallback(p.viewPos, p.viewZoom);
+                }
+                if (p.frameViewCallback)
+                {
+                    p.frameViewCallback(p.frameView);
+                }
+            }
+        }
+
+        void TimelineViewport::mousePressEvent(MouseClickEvent& event)
+        {
+            TLRENDER_P();
+            if (0 == event.button &&
+                event.modifiers & static_cast<int>(KeyModifier::Control))
+            {
+                event.accept = true;
+                p.mouse.press = true;
+                p.mouse.pressPos = event.pos;
+                p.mouse.viewPos = p.viewPos;
+            }
+        }
+
+        void TimelineViewport::mouseReleaseEvent(MouseClickEvent& event)
+        {
+            TLRENDER_P();
+            event.accept = true;
+            p.mouse.press = false;
+        }
+
+        void TimelineViewport::keyPressEvent(KeyEvent& event)
+        {
+            TLRENDER_P();
+            switch (event.key)
+            {
+            case Key::_0:
+                event.accept = true;
+                setViewZoom(1.F, event.pos);
+                break;
+            case Key::Equal:
+                event.accept = true;
+                setViewZoom(p.viewZoom * 2.F, event.pos);
+                break;
+            case Key::Minus:
+                event.accept = true;
+                setViewZoom(p.viewZoom / 2.F, event.pos);
+                break;
+            case Key::Backspace:
+                event.accept = true;
+                frameView();
+            }
+        }
+
+        void TimelineViewport::keyReleaseEvent(KeyEvent& event)
+        {
+            event.accept = true;
+        }
+
         imaging::Size TimelineViewport::_renderSize() const
         {
             TLRENDER_P();
@@ -288,10 +369,6 @@ namespace tl
                 if (p.viewPosAndZoomCallback)
                 {
                     p.viewPosAndZoomCallback(p.viewPos, p.viewZoom);
-                }
-                if (p.frameViewCallback)
-                {
-                    p.frameViewCallback();
                 }
             }
         }

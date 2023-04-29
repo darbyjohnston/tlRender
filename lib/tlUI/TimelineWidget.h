@@ -61,11 +61,11 @@ namespace tl
 
             void setGeometry(const math::BBox2i&) override;
             void sizeEvent(const SizeEvent&) override;
-            void enterEvent() override;
-            void leaveEvent() override;
             void mouseMoveEvent(MouseMoveEvent&) override;
             void mousePressEvent(MouseClickEvent&) override;
             void mouseReleaseEvent(MouseClickEvent&) override;
+            void keyPressEvent(KeyEvent&) override;
+            void keyReleaseEvent(KeyEvent&) override;
 
         private:
             void _setScrollPos(const math::Vector2i&);
@@ -78,12 +78,12 @@ namespace tl
                 const math::Vector2i& focus,
                 const math::Vector2i& scrollPos);
 
-            float _timelineScale() const;
+            float _getTimelineScale() const;
             void _setItemOptions(
                 const std::shared_ptr<ui::IWidget>&,
                 const ui::TimelineItemOptions&);
 
-            math::BBox2i _timelineViewport() const;
+            math::BBox2i _getTimelineViewport() const;
             void _setViewport(
                 const std::shared_ptr<ui::IWidget>&,
                 const math::BBox2i&);

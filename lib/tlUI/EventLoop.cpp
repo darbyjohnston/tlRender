@@ -462,22 +462,21 @@ namespace tl
 
         void EventLoop::_hoverUpdate(MouseMoveEvent& event)
         {
-            std::list<std::shared_ptr<IWidget> > hover;
-            _underCursor(event.pos, hover);
-            while (!hover.empty())
+            std::shared_ptr<IWidget> widget;
+            std::list<std::shared_ptr<IWidget> > widgets;
+            _underCursor(event.pos, widgets);
+            while (!widgets.empty())
             {
-                hover.back()->mouseMoveEvent(event);
+                widget = widgets.back();
+                widgets.pop_back();
+                widget->mouseMoveEvent(event);
                 if (event.accept)
                 {
-                    _setHover(hover.back());
                     break;
                 }
-                hover.pop_back();
+                widget = nullptr;
             }
-            if (hover.empty())
-            {
-                _setHover(nullptr);
-            }
+            _setHover(widget);
         }
     }
 }

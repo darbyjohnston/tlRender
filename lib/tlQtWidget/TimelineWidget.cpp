@@ -74,7 +74,6 @@ namespace tl
 
             setMinimumSize(16, 16);
             setMouseTracking(true);
-            setAcceptDrops(true);
             setFocusPolicy(Qt::StrongFocus);
 
             p.style = ui::Style::create(context);
@@ -380,11 +379,149 @@ namespace tl
             p.mouseWheelTimer = now;
         }
 
-        void TimelineWidget::keyPressEvent(QKeyEvent* event)
-        {}
+        namespace
+        {
+            ui::Key fromQt(int key)
+            {
+                ui::Key out = ui::Key::Unknown;
+                switch (key)
+                {
+                case Qt::Key_Space: out = ui::Key::Space; break;
+                case Qt::Key_Apostrophe: out = ui::Key::Apostrophe; break;
+                case Qt::Key_Comma: out = ui::Key::Comma; break;
+                case Qt::Key_Minus: out = ui::Key::Minus; break;
+                case Qt::Key_Period: out = ui::Key::Period; break;
+                case Qt::Key_Slash: out = ui::Key::Slash; break;
+                case Qt::Key_0: out = ui::Key::_0; break;
+                case Qt::Key_1: out = ui::Key::_1; break;
+                case Qt::Key_2: out = ui::Key::_2; break;
+                case Qt::Key_3: out = ui::Key::_3; break;
+                case Qt::Key_4: out = ui::Key::_4; break;
+                case Qt::Key_5: out = ui::Key::_5; break;
+                case Qt::Key_6: out = ui::Key::_6; break;
+                case Qt::Key_7: out = ui::Key::_7; break;
+                case Qt::Key_8: out = ui::Key::_8; break;
+                case Qt::Key_9: out = ui::Key::_9; break;
+                case Qt::Key_Semicolon: out = ui::Key::Semicolon; break;
+                case Qt::Key_Equal: out = ui::Key::Equal; break;
+                case Qt::Key_A: out = ui::Key::A; break;
+                case Qt::Key_B: out = ui::Key::B; break;
+                case Qt::Key_C: out = ui::Key::C; break;
+                case Qt::Key_D: out = ui::Key::D; break;
+                case Qt::Key_E: out = ui::Key::E; break;
+                case Qt::Key_F: out = ui::Key::F; break;
+                case Qt::Key_G: out = ui::Key::G; break;
+                case Qt::Key_H: out = ui::Key::H; break;
+                case Qt::Key_I: out = ui::Key::I; break;
+                case Qt::Key_J: out = ui::Key::J; break;
+                case Qt::Key_K: out = ui::Key::K; break;
+                case Qt::Key_L: out = ui::Key::L; break;
+                case Qt::Key_M: out = ui::Key::M; break;
+                case Qt::Key_N: out = ui::Key::N; break;
+                case Qt::Key_O: out = ui::Key::O; break;
+                case Qt::Key_P: out = ui::Key::P; break;
+                case Qt::Key_Q: out = ui::Key::Q; break;
+                case Qt::Key_R: out = ui::Key::R; break;
+                case Qt::Key_S: out = ui::Key::S; break;
+                case Qt::Key_T: out = ui::Key::T; break;
+                case Qt::Key_U: out = ui::Key::U; break;
+                case Qt::Key_V: out = ui::Key::V; break;
+                case Qt::Key_W: out = ui::Key::W; break;
+                case Qt::Key_X: out = ui::Key::X; break;
+                case Qt::Key_Y: out = ui::Key::Y; break;
+                case Qt::Key_Z: out = ui::Key::Z; break;
+                case Qt::Key_BracketLeft: out = ui::Key::LeftBracket; break;
+                case Qt::Key_Backslash: out = ui::Key::Backslash; break;
+                case Qt::Key_BracketRight: out = ui::Key::RightBracket; break;
+                case Qt::Key_Agrave: out = ui::Key::GraveAccent; break;
+                case Qt::Key_Escape: out = ui::Key::Escape; break;
+                case Qt::Key_Enter: out = ui::Key::Enter; break;
+                case Qt::Key_Tab: out = ui::Key::Tab; break;
+                case Qt::Key_Backspace: out = ui::Key::Backspace; break;
+                case Qt::Key_Insert: out = ui::Key::Insert; break;
+                case Qt::Key_Delete: out = ui::Key::Delete; break;
+                case Qt::Key_Right: out = ui::Key::Right; break;
+                case Qt::Key_Left: out = ui::Key::Left; break;
+                case Qt::Key_Down: out = ui::Key::Down; break;
+                case Qt::Key_Up: out = ui::Key::Up; break;
+                case Qt::Key_PageUp: out = ui::Key::PageUp; break;
+                case Qt::Key_PageDown: out = ui::Key::PageDown; break;
+                case Qt::Key_Home: out = ui::Key::Home; break;
+                case Qt::Key_End: out = ui::Key::End; break;
+                case Qt::Key_CapsLock: out = ui::Key::CapsLock; break;
+                case Qt::Key_ScrollLock: out = ui::Key::ScrollLock; break;
+                case Qt::Key_NumLock: out = ui::Key::NumLock; break;
+                case Qt::Key_Print: out = ui::Key::PrintScreen; break;
+                case Qt::Key_Pause: out = ui::Key::Pause; break;
+                case Qt::Key_F1: out = ui::Key::F1; break;
+                case Qt::Key_F2: out = ui::Key::F2; break;
+                case Qt::Key_F3: out = ui::Key::F3; break;
+                case Qt::Key_F4: out = ui::Key::F4; break;
+                case Qt::Key_F5: out = ui::Key::F5; break;
+                case Qt::Key_F6: out = ui::Key::F6; break;
+                case Qt::Key_F7: out = ui::Key::F7; break;
+                case Qt::Key_F8: out = ui::Key::F8; break;
+                case Qt::Key_F9: out = ui::Key::F9; break;
+                case Qt::Key_F10: out = ui::Key::F10; break;
+                case Qt::Key_F11: out = ui::Key::F11; break;
+                case Qt::Key_F12: out = ui::Key::F12; break;
+                case Qt::Key_Shift: out = ui::Key::LeftShift; break;
+                case Qt::Key_Control: out = ui::Key::LeftControl; break;
+                case Qt::Key_Alt: out = ui::Key::LeftAlt; break;
+                case Qt::Key_Super_L: out = ui::Key::LeftSuper; break;
+                case Qt::Key_Super_R: out = ui::Key::RightSuper; break;
+                }
+                return out;
+            }
+        }
 
-        void TimelineWidget::keyReleaseEvent(QKeyEvent*)
-        {}
+        void TimelineWidget::keyPressEvent(QKeyEvent* event)
+        {
+            TLRENDER_P();
+            switch (event->key())
+            {
+            case Qt::Key::Key_0:
+                event->accept();
+                setViewZoom(1.F, p.mousePos);
+                break;
+            case Qt::Key::Key_Minus:
+                event->accept();
+                setViewZoom(p.itemOptions.scale / 2.F, p.mousePos);
+                break;
+            case Qt::Key::Key_Equal:
+            case Qt::Key::Key_Plus:
+                event->accept();
+                setViewZoom(p.itemOptions.scale * 2.F, p.mousePos);
+                break;
+            case Qt::Key::Key_Backspace:
+                event->accept();
+                _frameView();
+                break;
+            default:
+                event->accept();
+                p.eventLoop->key(fromQt(event->key()), true);
+                break;
+            }
+        }
+
+        void TimelineWidget::keyReleaseEvent(QKeyEvent* event)
+        {
+            TLRENDER_P();
+            switch (event->key())
+            {
+            case Qt::Key::Key_0:
+            case Qt::Key::Key_Minus:
+            case Qt::Key::Key_Equal:
+            case Qt::Key::Key_Plus:
+            case Qt::Key::Key_Backspace:
+                event->accept();
+                break;
+            default:
+                event->accept();
+                p.eventLoop->key(fromQt(event->key()), false);
+                break;
+            }
+        }
 
         void TimelineWidget::timerEvent(QTimerEvent*)
         {

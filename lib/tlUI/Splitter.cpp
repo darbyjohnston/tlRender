@@ -24,7 +24,6 @@ namespace tl
 
             struct MouseData
             {
-                math::Vector2i pos;
                 int hoverHandle = -1;
                 int pressedHandle = -1;
             };
@@ -176,7 +175,6 @@ namespace tl
         {
             TLRENDER_P();
             event.accept = true;
-            p.mouse.pos = event.pos;
             if (p.mouse.pressedHandle != -1)
             {
                 const math::BBox2i g = _geometry;
@@ -184,10 +182,10 @@ namespace tl
                 switch (p.orientation)
                 {
                 case Orientation::Horizontal:
-                    split = (p.mouse.pos.x - g.min.x) / static_cast<float>(g.w());
+                    split = (event.pos.x - g.min.x) / static_cast<float>(g.w());
                     break;
                 case Orientation::Vertical:
-                    split = (p.mouse.pos.y - g.min.y) / static_cast<float>(g.h());
+                    split = (event.pos.y - g.min.y) / static_cast<float>(g.h());
                     break;
                 }
                 split = math::clamp(split, .1F, .9F);
@@ -203,7 +201,7 @@ namespace tl
                 int hoverHandle = -1;
                 for (size_t i = 0; i < p.size.handleGeometry.size(); ++i)
                 {
-                    if (p.size.handleGeometry[i].contains(p.mouse.pos))
+                    if (p.size.handleGeometry[i].contains(event.pos))
                     {
                         hoverHandle = i;
                         break;
@@ -220,12 +218,12 @@ namespace tl
         void Splitter::mousePressEvent(MouseClickEvent& event)
         {
             TLRENDER_P();
-            event.accept = true;
             p.mouse.pressedHandle = -1;
             for (size_t i = 0; i < p.size.handleGeometry.size(); ++i)
             {
-                if (p.size.handleGeometry[i].contains(p.mouse.pos))
+                if (p.size.handleGeometry[i].contains(event.pos))
                 {
+                    event.accept = true;
                     p.mouse.pressedHandle = i;
                     _updates |= Update::Draw;
                     break;

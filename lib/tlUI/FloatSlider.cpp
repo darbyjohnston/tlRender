@@ -203,6 +203,48 @@ namespace tl
             _updates |= Update::Draw;
         }
 
+        void FloatSlider::keyPressEvent(KeyEvent& event)
+        {
+            TLRENDER_P();
+            if (p.model)
+            {
+                switch (event.key)
+                {
+                case Key::Left:
+                case Key::Down:
+                    event.accept = true;
+                    p.model->subtractStep();
+                    break;
+                case Key::Right:
+                case Key::Up:
+                    event.accept = true;
+                    p.model->addStep();
+                    break;
+                case Key::PageUp:
+                    event.accept = true;
+                    p.model->addLargeStep();
+                    break;
+                case Key::PageDown:
+                    event.accept = true;
+                    p.model->subtractLargeStep();
+                    break;
+                case Key::Home:
+                    event.accept = true;
+                    p.model->setValue(p.model->getRange().getMin());
+                    break;
+                case Key::End:
+                    event.accept = true;
+                    p.model->setValue(p.model->getRange().getMax());
+                    break;
+                }
+            }
+        }
+
+        void FloatSlider::keyReleaseEvent(KeyEvent& event)
+        {
+            event.accept = true;
+        }
+
         math::BBox2i FloatSlider::_getSliderGeometry() const
         {
             TLRENDER_P();

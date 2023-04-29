@@ -30,22 +30,18 @@ namespace tl
             p.actions["Frame"] = new QAction(this);
             p.actions["Frame"]->setText(tr("Frame"));
             p.actions["Frame"]->setIcon(QIcon(":/Icons/ViewFrame.svg"));
-            p.actions["Frame"]->setShortcut(QKeySequence(Qt::Key_Backspace));
             p.actions["Frame"]->setToolTip(tr("Frame the view to fit the window"));
 
             p.actions["Zoom1To1"] = new QAction(this);
             p.actions["Zoom1To1"]->setText(tr("Zoom 1:1"));
             p.actions["Zoom1To1"]->setIcon(QIcon(":/Icons/ViewZoom1To1.svg"));
-            p.actions["Zoom1To1"]->setShortcut(QKeySequence(Qt::Key_0));
             p.actions["Zoom1To1"]->setToolTip(tr("Set the view zoom to 1:1"));
 
             p.actions["ZoomIn"] = new QAction(this);
             p.actions["ZoomIn"]->setText(tr("Zoom In"));
-            p.actions["ZoomIn"]->setShortcut(QKeySequence(Qt::Key_Equal));
 
             p.actions["ZoomOut"] = new QAction(this);
             p.actions["ZoomOut"]->setText(tr("Zoom Out"));
-            p.actions["ZoomOut"]->setShortcut(QKeySequence(Qt::Key_Minus));
 
             p.menu = new QMenu;
             p.menu->setTitle(tr("&View"));
