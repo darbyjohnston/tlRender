@@ -53,6 +53,28 @@ namespace tl
             return out;
         }
 
+        void PushButton::setText(const std::string& value)
+        {
+            const bool changed = value != _text;
+            IButton::setText(value);
+            TLRENDER_P();
+            if (changed)
+            {
+                p.draw.glyphs.clear();
+            }
+        }
+
+        void PushButton::setFontRole(FontRole value)
+        {
+            const bool changed = value != _fontRole;
+            IButton::setFontRole(value);
+            TLRENDER_P();
+            if (changed)
+            {
+                p.draw.glyphs.clear();
+            }
+        }
+
         bool PushButton::acceptsKeyFocus() const
         {
             return true;
@@ -95,20 +117,16 @@ namespace tl
 
         void PushButton::clipEvent(bool clipped, const ClipEvent& event)
         {
-            const bool changed = clipped != _clipped;
             IWidget::clipEvent(clipped, event);
             TLRENDER_P();
-            if (changed)
+            if (clipped)
             {
-                if (clipped)
-                {
-                    p.draw.glyphs.clear();
-                }
-                else if (!_text.empty())
-                {
-                    const auto fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
-                    p.draw.glyphs = event.fontSystem->getGlyphs(_text, fontInfo);
-                }
+                p.draw.glyphs.clear();
+            }
+            else if (!_text.empty() && p.draw.glyphs.empty())
+            {
+                const auto fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
+                p.draw.glyphs = event.fontSystem->getGlyphs(_text, fontInfo);
             }
         }
 
@@ -120,13 +138,13 @@ namespace tl
             const math::BBox2i g = _geometry;
 
             event.render->drawMesh(
-                border(g, p.size.border, p.size.margin / 2),
+                border(g, p.size.border),
                 math::Vector2i(),
                 event.style->getColorRole(event.focusWidget == shared_from_this() ?
                     ColorRole::KeyFocus :
                     ColorRole::Border));
 
-            const auto mesh = rect(g.margin(-p.size.border), p.size.margin / 2);
+            const auto mesh = rect(g.margin(-p.size.border));
             const ColorRole colorRole = _checked ?
                 ColorRole::Checked :
                 _buttonRole;

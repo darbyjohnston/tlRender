@@ -33,10 +33,10 @@ namespace tl
             void setChecked(bool);
 
             //! Set the text.
-            void setText(const std::string&);
+            virtual void setText(const std::string&);
 
             //! Set the font role.
-            void setFontRole(FontRole);
+            virtual void setFontRole(FontRole);
 
             //! Set the icon.
             void setIcon(const std::string&);

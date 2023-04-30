@@ -58,6 +58,7 @@ namespace tl
             if (value == p.text)
                 return;
             p.text = value;
+            p.draw.glyphs.clear();
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
@@ -68,6 +69,7 @@ namespace tl
             if (value == p.fontRole)
                 return;
             p.fontRole = value;
+            p.draw.glyphs.clear();
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
@@ -84,20 +86,16 @@ namespace tl
 
         void Label::clipEvent(bool clipped, const ClipEvent& event)
         {
-            const bool changed = clipped != _clipped;
             IWidget::clipEvent(clipped, event);
             TLRENDER_P();
-            if (changed)
+            if (clipped)
             {
-                if (clipped)
-                {
-                    p.draw.glyphs.clear();
-                }
-                else
-                {
-                    const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-                    p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
-                }
+                p.draw.glyphs.clear();
+            }
+            else
+            {
+                const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+                p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
             }
         }
 

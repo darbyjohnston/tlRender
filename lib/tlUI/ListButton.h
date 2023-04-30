@@ -30,6 +30,9 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            void setText(const std::string&) override;
+            void setFontRole(FontRole) override;
+
             bool acceptsKeyFocus() const override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void clipEvent(bool, const ClipEvent&) override;

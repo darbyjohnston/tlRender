@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlUI/IWidget.h>
+#include <tlUI/LineEdit.h>
 #include <tlUI/FloatModel.h>
 
 namespace tl
@@ -12,7 +12,7 @@ namespace tl
     namespace ui
     {
         //! Floating point number editor.
-        class FloatEdit : public IWidget
+        class FloatEdit : public LineEdit
         {
             TLRENDER_NON_COPYABLE(FloatEdit);
 
@@ -43,14 +43,11 @@ namespace tl
             //! Set the display precision.
             void setPrecision(int);
 
-            //! Set the font role.
-            void setFontRole(FontRole);
-
-            void setGeometry(const math::BBox2i&) override;
-            void sizeHintEvent(const SizeHintEvent&) override;
+            void keyPressEvent(KeyEvent&) override;
+            void keyReleaseEvent(KeyEvent&) override;
 
         private:
-            void _textUpdate();
+            void _floatUpdate();
 
             TLRENDER_PRIVATE();
         };

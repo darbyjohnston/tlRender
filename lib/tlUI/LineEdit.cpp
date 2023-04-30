@@ -128,20 +128,16 @@ namespace tl
 
         void LineEdit::clipEvent(bool clipped, const ClipEvent& event)
         {
-            const bool changed = clipped != _clipped;
             IWidget::clipEvent(clipped, event);
             TLRENDER_P();
-            if (changed)
+            if (clipped)
             {
-                if (clipped)
-                {
-                    p.draw.glyphs.clear();
-                }
-                else
-                {
-                    const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-                    p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
-                }
+                p.draw.glyphs.clear();
+            }
+            else if (p.draw.glyphs.empty())
+            {
+                const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+                p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
             }
         }
 
@@ -221,6 +217,7 @@ namespace tl
         void LineEdit::_textUpdate()
         {
             TLRENDER_P();
+            p.draw.glyphs.clear();
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
