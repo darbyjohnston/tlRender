@@ -46,6 +46,7 @@ namespace tl
             void setFontRole(FontRole);
 
             bool acceptsKeyFocus() const override;
+            void clipEvent(bool, const ClipEvent&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void drawEvent(const DrawEvent&) override;
             void enterEvent() override;

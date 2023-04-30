@@ -62,13 +62,11 @@ namespace tl
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
 
             _sizeHint = math::Vector2i();
-            p.draw.glyphs.clear();
             if (!_text.empty())
             {
                 p.size.fontMetrics = event.getFontMetrics(_fontRole);
                 const auto fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
                 p.size.textSize = event.fontSystem->measure(_text, fontInfo);
-                p.draw.glyphs = event.fontSystem->getGlyphs(_text, fontInfo);
 
                 _sizeHint.x = event.fontSystem->measure(_text, fontInfo).x + p.size.margin2 * 2;
                 _sizeHint.y = p.size.fontMetrics.lineHeight;
@@ -82,6 +80,25 @@ namespace tl
             }
             _sizeHint.x += p.size.margin * 2 * 2;
             _sizeHint.y += p.size.margin2 * 2;
+        }
+
+        void PushButton::clipEvent(bool clipped, const ClipEvent& event)
+        {
+            const bool changed = clipped != _clipped;
+            IWidget::clipEvent(clipped, event);
+            TLRENDER_P();
+            if (changed)
+            {
+                if (clipped)
+                {
+                    p.draw.glyphs.clear();
+                }
+                else if (!_text.empty())
+                {
+                    const auto fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
+                    p.draw.glyphs = event.fontSystem->getGlyphs(_text, fontInfo);
+                }
+            }
         }
 
         void PushButton::drawEvent(const DrawEvent& event)

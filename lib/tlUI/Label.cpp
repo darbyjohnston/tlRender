@@ -76,14 +76,29 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
-
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
-
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
-
             _sizeHint.x = event.fontSystem->measure(p.text, fontInfo).x;
             _sizeHint.y = p.size.fontMetrics.lineHeight;
+        }
+
+        void Label::clipEvent(bool clipped, const ClipEvent& event)
+        {
+            const bool changed = clipped != _clipped;
+            IWidget::clipEvent(clipped, event);
+            TLRENDER_P();
+            if (changed)
+            {
+                if (clipped)
+                {
+                    p.draw.glyphs.clear();
+                }
+                else
+                {
+                    const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+                    p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
+                }
+            }
         }
 
         void Label::drawEvent(const DrawEvent& event)

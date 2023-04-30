@@ -31,6 +31,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void sizeHintEvent(const SizeHintEvent&) override;
+            void clipEvent(bool, const ClipEvent&) override;
             void drawEvent(const DrawEvent&) override;
 
         private:

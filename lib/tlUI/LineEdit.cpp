@@ -115,7 +115,6 @@ namespace tl
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             p.size.textSize = event.fontSystem->measure(p.text, fontInfo);
             p.size.formatSize = event.fontSystem->measure(p.format, fontInfo);
-            p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
 
             _sizeHint.x =
                 p.size.formatSize.x +
@@ -123,6 +122,25 @@ namespace tl
             _sizeHint.y =
                 p.size.fontMetrics.lineHeight +
                 p.size.margin * 2;
+        }
+
+        void LineEdit::clipEvent(bool clipped, const ClipEvent& event)
+        {
+            const bool changed = clipped != _clipped;
+            IWidget::clipEvent(clipped, event);
+            TLRENDER_P();
+            if (changed)
+            {
+                if (clipped)
+                {
+                    p.draw.glyphs.clear();
+                }
+                else
+                {
+                    const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+                    p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
+                }
+            }
         }
 
         void LineEdit::drawEvent(const DrawEvent& event)

@@ -100,7 +100,6 @@ namespace tl
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             p.size.textSize = event.fontSystem->measure(p.text, fontInfo);
-            p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
 
             _sizeHint = math::Vector2i();
             for (const auto& child : _children)
@@ -113,6 +112,25 @@ namespace tl
             _sizeHint.y += p.size.margin * 2;
             _sizeHint.x = std::max(_sizeHint.x, p.size.textSize.x);
             _sizeHint.y += p.size.fontMetrics.lineHeight + p.size.spacing;
+        }
+
+        void GroupBox::clipEvent(bool clipped, const ClipEvent& event)
+        {
+            const bool changed = clipped != _clipped;
+            IWidget::clipEvent(clipped, event);
+            TLRENDER_P();
+            if (changed)
+            {
+                if (clipped)
+                {
+                    p.draw.glyphs.clear();
+                }
+                else
+                {
+                    const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+                    p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
+                }
+            }
         }
 
         void GroupBox::drawEvent(const DrawEvent& event)
