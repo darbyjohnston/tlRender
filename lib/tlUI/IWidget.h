@@ -104,7 +104,7 @@ namespace tl
 
             ///@}
 
-            //! Visibility.
+            //! Visibility
             ///@{
 
             //! Is the widget visible?
@@ -115,7 +115,14 @@ namespace tl
 
             ///@}
 
-            //! Events.
+            //! Key Focus
+            ///@{
+
+            virtual bool acceptsKeyFocus() const;
+
+            ///@}
+
+            //! Events
             ///@{
 
             //! Child added event.

@@ -4,8 +4,7 @@
 
 #include <tlUI/IntEdit.h>
 
-#include <tlUI/DrawUtil.h>
-#include <tlUI/GeometryUtil.h>
+#include <tlUI/LineEdit.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -16,26 +15,8 @@ namespace tl
         struct IntEdit::Private
         {
             std::shared_ptr<IntModel> model;
-            std::string text;
-            std::string format;
+            std::shared_ptr<LineEdit> lineEdit;
             int digits = 3;
-            FontRole fontRole = FontRole::Mono;
-
-            struct SizeData
-            {
-                int margin = 0;
-                int border = 0;
-                imaging::FontMetrics fontMetrics;
-                math::Vector2i textSize;
-                math::Vector2i formatSize;
-            };
-            SizeData size;
-
-            struct DrawData
-            {
-                std::vector<std::shared_ptr<imaging::Glyph> > glyphs;
-            };
-            DrawData draw;
 
             std::shared_ptr<observer::ValueObserver<int> > valueObserver;
             std::shared_ptr<observer::ValueObserver<math::IntRange> > rangeObserver;
@@ -47,8 +28,12 @@ namespace tl
         {
             IWidget::_init("tl::ui::IntEdit", context, parent);
             TLRENDER_P();
-            _hAlign = HAlign::Right;
+
+            p.lineEdit = LineEdit::create(context, shared_from_this());
+
             setModel(IntModel::create(context));
+
+            _textUpdate();
         }
 
         IntEdit::IntEdit() :
@@ -107,63 +92,19 @@ namespace tl
 
         void IntEdit::setFontRole(FontRole value)
         {
-            TLRENDER_P();
-            if (value == p.fontRole)
-                return;
-            p.fontRole = value;
-            _updates |= Update::Size;
-            _updates |= Update::Draw;
+            _p->lineEdit->setFontRole(value);
+        }
+
+        void IntEdit::setGeometry(const math::BBox2i& value)
+        {
+            IWidget::setGeometry(value);
+            _p->lineEdit->setGeometry(value);
         }
 
         void IntEdit::sizeEvent(const SizeEvent& event)
         {
             IWidget::sizeEvent(event);
-            TLRENDER_P();
-
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);
-            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
-
-            p.size.fontMetrics = event.getFontMetrics(p.fontRole);
-            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            p.size.textSize = event.fontSystem->measure(p.text, fontInfo);
-            p.size.formatSize = event.fontSystem->measure(p.format, fontInfo);
-            p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
-
-            _sizeHint.x = p.size.formatSize.x + p.size.margin * 2;
-            _sizeHint.y = p.size.fontMetrics.lineHeight + p.size.margin * 2;
-        }
-
-        void IntEdit::drawEvent(const DrawEvent& event)
-        {
-            IWidget::drawEvent(event);
-            TLRENDER_P();
-
-            const math::BBox2i g = align(
-                _geometry,
-                _sizeHint,
-                Stretch::Expanding,
-                Stretch::Expanding,
-                _hAlign,
-                _vAlign);
-
-            event.render->drawMesh(
-                border(g, p.size.border),
-                math::Vector2i(),
-                event.style->getColorRole(ColorRole::Border));
-
-            event.render->drawRect(
-                g.margin(-p.size.border),
-                event.style->getColorRole(ColorRole::Base));
-            
-            const math::BBox2i g2 = g.margin(-p.size.margin);
-            math::Vector2i pos(
-                g2.x() + g2.w() - p.size.textSize.x,
-                g2.y() + g2.h() / 2 - p.size.fontMetrics.lineHeight / 2 +
-                p.size.fontMetrics.ascender);
-            event.render->drawText(
-                p.draw.glyphs,
-                pos,
-                event.style->getColorRole(ColorRole::Text));
+            _sizeHint = _p->lineEdit->getSizeHint();
         }
 
         void IntEdit::_textUpdate()
@@ -179,10 +120,8 @@ namespace tl
                     arg(range.getMin() < 0 ? "-" : "").
                     arg(0, p.digits);
             }
-            p.text = text;
-            p.format = format;
-            _updates |= Update::Size;
-            _updates |= Update::Draw;
+            p.lineEdit->setText(text);
+            p.lineEdit->setFormat(format);
         }
     }
 }

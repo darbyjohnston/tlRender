@@ -80,7 +80,11 @@ namespace tl
 
         void EventLoop::setKeyFocus(const std::shared_ptr<IWidget>& value)
         {
-            _p->keyFocus = value;
+            TLRENDER_P();
+            if (value == p.keyFocus.lock())
+                return;
+            p.keyFocus = value;
+            p.updates |= Update::Draw;
         }
 
         void EventLoop::addWidget(const std::shared_ptr<IWidget>& widget)
@@ -92,11 +96,12 @@ namespace tl
             p.updates |= Update::Draw;
         }
 
-        void EventLoop::key(Key key, bool press)
+        void EventLoop::key(Key key, bool press, int modifiers)
         {
             TLRENDER_P();
             KeyEvent event;
             event.key = key;
+            event.modifiers = modifiers;
             event.pos = p.cursorPos;
             if (press)
             {
@@ -111,7 +116,7 @@ namespace tl
                 if (!event.accept)
                 {
                     std::list<std::shared_ptr<IWidget> > widgets;
-                    _underCursor(p.cursorPos, widgets);
+                    _getUnderCursor(p.cursorPos, widgets);
                     while (!widgets.empty())
                     {
                         auto widget = widgets.back();
@@ -123,6 +128,19 @@ namespace tl
                             break;
                         }
                     }
+                }
+                if (!event.accept && Key::Tab == key)
+                {
+                    auto keyFocus = p.keyFocus.lock();
+                    if (modifiers == static_cast<int>(KeyModifier::Shift))
+                    {
+                        keyFocus = _keyFocusPrev(keyFocus);
+                    }
+                    else
+                    {
+                        keyFocus = _keyFocusNext(keyFocus);
+                    }
+                    setKeyFocus(keyFocus);
                 }
             }
             else if (auto widget = p.keyPress.lock())
@@ -166,7 +184,7 @@ namespace tl
             if (press)
             {
                 std::list<std::shared_ptr<IWidget> > widgets;
-                _underCursor(p.cursorPos, widgets);
+                _getUnderCursor(p.cursorPos, widgets);
                 while (!widgets.empty())
                 {
                     auto widget = widgets.back();
@@ -369,6 +387,7 @@ namespace tl
                 event.fontMetrics[i] = p.fontSystem->getMetrics(
                     p.style->getFontRole(i, p.displayScale));
             }
+            event.focusWidget = p.keyFocus.lock();
             event.render->setClipRectEnabled(true);
             for (const auto& i : p.topLevelWidgets)
             {
@@ -403,7 +422,7 @@ namespace tl
             }
         }
 
-        void EventLoop::_underCursor(
+        void EventLoop::_getUnderCursor(
             const math::Vector2i& pos,
             std::list<std::shared_ptr<IWidget> >& out)
         {
@@ -414,14 +433,14 @@ namespace tl
                 {
                     if (widget->isVisible() && widget->getGeometry().contains(pos))
                     {
-                        _underCursor(widget, pos, out);
+                        _getUnderCursor(widget, pos, out);
                         break;
                     }
                 }
             }
         }
 
-        void EventLoop::_underCursor(
+        void EventLoop::_getUnderCursor(
             const std::shared_ptr<IWidget>& widget,
             const math::Vector2i& pos,
             std::list<std::shared_ptr<IWidget> >& out)
@@ -431,7 +450,7 @@ namespace tl
             {
                 if (child->isVisible() && child->getGeometry().contains(pos))
                 {
-                    _underCursor(child, pos, out);
+                    _getUnderCursor(child, pos, out);
                     break;
                 }
             }
@@ -464,7 +483,7 @@ namespace tl
         {
             std::shared_ptr<IWidget> widget;
             std::list<std::shared_ptr<IWidget> > widgets;
-            _underCursor(event.pos, widgets);
+            _getUnderCursor(event.pos, widgets);
             while (!widgets.empty())
             {
                 widget = widgets.back();
@@ -477,6 +496,101 @@ namespace tl
                 widget = nullptr;
             }
             _setHover(widget);
+        }
+
+        std::shared_ptr<IWidget> EventLoop::_keyFocusNext(const std::shared_ptr<IWidget>& value)
+        {
+            TLRENDER_P();
+            std::shared_ptr<IWidget> out;
+            std::list<std::shared_ptr<IWidget> > widgets;
+            for (const auto& i : p.topLevelWidgets)
+            {
+                if (auto widget = i.lock())
+                {
+                    if (widget->isVisible())
+                    {
+                        _getKeyFocus(widget, widgets);
+                        break;
+                    }
+                }
+            }
+            if (!widgets.empty())
+            {
+                auto i = std::find(widgets.begin(), widgets.end(), value);
+                if (i != widgets.end())
+                {
+                    ++i;
+                    if (i != widgets.end())
+                    {
+                        out = *i;
+                    }
+                    else
+                    {
+                        out = widgets.front();
+                    }
+                }
+                if (!out)
+                {
+                    out = widgets.front();
+                }
+            }
+            return out;
+        }
+
+        std::shared_ptr<IWidget> EventLoop::_keyFocusPrev(const std::shared_ptr<IWidget>& value)
+        {
+            TLRENDER_P();
+            std::shared_ptr<IWidget> out;
+            std::list<std::shared_ptr<IWidget> > widgets;
+            for (const auto& i : p.topLevelWidgets)
+            {
+                if (auto widget = i.lock())
+                {
+                    if (widget->isVisible())
+                    {
+                        _getKeyFocus(widget, widgets);
+                        break;
+                    }
+                }
+            }
+            if (!widgets.empty())
+            {
+                auto i = std::find(widgets.rbegin(), widgets.rend(), value);
+                if (i != widgets.rend())
+                {
+                    ++i;
+                    if (i != widgets.rend())
+                    {
+                        out = *i;
+                    }
+                    else
+                    {
+                        out = widgets.back();
+                    }
+                }
+                if (!out)
+                {
+                    out = widgets.back();
+                }
+            }
+            return out;
+        }
+
+        void EventLoop::_getKeyFocus(
+            const std::shared_ptr<IWidget>& widget,
+            std::list<std::shared_ptr<IWidget> >& out)
+        {
+            if (widget->acceptsKeyFocus())
+            {
+                out.push_back(widget);
+            }
+            for (const auto& child : widget->getChildren())
+            {
+                if (child->isVisible())
+                {
+                    _getKeyFocus(child, out);
+                }
+            }
         }
     }
 }

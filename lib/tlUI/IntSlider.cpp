@@ -5,6 +5,7 @@
 #include <tlUI/IntSlider.h>
 
 #include <tlUI/DrawUtil.h>
+#include <tlUI/EventLoop.h>
 
 namespace tl
 {
@@ -16,7 +17,6 @@ namespace tl
 
             struct SizeData
             {
-                int margin = 0;
                 int border = 0;
                 int handle = 0;
                 imaging::FontMetrics fontMetrics;
@@ -90,12 +90,16 @@ namespace tl
             }
         }
 
+        bool IntSlider::acceptsKeyFocus() const
+        {
+            return true;
+        }
+
         void IntSlider::sizeEvent(const SizeEvent& event)
         {
             IWidget::sizeEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
             p.size.handle = event.style->getSizeRole(SizeRole::Handle, event.displayScale);
 
@@ -105,10 +109,10 @@ namespace tl
 
             _sizeHint.x =
                 event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale) +
-                p.size.margin * 2;
+                p.size.border * 4;
             _sizeHint.y =
                 p.size.fontMetrics.lineHeight +
-                p.size.margin * 2;
+                p.size.border * 4;
         }
 
         void IntSlider::drawEvent(const DrawEvent& event)
@@ -121,7 +125,9 @@ namespace tl
             event.render->drawMesh(
                 border(g, p.size.border),
                 math::Vector2i(),
-                event.style->getColorRole(ColorRole::Border));
+                event.style->getColorRole(event.focusWidget == shared_from_this() ?
+                    ColorRole::Checked :
+                    ColorRole::Border));
 
             event.render->drawRect(
                 g.margin(-p.size.border),
@@ -192,6 +198,10 @@ namespace tl
             {
                 p.model->setValue(_posToValue(p.mouse.pos.x));
             }
+            if (auto eventLoop = getTopLevel()->getEventLoop().lock())
+            {
+                eventLoop->setKeyFocus(shared_from_this());
+            }
             _updates |= Update::Draw;
         }
 
@@ -228,11 +238,11 @@ namespace tl
                     event.accept = true;
                     p.model->subtractLargeStep();
                     break;
-                case Key::Home:
+                case Key::End:
                     event.accept = true;
                     p.model->setValue(p.model->getRange().getMin());
                     break;
-                case Key::End:
+                case Key::Home:
                     event.accept = true;
                     p.model->setValue(p.model->getRange().getMax());
                     break;
@@ -249,10 +259,10 @@ namespace tl
         {
             TLRENDER_P();
             return _geometry.margin(
-                -(p.size.margin + p.size.handle / 2),
-                -p.size.margin,
-                -(p.size.margin + p.size.handle / 2),
-                -p.size.margin);
+                -(p.size.border * 2 + p.size.handle / 2),
+                -p.size.border * 2,
+                -(p.size.border * 2 + p.size.handle / 2),
+                -p.size.border * 2);
         }
 
         int IntSlider::_posToValue(int pos) const

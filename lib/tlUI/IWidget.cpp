@@ -33,7 +33,7 @@ namespace tl
         {
             _name = value;
         }
-        
+
         void IWidget::setBackgroundRole(ColorRole value)
         {
             if (value == _backgroundRole)
@@ -81,7 +81,7 @@ namespace tl
             {
                 out = parent;
                 parent = parent->_parent.lock();
-            }            
+            }
             return out;
         }
 
@@ -142,6 +142,11 @@ namespace tl
             _visible = value;
             _updates |= Update::Size;
             _updates |= Update::Draw;
+        }
+
+        bool IWidget::acceptsKeyFocus() const
+        {
+            return false;
         }
 
         void IWidget::childAddedEvent(const ChildEvent&)

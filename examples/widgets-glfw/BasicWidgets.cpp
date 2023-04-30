@@ -6,6 +6,7 @@
 
 #include <tlUI/ButtonGroup.h>
 #include <tlUI/GroupBox.h>
+#include <tlUI/LineEdit.h>
 #include <tlUI/PushButton.h>
 #include <tlUI/ToolButton.h>
 #include <tlUI/RowLayout.h>
@@ -65,6 +66,10 @@ namespace tl
                         std::cout << "Radio: " << index << " " << value << std::endl;
                     });
 
+                auto lineEdit0 = ui::LineEdit::create(context);
+                auto lineEdit1 = ui::LineEdit::create(context);
+                lineEdit1->setText("Hello world");
+
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
                 auto groupBox = ui::GroupBox::create(context, p.layout);
                 groupBox->setText("Push Buttons");
@@ -78,6 +83,11 @@ namespace tl
                 toolButton0->setParent(hLayout);
                 toolButton1->setParent(hLayout);
                 toolButton2->setParent(hLayout);
+                groupBox = ui::GroupBox::create(context, p.layout);
+                groupBox->setText("Line Edits");
+                hLayout = ui::HorizontalLayout::create(context, groupBox);
+                lineEdit0->setParent(hLayout);
+                lineEdit1->setParent(hLayout);
             }
 
             BasicWidgets::BasicWidgets() :

@@ -46,8 +46,8 @@ namespace tl
             //! Set the font role.
             void setFontRole(FontRole);
 
+            void setGeometry(const math::BBox2i&) override;
             void sizeEvent(const SizeEvent&) override;
-            void drawEvent(const DrawEvent&) override;
 
         private:
             void _textUpdate();

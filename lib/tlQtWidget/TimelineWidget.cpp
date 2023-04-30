@@ -256,6 +256,27 @@ namespace tl
             p.eventLoop->cursorEnter(false);
         }
 
+        namespace
+        {
+            int fromQtModifiers(int value)
+            {
+                int out = 0;
+                if (value & Qt::ShiftModifier)
+                {
+                    out |= static_cast<int>(ui::KeyModifier::Shift);
+                }
+                if (value & Qt::ControlModifier)
+                {
+                    out |= static_cast<int>(ui::KeyModifier::Control);
+                }
+                if (value & Qt::AltModifier)
+                {
+                    out |= static_cast<int>(ui::KeyModifier::Alt);
+                }
+                return out;
+            }
+        }
+
         void TimelineWidget::mousePressEvent(QMouseEvent* event)
         {
             TLRENDER_P();
@@ -283,7 +304,10 @@ namespace tl
                 {
                     button = 1;
                 }
-                p.eventLoop->mouseButton(button, true, 0);
+                p.eventLoop->mouseButton(
+                    button,
+                    true,
+                    fromQtModifiers(event->modifiers()));
                 break;
             }
             case Private::MouseMode::Scroll:
@@ -309,7 +333,10 @@ namespace tl
                 {
                     button = 1;
                 }
-                p.eventLoop->mouseButton(button, false, 0);
+                p.eventLoop->mouseButton(
+                    button,
+                    false,
+                    fromQtModifiers(event->modifiers()));
                 break;
             }
             case Private::MouseMode::Scroll:
@@ -381,7 +408,7 @@ namespace tl
 
         namespace
         {
-            ui::Key fromQt(int key)
+            ui::Key fromQtKey(int key)
             {
                 ui::Key out = ui::Key::Unknown;
                 switch (key)
@@ -499,7 +526,10 @@ namespace tl
                 break;
             default:
                 event->accept();
-                p.eventLoop->key(fromQt(event->key()), true);
+                p.eventLoop->key(
+                    fromQtKey(event->key()),
+                    true,
+                    fromQtModifiers(event->modifiers()));
                 break;
             }
         }
@@ -518,7 +548,10 @@ namespace tl
                 break;
             default:
                 event->accept();
-                p.eventLoop->key(fromQt(event->key()), false);
+                p.eventLoop->key(
+                    fromQtKey(event->key()),
+                    false,
+                    fromQtModifiers(event->modifiers()));
                 break;
             }
         }

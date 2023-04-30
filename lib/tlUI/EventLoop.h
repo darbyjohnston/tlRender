@@ -50,7 +50,7 @@ namespace tl
             void setKeyFocus(const std::shared_ptr<IWidget>&);
 
             //! Handle key presses.
-            void key(Key, bool press);
+            void key(Key, bool press, int modifiers);
 
             //! Handle the cursor entering and leaving.
             void cursorEnter(bool enter);
@@ -91,16 +91,22 @@ namespace tl
                 math::BBox2i clip,
                 const DrawEvent&);
 
-            void _underCursor(
+            void _getUnderCursor(
                 const math::Vector2i&,
                 std::list<std::shared_ptr<IWidget> >&);
-            void _underCursor(
+            void _getUnderCursor(
                 const std::shared_ptr<IWidget>&,
                 const math::Vector2i&,
                 std::list<std::shared_ptr<IWidget> >&);
 
             void _setHover(const std::shared_ptr<IWidget>&);
             void _hoverUpdate(MouseMoveEvent&);
+
+            std::shared_ptr<IWidget> _keyFocusNext(const std::shared_ptr<IWidget>&);
+            std::shared_ptr<IWidget> _keyFocusPrev(const std::shared_ptr<IWidget>&);
+            void _getKeyFocus(
+                const std::shared_ptr<IWidget>&,
+                std::list<std::shared_ptr<IWidget> >&);
 
         private:
             TLRENDER_PRIVATE();

@@ -53,6 +53,7 @@ namespace tl
             std::shared_ptr<imaging::FontSystem> fontSystem;
             float displayScale = 1.F;
             std::map<FontRole, imaging::FontMetrics> fontMetrics;
+            std::shared_ptr<IWidget> focusWidget;
 
             imaging::FontMetrics getFontMetrics(FontRole) const;
         };
@@ -173,13 +174,19 @@ namespace tl
             RightShift,
             RightControl,
             RightAlt,
-            RightSuper
+            RightSuper,
+
+            Count,
+            First = Unknown
         };
+        TLRENDER_ENUM(Key);
+        TLRENDER_ENUM_SERIALIZE(Key);
 
         //! Key event.
         struct KeyEvent
         {
             Key key = Key::Unknown;
+            int modifiers = 0;
             math::Vector2i pos;
             bool accept = false;
         };

@@ -170,6 +170,7 @@ namespace tl
             glfwSetCursorPosCallback(p.glfwWindow, _cursorPosCallback);
             glfwSetMouseButtonCallback(p.glfwWindow, _mouseButtonCallback);
             glfwSetKeyCallback(p.glfwWindow, _keyCallback);
+            //glfwSetCharCallback(p.glfwWindow, _charCallback);
             glfwShowWindow(p.glfwWindow);
 
             // Initialize the user interface.
@@ -368,7 +369,7 @@ namespace tl
 
         namespace
         {
-            ui::Key toKey(int key)
+            ui::Key fromGLFWKey(int key)
             {
                 ui::Key out = ui::Key::Unknown;
                 switch (key)
@@ -463,21 +464,50 @@ namespace tl
                 }
                 return out;
             }
+
+            int fromGLFWModifiers(int value)
+            {
+                int out = 0;
+                if (value & GLFW_MOD_SHIFT)
+                {
+                    out |= static_cast<int>(ui::KeyModifier::Shift);
+                }
+                if (value & GLFW_MOD_CONTROL)
+                {
+                    out |= static_cast<int>(ui::KeyModifier::Control);
+                }
+                if (value & GLFW_MOD_ALT)
+                {
+                    out |= static_cast<int>(ui::KeyModifier::Alt);
+                }
+                return out;
+            }
         }
 
-        void IApp::_keyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int mods)
+        void IApp::_keyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int modifiers)
         {
             IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
             switch (action)
             {
             case GLFW_PRESS:
             case GLFW_REPEAT:
-                app->_p->eventLoop->key(toKey(key), true);
+                app->_p->eventLoop->key(
+                    fromGLFWKey(key),
+                    true,
+                    fromGLFWModifiers(modifiers));
                 break;
             case GLFW_RELEASE:
-                app->_p->eventLoop->key(toKey(key), false);
+                app->_p->eventLoop->key(
+                    fromGLFWKey(key),
+                    false,
+                    fromGLFWModifiers(modifiers));
                 break;
             }
         }
+
+        /*void IApp::_charCallback(GLFWwindow* glfwWindow, unsigned int c)
+        {
+            IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
+        }*/
     }
 }

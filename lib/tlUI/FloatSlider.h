@@ -37,6 +37,7 @@ namespace tl
             //! Set the floating point model.
             void setModel(const std::shared_ptr<FloatModel>&);
 
+            bool acceptsKeyFocus() const override;
             void sizeEvent(const SizeEvent&) override;
             void drawEvent(const DrawEvent&) override;
             void enterEvent() override;

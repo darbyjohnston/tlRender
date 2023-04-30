@@ -37,6 +37,7 @@ namespace tl
             //! Set the integer model.
             void setModel(const std::shared_ptr<IntModel>&);
 
+            bool acceptsKeyFocus() const override;
             void sizeEvent(const SizeEvent&) override;
             void drawEvent(const DrawEvent&) override;
             void enterEvent() override;
