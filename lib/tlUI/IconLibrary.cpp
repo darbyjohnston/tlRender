@@ -40,6 +40,8 @@ namespace
 #include "Resources/CompareWipe_96.h"
 #include "Resources/Copy_192.h"
 #include "Resources/Copy_96.h"
+#include "Resources/Decrement_192.h"
+#include "Resources/Decrement_96.h"
 #include "Resources/Devices_192.h"
 #include "Resources/Devices_96.h"
 #include "Resources/DockWidgetClose_192.h"
@@ -64,6 +66,8 @@ namespace
 #include "Resources/FrameNext_96.h"
 #include "Resources/FramePrev_192.h"
 #include "Resources/FramePrev_96.h"
+#include "Resources/Increment_192.h"
+#include "Resources/Increment_96.h"
 #include "Resources/Info_192.h"
 #include "Resources/Info_96.h"
 #include "Resources/Messages_192.h"
@@ -161,6 +165,7 @@ namespace tl
             p.iconData["CompareVertical_96.png"] = CompareVertical_96_png;
             p.iconData["CompareWipe_96.png"] = CompareWipe_96_png;
             p.iconData["Copy_96.png"] = Copy_96_png;
+            p.iconData["Decrement_96.png"] = Decrement_96_png;
             p.iconData["Devices_96.png"] = Devices_96_png;
             p.iconData["DockWidgetClose_96.png"] = DockWidgetClose_96_png;
             p.iconData["DockWidgetNormal_96.png"] = DockWidgetNormal_96_png;
@@ -173,6 +178,7 @@ namespace tl
             p.iconData["Files_96.png"] = Files_96_png;
             p.iconData["FrameNext_96.png"] = FrameNext_96_png;
             p.iconData["FramePrev_96.png"] = FramePrev_96_png;
+            p.iconData["Increment_96.png"] = Increment_96_png;
             p.iconData["Info_96.png"] = Info_96_png;
             p.iconData["Messages_96.png"] = Messages_96_png;
             p.iconData["Mute_96.png"] = Mute_96_png;
@@ -206,6 +212,7 @@ namespace tl
             p.iconData["CompareVertical_192.png"] = CompareVertical_192_png;
             p.iconData["CompareWipe_192.png"] = CompareWipe_192_png;
             p.iconData["Copy_192.png"] = Copy_192_png;
+            p.iconData["Decrement_192.png"] = Decrement_192_png;
             p.iconData["Devices_192.png"] = Devices_192_png;
             p.iconData["DockWidgetClose_192.png"] = DockWidgetClose_192_png;
             p.iconData["DockWidgetNormal_192.png"] = DockWidgetNormal_192_png;
@@ -218,6 +225,7 @@ namespace tl
             p.iconData["Files_192.png"] = Files_192_png;
             p.iconData["FrameNext_192.png"] = FrameNext_192_png;
             p.iconData["FramePrev_192.png"] = FramePrev_192_png;
+            p.iconData["Increment_192.png"] = Increment_192_png;
             p.iconData["Info_192.png"] = Info_192_png;
             p.iconData["Messages_192.png"] = Messages_192_png;
             p.iconData["Mute_192.png"] = Mute_192_png;

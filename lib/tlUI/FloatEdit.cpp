@@ -4,6 +4,9 @@
 
 #include <tlUI/FloatEdit.h>
 
+#include <tlUI/IncButton.h>
+#include <tlUI/LineEdit.h>
+
 #include <tlCore/StringFormat.h>
 
 namespace tl
@@ -13,6 +16,9 @@ namespace tl
         struct FloatEdit::Private
         {
             std::shared_ptr<FloatModel> model;
+            std::shared_ptr<LineEdit> lineEdit;
+            std::shared_ptr<IncButton> incrementButton;
+            std::shared_ptr<IncButton> decrementButton;
             int digits = 3;
             int precision = 2;
 
@@ -24,13 +30,16 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            LineEdit::_init(context, parent);
-            _name = "tl::ui::FloatEdit";
+            IWidget::_init("tl::ui::FloatEdit", context, parent);
             TLRENDER_P();
+
+            p.lineEdit = LineEdit::create(context, shared_from_this());
+            p.incrementButton = IncButton::create(context, shared_from_this());
+            p.decrementButton = IncButton::create(context, shared_from_this());
 
             setModel(FloatModel::create(context));
 
-            _floatUpdate();
+            _textUpdate();
         }
 
         FloatEdit::FloatEdit() :
@@ -66,16 +75,16 @@ namespace tl
                     p.model->observeValue(),
                     [this](float)
                     {
-                        _floatUpdate();
+                        _textUpdate();
                     });
                 p.rangeObserver = observer::ValueObserver<math::FloatRange>::create(
                     p.model->observeRange(),
                     [this](const math::FloatRange&)
                     {
-                        _floatUpdate();
+                        _textUpdate();
                     });
             }
-            _floatUpdate();
+            _textUpdate();
         }
 
         void FloatEdit::setDigits(int value)
@@ -84,7 +93,7 @@ namespace tl
             if (value == p.digits)
                 return;
             p.digits = value;
-            _floatUpdate();
+            _textUpdate();
         }
 
         void FloatEdit::setPrecision(int value)
@@ -93,44 +102,45 @@ namespace tl
             if (value == p.precision)
                 return;
             p.precision = value;
-            _floatUpdate();
+            _textUpdate();
         }
 
-        void FloatEdit::keyPressEvent(KeyEvent& event)
+        void FloatEdit::setFontRole(FontRole value)
         {
-            LineEdit::keyPressEvent(event);
+            _p->lineEdit->setFontRole(value);
+        }
+
+        void FloatEdit::setGeometry(const math::BBox2i& value)
+        {
+            IWidget::setGeometry(value);
             TLRENDER_P();
-            if (!event.accept)
-            {
-                switch (event.key)
-                {
-                case Key::Down:
-                    event.accept = true;
-                    p.model->subtractStep();
-                    break;
-                case Key::Up:
-                    event.accept = true;
-                    p.model->addStep();
-                    break;
-                case Key::PageUp:
-                    event.accept = true;
-                    p.model->addLargeStep();
-                    break;
-                case Key::PageDown:
-                    event.accept = true;
-                    p.model->subtractLargeStep();
-                    break;
-                }
-            }
+            math::BBox2i g = value;
+            const int buttonsWidth = std::max(
+                p.incrementButton->getSizeHint().x,
+                p.decrementButton->getSizeHint().x);
+            g.max.x -= buttonsWidth;
+            p.lineEdit->setGeometry(g);
+            g = value;
+            g.min.x = g.max.x - buttonsWidth;
+            g.max.y = g.min.y + g.h() / 2;
+            p.incrementButton->setGeometry(g);
+            g.min.y = g.max.y;
+            g.max.y = value.max.y;
+            p.decrementButton->setGeometry(g);
         }
 
-        void FloatEdit::keyReleaseEvent(KeyEvent& event)
+        void FloatEdit::sizeHintEvent(const SizeHintEvent& event)
         {
-            LineEdit::keyPressEvent(event);
-            event.accept = true;
+            IWidget::sizeHintEvent(event);
+            TLRENDER_P();
+            _sizeHint = p.lineEdit->getSizeHint();
+            const int buttonsWidth = std::max(
+                p.incrementButton->getSizeHint().x,
+                p.decrementButton->getSizeHint().x);
+            _sizeHint.x += buttonsWidth;
         }
 
-        void FloatEdit::_floatUpdate()
+        void FloatEdit::_textUpdate()
         {
             TLRENDER_P();
             std::string text;
@@ -143,8 +153,8 @@ namespace tl
                     arg(range.getMin() < 0 ? "-" : "").
                     arg(0.F, p.precision, p.precision + 1 + p.digits);
             }
-            setText(text);
-            setFormat(format);
+            p.lineEdit->setText(text);
+            p.lineEdit->setFormat(format);
         }
     }
 }

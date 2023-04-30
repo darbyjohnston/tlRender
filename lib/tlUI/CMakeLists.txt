@@ -15,6 +15,7 @@ set(HEADERS
     IWidgetInline.h
     IWidgetOptions.h
     IconLibrary.h
+    IncButton.h
     IntEdit.h
     IntModel.h
     IntSlider.h
@@ -57,6 +58,7 @@ set(SOURCE
     IWidget.cpp
     IWidgetOptions.cpp
     IconLibrary.cpp
+    IncButton.cpp
     IntEdit.cpp
     IntModel.cpp
     IntSlider.cpp

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlUI/LineEdit.h>
+#include <tlUI/IWidget.h>
 #include <tlUI/IntModel.h>
 
 namespace tl
@@ -12,7 +12,7 @@ namespace tl
     namespace ui
     {
         //! Integer number editor.
-        class IntEdit : public LineEdit
+        class IntEdit : public IWidget
         {
             TLRENDER_NON_COPYABLE(IntEdit);
 
@@ -40,11 +40,14 @@ namespace tl
             //! Set the number of digits to display.
             void setDigits(int);
 
-            void keyPressEvent(KeyEvent&) override;
-            void keyReleaseEvent(KeyEvent&) override;
+            //! Set the font role.
+            void setFontRole(FontRole);
+
+            void setGeometry(const math::BBox2i&) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
 
         private:
-            void _intUpdate();
+            void _textUpdate();
 
             TLRENDER_PRIVATE();
         };

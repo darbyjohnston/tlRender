@@ -4,6 +4,8 @@
 
 #include <tlUI/IntEdit.h>
 
+#include <tlUI/LineEdit.h>
+
 #include <tlCore/StringFormat.h>
 
 namespace tl
@@ -13,6 +15,7 @@ namespace tl
         struct IntEdit::Private
         {
             std::shared_ptr<IntModel> model;
+            std::shared_ptr<LineEdit> lineEdit;
             int digits = 3;
 
             std::shared_ptr<observer::ValueObserver<int> > valueObserver;
@@ -23,13 +26,14 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            LineEdit::_init(context, parent);
-            _name = "tl::ui::IntEdit";
+            IWidget::_init("tl::ui::IntEdit", context, parent);
             TLRENDER_P();
+
+            p.lineEdit = LineEdit::create(context, shared_from_this());
 
             setModel(IntModel::create(context));
 
-            _intUpdate();
+            _textUpdate();
         }
 
         IntEdit::IntEdit() :
@@ -65,16 +69,16 @@ namespace tl
                     p.model->observeValue(),
                     [this](int)
                     {
-                        _intUpdate();
+                        _textUpdate();
                     });
                 p.rangeObserver = observer::ValueObserver<math::IntRange>::create(
                     p.model->observeRange(),
                     [this](const math::IntRange&)
                     {
-                        _intUpdate();
+                        _textUpdate();
                     });
             }
-            _intUpdate();
+            _textUpdate();
         }
 
         void IntEdit::setDigits(int value)
@@ -83,44 +87,27 @@ namespace tl
             if (value == p.digits)
                 return;
             p.digits = value;
-            _intUpdate();
+            _textUpdate();
         }
 
-        void IntEdit::keyPressEvent(KeyEvent& event)
+        void IntEdit::setFontRole(FontRole value)
         {
-            LineEdit::keyPressEvent(event);
-            TLRENDER_P();
-            if (!event.accept)
-            {
-                switch (event.key)
-                {
-                case Key::Down:
-                    event.accept = true;
-                    p.model->subtractStep();
-                    break;
-                case Key::Up:
-                    event.accept = true;
-                    p.model->addStep();
-                    break;
-                case Key::PageUp:
-                    event.accept = true;
-                    p.model->addLargeStep();
-                    break;
-                case Key::PageDown:
-                    event.accept = true;
-                    p.model->subtractLargeStep();
-                    break;
-                }
-            }
+            _p->lineEdit->setFontRole(value);
         }
 
-        void IntEdit::keyReleaseEvent(KeyEvent& event)
+        void IntEdit::setGeometry(const math::BBox2i& value)
         {
-            LineEdit::keyPressEvent(event);
-            event.accept = true;
+            IWidget::setGeometry(value);
+            _p->lineEdit->setGeometry(value);
         }
 
-        void IntEdit::_intUpdate()
+        void IntEdit::sizeHintEvent(const SizeHintEvent& event)
+        {
+            IWidget::sizeHintEvent(event);
+            _sizeHint = _p->lineEdit->getSizeHint();
+        }
+
+        void IntEdit::_textUpdate()
         {
             TLRENDER_P();
             std::string text;
@@ -133,8 +120,8 @@ namespace tl
                     arg(range.getMin() < 0 ? "-" : "").
                     arg(0, p.digits);
             }
-            setText(text);
-            setFormat(format);
+            p.lineEdit->setText(text);
+            p.lineEdit->setFormat(format);
         }
     }
 }

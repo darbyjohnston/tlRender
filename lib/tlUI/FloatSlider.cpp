@@ -223,20 +223,20 @@ namespace tl
                 case Key::Left:
                 case Key::Down:
                     event.accept = true;
-                    p.model->subtractStep();
+                    p.model->decrementStep();
                     break;
                 case Key::Right:
                 case Key::Up:
                     event.accept = true;
-                    p.model->addStep();
+                    p.model->incrementStep();
                     break;
                 case Key::PageUp:
                     event.accept = true;
-                    p.model->addLargeStep();
+                    p.model->incrementLargeStep();
                     break;
                 case Key::PageDown:
                     event.accept = true;
-                    p.model->subtractLargeStep();
+                    p.model->decrementLargeStep();
                     break;
                 case Key::End:
                     event.accept = true;

@@ -58,15 +58,15 @@ namespace tl
 
             void setStep(float);
 
-            void addStep();
-            void subtractStep();
+            void incrementStep();
+            void decrementStep();
 
             float getLargeStep() const;
 
             void setLargeStep(float);
 
-            void addLargeStep();
-            void subtractLargeStep();
+            void incrementLargeStep();
+            void decrementLargeStep();
 
             ///@}
 
