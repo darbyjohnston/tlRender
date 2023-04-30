@@ -74,7 +74,7 @@ namespace tl
             p.sizeRoles[SizeRole::Margin] = 10;
             p.sizeRoles[SizeRole::MarginSmall] = 5;
             p.sizeRoles[SizeRole::MarginLarge] = 20;
-            p.sizeRoles[SizeRole::MarginInside] = 1;
+            p.sizeRoles[SizeRole::MarginInside] = 2;
             p.sizeRoles[SizeRole::Spacing] = 10;
             p.sizeRoles[SizeRole::SpacingSmall] = 5;
             p.sizeRoles[SizeRole::SpacingLarge] = 20;

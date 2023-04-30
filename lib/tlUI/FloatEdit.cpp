@@ -22,6 +22,12 @@ namespace tl
             int digits = 3;
             int precision = 2;
 
+            struct SizeData
+            {
+                int margin = 0;
+            };
+            SizeData size;
+            
             std::shared_ptr<observer::ValueObserver<float> > valueObserver;
             std::shared_ptr<observer::ValueObserver<math::FloatRange> > rangeObserver;
         };
@@ -34,8 +40,12 @@ namespace tl
             TLRENDER_P();
 
             p.lineEdit = LineEdit::create(context, shared_from_this());
+            
             p.incrementButton = IncButton::create(context, shared_from_this());
+            p.incrementButton->setIcon("Increment");
+
             p.decrementButton = IncButton::create(context, shared_from_this());
+            p.decrementButton->setIcon("Decrement");
 
             setModel(FloatModel::create(context));
 
@@ -118,7 +128,7 @@ namespace tl
             const int buttonsWidth = std::max(
                 p.incrementButton->getSizeHint().x,
                 p.decrementButton->getSizeHint().x);
-            g.max.x -= buttonsWidth;
+            g.max.x -= p.size.margin + buttonsWidth;
             p.lineEdit->setGeometry(g);
             g = value;
             g.min.x = g.max.x - buttonsWidth;
@@ -133,11 +143,14 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
+            
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);
+            
             _sizeHint = p.lineEdit->getSizeHint();
             const int buttonsWidth = std::max(
                 p.incrementButton->getSizeHint().x,
                 p.decrementButton->getSizeHint().x);
-            _sizeHint.x += buttonsWidth;
+            _sizeHint.x += p.size.margin + buttonsWidth;
         }
 
         void FloatEdit::_textUpdate()

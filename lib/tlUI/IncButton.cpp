@@ -22,6 +22,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IButton::_init("tl::ui::IncButton", context, parent);
+            setButtonRole(ColorRole::None);
         }
 
         IncButton::IncButton() :
