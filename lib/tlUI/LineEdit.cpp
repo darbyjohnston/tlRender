@@ -169,7 +169,7 @@ namespace tl
                 g.margin(-p.size.border),
                 event.style->getColorRole(ColorRole::Base));
 
-            const math::BBox2i g2 = g.margin(-p.size.margin);
+            const math::BBox2i g2 = g.margin(-(p.size.border + p.size.margin));
             math::Vector2i pos(
                 g2.x(),
                 g2.y() + g2.h() / 2 - p.size.fontMetrics.lineHeight / 2 +

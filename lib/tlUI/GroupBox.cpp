@@ -81,7 +81,7 @@ namespace tl
             TLRENDER_P();
             math::BBox2i g = value;
             g.min.y += p.size.fontMetrics.lineHeight + p.size.spacing;
-            g = g.margin(-p.size.margin);
+            g = g.margin(-(p.size.border + p.size.margin));
             for (const auto& child : _children)
             {
                 child->setGeometry(g);

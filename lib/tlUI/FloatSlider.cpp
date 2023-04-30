@@ -16,6 +16,7 @@ namespace tl
 
             struct SizeData
             {
+                int margin = 0;
                 int border = 0;
                 int handle = 0;
                 imaging::FontMetrics fontMetrics;
@@ -99,6 +100,7 @@ namespace tl
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
             p.size.handle = event.style->getSizeRole(SizeRole::Handle, event.displayScale);
 
@@ -108,10 +110,12 @@ namespace tl
 
             _sizeHint.x =
                 event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale) +
-                p.size.border * 4;
+                p.size.margin * 2 +
+                p.size.border * 2;
             _sizeHint.y =
                 p.size.fontMetrics.lineHeight +
-                p.size.border * 4;
+                p.size.margin * 2 +
+                p.size.border * 2;
         }
 
         void FloatSlider::drawEvent(const DrawEvent& event)
@@ -255,10 +259,10 @@ namespace tl
         {
             TLRENDER_P();
             return _geometry.margin(
-                -(p.size.border * 2 + p.size.handle / 2),
-                -p.size.border * 2,
-                -(p.size.border * 2 + p.size.handle / 2),
-                -p.size.border * 2);
+                -(p.size.border + p.size.margin + p.size.handle / 2),
+                -(p.size.border + p.size.margin),
+                -(p.size.border + p.size.margin + p.size.handle / 2),
+                -(p.size.border + p.size.margin));
         }
 
         float FloatSlider::_posToValue(int pos) const

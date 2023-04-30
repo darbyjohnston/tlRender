@@ -81,13 +81,13 @@ namespace tl
             if (_iconImage)
             {
                 _sizeHint.x += _iconImage->getWidth();
-                _sizeHint.y = std::max(
-                    _sizeHint.y,
-                    static_cast<int>(_iconImage->getHeight()));
                 if (!_text.empty())
                 {
                     _sizeHint.x += p.size.spacing;
                 }
+                _sizeHint.y = std::max(
+                    _sizeHint.y,
+                    static_cast<int>(_iconImage->getHeight()));
             }
             _sizeHint.x += p.size.margin * 2 + p.size.border * 2;
             _sizeHint.y += p.size.margin2 * 2 + p.size.border * 2;
@@ -153,7 +153,7 @@ namespace tl
                     event.style->getColorRole(ColorRole::Hover));
             }
 
-            int x = g.x() + p.size.margin + p.size.border;
+            int x = g.x() + p.size.border + p.size.margin;
             if (_iconImage)
             {
                 const auto iconSize = _iconImage->getSize();
@@ -171,7 +171,7 @@ namespace tl
             {
                 const math::Vector2i pos(
                     x +
-                    (g.max.x - p.size.margin - x) / 2 - p.size.textSize.x / 2,
+                    (g.max.x - p.size.border - p.size.margin - x) / 2 - p.size.textSize.x / 2,
                     g.y() +
                     g.h() / 2 - p.size.textSize.y / 2 +
                     p.size.fontMetrics.ascender);

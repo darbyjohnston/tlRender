@@ -98,6 +98,7 @@ namespace tl
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
+            const math::BBox2i g = value.margin(-p.size.border);
             const math::Vector2i& scrollPos = p.scrollPos->get();
             math::Vector2i scrollSize;
             for (const auto& child : _children)
@@ -105,10 +106,10 @@ namespace tl
                 const math::Vector2i sizeHint = child->getSizeHint();
                 scrollSize.x = std::max(scrollSize.x, sizeHint.x);
                 scrollSize.y = std::max(scrollSize.y, sizeHint.y);
-                math::BBox2i g;
-                g.min = value.min - scrollPos;
-                g.max = value.min + sizeHint - scrollPos;
-                child->setGeometry(g);
+                math::BBox2i g2;
+                g2.min = g.min - scrollPos;
+                g2.max = g.min + sizeHint - scrollPos;
+                child->setGeometry(g2);
             }
             p.scrollSize->setIfChanged(scrollSize);
         }

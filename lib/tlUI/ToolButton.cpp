@@ -79,13 +79,13 @@ namespace tl
             if (_iconImage)
             {
                 _sizeHint.x += _iconImage->getWidth();
-                _sizeHint.y = std::max(
-                    _sizeHint.y,
-                    static_cast<int>(_iconImage->getHeight()));
                 if (!_text.empty())
                 {
                     _sizeHint.x += p.size.spacing;
                 }
+                _sizeHint.y = std::max(
+                    _sizeHint.y,
+                    static_cast<int>(_iconImage->getHeight()));
             }
             _sizeHint.x += p.size.margin * 2 + p.size.border * 2;
             _sizeHint.y += p.size.margin * 2 + p.size.border * 2;
