@@ -52,9 +52,9 @@ namespace tl
             return out;
         }
 
-        void PushButton::sizeEvent(const SizeEvent& event)
+        void PushButton::sizeHintEvent(const SizeHintEvent& event)
         {
-            IButton::sizeEvent(event);
+            IButton::sizeHintEvent(event);
             TLRENDER_P();
 
             p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);

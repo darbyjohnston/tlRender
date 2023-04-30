@@ -36,15 +36,15 @@ namespace tl
             void setOptions(const TimelineItemOptions&) override;
             void setViewport(const math::BBox2i&) override;
 
-            void tickEvent(const ui::TickEvent&) override;
-            void sizeEvent(const ui::SizeEvent&) override;
-            void drawEvent(const ui::DrawEvent&) override;
+            void tickEvent(const TickEvent&) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
+            void drawEvent(const DrawEvent&) override;
 
         private:
             void _textUpdate();
 
-            void _drawInfo(const ui::DrawEvent&);
-            void _drawThumbnails(const ui::DrawEvent&);
+            void _drawInfo(const DrawEvent&);
+            void _drawThumbnails(const DrawEvent&);
 
             TLRENDER_PRIVATE();
         };

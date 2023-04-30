@@ -56,7 +56,7 @@ namespace tl
             //! Set the size multiplier.
             void setSizeMult(int);
 
-            void sizeEvent(const SizeEvent&) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
             void drawEvent(const DrawEvent&) override;
 
         private:

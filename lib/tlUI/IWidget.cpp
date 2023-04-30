@@ -4,6 +4,8 @@
 
 #include <tlUI/IWidget.h>
 
+#include <tlUI/EventLoop.h>
+
 namespace tl
 {
     namespace ui
@@ -140,13 +142,69 @@ namespace tl
             if (value == _visible)
                 return;
             _visible = value;
+            if (!_visible)
+            {
+                releaseFocus();
+            }
             _updates |= Update::Size;
             _updates |= Update::Draw;
+        }
+
+        bool IWidget::isClipped() const
+        {
+            return _clipped;
         }
 
         bool IWidget::acceptsKeyFocus() const
         {
             return false;
+        }
+
+        bool IWidget::hasKeyFocus() const
+        {
+            bool out = false;
+            if (auto topLevel = getTopLevel())
+            {
+                if (auto eventLoop = topLevel->getEventLoop().lock())
+                {
+                    if (auto keyFocus = eventLoop->getKeyFocus().lock())
+                    {
+                        if (keyFocus == shared_from_this())
+                        {
+                            out = true;
+                        }
+                    }
+                }
+            }
+            return out;
+        }
+
+        void IWidget::takeFocus()
+        {
+            if (auto topLevel = getTopLevel())
+            {
+                if (auto eventLoop = topLevel->getEventLoop().lock())
+                {
+                    eventLoop->setKeyFocus(shared_from_this());
+                }
+            }
+        }
+
+        void IWidget::releaseFocus()
+        {
+            if (auto topLevel = getTopLevel())
+            {
+                if (auto eventLoop = topLevel->getEventLoop().lock())
+                {
+                    if (auto keyFocus = eventLoop->getKeyFocus().lock())
+                    {
+                        if (keyFocus == shared_from_this())
+                        {
+                            eventLoop->setKeyFocus(nullptr);
+                        }
+                    }
+                }
+            }
         }
 
         void IWidget::childAddedEvent(const ChildEvent&)
@@ -158,9 +216,18 @@ namespace tl
         void IWidget::tickEvent(const TickEvent&)
         {}
 
-        void IWidget::sizeEvent(const SizeEvent&)
+        void IWidget::sizeHintEvent(const SizeHintEvent&)
         {
             _updates &= ~static_cast<int>(Update::Size);
+        }
+
+        void IWidget::clipEvent(bool clipped, const ClipEvent& event)
+        {
+            if (clipped && clipped != _clipped)
+            {
+                releaseFocus();
+            }
+            _clipped = clipped;
         }
 
         void IWidget::drawEvent(const DrawEvent& event)

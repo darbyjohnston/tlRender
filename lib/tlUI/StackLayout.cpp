@@ -71,9 +71,9 @@ namespace tl
             _updates |= Update::Size;
         }
 
-        void StackLayout::sizeEvent(const SizeEvent& event)
+        void StackLayout::sizeHintEvent(const SizeHintEvent& event)
         {
-            IWidget::sizeEvent(event);
+            IWidget::sizeHintEvent(event);
             for (const auto& child : _children)
             {
                 const math::Vector2i& sizeHint = child->getSizeHint();

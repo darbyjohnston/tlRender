@@ -5,7 +5,6 @@
 #include <tlUI/LineEdit.h>
 
 #include <tlUI/DrawUtil.h>
-#include <tlUI/EventLoop.h>
 #include <tlUI/GeometryUtil.h>
 
 namespace tl
@@ -104,9 +103,9 @@ namespace tl
             return true;
         }
 
-        void LineEdit::sizeEvent(const SizeEvent& event)
+        void LineEdit::sizeHintEvent(const SizeHintEvent& event)
         {
-            IWidget::sizeEvent(event);
+            IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
             p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
@@ -173,10 +172,7 @@ namespace tl
         void LineEdit::mousePressEvent(MouseClickEvent& event)
         {
             event.accept = true;
-            if (auto eventLoop = getTopLevel()->getEventLoop().lock())
-            {
-                eventLoop->setKeyFocus(shared_from_this());
-            }
+            takeFocus();
         }
 
         void LineEdit::mouseReleaseEvent(MouseClickEvent&)

@@ -219,9 +219,9 @@ namespace tl
             setViewZoom(p.viewZoom / 2.F, _viewportCenter());
         }
 
-        void TimelineViewport::sizeEvent(const SizeEvent& event)
+        void TimelineViewport::sizeHintEvent(const SizeHintEvent& event)
         {
-            IWidget::sizeEvent(event);
+            IWidget::sizeHintEvent(event);
             const int sa = event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
             _sizeHint.x = sa;
             _sizeHint.y = sa;

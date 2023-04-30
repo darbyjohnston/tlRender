@@ -113,12 +113,25 @@ namespace tl
             //! Set whether the widget is visible.
             void setVisible(bool);
 
+            //! Is the widget clipped?
+            bool isClipped() const;
+
             ///@}
 
             //! Key Focus
             ///@{
 
+            //! Does this widget accept key focus?
             virtual bool acceptsKeyFocus() const;
+
+            //! Does this widget have key focus?
+            bool hasKeyFocus() const;
+
+            //! Take the key focus.
+            void takeFocus();
+
+            //! Release the key focus.
+            void releaseFocus();
 
             ///@}
 
@@ -134,8 +147,11 @@ namespace tl
             //! Tick event.
             virtual void tickEvent(const TickEvent&);
 
-            //! Size event.
-            virtual void sizeEvent(const SizeEvent&);
+            //! Size hint event.
+            virtual void sizeHintEvent(const SizeHintEvent&);
+
+            //! Clip event.
+            virtual void clipEvent(bool clipped, const ClipEvent&);
 
             //! Draw event.
             virtual void drawEvent(const DrawEvent&);
@@ -176,6 +192,7 @@ namespace tl
             VAlign _vAlign = VAlign::Center;
             math::BBox2i _geometry;
             bool _visible = true;
+            bool _clipped = false;
             ColorRole _backgroundRole = ColorRole::None;
             int _updates = 0;
         };

@@ -47,7 +47,7 @@ namespace tl
             void setFontRole(FontRole);
 
             void setGeometry(const math::BBox2i&) override;
-            void sizeEvent(const SizeEvent&) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
 
         private:
             void _textUpdate();

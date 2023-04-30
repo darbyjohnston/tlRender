@@ -111,9 +111,9 @@ namespace tl
             _p->lineEdit->setGeometry(value);
         }
 
-        void FloatEdit::sizeEvent(const SizeEvent& event)
+        void FloatEdit::sizeHintEvent(const SizeHintEvent& event)
         {
-            IWidget::sizeEvent(event);
+            IWidget::sizeHintEvent(event);
             _sizeHint = _p->lineEdit->getSizeHint();
         }
 

@@ -11,7 +11,7 @@ namespace tl
 {
     namespace ui
     {
-        imaging::FontMetrics SizeEvent::getFontMetrics(FontRole role) const
+        imaging::FontMetrics SizeHintEvent::getFontMetrics(FontRole role) const
         {
             imaging::FontMetrics out;
             const auto i = fontMetrics.find(role);

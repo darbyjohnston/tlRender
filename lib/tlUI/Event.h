@@ -32,8 +32,20 @@ namespace tl
             float displayScale = 1.F;
         };
 
-        //! Size event.
-        struct SizeEvent
+        //! Size hint event.
+        struct SizeHintEvent
+        {
+            std::shared_ptr<Style> style;
+            std::shared_ptr<IconLibrary> iconLibrary;
+            std::shared_ptr<imaging::FontSystem> fontSystem;
+            float displayScale = 1.F;
+            std::map<FontRole, imaging::FontMetrics> fontMetrics;
+
+            imaging::FontMetrics getFontMetrics(FontRole) const;
+        };
+
+        //! Clip event.
+        struct ClipEvent
         {
             std::shared_ptr<Style> style;
             std::shared_ptr<IconLibrary> iconLibrary;

@@ -72,9 +72,9 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void Label::sizeEvent(const SizeEvent& event)
+        void Label::sizeHintEvent(const SizeHintEvent& event)
         {
-            IWidget::sizeEvent(event);
+            IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);

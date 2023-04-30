@@ -29,7 +29,7 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            ITimelineItem::_init("TimelineTrackItem", itemData, context, parent);
+            ITimelineItem::_init("tl::ui::TimelineTrackItem", itemData, context, parent);
             TLRENDER_P();
 
             if (otio::Track::Kind::video == track->kind())
@@ -142,12 +142,12 @@ namespace tl
             }
         }
 
-        void TimelineTrackItem::sizeEvent(const ui::SizeEvent& event)
+        void TimelineTrackItem::sizeHintEvent(const SizeHintEvent& event)
         {
-            ITimelineItem::sizeEvent(event);
+            ITimelineItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
+            p.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
 
             int childrenHeight = 0;
             for (const auto& child : _children)
@@ -160,7 +160,7 @@ namespace tl
                 childrenHeight);
         }
 
-        void TimelineTrackItem::drawEvent(const ui::DrawEvent& event)
+        void TimelineTrackItem::drawEvent(const DrawEvent& event)
         {
             ITimelineItem::drawEvent(event);
         }

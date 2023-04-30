@@ -132,9 +132,9 @@ namespace tl
             }
         }
 
-        void RowLayout::sizeEvent(const SizeEvent& event)
+        void RowLayout::sizeHintEvent(const SizeHintEvent& event)
         {
-            IWidget::sizeEvent(event);
+            IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
             p.size.margin = event.style->getSizeRole(p.marginRole, event.displayScale);

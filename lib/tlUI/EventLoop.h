@@ -46,6 +46,9 @@ namespace tl
             //! resolutions.
             void setDisplayScale(float);
 
+            //! Get the key focus widget.
+            const std::weak_ptr<IWidget>& getKeyFocus() const;
+
             //! Set the key focus widget.
             void setKeyFocus(const std::shared_ptr<IWidget>&);
 
@@ -78,10 +81,17 @@ namespace tl
 
             bool _getSizeUpdate();
             bool _getSizeUpdate(const std::shared_ptr<IWidget>&);
-            void _sizeEvent();
-            void _sizeEvent(
+            void _sizeHintEvent();
+            void _sizeHintEvent(
                 const std::shared_ptr<IWidget>&,
-                const SizeEvent&);
+                const SizeHintEvent&);
+
+            void _clipEvent();
+            void _clipEvent(
+                const std::shared_ptr<IWidget>&,
+                math::BBox2i clip,
+                bool clipped,
+                const ClipEvent&);
 
             bool _getDrawUpdate();
             bool _getDrawUpdate(const std::shared_ptr<IWidget>&);

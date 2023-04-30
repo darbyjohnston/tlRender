@@ -119,9 +119,9 @@ namespace tl
             }
         }
 
-        void Splitter::sizeEvent(const SizeEvent& event)
+        void Splitter::sizeHintEvent(const SizeHintEvent& event)
         {
-            IWidget::sizeEvent(event);
+            IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
             p.size.handle = event.style->getSizeRole(SizeRole::HandleSmall, event.displayScale);

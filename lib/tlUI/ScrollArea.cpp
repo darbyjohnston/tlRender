@@ -113,9 +113,9 @@ namespace tl
             p.scrollSize->setIfChanged(scrollSize);
         }
 
-        void ScrollArea::sizeEvent(const SizeEvent& event)
+        void ScrollArea::sizeHintEvent(const SizeHintEvent& event)
         {
-            IWidget::sizeEvent(event);
+            IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);

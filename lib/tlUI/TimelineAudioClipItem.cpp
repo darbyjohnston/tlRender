@@ -31,7 +31,7 @@ namespace tl
             otime::TimeRange timeRange = time::invalidTimeRange;
             std::string label;
             std::string durationLabel;
-            ui::FontRole fontRole = ui::FontRole::Label;
+            FontRole fontRole = FontRole::Label;
             int margin = 0;
             int spacing = 0;
             int waveformWidth = 0;
@@ -60,7 +60,7 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            ITimelineItem::_init("TimelineAudioClipItem", itemData, context, parent);
+            ITimelineItem::_init("tl::ui::TimelineAudioClipItem", itemData, context, parent);
             TLRENDER_P();
 
             p.clip = clip;
@@ -118,7 +118,7 @@ namespace tl
                 _textUpdate();
                 _data.ioManager->cancelRequests();
                 p.audioData.clear();
-                _updates |= ui::Update::Draw;
+                _updates |= Update::Draw;
             }
         }
 
@@ -129,7 +129,7 @@ namespace tl
             if (changed)
             {
                 _data.ioManager->cancelRequests();
-                _updates |= ui::Update::Draw;
+                _updates |= Update::Draw;
             }
         }
 
@@ -199,7 +199,7 @@ namespace tl
             }
         }
 
-        void TimelineAudioClipItem::tickEvent(const ui::TickEvent& event)
+        void TimelineAudioClipItem::tickEvent(const TickEvent& event)
         {
             TLRENDER_P();
             auto i = p.audioDataFutures.begin();
@@ -241,19 +241,19 @@ namespace tl
                 {
                     const auto mesh = j->second.meshFuture.get();
                     j->second.mesh = mesh;
-                    _updates |= ui::Update::Draw;
+                    _updates |= Update::Draw;
                 }
                 ++j;
             }
         }
 
-        void TimelineAudioClipItem::sizeEvent(const ui::SizeEvent& event)
+        void TimelineAudioClipItem::sizeHintEvent(const SizeHintEvent& event)
         {
-            ITimelineItem::sizeEvent(event);
+            ITimelineItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
-            p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
+            p.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
+            p.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
 
             const int waveformWidth = _options.thumbnails ?
@@ -264,7 +264,7 @@ namespace tl
                 p.waveformWidth = waveformWidth;
                 _data.ioManager->cancelRequests();
                 p.audioData.clear();
-                _updates |= ui::Update::Draw;
+                _updates |= Update::Draw;
             }
 
             _sizeHint = math::Vector2i(
@@ -278,17 +278,17 @@ namespace tl
             }
         }
 
-        void TimelineAudioClipItem::drawEvent(const ui::DrawEvent& event)
+        void TimelineAudioClipItem::drawEvent(const DrawEvent& event)
         {
             ITimelineItem::drawEvent(event);
             if (_geometry.isValid() && _isInsideViewport())
             {
-                const int b = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
+                const int b = event.style->getSizeRole(SizeRole::Border, event.displayScale);
                 const math::BBox2i g = _geometry;
 
                 //event.render->drawMesh(
-                //    ui::border(g, b, _margin / 2),
-                //    event.style->getColorRole(ui::ColorRole::Border));
+                //    border(g, b, _margin / 2),
+                //    event.style->getColorRole(ColorRole::Border));
 
                 event.render->drawRect(
                     g.margin(-b),
@@ -310,7 +310,7 @@ namespace tl
                 _options.timeUnits);
         }
 
-        void TimelineAudioClipItem::_drawInfo(const ui::DrawEvent& event)
+        void TimelineAudioClipItem::_drawInfo(const DrawEvent& event)
         {
             TLRENDER_P();
 
@@ -326,7 +326,7 @@ namespace tl
                     g.min.y +
                     p.margin +
                     fontMetrics.ascender),
-                event.style->getColorRole(ui::ColorRole::Text));
+                event.style->getColorRole(ColorRole::Text));
 
             math::Vector2i textSize = event.fontSystem->measure(p.durationLabel, fontInfo);
             event.render->drawText(
@@ -338,10 +338,10 @@ namespace tl
                     g.min.y +
                     p.margin +
                     fontMetrics.ascender),
-                event.style->getColorRole(ui::ColorRole::Text));
+                event.style->getColorRole(ColorRole::Text));
         }
 
-        void TimelineAudioClipItem::_drawWaveforms(const ui::DrawEvent& event)
+        void TimelineAudioClipItem::_drawWaveforms(const DrawEvent& event)
         {
             TLRENDER_P();
 
@@ -377,8 +377,8 @@ namespace tl
                 {
                     p.ioInfoInit = false;
                     p.ioInfo = _data.ioManager->getInfo(p.path).get();
-                    _updates |= ui::Update::Size;
-                    _updates |= ui::Update::Draw;
+                    _updates |= Update::Size;
+                    _updates |= Update::Draw;
                 }
             }
 

@@ -84,7 +84,7 @@ namespace tl
             //! Set the frame view callback.
             void setFrameViewCallback(const std::function<void(bool)>&);
 
-            void sizeEvent(const SizeEvent&) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
             void drawEvent(const DrawEvent&) override;
             void mouseMoveEvent(MouseMoveEvent&) override;
             void mousePressEvent(MouseClickEvent&) override;

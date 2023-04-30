@@ -88,9 +88,9 @@ namespace tl
             }
         }
 
-        void GroupBox::sizeEvent(const SizeEvent& event)
+        void GroupBox::sizeHintEvent(const SizeHintEvent& event)
         {
-            IWidget::sizeEvent(event);
+            IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
             p.size.margin = event.style->getSizeRole(SizeRole::Margin, event.displayScale);

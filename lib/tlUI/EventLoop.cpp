@@ -78,6 +78,11 @@ namespace tl
             p.updates |= Update::Draw;
         }
 
+        const std::weak_ptr<IWidget>& EventLoop::getKeyFocus() const
+        {
+            return _p->keyFocus;
+        }
+
         void EventLoop::setKeyFocus(const std::shared_ptr<IWidget>& value)
         {
             TLRENDER_P();
@@ -220,7 +225,7 @@ namespace tl
 
             if (_getSizeUpdate())
             {
-                _sizeEvent();
+                _sizeHintEvent();
                 for (const auto& i : p.topLevelWidgets)
                 {
                     if (auto widget = i.lock())
@@ -232,6 +237,7 @@ namespace tl
                             p.displaySize.h));
                     }
                 }
+                _clipEvent();
                 _p->updates &= ~static_cast<int>(Update::Size);
             }
 
@@ -308,10 +314,10 @@ namespace tl
             return out;
         }
 
-        void EventLoop::_sizeEvent()
+        void EventLoop::_sizeHintEvent()
         {
             TLRENDER_P();
-            SizeEvent event;
+            SizeHintEvent event;
             event.style = p.style;
             event.iconLibrary = p.iconLibrary;
             event.fontSystem = p.fontSystem;
@@ -325,20 +331,62 @@ namespace tl
             {
                 if (auto widget = i.lock())
                 {
-                    _sizeEvent(widget, event);
+                    _sizeHintEvent(widget, event);
                 }
             }
         }
 
-        void EventLoop::_sizeEvent(
+        void EventLoop::_sizeHintEvent(
             const std::shared_ptr<IWidget>& widget,
-            const SizeEvent& event)
+            const SizeHintEvent& event)
         {
             for (const auto& child : widget->getChildren())
             {
-                _sizeEvent(child, event);
+                _sizeHintEvent(child, event);
             }
-            widget->sizeEvent(event);
+            widget->sizeHintEvent(event);
+        }
+
+        void EventLoop::_clipEvent()
+        {
+            TLRENDER_P();
+            ClipEvent event;
+            event.style = p.style;
+            event.iconLibrary = p.iconLibrary;
+            event.fontSystem = p.fontSystem;
+            event.displayScale = p.displayScale;
+            for (auto i : getFontRoleEnums())
+            {
+                event.fontMetrics[i] = p.fontSystem->getMetrics(
+                    p.style->getFontRole(i, p.displayScale));
+            }
+            for (const auto& i : p.topLevelWidgets)
+            {
+                if (auto widget = i.lock())
+                {
+                    _clipEvent(
+                        widget,
+                        widget->getGeometry(),
+                        !widget->isVisible(),
+                        event);
+                }
+            }
+        }
+
+        void EventLoop::_clipEvent(
+            const std::shared_ptr<IWidget>& widget,
+            math::BBox2i clip,
+            bool clipped,
+            const ClipEvent& event)
+        {
+            const math::BBox2i& g = widget->getGeometry();
+            clipped |= !g.intersects(clip);
+            clipped |= !widget->isVisible();
+            widget->clipEvent(clipped, event);
+            for (const auto& child : widget->getChildren())
+            {
+                _clipEvent(child, g.intersect(clip), clipped, event);
+            }
         }
 
         bool EventLoop::_getDrawUpdate()
@@ -362,7 +410,7 @@ namespace tl
         bool EventLoop::_getDrawUpdate(const std::shared_ptr<IWidget>& widget)
         {
             bool out = false;
-            if (widget->isVisible())
+            if (!widget->isClipped())
             {
                 out = widget->getUpdates() & Update::Draw;
                 for (const auto& child : widget->getChildren())
@@ -407,7 +455,7 @@ namespace tl
             math::BBox2i clip,
             const DrawEvent& event)
         {
-            if (widget->isVisible())
+            if (!widget->isClipped())
             {
                 event.render->setClipRect(clip);
                 widget->drawEvent(event);
@@ -431,7 +479,7 @@ namespace tl
             {
                 if (auto widget = i.lock())
                 {
-                    if (widget->isVisible() && widget->getGeometry().contains(pos))
+                    if (!widget->isClipped() && widget->getGeometry().contains(pos))
                     {
                         _getUnderCursor(widget, pos, out);
                         break;
@@ -448,7 +496,7 @@ namespace tl
             out.push_back(widget);
             for (const auto& child : widget->getChildren())
             {
-                if (child->isVisible() && child->getGeometry().contains(pos))
+                if (!child->isClipped() && child->getGeometry().contains(pos))
                 {
                     _getUnderCursor(child, pos, out);
                     break;
@@ -507,7 +555,7 @@ namespace tl
             {
                 if (auto widget = i.lock())
                 {
-                    if (widget->isVisible())
+                    if (!widget->isClipped())
                     {
                         _getKeyFocus(widget, widgets);
                         break;
@@ -546,7 +594,7 @@ namespace tl
             {
                 if (auto widget = i.lock())
                 {
-                    if (widget->isVisible())
+                    if (!widget->isClipped())
                     {
                         _getKeyFocus(widget, widgets);
                         break;
@@ -586,7 +634,7 @@ namespace tl
             }
             for (const auto& child : widget->getChildren())
             {
-                if (child->isVisible())
+                if (!child->isClipped())
                 {
                     _getKeyFocus(child, out);
                 }

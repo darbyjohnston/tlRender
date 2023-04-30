@@ -132,9 +132,9 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void PieChart::sizeEvent(const SizeEvent& event)
+        void PieChart::sizeHintEvent(const SizeHintEvent& event)
         {
-            IWidget::sizeEvent(event);
+            IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
             p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);

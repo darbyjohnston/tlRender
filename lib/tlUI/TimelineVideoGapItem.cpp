@@ -15,7 +15,7 @@ namespace tl
             otime::TimeRange timeRange = time::invalidTimeRange;
             std::string label;
             std::string durationLabel;
-            ui::FontRole fontRole = ui::FontRole::Label;
+            FontRole fontRole = FontRole::Label;
             int margin = 0;
             int spacing = 0;
         };
@@ -26,7 +26,7 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            ITimelineItem::_init("TimelineVideoGapItem", itemData, context, parent);
+            ITimelineItem::_init("tl::ui::TimelineVideoGapItem", itemData, context, parent);
             TLRENDER_P();
 
             auto rangeOpt = gap->trimmed_range_in_parent();
@@ -60,19 +60,19 @@ namespace tl
         void TimelineVideoGapItem::setOptions(const TimelineItemOptions& value)
         {
             ITimelineItem::setOptions(value);
-            if (_updates & ui::Update::Size)
+            if (_updates & Update::Size)
             {
                 _textUpdate();
             }
         }
 
-        void TimelineVideoGapItem::sizeEvent(const ui::SizeEvent& event)
+        void TimelineVideoGapItem::sizeHintEvent(const SizeHintEvent& event)
         {
-            ITimelineItem::sizeEvent(event);
+            ITimelineItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
-            p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
+            p.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
+            p.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
 
             _sizeHint = math::Vector2i(
@@ -84,20 +84,20 @@ namespace tl
                 p.margin);
         }
 
-        void TimelineVideoGapItem::drawEvent(const ui::DrawEvent& event)
+        void TimelineVideoGapItem::drawEvent(const DrawEvent& event)
         {
             ITimelineItem::drawEvent(event);
             TLRENDER_P();
             if (_isInsideViewport())
             {
-                const int b = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
+                const int b = event.style->getSizeRole(SizeRole::Border, event.displayScale);
                 const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
                 const auto fontMetrics = event.getFontMetrics(p.fontRole);
                 const math::BBox2i g = _geometry;
 
                 //event.render->drawMesh(
-                //    ui::border(g, b, p.margin / 2),
-                //    event.style->getColorRole(ui::ColorRole::Border));
+                //    border(g, b, p.margin / 2),
+                //    event.style->getColorRole(ColorRole::Border));
 
                 //event.render->drawRect(
                 //    g.margin(-b),
@@ -111,7 +111,7 @@ namespace tl
                         g.min.y +
                         p.margin +
                         fontMetrics.ascender),
-                    event.style->getColorRole(ui::ColorRole::Text));
+                    event.style->getColorRole(ColorRole::Text));
 
                 const math::Vector2i textSize = event.fontSystem->measure(p.durationLabel, fontInfo);
                 event.render->drawText(
@@ -123,7 +123,7 @@ namespace tl
                         g.min.y +
                         p.margin +
                         fontMetrics.ascender),
-                    event.style->getColorRole(ui::ColorRole::Text));
+                    event.style->getColorRole(ColorRole::Text));
             }
         }
 

@@ -17,10 +17,10 @@ namespace tl
             std::function<void(bool)> frameViewCallback;
             bool stopOnScrub = true;
             float mouseWheelScale = 20.F;
-            ui::TimelineItemOptions itemOptions;
+            TimelineItemOptions itemOptions;
 
-            std::shared_ptr<ui::ScrollArea> scrollArea;
-            std::shared_ptr<ui::TimelineItem> timelineItem;
+            std::shared_ptr<ScrollArea> scrollArea;
+            std::shared_ptr<TimelineItem> timelineItem;
 
             struct SizeData
             {
@@ -52,7 +52,7 @@ namespace tl
             IWidget::_init("tl::ui::TimelineWidget", context, parent);
             TLRENDER_P();
 
-            p.scrollArea = ui::ScrollArea::create(
+            p.scrollArea = ScrollArea::create(
                 context,
                 ScrollAreaType::Both,
                 shared_from_this());
@@ -89,14 +89,14 @@ namespace tl
             {
                 if (auto context = _context.lock())
                 {
-                    ui::TimelineItemData itemData;
+                    TimelineItemData itemData;
                     itemData.directory = p.timelinePlayer->getPath().getDirectory();
                     itemData.pathOptions = p.timelinePlayer->getOptions().pathOptions;
-                    itemData.ioManager = ui::TimelineIOManager::create(
+                    itemData.ioManager = TimelineIOManager::create(
                         p.timelinePlayer->getOptions().ioOptions,
                         context);
 
-                    p.timelineItem = ui::TimelineItem::create(p.timelinePlayer, itemData, context);
+                    p.timelineItem = TimelineItem::create(p.timelinePlayer, itemData, context);
                     p.timelineItem->setStopOnScrub(p.stopOnScrub);
                     _setScrollPos(math::Vector2i());
                     p.itemOptions.scale = _getTimelineScale();
@@ -161,12 +161,12 @@ namespace tl
             p.mouseWheelScale = value;
         }
 
-        const ui::TimelineItemOptions& TimelineWidget::itemOptions() const
+        const TimelineItemOptions& TimelineWidget::itemOptions() const
         {
             return _p->itemOptions;
         }
 
-        void TimelineWidget::setItemOptions(const ui::TimelineItemOptions& value)
+        void TimelineWidget::setItemOptions(const TimelineItemOptions& value)
         {
             TLRENDER_P();
             if (value == p.itemOptions)
@@ -201,9 +201,9 @@ namespace tl
             }
         }
 
-        void TimelineWidget::sizeEvent(const SizeEvent& event)
+        void TimelineWidget::sizeHintEvent(const SizeHintEvent& event)
         {
-            IWidget::sizeEvent(event);
+            IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
             p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
@@ -378,10 +378,10 @@ namespace tl
         }
 
         void TimelineWidget::_setItemOptions(
-            const std::shared_ptr<ui::IWidget>& widget,
-            const ui::TimelineItemOptions& value)
+            const std::shared_ptr<IWidget>& widget,
+            const TimelineItemOptions& value)
         {
-            if (auto item = std::dynamic_pointer_cast<ui::ITimelineItem>(widget))
+            if (auto item = std::dynamic_pointer_cast<ITimelineItem>(widget))
             {
                 item->setOptions(value);
             }
@@ -397,10 +397,10 @@ namespace tl
         }
 
         void TimelineWidget::_setViewport(
-            const std::shared_ptr<ui::IWidget>& widget,
+            const std::shared_ptr<IWidget>& widget,
             const math::BBox2i& vp)
         {
-            if (auto item = std::dynamic_pointer_cast<ui::ITimelineItem>(widget))
+            if (auto item = std::dynamic_pointer_cast<ITimelineItem>(widget))
             {
                 item->setViewport(vp);
             }

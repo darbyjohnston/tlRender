@@ -5,7 +5,6 @@
 #include <tlUI/FloatSlider.h>
 
 #include <tlUI/DrawUtil.h>
-#include <tlUI/EventLoop.h>
 
 namespace tl
 {
@@ -95,9 +94,9 @@ namespace tl
             return true;
         }
 
-        void FloatSlider::sizeEvent(const SizeEvent& event)
+        void FloatSlider::sizeHintEvent(const SizeHintEvent& event)
         {
-            IWidget::sizeEvent(event);
+            IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
@@ -198,10 +197,7 @@ namespace tl
             {
                 p.model->setValue(_posToValue(p.mouse.pos.x));
             }
-            if (auto eventLoop = getTopLevel()->getEventLoop().lock())
-            {
-                eventLoop->setKeyFocus(shared_from_this());
-            }
+            takeFocus();
             _updates |= Update::Draw;
         }
 

@@ -51,9 +51,9 @@ namespace tl
             return out;
         }
 
-        void ToolButton::sizeEvent(const SizeEvent& event)
+        void ToolButton::sizeHintEvent(const SizeHintEvent& event)
         {
-            IButton::sizeEvent(event);
+            IButton::sizeHintEvent(event);
             TLRENDER_P();
 
             p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);

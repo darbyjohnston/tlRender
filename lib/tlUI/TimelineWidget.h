@@ -54,13 +54,13 @@ namespace tl
             void setMouseWheelScale(float);
 
             //! Get the item options.
-            const ui::TimelineItemOptions& itemOptions() const;
+            const TimelineItemOptions& itemOptions() const;
 
             //! Set the item options.
-            void setItemOptions(const ui::TimelineItemOptions&);
+            void setItemOptions(const TimelineItemOptions&);
 
             void setGeometry(const math::BBox2i&) override;
-            void sizeEvent(const SizeEvent&) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
             void mouseMoveEvent(MouseMoveEvent&) override;
             void mousePressEvent(MouseClickEvent&) override;
             void mouseReleaseEvent(MouseClickEvent&) override;
@@ -80,12 +80,12 @@ namespace tl
 
             float _getTimelineScale() const;
             void _setItemOptions(
-                const std::shared_ptr<ui::IWidget>&,
-                const ui::TimelineItemOptions&);
+                const std::shared_ptr<IWidget>&,
+                const TimelineItemOptions&);
 
             math::BBox2i _getTimelineViewport() const;
             void _setViewport(
-                const std::shared_ptr<ui::IWidget>&,
+                const std::shared_ptr<IWidget>&,
                 const math::BBox2i&);
 
             TLRENDER_PRIVATE();

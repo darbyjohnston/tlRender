@@ -35,8 +35,8 @@ namespace tl
 
             void setOptions(const TimelineItemOptions&) override;
 
-            void sizeEvent(const ui::SizeEvent&) override;
-            void drawEvent(const ui::DrawEvent&) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
+            void drawEvent(const DrawEvent&) override;
 
         private:
             void _textUpdate();

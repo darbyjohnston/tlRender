@@ -33,7 +33,7 @@ namespace tl
             //! Set the spacing role.
             void setSpacingRole(SizeRole);
 
-            void sizeEvent(const SizeEvent&) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
 
         private:
             TLRENDER_PRIVATE();

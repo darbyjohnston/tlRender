@@ -36,7 +36,7 @@ namespace tl
             //! Set the font role.
             void setFontRole(FontRole);
 
-            void sizeEvent(const SizeEvent&) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
             void drawEvent(const DrawEvent&) override;
 
         private:

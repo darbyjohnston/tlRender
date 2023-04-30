@@ -30,7 +30,7 @@ namespace tl
             otime::TimeRange timeRange = time::invalidTimeRange;
             std::string label;
             std::string durationLabel;
-            ui::FontRole fontRole = ui::FontRole::Label;
+            FontRole fontRole = FontRole::Label;
             int margin = 0;
             int spacing = 0;
             int thumbnailWidth = 0;
@@ -48,7 +48,7 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            ITimelineItem::_init("TimelineVideoClipItem", itemData, context, parent);
+            ITimelineItem::_init("tl::ui::TimelineVideoClipItem", itemData, context, parent);
             TLRENDER_P();
 
             p.clip = clip;
@@ -110,7 +110,7 @@ namespace tl
                     p.videoData.clear();
                     p.buffers.clear();
                 }
-                _updates |= ui::Update::Draw;
+                _updates |= Update::Draw;
             }
         }
 
@@ -121,11 +121,11 @@ namespace tl
             if (changed)
             {
                 _data.ioManager->cancelRequests();
-                _updates |= ui::Update::Draw;
+                _updates |= Update::Draw;
             }
         }
 
-        void TimelineVideoClipItem::tickEvent(const ui::TickEvent& event)
+        void TimelineVideoClipItem::tickEvent(const TickEvent& event)
         {
             TLRENDER_P();
             auto i = p.videoDataFutures.begin();
@@ -137,20 +137,20 @@ namespace tl
                     const auto videoData = i->second.get();
                     p.videoData[i->first] = videoData;
                     i = p.videoDataFutures.erase(i);
-                    _updates |= ui::Update::Draw;
+                    _updates |= Update::Draw;
                     continue;
                 }
                 ++i;
             }
         }
 
-        void TimelineVideoClipItem::sizeEvent(const ui::SizeEvent& event)
+        void TimelineVideoClipItem::sizeHintEvent(const SizeHintEvent& event)
         {
-            ITimelineItem::sizeEvent(event);
+            ITimelineItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
-            p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
+            p.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
+            p.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
 
             const int thumbnailWidth = (_options.thumbnails && !p.ioInfo.video.empty()) ?
@@ -162,7 +162,7 @@ namespace tl
                 _data.ioManager->cancelRequests();
                 p.videoData.clear();
                 p.buffers.clear();
-                _updates |= ui::Update::Draw;
+                _updates |= Update::Draw;
             }
 
             _sizeHint = math::Vector2i(
@@ -176,17 +176,17 @@ namespace tl
             }
         }
 
-        void TimelineVideoClipItem::drawEvent(const ui::DrawEvent& event)
+        void TimelineVideoClipItem::drawEvent(const DrawEvent& event)
         {
             ITimelineItem::drawEvent(event);
             if (_geometry.isValid() && _isInsideViewport())
             {
-                const int b = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
+                const int b = event.style->getSizeRole(SizeRole::Border, event.displayScale);
                 math::BBox2i g = _geometry;
 
                 //event.render->drawMesh(
-                //    ui::border(g, b, _margin / 2),
-                //    event.style->getColorRole(ui::ColorRole::Border));
+                //    border(g, b, _margin / 2),
+                //    event.style->getColorRole(ColorRole::Border));
 
                 event.render->drawRect(
                     g.margin(-b),
@@ -208,7 +208,7 @@ namespace tl
                 _options.timeUnits);
         }
 
-        void TimelineVideoClipItem::_drawInfo(const ui::DrawEvent& event)
+        void TimelineVideoClipItem::_drawInfo(const DrawEvent& event)
         {
             TLRENDER_P();
 
@@ -224,7 +224,7 @@ namespace tl
                     g.min.y +
                     p.margin +
                     fontMetrics.ascender),
-                event.style->getColorRole(ui::ColorRole::Text));
+                event.style->getColorRole(ColorRole::Text));
 
             math::Vector2i textSize = event.fontSystem->measure(p.durationLabel, fontInfo);
             event.render->drawText(
@@ -236,10 +236,10 @@ namespace tl
                     g.min.y +
                     p.margin +
                     fontMetrics.ascender),
-                event.style->getColorRole(ui::ColorRole::Text));
+                event.style->getColorRole(ColorRole::Text));
         }
 
-        void TimelineVideoClipItem::_drawThumbnails(const ui::DrawEvent& event)
+        void TimelineVideoClipItem::_drawThumbnails(const DrawEvent& event)
         {
             TLRENDER_P();
 
@@ -275,8 +275,8 @@ namespace tl
                 {
                     p.ioInfoInit = false;
                     p.ioInfo = _data.ioManager->getInfo(p.path).get();
-                    _updates |= ui::Update::Size;
-                    _updates |= ui::Update::Draw;
+                    _updates |= Update::Size;
+                    _updates |= Update::Draw;
                 }
             }
 
