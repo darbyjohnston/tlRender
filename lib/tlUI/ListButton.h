@@ -30,9 +30,12 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            bool acceptsKeyFocus() const override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void clipEvent(bool, const ClipEvent&) override;
             void drawEvent(const DrawEvent&) override;
+            void keyPressEvent(KeyEvent&) override;
+            void keyReleaseEvent(KeyEvent&) override;
 
         private:
             TLRENDER_PRIVATE();

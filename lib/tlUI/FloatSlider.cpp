@@ -125,7 +125,7 @@ namespace tl
                 border(g, p.size.border),
                 math::Vector2i(),
                 event.style->getColorRole(event.focusWidget == shared_from_this() ?
-                    ColorRole::Checked :
+                    ColorRole::KeyFocus :
                     ColorRole::Border));
 
             event.render->drawRect(

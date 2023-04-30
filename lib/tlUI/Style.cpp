@@ -40,6 +40,7 @@ namespace tl
             "Hover",
             "Pressed",
             "Checked",
+            "KeyFocus",
             "Red",
             "Green",
             "Blue",
@@ -73,7 +74,7 @@ namespace tl
             p.sizeRoles[SizeRole::Margin] = 10;
             p.sizeRoles[SizeRole::MarginSmall] = 5;
             p.sizeRoles[SizeRole::MarginLarge] = 20;
-            p.sizeRoles[SizeRole::MarginInside] = 2;
+            p.sizeRoles[SizeRole::MarginInside] = 1;
             p.sizeRoles[SizeRole::Spacing] = 10;
             p.sizeRoles[SizeRole::SpacingSmall] = 5;
             p.sizeRoles[SizeRole::SpacingLarge] = 20;
@@ -91,6 +92,7 @@ namespace tl
             p.colorRoles[ColorRole::Hover] = imaging::Color4f(1.F, 1.F, 1.F, .1F);
             p.colorRoles[ColorRole::Pressed] = imaging::Color4f(1.F, 1.F, 1.F, .2F);
             p.colorRoles[ColorRole::Checked] = imaging::Color4f(.6F, .4F, .2F);
+            p.colorRoles[ColorRole::KeyFocus] = imaging::Color4f(.6F, .6F, .4F);
             p.colorRoles[ColorRole::Red] = imaging::Color4f(.6F, .3F, .3F);
             p.colorRoles[ColorRole::Green] = imaging::Color4f(.3F, .6F, .3F);
             p.colorRoles[ColorRole::Blue] = imaging::Color4f(.3F, .3F, .6F);

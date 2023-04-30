@@ -118,10 +118,12 @@ namespace tl
 
             _sizeHint.x =
                 p.size.formatSize.x +
-                p.size.margin * 2;
+                p.size.margin * 2 +
+                p.size.border * 2;
             _sizeHint.y =
                 p.size.fontMetrics.lineHeight +
-                p.size.margin * 2;
+                p.size.margin * 2 +
+                p.size.border * 2;
         }
 
         void LineEdit::clipEvent(bool clipped, const ClipEvent& event)
@@ -160,7 +162,7 @@ namespace tl
                 border(g, p.size.border),
                 math::Vector2i(),
                 event.style->getColorRole(event.focusWidget == shared_from_this() ?
-                    ColorRole::Checked :
+                    ColorRole::KeyFocus :
                     ColorRole::Border));
 
             event.render->drawRect(

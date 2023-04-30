@@ -47,6 +47,7 @@ namespace tl
             Hover,
             Pressed,
             Checked,
+            KeyFocus,
             Red,
             Green,
             Blue,

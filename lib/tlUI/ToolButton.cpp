@@ -15,6 +15,7 @@ namespace tl
             struct SizeData
             {
                 int margin = 0;
+                int spacing = 0;
                 int border = 0;
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
@@ -51,12 +52,18 @@ namespace tl
             return out;
         }
 
+        bool ToolButton::acceptsKeyFocus() const
+        {
+            return true;
+        }
+
         void ToolButton::sizeHintEvent(const SizeHintEvent& event)
         {
             IButton::sizeHintEvent(event);
             TLRENDER_P();
 
             p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);
+            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
 
             _sizeHint = math::Vector2i();
@@ -75,9 +82,13 @@ namespace tl
                 _sizeHint.y = std::max(
                     _sizeHint.y,
                     static_cast<int>(_iconImage->getHeight()));
+                if (!_text.empty())
+                {
+                    _sizeHint.x += p.size.spacing;
+                }
             }
-            _sizeHint.x += p.size.margin * 2;
-            _sizeHint.y += p.size.margin * 2;
+            _sizeHint.x += p.size.margin * 2 + p.size.border * 2;
+            _sizeHint.y += p.size.margin * 2 + p.size.border * 2;
         }
 
         void ToolButton::clipEvent(bool clipped, const ClipEvent& event)
@@ -109,7 +120,9 @@ namespace tl
             event.render->drawMesh(
                 border(g, p.size.border),
                 math::Vector2i(),
-                event.style->getColorRole(ColorRole::Border));
+                event.style->getColorRole(event.focusWidget == shared_from_this() ?
+                    ColorRole::KeyFocus :
+                    ColorRole::Border));
 
             const math::BBox2i g2 = g.margin(-p.size.border);
             const ColorRole colorRole = _checked ?
@@ -135,27 +148,49 @@ namespace tl
                     event.style->getColorRole(ColorRole::Hover));
             }
 
-            int x = g.x() + p.size.margin;
+            int x = g2.x() + p.size.margin;
             if (_iconImage)
             {
                 const auto iconSize = _iconImage->getSize();
                 event.render->drawImage(
                   _iconImage,
-                  math::BBox2i(x, g.y() + p.size.margin, iconSize.w, iconSize.h));
-                x += _iconImage->getWidth();
+                  math::BBox2i(
+                      x,
+                      g2.y() + g2.h() / 2 - iconSize.h / 2,
+                      iconSize.w,
+                      iconSize.h));
+                x += iconSize.w + p.size.spacing;
             }
             
             if (!_text.empty())
             {
-                math::Vector2i pos(
+                const math::Vector2i pos(
                     x + p.size.margin,
-                    g.y() + g.h() / 2 - p.size.textSize.y / 2 +
+                    g2.y() + g2.h() / 2 - p.size.textSize.y / 2 +
                     p.size.fontMetrics.ascender);
                 event.render->drawText(
                     p.draw.glyphs,
                     pos,
                     event.style->getColorRole(ColorRole::Text));
             }
+        }
+
+        void ToolButton::keyPressEvent(KeyEvent& event)
+        {
+            TLRENDER_P();
+            switch (event.key)
+            {
+            case Key::Space:
+            case Key::Enter:
+                event.accept = true;
+                _click();
+                break;
+            }
+        }
+
+        void ToolButton::keyReleaseEvent(KeyEvent& event)
+        {
+            event.accept = true;
         }
     }
 }

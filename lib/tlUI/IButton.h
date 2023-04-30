@@ -58,6 +58,8 @@ namespace tl
             void mouseReleaseEvent(MouseClickEvent&) override;
 
         protected:
+            void _click();
+
             std::string _text;
             FontRole _fontRole = FontRole::Label;
             std::shared_ptr<imaging::Image> _iconImage;

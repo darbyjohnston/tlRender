@@ -16,6 +16,7 @@ namespace tl
             {
                 int margin = 0;
                 int margin2 = 0;
+                int spacing = 0;
                 int border = 0;
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
@@ -52,13 +53,19 @@ namespace tl
             return out;
         }
 
+        bool PushButton::acceptsKeyFocus() const
+        {
+            return true;
+        }
+
         void PushButton::sizeHintEvent(const SizeHintEvent& event)
         {
             IButton::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
+            p.size.margin = event.style->getSizeRole(SizeRole::Margin, event.displayScale);
             p.size.margin2 = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);
+            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
 
             _sizeHint = math::Vector2i();
@@ -77,9 +84,13 @@ namespace tl
                 _sizeHint.y = std::max(
                     _sizeHint.y,
                     static_cast<int>(_iconImage->getHeight()));
+                if (!_text.empty())
+                {
+                    _sizeHint.x += p.size.spacing;
+                }
             }
-            _sizeHint.x += p.size.margin * 2 * 2;
-            _sizeHint.y += p.size.margin2 * 2;
+            _sizeHint.x += p.size.margin * 2 + p.size.border * 2;
+            _sizeHint.y += p.size.margin2 * 2 + p.size.border * 2;
         }
 
         void PushButton::clipEvent(bool clipped, const ClipEvent& event)
@@ -111,7 +122,9 @@ namespace tl
             event.render->drawMesh(
                 border(g, p.size.border, p.size.margin / 2),
                 math::Vector2i(),
-                event.style->getColorRole(ColorRole::Border));
+                event.style->getColorRole(event.focusWidget == shared_from_this() ?
+                    ColorRole::KeyFocus :
+                    ColorRole::Border));
 
             const auto mesh = rect(g.margin(-p.size.border), p.size.margin / 2);
             const ColorRole colorRole = _checked ?
@@ -140,21 +153,25 @@ namespace tl
                     event.style->getColorRole(ColorRole::Hover));
             }
 
-            int x = g.x() + p.size.margin * 2;
+            int x = g.x() + p.size.margin + p.size.border;
             if (_iconImage)
             {
                 const auto iconSize = _iconImage->getSize();
                 event.render->drawImage(
                   _iconImage,
-                  math::BBox2i(x, g.y() + p.size.margin2, iconSize.w, iconSize.h));
-                x += iconSize.w;
+                  math::BBox2i(
+                      x,
+                      g.y() + g.h() / 2 - iconSize.h / 2,
+                      iconSize.w,
+                      iconSize.h));
+                x += iconSize.w + p.size.spacing;
             }
             
             if (!_text.empty())
             {
-                math::Vector2i pos(
+                const math::Vector2i pos(
                     x +
-                    (g.max.x - p.size.margin * 2 - x) / 2 - p.size.textSize.x / 2,
+                    (g.max.x - p.size.margin - x) / 2 - p.size.textSize.x / 2,
                     g.y() +
                     g.h() / 2 - p.size.textSize.y / 2 +
                     p.size.fontMetrics.ascender);
@@ -163,6 +180,24 @@ namespace tl
                     pos,
                     event.style->getColorRole(ColorRole::Text));
             }
+        }
+
+        void PushButton::keyPressEvent(KeyEvent& event)
+        {
+            TLRENDER_P();
+            switch (event.key)
+            {
+            case Key::Space:
+            case Key::Enter:
+                event.accept = true;
+                _click();
+                break;
+            }
+        }
+
+        void PushButton::keyReleaseEvent(KeyEvent& event)
+        {
+            event.accept = true;
         }
     }
 }

@@ -108,8 +108,8 @@ namespace tl
                 _sizeHint.x = std::max(_sizeHint.x, sizeHint.x);
                 _sizeHint.y = std::max(_sizeHint.y, sizeHint.y);
             }
-            _sizeHint.x += p.size.margin * 2;
-            _sizeHint.y += p.size.margin * 2;
+            _sizeHint.x += p.size.margin * 2 + p.size.border * 2;
+            _sizeHint.y += p.size.margin * 2 + p.size.border * 2;
             _sizeHint.x = std::max(_sizeHint.x, p.size.textSize.x);
             _sizeHint.y += p.size.fontMetrics.lineHeight + p.size.spacing;
         }

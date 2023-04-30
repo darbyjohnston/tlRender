@@ -144,6 +144,10 @@ namespace tl
         void IButton::mousePressEvent(MouseClickEvent& event)
         {
             event.accept = true;
+            if (acceptsKeyFocus())
+            {
+                takeFocus();
+            }
             _pressed = true;
             _updates |= Update::Draw;
         }
@@ -153,22 +157,29 @@ namespace tl
             TLRENDER_P();
             event.accept = true;
             _pressed = false;
+            _updates |= Update::Draw;
             if (_geometry.contains(_cursorPos))
             {
-                if (_clickedCallback)
+                _click();
+            }
+        }
+
+        void IButton::_click()
+        {
+            TLRENDER_P();
+            if (_clickedCallback)
+            {
+                _clickedCallback();
+            }
+            if (p.checkable)
+            {
+                _checked = !_checked;
+                _updates |= Update::Draw;
+                if (_checkedCallback)
                 {
-                    _clickedCallback();
-                }
-                if (p.checkable)
-                {
-                    _checked = !_checked;
-                    if (_checkedCallback)
-                    {
-                        _checkedCallback(_checked);
-                    }
+                    _checkedCallback(_checked);
                 }
             }
-            _updates |= Update::Draw;
         }
     }
 }

@@ -16,6 +16,7 @@ namespace tl
             {
                 int margin = 0;
                 int spacing = 0;
+                int border = 0;
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
             };
@@ -52,6 +53,11 @@ namespace tl
             return out;
         }
 
+        bool ListButton::acceptsKeyFocus() const
+        {
+            return true;
+        }
+
         void ListButton::sizeHintEvent(const SizeHintEvent& event)
         {
             IButton::sizeHintEvent(event);
@@ -59,6 +65,7 @@ namespace tl
             
             p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
             p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
+            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
 
             _sizeHint = math::Vector2i();
             if (!_text.empty())
@@ -81,8 +88,8 @@ namespace tl
                     _sizeHint.x += p.size.spacing;
                 }
             }
-            _sizeHint.x += p.size.margin * 2;
-            _sizeHint.y += p.size.margin * 2;
+            _sizeHint.x += p.size.margin * 2 + p.size.border * 2;
+            _sizeHint.y += p.size.margin * 2 + p.size.border * 2;
         }
 
         void ListButton::clipEvent(bool clipped, const ClipEvent& event)
@@ -111,50 +118,81 @@ namespace tl
 
             const math::BBox2i g = _geometry;
 
+            if (event.focusWidget == shared_from_this())
+            {
+                event.render->drawMesh(
+                    border(g, p.size.border),
+                    math::Vector2i(),
+                    event.style->getColorRole(ColorRole::KeyFocus));
+            }
+
+            const math::BBox2i g2 = g.margin(-p.size.border);
             const ColorRole colorRole = _checked ?
                 ColorRole::Checked :
                 _buttonRole;
             if (colorRole != ColorRole::None)
             {
                 event.render->drawRect(
-                    g,
+                    g2,
                     event.style->getColorRole(colorRole));
             }
 
             if (_pressed && _geometry.contains(_cursorPos))
             {
                 event.render->drawRect(
-                    g,
+                    g2,
                     event.style->getColorRole(ColorRole::Pressed));
             }
             else if (_inside)
             {
                 event.render->drawRect(
-                    g,
+                    g2,
                     event.style->getColorRole(ColorRole::Hover));
             }
 
-            int x = g.x() + p.size.margin;
+            int x = g2.x() + p.size.margin;
             if (_iconImage)
             {
                 const auto iconSize = _iconImage->getSize();
                 event.render->drawImage(
                   _iconImage,
-                  math::BBox2i(x, g.y() + p.size.margin, iconSize.w, iconSize.h));
+                  math::BBox2i(
+                      x,
+                      g2.y() + g2.h() / 2 - iconSize.h / 2,
+                      iconSize.w,
+                      iconSize.h));
                 x += iconSize.w + p.size.spacing;
             }
             
             if (!_text.empty())
             {
-                math::Vector2i pos(
+                const math::Vector2i pos(
                     x,
-                    g.y() + g.h() / 2 - p.size.textSize.y / 2 +
+                    g2.y() + g2.h() / 2 - p.size.textSize.y / 2 +
                     p.size.fontMetrics.ascender);
                 event.render->drawText(
                     p.draw.glyphs,
                     pos,
                     event.style->getColorRole(ColorRole::Text));
             }
+        }
+
+        void ListButton::keyPressEvent(KeyEvent& event)
+        {
+            TLRENDER_P();
+            switch (event.key)
+            {
+            case Key::Space:
+            case Key::Enter:
+                event.accept = true;
+                _click();
+                break;
+            }
+        }
+
+        void ListButton::keyReleaseEvent(KeyEvent& event)
+        {
+            event.accept = true;
         }
     }
 }
