@@ -246,6 +246,13 @@ namespace tl
                     event.accept = true;
                     p.model->setValue(p.model->getRange().getMax());
                     break;
+                case Key::Escape:
+                    if (hasKeyFocus())
+                    {
+                        event.accept = true;
+                        releaseFocus();
+                    }
+                    break;
                 }
             }
         }

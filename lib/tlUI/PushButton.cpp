@@ -192,6 +192,13 @@ namespace tl
                 event.accept = true;
                 _click();
                 break;
+            case Key::Escape:
+                if (hasKeyFocus())
+                {
+                    event.accept = true;
+                    releaseFocus();
+                }
+                break;
             }
         }
 

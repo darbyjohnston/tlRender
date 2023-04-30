@@ -198,11 +198,25 @@ namespace tl
         void LineEdit::mouseReleaseEvent(MouseClickEvent&)
         {}
 
-        void LineEdit::keyPressEvent(KeyEvent&)
-        {}
+        void LineEdit::keyPressEvent(KeyEvent& event)
+        {
+            TLRENDER_P();
+            switch (event.key)
+            {
+            case Key::Escape:
+                if (hasKeyFocus())
+                {
+                    event.accept = true;
+                    releaseFocus();
+                }
+                break;
+            }
+        }
 
-        void LineEdit::keyReleaseEvent(KeyEvent&)
-        {}
+        void LineEdit::keyReleaseEvent(KeyEvent& event)
+        {
+            event.accept;
+        }
 
         void LineEdit::_textUpdate()
         {
