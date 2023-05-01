@@ -94,9 +94,9 @@ namespace tl
             {
                 p.size.fontMetrics = event.getFontMetrics(_fontRole);
                 const auto fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
-                p.size.textSize = event.fontSystem->measure(_text, fontInfo);
+                p.size.textSize = event.fontSystem->getSize(_text, fontInfo);
 
-                _sizeHint.x = event.fontSystem->measure(_text, fontInfo).x;
+                _sizeHint.x = p.size.textSize.x;
                 _sizeHint.y = p.size.fontMetrics.lineHeight;
             }
             if (_iconImage)
@@ -121,11 +121,6 @@ namespace tl
             if (clipped)
             {
                 p.draw.glyphs.clear();
-            }
-            else if (!_text.empty() && p.draw.glyphs.empty())
-            {
-                const auto fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
-                p.draw.glyphs = event.fontSystem->getGlyphs(_text, fontInfo);
             }
         }
 
@@ -187,6 +182,11 @@ namespace tl
             
             if (!_text.empty())
             {
+                if (p.draw.glyphs.empty())
+                {
+                    const auto fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
+                    p.draw.glyphs = event.fontSystem->getGlyphs(_text, fontInfo);
+                }
                 const math::Vector2i pos(
                     x,
                     g2.y() + g2.h() / 2 - p.size.textSize.y / 2 +

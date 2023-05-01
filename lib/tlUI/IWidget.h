@@ -188,6 +188,9 @@ namespace tl
             //! Key release event.
             virtual void keyReleaseEvent(KeyEvent&);
 
+            //! Text event.
+            virtual void textEvent(TextEvent&);
+
             ///@}
 
         protected:

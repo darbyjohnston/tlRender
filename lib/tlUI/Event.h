@@ -202,5 +202,12 @@ namespace tl
             math::Vector2i pos;
             bool accept = false;
         };
+
+        //! Text event.
+        struct TextEvent
+        {
+            std::string text;
+            bool accept = false;
+        };
     }
 }

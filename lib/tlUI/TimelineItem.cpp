@@ -316,7 +316,7 @@ namespace tl
             if (secondsWidth >= 5)
             {
                 std::string labelMax = _timeLabel(p.timeRange.end_time_inclusive(), _options.timeUnits);
-                math::Vector2i labelMaxSize = event.fontSystem->measure(labelMax, fontInfo);
+                math::Vector2i labelMaxSize = event.fontSystem->getSize(labelMax, fontInfo);
                 if (labelMaxSize.x < (secondsWidth - p.size.spacing))
                 {
                     for (double t = 0.0;

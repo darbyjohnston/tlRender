@@ -264,5 +264,8 @@ namespace tl
 
         void IWidget::keyReleaseEvent(KeyEvent&)
         {}
+
+        void IWidget::textEvent(TextEvent&)
+        {}
     }
 }

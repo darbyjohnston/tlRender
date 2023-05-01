@@ -101,7 +101,7 @@ namespace tl
 
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            p.size.textSize = event.fontSystem->measure(p.text, fontInfo);
+            p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
 
             _sizeHint = math::Vector2i();
             for (const auto& child : _children)
@@ -124,11 +124,6 @@ namespace tl
             {
                 p.draw.glyphs.clear();
             }
-            else if (p.draw.glyphs.empty())
-            {
-                const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-                p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
-            }
         }
 
         void GroupBox::drawEvent(const DrawEvent& event)
@@ -138,6 +133,11 @@ namespace tl
 
             const math::BBox2i g = _geometry;
 
+            if (!p.text.empty() && p.draw.glyphs.empty())
+            {
+                const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+                p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
+            }
             event.render->drawText(
                 p.draw.glyphs,
                 math::Vector2i(g.x(), g.y() + p.size.fontMetrics.ascender),

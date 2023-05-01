@@ -80,7 +80,7 @@ namespace tl
             TLRENDER_P();
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            _sizeHint.x = event.fontSystem->measure(p.text, fontInfo).x;
+            _sizeHint.x = event.fontSystem->getSize(p.text, fontInfo).x;
             _sizeHint.y = p.size.fontMetrics.lineHeight;
         }
 
@@ -91,11 +91,6 @@ namespace tl
             if (clipped)
             {
                 p.draw.glyphs.clear();
-            }
-            else
-            {
-                const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-                p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
             }
         }
 
@@ -114,6 +109,11 @@ namespace tl
                 _hAlign,
                 _vAlign);
 
+            if (!p.text.empty() && p.draw.glyphs.empty())
+            {
+                const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+                p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
+            }
             event.render->drawText(
                 p.draw.glyphs,
                 math::Vector2i(g.x(), g.y() + p.size.fontMetrics.ascender),

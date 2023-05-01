@@ -9,12 +9,16 @@
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Render.h>
 
+#include <tlCore/FontSystem.h>
 #include <tlCore/StringFormat.h>
 
 #include <tlGlad/gl.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+
+#include <codecvt>
+#include <locale>
 
 namespace tl
 {
@@ -170,7 +174,7 @@ namespace tl
             glfwSetCursorPosCallback(p.glfwWindow, _cursorPosCallback);
             glfwSetMouseButtonCallback(p.glfwWindow, _mouseButtonCallback);
             glfwSetKeyCallback(p.glfwWindow, _keyCallback);
-            //glfwSetCharCallback(p.glfwWindow, _charCallback);
+            glfwSetCharCallback(p.glfwWindow, _charCallback);
             glfwShowWindow(p.glfwWindow);
 
             // Initialize the user interface.
@@ -374,54 +378,6 @@ namespace tl
                 ui::Key out = ui::Key::Unknown;
                 switch (key)
                 {
-                case GLFW_KEY_SPACE: out = ui::Key::Space; break;
-                case GLFW_KEY_APOSTROPHE: out = ui::Key::Apostrophe; break;
-                case GLFW_KEY_COMMA: out = ui::Key::Comma; break;
-                case GLFW_KEY_MINUS: out = ui::Key::Minus; break;
-                case GLFW_KEY_PERIOD: out = ui::Key::Period; break;
-                case GLFW_KEY_SLASH: out = ui::Key::Slash; break;
-                case GLFW_KEY_0: out = ui::Key::_0; break;
-                case GLFW_KEY_1: out = ui::Key::_1; break;
-                case GLFW_KEY_2: out = ui::Key::_2; break;
-                case GLFW_KEY_3: out = ui::Key::_3; break;
-                case GLFW_KEY_4: out = ui::Key::_4; break;
-                case GLFW_KEY_5: out = ui::Key::_5; break;
-                case GLFW_KEY_6: out = ui::Key::_6; break;
-                case GLFW_KEY_7: out = ui::Key::_7; break;
-                case GLFW_KEY_8: out = ui::Key::_8; break;
-                case GLFW_KEY_9: out = ui::Key::_9; break;
-                case GLFW_KEY_SEMICOLON: out = ui::Key::Semicolon; break;
-                case GLFW_KEY_EQUAL: out = ui::Key::Equal; break;
-                case GLFW_KEY_A: out = ui::Key::A; break;
-                case GLFW_KEY_B: out = ui::Key::B; break;
-                case GLFW_KEY_C: out = ui::Key::C; break;
-                case GLFW_KEY_D: out = ui::Key::D; break;
-                case GLFW_KEY_E: out = ui::Key::E; break;
-                case GLFW_KEY_F: out = ui::Key::F; break;
-                case GLFW_KEY_G: out = ui::Key::G; break;
-                case GLFW_KEY_H: out = ui::Key::H; break;
-                case GLFW_KEY_I: out = ui::Key::I; break;
-                case GLFW_KEY_J: out = ui::Key::J; break;
-                case GLFW_KEY_K: out = ui::Key::K; break;
-                case GLFW_KEY_L: out = ui::Key::L; break;
-                case GLFW_KEY_M: out = ui::Key::M; break;
-                case GLFW_KEY_N: out = ui::Key::N; break;
-                case GLFW_KEY_O: out = ui::Key::O; break;
-                case GLFW_KEY_P: out = ui::Key::P; break;
-                case GLFW_KEY_Q: out = ui::Key::Q; break;
-                case GLFW_KEY_R: out = ui::Key::R; break;
-                case GLFW_KEY_S: out = ui::Key::S; break;
-                case GLFW_KEY_T: out = ui::Key::T; break;
-                case GLFW_KEY_U: out = ui::Key::U; break;
-                case GLFW_KEY_V: out = ui::Key::V; break;
-                case GLFW_KEY_W: out = ui::Key::W; break;
-                case GLFW_KEY_X: out = ui::Key::X; break;
-                case GLFW_KEY_Y: out = ui::Key::Y; break;
-                case GLFW_KEY_Z: out = ui::Key::Z; break;
-                case GLFW_KEY_LEFT_BRACKET: out = ui::Key::LeftBracket; break;
-                case GLFW_KEY_BACKSLASH: out = ui::Key::Backslash; break;
-                case GLFW_KEY_RIGHT_BRACKET: out = ui::Key::RightBracket; break;
-                case GLFW_KEY_GRAVE_ACCENT: out = ui::Key::GraveAccent; break;
                 case GLFW_KEY_ESCAPE: out = ui::Key::Escape; break;
                 case GLFW_KEY_ENTER: out = ui::Key::Enter; break;
                 case GLFW_KEY_TAB: out = ui::Key::Tab; break;
@@ -505,9 +461,21 @@ namespace tl
             }
         }
 
-        /*void IApp::_charCallback(GLFWwindow* glfwWindow, unsigned int c)
+        namespace
+        {
+#if defined(_WINDOWS)
+            //! \bug https://social.msdn.microsoft.com/Forums/vstudio/en-US/8f40dcd8-c67f-4eba-9134-a19b9178e481/vs-2015-rc-linker-stdcodecvt-error?forum=vcgeneral
+            typedef unsigned int tl_char_t;
+#else // _WINDOWS
+            typedef char32_t tl_char_t;
+#endif // _WINDOWS
+        }
+
+        void IApp::_charCallback(GLFWwindow* glfwWindow, unsigned int c)
         {
             IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
-        }*/
+            std::wstring_convert<std::codecvt_utf8<tl_char_t>, tl_char_t> utf32Convert;
+            app->_p->eventLoop->text(utf32Convert.to_bytes(c));
+        }
     }
 }

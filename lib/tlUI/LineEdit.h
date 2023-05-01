@@ -59,8 +59,13 @@ namespace tl
             void mouseReleaseEvent(MouseClickEvent&) override;
             void keyPressEvent(KeyEvent&) override;
             void keyReleaseEvent(KeyEvent&) override;
+            void textEvent(TextEvent&) override;
 
         private:
+            math::BBox2i _getAlignGeometry() const;
+
+            size_t _getCursorPos(const math::Vector2i&);
+
             void _textUpdate();
 
             TLRENDER_PRIVATE();

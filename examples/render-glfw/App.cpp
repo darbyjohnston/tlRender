@@ -616,7 +616,7 @@ namespace tl
                     fontInfo.size = fontSize;
                     auto fontMetrics = _fontSystem->getMetrics(fontInfo);
                     std::string text = timeline::getLabel(compareOptions.mode);
-                    math::Vector2i textSize = _fontSystem->measure(text, fontInfo);
+                    math::Vector2i textSize = _fontSystem->getSize(text, fontInfo);
                     _render->drawRect(
                         math::BBox2i(0, 0, viewportSize.x, fontMetrics.lineHeight),
                         imaging::Color4f(0.F, 0.F, 0.F, .7F));

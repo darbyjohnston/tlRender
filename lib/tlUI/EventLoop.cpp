@@ -157,6 +157,38 @@ namespace tl
             }
         }
 
+        void EventLoop::text(const std::string& value)
+        {
+            TLRENDER_P();
+            TextEvent event;
+            event.text = value;
+            if (auto widget = p.keyFocus.lock())
+            {
+                while (widget)
+                {
+                    widget->textEvent(event);
+                    if (event.accept)
+                    {
+                        break;
+                    }
+                    widget = widget->getParent().lock();
+                }
+            }
+            if (!event.accept)
+            {
+                auto widget = _getUnderCursor(p.cursorPos);
+                while (widget)
+                {
+                    widget->textEvent(event);
+                    if (event.accept)
+                    {
+                        break;
+                    }
+                    widget = widget->getParent().lock();
+                }
+            }
+        }
+
         void EventLoop::cursorEnter(bool enter)
         {
             if (!enter)

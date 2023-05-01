@@ -55,6 +55,9 @@ namespace tl
             //! Handle key presses.
             void key(Key, bool press, int modifiers);
 
+            //! Handle text input.
+            void text(const std::string&);
+
             //! Handle the cursor entering and leaving.
             void cursorEnter(bool enter);
 

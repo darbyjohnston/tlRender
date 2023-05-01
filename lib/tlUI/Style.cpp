@@ -102,9 +102,9 @@ namespace tl
             p.colorRoles[ColorRole::Magenta] = imaging::Color4f(.6F, .3F, .6F);
             p.colorRoles[ColorRole::Yellow] = imaging::Color4f(.6F, .6F, .3F);
 
-            p.fontRoles[FontRole::Label] = imaging::FontInfo("NotoSans-Regular", 12);
-            p.fontRoles[FontRole::Mono] = imaging::FontInfo("NotoMono-Regular", 12);
-            p.fontRoles[FontRole::Title] = imaging::FontInfo("NotoSans-Regular", 24);
+            p.fontRoles[FontRole::Label] = imaging::FontInfo("NotoSans-Regular", 12 * 1);
+            p.fontRoles[FontRole::Mono] = imaging::FontInfo("NotoMono-Regular", 12 * 1);
+            p.fontRoles[FontRole::Title] = imaging::FontInfo("NotoSans-Regular", 24 * 1);
         }
 
         Style::Style() :

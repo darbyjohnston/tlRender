@@ -91,18 +91,18 @@ namespace tl
                         ss << "Text: " << text[i];
                         _print(ss.str());
                     }
-                    const auto size = fontSystem->measure(text[i], fi, maxLineWidth[i]);
+                    const auto size = fontSystem->getSize(text[i], fi, maxLineWidth[i]);
                     {
                         std::stringstream ss;
                         ss << "Size: " << size;
                         _print(ss.str());
                     }
-                    const auto sizes = fontSystem->measureGlyphs(text[i], fi, maxLineWidth[i]);
-                    TLRENDER_ASSERT(text[i].size() == sizes.size());
+                    const auto bboxes = fontSystem->getBBox(text[i], fi, maxLineWidth[i]);
+                    TLRENDER_ASSERT(text[i].size() == bboxes.size());
                     for (size_t j = 0; j < text[i].size(); ++j)
                     {
                         std::stringstream ss;
-                        ss << "BBox '" << text[i][j] << "': " << sizes[j];
+                        ss << "BBox '" << text[i][j] << "': " << bboxes[j];
                         _print(ss.str());
                     }
                     const auto glyphs = fontSystem->getGlyphs(text[i], fi);

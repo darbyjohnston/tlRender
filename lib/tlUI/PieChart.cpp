@@ -149,7 +149,7 @@ namespace tl
             {
                 Private::DrawData::PercentageLabel label;
                 label.text = string::Format("{0}%").arg(data.percentage);
-                label.size = event.fontSystem->measure(label.text, fontInfo);
+                label.size = event.fontSystem->getSize(label.text, fontInfo);
                 label.glyphs = event.fontSystem->getGlyphs(label.text, fontInfo);
                 p.draw.percentageLabels.push_back(label);
                 percentageWidthMax = std::max(percentageWidthMax, label.size.x);
@@ -202,7 +202,7 @@ namespace tl
             {
                 Private::DrawData::TextLabel label;
                 label.text = p.data[i].text;
-                label.size = event.fontSystem->measure(label.text, fontInfo);
+                label.size = event.fontSystem->getSize(label.text, fontInfo);
                 label.pos.y = p.size.textSize.y;
                 label.glyphs = event.fontSystem->getGlyphs(label.text, fontInfo);
                 label.color = p.data[i].color;

@@ -28,6 +28,13 @@ namespace tl
 #include <Fonts/NotoMono-Regular.font>
 #include <Fonts/NotoSans-Regular.font>
 #include <Fonts/NotoSans-Bold.font>
+
+#if defined(_WINDOWS)
+            //! \bug https://social.msdn.microsoft.com/Forums/vstudio/en-US/8f40dcd8-c67f-4eba-9134-a19b9178e481/vs-2015-rc-linker-stdcodecvt-error?forum=vcgeneral
+            typedef unsigned int tl_char_t;
+#else // _WINDOWS
+            typedef char32_t tl_char_t;
+#endif // _WINDOWS
         }
 
         std::vector<uint8_t> getFontData(const std::string& name)
@@ -194,7 +201,7 @@ namespace tl
             return out;
         }
 
-        math::Vector2i FontSystem::measure(
+        math::Vector2i FontSystem::getSize(
             const std::string& text,
             const FontInfo& fontInfo,
             uint16_t maxLineWidth)
@@ -206,7 +213,7 @@ namespace tl
             return out;
         }
 
-        std::vector<math::BBox2i> FontSystem::measureGlyphs(
+        std::vector<math::BBox2i> FontSystem::getBBox(
             const std::string& text,
             const FontInfo& fontInfo,
             uint16_t maxLineWidth)
@@ -328,7 +335,8 @@ namespace tl
                     throw std::runtime_error("Cannot set pixel sizes");
                 }
 
-                pos.y = i->second->size->metrics.height / 64;
+                const int h = i->second->size->metrics.height / 64;
+                pos.y = h;
                 auto textLine = utf32.end();
                 int textLineX = 0;
                 int32_t rsbDeltaPrev = 0;
@@ -342,9 +350,9 @@ namespace tl
                         {
                             bbox = math::BBox2i(
                                 pos.x,
+                                pos.y - h,
                                 glyph->advance,
-                                glyph->advance,
-                                i->second->size->metrics.height / 64);
+                                h);
                         }
                         glyphGeom->push_back(bbox);
                     }
@@ -373,7 +381,7 @@ namespace tl
                     {
                         size.x = std::max(size.x, pos.x);
                         pos.x = 0;
-                        pos.y += i->second->size->metrics.height / 64;
+                        pos.y += h;
                         rsbDeltaPrev = 0;
                     }
                     else if (
@@ -387,13 +395,13 @@ namespace tl
                             textLine = utf32.end();
                             size.x = std::max(size.x, textLineX);
                             pos.x = 0;
-                            pos.y += i->second->size->metrics.height / 64;
+                            pos.y += h;
                         }
                         else
                         {
                             size.x = std::max(size.x, pos.x);
                             pos.x = x;
-                            pos.y += i->second->size->metrics.height / 64;
+                            pos.y += h;
                         }
                         rsbDeltaPrev = 0;
                     }

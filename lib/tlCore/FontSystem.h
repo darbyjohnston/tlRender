@@ -20,13 +20,6 @@ namespace tl
 
     namespace imaging
     {
-#if defined(_WINDOWS)
-        //! \bug https://social.msdn.microsoft.com/Forums/vstudio/en-US/8f40dcd8-c67f-4eba-9134-a19b9178e481/vs-2015-rc-linker-stdcodecvt-error?forum=vcgeneral
-        typedef unsigned int tl_char_t;
-#else // _WINDOWS
-        typedef char32_t tl_char_t;
-#endif // _WINDOWS
-
         //! Get font data.
         std::vector<uint8_t> getFontData(const std::string&);
 
@@ -112,14 +105,14 @@ namespace tl
             //! Get font metrics.
             FontMetrics getMetrics(const FontInfo&);
 
-            //! Measure the size of text.
-            math::Vector2i measure(
+            //! Get the size of text.
+            math::Vector2i getSize(
                 const std::string&,
                 const FontInfo&,
                 uint16_t maxLineWidth = 0);
 
-            //! Measure the size of glyphs.
-            std::vector<math::BBox2i> measureGlyphs(
+            //! Get the character bounding boxes.
+            std::vector<math::BBox2i> getBBox(
                 const std::string&,
                 const FontInfo&,
                 uint16_t maxLineWidth = 0);
@@ -129,7 +122,7 @@ namespace tl
             //! \name Glyphs
             ///@{
 
-            //! Get font glyphs.
+            //! Get glyphs.
             std::vector<std::shared_ptr<Glyph> > getGlyphs(
                 const std::string&,
                 const FontInfo&);

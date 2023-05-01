@@ -226,7 +226,7 @@ namespace tl
                     fontMetrics.ascender),
                 event.style->getColorRole(ColorRole::Text));
 
-            math::Vector2i textSize = event.fontSystem->measure(p.durationLabel, fontInfo);
+            math::Vector2i textSize = event.fontSystem->getSize(p.durationLabel, fontInfo);
             event.render->drawText(
                 event.fontSystem->getGlyphs(p.durationLabel, fontInfo),
                 math::Vector2i(
