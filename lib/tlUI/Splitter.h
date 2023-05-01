@@ -36,7 +36,10 @@ namespace tl
             void setSplit(float);
 
             void setGeometry(const math::BBox2i&) override;
+            void setVisible(bool) override;
+            void setEnabled(bool) override;
             void sizeHintEvent(const SizeHintEvent&) override;
+            void clipEvent(bool, const ClipEvent&) override;
             void drawEvent(const DrawEvent&) override;
             void enterEvent() override;
             void leaveEvent() override;
@@ -45,6 +48,8 @@ namespace tl
             void mouseReleaseEvent(MouseClickEvent&) override;
 
         private:
+            void _resetMouse();
+
             TLRENDER_PRIVATE();
         };
     }

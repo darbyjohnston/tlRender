@@ -181,7 +181,10 @@ namespace tl
                       x,
                       g.y() + g.h() / 2 - iconSize.h / 2,
                       iconSize.w,
-                      iconSize.h));
+                      iconSize.h),
+                    event.style->getColorRole(_enabled ?
+                        ColorRole::Text :
+                        ColorRole::TextDisabled));
                 x += iconSize.w + p.size.spacing;
             }
             
@@ -196,13 +199,14 @@ namespace tl
                 event.render->drawText(
                     p.draw.glyphs,
                     pos,
-                    event.style->getColorRole(ColorRole::Text));
+                    event.style->getColorRole(_enabled ?
+                        ColorRole::Text :
+                        ColorRole::TextDisabled));
             }
         }
 
         void PushButton::keyPressEvent(KeyEvent& event)
         {
-            TLRENDER_P();
             switch (event.key)
             {
             case Key::Space:

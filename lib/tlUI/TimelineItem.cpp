@@ -34,7 +34,7 @@ namespace tl
 
             struct MouseData
             {
-                bool press = false;
+                bool pressed = false;
                 math::Vector2i pressPos;
                 bool currentTimeDrag = false;
             };
@@ -143,6 +143,26 @@ namespace tl
             }
         }
 
+        void TimelineItem::setVisible(bool value)
+        {
+            const bool changed = value != _visible;
+            IWidget::setVisible(value);
+            if (changed && !_visible)
+            {
+                _resetMouse();
+            }
+        }
+
+        void TimelineItem::setEnabled(bool value)
+        {
+            const bool changed = value != _enabled;
+            IWidget::setEnabled(value);
+            if (changed && !_enabled)
+            {
+                _resetMouse();
+            }
+        }
+
         void TimelineItem::sizeHintEvent(const SizeHintEvent& event)
         {
             ITimelineItem::sizeHintEvent(event);
@@ -184,6 +204,16 @@ namespace tl
             _drawCurrentTime(event);
         }
 
+        void TimelineItem::clipEvent(bool clipped, const ClipEvent& event)
+        {
+            const bool changed = clipped != _clipped;
+            IWidget::clipEvent(clipped, event);
+            if (changed && clipped)
+            {
+                _resetMouse();
+            }
+        }
+
         void TimelineItem::enterEvent()
         {}
 
@@ -206,7 +236,7 @@ namespace tl
             if (0 == event.modifiers)
             {
                 event.accept = true;
-                p.mouse.press = true;
+                p.mouse.pressed = true;
                 p.mouse.pressPos = event.pos;
                 if (p.stopOnScrub)
                 {
@@ -225,7 +255,7 @@ namespace tl
         {
             TLRENDER_P();
             event.accept = true;
-            p.mouse.press = false;
+            p.mouse.pressed = false;
             p.mouse.currentTimeDrag = false;
         }
 
@@ -449,6 +479,17 @@ namespace tl
                     bbox.w();
             }
             return out;
+        }
+
+        void TimelineItem::_resetMouse()
+        {
+            TLRENDER_P();
+            if (p.mouse.pressed || p.mouse.currentTimeDrag)
+            {
+                p.mouse.pressed = false;
+                p.mouse.currentTimeDrag = false;
+                _updates |= Update::Draw;
+            }
         }
     }
 }

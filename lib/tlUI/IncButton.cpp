@@ -23,6 +23,7 @@ namespace tl
         {
             IButton::_init("tl::ui::IncButton", context, parent);
             setButtonRole(ColorRole::None);
+            setRepeatClick(true);
         }
 
         IncButton::IncButton() :

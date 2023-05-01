@@ -173,7 +173,9 @@ namespace tl
             event.render->drawText(
                 p.draw.glyphs,
                 pos,
-                event.style->getColorRole(ColorRole::Text));
+                event.style->getColorRole(_enabled ?
+                    ColorRole::Text :
+                    ColorRole::TextDisabled));
         }
 
         void LineEdit::enterEvent()
@@ -191,8 +193,10 @@ namespace tl
             takeFocus();
         }
 
-        void LineEdit::mouseReleaseEvent(MouseClickEvent&)
-        {}
+        void LineEdit::mouseReleaseEvent(MouseClickEvent& event)
+        {
+            event.accept = true;
+        }
 
         void LineEdit::keyPressEvent(KeyEvent& event)
         {

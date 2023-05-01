@@ -111,10 +111,21 @@ namespace tl
             bool isVisible() const;
 
             //! Set whether the widget is visible.
-            void setVisible(bool);
+            virtual void setVisible(bool);
 
             //! Is the widget clipped?
             bool isClipped() const;
+
+            ///@}
+
+            //! Enabled
+            ///@{
+
+            //! Is the widget enabled?
+            bool isEnabled() const;
+
+            //! Set whether the widget is enabled.
+            virtual void setEnabled(bool);
 
             ///@}
 
@@ -193,6 +204,7 @@ namespace tl
             math::BBox2i _geometry;
             bool _visible = true;
             bool _clipped = false;
+            bool _enabled = true;
             ColorRole _backgroundRole = ColorRole::None;
             int _updates = 0;
         };

@@ -43,6 +43,7 @@ namespace tl
             Base,
             Button,
             Text,
+            TextDisabled,
             Border,
             Hover,
             Pressed,

@@ -201,6 +201,26 @@ namespace tl
             }
         }
 
+        void TimelineWidget::setVisible(bool value)
+        {
+            const bool changed = value != _visible;
+            IWidget::setVisible(value);
+            if (changed && !_visible)
+            {
+                _resetMouse();
+            }
+        }
+
+        void TimelineWidget::setEnabled(bool value)
+        {
+            const bool changed = value != _enabled;
+            IWidget::setEnabled(value);
+            if (changed && !_enabled)
+            {
+                _resetMouse();
+            }
+        }
+
         void TimelineWidget::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
@@ -211,6 +231,16 @@ namespace tl
             const int sa = event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
             _sizeHint.x = sa;
             _sizeHint.y = sa * 2;
+        }
+
+        void TimelineWidget::clipEvent(bool clipped, const ClipEvent& event)
+        {
+            const bool changed = clipped != _clipped;
+            IWidget::clipEvent(clipped, event);
+            if (changed && clipped)
+            {
+                _resetMouse();
+            }
         }
 
         void TimelineWidget::mouseMoveEvent(MouseMoveEvent& event)
@@ -408,6 +438,12 @@ namespace tl
             {
                 _setViewport(child, vp);
             }
+        }
+
+        void TimelineWidget::_resetMouse()
+        {
+            TLRENDER_P();
+            p.mouse.mode = Private::MouseMode::None;
         }
     }
 }

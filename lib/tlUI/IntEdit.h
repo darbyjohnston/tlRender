@@ -47,6 +47,7 @@ namespace tl
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:
+            void _valueUpdate();
             void _textUpdate();
 
             TLRENDER_PRIVATE();

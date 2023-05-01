@@ -60,7 +60,10 @@ namespace tl
             void setItemOptions(const TimelineItemOptions&);
 
             void setGeometry(const math::BBox2i&) override;
+            void setVisible(bool) override;
+            void setEnabled(bool) override;
             void sizeHintEvent(const SizeHintEvent&) override;
+            void clipEvent(bool, const ClipEvent&) override;
             void mouseMoveEvent(MouseMoveEvent&) override;
             void mousePressEvent(MouseClickEvent&) override;
             void mouseReleaseEvent(MouseClickEvent&) override;
@@ -87,6 +90,8 @@ namespace tl
             void _setViewport(
                 const std::shared_ptr<IWidget>&,
                 const math::BBox2i&);
+
+            void _resetMouse();
 
             TLRENDER_PRIVATE();
         };

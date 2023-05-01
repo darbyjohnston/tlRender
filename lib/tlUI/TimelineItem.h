@@ -36,7 +36,10 @@ namespace tl
             void setStopOnScrub(bool);
 
             void setGeometry(const math::BBox2i&) override;
+            void setVisible(bool) override;
+            void setEnabled(bool) override;
             void sizeHintEvent(const SizeHintEvent&) override;
+            void clipEvent(bool, const ClipEvent&) override;
             void drawEvent(const DrawEvent&) override;
             void enterEvent() override;
             void leaveEvent() override;
@@ -52,6 +55,8 @@ namespace tl
 
             otime::RationalTime _posToTime(float) const;
             float _timeToPos(const otime::RationalTime&) const;
+
+            void _resetMouse();
 
             TLRENDER_PRIVATE();
         };

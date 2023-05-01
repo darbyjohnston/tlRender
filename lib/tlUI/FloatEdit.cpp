@@ -43,13 +43,30 @@ namespace tl
             
             p.incrementButton = IncButton::create(context, shared_from_this());
             p.incrementButton->setIcon("Increment");
-
             p.decrementButton = IncButton::create(context, shared_from_this());
             p.decrementButton->setIcon("Decrement");
 
             setModel(FloatModel::create(context));
 
+            _valueUpdate();
             _textUpdate();
+
+            p.incrementButton->setClickedCallback(
+                [this]
+                {
+                    if (_p->model)
+                    {
+                        _p->model->incrementStep();
+                    }
+                });
+            p.decrementButton->setClickedCallback(
+                [this]
+                {
+                    if (_p->model)
+                    {
+                        _p->model->decrementStep();
+                    }
+                });
         }
 
         FloatEdit::FloatEdit() :
@@ -85,15 +102,18 @@ namespace tl
                     p.model->observeValue(),
                     [this](float)
                     {
+                        _valueUpdate();
                         _textUpdate();
                     });
                 p.rangeObserver = observer::ValueObserver<math::FloatRange>::create(
                     p.model->observeRange(),
                     [this](const math::FloatRange&)
                     {
+                        _valueUpdate();
                         _textUpdate();
                     });
             }
+            _valueUpdate();
             _textUpdate();
         }
 
@@ -151,6 +171,22 @@ namespace tl
                 p.incrementButton->getSizeHint().x,
                 p.decrementButton->getSizeHint().x);
             _sizeHint.x += p.size.margin + buttonsWidth;
+        }
+
+        void FloatEdit::_valueUpdate()
+        {
+            TLRENDER_P();
+            bool incrementEnabled = false;
+            bool decrementEnabled = false;
+            if (p.model)
+            {
+                const float value = p.model->getValue();
+                const math::FloatRange& range = p.model->getRange();
+                incrementEnabled = value < range.getMax();
+                decrementEnabled = value > range.getMin();
+            }
+            p.incrementButton->setEnabled(incrementEnabled);
+            p.decrementButton->setEnabled(decrementEnabled);
         }
 
         void FloatEdit::_textUpdate()

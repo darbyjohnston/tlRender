@@ -65,5 +65,20 @@ namespace tl
         {
             return _visible;
         }
+
+        inline bool IWidget::isClipped() const
+        {
+            return _clipped;
+        }
+
+        inline bool IWidget::isEnabled() const
+        {
+            return _enabled;
+        }
+
+        inline bool IWidget::acceptsKeyFocus() const
+        {
+            return false;
+        }
     }
 }

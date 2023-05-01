@@ -90,6 +90,26 @@ namespace tl
             }
         }
 
+        void IntSlider::setVisible(bool value)
+        {
+            const bool changed = value != _visible;
+            IWidget::setVisible(value);
+            if (changed && !_visible)
+            {
+                _resetMouse();
+            }
+        }
+
+        void IntSlider::setEnabled(bool value)
+        {
+            const bool changed = value != _enabled;
+            IWidget::setEnabled(value);
+            if (changed && !_enabled)
+            {
+                _resetMouse();
+            }
+        }
+
         bool IntSlider::acceptsKeyFocus() const
         {
             return true;
@@ -116,6 +136,16 @@ namespace tl
                 p.size.fontMetrics.lineHeight +
                 p.size.margin * 2 +
                 p.size.border * 2;
+        }
+
+        void IntSlider::clipEvent(bool clipped, const ClipEvent& event)
+        {
+            const bool changed = clipped != _clipped;
+            IWidget::clipEvent(clipped, event);
+            if (changed && clipped)
+            {
+                _resetMouse();
+            }
         }
 
         void IntSlider::drawEvent(const DrawEvent& event)
@@ -216,7 +246,7 @@ namespace tl
         void IntSlider::keyPressEvent(KeyEvent& event)
         {
             TLRENDER_P();
-            if (p.model)
+            if (_enabled && p.model)
             {
                 switch (event.key)
                 {
@@ -301,6 +331,17 @@ namespace tl
                 }
             }
             return g.x() + g.w() * v;
+        }
+
+        void IntSlider::_resetMouse()
+        {
+            TLRENDER_P();
+            if (p.mouse.pressed || p.mouse.inside)
+            {
+                p.mouse.pressed = false;
+                p.mouse.inside = false;
+                _updates |= Update::Draw;
+            }
         }
     }
 }

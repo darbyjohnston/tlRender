@@ -479,7 +479,9 @@ namespace tl
             {
                 if (auto widget = i.lock())
                 {
-                    if (!widget->isClipped() && widget->getGeometry().contains(pos))
+                    if (!widget->isClipped() &&
+                        widget->isEnabled() &&
+                        widget->getGeometry().contains(pos))
                     {
                         _getUnderCursor(widget, pos, out);
                         break;
@@ -496,7 +498,9 @@ namespace tl
             out.push_back(widget);
             for (const auto& child : widget->getChildren())
             {
-                if (!child->isClipped() && child->getGeometry().contains(pos))
+                if (!child->isClipped() &&
+                    child->isEnabled() &&
+                    child->getGeometry().contains(pos))
                 {
                     _getUnderCursor(child, pos, out);
                     break;
@@ -555,7 +559,7 @@ namespace tl
             {
                 if (auto widget = i.lock())
                 {
-                    if (!widget->isClipped())
+                    if (!widget->isClipped() && widget->isEnabled())
                     {
                         _getKeyFocus(widget, widgets);
                         break;
@@ -594,7 +598,7 @@ namespace tl
             {
                 if (auto widget = i.lock())
                 {
-                    if (!widget->isClipped())
+                    if (!widget->isClipped() && widget->isEnabled())
                     {
                         _getKeyFocus(widget, widgets);
                         break;
@@ -634,7 +638,7 @@ namespace tl
             }
             for (const auto& child : widget->getChildren())
             {
-                if (!child->isClipped())
+                if (!child->isClipped() && child->isEnabled())
                 {
                     _getKeyFocus(child, out);
                 }

@@ -37,8 +37,11 @@ namespace tl
             //! Set the integer model.
             void setModel(const std::shared_ptr<IntModel>&);
 
+            void setVisible(bool) override;
+            void setEnabled(bool) override;
             bool acceptsKeyFocus() const override;
             void sizeHintEvent(const SizeHintEvent&) override;
+            void clipEvent(bool, const ClipEvent&) override;
             void drawEvent(const DrawEvent&) override;
             void enterEvent() override;
             void leaveEvent() override;
@@ -53,6 +56,8 @@ namespace tl
 
             int _posToValue(int) const;
             int _valueToPos(int) const;
+
+            void _resetMouse();
 
             TLRENDER_PRIVATE();
         };

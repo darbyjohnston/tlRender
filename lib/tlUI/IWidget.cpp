@@ -150,14 +150,17 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        bool IWidget::isClipped() const
+        void IWidget::setEnabled(bool value)
         {
-            return _clipped;
-        }
-
-        bool IWidget::acceptsKeyFocus() const
-        {
-            return false;
+            if (value == _enabled)
+                return;
+            _enabled = value;
+            if (!_enabled)
+            {
+                releaseFocus();
+            }
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
         }
 
         bool IWidget::hasKeyFocus() const
@@ -247,7 +250,7 @@ namespace tl
         void IWidget::leaveEvent()
         {}
 
-        void IWidget::mouseMoveEvent(MouseMoveEvent&)
+        void IWidget::mouseMoveEvent(MouseMoveEvent& event)
         {}
 
         void IWidget::mousePressEvent(MouseClickEvent&)

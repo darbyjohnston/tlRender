@@ -26,7 +26,7 @@ namespace tl
 
             struct MouseData
             {
-                bool press = false;
+                bool pressed = false;
                 math::Vector2i pressPos;
                 math::Vector2i viewPos;
             };
@@ -219,12 +219,42 @@ namespace tl
             setViewZoom(p.viewZoom / 2.F, _viewportCenter());
         }
 
+        void TimelineViewport::setVisible(bool value)
+        {
+            const bool changed = value != _visible;
+            IWidget::setVisible(value);
+            if (changed && !_visible)
+            {
+                _resetMouse();
+            }
+        }
+
+        void TimelineViewport::setEnabled(bool value)
+        {
+            const bool changed = value != _enabled;
+            IWidget::setEnabled(value);
+            if (changed && !_enabled)
+            {
+                _resetMouse();
+            }
+        }
+
         void TimelineViewport::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             const int sa = event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
             _sizeHint.x = sa;
             _sizeHint.y = sa;
+        }
+
+        void TimelineViewport::clipEvent(bool clipped, const ClipEvent& event)
+        {
+            const bool changed = clipped != _clipped;
+            IWidget::clipEvent(clipped, event);
+            if (changed && clipped)
+            {
+                _resetMouse();
+            }
         }
 
         void TimelineViewport::drawEvent(const DrawEvent& event)
@@ -272,7 +302,7 @@ namespace tl
         {
             TLRENDER_P();
             event.accept = true;
-            if (p.mouse.press)
+            if (p.mouse.pressed)
             {
                 p.viewPos.x = p.mouse.viewPos.x + (event.pos.x - p.mouse.pressPos.x);
                 p.viewPos.y = p.mouse.viewPos.y + (event.pos.y - p.mouse.pressPos.y);
@@ -296,7 +326,7 @@ namespace tl
                 event.modifiers & static_cast<int>(KeyModifier::Control))
             {
                 event.accept = true;
-                p.mouse.press = true;
+                p.mouse.pressed = true;
                 p.mouse.pressPos = event.pos;
                 p.mouse.viewPos = p.viewPos;
             }
@@ -306,7 +336,7 @@ namespace tl
         {
             TLRENDER_P();
             event.accept = true;
-            p.mouse.press = false;
+            p.mouse.pressed = false;
         }
 
         void TimelineViewport::keyPressEvent(KeyEvent& event)
@@ -371,6 +401,12 @@ namespace tl
                     p.viewPosAndZoomCallback(p.viewPos, p.viewZoom);
                 }
             }
+        }
+
+        void TimelineViewport::_resetMouse()
+        {
+            TLRENDER_P();
+            p.mouse.pressed = false;
         }
     }
 }

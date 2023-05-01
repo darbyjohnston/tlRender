@@ -36,6 +36,7 @@ namespace tl
             "Base",
             "Button",
             "Text",
+            "TextDisabled",
             "Border",
             "Hover",
             "Pressed",
@@ -88,6 +89,7 @@ namespace tl
             p.colorRoles[ColorRole::Base] = imaging::Color4f(.17F, .17F, .17F);
             p.colorRoles[ColorRole::Button] = imaging::Color4f(.3F, .3F, .3F);
             p.colorRoles[ColorRole::Text] = imaging::Color4f(1.F, 1.F, 1.F);
+            p.colorRoles[ColorRole::TextDisabled] = imaging::Color4f(.5F, .5F, .5F);
             p.colorRoles[ColorRole::Border] = imaging::Color4f(.13F, .13F, .13F);
             p.colorRoles[ColorRole::Hover] = imaging::Color4f(1.F, 1.F, 1.F, .1F);
             p.colorRoles[ColorRole::Pressed] = imaging::Color4f(1.F, 1.F, 1.F, .2F);

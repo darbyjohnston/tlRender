@@ -37,8 +37,11 @@ namespace tl
             //! Set the floating point model.
             void setModel(const std::shared_ptr<FloatModel>&);
 
+            void setVisible(bool) override;
+            void setEnabled(bool) override;
             bool acceptsKeyFocus() const override;
             void sizeHintEvent(const SizeHintEvent&) override;
+            void clipEvent(bool, const ClipEvent&) override;
             void drawEvent(const DrawEvent&) override;
             void enterEvent() override;
             void leaveEvent() override;
@@ -53,6 +56,8 @@ namespace tl
 
             float _posToValue(int) const;
             int _valueToPos(float) const;
+
+            void _resetMouse();
 
             TLRENDER_PRIVATE();
         };

@@ -17,6 +17,8 @@ namespace tl
             bool iconInit = false;
             float iconScale = 1.F;
             std::future<std::shared_ptr<imaging::Image> > iconFuture;
+            bool repeatClick = false;
+            std::chrono::steady_clock::time_point repeatClickTimer;
         };
 
         void IButton::_init(
@@ -76,8 +78,9 @@ namespace tl
         
         void IButton::setIcon(const std::string& icon)
         {
-            _p->icon = icon;
-            _p->iconInit = true;
+            TLRENDER_P();
+            p.icon = icon;
+            p.iconInit = true;
             _iconImage.reset();
         }
 
@@ -89,6 +92,12 @@ namespace tl
             _updates |= Update::Draw;
         }
 
+        void IButton::setRepeatClick(bool value)
+        {
+            TLRENDER_P();
+            p.repeatClick = value;
+        }
+
         void IButton::setClickedCallback(const std::function<void(void)>& value)
         {
             _clickedCallback = value;
@@ -97,6 +106,26 @@ namespace tl
         void IButton::setCheckedCallback(const std::function<void(bool)>& value)
         {
             _checkedCallback = value;
+        }
+
+        void IButton::setVisible(bool value)
+        {
+            const bool changed = value != _visible;
+            IWidget::setVisible(value);
+            if (changed && !_visible)
+            {
+                _resetMouse();
+            }
+        }
+
+        void IButton::setEnabled(bool value)
+        {
+            const bool changed = value != _enabled;
+            IWidget::setEnabled(value);
+            if (changed && !_enabled)
+            {
+                _resetMouse();
+            }
         }
 
         void IButton::tickEvent(const TickEvent& event)
@@ -121,6 +150,26 @@ namespace tl
                 _updates |= Update::Size;
                 _updates |= Update::Draw;
             }
+            if (_pressed && p.repeatClick)
+            {
+                const auto now = std::chrono::steady_clock::now();
+                const std::chrono::duration<float> diff = now - p.repeatClickTimer;
+                if (diff.count() > .2F)
+                {
+                    _click();
+                    p.repeatClickTimer = now;
+                }
+            }
+        }
+
+        void IButton::clipEvent(bool clipped, const ClipEvent& event)
+        {
+            const bool changed = clipped != _clipped;
+            IWidget::clipEvent(clipped, event);
+            if (changed && clipped)
+            {
+                _resetMouse();
+            }
         }
 
         void IButton::enterEvent()
@@ -143,6 +192,7 @@ namespace tl
 
         void IButton::mousePressEvent(MouseClickEvent& event)
         {
+            TLRENDER_P();
             event.accept = true;
             if (acceptsKeyFocus())
             {
@@ -150,11 +200,14 @@ namespace tl
             }
             _pressed = true;
             _updates |= Update::Draw;
+            if (p.repeatClick)
+            {
+                p.repeatClickTimer = std::chrono::steady_clock::now();
+            }
         }
 
         void IButton::mouseReleaseEvent(MouseClickEvent& event)
         {
-            TLRENDER_P();
             event.accept = true;
             _pressed = false;
             _updates |= Update::Draw;
@@ -179,6 +232,16 @@ namespace tl
                 {
                     _checkedCallback(_checked);
                 }
+            }
+        }
+
+        void IButton::_resetMouse()
+        {
+            if (_pressed || _inside)
+            {
+                _pressed = false;
+                _inside = false;
+                _updates |= Update::Draw;
             }
         }
     }
