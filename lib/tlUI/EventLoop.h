@@ -101,13 +101,11 @@ namespace tl
                 math::BBox2i clip,
                 const DrawEvent&);
 
-            void _getUnderCursor(
-                const math::Vector2i&,
-                std::list<std::shared_ptr<IWidget> >&);
-            void _getUnderCursor(
+            std::shared_ptr<IWidget> _getUnderCursor(
+                const math::Vector2i&);
+            std::shared_ptr<IWidget> _getUnderCursor(
                 const std::shared_ptr<IWidget>&,
-                const math::Vector2i&,
-                std::list<std::shared_ptr<IWidget> >&);
+                const math::Vector2i&);
 
             void _setHover(const std::shared_ptr<IWidget>&);
             void _hoverUpdate(MouseMoveEvent&);

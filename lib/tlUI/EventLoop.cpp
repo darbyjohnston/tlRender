@@ -112,26 +112,29 @@ namespace tl
             {
                 if (auto widget = p.keyFocus.lock())
                 {
-                    widget->keyPressEvent(event);
-                    if (event.accept)
+                    while (widget)
                     {
-                        p.keyPress = widget;
-                    }
-                }
-                if (!event.accept)
-                {
-                    std::list<std::shared_ptr<IWidget> > widgets;
-                    _getUnderCursor(p.cursorPos, widgets);
-                    while (!widgets.empty())
-                    {
-                        auto widget = widgets.back();
-                        widgets.pop_back();
                         widget->keyPressEvent(event);
                         if (event.accept)
                         {
                             p.keyPress = widget;
                             break;
                         }
+                        widget = widget->getParent().lock();
+                    }
+                }
+                if (!event.accept)
+                {
+                    auto widget = _getUnderCursor(p.cursorPos);
+                    while (widget)
+                    {
+                        widget->keyPressEvent(event);
+                        if (event.accept)
+                        {
+                            p.keyPress = widget;
+                            break;
+                        }
+                        widget = widget->getParent().lock();
                     }
                 }
                 if (!event.accept && Key::Tab == key)
@@ -188,18 +191,16 @@ namespace tl
             event.pos = p.cursorPos;
             if (press)
             {
-                std::list<std::shared_ptr<IWidget> > widgets;
-                _getUnderCursor(p.cursorPos, widgets);
-                while (!widgets.empty())
+                auto widget = _getUnderCursor(p.cursorPos);
+                while (widget)
                 {
-                    auto widget = widgets.back();
-                    widgets.pop_back();
                     widget->mousePressEvent(event);
                     if (event.accept)
                     {
                         p.mousePress = widget;
                         break;
                     }
+                    widget = widget->getParent().lock();
                 }
             }
             else
@@ -470,11 +471,11 @@ namespace tl
             }
         }
 
-        void EventLoop::_getUnderCursor(
-            const math::Vector2i& pos,
-            std::list<std::shared_ptr<IWidget> >& out)
+        std::shared_ptr<IWidget> EventLoop::_getUnderCursor(
+            const math::Vector2i& pos)
         {
             TLRENDER_P();
+            std::shared_ptr<IWidget> out;
             for (const auto& i : p.topLevelWidgets)
             {
                 if (auto widget = i.lock())
@@ -483,29 +484,30 @@ namespace tl
                         widget->isEnabled() &&
                         widget->getGeometry().contains(pos))
                     {
-                        _getUnderCursor(widget, pos, out);
+                        out = _getUnderCursor(widget, pos);
                         break;
                     }
                 }
             }
+            return out;
         }
 
-        void EventLoop::_getUnderCursor(
+        std::shared_ptr<IWidget> EventLoop::_getUnderCursor(
             const std::shared_ptr<IWidget>& widget,
-            const math::Vector2i& pos,
-            std::list<std::shared_ptr<IWidget> >& out)
+            const math::Vector2i& pos)
         {
-            out.push_back(widget);
+            std::shared_ptr<IWidget> out = widget;
             for (const auto& child : widget->getChildren())
             {
                 if (!child->isClipped() &&
                     child->isEnabled() &&
                     child->getGeometry().contains(pos))
                 {
-                    _getUnderCursor(child, pos, out);
+                    out = _getUnderCursor(child, pos);
                     break;
                 }
             }
+            return out;
         }
 
         void EventLoop::_setHover(const std::shared_ptr<IWidget>& hover)
@@ -533,19 +535,15 @@ namespace tl
 
         void EventLoop::_hoverUpdate(MouseMoveEvent& event)
         {
-            std::shared_ptr<IWidget> widget;
-            std::list<std::shared_ptr<IWidget> > widgets;
-            _getUnderCursor(event.pos, widgets);
-            while (!widgets.empty())
+            auto widget = _getUnderCursor(event.pos);
+            while (widget)
             {
-                widget = widgets.back();
-                widgets.pop_back();
                 widget->mouseMoveEvent(event);
                 if (event.accept)
                 {
                     break;
                 }
-                widget = nullptr;
+                widget = widget->getParent().lock();
             }
             _setHover(widget);
         }

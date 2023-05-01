@@ -163,6 +163,38 @@ namespace tl
             _sizeHint.x += p.size.margin + buttonsWidth;
         }
 
+        void IntEdit::keyPressEvent(KeyEvent& event)
+        {
+            TLRENDER_P();
+            if (_enabled && p.model)
+            {
+                switch (event.key)
+                {
+                case Key::Down:
+                    event.accept = true;
+                    p.model->decrementStep();
+                    break;
+                case Key::Up:
+                    event.accept = true;
+                    p.model->incrementStep();
+                    break;
+                case Key::PageUp:
+                    event.accept = true;
+                    p.model->incrementLargeStep();
+                    break;
+                case Key::PageDown:
+                    event.accept = true;
+                    p.model->decrementLargeStep();
+                    break;
+                }
+            }
+        }
+
+        void IntEdit::keyReleaseEvent(KeyEvent& event)
+        {
+            event.accept = true;
+        }
+
         void IntEdit::_valueUpdate()
         {
             TLRENDER_P();

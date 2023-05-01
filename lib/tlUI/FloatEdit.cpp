@@ -173,6 +173,38 @@ namespace tl
             _sizeHint.x += p.size.margin + buttonsWidth;
         }
 
+        void FloatEdit::keyPressEvent(KeyEvent& event)
+        {
+            TLRENDER_P();
+            if (_enabled && p.model)
+            {
+                switch (event.key)
+                {
+                case Key::Down:
+                    event.accept = true;
+                    p.model->decrementStep();
+                    break;
+                case Key::Up:
+                    event.accept = true;
+                    p.model->incrementStep();
+                    break;
+                case Key::PageUp:
+                    event.accept = true;
+                    p.model->incrementLargeStep();
+                    break;
+                case Key::PageDown:
+                    event.accept = true;
+                    p.model->decrementLargeStep();
+                    break;
+                }
+            }
+        }
+
+        void FloatEdit::keyReleaseEvent(KeyEvent& event)
+        {
+            event.accept = true;
+        }
+
         void FloatEdit::_valueUpdate()
         {
             TLRENDER_P();
