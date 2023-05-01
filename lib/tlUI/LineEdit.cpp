@@ -17,6 +17,9 @@ namespace tl
             std::function<void(const std::string&)> textCallback;
             std::string format = "                    ";
             FontRole fontRole = FontRole::Mono;
+            size_t cursorPos = 0;
+            bool cursorVisible = false;
+            std::chrono::steady_clock::time_point cursorTimer;
 
             struct SizeData
             {
@@ -98,9 +101,60 @@ namespace tl
             _updates |= Update::Draw;
         }
 
+        void LineEdit::setVisible(bool value)
+        {
+            TLRENDER_P();
+            const bool changed = value != _visible;
+            IWidget::setVisible(value);
+            if (changed && !_visible)
+            {
+                if (p.cursorVisible)
+                {
+                    p.cursorVisible = false;
+                    _updates |= Update::Draw;
+                }
+            }
+        }
+
+        void LineEdit::setEnabled(bool value)
+        {
+            TLRENDER_P();
+            const bool changed = value != _enabled;
+            IWidget::setEnabled(value);
+            if (changed && !_enabled)
+            {
+                if (p.cursorVisible)
+                {
+                    p.cursorVisible = false;
+                    _updates |= Update::Draw;
+                }
+            }
+        }
+
         bool LineEdit::acceptsKeyFocus() const
         {
             return true;
+        }
+
+        void LineEdit::tickEvent(const TickEvent& event)
+        {
+            TLRENDER_P();
+            if (hasKeyFocus())
+            {
+                const auto now = std::chrono::steady_clock::now();
+                const std::chrono::duration<float> diff = now - p.cursorTimer;
+                if (diff.count() > .5F)
+                {
+                    p.cursorVisible = !p.cursorVisible;
+                    _updates |= Update::Draw;
+                    p.cursorTimer = now;
+                }
+            }
+            else if (p.cursorVisible)
+            {
+                p.cursorVisible = false;
+                _updates |= Update::Draw;
+            }
         }
 
         void LineEdit::sizeHintEvent(const SizeHintEvent& event)
@@ -176,6 +230,17 @@ namespace tl
                 event.style->getColorRole(_enabled ?
                     ColorRole::Text :
                     ColorRole::TextDisabled));
+
+            if (p.cursorVisible)
+            {
+                event.render->drawRect(
+                    math::BBox2i(
+                        g2.x(),
+                        g2.y(),
+                        p.size.border,
+                        g2.h()),
+                    event.style->getColorRole(ColorRole::Text));
+            }
         }
 
         void LineEdit::enterEvent()
