@@ -12,26 +12,19 @@ namespace tl
     {
         struct ScrollArea::Private
         {
-            ScrollAreaType scrollAreaType = ScrollAreaType::Both;
+            ScrollType scrollType = ScrollType::Both;
             std::shared_ptr<observer::Value<math::Vector2i> > scrollSize;
             std::shared_ptr<observer::Value<math::Vector2i> > scrollPos;
-            bool border = true;
-
-            struct SizeData
-            {
-                int border = 0;
-            };
-            SizeData size;
         };
 
         void ScrollArea::_init(
             const std::shared_ptr<system::Context>& context,
-            ScrollAreaType scrollAreaType,
+            ScrollType scrollType,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::ScrollArea", context, parent);
             TLRENDER_P();
-            p.scrollAreaType = scrollAreaType;
+            p.scrollType = scrollType;
             p.scrollSize = observer::Value<math::Vector2i>::create();
             p.scrollPos = observer::Value<math::Vector2i>::create();
             setBackgroundRole(ColorRole::Base);
@@ -46,11 +39,11 @@ namespace tl
 
         std::shared_ptr<ScrollArea> ScrollArea::create(
             const std::shared_ptr<system::Context>& context,
-            ScrollAreaType scrollAreaType,
+            ScrollType scrollType,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ScrollArea>(new ScrollArea);
-            out->_init(context, scrollAreaType, parent);
+            out->_init(context, scrollType, parent);
             return out;
         }
 
@@ -84,21 +77,11 @@ namespace tl
             }
         }
 
-        void ScrollArea::setBorder(bool value)
-        {
-            TLRENDER_P();
-            if (value == p.border)
-                return;
-            p.border = value;
-            _updates |= ui::Update::Size;
-            _updates |= ui::Update::Draw;
-        }
-
         void ScrollArea::setGeometry(const math::BBox2i& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
-            const math::BBox2i g = value.margin(-p.size.border);
+            const math::BBox2i g = value;
             const math::Vector2i& scrollPos = p.scrollPos->get();
             math::Vector2i scrollSize;
             for (const auto& child : _children)
@@ -106,9 +89,11 @@ namespace tl
                 const math::Vector2i sizeHint = child->getSizeHint();
                 scrollSize.x = std::max(scrollSize.x, sizeHint.x);
                 scrollSize.y = std::max(scrollSize.y, sizeHint.y);
-                math::BBox2i g2;
-                g2.min = g.min - scrollPos;
-                g2.max = g.min + sizeHint - scrollPos;
+                const math::BBox2i g2(
+                    g.min.x - scrollPos.x,
+                    g.min.y - scrollPos.y,
+                    sizeHint.x,
+                    sizeHint.y);
                 child->setGeometry(g2);
             }
             p.scrollSize->setIfChanged(scrollSize);
@@ -119,12 +104,10 @@ namespace tl
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
-
             _sizeHint = math::Vector2i();
-            switch (p.scrollAreaType)
+            switch (p.scrollType)
             {
-                case ScrollAreaType::Horizontal:
+                case ScrollType::Horizontal:
                     _sizeHint.x =
                         event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
                     for (const auto& child : _children)
@@ -133,7 +116,7 @@ namespace tl
                         _sizeHint.y = std::max(_sizeHint.y, sizeHint.y);
                     }
                     break;
-                case ScrollAreaType::Vertical:
+                case ScrollType::Vertical:
                     _sizeHint.y =
                         event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
                     for (const auto& child : _children)
@@ -142,15 +125,10 @@ namespace tl
                         _sizeHint.x = std::max(_sizeHint.x, sizeHint.x);
                     }
                     break;
-                case ScrollAreaType::Both:
+                case ScrollType::Both:
                     _sizeHint.x = _sizeHint.y =
                         event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
                     break;
-            }
-            if (p.border)
-            {
-                _sizeHint.x += p.size.border * 2;
-                _sizeHint.y += p.size.border * 2;
             }
         }
 
@@ -159,16 +137,7 @@ namespace tl
             IWidget::drawEvent(event);
             TLRENDER_P();
 
-            math::BBox2i g = _geometry;
-
-            if (p.border)
-            {
-                event.render->drawMesh(
-                    border(g, p.size.border),
-                    math::Vector2i(),
-                    event.style->getColorRole(ColorRole::Border));
-                g = g.margin(-p.size.border);
-            }
+            const math::BBox2i g = _geometry;
 
             event.render->drawRect(
                 g,

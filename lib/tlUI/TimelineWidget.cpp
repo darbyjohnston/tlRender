@@ -54,7 +54,7 @@ namespace tl
 
             p.scrollArea = ScrollArea::create(
                 context,
-                ScrollAreaType::Both,
+                ScrollType::Both,
                 shared_from_this());
         }
 

@@ -12,8 +12,8 @@ namespace tl
 {
     namespace ui
     {
-        //! Scroll area type.
-        enum class ScrollAreaType
+        //! Scroll type.
+        enum class ScrollType
         {
             Horizontal,
             Vertical,
@@ -28,7 +28,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<system::Context>&,
-                ScrollAreaType,
+                ScrollType,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             ScrollArea();
@@ -39,7 +39,7 @@ namespace tl
             //! Create a new scroll area.
             static std::shared_ptr<ScrollArea> create(
                 const std::shared_ptr<system::Context>&,
-                ScrollAreaType = ScrollAreaType::Both,
+                ScrollType = ScrollType::Both,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the scroll size.
@@ -56,9 +56,6 @@ namespace tl
 
             //! Set the scroll position.
             void setScrollPos(const math::Vector2i&);
-
-            //! Set whether the scroll area has a border.
-            void setBorder(bool);
 
             void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;

@@ -26,7 +26,9 @@ set(HEADERS
     PushButton.h
     RowLayout.h
     ScrollArea.h
+    ScrollWidget.h
     Spacer.h
+    ScrollBar.h
     Splitter.h
     StackLayout.h
     Style.h
@@ -69,7 +71,9 @@ set(SOURCE
     PushButton.cpp
     RowLayout.cpp
     ScrollArea.cpp
+    ScrollWidget.cpp
     Spacer.cpp
+    ScrollBar.cpp
     Splitter.cpp
     StackLayout.cpp
     Style.cpp

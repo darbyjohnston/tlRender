@@ -5,7 +5,8 @@ set(HEADERS
     GridLayouts.h
     MainWindow.h
     NumericWidgets.h
-    RowLayouts.h)
+    RowLayouts.h
+    ScrollAreas.h)
 
 set(SOURCE
     App.cpp
@@ -15,6 +16,7 @@ set(SOURCE
     MainWindow.cpp
     NumericWidgets.cpp
     RowLayouts.cpp
+    ScrollAreas.cpp
     main.cpp)
 
 add_executable(widgets-glfw ${SOURCE} ${HEADERS})

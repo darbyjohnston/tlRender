@@ -9,6 +9,7 @@
 #include "GridLayouts.h"
 #include "NumericWidgets.h"
 #include "RowLayouts.h"
+#include "ScrollAreas.h"
 
 #include <tlUI/ButtonGroup.h>
 #include <tlUI/ListButton.h>
@@ -45,7 +46,8 @@ namespace tl
                     "Numeric Widgets",
                     "Charts",
                     "Row Layouts",
-                    "Grid Layouts"
+                    "Grid Layouts",
+                    "Scroll Areas"
                 };
                 p.buttonGroup = ui::ButtonGroup::create(
                     ui::ButtonGroupType::Click,
@@ -68,13 +70,14 @@ namespace tl
                 auto charts = Charts::create(context);
                 auto rowLayouts = RowLayouts::create(context);
                 auto gridLayouts = GridLayouts::create(context);
+                auto scrollAreas = ScrollAreas::create(context);
 
                 p.layout = ui::HorizontalLayout::create(context, shared_from_this());
                 p.layout->setMarginRole(ui::SizeRole::Margin);
                 p.layout->setSpacingRole(ui::SizeRole::SpacingLarge);
                 auto scrollArea = ui::ScrollArea::create(
                     context,
-                    ui::ScrollAreaType::Vertical,
+                    ui::ScrollType::Vertical,
                     p.layout);
                 auto buttonLayout = ui::VerticalLayout::create(context, scrollArea);
                 buttonLayout->setSpacingRole(ui::SizeRole::None);
@@ -90,8 +93,9 @@ namespace tl
                 charts->setParent(p.stackLayout);
                 rowLayouts->setParent(p.stackLayout);
                 gridLayouts->setParent(p.stackLayout);
+                scrollAreas->setParent(p.stackLayout);
 
-                //p.stackLayout->setCurrentIndex(2);
+                p.stackLayout->setCurrentWidget(scrollAreas);
             }
 
             MainWindow::MainWindow() :

@@ -50,6 +50,19 @@ namespace tl
             _widgetUpdate();
         }
 
+        void StackLayout::setCurrentWidget(const std::shared_ptr<IWidget>& value)
+        {
+            int index = 0;
+            for (auto i = _children.begin(); i != _children.end(); ++i, ++index)
+            {
+                if (value == *i)
+                {
+                    setCurrentIndex(index);
+                    break;
+                }
+            }
+        }
+
         void StackLayout::setGeometry(const math::BBox2i& value)
         {
             IWidget::setGeometry(value);
