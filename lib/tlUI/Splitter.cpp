@@ -74,7 +74,7 @@ namespace tl
             IWidget::setGeometry(value);
             TLRENDER_P();
 
-            const math::BBox2i g = _geometry;
+            const math::BBox2i& g = _geometry;
 
             p.size.handleGeometry.clear();
             std::vector<math::BBox2i> childGeometry;
@@ -207,7 +207,7 @@ namespace tl
             event.accept = true;
             if (p.mouse.pressedHandle != -1)
             {
-                const math::BBox2i g = _geometry;
+                const math::BBox2i& g = _geometry;
                 float split = 0.F;
                 switch (p.orientation)
                 {

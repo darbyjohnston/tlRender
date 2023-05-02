@@ -84,6 +84,12 @@ namespace tl
             //! Set the vertical layout stretch.
             void setVStretch(Stretch);
 
+            //! Set the horizontal and vertical layout stretch.
+            void setStretch(Stretch horizontal, Stretch vertical);
+
+            //! Set the horizontal and vertical layout stretch.
+            void setStretch(Stretch);
+
             //! Get the horizontal layout alignment.
             HAlign getHAlign() const;
 
@@ -95,6 +101,9 @@ namespace tl
 
             //! Set the vertical layout alignment.
             void setVAlign(VAlign);
+
+            //! Set the horizontal and vertical layout alignment.
+            void setAlign(HAlign, VAlign);
 
             //! Get the geometry.
             const math::BBox2i& getGeometry() const;

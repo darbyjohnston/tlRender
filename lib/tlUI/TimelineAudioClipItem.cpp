@@ -284,7 +284,7 @@ namespace tl
             if (_geometry.isValid() && _isInsideViewport())
             {
                 const int b = event.style->getSizeRole(SizeRole::Border, event.displayScale);
-                const math::BBox2i g = _geometry;
+                const math::BBox2i& g = _geometry;
 
                 //event.render->drawMesh(
                 //    border(g, b, _margin / 2),
@@ -316,7 +316,7 @@ namespace tl
 
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
-            const math::BBox2i g = _geometry;
+            const math::BBox2i& g = _geometry;
 
             event.render->drawText(
                 event.fontSystem->getGlyphs(p.label, fontInfo),
@@ -346,7 +346,7 @@ namespace tl
             TLRENDER_P();
 
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
-            const math::BBox2i g = _geometry;
+            const math::BBox2i& g = _geometry;
 
             const math::BBox2i bbox(
                 g.min.x +

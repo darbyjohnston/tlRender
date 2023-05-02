@@ -110,6 +110,21 @@ namespace tl
             _updates |= Update::Draw;
         }
 
+        void IWidget::setStretch(Stretch horizontal, Stretch vertical)
+        {
+            if (horizontal == _hStretch && vertical == _vStretch)
+                return;
+            _hStretch = horizontal;
+            _vStretch = vertical;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
+        }
+
+        void IWidget::setStretch(Stretch value)
+        {
+            setStretch(value, value);
+        }
+
         void IWidget::setHAlign(HAlign value)
         {
             if (value == _hAlign)

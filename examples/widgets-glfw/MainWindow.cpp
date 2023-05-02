@@ -15,7 +15,7 @@
 #include <tlUI/ListButton.h>
 #include <tlUI/PushButton.h>
 #include <tlUI/RowLayout.h>
-#include <tlUI/ScrollArea.h>
+#include <tlUI/ScrollWidget.h>
 #include <tlUI/StackLayout.h>
 
 namespace tl
@@ -75,11 +75,12 @@ namespace tl
                 p.layout = ui::HorizontalLayout::create(context, shared_from_this());
                 p.layout->setMarginRole(ui::SizeRole::Margin);
                 p.layout->setSpacingRole(ui::SizeRole::SpacingLarge);
-                auto scrollArea = ui::ScrollArea::create(
+                auto scrollWidget = ui::ScrollWidget::create(
                     context,
                     ui::ScrollType::Vertical,
                     p.layout);
-                auto buttonLayout = ui::VerticalLayout::create(context, scrollArea);
+                auto buttonLayout = ui::VerticalLayout::create(context);
+                scrollWidget->setWidget(buttonLayout);
                 buttonLayout->setSpacingRole(ui::SizeRole::None);
                 for (auto button : buttons)
                 {

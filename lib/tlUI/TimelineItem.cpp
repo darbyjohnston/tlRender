@@ -264,7 +264,7 @@ namespace tl
             TLRENDER_P();
 
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            const math::BBox2i g = _geometry;
+            const math::BBox2i& g = _geometry;
 
             const float frameTick0 = p.timeRange.start_time().value() /
                 p.timeRange.duration().value() * (_sizeHint.x - p.size.margin * 2);
@@ -392,7 +392,7 @@ namespace tl
             TLRENDER_P();
 
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            const math::BBox2i g = _geometry;
+            const math::BBox2i& g = _geometry;
 
             const otime::RationalTime& currentTime = p.timelinePlayer->observeCurrentTime()->get();
             if (!time::compareExact(currentTime, time::invalidTime))

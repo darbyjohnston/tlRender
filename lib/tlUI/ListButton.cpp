@@ -110,8 +110,12 @@ namespace tl
                     _sizeHint.y,
                     static_cast<int>(_iconImage->getHeight()));
             }
-            _sizeHint.x += p.size.margin * 2 + p.size.border * 2;
-            _sizeHint.y += p.size.margin * 2 + p.size.border * 2;
+            _sizeHint.x +=
+                p.size.margin * 2 +
+                p.size.border * 4;
+            _sizeHint.y +=
+                p.size.margin * 2 +
+                p.size.border * 4;
         }
 
         void ListButton::clipEvent(bool clipped, const ClipEvent& event)
@@ -129,17 +133,17 @@ namespace tl
             IButton::drawEvent(event);
             TLRENDER_P();
 
-            const math::BBox2i g = _geometry;
+            const math::BBox2i& g = _geometry;
 
             if (event.focusWidget == shared_from_this())
             {
                 event.render->drawMesh(
-                    border(g, p.size.border),
+                    border(g, p.size.border * 2),
                     math::Vector2i(),
                     event.style->getColorRole(ColorRole::KeyFocus));
             }
 
-            const math::BBox2i g2 = g.margin(-p.size.border);
+            const math::BBox2i g2 = g.margin(-p.size.border * 2);
             const ColorRole colorRole = _checked ?
                 ColorRole::Checked :
                 _buttonRole;

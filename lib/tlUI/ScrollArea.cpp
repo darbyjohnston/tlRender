@@ -4,8 +4,6 @@
 
 #include <tlUI/ScrollArea.h>
 
-#include <tlUI/DrawUtil.h>
-
 namespace tl
 {
     namespace ui
@@ -27,7 +25,7 @@ namespace tl
             p.scrollType = scrollType;
             p.scrollSize = observer::Value<math::Vector2i>::create();
             p.scrollPos = observer::Value<math::Vector2i>::create();
-            setBackgroundRole(ColorRole::Base);
+            //setBackgroundRole(ColorRole::Base);
         }
 
         ScrollArea::ScrollArea() :
@@ -130,18 +128,6 @@ namespace tl
                         event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
                     break;
             }
-        }
-
-        void ScrollArea::drawEvent(const DrawEvent& event)
-        {
-            IWidget::drawEvent(event);
-            TLRENDER_P();
-
-            const math::BBox2i g = _geometry;
-
-            event.render->drawRect(
-                g,
-                event.style->getColorRole(ColorRole::Base));
         }
     }
 }

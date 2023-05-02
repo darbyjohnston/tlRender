@@ -267,7 +267,7 @@ namespace tl
                 _frameView();
             }
 
-            const math::BBox2i g = _geometry;
+            const math::BBox2i& g = _geometry;
 
             event.render->drawRect(g, imaging::Color4f(0.F, 0.F, 0.F));
 

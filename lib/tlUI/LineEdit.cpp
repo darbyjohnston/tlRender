@@ -181,11 +181,11 @@ namespace tl
             _sizeHint.x =
                 p.size.formatSize.x +
                 p.size.margin * 2 +
-                p.size.border * 2;
+                p.size.border * 4;
             _sizeHint.y =
                 p.size.fontMetrics.lineHeight +
                 p.size.margin * 2 +
-                p.size.border * 2;
+                p.size.border * 4;
         }
 
         void LineEdit::clipEvent(bool clipped, const ClipEvent& event)
@@ -206,18 +206,26 @@ namespace tl
 
             const math::BBox2i g = _getAlignGeometry();
 
-            event.render->drawMesh(
-                border(g, p.size.border),
-                math::Vector2i(),
-                event.style->getColorRole(event.focusWidget == shared_from_this() ?
-                    ColorRole::KeyFocus :
-                    ColorRole::Border));
+            if (event.focusWidget == shared_from_this())
+            {
+                event.render->drawMesh(
+                    border(g, p.size.border * 2),
+                    math::Vector2i(),
+                    event.style->getColorRole(ColorRole::KeyFocus));
+            }
+            else
+            {
+                event.render->drawMesh(
+                    border(g.margin(-p.size.border), p.size.border),
+                    math::Vector2i(),
+                    event.style->getColorRole(ColorRole::Border));
+            }
 
             event.render->drawRect(
-                g.margin(-p.size.border),
+                g.margin(-p.size.border * 2),
                 event.style->getColorRole(ColorRole::Base));
 
-            const math::BBox2i g2 = g.margin(-(p.size.border + p.size.margin));
+            const math::BBox2i g2 = g.margin(-(p.size.border * 2 + p.size.margin));
             math::Vector2i pos(
                 g2.x(),
                 g2.y() + g2.h() / 2 - p.size.fontMetrics.lineHeight / 2 +
@@ -419,7 +427,7 @@ namespace tl
             TLRENDER_P();
             size_t out = 0;
             const math::BBox2i g = _getAlignGeometry();
-            const math::BBox2i g2 = g.margin(-p.size.border);
+            const math::BBox2i g2 = g.margin(-p.size.border * 2);
             const math::Vector2i pos(
                 math::clamp(value.x, g2.min.x, g2.max.x - 1),
                 math::clamp(value.y, g2.min.y, g2.max.y - 1));

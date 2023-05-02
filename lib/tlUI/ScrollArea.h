@@ -59,7 +59,6 @@ namespace tl
 
             void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void drawEvent(const DrawEvent&) override;
 
         private:
             TLRENDER_PRIVATE();

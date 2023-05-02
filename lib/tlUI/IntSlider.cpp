@@ -131,11 +131,11 @@ namespace tl
             _sizeHint.x =
                 event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale) +
                 p.size.margin * 2 +
-                p.size.border * 2;
+                p.size.border * 4;
             _sizeHint.y =
                 p.size.fontMetrics.lineHeight +
                 p.size.margin * 2 +
-                p.size.border * 2;
+                p.size.border * 4;
         }
 
         void IntSlider::clipEvent(bool clipped, const ClipEvent& event)
@@ -153,17 +153,25 @@ namespace tl
             IWidget::drawEvent(event);
             TLRENDER_P();
 
-            const math::BBox2i g = _geometry;
+            const math::BBox2i& g = _geometry;
 
-            event.render->drawMesh(
-                border(g, p.size.border),
-                math::Vector2i(),
-                event.style->getColorRole(event.focusWidget == shared_from_this() ?
-                    ColorRole::KeyFocus :
-                    ColorRole::Border));
+            if (event.focusWidget == shared_from_this())
+            {
+                event.render->drawMesh(
+                    border(g, p.size.border * 2),
+                    math::Vector2i(),
+                    event.style->getColorRole(ColorRole::KeyFocus));
+            }
+            else
+            {
+                event.render->drawMesh(
+                    border(g.margin(-p.size.border), p.size.border),
+                    math::Vector2i(),
+                    event.style->getColorRole(ColorRole::Border));
+            }
 
             event.render->drawRect(
-                g.margin(-p.size.border),
+                g.margin(-p.size.border * 2),
                 event.style->getColorRole(ColorRole::Base));
 
             const math::BBox2i g2 = _getSliderGeometry();
@@ -296,10 +304,10 @@ namespace tl
         {
             TLRENDER_P();
             return _geometry.margin(
-                -(p.size.border + p.size.margin + p.size.handle / 2),
-                -(p.size.border + p.size.margin),
-                -(p.size.border + p.size.margin + p.size.handle / 2),
-                -(p.size.border + p.size.margin));
+                -(p.size.border * 2 + p.size.margin + p.size.handle / 2),
+                -(p.size.border * 2 + p.size.margin),
+                -(p.size.border * 2 + p.size.margin + p.size.handle / 2),
+                -(p.size.border * 2 + p.size.margin));
         }
 
         int IntSlider::_posToValue(int pos) const

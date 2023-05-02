@@ -131,7 +131,7 @@ namespace tl
             IWidget::drawEvent(event);
             TLRENDER_P();
 
-            const math::BBox2i g = _geometry;
+            const math::BBox2i& g = _geometry;
 
             if (!p.text.empty() && p.draw.glyphs.empty())
             {
@@ -149,7 +149,7 @@ namespace tl
                     g.min.y + p.size.fontMetrics.lineHeight + p.size.spacing),
                 g.max);
             event.render->drawMesh(
-                border(g2, p.size.border, p.size.margin / 2),
+                border(g2, p.size.border, p.size.margin),
                 math::Vector2i(),
                 event.style->getColorRole(ColorRole::Border));
         }

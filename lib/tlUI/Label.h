@@ -33,6 +33,9 @@ namespace tl
             //! Set the text.
             void setText(const std::string&);
 
+            //! Set the margin role.
+            void setMarginRole(SizeRole);
+
             //! Set the font role.
             void setFontRole(FontRole);
 

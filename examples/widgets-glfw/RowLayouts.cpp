@@ -7,6 +7,8 @@
 #include <tlUI/Label.h>
 #include <tlUI/RowLayout.h>
 
+#include <tlCore/StringFormat.h>
+
 namespace tl
 {
     namespace examples
@@ -24,48 +26,30 @@ namespace tl
                 IWidget::_init("RowLayouts", context);
                 TLRENDER_P();
 
-                auto label0 = ui::Label::create(context);
-                label0->setText("Label 0");
-                label0->setBackgroundRole(ui::ColorRole::Red);
-
-                auto label1 = ui::Label::create(context);
-                label1->setText("Label 1");
-                label1->setFontRole(ui::FontRole::Title);
-                label1->setBackgroundRole(ui::ColorRole::Green);
-
-                auto label2 = ui::Label::create(context);
-                label2->setText("Label 2");
-                label2->setFontRole(ui::FontRole::Title);
-                label2->setBackgroundRole(ui::ColorRole::Blue);
-                label2->setHStretch(ui::Stretch::Expanding);
-
-                auto label3 = ui::Label::create(context);
-                label3->setText("Label 3");
-                label3->setBackgroundRole(ui::ColorRole::Cyan);
-                label3->setHStretch(ui::Stretch::Expanding);
-
-                auto label4 = ui::Label::create(context);
-                label4->setText("Label 4");
-                label4->setBackgroundRole(ui::ColorRole::Magenta);
-                label4->setHStretch(ui::Stretch::Expanding);
-
-                auto label5 = ui::Label::create(context);
-                label5->setText("Label 5");
-                label5->setFontRole(ui::FontRole::Title);
-                label5->setBackgroundRole(ui::ColorRole::Yellow);
-                label5->setHStretch(ui::Stretch::Expanding);
+                std::vector<std::shared_ptr<ui::Label> > labels;
+                for (size_t i = 0; i < 6; ++i)
+                {
+                    auto label = ui::Label::create(context);
+                    label->setText(string::Format("Label {0}").arg(i));
+                    label->setMarginRole(ui::SizeRole::Margin);
+                    label->setBackgroundRole(ui::ColorRole::Base);
+                    labels.push_back(label);
+                }
+                labels[2]->setHStretch(ui::Stretch::Expanding);
+                labels[3]->setFontRole(ui::FontRole::Title);
+                labels[5]->setHStretch(ui::Stretch::Expanding);
 
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
                 auto hLayout = ui::HorizontalLayout::create(context, p.layout);
-                label0->setParent(hLayout);
-                label1->setParent(hLayout);
+                labels[0]->setParent(hLayout);
+                labels[1]->setParent(hLayout);
                 hLayout = ui::HorizontalLayout::create(context, p.layout);
-                label2->setParent(hLayout);
-                label3->setParent(hLayout);
+                labels[2]->setParent(hLayout);
+                labels[3]->setParent(hLayout);
                 hLayout = ui::HorizontalLayout::create(context, p.layout);
                 hLayout->setVStretch(ui::Stretch::Expanding);
-                label4->setParent(hLayout);
-                label5->setParent(hLayout);
+                labels[4]->setParent(hLayout);
+                labels[5]->setParent(hLayout);
             }
 
             RowLayouts::RowLayouts() :

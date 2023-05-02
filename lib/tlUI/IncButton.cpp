@@ -64,7 +64,7 @@ namespace tl
             IButton::drawEvent(event);
             TLRENDER_P();
 
-            const math::BBox2i g = _geometry;
+            const math::BBox2i& g = _geometry;
 
             const ColorRole colorRole = _checked ?
                 ColorRole::Checked :

@@ -4,6 +4,7 @@
 
 #include <tlUI/ScrollWidget.h>
 
+#include <tlUI/DrawUtil.h>
 #include <tlUI/GridLayout.h>
 #include <tlUI/ScrollArea.h>
 #include <tlUI/ScrollBar.h>
@@ -14,12 +15,19 @@ namespace tl
     {
         struct ScrollWidget::Private
         {
+            ScrollType scrollType = ScrollType::Both;
             std::shared_ptr<ScrollArea> scrollArea;
             std::shared_ptr<ScrollBar> horizontalScrollBar;
             std::shared_ptr<ScrollBar> verticalScrollBar;
             std::shared_ptr<GridLayout> layout;
             std::shared_ptr<observer::ValueObserver<math::Vector2i> > scrollSizeObserver;
             std::shared_ptr<observer::ValueObserver<math::Vector2i> > scrollPosObserver;
+
+            struct SizeData
+            {
+                int border = 0;
+            };
+            SizeData size;
         };
 
         void ScrollWidget::_init(
@@ -30,44 +38,28 @@ namespace tl
             IWidget::_init("tl::ui::ScrollWidget", context, parent);
             TLRENDER_P();
 
-            switch (scrollType)
-            {
-            case ScrollType::Horizontal:
-                setHStretch(Stretch::Expanding);
-                break;
-            case ScrollType::Vertical:
-                setVStretch(Stretch::Expanding);
-                break;
-            case ScrollType::Both:
-                setHStretch(Stretch::Expanding);
-                setVStretch(Stretch::Expanding);
-                break;
-            }
+            p.scrollType = scrollType;
 
             p.scrollArea = ui::ScrollArea::create(context, scrollType);
-            p.scrollArea->setHStretch(Stretch::Expanding);
-            p.scrollArea->setVStretch(Stretch::Expanding);
+            p.scrollArea->setStretch(Stretch::Expanding);
 
             switch (scrollType)
             {
             case ScrollType::Horizontal:
                 p.horizontalScrollBar = ui::ScrollBar::create(Orientation::Horizontal, context);
-                p.horizontalScrollBar->setHStretch(Stretch::Expanding);
                 break;
             case ScrollType::Vertical:
                 p.verticalScrollBar = ui::ScrollBar::create(Orientation::Vertical, context);
-                p.verticalScrollBar->setVStretch(Stretch::Expanding);
                 break;
             case ScrollType::Both:
                 p.horizontalScrollBar = ui::ScrollBar::create(Orientation::Horizontal, context);
-                p.horizontalScrollBar->setHStretch(Stretch::Expanding);
                 p.verticalScrollBar = ui::ScrollBar::create(Orientation::Vertical, context);
-                p.verticalScrollBar->setVStretch(Stretch::Expanding);
                 break;
             }
 
             p.layout = GridLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(SizeRole::SpacingSmall);
+            p.layout->setSpacingRole(SizeRole::Border);
+            p.layout->setStretch(Stretch::Expanding);
             p.scrollArea->setParent(p.layout);
             p.layout->setGridPos(p.scrollArea, 0, 0);
             if (p.horizontalScrollBar)
@@ -165,13 +157,48 @@ namespace tl
         void ScrollWidget::setGeometry(const math::BBox2i& value)
         {
             IWidget::setGeometry(value);
-            _p->layout->setGeometry(value);
+            TLRENDER_P();
+            p.layout->setGeometry(value.margin(-p.size.border));
         }
 
         void ScrollWidget::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            TLRENDER_P();
+
+            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
+
+            _sizeHint = p.layout->getSizeHint() + p.size.border * 2;
+        }
+
+        void ScrollWidget::drawEvent(const DrawEvent& event)
+        {
+            IWidget::drawEvent(event);
+            TLRENDER_P();
+
+            math::BBox2i g = p.scrollArea->getGeometry().margin(p.size.border);
+            event.render->drawMesh(
+                border(g, p.size.border),
+                math::Vector2i(),
+                event.style->getColorRole(ColorRole::Border));
+
+            if (p.horizontalScrollBar)
+            {
+                g = p.horizontalScrollBar->getGeometry().margin(p.size.border);
+                event.render->drawMesh(
+                    border(g, p.size.border),
+                    math::Vector2i(),
+                    event.style->getColorRole(ColorRole::Border));
+            }
+
+            if (p.verticalScrollBar)
+            {
+                g = p.verticalScrollBar->getGeometry().margin(p.size.border);
+                event.render->drawMesh(
+                    border(g, p.size.border),
+                    math::Vector2i(),
+                    event.style->getColorRole(ColorRole::Border));
+            }
         }
     }
 }

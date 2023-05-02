@@ -13,16 +13,19 @@ namespace tl
         struct Label::Private
         {
             std::string text;
+            SizeRole marginRole = SizeRole::None;
             FontRole fontRole = FontRole::Label;
 
             struct SizeData
             {
+                int margin = 0;
                 imaging::FontMetrics fontMetrics;
             };
             SizeData size;
 
             struct DrawData
             {
+                math::Vector2i textSize;
                 std::vector<std::shared_ptr<imaging::Glyph> > glyphs;
             };
             DrawData draw;
@@ -63,6 +66,16 @@ namespace tl
             _updates |= Update::Draw;
         }
 
+        void Label::setMarginRole(SizeRole value)
+        {
+            TLRENDER_P();
+            if (value == p.marginRole)
+                return;
+            p.marginRole = value;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
+        }
+
         void Label::setFontRole(FontRole value)
         {
             TLRENDER_P();
@@ -78,10 +91,16 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
+            p.size.margin = event.style->getSizeRole(p.marginRole, event.displayScale);
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            _sizeHint.x = event.fontSystem->getSize(p.text, fontInfo).x;
-            _sizeHint.y = p.size.fontMetrics.lineHeight;
+            p.draw.textSize = event.fontSystem->getSize(p.text, fontInfo);
+            _sizeHint.x =
+                p.draw.textSize.x +
+                p.size.margin * 2;
+            _sizeHint.y =
+                p.size.fontMetrics.lineHeight +
+                p.size.margin * 2;
         }
 
         void Label::clipEvent(bool clipped, const ClipEvent& event)
@@ -107,16 +126,19 @@ namespace tl
                 Stretch::Fixed,
                 Stretch::Fixed,
                 _hAlign,
-                _vAlign);
+                _vAlign).margin(-p.size.margin);
 
             if (!p.text.empty() && p.draw.glyphs.empty())
             {
                 const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
                 p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
             }
+            const math::Vector2i pos(
+                g.x(),
+                g.y() + p.size.fontMetrics.ascender);
             event.render->drawText(
                 p.draw.glyphs,
-                math::Vector2i(g.x(), g.y() + p.size.fontMetrics.ascender),
+                pos,
                 event.style->getColorRole(ColorRole::Text));
         }
     }

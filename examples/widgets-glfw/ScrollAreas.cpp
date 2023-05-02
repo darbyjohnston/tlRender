@@ -4,10 +4,10 @@
 
 #include "ScrollAreas.h"
 
+#include <tlUI/GeometryUtil.h>
 #include <tlUI/GridLayout.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/ScrollWidget.h>
-#include <tlUI/ToolButton.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -17,6 +17,130 @@ namespace tl
     {
         namespace ui_glfw
         {
+            namespace
+            {
+                class ScrollAreasWidget : public ui::IWidget
+                {
+                protected:
+                    void _init(
+                        const math::Vector2i& cellCount,
+                        const std::shared_ptr<system::Context>&);
+
+                    ScrollAreasWidget();
+
+                public:
+                    ~ScrollAreasWidget();
+
+                    static std::shared_ptr<ScrollAreasWidget> create(
+                        const math::Vector2i& cellCount,
+                        const std::shared_ptr<system::Context>&);
+
+                    void sizeHintEvent(const ui::SizeHintEvent&) override;
+                    void clipEvent(bool, const ui::ClipEvent&) override;
+                    void drawEvent(const ui::DrawEvent&) override;
+
+                private:
+                    math::Vector2i _cellCount;
+                    int _cellSize = 0;
+                    int _margin = 0;
+                    std::vector<math::Vector2i> _textSize;
+                    std::vector<std::vector<std::shared_ptr<imaging::Glyph> > > _glyphs;
+                };
+
+                void ScrollAreasWidget::_init(
+                    const math::Vector2i& cellCount,
+                    const std::shared_ptr<system::Context>& context)
+                {
+                    IWidget::_init("ScrollAreasWidget", context);
+                    _cellCount = cellCount;
+                    _textSize.resize(_cellCount.x * _cellCount.y);
+                    _glyphs.resize(_cellCount.x * _cellCount.y);
+                }
+
+                ScrollAreasWidget::ScrollAreasWidget()
+                {}
+
+                ScrollAreasWidget::~ScrollAreasWidget()
+                {}
+
+                std::shared_ptr<ScrollAreasWidget> ScrollAreasWidget::create(
+                    const math::Vector2i& cellCount,
+                    const std::shared_ptr<system::Context>& context)
+                {
+                    auto out = std::shared_ptr<ScrollAreasWidget>(new ScrollAreasWidget);
+                    out->_init(cellCount, context);
+                    return out;
+                }
+
+                void ScrollAreasWidget::sizeHintEvent(const ui::SizeHintEvent& event)
+                {
+                    IWidget::sizeHintEvent(event);
+                    _margin = event.style->getSizeRole(ui::SizeRole::MarginLarge, event.displayScale);
+                    const std::string format = string::Format("{0}, {1}").
+                        arg(ui::format(_cellCount.x)).
+                        arg(ui::format(_cellCount.y));
+                    const auto fontInfo = event.style->getFontRole(ui::FontRole::Label, event.displayScale);
+                    const math::Vector2i textSize = event.fontSystem->getSize(format, fontInfo);
+                    _cellSize = textSize.x + _margin * 2;
+                    _sizeHint.x = _cellCount.x * _cellSize;
+                    _sizeHint.y = _cellCount.y * _cellSize;
+                }
+
+                void ScrollAreasWidget::clipEvent(bool clipped, const ui::ClipEvent&)
+                {
+                    if (clipped)
+                    {
+                        for (auto& i : _glyphs)
+                        {
+                            i.clear();
+                        }
+                    }
+                }
+
+                void ScrollAreasWidget::drawEvent(const ui::DrawEvent& event)
+                {
+                    IWidget::drawEvent(event);
+
+                    const math::BBox2i& g = _geometry;
+
+                    const auto fontInfo = event.style->getFontRole(ui::FontRole::Label, event.displayScale);
+                    const auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
+                    for (int y = 0; y < _cellCount.y; ++y)
+                    {
+                        for (int x = 0; x < _cellCount.x; ++x)
+                        {
+                            const bool even = ((x + y) % 2 == 0);
+
+                            const math::BBox2i g2(
+                                g.x() + x * _cellSize,
+                                g.y() + y * _cellSize,
+                                _cellSize,
+                                _cellSize);
+                            event.render->drawRect(
+                                g2,
+                                event.style->getColorRole(
+                                    even ?
+                                    ui::ColorRole::Window :
+                                    ui::ColorRole::Button));
+
+                            const size_t i = y * _cellCount.x + x;
+                            if (_glyphs[i].empty())
+                            {
+                                const std::string text = string::Format("{0}, {1}").
+                                    arg(y).
+                                    arg(x);
+                                _textSize[i] = event.fontSystem->getSize(text, fontInfo);
+                                _glyphs[i] = event.fontSystem->getGlyphs(text, fontInfo);
+                            }
+                            event.render->drawText(
+                                _glyphs[i],
+                                g2.getCenter() - _textSize[i] / 2 + math::Vector2i(0, fontMetrics.ascender),
+                                event.style->getColorRole(ui::ColorRole::Text));
+                        }
+                    }
+                }
+            }
+
             struct ScrollAreas::Private
             {
                 std::shared_ptr<ui::RowLayout> layout;
@@ -28,43 +152,22 @@ namespace tl
                 IWidget::_init("ScrollAreas", context);
                 TLRENDER_P();
 
-                auto hLayout = ui::HorizontalLayout::create(context);
-                hLayout->setSpacingRole(ui::SizeRole::None);
-                for (size_t i = 0; i < 20; ++i)
-                {
-                    auto toolButton = ui::ToolButton::create(context, hLayout);
-                    toolButton->setText(string::Format("Button {0}").arg(i));
-                }
+                auto widget0 = ScrollAreasWidget::create(math::Vector2i(10, 1), context);
                 auto scrollWidget0 = ui::ScrollWidget::create(context, ui::ScrollType::Horizontal);
-                scrollWidget0->setWidget(hLayout);
+                scrollWidget0->setWidget(widget0);
 
-                auto vLayout = ui::VerticalLayout::create(context);
-                vLayout->setSpacingRole(ui::SizeRole::None);
-                for (size_t i = 0; i < 20; ++i)
-                {
-                    auto toolButton = ui::ToolButton::create(context, vLayout);
-                    toolButton->setText(string::Format("Button {0}").arg(i));
-                }
+                auto widget1 = ScrollAreasWidget::create(math::Vector2i(1, 10), context);
                 auto scrollWidget1 = ui::ScrollWidget::create(context, ui::ScrollType::Vertical);
-                scrollWidget1->setWidget(vLayout);
+                scrollWidget1->setWidget(widget1);
 
-                auto gridLayout = ui::GridLayout::create(context);
-                gridLayout->setSpacingRole(ui::SizeRole::None);
-                for (size_t j = 0; j < 20; ++j)
-                {
-                    for (size_t i = 0; i < 20; ++i)
-                    {
-                        auto toolButton = ui::ToolButton::create(context, gridLayout);
-                        toolButton->setText(string::Format("Button {0},{1}").arg(j).arg(i));
-                        gridLayout->setGridPos(toolButton, j, i);
-                    }
-                }
-                auto scrollWidget2 = ui::ScrollWidget::create(context);
-                scrollWidget2->setWidget(gridLayout);
+                auto widget2 = ScrollAreasWidget::create(math::Vector2i(10, 10), context);
+                auto scrollWidget2 = ui::ScrollWidget::create(context, ui::ScrollType::Both);
+                scrollWidget2->setWidget(widget2);
+                scrollWidget2->setHStretch(ui::Stretch::Expanding);
 
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
                 scrollWidget0->setParent(p.layout);
-                hLayout = ui::HorizontalLayout::create(context, p.layout);
+                auto hLayout = ui::HorizontalLayout::create(context, p.layout);
                 hLayout->setVStretch(ui::Stretch::Expanding);
                 scrollWidget1->setParent(hLayout);
                 scrollWidget2->setParent(hLayout);
