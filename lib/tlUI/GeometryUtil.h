@@ -23,5 +23,8 @@ namespace tl
 
         //! Get a format string for the given number.
         std::string format(int);
+
+        //! Get a format string for the given number.
+        std::string format(float, int precision);
     }
 }

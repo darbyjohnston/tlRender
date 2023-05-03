@@ -10,47 +10,43 @@ namespace tl
 {
     namespace ui
     {
-        class IntModel;
+        class FloatModel;
 
-        //! Integer number editor.
-        class IntEdit : public IWidget
+        //! Floating point value editor and slider.
+        class FloatEditSlider : public IWidget
         {
-            TLRENDER_NON_COPYABLE(IntEdit);
+            TLRENDER_NON_COPYABLE(FloatEditSlider);
 
         protected:
             void _init(
-                const std::shared_ptr<IntModel>&,
+                const std::shared_ptr<FloatModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            IntEdit();
+            FloatEditSlider();
 
         public:
-            ~IntEdit() override;
+            ~FloatEditSlider() override;
 
-            //! Create a new integer number editor.
-            static std::shared_ptr<IntEdit> create(
-                const std::shared_ptr<IntModel>&,
+            //! Create a new widget.
+            static std::shared_ptr<FloatEditSlider> create(
+                const std::shared_ptr<FloatModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
-
-            //! Get the integer model.
-            const std::shared_ptr<IntModel>& getModel() const;
 
             //! Set the number of digits to display.
             void setDigits(int);
+
+            //! Set the display precision.
+            void setPrecision(int);
 
             //! Set the font role.
             void setFontRole(FontRole);
 
             void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void keyPressEvent(KeyEvent&) override;
-            void keyReleaseEvent(KeyEvent&) override;
 
         private:
-            void _textUpdate();
-
             TLRENDER_PRIVATE();
         };
     }

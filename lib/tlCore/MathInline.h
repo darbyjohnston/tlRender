@@ -45,8 +45,12 @@ namespace tl
         inline size_t digits(int value) noexcept
         {
             size_t out = 0;
-            if (value)
+            if (value != 0)
             {
+                if (value < 0)
+                {
+                    ++out;
+                }
                 while (value)
                 {
                     value /= 10;

@@ -5,6 +5,7 @@
 #include <tlUI/IntSlider.h>
 
 #include <tlUI/DrawUtil.h>
+#include <tlUI/IntModel.h>
 
 namespace tl
 {
@@ -36,12 +37,34 @@ namespace tl
         };
 
         void IntSlider::_init(
+            const std::shared_ptr<IntModel>& model,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::IntSlider", context, parent);
             TLRENDER_P();
-            setModel(IntModel::create(context));
+
+            p.model = model;
+            if (!p.model)
+            {
+                p.model = IntModel::create(context);
+            }
+
+            p.valueObserver = observer::ValueObserver<int>::create(
+                p.model->observeValue(),
+                [this](int)
+                {
+                    _updates |= Update::Size;
+                    _updates |= Update::Draw;
+                });
+
+            p.rangeObserver = observer::ValueObserver<math::IntRange>::create(
+                p.model->observeRange(),
+                [this](const math::IntRange&)
+                {
+                    _updates |= Update::Size;
+                    _updates |= Update::Draw;
+                });
         }
 
         IntSlider::IntSlider() :
@@ -52,42 +75,18 @@ namespace tl
         {}
 
         std::shared_ptr<IntSlider> IntSlider::create(
+            const std::shared_ptr<IntModel>& model,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<IntSlider>(new IntSlider);
-            out->_init(context, parent);
+            out->_init(model, context, parent);
             return out;
         }
 
         const std::shared_ptr<IntModel>& IntSlider::getModel() const
         {
             return _p->model;
-        }
-
-        void IntSlider::setModel(const std::shared_ptr<IntModel>& value)
-        {
-            TLRENDER_P();
-            p.valueObserver.reset();
-            p.rangeObserver.reset();
-            p.model = value;
-            if (p.model)
-            {
-                p.valueObserver = observer::ValueObserver<int>::create(
-                    p.model->observeValue(),
-                    [this](int)
-                    {
-                        _updates |= Update::Size;
-                        _updates |= Update::Draw;
-                    });
-                p.rangeObserver = observer::ValueObserver<math::IntRange>::create(
-                    p.model->observeRange(),
-                    [this](const math::IntRange&)
-                    {
-                        _updates |= Update::Size;
-                        _updates |= Update::Draw;
-                    });
-            }
         }
 
         void IntSlider::setVisible(bool value)

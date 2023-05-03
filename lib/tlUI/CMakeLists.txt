@@ -4,6 +4,7 @@ set(HEADERS
     Event.h
     EventLoop.h
     FloatEdit.h
+    FloatEditSlider.h
     FloatModel.h
     FloatSlider.h
     GeometryUtil.h
@@ -15,8 +16,9 @@ set(HEADERS
     IWidgetInline.h
     IWidgetOptions.h
     IconLibrary.h
-    IncButton.h
+    IncButtons.h
     IntEdit.h
+    IntEditSlider.h
     IntModel.h
     IntSlider.h
     Label.h
@@ -50,6 +52,7 @@ set(SOURCE
     Event.cpp
     EventLoop.cpp
     FloatEdit.cpp
+    FloatEditSlider.cpp
     FloatModel.cpp
     FloatSlider.cpp
     GeometryUtil.cpp
@@ -60,8 +63,9 @@ set(SOURCE
     IWidget.cpp
     IWidgetOptions.cpp
     IconLibrary.cpp
-    IncButton.cpp
+    IncButtons.cpp
     IntEdit.cpp
+    IntEditSlider.cpp
     IntModel.cpp
     IntSlider.cpp
     Label.cpp

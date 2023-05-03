@@ -5,6 +5,7 @@
 #include <tlUI/FloatSlider.h>
 
 #include <tlUI/DrawUtil.h>
+#include <tlUI/FloatModel.h>
 
 namespace tl
 {
@@ -36,12 +37,34 @@ namespace tl
         };
 
         void FloatSlider::_init(
+            const std::shared_ptr<FloatModel>& model,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::FloatSlider", context, parent);
             TLRENDER_P();
-            setModel(FloatModel::create(context));
+
+            p.model = model;
+            if (!p.model)
+            {
+                p.model = FloatModel::create(context);
+            }
+
+            p.valueObserver = observer::ValueObserver<float>::create(
+                p.model->observeValue(),
+                [this](float)
+                {
+                    _updates |= Update::Size;
+                    _updates |= Update::Draw;
+                });
+
+            p.rangeObserver = observer::ValueObserver<math::FloatRange>::create(
+                p.model->observeRange(),
+                [this](const math::FloatRange&)
+                {
+                    _updates |= Update::Size;
+                    _updates |= Update::Draw;
+                });
         }
 
         FloatSlider::FloatSlider() :
@@ -52,42 +75,18 @@ namespace tl
         {}
 
         std::shared_ptr<FloatSlider> FloatSlider::create(
+            const std::shared_ptr<FloatModel>& model,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FloatSlider>(new FloatSlider);
-            out->_init(context, parent);
+            out->_init(model, context, parent);
             return out;
         }
 
         const std::shared_ptr<FloatModel>& FloatSlider::getModel() const
         {
             return _p->model;
-        }
-
-        void FloatSlider::setModel(const std::shared_ptr<FloatModel>& value)
-        {
-            TLRENDER_P();
-            p.valueObserver.reset();
-            p.rangeObserver.reset();
-            p.model = value;
-            if (p.model)
-            {
-                p.valueObserver = observer::ValueObserver<float>::create(
-                    p.model->observeValue(),
-                    [this](float)
-                    {
-                        _updates |= Update::Size;
-                        _updates |= Update::Draw;
-                    });
-                p.rangeObserver = observer::ValueObserver<math::FloatRange>::create(
-                    p.model->observeRange(),
-                    [this](const math::FloatRange&)
-                    {
-                        _updates |= Update::Size;
-                        _updates |= Update::Draw;
-                    });
-            }
         }
 
         void FloatSlider::setVisible(bool value)

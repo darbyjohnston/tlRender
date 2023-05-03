@@ -39,7 +39,7 @@ namespace tl
             const math::BBox2i& getScrollAreaGeometry() const;
 
             //! Get the scroll area size.
-            const math::Vector2i& getScrollAreaSize() const;
+            math::Vector2i getScrollAreaSize() const;
 
             //! Get the scroll size.
             const math::Vector2i& getScrollSize() const;

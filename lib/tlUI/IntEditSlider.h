@@ -12,10 +12,10 @@ namespace tl
     {
         class IntModel;
 
-        //! Integer number editor.
-        class IntEdit : public IWidget
+        //! Integer value editor and slider.
+        class IntEditSlider : public IWidget
         {
-            TLRENDER_NON_COPYABLE(IntEdit);
+            TLRENDER_NON_COPYABLE(IntEditSlider);
 
         protected:
             void _init(
@@ -23,19 +23,16 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            IntEdit();
+            IntEditSlider();
 
         public:
-            ~IntEdit() override;
+            ~IntEditSlider() override;
 
-            //! Create a new integer number editor.
-            static std::shared_ptr<IntEdit> create(
+            //! Create a new widget.
+            static std::shared_ptr<IntEditSlider> create(
                 const std::shared_ptr<IntModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
-
-            //! Get the integer model.
-            const std::shared_ptr<IntModel>& getModel() const;
 
             //! Set the number of digits to display.
             void setDigits(int);
@@ -45,12 +42,8 @@ namespace tl
 
             void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void keyPressEvent(KeyEvent&) override;
-            void keyReleaseEvent(KeyEvent&) override;
 
         private:
-            void _textUpdate();
-
             TLRENDER_PRIVATE();
         };
     }

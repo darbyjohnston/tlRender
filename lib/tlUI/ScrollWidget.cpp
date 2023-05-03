@@ -160,7 +160,7 @@ namespace tl
             return _p->scrollArea->getGeometry();
         }
 
-        const math::Vector2i& ScrollWidget::getScrollAreaSize() const
+        math::Vector2i ScrollWidget::getScrollAreaSize() const
         {
             return _p->scrollArea->getGeometry().getSize();
         }

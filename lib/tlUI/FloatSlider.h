@@ -5,12 +5,13 @@
 #pragma once
 
 #include <tlUI/IWidget.h>
-#include <tlUI/FloatModel.h>
 
 namespace tl
 {
     namespace ui
     {
+        class FloatModel;
+
         //! Floating point value slider.
         class FloatSlider : public IWidget
         {
@@ -18,6 +19,7 @@ namespace tl
 
         protected:
             void _init(
+                const std::shared_ptr<FloatModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -28,14 +30,12 @@ namespace tl
 
             //! Create a new floating point value slider.
             static std::shared_ptr<FloatSlider> create(
+                const std::shared_ptr<FloatModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the floating point model.
             const std::shared_ptr<FloatModel>& getModel() const;
-
-            //! Set the floating point model.
-            void setModel(const std::shared_ptr<FloatModel>&);
 
             void setVisible(bool) override;
             void setEnabled(bool) override;
