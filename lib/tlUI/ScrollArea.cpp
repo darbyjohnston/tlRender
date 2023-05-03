@@ -11,8 +11,10 @@ namespace tl
         struct ScrollArea::Private
         {
             ScrollType scrollType = ScrollType::Both;
-            std::shared_ptr<observer::Value<math::Vector2i> > scrollSize;
-            std::shared_ptr<observer::Value<math::Vector2i> > scrollPos;
+            math::Vector2i scrollSize;
+            math::Vector2i scrollPos;
+            std::function<void(const math::Vector2i&)> scrollSizeCallback;
+            std::function<void(const math::Vector2i&)> scrollPosCallback;
         };
 
         void ScrollArea::_init(
@@ -23,8 +25,6 @@ namespace tl
             IWidget::_init("tl::ui::ScrollArea", context, parent);
             TLRENDER_P();
             p.scrollType = scrollType;
-            p.scrollSize = observer::Value<math::Vector2i>::create();
-            p.scrollPos = observer::Value<math::Vector2i>::create();
             //setBackgroundRole(ColorRole::Base);
         }
 
@@ -47,20 +47,15 @@ namespace tl
 
         const math::Vector2i& ScrollArea::getScrollSize() const
         {
-            return _p->scrollSize->get();
-        }
-
-        std::shared_ptr<observer::IValue<math::Vector2i> > ScrollArea::observeScrollSize() const
-        {
             return _p->scrollSize;
         }
 
-        const math::Vector2i& ScrollArea::getScrollPos() const
+        void ScrollArea::setScrollSizeCallback(const std::function<void(const math::Vector2i&)>& value)
         {
-            return _p->scrollPos->get();
+            _p->scrollSizeCallback = value;
         }
 
-        std::shared_ptr<observer::IValue<math::Vector2i> > ScrollArea::observeScrollPos() const
+        const math::Vector2i& ScrollArea::getScrollPos() const
         {
             return _p->scrollPos;
         }
@@ -68,11 +63,23 @@ namespace tl
         void ScrollArea::setScrollPos(const math::Vector2i& value)
         {
             TLRENDER_P();
-            if (p.scrollPos->setIfChanged(value))
+            const math::Vector2i tmp(
+                math::clamp(value.x, 0, std::max(0, p.scrollSize.x - _geometry.w())),
+                math::clamp(value.y, 0, std::max(0, p.scrollSize.y - _geometry.h())));
+            if (tmp == p.scrollPos)
+                return;
+            p.scrollPos = tmp;
+            _updates |= ui::Update::Size;
+            _updates |= ui::Update::Draw;
+            if (p.scrollPosCallback)
             {
-                _updates |= ui::Update::Size;
-                _updates |= ui::Update::Draw;
+                p.scrollPosCallback(p.scrollPos);
             }
+        }
+
+        void ScrollArea::setScrollPosCallback(const std::function<void(const math::Vector2i&)>& value)
+        {
+            _p->scrollPosCallback = value;
         }
 
         void ScrollArea::setGeometry(const math::BBox2i& value)
@@ -80,7 +87,6 @@ namespace tl
             IWidget::setGeometry(value);
             TLRENDER_P();
             const math::BBox2i g = value;
-            const math::Vector2i& scrollPos = p.scrollPos->get();
             math::Vector2i scrollSize;
             for (const auto& child : _children)
             {
@@ -88,13 +94,20 @@ namespace tl
                 scrollSize.x = std::max(scrollSize.x, sizeHint.x);
                 scrollSize.y = std::max(scrollSize.y, sizeHint.y);
                 const math::BBox2i g2(
-                    g.min.x - scrollPos.x,
-                    g.min.y - scrollPos.y,
+                    g.min.x - p.scrollPos.x,
+                    g.min.y - p.scrollPos.y,
                     sizeHint.x,
                     sizeHint.y);
                 child->setGeometry(g2);
             }
-            p.scrollSize->setIfChanged(scrollSize);
+            if (scrollSize != p.scrollSize)
+            {
+                p.scrollSize = scrollSize;
+                if (p.scrollSizeCallback)
+                {
+                    p.scrollSizeCallback(p.scrollSize);
+                }
+            }
         }
 
         void ScrollArea::sizeHintEvent(const SizeHintEvent& event)

@@ -20,8 +20,7 @@ namespace tl
             std::shared_ptr<ScrollBar> horizontalScrollBar;
             std::shared_ptr<ScrollBar> verticalScrollBar;
             std::shared_ptr<GridLayout> layout;
-            std::shared_ptr<observer::ValueObserver<math::Vector2i> > scrollSizeObserver;
-            std::shared_ptr<observer::ValueObserver<math::Vector2i> > scrollPosObserver;
+            std::function<void(const math::Vector2i&)> scrollPosCallback;
 
             struct SizeData
             {
@@ -103,8 +102,7 @@ namespace tl
                     });
             }
 
-            p.scrollSizeObserver = observer::ValueObserver<math::Vector2i>::create(
-                p.scrollArea->observeScrollSize(),
+            p.scrollArea->setScrollSizeCallback(
                 [this](const math::Vector2i& value)
                 {
                     if (_p->horizontalScrollBar)
@@ -117,8 +115,7 @@ namespace tl
                     }
                 });
 
-            p.scrollPosObserver = observer::ValueObserver<math::Vector2i>::create(
-                p.scrollArea->observeScrollPos(),
+            p.scrollArea->setScrollPosCallback(
                 [this](const math::Vector2i& value)
                 {
                     if (_p->horizontalScrollBar)
@@ -128,6 +125,10 @@ namespace tl
                     if (_p->verticalScrollBar)
                     {
                         _p->verticalScrollBar->setScrollPos(value.y);
+                    }
+                    if (_p->scrollPosCallback)
+                    {
+                        _p->scrollPosCallback(value);
                     }
                 });
         }
@@ -152,6 +153,36 @@ namespace tl
         void ScrollWidget::setWidget(const std::shared_ptr<IWidget>& value)
         {
             value->setParent(_p->scrollArea);
+        }
+
+        const math::BBox2i& ScrollWidget::getScrollAreaGeometry() const
+        {
+            return _p->scrollArea->getGeometry();
+        }
+
+        const math::Vector2i& ScrollWidget::getScrollAreaSize() const
+        {
+            return _p->scrollArea->getGeometry().getSize();
+        }
+
+        const math::Vector2i& ScrollWidget::getScrollSize() const
+        {
+            return _p->scrollArea->getScrollSize();
+        }
+
+        const math::Vector2i& ScrollWidget::getScrollPos() const
+        {
+            return _p->scrollArea->getScrollPos();
+        }
+
+        void ScrollWidget::setScrollPos(const math::Vector2i& value)
+        {
+            _p->scrollArea->setScrollPos(value);
+        }
+        
+        void ScrollWidget::setScrollPosCallback(const std::function<void(const math::Vector2i&)>& value)
+        {
+            _p->scrollPosCallback = value;
         }
 
         void ScrollWidget::setGeometry(const math::BBox2i& value)

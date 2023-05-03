@@ -71,8 +71,6 @@ namespace tl
             void keyReleaseEvent(KeyEvent&) override;
 
         private:
-            void _setScrollPos(const math::Vector2i&);
-
             void _frameView();
 
             void _setViewZoom(

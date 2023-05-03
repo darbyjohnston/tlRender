@@ -35,6 +35,24 @@ namespace tl
             //! Set the widget.
             void setWidget(const std::shared_ptr<IWidget>&);
 
+            //! Get the scroll area geometry.
+            const math::BBox2i& getScrollAreaGeometry() const;
+
+            //! Get the scroll area size.
+            const math::Vector2i& getScrollAreaSize() const;
+
+            //! Get the scroll size.
+            const math::Vector2i& getScrollSize() const;
+
+            //! Get the scroll position.
+            const math::Vector2i& getScrollPos() const;
+
+            //! Set the scroll position.
+            void setScrollPos(const math::Vector2i&);
+
+            //! Set the scroll position callback.
+            void setScrollPosCallback(const std::function<void(const math::Vector2i&)>&);
+
             void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void drawEvent(const DrawEvent&) override;

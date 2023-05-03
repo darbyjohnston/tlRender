@@ -6,7 +6,6 @@
 
 #include <tlUI/ButtonGroup.h>
 #include <tlUI/RowLayout.h>
-#include <tlUI/ScrollArea.h>
 #include <tlUI/Splitter.h>
 #include <tlUI/TimelineViewport.h>
 #include <tlUI/TimelineWidget.h>

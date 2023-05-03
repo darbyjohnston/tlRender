@@ -45,17 +45,17 @@ namespace tl
             //! Get the scroll size.
             const math::Vector2i& getScrollSize() const;
 
-            //! Observe the scroll size.
-            std::shared_ptr<observer::IValue<math::Vector2i> > observeScrollSize() const;
+            //! Set the scroll size callback.
+            void setScrollSizeCallback(const std::function<void(const math::Vector2i&)>&);
 
             //! Get the scroll position.
             const math::Vector2i& getScrollPos() const;
 
-            //! Observe the scroll position.
-            std::shared_ptr<observer::IValue<math::Vector2i> > observeScrollPos() const;
-
             //! Set the scroll position.
             void setScrollPos(const math::Vector2i&);
+
+            //! Set the scroll position callback.
+            void setScrollPosCallback(const std::function<void(const math::Vector2i&)>&);
 
             void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;

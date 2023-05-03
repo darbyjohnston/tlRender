@@ -79,8 +79,6 @@ namespace tl
             void timerEvent(QTimerEvent*) override;
 
         private:
-            void _setScrollPos(const math::Vector2i&);
-
             void _frameView();
 
             void _setViewZoom(
