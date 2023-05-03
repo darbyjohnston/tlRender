@@ -25,6 +25,7 @@ namespace tl
             std::weak_ptr<system::Context> context;
 
             std::shared_ptr<timeline::TimelinePlayer> timelinePlayer;
+            bool timelinePlayerInit = false;
             bool frameView = true;
             bool stopOnScrub = true;
             float mouseWheelScale = 20.F;
@@ -85,6 +86,7 @@ namespace tl
                 p.fontSystem,
                 context);
             p.scrollWidget = ui::ScrollWidget::create(context);
+            p.scrollWidget->setBackgroundRole(ui::ColorRole::Window);
             p.scrollWidget->setScrollPosCallback(
                 [this](const math::Vector2i&)
                 {
@@ -109,6 +111,7 @@ namespace tl
                 p.timelineItem.reset();
             }
             p.timelinePlayer = timelinePlayer;
+            p.timelinePlayerInit = true;
             if (p.timelinePlayer)
             {
                 if (auto context = p.context.lock())
@@ -122,10 +125,6 @@ namespace tl
 
                     p.timelineItem = ui::TimelineItem::create(p.timelinePlayer, itemData, context);
                     p.timelineItem->setStopOnScrub(p.stopOnScrub);
-                    p.scrollWidget->setScrollPos(_toUI(math::Vector2i()));
-                    p.itemOptions.scale = _timelineScale();
-                    _setItemOptions(p.timelineItem, p.itemOptions);
-                    _setViewport(p.timelineItem, _timelineViewport());
                     p.scrollWidget->setWidget(p.timelineItem);
                 }
             }
@@ -564,6 +563,17 @@ namespace tl
         {
             TLRENDER_P();
             p.eventLoop->tick();
+            if (p.timelinePlayerInit)
+            {
+                p.timelinePlayerInit = false;
+                if (p.timelineItem)
+                {
+                    p.scrollWidget->setScrollPos(_toUI(math::Vector2i()));
+                    p.itemOptions.scale = _timelineScale();
+                    _setItemOptions(p.timelineItem, p.itemOptions);
+                    _setViewport(p.timelineItem, _timelineViewport());
+                }
+            }
             if (p.eventLoop->hasDrawUpdate())
             {
                 update();
@@ -632,8 +642,9 @@ namespace tl
                 if (duration > 0.0)
                 {
                     const math::Vector2i& scrollAreaSize = p.scrollWidget->getScrollAreaSize();
-                    const int m = p.style->getSizeRole(ui::SizeRole::MarginSmall, 1.F);
-                    out = _toUI(scrollAreaSize.x - m * 2) / duration;
+                    const float devicePixelRatio = window()->devicePixelRatio();
+                    const int m = p.style->getSizeRole(ui::SizeRole::MarginSmall, devicePixelRatio);
+                    out = (scrollAreaSize.x - m * 2) / duration;
                 }
             }
             return out;
