@@ -11,14 +11,14 @@ namespace tl
         QPalette darkStyle()
         {
             QPalette palette;
-            palette.setColor(QPalette::ColorRole::Window, QColor(30, 30, 30));
-            palette.setColor(QPalette::ColorRole::WindowText, QColor(240, 240, 240));
-            palette.setColor(QPalette::ColorRole::Base, QColor(20, 20, 20));
-            palette.setColor(QPalette::ColorRole::AlternateBase, QColor(30, 30, 30));
-            palette.setColor(QPalette::ColorRole::Text, QColor(240, 240, 240));
-            palette.setColor(QPalette::ColorRole::Button, QColor(40, 40, 40));
-            palette.setColor(QPalette::ColorRole::ButtonText, QColor(240, 240, 240));
-            palette.setColor(QPalette::ColorRole::BrightText, QColor(240, 240, 240));
+            palette.setColor(QPalette::ColorRole::Window, QColor(51, 51, 51));
+            palette.setColor(QPalette::ColorRole::WindowText, QColor(255, 255, 255));
+            palette.setColor(QPalette::ColorRole::Base, QColor(43, 43, 43));
+            palette.setColor(QPalette::ColorRole::AlternateBase, QColor(53, 53, 53));
+            palette.setColor(QPalette::ColorRole::Text, QColor(255, 255, 255));
+            palette.setColor(QPalette::ColorRole::Button, QColor(76, 76, 76));
+            palette.setColor(QPalette::ColorRole::ButtonText, QColor(255, 255, 255));
+            palette.setColor(QPalette::ColorRole::BrightText, QColor(255, 255, 255));
             palette.setColor(QPalette::ColorRole::Light, QColor(50, 50, 50));
             palette.setColor(QPalette::ColorRole::Midlight, QColor(45, 45, 45));
             palette.setColor(QPalette::ColorRole::Dark, QColor(30, 30, 30));

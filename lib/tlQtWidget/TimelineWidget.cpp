@@ -86,7 +86,6 @@ namespace tl
                 p.fontSystem,
                 context);
             p.scrollWidget = ui::ScrollWidget::create(context);
-            p.scrollWidget->setBackgroundRole(ui::ColorRole::Window);
             p.scrollWidget->setScrollPosCallback(
                 [this](const math::Vector2i&)
                 {
@@ -231,9 +230,13 @@ namespace tl
             TLRENDER_P();
             if (p.render)
             {
-                p.render->begin(imaging::Size(
-                    _toUI(width()),
-                    _toUI(height())));
+                timeline::RenderOptions renderOptions;
+                renderOptions.clearColor = p.style->getColorRole(ui::ColorRole::Window);
+                p.render->begin(
+                    imaging::Size(_toUI(width()), _toUI(height())),
+                    timeline::ColorConfigOptions(),
+                    timeline::LUTOptions(),
+                    renderOptions);
                 p.eventLoop->draw(p.render);
                 p.render->end();
             }
