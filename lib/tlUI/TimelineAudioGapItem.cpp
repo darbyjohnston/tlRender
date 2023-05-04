@@ -17,6 +17,7 @@ namespace tl
             std::string durationLabel;
             FontRole fontRole = FontRole::Label;
             int margin = 0;
+            int spacing = 0;
         };
 
         void TimelineAudioGapItem::_init(
@@ -71,6 +72,7 @@ namespace tl
             TLRENDER_P();
 
             p.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
+            p.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
 
             _sizeHint = math::Vector2i(
@@ -78,6 +80,10 @@ namespace tl
                 p.margin +
                 fontMetrics.lineHeight +
                 p.margin);
+            if (_options.thumbnails)
+            {
+                _sizeHint.y += p.spacing + _options.waveformHeight;
+            }
         }
 
         void TimelineAudioGapItem::drawEvent(const DrawEvent& event)
@@ -95,9 +101,9 @@ namespace tl
                 //    border(g, b, p.margin / 2),
                 //    event.style->getColorRole(ColorRole::Border));
 
-                //event.render->drawRect(
-                //    g.margin(-b),
-                //    imaging::Color4f(.2F, .2F, .25F));
+                event.render->drawRect(
+                    g.margin(-b),
+                    imaging::Color4f(.1F, .0F, .2F));
 
                 event.render->drawText(
                     event.fontSystem->getGlyphs(p.label, fontInfo),

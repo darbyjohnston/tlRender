@@ -79,9 +79,11 @@ namespace tl
                 p.timeRange.duration().rescaled_to(1.0).value() * _options.scale,
                 p.margin +
                 fontMetrics.lineHeight +
-                p.spacing +
-                _options.thumbnailHeight +
                 p.margin);
+            if (_options.thumbnails)
+            {
+                _sizeHint.y += p.spacing + _options.thumbnailHeight;
+            }
         }
 
         void TimelineVideoGapItem::drawEvent(const DrawEvent& event)
@@ -99,9 +101,9 @@ namespace tl
                 //    border(g, b, p.margin / 2),
                 //    event.style->getColorRole(ColorRole::Border));
 
-                //event.render->drawRect(
-                //    g.margin(-b),
-                //    imaging::Color4f(.2F, .25F, .2F));
+                event.render->drawRect(
+                    g.margin(-b),
+                    imaging::Color4f(.0F, .1F, .1F));
 
                 event.render->drawText(
                     event.fontSystem->getGlyphs(p.label, fontInfo),
