@@ -464,8 +464,9 @@ namespace tl
             const math::BBox2i bbox = _getCurrentTimeBBox();
             if (bbox.w() > 0)
             {
-                const double v = (value - bbox.min.x) / static_cast<double>(bbox.w());
-                const double clamped = math::clamp(v, 0.0, 1.0);
+                const double normalized =
+                    (value - bbox.min.x) / static_cast<double>(bbox.w());
+                const double clamped = math::clamp(normalized, 0.0, 1.0);
                 out = time::round(
                     p.timeRange.start_time() +
                     otime::RationalTime(
