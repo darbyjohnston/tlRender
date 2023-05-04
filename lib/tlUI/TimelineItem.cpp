@@ -455,11 +455,12 @@ namespace tl
             const math::BBox2i bbox = _getCurrentTimeBBox();
             if (bbox.w() > 0)
             {
-                const float v = (value - bbox.min.x) / static_cast<float>(bbox.w());
+                const double v = (value - bbox.min.x) / static_cast<double>(bbox.w());
+                const double clamped = math::clamp(v, 0.0, 1.0);
                 out = time::round(
                     p.timeRange.start_time() +
                     otime::RationalTime(
-                        p.timeRange.duration().value() * v,
+                        p.timeRange.end_time_inclusive().value() * clamped,
                         p.timeRange.duration().rate()));
             }
             return out;
