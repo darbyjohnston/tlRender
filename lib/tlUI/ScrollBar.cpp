@@ -4,6 +4,8 @@
 
 #include <tlUI/ScrollBar.h>
 
+#include <tlUI/DrawUtil.h>
+
 namespace tl
 {
     namespace ui
@@ -14,6 +16,13 @@ namespace tl
             int scrollSize = 0;
             int scrollPos = 0;
             std::function<void(int)> scrollPosCallback;
+
+            struct SizeData
+            {
+                int border = 0;
+                int handle = 0;
+            };
+            SizeData size;
 
             struct MouseData
             {
@@ -123,6 +132,7 @@ namespace tl
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
+            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
             const int h = event.style->getSizeRole(SizeRole::Handle, event.displayScale);
             const int sa = event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
 
@@ -138,6 +148,8 @@ namespace tl
                 break;
             default: break;
             }
+            _sizeHint.x += p.size.border * 2;
+            _sizeHint.y += p.size.border * 2;
         }
 
         void ScrollBar::drawEvent(const DrawEvent& event)
@@ -147,28 +159,34 @@ namespace tl
 
             const math::BBox2i& g = _geometry;
 
-            //event.render->drawRect(
-            //    g,
-            //    event.style->getColorRole(ColorRole::Base));
+            event.render->drawMesh(
+                border(g, p.size.border),
+                math::Vector2i(),
+                event.style->getColorRole(ColorRole::Border));
+
+            const math::BBox2i g2 = g.margin(-p.size.border);
+            event.render->drawRect(
+                g2,
+                event.style->getColorRole(ColorRole::Base));
 
             const int scrollPosMax = _getScrollPosMax();
             if (scrollPosMax > 0)
             {
-                const math::BBox2i g2 = _getHandleGeometry();
+                const math::BBox2i g3 = _getHandleGeometry();
                 event.render->drawRect(
-                    g2,
+                    g3,
                     event.style->getColorRole(ColorRole::Button));
 
                 if (p.mouse.pressed)
                 {
                     event.render->drawRect(
-                        g2,
+                        g3,
                         event.style->getColorRole(ColorRole::Pressed));
                 }
                 else if (p.mouse.inside)
                 {
                     event.render->drawRect(
-                        g2,
+                        g3,
                         event.style->getColorRole(ColorRole::Hover));
                 }
             }
@@ -247,13 +265,14 @@ namespace tl
         {
             TLRENDER_P();
             int out = 0;
+            const math::BBox2i g = _geometry.margin(-p.size.border);
             switch (p.orientation)
             {
             case Orientation::Horizontal:
-                out = std::max(0, p.scrollSize - _geometry.w());
+                out = std::max(0, p.scrollSize - g.w() + 2);
                 break;
             case Orientation::Vertical:
-                out = std::max(0, p.scrollSize - _geometry.h());
+                out = std::max(0, p.scrollSize - g.h() + 2);
                 break;
             default: break;
             }
@@ -264,7 +283,7 @@ namespace tl
         {
             TLRENDER_P();
             float out = 0.F;
-            const math::BBox2i& g = _geometry;
+            const math::BBox2i& g = _geometry.margin(-p.size.border);
             switch (p.orientation)
             {
             case Orientation::Horizontal:
@@ -282,7 +301,7 @@ namespace tl
         {
             TLRENDER_P();
             math::BBox2i out;
-            const math::BBox2i& g = _geometry;
+            const math::BBox2i& g = _geometry.margin(-p.size.border);
             switch (p.orientation)
             {
             case Orientation::Horizontal:

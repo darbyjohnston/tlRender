@@ -71,6 +71,11 @@ namespace tl
             return _clipped;
         }
 
+        inline math::BBox2i IWidget::getClipRect() const
+        {
+            return _geometry;
+        }
+
         inline bool IWidget::isEnabled() const
         {
             return _enabled;

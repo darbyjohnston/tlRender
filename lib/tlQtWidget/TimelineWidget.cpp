@@ -86,6 +86,7 @@ namespace tl
                 p.fontSystem,
                 context);
             p.scrollWidget = ui::ScrollWidget::create(context);
+            p.scrollWidget->setMarginRole(ui::SizeRole::MarginSmall);
             p.scrollWidget->setScrollPosCallback(
                 [this](const math::Vector2i&)
                 {
@@ -644,10 +645,10 @@ namespace tl
                 const double duration = timeRange.duration().rescaled_to(1.0).value();
                 if (duration > 0.0)
                 {
-                    const math::Vector2i& scrollAreaSize = p.scrollWidget->getScrollAreaSize();
+                    const math::BBox2i scrollViewport = p.scrollWidget->getViewport();
                     const float devicePixelRatio = window()->devicePixelRatio();
                     const int m = p.style->getSizeRole(ui::SizeRole::MarginSmall, devicePixelRatio);
-                    out = (scrollAreaSize.x - m * 2) / duration;
+                    out = (scrollViewport.w() - m * 2) / duration;
                 }
             }
             return out;
@@ -669,7 +670,7 @@ namespace tl
 
         math::BBox2i TimelineWidget::_timelineViewport() const
         {
-            return _p->scrollWidget->getScrollAreaGeometry();
+            return _p->scrollWidget->getViewport();
         }
 
         void TimelineWidget::_setViewport(

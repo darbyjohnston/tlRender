@@ -125,6 +125,10 @@ namespace tl
             //! Is the widget clipped?
             bool isClipped() const;
 
+            //! Get the clipping rect applied to the child widgets. By
+            //! default this is the same as the widget geometry.
+            virtual math::BBox2i getClipRect() const;
+
             ///@}
 
             //! Enabled

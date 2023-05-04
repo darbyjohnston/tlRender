@@ -56,6 +56,7 @@ namespace tl
                 context,
                 ScrollType::Both,
                 shared_from_this());
+            p.scrollWidget->setMarginRole(SizeRole::MarginSmall);
 
             p.scrollWidget->setScrollPosCallback(
                 [this](const math::Vector2i&)
@@ -394,8 +395,8 @@ namespace tl
                 const double duration = timeRange.duration().rescaled_to(1.0).value();
                 if (duration > 0.0)
                 {
-                    const math::Vector2i& scrollAreaSize = p.scrollWidget->getScrollAreaSize();
-                    out = (scrollAreaSize.x - p.size.margin * 2) / duration;
+                    const math::BBox2i scrollViewport = p.scrollWidget->getViewport();
+                    out = (scrollViewport.w() - p.size.margin * 2) / duration;
                 }
             }
             return out;
@@ -417,7 +418,7 @@ namespace tl
 
         math::BBox2i TimelineWidget::_getTimelineViewport() const
         {
-            return _p->scrollWidget->getScrollAreaGeometry();
+            return _p->scrollWidget->getViewport();
         }
 
         void TimelineWidget::_setViewport(

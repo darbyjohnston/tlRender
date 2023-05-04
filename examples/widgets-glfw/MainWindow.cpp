@@ -96,7 +96,7 @@ namespace tl
                 gridLayouts->setParent(p.stackLayout);
                 scrollAreas->setParent(p.stackLayout);
 
-                p.stackLayout->setCurrentWidget(numericWidgets);
+                p.stackLayout->setCurrentWidget(scrollAreas);
             }
 
             MainWindow::MainWindow() :

@@ -416,9 +416,10 @@ namespace tl
             clipped |= !g.intersects(clip);
             clipped |= !widget->isVisible();
             widget->clipEvent(clipped, event);
+            const math::BBox2i clipRect = widget->getClipRect();
             for (const auto& child : widget->getChildren())
             {
-                _clipEvent(child, g.intersect(clip), clipped, event);
+                _clipEvent(child, clipRect.intersect(clip), clipped, event);
             }
         }
 
@@ -492,12 +493,14 @@ namespace tl
             {
                 event.render->setClipRect(clip);
                 widget->drawEvent(event);
+                const math::BBox2i clip2 = widget->getClipRect().intersect(clip);
+                event.render->setClipRect(clip2);
                 for (const auto& child : widget->getChildren())
                 {
                     const math::BBox2i& g = child->getGeometry();
-                    if (g.intersects(clip))
+                    if (g.intersects(clip2))
                     {
-                        _drawEvent(child, g.intersect(clip), event);
+                        _drawEvent(child, g.intersect(clip2), event);
                     }
                 }
             }

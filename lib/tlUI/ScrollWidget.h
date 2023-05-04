@@ -35,11 +35,8 @@ namespace tl
             //! Set the widget.
             void setWidget(const std::shared_ptr<IWidget>&);
 
-            //! Get the scroll area geometry.
-            const math::BBox2i& getScrollAreaGeometry() const;
-
-            //! Get the scroll area size.
-            math::Vector2i getScrollAreaSize() const;
+            //! Get the viewport geometry.
+            const math::BBox2i& getViewport() const;
 
             //! Get the scroll size.
             const math::Vector2i& getScrollSize() const;
@@ -53,9 +50,11 @@ namespace tl
             //! Set the scroll position callback.
             void setScrollPosCallback(const std::function<void(const math::Vector2i&)>&);
 
+            //! Set the margin role.
+            void setMarginRole(SizeRole);
+
             void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void drawEvent(const DrawEvent&) override;
 
         private:
             TLRENDER_PRIVATE();

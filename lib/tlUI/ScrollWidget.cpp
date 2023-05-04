@@ -21,12 +21,6 @@ namespace tl
             std::shared_ptr<ScrollBar> verticalScrollBar;
             std::shared_ptr<GridLayout> layout;
             std::function<void(const math::Vector2i&)> scrollPosCallback;
-
-            struct SizeData
-            {
-                int border = 0;
-            };
-            SizeData size;
         };
 
         void ScrollWidget::_init(
@@ -57,7 +51,7 @@ namespace tl
             }
 
             p.layout = GridLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(SizeRole::Border);
+            p.layout->setSpacingRole(SizeRole::SpacingSmall);
             p.layout->setStretch(Stretch::Expanding);
             p.scrollArea->setParent(p.layout);
             p.layout->setGridPos(p.scrollArea, 0, 0);
@@ -155,14 +149,9 @@ namespace tl
             value->setParent(_p->scrollArea);
         }
 
-        const math::BBox2i& ScrollWidget::getScrollAreaGeometry() const
+        const math::BBox2i& ScrollWidget::getViewport() const
         {
-            return _p->scrollArea->getGeometry();
-        }
-
-        math::Vector2i ScrollWidget::getScrollAreaSize() const
-        {
-            return _p->scrollArea->getGeometry().getSize();
+            return _p->scrollArea->getClipRect();
         }
 
         const math::Vector2i& ScrollWidget::getScrollSize() const
@@ -185,51 +174,21 @@ namespace tl
             _p->scrollPosCallback = value;
         }
 
+        void ScrollWidget::setMarginRole(SizeRole value)
+        {
+            _p->layout->setMarginRole(value);
+        }
+
         void ScrollWidget::setGeometry(const math::BBox2i& value)
         {
             IWidget::setGeometry(value);
-            TLRENDER_P();
-            p.layout->setGeometry(value.margin(-p.size.border));
+            _p->layout->setGeometry(value);
         }
 
         void ScrollWidget::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
-
-            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
-
-            _sizeHint = p.layout->getSizeHint() + p.size.border * 2;
-        }
-
-        void ScrollWidget::drawEvent(const DrawEvent& event)
-        {
-            IWidget::drawEvent(event);
-            TLRENDER_P();
-
-            math::BBox2i g = p.scrollArea->getGeometry().margin(p.size.border);
-            event.render->drawMesh(
-                border(g, p.size.border),
-                math::Vector2i(),
-                event.style->getColorRole(ColorRole::Border));
-
-            if (p.horizontalScrollBar)
-            {
-                g = p.horizontalScrollBar->getGeometry().margin(p.size.border);
-                event.render->drawMesh(
-                    border(g, p.size.border),
-                    math::Vector2i(),
-                    event.style->getColorRole(ColorRole::Border));
-            }
-
-            if (p.verticalScrollBar)
-            {
-                g = p.verticalScrollBar->getGeometry().margin(p.size.border);
-                event.render->drawMesh(
-                    border(g, p.size.border),
-                    math::Vector2i(),
-                    event.style->getColorRole(ColorRole::Border));
-            }
+            _sizeHint = _p->layout->getSizeHint();
         }
     }
 }

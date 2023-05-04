@@ -4,6 +4,8 @@
 
 #include <tlUI/ScrollArea.h>
 
+#include <tlUI/DrawUtil.h>
+
 namespace tl
 {
     namespace ui
@@ -15,6 +17,12 @@ namespace tl
             math::Vector2i scrollPos;
             std::function<void(const math::Vector2i&)> scrollSizeCallback;
             std::function<void(const math::Vector2i&)> scrollPosCallback;
+
+            struct SizeData
+            {
+                int border = 1;
+            };
+            SizeData size;
         };
 
         void ScrollArea::_init(
@@ -25,7 +33,6 @@ namespace tl
             IWidget::_init("tl::ui::ScrollArea", context, parent);
             TLRENDER_P();
             p.scrollType = scrollType;
-            //setBackgroundRole(ColorRole::Base);
         }
 
         ScrollArea::ScrollArea() :
@@ -63,9 +70,10 @@ namespace tl
         void ScrollArea::setScrollPos(const math::Vector2i& value)
         {
             TLRENDER_P();
+            const math::BBox2i g = _geometry.margin(-p.size.border);
             const math::Vector2i tmp(
-                math::clamp(value.x, 0, std::max(0, p.scrollSize.x - _geometry.w())),
-                math::clamp(value.y, 0, std::max(0, p.scrollSize.y - _geometry.h())));
+                math::clamp(value.x, 0, std::max(0, p.scrollSize.x - g.w())),
+                math::clamp(value.y, 0, std::max(0, p.scrollSize.y - g.h())));
             if (tmp == p.scrollPos)
                 return;
             p.scrollPos = tmp;
@@ -82,11 +90,17 @@ namespace tl
             _p->scrollPosCallback = value;
         }
 
+        math::BBox2i ScrollArea::getClipRect() const
+        {
+            TLRENDER_P();
+            return _geometry.margin(-p.size.border);
+        }
+
         void ScrollArea::setGeometry(const math::BBox2i& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
-            const math::BBox2i g = value;
+            const math::BBox2i g = value.margin(-p.size.border);
             math::Vector2i scrollSize;
             for (const auto& child : _children)
             {
@@ -115,6 +129,8 @@ namespace tl
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
+            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
+
             _sizeHint = math::Vector2i();
             switch (p.scrollType)
             {
@@ -141,6 +157,21 @@ namespace tl
                         event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
                     break;
             }
+            _sizeHint.x += p.size.border * 2;
+            _sizeHint.y += p.size.border * 2;
+        }
+
+        void ScrollArea::drawEvent(const DrawEvent& event)
+        {
+            IWidget::drawEvent(event);
+            TLRENDER_P();
+
+            const math::BBox2i& g = _geometry;
+
+            event.render->drawMesh(
+                border(g, p.size.border),
+                math::Vector2i(),
+                event.style->getColorRole(ColorRole::Border));
         }
     }
 }
