@@ -77,8 +77,8 @@ namespace tl
             if (tmp == p.scrollPos)
                 return;
             p.scrollPos = tmp;
-            _updates |= ui::Update::Size;
-            _updates |= ui::Update::Draw;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
             if (p.scrollPosCallback)
             {
                 p.scrollPosCallback(p.scrollPos);

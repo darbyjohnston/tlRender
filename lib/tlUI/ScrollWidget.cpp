@@ -33,20 +33,20 @@ namespace tl
 
             p.scrollType = scrollType;
 
-            p.scrollArea = ui::ScrollArea::create(context, scrollType);
+            p.scrollArea = ScrollArea::create(context, scrollType);
             p.scrollArea->setStretch(Stretch::Expanding);
 
             switch (scrollType)
             {
             case ScrollType::Horizontal:
-                p.horizontalScrollBar = ui::ScrollBar::create(Orientation::Horizontal, context);
+                p.horizontalScrollBar = ScrollBar::create(Orientation::Horizontal, context);
                 break;
             case ScrollType::Vertical:
-                p.verticalScrollBar = ui::ScrollBar::create(Orientation::Vertical, context);
+                p.verticalScrollBar = ScrollBar::create(Orientation::Vertical, context);
                 break;
             case ScrollType::Both:
-                p.horizontalScrollBar = ui::ScrollBar::create(Orientation::Horizontal, context);
-                p.verticalScrollBar = ui::ScrollBar::create(Orientation::Vertical, context);
+                p.horizontalScrollBar = ScrollBar::create(Orientation::Horizontal, context);
+                p.verticalScrollBar = ScrollBar::create(Orientation::Vertical, context);
                 break;
             }
 

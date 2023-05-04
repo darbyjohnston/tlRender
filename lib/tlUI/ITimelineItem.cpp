@@ -55,8 +55,8 @@ namespace tl
             if (value == _options)
                 return;
             _options = value;
-            _updates |= ui::Update::Size;
-            _updates |= ui::Update::Draw;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
         }
 
         void ITimelineItem::setViewport(const math::BBox2i& value)
@@ -64,8 +64,8 @@ namespace tl
             if (value == _viewport)
                 return;
             _viewport = value;
-            _updates |= ui::Update::Size;
-            _updates |= ui::Update::Draw;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
         }
 
         bool ITimelineItem::_isInsideViewport() const

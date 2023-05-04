@@ -80,10 +80,6 @@ namespace tl
                 p.margin +
                 fontMetrics.lineHeight +
                 p.margin);
-            if (_options.thumbnails)
-            {
-                _sizeHint.y += p.spacing + _options.thumbnailHeight;
-            }
         }
 
         void TimelineVideoGapItem::drawEvent(const DrawEvent& event)
@@ -99,11 +95,12 @@ namespace tl
 
                 //event.render->drawMesh(
                 //    border(g, b, p.margin / 2),
+                //    math::Vector2i(),
                 //    event.style->getColorRole(ColorRole::Border));
 
                 event.render->drawRect(
                     g.margin(-b),
-                    imaging::Color4f(.0F, .1F, .1F));
+                    imaging::Color4f(.25F, .31F, .31F));
 
                 event.render->drawText(
                     event.fontSystem->getGlyphs(p.label, fontInfo),

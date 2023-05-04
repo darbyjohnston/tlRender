@@ -47,7 +47,7 @@ namespace tl
         };
 
         //! Base class for timeline items.
-        class ITimelineItem : public ui::IWidget
+        class ITimelineItem : public IWidget
         {
         protected:
             void _init(

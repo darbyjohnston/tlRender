@@ -48,7 +48,7 @@ namespace tl
             p.edit->setParent(p.layout);
             p.incButtons->setParent(p.layout);
             p.slider->setParent(p.layout);
-            p.slider->setHStretch(ui::Stretch::Expanding);
+            p.slider->setHStretch(Stretch::Expanding);
         }
 
         IntEditSlider::IntEditSlider() :
