@@ -26,6 +26,7 @@ namespace tl
 
             std::shared_ptr<timeline::TimelinePlayer> timelinePlayer;
             bool timelinePlayerInit = false;
+            bool resizeInit = false;
             bool frameView = true;
             bool stopOnScrub = true;
             float mouseWheelScale = 20.F;
@@ -215,15 +216,7 @@ namespace tl
             const float devicePixelRatio = window()->devicePixelRatio();
             p.eventLoop->setDisplayScale(devicePixelRatio);
             p.eventLoop->setDisplaySize(imaging::Size(_toUI(w), _toUI(h)));
-
-            if (p.frameView)
-            {
-                _frameView();
-            }
-            if (p.timelineItem)
-            {
-                _setViewport(p.timelineItem, _timelineViewport());
-            }
+            p.resizeInit = true;
         }
 
         void TimelineWidget::paintGL()
@@ -575,6 +568,18 @@ namespace tl
                     p.scrollWidget->setScrollPos(_toUI(math::Vector2i()));
                     p.itemOptions.scale = _timelineScale();
                     _setItemOptions(p.timelineItem, p.itemOptions);
+                    _setViewport(p.timelineItem, _timelineViewport());
+                }
+            }
+            if (p.resizeInit)
+            {
+                p.resizeInit = false;
+                if (p.frameView)
+                {
+                    _frameView();
+                }
+                if (p.timelineItem)
+                {
                     _setViewport(p.timelineItem, _timelineViewport());
                 }
             }
