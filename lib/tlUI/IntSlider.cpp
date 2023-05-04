@@ -137,19 +137,24 @@ namespace tl
                 p.size.border * 4;
         }
 
-        void IntSlider::clipEvent(bool clipped, const ClipEvent& event)
+        void IntSlider::clipEvent(
+            const math::BBox2i& clipRect,
+            bool clipped,
+            const ClipEvent& event)
         {
             const bool changed = clipped != _clipped;
-            IWidget::clipEvent(clipped, event);
+            IWidget::clipEvent(clipRect, clipped, event);
             if (changed && clipped)
             {
                 _resetMouse();
             }
         }
 
-        void IntSlider::drawEvent(const DrawEvent& event)
+        void IntSlider::drawEvent(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
-            IWidget::drawEvent(event);
+            IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
             const math::BBox2i& g = _geometry;

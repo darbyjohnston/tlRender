@@ -34,7 +34,9 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void sizeHintEvent(const SizeHintEvent&) override;
-            void drawEvent(const DrawEvent&) override;
+            void drawEvent(
+                const math::BBox2i&,
+                const DrawEvent&) override;
 
         private:
             TLRENDER_PRIVATE();

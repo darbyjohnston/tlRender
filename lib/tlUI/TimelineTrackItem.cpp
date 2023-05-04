@@ -160,9 +160,11 @@ namespace tl
                 childrenHeight);
         }
 
-        void TimelineTrackItem::drawEvent(const DrawEvent& event)
+        void TimelineTrackItem::drawEvent(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
-            ITimelineItem::drawEvent(event);
+            ITimelineItem::drawEvent(drawRect, event);
         }
     }
 }

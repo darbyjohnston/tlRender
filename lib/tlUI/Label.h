@@ -40,8 +40,13 @@ namespace tl
             void setFontRole(FontRole);
 
             void sizeHintEvent(const SizeHintEvent&) override;
-            void clipEvent(bool, const ClipEvent&) override;
-            void drawEvent(const DrawEvent&) override;
+            void clipEvent(
+                const math::BBox2i&,
+                bool,
+                const ClipEvent&) override;
+            void drawEvent(
+                const math::BBox2i&,
+                const DrawEvent&) override;
 
         private:
             TLRENDER_PRIVATE();

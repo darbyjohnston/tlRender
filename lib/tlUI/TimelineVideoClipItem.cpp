@@ -176,9 +176,11 @@ namespace tl
             }
         }
 
-        void TimelineVideoClipItem::drawEvent(const DrawEvent& event)
+        void TimelineVideoClipItem::drawEvent(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
-            ITimelineItem::drawEvent(event);
+            ITimelineItem::drawEvent(drawRect, event);
             if (_geometry.isValid() && _isInsideViewport())
             {
                 const int b = event.style->getSizeRole(SizeRole::Border, event.displayScale);

@@ -162,10 +162,13 @@ namespace tl
             }
         }
 
-        void IButton::clipEvent(bool clipped, const ClipEvent& event)
+        void IButton::clipEvent(
+            const math::BBox2i& clipRect,
+            bool clipped,
+            const ClipEvent& event)
         {
             const bool changed = clipped != _clipped;
-            IWidget::clipEvent(clipped, event);
+            IWidget::clipEvent(clipRect, clipped, event);
             if (changed && clipped)
             {
                 _resetMouse();

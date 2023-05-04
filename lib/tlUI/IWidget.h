@@ -175,10 +175,15 @@ namespace tl
             virtual void sizeHintEvent(const SizeHintEvent&);
 
             //! Clip event.
-            virtual void clipEvent(bool clipped, const ClipEvent&);
+            virtual void clipEvent(
+                const math::BBox2i&,
+                bool clipped,
+                const ClipEvent&);
 
             //! Draw event.
-            virtual void drawEvent(const DrawEvent&);
+            virtual void drawEvent(
+                const math::BBox2i&,
+                const DrawEvent&);
 
             //! Enter event.
             virtual void enterEvent();

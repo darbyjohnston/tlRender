@@ -247,19 +247,24 @@ namespace tl
             _sizeHint.y = sa;
         }
 
-        void TimelineViewport::clipEvent(bool clipped, const ClipEvent& event)
+        void TimelineViewport::clipEvent(
+            const math::BBox2i& clipRect,
+            bool clipped,
+            const ClipEvent& event)
         {
             const bool changed = clipped != _clipped;
-            IWidget::clipEvent(clipped, event);
+            IWidget::clipEvent(clipRect, clipped, event);
             if (changed && clipped)
             {
                 _resetMouse();
             }
         }
 
-        void TimelineViewport::drawEvent(const DrawEvent& event)
+        void TimelineViewport::drawEvent(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
-            IWidget::drawEvent(event);
+            IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
             if (p.frameView)

@@ -161,9 +161,11 @@ namespace tl
             _sizeHint.y += p.size.border * 2;
         }
 
-        void ScrollArea::drawEvent(const DrawEvent& event)
+        void ScrollArea::drawEvent(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
-            IWidget::drawEvent(event);
+            IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
             const math::BBox2i& g = _geometry;

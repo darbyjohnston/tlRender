@@ -239,7 +239,10 @@ namespace tl
             _updates &= ~static_cast<int>(Update::Size);
         }
 
-        void IWidget::clipEvent(bool clipped, const ClipEvent& event)
+        void IWidget::clipEvent(
+            const math::BBox2i&,
+            bool clipped,
+            const ClipEvent& event)
         {
             if (clipped && clipped != _clipped)
             {
@@ -248,7 +251,9 @@ namespace tl
             _clipped = clipped;
         }
 
-        void IWidget::drawEvent(const DrawEvent& event)
+        void IWidget::drawEvent(
+            const math::BBox2i&,
+            const DrawEvent& event)
         {
             _updates &= ~static_cast<int>(Update::Draw);
             if (_backgroundRole != ColorRole::None)

@@ -117,9 +117,12 @@ namespace tl
                 p.size.border * 4;
         }
 
-        void ToolButton::clipEvent(bool clipped, const ClipEvent& event)
+        void ToolButton::clipEvent(
+            const math::BBox2i& clipRect,
+            bool clipped,
+            const ClipEvent& event)
         {
-            IWidget::clipEvent(clipped, event);
+            IButton::clipEvent(clipRect, clipped, event);
             TLRENDER_P();
             if (clipped)
             {
@@ -127,9 +130,11 @@ namespace tl
             }
         }
 
-        void ToolButton::drawEvent(const DrawEvent& event)
+        void ToolButton::drawEvent(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
-            IButton::drawEvent(event);
+            IButton::drawEvent(drawRect, event);
             TLRENDER_P();
 
             const math::BBox2i& g = _geometry;

@@ -62,9 +62,11 @@ namespace tl
             _sizeHint.y += p.size.margin * 2;
         }
 
-        void IncButton::drawEvent(const DrawEvent& event)
+        void IncButton::drawEvent(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
-            IButton::drawEvent(event);
+            IButton::drawEvent(drawRect, event);
             TLRENDER_P();
 
             const math::BBox2i& g = _geometry;

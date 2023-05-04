@@ -48,7 +48,9 @@ namespace tl
             void setEnabled(bool) override;
             void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void drawEvent(const DrawEvent&) override;
+            void drawEvent(
+                const math::BBox2i&,
+                const DrawEvent&) override;
             void enterEvent() override;
             void leaveEvent() override;
             void mouseMoveEvent(MouseMoveEvent&) override;

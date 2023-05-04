@@ -197,21 +197,26 @@ namespace tl
                 p.size.margin);
         }
 
-        void TimelineItem::drawEvent(const DrawEvent& event)
-        {
-            ITimelineItem::drawEvent(event);
-            _drawTimeTicks(event);
-            _drawCurrentTime(event);
-        }
-
-        void TimelineItem::clipEvent(bool clipped, const ClipEvent& event)
+        void TimelineItem::clipEvent(
+            const math::BBox2i& clipRect,
+            bool clipped,
+            const ClipEvent& event)
         {
             const bool changed = clipped != _clipped;
-            IWidget::clipEvent(clipped, event);
+            IWidget::clipEvent(clipRect, clipped, event);
             if (changed && clipped)
             {
                 _resetMouse();
             }
+        }
+
+        void TimelineItem::drawEvent(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
+        {
+            ITimelineItem::drawEvent(drawRect, event);
+            _drawTimeTicks(event);
+            _drawCurrentTime(event);
         }
 
         void TimelineItem::enterEvent()

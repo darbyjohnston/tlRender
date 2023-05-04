@@ -36,8 +36,13 @@ namespace tl
                         const std::shared_ptr<system::Context>&);
 
                     void sizeHintEvent(const ui::SizeHintEvent&) override;
-                    void clipEvent(bool, const ui::ClipEvent&) override;
-                    void drawEvent(const ui::DrawEvent&) override;
+                    void clipEvent(
+                        const math::BBox2i&,
+                        bool,
+                        const ui::ClipEvent&) override;
+                    void drawEvent(
+                        const math::BBox2i&,
+                        const ui::DrawEvent&) override;
 
                 private:
                     math::Vector2i _cellCount;
@@ -86,8 +91,12 @@ namespace tl
                     _sizeHint.y = _cellCount.y * _cellSize;
                 }
 
-                void ScrollAreasWidget::clipEvent(bool clipped, const ui::ClipEvent&)
+                void ScrollAreasWidget::clipEvent(
+                    const math::BBox2i& clipRect,
+                    bool clipped,
+                    const ui::ClipEvent& event)
                 {
+                    IWidget::clipEvent(clipRect, clipped, event);
                     if (clipped)
                     {
                         for (auto& i : _glyphs)
@@ -97,9 +106,11 @@ namespace tl
                     }
                 }
 
-                void ScrollAreasWidget::drawEvent(const ui::DrawEvent& event)
+                void ScrollAreasWidget::drawEvent(
+                    const math::BBox2i& drawRect,
+                    const ui::DrawEvent& event)
                 {
-                    IWidget::drawEvent(event);
+                    IWidget::drawEvent(drawRect, event);
 
                     const math::BBox2i& g = _geometry;
 

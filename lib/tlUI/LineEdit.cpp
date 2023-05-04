@@ -188,9 +188,12 @@ namespace tl
                 p.size.border * 4;
         }
 
-        void LineEdit::clipEvent(bool clipped, const ClipEvent& event)
+        void LineEdit::clipEvent(
+            const math::BBox2i& clipRect,
+            bool clipped,
+            const ClipEvent& event)
         {
-            IWidget::clipEvent(clipped, event);
+            IWidget::clipEvent(clipRect, clipped, event);
             TLRENDER_P();
             if (clipped)
             {
@@ -199,9 +202,11 @@ namespace tl
             }
         }
 
-        void LineEdit::drawEvent(const DrawEvent& event)
+        void LineEdit::drawEvent(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
-            IWidget::drawEvent(event);
+            IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
             const math::BBox2i g = _getAlignGeometry();

@@ -82,9 +82,11 @@ namespace tl
                 p.margin);
         }
 
-        void TimelineVideoGapItem::drawEvent(const DrawEvent& event)
+        void TimelineVideoGapItem::drawEvent(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
-            ITimelineItem::drawEvent(event);
+            ITimelineItem::drawEvent(drawRect, event);
             TLRENDER_P();
             if (_isInsideViewport())
             {

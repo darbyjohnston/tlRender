@@ -92,7 +92,7 @@ namespace tl
             void _clipEvent();
             void _clipEvent(
                 const std::shared_ptr<IWidget>&,
-                math::BBox2i clip,
+                const math::BBox2i&,
                 bool clipped,
                 const ClipEvent&);
 
@@ -101,7 +101,7 @@ namespace tl
             void _drawEvent(const std::shared_ptr<timeline::IRender>&);
             void _drawEvent(
                 const std::shared_ptr<IWidget>&,
-                math::BBox2i clip,
+                const math::BBox2i&,
                 const DrawEvent&);
 
             std::shared_ptr<IWidget> _getUnderCursor(

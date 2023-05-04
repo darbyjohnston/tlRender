@@ -278,9 +278,11 @@ namespace tl
             }
         }
 
-        void TimelineAudioClipItem::drawEvent(const DrawEvent& event)
+        void TimelineAudioClipItem::drawEvent(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
-            ITimelineItem::drawEvent(event);
+            ITimelineItem::drawEvent(drawRect, event);
             if (_geometry.isValid() && _isInsideViewport())
             {
                 const int b = event.style->getSizeRole(SizeRole::Border, event.displayScale);

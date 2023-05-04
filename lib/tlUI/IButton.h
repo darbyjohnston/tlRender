@@ -56,7 +56,10 @@ namespace tl
             void setVisible(bool) override;
             void setEnabled(bool) override;
             void tickEvent(const TickEvent&) override;
-            void clipEvent(bool, const ClipEvent&) override;
+            void clipEvent(
+                const math::BBox2i&,
+                bool,
+                const ClipEvent&) override;
             void enterEvent() override;
             void leaveEvent() override;
             void mouseMoveEvent(MouseMoveEvent&) override;

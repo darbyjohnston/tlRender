@@ -151,19 +151,24 @@ namespace tl
             _sizeHint.y = sa;
         }
 
-        void Splitter::clipEvent(bool clipped, const ClipEvent& event)
+        void Splitter::clipEvent(
+            const math::BBox2i& clipRect,
+            bool clipped,
+            const ClipEvent& event)
         {
             const bool changed = clipped != _clipped;
-            IWidget::clipEvent(clipped, event);
+            IWidget::clipEvent(clipRect, clipped, event);
             if (changed && clipped)
             {
                 _resetMouse();
             }
         }
 
-        void Splitter::drawEvent(const DrawEvent& event)
+        void Splitter::drawEvent(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
-            IWidget::drawEvent(event);
+            IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
             //event.render->drawRect(_geometry, imaging::Color4f(.5F, .3F, .3F));

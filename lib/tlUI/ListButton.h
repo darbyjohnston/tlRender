@@ -35,8 +35,13 @@ namespace tl
 
             bool acceptsKeyFocus() const override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void clipEvent(bool, const ClipEvent&) override;
-            void drawEvent(const DrawEvent&) override;
+            void clipEvent(
+                const math::BBox2i&,
+                bool,
+                const ClipEvent&) override;
+            void drawEvent(
+                const math::BBox2i&,
+                const DrawEvent&) override;
             void keyPressEvent(KeyEvent&) override;
             void keyReleaseEvent(KeyEvent&) override;
 

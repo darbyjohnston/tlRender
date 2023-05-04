@@ -233,9 +233,11 @@ namespace tl
                 p.size.margin * 2;
         }
 
-        void PieChart::drawEvent(const DrawEvent& event)
+        void PieChart::drawEvent(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
-            IWidget::drawEvent(event);
+            IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
             //event.render->drawRect(_geometry, imaging::Color4f(.5F, .3F, .3F));

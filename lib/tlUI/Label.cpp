@@ -103,9 +103,12 @@ namespace tl
                 p.size.margin * 2;
         }
 
-        void Label::clipEvent(bool clipped, const ClipEvent& event)
+        void Label::clipEvent(
+            const math::BBox2i& clipRect,
+            bool clipped,
+            const ClipEvent& event)
         {
-            IWidget::clipEvent(clipped, event);
+            IWidget::clipEvent(clipRect, clipped, event);
             TLRENDER_P();
             if (clipped)
             {
@@ -113,9 +116,11 @@ namespace tl
             }
         }
 
-        void Label::drawEvent(const DrawEvent& event)
+        void Label::drawEvent(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
-            IWidget::drawEvent(event);
+            IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
             //event.render->drawRect(_geometry, imaging::Color4f(.5F, .3F, .3F));

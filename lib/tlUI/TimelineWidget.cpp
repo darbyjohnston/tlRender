@@ -239,10 +239,13 @@ namespace tl
             _sizeHint.y = sa * 2;
         }
 
-        void TimelineWidget::clipEvent(bool clipped, const ClipEvent& event)
+        void TimelineWidget::clipEvent(
+            const math::BBox2i& clipRect,
+            bool clipped,
+            const ClipEvent& event)
         {
             const bool changed = clipped != _clipped;
-            IWidget::clipEvent(clipped, event);
+            IWidget::clipEvent(clipRect, clipped, event);
             if (changed && clipped)
             {
                 _resetMouse();

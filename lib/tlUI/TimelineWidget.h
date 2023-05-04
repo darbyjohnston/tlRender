@@ -63,7 +63,10 @@ namespace tl
             void setVisible(bool) override;
             void setEnabled(bool) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void clipEvent(bool, const ClipEvent&) override;
+            void clipEvent(
+                const math::BBox2i&,
+                bool,
+                const ClipEvent&) override;
             void mouseMoveEvent(MouseMoveEvent&) override;
             void mousePressEvent(MouseClickEvent&) override;
             void mouseReleaseEvent(MouseClickEvent&) override;

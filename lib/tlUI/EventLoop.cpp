@@ -408,18 +408,25 @@ namespace tl
 
         void EventLoop::_clipEvent(
             const std::shared_ptr<IWidget>& widget,
-            math::BBox2i clip,
+            const math::BBox2i& clipRect,
             bool clipped,
             const ClipEvent& event)
         {
             const math::BBox2i& g = widget->getGeometry();
-            clipped |= !g.intersects(clip);
+            clipped |= !g.intersects(clipRect);
             clipped |= !widget->isVisible();
-            widget->clipEvent(clipped, event);
-            const math::BBox2i childrenClipRect = widget->getChildrenClipRect();
+            const math::BBox2i clipRect2 = g.intersect(clipRect);
+            widget->clipEvent(clipRect2, clipped, event);
+            const math::BBox2i childrenClipRect =
+                widget->getChildrenClipRect().intersect(clipRect2);
             for (const auto& child : widget->getChildren())
             {
-                _clipEvent(child, childrenClipRect.intersect(clip), clipped, event);
+                const math::BBox2i& childGeometry = child->getGeometry();
+                _clipEvent(
+                    child,
+                    childGeometry.intersect(childrenClipRect),
+                    clipped,
+                    event);
             }
         }
 
@@ -486,22 +493,25 @@ namespace tl
 
         void EventLoop::_drawEvent(
             const std::shared_ptr<IWidget>& widget,
-            math::BBox2i clip,
+            const math::BBox2i& drawRect,
             const DrawEvent& event)
         {
             if (!widget->isClipped())
             {
-                event.render->setClipRect(clip);
-                widget->drawEvent(event);
+                event.render->setClipRect(drawRect);
+                widget->drawEvent(drawRect, event);
                 const math::BBox2i childrenClipRect =
-                    widget->getChildrenClipRect().intersect(clip);
+                    widget->getChildrenClipRect().intersect(drawRect);
                 event.render->setClipRect(childrenClipRect);
                 for (const auto& child : widget->getChildren())
                 {
-                    const math::BBox2i& g = child->getGeometry();
-                    if (g.intersects(childrenClipRect))
+                    const math::BBox2i& childGeometry = child->getGeometry();
+                    if (childGeometry.intersects(childrenClipRect))
                     {
-                        _drawEvent(child, g.intersect(childrenClipRect), event);
+                        _drawEvent(
+                            child,
+                            childGeometry.intersect(childrenClipRect),
+                            event);
                     }
                 }
             }
