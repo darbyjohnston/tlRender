@@ -53,8 +53,12 @@ namespace tl
             void mouseReleaseEvent(MouseClickEvent&) override;
 
         private:
-            void _drawTimeTicks(const DrawEvent&);
-            void _drawCurrentTime(const DrawEvent&);
+            void _drawTimeTicks(
+                const math::BBox2i&,
+                const DrawEvent&);
+            void _drawCurrentTime(
+                const math::BBox2i&,
+                const DrawEvent&);
 
             math::BBox2i _getCurrentTimeBBox() const;
 

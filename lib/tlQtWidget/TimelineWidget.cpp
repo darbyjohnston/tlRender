@@ -568,7 +568,6 @@ namespace tl
                     p.scrollWidget->setScrollPos(_toUI(math::Vector2i()));
                     p.itemOptions.scale = _timelineScale();
                     _setItemOptions(p.timelineItem, p.itemOptions);
-                    _setViewport(p.timelineItem, _timelineViewport());
                 }
             }
             if (p.resizeInit)
@@ -577,10 +576,6 @@ namespace tl
                 if (p.frameView)
                 {
                     _frameView();
-                }
-                if (p.timelineItem)
-                {
-                    _setViewport(p.timelineItem, _timelineViewport());
                 }
             }
             if (p.eventLoop->hasDrawUpdate())
@@ -634,7 +629,6 @@ namespace tl
             if (p.timelineItem)
             {
                 _setItemOptions(p.timelineItem, p.itemOptions);
-                _setViewport(p.timelineItem, _timelineViewport());
             }
 
             setFrameView(false);
@@ -670,25 +664,6 @@ namespace tl
             for (const auto& child : widget->getChildren())
             {
                 _setItemOptions(child, value);
-            }
-        }
-
-        math::BBox2i TimelineWidget::_timelineViewport() const
-        {
-            return _p->scrollWidget->getViewport();
-        }
-
-        void TimelineWidget::_setViewport(
-            const std::shared_ptr<ui::IWidget>& widget,
-            const math::BBox2i& vp)
-        {
-            if (auto item = std::dynamic_pointer_cast<ui::ITimelineItem>(widget))
-            {
-                item->setViewport(vp);
-            }
-            for (const auto& child : widget->getChildren())
-            {
-                _setViewport(child, vp);
             }
         }
 

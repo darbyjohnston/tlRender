@@ -87,11 +87,6 @@ namespace tl
                 const std::shared_ptr<IWidget>&,
                 const TimelineItemOptions&);
 
-            math::BBox2i _getTimelineViewport() const;
-            void _setViewport(
-                const std::shared_ptr<IWidget>&,
-                const math::BBox2i&);
-
             void _resetMouse();
 
             TLRENDER_PRIVATE();

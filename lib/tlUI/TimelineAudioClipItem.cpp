@@ -35,6 +35,7 @@ namespace tl
             int margin = 0;
             int spacing = 0;
             int waveformWidth = 0;
+            math::BBox2i clipRect;
             bool ioInfoInit = true;
             io::Info ioInfo;
             struct AudioFuture
@@ -118,17 +119,6 @@ namespace tl
                 _textUpdate();
                 _data.ioManager->cancelRequests();
                 p.audioData.clear();
-                _updates |= Update::Draw;
-            }
-        }
-
-        void TimelineAudioClipItem::setViewport(const math::BBox2i& value)
-        {
-            const bool changed = value != _viewport;
-            ITimelineItem::setViewport(value);
-            if (changed)
-            {
-                _data.ioManager->cancelRequests();
                 _updates |= Update::Draw;
             }
         }
@@ -278,12 +268,25 @@ namespace tl
             }
         }
 
+        void TimelineAudioClipItem::clipEvent(
+            const math::BBox2i& clipRect,
+            bool clipped,
+            const ClipEvent& event)
+        {
+            ITimelineItem::clipEvent(clipRect, clipped, event);
+            TLRENDER_P();
+            if (clipRect == p.clipRect)
+                return;
+            _data.ioManager->cancelRequests();
+            _updates |= Update::Draw;
+        }
+
         void TimelineAudioClipItem::drawEvent(
             const math::BBox2i& drawRect,
             const DrawEvent& event)
         {
             ITimelineItem::drawEvent(drawRect, event);
-            if (_geometry.isValid() && _isInsideViewport())
+            if (_geometry.isValid() && _geometry.intersects(drawRect))
             {
                 const int b = event.style->getSizeRole(SizeRole::Border, event.displayScale);
                 const math::BBox2i& g = _geometry;
@@ -296,10 +299,10 @@ namespace tl
                     g.margin(-b),
                     imaging::Color4f(.3F, .25F, .4F));
 
-                _drawInfo(event);
+                _drawInfo(drawRect, event);
                 if (_options.thumbnails)
                 {
-                    _drawWaveforms(event);
+                    _drawWaveforms(drawRect, event);
                 }
             }
         }
@@ -312,7 +315,9 @@ namespace tl
                 _options.timeUnits);
         }
 
-        void TimelineAudioClipItem::_drawInfo(const DrawEvent& event)
+        void TimelineAudioClipItem::_drawInfo(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
             TLRENDER_P();
 
@@ -343,7 +348,9 @@ namespace tl
                 event.style->getColorRole(ColorRole::Text));
         }
 
-        void TimelineAudioClipItem::_drawWaveforms(const DrawEvent& event)
+        void TimelineAudioClipItem::_drawWaveforms(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
             TLRENDER_P();
 
@@ -373,7 +380,7 @@ namespace tl
                 audioDataDelete.insert(audioData.first);
             }
 
-            if (g.intersects(_viewport))
+            if (g.intersects(drawRect))
             {
                 if (p.ioInfoInit)
                 {
@@ -399,7 +406,7 @@ namespace tl
                         p.spacing,
                         p.waveformWidth,
                         _options.waveformHeight);
-                    if (bbox.intersects(_viewport))
+                    if (bbox.intersects(drawRect))
                     {
                         const otime::RationalTime time = time::round(otime::RationalTime(
                             p.timeRange.start_time().value() +

@@ -215,8 +215,8 @@ namespace tl
             const DrawEvent& event)
         {
             ITimelineItem::drawEvent(drawRect, event);
-            _drawTimeTicks(event);
-            _drawCurrentTime(event);
+            _drawTimeTicks(drawRect, event);
+            _drawCurrentTime(drawRect, event);
         }
 
         void TimelineItem::enterEvent()
@@ -264,7 +264,9 @@ namespace tl
             p.mouse.currentTimeDrag = false;
         }
 
-        void TimelineItem::_drawTimeTicks(const DrawEvent& event)
+        void TimelineItem::_drawTimeTicks(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
             TLRENDER_P();
 
@@ -293,7 +295,7 @@ namespace tl
                         p.size.fontMetrics.lineHeight / 2,
                         1,
                         p.size.fontMetrics.lineHeight / 2);
-                    if (bbox.intersects(_viewport))
+                    if (bbox.intersects(drawRect))
                     {
                         mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
                         mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));
@@ -340,7 +342,7 @@ namespace tl
                             p.size.spacing,
                             labelMaxSize.x,
                             p.size.fontMetrics.lineHeight);
-                        if (bbox.intersects(_viewport))
+                        if (bbox.intersects(drawRect))
                         {
                             std::string label = _timeLabel(
                                 p.timeRange.start_time() + otime::RationalTime(t, p.timeRange.duration().rate()),
@@ -371,7 +373,7 @@ namespace tl
                         p.size.spacing,
                         2,
                         p.size.fontMetrics.lineHeight);
-                    if (bbox.intersects(_viewport))
+                    if (bbox.intersects(drawRect))
                     {
                         mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
                         mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));
@@ -392,7 +394,9 @@ namespace tl
             }
         }
 
-        void TimelineItem::_drawCurrentTime(const DrawEvent& event)
+        void TimelineItem::_drawCurrentTime(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
             TLRENDER_P();
 

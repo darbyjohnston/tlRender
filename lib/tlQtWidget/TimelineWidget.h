@@ -92,11 +92,6 @@ namespace tl
                 const std::shared_ptr<ui::IWidget>&,
                 const ui::TimelineItemOptions&);
 
-            math::BBox2i _timelineViewport() const;
-            void _setViewport(
-                const std::shared_ptr<ui::IWidget>&,
-                const math::BBox2i&);
-
             int _toUI(int) const;
             math::Vector2i _toUI(const math::Vector2i&) const;
             int _fromUI(int) const;

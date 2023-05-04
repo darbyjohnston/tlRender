@@ -63,11 +63,7 @@ namespace tl
 
             virtual void setOptions(const TimelineItemOptions&);
 
-            virtual void setViewport(const math::BBox2i&);
-
         protected:
-            bool _isInsideViewport() const;
-
             static std::string _durationLabel(
                 const otime::RationalTime&,
                 TimelineTimeUnits);
@@ -77,7 +73,6 @@ namespace tl
 
             TimelineItemData _data;
             TimelineItemOptions _options;
-            math::BBox2i _viewport;
         };
     }
 }

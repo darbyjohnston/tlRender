@@ -88,7 +88,7 @@ namespace tl
         {
             ITimelineItem::drawEvent(drawRect, event);
             TLRENDER_P();
-            if (_isInsideViewport())
+            if (_geometry.isValid() && _geometry.intersects(drawRect))
             {
                 const int b = event.style->getSizeRole(SizeRole::Border, event.displayScale);
                 const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);

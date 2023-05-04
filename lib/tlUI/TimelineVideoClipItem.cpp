@@ -34,6 +34,7 @@ namespace tl
             int margin = 0;
             int spacing = 0;
             int thumbnailWidth = 0;
+            math::BBox2i clipRect;
             bool ioInfoInit = true;
             io::Info ioInfo;
             std::map<otime::RationalTime, std::future<io::VideoData> > videoDataFutures;
@@ -114,17 +115,6 @@ namespace tl
             }
         }
 
-        void TimelineVideoClipItem::setViewport(const math::BBox2i& value)
-        {
-            const bool changed = value != _viewport;
-            ITimelineItem::setViewport(value);
-            if (changed)
-            {
-                _data.ioManager->cancelRequests();
-                _updates |= Update::Draw;
-            }
-        }
-
         void TimelineVideoClipItem::tickEvent(const TickEvent& event)
         {
             TLRENDER_P();
@@ -176,12 +166,25 @@ namespace tl
             }
         }
 
+        void TimelineVideoClipItem::clipEvent(
+            const math::BBox2i& clipRect,
+            bool clipped,
+            const ClipEvent& event)
+        {
+            ITimelineItem::clipEvent(clipRect, clipped, event);
+            TLRENDER_P();
+            if (clipRect == p.clipRect)
+                return;
+            _data.ioManager->cancelRequests();
+            _updates |= Update::Draw;
+        }
+
         void TimelineVideoClipItem::drawEvent(
             const math::BBox2i& drawRect,
             const DrawEvent& event)
         {
             ITimelineItem::drawEvent(drawRect, event);
-            if (_geometry.isValid() && _isInsideViewport())
+            if (_geometry.isValid() && _geometry.intersects(drawRect))
             {
                 const int b = event.style->getSizeRole(SizeRole::Border, event.displayScale);
                 math::BBox2i g = _geometry;
@@ -194,10 +197,10 @@ namespace tl
                     g.margin(-b),
                     imaging::Color4f(.2F, .4F, .4F));
 
-                _drawInfo(event);
+                _drawInfo(drawRect, event);
                 if (_options.thumbnails)
                 {
-                    _drawThumbnails(event);
+                    _drawThumbnails(drawRect, event);
                 }
             }
         }
@@ -210,7 +213,9 @@ namespace tl
                 _options.timeUnits);
         }
 
-        void TimelineVideoClipItem::_drawInfo(const DrawEvent& event)
+        void TimelineVideoClipItem::_drawInfo(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
             TLRENDER_P();
 
@@ -241,7 +246,9 @@ namespace tl
                 event.style->getColorRole(ColorRole::Text));
         }
 
-        void TimelineVideoClipItem::_drawThumbnails(const DrawEvent& event)
+        void TimelineVideoClipItem::_drawThumbnails(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
             TLRENDER_P();
 
@@ -271,7 +278,7 @@ namespace tl
                 buffersDelete.insert(buffers.first);
             }
 
-            if (g.intersects(_viewport))
+            if (g.intersects(drawRect))
             {
                 if (p.ioInfoInit)
                 {
@@ -337,7 +344,7 @@ namespace tl
                         p.spacing,
                         p.thumbnailWidth,
                         _options.thumbnailHeight);
-                    if (bbox.intersects(_viewport))
+                    if (bbox.intersects(drawRect))
                     {
                         const otime::RationalTime time = time::round(otime::RationalTime(
                             p.timeRange.start_time().value() +

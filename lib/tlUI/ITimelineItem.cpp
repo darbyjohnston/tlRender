@@ -59,20 +59,6 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void ITimelineItem::setViewport(const math::BBox2i& value)
-        {
-            if (value == _viewport)
-                return;
-            _viewport = value;
-            _updates |= Update::Size;
-            _updates |= Update::Draw;
-        }
-
-        bool ITimelineItem::_isInsideViewport() const
-        {
-            return _geometry.intersects(_viewport);
-        }
-
         std::string ITimelineItem::_durationLabel(
             const otime::RationalTime& value,
             TimelineTimeUnits timeUnits)
