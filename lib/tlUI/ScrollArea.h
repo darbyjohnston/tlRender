@@ -57,7 +57,7 @@ namespace tl
             //! Set the scroll position callback.
             void setScrollPosCallback(const std::function<void(const math::Vector2i&)>&);
 
-            math::BBox2i getClipRect() const override;
+            math::BBox2i getChildrenClipRect() const override;
             void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void drawEvent(const DrawEvent&) override;

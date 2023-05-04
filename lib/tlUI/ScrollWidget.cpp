@@ -151,7 +151,7 @@ namespace tl
 
         math::BBox2i ScrollWidget::getViewport() const
         {
-            return _p->scrollArea->getClipRect();
+            return _p->scrollArea->getChildrenClipRect();
         }
 
         const math::Vector2i& ScrollWidget::getScrollSize() const

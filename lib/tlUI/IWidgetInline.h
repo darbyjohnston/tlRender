@@ -71,7 +71,7 @@ namespace tl
             return _clipped;
         }
 
-        inline math::BBox2i IWidget::getClipRect() const
+        inline math::BBox2i IWidget::getChildrenClipRect() const
         {
             return _geometry;
         }

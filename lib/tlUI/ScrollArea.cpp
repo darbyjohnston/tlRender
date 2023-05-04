@@ -90,7 +90,7 @@ namespace tl
             _p->scrollPosCallback = value;
         }
 
-        math::BBox2i ScrollArea::getClipRect() const
+        math::BBox2i ScrollArea::getChildrenClipRect() const
         {
             TLRENDER_P();
             return _geometry.margin(-p.size.border);
