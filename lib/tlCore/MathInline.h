@@ -49,6 +49,7 @@ namespace tl
             {
                 if (value < 0)
                 {
+                    //! \bug Should the minus sign be included?
                     ++out;
                 }
                 while (value)
