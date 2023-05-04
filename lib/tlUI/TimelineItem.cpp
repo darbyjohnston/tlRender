@@ -460,7 +460,8 @@ namespace tl
                 out = time::round(
                     p.timeRange.start_time() +
                     otime::RationalTime(
-                        p.timeRange.end_time_inclusive().value() * clamped,
+                        (p.timeRange.end_time_inclusive().value() -
+                            p.timeRange.start_time().value()) * clamped,
                         p.timeRange.duration().rate()));
             }
             return out;
