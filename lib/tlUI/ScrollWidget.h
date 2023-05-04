@@ -36,7 +36,7 @@ namespace tl
             void setWidget(const std::shared_ptr<IWidget>&);
 
             //! Get the viewport geometry.
-            const math::BBox2i& getViewport() const;
+            math::BBox2i getViewport() const;
 
             //! Get the scroll size.
             const math::Vector2i& getScrollSize() const;

@@ -149,7 +149,7 @@ namespace tl
             value->setParent(_p->scrollArea);
         }
 
-        const math::BBox2i& ScrollWidget::getViewport() const
+        math::BBox2i ScrollWidget::getViewport() const
         {
             return _p->scrollArea->getClipRect();
         }
