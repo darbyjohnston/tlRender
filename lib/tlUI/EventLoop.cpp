@@ -496,7 +496,7 @@ namespace tl
             const math::BBox2i& drawRect,
             const DrawEvent& event)
         {
-            if (!widget->isClipped())
+            if (!widget->isClipped() && widget->getGeometry().isValid())
             {
                 event.render->setClipRect(drawRect);
                 widget->drawEvent(drawRect, event);

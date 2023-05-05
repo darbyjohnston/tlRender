@@ -32,12 +32,27 @@ namespace tl
             std::string label;
             std::string durationLabel;
             FontRole fontRole = FontRole::Label;
-            int margin = 0;
-            int spacing = 0;
-            int waveformWidth = 0;
-            math::BBox2i clipRect;
             bool ioInfoInit = true;
             io::Info ioInfo;
+
+            struct SizeData
+            {
+                int margin = 0;
+                int spacing = 0;
+                math::Vector2i labelSize;
+                math::Vector2i durationSize;
+                int waveformWidth = 0;
+                math::BBox2i clipRect;
+            };
+            SizeData size;
+
+            struct DrawData
+            {
+                std::vector<std::shared_ptr<imaging::Glyph> > labelGlyphs;
+                std::vector<std::shared_ptr<imaging::Glyph> > durationGlyphs;
+            };
+            DrawData draw;
+
             struct AudioFuture
             {
                 std::future<io::AudioData> future;
@@ -242,16 +257,20 @@ namespace tl
             ITimelineItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
-            p.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
+            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
+
+            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
+            p.size.labelSize = event.fontSystem->getSize(p.label, fontInfo);
+            p.size.durationSize = event.fontSystem->getSize(p.durationLabel, fontInfo);
 
             const int waveformWidth = _options.thumbnails ?
                 (otime::RationalTime(1.0, 1.0).value() * _options.scale) :
                 0;
-            if (waveformWidth != p.waveformWidth)
+            if (waveformWidth != p.size.waveformWidth)
             {
-                p.waveformWidth = waveformWidth;
+                p.size.waveformWidth = waveformWidth;
                 _data.ioManager->cancelRequests();
                 p.audioData.clear();
                 _updates |= Update::Draw;
@@ -259,12 +278,12 @@ namespace tl
 
             _sizeHint = math::Vector2i(
                 p.timeRange.duration().rescaled_to(1.0).value() * _options.scale,
-                p.margin +
+                p.size.margin +
                 fontMetrics.lineHeight +
-                p.margin);
+                p.size.margin);
             if (_options.thumbnails)
             {
-                _sizeHint.y += p.spacing + _options.waveformHeight;
+                _sizeHint.y += p.size.spacing + _options.waveformHeight;
             }
         }
 
@@ -275,8 +294,14 @@ namespace tl
         {
             ITimelineItem::clipEvent(clipRect, clipped, event);
             TLRENDER_P();
-            if (clipRect == p.clipRect)
+            if (clipRect == p.size.clipRect)
                 return;
+            p.size.clipRect = clipRect;
+            if (clipped)
+            {
+                p.draw.labelGlyphs.clear();
+                p.draw.durationGlyphs.clear();
+            }
             _data.ioManager->cancelRequests();
             _updates |= Update::Draw;
         }
@@ -286,24 +311,23 @@ namespace tl
             const DrawEvent& event)
         {
             ITimelineItem::drawEvent(drawRect, event);
-            if (_geometry.isValid() && _geometry.intersects(drawRect))
+            TLRENDER_P();
+
+            const int b = event.style->getSizeRole(SizeRole::Border, event.displayScale);
+            const math::BBox2i& g = _geometry;
+
+            //event.render->drawMesh(
+            //    border(g, b, _margin / 2),
+            //    event.style->getColorRole(ColorRole::Border));
+
+            event.render->drawRect(
+                g.margin(-b),
+                imaging::Color4f(.3F, .25F, .4F));
+
+            _drawInfo(drawRect, event);
+            if (_options.thumbnails)
             {
-                const int b = event.style->getSizeRole(SizeRole::Border, event.displayScale);
-                const math::BBox2i& g = _geometry;
-
-                //event.render->drawMesh(
-                //    border(g, b, _margin / 2),
-                //    event.style->getColorRole(ColorRole::Border));
-
-                event.render->drawRect(
-                    g.margin(-b),
-                    imaging::Color4f(.3F, .25F, .4F));
-
-                _drawInfo(drawRect, event);
-                if (_options.thumbnails)
-                {
-                    _drawWaveforms(drawRect, event);
-                }
+                _drawWaveforms(drawRect, event);
             }
         }
 
@@ -325,27 +349,55 @@ namespace tl
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
             const math::BBox2i& g = _geometry;
 
-            event.render->drawText(
-                event.fontSystem->getGlyphs(p.label, fontInfo),
-                math::Vector2i(
-                    g.min.x +
-                    p.margin,
-                    g.min.y +
-                    p.margin +
-                    fontMetrics.ascender),
-                event.style->getColorRole(ColorRole::Text));
+            const math::BBox2i labelGeometry(
+                g.min.x +
+                p.size.margin,
+                g.min.y +
+                p.size.margin,
+                p.size.labelSize.x,
+                p.size.labelSize.y);
+            const math::BBox2i durationGeometry(
+                g.max.x -
+                p.size.margin -
+                p.size.durationSize.x,
+                g.min.y +
+                p.size.margin,
+                p.size.labelSize.x,
+                p.size.labelSize.y);
+            const bool labelVisible = drawRect.contains(labelGeometry);
+            const bool durationVisible =
+                drawRect.contains(durationGeometry) &&
+                !durationGeometry.intersects(labelGeometry);
 
-            math::Vector2i textSize = event.fontSystem->getSize(p.durationLabel, fontInfo);
-            event.render->drawText(
-                event.fontSystem->getGlyphs(p.durationLabel, fontInfo),
-                math::Vector2i(
-                    g.max.x -
-                    p.margin -
-                    textSize.x,
-                    g.min.y +
-                    p.margin +
-                    fontMetrics.ascender),
-                event.style->getColorRole(ColorRole::Text));
+            if (labelVisible)
+            {
+                if (!p.label.empty() && p.draw.labelGlyphs.empty())
+                {
+                    p.draw.labelGlyphs = event.fontSystem->getGlyphs(p.label, fontInfo);
+                }
+                event.render->drawText(
+                    p.draw.labelGlyphs,
+                    math::Vector2i(
+                        labelGeometry.min.x,
+                        labelGeometry.min.y +
+                        fontMetrics.ascender),
+                    event.style->getColorRole(ColorRole::Text));
+            }
+
+            if (durationVisible)
+            {
+                if (!p.durationLabel.empty() && p.draw.durationGlyphs.empty())
+                {
+                    p.draw.durationGlyphs = event.fontSystem->getGlyphs(p.durationLabel, fontInfo);
+                }
+                event.render->drawText(
+                    p.draw.durationGlyphs,
+                    math::Vector2i(
+                        durationGeometry.min.x,
+                        durationGeometry.min.y +
+                        fontMetrics.ascender),
+                    event.style->getColorRole(ColorRole::Text));
+            }
         }
 
         void TimelineAudioClipItem::_drawWaveforms(
@@ -359,12 +411,12 @@ namespace tl
 
             const math::BBox2i bbox(
                 g.min.x +
-                p.margin,
+                p.size.margin,
                 g.min.y +
-                p.margin +
+                p.size.margin +
                 fontMetrics.lineHeight +
-                p.spacing,
-                _sizeHint.x - p.margin * 2,
+                p.size.spacing,
+                _sizeHint.x - p.size.margin * 2,
                 _options.waveformHeight);
             event.render->drawRect(
                 bbox,
@@ -391,20 +443,20 @@ namespace tl
                 }
             }
 
-            if (p.waveformWidth > 0)
+            if (p.size.waveformWidth > 0)
             {
-                const int w = _sizeHint.x - p.margin * 2;
-                for (int x = 0; x < w; x += p.waveformWidth)
+                const int w = _sizeHint.x - p.size.margin * 2;
+                for (int x = 0; x < w; x += p.size.waveformWidth)
                 {
                     math::BBox2i bbox(
                         g.min.x +
-                        p.margin +
+                        p.size.margin +
                         x,
                         g.min.y +
-                        p.margin +
+                        p.size.margin +
                         fontMetrics.lineHeight +
-                        p.spacing,
-                        p.waveformWidth,
+                        p.size.spacing,
+                        p.size.waveformWidth,
                         _options.waveformHeight);
                     if (bbox.intersects(drawRect))
                     {

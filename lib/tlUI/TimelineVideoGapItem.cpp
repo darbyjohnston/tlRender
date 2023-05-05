@@ -16,8 +16,22 @@ namespace tl
             std::string label;
             std::string durationLabel;
             FontRole fontRole = FontRole::Label;
-            int margin = 0;
-            int spacing = 0;
+
+            struct SizeData
+            {
+                int margin = 0;
+                int spacing = 0;
+                math::Vector2i labelSize;
+                math::Vector2i durationSize;
+            };
+            SizeData size;
+
+            struct DrawData
+            {
+                std::vector<std::shared_ptr<imaging::Glyph> > labelGlyphs;
+                std::vector<std::shared_ptr<imaging::Glyph> > durationGlyphs;
+            };
+            DrawData draw;
         };
 
         void TimelineVideoGapItem::_init(
@@ -71,15 +85,33 @@ namespace tl
             ITimelineItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
-            p.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
+            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
+
+            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
+            p.size.labelSize = event.fontSystem->getSize(p.label, fontInfo);
+            p.size.durationSize = event.fontSystem->getSize(p.durationLabel, fontInfo);
 
             _sizeHint = math::Vector2i(
                 p.timeRange.duration().rescaled_to(1.0).value() * _options.scale,
-                p.margin +
+                p.size.margin +
                 fontMetrics.lineHeight +
-                p.margin);
+                p.size.margin);
+        }
+
+        void TimelineVideoGapItem::clipEvent(
+            const math::BBox2i& clipRect,
+            bool clipped,
+            const ClipEvent& event)
+        {
+            ITimelineItem::clipEvent(clipRect, clipped, event);
+            TLRENDER_P();
+            if (clipped)
+            {
+                p.draw.labelGlyphs.clear();
+                p.draw.durationGlyphs.clear();
+            }
         }
 
         void TimelineVideoGapItem::drawEvent(
@@ -88,41 +120,67 @@ namespace tl
         {
             ITimelineItem::drawEvent(drawRect, event);
             TLRENDER_P();
-            if (_geometry.isValid() && _geometry.intersects(drawRect))
+
+            const int b = event.style->getSizeRole(SizeRole::Border, event.displayScale);
+            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+            const auto fontMetrics = event.getFontMetrics(p.fontRole);
+            const math::BBox2i& g = _geometry;
+
+            //event.render->drawMesh(
+            //    border(g, b, p.margin / 2),
+            //    math::Vector2i(),
+            //    event.style->getColorRole(ColorRole::Border));
+
+            event.render->drawRect(
+                g.margin(-b),
+                imaging::Color4f(.25F, .31F, .31F));
+
+            const math::BBox2i labelGeometry(
+                g.min.x +
+                p.size.margin,
+                g.min.y +
+                p.size.margin,
+                p.size.labelSize.x,
+                p.size.labelSize.y);
+            const math::BBox2i durationGeometry(
+                g.max.x -
+                p.size.margin -
+                p.size.durationSize.x,
+                g.min.y +
+                p.size.margin,
+                p.size.labelSize.x,
+                p.size.labelSize.y);
+            const bool labelVisible = drawRect.contains(labelGeometry);
+            const bool durationVisible =
+                drawRect.contains(durationGeometry) &&
+                !durationGeometry.intersects(labelGeometry);
+
+            if (labelVisible)
             {
-                const int b = event.style->getSizeRole(SizeRole::Border, event.displayScale);
-                const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-                const auto fontMetrics = event.getFontMetrics(p.fontRole);
-                const math::BBox2i& g = _geometry;
-
-                //event.render->drawMesh(
-                //    border(g, b, p.margin / 2),
-                //    math::Vector2i(),
-                //    event.style->getColorRole(ColorRole::Border));
-
-                event.render->drawRect(
-                    g.margin(-b),
-                    imaging::Color4f(.25F, .31F, .31F));
-
+                if (!p.label.empty() && p.draw.labelGlyphs.empty())
+                {
+                    p.draw.labelGlyphs = event.fontSystem->getGlyphs(p.label, fontInfo);
+                }
                 event.render->drawText(
-                    event.fontSystem->getGlyphs(p.label, fontInfo),
+                    p.draw.labelGlyphs,
                     math::Vector2i(
-                        g.min.x +
-                        p.margin,
-                        g.min.y +
-                        p.margin +
+                        labelGeometry.min.x,
+                        labelGeometry.min.y +
                         fontMetrics.ascender),
                     event.style->getColorRole(ColorRole::Text));
+            }
 
-                const math::Vector2i textSize = event.fontSystem->getSize(p.durationLabel, fontInfo);
+            if (durationVisible)
+            {
+                if (!p.durationLabel.empty() && p.draw.durationGlyphs.empty())
+                {
+                    p.draw.durationGlyphs = event.fontSystem->getGlyphs(p.durationLabel, fontInfo);
+                }
                 event.render->drawText(
-                    event.fontSystem->getGlyphs(p.durationLabel, fontInfo),
+                    p.draw.durationGlyphs,
                     math::Vector2i(
-                        g.max.x -
-                        p.margin -
-                        textSize.x,
-                        g.min.y +
-                        p.margin +
+                        durationGeometry.min.x,
+                        durationGeometry.min.y +
                         fontMetrics.ascender),
                     event.style->getColorRole(ColorRole::Text));
             }

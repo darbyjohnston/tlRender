@@ -36,6 +36,10 @@ namespace tl
             void setOptions(const TimelineItemOptions&) override;
 
             void sizeHintEvent(const SizeHintEvent&) override;
+            void clipEvent(
+                const math::BBox2i&,
+                bool,
+                const ClipEvent&) override;
             void drawEvent(
                 const math::BBox2i&,
                 const DrawEvent&) override;
