@@ -201,7 +201,7 @@ namespace tl
         {
             TLRENDER_P();
             MouseMoveEvent event;
-            event.pos = pos;
+            event.pos = pos * p.displayScale;
             event.prev = p.cursorPos;
             if (auto widget = p.mousePress.lock())
             {
@@ -211,7 +211,7 @@ namespace tl
             {
                 _hoverUpdate(event);
             }
-            p.cursorPos = pos;
+            p.cursorPos = event.pos;
         }
 
         void EventLoop::mouseButton(int button, bool press, int modifiers)
