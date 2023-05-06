@@ -148,11 +148,11 @@ namespace tl
                 p.size.durationSize.x,
                 g.min.y +
                 p.size.margin,
-                p.size.labelSize.x,
-                p.size.labelSize.y);
-            const bool labelVisible = drawRect.contains(labelGeometry);
+                p.size.durationSize.x,
+                p.size.durationSize.y);
+            const bool labelVisible = drawRect.intersects(labelGeometry);
             const bool durationVisible =
-                drawRect.contains(durationGeometry) &&
+                drawRect.intersects(durationGeometry) &&
                 !durationGeometry.intersects(labelGeometry);
 
             if (labelVisible)

@@ -148,11 +148,11 @@ namespace tl
                 p.size.durationSize.x,
                 g.min.y +
                 p.size.margin,
-                p.size.labelSize.x,
-                p.size.labelSize.y);
-            const bool labelVisible = drawRect.contains(labelGeometry);
+                p.size.durationSize.x,
+                p.size.durationSize.y);
+            const bool labelVisible = drawRect.intersects(labelGeometry);
             const bool durationVisible =
-                drawRect.contains(durationGeometry) &&
+                drawRect.intersects(durationGeometry) &&
                 !durationGeometry.intersects(labelGeometry);
 
             if (labelVisible)
@@ -160,10 +160,8 @@ namespace tl
                 event.render->drawText(
                     event.fontSystem->getGlyphs(p.label, fontInfo),
                     math::Vector2i(
-                        g.min.x +
-                        p.size.margin,
-                        g.min.y +
-                        p.size.margin +
+                        labelGeometry.min.x,
+                        labelGeometry.min.y +
                         fontMetrics.ascender),
                     event.style->getColorRole(ColorRole::Text));
             }
@@ -173,11 +171,8 @@ namespace tl
                 event.render->drawText(
                     event.fontSystem->getGlyphs(p.durationLabel, fontInfo),
                     math::Vector2i(
-                        g.max.x -
-                        p.size.margin -
-                        p.size.durationSize.x,
-                        g.min.y +
-                        p.size.margin +
+                        durationGeometry.min.x,
+                        durationGeometry.min.y +
                         fontMetrics.ascender),
                     event.style->getColorRole(ColorRole::Text));
             }

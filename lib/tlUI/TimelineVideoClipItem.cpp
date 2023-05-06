@@ -226,6 +226,10 @@ namespace tl
             {
                 _drawThumbnails(drawRect, event);
             }
+
+            //event.render->drawRect(
+            //    drawRect,
+            //    imaging::Color4f(1.F, 0.F, 0.F, .2F));
         }
 
         void TimelineVideoClipItem::_textUpdate()
@@ -259,11 +263,11 @@ namespace tl
                 p.size.durationSize.x,
                 g.min.y +
                 p.size.margin,
-                p.size.labelSize.x,
-                p.size.labelSize.y);
-            const bool labelVisible = drawRect.contains(labelGeometry);
+                p.size.durationSize.x,
+                p.size.durationSize.y);
+            const bool labelVisible = drawRect.intersects(labelGeometry);
             const bool durationVisible =
-                drawRect.contains(durationGeometry) &&
+                drawRect.intersects(durationGeometry) &&
                 !durationGeometry.intersects(labelGeometry);
 
             if (labelVisible)
@@ -290,8 +294,8 @@ namespace tl
                 event.render->drawText(
                     p.draw.durationGlyphs,
                     math::Vector2i(
-                        labelGeometry.min.x,
-                        labelGeometry.min.y +
+                        durationGeometry.min.x,
+                        durationGeometry.min.y +
                         fontMetrics.ascender),
                     event.style->getColorRole(ColorRole::Text));
             }

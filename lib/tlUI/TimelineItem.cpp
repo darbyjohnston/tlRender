@@ -273,12 +273,74 @@ namespace tl
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const math::BBox2i& g = _geometry;
 
-            const float frameTick0 = p.timeRange.start_time().value() /
-                p.timeRange.duration().value() * (_sizeHint.x - p.size.margin * 2);
-            const float frameTick1 = (p.timeRange.start_time().value() + 1.0) /
-                p.timeRange.duration().value() * (_sizeHint.x - p.size.margin * 2);
-            const int frameWidth = frameTick1 - frameTick0;
-            if (frameWidth >= 5)
+            const int w = _sizeHint.x - p.size.margin * 2;
+            const int frameTick = 1.0 /
+                p.timeRange.duration().value() * w;
+            const int secondsTick = 1.0 /
+                p.timeRange.duration().rescaled_to(1.0).value() * w;
+            const int minutesTick = 60.0 /
+                p.timeRange.duration().rescaled_to(1.0).value() * w;
+            const int hoursTick = 3600.0 /
+                p.timeRange.duration().rescaled_to(1.0).value() * w;
+            double seconds = 0;
+            int tick = 0;
+            if (frameTick >= 5)
+            {
+                seconds = 1.0 / p.timeRange.duration().rate();
+                tick = frameTick;
+            }
+            else if (secondsTick >= 5)
+            {
+                seconds = 1.0;
+                tick = secondsTick;
+            }
+            else if (minutesTick >= 5)
+            {
+                seconds = 60.0;
+                tick = minutesTick;
+            }
+            else if (hoursTick >= 5)
+            {
+                seconds = 3600.0;
+                tick = hoursTick;
+            }
+            if (seconds > 0.0 && tick > 0)
+            {
+                const float duration = p.timeRange.duration().rescaled_to(1.0).value();
+                geom::TriangleMesh2 mesh;
+                size_t i = 1;
+                for (double t = 0.0; t < duration; t += seconds)
+                {
+                    math::BBox2i bbox(
+                        g.min.x +
+                        p.size.margin + t / duration * w,
+                        g.min.y +
+                        p.size.margin +
+                        p.size.fontMetrics.lineHeight +
+                        p.size.spacing,
+                        2,
+                        p.size.fontMetrics.lineHeight);
+                    if (bbox.intersects(drawRect))
+                    {
+                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
+                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));
+                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.max.y + 1));
+                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.max.y + 1));
+                        mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
+                        mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
+                        i += 4;
+                    }
+                }
+                if (!mesh.v.empty())
+                {
+                    event.render->drawMesh(
+                        mesh,
+                        math::Vector2i(),
+                        imaging::Color4f(.8F, .8F, .8F));
+                }
+            }
+
+            /*if (frameWidth >= 5)
             {
                 geom::TriangleMesh2 mesh;
                 size_t i = 1;
@@ -315,11 +377,6 @@ namespace tl
                 }
             }
 
-            const float secondsTick0 = p.timeRange.start_time().value() /
-                (p.timeRange.duration().value() / p.timeRange.duration().rate()) * (_sizeHint.x - p.size.margin * 2);
-            const float secondsTick1 = (p.timeRange.start_time().value() + 1.0) /
-                (p.timeRange.duration().value() / p.timeRange.duration().rate()) * (_sizeHint.x - p.size.margin * 2);
-            const int secondsWidth = secondsTick1 - secondsTick0;
             if (secondsWidth >= 5)
             {
                 std::string labelMax = _timeLabel(p.timeRange.end_time_inclusive(), _options.timeUnits);
@@ -391,7 +448,7 @@ namespace tl
                         math::Vector2i(),
                         imaging::Color4f(.8F, .8F, .8F));
                 }
-            }
+            }*/
         }
 
         void TimelineItem::_drawCurrentTime(
