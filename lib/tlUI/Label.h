@@ -33,11 +33,20 @@ namespace tl
             //! Set the text.
             void setText(const std::string&);
 
+            //! Set the margin role.
+            void setMarginRole(SizeRole);
+
             //! Set the font role.
             void setFontRole(FontRole);
 
-            void sizeEvent(const SizeEvent&) override;
-            void drawEvent(const DrawEvent&) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
+            void clipEvent(
+                const math::BBox2i&,
+                bool,
+                const ClipEvent&) override;
+            void drawEvent(
+                const math::BBox2i&,
+                const DrawEvent&) override;
 
         private:
             TLRENDER_PRIVATE();

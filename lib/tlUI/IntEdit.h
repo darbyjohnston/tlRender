@@ -5,12 +5,13 @@
 #pragma once
 
 #include <tlUI/IWidget.h>
-#include <tlUI/IntModel.h>
 
 namespace tl
 {
     namespace ui
     {
+        class IntModel;
+
         //! Integer number editor.
         class IntEdit : public IWidget
         {
@@ -18,6 +19,7 @@ namespace tl
 
         protected:
             void _init(
+                const std::shared_ptr<IntModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -28,14 +30,12 @@ namespace tl
 
             //! Create a new integer number editor.
             static std::shared_ptr<IntEdit> create(
+                const std::shared_ptr<IntModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the integer model.
             const std::shared_ptr<IntModel>& getModel() const;
-
-            //! Set the integer model.
-            void setModel(const std::shared_ptr<IntModel>&);
 
             //! Set the number of digits to display.
             void setDigits(int);
@@ -43,8 +43,10 @@ namespace tl
             //! Set the font role.
             void setFontRole(FontRole);
 
-            void sizeEvent(const SizeEvent&) override;
-            void drawEvent(const DrawEvent&) override;
+            void setGeometry(const math::BBox2i&) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
+            void keyPressEvent(KeyEvent&) override;
+            void keyReleaseEvent(KeyEvent&) override;
 
         private:
             void _textUpdate();

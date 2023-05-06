@@ -81,13 +81,13 @@ namespace tl
                 const int frames = static_cast<int>(time.value()) % static_cast<int>(time.rate());
 
                 const std::string secondsString = string::Format("{0}").arg(wholeSeconds);
-                const math::Vector2i secondsSize = _fontSystem->measure(secondsString, _secondsFontInfo);
+                const math::Vector2i secondsSize = _fontSystem->getSize(secondsString, _secondsFontInfo);
                 const math::Vector2i secondsPos(
                     _size.w / 2.F - secondsSize.x / 2.F,
                     _size.h / 2.F - secondsSize.y / 2.F);
 
                 const std::string framesString = string::Format("{0}").arg(frames);
-                const math::Vector2i framesSize = _fontSystem->measure(framesString, _framesFontInfo);
+                const math::Vector2i framesSize = _fontSystem->getSize(framesString, _framesFontInfo);
                 const math::Vector2i framesPos(
                     _size.w / 2.F - framesSize.x / 2.F,
                     secondsPos.y + secondsSize.y);

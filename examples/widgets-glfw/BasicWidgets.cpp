@@ -6,6 +6,7 @@
 
 #include <tlUI/ButtonGroup.h>
 #include <tlUI/GroupBox.h>
+#include <tlUI/LineEdit.h>
 #include <tlUI/PushButton.h>
 #include <tlUI/ToolButton.h>
 #include <tlUI/RowLayout.h>
@@ -35,7 +36,6 @@ namespace tl
                     {
                         std::cout << "Click" << std::endl;
                     });
-
                 auto pushButton1 = ui::PushButton::create(context);
                 pushButton1->setCheckable(true);
                 pushButton1->setChecked(true);
@@ -46,6 +46,9 @@ namespace tl
                     {
                         std::cout << "Toggle: " << value << std::endl;
                     });
+                auto pushButton2 = ui::PushButton::create(context);
+                pushButton2->setText("Click");
+                pushButton2->setEnabled(false);
 
                 p.buttonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Radio, context);
                 auto toolButton0 = ui::ToolButton::create(context);
@@ -64,6 +67,16 @@ namespace tl
                     {
                         std::cout << "Radio: " << index << " " << value << std::endl;
                     });
+                auto toolButton3 = ui::ToolButton::create(context);
+                toolButton3->setIcon("Audio");
+                toolButton3->setEnabled(false);
+
+                auto lineEdit0 = ui::LineEdit::create(context);
+                auto lineEdit1 = ui::LineEdit::create(context);
+                lineEdit1->setText("Hello world");
+                auto lineEdit2 = ui::LineEdit::create(context);
+                lineEdit2->setText("Hello world");
+                lineEdit2->setEnabled(false);
 
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
                 auto groupBox = ui::GroupBox::create(context, p.layout);
@@ -71,6 +84,7 @@ namespace tl
                 auto hLayout = ui::HorizontalLayout::create(context, groupBox);
                 pushButton0->setParent(hLayout);
                 pushButton1->setParent(hLayout);
+                pushButton2->setParent(hLayout);
                 groupBox = ui::GroupBox::create(context, p.layout);
                 groupBox->setText("Tool Buttons");
                 hLayout = ui::HorizontalLayout::create(context, groupBox);
@@ -78,6 +92,13 @@ namespace tl
                 toolButton0->setParent(hLayout);
                 toolButton1->setParent(hLayout);
                 toolButton2->setParent(hLayout);
+                toolButton3->setParent(hLayout);
+                groupBox = ui::GroupBox::create(context, p.layout);
+                groupBox->setText("Line Edits");
+                hLayout = ui::HorizontalLayout::create(context, groupBox);
+                lineEdit0->setParent(hLayout);
+                lineEdit1->setParent(hLayout);
+                lineEdit2->setParent(hLayout);
             }
 
             BasicWidgets::BasicWidgets() :

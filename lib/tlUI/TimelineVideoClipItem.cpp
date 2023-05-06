@@ -30,12 +30,28 @@ namespace tl
             otime::TimeRange timeRange = time::invalidTimeRange;
             std::string label;
             std::string durationLabel;
-            ui::FontRole fontRole = ui::FontRole::Label;
-            int margin = 0;
-            int spacing = 0;
-            int thumbnailWidth = 0;
+            FontRole fontRole = FontRole::Label;
             bool ioInfoInit = true;
             io::Info ioInfo;
+
+            struct SizeData
+            {
+                int margin = 0;
+                int spacing = 0;
+                math::Vector2i labelSize;
+                math::Vector2i durationSize;
+                int thumbnailWidth = 0;
+                math::BBox2i clipRect;
+            };
+            SizeData size;
+
+            struct DrawData
+            {
+                std::vector<std::shared_ptr<imaging::Glyph> > labelGlyphs;
+                std::vector<std::shared_ptr<imaging::Glyph> > durationGlyphs;
+            };
+            DrawData draw;
+
             std::map<otime::RationalTime, std::future<io::VideoData> > videoDataFutures;
             std::map<otime::RationalTime, io::VideoData> videoData;
             std::map<otime::RationalTime, std::shared_ptr<gl::OffscreenBuffer> > buffers;
@@ -48,7 +64,7 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            ITimelineItem::_init("TimelineVideoClipItem", itemData, context, parent);
+            ITimelineItem::_init("tl::ui::TimelineVideoClipItem", itemData, context, parent);
             TLRENDER_P();
 
             p.clip = clip;
@@ -110,22 +126,11 @@ namespace tl
                     p.videoData.clear();
                     p.buffers.clear();
                 }
-                _updates |= ui::Update::Draw;
+                _updates |= Update::Draw;
             }
         }
 
-        void TimelineVideoClipItem::setViewport(const math::BBox2i& value)
-        {
-            const bool changed = value != _viewport;
-            ITimelineItem::setViewport(value);
-            if (changed)
-            {
-                _data.ioManager->cancelRequests();
-                _updates |= ui::Update::Draw;
-            }
-        }
-
-        void TimelineVideoClipItem::tickEvent(const ui::TickEvent& event)
+        void TimelineVideoClipItem::tickEvent(const TickEvent& event)
         {
             TLRENDER_P();
             auto i = p.videoDataFutures.begin();
@@ -137,67 +142,94 @@ namespace tl
                     const auto videoData = i->second.get();
                     p.videoData[i->first] = videoData;
                     i = p.videoDataFutures.erase(i);
-                    _updates |= ui::Update::Draw;
+                    _updates |= Update::Draw;
                     continue;
                 }
                 ++i;
             }
         }
 
-        void TimelineVideoClipItem::sizeEvent(const ui::SizeEvent& event)
+        void TimelineVideoClipItem::sizeHintEvent(const SizeHintEvent& event)
         {
-            ITimelineItem::sizeEvent(event);
+            ITimelineItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.contentScale;
-            p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.contentScale;
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
+            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
+
+            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
+            p.size.labelSize = event.fontSystem->getSize(p.label, fontInfo);
+            p.size.durationSize = event.fontSystem->getSize(p.durationLabel, fontInfo);
 
             const int thumbnailWidth = (_options.thumbnails && !p.ioInfo.video.empty()) ?
                 static_cast<int>(_options.thumbnailHeight * p.ioInfo.video[0].size.getAspect()) :
                 0;
-            if (thumbnailWidth != p.thumbnailWidth)
+            if (thumbnailWidth != p.size.thumbnailWidth)
             {
-                p.thumbnailWidth = thumbnailWidth;
+                p.size.thumbnailWidth = thumbnailWidth;
                 _data.ioManager->cancelRequests();
                 p.videoData.clear();
                 p.buffers.clear();
-                _updates |= ui::Update::Draw;
+                _updates |= Update::Draw;
             }
 
             _sizeHint = math::Vector2i(
                 p.timeRange.duration().rescaled_to(1.0).value() * _options.scale,
-                p.margin +
+                p.size.margin +
                 fontMetrics.lineHeight +
-                p.margin);
+                p.size.margin);
             if (_options.thumbnails)
             {
-                _sizeHint.y += p.spacing + _options.thumbnailHeight;
+                _sizeHint.y += p.size.spacing + _options.thumbnailHeight;
             }
         }
 
-        void TimelineVideoClipItem::drawEvent(const ui::DrawEvent& event)
+        void TimelineVideoClipItem::clipEvent(
+            const math::BBox2i& clipRect,
+            bool clipped,
+            const ClipEvent& event)
         {
-            ITimelineItem::drawEvent(event);
-            if (_geometry.isValid() && _isInsideViewport())
+            ITimelineItem::clipEvent(clipRect, clipped, event);
+            TLRENDER_P();
+            if (clipRect == p.size.clipRect)
+                return;
+            p.size.clipRect = clipRect;
+            if (clipped)
             {
-                const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.contentScale;
-                math::BBox2i g = _geometry;
-
-                //event.render->drawMesh(
-                //    ui::border(g, b, _margin / 2),
-                //    event.style->getColorRole(ui::ColorRole::Border));
-
-                event.render->drawRect(
-                    g.margin(-b),
-                    imaging::Color4f(.2F, .4F, .4F));
-
-                _drawInfo(event);
-                if (_options.thumbnails)
-                {
-                    _drawThumbnails(event);
-                }
+                p.draw.labelGlyphs.clear();
+                p.draw.durationGlyphs.clear();
             }
+            _data.ioManager->cancelRequests();
+            _updates |= Update::Draw;
+        }
+
+        void TimelineVideoClipItem::drawEvent(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
+        {
+            ITimelineItem::drawEvent(drawRect, event);
+
+            const int b = event.style->getSizeRole(SizeRole::Border, event.displayScale);
+            math::BBox2i g = _geometry;
+
+            //event.render->drawMesh(
+            //    border(g, b, _margin / 2),
+            //    event.style->getColorRole(ColorRole::Border));
+
+            event.render->drawRect(
+                g.margin(-b),
+                imaging::Color4f(.2F, .4F, .4F));
+
+            _drawInfo(drawRect, event);
+            if (_options.thumbnails)
+            {
+                _drawThumbnails(drawRect, event);
+            }
+
+            //event.render->drawRect(
+            //    drawRect,
+            //    imaging::Color4f(1.F, 0.F, 0.F, .2F));
         }
 
         void TimelineVideoClipItem::_textUpdate()
@@ -208,38 +240,70 @@ namespace tl
                 _options.timeUnits);
         }
 
-        void TimelineVideoClipItem::_drawInfo(const ui::DrawEvent& event)
+        void TimelineVideoClipItem::_drawInfo(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
             TLRENDER_P();
 
-            const auto fontInfo = event.getFontInfo(p.fontRole);
+            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
             math::BBox2i g = _geometry;
 
-            event.render->drawText(
-                event.fontSystem->getGlyphs(p.label, fontInfo),
-                math::Vector2i(
-                    g.min.x +
-                    p.margin,
-                    g.min.y +
-                    p.margin +
-                    fontMetrics.ascender),
-                event.style->getColorRole(ui::ColorRole::Text));
+            const math::BBox2i labelGeometry(
+                g.min.x +
+                p.size.margin,
+                g.min.y +
+                p.size.margin,
+                p.size.labelSize.x,
+                p.size.labelSize.y);
+            const math::BBox2i durationGeometry(
+                g.max.x -
+                p.size.margin -
+                p.size.durationSize.x,
+                g.min.y +
+                p.size.margin,
+                p.size.durationSize.x,
+                p.size.durationSize.y);
+            const bool labelVisible = drawRect.intersects(labelGeometry);
+            const bool durationVisible =
+                drawRect.intersects(durationGeometry) &&
+                !durationGeometry.intersects(labelGeometry);
 
-            math::Vector2i textSize = event.fontSystem->measure(p.durationLabel, fontInfo);
-            event.render->drawText(
-                event.fontSystem->getGlyphs(p.durationLabel, fontInfo),
-                math::Vector2i(
-                    g.max.x -
-                    p.margin -
-                    textSize.x,
-                    g.min.y +
-                    p.margin +
-                    fontMetrics.ascender),
-                event.style->getColorRole(ui::ColorRole::Text));
+            if (labelVisible)
+            {
+                if (!p.label.empty() && p.draw.labelGlyphs.empty())
+                {
+                    p.draw.labelGlyphs = event.fontSystem->getGlyphs(p.label, fontInfo);
+                }
+                event.render->drawText(
+                    p.draw.labelGlyphs,
+                    math::Vector2i(
+                        labelGeometry.min.x,
+                        labelGeometry.min.y +
+                        fontMetrics.ascender),
+                    event.style->getColorRole(ColorRole::Text));
+            }
+
+            if (durationVisible)
+            {
+                if (!p.durationLabel.empty() && p.draw.durationGlyphs.empty())
+                {
+                    p.draw.durationGlyphs = event.fontSystem->getGlyphs(p.durationLabel, fontInfo);
+                }
+                event.render->drawText(
+                    p.draw.durationGlyphs,
+                    math::Vector2i(
+                        durationGeometry.min.x,
+                        durationGeometry.min.y +
+                        fontMetrics.ascender),
+                    event.style->getColorRole(ColorRole::Text));
+            }
         }
 
-        void TimelineVideoClipItem::_drawThumbnails(const ui::DrawEvent& event)
+        void TimelineVideoClipItem::_drawThumbnails(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
             TLRENDER_P();
 
@@ -248,12 +312,12 @@ namespace tl
 
             const math::BBox2i bbox(
                 g.min.x +
-                p.margin,
+                p.size.margin,
                 g.min.y +
-                p.margin +
+                p.size.margin +
                 fontMetrics.lineHeight +
-                p.spacing,
-                _sizeHint.x - p.margin * 2,
+                p.size.spacing,
+                _sizeHint.x - p.size.margin * 2,
                 _options.thumbnailHeight);
             event.render->drawRect(
                 bbox,
@@ -269,18 +333,18 @@ namespace tl
                 buffersDelete.insert(buffers.first);
             }
 
-            if (g.intersects(_viewport))
+            if (g.intersects(drawRect))
             {
                 if (p.ioInfoInit)
                 {
                     p.ioInfoInit = false;
                     p.ioInfo = _data.ioManager->getInfo(p.path).get();
-                    _updates |= ui::Update::Size;
-                    _updates |= ui::Update::Draw;
+                    _updates |= Update::Size;
+                    _updates |= Update::Draw;
                 }
             }
 
-            if (p.thumbnailWidth > 0)
+            if (p.size.thumbnailWidth > 0)
             {
                 {
                     const timeline::ViewportState viewportState(event.render);
@@ -291,10 +355,10 @@ namespace tl
                     for (const auto& i : p.videoData)
                     {
                         const imaging::Size size(
-                            p.thumbnailWidth,
+                            p.size.thumbnailWidth,
                             _options.thumbnailHeight);
                         gl::OffscreenBufferOptions options;
-                        options.colorType = imaging::PixelType::RGBA_F32;
+                        options.colorType = imaging::PixelType::RGB_F32;
                         auto buffer = gl::OffscreenBuffer::create(size, options);
                         {
                             gl::OffscreenBufferBinding binding(buffer);
@@ -309,10 +373,12 @@ namespace tl
                                     static_cast<float>(size.h),
                                     -1.F,
                                     1.F));
-                            event.render->clearViewport(imaging::Color4f(1.F, 0.F, 0.F));
+                            event.render->clearViewport(imaging::Color4f(0.F, 0.F, 0.F));
                             if (i.second.image)
                             {
-                                event.render->drawImage(i.second.image, math::BBox2i(0, 0, size.w, size.h));
+                                event.render->drawImage(
+                                    i.second.image,
+                                    math::BBox2i(0, 0, size.w, size.h));
                             }
                         }
                         p.buffers[i.first] = buffer;
@@ -320,23 +386,24 @@ namespace tl
                 }
                 p.videoData.clear();
 
-                for (int x = p.margin; x < _sizeHint.x - p.margin; x += p.thumbnailWidth)
+                const int w = _sizeHint.x - p.size.margin * 2;
+                for (int x = 0; x < w; x += p.size.thumbnailWidth)
                 {
-                    math::BBox2i bbox(
+                    const math::BBox2i bbox(
                         g.min.x +
+                        p.size.margin +
                         x,
                         g.min.y +
-                        p.margin +
+                        p.size.margin +
                         fontMetrics.lineHeight +
-                        p.spacing,
-                        p.thumbnailWidth,
+                        p.size.spacing,
+                        p.size.thumbnailWidth,
                         _options.thumbnailHeight);
-                    if (bbox.intersects(_viewport))
+                    if (bbox.intersects(drawRect))
                     {
-                        const int w = _sizeHint.x - p.margin * 2;
                         const otime::RationalTime time = time::round(otime::RationalTime(
                             p.timeRange.start_time().value() +
-                            (w > 0 ? ((x - p.margin) / static_cast<double>(w)) : 0) *
+                            (w > 0 ? (x / static_cast<double>(w)) : 0) *
                             p.timeRange.duration().value(),
                             p.timeRange.duration().rate()));
 

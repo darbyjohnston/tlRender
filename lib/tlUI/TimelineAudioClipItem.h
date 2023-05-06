@@ -34,17 +34,26 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setOptions(const TimelineItemOptions&) override;
-            void setViewport(const math::BBox2i&) override;
 
-            void tickEvent(const ui::TickEvent&) override;
-            void sizeEvent(const ui::SizeEvent&) override;
-            void drawEvent(const ui::DrawEvent&) override;
+            void tickEvent(const TickEvent&) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
+            void clipEvent(
+                const math::BBox2i&,
+                bool,
+                const ClipEvent&) override;
+            void drawEvent(
+                const math::BBox2i&,
+                const DrawEvent&) override;
 
         private:
             void _textUpdate();
 
-            void _drawInfo(const ui::DrawEvent&);
-            void _drawWaveforms(const ui::DrawEvent&);
+            void _drawInfo(
+                const math::BBox2i&,
+                const DrawEvent&);
+            void _drawWaveforms(
+                const math::BBox2i&,
+                const DrawEvent&);
 
             TLRENDER_PRIVATE();
         };

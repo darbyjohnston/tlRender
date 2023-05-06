@@ -132,13 +132,13 @@ namespace tl
             }
         }
 
-        void RowLayout::sizeEvent(const SizeEvent& event)
+        void RowLayout::sizeHintEvent(const SizeHintEvent& event)
         {
-            IWidget::sizeEvent(event);
+            IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(p.marginRole) * event.contentScale;
-            p.size.spacing = event.style->getSizeRole(p.spacingRole) * event.contentScale;
+            p.size.margin = event.style->getSizeRole(p.marginRole, event.displayScale);
+            p.size.spacing = event.style->getSizeRole(p.spacingRole, event.displayScale);
 
             _sizeHint = math::Vector2i();
             for (const auto& child : _children)

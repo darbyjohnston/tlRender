@@ -79,8 +79,6 @@ namespace tl
             void timerEvent(QTimerEvent*) override;
 
         private:
-            void _setScrollPos(const math::Vector2i&);
-
             void _frameView();
 
             void _setViewZoom(
@@ -94,14 +92,9 @@ namespace tl
                 const std::shared_ptr<ui::IWidget>&,
                 const ui::TimelineItemOptions&);
 
-            math::BBox2i _timelineViewport() const;
-            void _setViewport(
-                const std::shared_ptr<ui::IWidget>&,
-                const math::BBox2i&);
-
-            float _toUI(float) const;
+            int _toUI(int) const;
             math::Vector2i _toUI(const math::Vector2i&) const;
-            float _fromUI(float) const;
+            int _fromUI(int) const;
             math::Vector2i _fromUI(const math::Vector2i&) const;
 
             TLRENDER_PRIVATE();

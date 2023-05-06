@@ -6,10 +6,11 @@
 
 #include <tlUI/GridLayout.h>
 #include <tlUI/GroupBox.h>
-#include <tlUI/IntEdit.h>
-#include <tlUI/IntSlider.h>
-#include <tlUI/FloatEdit.h>
-#include <tlUI/FloatSlider.h>
+#include <tlUI/IncButtons.h>
+#include <tlUI/IntEditSlider.h>
+#include <tlUI/IntModel.h>
+#include <tlUI/FloatEditSlider.h>
+#include <tlUI/FloatModel.h>
 #include <tlUI/Label.h>
 #include <tlUI/RowLayout.h>
 
@@ -41,23 +42,25 @@ namespace tl
                     math::IntRange(-100, 200),
                     math::IntRange(-100, -200)
                 };
+                size_t digits = 0;
+                for (const auto& i : intRanges)
+                {
+                    digits = std::max(digits, math::digits(i.getMin()));
+                    digits = std::max(digits, math::digits(i.getMax()));
+                }
                 std::vector<std::shared_ptr<ui::Label> > intLabels;
-                std::vector<std::shared_ptr<ui::IntEdit> > intEdits;
-                std::vector<std::shared_ptr<ui::IntSlider> > intSliders;
+                std::vector<std::shared_ptr<ui::IntEditSlider> > intEdits;
                 for (const auto& i : intRanges)
                 {
                     auto label = ui::Label::create(context);
                     label->setText(string::Format("{0} - {1}:").arg(i.getMin()).arg(i.getMax()));
                     intLabels.push_back(label);
-                    auto edit = ui::IntEdit::create(context);
-                    auto model = edit->getModel();
+                    auto model = ui::IntModel::create(context);
                     model->setRange(i);
-                    edit->setDigits(math::digits(i.getMax()));
+                    auto edit = ui::IntEditSlider::create(model, context);
+                    edit->setDigits(digits);
+                    edit->setHStretch(ui::Stretch::Expanding);
                     intEdits.push_back(edit);
-                    auto slider = ui::IntSlider::create(context);
-                    slider->setModel(model);
-                    slider->setHStretch(ui::Stretch::Expanding);
-                    intSliders.push_back(slider);
                 }
 
                 const std::vector<math::FloatRange> floatRanges =
@@ -70,25 +73,27 @@ namespace tl
                     math::FloatRange(-100.F, 200.F),
                     math::FloatRange(-100.F, -200.F)
                 };
+                digits = 0;
+                for (const auto& i : floatRanges)
+                {
+                    digits = std::max(digits, math::digits(i.getMin()));
+                    digits = std::max(digits, math::digits(i.getMax()));
+                }
                 std::vector<std::shared_ptr<ui::Label> > floatLabels;
-                std::vector<std::shared_ptr<ui::FloatEdit> > floatEdits;
-                std::vector<std::shared_ptr<ui::FloatSlider> > floatSliders;
+                std::vector<std::shared_ptr<ui::FloatEditSlider> > floatEdits;
                 for (const auto& i : floatRanges)
                 {
                     auto label = ui::Label::create(context);
                     label->setText(string::Format("{0} - {1}:").arg(i.getMin()).arg(i.getMax()));
                     floatLabels.push_back(label);
-                    auto edit = ui::FloatEdit::create(context);
-                    auto model = edit->getModel();
+                    auto model = ui::FloatModel::create(context);
                     model->setRange(i);
-                    edit->setDigits(math::digits(i.getMax()));
+                    auto edit = ui::FloatEditSlider::create(model, context);
+                    edit->setDigits(digits);
+                    edit->setHStretch(ui::Stretch::Expanding);
                     floatEdits.push_back(edit);
-                    auto slider = ui::FloatSlider::create(context);
-                    slider->setModel(model);
-                    slider->setHStretch(ui::Stretch::Expanding);
-                    floatSliders.push_back(slider);
                 }
-
+                
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
                 auto groupBox = ui::GroupBox::create(context, p.layout);
                 groupBox->setText("Integer Values");
@@ -100,8 +105,6 @@ namespace tl
                     gridLayout->setGridPos(intLabels[i], i, 0);
                     intEdits[i]->setParent(gridLayout);
                     gridLayout->setGridPos(intEdits[i], i, 1);
-                    intSliders[i]->setParent(gridLayout);
-                    gridLayout->setGridPos(intSliders[i], i, 2);
                 }
                 groupBox = ui::GroupBox::create(context, p.layout);
                 groupBox->setText("Floating Point Values");
@@ -113,8 +116,6 @@ namespace tl
                     gridLayout->setGridPos(floatLabels[i], i, 0);
                     floatEdits[i]->setParent(gridLayout);
                     gridLayout->setGridPos(floatEdits[i], i, 1);
-                    floatSliders[i]->setParent(gridLayout);
-                    gridLayout->setGridPos(floatSliders[i], i, 2);
                 }
             }
 

@@ -50,6 +50,19 @@ namespace tl
             _widgetUpdate();
         }
 
+        void StackLayout::setCurrentWidget(const std::shared_ptr<IWidget>& value)
+        {
+            int index = 0;
+            for (auto i = _children.begin(); i != _children.end(); ++i, ++index)
+            {
+                if (value == *i)
+                {
+                    setCurrentIndex(index);
+                    break;
+                }
+            }
+        }
+
         void StackLayout::setGeometry(const math::BBox2i& value)
         {
             IWidget::setGeometry(value);
@@ -71,9 +84,9 @@ namespace tl
             _updates |= Update::Size;
         }
 
-        void StackLayout::sizeEvent(const SizeEvent& event)
+        void StackLayout::sizeHintEvent(const SizeHintEvent& event)
         {
-            IWidget::sizeEvent(event);
+            IWidget::sizeHintEvent(event);
             for (const auto& child : _children)
             {
                 const math::Vector2i& sizeHint = child->getSizeHint();

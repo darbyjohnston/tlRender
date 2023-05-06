@@ -12,8 +12,8 @@ namespace tl
 {
     namespace ui
     {
-        //! Scroll area type.
-        enum class ScrollAreaType
+        //! Scroll type.
+        enum class ScrollType
         {
             Horizontal,
             Vertical,
@@ -28,7 +28,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<system::Context>&,
-                ScrollAreaType,
+                ScrollType,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             ScrollArea();
@@ -39,30 +39,30 @@ namespace tl
             //! Create a new scroll area.
             static std::shared_ptr<ScrollArea> create(
                 const std::shared_ptr<system::Context>&,
-                ScrollAreaType = ScrollAreaType::Both,
+                ScrollType = ScrollType::Both,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the scroll size.
             const math::Vector2i& getScrollSize() const;
 
-            //! Observe the scroll size.
-            std::shared_ptr<observer::IValue<math::Vector2i> > observeScrollSize() const;
+            //! Set the scroll size callback.
+            void setScrollSizeCallback(const std::function<void(const math::Vector2i&)>&);
 
             //! Get the scroll position.
             const math::Vector2i& getScrollPos() const;
 
-            //! Observe the scroll position.
-            std::shared_ptr<observer::IValue<math::Vector2i> > observeScrollPos() const;
-
             //! Set the scroll position.
             void setScrollPos(const math::Vector2i&);
 
-            //! Set whether the scroll area has a border.
-            void setBorder(bool);
+            //! Set the scroll position callback.
+            void setScrollPosCallback(const std::function<void(const math::Vector2i&)>&);
 
+            math::BBox2i getChildrenClipRect() const override;
             void setGeometry(const math::BBox2i&) override;
-            void sizeEvent(const SizeEvent&) override;
-            void drawEvent(const DrawEvent&) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
+            void drawEvent(
+                const math::BBox2i&,
+                const DrawEvent&) override;
 
         private:
             TLRENDER_PRIVATE();

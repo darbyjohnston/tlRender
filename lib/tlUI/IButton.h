@@ -33,10 +33,10 @@ namespace tl
             void setChecked(bool);
 
             //! Set the text.
-            void setText(const std::string&);
+            virtual void setText(const std::string&);
 
             //! Set the font role.
-            void setFontRole(FontRole);
+            virtual void setFontRole(FontRole);
 
             //! Set the icon.
             void setIcon(const std::string&);
@@ -44,13 +44,22 @@ namespace tl
             //! Set the button role.
             void setButtonRole(ColorRole);
             
+            //! Set whether the button repeats clicks when pressed.
+            void setRepeatClick(bool);
+
             //! Set the clicked callback.
             void setClickedCallback(const std::function<void(void)>&);
 
             //! Set the checked callback.
             void setCheckedCallback(const std::function<void(bool)>&);
 
+            void setVisible(bool) override;
+            void setEnabled(bool) override;
             void tickEvent(const TickEvent&) override;
+            void clipEvent(
+                const math::BBox2i&,
+                bool,
+                const ClipEvent&) override;
             void enterEvent() override;
             void leaveEvent() override;
             void mouseMoveEvent(MouseMoveEvent&) override;
@@ -58,6 +67,9 @@ namespace tl
             void mouseReleaseEvent(MouseClickEvent&) override;
 
         protected:
+            void _click();
+            void _resetMouse();
+
             std::string _text;
             FontRole _fontRole = FontRole::Label;
             std::shared_ptr<imaging::Image> _iconImage;

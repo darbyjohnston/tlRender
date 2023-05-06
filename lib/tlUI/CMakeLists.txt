@@ -4,6 +4,7 @@ set(HEADERS
     Event.h
     EventLoop.h
     FloatEdit.h
+    FloatEditSlider.h
     FloatModel.h
     FloatSlider.h
     GeometryUtil.h
@@ -15,7 +16,9 @@ set(HEADERS
     IWidgetInline.h
     IWidgetOptions.h
     IconLibrary.h
+    IncButtons.h
     IntEdit.h
+    IntEditSlider.h
     IntModel.h
     IntSlider.h
     Label.h
@@ -25,7 +28,10 @@ set(HEADERS
     PushButton.h
     RowLayout.h
     ScrollArea.h
+    ScrollWidget.h
     Spacer.h
+    ScrollBar.h
+    Splitter.h
     StackLayout.h
     Style.h
     TimelineAudioClipItem.h
@@ -46,6 +52,7 @@ set(SOURCE
     Event.cpp
     EventLoop.cpp
     FloatEdit.cpp
+    FloatEditSlider.cpp
     FloatModel.cpp
     FloatSlider.cpp
     GeometryUtil.cpp
@@ -56,7 +63,9 @@ set(SOURCE
     IWidget.cpp
     IWidgetOptions.cpp
     IconLibrary.cpp
+    IncButtons.cpp
     IntEdit.cpp
+    IntEditSlider.cpp
     IntModel.cpp
     IntSlider.cpp
     Label.cpp
@@ -66,7 +75,10 @@ set(SOURCE
     PushButton.cpp
     RowLayout.cpp
     ScrollArea.cpp
+    ScrollWidget.cpp
     Spacer.cpp
+    ScrollBar.cpp
+    Splitter.cpp
     StackLayout.cpp
     Style.cpp
     TimelineAudioClipItem.cpp

@@ -30,8 +30,20 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            void sizeEvent(const SizeEvent&) override;
-            void drawEvent(const DrawEvent&) override;
+            void setText(const std::string&) override;
+            void setFontRole(FontRole) override;
+
+            bool acceptsKeyFocus() const override;
+            void sizeHintEvent(const SizeHintEvent&) override;
+            void clipEvent(
+                const math::BBox2i&,
+                bool,
+                const ClipEvent&) override;
+            void drawEvent(
+                const math::BBox2i&,
+                const DrawEvent&) override;
+            void keyPressEvent(KeyEvent&) override;
+            void keyReleaseEvent(KeyEvent&) override;
 
         private:
             TLRENDER_PRIVATE();

@@ -132,24 +132,24 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void PieChart::sizeEvent(const SizeEvent& event)
+        void PieChart::sizeHintEvent(const SizeHintEvent& event)
         {
-            IWidget::sizeEvent(event);
+            IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall) * event.contentScale;
-            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall) * event.contentScale;
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
+            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
 
             // Create the percentage labels.
-            const auto fontInfo = event.getFontInfo(p.fontRole);
+            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             p.draw.percentageLabels.clear();
             int percentageWidthMax = 0;
             for (const auto& data : p.data)
             {
                 Private::DrawData::PercentageLabel label;
                 label.text = string::Format("{0}%").arg(data.percentage);
-                label.size = event.fontSystem->measure(label.text, fontInfo);
+                label.size = event.fontSystem->getSize(label.text, fontInfo);
                 label.glyphs = event.fontSystem->getGlyphs(label.text, fontInfo);
                 p.draw.percentageLabels.push_back(label);
                 percentageWidthMax = std::max(percentageWidthMax, label.size.x);
@@ -202,7 +202,7 @@ namespace tl
             {
                 Private::DrawData::TextLabel label;
                 label.text = p.data[i].text;
-                label.size = event.fontSystem->measure(label.text, fontInfo);
+                label.size = event.fontSystem->getSize(label.text, fontInfo);
                 label.pos.y = p.size.textSize.y;
                 label.glyphs = event.fontSystem->getGlyphs(label.text, fontInfo);
                 label.color = p.data[i].color;
@@ -233,9 +233,11 @@ namespace tl
                 p.size.margin * 2;
         }
 
-        void PieChart::drawEvent(const DrawEvent& event)
+        void PieChart::drawEvent(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
         {
-            IWidget::drawEvent(event);
+            IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
             //event.render->drawRect(_geometry, imaging::Color4f(.5F, .3F, .3F));

@@ -45,8 +45,13 @@ namespace tl
         inline size_t digits(int value) noexcept
         {
             size_t out = 0;
-            if (value)
+            if (value != 0)
             {
+                if (value < 0)
+                {
+                    //! \bug Should the minus sign be included?
+                    ++out;
+                }
                 while (value)
                 {
                     value /= 10;

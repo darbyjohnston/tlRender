@@ -4,6 +4,10 @@
 
 #include <tlUI/GeometryUtil.h>
 
+#include <tlCore/Math.h>
+
+#include <sstream>
+
 namespace tl
 {
     namespace ui
@@ -66,6 +70,26 @@ namespace tl
             }
 
             return math::BBox2i(pos.x, pos.y, size.x, size.y);
+        }
+
+        std::string format(int value)
+        {
+            std::stringstream ss;
+            ss << std::setfill('0');
+            ss << std::setw(math::digits(value));
+            ss << 0;
+            return ss.str();
+        }
+
+        std::string format(float value, int precision)
+        {
+            std::stringstream ss;
+            ss.precision(precision);
+            ss << std::fixed;
+            ss << std::setfill('0');
+            ss << std::setw(math::digits(value));
+            ss << 0;
+            return ss.str();
         }
     }
 }

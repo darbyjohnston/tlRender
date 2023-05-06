@@ -15,8 +15,10 @@ namespace tl
             bool checkable = false;
             std::string icon;
             bool iconInit = false;
-            float iconContentScale = 1.F;
+            float iconScale = 1.F;
             std::future<std::shared_ptr<imaging::Image> > iconFuture;
+            bool repeatClick = false;
+            std::chrono::steady_clock::time_point repeatClickTimer;
         };
 
         void IButton::_init(
@@ -76,8 +78,9 @@ namespace tl
         
         void IButton::setIcon(const std::string& icon)
         {
-            _p->icon = icon;
-            _p->iconInit = true;
+            TLRENDER_P();
+            p.icon = icon;
+            p.iconInit = true;
             _iconImage.reset();
         }
 
@@ -87,6 +90,12 @@ namespace tl
                 return;
             _buttonRole = value;
             _updates |= Update::Draw;
+        }
+
+        void IButton::setRepeatClick(bool value)
+        {
+            TLRENDER_P();
+            p.repeatClick = value;
         }
 
         void IButton::setClickedCallback(const std::function<void(void)>& value)
@@ -99,10 +108,30 @@ namespace tl
             _checkedCallback = value;
         }
 
+        void IButton::setVisible(bool value)
+        {
+            const bool changed = value != _visible;
+            IWidget::setVisible(value);
+            if (changed && !_visible)
+            {
+                _resetMouse();
+            }
+        }
+
+        void IButton::setEnabled(bool value)
+        {
+            const bool changed = value != _enabled;
+            IWidget::setEnabled(value);
+            if (changed && !_enabled)
+            {
+                _resetMouse();
+            }
+        }
+
         void IButton::tickEvent(const TickEvent& event)
         {
             TLRENDER_P();
-            if (event.contentScale != p.iconContentScale)
+            if (event.displayScale != p.iconScale)
             {
                 p.iconInit = true;
                 p.iconFuture = std::future<std::shared_ptr<imaging::Image> >();
@@ -111,8 +140,8 @@ namespace tl
             if (!p.icon.empty() && p.iconInit)
             {
                 p.iconInit = false;
-                p.iconContentScale = event.contentScale;
-                p.iconFuture = event.iconLibrary->request(p.icon, event.contentScale);
+                p.iconScale = event.displayScale;
+                p.iconFuture = event.iconLibrary->request(p.icon, event.displayScale);
             }
             if (p.iconFuture.valid() &&
                 p.iconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
@@ -120,6 +149,29 @@ namespace tl
                 _iconImage = p.iconFuture.get();
                 _updates |= Update::Size;
                 _updates |= Update::Draw;
+            }
+            if (_pressed && p.repeatClick)
+            {
+                const auto now = std::chrono::steady_clock::now();
+                const std::chrono::duration<float> diff = now - p.repeatClickTimer;
+                if (diff.count() > .2F)
+                {
+                    _click();
+                    p.repeatClickTimer = now;
+                }
+            }
+        }
+
+        void IButton::clipEvent(
+            const math::BBox2i& clipRect,
+            bool clipped,
+            const ClipEvent& event)
+        {
+            const bool changed = clipped != _clipped;
+            IWidget::clipEvent(clipRect, clipped, event);
+            if (changed && clipped)
+            {
+                _resetMouse();
             }
         }
 
@@ -143,32 +195,57 @@ namespace tl
 
         void IButton::mousePressEvent(MouseClickEvent& event)
         {
+            TLRENDER_P();
             event.accept = true;
+            if (acceptsKeyFocus())
+            {
+                takeFocus();
+            }
             _pressed = true;
             _updates |= Update::Draw;
+            if (p.repeatClick)
+            {
+                p.repeatClickTimer = std::chrono::steady_clock::now();
+            }
         }
 
         void IButton::mouseReleaseEvent(MouseClickEvent& event)
         {
-            TLRENDER_P();
             event.accept = true;
             _pressed = false;
+            _updates |= Update::Draw;
             if (_geometry.contains(_cursorPos))
             {
-                if (_clickedCallback)
+                _click();
+            }
+        }
+
+        void IButton::_click()
+        {
+            TLRENDER_P();
+            if (_clickedCallback)
+            {
+                _clickedCallback();
+            }
+            if (p.checkable)
+            {
+                _checked = !_checked;
+                _updates |= Update::Draw;
+                if (_checkedCallback)
                 {
-                    _clickedCallback();
-                }
-                if (p.checkable)
-                {
-                    _checked = !_checked;
-                    if (_checkedCallback)
-                    {
-                        _checkedCallback(_checked);
-                    }
+                    _checkedCallback(_checked);
                 }
             }
-            _updates |= Update::Draw;
+        }
+
+        void IButton::_resetMouse()
+        {
+            if (_pressed || _inside)
+            {
+                _pressed = false;
+                _inside = false;
+                _updates |= Update::Draw;
+            }
         }
     }
 }

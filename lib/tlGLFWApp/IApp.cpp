@@ -9,12 +9,16 @@
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Render.h>
 
+#include <tlCore/FontSystem.h>
 #include <tlCore/StringFormat.h>
 
 #include <tlGlad/gl.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+
+#include <codecvt>
+#include <locale>
 
 namespace tl
 {
@@ -170,6 +174,7 @@ namespace tl
             glfwSetCursorPosCallback(p.glfwWindow, _cursorPosCallback);
             glfwSetMouseButtonCallback(p.glfwWindow, _mouseButtonCallback);
             glfwSetKeyCallback(p.glfwWindow, _keyCallback);
+            glfwSetCharCallback(p.glfwWindow, _charCallback);
             glfwShowWindow(p.glfwWindow);
 
             // Initialize the user interface.
@@ -221,8 +226,8 @@ namespace tl
                 _tick();
 
                 p.eventLoop->tick();
-                p.eventLoop->setSize(p.frameBufferSize);
-                p.eventLoop->setContentScale(p.contentScale.x);
+                p.eventLoop->setDisplaySize(p.frameBufferSize);
+                p.eventLoop->setDisplayScale(p.contentScale.x);
 
                 gl::OffscreenBufferOptions offscreenBufferOptions;
                 offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
@@ -368,7 +373,7 @@ namespace tl
 
         namespace
         {
-            ui::Key toKey(int key)
+            ui::Key fromGLFWKey(int key)
             {
                 ui::Key out = ui::Key::Unknown;
                 switch (key)
@@ -463,21 +468,62 @@ namespace tl
                 }
                 return out;
             }
+
+            int fromGLFWModifiers(int value)
+            {
+                int out = 0;
+                if (value & GLFW_MOD_SHIFT)
+                {
+                    out |= static_cast<int>(ui::KeyModifier::Shift);
+                }
+                if (value & GLFW_MOD_CONTROL)
+                {
+                    out |= static_cast<int>(ui::KeyModifier::Control);
+                }
+                if (value & GLFW_MOD_ALT)
+                {
+                    out |= static_cast<int>(ui::KeyModifier::Alt);
+                }
+                return out;
+            }
         }
 
-        void IApp::_keyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int mods)
+        void IApp::_keyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int modifiers)
         {
             IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
             switch (action)
             {
             case GLFW_PRESS:
-                app->_p->eventLoop->key(toKey(key), true);
+            case GLFW_REPEAT:
+                app->_p->eventLoop->key(
+                    fromGLFWKey(key),
+                    true,
+                    fromGLFWModifiers(modifiers));
                 break;
             case GLFW_RELEASE:
-            case GLFW_REPEAT:
-                app->_p->eventLoop->key(toKey(key), false);
+                app->_p->eventLoop->key(
+                    fromGLFWKey(key),
+                    false,
+                    fromGLFWModifiers(modifiers));
                 break;
             }
+        }
+
+        namespace
+        {
+#if defined(_WINDOWS)
+            //! \bug https://social.msdn.microsoft.com/Forums/vstudio/en-US/8f40dcd8-c67f-4eba-9134-a19b9178e481/vs-2015-rc-linker-stdcodecvt-error?forum=vcgeneral
+            typedef unsigned int tl_char_t;
+#else // _WINDOWS
+            typedef char32_t tl_char_t;
+#endif // _WINDOWS
+        }
+
+        void IApp::_charCallback(GLFWwindow* glfwWindow, unsigned int c)
+        {
+            IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
+            std::wstring_convert<std::codecvt_utf8<tl_char_t>, tl_char_t> utf32Convert;
+            app->_p->eventLoop->text(utf32Convert.to_bytes(c));
         }
     }
 }

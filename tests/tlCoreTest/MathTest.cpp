@@ -54,9 +54,9 @@ namespace tl
                 TLRENDER_ASSERT(1 == digits(1));
                 TLRENDER_ASSERT(2 == digits(10));
                 TLRENDER_ASSERT(3 == digits(123));
-                TLRENDER_ASSERT(1 == digits(-1));
-                TLRENDER_ASSERT(2 == digits(-10));
-                TLRENDER_ASSERT(3 == digits(-123));
+                TLRENDER_ASSERT(2 == digits(-1));
+                TLRENDER_ASSERT(3 == digits(-10));
+                TLRENDER_ASSERT(4 == digits(-123));
             }
         }
     }

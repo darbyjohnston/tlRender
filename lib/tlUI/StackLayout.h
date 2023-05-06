@@ -36,10 +36,13 @@ namespace tl
             //! Set the current index.
             void setCurrentIndex(int);
 
+            //! Set the current widget.
+            void setCurrentWidget(const std::shared_ptr<IWidget>&);
+
             void setGeometry(const math::BBox2i&) override;
             void childAddedEvent(const ChildEvent&) override;
             void childRemovedEvent(const ChildEvent&) override;
-            void sizeEvent(const SizeEvent&) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
 
         private:
             std::shared_ptr<IWidget> _getCurrentWidget() const;

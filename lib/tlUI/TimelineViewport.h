@@ -82,15 +82,30 @@ namespace tl
                 const std::function<void(const math::Vector2i&, float)>&);
 
             //! Set the frame view callback.
-            void setFrameViewCallback(const std::function<void(void)>&);
+            void setFrameViewCallback(const std::function<void(bool)>&);
 
-            void sizeEvent(const SizeEvent&) override;
-            void drawEvent(const DrawEvent&) override;
+            void setVisible(bool) override;
+            void setEnabled(bool) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
+            void clipEvent(
+                const math::BBox2i&,
+                bool,
+                const ClipEvent&) override;
+            void drawEvent(
+                const math::BBox2i&,
+                const DrawEvent&) override;
+            void mouseMoveEvent(MouseMoveEvent&) override;
+            void mousePressEvent(MouseClickEvent&) override;
+            void mouseReleaseEvent(MouseClickEvent&) override;
+            void keyPressEvent(KeyEvent&) override;
+            void keyReleaseEvent(KeyEvent&) override;
 
         private:
             imaging::Size _renderSize() const;
             math::Vector2i _viewportCenter() const;
             void _frameView();
+
+            void _resetMouse();
 
             TLRENDER_PRIVATE();
         };

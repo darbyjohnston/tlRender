@@ -87,13 +87,13 @@ namespace tl
             _p->step = value;
         }
 
-        void FloatModel::addStep()
+        void FloatModel::incrementStep()
         {
             TLRENDER_P();
             setValue(p.value->get() + p.step);
         }
 
-        void FloatModel::subtractStep()
+        void FloatModel::decrementStep()
         {
             TLRENDER_P();
             setValue(p.value->get() - p.step);
@@ -109,13 +109,13 @@ namespace tl
             _p->largeStep = value;
         }
 
-        void FloatModel::addLargeStep()
+        void FloatModel::incrementLargeStep()
         {
             TLRENDER_P();
             setValue(p.value->get() + p.largeStep);
         }
 
-        void FloatModel::substractLargeStep()
+        void FloatModel::decrementLargeStep()
         {
             TLRENDER_P();
             setValue(p.value->get() - p.largeStep);

@@ -41,11 +41,12 @@ namespace tl
             _p->spacingRole = value;
         }
 
-        void Spacer::sizeEvent(const SizeEvent& event)
+        void Spacer::sizeHintEvent(const SizeHintEvent& event)
         {
-            IWidget::sizeEvent(event);
+            IWidget::sizeHintEvent(event);
             TLRENDER_P();
-            _sizeHint.x = _sizeHint.y = event.style->getSizeRole(p.spacingRole);
+            _sizeHint.x = _sizeHint.y =
+                event.style->getSizeRole(p.spacingRole, event.displayScale);
         }
     }
 }

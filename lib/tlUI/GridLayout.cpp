@@ -197,13 +197,13 @@ namespace tl
             }
         }
 
-        void GridLayout::sizeEvent(const SizeEvent& event)
+        void GridLayout::sizeHintEvent(const SizeHintEvent& event)
         {
-            IWidget::sizeEvent(event);
+            IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(p.marginRole) * event.contentScale;
-            p.size.spacing = event.style->getSizeRole(p.spacingRole) * event.contentScale;
+            p.size.margin = event.style->getSizeRole(p.marginRole, event.displayScale);
+            p.size.spacing = event.style->getSizeRole(p.spacingRole, event.displayScale);
 
             // Get size hints.
             std::vector<int> rowSizeHints;

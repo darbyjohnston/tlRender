@@ -29,20 +29,30 @@ namespace tl
             std::shared_ptr<Style> style;
             std::shared_ptr<IconLibrary> iconLibrary;
             std::shared_ptr<imaging::FontSystem> fontSystem;
-            float contentScale = 1.F;
+            float displayScale = 1.F;
         };
 
-        //! Size event.
-        struct SizeEvent
+        //! Size hint event.
+        struct SizeHintEvent
         {
             std::shared_ptr<Style> style;
             std::shared_ptr<IconLibrary> iconLibrary;
             std::shared_ptr<imaging::FontSystem> fontSystem;
-            float contentScale = 1.F;
-            std::map<FontRole, imaging::FontInfo> fontInfo;
+            float displayScale = 1.F;
             std::map<FontRole, imaging::FontMetrics> fontMetrics;
 
-            imaging::FontInfo getFontInfo(FontRole) const;
+            imaging::FontMetrics getFontMetrics(FontRole) const;
+        };
+
+        //! Clip event.
+        struct ClipEvent
+        {
+            std::shared_ptr<Style> style;
+            std::shared_ptr<IconLibrary> iconLibrary;
+            std::shared_ptr<imaging::FontSystem> fontSystem;
+            float displayScale = 1.F;
+            std::map<FontRole, imaging::FontMetrics> fontMetrics;
+
             imaging::FontMetrics getFontMetrics(FontRole) const;
         };
 
@@ -53,11 +63,10 @@ namespace tl
             std::shared_ptr<IconLibrary> iconLibrary;
             std::shared_ptr<timeline::IRender> render;
             std::shared_ptr<imaging::FontSystem> fontSystem;
-            float contentScale = 1.F;
-            std::map<FontRole, imaging::FontInfo> fontInfo;
+            float displayScale = 1.F;
             std::map<FontRole, imaging::FontMetrics> fontMetrics;
+            std::shared_ptr<IWidget> focusWidget;
 
-            imaging::FontInfo getFontInfo(FontRole) const;
             imaging::FontMetrics getFontMetrics(FontRole) const;
         };
 
@@ -83,6 +92,7 @@ namespace tl
         {
             int button = 0;
             int modifiers = 0;
+            math::Vector2i pos;
             bool accept = false;
         };
 
@@ -176,13 +186,27 @@ namespace tl
             RightShift,
             RightControl,
             RightAlt,
-            RightSuper
+            RightSuper,
+
+            Count,
+            First = Unknown
         };
+        TLRENDER_ENUM(Key);
+        TLRENDER_ENUM_SERIALIZE(Key);
 
         //! Key event.
         struct KeyEvent
         {
             Key key = Key::Unknown;
+            int modifiers = 0;
+            math::Vector2i pos;
+            bool accept = false;
+        };
+
+        //! Text event.
+        struct TextEvent
+        {
+            std::string text;
             bool accept = false;
         };
     }

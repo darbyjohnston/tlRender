@@ -84,6 +84,12 @@ namespace tl
             //! Set the vertical layout stretch.
             void setVStretch(Stretch);
 
+            //! Set the horizontal and vertical layout stretch.
+            void setStretch(Stretch horizontal, Stretch vertical);
+
+            //! Set the horizontal and vertical layout stretch.
+            void setStretch(Stretch);
+
             //! Get the horizontal layout alignment.
             HAlign getHAlign() const;
 
@@ -96,6 +102,9 @@ namespace tl
             //! Set the vertical layout alignment.
             void setVAlign(VAlign);
 
+            //! Set the horizontal and vertical layout alignment.
+            void setAlign(HAlign, VAlign);
+
             //! Get the geometry.
             const math::BBox2i& getGeometry() const;
 
@@ -104,18 +113,53 @@ namespace tl
 
             ///@}
 
-            //! Visiblity.
+            //! Visibility
             ///@{
 
             //! Is the widget visible?
             bool isVisible() const;
 
             //! Set whether the widget is visible.
-            void setVisible(bool);
+            virtual void setVisible(bool);
+
+            //! Is the widget clipped?
+            bool isClipped() const;
+
+            //! Get the clipping rect applied to the child widgets. By
+            //! default this is the same as the widget geometry.
+            virtual math::BBox2i getChildrenClipRect() const;
 
             ///@}
 
-            //! Events.
+            //! Enabled
+            ///@{
+
+            //! Is the widget enabled?
+            bool isEnabled() const;
+
+            //! Set whether the widget is enabled.
+            virtual void setEnabled(bool);
+
+            ///@}
+
+            //! Key Focus
+            ///@{
+
+            //! Does this widget accept key focus?
+            virtual bool acceptsKeyFocus() const;
+
+            //! Does this widget have key focus?
+            bool hasKeyFocus() const;
+
+            //! Take the key focus.
+            void takeFocus();
+
+            //! Release the key focus.
+            void releaseFocus();
+
+            ///@}
+
+            //! Events
             ///@{
 
             //! Child added event.
@@ -127,11 +171,19 @@ namespace tl
             //! Tick event.
             virtual void tickEvent(const TickEvent&);
 
-            //! Size event.
-            virtual void sizeEvent(const SizeEvent&);
+            //! Size hint event.
+            virtual void sizeHintEvent(const SizeHintEvent&);
+
+            //! Clip event.
+            virtual void clipEvent(
+                const math::BBox2i&,
+                bool clipped,
+                const ClipEvent&);
 
             //! Draw event.
-            virtual void drawEvent(const DrawEvent&);
+            virtual void drawEvent(
+                const math::BBox2i&,
+                const DrawEvent&);
 
             //! Enter event.
             virtual void enterEvent();
@@ -154,6 +206,9 @@ namespace tl
             //! Key release event.
             virtual void keyReleaseEvent(KeyEvent&);
 
+            //! Text event.
+            virtual void textEvent(TextEvent&);
+
             ///@}
 
         protected:
@@ -169,6 +224,8 @@ namespace tl
             VAlign _vAlign = VAlign::Center;
             math::BBox2i _geometry;
             bool _visible = true;
+            bool _clipped = false;
+            bool _enabled = true;
             ColorRole _backgroundRole = ColorRole::None;
             int _updates = 0;
         };

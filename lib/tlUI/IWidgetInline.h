@@ -65,5 +65,25 @@ namespace tl
         {
             return _visible;
         }
+
+        inline bool IWidget::isClipped() const
+        {
+            return _clipped;
+        }
+
+        inline math::BBox2i IWidget::getChildrenClipRect() const
+        {
+            return _geometry;
+        }
+
+        inline bool IWidget::isEnabled() const
+        {
+            return _enabled;
+        }
+
+        inline bool IWidget::acceptsKeyFocus() const
+        {
+            return false;
+        }
     }
 }

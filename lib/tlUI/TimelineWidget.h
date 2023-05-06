@@ -54,22 +54,26 @@ namespace tl
             void setMouseWheelScale(float);
 
             //! Get the item options.
-            const ui::TimelineItemOptions& itemOptions() const;
+            const TimelineItemOptions& itemOptions() const;
 
             //! Set the item options.
-            void setItemOptions(const ui::TimelineItemOptions&);
+            void setItemOptions(const TimelineItemOptions&);
 
             void setGeometry(const math::BBox2i&) override;
-            void sizeEvent(const SizeEvent&) override;
-            void enterEvent() override;
-            void leaveEvent() override;
+            void setVisible(bool) override;
+            void setEnabled(bool) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
+            void clipEvent(
+                const math::BBox2i&,
+                bool,
+                const ClipEvent&) override;
             void mouseMoveEvent(MouseMoveEvent&) override;
             void mousePressEvent(MouseClickEvent&) override;
             void mouseReleaseEvent(MouseClickEvent&) override;
+            void keyPressEvent(KeyEvent&) override;
+            void keyReleaseEvent(KeyEvent&) override;
 
         private:
-            void _setScrollPos(const math::Vector2i&);
-
             void _frameView();
 
             void _setViewZoom(
@@ -78,15 +82,12 @@ namespace tl
                 const math::Vector2i& focus,
                 const math::Vector2i& scrollPos);
 
-            float _timelineScale() const;
+            float _getTimelineScale() const;
             void _setItemOptions(
-                const std::shared_ptr<ui::IWidget>&,
-                const ui::TimelineItemOptions&);
+                const std::shared_ptr<IWidget>&,
+                const TimelineItemOptions&);
 
-            math::BBox2i _timelineViewport() const;
-            void _setViewport(
-                const std::shared_ptr<ui::IWidget>&,
-                const math::BBox2i&);
+            void _resetMouse();
 
             TLRENDER_PRIVATE();
         };

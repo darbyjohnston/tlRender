@@ -38,14 +38,25 @@ namespace tl
             //! Add a top level widget.
             void addWidget(const std::shared_ptr<IWidget>&);
 
-            //! Set the user interface size.
-            void setSize(const imaging::Size&);
+            //! Set the user interface display resolution.
+            void setDisplaySize(const imaging::Size&);
 
-            //! Set the user interface content scale.
-            void setContentScale(float);
+            //! Set the user interface display scale. This will scale the size
+            //! roles, fonts, and other metrics to support different
+            //! resolutions.
+            void setDisplayScale(float);
+
+            //! Get the key focus widget.
+            const std::weak_ptr<IWidget>& getKeyFocus() const;
+
+            //! Set the key focus widget.
+            void setKeyFocus(const std::shared_ptr<IWidget>&);
 
             //! Handle key presses.
-            void key(Key, bool press);
+            void key(Key, bool press, int modifiers);
+
+            //! Handle text input.
+            void text(const std::string&);
 
             //! Handle the cursor entering and leaving.
             void cursorEnter(bool enter);
@@ -73,29 +84,40 @@ namespace tl
 
             bool _getSizeUpdate();
             bool _getSizeUpdate(const std::shared_ptr<IWidget>&);
-            void _sizeEvent();
-            void _sizeEvent(
+            void _sizeHintEvent();
+            void _sizeHintEvent(
                 const std::shared_ptr<IWidget>&,
-                const SizeEvent&);
+                const SizeHintEvent&);
+
+            void _clipEvent();
+            void _clipEvent(
+                const std::shared_ptr<IWidget>&,
+                const math::BBox2i&,
+                bool clipped,
+                const ClipEvent&);
 
             bool _getDrawUpdate();
             bool _getDrawUpdate(const std::shared_ptr<IWidget>&);
             void _drawEvent(const std::shared_ptr<timeline::IRender>&);
             void _drawEvent(
                 const std::shared_ptr<IWidget>&,
-                math::BBox2i clip,
+                const math::BBox2i&,
                 const DrawEvent&);
 
-            void _underCursor(
-                const math::Vector2i&,
-                std::list<std::shared_ptr<IWidget> >&);
-            void _underCursor(
+            std::shared_ptr<IWidget> _getUnderCursor(
+                const math::Vector2i&);
+            std::shared_ptr<IWidget> _getUnderCursor(
                 const std::shared_ptr<IWidget>&,
-                const math::Vector2i&,
-                std::list<std::shared_ptr<IWidget> >&);
+                const math::Vector2i&);
 
             void _setHover(const std::shared_ptr<IWidget>&);
             void _hoverUpdate(MouseMoveEvent&);
+
+            std::shared_ptr<IWidget> _keyFocusNext(const std::shared_ptr<IWidget>&);
+            std::shared_ptr<IWidget> _keyFocusPrev(const std::shared_ptr<IWidget>&);
+            void _getKeyFocus(
+                const std::shared_ptr<IWidget>&,
+                std::list<std::shared_ptr<IWidget> >&);
 
         private:
             TLRENDER_PRIVATE();

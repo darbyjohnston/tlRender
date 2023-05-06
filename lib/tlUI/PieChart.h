@@ -56,8 +56,10 @@ namespace tl
             //! Set the size multiplier.
             void setSizeMult(int);
 
-            void sizeEvent(const SizeEvent&) override;
-            void drawEvent(const DrawEvent&) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
+            void drawEvent(
+                const math::BBox2i&,
+                const DrawEvent&) override;
 
         private:
             TLRENDER_PRIVATE();

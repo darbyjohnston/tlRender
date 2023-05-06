@@ -5,12 +5,13 @@
 #pragma once
 
 #include <tlUI/IWidget.h>
-#include <tlUI/FloatModel.h>
 
 namespace tl
 {
     namespace ui
     {
+        class FloatModel;
+
         //! Floating point number editor.
         class FloatEdit : public IWidget
         {
@@ -18,6 +19,7 @@ namespace tl
 
         protected:
             void _init(
+                const std::shared_ptr<FloatModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -28,14 +30,12 @@ namespace tl
 
             //! Create a new floating point number editor.
             static std::shared_ptr<FloatEdit> create(
+                const std::shared_ptr<FloatModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the floating point model.
             const std::shared_ptr<FloatModel>& getModel() const;
-
-            //! Set the floating point model.
-            void setModel(const std::shared_ptr<FloatModel>&);
 
             //! Set the number of digits to display.
             void setDigits(int);
@@ -46,8 +46,10 @@ namespace tl
             //! Set the font role.
             void setFontRole(FontRole);
 
-            void sizeEvent(const SizeEvent&) override;
-            void drawEvent(const DrawEvent&) override;
+            void setGeometry(const math::BBox2i&) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
+            void keyPressEvent(KeyEvent&) override;
+            void keyReleaseEvent(KeyEvent&) override;
 
         private:
             void _textUpdate();

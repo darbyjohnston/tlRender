@@ -55,22 +55,8 @@ namespace tl
             if (value == _options)
                 return;
             _options = value;
-            _updates |= ui::Update::Size;
-            _updates |= ui::Update::Draw;
-        }
-
-        void ITimelineItem::setViewport(const math::BBox2i& value)
-        {
-            if (value == _viewport)
-                return;
-            _viewport = value;
-            _updates |= ui::Update::Size;
-            _updates |= ui::Update::Draw;
-        }
-
-        bool ITimelineItem::_isInsideViewport() const
-        {
-            return _geometry.intersects(_viewport);
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
         }
 
         std::string ITimelineItem::_durationLabel(

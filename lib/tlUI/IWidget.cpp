@@ -4,6 +4,8 @@
 
 #include <tlUI/IWidget.h>
 
+#include <tlUI/EventLoop.h>
+
 namespace tl
 {
     namespace ui
@@ -33,7 +35,7 @@ namespace tl
         {
             _name = value;
         }
-        
+
         void IWidget::setBackgroundRole(ColorRole value)
         {
             if (value == _backgroundRole)
@@ -81,7 +83,7 @@ namespace tl
             {
                 out = parent;
                 parent = parent->_parent.lock();
-            }            
+            }
             return out;
         }
 
@@ -106,6 +108,21 @@ namespace tl
             _vStretch = value;
             _updates |= Update::Size;
             _updates |= Update::Draw;
+        }
+
+        void IWidget::setStretch(Stretch horizontal, Stretch vertical)
+        {
+            if (horizontal == _hStretch && vertical == _vStretch)
+                return;
+            _hStretch = horizontal;
+            _vStretch = vertical;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
+        }
+
+        void IWidget::setStretch(Stretch value)
+        {
+            setStretch(value, value);
         }
 
         void IWidget::setHAlign(HAlign value)
@@ -140,8 +157,72 @@ namespace tl
             if (value == _visible)
                 return;
             _visible = value;
+            if (!_visible)
+            {
+                releaseFocus();
+            }
             _updates |= Update::Size;
             _updates |= Update::Draw;
+        }
+
+        void IWidget::setEnabled(bool value)
+        {
+            if (value == _enabled)
+                return;
+            _enabled = value;
+            if (!_enabled)
+            {
+                releaseFocus();
+            }
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
+        }
+
+        bool IWidget::hasKeyFocus() const
+        {
+            bool out = false;
+            if (auto topLevel = getTopLevel())
+            {
+                if (auto eventLoop = topLevel->getEventLoop().lock())
+                {
+                    if (auto keyFocus = eventLoop->getKeyFocus().lock())
+                    {
+                        if (keyFocus == shared_from_this())
+                        {
+                            out = true;
+                        }
+                    }
+                }
+            }
+            return out;
+        }
+
+        void IWidget::takeFocus()
+        {
+            if (auto topLevel = getTopLevel())
+            {
+                if (auto eventLoop = topLevel->getEventLoop().lock())
+                {
+                    eventLoop->setKeyFocus(shared_from_this());
+                }
+            }
+        }
+
+        void IWidget::releaseFocus()
+        {
+            if (auto topLevel = getTopLevel())
+            {
+                if (auto eventLoop = topLevel->getEventLoop().lock())
+                {
+                    if (auto keyFocus = eventLoop->getKeyFocus().lock())
+                    {
+                        if (keyFocus == shared_from_this())
+                        {
+                            eventLoop->setKeyFocus(nullptr);
+                        }
+                    }
+                }
+            }
         }
 
         void IWidget::childAddedEvent(const ChildEvent&)
@@ -153,12 +234,26 @@ namespace tl
         void IWidget::tickEvent(const TickEvent&)
         {}
 
-        void IWidget::sizeEvent(const SizeEvent&)
+        void IWidget::sizeHintEvent(const SizeHintEvent&)
         {
             _updates &= ~static_cast<int>(Update::Size);
         }
 
-        void IWidget::drawEvent(const DrawEvent& event)
+        void IWidget::clipEvent(
+            const math::BBox2i&,
+            bool clipped,
+            const ClipEvent& event)
+        {
+            if (clipped && clipped != _clipped)
+            {
+                releaseFocus();
+            }
+            _clipped = clipped;
+        }
+
+        void IWidget::drawEvent(
+            const math::BBox2i&,
+            const DrawEvent& event)
         {
             _updates &= ~static_cast<int>(Update::Draw);
             if (_backgroundRole != ColorRole::None)
@@ -175,7 +270,7 @@ namespace tl
         void IWidget::leaveEvent()
         {}
 
-        void IWidget::mouseMoveEvent(MouseMoveEvent&)
+        void IWidget::mouseMoveEvent(MouseMoveEvent& event)
         {}
 
         void IWidget::mousePressEvent(MouseClickEvent&)
@@ -188,6 +283,9 @@ namespace tl
         {}
 
         void IWidget::keyReleaseEvent(KeyEvent&)
+        {}
+
+        void IWidget::textEvent(TextEvent&)
         {}
     }
 }

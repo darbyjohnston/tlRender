@@ -16,6 +16,7 @@ namespace tl
             {
                 int margin = 0;
                 int spacing = 0;
+                int border = 0;
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
             };
@@ -52,93 +53,184 @@ namespace tl
             return out;
         }
 
-        void ListButton::sizeEvent(const SizeEvent& event)
+        void ListButton::setText(const std::string& value)
         {
-            IButton::sizeEvent(event);
+            const bool changed = value != _text;
+            IButton::setText(value);
+            TLRENDER_P();
+            if (changed)
+            {
+                p.draw.glyphs.clear();
+            }
+        }
+
+        void ListButton::setFontRole(FontRole value)
+        {
+            const bool changed = value != _fontRole;
+            IButton::setFontRole(value);
+            TLRENDER_P();
+            if (changed)
+            {
+                p.draw.glyphs.clear();
+            }
+        }
+
+        bool ListButton::acceptsKeyFocus() const
+        {
+            return true;
+        }
+
+        void ListButton::sizeHintEvent(const SizeHintEvent& event)
+        {
+            IButton::sizeHintEvent(event);
             TLRENDER_P();
             
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall) * event.contentScale;
-            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall) * event.contentScale;
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
+            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
+            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
 
             _sizeHint = math::Vector2i();
-            p.draw.glyphs.clear();
             if (!_text.empty())
             {
                 p.size.fontMetrics = event.getFontMetrics(_fontRole);
-                const auto fontInfo = event.getFontInfo(_fontRole);
-                p.size.textSize = event.fontSystem->measure(_text, fontInfo);
-                p.draw.glyphs = event.fontSystem->getGlyphs(_text, fontInfo);
+                const auto fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
+                p.size.textSize = event.fontSystem->getSize(_text, fontInfo);
 
-                _sizeHint.x = event.fontSystem->measure(_text, fontInfo).x;
+                _sizeHint.x = p.size.textSize.x;
                 _sizeHint.y = p.size.fontMetrics.lineHeight;
             }
             if (_iconImage)
             {
                 _sizeHint.x += _iconImage->getWidth();
-                _sizeHint.y = std::max(
-                    _sizeHint.y,
-                    static_cast<int>(_iconImage->getHeight()));
-
                 if (!_text.empty())
                 {
                     _sizeHint.x += p.size.spacing;
                 }
+                _sizeHint.y = std::max(
+                    _sizeHint.y,
+                    static_cast<int>(_iconImage->getHeight()));
             }
-            _sizeHint.x += p.size.margin * 2;
-            _sizeHint.y += p.size.margin * 2;
+            _sizeHint.x +=
+                p.size.margin * 2 +
+                p.size.border * 4;
+            _sizeHint.y +=
+                p.size.margin * 2 +
+                p.size.border * 4;
         }
 
-        void ListButton::drawEvent(const DrawEvent& event)
+        void ListButton::clipEvent(
+            const math::BBox2i& clipRect,
+            bool clipped,
+            const ClipEvent& event)
         {
-            IButton::drawEvent(event);
+            IWidget::clipEvent(clipRect, clipped, event);
+            TLRENDER_P();
+            if (clipped)
+            {
+                p.draw.glyphs.clear();
+            }
+        }
+
+        void ListButton::drawEvent(
+            const math::BBox2i& drawRect,
+            const DrawEvent& event)
+        {
+            IButton::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::BBox2i g = _geometry;
+            const math::BBox2i& g = _geometry;
 
+            if (event.focusWidget == shared_from_this())
+            {
+                event.render->drawMesh(
+                    border(g, p.size.border * 2),
+                    math::Vector2i(),
+                    event.style->getColorRole(ColorRole::KeyFocus));
+            }
+
+            const math::BBox2i g2 = g.margin(-p.size.border * 2);
             const ColorRole colorRole = _checked ?
                 ColorRole::Checked :
                 _buttonRole;
             if (colorRole != ColorRole::None)
             {
                 event.render->drawRect(
-                    g,
+                    g2,
                     event.style->getColorRole(colorRole));
             }
 
             if (_pressed && _geometry.contains(_cursorPos))
             {
                 event.render->drawRect(
-                    g,
+                    g2,
                     event.style->getColorRole(ColorRole::Pressed));
             }
             else if (_inside)
             {
                 event.render->drawRect(
-                    g,
+                    g2,
                     event.style->getColorRole(ColorRole::Hover));
             }
 
-            int x = g.x() + p.size.margin;
+            int x = g2.x() + p.size.margin;
             if (_iconImage)
             {
                 const auto iconSize = _iconImage->getSize();
                 event.render->drawImage(
                   _iconImage,
-                  math::BBox2i(x, g.y() + p.size.margin, iconSize.w, iconSize.h));
+                  math::BBox2i(
+                      x,
+                      g2.y() + g2.h() / 2 - iconSize.h / 2,
+                      iconSize.w,
+                      iconSize.h),
+                    event.style->getColorRole(_enabled ?
+                        ColorRole::Text :
+                        ColorRole::TextDisabled));
                 x += iconSize.w + p.size.spacing;
             }
             
             if (!_text.empty())
             {
-                math::Vector2i pos(
+                if (p.draw.glyphs.empty())
+                {
+                    const auto fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
+                    p.draw.glyphs = event.fontSystem->getGlyphs(_text, fontInfo);
+                }
+                const math::Vector2i pos(
                     x,
-                    g.y() + g.h() / 2 - p.size.textSize.y / 2 +
+                    g2.y() + g2.h() / 2 - p.size.textSize.y / 2 +
                     p.size.fontMetrics.ascender);
                 event.render->drawText(
                     p.draw.glyphs,
                     pos,
-                    event.style->getColorRole(ColorRole::Text));
+                    event.style->getColorRole(_enabled ?
+                        ColorRole::Text :
+                        ColorRole::TextDisabled));
             }
+        }
+
+        void ListButton::keyPressEvent(KeyEvent& event)
+        {
+            switch (event.key)
+            {
+            case Key::Space:
+            case Key::Enter:
+                event.accept = true;
+                _click();
+                break;
+            case Key::Escape:
+                if (hasKeyFocus())
+                {
+                    event.accept = true;
+                    releaseFocus();
+                }
+                break;
+            }
+        }
+
+        void ListButton::keyReleaseEvent(KeyEvent& event)
+        {
+            event.accept = true;
         }
     }
 }

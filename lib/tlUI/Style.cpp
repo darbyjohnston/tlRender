@@ -36,10 +36,12 @@ namespace tl
             "Base",
             "Button",
             "Text",
+            "TextDisabled",
             "Border",
             "Hover",
             "Pressed",
             "Checked",
+            "KeyFocus",
             "Red",
             "Green",
             "Blue",
@@ -81,15 +83,18 @@ namespace tl
             p.sizeRoles[SizeRole::Border] = 1;
             p.sizeRoles[SizeRole::ScrollArea] = 200;
             p.sizeRoles[SizeRole::Handle] = 10;
+            p.sizeRoles[SizeRole::HandleSmall] = 6;
 
             p.colorRoles[ColorRole::Window] = imaging::Color4f(.2F, .2F, .2F);
             p.colorRoles[ColorRole::Base] = imaging::Color4f(.17F, .17F, .17F);
             p.colorRoles[ColorRole::Button] = imaging::Color4f(.3F, .3F, .3F);
             p.colorRoles[ColorRole::Text] = imaging::Color4f(1.F, 1.F, 1.F);
+            p.colorRoles[ColorRole::TextDisabled] = imaging::Color4f(.5F, .5F, .5F);
             p.colorRoles[ColorRole::Border] = imaging::Color4f(.13F, .13F, .13F);
             p.colorRoles[ColorRole::Hover] = imaging::Color4f(1.F, 1.F, 1.F, .1F);
             p.colorRoles[ColorRole::Pressed] = imaging::Color4f(1.F, 1.F, 1.F, .2F);
             p.colorRoles[ColorRole::Checked] = imaging::Color4f(.6F, .4F, .2F);
+            p.colorRoles[ColorRole::KeyFocus] = imaging::Color4f(.6F, .6F, .4F);
             p.colorRoles[ColorRole::Red] = imaging::Color4f(.6F, .3F, .3F);
             p.colorRoles[ColorRole::Green] = imaging::Color4f(.3F, .6F, .3F);
             p.colorRoles[ColorRole::Blue] = imaging::Color4f(.3F, .3F, .6F);
@@ -97,9 +102,9 @@ namespace tl
             p.colorRoles[ColorRole::Magenta] = imaging::Color4f(.6F, .3F, .6F);
             p.colorRoles[ColorRole::Yellow] = imaging::Color4f(.6F, .6F, .3F);
 
-            p.fontRoles[FontRole::Label] = imaging::FontInfo("NotoSans-Regular", 12);
-            p.fontRoles[FontRole::Mono] = imaging::FontInfo("NotoMono-Regular", 12);
-            p.fontRoles[FontRole::Title] = imaging::FontInfo("NotoSans-Regular", 24);
+            p.fontRoles[FontRole::Label] = imaging::FontInfo("NotoSans-Regular", 12 * 1);
+            p.fontRoles[FontRole::Mono] = imaging::FontInfo("NotoMono-Regular", 12 * 1);
+            p.fontRoles[FontRole::Title] = imaging::FontInfo("NotoSans-Regular", 24 * 1);
         }
 
         Style::Style() :
@@ -117,11 +122,11 @@ namespace tl
             return out;
         }
 
-        int Style::getSizeRole(SizeRole value) const
+        int Style::getSizeRole(SizeRole value, float scale) const
         {
             TLRENDER_P();
             const auto i = p.sizeRoles.find(value);
-            return i != p.sizeRoles.end() ? i->second : 0;
+            return (i != p.sizeRoles.end() ? i->second : 0) * scale;
         }
 
         imaging::Color4f Style::getColorRole(ColorRole value) const
@@ -131,11 +136,17 @@ namespace tl
             return i != p.colorRoles.end() ? i->second : imaging::Color4f();
         }
 
-        imaging::FontInfo Style::getFontRole(FontRole value) const
+        imaging::FontInfo Style::getFontRole(FontRole value, float scale) const
         {
             TLRENDER_P();
+            imaging::FontInfo out;
             const auto i = p.fontRoles.find(value);
-            return i != p.fontRoles.end() ? i->second : imaging::FontInfo();
+            if (i != p.fontRoles.end())
+            {
+                out = i->second;
+            }
+            out.size *= scale;
+            return out;
         }
     }
 }
