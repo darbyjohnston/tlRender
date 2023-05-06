@@ -22,9 +22,11 @@ namespace tl
         file::Path Timeline::Private::getPath(const otio::MediaReference* ref) const
         {
             std::string url;
+            file::PathOptions pathOptions = options.pathOptions;
             if (auto externalRef = dynamic_cast<const otio::ExternalReference*>(ref))
             {
                 url = externalRef->target_url();
+                pathOptions.maxNumberDigits = 0;
             }
             else if (auto imageSequenceRef = dynamic_cast<const otio::ImageSequenceReference*>(ref))
             {
@@ -52,7 +54,7 @@ namespace tl
             {
                 url = sharedMemorySequenceRef->target_url();
             }
-            return timeline::getPath(url, path.getDirectory(), options.pathOptions);
+            return timeline::getPath(url, path.getDirectory(), pathOptions);
         }
 
         std::vector<file::MemoryRead> Timeline::Private::getMemoryRead(const otio::MediaReference* ref)
@@ -558,8 +560,8 @@ namespace tl
             ReadCacheItem item = getRead(clip, options.ioOptions);
             if (item.read)
             {
-                const auto clipTime = track->transformed_time(time, clip);
-                const auto readTime = time::round(clipTime.rescaled_to(item.ioInfo.videoTime.duration().rate()));
+                const otime::RationalTime clipTime = track->transformed_time(time, clip);
+                const otime::RationalTime readTime = time::round(clipTime.rescaled_to(item.ioInfo.videoTime.duration().rate()));
                 out = item.read->readVideo(readTime, videoLayer);
             }
             return out;
@@ -574,8 +576,8 @@ namespace tl
             ReadCacheItem item = getRead(clip, options.ioOptions);
             if (item.read)
             {
-                const auto clipRange = track->transformed_time_range(timeRange, clip);
-                const auto readRange = otime::TimeRange(
+                const otime::TimeRange clipRange = track->transformed_time_range(timeRange, clip);
+                const otime::TimeRange readRange(
                     time::floor(clipRange.start_time().rescaled_to(ioInfo.audio.sampleRate)),
                     time::ceil(clipRange.duration().rescaled_to(ioInfo.audio.sampleRate)));
                 out = item.read->readAudio(readRange);

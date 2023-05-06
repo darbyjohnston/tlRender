@@ -24,6 +24,7 @@ namespace tl
             int types,
             const std::shared_ptr<system::Context>&);
 
+        //! Get a media reference path.
         file::Path getPath(
             const std::string& url,
             const std::string& directory,
