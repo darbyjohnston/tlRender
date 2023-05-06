@@ -201,7 +201,7 @@ namespace tl
         {
             TLRENDER_P();
             MouseMoveEvent event;
-            event.pos = pos * p.displayScale;
+            event.pos = pos;// * p.displayScale;
             event.prev = p.cursorPos;
             if (auto widget = p.mousePress.lock())
             {
