@@ -513,7 +513,7 @@ namespace tl
         {
             ReadCacheItem out;
             const auto path = getPath(clip->media_reference());
-            if (!readCache->get(path.get(), out))
+            if (!readCache->get(path, out))
             {
                 if (auto context = this->context.lock())
                 {
