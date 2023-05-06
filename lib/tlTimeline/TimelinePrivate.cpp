@@ -430,7 +430,7 @@ namespace tl
                 clip->media_reference(),
                 this->path.getDirectory(),
                 options.pathOptions);
-            if (!readCache->get(path.get(), out))
+            if (!readCache->get(path, out))
             {
                 if (auto context = this->context.lock())
                 {
@@ -480,7 +480,7 @@ namespace tl
             ReadCacheItem item = getRead(clip, options.ioOptions);
             if (item.read)
             {
-                const auto mediaTime = timeline::mediaTime(time, track, clip, item.ioInfo.videoTime.duration().rate());
+                const auto mediaTime = timeline::mediaTime(time, track, clip, ioInfo);
                 out = item.read->readVideo(mediaTime, videoLayer);
             }
             return out;
@@ -495,10 +495,7 @@ namespace tl
             ReadCacheItem item = getRead(clip, options.ioOptions);
             if (item.read)
             {
-                const auto clipRange = track->transformed_time_range(timeRange, clip);
-                const auto mediaRange = otime::TimeRange(
-                    time::floor(clipRange.start_time().rescaled_to(ioInfo.audio.sampleRate)),
-                    time::ceil(clipRange.duration().rescaled_to(ioInfo.audio.sampleRate)));
+                const auto mediaRange = timeline::mediaTimeRange(timeRange, track, clip, ioInfo);
                 out = item.read->readAudio(mediaRange);
             }
             return out;
