@@ -560,7 +560,19 @@ namespace tl
             ReadCacheItem item = getRead(clip, options.ioOptions);
             if (item.read)
             {
-                const otime::RationalTime clipTime = track->transformed_time(time, clip);
+                otime::RationalTime clipTime = track->transformed_time(time, clip);
+                if (auto externalReference = dynamic_cast<const otio::ExternalReference*>(clip->media_reference()))
+                {
+                    // If the available range start time is greater than the
+                    // video end time we assume the media is missing timecode
+                    // and adjust accordingly.
+                    const auto availableRangeOpt = externalReference->available_range();
+                    if (availableRangeOpt.has_value() &&
+                        availableRangeOpt->start_time() > item.ioInfo.videoTime.end_time_inclusive())
+                    {
+                        clipTime -= availableRangeOpt->start_time();
+                    }
+                }
                 const otime::RationalTime readTime = time::round(clipTime.rescaled_to(item.ioInfo.videoTime.duration().rate()));
                 out = item.read->readVideo(readTime, videoLayer);
             }
@@ -576,7 +588,21 @@ namespace tl
             ReadCacheItem item = getRead(clip, options.ioOptions);
             if (item.read)
             {
-                const otime::TimeRange clipRange = track->transformed_time_range(timeRange, clip);
+                otime::TimeRange clipRange = track->transformed_time_range(timeRange, clip);
+                if (auto externalReference = dynamic_cast<const otio::ExternalReference*>(clip->media_reference()))
+                {
+                    // If the available range start time is greater than the
+                    // video end time we assume the media is missing timecode
+                    // and adjust accordingly.
+                    const auto availableRangeOpt = externalReference->available_range();
+                    if (availableRangeOpt.has_value() &&
+                        availableRangeOpt->start_time() > item.ioInfo.videoTime.end_time_inclusive())
+                    {
+                        clipRange = otime::TimeRange(
+                            clipRange.start_time() - availableRangeOpt->start_time(),
+                            clipRange.duration());
+                    }
+                }
                 const otime::TimeRange readRange(
                     time::floor(clipRange.start_time().rescaled_to(ioInfo.audio.sampleRate)),
                     time::ceil(clipRange.duration().rescaled_to(ioInfo.audio.sampleRate)));
