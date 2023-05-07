@@ -482,7 +482,7 @@ namespace tl
                             const auto j = p.audioDataFutures.find(time);
                             if (j == p.audioDataFutures.end())
                             {
-                                const otime::TimeRange mediaRange = timeline::mediaTimeRange(
+                                const otime::TimeRange mediaRange = timeline::toAudioMediaTime(
                                     otime::TimeRange(time, otime::RationalTime(time.rate(), time.rate())),
                                     p.track,
                                     p.clip,

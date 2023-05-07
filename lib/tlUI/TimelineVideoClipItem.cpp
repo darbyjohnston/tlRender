@@ -423,7 +423,7 @@ namespace tl
                             const auto k = p.videoDataFutures.find(time);
                             if (k == p.videoDataFutures.end())
                             {
-                                const auto mediaTime = timeline::mediaTime(
+                                const auto mediaTime = timeline::toVideoMediaTime(
                                     time,
                                     p.track,
                                     p.clip,

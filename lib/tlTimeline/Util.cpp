@@ -380,7 +380,7 @@ namespace tl
             return out;
         }
 
-        otime::RationalTime mediaTime(
+        otime::RationalTime toVideoMediaTime(
             const otime::RationalTime& time,
             const otio::Track* track,
             const otio::Clip* clip,
@@ -405,7 +405,7 @@ namespace tl
             return mediaTime;
         }
 
-        otime::TimeRange mediaTimeRange(
+        otime::TimeRange toAudioMediaTime(
             const otime::TimeRange& timeRange,
             const otio::Track* track,
             const otio::Clip* clip,
@@ -419,8 +419,8 @@ namespace tl
                 // and adjust accordingly.
                 const auto availableRangeOpt = externalReference->available_range();
                 if (availableRangeOpt.has_value() &&
-                    availableRangeOpt->start_time() > ioInfo.videoTime.end_time_inclusive())
-                {
+                    availableRangeOpt->start_time() > ioInfo.audioTime.end_time_inclusive())
+                { 
                     clipRange = otime::TimeRange(
                         clipRange.start_time() - availableRangeOpt->start_time(),
                         clipRange.duration());
