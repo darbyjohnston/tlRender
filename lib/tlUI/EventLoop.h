@@ -67,6 +67,9 @@ namespace tl
             //! Handle mouse button presses.
             void mouseButton(int button, bool press, int modifiers);
 
+            //! Handle scrolling (mouse wheel or touch pad).
+            void scroll(float dx, float dy);
+
             //! Tick the event loop.
             void tick();
 

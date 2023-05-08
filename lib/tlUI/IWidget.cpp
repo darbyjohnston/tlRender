@@ -279,6 +279,9 @@ namespace tl
         void IWidget::mouseReleaseEvent(MouseClickEvent&)
         {}
 
+        void IWidget::scrollEvent(ScrollEvent&)
+        {}
+
         void IWidget::keyPressEvent(KeyEvent&)
         {}
 

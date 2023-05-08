@@ -173,6 +173,7 @@ namespace tl
             glfwSetCursorEnterCallback(p.glfwWindow, _cursorEnterCallback);
             glfwSetCursorPosCallback(p.glfwWindow, _cursorPosCallback);
             glfwSetMouseButtonCallback(p.glfwWindow, _mouseButtonCallback);
+            glfwSetScrollCallback(p.glfwWindow, _scrollCallback);
             glfwSetKeyCallback(p.glfwWindow, _keyCallback);
             glfwSetCharCallback(p.glfwWindow, _charCallback);
             glfwShowWindow(p.glfwWindow);
@@ -369,6 +370,12 @@ namespace tl
                 modifiers |= static_cast<int>(ui::KeyModifier::Alt);
             }
             app->_p->eventLoop->mouseButton(button, GLFW_PRESS == action, modifiers);
+        }
+
+        void IApp::_scrollCallback(GLFWwindow* glfwWindow, double dx, double dy)
+        {
+            IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
+            app->_p->eventLoop->scroll(dx, dy);
         }
 
         namespace

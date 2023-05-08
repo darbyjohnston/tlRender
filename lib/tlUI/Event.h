@@ -78,6 +78,15 @@ namespace tl
             bool accept = false;
         };
 
+        //! Scroll event (mouse wheel or touch pad).
+        struct ScrollEvent
+        {
+            math::Vector2i pos;
+            float dx = 0.F;
+            float dy = 0.F;
+            bool accept = false;
+        };
+
         //! Keyboard modifiers.
         enum class KeyModifier
         {

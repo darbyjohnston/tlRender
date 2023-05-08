@@ -41,7 +41,10 @@ namespace tl
                 float,
                 const tl::math::Vector2i& focus);
 
-            //! Set whether the view is framed.
+            //! Frame the view.
+            void frameView();
+
+            //! Set whether the view is framed automatically.
             void setFrameView(bool);
 
             //! Set the frame view callback.
@@ -54,7 +57,7 @@ namespace tl
             void setMouseWheelScale(float);
 
             //! Get the item options.
-            const TimelineItemOptions& itemOptions() const;
+            const TimelineItemOptions& getItemOptions() const;
 
             //! Set the item options.
             void setItemOptions(const TimelineItemOptions&);
@@ -70,12 +73,11 @@ namespace tl
             void mouseMoveEvent(MouseMoveEvent&) override;
             void mousePressEvent(MouseClickEvent&) override;
             void mouseReleaseEvent(MouseClickEvent&) override;
+            void scrollEvent(ScrollEvent&) override;
             void keyPressEvent(KeyEvent&) override;
             void keyReleaseEvent(KeyEvent&) override;
 
         private:
-            void _frameView();
-
             void _setViewZoom(
                 float zoomNew,
                 float zoomPrev,
@@ -83,6 +85,7 @@ namespace tl
                 const math::Vector2i& scrollPos);
 
             float _getTimelineScale() const;
+
             void _setItemOptions(
                 const std::shared_ptr<IWidget>&,
                 const TimelineItemOptions&);

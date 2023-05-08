@@ -45,7 +45,7 @@ namespace tl
             const math::Vector2i& getScrollPos() const;
 
             //! Set the scroll position.
-            void setScrollPos(const math::Vector2i&);
+            void setScrollPos(const math::Vector2i&, bool clamp = true);
 
             //! Set the scroll position callback.
             void setScrollPosCallback(const std::function<void(const math::Vector2i&)>&);

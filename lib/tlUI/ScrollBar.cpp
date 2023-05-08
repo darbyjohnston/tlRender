@@ -110,23 +110,6 @@ namespace tl
             }
         }
 
-        void ScrollBar::setGeometry(const math::BBox2i& value)
-        {
-            IWidget::setGeometry(value);
-            TLRENDER_P();
-            const int scrollPosMax = _getScrollPosMax();
-            const int scrollPosClamped = math::clamp(p.scrollPos, 0, scrollPosMax);
-            if (scrollPosClamped != p.scrollPos)
-            {
-                p.scrollPos = scrollPosClamped;
-                _updates |= Update::Draw;
-                if (p.scrollPosCallback)
-                {
-                    p.scrollPosCallback(p.scrollPos);
-                }
-            }
-        }
-
         void ScrollBar::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);

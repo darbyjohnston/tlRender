@@ -164,9 +164,9 @@ namespace tl
             return _p->scrollArea->getScrollPos();
         }
 
-        void ScrollWidget::setScrollPos(const math::Vector2i& value)
+        void ScrollWidget::setScrollPos(const math::Vector2i& value, bool clamp)
         {
-            _p->scrollArea->setScrollPos(value);
+            _p->scrollArea->setScrollPos(value, clamp);
         }
         
         void ScrollWidget::setScrollPosCallback(const std::function<void(const math::Vector2i&)>& value)

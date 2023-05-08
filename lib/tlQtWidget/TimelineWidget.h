@@ -34,14 +34,6 @@ namespace tl
             const ui::TimelineItemOptions& itemOptions() const;
 
         public Q_SLOTS:
-            //! Set the view zoom.
-            void setViewZoom(float);
-
-            //! Set the view zoom.
-            void setViewZoom(
-                float,
-                const tl::math::Vector2i& focus);
-
             //! Set whether the to frame the view.
             void setFrameView(bool);
 
@@ -79,19 +71,6 @@ namespace tl
             void timerEvent(QTimerEvent*) override;
 
         private:
-            void _frameView();
-
-            void _setViewZoom(
-                float zoomNew,
-                float zoomPrev,
-                const math::Vector2i& focus,
-                const math::Vector2i& scrollPos);
-
-            float _timelineScale() const;
-            void _setItemOptions(
-                const std::shared_ptr<ui::IWidget>&,
-                const ui::TimelineItemOptions&);
-
             int _toUI(int) const;
             math::Vector2i _toUI(const math::Vector2i&) const;
             int _fromUI(int) const;

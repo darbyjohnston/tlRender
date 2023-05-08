@@ -200,6 +200,9 @@ namespace tl
             //! Mouse release event.
             virtual void mouseReleaseEvent(MouseClickEvent&);
 
+            //! Scroll event.
+            virtual void scrollEvent(ScrollEvent&);
+
             //! Key press event.
             virtual void keyPressEvent(KeyEvent&);
 

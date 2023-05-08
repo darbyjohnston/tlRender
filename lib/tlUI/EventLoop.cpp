@@ -250,6 +250,25 @@ namespace tl
             }
         }
 
+        void EventLoop::scroll(float dx, float dy)
+        {
+            TLRENDER_P();
+            ScrollEvent event;
+            event.pos = p.cursorPos;
+            event.dx = dx;
+            event.dy = dy;
+            auto widget = _getUnderCursor(p.cursorPos);
+            while (widget)
+            {
+                widget->scrollEvent(event);
+                if (event.accept)
+                {
+                    break;
+                }
+                widget = widget->getParent().lock();
+            }
+        }
+
         void EventLoop::tick()
         {
             TLRENDER_P();
