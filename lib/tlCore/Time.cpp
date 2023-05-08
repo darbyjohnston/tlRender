@@ -248,8 +248,8 @@ namespace opentime
 
         std::ostream& operator << (std::ostream& os, const TimeRange& value)
         {
-            os << std::fixed << value.start_time().value() << "-" <<
-                value.end_time_inclusive().value() << "/" <<
+            os << std::fixed << value.start_time().value() << "/" <<
+                value.duration().value() << "/" <<
                 value.duration().rate();
             return os;
         }
@@ -271,8 +271,8 @@ namespace opentime
         {
             std::string s;
             is >> s;
-            auto split = tl::string::split(s, '-');
-            if (split.size() != 2)
+            auto split = tl::string::split(s, '/');
+            if (split.size() != 3)
             {
                 throw tl::error::ParseError();
             }
@@ -281,24 +281,19 @@ namespace opentime
                 std::stringstream ss(split[0]);
                 ss >> startTime;
             }
-            split = tl::string::split(split[1], '/');
-            if (split.size() != 2)
+            double duration = 0.0;
             {
-                throw tl::error::ParseError();
-            }
-            double endTime = 0.0;
-            {
-                std::stringstream ss(split[0]);
-                ss >> endTime;
+                std::stringstream ss(split[1]);
+                ss >> duration;
             }
             double rate = 0.0;
             {
-                std::stringstream ss(split[1]);
+                std::stringstream ss(split[2]);
                 ss >> rate;
             }
-            out = TimeRange::range_from_start_end_time_inclusive(
+            out = TimeRange(
                 RationalTime(startTime, rate),
-                RationalTime(endTime, rate));
+                RationalTime(duration, rate));
             return is;
         }
     }
