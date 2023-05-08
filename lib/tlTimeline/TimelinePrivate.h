@@ -45,6 +45,10 @@ namespace tl
                 const otio::Clip*,
                 const otime::TimeRange&);
 
+            static std::shared_ptr<audio::Audio> padToOneSecond(
+                const std::shared_ptr<audio::Audio>&,
+                const otime::TimeRange&);
+
             std::weak_ptr<system::Context> context;
             otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
             file::Path path;
@@ -81,9 +85,8 @@ namespace tl
                 AudioLayerData() {};
                 AudioLayerData(AudioLayerData&&) = default;
 
+                otime::TimeRange timeRange = time::invalidTimeRange;
                 std::future<io::AudioData> audio;
-                std::future<io::AudioData> audioB;
-                float transitionValue = 0.F;
             };
             struct AudioRequest
             {
