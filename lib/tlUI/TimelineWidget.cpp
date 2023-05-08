@@ -16,7 +16,7 @@ namespace tl
             bool frameView = true;
             std::function<void(bool)> frameViewCallback;
             bool stopOnScrub = true;
-            float mouseWheelScale = 20.F;
+            float mouseWheelScale = 1.1F;
             TimelineItemOptions itemOptions;
 
             std::shared_ptr<ScrollWidget> scrollWidget;
@@ -32,15 +32,13 @@ namespace tl
             enum class MouseMode
             {
                 None,
-                Scroll,
-                Scale
+                Scroll
             };
             struct MouseData
             {
                 math::Vector2i pressPos;
                 MouseMode mode = MouseMode::None;
                 math::Vector2i scrollPos;
-                float scale = 1.F;
                 std::chrono::steady_clock::time_point wheelTimer;
             };
             MouseData mouse;
@@ -273,16 +271,6 @@ namespace tl
                 setFrameView(false);
                 break;
             }
-            case Private::MouseMode::Scale:
-            {
-                const float zoom = p.mouse.scale + (event.pos.x - p.mouse.pressPos.x) * 10.F;
-                _setViewZoom(
-                    zoom,
-                    p.mouse.scale,
-                    p.mouse.pressPos,
-                    p.mouse.scrollPos);
-                break;
-            }
             }
         }
 
@@ -295,10 +283,6 @@ namespace tl
             {
                 p.mouse.mode = Private::MouseMode::Scroll;
             }
-            else if (event.modifiers & static_cast<int>(KeyModifier::Alt))
-            {
-                p.mouse.mode = Private::MouseMode::Scale;
-            }
             else
             {
                 p.mouse.mode = Private::MouseMode::None;
@@ -306,10 +290,8 @@ namespace tl
             switch (p.mouse.mode)
             {
             case Private::MouseMode::Scroll:
-            case Private::MouseMode::Scale:
             {
                 p.mouse.scrollPos = p.scrollWidget->getScrollPos();
-                p.mouse.scale = p.itemOptions.scale;
                 break;
             }
             }
@@ -328,11 +310,13 @@ namespace tl
             event.accept = true;
             if (event.dy > 0)
             {
-                setViewZoom(p.itemOptions.scale * 2.F, event.pos);
+                const float zoom = p.itemOptions.scale * p.mouseWheelScale;
+                setViewZoom(zoom, event.pos);
             }
             else
             {
-                setViewZoom(p.itemOptions.scale / 2.F, event.pos);
+                const float zoom = p.itemOptions.scale / p.mouseWheelScale;
+                setViewZoom(zoom, event.pos);
             }
         }
 
