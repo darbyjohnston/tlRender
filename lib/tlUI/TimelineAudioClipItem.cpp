@@ -9,8 +9,6 @@
 #include <tlTimeline/RenderUtil.h>
 #include <tlTimeline/Util.h>
 
-#include <tlIO/IOSystem.h>
-
 #include <tlCore/AudioConvert.h>
 #include <tlCore/Mesh.h>
 
@@ -437,7 +435,7 @@ namespace tl
                 if (p.ioInfoInit)
                 {
                     p.ioInfoInit = false;
-                    p.ioInfo = _data.ioManager->getInfo(p.path).get();
+                    p.ioInfo = _data.ioManager->getInfo(p.path, p.memoryRead).get();
                     _updates |= Update::Size;
                     _updates |= Update::Draw;
                 }
@@ -487,7 +485,10 @@ namespace tl
                                     p.track,
                                     p.clip,
                                     p.ioInfo);
-                                p.audioDataFutures[time].future = _data.ioManager->readAudio(p.path, mediaRange);
+                                p.audioDataFutures[time].future = _data.ioManager->readAudio(
+                                    p.path,
+                                    p.memoryRead,
+                                    mediaRange);
                                 p.audioDataFutures[time].size = bbox.getSize();
                             }
                         }

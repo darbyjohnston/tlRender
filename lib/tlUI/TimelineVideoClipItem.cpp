@@ -11,8 +11,6 @@
 #include <tlTimeline/RenderUtil.h>
 #include <tlTimeline/Util.h>
 
-#include <tlIO/IOSystem.h>
-
 #include <opentimelineio/track.h>
 
 #include <sstream>
@@ -342,7 +340,7 @@ namespace tl
                 if (p.ioInfoInit)
                 {
                     p.ioInfoInit = false;
-                    p.ioInfo = _data.ioManager->getInfo(p.path).get();
+                    p.ioInfo = _data.ioManager->getInfo(p.path, p.memoryRead).get();
                     _updates |= Update::Size;
                     _updates |= Update::Draw;
                 }
@@ -428,7 +426,10 @@ namespace tl
                                     p.track,
                                     p.clip,
                                     p.ioInfo);
-                                p.videoDataFutures[time] = _data.ioManager->readVideo(p.path, mediaTime);
+                                p.videoDataFutures[time] = _data.ioManager->readVideo(
+                                    p.path,
+                                    p.memoryRead,
+                                    mediaTime);
                             }
                         }
                     }

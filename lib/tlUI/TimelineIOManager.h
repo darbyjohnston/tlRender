@@ -32,17 +32,21 @@ namespace tl
                 const std::shared_ptr<system::Context>&);
 
             //! Get information.
-            std::future<io::Info> getInfo(const file::Path&);
+            std::future<io::Info> getInfo(
+                const file::Path&,
+                const std::vector<file::MemoryRead>&);
 
             //! Read video data.
             std::future<io::VideoData> readVideo(
                 const file::Path&,
+                const std::vector<file::MemoryRead>&,
                 const otime::RationalTime&,
                 uint16_t layer = 0);
 
             //! Read audio data.
             std::future<io::AudioData> readAudio(
                 const file::Path&,
+                const std::vector<file::MemoryRead>&,
                 const otime::TimeRange&);
 
             //! Cancel pending requests.

@@ -59,7 +59,9 @@ namespace tl
             return out;
         }
 
-        std::future<io::Info> TimelineIOManager::getInfo(const file::Path& path)
+        std::future<io::Info> TimelineIOManager::getInfo(
+            const file::Path& path,
+            const std::vector<file::MemoryRead>& memoryRead)
         {
             TLRENDER_P();
             std::future<io::Info> out;
@@ -70,7 +72,7 @@ namespace tl
                 if (auto context = p.context.lock())
                 {
                     auto ioSystem = context->getSystem<io::System>();
-                    read = ioSystem->read(path, p.ioOptions);
+                    read = ioSystem->read(path, memoryRead, p.ioOptions);
                     p.cache.add(fileName, read);
                 }
             }
@@ -89,6 +91,7 @@ namespace tl
 
         std::future<io::VideoData> TimelineIOManager::readVideo(
             const file::Path& path,
+            const std::vector<file::MemoryRead>& memoryRead,
             const otime::RationalTime& time,
             uint16_t layer)
         {
@@ -101,7 +104,7 @@ namespace tl
                 if (auto context = p.context.lock())
                 {
                     auto ioSystem = context->getSystem<io::System>();
-                    read = ioSystem->read(path, p.ioOptions);
+                    read = ioSystem->read(path, memoryRead, p.ioOptions);
                     p.cache.add(fileName, read);
                 }
             }
@@ -120,6 +123,7 @@ namespace tl
 
         std::future<io::AudioData> TimelineIOManager::readAudio(
             const file::Path& path,
+            const std::vector<file::MemoryRead>& memoryRead,
             const otime::TimeRange& range)
         {
             TLRENDER_P();
@@ -131,7 +135,7 @@ namespace tl
                 if (auto context = p.context.lock())
                 {
                     auto ioSystem = context->getSystem<io::System>();
-                    read = ioSystem->read(path, p.ioOptions);
+                    read = ioSystem->read(path, memoryRead, p.ioOptions);
                     p.cache.add(fileName, read);
                 }
             }
