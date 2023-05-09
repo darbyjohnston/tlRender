@@ -102,6 +102,7 @@ find_package(Threads REQUIRED)
 find_package(GLM REQUIRED)
 find_package(Imath REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(minizip REQUIRED)
 find_package(OTIO REQUIRED)
 
 # OpenColorIO dependencies

@@ -4,6 +4,9 @@
 
 #include <tlTimeline/TimelinePrivate.h>
 
+#include <tlTimeline/MemoryReference.h>
+#include <tlTimeline/Util.h>
+
 #include <tlIO/IOSystem.h>
 
 #include <tlCore/File.h>
@@ -12,6 +15,11 @@
 
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/imageSequenceReference.h>
+
+#include <mz.h>
+#include "mz_strm.h"
+#include <mz_zip.h>
+#include <mz_zip_rw.h>
 
 #if defined(TLRENDER_PYTHON)
 #include <Python.h>
@@ -112,47 +120,209 @@ namespace tl
 #endif // TLRENDER_PYTHON
         }
 
+        class ZipReader
+        {
+        public:
+            ZipReader(const std::string& fileName)
+            {
+                mz_zip_reader_create(&reader);
+                if (!reader)
+                {
+                    throw std::runtime_error(string::Format(
+                        "{0}: Cannot create zip reader").arg(fileName));
+                }
+                int32_t err = mz_zip_reader_open_file(reader, fileName.c_str());
+                if (err != MZ_OK)
+                {
+                    throw std::runtime_error(string::Format(
+                        "{0}: Cannot open zip reader").arg(fileName));
+                }
+            }
+
+            ~ZipReader()
+            {
+                mz_zip_reader_delete(&reader);
+            }
+
+            void* reader = nullptr;
+        };
+
+        class ZipReaderFile
+        {
+        public:
+            ZipReaderFile(void* reader, const std::string& fileName) :
+                reader(reader)
+            {
+                int32_t err = mz_zip_reader_entry_open(reader);
+                if (err != MZ_OK)
+                {
+                    throw std::runtime_error(string::Format(
+                        "{0}: Cannot open zip entry").arg(fileName));
+                }
+            }
+
+            ~ZipReaderFile()
+            {
+                mz_zip_reader_entry_close(reader);
+            }
+
+            void* reader = nullptr;
+        };
+
+        class ZipMemoryReference : public RawMemoryReference
+        {
+        public:
+            struct Schema
+            {
+                static auto constexpr name = "ZipMemoryReference";
+                static int constexpr version = 1;
+            };
+
+            ZipMemoryReference(
+                const std::shared_ptr<file::FileIO>& fileIO,
+                const std::string& target_url = std::string(),
+                const uint8_t* memory = nullptr,
+                size_t memory_size = 0,
+                const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
+                const otio::AnyDictionary& metadata = otio::AnyDictionary()) :
+                RawMemoryReference(target_url, memory, memory_size, available_range, metadata),
+                _fileIO(fileIO)
+            {}
+
+        protected:
+            ~ZipMemoryReference() override
+            {}
+
+            std::shared_ptr<file::FileIO> _fileIO;
+        };
+
         otio::SerializableObject::Retainer<otio::Timeline> read(
-            const std::string& fileName,
+            const file::Path& path,
             otio::ErrorStatus* errorStatus)
         {
             otio::SerializableObject::Retainer<otio::Timeline> out;
-#if defined(TLRENDER_PYTHON)
-            Py_Initialize();
-            try
+            const std::string fileName = path.get();
+            const std::string extension = string::toLower(path.getExtension());
+            if (".otio" == extension)
             {
-                auto pyModule = PyObjectRef(PyImport_ImportModule("opentimelineio.adapters"));
-
-                auto pyReadFromFile = PyObjectRef(PyObject_GetAttrString(pyModule, "read_from_file"));
-                auto pyReadFromFileArgs = PyObjectRef(PyTuple_New(1));
-                auto pyReadFromFileArg = PyUnicode_FromStringAndSize(fileName.c_str(), fileName.size());
-                if (!pyReadFromFileArg)
+                out = dynamic_cast<otio::Timeline*>(
+                    otio::Timeline::from_json_file(fileName, errorStatus));
+            }
+            else if (".otioz" == extension)
+            {
                 {
-                    throw std::runtime_error("Cannot create arg");
-                }
-                PyTuple_SetItem(pyReadFromFileArgs, 0, pyReadFromFileArg);
-                auto pyTimeline = PyObjectRef(PyObject_CallObject(pyReadFromFile, pyReadFromFileArgs));
+                    ZipReader zipReader(fileName);
 
-                auto pyToJSONString = PyObjectRef(PyObject_GetAttrString(pyTimeline, "to_json_string"));
-                auto pyJSONString = PyObjectRef(PyObject_CallObject(pyToJSONString, NULL));
-                out = otio::SerializableObject::Retainer<otio::Timeline>(
-                    dynamic_cast<otio::Timeline*>(otio::Timeline::from_json_string(
-                        PyUnicode_AsUTF8AndSize(pyJSONString, NULL),
-                        errorStatus)));
+                    const std::string contentFileName = "content.otio";
+                    int32_t err = mz_zip_reader_locate_entry(
+                        zipReader.reader,
+                        contentFileName.c_str(),
+                        0);
+                    if (err != MZ_OK)
+                    {
+                        throw std::runtime_error(string::Format(
+                            "{0}: Cannot find zip entry").arg(contentFileName));
+                    }
+                    mz_zip_file* fileInfo = nullptr;
+                    err = mz_zip_reader_entry_get_info(zipReader.reader, &fileInfo);
+                    if (err != MZ_OK)
+                    {
+                        throw std::runtime_error(string::Format(
+                            "{0}: Cannot get zip entry information").arg(contentFileName));
+                    }
+                    ZipReaderFile zipReaderFile(zipReader.reader, contentFileName);
+                    std::vector<char> buf;
+                    buf.resize(fileInfo->uncompressed_size + 1);
+                    err = mz_zip_reader_entry_read(
+                        zipReader.reader,
+                        buf.data(),
+                        fileInfo->uncompressed_size);
+                    if (err != fileInfo->uncompressed_size)
+                    {
+                        throw std::runtime_error(string::Format(
+                            "{0}: Cannot read zip entry").arg(contentFileName));
+                    }
+                    buf[fileInfo->uncompressed_size] = 0;
+
+                    out = dynamic_cast<otio::Timeline*>(
+                        otio::Timeline::from_json_string(buf.data(), errorStatus));
+
+                    auto fileIO = file::FileIO::create(fileName, file::Mode::Read);
+                    for (auto clip : out->children_if<otio::Clip>())
+                    {
+                        if (auto externalReference =
+                            dynamic_cast<otio::ExternalReference*>(clip->media_reference()))
+                        {
+                            const std::string mediaFileName = removeFileURLPrefix(externalReference->target_url());
+
+                            int32_t err = mz_zip_reader_locate_entry(zipReader.reader, mediaFileName.c_str(), 0);
+                            if (err != MZ_OK)
+                            {
+                                throw std::runtime_error(string::Format(
+                                    "{0}: Cannot find zip entry").arg(mediaFileName));
+                            }
+                            err = mz_zip_reader_entry_get_info(zipReader.reader, &fileInfo);
+                            if (err != MZ_OK)
+                            {
+                                throw std::runtime_error(string::Format(
+                                    "{0}: Cannot get zip entry information").arg(mediaFileName));
+                            }
+
+                            const size_t headerSize =
+                                30 +
+                                fileInfo->filename_size +
+                                fileInfo->extrafield_size;
+                            auto memoryReference = new ZipMemoryReference(
+                                fileIO,
+                                externalReference->target_url(),
+                                fileIO->getMemoryStart() +
+                                fileInfo->disk_offset +
+                                headerSize,
+                                fileInfo->uncompressed_size,
+                                clip->available_range(),
+                                externalReference->metadata());
+                            clip->set_media_reference(memoryReference);
+                        }
+                    }
+                }
             }
-            catch (const std::exception& e)
+            else
             {
-                errorStatus->outcome = otio::ErrorStatus::Outcome::FILE_OPEN_FAILED;
-                errorStatus->details = e.what();
-            }
-            if (PyErr_Occurred())
-            {
-                PyErr_Print();
-            }
-            Py_Finalize();
-#else // TLRENDER_PYTHON
-            out = dynamic_cast<otio::Timeline*>(otio::Timeline::from_json_file(fileName, errorStatus));
+#if defined(TLRENDER_PYTHON)
+                Py_Initialize();
+                try
+                {
+                    auto pyModule = PyObjectRef(PyImport_ImportModule("opentimelineio.adapters"));
+
+                    auto pyReadFromFile = PyObjectRef(PyObject_GetAttrString(pyModule, "read_from_file"));
+                    auto pyReadFromFileArgs = PyObjectRef(PyTuple_New(1));
+                    auto pyReadFromFileArg = PyUnicode_FromStringAndSize(fileName.c_str(), fileName.size());
+                    if (!pyReadFromFileArg)
+                    {
+                        throw std::runtime_error("Cannot create arg");
+                    }
+                    PyTuple_SetItem(pyReadFromFileArgs, 0, pyReadFromFileArg);
+                    auto pyTimeline = PyObjectRef(PyObject_CallObject(pyReadFromFile, pyReadFromFileArgs));
+
+                    auto pyToJSONString = PyObjectRef(PyObject_GetAttrString(pyTimeline, "to_json_string"));
+                    auto pyJSONString = PyObjectRef(PyObject_CallObject(pyToJSONString, NULL));
+                    out = otio::SerializableObject::Retainer<otio::Timeline>(
+                        dynamic_cast<otio::Timeline*>(otio::Timeline::from_json_string(
+                            PyUnicode_AsUTF8AndSize(pyJSONString, NULL),
+                            errorStatus)));
+                }
+                catch (const std::exception& e)
+                {
+                    errorStatus->outcome = otio::ErrorStatus::Outcome::FILE_OPEN_FAILED;
+                    errorStatus->details = e.what();
+                }
+                if (PyErr_Occurred())
+                {
+                    PyErr_Print();
+                }
+                Py_Finalize();
 #endif // TLRENDER_PYTHON
+            }
             return out;
         }
 
@@ -309,7 +479,7 @@ namespace tl
             if (!out)
             {
                 otio::ErrorStatus errorStatus;
-                out = read(path.get(), &errorStatus);
+                out = read(path, &errorStatus);
                 if (otio::is_error(errorStatus))
                 {
                     out = nullptr;
@@ -461,7 +631,7 @@ namespace tl
             if (!out)
             {
                 otio::ErrorStatus errorStatus;
-                out = read(path.get(), &errorStatus);
+                out = read(path, &errorStatus);
                 if (otio::is_error(errorStatus))
                 {
                     out = nullptr;

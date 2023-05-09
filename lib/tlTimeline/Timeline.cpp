@@ -26,6 +26,7 @@ namespace tl
             if (types & static_cast<int>(io::FileType::Movie))
             {
                 out.push_back(".otio");
+                out.push_back(".otioz");
             }
             if (auto ioSystem = context->getSystem<io::System>())
             {
@@ -36,21 +37,6 @@ namespace tl
                 }
             }
             return out;
-        }
-
-        namespace
-        {
-            const std::string fileURLPrefix = "file://";
-
-            std::string removeFileURLPrefix(const std::string& value)
-            {
-                std::string out = value;
-                if (0 == out.compare(0, fileURLPrefix.size(), fileURLPrefix))
-                {
-                    out.replace(0, fileURLPrefix.size(), "");
-                }
-                return out;
-            }
         }
 
         file::Path getPath(
