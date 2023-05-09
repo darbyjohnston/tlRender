@@ -101,7 +101,7 @@ else()
 endif()
 
 set(LIBRARIES OTIO Imath::Imath)
-set(LIBRARIES_PRIVATE nlohmann_json::nlohmann_json GLM fseq)
+set(LIBRARIES_PRIVATE nlohmann_json::nlohmann_json MINIZIP::minizip ZLIB GLM fseq)
 if(TLRENDER_OCIO)
     list(APPEND LIBRARIES OpenColorIO::OpenColorIO)
 endif()

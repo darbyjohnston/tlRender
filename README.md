@@ -49,8 +49,10 @@ The core libraries providing timeline rendering, playback, and I/O.
 Required dependencies:
 * [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
 * [Imath](https://github.com/AcademySoftwareFoundation/Imath)
-* [FSeq](https://github.com/darbyjohnston/FSeq)
 * [nlohmann_json](https://github.com/nlohmann/json)
+* [minizip-ng](https://github.com/zlib-ng/minizip-ng)
+* [ZLIB](https://zlib.net)
+* [FSeq](https://github.com/darbyjohnston/FSeq)
 
 Optional dependencies:
 * [OpenColorIO](https://github.com/AcademySoftwareFoundation/OpenColorIO)
@@ -62,7 +64,6 @@ Optional dependencies:
 * [PNG](https://libpng.sourceforge.io/index.html)
 * [OpenEXR](https://www.openexr.com/)
 * [FFmpeg](https://ffmpeg.org)
-* [ZLIB](https://zlib.net)
 
 ## tlGL
 

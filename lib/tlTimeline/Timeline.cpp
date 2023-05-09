@@ -26,6 +26,7 @@ namespace tl
             if (types & static_cast<int>(io::FileType::Movie))
             {
                 out.push_back(".otio");
+                out.push_back(".otioz");
             }
             if (auto ioSystem = context->getSystem<io::System>())
             {

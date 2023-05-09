@@ -212,8 +212,8 @@ namespace tl
                 auto ioSystem = context->getSystem<io::System>();
                 for (const auto& fileInfo : file::dirList(fileName, pathOptions))
                 {
-                    const auto& path = fileInfo.getPath();
-                    const auto& extension = path.getExtension();
+                    const file::Path& path = fileInfo.getPath();
+                    const std::string extension = string::toLower(path.getExtension());
                     switch (ioSystem->getFileType(extension))
                     {
                     case io::FileType::Sequence:
@@ -249,7 +249,8 @@ namespace tl
                         break;
                     default:
                         //! \todo Get extensions for the Python adapters.
-                        if (".otio" == extension)
+                        if (".otio" == extension ||
+                            ".otioz" == extension)
                         {
                             out.push_back(path);
                         }
@@ -268,16 +269,16 @@ namespace tl
         namespace
         {
             const std::string fileURLPrefix = "file://";
+        }
 
-            std::string removeFileURLPrefix(const std::string& value)
+        std::string removeFileURLPrefix(const std::string& value)
+        {
+            std::string out = value;
+            if (0 == out.compare(0, fileURLPrefix.size(), fileURLPrefix))
             {
-                std::string out = value;
-                if (0 == out.compare(0, fileURLPrefix.size(), fileURLPrefix))
-                {
-                    out.replace(0, fileURLPrefix.size(), "");
-                }
-                return out;
+                out.replace(0, fileURLPrefix.size(), "");
             }
+            return out;
         }
 
         file::Path getPath(
