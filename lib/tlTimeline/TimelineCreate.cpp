@@ -487,7 +487,7 @@ namespace tl
                 }
                 else if (!out)
                 {
-                    error = "Cannot read timeline";
+                    error = string::Format("{0}: Cannot read timeline").arg(fileName);
                 }
             }
             if (!out)
@@ -639,7 +639,7 @@ namespace tl
                 }
                 else if (!out)
                 {
-                    error = "Cannot read timeline";
+                    error = string::Format("{0}: Cannot read timeline").arg(fileName);
                 }
             }
             if (!out)

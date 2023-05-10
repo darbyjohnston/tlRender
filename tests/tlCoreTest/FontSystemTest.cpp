@@ -67,7 +67,6 @@ namespace tl
                 GlyphInfo b(1, FontInfo("NotoMono-Regular", 14));
                 TLRENDER_ASSERT(a < b);
             }
-#if defined(TLRENDER_FREETYPE)
             {
                 auto fontSystem = FontSystem::create(_context);
                 FontInfo fi("NotoMono-Regular", 14);
@@ -132,7 +131,6 @@ namespace tl
                     }
                 }
             }
-#endif // TLRENDER_FREETYPE
         }
     }
 }
