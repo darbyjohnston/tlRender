@@ -19,6 +19,7 @@ Currently supported:
 * Multi-channel audio
 * Color management
 * A/B comparison
+* OTIOZ file bundles
 
 To do:
 * Software rendering
