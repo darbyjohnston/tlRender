@@ -17,7 +17,6 @@ namespace tl
 
             struct SizeData
             {
-                int margin = 0;
                 int border = 0;
                 int handle = 0;
                 imaging::FontMetrics fontMetrics;
@@ -119,7 +118,6 @@ namespace tl
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
             p.size.handle = event.style->getSizeRole(SizeRole::Handle, event.displayScale);
 
@@ -129,12 +127,10 @@ namespace tl
 
             _sizeHint.x =
                 event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale) +
-                p.size.margin * 2 +
-                p.size.border * 4;
+                p.size.border * 6;
             _sizeHint.y =
                 p.size.fontMetrics.lineHeight +
-                p.size.margin * 2 +
-                p.size.border * 4;
+                p.size.border * 6;
         }
 
         void IntSlider::clipEvent(
@@ -308,23 +304,25 @@ namespace tl
         {
             TLRENDER_P();
             return _geometry.margin(
-                -(p.size.border * 2 + p.size.margin + p.size.handle / 2),
-                -(p.size.border * 2 + p.size.margin),
-                -(p.size.border * 2 + p.size.margin + p.size.handle / 2),
-                -(p.size.border * 2 + p.size.margin));
+                -(p.size.border * 3 + p.size.handle / 2),
+                -(p.size.border * 3),
+                -(p.size.border * 3 + p.size.handle / 2),
+                -(p.size.border * 3));
         }
 
         int IntSlider::_posToValue(int pos) const
         {
             TLRENDER_P();
             const math::BBox2i g = _getSliderGeometry();
-            const float v = (pos - g.x()) / static_cast<float>(g.w());
-            int out = 0;
-            if (p.model)
-            {
-                const math::IntRange& range = p.model->getRange();
-                out = range.getMin() + (range.getMax() - range.getMin()) * v;
-            }
+            const math::IntRange range = p.model ?
+                p.model->getRange() :
+                math::IntRange();
+            const float inc = g.w() /
+                static_cast<float>(range.getMax() - range.getMin());
+            const float v = (pos + inc / 2 - g.x()) /
+                static_cast<float>(g.w());
+            const int out = range.getMin() +
+                (range.getMax() - range.getMin()) * v;
             return out;
         }
 
@@ -332,17 +330,17 @@ namespace tl
         {
             TLRENDER_P();
             const math::BBox2i g = _getSliderGeometry();
+            const math::IntRange range = p.model ?
+                p.model->getRange() :
+                math::IntRange();
             float v = 0.F;
-            if (p.model)
+            if (range.getMin() != range.getMax())
             {
-                const math::IntRange& range = p.model->getRange();
-                if (range.getMin() != range.getMax())
-                {
-                    v = (value - range.getMin()) /
-                        static_cast<float>(range.getMax() - range.getMin());
-                }
+                v = (value - range.getMin()) /
+                    static_cast<float>(range.getMax() - range.getMin());
             }
-            return g.x() + g.w() * v;
+            const int out = g.x() + g.w() * v;
+            return out;
         }
 
         void IntSlider::_resetMouse()

@@ -247,7 +247,7 @@ namespace tl
                 {
                     p.timelinePlayer->setPlayback(timeline::Playback::Stop);
                 }
-                const math::BBox2i bbox = _getCurrentTimeBBox();
+                const math::BBox2i bbox = _geometry.margin(-p.size.margin);
                 if (bbox.contains(event.pos))
                 {
                     p.mouse.currentTimeDrag = true;
@@ -272,6 +272,7 @@ namespace tl
 
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const math::BBox2i& g = _geometry;
+            const int handle = event.style->getSizeRole(SizeRole::Handle, event.displayScale);
 
             const int w = _sizeHint.x - p.size.margin * 2;
             const int frameTick = 1.0 /
@@ -284,22 +285,22 @@ namespace tl
                 p.timeRange.duration().rescaled_to(1.0).value() * w;
             double seconds = 0;
             int tick = 0;
-            if (frameTick >= 5)
+            if (frameTick >= handle)
             {
                 seconds = 1.0 / p.timeRange.duration().rate();
                 tick = frameTick;
             }
-            else if (secondsTick >= 5)
+            else if (secondsTick >= handle)
             {
                 seconds = 1.0;
                 tick = secondsTick;
             }
-            else if (minutesTick >= 5)
+            else if (minutesTick >= handle)
             {
                 seconds = 60.0;
                 tick = minutesTick;
             }
-            else if (hoursTick >= 5)
+            else if (hoursTick >= handle)
             {
                 seconds = 3600.0;
                 tick = hoursTick;
@@ -311,15 +312,20 @@ namespace tl
                 size_t i = 1;
                 for (double t = 0.0; t < duration; t += seconds)
                 {
-                    math::BBox2i bbox(
-                        g.min.x +
-                        p.size.margin + t / duration * w,
+                    const int y =
                         g.min.y +
                         p.size.margin +
                         p.size.fontMetrics.lineHeight +
-                        p.size.spacing,
+                        p.size.spacing;
+                    math::BBox2i bbox(
+                        g.min.x +
+                        p.size.margin +
+                        t / duration * w,
+                        y,
                         2,
-                        p.size.fontMetrics.lineHeight);
+                        g.max.y -
+                        p.size.margin -
+                        y);
                     if (bbox.intersects(drawRect))
                     {
                         mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
@@ -336,11 +342,11 @@ namespace tl
                     event.render->drawMesh(
                         mesh,
                         math::Vector2i(),
-                        imaging::Color4f(.8F, .8F, .8F));
+                        event.style->getColorRole(ColorRole::Button));
                 }
             }
 
-            /*if (frameWidth >= 5)
+            /*if (frameWidth >= handle)
             {
                 geom::TriangleMesh2 mesh;
                 size_t i = 1;
@@ -377,7 +383,7 @@ namespace tl
                 }
             }
 
-            if (secondsWidth >= 5)
+            if (secondsWidth >= handle)
             {
                 std::string labelMax = _timeLabel(p.timeRange.end_time_inclusive(), _options.timeUnits);
                 math::Vector2i labelMaxSize = event.fontSystem->getSize(labelMax, fontInfo);
@@ -504,32 +510,24 @@ namespace tl
             }
         }
 
-        math::BBox2i TimelineItem::_getCurrentTimeBBox() const
-        {
-            TLRENDER_P();
-            return math::BBox2i(
-                _geometry.min.x + p.size.margin,
-                _geometry.min.y + p.size.margin,
-                _geometry.w() - p.size.margin * 2,
-                _geometry.h() - p.size.margin * 2);
-        }
-
         otime::RationalTime TimelineItem::_posToTime(float value) const
         {
             TLRENDER_P();
             otime::RationalTime out = time::invalidTime;
-            const math::BBox2i bbox = _getCurrentTimeBBox();
+            const math::BBox2i bbox = _geometry.margin(-p.size.margin);
             if (bbox.w() > 0)
             {
                 const double normalized =
                     (value - bbox.min.x) / static_cast<double>(bbox.w());
-                const double clamped = math::clamp(normalized, 0.0, 1.0);
                 out = time::round(
                     p.timeRange.start_time() +
                     otime::RationalTime(
-                        (p.timeRange.end_time_inclusive().value() -
-                            p.timeRange.start_time().value()) * clamped,
+                        p.timeRange.duration().value() * normalized,
                         p.timeRange.duration().rate()));
+                out = math::clamp(
+                    out,
+                    p.timeRange.start_time(),
+                    p.timeRange.end_time_inclusive());
             }
             return out;
         }
@@ -539,13 +537,14 @@ namespace tl
             TLRENDER_P();
             float out = 0.F;
             const otime::RationalTime& currentTime = p.timelinePlayer->observeCurrentTime()->get();
-            if (!time::compareExact(currentTime, time::invalidTime))
+            if (!time::compareExact(currentTime, time::invalidTime) &&
+                p.timeRange.duration().value() > 0.0)
             {
-                const math::BBox2i bbox = _getCurrentTimeBBox();
-                out = bbox.min.x +
+                const math::BBox2i bbox = _geometry.margin(-p.size.margin);
+                const float normalized =
                     (currentTime.value() - p.timeRange.start_time().value()) /
-                    p.timeRange.duration().value() *
-                    bbox.w();
+                    p.timeRange.duration().value();
+                out = bbox.min.x + normalized * bbox.w();
             }
             return out;
         }

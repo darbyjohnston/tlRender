@@ -27,12 +27,14 @@ namespace tl
         public:
             ~TimelineItem() override;
 
+            //! Create a new item.
             static std::shared_ptr<TimelineItem> create(
                 const std::shared_ptr<timeline::TimelinePlayer>&,
                 const TimelineItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            //! Set whether playback stops when scrubbing.
             void setStopOnScrub(bool);
 
             void setGeometry(const math::BBox2i&) override;
@@ -59,8 +61,6 @@ namespace tl
             void _drawCurrentTime(
                 const math::BBox2i&,
                 const DrawEvent&);
-
-            math::BBox2i _getCurrentTimeBBox() const;
 
             otime::RationalTime _posToTime(float) const;
             float _timeToPos(const otime::RationalTime&) const;
