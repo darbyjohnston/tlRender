@@ -611,6 +611,8 @@ namespace tl
             p.externalTime.player = value;
             if (p.externalTime.player)
             {
+                p.externalTime.timeRange = p.externalTime.player->getTimeRange();
+
                 auto weak = std::weak_ptr<TimelinePlayer>(shared_from_this());
                 p.externalTime.playbackObserver = observer::ValueObserver<Playback>::create(
                     p.externalTime.player->observePlayback(),
@@ -627,13 +629,22 @@ namespace tl
                     {
                         if (auto player = weak.lock())
                         {
-                            const auto time = time::floor(value.rescaled_to(player->getTimeRange().duration().rate()));
-                            player->_p->currentTime->setIfChanged(time);
+                            const otime::TimeRange& playerTimeRange = player->getTimeRange();
+
+                            const otime::RationalTime externalTime =
+                                value - player->_p->externalTime.timeRange.start_time();
+                            const otime::RationalTime externalTimeRescaled = time::floor(
+                                externalTime.rescaled_to(playerTimeRange.duration().rate()));
+
+                            const otime::RationalTime playerTime =
+                                playerTimeRange.start_time() + externalTimeRescaled;
+                            player->_p->currentTime->setIfChanged(playerTime);
                         }
                     });
             }
             else
             {
+                p.externalTime.timeRange = time::invalidTimeRange;
                 p.externalTime.playbackObserver.reset();
                 p.externalTime.currentTimeObserver.reset();
             }

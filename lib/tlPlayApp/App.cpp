@@ -593,6 +593,7 @@ namespace tl
                         createMemoryTimeline(otioTimeline, item->path.getDirectory(), options.pathOptions);
                     }
                     auto timeline = timeline::Timeline::create(otioTimeline, _context, options);
+                    const otime::TimeRange& timeRange = timeline->getTimeRange();
 
                     timeline::PlayerOptions playerOptions;
                     playerOptions.cache.readAhead = _cacheReadAhead();
@@ -603,7 +604,20 @@ namespace tl
                         value<timeline::AudioBufferFrameCount>();
                     if (item->init)
                     {
-                        playerOptions.currentTime = items[0]->currentTime;
+                        if (0 == i)
+                        {
+                            playerOptions.currentTime = items[0]->currentTime;
+                        }
+                        else
+                        {
+                            const otime::RationalTime externalTime =
+                                items[0]->currentTime - items[0]->timeRange.start_time();
+                            const otime::RationalTime externalTimeRescaled = time::floor(
+                                externalTime.rescaled_to(timeRange.duration().rate()));
+
+                            playerOptions.currentTime =
+                                timeRange.start_time() + externalTimeRescaled;
+                        }
                     }
                     auto timelinePlayer = timeline::TimelinePlayer::create(timeline, _context, playerOptions);
                     qtTimelinePlayer = new qt::TimelinePlayer(timelinePlayer, _context, this);
