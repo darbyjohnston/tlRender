@@ -76,6 +76,7 @@ namespace tl
             struct ExternalTime
             {
                 std::shared_ptr<TimelinePlayer> player;
+                otime::TimeRange timeRange = time::invalidTimeRange;
                 std::shared_ptr<observer::ValueObserver<Playback> > playbackObserver;
                 std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
             };
