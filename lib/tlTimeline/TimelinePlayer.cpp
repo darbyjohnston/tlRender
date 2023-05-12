@@ -112,6 +112,36 @@ namespace tl
             return out;
         }
 
+        TLRENDER_ENUM_IMPL(ExternalTimeMode, "Relative", "Absolute");
+        TLRENDER_ENUM_SERIALIZE_IMPL(ExternalTimeMode);
+
+        otime::RationalTime getExternalTime(
+            const otime::RationalTime& sourceTime,
+            const otime::TimeRange& sourceTimeRange,
+            const otime::TimeRange& externalTimeRange,
+            ExternalTimeMode mode)
+        {
+            otime::RationalTime out;
+            switch (mode)
+            {
+            case ExternalTimeMode::Relative:
+            {
+                const otime::RationalTime relativeTime =
+                    sourceTime - sourceTimeRange.start_time();
+                const otime::RationalTime relativeTimeRescaled = time::floor(
+                    relativeTime.rescaled_to(externalTimeRange.duration().rate()));
+                out = externalTimeRange.start_time() + relativeTimeRescaled;
+                break;
+            }
+            case ExternalTimeMode::Absolute:
+                out = time::floor(sourceTime.rescaled_to(
+                    externalTimeRange.duration().rate()));
+                break;
+            default: break;
+            }
+            return out;
+        }
+
         namespace
         {
 #if defined(TLRENDER_AUDIO)
@@ -686,16 +716,12 @@ namespace tl
                     {
                         if (auto player = weak.lock())
                         {
-                            const otime::TimeRange& playerTimeRange = player->getTimeRange();
-
-                            const otime::RationalTime externalTime =
-                                value - player->_p->externalTime.timeRange.start_time();
-                            const otime::RationalTime externalTimeRescaled = time::floor(
-                                externalTime.rescaled_to(playerTimeRange.duration().rate()));
-
-                            const otime::RationalTime playerTime =
-                                playerTimeRange.start_time() + externalTimeRescaled;
-                            player->_p->currentTime->setIfChanged(playerTime);
+                            const otime::RationalTime externalTime = getExternalTime(
+                                value,
+                                player->_p->externalTime.timeRange,
+                                player->getTimeRange(),
+                                player->_p->playerOptions.externalTimeMode);
+                            player->_p->currentTime->setIfChanged(externalTime);
                         }
                     });
             }

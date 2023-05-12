@@ -616,13 +616,11 @@ namespace tl
                         }
                         else
                         {
-                            const otime::RationalTime externalTime =
-                                items[0]->currentTime - items[0]->timeRange.start_time();
-                            const otime::RationalTime externalTimeRescaled = time::floor(
-                                externalTime.rescaled_to(timeRange.duration().rate()));
-
-                            playerOptions.currentTime =
-                                timeRange.start_time() + externalTimeRescaled;
+                            playerOptions.currentTime = timeline::getExternalTime(
+                                items[0]->currentTime,
+                                items[0]->timeRange,
+                                timeRange,
+                                playerOptions.externalTimeMode);
                         }
                     }
                     auto timelinePlayer = timeline::TimelinePlayer::create(timeline, _context, playerOptions);
