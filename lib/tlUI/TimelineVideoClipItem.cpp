@@ -52,7 +52,12 @@ namespace tl
 
             std::map<otime::RationalTime, std::future<io::VideoData> > videoDataFutures;
             std::map<otime::RationalTime, io::VideoData> videoData;
-            std::map<otime::RationalTime, std::shared_ptr<gl::OffscreenBuffer> > buffers;
+            struct Thumbnail
+            {
+                std::shared_ptr<gl::OffscreenBuffer> buffer;
+                std::chrono::steady_clock::time_point time;
+            };
+            std::map<otime::RationalTime, Thumbnail> thumbnails;
             std::shared_ptr<observer::ValueObserver<bool> > cancelObserver;
         };
 
@@ -126,7 +131,7 @@ namespace tl
                 if (!_options.thumbnails)
                 {
                     p.videoData.clear();
-                    p.buffers.clear();
+                    p.thumbnails.clear();
                 }
                 _updates |= Update::Draw;
             }
@@ -135,6 +140,8 @@ namespace tl
         void TimelineVideoClipItem::tickEvent(const TickEvent& event)
         {
             TLRENDER_P();
+
+            // Check if any thumbnail reads are finished.
             auto i = p.videoDataFutures.begin();
             while (i != p.videoDataFutures.end())
             {
@@ -148,6 +155,17 @@ namespace tl
                     continue;
                 }
                 ++i;
+            }
+
+            // Check if any thumbnails need to be redrawn.
+            const auto now = std::chrono::steady_clock::now();
+            for (const auto& thumbnail : p.thumbnails)
+            {
+                const std::chrono::duration<float> diff = now - thumbnail.second.time;
+                if (diff.count() < _options.thumbnailFade)
+                {
+                    _updates |= Update::Draw;
+                }
             }
         }
 
@@ -172,7 +190,7 @@ namespace tl
                 p.size.thumbnailWidth = thumbnailWidth;
                 _data.ioManager->cancelRequests();
                 p.videoData.clear();
-                p.buffers.clear();
+                p.thumbnails.clear();
                 _updates |= Update::Draw;
             }
 
@@ -310,7 +328,8 @@ namespace tl
             TLRENDER_P();
 
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
-            math::BBox2i g = _geometry;
+            const math::BBox2i& g = _geometry;
+            const auto now = std::chrono::steady_clock::now();
 
             const math::BBox2i bbox(
                 g.min.x +
@@ -329,10 +348,10 @@ namespace tl
             event.render->setClipRectEnabled(true);
             event.render->setClipRect(bbox.intersect(clipRectState.getClipRect()));
 
-            std::set<otime::RationalTime> buffersDelete;
-            for (const auto& buffers : p.buffers)
+            std::set<otime::RationalTime> thumbnailsDelete;
+            for (const auto& thumbnail : p.thumbnails)
             {
-                buffersDelete.insert(buffers.first);
+                thumbnailsDelete.insert(thumbnail.first);
             }
 
             if (g.intersects(drawRect))
@@ -383,7 +402,7 @@ namespace tl
                                     math::BBox2i(0, 0, size.w, size.h));
                             }
                         }
-                        p.buffers[i.first] = buffer;
+                        p.thumbnails[i.first] = { buffer, now };
                     }
                 }
                 p.videoData.clear();
@@ -409,12 +428,17 @@ namespace tl
                             p.timeRange.duration().value(),
                             p.timeRange.duration().rate()));
 
-                        const auto i = p.buffers.find(time);
-                        if (i != p.buffers.end())
+                        const auto i = p.thumbnails.find(time);
+                        if (i != p.thumbnails.end())
                         {
-                            const unsigned int id = i->second->getColorID();
-                            event.render->drawTexture(id, bbox);
-                            buffersDelete.erase(time);
+                            const unsigned int id = i->second.buffer->getColorID();
+                            const std::chrono::duration<float> diff = now - i->second.time;
+                            const float a = std::min(diff.count() / _options.thumbnailFade, 1.F);
+                            event.render->drawTexture(
+                                id,
+                                bbox,
+                                imaging::Color4f(1.F, 1.F, 1.F, a));
+                            thumbnailsDelete.erase(time);
                         }
                         else if (!p.ioInfo.video.empty())
                         {
@@ -436,12 +460,12 @@ namespace tl
                 }
             }
 
-            for (auto i : buffersDelete)
+            for (auto i : thumbnailsDelete)
             {
-                const auto j = p.buffers.find(i);
-                if (j != p.buffers.end())
+                const auto j = p.thumbnails.find(i);
+                if (j != p.thumbnails.end())
                 {
-                    p.buffers.erase(j);
+                    p.thumbnails.erase(j);
                 }
             }
         }

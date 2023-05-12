@@ -26,7 +26,8 @@ namespace tl
                 scale == other.scale &&
                 thumbnails == other.thumbnails &&
                 thumbnailHeight == other.thumbnailHeight &&
-                waveformHeight == other.waveformHeight;
+                waveformHeight == other.waveformHeight &&
+                thumbnailFade == other.thumbnailFade;
         }
 
         bool TimelineItemOptions::operator != (const TimelineItemOptions& other) const

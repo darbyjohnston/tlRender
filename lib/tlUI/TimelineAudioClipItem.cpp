@@ -63,6 +63,7 @@ namespace tl
                 math::Vector2i size;
                 std::future<std::shared_ptr<geom::TriangleMesh2> > meshFuture;
                 std::shared_ptr<geom::TriangleMesh2> mesh;
+                std::chrono::steady_clock::time_point time;
             };
             std::map<otime::RationalTime, AudioData> audioData;
             std::shared_ptr<observer::ValueObserver<bool> > cancelObserver;
@@ -225,8 +226,8 @@ namespace tl
                                 auto convert = audio::AudioConvert::create(
                                     audio.audio->getInfo(),
                                     audio::Info(1, audio::DataType::F32, audio.audio->getSampleRate()));
-                            const auto convertedAudio = convert->convert(audio.audio);
-                            return audioMesh(convertedAudio, size);
+                                const auto convertedAudio = convert->convert(audio.audio);
+                                return audioMesh(convertedAudio, size);
                             });
                     }
                     p.audioData[i->first] = std::move(audioData);
@@ -236,17 +237,22 @@ namespace tl
                 ++i;
             }
 
-            auto j = p.audioData.begin();
-            while (j != p.audioData.end())
+            const auto now = std::chrono::steady_clock::now();
+            for (auto& audioData : p.audioData)
             {
-                if (j->second.meshFuture.valid() &&
-                    j->second.meshFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                if (audioData.second.meshFuture.valid() &&
+                    audioData.second.meshFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
-                    const auto mesh = j->second.meshFuture.get();
-                    j->second.mesh = mesh;
+                    const auto mesh = audioData.second.meshFuture.get();
+                    audioData.second.mesh = mesh;
+                    audioData.second.time = now;
                     _updates |= Update::Draw;
                 }
-                ++j;
+                const std::chrono::duration<float> diff = now - audioData.second.time;
+                if (diff.count() < _options.thumbnailFade)
+                {
+                    _updates |= Update::Draw;
+                }
             }
         }
 
@@ -406,6 +412,7 @@ namespace tl
 
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
             const math::BBox2i& g = _geometry;
+            const auto now = std::chrono::steady_clock::now();
 
             const math::BBox2i bbox(
                 g.min.x +
@@ -468,10 +475,12 @@ namespace tl
                         {
                             if (i->second.mesh)
                             {
+                                const std::chrono::duration<float> diff = now - i->second.time;
+                                const float a = std::min(diff.count() / _options.thumbnailFade, 1.F);
                                 event.render->drawMesh(
                                     *i->second.mesh,
                                     bbox.min,
-                                    imaging::Color4f(1.F, 1.F, 1.F));
+                                    imaging::Color4f(1.F, 1.F, 1.F, a));
                             }
                             audioDataDelete.erase(time);
                         }

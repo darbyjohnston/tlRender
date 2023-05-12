@@ -41,6 +41,7 @@ namespace tl
             bool thumbnails = true;
             int thumbnailHeight = 100;
             int waveformHeight = 50;
+            float thumbnailFade = .5F;
 
             bool operator == (const TimelineItemOptions&) const;
             bool operator != (const TimelineItemOptions&) const;
