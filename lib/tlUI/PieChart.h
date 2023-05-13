@@ -42,7 +42,7 @@ namespace tl
         public:
             ~PieChart() override;
 
-            //! Create a new pie chart widget.
+            //! Create a new widget.
             static std::shared_ptr<PieChart> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

@@ -25,7 +25,7 @@ namespace tl
         public:
             ~StackLayout() override;
 
-            //! Create a new stack layout.
+            //! Create a new layout.
             static std::shared_ptr<StackLayout> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

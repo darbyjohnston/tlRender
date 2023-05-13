@@ -27,7 +27,7 @@ namespace tl
         public:
             ~TimelineViewport() override;
 
-            //! Create a new timeline viewport.
+            //! Create a new widget.
             static std::shared_ptr<TimelineViewport> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

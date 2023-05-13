@@ -25,7 +25,7 @@ namespace tl
         public:
             ~AudioConvert();
 
-            //! Create a new audio data converter.
+            //! Create a new converter.
             static std::shared_ptr<AudioConvert> create(
                 const audio::Info& input,
                 const audio::Info& ouput);

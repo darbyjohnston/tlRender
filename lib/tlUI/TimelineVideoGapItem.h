@@ -27,6 +27,7 @@ namespace tl
         public:
             ~TimelineVideoGapItem() override;
 
+            //! Create a new item.
             static std::shared_ptr<TimelineVideoGapItem> create(
                 const otio::Gap*,
                 const TimelineItemData&,

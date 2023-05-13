@@ -25,7 +25,7 @@ namespace tl
         public:
             ~TimelineWidget() override;
 
-            //! Create a new timeline widget.
+            //! Create a new widget.
             static std::shared_ptr<TimelineWidget> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

@@ -25,7 +25,7 @@ namespace tl
         public:
             ~Spacer() override;
 
-            //! Create a new spacer.
+            //! Create a new widget.
             static std::shared_ptr<Spacer> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

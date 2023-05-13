@@ -25,7 +25,7 @@ namespace tl
         public:
             ~LineEdit() override;
 
-            //! Create a new text line edit.
+            //! Create a new widget
             static std::shared_ptr<LineEdit> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

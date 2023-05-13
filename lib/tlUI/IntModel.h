@@ -25,7 +25,7 @@ namespace tl
         public:
             ~IntModel();
 
-            //! Create a new integer value model.
+            //! Create a new model.
             static std::shared_ptr<IntModel> create(
                 const std::shared_ptr<system::Context>&);
 

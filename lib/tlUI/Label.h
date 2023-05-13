@@ -25,7 +25,7 @@ namespace tl
         public:
             ~Label() override;
 
-            //! Create a new text label.
+            //! Create a new widget.
             static std::shared_ptr<Label> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

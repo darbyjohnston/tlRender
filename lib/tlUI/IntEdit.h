@@ -28,7 +28,7 @@ namespace tl
         public:
             ~IntEdit() override;
 
-            //! Create a new integer number editor.
+            //! Create a new widget.
             static std::shared_ptr<IntEdit> create(
                 const std::shared_ptr<IntModel>&,
                 const std::shared_ptr<system::Context>&,

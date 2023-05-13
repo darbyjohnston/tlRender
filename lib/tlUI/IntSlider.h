@@ -28,7 +28,7 @@ namespace tl
         public:
             ~IntSlider() override;
 
-            //! Create a new integer value slider.
+            //! Create a new widget.
             static std::shared_ptr<IntSlider> create(
                 const std::shared_ptr<IntModel>&,
                 const std::shared_ptr<system::Context>&,

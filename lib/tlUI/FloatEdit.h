@@ -28,7 +28,7 @@ namespace tl
         public:
             ~FloatEdit() override;
 
-            //! Create a new floating point number editor.
+            //! Create a new widget.
             static std::shared_ptr<FloatEdit> create(
                 const std::shared_ptr<FloatModel>&,
                 const std::shared_ptr<system::Context>&,

@@ -27,7 +27,7 @@ namespace tl
         public:
             ~RowLayout() override;
 
-            //! Create a new row layout.
+            //! Create a new layout.
             static std::shared_ptr<RowLayout> create(
                 Orientation,
                 const std::shared_ptr<system::Context>&,
@@ -63,7 +63,7 @@ namespace tl
         public:
             ~HorizontalLayout() override;
 
-            //! Create a new horizontal layout.
+            //! Create a new layout.
             static std::shared_ptr<HorizontalLayout> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
@@ -84,7 +84,7 @@ namespace tl
         public:
             ~VerticalLayout() override;
 
-            //! Create a new vertical layout.
+            //! Create a new layout.
             static std::shared_ptr<VerticalLayout> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

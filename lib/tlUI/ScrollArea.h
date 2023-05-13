@@ -36,7 +36,7 @@ namespace tl
         public:
             ~ScrollArea() override;
 
-            //! Create a new scroll area.
+            //! Create a new widget.
             static std::shared_ptr<ScrollArea> create(
                 const std::shared_ptr<system::Context>&,
                 ScrollType = ScrollType::Both,

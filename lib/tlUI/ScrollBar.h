@@ -26,7 +26,7 @@ namespace tl
         public:
             ~ScrollBar() override;
 
-            //! Create a new scroll bar.
+            //! Create a new widget.
             static std::shared_ptr<ScrollBar> create(
                 Orientation,
                 const std::shared_ptr<system::Context>&,

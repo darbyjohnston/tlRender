@@ -28,7 +28,7 @@ namespace tl
         public:
             ~IncButton() override;
 
-            //! Create a new increment button.
+            //! Create a new widget.
             static std::shared_ptr<IncButton> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

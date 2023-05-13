@@ -35,6 +35,7 @@ namespace tl
         public:
             ~TimelineTrackItem() override;
 
+            //! Create a new item.
             static std::shared_ptr<TimelineTrackItem> create(
                 const otio::Track*,
                 const TimelineItemData&,

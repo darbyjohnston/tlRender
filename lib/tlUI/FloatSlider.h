@@ -28,7 +28,7 @@ namespace tl
         public:
             ~FloatSlider() override;
 
-            //! Create a new floating point value slider.
+            //! Create a new widget.
             static std::shared_ptr<FloatSlider> create(
                 const std::shared_ptr<FloatModel>&,
                 const std::shared_ptr<system::Context>&,

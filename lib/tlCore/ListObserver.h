@@ -103,7 +103,7 @@ namespace tl
             //! Create a new list .
             static std::shared_ptr<List<T> > create();
 
-            //! Create a new list  with the given value.
+            //! Create a new list with the given value.
             static std::shared_ptr<List<T> > create(const std::vector<T>&);
 
             //! Set the list.

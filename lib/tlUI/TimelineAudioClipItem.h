@@ -27,6 +27,7 @@ namespace tl
         public:
             ~TimelineAudioClipItem() override;
 
+            //! Create a new item.
             static std::shared_ptr<TimelineAudioClipItem> create(
                 const otio::Clip*,
                 const TimelineItemData&,

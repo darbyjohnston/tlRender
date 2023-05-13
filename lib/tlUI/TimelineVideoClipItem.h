@@ -27,6 +27,7 @@ namespace tl
         public:
             ~TimelineVideoClipItem() override;
 
+            //! Create a new item.
             static std::shared_ptr<TimelineVideoClipItem> create(
                 const otio::Clip*,
                 const TimelineItemData&,

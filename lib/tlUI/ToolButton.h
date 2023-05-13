@@ -25,7 +25,7 @@ namespace tl
         public:
             ~ToolButton() override;
 
-            //! Create a new tool button.
+            //! Create a new widget.
             static std::shared_ptr<ToolButton> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

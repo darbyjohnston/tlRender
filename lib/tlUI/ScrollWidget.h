@@ -26,7 +26,7 @@ namespace tl
         public:
             ~ScrollWidget() override;
 
-            //! Create a new scroll widget.
+            //! Create a new widget.
             static std::shared_ptr<ScrollWidget> create(
                 const std::shared_ptr<system::Context>&,
                 ScrollType = ScrollType::Both,

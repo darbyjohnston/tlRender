@@ -26,7 +26,7 @@ namespace tl
         public:
             ~Splitter() override;
 
-            //! Create a new splitter widget.
+            //! Create a new widget.
             static std::shared_ptr<Splitter> create(
                 Orientation,
                 const std::shared_ptr<system::Context>&,

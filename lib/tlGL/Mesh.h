@@ -75,7 +75,7 @@ namespace tl
         public:
             ~VBO();
 
-            //! Create a new vertex buffer object.
+            //! Create a new object.
             static std::shared_ptr<VBO> create(std::size_t size, VBOType);
 
             //! Get the size.
@@ -113,7 +113,7 @@ namespace tl
         public:
             ~VAO();
 
-            //! Create a new vertex array object.
+            //! Create a new object.
             static std::shared_ptr<VAO> create(VBOType, unsigned int vbo);
 
             //! Get the OpenGL ID.
