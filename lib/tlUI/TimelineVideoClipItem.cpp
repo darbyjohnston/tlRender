@@ -58,6 +58,7 @@ namespace tl
                 std::chrono::steady_clock::time_point time;
             };
             std::map<otime::RationalTime, Thumbnail> thumbnails;
+            std::list<std::shared_ptr<gl::OffscreenBuffer> > bufferPool;
             std::shared_ptr<observer::ValueObserver<bool> > cancelObserver;
         };
 
@@ -132,6 +133,7 @@ namespace tl
                 {
                     p.videoData.clear();
                     p.thumbnails.clear();
+                    p.bufferPool.clear();
                 }
                 _updates |= Update::Draw;
             }
@@ -191,6 +193,7 @@ namespace tl
                 _data.ioManager->cancelRequests();
                 p.videoData.clear();
                 p.thumbnails.clear();
+                p.bufferPool.clear();
                 _updates |= Update::Draw;
             }
 
@@ -219,6 +222,9 @@ namespace tl
             {
                 p.draw.labelGlyphs.clear();
                 p.draw.durationGlyphs.clear();
+                p.videoData.clear();
+                p.thumbnails.clear();
+                p.bufferPool.clear();
             }
             _data.ioManager->cancelRequests();
             _updates |= Update::Draw;
@@ -378,9 +384,18 @@ namespace tl
                         const imaging::Size size(
                             p.size.thumbnailWidth,
                             _options.thumbnailHeight);
-                        gl::OffscreenBufferOptions options;
-                        options.colorType = imaging::PixelType::RGB_F32;
-                        auto buffer = gl::OffscreenBuffer::create(size, options);
+                        std::shared_ptr<gl::OffscreenBuffer> buffer;
+                        if (p.bufferPool.size())
+                        {
+                            buffer = p.bufferPool.front();
+                            p.bufferPool.pop_front();
+                        }
+                        else
+                        {
+                            gl::OffscreenBufferOptions options;
+                            options.colorType = imaging::PixelType::RGB_F32;
+                            buffer = gl::OffscreenBuffer::create(size, options);
+                        }
                         {
                             gl::OffscreenBufferBinding binding(buffer);
                             event.render->setRenderSize(size);
@@ -465,6 +480,7 @@ namespace tl
                 const auto j = p.thumbnails.find(i);
                 if (j != p.thumbnails.end())
                 {
+                    p.bufferPool.push_back(j->second.buffer);
                     p.thumbnails.erase(j);
                 }
             }
