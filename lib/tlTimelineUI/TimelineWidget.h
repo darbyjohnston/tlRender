@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include <tlUI/TimelineItem.h>
+#include <tlTimelineUI/TimelineItem.h>
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
         //! Timeline widget.
-        class TimelineWidget : public IWidget
+        class TimelineWidget : public ui::IWidget
         {
             TLRENDER_NON_COPYABLE(TimelineWidget);
 
@@ -57,25 +57,25 @@ namespace tl
             void setMouseWheelScale(float);
 
             //! Get the item options.
-            const TimelineItemOptions& getItemOptions() const;
+            const ItemOptions& getItemOptions() const;
 
             //! Set the item options.
-            void setItemOptions(const TimelineItemOptions&);
+            void setItemOptions(const ItemOptions&);
 
             void setGeometry(const math::BBox2i&) override;
             void setVisible(bool) override;
             void setEnabled(bool) override;
-            void sizeHintEvent(const SizeHintEvent&) override;
+            void sizeHintEvent(const ui::SizeHintEvent&) override;
             void clipEvent(
                 const math::BBox2i&,
                 bool,
-                const ClipEvent&) override;
-            void mouseMoveEvent(MouseMoveEvent&) override;
-            void mousePressEvent(MouseClickEvent&) override;
-            void mouseReleaseEvent(MouseClickEvent&) override;
-            void scrollEvent(ScrollEvent&) override;
-            void keyPressEvent(KeyEvent&) override;
-            void keyReleaseEvent(KeyEvent&) override;
+                const ui::ClipEvent&) override;
+            void mouseMoveEvent(ui::MouseMoveEvent&) override;
+            void mousePressEvent(ui::MouseClickEvent&) override;
+            void mouseReleaseEvent(ui::MouseClickEvent&) override;
+            void scrollEvent(ui::ScrollEvent&) override;
+            void keyPressEvent(ui::KeyEvent&) override;
+            void keyReleaseEvent(ui::KeyEvent&) override;
 
         private:
             void _setViewZoom(
@@ -88,7 +88,7 @@ namespace tl
 
             void _setItemOptions(
                 const std::shared_ptr<IWidget>&,
-                const TimelineItemOptions&);
+                const ItemOptions&);
 
             void _resetMouse();
 

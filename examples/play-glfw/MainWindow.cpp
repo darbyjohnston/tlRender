@@ -4,11 +4,12 @@
 
 #include "MainWindow.h"
 
+#include <tlTimelineUI/TimelineViewport.h>
+#include <tlTimelineUI/TimelineWidget.h>
+
 #include <tlUI/ButtonGroup.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/Splitter.h>
-#include <tlUI/TimelineViewport.h>
-#include <tlUI/TimelineWidget.h>
 #include <tlUI/ToolButton.h>
 
 namespace tl
@@ -19,8 +20,8 @@ namespace tl
         {
             struct MainWindow::Private
             {
-                std::shared_ptr<ui::TimelineViewport> timelineViewport;
-                std::shared_ptr<ui::TimelineWidget> timelineWidget;
+                std::shared_ptr<timelineui::TimelineViewport> timelineViewport;
+                std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
                 std::shared_ptr<ui::ButtonGroup> playbackButtonGroup;
                 std::shared_ptr<ui::Splitter> splitter;
                 std::shared_ptr<ui::RowLayout> layout;
@@ -36,10 +37,10 @@ namespace tl
 
                 setBackgroundRole(ui::ColorRole::Window);
 
-                p.timelineViewport = ui::TimelineViewport::create(context);
+                p.timelineViewport = timelineui::TimelineViewport::create(context);
                 p.timelineViewport->setPlayers({ player });
 
-                p.timelineWidget = ui::TimelineWidget::create(context);
+                p.timelineWidget = timelineui::TimelineWidget::create(context);
                 p.timelineWidget->setPlayer(player);
 
                 auto stopButton = ui::ToolButton::create(context);

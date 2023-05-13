@@ -11,23 +11,23 @@
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
-        //! TimelineI/O manager.
-        class TimelineIOManager : public std::enable_shared_from_this<TimelineIOManager>
+        //! I/O manager.
+        class IOManager : public std::enable_shared_from_this<IOManager>
         {
         protected:
             void _init(
                 const io::Options&,
                 const std::shared_ptr<system::Context>&);
 
-            TimelineIOManager();
+            IOManager();
 
         public:
-            ~TimelineIOManager();
+            ~IOManager();
 
-            //! Create a new timeline I/O manager.
-            static std::shared_ptr<TimelineIOManager> create(
+            //! Create a new I/O manager.
+            static std::shared_ptr<IOManager> create(
                 const io::Options&,
                 const std::shared_ptr<system::Context>&);
 

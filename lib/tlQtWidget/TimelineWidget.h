@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlUI/TimelineItem.h>
+#include <tlTimelineUI/TimelineItem.h>
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_1_Core>
@@ -31,7 +31,7 @@ namespace tl
             void setPlayer(const std::shared_ptr<timeline::Player>&);
 
             //! Get the item options.
-            const ui::TimelineItemOptions& itemOptions() const;
+            const timelineui::ItemOptions& itemOptions() const;
 
         public Q_SLOTS:
             //! Set whether the to frame the view.
@@ -44,7 +44,7 @@ namespace tl
             void setMouseWheelScale(float);
 
             //! Set the item options.
-            void setItemOptions(const ui::TimelineItemOptions&);
+            void setItemOptions(const timelineui::ItemOptions&);
 
         Q_SIGNALS:
             //! This signal is emitted when the frame view is changed.

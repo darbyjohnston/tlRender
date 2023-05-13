@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/ITimelineItem.h>
+#include <tlTimelineUI/IItem.h>
 
 #include <tlCore/Error.h>
 #include <tlCore/String.h>
@@ -10,16 +10,16 @@
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
         TLRENDER_ENUM_IMPL(
-            TimelineTimeUnits,
+            TimeUnits,
             "Seconds",
             "Frames",
             "Timecode");
-        TLRENDER_ENUM_SERIALIZE_IMPL(TimelineTimeUnits);
+        TLRENDER_ENUM_SERIALIZE_IMPL(TimeUnits);
 
-        bool TimelineItemOptions::operator == (const TimelineItemOptions& other) const
+        bool ItemOptions::operator == (const ItemOptions& other) const
         {
             return
                 timeUnits == other.timeUnits &&
@@ -31,14 +31,14 @@ namespace tl
                 thumbnailFade == other.thumbnailFade;
         }
 
-        bool TimelineItemOptions::operator != (const TimelineItemOptions& other) const
+        bool ItemOptions::operator != (const ItemOptions& other) const
         {
             return !(*this == other);
         }
 
-        void ITimelineItem::_init(
+        void IItem::_init(
             const std::string& name,
-            const TimelineItemData& data,
+            const ItemData& data,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -46,22 +46,22 @@ namespace tl
             _data = data;
         }
 
-        ITimelineItem::ITimelineItem()
+        IItem::IItem()
         {}
 
-        ITimelineItem::~ITimelineItem()
+        IItem::~IItem()
         {}
 
-        void ITimelineItem::setOptions(const TimelineItemOptions& value)
+        void IItem::setOptions(const ItemOptions& value)
         {
             if (value == _options)
                 return;
             _options = value;
-            _updates |= Update::Size;
-            _updates |= Update::Draw;
+            _updates |= ui::Update::Size;
+            _updates |= ui::Update::Draw;
         }
 
-        math::BBox2i ITimelineItem::_getClipRect(
+        math::BBox2i IItem::_getClipRect(
             const math::BBox2i& value,
             float scale)
         {
@@ -74,26 +74,26 @@ namespace tl
             return out;
         }
 
-        std::string ITimelineItem::_durationLabel(
+        std::string IItem::_durationLabel(
             const otime::RationalTime& value,
-            TimelineTimeUnits timeUnits)
+            TimeUnits timeUnits)
         {
             std::string out;
             if (!time::compareExact(value, time::invalidTime))
             {
                 switch (timeUnits)
                 {
-                case TimelineTimeUnits::Seconds:
+                case TimeUnits::Seconds:
                     out = string::Format("{0} @ {1}").
                         arg(value.rescaled_to(1.0).value(), 2).
                         arg(value.rate());
                     break;
-                case TimelineTimeUnits::Frames:
+                case TimeUnits::Frames:
                     out = string::Format("{0} @ {1}").
                         arg(value.value()).
                         arg(value.rate());
                     break;
-                case TimelineTimeUnits::Timecode:
+                case TimeUnits::Timecode:
                     out = string::Format("{0} @ {1}").
                         arg(value.to_timecode()).
                         arg(value.rate());
@@ -103,22 +103,22 @@ namespace tl
             return out;
         }
 
-        std::string ITimelineItem::_timeLabel(
+        std::string IItem::_timeLabel(
             const otime::RationalTime& value,
-            TimelineTimeUnits timeUnits)
+            TimeUnits timeUnits)
         {
             std::string out;
             if (!time::compareExact(value, time::invalidTime))
             {
                 switch (timeUnits)
                 {
-                case TimelineTimeUnits::Seconds:
+                case TimeUnits::Seconds:
                     out = string::Format("{0}").arg(value.rescaled_to(1.0).value(), 2);
                     break;
-                case TimelineTimeUnits::Frames:
+                case TimeUnits::Frames:
                     out = string::Format("{0}").arg(value.value());
                     break;
-                case TimelineTimeUnits::Timecode:
+                case TimeUnits::Timecode:
                     out = string::Format("{0}").arg(value.to_timecode());
                     break;
                 }

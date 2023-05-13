@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/TimelineAudioClipItem.h>
+#include <tlTimelineUI/AudioClipItem.h>
 
 #include <tlUI/DrawUtil.h>
 
@@ -18,9 +18,9 @@
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
-        struct TimelineAudioClipItem::Private
+        struct AudioClipItem::Private
         {
             const otio::Clip* clip = nullptr;
             const otio::Track* track = nullptr;
@@ -29,7 +29,7 @@ namespace tl
             otime::TimeRange timeRange = time::invalidTimeRange;
             std::string label;
             std::string durationLabel;
-            FontRole fontRole = FontRole::Label;
+            ui::FontRole fontRole = ui::FontRole::Label;
             bool ioInfoInit = true;
             io::Info ioInfo;
 
@@ -69,13 +69,13 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<bool> > cancelObserver;
         };
 
-        void TimelineAudioClipItem::_init(
+        void AudioClipItem::_init(
             const otio::Clip* clip,
-            const TimelineItemData& itemData,
+            const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            ITimelineItem::_init("tl::ui::TimelineAudioClipItem", itemData, context, parent);
+            IItem::_init("tl::timelineui::AudioClipItem", itemData, context, parent);
             TLRENDER_P();
 
             p.clip = clip;
@@ -105,35 +105,35 @@ namespace tl
                 });
         }
 
-        TimelineAudioClipItem::TimelineAudioClipItem() :
+        AudioClipItem::AudioClipItem() :
             _p(new Private)
         {}
 
-        TimelineAudioClipItem::~TimelineAudioClipItem()
+        AudioClipItem::~AudioClipItem()
         {}
 
-        std::shared_ptr<TimelineAudioClipItem> TimelineAudioClipItem::create(
+        std::shared_ptr<AudioClipItem> AudioClipItem::create(
             const otio::Clip* clip,
-            const TimelineItemData& itemData,
+            const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            auto out = std::shared_ptr<TimelineAudioClipItem>(new TimelineAudioClipItem);
+            auto out = std::shared_ptr<AudioClipItem>(new AudioClipItem);
             out->_init(clip, itemData, context, parent);
             return out;
         }
 
-        void TimelineAudioClipItem::setOptions(const TimelineItemOptions& value)
+        void AudioClipItem::setOptions(const ItemOptions& value)
         {
             const bool changed = value != _options;
-            ITimelineItem::setOptions(value);
+            IItem::setOptions(value);
             TLRENDER_P();
             if (changed)
             {
                 _textUpdate();
                 _data.ioManager->cancelRequests();
                 p.audioData.clear();
-                _updates |= Update::Draw;
+                _updates |= ui::Update::Draw;
             }
         }
 
@@ -203,7 +203,7 @@ namespace tl
             }
         }
 
-        void TimelineAudioClipItem::tickEvent(const TickEvent& event)
+        void AudioClipItem::tickEvent(const ui::TickEvent& event)
         {
             TLRENDER_P();
             auto i = p.audioDataFutures.begin();
@@ -246,23 +246,23 @@ namespace tl
                     const auto mesh = audioData.second.meshFuture.get();
                     audioData.second.mesh = mesh;
                     audioData.second.time = now;
-                    _updates |= Update::Draw;
+                    _updates |= ui::Update::Draw;
                 }
                 const std::chrono::duration<float> diff = now - audioData.second.time;
                 if (diff.count() < _options.thumbnailFade)
                 {
-                    _updates |= Update::Draw;
+                    _updates |= ui::Update::Draw;
                 }
             }
         }
 
-        void TimelineAudioClipItem::sizeHintEvent(const SizeHintEvent& event)
+        void AudioClipItem::sizeHintEvent(const ui::SizeHintEvent& event)
         {
-            ITimelineItem::sizeHintEvent(event);
+            IItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
-            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
+            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
+            p.size.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
 
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
@@ -277,7 +277,7 @@ namespace tl
                 p.size.waveformWidth = waveformWidth;
                 _data.ioManager->cancelRequests();
                 p.audioData.clear();
-                _updates |= Update::Draw;
+                _updates |= ui::Update::Draw;
             }
 
             _sizeHint = math::Vector2i(
@@ -291,12 +291,12 @@ namespace tl
             }
         }
 
-        void TimelineAudioClipItem::clipEvent(
+        void AudioClipItem::clipEvent(
             const math::BBox2i& clipRect,
             bool clipped,
-            const ClipEvent& event)
+            const ui::ClipEvent& event)
         {
-            ITimelineItem::clipEvent(clipRect, clipped, event);
+            IItem::clipEvent(clipRect, clipped, event);
             TLRENDER_P();
             if (clipRect == p.size.clipRect)
                 return;
@@ -307,17 +307,17 @@ namespace tl
                 p.draw.durationGlyphs.clear();
             }
             _data.ioManager->cancelRequests();
-            _updates |= Update::Draw;
+            _updates |= ui::Update::Draw;
         }
 
-        void TimelineAudioClipItem::drawEvent(
+        void AudioClipItem::drawEvent(
             const math::BBox2i& drawRect,
-            const DrawEvent& event)
+            const ui::DrawEvent& event)
         {
-            ITimelineItem::drawEvent(drawRect, event);
+            IItem::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const int b = event.style->getSizeRole(SizeRole::Border, event.displayScale);
+            const int b = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
             const math::BBox2i& g = _geometry;
 
             //event.render->drawMesh(
@@ -335,17 +335,17 @@ namespace tl
             }
         }
 
-        void TimelineAudioClipItem::_textUpdate()
+        void AudioClipItem::_textUpdate()
         {
             TLRENDER_P();
-            p.durationLabel = ITimelineItem::_durationLabel(
+            p.durationLabel = IItem::_durationLabel(
                 p.timeRange.duration(),
                 _options.timeUnits);
         }
 
-        void TimelineAudioClipItem::_drawInfo(
+        void AudioClipItem::_drawInfo(
             const math::BBox2i& drawRect,
-            const DrawEvent& event)
+            const ui::DrawEvent& event)
         {
             TLRENDER_P();
 
@@ -385,7 +385,7 @@ namespace tl
                         labelGeometry.min.x,
                         labelGeometry.min.y +
                         fontMetrics.ascender),
-                    event.style->getColorRole(ColorRole::Text));
+                    event.style->getColorRole(ui::ColorRole::Text));
             }
 
             if (durationVisible)
@@ -400,13 +400,13 @@ namespace tl
                         durationGeometry.min.x,
                         durationGeometry.min.y +
                         fontMetrics.ascender),
-                    event.style->getColorRole(ColorRole::Text));
+                    event.style->getColorRole(ui::ColorRole::Text));
             }
         }
 
-        void TimelineAudioClipItem::_drawWaveforms(
+        void AudioClipItem::_drawWaveforms(
             const math::BBox2i& drawRect,
-            const DrawEvent& event)
+            const ui::DrawEvent& event)
         {
             TLRENDER_P();
 
@@ -446,8 +446,8 @@ namespace tl
                 {
                     p.ioInfoInit = false;
                     p.ioInfo = _data.ioManager->getInfo(p.path, p.memoryRead).get();
-                    _updates |= Update::Size;
-                    _updates |= Update::Draw;
+                    _updates |= ui::Update::Size;
+                    _updates |= ui::Update::Draw;
                 }
             }
 

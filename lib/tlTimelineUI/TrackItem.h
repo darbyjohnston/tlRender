@@ -4,16 +4,16 @@
 
 #pragma once
 
-#include <tlUI/ITimelineItem.h>
+#include <tlTimelineUI/IItem.h>
 
 #include <opentimelineio/track.h>
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
         //! Track types.
-        enum class TimelineTrackType
+        enum class TrackType
         {
             None,
             Video,
@@ -21,32 +21,32 @@ namespace tl
         };
 
         //! Track item.
-        class TimelineTrackItem : public ITimelineItem
+        class TrackItem : public IItem
         {
         protected:
             void _init(
                 const otio::Track*,
-                const TimelineItemData&,
+                const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            TimelineTrackItem();
+            TrackItem();
 
         public:
-            ~TimelineTrackItem() override;
+            ~TrackItem() override;
 
             //! Create a new item.
-            static std::shared_ptr<TimelineTrackItem> create(
+            static std::shared_ptr<TrackItem> create(
                 const otio::Track*,
-                const TimelineItemData&,
+                const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const math::BBox2i&) override;
-            void sizeHintEvent(const SizeHintEvent&) override;
+            void sizeHintEvent(const ui::SizeHintEvent&) override;
             void drawEvent(
                 const math::BBox2i&,
-                const DrawEvent&) override;
+                const ui::DrawEvent&) override;
 
         private:
             TLRENDER_PRIVATE();

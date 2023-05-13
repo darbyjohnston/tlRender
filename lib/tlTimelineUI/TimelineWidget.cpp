@@ -2,13 +2,13 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/TimelineWidget.h>
+#include <tlTimelineUI/TimelineWidget.h>
 
 #include <tlUI/ScrollWidget.h>
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
         struct TimelineWidget::Private
         {
@@ -17,9 +17,9 @@ namespace tl
             std::function<void(bool)> frameViewCallback;
             bool stopOnScrub = true;
             float mouseWheelScale = 1.1F;
-            TimelineItemOptions itemOptions;
+            ItemOptions itemOptions;
 
-            std::shared_ptr<ScrollWidget> scrollWidget;
+            std::shared_ptr<ui::ScrollWidget> scrollWidget;
             std::shared_ptr<TimelineItem> timelineItem;
 
             struct SizeData
@@ -51,11 +51,11 @@ namespace tl
             IWidget::_init("tl::ui::TimelineWidget", context, parent);
             TLRENDER_P();
 
-            p.scrollWidget = ScrollWidget::create(
+            p.scrollWidget = ui::ScrollWidget::create(
                 context,
-                ScrollType::Both,
+                ui::ScrollType::Both,
                 shared_from_this());
-            p.scrollWidget->setMarginRole(SizeRole::MarginSmall);
+            p.scrollWidget->setMarginRole(ui::SizeRole::MarginSmall);
 
             p.scrollWidget->setScrollPosCallback(
                 [this](const math::Vector2i&)
@@ -95,10 +95,10 @@ namespace tl
             {
                 if (auto context = _context.lock())
                 {
-                    TimelineItemData itemData;
+                    ItemData itemData;
                     itemData.directory = p.player->getPath().getDirectory();
                     itemData.pathOptions = p.player->getOptions().pathOptions;
-                    itemData.ioManager = TimelineIOManager::create(
+                    itemData.ioManager = IOManager::create(
                         p.player->getOptions().ioOptions,
                         context);
 
@@ -138,8 +138,8 @@ namespace tl
             {
                 _setItemOptions(p.timelineItem, p.itemOptions);
             }
-            _updates |= Update::Size;
-            _updates |= Update::Draw;
+            _updates |= ui::Update::Size;
+            _updates |= ui::Update::Draw;
         }
 
         void TimelineWidget::setFrameView(bool value)
@@ -179,12 +179,12 @@ namespace tl
             p.mouseWheelScale = value;
         }
 
-        const TimelineItemOptions& TimelineWidget::getItemOptions() const
+        const ItemOptions& TimelineWidget::getItemOptions() const
         {
             return _p->itemOptions;
         }
 
-        void TimelineWidget::setItemOptions(const TimelineItemOptions& value)
+        void TimelineWidget::setItemOptions(const ItemOptions& value)
         {
             TLRENDER_P();
             if (value == p.itemOptions)
@@ -233,14 +233,14 @@ namespace tl
             }
         }
 
-        void TimelineWidget::sizeHintEvent(const SizeHintEvent& event)
+        void TimelineWidget::sizeHintEvent(const ui::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
+            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
 
-            const int sa = event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
+            const int sa = event.style->getSizeRole(ui::SizeRole::ScrollArea, event.displayScale);
             _sizeHint.x = sa;
             _sizeHint.y = sa * 2;
         }
@@ -248,7 +248,7 @@ namespace tl
         void TimelineWidget::clipEvent(
             const math::BBox2i& clipRect,
             bool clipped,
-            const ClipEvent& event)
+            const ui::ClipEvent& event)
         {
             const bool changed = clipped != _clipped;
             IWidget::clipEvent(clipRect, clipped, event);
@@ -258,7 +258,7 @@ namespace tl
             }
         }
 
-        void TimelineWidget::mouseMoveEvent(MouseMoveEvent& event)
+        void TimelineWidget::mouseMoveEvent(ui::MouseMoveEvent& event)
         {
             TLRENDER_P();
             event.accept = true;
@@ -274,12 +274,12 @@ namespace tl
             }
         }
 
-        void TimelineWidget::mousePressEvent(MouseClickEvent& event)
+        void TimelineWidget::mousePressEvent(ui::MouseClickEvent& event)
         {
             TLRENDER_P();
             event.accept = true;
             p.mouse.pressPos = event.pos;
-            if (event.modifiers & static_cast<int>(KeyModifier::Control))
+            if (event.modifiers & static_cast<int>(ui::KeyModifier::Control))
             {
                 p.mouse.mode = Private::MouseMode::Scroll;
             }
@@ -297,14 +297,14 @@ namespace tl
             }
         }
 
-        void TimelineWidget::mouseReleaseEvent(MouseClickEvent& event)
+        void TimelineWidget::mouseReleaseEvent(ui::MouseClickEvent& event)
         {
             TLRENDER_P();
             event.accept = true;
             p.mouse.mode = Private::MouseMode::None;
         }
 
-        void TimelineWidget::scrollEvent(ScrollEvent& event)
+        void TimelineWidget::scrollEvent(ui::ScrollEvent& event)
         {
             TLRENDER_P();
             event.accept = true;
@@ -320,31 +320,31 @@ namespace tl
             }
         }
 
-        void TimelineWidget::keyPressEvent(KeyEvent& event)
+        void TimelineWidget::keyPressEvent(ui::KeyEvent& event)
         {
             TLRENDER_P();
             switch (event.key)
             {
-            case Key::_0:
+            case ui::Key::_0:
                 event.accept = true;
                 setViewZoom(1.F, event.pos);
                 break;
-            case Key::Equal:
+            case ui::Key::Equal:
                 event.accept = true;
                 setViewZoom(p.itemOptions.scale * 2.F, event.pos);
                 break;
-            case Key::Minus:
+            case ui::Key::Minus:
                 event.accept = true;
                 setViewZoom(p.itemOptions.scale / 2.F, event.pos);
                 break;
-            case Key::Backspace:
+            case ui::Key::Backspace:
                 event.accept = true;
                 frameView();
                 break;
             }
         }
 
-        void TimelineWidget::keyReleaseEvent(KeyEvent& event)
+        void TimelineWidget::keyReleaseEvent(ui::KeyEvent& event)
         {
             event.accept = true;
         }
@@ -397,9 +397,9 @@ namespace tl
 
         void TimelineWidget::_setItemOptions(
             const std::shared_ptr<IWidget>& widget,
-            const TimelineItemOptions& value)
+            const ItemOptions& value)
         {
-            if (auto item = std::dynamic_pointer_cast<ITimelineItem>(widget))
+            if (auto item = std::dynamic_pointer_cast<IItem>(widget))
             {
                 item->setOptions(value);
             }

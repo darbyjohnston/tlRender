@@ -2,9 +2,9 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/TimelineItem.h>
+#include <tlTimelineUI/TimelineItem.h>
 
-#include <tlUI/TimelineTrackItem.h>
+#include <tlTimelineUI/TrackItem.h>
 
 #include <tlTimeline/Util.h>
 
@@ -12,7 +12,7 @@
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
         struct TimelineItem::Private
         {
@@ -22,7 +22,7 @@ namespace tl
             otime::TimeRange inOutRange = time::invalidTimeRange;
             timeline::PlayerCacheInfo cacheInfo;
             bool stopOnScrub = true;
-            FontRole fontRole = FontRole::Label;
+            ui::FontRole fontRole = ui::FontRole::Label;
 
             struct SizeData
             {
@@ -47,11 +47,11 @@ namespace tl
 
         void TimelineItem::_init(
             const std::shared_ptr<timeline::Player>& player,
-            const TimelineItemData& itemData,
+            const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            ITimelineItem::_init("tl::ui::TimelineItem", itemData, context, parent);
+            IItem::_init("tl::timelineui::TimelineItem", itemData, context, parent);
             TLRENDER_P();
 
             p.player = player;
@@ -62,7 +62,7 @@ namespace tl
             {
                 if (const auto* track = dynamic_cast<otio::Track*>(child.value))
                 {
-                    auto trackItem = TimelineTrackItem::create(
+                    auto trackItem = TrackItem::create(
                         track,
                         itemData,
                         context,
@@ -75,7 +75,7 @@ namespace tl
                 [this](const otime::RationalTime& value)
                 {
                     _p->currentTime = value;
-                    _updates |= Update::Draw;
+                    _updates |= ui::Update::Draw;
                 });
 
             p.inOutRangeObserver = observer::ValueObserver<otime::TimeRange>::create(
@@ -83,7 +83,7 @@ namespace tl
                 [this](const otime::TimeRange value)
                 {
                     _p->inOutRange = value;
-                    _updates |= Update::Draw;
+                    _updates |= ui::Update::Draw;
                 });
 
             p.cacheInfoObserver = observer::ValueObserver<timeline::PlayerCacheInfo>::create(
@@ -91,7 +91,7 @@ namespace tl
                 [this](const timeline::PlayerCacheInfo& value)
                 {
                     _p->cacheInfo = value;
-                    _updates |= Update::Draw;
+                    _updates |= ui::Update::Draw;
                 });
         }
 
@@ -104,7 +104,7 @@ namespace tl
 
         std::shared_ptr<TimelineItem> TimelineItem::create(
             const std::shared_ptr<timeline::Player>& player,
-            const TimelineItemData& itemData,
+            const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -163,13 +163,13 @@ namespace tl
             }
         }
 
-        void TimelineItem::sizeHintEvent(const SizeHintEvent& event)
+        void TimelineItem::sizeHintEvent(const ui::SizeHintEvent& event)
         {
-            ITimelineItem::sizeHintEvent(event);
+            IItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
-            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
+            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
+            p.size.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
 
             int childrenHeight = 0;
@@ -200,7 +200,7 @@ namespace tl
         void TimelineItem::clipEvent(
             const math::BBox2i& clipRect,
             bool clipped,
-            const ClipEvent& event)
+            const ui::ClipEvent& event)
         {
             const bool changed = clipped != _clipped;
             IWidget::clipEvent(clipRect, clipped, event);
@@ -212,9 +212,9 @@ namespace tl
 
         void TimelineItem::drawEvent(
             const math::BBox2i& drawRect,
-            const DrawEvent& event)
+            const ui::DrawEvent& event)
         {
-            ITimelineItem::drawEvent(drawRect, event);
+            IItem::drawEvent(drawRect, event);
             _drawTimeTicks(drawRect, event);
             _drawCurrentTime(drawRect, event);
         }
@@ -225,7 +225,7 @@ namespace tl
         void TimelineItem::leaveEvent()
         {}
 
-        void TimelineItem::mouseMoveEvent(MouseMoveEvent& event)
+        void TimelineItem::mouseMoveEvent(ui::MouseMoveEvent& event)
         {
             TLRENDER_P();
             event.accept = true;
@@ -235,7 +235,7 @@ namespace tl
             }
         }
 
-        void TimelineItem::mousePressEvent(MouseClickEvent& event)
+        void TimelineItem::mousePressEvent(ui::MouseClickEvent& event)
         {
             TLRENDER_P();
             if (0 == event.modifiers)
@@ -256,7 +256,7 @@ namespace tl
             }
         }
 
-        void TimelineItem::mouseReleaseEvent(MouseClickEvent& event)
+        void TimelineItem::mouseReleaseEvent(ui::MouseClickEvent& event)
         {
             TLRENDER_P();
             event.accept = true;
@@ -266,13 +266,13 @@ namespace tl
 
         void TimelineItem::_drawTimeTicks(
             const math::BBox2i& drawRect,
-            const DrawEvent& event)
+            const ui::DrawEvent& event)
         {
             TLRENDER_P();
 
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const math::BBox2i& g = _geometry;
-            const int handle = event.style->getSizeRole(SizeRole::Handle, event.displayScale);
+            const int handle = event.style->getSizeRole(ui::SizeRole::Handle, event.displayScale);
 
             const int w = _sizeHint.x - p.size.margin * 2;
             const int frameTick = 1.0 /
@@ -342,7 +342,7 @@ namespace tl
                     event.render->drawMesh(
                         mesh,
                         math::Vector2i(),
-                        event.style->getColorRole(ColorRole::Button));
+                        event.style->getColorRole(ui::ColorRole::Button));
                 }
             }
 
@@ -459,7 +459,7 @@ namespace tl
 
         void TimelineItem::_drawCurrentTime(
             const math::BBox2i& drawRect,
-            const DrawEvent& event)
+            const ui::DrawEvent& event)
         {
             TLRENDER_P();
 
@@ -497,7 +497,7 @@ namespace tl
                 event.render->drawMesh(
                     mesh,
                     math::Vector2i(),
-                    event.style->getColorRole(ColorRole::Text));
+                    event.style->getColorRole(ui::ColorRole::Text));
 
                 std::string label = _timeLabel(currentTime, _options.timeUnits);
                 event.render->drawText(
@@ -506,7 +506,7 @@ namespace tl
                         pos.x,
                         pos.y +
                         p.size.fontMetrics.ascender),
-                    event.style->getColorRole(ColorRole::Text));
+                    event.style->getColorRole(ui::ColorRole::Text));
             }
         }
 
@@ -556,7 +556,7 @@ namespace tl
             {
                 p.mouse.pressed = false;
                 p.mouse.currentTimeDrag = false;
-                _updates |= Update::Draw;
+                _updates |= ui::Update::Draw;
             }
         }
     }

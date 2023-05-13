@@ -4,46 +4,46 @@
 
 #pragma once
 
-#include <tlUI/ITimelineItem.h>
+#include <tlTimelineUI/IItem.h>
 
 #include <opentimelineio/gap.h>
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
-        //! Timeline audio gap item.
-        class TimelineAudioGapItem : public ITimelineItem
+        //! Video gap item.
+        class VideoGapItem : public IItem
         {
         protected:
             void _init(
                 const otio::Gap*,
-                const TimelineItemData&,
+                const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            TimelineAudioGapItem();
+            VideoGapItem();
 
         public:
-            ~TimelineAudioGapItem() override;
+            ~VideoGapItem() override;
 
             //! Create a new item.
-            static std::shared_ptr<TimelineAudioGapItem> create(
+            static std::shared_ptr<VideoGapItem> create(
                 const otio::Gap*,
-                const TimelineItemData&,
+                const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            void setOptions(const TimelineItemOptions&) override;
+            void setOptions(const ItemOptions&) override;
 
-            void sizeHintEvent(const SizeHintEvent&) override;
+            void sizeHintEvent(const ui::SizeHintEvent&) override;
             void clipEvent(
                 const math::BBox2i&,
                 bool,
-                const ClipEvent&) override;
+                const ui::ClipEvent&) override;
             void drawEvent(
                 const math::BBox2i&,
-                const DrawEvent&) override;
+                const ui::DrawEvent&) override;
 
         private:
             void _textUpdate();

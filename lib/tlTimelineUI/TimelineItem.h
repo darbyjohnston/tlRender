@@ -4,21 +4,21 @@
 
 #pragma once
 
-#include <tlUI/ITimelineItem.h>
+#include <tlTimelineUI/IItem.h>
 
 #include <tlTimeline/Player.h>
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
         //! Timeline item.
-        class TimelineItem : public ITimelineItem
+        class TimelineItem : public IItem
         {
         protected:
             void _init(
                 const std::shared_ptr<timeline::Player>&,
-                const TimelineItemData&,
+                const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -30,7 +30,7 @@ namespace tl
             //! Create a new item.
             static std::shared_ptr<TimelineItem> create(
                 const std::shared_ptr<timeline::Player>&,
-                const TimelineItemData&,
+                const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -40,27 +40,27 @@ namespace tl
             void setGeometry(const math::BBox2i&) override;
             void setVisible(bool) override;
             void setEnabled(bool) override;
-            void sizeHintEvent(const SizeHintEvent&) override;
+            void sizeHintEvent(const ui::SizeHintEvent&) override;
             void clipEvent(
                 const math::BBox2i&,
                 bool,
-                const ClipEvent&) override;
+                const ui::ClipEvent&) override;
             void drawEvent(
                 const math::BBox2i&,
-                const DrawEvent&) override;
+                const ui::DrawEvent&) override;
             void enterEvent() override;
             void leaveEvent() override;
-            void mouseMoveEvent(MouseMoveEvent&) override;
-            void mousePressEvent(MouseClickEvent&) override;
-            void mouseReleaseEvent(MouseClickEvent&) override;
+            void mouseMoveEvent(ui::MouseMoveEvent&) override;
+            void mousePressEvent(ui::MouseClickEvent&) override;
+            void mouseReleaseEvent(ui::MouseClickEvent&) override;
 
         private:
             void _drawTimeTicks(
                 const math::BBox2i&,
-                const DrawEvent&);
+                const ui::DrawEvent&);
             void _drawCurrentTime(
                 const math::BBox2i&,
-                const DrawEvent&);
+                const ui::DrawEvent&);
 
             otime::RationalTime _posToTime(float) const;
             float _timeToPos(const otime::RationalTime&) const;

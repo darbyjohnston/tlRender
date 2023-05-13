@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/TimelineVideoClipItem.h>
+#include <tlTimelineUI/VideoClipItem.h>
 
 #include <tlUI/DrawUtil.h>
 
@@ -17,9 +17,9 @@
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
-        struct TimelineVideoClipItem::Private
+        struct VideoClipItem::Private
         {
             const otio::Clip* clip = nullptr;
             const otio::Track* track = nullptr;
@@ -28,7 +28,7 @@ namespace tl
             otime::TimeRange timeRange = time::invalidTimeRange;
             std::string label;
             std::string durationLabel;
-            FontRole fontRole = FontRole::Label;
+            ui::FontRole fontRole = ui::FontRole::Label;
             bool ioInfoInit = true;
             io::Info ioInfo;
 
@@ -62,13 +62,13 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<bool> > cancelObserver;
         };
 
-        void TimelineVideoClipItem::_init(
+        void VideoClipItem::_init(
             const otio::Clip* clip,
-            const TimelineItemData& itemData,
+            const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            ITimelineItem::_init("tl::ui::TimelineVideoClipItem", itemData, context, parent);
+            IItem::_init("tl::timelineui::VideoClipItem", itemData, context, parent);
             TLRENDER_P();
 
             p.clip = clip;
@@ -102,28 +102,28 @@ namespace tl
                 });
         }
 
-        TimelineVideoClipItem::TimelineVideoClipItem() :
+        VideoClipItem::VideoClipItem() :
             _p(new Private)
         {}
 
-        TimelineVideoClipItem::~TimelineVideoClipItem()
+        VideoClipItem::~VideoClipItem()
         {}
 
-        std::shared_ptr<TimelineVideoClipItem> TimelineVideoClipItem::create(
+        std::shared_ptr<VideoClipItem> VideoClipItem::create(
             const otio::Clip* clip,
-            const TimelineItemData& itemData,
+            const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            auto out = std::shared_ptr<TimelineVideoClipItem>(new TimelineVideoClipItem);
+            auto out = std::shared_ptr<VideoClipItem>(new VideoClipItem);
             out->_init(clip, itemData, context, parent);
             return out;
         }
 
-        void TimelineVideoClipItem::setOptions(const TimelineItemOptions& value)
+        void VideoClipItem::setOptions(const ItemOptions& value)
         {
             const bool changed = value != _options;
-            ITimelineItem::setOptions(value);
+            IItem::setOptions(value);
             TLRENDER_P();
             if (changed)
             {
@@ -135,11 +135,11 @@ namespace tl
                     p.thumbnails.clear();
                     p.bufferPool.clear();
                 }
-                _updates |= Update::Draw;
+                _updates |= ui::Update::Draw;
             }
         }
 
-        void TimelineVideoClipItem::tickEvent(const TickEvent& event)
+        void VideoClipItem::tickEvent(const ui::TickEvent& event)
         {
             TLRENDER_P();
 
@@ -153,7 +153,7 @@ namespace tl
                     const auto videoData = i->second.get();
                     p.videoData[i->first] = videoData;
                     i = p.videoDataFutures.erase(i);
-                    _updates |= Update::Draw;
+                    _updates |= ui::Update::Draw;
                     continue;
                 }
                 ++i;
@@ -166,18 +166,18 @@ namespace tl
                 const std::chrono::duration<float> diff = now - thumbnail.second.time;
                 if (diff.count() < _options.thumbnailFade)
                 {
-                    _updates |= Update::Draw;
+                    _updates |= ui::Update::Draw;
                 }
             }
         }
 
-        void TimelineVideoClipItem::sizeHintEvent(const SizeHintEvent& event)
+        void VideoClipItem::sizeHintEvent(const ui::SizeHintEvent& event)
         {
-            ITimelineItem::sizeHintEvent(event);
+            IItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
-            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
+            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
+            p.size.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
 
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
@@ -194,7 +194,7 @@ namespace tl
                 p.videoData.clear();
                 p.thumbnails.clear();
                 p.bufferPool.clear();
-                _updates |= Update::Draw;
+                _updates |= ui::Update::Draw;
             }
 
             _sizeHint = math::Vector2i(
@@ -208,12 +208,12 @@ namespace tl
             }
         }
 
-        void TimelineVideoClipItem::clipEvent(
+        void VideoClipItem::clipEvent(
             const math::BBox2i& clipRect,
             bool clipped,
-            const ClipEvent& event)
+            const ui::ClipEvent& event)
         {
-            ITimelineItem::clipEvent(clipRect, clipped, event);
+            IItem::clipEvent(clipRect, clipped, event);
             TLRENDER_P();
             if (clipRect == p.size.clipRect)
                 return;
@@ -227,16 +227,16 @@ namespace tl
                 p.bufferPool.clear();
             }
             _data.ioManager->cancelRequests();
-            _updates |= Update::Draw;
+            _updates |= ui::Update::Draw;
         }
 
-        void TimelineVideoClipItem::drawEvent(
+        void VideoClipItem::drawEvent(
             const math::BBox2i& drawRect,
-            const DrawEvent& event)
+            const ui::DrawEvent& event)
         {
-            ITimelineItem::drawEvent(drawRect, event);
+            IItem::drawEvent(drawRect, event);
 
-            const int b = event.style->getSizeRole(SizeRole::Border, event.displayScale);
+            const int b = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
             math::BBox2i g = _geometry;
 
             //event.render->drawMesh(
@@ -258,17 +258,17 @@ namespace tl
             //    imaging::Color4f(1.F, 0.F, 0.F, .2F));
         }
 
-        void TimelineVideoClipItem::_textUpdate()
+        void VideoClipItem::_textUpdate()
         {
             TLRENDER_P();
-            p.durationLabel = ITimelineItem::_durationLabel(
+            p.durationLabel = IItem::_durationLabel(
                 p.timeRange.duration(),
                 _options.timeUnits);
         }
 
-        void TimelineVideoClipItem::_drawInfo(
+        void VideoClipItem::_drawInfo(
             const math::BBox2i& drawRect,
-            const DrawEvent& event)
+            const ui::DrawEvent& event)
         {
             TLRENDER_P();
 
@@ -308,7 +308,7 @@ namespace tl
                         labelGeometry.min.x,
                         labelGeometry.min.y +
                         fontMetrics.ascender),
-                    event.style->getColorRole(ColorRole::Text));
+                    event.style->getColorRole(ui::ColorRole::Text));
             }
 
             if (durationVisible)
@@ -323,13 +323,13 @@ namespace tl
                         durationGeometry.min.x,
                         durationGeometry.min.y +
                         fontMetrics.ascender),
-                    event.style->getColorRole(ColorRole::Text));
+                    event.style->getColorRole(ui::ColorRole::Text));
             }
         }
 
-        void TimelineVideoClipItem::_drawThumbnails(
+        void VideoClipItem::_drawThumbnails(
             const math::BBox2i& drawRect,
-            const DrawEvent& event)
+            const ui::DrawEvent& event)
         {
             TLRENDER_P();
 
@@ -369,8 +369,8 @@ namespace tl
                 {
                     p.ioInfoInit = false;
                     p.ioInfo = _data.ioManager->getInfo(p.path, p.memoryRead).get();
-                    _updates |= Update::Size;
-                    _updates |= Update::Draw;
+                    _updates |= ui::Update::Size;
+                    _updates |= ui::Update::Draw;
                 }
             }
 

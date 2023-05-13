@@ -4,16 +4,16 @@
 
 #pragma once
 
-#include <tlUI/TimelineIOManager.h>
+#include <tlTimelineUI/IOManager.h>
 
 #include <tlUI/IWidget.h>
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
-        //! Timeline time units.
-        enum class TimelineTimeUnits
+        //! Time units.
+        enum class TimeUnits
         {
             Seconds,
             Frames,
@@ -22,21 +22,21 @@ namespace tl
             Count,
             First = Seconds
         };
-        TLRENDER_ENUM(TimelineTimeUnits);
-        TLRENDER_ENUM_SERIALIZE(TimelineTimeUnits);
+        TLRENDER_ENUM(TimeUnits);
+        TLRENDER_ENUM_SERIALIZE(TimeUnits);
 
-        //! Timeline item data.
-        struct TimelineItemData
+        //! Item data.
+        struct ItemData
         {
             std::string directory;
             file::PathOptions pathOptions;
-            std::shared_ptr<TimelineIOManager> ioManager;
+            std::shared_ptr<IOManager> ioManager;
         };
 
-        //! Timeline item options.
-        struct TimelineItemOptions
+        //! Item options.
+        struct ItemOptions
         {
-            TimelineTimeUnits timeUnits = TimelineTimeUnits::Seconds;
+            TimeUnits timeUnits = TimeUnits::Seconds;
             float scale = 500.F;
             float clipRectScale = 2.F;
             bool thumbnails = true;
@@ -44,26 +44,26 @@ namespace tl
             int waveformHeight = 50;
             float thumbnailFade = .5F;
 
-            bool operator == (const TimelineItemOptions&) const;
-            bool operator != (const TimelineItemOptions&) const;
+            bool operator == (const ItemOptions&) const;
+            bool operator != (const ItemOptions&) const;
         };
 
-        //! Base class for timeline items.
-        class ITimelineItem : public IWidget
+        //! Base class for items.
+        class IItem : public ui::IWidget
         {
         protected:
             void _init(
                 const std::string& name,
-                const TimelineItemData&,
+                const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            ITimelineItem();
+            IItem();
 
         public:
-            ~ITimelineItem() override;
+            ~IItem() override;
 
-            virtual void setOptions(const TimelineItemOptions&);
+            virtual void setOptions(const ItemOptions&);
 
         protected:
             static math::BBox2i _getClipRect(
@@ -72,13 +72,13 @@ namespace tl
 
             static std::string _durationLabel(
                 const otime::RationalTime&,
-                TimelineTimeUnits);
+                TimeUnits);
             static std::string _timeLabel(
                 const otime::RationalTime&,
-                TimelineTimeUnits);
+                TimeUnits);
 
-            TimelineItemData _data;
-            TimelineItemOptions _options;
+            ItemData _data;
+            ItemOptions _options;
         };
     }
 }

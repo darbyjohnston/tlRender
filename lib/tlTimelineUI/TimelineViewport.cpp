@@ -2,11 +2,11 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/TimelineViewport.h>
+#include <tlTimelineUI/TimelineViewport.h>
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
         struct TimelineViewport::Private
         {
@@ -41,8 +41,8 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::TimelineViewport", context, parent);
-            setHStretch(Stretch::Expanding);
-            setVStretch(Stretch::Expanding);
+            setHStretch(ui::Stretch::Expanding);
+            setVStretch(ui::Stretch::Expanding);
         }
 
         TimelineViewport::TimelineViewport() :
@@ -67,7 +67,7 @@ namespace tl
             if (value == p.colorConfigOptions)
                 return;
             p.colorConfigOptions = value;
-            _updates |= Update::Draw;
+            _updates |= ui::Update::Draw;
         }
 
         void TimelineViewport::setLUTOptions(const timeline::LUTOptions& value)
@@ -76,7 +76,7 @@ namespace tl
             if (value == p.lutOptions)
                 return;
             p.lutOptions = value;
-            _updates |= Update::Draw;
+            _updates |= ui::Update::Draw;
         }
 
         void TimelineViewport::setImageOptions(const std::vector<timeline::ImageOptions>& value)
@@ -85,7 +85,7 @@ namespace tl
             if (value == p.imageOptions)
                 return;
             p.imageOptions = value;
-            _updates |= Update::Draw;
+            _updates |= ui::Update::Draw;
         }
 
         void TimelineViewport::setDisplayOptions(const std::vector<timeline::DisplayOptions>& value)
@@ -94,7 +94,7 @@ namespace tl
             if (value == p.displayOptions)
                 return;
             p.displayOptions = value;
-            _updates |= Update::Draw;
+            _updates |= ui::Update::Draw;
         }
 
         void TimelineViewport::setCompareOptions(const timeline::CompareOptions& value)
@@ -103,7 +103,7 @@ namespace tl
             if (value == p.compareOptions)
                 return;
             p.compareOptions = value;
-            _updates |= Update::Draw;
+            _updates |= ui::Update::Draw;
         }
 
         void TimelineViewport::setPlayers(const std::vector<std::shared_ptr<timeline::Player> >& value)
@@ -121,7 +121,7 @@ namespace tl
                 }
             }
             p.videoData.clear();
-            _updates |= Update::Draw;
+            _updates |= ui::Update::Draw;
             for (size_t i = 0; i < p.players.size(); ++i)
             {
                 p.videoDataObservers.push_back(
@@ -142,7 +142,7 @@ namespace tl
                                 }
                             }
                             _p->videoData[i] = value;
-                            _updates |= Update::Draw;
+                            _updates |= ui::Update::Draw;
                         }));
             }
         }
@@ -170,7 +170,7 @@ namespace tl
             p.viewPos = pos;
             p.viewZoom = zoom;
             p.frameView = false;
-            _updates |= Update::Draw;
+            _updates |= ui::Update::Draw;
             if (p.viewPosAndZoomCallback)
             {
                 p.viewPosAndZoomCallback(p.viewPos, p.viewZoom);
@@ -194,7 +194,7 @@ namespace tl
         {
             TLRENDER_P();
             p.frameView = true;
-            _updates |= Update::Draw;
+            _updates |= ui::Update::Draw;
             if (p.frameViewCallback)
             {
                 p.frameViewCallback(p.frameView);
@@ -239,10 +239,10 @@ namespace tl
             }
         }
 
-        void TimelineViewport::sizeHintEvent(const SizeHintEvent& event)
+        void TimelineViewport::sizeHintEvent(const ui::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            const int sa = event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
+            const int sa = event.style->getSizeRole(ui::SizeRole::ScrollArea, event.displayScale);
             _sizeHint.x = sa;
             _sizeHint.y = sa;
         }
@@ -250,7 +250,7 @@ namespace tl
         void TimelineViewport::clipEvent(
             const math::BBox2i& clipRect,
             bool clipped,
-            const ClipEvent& event)
+            const ui::ClipEvent& event)
         {
             const bool changed = clipped != _clipped;
             IWidget::clipEvent(clipRect, clipped, event);
@@ -262,7 +262,7 @@ namespace tl
 
         void TimelineViewport::drawEvent(
             const math::BBox2i& drawRect,
-            const DrawEvent& event)
+            const ui::DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
@@ -308,7 +308,7 @@ namespace tl
             }
         }
 
-        void TimelineViewport::mouseMoveEvent(MouseMoveEvent& event)
+        void TimelineViewport::mouseMoveEvent(ui::MouseMoveEvent& event)
         {
             TLRENDER_P();
             event.accept = true;
@@ -317,7 +317,7 @@ namespace tl
                 p.viewPos.x = p.mouse.viewPos.x + (event.pos.x - p.mouse.pressPos.x);
                 p.viewPos.y = p.mouse.viewPos.y + (event.pos.y - p.mouse.pressPos.y);
                 p.frameView = false;
-                _updates |= Update::Draw;
+                _updates |= ui::Update::Draw;
                 if (p.viewPosAndZoomCallback)
                 {
                     p.viewPosAndZoomCallback(p.viewPos, p.viewZoom);
@@ -329,11 +329,11 @@ namespace tl
             }
         }
 
-        void TimelineViewport::mousePressEvent(MouseClickEvent& event)
+        void TimelineViewport::mousePressEvent(ui::MouseClickEvent& event)
         {
             TLRENDER_P();
             if (0 == event.button &&
-                event.modifiers & static_cast<int>(KeyModifier::Control))
+                event.modifiers & static_cast<int>(ui::KeyModifier::Control))
             {
                 event.accept = true;
                 p.mouse.pressed = true;
@@ -342,37 +342,37 @@ namespace tl
             }
         }
 
-        void TimelineViewport::mouseReleaseEvent(MouseClickEvent& event)
+        void TimelineViewport::mouseReleaseEvent(ui::MouseClickEvent& event)
         {
             TLRENDER_P();
             event.accept = true;
             p.mouse.pressed = false;
         }
 
-        void TimelineViewport::keyPressEvent(KeyEvent& event)
+        void TimelineViewport::keyPressEvent(ui::KeyEvent& event)
         {
             TLRENDER_P();
             switch (event.key)
             {
-            case Key::_0:
+            case ui::Key::_0:
                 event.accept = true;
                 setViewZoom(1.F, event.pos);
                 break;
-            case Key::Equal:
+            case ui::Key::Equal:
                 event.accept = true;
                 setViewZoom(p.viewZoom * 2.F, event.pos);
                 break;
-            case Key::Minus:
+            case ui::Key::Minus:
                 event.accept = true;
                 setViewZoom(p.viewZoom / 2.F, event.pos);
                 break;
-            case Key::Backspace:
+            case ui::Key::Backspace:
                 event.accept = true;
                 frameView();
             }
         }
 
-        void TimelineViewport::keyReleaseEvent(KeyEvent& event)
+        void TimelineViewport::keyReleaseEvent(ui::KeyEvent& event)
         {
             event.accept = true;
         }

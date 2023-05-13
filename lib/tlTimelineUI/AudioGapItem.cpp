@@ -2,20 +2,20 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/TimelineAudioGapItem.h>
+#include <tlTimelineUI/AudioGapItem.h>
 
 #include <tlUI/DrawUtil.h>
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
-        struct TimelineAudioGapItem::Private
+        struct AudioGapItem::Private
         {
             otime::TimeRange timeRange = time::invalidTimeRange;
             std::string label;
             std::string durationLabel;
-            FontRole fontRole = FontRole::Label;
+            ui::FontRole fontRole = ui::FontRole::Label;
 
             struct SizeData
             {
@@ -34,13 +34,13 @@ namespace tl
             DrawData draw;
         };
 
-        void TimelineAudioGapItem::_init(
+        void AudioGapItem::_init(
             const otio::Gap* gap,
-            const TimelineItemData& itemData,
+            const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            ITimelineItem::_init("tl::ui::TimelineAudioGapItem", itemData, context, parent);
+            IItem::_init("tl::timelineui::AudioGapItem", itemData, context, parent);
             TLRENDER_P();
 
             auto rangeOpt = gap->trimmed_range_in_parent();
@@ -53,40 +53,40 @@ namespace tl
             _textUpdate();
         }
 
-        TimelineAudioGapItem::TimelineAudioGapItem() :
+        AudioGapItem::AudioGapItem() :
             _p(new Private)
         {}
 
-        TimelineAudioGapItem::~TimelineAudioGapItem()
+        AudioGapItem::~AudioGapItem()
         {}
 
-        std::shared_ptr<TimelineAudioGapItem> TimelineAudioGapItem::create(
+        std::shared_ptr<AudioGapItem> AudioGapItem::create(
             const otio::Gap* gap,
-            const TimelineItemData& itemData,
+            const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            auto out = std::shared_ptr<TimelineAudioGapItem>(new TimelineAudioGapItem);
+            auto out = std::shared_ptr<AudioGapItem>(new AudioGapItem);
             out->_init(gap, itemData, context, parent);
             return out;
         }
 
-        void TimelineAudioGapItem::setOptions(const TimelineItemOptions& value)
+        void AudioGapItem::setOptions(const ItemOptions& value)
         {
-            ITimelineItem::setOptions(value);
-            if (_updates & Update::Size)
+            IItem::setOptions(value);
+            if (_updates & ui::Update::Size)
             {
                 _textUpdate();
             }
         }
 
-        void TimelineAudioGapItem::sizeHintEvent(const SizeHintEvent& event)
+        void AudioGapItem::sizeHintEvent(const ui::SizeHintEvent& event)
         {
-            ITimelineItem::sizeHintEvent(event);
+            IItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
-            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
+            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
+            p.size.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
             
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
@@ -100,12 +100,12 @@ namespace tl
                 p.size.margin);
         }
 
-        void TimelineAudioGapItem::clipEvent(
+        void AudioGapItem::clipEvent(
             const math::BBox2i& clipRect,
             bool clipped,
-            const ClipEvent& event)
+            const ui::ClipEvent& event)
         {
-            ITimelineItem::clipEvent(clipRect, clipped, event);
+            IItem::clipEvent(clipRect, clipped, event);
             TLRENDER_P();
             if (clipped)
             {
@@ -114,14 +114,14 @@ namespace tl
             }
         }
 
-        void TimelineAudioGapItem::drawEvent(
+        void AudioGapItem::drawEvent(
             const math::BBox2i& drawRect,
-            const DrawEvent& event)
+            const ui::DrawEvent& event)
         {
-            ITimelineItem::drawEvent(drawRect, event);
+            IItem::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const int b = event.style->getSizeRole(SizeRole::Border, event.displayScale);
+            const int b = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
             math::BBox2i g = _geometry;
@@ -163,7 +163,7 @@ namespace tl
                         labelGeometry.min.x,
                         labelGeometry.min.y +
                         fontMetrics.ascender),
-                    event.style->getColorRole(ColorRole::Text));
+                    event.style->getColorRole(ui::ColorRole::Text));
             }
 
             if (durationVisible)
@@ -174,19 +174,19 @@ namespace tl
                         durationGeometry.min.x,
                         durationGeometry.min.y +
                         fontMetrics.ascender),
-                    event.style->getColorRole(ColorRole::Text));
+                    event.style->getColorRole(ui::ColorRole::Text));
             }
         }
 
-        void TimelineAudioGapItem::_textUpdate()
+        void AudioGapItem::_textUpdate()
         {
             TLRENDER_P();
-            p.durationLabel = ITimelineItem::_durationLabel(
+            p.durationLabel = IItem::_durationLabel(
                 p.timeRange.duration(),
                 _options.timeUnits);
         }
 
-        std::string TimelineAudioGapItem::_nameLabel(const std::string& name)
+        std::string AudioGapItem::_nameLabel(const std::string& name)
         {
             return !name.empty() ?
                 name :

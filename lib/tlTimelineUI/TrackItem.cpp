@@ -2,43 +2,43 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/TimelineTrackItem.h>
+#include <tlTimelineUI/TrackItem.h>
 
-#include <tlUI/TimelineAudioClipItem.h>
-#include <tlUI/TimelineAudioGapItem.h>
-#include <tlUI/TimelineVideoClipItem.h>
-#include <tlUI/TimelineVideoGapItem.h>
+#include <tlTimelineUI/AudioClipItem.h>
+#include <tlTimelineUI/AudioGapItem.h>
+#include <tlTimelineUI/VideoClipItem.h>
+#include <tlTimelineUI/VideoGapItem.h>
 
 #include <tlCore/StringFormat.h>
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
-        struct TimelineTrackItem::Private
+        struct TrackItem::Private
         {
-            TimelineTrackType trackType = TimelineTrackType::None;
+            TrackType trackType = TrackType::None;
             otime::TimeRange timeRange = time::invalidTimeRange;
-            std::map<std::shared_ptr<ITimelineItem>, otime::TimeRange> childTimeRanges;
+            std::map<std::shared_ptr<IItem>, otime::TimeRange> childTimeRanges;
             int margin = 0;
         };
 
-        void TimelineTrackItem::_init(
+        void TrackItem::_init(
             const otio::Track* track,
-            const TimelineItemData& itemData,
+            const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            ITimelineItem::_init("tl::ui::TimelineTrackItem", itemData, context, parent);
+            IItem::_init("tl::timelineui::TrackItem", itemData, context, parent);
             TLRENDER_P();
 
             if (otio::Track::Kind::video == track->kind())
             {
-                p.trackType = TimelineTrackType::Video;
+                p.trackType = TrackType::Video;
             }
             else if (otio::Track::Kind::audio == track->kind())
             {
-                p.trackType = TimelineTrackType::Audio;
+                p.trackType = TrackType::Audio;
             }
 
             p.timeRange = track->trimmed_range();
@@ -47,18 +47,18 @@ namespace tl
             {
                 if (auto clip = dynamic_cast<otio::Clip*>(child.value))
                 {
-                    std::shared_ptr<ITimelineItem> clipItem;
+                    std::shared_ptr<IItem> clipItem;
                     switch (p.trackType)
                     {
-                    case TimelineTrackType::Video:
-                        clipItem = TimelineVideoClipItem::create(
+                    case TrackType::Video:
+                        clipItem = VideoClipItem::create(
                             clip,
                             itemData,
                             context,
                             shared_from_this());
                         break;
-                    case TimelineTrackType::Audio:
-                        clipItem = TimelineAudioClipItem::create(
+                    case TrackType::Audio:
+                        clipItem = AudioClipItem::create(
                             clip,
                             itemData,
                             context,
@@ -73,18 +73,18 @@ namespace tl
                 }
                 else if (auto gap = dynamic_cast<otio::Gap*>(child.value))
                 {
-                    std::shared_ptr<ITimelineItem> gapItem;
+                    std::shared_ptr<IItem> gapItem;
                     switch (p.trackType)
                     {
-                    case TimelineTrackType::Video:
-                        gapItem = TimelineVideoGapItem::create(
+                    case TrackType::Video:
+                        gapItem = VideoGapItem::create(
                             gap,
                             itemData,
                             context,
                             shared_from_this());
                         break;
-                    case TimelineTrackType::Audio:
-                        gapItem = TimelineAudioGapItem::create(
+                    case TrackType::Audio:
+                        gapItem = AudioGapItem::create(
                             gap,
                             itemData,
                             context,
@@ -100,31 +100,31 @@ namespace tl
             }
         }
 
-        TimelineTrackItem::TimelineTrackItem() :
+        TrackItem::TrackItem() :
             _p(new Private)
         {}
 
-        TimelineTrackItem::~TimelineTrackItem()
+        TrackItem::~TrackItem()
         {}
 
-        std::shared_ptr<TimelineTrackItem> TimelineTrackItem::create(
+        std::shared_ptr<TrackItem> TrackItem::create(
             const otio::Track* track,
-            const TimelineItemData& itemData,
+            const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            auto out = std::shared_ptr<TimelineTrackItem>(new TimelineTrackItem);
+            auto out = std::shared_ptr<TrackItem>(new TrackItem);
             out->_init(track, itemData, context, parent);
             return out;
         }
 
-        void TimelineTrackItem::setGeometry(const math::BBox2i& value)
+        void TrackItem::setGeometry(const math::BBox2i& value)
         {
-            ITimelineItem::setGeometry(value);
+            IItem::setGeometry(value);
             TLRENDER_P();
             for (auto child : _children)
             {
-                if (auto item = std::dynamic_pointer_cast<ITimelineItem>(child))
+                if (auto item = std::dynamic_pointer_cast<IItem>(child))
                 {
                     const auto i = p.childTimeRanges.find(item);
                     if (i != p.childTimeRanges.end())
@@ -142,12 +142,12 @@ namespace tl
             }
         }
 
-        void TimelineTrackItem::sizeHintEvent(const SizeHintEvent& event)
+        void TrackItem::sizeHintEvent(const ui::SizeHintEvent& event)
         {
-            ITimelineItem::sizeHintEvent(event);
+            IItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
+            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
 
             int childrenHeight = 0;
             for (const auto& child : _children)
@@ -160,11 +160,11 @@ namespace tl
                 childrenHeight);
         }
 
-        void TimelineTrackItem::drawEvent(
+        void TrackItem::drawEvent(
             const math::BBox2i& drawRect,
-            const DrawEvent& event)
+            const ui::DrawEvent& event)
         {
-            ITimelineItem::drawEvent(drawRect, event);
+            IItem::drawEvent(drawRect, event);
         }
     }
 }

@@ -2,20 +2,20 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/TimelineVideoGapItem.h>
+#include <tlTimelineUI/VideoGapItem.h>
 
 #include <tlUI/DrawUtil.h>
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
-        struct TimelineVideoGapItem::Private
+        struct VideoGapItem::Private
         {
             otime::TimeRange timeRange = time::invalidTimeRange;
             std::string label;
             std::string durationLabel;
-            FontRole fontRole = FontRole::Label;
+            ui::FontRole fontRole = ui::FontRole::Label;
 
             struct SizeData
             {
@@ -34,13 +34,13 @@ namespace tl
             DrawData draw;
         };
 
-        void TimelineVideoGapItem::_init(
+        void VideoGapItem::_init(
             const otio::Gap* gap,
-            const TimelineItemData& itemData,
+            const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            ITimelineItem::_init("tl::ui::TimelineVideoGapItem", itemData, context, parent);
+            IItem::_init("tl::timelineui::VideoGapItem", itemData, context, parent);
             TLRENDER_P();
 
             auto rangeOpt = gap->trimmed_range_in_parent();
@@ -53,40 +53,40 @@ namespace tl
             _textUpdate();
         }
 
-        TimelineVideoGapItem::TimelineVideoGapItem() :
+        VideoGapItem::VideoGapItem() :
             _p(new Private)
         {}
 
-        TimelineVideoGapItem::~TimelineVideoGapItem()
+        VideoGapItem::~VideoGapItem()
         {}
 
-        std::shared_ptr<TimelineVideoGapItem> TimelineVideoGapItem::create(
+        std::shared_ptr<VideoGapItem> VideoGapItem::create(
             const otio::Gap* gap,
-            const TimelineItemData& itemData,
+            const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            auto out = std::shared_ptr<TimelineVideoGapItem>(new TimelineVideoGapItem);
+            auto out = std::shared_ptr<VideoGapItem>(new VideoGapItem);
             out->_init(gap, itemData, context, parent);
             return out;
         }
 
-        void TimelineVideoGapItem::setOptions(const TimelineItemOptions& value)
+        void VideoGapItem::setOptions(const ItemOptions& value)
         {
-            ITimelineItem::setOptions(value);
-            if (_updates & Update::Size)
+            IItem::setOptions(value);
+            if (_updates & ui::Update::Size)
             {
                 _textUpdate();
             }
         }
 
-        void TimelineVideoGapItem::sizeHintEvent(const SizeHintEvent& event)
+        void VideoGapItem::sizeHintEvent(const ui::SizeHintEvent& event)
         {
-            ITimelineItem::sizeHintEvent(event);
+            IItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
-            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
+            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
+            p.size.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
 
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
@@ -100,12 +100,12 @@ namespace tl
                 p.size.margin);
         }
 
-        void TimelineVideoGapItem::clipEvent(
+        void VideoGapItem::clipEvent(
             const math::BBox2i& clipRect,
             bool clipped,
-            const ClipEvent& event)
+            const ui::ClipEvent& event)
         {
-            ITimelineItem::clipEvent(clipRect, clipped, event);
+            IItem::clipEvent(clipRect, clipped, event);
             TLRENDER_P();
             if (clipped)
             {
@@ -114,14 +114,14 @@ namespace tl
             }
         }
 
-        void TimelineVideoGapItem::drawEvent(
+        void VideoGapItem::drawEvent(
             const math::BBox2i& drawRect,
-            const DrawEvent& event)
+            const ui::DrawEvent& event)
         {
-            ITimelineItem::drawEvent(drawRect, event);
+            IItem::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const int b = event.style->getSizeRole(SizeRole::Border, event.displayScale);
+            const int b = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
             const math::BBox2i& g = _geometry;
@@ -167,7 +167,7 @@ namespace tl
                         labelGeometry.min.x,
                         labelGeometry.min.y +
                         fontMetrics.ascender),
-                    event.style->getColorRole(ColorRole::Text));
+                    event.style->getColorRole(ui::ColorRole::Text));
             }
 
             if (durationVisible)
@@ -182,19 +182,19 @@ namespace tl
                         durationGeometry.min.x,
                         durationGeometry.min.y +
                         fontMetrics.ascender),
-                    event.style->getColorRole(ColorRole::Text));
+                    event.style->getColorRole(ui::ColorRole::Text));
             }
         }
 
-        void TimelineVideoGapItem::_textUpdate()
+        void VideoGapItem::_textUpdate()
         {
             TLRENDER_P();
-            p.durationLabel = ITimelineItem::_durationLabel(
+            p.durationLabel = IItem::_durationLabel(
                 p.timeRange.duration(),
                 _options.timeUnits);
         }
 
-        std::string TimelineVideoGapItem::_nameLabel(const std::string& name)
+        std::string VideoGapItem::_nameLabel(const std::string& name)
         {
             return !name.empty() ?
                 name :

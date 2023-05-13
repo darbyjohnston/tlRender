@@ -4,57 +4,57 @@
 
 #pragma once
 
-#include <tlUI/ITimelineItem.h>
+#include <tlTimelineUI/IItem.h>
 
 #include <opentimelineio/clip.h>
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
-        //! Timeline audio clip item.
-        class TimelineAudioClipItem : public ITimelineItem
+        //! Video clip item.
+        class VideoClipItem : public IItem
         {
         protected:
             void _init(
                 const otio::Clip*,
-                const TimelineItemData&,
+                const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            TimelineAudioClipItem();
+            VideoClipItem();
 
         public:
-            ~TimelineAudioClipItem() override;
+            ~VideoClipItem() override;
 
             //! Create a new item.
-            static std::shared_ptr<TimelineAudioClipItem> create(
+            static std::shared_ptr<VideoClipItem> create(
                 const otio::Clip*,
-                const TimelineItemData&,
+                const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            void setOptions(const TimelineItemOptions&) override;
+            void setOptions(const ItemOptions&) override;
 
-            void tickEvent(const TickEvent&) override;
-            void sizeHintEvent(const SizeHintEvent&) override;
+            void tickEvent(const ui::TickEvent&) override;
+            void sizeHintEvent(const ui::SizeHintEvent&) override;
             void clipEvent(
                 const math::BBox2i&,
                 bool,
-                const ClipEvent&) override;
+                const ui::ClipEvent&) override;
             void drawEvent(
                 const math::BBox2i&,
-                const DrawEvent&) override;
+                const ui::DrawEvent&) override;
 
         private:
             void _textUpdate();
 
             void _drawInfo(
                 const math::BBox2i&,
-                const DrawEvent&);
-            void _drawWaveforms(
+                const ui::DrawEvent&);
+            void _drawThumbnails(
                 const math::BBox2i&,
-                const DrawEvent&);
+                const ui::DrawEvent&);
 
             TLRENDER_PRIVATE();
         };

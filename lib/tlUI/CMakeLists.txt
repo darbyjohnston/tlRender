@@ -11,7 +11,6 @@ set(HEADERS
     GridLayout.h
     GroupBox.h
     IButton.h
-    ITimelineItem.h
     IWidget.h
     IWidgetInline.h
     IWidgetOptions.h
@@ -34,15 +33,6 @@ set(HEADERS
     Splitter.h
     StackLayout.h
     Style.h
-    TimelineAudioClipItem.h
-    TimelineAudioGapItem.h
-    TimelineIOManager.h
-    TimelineItem.h
-    TimelineTrackItem.h
-    TimelineVideoClipItem.h
-    TimelineVideoGapItem.h
-    TimelineViewport.h
-    TimelineWidget.h
     ToolButton.h)
 set(HEADERS_PRIVATE)
 
@@ -59,7 +49,6 @@ set(SOURCE
     GridLayout.cpp
     GroupBox.cpp
     IButton.cpp
-    ITimelineItem.cpp
     IWidget.cpp
     IWidgetOptions.cpp
     IconLibrary.cpp
@@ -81,19 +70,10 @@ set(SOURCE
     Splitter.cpp
     StackLayout.cpp
     Style.cpp
-    TimelineAudioClipItem.cpp
-    TimelineAudioGapItem.cpp
-    TimelineIOManager.cpp
-    TimelineItem.cpp
-    TimelineTrackItem.cpp
-    TimelineVideoClipItem.cpp
-    TimelineVideoGapItem.cpp
-    TimelineViewport.cpp
-    TimelineWidget.cpp
     ToolButton.cpp)
 
 add_library(tlUI ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
-target_link_libraries(tlUI PUBLIC tlTimeline PRIVATE ${LIBRARIES_PRIVATE})
+target_link_libraries(tlUI PUBLIC tlIO PRIVATE ${LIBRARIES_PRIVATE})
 set_target_properties(tlUI PROPERTIES FOLDER lib)
 set_target_properties(tlUI PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

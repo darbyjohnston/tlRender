@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/TimelineIOManager.h>
+#include <tlTimelineUI/IOManager.h>
 
 #include <tlIO/IOSystem.h>
 
@@ -12,9 +12,9 @@
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
-        struct TimelineIOManager::Private
+        struct IOManager::Private
         {
             std::weak_ptr<system::Context> context;
             io::Options ioOptions;
@@ -22,7 +22,7 @@ namespace tl
             std::shared_ptr<observer::Value<bool> > cancelRequests;
         };
 
-        void TimelineIOManager::_init(
+        void IOManager::_init(
             const io::Options& ioOptions,
             const std::shared_ptr<system::Context>& context)
         {
@@ -43,23 +43,23 @@ namespace tl
             p.cancelRequests = observer::Value<bool>::create(false);
         }
 
-        TimelineIOManager::TimelineIOManager() :
+        IOManager::IOManager() :
             _p(new Private)
         {}
 
-        TimelineIOManager::~TimelineIOManager()
+        IOManager::~IOManager()
         {}
 
-        std::shared_ptr<TimelineIOManager> TimelineIOManager::create(
+        std::shared_ptr<IOManager> IOManager::create(
             const io::Options& options,
             const std::shared_ptr<system::Context>& context)
         {
-            auto out = std::shared_ptr<TimelineIOManager>(new TimelineIOManager);
+            auto out = std::shared_ptr<IOManager>(new IOManager);
             out->_init(options, context);
             return out;
         }
 
-        std::future<io::Info> TimelineIOManager::getInfo(
+        std::future<io::Info> IOManager::getInfo(
             const file::Path& path,
             const std::vector<file::MemoryRead>& memoryRead)
         {
@@ -89,7 +89,7 @@ namespace tl
             return out;
         }
 
-        std::future<io::VideoData> TimelineIOManager::readVideo(
+        std::future<io::VideoData> IOManager::readVideo(
             const file::Path& path,
             const std::vector<file::MemoryRead>& memoryRead,
             const otime::RationalTime& time,
@@ -121,7 +121,7 @@ namespace tl
             return out;
         }
 
-        std::future<io::AudioData> TimelineIOManager::readAudio(
+        std::future<io::AudioData> IOManager::readAudio(
             const file::Path& path,
             const std::vector<file::MemoryRead>& memoryRead,
             const otime::TimeRange& range)
@@ -152,7 +152,7 @@ namespace tl
             return out;
         }
 
-        void TimelineIOManager::cancelRequests()
+        void IOManager::cancelRequests()
         {
             TLRENDER_P();
             p.cancelRequests->setAlways(true);
@@ -165,7 +165,7 @@ namespace tl
             }
         }
 
-        std::shared_ptr<observer::IValue<bool> > TimelineIOManager::observeCancelRequests() const
+        std::shared_ptr<observer::IValue<bool> > IOManager::observeCancelRequests() const
         {
             return _p->cancelRequests;
         }

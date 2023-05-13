@@ -4,9 +4,10 @@
 
 #include <tlQtWidget/TimelineWidget.h>
 
+#include <tlTimelineUI/TimelineWidget.h>
+
 #include <tlUI/EventLoop.h>
 #include <tlUI/RowLayout.h>
-#include <tlUI/TimelineWidget.h>
 
 #include <tlGL/Render.h>
 #include <tlGL/Util.h>
@@ -31,7 +32,7 @@ namespace tl
             std::shared_ptr<ui::Style> style;
             std::shared_ptr<timeline::IRender> render;
             std::shared_ptr<ui::EventLoop> eventLoop;
-            std::shared_ptr<ui::TimelineWidget> timelineWidget;
+            std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
 
             std::chrono::steady_clock::time_point mouseWheelTimer;
 
@@ -67,7 +68,7 @@ namespace tl
                 p.iconLibrary,
                 p.fontSystem,
                 context);
-            p.timelineWidget = ui::TimelineWidget::create(context);
+            p.timelineWidget = timelineui::TimelineWidget::create(context);
             p.timelineWidget->setFrameViewCallback(
                 [this](bool value)
                 {
@@ -90,7 +91,7 @@ namespace tl
             p.timelineWidget->setPlayer(p.player);
         }
 
-        const ui::TimelineItemOptions& TimelineWidget::itemOptions() const
+        const timelineui::ItemOptions& TimelineWidget::itemOptions() const
         {
             return _p->timelineWidget->getItemOptions();
         }
@@ -111,7 +112,7 @@ namespace tl
             p.mouseWheelScale = value;
         }
 
-        void TimelineWidget::setItemOptions(const ui::TimelineItemOptions& value)
+        void TimelineWidget::setItemOptions(const timelineui::ItemOptions& value)
         {
             _p->timelineWidget->setItemOptions(value);
         }

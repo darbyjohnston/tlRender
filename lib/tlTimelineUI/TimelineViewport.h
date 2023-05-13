@@ -10,10 +10,10 @@
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
         //! Timeline viewport.
-        class TimelineViewport : public IWidget
+        class TimelineViewport : public ui::IWidget
         {
             TLRENDER_NON_COPYABLE(TimelineViewport);
 
@@ -86,19 +86,19 @@ namespace tl
 
             void setVisible(bool) override;
             void setEnabled(bool) override;
-            void sizeHintEvent(const SizeHintEvent&) override;
+            void sizeHintEvent(const ui::SizeHintEvent&) override;
             void clipEvent(
                 const math::BBox2i&,
                 bool,
-                const ClipEvent&) override;
+                const ui::ClipEvent&) override;
             void drawEvent(
                 const math::BBox2i&,
-                const DrawEvent&) override;
-            void mouseMoveEvent(MouseMoveEvent&) override;
-            void mousePressEvent(MouseClickEvent&) override;
-            void mouseReleaseEvent(MouseClickEvent&) override;
-            void keyPressEvent(KeyEvent&) override;
-            void keyReleaseEvent(KeyEvent&) override;
+                const ui::DrawEvent&) override;
+            void mouseMoveEvent(ui::MouseMoveEvent&) override;
+            void mousePressEvent(ui::MouseClickEvent&) override;
+            void mouseReleaseEvent(ui::MouseClickEvent&) override;
+            void keyPressEvent(ui::KeyEvent&) override;
+            void keyReleaseEvent(ui::KeyEvent&) override;
 
         private:
             imaging::Size _renderSize() const;
