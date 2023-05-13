@@ -15,7 +15,7 @@ namespace tl
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
-            std::vector<std::shared_ptr<timeline::TimelinePlayer> > timelinePlayers;
+            std::vector<std::shared_ptr<timeline::Player> > players;
             std::vector<imaging::Size> timelineSizes;
             std::vector<imaging::Size> timelineSizesTmp;
             math::Vector2i viewPos;
@@ -106,13 +106,13 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void TimelineViewport::setTimelinePlayers(const std::vector<std::shared_ptr<timeline::TimelinePlayer> >& value)
+        void TimelineViewport::setPlayers(const std::vector<std::shared_ptr<timeline::Player> >& value)
         {
             TLRENDER_P();
             p.videoDataObservers.clear();
-            p.timelinePlayers = value;
+            p.players = value;
             p.timelineSizesTmp.clear();
-            for (const auto& i : p.timelinePlayers)
+            for (const auto& i : p.players)
             {
                 const auto& ioInfo = i->getIOInfo();
                 if (!ioInfo.video.empty())
@@ -122,21 +122,21 @@ namespace tl
             }
             p.videoData.clear();
             _updates |= Update::Draw;
-            for (size_t i = 0; i < p.timelinePlayers.size(); ++i)
+            for (size_t i = 0; i < p.players.size(); ++i)
             {
                 p.videoDataObservers.push_back(
                     observer::ValueObserver<timeline::VideoData>::create(
-                        p.timelinePlayers[i]->observeCurrentVideo(),
+                        p.players[i]->observeCurrentVideo(),
                         [this, i](const timeline::VideoData& value)
                         {
                             _p->timelineSizes = _p->timelineSizesTmp;
-                            if (_p->videoData.size() != _p->timelinePlayers.size())
+                            if (_p->videoData.size() != _p->players.size())
                             {
-                                _p->videoData = std::vector<timeline::VideoData>(_p->timelinePlayers.size());
+                                _p->videoData = std::vector<timeline::VideoData>(_p->players.size());
                             }
                             for (size_t i = 0; i < _p->videoData.size(); ++i)
                             {
-                                if (!_p->timelinePlayers[i]->getTimeRange().contains(_p->videoData[i].time))
+                                if (!_p->players[i]->getTimeRange().contains(_p->videoData[i].time))
                                 {
                                     _p->videoData[i] = timeline::VideoData();
                                 }

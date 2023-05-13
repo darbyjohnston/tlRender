@@ -6,7 +6,7 @@
 
 #include <tlQt/ToolTipsFilter.h>
 
-#include <tlTimeline/TimelinePlayer.h>
+#include <tlTimeline/Player.h>
 
 #include <QApplication>
 #include <QMap>

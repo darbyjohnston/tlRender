@@ -12,7 +12,7 @@ namespace tl
     {
         struct TimelineWidget::Private
         {
-            std::shared_ptr<timeline::TimelinePlayer> timelinePlayer;
+            std::shared_ptr<timeline::Player> player;
             bool frameView = true;
             std::function<void(bool)> frameViewCallback;
             bool stopOnScrub = true;
@@ -80,29 +80,29 @@ namespace tl
             return out;
         }
 
-        void TimelineWidget::setTimelinePlayer(const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer)
+        void TimelineWidget::setPlayer(const std::shared_ptr<timeline::Player>& player)
         {
             TLRENDER_P();
-            if (timelinePlayer == p.timelinePlayer)
+            if (player == p.player)
                 return;
             if (p.timelineItem)
             {
                 p.timelineItem->setParent(nullptr);
                 p.timelineItem.reset();
             }
-            p.timelinePlayer = timelinePlayer;
-            if (p.timelinePlayer)
+            p.player = player;
+            if (p.player)
             {
                 if (auto context = _context.lock())
                 {
                     TimelineItemData itemData;
-                    itemData.directory = p.timelinePlayer->getPath().getDirectory();
-                    itemData.pathOptions = p.timelinePlayer->getOptions().pathOptions;
+                    itemData.directory = p.player->getPath().getDirectory();
+                    itemData.pathOptions = p.player->getOptions().pathOptions;
                     itemData.ioManager = TimelineIOManager::create(
-                        p.timelinePlayer->getOptions().ioOptions,
+                        p.player->getOptions().ioOptions,
                         context);
 
-                    p.timelineItem = TimelineItem::create(p.timelinePlayer, itemData, context);
+                    p.timelineItem = TimelineItem::create(p.player, itemData, context);
                     p.timelineItem->setStopOnScrub(p.stopOnScrub);
                     p.scrollWidget->setScrollPos(math::Vector2i());
                     p.itemOptions.scale = _getTimelineScale();
@@ -382,9 +382,9 @@ namespace tl
         {
             TLRENDER_P();
             float out = 100.F;
-            if (p.timelinePlayer)
+            if (p.player)
             {
-                const otime::TimeRange& timeRange = p.timelinePlayer->getTimeRange();
+                const otime::TimeRange& timeRange = p.player->getTimeRange();
                 const double duration = timeRange.duration().rescaled_to(1.0).value();
                 if (duration > 0.0)
                 {

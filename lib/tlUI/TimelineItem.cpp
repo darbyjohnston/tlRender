@@ -16,7 +16,7 @@ namespace tl
     {
         struct TimelineItem::Private
         {
-            std::shared_ptr<timeline::TimelinePlayer> timelinePlayer;
+            std::shared_ptr<timeline::Player> player;
             otime::TimeRange timeRange = time::invalidTimeRange;
             otime::RationalTime currentTime = time::invalidTime;
             otime::TimeRange inOutRange = time::invalidTimeRange;
@@ -46,7 +46,7 @@ namespace tl
         };
 
         void TimelineItem::_init(
-            const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer,
+            const std::shared_ptr<timeline::Player>& player,
             const TimelineItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -54,10 +54,10 @@ namespace tl
             ITimelineItem::_init("tl::ui::TimelineItem", itemData, context, parent);
             TLRENDER_P();
 
-            p.timelinePlayer = timelinePlayer;
-            p.timeRange = timelinePlayer->getTimeRange();
+            p.player = player;
+            p.timeRange = player->getTimeRange();
 
-            const auto otioTimeline = p.timelinePlayer->getTimeline()->getTimeline();
+            const auto otioTimeline = p.player->getTimeline()->getTimeline();
             for (const auto& child : otioTimeline->tracks()->children())
             {
                 if (const auto* track = dynamic_cast<otio::Track*>(child.value))
@@ -71,7 +71,7 @@ namespace tl
             }
 
             p.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
-                p.timelinePlayer->observeCurrentTime(),
+                p.player->observeCurrentTime(),
                 [this](const otime::RationalTime& value)
                 {
                     _p->currentTime = value;
@@ -79,7 +79,7 @@ namespace tl
                 });
 
             p.inOutRangeObserver = observer::ValueObserver<otime::TimeRange>::create(
-                p.timelinePlayer->observeInOutRange(),
+                p.player->observeInOutRange(),
                 [this](const otime::TimeRange value)
                 {
                     _p->inOutRange = value;
@@ -87,7 +87,7 @@ namespace tl
                 });
 
             p.cacheInfoObserver = observer::ValueObserver<timeline::PlayerCacheInfo>::create(
-                p.timelinePlayer->observeCacheInfo(),
+                p.player->observeCacheInfo(),
                 [this](const timeline::PlayerCacheInfo& value)
                 {
                     _p->cacheInfo = value;
@@ -103,13 +103,13 @@ namespace tl
         {}
 
         std::shared_ptr<TimelineItem> TimelineItem::create(
-            const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer,
+            const std::shared_ptr<timeline::Player>& player,
             const TimelineItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TimelineItem>(new TimelineItem);
-            out->_init(timelinePlayer, itemData, context, parent);
+            out->_init(player, itemData, context, parent);
             return out;
         }
 
@@ -231,7 +231,7 @@ namespace tl
             event.accept = true;
             if (p.mouse.currentTimeDrag)
             {
-                p.timelinePlayer->seek(_posToTime(event.pos.x));
+                p.player->seek(_posToTime(event.pos.x));
             }
         }
 
@@ -245,13 +245,13 @@ namespace tl
                 p.mouse.pressPos = event.pos;
                 if (p.stopOnScrub)
                 {
-                    p.timelinePlayer->setPlayback(timeline::Playback::Stop);
+                    p.player->setPlayback(timeline::Playback::Stop);
                 }
                 const math::BBox2i bbox = _geometry.margin(-p.size.margin);
                 if (bbox.contains(event.pos))
                 {
                     p.mouse.currentTimeDrag = true;
-                    p.timelinePlayer->seek(_posToTime(event.pos.x));
+                    p.player->seek(_posToTime(event.pos.x));
                 }
             }
         }
@@ -466,7 +466,7 @@ namespace tl
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const math::BBox2i& g = _geometry;
 
-            const otime::RationalTime& currentTime = p.timelinePlayer->observeCurrentTime()->get();
+            const otime::RationalTime& currentTime = p.player->observeCurrentTime()->get();
             if (!time::compareExact(currentTime, time::invalidTime))
             {
                 math::Vector2i pos(
@@ -536,7 +536,7 @@ namespace tl
         {
             TLRENDER_P();
             float out = 0.F;
-            const otime::RationalTime& currentTime = p.timelinePlayer->observeCurrentTime()->get();
+            const otime::RationalTime& currentTime = p.player->observeCurrentTime()->get();
             if (!time::compareExact(currentTime, time::invalidTime) &&
                 p.timeRange.duration().value() > 0.0)
             {

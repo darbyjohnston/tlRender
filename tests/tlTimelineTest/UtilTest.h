@@ -10,20 +10,20 @@ namespace tl
 {
     namespace timeline_tests
     {
-        class TimelinePlayerTest : public tests::ITest
+        class UtilTest : public tests::ITest
         {
         protected:
-            TimelinePlayerTest(const std::shared_ptr<system::Context>&);
+            UtilTest(const std::shared_ptr<system::Context>&);
 
         public:
-            static std::shared_ptr<TimelinePlayerTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<UtilTest> create(const std::shared_ptr<system::Context>&);
 
             void run() override;
 
         private:
             void _enums();
-            void _loop();
-            void _timelinePlayer();
+            void _ranges();
+            void _util();
         };
     }
 }

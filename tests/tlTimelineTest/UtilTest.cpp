@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlTimelineTest/TimelineUtilTest.h>
+#include <tlTimelineTest/UtilTest.h>
 
 #include <tlTimeline/Util.h>
 
@@ -16,28 +16,28 @@ namespace tl
 {
     namespace timeline_tests
     {
-        TimelineUtilTest::TimelineUtilTest(const std::shared_ptr<system::Context>& context) :
-            ITest("timeline_tests::TimelineUtilTest", context)
+        UtilTest::UtilTest(const std::shared_ptr<system::Context>& context) :
+            ITest("timeline_tests::UtilTest", context)
         {}
 
-        std::shared_ptr<TimelineUtilTest> TimelineUtilTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<UtilTest> UtilTest::create(const std::shared_ptr<system::Context>& context)
         {
-            return std::shared_ptr<TimelineUtilTest>(new TimelineUtilTest(context));
+            return std::shared_ptr<UtilTest>(new UtilTest(context));
         }
 
-        void TimelineUtilTest::run()
+        void UtilTest::run()
         {
             _enums();
             _ranges();
             _util();
         }
 
-        void TimelineUtilTest::_enums()
+        void UtilTest::_enums()
         {
             _enum<FileSequenceAudio>("FileSequenceAudio", getFileSequenceAudioEnums);
         }
 
-        void TimelineUtilTest::_ranges()
+        void UtilTest::_ranges()
         {
             {
                 std::vector<otime::RationalTime> f;
@@ -112,7 +112,7 @@ namespace tl
             }
         }
 
-        void TimelineUtilTest::_util()
+        void UtilTest::_util()
         {
             {
                 auto otioClip = new otio::Clip;

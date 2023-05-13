@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlTimeline/TimelinePlayerPrivate.h>
+#include <tlTimeline/PlayerPrivate.h>
 
 #include <tlTimeline/Util.h>
 
@@ -52,7 +52,7 @@ namespace tl
 #endif // TLRENDER_AUDIO
         }
 
-        void TimelinePlayer::_init(
+        void Player::_init(
             const std::shared_ptr<Timeline>& timeline,
             const std::shared_ptr<system::Context>& context,
             const PlayerOptions& playerOptions)
@@ -76,7 +76,7 @@ namespace tl
                 lines.push_back(string::Format("    Sleep timeout: {0}ms").
                     arg(playerOptions.sleepTimeout.count()));
                 logSystem->print(
-                    string::Format("tl::timeline::TimelinePlayer {0}").arg(this),
+                    string::Format("tl::timeline::Player {0}").arg(this),
                     string::join(lines, "\n"));
             }
 
@@ -151,7 +151,7 @@ namespace tl
                                 {
                                     std::stringstream ss;
                                     ss << "Cannot open audio stream: " << e.what();
-                                    context->log("tl::timline::TimelinePlayer", ss.str(), log::Type::Error);
+                                    context->log("tl::timline::Player", ss.str(), log::Type::Error);
                                 }
                             }
                         }
@@ -297,11 +297,11 @@ namespace tl
                 });
         }
 
-        TimelinePlayer::TimelinePlayer() :
+        Player::Player() :
             _p(new Private)
         {}
 
-        TimelinePlayer::~TimelinePlayer()
+        Player::~Player()
         {
             TLRENDER_P();
 #if defined(TLRENDER_AUDIO)
@@ -324,67 +324,67 @@ namespace tl
             }
         }
 
-        std::shared_ptr<TimelinePlayer> TimelinePlayer::create(
+        std::shared_ptr<Player> Player::create(
             const std::shared_ptr<Timeline>& timeline,
             const std::shared_ptr<system::Context>& context,
             const PlayerOptions& playerOptions)
         {
-            auto out = std::shared_ptr<TimelinePlayer>(new TimelinePlayer);
+            auto out = std::shared_ptr<Player>(new Player);
             out->_init(timeline, context, playerOptions);
             return out;
         }
 
-        const std::weak_ptr<system::Context>& TimelinePlayer::getContext() const
+        const std::weak_ptr<system::Context>& Player::getContext() const
         {
             return _p->timeline->getContext();
         }
         
-        const std::shared_ptr<Timeline>& TimelinePlayer::getTimeline() const
+        const std::shared_ptr<Timeline>& Player::getTimeline() const
         {
             return _p->timeline;
         }
 
-        const file::Path& TimelinePlayer::getPath() const
+        const file::Path& Player::getPath() const
         {
             return _p->timeline->getPath();
         }
 
-        const file::Path& TimelinePlayer::getAudioPath() const
+        const file::Path& Player::getAudioPath() const
         {
             return _p->timeline->getAudioPath();
         }
 
-        const PlayerOptions& TimelinePlayer::getPlayerOptions() const
+        const PlayerOptions& Player::getPlayerOptions() const
         {
             return _p->playerOptions;
         }
 
-        const Options& TimelinePlayer::getOptions() const
+        const Options& Player::getOptions() const
         {
             return _p->timeline->getOptions();
         }
 
-        const otime::TimeRange& TimelinePlayer::getTimeRange() const
+        const otime::TimeRange& Player::getTimeRange() const
         {
             return _p->timeline->getTimeRange();
         }
 
-        const io::Info& TimelinePlayer::getIOInfo() const
+        const io::Info& Player::getIOInfo() const
         {
             return _p->ioInfo;
         }
 
-        double TimelinePlayer::getDefaultSpeed() const
+        double Player::getDefaultSpeed() const
         {
             return _p->timeline->getTimeRange().duration().rate();
         }
 
-        std::shared_ptr<observer::IValue<double> > TimelinePlayer::observeSpeed() const
+        std::shared_ptr<observer::IValue<double> > Player::observeSpeed() const
         {
             return _p->speed;
         }
 
-        void TimelinePlayer::setSpeed(double value)
+        void Player::setSpeed(double value)
         {
             TLRENDER_P();
             if (p.speed->setIfChanged(value))
@@ -405,12 +405,12 @@ namespace tl
             }
         }
 
-        std::shared_ptr<observer::IValue<Playback> > TimelinePlayer::observePlayback() const
+        std::shared_ptr<observer::IValue<Playback> > Player::observePlayback() const
         {
             return _p->playback;
         }
 
-        void TimelinePlayer::setPlayback(Playback value)
+        void Player::setPlayback(Playback value)
         {
             TLRENDER_P();
 
@@ -482,22 +482,22 @@ namespace tl
             }
         }
 
-        std::shared_ptr<observer::IValue<Loop> > TimelinePlayer::observeLoop() const
+        std::shared_ptr<observer::IValue<Loop> > Player::observeLoop() const
         {
             return _p->loop;
         }
 
-        void TimelinePlayer::setLoop(Loop value)
+        void Player::setLoop(Loop value)
         {
             _p->loop->setIfChanged(value);
         }
 
-        std::shared_ptr<observer::IValue<otime::RationalTime> > TimelinePlayer::observeCurrentTime() const
+        std::shared_ptr<observer::IValue<otime::RationalTime> > Player::observeCurrentTime() const
         {
             return _p->currentTime;
         }
 
-        void TimelinePlayer::seek(const otime::RationalTime& time)
+        void Player::seek(const otime::RationalTime& time)
         {
             TLRENDER_P();
 
@@ -526,7 +526,7 @@ namespace tl
             }
         }
 
-        void TimelinePlayer::timeAction(TimeAction time)
+        void Player::timeAction(TimeAction time)
         {
             TLRENDER_P();
             setPlayback(timeline::Playback::Stop);
@@ -562,27 +562,27 @@ namespace tl
             }
         }
 
-        void TimelinePlayer::start()
+        void Player::start()
         {
             timeAction(TimeAction::Start);
         }
 
-        void TimelinePlayer::end()
+        void Player::end()
         {
             timeAction(TimeAction::End);
         }
 
-        void TimelinePlayer::framePrev()
+        void Player::framePrev()
         {
             timeAction(TimeAction::FramePrev);
         }
 
-        void TimelinePlayer::frameNext()
+        void Player::frameNext()
         {
             timeAction(TimeAction::FrameNext);
         }
 
-        void TimelinePlayer::setExternalTime(const std::shared_ptr<TimelinePlayer>& value)
+        void Player::setExternalTime(const std::shared_ptr<Player>& value)
         {
             TLRENDER_P();
             if (value == p.externalTime.player)
@@ -592,7 +592,7 @@ namespace tl
             {
                 p.externalTime.timeRange = p.externalTime.player->getTimeRange();
 
-                auto weak = std::weak_ptr<TimelinePlayer>(shared_from_this());
+                auto weak = std::weak_ptr<Player>(shared_from_this());
                 p.externalTime.playbackObserver = observer::ValueObserver<Playback>::create(
                     p.externalTime.player->observePlayback(),
                     [weak](Playback value)
@@ -629,12 +629,12 @@ namespace tl
             }
         }
 
-        std::shared_ptr<observer::IValue<otime::TimeRange> > TimelinePlayer::observeInOutRange() const
+        std::shared_ptr<observer::IValue<otime::TimeRange> > Player::observeInOutRange() const
         {
             return _p->inOutRange;
         }
 
-        void TimelinePlayer::setInOutRange(const otime::TimeRange& value)
+        void Player::setInOutRange(const otime::TimeRange& value)
         {
             TLRENDER_P();
             if (p.inOutRange->setIfChanged(value))
@@ -645,7 +645,7 @@ namespace tl
             }
         }
 
-        void TimelinePlayer::setInPoint()
+        void Player::setInPoint()
         {
             TLRENDER_P();
             setInOutRange(otime::TimeRange::range_from_start_end_time(
@@ -653,7 +653,7 @@ namespace tl
                 p.inOutRange->get().end_time_exclusive()));
         }
 
-        void TimelinePlayer::resetInPoint()
+        void Player::resetInPoint()
         {
             TLRENDER_P();
             setInOutRange(otime::TimeRange::range_from_start_end_time(
@@ -661,7 +661,7 @@ namespace tl
                 p.inOutRange->get().end_time_exclusive()));
         }
 
-        void TimelinePlayer::setOutPoint()
+        void Player::setOutPoint()
         {
             TLRENDER_P();
             setInOutRange(otime::TimeRange::range_from_start_end_time_inclusive(
@@ -669,7 +669,7 @@ namespace tl
                 p.currentTime->get()));
         }
 
-        void TimelinePlayer::resetOutPoint()
+        void Player::resetOutPoint()
         {
             TLRENDER_P();
             setInOutRange(otime::TimeRange::range_from_start_end_time_inclusive(
@@ -677,12 +677,12 @@ namespace tl
                 p.timeline->getTimeRange().end_time_inclusive()));
         }
 
-        std::shared_ptr<observer::IValue<uint16_t> > TimelinePlayer::observeVideoLayer() const
+        std::shared_ptr<observer::IValue<uint16_t> > Player::observeVideoLayer() const
         {
             return _p->videoLayer;
         }
 
-        void TimelinePlayer::setVideoLayer(uint16_t layer)
+        void Player::setVideoLayer(uint16_t layer)
         {
             TLRENDER_P();
             if (p.videoLayer->setIfChanged(layer))
@@ -694,17 +694,17 @@ namespace tl
             }
         }
 
-        std::shared_ptr<observer::IValue<VideoData> > TimelinePlayer::observeCurrentVideo() const
+        std::shared_ptr<observer::IValue<VideoData> > Player::observeCurrentVideo() const
         {
             return _p->currentVideoData;
         }
 
-        std::shared_ptr<observer::IValue<float> > TimelinePlayer::observeVolume() const
+        std::shared_ptr<observer::IValue<float> > Player::observeVolume() const
         {
             return _p->volume;
         }
 
-        void TimelinePlayer::setVolume(float value)
+        void Player::setVolume(float value)
         {
             TLRENDER_P();
             if (p.volume->setIfChanged(math::clamp(value, 0.F, 1.F)))
@@ -714,12 +714,12 @@ namespace tl
             }
         }
 
-        std::shared_ptr<observer::IValue<bool> > TimelinePlayer::observeMute() const
+        std::shared_ptr<observer::IValue<bool> > Player::observeMute() const
         {
             return _p->mute;
         }
 
-        void TimelinePlayer::setMute(bool value)
+        void Player::setMute(bool value)
         {
             TLRENDER_P();
             if (p.mute->setIfChanged(value))
@@ -729,12 +729,12 @@ namespace tl
             }
         }
 
-        std::shared_ptr<observer::IValue<double> > TimelinePlayer::observeAudioOffset() const
+        std::shared_ptr<observer::IValue<double> > Player::observeAudioOffset() const
         {
             return _p->audioOffset;
         }
 
-        void TimelinePlayer::setAudioOffset(double value)
+        void Player::setAudioOffset(double value)
         {
             TLRENDER_P();
             if (p.audioOffset->setIfChanged(value))
@@ -744,17 +744,17 @@ namespace tl
             }
         }
 
-        std::shared_ptr<observer::IList<AudioData> > TimelinePlayer::observeCurrentAudio() const
+        std::shared_ptr<observer::IList<AudioData> > Player::observeCurrentAudio() const
         {
             return _p->currentAudioData;
         }
 
-        std::shared_ptr<observer::IValue<PlayerCacheOptions> > TimelinePlayer::observeCacheOptions() const
+        std::shared_ptr<observer::IValue<PlayerCacheOptions> > Player::observeCacheOptions() const
         {
             return _p->cacheOptions;
         }
 
-        void TimelinePlayer::setCacheOptions(const PlayerCacheOptions& value)
+        void Player::setCacheOptions(const PlayerCacheOptions& value)
         {
             TLRENDER_P();
             if (p.cacheOptions->setIfChanged(value))
@@ -764,12 +764,12 @@ namespace tl
             }
         }
 
-        std::shared_ptr<observer::IValue<PlayerCacheInfo> > TimelinePlayer::observeCacheInfo() const
+        std::shared_ptr<observer::IValue<PlayerCacheInfo> > Player::observeCacheInfo() const
         {
             return _p->cacheInfo;
         }
 
-        void TimelinePlayer::tick()
+        void Player::tick()
         {
             TLRENDER_P();
 

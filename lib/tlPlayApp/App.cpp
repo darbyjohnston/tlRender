@@ -617,8 +617,8 @@ namespace tl
                                 playerOptions.externalTimeMode);
                         }
                     }
-                    auto timelinePlayer = timeline::TimelinePlayer::create(timeline, _context, playerOptions);
-                    qtTimelinePlayer = new qt::TimelinePlayer(timelinePlayer, _context, this);
+                    auto player = timeline::Player::create(timeline, _context, playerOptions);
+                    qtTimelinePlayer = new qt::TimelinePlayer(player, _context, this);
                     item->timeRange = qtTimelinePlayer->timeRange();
                     item->ioInfo = qtTimelinePlayer->ioInfo();
                     if (!item->init)
@@ -647,8 +647,8 @@ namespace tl
                     if (i > 0)
                     {
                         qtTimelinePlayer->setVideoLayer(items[i]->videoLayer);
-                        qtTimelinePlayer->timelinePlayer()->setExternalTime(
-                            newTimelinePlayers[0]->timelinePlayer());
+                        qtTimelinePlayer->player()->setExternalTime(
+                            newTimelinePlayers[0]->player());
                     }
                 }
                 catch (const std::exception& e)

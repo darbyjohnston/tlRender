@@ -28,7 +28,7 @@ namespace tl
             ~TimelineWidget() override;
 
             //! Set the timeline player.
-            void setTimelinePlayer(const std::shared_ptr<timeline::TimelinePlayer>&);
+            void setPlayer(const std::shared_ptr<timeline::Player>&);
 
             //! Get the item options.
             const ui::TimelineItemOptions& itemOptions() const;

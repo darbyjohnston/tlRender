@@ -104,4 +104,4 @@ namespace tl
     }
 }
 
-#include <tlTimeline/TimelinePlayerOptionsInline.h>
+#include <tlTimeline/PlayerOptionsInline.h>

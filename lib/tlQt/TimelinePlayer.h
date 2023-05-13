@@ -6,7 +6,7 @@
 
 #include <tlQt/Util.h>
 
-#include <tlTimeline/TimelinePlayer.h>
+#include <tlTimeline/Player.h>
 
 #include <QObject>
 
@@ -89,12 +89,12 @@ namespace tl
                 NOTIFY cacheInfoChanged)
 
             void _init(
-                const std::shared_ptr<timeline::TimelinePlayer>&,
+                const std::shared_ptr<timeline::Player>&,
                 const std::shared_ptr<system::Context>&);
 
         public:
             TimelinePlayer(
-                const std::shared_ptr<timeline::TimelinePlayer>&,
+                const std::shared_ptr<timeline::Player>&,
                 const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
 
@@ -104,7 +104,7 @@ namespace tl
             const std::weak_ptr<system::Context>& context() const;
 
             //! Get the timeline player.
-            const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer() const;
+            const std::shared_ptr<timeline::Player>& player() const;
 
             //! Get the timeline.
             const std::shared_ptr<timeline::Timeline>& timeline() const;

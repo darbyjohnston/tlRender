@@ -28,7 +28,7 @@ namespace tl
             };
 
             void MainWindow::_init(
-                const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer,
+                const std::shared_ptr<timeline::Player>& player,
                 const std::shared_ptr<system::Context>& context)
             {
                 IWidget::_init("MainWindow", context);
@@ -37,10 +37,10 @@ namespace tl
                 setBackgroundRole(ui::ColorRole::Window);
 
                 p.timelineViewport = ui::TimelineViewport::create(context);
-                p.timelineViewport->setTimelinePlayers({ timelinePlayer });
+                p.timelineViewport->setPlayers({ player });
 
                 p.timelineWidget = ui::TimelineWidget::create(context);
-                p.timelineWidget->setTimelinePlayer(timelinePlayer);
+                p.timelineWidget->setPlayer(player);
 
                 auto stopButton = ui::ToolButton::create(context);
                 stopButton->setIcon("PlaybackStop");
@@ -67,16 +67,16 @@ namespace tl
                 forwardButton->setParent(hLayout);
 
                 p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
-                    timelinePlayer->observePlayback(),
+                    player->observePlayback(),
                     [this](timeline::Playback value)
                     {
                         _p->playbackButtonGroup->setChecked(static_cast<int>(value), true);
                     });
 
                 p.playbackButtonGroup->setCheckedCallback(
-                    [timelinePlayer](int index, bool value)
+                    [player](int index, bool value)
                     {
-                        timelinePlayer->setPlayback(static_cast<timeline::Playback>(index));
+                        player->setPlayback(static_cast<timeline::Playback>(index));
                     });
             }
 
@@ -88,11 +88,11 @@ namespace tl
             {}
 
             std::shared_ptr<MainWindow> MainWindow::create(
-                const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer,
+                const std::shared_ptr<timeline::Player>& player,
                 const std::shared_ptr<system::Context>& context)
             {
                 auto out = std::shared_ptr<MainWindow>(new MainWindow);
-                out->_init(timelinePlayer, context);
+                out->_init(player, context);
                 return out;
             }
 

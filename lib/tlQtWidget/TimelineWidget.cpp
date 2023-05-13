@@ -23,7 +23,7 @@ namespace tl
         {
             std::weak_ptr<system::Context> context;
 
-            std::shared_ptr<timeline::TimelinePlayer> timelinePlayer;
+            std::shared_ptr<timeline::Player> player;
             float mouseWheelScale = 20.F;
 
             std::shared_ptr<imaging::FontSystem> fontSystem;
@@ -81,13 +81,13 @@ namespace tl
         TimelineWidget::~TimelineWidget()
         {}
 
-        void TimelineWidget::setTimelinePlayer(const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer)
+        void TimelineWidget::setPlayer(const std::shared_ptr<timeline::Player>& player)
         {
             TLRENDER_P();
-            if (timelinePlayer == p.timelinePlayer)
+            if (player == p.player)
                 return;
-            p.timelinePlayer = timelinePlayer;
-            p.timelineWidget->setTimelinePlayer(p.timelinePlayer);
+            p.player = player;
+            p.timelineWidget->setPlayer(p.player);
         }
 
         const ui::TimelineItemOptions& TimelineWidget::itemOptions() const

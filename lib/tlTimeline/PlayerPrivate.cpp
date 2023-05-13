@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlTimeline/TimelinePlayerPrivate.h>
+#include <tlTimeline/PlayerPrivate.h>
 
 #include <tlTimeline/Util.h>
 
@@ -12,7 +12,7 @@ namespace tl
 {
     namespace timeline
     {
-        otime::RationalTime TimelinePlayer::Private::loopPlayback(const otime::RationalTime& time)
+        otime::RationalTime Player::Private::loopPlayback(const otime::RationalTime& time)
         {
             otime::RationalTime out = time;
 
@@ -100,7 +100,7 @@ namespace tl
             return out;
         }
 
-        void TimelinePlayer::Private::cacheUpdate(
+        void Player::Private::cacheUpdate(
             const otime::RationalTime& currentTime,
             const otime::TimeRange& inOutRange,
             uint16_t videoLayer,
@@ -364,7 +364,7 @@ namespace tl
             }
         }
 
-        void TimelinePlayer::Private::resetAudioTime()
+        void Player::Private::resetAudioTime()
         {
             {
                 std::unique_lock<std::mutex> lock(audioMutex.mutex);
@@ -387,7 +387,7 @@ namespace tl
         }
 
 #if defined(TLRENDER_AUDIO)
-        int TimelinePlayer::Private::rtAudioCallback(
+        int Player::Private::rtAudioCallback(
             void* outputBuffer,
             void* inputBuffer,
             unsigned int nFrames,
@@ -395,7 +395,7 @@ namespace tl
             RtAudioStreamStatus status,
             void* userData)
         {
-            auto p = reinterpret_cast<TimelinePlayer::Private*>(userData);
+            auto p = reinterpret_cast<Player::Private*>(userData);
             
             // Get mutex protected values.
             Playback playback = Playback::Stop;
@@ -553,15 +553,15 @@ namespace tl
             return 0;
         }
 
-        void TimelinePlayer::Private::rtAudioErrorCallback(
+        void Player::Private::rtAudioErrorCallback(
             RtAudioError::Type type,
             const std::string& errorText)
         {}
 #endif // TLRENDER_AUDIO
 
-        void TimelinePlayer::Private::log(const std::shared_ptr<system::Context>& context)
+        void Player::Private::log(const std::shared_ptr<system::Context>& context)
         {
-            const std::string id = string::Format("tl::timeline::TimelinePlayer {0}").arg(this);
+            const std::string id = string::Format("tl::timeline::Player {0}").arg(this);
 
             // Get mutex protected values.
             otime::RationalTime currentTime = time::invalidTime;

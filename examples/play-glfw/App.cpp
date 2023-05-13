@@ -119,24 +119,24 @@ namespace tl
 
                 // Read the timeline.
                 auto timeline = timeline::Timeline::create(_input, _context);
-                _timelinePlayer = timeline::TimelinePlayer::create(timeline, _context);
+                _player = timeline::Player::create(timeline, _context);
 
                 // Create the main window.
-                _mainWindow = MainWindow::create(_timelinePlayer, _context);
+                _mainWindow = MainWindow::create(_player, _context);
                 getEventLoop()->addWidget(_mainWindow);
 
                 // Initialize the timeline player.
                 if (time::isValid(_options.inOutRange))
                 {
-                    _timelinePlayer->setInOutRange(_options.inOutRange);
-                    _timelinePlayer->seek(_options.inOutRange.start_time());
+                    _player->setInOutRange(_options.inOutRange);
+                    _player->seek(_options.inOutRange.start_time());
                 }
                 if (time::isValid(_options.seek))
                 {
-                    _timelinePlayer->seek(_options.seek);
+                    _player->seek(_options.seek);
                 }
-                _timelinePlayer->setLoop(_options.loop);
-                //_timelinePlayer->setPlayback(_options.playback);
+                _player->setLoop(_options.loop);
+                //_player->setPlayback(_options.playback);
             }
 
             App::App()
@@ -157,7 +157,7 @@ namespace tl
 
             void App::_tick()
             {
-                _timelinePlayer->tick();
+                _player->tick();
             }
         }
     }

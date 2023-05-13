@@ -6,7 +6,7 @@
 
 #include <tlUI/ITimelineItem.h>
 
-#include <tlTimeline/TimelinePlayer.h>
+#include <tlTimeline/Player.h>
 
 namespace tl
 {
@@ -17,7 +17,7 @@ namespace tl
         {
         protected:
             void _init(
-                const std::shared_ptr<timeline::TimelinePlayer>&,
+                const std::shared_ptr<timeline::Player>&,
                 const TimelineItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
@@ -29,7 +29,7 @@ namespace tl
 
             //! Create a new item.
             static std::shared_ptr<TimelineItem> create(
-                const std::shared_ptr<timeline::TimelinePlayer>&,
+                const std::shared_ptr<timeline::Player>&,
                 const TimelineItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

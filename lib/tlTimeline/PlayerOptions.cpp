@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlTimeline/TimelinePlayerOptions.h>
+#include <tlTimeline/PlayerOptions.h>
 
 #include <tlCore/Error.h>
 #include <tlCore/String.h>

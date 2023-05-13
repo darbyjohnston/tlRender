@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlTimeline/TimelinePlayer.h>
+#include <tlTimeline/Player.h>
 
 #include <tlCore/AudioConvert.h>
 #include <tlCore/LRUCache.h>
@@ -27,7 +27,7 @@ namespace tl
             Reverse
         };
 
-        struct TimelinePlayer::Private
+        struct Player::Private
         {
             otime::RationalTime loopPlayback(const otime::RationalTime&);
 
@@ -75,7 +75,7 @@ namespace tl
 
             struct ExternalTime
             {
-                std::shared_ptr<TimelinePlayer> player;
+                std::shared_ptr<Player> player;
                 otime::TimeRange timeRange = time::invalidTimeRange;
                 std::shared_ptr<observer::ValueObserver<Playback> > playbackObserver;
                 std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;

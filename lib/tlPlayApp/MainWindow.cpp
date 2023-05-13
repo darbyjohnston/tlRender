@@ -1050,9 +1050,9 @@ namespace tl
             p.timelineViewport->setDisplayOptions(displayOptions);
             p.timelineViewport->setCompareOptions(p.compareOptions);
 
-            p.timelineWidget->setTimelinePlayer(
+            p.timelineWidget->setPlayer(
                 !p.timelinePlayers.empty() ?
-                p.timelinePlayers[0]->timelinePlayer() :
+                p.timelinePlayers[0]->player() :
                 nullptr);
             p.timelineWidget->setFrameView(p.app->settingsObject()->value("Timeline/FrameView").toBool());
             p.timelineWidget->setStopOnScrub(p.app->settingsObject()->value("Timeline/StopOnScrub").toBool());

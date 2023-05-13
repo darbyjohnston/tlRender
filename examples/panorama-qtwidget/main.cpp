@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 
         // Create the timeline player.
         auto timeline = tl::timeline::Timeline::create(argv[1], context);
-        auto timelinePlayer = new tl::qt::TimelinePlayer(tl::timeline::TimelinePlayer::create(timeline, context), context);
+        auto timelinePlayer = new tl::qt::TimelinePlayer(tl::timeline::Player::create(timeline, context), context);
 
         // Hook up logging.
         /*std::shared_ptr<tl::observer::ValueObserver<tl::log::Item> > logObserver;

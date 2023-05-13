@@ -31,7 +31,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the timeline player.
-            void setTimelinePlayer(const std::shared_ptr<timeline::TimelinePlayer>&);
+            void setPlayer(const std::shared_ptr<timeline::Player>&);
 
             //! Set the view zoom.
             void setViewZoom(float);

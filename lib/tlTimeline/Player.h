@@ -4,8 +4,8 @@
 
 #pragma once
 
+#include <tlTimeline/PlayerOptions.h>
 #include <tlTimeline/Timeline.h>
-#include <tlTimeline/TimelinePlayerOptions.h>
 
 #include <tlCore/ListObserver.h>
 #include <tlCore/ValueObserver.h>
@@ -75,9 +75,9 @@ namespace tl
         TLRENDER_ENUM_SERIALIZE(TimeAction);
 
         //! Timeline player.
-        class TimelinePlayer : public std::enable_shared_from_this<TimelinePlayer>
+        class Player : public std::enable_shared_from_this<Player>
         {
-            TLRENDER_NON_COPYABLE(TimelinePlayer);
+            TLRENDER_NON_COPYABLE(Player);
 
         protected:
             void _init(
@@ -85,13 +85,13 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const PlayerOptions&);
 
-            TimelinePlayer();
+            Player();
 
         public:
-            ~TimelinePlayer();
+            ~Player();
 
             //! Create a new timeline player.
-            static std::shared_ptr<TimelinePlayer> create(
+            static std::shared_ptr<Player> create(
                 const std::shared_ptr<Timeline>&,
                 const std::shared_ptr<system::Context>&,
                 const PlayerOptions& = PlayerOptions());
@@ -177,7 +177,7 @@ namespace tl
             void frameNext();
 
             //! Use the time from a separate timeline player.
-            void setExternalTime(const std::shared_ptr<TimelinePlayer>&);
+            void setExternalTime(const std::shared_ptr<Player>&);
 
             ///@}
 
@@ -267,4 +267,4 @@ namespace tl
     }
 }
 
-#include <tlTimeline/TimelinePlayerInline.h>
+#include <tlTimeline/PlayerInline.h>

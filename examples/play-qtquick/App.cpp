@@ -54,7 +54,7 @@ namespace tl
 
                 // Open the input file.
                 auto timeline = timeline::Timeline::create(_input, context);
-                _timelinePlayer = new qt::TimelinePlayer(timeline::TimelinePlayer::create(timeline, context), context);
+                _timelinePlayer = new qt::TimelinePlayer(timeline::Player::create(timeline, context), context);
 
                 // Load the QML.
                 _qmlEngine = new QQmlApplicationEngine;

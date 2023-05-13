@@ -6,7 +6,7 @@
 
 #include <tlUI/IWidget.h>
 
-#include <tlTimeline/TimelinePlayer.h>
+#include <tlTimeline/Player.h>
 
 namespace tl
 {
@@ -48,7 +48,7 @@ namespace tl
             void setCompareOptions(const timeline::CompareOptions&);
 
             //! Set the timeline players.
-            void setTimelinePlayers(const std::vector<std::shared_ptr<timeline::TimelinePlayer> >&);
+            void setPlayers(const std::vector<std::shared_ptr<timeline::Player> >&);
 
             //! Get the view position.
             const math::Vector2i& viewPos() const;
