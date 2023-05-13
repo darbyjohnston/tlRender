@@ -1,5 +1,6 @@
 set(HEADERS
     ButtonGroup.h
+    ComboBox.h
     DrawUtil.h
     Event.h
     EventLoop.h
@@ -38,6 +39,7 @@ set(HEADERS_PRIVATE)
 
 set(SOURCE
     ButtonGroup.cpp
+    ComboBox.cpp
     DrawUtil.cpp
     Event.cpp
     EventLoop.cpp

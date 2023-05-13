@@ -56,13 +56,13 @@ namespace tl
             const std::list<std::shared_ptr<IWidget> >& getChildren() const;
 
             //! Get the top level widget.
-            std::shared_ptr<IWidget> getTopLevel() const;
+            std::shared_ptr<IWidget> getTopLevel();
 
             //! Set the event loop.
             void setEventLoop(const std::weak_ptr<EventLoop>&);
 
             //! Get the event loop.
-            const std::weak_ptr<EventLoop>& getEventLoop() const;
+            const std::weak_ptr<EventLoop>& getEventLoop();
 
             ///@}
 
@@ -149,7 +149,7 @@ namespace tl
             virtual bool acceptsKeyFocus() const;
 
             //! Does this widget have key focus?
-            bool hasKeyFocus() const;
+            bool hasKeyFocus();
 
             //! Take the key focus.
             void takeFocus();

@@ -26,9 +26,9 @@ namespace tl
             return _children;
         }
 
-        inline const std::weak_ptr<EventLoop>& IWidget::getEventLoop() const
+        inline const std::weak_ptr<EventLoop>& IWidget::getEventLoop()
         {
-            return _eventLoop;
+            return getTopLevel()->_eventLoop;
         }
 
         inline const math::Vector2i& IWidget::getSizeHint() const

@@ -75,10 +75,10 @@ namespace tl
             }
         }
 
-        std::shared_ptr<IWidget> IWidget::getTopLevel() const
+        std::shared_ptr<IWidget> IWidget::getTopLevel()
         {
-            std::shared_ptr<IWidget> out;
-            auto parent = _parent.lock();
+            std::shared_ptr<IWidget> out = shared_from_this();
+            auto parent = out->_parent.lock();
             while (parent)
             {
                 out = parent;
@@ -178,19 +178,16 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        bool IWidget::hasKeyFocus() const
+        bool IWidget::hasKeyFocus()
         {
             bool out = false;
-            if (auto topLevel = getTopLevel())
+            if (auto eventLoop = getEventLoop().lock())
             {
-                if (auto eventLoop = topLevel->getEventLoop().lock())
+                if (auto keyFocus = eventLoop->getKeyFocus().lock())
                 {
-                    if (auto keyFocus = eventLoop->getKeyFocus().lock())
+                    if (keyFocus == shared_from_this())
                     {
-                        if (keyFocus == shared_from_this())
-                        {
-                            out = true;
-                        }
+                        out = true;
                     }
                 }
             }
@@ -199,27 +196,21 @@ namespace tl
 
         void IWidget::takeFocus()
         {
-            if (auto topLevel = getTopLevel())
+            if (auto eventLoop = getEventLoop().lock())
             {
-                if (auto eventLoop = topLevel->getEventLoop().lock())
-                {
-                    eventLoop->setKeyFocus(shared_from_this());
-                }
+                eventLoop->setKeyFocus(shared_from_this());
             }
         }
 
         void IWidget::releaseFocus()
         {
-            if (auto topLevel = getTopLevel())
+            if (auto eventLoop = getEventLoop().lock())
             {
-                if (auto eventLoop = topLevel->getEventLoop().lock())
+                if (auto keyFocus = eventLoop->getKeyFocus().lock())
                 {
-                    if (auto keyFocus = eventLoop->getKeyFocus().lock())
+                    if (keyFocus == shared_from_this())
                     {
-                        if (keyFocus == shared_from_this())
-                        {
-                            eventLoop->setKeyFocus(nullptr);
-                        }
+                        eventLoop->setKeyFocus(nullptr);
                     }
                 }
             }

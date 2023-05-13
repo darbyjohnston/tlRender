@@ -32,7 +32,7 @@ namespace tl
             //! Request an icon.
             std::future<std::shared_ptr<imaging::Image> > request(
                 const std::string& name,
-                float contentScale);
+                float displayScale);
 
             //! Cancel requests.
             void cancelRequests();

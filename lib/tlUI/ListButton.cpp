@@ -85,7 +85,7 @@ namespace tl
             IButton::sizeHintEvent(event);
             TLRENDER_P();
             
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);
             p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
 
@@ -140,6 +140,29 @@ namespace tl
 
             const math::BBox2i& g = _geometry;
 
+            const ColorRole colorRole = _checked ?
+                ColorRole::Checked :
+                _buttonRole;
+            if (colorRole != ColorRole::None)
+            {
+                event.render->drawRect(
+                    g,
+                    event.style->getColorRole(colorRole));
+            }
+
+            if (_pressed && _geometry.contains(_cursorPos))
+            {
+                event.render->drawRect(
+                    g,
+                    event.style->getColorRole(ColorRole::Pressed));
+            }
+            else if (_inside)
+            {
+                event.render->drawRect(
+                    g,
+                    event.style->getColorRole(ColorRole::Hover));
+            }
+
             if (event.focusWidget == shared_from_this())
             {
                 event.render->drawMesh(
@@ -149,33 +172,10 @@ namespace tl
             }
 
             const math::BBox2i g2 = g.margin(-p.size.border * 2);
-            const ColorRole colorRole = _checked ?
-                ColorRole::Checked :
-                _buttonRole;
-            if (colorRole != ColorRole::None)
-            {
-                event.render->drawRect(
-                    g2,
-                    event.style->getColorRole(colorRole));
-            }
-
-            if (_pressed && _geometry.contains(_cursorPos))
-            {
-                event.render->drawRect(
-                    g2,
-                    event.style->getColorRole(ColorRole::Pressed));
-            }
-            else if (_inside)
-            {
-                event.render->drawRect(
-                    g2,
-                    event.style->getColorRole(ColorRole::Hover));
-            }
-
             int x = g2.x() + p.size.margin;
             if (_iconImage)
             {
-                const auto iconSize = _iconImage->getSize();
+                const imaging::Size& iconSize = _iconImage->getSize();
                 event.render->drawImage(
                   _iconImage,
                   math::BBox2i(

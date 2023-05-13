@@ -22,8 +22,10 @@ namespace tl
             math::Vector2i cursorPos;
             std::weak_ptr<IWidget> hover;
             std::weak_ptr<IWidget> mousePress;
+            MouseClickEvent mouseClickEvent;
             std::weak_ptr<IWidget> keyFocus;
             std::weak_ptr<IWidget> keyPress;
+            KeyEvent keyEvent;
             int updates = 0;
         };
 
@@ -95,8 +97,31 @@ namespace tl
         void EventLoop::addWidget(const std::shared_ptr<IWidget>& widget)
         {
             TLRENDER_P();
+
             widget->setEventLoop(shared_from_this());
             p.topLevelWidgets.push_back(widget);
+
+            if (auto widget = p.hover.lock())
+            {
+                widget->leaveEvent();
+                p.hover.reset();
+            }
+            if (auto widget = p.mousePress.lock())
+            {
+                p.mouseClickEvent.pos = p.cursorPos;
+                p.mouseClickEvent.accept = false;
+                widget->mouseReleaseEvent(p.mouseClickEvent);
+                p.mousePress.reset();
+            }
+            p.keyFocus.reset();
+            if (auto widget = p.keyPress.lock())
+            {
+                p.keyEvent.pos = p.cursorPos;
+                p.keyEvent.accept = false;
+                widget->keyReleaseEvent(p.keyEvent);
+                p.keyPress.reset();
+            }
+
             p.updates |= Update::Size;
             p.updates |= Update::Draw;
         }
@@ -104,18 +129,18 @@ namespace tl
         void EventLoop::key(Key key, bool press, int modifiers)
         {
             TLRENDER_P();
-            KeyEvent event;
-            event.key = key;
-            event.modifiers = modifiers;
-            event.pos = p.cursorPos;
+            p.keyEvent.key = key;
+            p.keyEvent.modifiers = modifiers;
+            p.keyEvent.pos = p.cursorPos;
+            p.keyEvent.accept = false;
             if (press)
             {
                 if (auto widget = p.keyFocus.lock())
                 {
                     while (widget)
                     {
-                        widget->keyPressEvent(event);
-                        if (event.accept)
+                        widget->keyPressEvent(p.keyEvent);
+                        if (p.keyEvent.accept)
                         {
                             p.keyPress = widget;
                             break;
@@ -123,13 +148,13 @@ namespace tl
                         widget = widget->getParent().lock();
                     }
                 }
-                if (!event.accept)
+                if (!p.keyEvent.accept)
                 {
                     auto widget = _getUnderCursor(p.cursorPos);
                     while (widget)
                     {
-                        widget->keyPressEvent(event);
-                        if (event.accept)
+                        widget->keyPressEvent(p.keyEvent);
+                        if (p.keyEvent.accept)
                         {
                             p.keyPress = widget;
                             break;
@@ -137,7 +162,7 @@ namespace tl
                         widget = widget->getParent().lock();
                     }
                 }
-                if (!event.accept && Key::Tab == key)
+                if (!p.keyEvent.accept && Key::Tab == key)
                 {
                     auto keyFocus = p.keyFocus.lock();
                     if (modifiers == static_cast<int>(KeyModifier::Shift))
@@ -153,7 +178,7 @@ namespace tl
             }
             else if (auto widget = p.keyPress.lock())
             {
-                widget->keyReleaseEvent(event);
+                widget->keyReleaseEvent(p.keyEvent);
             }
         }
 
@@ -217,17 +242,17 @@ namespace tl
         void EventLoop::mouseButton(int button, bool press, int modifiers)
         {
             TLRENDER_P();
-            MouseClickEvent event;
-            event.button = button;
-            event.modifiers = modifiers;
-            event.pos = p.cursorPos;
+            p.mouseClickEvent.button = button;
+            p.mouseClickEvent.modifiers = modifiers;
+            p.mouseClickEvent.pos = p.cursorPos;
+            p.mouseClickEvent.accept = false;
             if (press)
             {
                 auto widget = _getUnderCursor(p.cursorPos);
                 while (widget)
                 {
-                    widget->mousePressEvent(event);
-                    if (event.accept)
+                    widget->mousePressEvent(p.mouseClickEvent);
+                    if (p.mouseClickEvent.accept)
                     {
                         p.mousePress = widget;
                         break;
@@ -239,7 +264,7 @@ namespace tl
             {
                 if (auto widget = p.mousePress.lock())
                 {
-                    widget->mouseReleaseEvent(event);
+                    widget->mouseReleaseEvent(p.mouseClickEvent);
                     p.mousePress.reset();
                 }
 
@@ -297,6 +322,8 @@ namespace tl
             {
                 p.updates |= Update::Draw;
             }
+
+            _expiredTopLevelWidgets();
         }
 
         bool EventLoop::hasDrawUpdate() const
@@ -541,9 +568,11 @@ namespace tl
         {
             TLRENDER_P();
             std::shared_ptr<IWidget> out;
-            for (const auto& i : p.topLevelWidgets)
+            for (auto i = p.topLevelWidgets.rbegin();
+                i != p.topLevelWidgets.rend();
+                ++i)
             {
-                if (auto widget = i.lock())
+                if (auto widget = i->lock())
                 {
                     if (!widget->isClipped() &&
                         widget->isEnabled() &&
@@ -618,14 +647,13 @@ namespace tl
             TLRENDER_P();
             std::shared_ptr<IWidget> out;
             std::list<std::shared_ptr<IWidget> > widgets;
-            for (const auto& i : p.topLevelWidgets)
+            if (!p.topLevelWidgets.empty())
             {
-                if (auto widget = i.lock())
+                if (auto widget = p.topLevelWidgets.back().lock())
                 {
                     if (!widget->isClipped() && widget->isEnabled())
                     {
                         _getKeyFocus(widget, widgets);
-                        break;
                     }
                 }
             }
@@ -657,14 +685,13 @@ namespace tl
             TLRENDER_P();
             std::shared_ptr<IWidget> out;
             std::list<std::shared_ptr<IWidget> > widgets;
-            for (const auto& i : p.topLevelWidgets)
+            if (!p.topLevelWidgets.empty())
             {
-                if (auto widget = i.lock())
+                if (auto widget = p.topLevelWidgets.back().lock())
                 {
                     if (!widget->isClipped() && widget->isEnabled())
                     {
                         _getKeyFocus(widget, widgets);
-                        break;
                     }
                 }
             }
@@ -704,6 +731,23 @@ namespace tl
                 if (!child->isClipped() && child->isEnabled())
                 {
                     _getKeyFocus(child, out);
+                }
+            }
+        }
+
+        void EventLoop::_expiredTopLevelWidgets()
+        {
+            TLRENDER_P();
+            auto i = p.topLevelWidgets.begin();
+            while (i != p.topLevelWidgets.end())
+            {
+                if (i->expired())
+                {
+                    i = p.topLevelWidgets.erase(i);
+                }
+                else
+                {
+                    ++i;
                 }
             }
         }

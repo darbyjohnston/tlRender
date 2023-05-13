@@ -186,7 +186,7 @@ namespace tl
             int x = g.x() + p.size.border + p.size.margin;
             if (_iconImage)
             {
-                const auto iconSize = _iconImage->getSize();
+                const imaging::Size& iconSize = _iconImage->getSize();
                 event.render->drawImage(
                   _iconImage,
                   math::BBox2i(
