@@ -20,6 +20,8 @@ set(HEADERS
     Timeline.h
     TimelinePlayer.h
     TimelinePlayerInline.h
+    TimelinePlayerOptions.h
+    TimelinePlayerOptionsInline.h
     Transition.h
     Util.h
     UtilInline.h
@@ -43,6 +45,7 @@ set(SOURCE
     TimelineCreate.cpp
     TimelinePrivate.cpp
     TimelinePlayer.cpp
+    TimelinePlayerOptions.cpp
     TimelinePlayerPrivate.cpp
     Transition.cpp
     Util.cpp)

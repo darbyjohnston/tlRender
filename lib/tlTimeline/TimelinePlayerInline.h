@@ -6,18 +6,6 @@ namespace tl
 {
     namespace timeline
     {
-        inline bool PlayerCacheOptions::operator == (const PlayerCacheOptions& other) const
-        {
-            return
-                readAhead == other.readAhead &&
-                readBehind == other.readBehind;
-        }
-
-        inline bool PlayerCacheOptions::operator != (const PlayerCacheOptions& other) const
-        {
-            return !(*this == other);
-        }
-
         inline bool PlayerCacheInfo::operator == (const PlayerCacheInfo& other) const
         {
             return
@@ -27,23 +15,6 @@ namespace tl
         }
 
         inline bool PlayerCacheInfo::operator != (const PlayerCacheInfo& other) const
-        {
-            return !(*this == other);
-        }
-
-        inline bool PlayerOptions::operator == (const PlayerOptions& other) const
-        {
-            return
-                cache == other.cache &&
-                timerMode == other.timerMode &&
-                audioBufferFrameCount == other.audioBufferFrameCount &&
-                muteTimeout == other.muteTimeout &&
-                sleepTimeout == other.sleepTimeout &&
-                currentTime == other.currentTime &&
-                externalTimeMode == other.externalTimeMode;
-        }
-
-        inline bool PlayerOptions::operator != (const PlayerOptions& other) const
         {
             return !(*this == other);
         }
