@@ -437,7 +437,10 @@ namespace tl
                 audioDataDelete.insert(audioData.first);
             }
 
-            if (g.intersects(drawRect))
+            const math::BBox2i clipRect = _getClipRect(
+                drawRect,
+                _options.clipRectScale);
+            if (g.intersects(clipRect))
             {
                 if (p.ioInfoInit)
                 {
@@ -463,7 +466,7 @@ namespace tl
                         p.size.spacing,
                         p.size.waveformWidth,
                         _options.waveformHeight);
-                    if (bbox.intersects(drawRect))
+                    if (bbox.intersects(clipRect))
                     {
                         const otime::RationalTime time = time::round(otime::RationalTime(
                             p.timeRange.start_time().value() +

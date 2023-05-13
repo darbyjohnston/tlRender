@@ -24,6 +24,7 @@ namespace tl
             return
                 timeUnits == other.timeUnits &&
                 scale == other.scale &&
+                clipRectScale == other.clipRectScale &&
                 thumbnails == other.thumbnails &&
                 thumbnailHeight == other.thumbnailHeight &&
                 waveformHeight == other.waveformHeight &&
@@ -58,6 +59,19 @@ namespace tl
             _options = value;
             _updates |= Update::Size;
             _updates |= Update::Draw;
+        }
+
+        math::BBox2i ITimelineItem::_getClipRect(
+            const math::BBox2i& value,
+            float scale)
+        {
+            math::BBox2i out;
+            const math::Vector2i c = value.getCenter();
+            out.min.x = (value.min.x - c.x) * scale + c.x;
+            out.min.y = (value.min.y - c.y) * scale + c.y;
+            out.max.x = (value.max.x - c.x) * scale + c.x;
+            out.max.y = (value.max.y - c.y) * scale + c.y;
+            return out;
         }
 
         std::string ITimelineItem::_durationLabel(

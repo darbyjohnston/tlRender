@@ -38,6 +38,7 @@ namespace tl
         {
             TimelineTimeUnits timeUnits = TimelineTimeUnits::Seconds;
             float scale = 500.F;
+            float clipRectScale = 2.F;
             bool thumbnails = true;
             int thumbnailHeight = 100;
             int waveformHeight = 50;
@@ -65,6 +66,10 @@ namespace tl
             virtual void setOptions(const TimelineItemOptions&);
 
         protected:
+            static math::BBox2i _getClipRect(
+                const math::BBox2i&,
+                float scale);
+
             static std::string _durationLabel(
                 const otime::RationalTime&,
                 TimelineTimeUnits);
