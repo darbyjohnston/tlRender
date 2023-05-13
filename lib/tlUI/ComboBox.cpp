@@ -527,14 +527,22 @@ namespace tl
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
 
             _sizeHint = math::Vector2i();
-            if (!p.text.empty())
+            p.size.fontMetrics = event.getFontMetrics(p.fontRole);
+            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+            p.size.textSize = math::Vector2i();
+            for (const auto& i : p.items)
             {
-                p.size.fontMetrics = event.getFontMetrics(p.fontRole);
-                const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-                p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
+                if (!i.text.empty())
+                {
+                    const math::Vector2i textSize = event.fontSystem->getSize(i.text, fontInfo);
+                    p.size.textSize.x = std::max(p.size.textSize.x, textSize.x);
+                    p.size.textSize.y = std::max(p.size.textSize.y, textSize.y);
 
-                _sizeHint.x = p.size.textSize.x + p.size.margin * 2;
-                _sizeHint.y = p.size.fontMetrics.lineHeight;
+                    _sizeHint.x = std::max(
+                        _sizeHint.x,
+                        p.size.textSize.x + p.size.margin * 2);
+                    _sizeHint.y = p.size.fontMetrics.lineHeight;
+                }
             }
             if (p.iconImage)
             {
