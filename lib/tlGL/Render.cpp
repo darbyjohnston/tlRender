@@ -374,41 +374,42 @@ namespace tl
             glEnable(GL_BLEND);
             glBlendEquation(GL_FUNC_ADD);
 
+            if (!p.shaders["rect"])
+            {
+                p.shaders["rect"] = Shader::create(vertexSource(), meshFragmentSource());
+            }
             if (!p.shaders["mesh"])
             {
                 p.shaders["mesh"] = Shader::create(vertexSource(), meshFragmentSource());
             }
-
             if (!p.shaders["text"])
             {
                 p.shaders["text"] = Shader::create(vertexSource(), textFragmentSource());
             }
-
             if (!p.shaders["texture"])
             {
                 p.shaders["texture"] = Shader::create(vertexSource(), textureFragmentSource());
             }
-
             if (!p.shaders["image"])
             {
                 p.shaders["image"] = Shader::create(vertexSource(), imageFragmentSource());
             }
-
+            if (!p.shaders["wipe"])
+            {
+                p.shaders["wipe"] = Shader::create(vertexSource(), meshFragmentSource());
+            }
             if (!p.shaders["overlay"])
             {
                 p.shaders["overlay"] = Shader::create(vertexSource(), textureFragmentSource());
             }
-
             if (!p.shaders["difference"])
             {
                 p.shaders["difference"] = Shader::create(vertexSource(), differenceFragmentSource());
             }
-
             if (!p.shaders["dissolve"])
             {
                 p.shaders["dissolve"] = Shader::create(vertexSource(), textureFragmentSource());
             }
-
             if (!p.shaders["display"])
             {
                 std::string colorConfigDef;
@@ -428,7 +429,7 @@ namespace tl
                     lut = "fColor = lutFunc(fColor);";
                 }
 #endif // TLRENDER_OCIO
-                std::string source = displayFragmentSource(
+                const std::string source = displayFragmentSource(
                     colorConfigDef,
                     colorConfig,
                     lutDef,

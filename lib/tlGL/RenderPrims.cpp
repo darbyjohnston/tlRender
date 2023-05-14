@@ -18,8 +18,8 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.shaders["mesh"]->bind();
-            p.shaders["mesh"]->setUniform("color", color);
+            p.shaders["rect"]->bind();
+            p.shaders["rect"]->setUniform("color", color);
 
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -74,8 +74,6 @@ namespace tl
                     p.vaos["mesh"]->bind();
                     p.vaos["mesh"]->draw(GL_TRIANGLES, 0, p.vbos["mesh"]->getSize());
                 }
-
-                p.shaders["mesh"]->setUniform("transform.mvp", p.transform);
             }
         }
 
