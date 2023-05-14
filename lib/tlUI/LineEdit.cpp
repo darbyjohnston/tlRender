@@ -95,6 +95,7 @@ namespace tl
             std::string text;
             std::function<void(const std::string&)> textCallback;
             std::string format = "                    ";
+            std::function<void(bool)> focusCallback;
             FontRole fontRole = FontRole::Mono;
             int cursorPos = 0;
             bool cursorVisible = false;
@@ -177,6 +178,11 @@ namespace tl
                 return;
             p.format = value;
             _textUpdate();
+        }
+
+        void LineEdit::setFocusCallback(const std::function<void(bool)>& value)
+        {
+            _p->focusCallback = value;
         }
 
         void LineEdit::setFontRole(FontRole value)
@@ -437,6 +443,10 @@ namespace tl
                 p.selection.clear();
                 _updates |= Update::Draw;
             }
+            if (p.focusCallback)
+            {
+                p.focusCallback(value);
+            }
         }
 
         void LineEdit::keyPressEvent(KeyEvent& event)
@@ -645,6 +655,12 @@ namespace tl
                     const auto i = p.text.begin() + p.cursorPos;
                     p.text.erase(i);
                     _textUpdate();
+                }
+                break;
+            case Key::Enter:
+                if (p.textCallback)
+                {
+                    p.textCallback(p.text);
                 }
                 break;
             case Key::Escape:

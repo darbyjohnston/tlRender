@@ -42,6 +42,9 @@ namespace tl
             //! Set the formatting text.
             void setFormat(const std::string&);
 
+            //! Set the lost focus callback.
+            void setFocusCallback(const std::function<void(bool)>&);
+
             //! Set the font role.
             void setFontRole(FontRole);
 

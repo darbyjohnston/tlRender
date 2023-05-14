@@ -48,6 +48,21 @@ namespace tl
                 p.model = FloatModel::create(context);
             }
 
+            p.lineEdit->setTextCallback(
+                [this](const std::string& value)
+                {
+                    _p->model->setValue(std::atof(value.c_str()));
+                    _textUpdate();
+                });
+            p.lineEdit->setFocusCallback(
+                [this](bool value)
+                {
+                    if (!value)
+                    {
+                        _textUpdate();
+                    }
+                });
+
             p.valueObserver = observer::ValueObserver<float>::create(
                 p.model->observeValue(),
                 [this](float)
