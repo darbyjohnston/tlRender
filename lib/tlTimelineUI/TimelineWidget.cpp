@@ -203,12 +203,17 @@ namespace tl
 
         void TimelineWidget::setGeometry(const math::BBox2i& value)
         {
+            const bool changed = value != _geometry;
             IWidget::setGeometry(value);
             TLRENDER_P();
             p.scrollWidget->setGeometry(value);
-            if (p.frameView || p.size.init)
+            if (p.size.init)
             {
                 p.size.init = false;
+                frameView();
+            }
+            else if (changed && p.frameView)
+            {
                 frameView();
             }
         }
