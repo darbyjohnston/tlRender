@@ -340,10 +340,13 @@ namespace tl
 
             std::string text;
             std::string icon;
-            bool iconInit = false;
             float iconScale = 1.F;
+            bool iconInit = false;
             std::future<std::shared_ptr<imaging::Image> > iconFuture;
             std::shared_ptr<imaging::Image> iconImage;
+            bool icon2Init = false;
+            std::future<std::shared_ptr<imaging::Image> > icon2Future;
+            std::shared_ptr<imaging::Image> icon2Image;
 
             struct SizeData
             {
@@ -498,20 +501,35 @@ namespace tl
             TLRENDER_P();
             if (event.displayScale != p.iconScale)
             {
+                p.iconScale = event.displayScale;
                 p.iconInit = true;
                 p.iconFuture = std::future<std::shared_ptr<imaging::Image> >();
                 p.iconImage.reset();
+                p.icon2Init = true;
+                p.icon2Future = std::future<std::shared_ptr<imaging::Image> >();
+                p.icon2Image.reset();
             }
             if (!p.icon.empty() && p.iconInit)
             {
                 p.iconInit = false;
-                p.iconScale = event.displayScale;
                 p.iconFuture = event.iconLibrary->request(p.icon, event.displayScale);
             }
             if (p.iconFuture.valid() &&
                 p.iconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
                 p.iconImage = p.iconFuture.get();
+                _updates |= Update::Size;
+                _updates |= Update::Draw;
+            }
+            if (p.icon2Init)
+            {
+                p.icon2Init = false;
+                p.icon2Future = event.iconLibrary->request("ComboBoxArrow", event.displayScale);
+            }
+            if (p.icon2Future.valid() &&
+                p.icon2Future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+            {
+                p.icon2Image = p.icon2Future.get();
                 _updates |= Update::Size;
                 _updates |= Update::Draw;
             }
@@ -554,6 +572,14 @@ namespace tl
                 _sizeHint.y = std::max(
                     _sizeHint.y,
                     static_cast<int>(p.iconImage->getHeight()));
+            }
+            if (p.icon2Image)
+            {
+                _sizeHint.x += p.icon2Image->getWidth();
+                _sizeHint.x += p.size.spacing;
+                _sizeHint.y = std::max(
+                    _sizeHint.y,
+                    static_cast<int>(p.icon2Image->getHeight()));
             }
             _sizeHint.x +=
                 p.size.margin * 2 +
@@ -649,6 +675,22 @@ namespace tl
                 event.render->drawText(
                     p.draw.glyphs,
                     pos,
+                    event.style->getColorRole(_enabled ?
+                        ColorRole::Text :
+                        ColorRole::TextDisabled));
+                x += p.size.textSize.x + p.size.margin * 2 + p.size.spacing;
+            }
+
+            if (p.icon2Image)
+            {
+                const imaging::Size& iconSize = p.icon2Image->getSize();
+                event.render->drawImage(
+                    p.icon2Image,
+                    math::BBox2i(
+                        x,
+                        g2.y() + g2.h() / 2 - iconSize.h / 2,
+                        iconSize.w,
+                        iconSize.h),
                     event.style->getColorRole(_enabled ?
                         ColorRole::Text :
                         ColorRole::TextDisabled));

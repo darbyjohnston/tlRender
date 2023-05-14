@@ -14,8 +14,8 @@ namespace tl
         {
             bool checkable = false;
             std::string icon;
-            bool iconInit = false;
             float iconScale = 1.F;
+            bool iconInit = false;
             std::future<std::shared_ptr<imaging::Image> > iconFuture;
             bool repeatClick = false;
             std::chrono::steady_clock::time_point repeatClickTimer;
@@ -133,6 +133,7 @@ namespace tl
             TLRENDER_P();
             if (event.displayScale != p.iconScale)
             {
+                p.iconScale = event.displayScale;
                 p.iconInit = true;
                 p.iconFuture = std::future<std::shared_ptr<imaging::Image> >();
                 _iconImage.reset();
@@ -140,7 +141,6 @@ namespace tl
             if (!p.icon.empty() && p.iconInit)
             {
                 p.iconInit = false;
-                p.iconScale = event.displayScale;
                 p.iconFuture = event.iconLibrary->request(p.icon, event.displayScale);
             }
             if (p.iconFuture.valid() &&

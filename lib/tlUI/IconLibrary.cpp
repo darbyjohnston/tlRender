@@ -21,6 +21,8 @@ namespace
 #include "Resources/Clear_96.h"
 #include "Resources/Color_192.h"
 #include "Resources/Color_96.h"
+#include "Resources/ComboBoxArrow_192.h"
+#include "Resources/ComboBoxArrow_96.h"
 #include "Resources/Compare_192.h"
 #include "Resources/Compare_96.h"
 #include "Resources/CompareA_192.h"
@@ -159,6 +161,7 @@ namespace tl
             p.iconData["BellowsOpen_96.png"] = BellowsOpen_96_png;
             p.iconData["Clear_96.png"] = Clear_96_png;
             p.iconData["Color_96.png"] = Color_96_png;
+            p.iconData["ComboBoxArrow_96.png"] = ComboBoxArrow_96_png;
             p.iconData["Compare_96.png"] = Compare_96_png;
             p.iconData["CompareA_96.png"] = CompareA_96_png;
             p.iconData["CompareB_96.png"] = CompareB_96_png;
@@ -206,6 +209,7 @@ namespace tl
             p.iconData["BellowsOpen_192.png"] = BellowsOpen_192_png;
             p.iconData["Clear_192.png"] = Clear_192_png;
             p.iconData["Color_192.png"] = Color_192_png;
+            p.iconData["ComboBoxArrow_192.png"] = ComboBoxArrow_192_png;
             p.iconData["Compare_192.png"] = Compare_192_png;
             p.iconData["CompareA_192.png"] = CompareA_192_png;
             p.iconData["CompareB_192.png"] = CompareB_192_png;
