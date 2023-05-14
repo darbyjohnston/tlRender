@@ -386,9 +386,16 @@ namespace tl
         bool EventLoop::_getSizeUpdate(const std::shared_ptr<IWidget>& widget)
         {
             bool out = widget->getUpdates() & Update::Size;
-            for (const auto& child : widget->getChildren())
+            if (out)
             {
-                out |= _getSizeUpdate(child);
+                //std::cout << "Size update: " << widget->getName() << std::endl;
+            }
+            else
+            {
+                for (const auto& child : widget->getChildren())
+                {
+                    out |= _getSizeUpdate(child);
+                }
             }
             return out;
         }
@@ -500,9 +507,16 @@ namespace tl
             if (!widget->isClipped())
             {
                 out = widget->getUpdates() & Update::Draw;
-                for (const auto& child : widget->getChildren())
+                if (out)
                 {
-                    out |= _getDrawUpdate(child);
+                    //std::cout << "Draw update: " << widget->getName() << std::endl;
+                }
+                else
+                {
+                    for (const auto& child : widget->getChildren())
+                    {
+                        out |= _getDrawUpdate(child);
+                    }
                 }
             }
             return out;
