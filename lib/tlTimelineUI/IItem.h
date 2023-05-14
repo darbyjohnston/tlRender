@@ -36,7 +36,7 @@ namespace tl
         //! Item options.
         struct ItemOptions
         {
-            TimeUnits timeUnits = TimeUnits::Seconds;
+            TimeUnits timeUnits = TimeUnits::Timecode;
             float scale = 500.F;
             float clipRectScale = 2.F;
             bool thumbnails = true;
