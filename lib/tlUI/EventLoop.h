@@ -4,13 +4,15 @@
 
 #pragma once
 
-#include <tlUI/IWidget.h>
+#include <tlUI/Event.h>
 
 namespace tl
 {
     //! User interface.
     namespace ui
     {
+        class IClipboard;
+
         //! Event loop.
         class EventLoop : public std::enable_shared_from_this<EventLoop>
         {
@@ -21,6 +23,7 @@ namespace tl
                 const std::shared_ptr<Style>&,
                 const std::shared_ptr<IconLibrary>&,
                 const std::shared_ptr<imaging::FontSystem>&,
+                const std::shared_ptr<IClipboard>&,
                 const std::shared_ptr<system::Context>&);
 
             EventLoop();
@@ -33,6 +36,7 @@ namespace tl
                 const std::shared_ptr<Style>&,
                 const std::shared_ptr<IconLibrary>&,
                 const std::shared_ptr<imaging::FontSystem>&,
+                const std::shared_ptr<IClipboard>&,
                 const std::shared_ptr<system::Context>&);
 
             //! Add a top level widget.
@@ -78,6 +82,9 @@ namespace tl
 
             //! Draw the user interface.
             void draw(const std::shared_ptr<timeline::IRender>&);
+
+            //! Get the clipboard.
+            const std::shared_ptr<IClipboard>& getClipboard() const;
 
         protected:
             void _tickEvent();

@@ -12,6 +12,7 @@ set(HEADERS
     GridLayout.h
     GroupBox.h
     IButton.h
+    IClipboard.h
     IWidget.h
     IWidgetInline.h
     IWidgetOptions.h
@@ -51,6 +52,7 @@ set(SOURCE
     GridLayout.cpp
     GroupBox.cpp
     IButton.cpp
+    IClipboard.cpp
     IWidget.cpp
     IWidgetOptions.cpp
     IconLibrary.cpp

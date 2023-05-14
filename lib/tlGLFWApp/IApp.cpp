@@ -5,6 +5,7 @@
 #include <tlGLFWApp/IApp.h>
 
 #include <tlUI/EventLoop.h>
+#include <tlUI/IClipboard.h>
 
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Render.h>
@@ -49,6 +50,49 @@ namespace tl
                 default: break;
                 }
             }*/
+
+            class Clipboard : public ui::IClipboard
+            {
+                TLRENDER_NON_COPYABLE(Clipboard);
+
+            public:
+                void _init(
+                    GLFWwindow* glfwWindow,
+                    const std::shared_ptr<system::Context>& context)
+                {
+                    IClipboard::_init(context);
+                    _glfwWindow = glfwWindow;
+                }
+
+                Clipboard()
+                {}
+
+            public:
+                ~Clipboard() override
+                {}
+
+                static std::shared_ptr<Clipboard> create(
+                    GLFWwindow* glfwWindow,
+                    const std::shared_ptr<system::Context>& context)
+                {
+                    auto out = std::shared_ptr<Clipboard>(new Clipboard);
+                    out->_init(glfwWindow, context);
+                    return out;
+                }
+
+                std::string getText() const override
+                {
+                    return glfwGetClipboardString(_glfwWindow);
+                }
+
+                void setText(const std::string& value) override
+                {
+                    glfwSetClipboardString(_glfwWindow, value.c_str());
+                }
+
+            private:
+                GLFWwindow* _glfwWindow = nullptr;
+            };
         }
 
         struct IApp::Private
@@ -62,9 +106,10 @@ namespace tl
             imaging::Size frameBufferSize;
             math::Vector2f contentScale = math::Vector2f(1.F, 1.F);
 
-            std::shared_ptr<imaging::FontSystem> fontSystem;
-            std::shared_ptr<ui::IconLibrary> iconLibrary;
             std::shared_ptr<ui::Style> style;
+            std::shared_ptr<ui::IconLibrary> iconLibrary;
+            std::shared_ptr<imaging::FontSystem> fontSystem;
+            std::shared_ptr<Clipboard> clipboard;
             std::shared_ptr<ui::EventLoop> eventLoop;
             std::shared_ptr<timeline::IRender> render;
             std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
@@ -182,10 +227,12 @@ namespace tl
             p.style = ui::Style::create(_context);
             p.iconLibrary = ui::IconLibrary::create(_context);
             p.fontSystem = imaging::FontSystem::create(_context);
+            p.clipboard = Clipboard::create(p.glfwWindow, _context);
             p.eventLoop = ui::EventLoop::create(
                 p.style,
                 p.iconLibrary,
                 p.fontSystem,
+                p.clipboard,
                 _context);
 
             // Create the renderer.

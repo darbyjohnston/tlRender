@@ -7,19 +7,65 @@
 #include <tlTimelineUI/TimelineWidget.h>
 
 #include <tlUI/EventLoop.h>
+#include <tlUI/IClipboard.h>
 #include <tlUI/RowLayout.h>
 
 #include <tlGL/Render.h>
 #include <tlGL/Util.h>
 
+#include <QClipboard>
 #include <QDragEnterEvent>
 #include <QDragMoveEvent>
+#include <QGuiApplication>
 #include <QMimeData>
 
 namespace tl
 {
     namespace qtwidget
     {
+        namespace
+        {
+
+            class Clipboard : public ui::IClipboard
+            {
+                TLRENDER_NON_COPYABLE(Clipboard);
+
+            public:
+                void _init(
+                    const std::shared_ptr<system::Context>& context)
+                {
+                    IClipboard::_init(context);
+                }
+
+                Clipboard()
+                {}
+
+            public:
+                ~Clipboard() override
+                {}
+
+                static std::shared_ptr<Clipboard> create(
+                    const std::shared_ptr<system::Context>& context)
+                {
+                    auto out = std::shared_ptr<Clipboard>(new Clipboard);
+                    out->_init(context);
+                    return out;
+                }
+
+                std::string getText() const override
+                {
+                    QClipboard* clipboard = QGuiApplication::clipboard();
+                    return clipboard->text().toUtf8().data();
+                }
+
+                void setText(const std::string& value) override
+                {
+                    QClipboard* clipboard = QGuiApplication::clipboard();
+                    clipboard->setText(QString::fromUtf8(value.c_str()));
+                }
+            };
+        }
+
         struct TimelineWidget::Private
         {
             std::weak_ptr<system::Context> context;
@@ -27,9 +73,10 @@ namespace tl
             std::shared_ptr<timeline::Player> player;
             float mouseWheelScale = 20.F;
 
-            std::shared_ptr<imaging::FontSystem> fontSystem;
-            std::shared_ptr<ui::IconLibrary> iconLibrary;
             std::shared_ptr<ui::Style> style;
+            std::shared_ptr<ui::IconLibrary> iconLibrary;
+            std::shared_ptr<imaging::FontSystem> fontSystem;
+            std::shared_ptr<Clipboard> clipboard;
             std::shared_ptr<timeline::IRender> render;
             std::shared_ptr<ui::EventLoop> eventLoop;
             std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
@@ -63,10 +110,12 @@ namespace tl
             p.style = ui::Style::create(context);
             p.iconLibrary = ui::IconLibrary::create(context);
             p.fontSystem = imaging::FontSystem::create(context);
+            p.clipboard = Clipboard::create(context);
             p.eventLoop = ui::EventLoop::create(
                 p.style,
                 p.iconLibrary,
                 p.fontSystem,
+                p.clipboard,
                 context);
             p.timelineWidget = timelineui::TimelineWidget::create(context);
             p.timelineWidget->setFrameViewCallback(

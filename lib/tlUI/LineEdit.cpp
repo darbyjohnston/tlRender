@@ -5,9 +5,11 @@
 #include <tlUI/LineEdit.h>
 
 #include <tlUI/DrawUtil.h>
+#include <tlUI/EventLoop.h>
 #include <tlUI/GeometryUtil.h>
+#include <tlUI/IClipboard.h>
 
-#include <tlCore/Range.h>
+#include <tlTimeline/RenderUtil.h>
 
 namespace tl
 {
@@ -15,13 +17,15 @@ namespace tl
     {
         namespace
         {
+            typedef std::pair<int, int> SelectionPair;
+
             class Selection
             {
             public:
-                const std::pair<int, int>& get() const;
-                std::pair<int, int> getSorted() const;
+                const SelectionPair& get() const;
+                SelectionPair getSorted() const;
                 bool isValid() const;
-                void set(const std::pair<int, int>&);
+                void set(const SelectionPair&);
                 void setFirst(int);
                 void setSecond(int);
 
@@ -29,15 +33,15 @@ namespace tl
                 void clear();
 
             private:
-                std::pair<int, int> _pair = std::make_pair(-1, -1);
+                SelectionPair _pair = std::make_pair(-1, -1);
             };
 
-            const std::pair<int, int>& Selection::get() const
+            const SelectionPair& Selection::get() const
             {
                 return _pair;
             }
 
-            std::pair<int, int> Selection::getSorted() const
+            SelectionPair Selection::getSorted() const
             {
                 return std::make_pair(
                     std::min(_pair.first, _pair.second),
@@ -52,7 +56,7 @@ namespace tl
                     _pair.first != _pair.second;
             }
 
-            void Selection::set(const std::pair<int, int>& value)
+            void Selection::set(const SelectionPair& value)
             {
                 _pair = value;
             }
@@ -306,6 +310,11 @@ namespace tl
                 g.margin(-p.size.border * 2),
                 event.style->getColorRole(ColorRole::Base));
 
+            const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
+            const timeline::ClipRectState clipRectState(event.render);
+            event.render->setClipRectEnabled(true);
+            event.render->setClipRect(g.margin(-p.size.border * 2));
+
             const math::BBox2i g2 = g.margin(-(p.size.border * 2 + p.size.margin));
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             if (p.selection.isValid())
@@ -403,9 +412,10 @@ namespace tl
                 p.cursorTimer = std::chrono::steady_clock::now();
                 _updates |= Update::Draw;
             }
-            if (cursorPos != p.selection.get().first)
+            const SelectionPair selection(cursorPos, cursorPos);
+            if (selection != p.selection.get())
             {
-                p.selection.set(std::make_pair(cursorPos, cursorPos));
+                p.selection.set(selection);
                 _updates |= Update::Draw;
             }
             takeFocus();
@@ -430,8 +440,75 @@ namespace tl
 
                     p.selection.clear();
                     p.selection.select(0, p.text.size());
-                    
+
                     _updates |= Update::Draw;
+                }
+                break;
+            case Key::C:
+                if (event.modifiers & static_cast<int>(ui::KeyModifier::Control))
+                {
+                    if (p.selection.isValid())
+                    {
+                        event.accept = true;
+                        if (auto eventLoop = getEventLoop().lock())
+                        {
+                            const auto selection = p.selection.getSorted();
+                            const std::string text = p.text.substr(
+                                selection.first,
+                                selection.second - selection.first);
+                            eventLoop->getClipboard()->setText(text);
+                        }
+                    }
+                }
+                break;
+            case Key::V:
+                if (event.modifiers & static_cast<int>(ui::KeyModifier::Control))
+                {
+                    event.accept = true;
+                    if (auto eventLoop = getEventLoop().lock())
+                    {
+                        const std::string text = eventLoop->getClipboard()->getText();
+                        if (p.selection.isValid())
+                        {
+                            const auto selection = p.selection.getSorted();
+                            p.text.replace(
+                                selection.first,
+                                selection.second - selection.first,
+                                text);
+                            p.selection.clear();
+                            p.cursorPos = selection.first + text.size();
+                        }
+                        else
+                        {
+                            p.text.insert(p.cursorPos, text);
+                            p.cursorPos += text.size();
+                        }
+                        _textUpdate();
+                    }
+                }
+                break;
+            case Key::X:
+                if (event.modifiers & static_cast<int>(ui::KeyModifier::Control))
+                {
+                    if (p.selection.isValid())
+                    {
+                        event.accept = true;
+                        if (auto eventLoop = getEventLoop().lock())
+                        {
+                            const auto selection = p.selection.getSorted();
+                            const std::string text = p.text.substr(
+                                selection.first,
+                                selection.second - selection.first);
+                            eventLoop->getClipboard()->setText(text);
+                            p.text.replace(
+                                selection.first,
+                                selection.second - selection.first,
+                                "");
+                            p.selection.clear();
+                            p.cursorPos = selection.first;
+                            _textUpdate();
+                        }
+                    }
                 }
                 break;
             case Key::Left:

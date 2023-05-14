@@ -5,6 +5,7 @@
 #include <tlUI/EventLoop.h>
 
 #include <tlUI/DrawUtil.h>
+#include <tlUI/IWidget.h>
 
 namespace tl
 {
@@ -16,6 +17,7 @@ namespace tl
             std::shared_ptr<Style> style;
             std::shared_ptr<IconLibrary> iconLibrary;
             std::shared_ptr<imaging::FontSystem> fontSystem;
+            std::shared_ptr<IClipboard> clipboard;
             imaging::Size displaySize;
             float displayScale = 1.F;
             std::list<std::weak_ptr<IWidget> > topLevelWidgets;
@@ -33,6 +35,7 @@ namespace tl
             const std::shared_ptr<Style>& style,
             const std::shared_ptr<IconLibrary>& iconLibrary,
             const std::shared_ptr<imaging::FontSystem>& fontSystem,
+            const std::shared_ptr<IClipboard>& clipboard,
             const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
@@ -40,6 +43,7 @@ namespace tl
             p.style = style;
             p.iconLibrary = iconLibrary;
             p.fontSystem = fontSystem;
+            p.clipboard = clipboard;
         }
 
         EventLoop::EventLoop() :
@@ -53,10 +57,11 @@ namespace tl
             const std::shared_ptr<Style>& style,
             const std::shared_ptr<IconLibrary>& iconLibrary,
             const std::shared_ptr<imaging::FontSystem>& fontSystem,
+            const std::shared_ptr<IClipboard>& clipboard,
             const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<EventLoop>(new EventLoop);
-            out->_init(style, iconLibrary, fontSystem, context);
+            out->_init(style, iconLibrary, fontSystem, clipboard, context);
             return out;
         }
 
@@ -335,6 +340,11 @@ namespace tl
         {
             _drawEvent(render);
             _p->updates &= ~static_cast<int>(Update::Draw);
+        }
+
+        const std::shared_ptr<IClipboard>& EventLoop::getClipboard() const
+        {
+            return _p->clipboard;
         }
 
         void EventLoop::_tickEvent()
