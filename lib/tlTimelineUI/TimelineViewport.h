@@ -86,6 +86,7 @@ namespace tl
 
             void setVisible(bool) override;
             void setEnabled(bool) override;
+            void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
             void clipEvent(
                 const math::BBox2i&,

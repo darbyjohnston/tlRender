@@ -4,6 +4,10 @@
 
 #include <tlTimelineUI/TimelineViewport.h>
 
+#include <tlGL/OffscreenBuffer.h>
+
+#include <tlTimeline/RenderUtil.h>
+
 namespace tl
 {
     namespace timelineui
@@ -23,6 +27,9 @@ namespace tl
             bool frameView = true;
             std::function<void(const math::Vector2i&, float)> viewPosAndZoomCallback;
             std::function<void(bool)> frameViewCallback;
+            
+            std::shared_ptr<gl::OffscreenBuffer> buffer;
+            bool renderBuffer = false;
 
             struct MouseData
             {
@@ -142,6 +149,7 @@ namespace tl
                                 }
                             }
                             _p->videoData[i] = value;
+                            _p->renderBuffer = true;
                             _updates |= ui::Update::Draw;
                         }));
             }
@@ -239,6 +247,17 @@ namespace tl
             }
         }
 
+        void TimelineViewport::setGeometry(const math::BBox2i& value)
+        {
+            const bool changed = value != _geometry;
+            IWidget::setGeometry(value);
+            TLRENDER_P();
+            if (changed)
+            {
+                p.renderBuffer = true;
+            }
+        }
+
         void TimelineViewport::sizeHintEvent(const ui::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
@@ -276,35 +295,56 @@ namespace tl
 
             event.render->drawRect(g, imaging::Color4f(0.F, 0.F, 0.F));
 
-            if (!p.videoData.empty() &&
+            if (p.renderBuffer &&
+                !p.videoData.empty() &&
                 p.videoData.size() == p.timelineSizes.size())
             {
-                const math::BBox2i viewportPrev = event.render->getViewport();
-                const math::Matrix4x4f transformPrev = event.render->getTransform();
+                p.renderBuffer = false;
 
-                event.render->setViewport(math::BBox2i(0, 0, g.w(), g.h()));
-                math::Matrix4x4f vm;
-                vm = vm * math::translate(math::Vector3f(p.viewPos.x, p.viewPos.y, 0.F));
-                vm = vm * math::scale(math::Vector3f(p.viewZoom, p.viewZoom, 1.F));
-                const auto pm = math::ortho(
-                    0.F,
-                    static_cast<float>(g.w()),
-                    static_cast<float>(g.h()),
-                    0.F,
-                    -1.F,
-                    1.F);
-                event.render->setTransform(pm * vm);
+                const timeline::ViewportState viewportState(event.render);
+                const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
+                const timeline::ClipRectState clipRectState(event.render);
+                const timeline::TransformState transformState(event.render);
+                const timeline::RenderSizeState renderSizeState(event.render);
 
-                event.render->drawVideo(
-                    p.videoData,
-                    timeline::getBBoxes(p.compareOptions.mode, p.timelineSizes),
-                    p.imageOptions,
-                    p.displayOptions,
-                    p.compareOptions);
+                const imaging::Size size(g.w(), g.h());
+                gl::OffscreenBufferOptions options;
+                options.colorType = imaging::PixelType::RGB_F32;
+                if (gl::doCreate(p.buffer, size, options))
+                {
+                    p.buffer = gl::OffscreenBuffer::create(size, options);
+                }
+                if (p.buffer)
+                {
+                    gl::OffscreenBufferBinding binding(p.buffer);
+                    event.render->setRenderSize(size);
+                    event.render->setViewport(math::BBox2i(0, 0, g.w(), g.h()));
+                    event.render->setClipRectEnabled(false);
+                    math::Matrix4x4f vm;
+                    vm = vm * math::translate(math::Vector3f(p.viewPos.x, p.viewPos.y, 0.F));
+                    vm = vm * math::scale(math::Vector3f(p.viewZoom, p.viewZoom, 1.F));
+                    const auto pm = math::ortho(
+                        0.F,
+                        static_cast<float>(g.w()),
+                        0.F,
+                        static_cast<float>(g.h()),
+                        -1.F,
+                        1.F);
+                    event.render->setTransform(pm * vm);
+                    event.render->clearViewport(imaging::Color4f(0.F, 0.F, 0.F));
+                    event.render->drawVideo(
+                        p.videoData,
+                        timeline::getBBoxes(p.compareOptions.mode, p.timelineSizes),
+                        p.imageOptions,
+                        p.displayOptions,
+                        p.compareOptions);
+                }
+            }
 
-
-                event.render->setViewport(viewportPrev);
-                event.render->setTransform(transformPrev);
+            if (p.buffer)
+            {
+                const unsigned int id = p.buffer->getColorID();
+                event.render->drawTexture(id, g);
             }
         }
 
