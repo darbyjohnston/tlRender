@@ -18,6 +18,7 @@ namespace tl
             bool iconInit = false;
             std::future<std::shared_ptr<imaging::Image> > iconFuture;
             bool repeatClick = false;
+            bool repeatClickInit = false;
             std::chrono::steady_clock::time_point repeatClickTimer;
         };
 
@@ -152,11 +153,13 @@ namespace tl
             }
             if (_pressed && p.repeatClick)
             {
+                const float duration = p.repeatClickInit ? .4F : .02F;
                 const auto now = std::chrono::steady_clock::now();
                 const std::chrono::duration<float> diff = now - p.repeatClickTimer;
-                if (diff.count() > .2F)
+                if (diff.count() > duration)
                 {
                     _click();
+                    p.repeatClickInit = false;
                     p.repeatClickTimer = now;
                 }
             }
@@ -205,6 +208,7 @@ namespace tl
             _updates |= Update::Draw;
             if (p.repeatClick)
             {
+                p.repeatClickInit = true;
                 p.repeatClickTimer = std::chrono::steady_clock::now();
             }
         }
