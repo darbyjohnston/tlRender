@@ -6,6 +6,8 @@
 
 #include <tlUI/Event.h>
 
+#include <list>
+
 namespace tl
 {
     //! User interface.
