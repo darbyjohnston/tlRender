@@ -11,6 +11,8 @@ namespace tl
     namespace ui
     {
         //! Text line edit.
+        //! 
+        //! \todo Scroll the view with the cursor.
         class LineEdit : public IWidget
         {
             TLRENDER_NON_COPYABLE(LineEdit);
