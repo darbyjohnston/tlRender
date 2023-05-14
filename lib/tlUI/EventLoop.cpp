@@ -7,6 +7,8 @@
 #include <tlUI/DrawUtil.h>
 #include <tlUI/IWidget.h>
 
+#include <tlCore/StringFormat.h>
+
 namespace tl
 {
     namespace ui
@@ -29,6 +31,9 @@ namespace tl
             std::weak_ptr<IWidget> keyPress;
             KeyEvent keyEvent;
             int updates = 0;
+            size_t widgetCount = 0;
+            std::list<int> tickTimes;
+            std::chrono::steady_clock::time_point logTimer;
         };
 
         void EventLoop::_init(
@@ -44,6 +49,7 @@ namespace tl
             p.iconLibrary = iconLibrary;
             p.fontSystem = fontSystem;
             p.clipboard = clipboard;
+            p.logTimer = std::chrono::steady_clock::now();
         }
 
         EventLoop::EventLoop() :
@@ -310,6 +316,8 @@ namespace tl
         {
             TLRENDER_P();
 
+            const auto tickTime0 = std::chrono::steady_clock::now();
+
             _tickEvent();
 
             if (_getSizeUpdate())
@@ -335,7 +343,45 @@ namespace tl
                 p.updates |= Update::Draw;
             }
 
-            _expiredTopLevelWidgets();
+            _purgeTopLevelWidgets();
+
+            const auto tickTime1 = std::chrono::steady_clock::now();
+            const auto tickDiff = std::chrono::duration_cast<std::chrono::milliseconds>(tickTime1 - tickTime0);
+            p.tickTimes.push_back(tickDiff.count());
+            while (p.tickTimes.size() > 60)
+            {
+                p.tickTimes.pop_front();
+            }
+
+            // Logging.
+            const auto logTime = std::chrono::steady_clock::now();
+            const std::chrono::duration<float> logDiff = logTime - p.logTimer;
+            if (logDiff.count() > 10.F)
+            {
+                p.logTimer = logTime;
+                if (auto context = p.context.lock())
+                {
+                    int tickAverage = 0;
+                    for (const auto tickTime : p.tickTimes)
+                    {
+                        tickAverage += tickTime;
+                    }
+                    if (!p.tickTimes.empty())
+                    {
+                        tickAverage /= p.tickTimes.size();
+                    }
+
+                    auto logSystem = context->getLogSystem();
+                    logSystem->print(
+                        string::Format("tl::ui::EventLoop {0}").arg(this),
+                        string::Format(
+                            "\n"
+                            "    Tick average: {0}ms\n"
+                            "    Widget count: {1}").
+                        arg(tickAverage).
+                        arg(p.widgetCount));
+                }
+            }
         }
 
         bool EventLoop::hasDrawUpdate() const
@@ -357,6 +403,7 @@ namespace tl
         void EventLoop::_tickEvent()
         {
             TLRENDER_P();
+            p.widgetCount = 0;
             TickEvent event;
             event.style = p.style;
             event.iconLibrary = p.iconLibrary;
@@ -375,11 +422,13 @@ namespace tl
             const std::shared_ptr<IWidget>& widget,
             const TickEvent& event)
         {
+            TLRENDER_P();
             for (const auto& child : widget->getChildren())
             {
                 _tickEvent(child, event);
             }
             widget->tickEvent(event);
+            p.widgetCount = p.widgetCount + 1;
         }
 
         bool EventLoop::_getSizeUpdate()
@@ -765,7 +814,7 @@ namespace tl
             }
         }
 
-        void EventLoop::_expiredTopLevelWidgets()
+        void EventLoop::_purgeTopLevelWidgets()
         {
             TLRENDER_P();
             auto i = p.topLevelWidgets.begin();

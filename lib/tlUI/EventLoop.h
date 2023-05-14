@@ -126,7 +126,7 @@ namespace tl
                 const std::shared_ptr<IWidget>&,
                 std::list<std::shared_ptr<IWidget> >&);
 
-            void _expiredTopLevelWidgets();
+            void _purgeTopLevelWidgets();
 
         private:
             TLRENDER_PRIVATE();
