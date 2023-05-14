@@ -69,7 +69,7 @@ namespace tl
         private:
             math::BBox2i _getAlignGeometry() const;
 
-            size_t _getCursorPos(const math::Vector2i&);
+            int _getCursorPos(const math::Vector2i&);
 
             void _textUpdate();
 
