@@ -399,6 +399,7 @@ namespace tl
                             options.colorType = imaging::PixelType::RGB_F32;
                             buffer = gl::OffscreenBuffer::create(size, options);
                         }
+                        if (buffer)
                         {
                             gl::OffscreenBufferBinding binding(buffer);
                             event.render->setRenderSize(size);
