@@ -118,6 +118,26 @@ namespace tl
             _p->stopOnScrub = value;
         }
 
+        void TimelineItem::setVisible(bool value)
+        {
+            const bool changed = value != _visible;
+            IWidget::setVisible(value);
+            if (changed && !_visible)
+            {
+                _resetMouse();
+            }
+        }
+
+        void TimelineItem::setEnabled(bool value)
+        {
+            const bool changed = value != _enabled;
+            IWidget::setEnabled(value);
+            if (changed && !_enabled)
+            {
+                _resetMouse();
+            }
+        }
+
         void TimelineItem::setGeometry(const math::BBox2i& value)
         {
             IWidget::setGeometry(value);
@@ -140,26 +160,6 @@ namespace tl
                     sizeHint.x,
                     sizeHint.y));
                 y += sizeHint.y;// +_spacing;
-            }
-        }
-
-        void TimelineItem::setVisible(bool value)
-        {
-            const bool changed = value != _visible;
-            IWidget::setVisible(value);
-            if (changed && !_visible)
-            {
-                _resetMouse();
-            }
-        }
-
-        void TimelineItem::setEnabled(bool value)
-        {
-            const bool changed = value != _enabled;
-            IWidget::setEnabled(value);
-            if (changed && !_enabled)
-            {
-                _resetMouse();
             }
         }
 
