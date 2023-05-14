@@ -9,6 +9,8 @@
 
 #include <tlUI/ButtonGroup.h>
 #include <tlUI/IncButtons.h>
+#include <tlUI/FloatEdit.h>
+#include <tlUI/FloatModel.h>
 #include <tlUI/Label.h>
 #include <tlUI/LineEdit.h>
 #include <tlUI/RowLayout.h>
@@ -31,11 +33,13 @@ namespace tl
                 std::shared_ptr<ui::ButtonGroup> frameButtonGroup;
                 std::shared_ptr<ui::LineEdit> currentTimeEdit;
                 std::shared_ptr<ui::Label> durationLabel;
-                std::shared_ptr<ui::LineEdit> speedEdit;
+                std::shared_ptr<ui::FloatModel> speedModel;
+                std::shared_ptr<ui::FloatEdit> speedEdit;
                 std::shared_ptr<ui::Splitter> splitter;
                 std::shared_ptr<ui::RowLayout> layout;
 
                 std::shared_ptr<observer::ValueObserver<double> > speedObserver;
+                std::shared_ptr<observer::ValueObserver<float> > speedObserver2;
                 std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
                 std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
             };
@@ -90,9 +94,12 @@ namespace tl
                 p.durationLabel->setText(
                     player->getTimeRange().duration().to_timecode());
 
-                p.speedEdit = ui::LineEdit::create(context);
-                p.speedEdit->setFormat("00.00");
-                auto speedIncButtons = ui::IncButtons::create(context);
+                p.speedModel = ui::FloatModel::create(context);
+                p.speedModel->setRange(math::FloatRange(0.F, 1000.F));
+                p.speedModel->setStep(1.F);
+                p.speedModel->setLargeStep(10.F);
+                p.speedEdit = ui::FloatEdit::create(p.speedModel, context);
+                auto speedIncButtons = ui::FloatIncButtons::create(p.speedModel, context);
 
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
                 p.layout->setSpacingRole(ui::SizeRole::None);
@@ -122,12 +129,37 @@ namespace tl
                 p.speedEdit->setParent(hLayout2);
                 speedIncButtons->setParent(hLayout2);
 
+                p.currentTimeEdit->setTextCallback(
+                    [player](const std::string& value)
+                    {
+                        const otime::TimeRange& timeRange = player->getTimeRange();
+                        const otime::RationalTime time = otime::RationalTime::from_timecode(
+                            value,
+                            timeRange.duration().rate());
+                        player->seek(time);
+                    });
+                p.currentTimeEdit->setFocusCallback(
+                    [this, player](bool value)
+                    {
+                        if (!value)
+                        {
+                            const otime::RationalTime time = player->observeCurrentTime()->get();
+                            const std::string text = time.to_timecode();
+                            _p->currentTimeEdit->setText(text);
+                        }
+                    });
+
                 p.speedObserver = observer::ValueObserver<double>::create(
                     player->observeSpeed(),
                     [this](double value)
                     {
-                        const std::string s = string::Format("{0}").arg(value, 2, 2);
-                        _p->speedEdit->setText(s);
+                        _p->speedModel->setValue(value);
+                    });
+                p.speedObserver2 = observer::ValueObserver<float>::create(
+                    p.speedModel->observeValue(),
+                    [player](float value)
+                    {
+                        player->setSpeed(value);
                     });
 
                 p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
@@ -141,8 +173,8 @@ namespace tl
                     player->observeCurrentTime(),
                     [this](const otime::RationalTime& value)
                     {
-                        const std::string s = value.to_timecode();
-                        _p->currentTimeEdit->setText(s);
+                        const std::string text = value.to_timecode();
+                        _p->currentTimeEdit->setText(text);
                     });
 
                 p.playbackButtonGroup->setCheckedCallback(
