@@ -291,7 +291,7 @@ namespace tl
 
             const math::BBox2i g = _getAlignGeometry();
 
-            if (event.focusWidget == shared_from_this())
+            if (_keyFocus)
             {
                 event.render->drawMesh(
                     border(g, p.size.border * 2),
@@ -418,7 +418,7 @@ namespace tl
                 p.selection.set(selection);
                 _updates |= Update::Draw;
             }
-            takeFocus();
+            takeKeyFocus();
         }
 
         void LineEdit::mouseReleaseEvent(MouseClickEvent& event)
@@ -426,6 +426,17 @@ namespace tl
             TLRENDER_P();
             event.accept = true;
             p.mouse.press = false;
+        }
+
+        void LineEdit::keyFocusEvent(bool value)
+        {
+            IWidget::keyFocusEvent(value);
+            TLRENDER_P();
+            if (!value)
+            {
+                p.selection.clear();
+                _updates |= Update::Draw;
+            }
         }
 
         void LineEdit::keyPressEvent(KeyEvent& event)
@@ -640,7 +651,7 @@ namespace tl
                 if (hasKeyFocus())
                 {
                     event.accept = true;
-                    releaseFocus();
+                    releaseKeyFocus();
                 }
                 break;
             }

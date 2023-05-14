@@ -155,7 +155,7 @@ namespace tl
 
             const math::BBox2i& g = _geometry;
 
-            if (event.focusWidget == shared_from_this())
+            if (_keyFocus)
             {
                 event.render->drawMesh(
                     border(g, p.size.border * 2),
@@ -239,7 +239,7 @@ namespace tl
             {
                 p.model->setValue(_posToValue(p.mouse.pos.x));
             }
-            takeFocus();
+            takeKeyFocus();
             _updates |= Update::Draw;
         }
 
@@ -288,7 +288,7 @@ namespace tl
                     if (hasKeyFocus())
                     {
                         event.accept = true;
-                        releaseFocus();
+                        releaseKeyFocus();
                     }
                     break;
                 }

@@ -149,13 +149,13 @@ namespace tl
             virtual bool acceptsKeyFocus() const;
 
             //! Does this widget have key focus?
-            bool hasKeyFocus();
+            bool hasKeyFocus() const;
 
             //! Take the key focus.
-            void takeFocus();
+            void takeKeyFocus();
 
             //! Release the key focus.
-            void releaseFocus();
+            void releaseKeyFocus();
 
             ///@}
 
@@ -203,6 +203,9 @@ namespace tl
             //! Scroll event.
             virtual void scrollEvent(ScrollEvent&);
 
+            //! Key focus event.
+            virtual void keyFocusEvent(bool);
+
             //! Key press event.
             virtual void keyPressEvent(KeyEvent&);
 
@@ -231,6 +234,7 @@ namespace tl
             bool _enabled = true;
             ColorRole _backgroundRole = ColorRole::None;
             int _updates = 0;
+            bool _keyFocus = false;
         };
     }
 }

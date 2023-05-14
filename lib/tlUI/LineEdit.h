@@ -62,6 +62,7 @@ namespace tl
             void mouseMoveEvent(MouseMoveEvent&) override;
             void mousePressEvent(MouseClickEvent&) override;
             void mouseReleaseEvent(MouseClickEvent&) override;
+            void keyFocusEvent(bool) override;
             void keyPressEvent(KeyEvent&) override;
             void keyReleaseEvent(KeyEvent&) override;
             void textEvent(TextEvent&) override;

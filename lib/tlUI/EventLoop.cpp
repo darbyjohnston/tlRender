@@ -85,17 +85,20 @@ namespace tl
             p.updates |= Update::Draw;
         }
 
-        const std::weak_ptr<IWidget>& EventLoop::getKeyFocus() const
-        {
-            return _p->keyFocus;
-        }
-
         void EventLoop::setKeyFocus(const std::shared_ptr<IWidget>& value)
         {
             TLRENDER_P();
             if (value == p.keyFocus.lock())
                 return;
+            if (auto widget = p.keyFocus.lock())
+            {
+                widget->keyFocusEvent(false);
+            }
             p.keyFocus = value;
+            if (auto widget = p.keyFocus.lock())
+            {
+                widget->keyFocusEvent(true);
+            }
             p.updates |= Update::Draw;
         }
 
@@ -118,7 +121,11 @@ namespace tl
                 widget->mouseReleaseEvent(p.mouseClickEvent);
                 p.mousePress.reset();
             }
-            p.keyFocus.reset();
+            if (auto widget = p.keyFocus.lock())
+            {
+                widget->keyFocusEvent(false);
+                p.keyFocus.reset();
+            }
             if (auto widget = p.keyPress.lock())
             {
                 p.keyEvent.pos = p.cursorPos;
@@ -546,7 +553,6 @@ namespace tl
                 event.fontMetrics[i] = p.fontSystem->getMetrics(
                     p.style->getFontRole(i, p.displayScale));
             }
-            event.focusWidget = p.keyFocus.lock();
             event.render->setClipRectEnabled(true);
             for (const auto& i : p.topLevelWidgets)
             {

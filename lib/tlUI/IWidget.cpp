@@ -159,7 +159,7 @@ namespace tl
             _visible = value;
             if (!_visible)
             {
-                releaseFocus();
+                releaseKeyFocus();
             }
             _updates |= Update::Size;
             _updates |= Update::Draw;
@@ -172,29 +172,13 @@ namespace tl
             _enabled = value;
             if (!_enabled)
             {
-                releaseFocus();
+                releaseKeyFocus();
             }
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
 
-        bool IWidget::hasKeyFocus()
-        {
-            bool out = false;
-            if (auto eventLoop = getEventLoop().lock())
-            {
-                if (auto keyFocus = eventLoop->getKeyFocus().lock())
-                {
-                    if (keyFocus == shared_from_this())
-                    {
-                        out = true;
-                    }
-                }
-            }
-            return out;
-        }
-
-        void IWidget::takeFocus()
+        void IWidget::takeKeyFocus()
         {
             if (auto eventLoop = getEventLoop().lock())
             {
@@ -202,16 +186,13 @@ namespace tl
             }
         }
 
-        void IWidget::releaseFocus()
+        void IWidget::releaseKeyFocus()
         {
-            if (auto eventLoop = getEventLoop().lock())
+            if (_keyFocus)
             {
-                if (auto keyFocus = eventLoop->getKeyFocus().lock())
+                if (auto eventLoop = getEventLoop().lock())
                 {
-                    if (keyFocus == shared_from_this())
-                    {
-                        eventLoop->setKeyFocus(nullptr);
-                    }
+                    eventLoop->setKeyFocus(nullptr);
                 }
             }
         }
@@ -237,7 +218,7 @@ namespace tl
         {
             if (clipped && clipped != _clipped)
             {
-                releaseFocus();
+                releaseKeyFocus();
             }
             _clipped = clipped;
         }
@@ -272,6 +253,11 @@ namespace tl
 
         void IWidget::scrollEvent(ScrollEvent&)
         {}
+
+        void IWidget::keyFocusEvent(bool value)
+        {
+            _keyFocus = value;
+        }
 
         void IWidget::keyPressEvent(KeyEvent&)
         {}

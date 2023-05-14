@@ -202,7 +202,7 @@ namespace tl
             event.accept = true;
             if (acceptsKeyFocus())
             {
-                takeFocus();
+                takeKeyFocus();
             }
             _pressed = true;
             _updates |= Update::Draw;

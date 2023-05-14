@@ -65,7 +65,6 @@ namespace tl
             std::shared_ptr<imaging::FontSystem> fontSystem;
             float displayScale = 1.F;
             std::map<FontRole, imaging::FontMetrics> fontMetrics;
-            std::shared_ptr<IWidget> focusWidget;
 
             imaging::FontMetrics getFontMetrics(FontRole) const;
         };

@@ -85,5 +85,10 @@ namespace tl
         {
             return false;
         }
+        
+        inline bool IWidget::hasKeyFocus() const
+        {
+            return _keyFocus;
+        }
     }
 }

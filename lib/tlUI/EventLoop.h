@@ -50,9 +50,6 @@ namespace tl
             //! resolutions.
             void setDisplayScale(float);
 
-            //! Get the key focus widget.
-            const std::weak_ptr<IWidget>& getKeyFocus() const;
-
             //! Set the key focus widget.
             void setKeyFocus(const std::shared_ptr<IWidget>&);
 
