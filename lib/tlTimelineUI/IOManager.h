@@ -14,6 +14,8 @@ namespace tl
     namespace timelineui
     {
         //! I/O manager.
+        //! 
+        //! \todo Serialize requests to control the number of threads used.
         class IOManager : public std::enable_shared_from_this<IOManager>
         {
         protected:

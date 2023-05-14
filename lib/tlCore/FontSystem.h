@@ -72,6 +72,7 @@ namespace tl
 
         //! Font system.
         //!
+        //! \todo Add text elide functionality.
         //! \todo Add support for gamma correction?
         //! - https://www.freetype.org/freetype2/docs/text-rendering-general.html
         class FontSystem : public std::enable_shared_from_this<FontSystem>

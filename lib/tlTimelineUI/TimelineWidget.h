@@ -11,6 +11,8 @@ namespace tl
     namespace timelineui
     {
         //! Timeline widget.
+        //! 
+        //! \tool Keep the current frame display inside widget geometry.
         class TimelineWidget : public ui::IWidget
         {
             TLRENDER_NON_COPYABLE(TimelineWidget);

@@ -13,6 +13,9 @@ namespace tl
     namespace timelineui
     {
         //! Timeline item.
+        //! 
+        //! \todo Add memory cache information.
+        //! \todo Add in/out points.
         class TimelineItem : public IItem
         {
         protected:
