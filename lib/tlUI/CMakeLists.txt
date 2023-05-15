@@ -8,7 +8,6 @@ set(HEADERS
     FloatEditSlider.h
     FloatModel.h
     FloatSlider.h
-    GeometryUtil.h
     GridLayout.h
     GroupBox.h
     IButton.h
@@ -23,6 +22,7 @@ set(HEADERS
     IntModel.h
     IntSlider.h
     Label.h
+    LayoutUtil.h
     LineEdit.h
     ListButton.h
     PieChart.h
@@ -36,6 +36,7 @@ set(HEADERS
     StackLayout.h
     Style.h
     TimeEdit.h
+    TimeLabel.h
     TimeUnitsModel.h
     ToolButton.h)
 set(HEADERS_PRIVATE)
@@ -50,7 +51,6 @@ set(SOURCE
     FloatEditSlider.cpp
     FloatModel.cpp
     FloatSlider.cpp
-    GeometryUtil.cpp
     GridLayout.cpp
     GroupBox.cpp
     IButton.cpp
@@ -64,6 +64,7 @@ set(SOURCE
     IntModel.cpp
     IntSlider.cpp
     Label.cpp
+    LayoutUtil.cpp
     LineEdit.cpp
     ListButton.cpp
     PieChart.cpp
@@ -77,6 +78,7 @@ set(SOURCE
     StackLayout.cpp
     Style.cpp
     TimeEdit.cpp
+    TimeLabel.cpp
     TimeUnitsModel.cpp
     ToolButton.cpp)
 

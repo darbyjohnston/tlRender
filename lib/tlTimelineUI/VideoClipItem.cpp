@@ -120,14 +120,37 @@ namespace tl
             return out;
         }
 
-        void VideoClipItem::setOptions(const ItemOptions& value)
+        void VideoClipItem::setScale(float value)
         {
-            const bool changed = value != _options;
-            IItem::setOptions(value);
+            const bool changed = value != _scale;
+            IItem::setScale(value);
             TLRENDER_P();
             if (changed)
             {
+                _data.ioManager->cancelRequests();
+                if (!_options.thumbnails)
+                {
+                    p.videoData.clear();
+                    p.thumbnails.clear();
+                    p.bufferPool.clear();
+                }
+            }
+        }
+
+        void VideoClipItem::setOptions(const ItemOptions& value)
+        {
+            const bool timeUnitsChanged = value.timeUnits != _options.timeUnits;
+            const bool thumbnailsChanged =
+                value.thumbnails != _options.thumbnails ||
+                value.thumbnailHeight != _options.thumbnailHeight;
+            IItem::setOptions(value);
+            TLRENDER_P();
+            if (timeUnitsChanged)
+            {
                 _textUpdate();
+            }
+            if (thumbnailsChanged)
+            {
                 _data.ioManager->cancelRequests();
                 if (!_options.thumbnails)
                 {
@@ -139,8 +162,12 @@ namespace tl
             }
         }
 
-        void VideoClipItem::tickEvent(const ui::TickEvent& event)
+        void VideoClipItem::tickEvent(
+            bool parentsVisible,
+            bool parentsEnabled,
+            const ui::TickEvent& event)
         {
+            IWidget::tickEvent(parentsVisible, parentsEnabled, event);
             TLRENDER_P();
 
             // Check if any thumbnail reads are finished.
@@ -198,7 +225,7 @@ namespace tl
             }
 
             _sizeHint = math::Vector2i(
-                p.timeRange.duration().rescaled_to(1.0).value() * _options.scale,
+                p.timeRange.duration().rescaled_to(1.0).value() * _scale,
                 p.size.margin +
                 fontMetrics.lineHeight +
                 p.size.margin);
@@ -264,6 +291,9 @@ namespace tl
             p.durationLabel = IItem::_durationLabel(
                 p.timeRange.duration(),
                 _options.timeUnits);
+            p.draw.durationGlyphs.clear();
+            _updates |= ui::Update::Size;
+            _updates |= ui::Update::Draw;
         }
 
         void VideoClipItem::_drawInfo(

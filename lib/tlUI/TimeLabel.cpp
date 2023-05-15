@@ -2,17 +2,23 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/Label.h>
+#include <tlUI/TimeLabel.h>
 
 #include <tlUI/LayoutUtil.h>
+#include <tlUI/TimeUnitsModel.h>
+
+#include <tlCore/StringFormat.h>
 
 namespace tl
 {
     namespace ui
     {
-        struct Label::Private
+        struct TimeLabel::Private
         {
+            std::shared_ptr<TimeUnitsModel> timeUnitsModel;
+            otime::RationalTime value = time::invalidTime;
             std::string text;
+            std::string format;
             SizeRole marginRole = SizeRole::None;
             FontRole fontRole = FontRole::Label;
 
@@ -21,6 +27,7 @@ namespace tl
                 int margin = 0;
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
+                math::Vector2i formatSize;
             };
             SizeData size;
 
@@ -29,44 +36,71 @@ namespace tl
                 std::vector<std::shared_ptr<imaging::Glyph> > glyphs;
             };
             DrawData draw;
+
+            std::shared_ptr<observer::ValueObserver<TimeUnits> > timeUnitsObserver;
         };
 
-        void Label::_init(
+        void TimeLabel::_init(
+            const std::shared_ptr<TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::ui::Label", context, parent);
-            _hAlign = HAlign::Left;
+            IWidget::_init("tl::ui::TimeLabel", context, parent);
+            TLRENDER_P();
+
+            p.timeUnitsModel = timeUnitsModel;
+            if (!p.timeUnitsModel)
+            {
+                p.timeUnitsModel = TimeUnitsModel::create(context);
+            }
+
+            _textUpdate();
+
+            p.timeUnitsObserver = observer::ValueObserver<TimeUnits>::create(
+                p.timeUnitsModel->observeTimeUnits(),
+                [this](TimeUnits)
+                {
+                    _textUpdate();
+                });
         }
 
-        Label::Label() :
+        TimeLabel::TimeLabel() :
             _p(new Private)
         {}
 
-        Label::~Label()
+        TimeLabel::~TimeLabel()
         {}
 
-        std::shared_ptr<Label> Label::create(
+        std::shared_ptr<TimeLabel> TimeLabel::create(
+            const std::shared_ptr<TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            auto out = std::shared_ptr<Label>(new Label);
-            out->_init(context, parent);
+            auto out = std::shared_ptr<TimeLabel>(new TimeLabel);
+            out->_init(timeUnitsModel, context, parent);
             return out;
         }
 
-        void Label::setText(const std::string& value)
+        const std::shared_ptr<TimeUnitsModel>& TimeLabel::getTimeUnitsModel() const
         {
-            TLRENDER_P();
-            if (value == p.text)
-                return;
-            p.text = value;
-            p.draw.glyphs.clear();
-            _updates |= Update::Size;
-            _updates |= Update::Draw;
+            return _p->timeUnitsModel;
         }
 
-        void Label::setMarginRole(SizeRole value)
+        const otime::RationalTime& TimeLabel::getValue() const
+        {
+            return _p->value;
+        }
+
+        void TimeLabel::setValue(const otime::RationalTime& value)
+        {
+            TLRENDER_P();
+            if (time::compareExact(value, p.value))
+                return;
+            p.value = value;
+            _textUpdate();
+        }
+
+        void TimeLabel::setMarginRole(SizeRole value)
         {
             TLRENDER_P();
             if (value == p.marginRole)
@@ -76,7 +110,7 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void Label::setFontRole(FontRole value)
+        void TimeLabel::setFontRole(FontRole value)
         {
             TLRENDER_P();
             if (value == p.fontRole)
@@ -87,7 +121,7 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void Label::sizeHintEvent(const SizeHintEvent& event)
+        void TimeLabel::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
@@ -95,15 +129,16 @@ namespace tl
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
+            p.size.formatSize = event.fontSystem->getSize(p.format, fontInfo);
             _sizeHint.x =
-                p.size.textSize.x +
+                std::max(p.size.textSize.x, p.size.formatSize.x) +
                 p.size.margin * 2;
             _sizeHint.y =
                 p.size.fontMetrics.lineHeight +
                 p.size.margin * 2;
         }
 
-        void Label::clipEvent(
+        void TimeLabel::clipEvent(
             const math::BBox2i& clipRect,
             bool clipped,
             const ClipEvent& event)
@@ -116,7 +151,7 @@ namespace tl
             }
         }
 
-        void Label::drawEvent(
+        void TimeLabel::drawEvent(
             const math::BBox2i& drawRect,
             const DrawEvent& event)
         {
@@ -145,6 +180,35 @@ namespace tl
                 p.draw.glyphs,
                 pos,
                 event.style->getColorRole(ColorRole::Text));
+        }
+
+        void TimeLabel::_textUpdate()
+        {
+            TLRENDER_P();
+            p.text = std::string();
+            p.format = std::string();
+            if (p.timeUnitsModel)
+            {
+                switch (p.timeUnitsModel->getTimeUnits())
+                {
+                case TimeUnits::Frames:
+                    p.text = string::Format("{0}").arg(p.value.to_frames());
+                    p.format = "000000";
+                    break;
+                case TimeUnits::Seconds:
+                    p.text = string::Format("{0}").arg(p.value.to_seconds(), 2);
+                    p.format = "000000.00";
+                    break;
+                case TimeUnits::Timecode:
+                    p.text = p.value.to_timecode();
+                    p.format = "00:00:00;00";
+                    break;
+                default: break;
+                }
+            }
+            p.draw.glyphs.clear();
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
         }
     }
 }

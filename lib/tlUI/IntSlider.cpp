@@ -254,7 +254,7 @@ namespace tl
         void IntSlider::keyPressEvent(KeyEvent& event)
         {
             TLRENDER_P();
-            if (_enabled && p.model)
+            if (isEnabled() && p.model)
             {
                 switch (event.key)
                 {

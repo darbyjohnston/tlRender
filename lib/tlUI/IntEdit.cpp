@@ -129,7 +129,7 @@ namespace tl
         void IntEdit::keyPressEvent(KeyEvent& event)
         {
             TLRENDER_P();
-            if (_enabled && p.model)
+            if (isEnabled() && p.model)
             {
                 switch (event.key)
                 {

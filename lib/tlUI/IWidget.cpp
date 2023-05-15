@@ -203,8 +203,14 @@ namespace tl
         void IWidget::childRemovedEvent(const ChildEvent&)
         {}
 
-        void IWidget::tickEvent(const TickEvent&)
-        {}
+        void IWidget::tickEvent(
+            bool parentsVisible,
+            bool parentsEnabled,
+            const TickEvent&)
+        {
+            _parentsVisible = parentsVisible;
+            _parentsEnabled = parentsEnabled;
+        }
 
         void IWidget::sizeHintEvent(const SizeHintEvent&)
         {

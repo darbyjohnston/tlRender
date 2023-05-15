@@ -6,8 +6,8 @@
 
 #include <tlUI/DrawUtil.h>
 #include <tlUI/EventLoop.h>
-#include <tlUI/GeometryUtil.h>
 #include <tlUI/IClipboard.h>
+#include <tlUI/LayoutUtil.h>
 
 #include <tlTimeline/RenderUtil.h>
 
@@ -230,8 +230,12 @@ namespace tl
             return true;
         }
 
-        void LineEdit::tickEvent(const TickEvent& event)
+        void LineEdit::tickEvent(
+            bool parentsVisible,
+            bool parentsEnabled,
+            const TickEvent& event)
         {
+            IWidget::tickEvent(parentsVisible, parentsEnabled, event);
             TLRENDER_P();
             if (hasKeyFocus())
             {
@@ -296,6 +300,7 @@ namespace tl
             TLRENDER_P();
 
             const math::BBox2i g = _getAlignGeometry();
+            const bool enabled = isEnabled();
 
             if (_keyFocus)
             {
@@ -347,7 +352,7 @@ namespace tl
             event.render->drawText(
                 p.draw.glyphs,
                 pos,
-                event.style->getColorRole(_enabled ?
+                event.style->getColorRole(enabled ?
                     ColorRole::Text :
                     ColorRole::TextDisabled));
             

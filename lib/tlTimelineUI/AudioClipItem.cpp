@@ -123,14 +123,33 @@ namespace tl
             return out;
         }
 
-        void AudioClipItem::setOptions(const ItemOptions& value)
+        void AudioClipItem::setScale(float value)
         {
-            const bool changed = value != _options;
-            IItem::setOptions(value);
+            const bool changed = value != _scale;
+            IItem::setScale(value);
             TLRENDER_P();
             if (changed)
             {
+                _data.ioManager->cancelRequests();
+                p.audioData.clear();
+                _updates |= ui::Update::Draw;
+            }
+        }
+
+        void AudioClipItem::setOptions(const ItemOptions& value)
+        {
+            const bool timeUnitsChanged = value.timeUnits != _options.timeUnits;
+            const bool thumbnailsChanged =
+                value.thumbnails != _options.thumbnails ||
+                value.waveformHeight != _options.waveformHeight;
+            IItem::setOptions(value);
+            TLRENDER_P();
+            if (timeUnitsChanged)
+            {
                 _textUpdate();
+            }
+            if (thumbnailsChanged)
+            {
                 _data.ioManager->cancelRequests();
                 p.audioData.clear();
                 _updates |= ui::Update::Draw;
@@ -203,8 +222,12 @@ namespace tl
             }
         }
 
-        void AudioClipItem::tickEvent(const ui::TickEvent& event)
+        void AudioClipItem::tickEvent(
+            bool parentsVisible,
+            bool parentsEnabled,
+            const ui::TickEvent& event)
         {
+            IWidget::tickEvent(parentsVisible, parentsEnabled, event);
             TLRENDER_P();
             auto i = p.audioDataFutures.begin();
             while (i != p.audioDataFutures.end())
@@ -270,7 +293,7 @@ namespace tl
             p.size.durationSize = event.fontSystem->getSize(p.durationLabel, fontInfo);
 
             const int waveformWidth = _options.thumbnails ?
-                (otime::RationalTime(1.0, 1.0).value() * _options.scale) :
+                (otime::RationalTime(1.0, 1.0).value() * _scale) :
                 0;
             if (waveformWidth != p.size.waveformWidth)
             {
@@ -281,7 +304,7 @@ namespace tl
             }
 
             _sizeHint = math::Vector2i(
-                p.timeRange.duration().rescaled_to(1.0).value() * _options.scale,
+                p.timeRange.duration().rescaled_to(1.0).value() * _scale,
                 p.size.margin +
                 fontMetrics.lineHeight +
                 p.size.margin);
@@ -341,6 +364,9 @@ namespace tl
             p.durationLabel = IItem::_durationLabel(
                 p.timeRange.duration(),
                 _options.timeUnits);
+            p.draw.durationGlyphs.clear();
+            _updates |= ui::Update::Size;
+            _updates |= ui::Update::Draw;
         }
 
         void AudioClipItem::_drawInfo(

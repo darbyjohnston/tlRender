@@ -413,21 +413,33 @@ namespace tl
             {
                 if (auto widget = i.lock())
                 {
-                    _tickEvent(widget, event);
+                    _tickEvent(
+                        widget,
+                        widget->isVisible(),
+                        widget->isEnabled(),
+                        event);
                 }
             }
         }
 
         void EventLoop::_tickEvent(
             const std::shared_ptr<IWidget>& widget,
+            bool visible,
+            bool enabled,
             const TickEvent& event)
         {
             TLRENDER_P();
+            const bool parentsVisible = visible && widget->isVisible();
+            const bool parentsEnabled = enabled && widget->isEnabled();
             for (const auto& child : widget->getChildren())
             {
-                _tickEvent(child, event);
+                _tickEvent(
+                    child,
+                    parentsVisible,
+                    parentsEnabled,
+                    event);
             }
-            widget->tickEvent(event);
+            widget->tickEvent(visible, enabled, event);
             p.widgetCount = p.widgetCount + 1;
         }
 

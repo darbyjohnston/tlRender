@@ -138,6 +138,7 @@ namespace tl
             TLRENDER_P();
 
             const math::BBox2i& g = _geometry;
+            const bool enabled = isEnabled();
 
             if (_keyFocus)
             {
@@ -189,7 +190,7 @@ namespace tl
                       g2.y() + g2.h() / 2 - iconSize.h / 2,
                       iconSize.w,
                       iconSize.h),
-                  event.style->getColorRole(_enabled ?
+                  event.style->getColorRole(enabled ?
                       ColorRole::Text :
                       ColorRole::TextDisabled));
                 x += iconSize.w + p.size.spacing;
@@ -209,7 +210,7 @@ namespace tl
                 event.render->drawText(
                     p.draw.glyphs,
                     pos,
-                    event.style->getColorRole(_enabled ?
+                    event.style->getColorRole(enabled ?
                         ColorRole::Text :
                         ColorRole::TextDisabled));
             }

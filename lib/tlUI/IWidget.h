@@ -169,7 +169,10 @@ namespace tl
             virtual void childRemovedEvent(const ChildEvent&);
 
             //! Tick event.
-            virtual void tickEvent(const TickEvent&);
+            virtual void tickEvent(
+                bool parentsVisible,
+                bool parentsEnabled,
+                const TickEvent&);
 
             //! Size hint event.
             virtual void sizeHintEvent(const SizeHintEvent&);
@@ -230,8 +233,10 @@ namespace tl
             VAlign _vAlign = VAlign::Center;
             math::BBox2i _geometry;
             bool _visible = true;
+            bool _parentsVisible = true;
             bool _clipped = false;
             bool _enabled = true;
+            bool _parentsEnabled = true;
             ColorRole _backgroundRole = ColorRole::None;
             int _updates = 0;
             bool _keyFocus = false;

@@ -9,6 +9,9 @@
 #include <tlUI/GroupBox.h>
 #include <tlUI/LineEdit.h>
 #include <tlUI/PushButton.h>
+#include <tlUI/TimeEdit.h>
+#include <tlUI/TimeLabel.h>
+#include <tlUI/TimeUnitsModel.h>
 #include <tlUI/ToolButton.h>
 #include <tlUI/RowLayout.h>
 
@@ -124,6 +127,26 @@ namespace tl
                     }));
                 comboBox3->setEnabled(false);
 
+                auto timeUnitsModel = ui::TimeUnitsModel::create(context);
+                auto timeEdit0 = ui::TimeEdit::create(timeUnitsModel, context);
+                timeEdit0->setValue(otime::RationalTime(0.0, 24.0));
+                auto timeEdit1 = ui::TimeEdit::create(timeUnitsModel, context);
+                timeEdit1->setValue(otime::RationalTime(240.0, 24.0));
+                auto timeEdit2 = ui::TimeEdit::create(timeUnitsModel, context);
+                timeEdit2->setValue(otime::RationalTime(240.0, 24.0));
+                timeEdit2->setEnabled(false);
+                auto timeLabel0 = ui::TimeLabel::create(timeUnitsModel, context);
+                timeLabel0->setValue(otime::RationalTime(240.0, 24.0));
+                auto timeUnitsComboBox = ui::ComboBox::create(context);
+                timeUnitsComboBox->setItems(ui::getTimeUnitsLabels());
+                timeUnitsComboBox->setCurrentIndex(
+                    static_cast<int>(timeUnitsModel->getTimeUnits()));
+                timeUnitsComboBox->setIndexCallback(
+                    [timeUnitsModel](int value)
+                    {
+                        timeUnitsModel->setTimeUnits(static_cast<ui::TimeUnits>(value));
+                    });
+
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
                 auto groupBox = ui::GroupBox::create(context, p.layout);
                 groupBox->setText("Push Buttons");
@@ -152,6 +175,14 @@ namespace tl
                 comboBox1->setParent(hLayout);
                 comboBox2->setParent(hLayout);
                 comboBox3->setParent(hLayout);
+                groupBox = ui::GroupBox::create(context, p.layout);
+                groupBox->setText("Time Widgets");
+                hLayout = ui::HorizontalLayout::create(context, groupBox);
+                timeEdit0->setParent(hLayout);
+                timeEdit1->setParent(hLayout);
+                timeEdit2->setParent(hLayout);
+                timeLabel0->setParent(hLayout);
+                timeUnitsComboBox->setParent(hLayout);
             }
 
             BasicWidgets::BasicWidgets() :

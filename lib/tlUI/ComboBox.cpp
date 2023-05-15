@@ -433,8 +433,9 @@ namespace tl
         void ComboBox::setCurrentIndex(int value)
         {
             TLRENDER_P();
-            const int tmp = std::min(
+            const int tmp = math::clamp(
                 value,
+                0,
                 static_cast<int>(p.items.size()) - 1);
             if (tmp == p.currentIndex)
                 return;
@@ -496,8 +497,12 @@ namespace tl
             return true;
         }
 
-        void ComboBox::tickEvent(const TickEvent& event)
+        void ComboBox::tickEvent(
+            bool parentsVisible,
+            bool parentsEnabled,
+            const TickEvent& event)
         {
+            IWidget::tickEvent(parentsVisible, parentsEnabled, event);
             TLRENDER_P();
             if (event.displayScale != p.iconScale)
             {
@@ -610,6 +615,7 @@ namespace tl
             TLRENDER_P();
 
             const math::BBox2i& g = _geometry;
+            const bool enabled = isEnabled();
 
             if (_keyFocus)
             {
@@ -655,7 +661,7 @@ namespace tl
                         g2.y() + g2.h() / 2 - iconSize.h / 2,
                         iconSize.w,
                         iconSize.h),
-                    event.style->getColorRole(_enabled ?
+                    event.style->getColorRole(enabled ?
                         ColorRole::Text :
                         ColorRole::TextDisabled));
                 x += iconSize.w + p.size.spacing;
@@ -675,7 +681,7 @@ namespace tl
                 event.render->drawText(
                     p.draw.glyphs,
                     pos,
-                    event.style->getColorRole(_enabled ?
+                    event.style->getColorRole(enabled ?
                         ColorRole::Text :
                         ColorRole::TextDisabled));
                 x += p.size.textSize.x + p.size.margin * 2 + p.size.spacing;
@@ -691,7 +697,7 @@ namespace tl
                         g2.y() + g2.h() / 2 - iconSize.h / 2,
                         iconSize.w,
                         iconSize.h),
-                    event.style->getColorRole(_enabled ?
+                    event.style->getColorRole(enabled ?
                         ColorRole::Text :
                         ColorRole::TextDisabled));
             }
@@ -738,8 +744,15 @@ namespace tl
 
         void ComboBox::keyPressEvent(KeyEvent& event)
         {
+            TLRENDER_P();
             switch (event.key)
             {
+            case Key::Up:
+                _commitIndex(p.currentIndex - 1);
+                break;
+            case Key::Down:
+                _commitIndex(p.currentIndex + 1);
+                break;
             case Key::Space:
             case Key::Enter:
                 event.accept = true;
@@ -797,15 +810,7 @@ namespace tl
                                 widget->_updates |= Update::Draw;
                                 if (index != -1)
                                 {
-                                    widget->setCurrentIndex(index);
-                                    if (widget->_p->indexCallback)
-                                    {
-                                        widget->_p->indexCallback(index);
-                                    }
-                                    if (widget->_p->itemCallback)
-                                    {
-                                        widget->_p->itemCallback(widget->_getItem(index));
-                                    }
+                                    widget->_commitIndex(index);
                                 }
                             }
                         });
@@ -822,6 +827,24 @@ namespace tl
                 p.mouse.pressed = false;
                 p.mouse.inside = false;
                 _updates |= Update::Draw;
+            }
+        }
+
+        void ComboBox::_commitIndex(int value)
+        {
+            TLRENDER_P();
+            const int currentIndex = p.currentIndex;
+            setCurrentIndex(value);
+            if (p.currentIndex != currentIndex)
+            {
+                if (p.indexCallback)
+                {
+                    p.indexCallback(p.currentIndex);
+                }
+                if (p.itemCallback)
+                {
+                    p.itemCallback(_getItem(p.currentIndex));
+                }
             }
         }
     }

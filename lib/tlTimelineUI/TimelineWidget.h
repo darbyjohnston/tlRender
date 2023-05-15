@@ -88,6 +88,9 @@ namespace tl
 
             float _getTimelineScale() const;
 
+            void _setItemScale(
+                const std::shared_ptr<IWidget>&,
+                float);
             void _setItemOptions(
                 const std::shared_ptr<IWidget>&,
                 const ItemOptions&);

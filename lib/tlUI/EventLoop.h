@@ -89,6 +89,8 @@ namespace tl
             void _tickEvent();
             void _tickEvent(
                 const std::shared_ptr<IWidget>&,
+                bool visible,
+                bool enabled,
                 const TickEvent&);
 
             bool _getSizeUpdate();

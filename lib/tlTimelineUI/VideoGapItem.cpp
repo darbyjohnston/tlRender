@@ -94,7 +94,7 @@ namespace tl
             p.size.durationSize = event.fontSystem->getSize(p.durationLabel, fontInfo);
 
             _sizeHint = math::Vector2i(
-                p.timeRange.duration().rescaled_to(1.0).value() * _options.scale,
+                p.timeRange.duration().rescaled_to(1.0).value() * _scale,
                 p.size.margin +
                 fontMetrics.lineHeight +
                 p.size.margin);
@@ -192,6 +192,9 @@ namespace tl
             p.durationLabel = IItem::_durationLabel(
                 p.timeRange.duration(),
                 _options.timeUnits);
+            p.draw.durationGlyphs.clear();
+            _updates |= ui::Update::Size;
+            _updates |= ui::Update::Draw;
         }
 
         std::string VideoGapItem::_nameLabel(const std::string& name)

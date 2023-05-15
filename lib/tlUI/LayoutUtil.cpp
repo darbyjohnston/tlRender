@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/GeometryUtil.h>
+#include <tlUI/LayoutUtil.h>
 
 #include <tlCore/Math.h>
 

@@ -12,18 +12,10 @@ namespace tl
 {
     namespace timelineui
     {
-        TLRENDER_ENUM_IMPL(
-            TimeUnits,
-            "Seconds",
-            "Frames",
-            "Timecode");
-        TLRENDER_ENUM_SERIALIZE_IMPL(TimeUnits);
-
         bool ItemOptions::operator == (const ItemOptions& other) const
         {
             return
                 timeUnits == other.timeUnits &&
-                scale == other.scale &&
                 clipRectScale == other.clipRectScale &&
                 thumbnails == other.thumbnails &&
                 thumbnailHeight == other.thumbnailHeight &&
@@ -52,6 +44,15 @@ namespace tl
         IItem::~IItem()
         {}
 
+        void IItem::setScale(float value)
+        {
+            if (value == _scale)
+                return;
+            _scale = value;
+            _updates |= ui::Update::Size;
+            _updates |= ui::Update::Draw;
+        }
+
         void IItem::setOptions(const ItemOptions& value)
         {
             if (value == _options)
@@ -76,24 +77,24 @@ namespace tl
 
         std::string IItem::_durationLabel(
             const otime::RationalTime& value,
-            TimeUnits timeUnits)
+            ui::TimeUnits timeUnits)
         {
             std::string out;
             if (!time::compareExact(value, time::invalidTime))
             {
                 switch (timeUnits)
                 {
-                case TimeUnits::Seconds:
+                case ui::TimeUnits::Seconds:
                     out = string::Format("{0} @ {1}").
                         arg(value.rescaled_to(1.0).value(), 2).
                         arg(value.rate());
                     break;
-                case TimeUnits::Frames:
+                case ui::TimeUnits::Frames:
                     out = string::Format("{0} @ {1}").
                         arg(value.value()).
                         arg(value.rate());
                     break;
-                case TimeUnits::Timecode:
+                case ui::TimeUnits::Timecode:
                     out = string::Format("{0} @ {1}").
                         arg(value.to_timecode()).
                         arg(value.rate());
@@ -105,20 +106,20 @@ namespace tl
 
         std::string IItem::_timeLabel(
             const otime::RationalTime& value,
-            TimeUnits timeUnits)
+            ui::TimeUnits timeUnits)
         {
             std::string out;
             if (!time::compareExact(value, time::invalidTime))
             {
                 switch (timeUnits)
                 {
-                case TimeUnits::Seconds:
+                case ui::TimeUnits::Seconds:
                     out = string::Format("{0}").arg(value.rescaled_to(1.0).value(), 2);
                     break;
-                case TimeUnits::Frames:
+                case ui::TimeUnits::Frames:
                     out = string::Format("{0}").arg(value.value());
                     break;
-                case TimeUnits::Timecode:
+                case ui::TimeUnits::Timecode:
                     out = string::Format("{0}").arg(value.to_timecode());
                     break;
                 }

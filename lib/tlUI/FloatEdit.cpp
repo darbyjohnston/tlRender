@@ -5,7 +5,7 @@
 #include <tlUI/FloatEdit.h>
 
 #include <tlUI/FloatModel.h>
-#include <tlUI/GeometryUtil.h>
+#include <tlUI/LayoutUtil.h>
 #include <tlUI/LineEdit.h>
 
 #include <tlCore/StringFormat.h>
@@ -140,7 +140,7 @@ namespace tl
         void FloatEdit::keyPressEvent(KeyEvent& event)
         {
             TLRENDER_P();
-            if (_enabled && p.model)
+            if (isEnabled() && p.model)
             {
                 switch (event.key)
                 {

@@ -63,7 +63,7 @@ namespace tl
 
         inline bool IWidget::isVisible() const
         {
-            return _visible;
+            return _visible && _parentsVisible;
         }
 
         inline bool IWidget::isClipped() const
@@ -78,7 +78,7 @@ namespace tl
 
         inline bool IWidget::isEnabled() const
         {
-            return _enabled;
+            return _enabled && _parentsEnabled;
         }
 
         inline bool IWidget::acceptsKeyFocus() const

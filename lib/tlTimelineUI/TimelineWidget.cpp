@@ -17,6 +17,7 @@ namespace tl
             std::function<void(bool)> frameViewCallback;
             bool stopOnScrub = true;
             float mouseWheelScale = 1.1F;
+            float scale = 500.F;
             ItemOptions itemOptions;
 
             std::shared_ptr<ui::ScrollWidget> scrollWidget;
@@ -105,8 +106,8 @@ namespace tl
                     p.timelineItem = TimelineItem::create(p.player, itemData, context);
                     p.timelineItem->setStopOnScrub(p.stopOnScrub);
                     p.scrollWidget->setScrollPos(math::Vector2i());
-                    p.itemOptions.scale = _getTimelineScale();
-                    _setItemOptions(p.timelineItem, p.itemOptions);
+                    p.scale = _getTimelineScale();
+                    _setItemScale(p.timelineItem, p.scale);
                     p.scrollWidget->setWidget(p.timelineItem);
                 }
             }
@@ -124,7 +125,7 @@ namespace tl
             TLRENDER_P();
             _setViewZoom(
                 zoom,
-                p.itemOptions.scale,
+                p.scale,
                 focus,
                 p.scrollWidget->getScrollPos());
         }
@@ -133,10 +134,10 @@ namespace tl
         {
             TLRENDER_P();
             p.scrollWidget->setScrollPos(math::Vector2i());
-            p.itemOptions.scale = _getTimelineScale();
+            p.scale = _getTimelineScale();
             if (p.timelineItem)
             {
-                _setItemOptions(p.timelineItem, p.itemOptions);
+                _setItemScale(p.timelineItem, p.scale);
             }
             _updates |= ui::Update::Size;
             _updates |= ui::Update::Draw;
@@ -190,11 +191,6 @@ namespace tl
             if (value == p.itemOptions)
                 return;
             p.itemOptions = value;
-            if (p.frameView)
-            {
-                p.scrollWidget->setScrollPos(math::Vector2i());
-                p.itemOptions.scale = _getTimelineScale();
-            }
             if (p.timelineItem)
             {
                 _setItemOptions(p.timelineItem, p.itemOptions);
@@ -315,12 +311,12 @@ namespace tl
             event.accept = true;
             if (event.dy > 0)
             {
-                const float zoom = p.itemOptions.scale * p.mouseWheelScale;
+                const float zoom = p.scale * p.mouseWheelScale;
                 setViewZoom(zoom, event.pos);
             }
             else
             {
-                const float zoom = p.itemOptions.scale / p.mouseWheelScale;
+                const float zoom = p.scale / p.mouseWheelScale;
                 setViewZoom(zoom, event.pos);
             }
         }
@@ -336,11 +332,11 @@ namespace tl
                 break;
             case ui::Key::Equal:
                 event.accept = true;
-                setViewZoom(p.itemOptions.scale * 2.F, event.pos);
+                setViewZoom(p.scale * 2.F, event.pos);
                 break;
             case ui::Key::Minus:
                 event.accept = true;
-                setViewZoom(p.itemOptions.scale / 2.F, event.pos);
+                setViewZoom(p.scale / 2.F, event.pos);
                 break;
             case ui::Key::Backspace:
                 event.accept = true;
@@ -366,12 +362,12 @@ namespace tl
             const float zoomMin = _getTimelineScale();
             const float zoomMax = w;
             const float zoomClamped = math::clamp(zoomNew, zoomMin, zoomMax);
-            if (zoomClamped != p.itemOptions.scale)
+            if (zoomClamped != p.scale)
             {
-                p.itemOptions.scale = zoomClamped;
+                p.scale = zoomClamped;
                 if (p.timelineItem)
                 {
-                    _setItemOptions(p.timelineItem, p.itemOptions);
+                    _setItemScale(p.timelineItem, p.scale);
                 }
                 const float s = zoomClamped / zoomPrev;
                 const math::Vector2i scrollPosNew(
@@ -398,6 +394,20 @@ namespace tl
                 }
             }
             return out;
+        }
+
+        void TimelineWidget::_setItemScale(
+            const std::shared_ptr<IWidget>& widget,
+            float value)
+        {
+            if (auto item = std::dynamic_pointer_cast<IItem>(widget))
+            {
+                item->setScale(value);
+            }
+            for (const auto& child : widget->getChildren())
+            {
+                _setItemScale(child, value);
+            }
         }
 
         void TimelineWidget::_setItemOptions(

@@ -61,7 +61,10 @@ namespace tl
             void setVisible(bool) override;
             void setEnabled(bool) override;
             bool acceptsKeyFocus() const override;
-            void tickEvent(const TickEvent&) override;
+            void tickEvent(
+                bool,
+                bool,
+                const TickEvent&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void clipEvent(
                 const math::BBox2i&,
@@ -83,6 +86,8 @@ namespace tl
 
             void _click();
             void _resetMouse();
+
+            void _commitIndex(int);
 
             TLRENDER_PRIVATE();
         };

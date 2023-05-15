@@ -184,7 +184,7 @@ namespace tl
 
             _sizeHint = math::Vector2i(
                 p.size.margin +
-                p.timeRange.duration().rescaled_to(1.0).value() * _options.scale +
+                p.timeRange.duration().rescaled_to(1.0).value() * _scale +
                 p.size.margin,
                 p.size.margin +
                 p.size.fontMetrics.lineHeight +

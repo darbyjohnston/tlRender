@@ -4,10 +4,20 @@
 
 #include <tlUI/TimeUnitsModel.h>
 
+#include <tlCore/Error.h>
+#include <tlCore/String.h>
+
 namespace tl
 {
     namespace ui
     {
+        TLRENDER_ENUM_IMPL(
+            TimeUnits,
+            "Frames",
+            "Seconds",
+            "Timecode");
+        TLRENDER_ENUM_SERIALIZE_IMPL(TimeUnits);
+
         struct TimeUnitsModel::Private
         {
             std::shared_ptr<observer::Value<TimeUnits> > timeUnits;

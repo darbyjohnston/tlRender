@@ -7,15 +7,17 @@
 #include <tlUI/TimeUnitsModel.h>
 #include <tlUI/LineEdit.h>
 
+#include <tlCore/StringFormat.h>
+
 namespace tl
 {
     namespace ui
     {
         struct TimeEdit::Private
         {
-            otime::RationalTime time;
-            std::function<void(const otime::RationalTime&)> timeCallback;
             std::shared_ptr<TimeUnitsModel> timeUnitsModel;
+            otime::RationalTime value = time::invalidTime;
+            std::function<void(const otime::RationalTime&)> callback;
             std::shared_ptr<LineEdit> lineEdit;
 
             struct SizeData
@@ -44,17 +46,12 @@ namespace tl
                 p.timeUnitsModel = TimeUnitsModel::create(context);
             }
 
+            _textUpdate();
+
             p.lineEdit->setTextCallback(
                 [this](const std::string& value)
                 {
-                    _p->time = otime::RationalTime::from_timecode(
-                        value,
-                        _p->time.rate());
-                    _textUpdate();
-                    if (_p->timeCallback)
-                    {
-                        _p->timeCallback(_p->time);
-                    }
+                    _commitValue(value);
                 });
             p.lineEdit->setFocusCallback(
                 [this](bool value)
@@ -71,8 +68,6 @@ namespace tl
                 {
                     _textUpdate();
                 });
-
-            _textUpdate();
         }
 
         TimeEdit::TimeEdit() :
@@ -97,23 +92,23 @@ namespace tl
             return _p->timeUnitsModel;
         }
 
-        const otime::RationalTime& TimeEdit::getTime() const
+        const otime::RationalTime& TimeEdit::getValue() const
         {
-            return _p->time;
+            return _p->value;
         }
 
-        void TimeEdit::setTime(const otime::RationalTime& value)
+        void TimeEdit::setValue(const otime::RationalTime& value)
         {
             TLRENDER_P();
-            if (value == p.time)
+            if (time::compareExact(value, p.value))
                 return;
-            p.time = value;
+            p.value = value;
             _textUpdate();
         }
 
-        void TimeEdit::setTimeCallback(const std::function<void(const otime::RationalTime&)>& value)
+        void TimeEdit::setCallback(const std::function<void(const otime::RationalTime&)>& value)
         {
-            _p->timeCallback = value;
+            _p->callback = value;
         }
 
         void TimeEdit::setFontRole(FontRole value)
@@ -136,21 +131,33 @@ namespace tl
         void TimeEdit::keyPressEvent(KeyEvent& event)
         {
             TLRENDER_P();
-            if (_enabled)
+            if (isEnabled())
             {
                 switch (event.key)
                 {
-                case Key::Down:
-                    event.accept = true;
-                    break;
                 case Key::Up:
                     event.accept = true;
+                    _commitValue(
+                        p.value +
+                        otime::RationalTime(1.0, p.value.rate()));
+                    break;
+                case Key::Down:
+                    event.accept = true;
+                    _commitValue(
+                        p.value -
+                        otime::RationalTime(1.0, p.value.rate()));
                     break;
                 case Key::PageUp:
                     event.accept = true;
+                    _commitValue(
+                        p.value +
+                        otime::RationalTime(p.value.rate(), p.value.rate()));
                     break;
                 case Key::PageDown:
                     event.accept = true;
+                    _commitValue(
+                        p.value -
+                        otime::RationalTime(p.value.rate(), p.value.rate()));
                     break;
                 }
             }
@@ -159,6 +166,59 @@ namespace tl
         void TimeEdit::keyReleaseEvent(KeyEvent& event)
         {
             event.accept = true;
+        }
+
+        void TimeEdit::_commitValue(const std::string& value)
+        {
+            TLRENDER_P();
+            otime::RationalTime tmp = time::invalidTime;
+            otime::ErrorStatus errorStatus;
+            if (p.timeUnitsModel)
+            {
+                switch (p.timeUnitsModel->getTimeUnits())
+                {
+                case TimeUnits::Frames:
+                    tmp = otime::RationalTime::from_frames(
+                        atoi(value.c_str()),
+                        p.value.rate());
+                    break;
+                case TimeUnits::Seconds:
+                    tmp = otime::RationalTime::from_seconds(
+                        atof(value.c_str()),
+                        p.value.rate());
+                    break;
+                case TimeUnits::Timecode:
+                    tmp = otime::RationalTime::from_timecode(
+                        value,
+                        p.value.rate(),
+                        &errorStatus);
+                    break;
+                default: break;
+                }
+            }
+            const bool valid =
+                tmp != time::invalidTime &&
+                !otime::is_error(errorStatus);
+            if (valid)
+            {
+                p.value = tmp;
+            }
+            _textUpdate();
+            if (valid && p.callback)
+            {
+                p.callback(_p->value);
+            }
+        }
+
+        void TimeEdit::_commitValue(const otime::RationalTime& value)
+        {
+            TLRENDER_P();
+            p.value = value;
+            _textUpdate();
+            if (p.callback)
+            {
+                p.callback(p.value);
+            }
         }
 
         void TimeEdit::_textUpdate()
@@ -171,15 +231,15 @@ namespace tl
                 switch (p.timeUnitsModel->getTimeUnits())
                 {
                 case TimeUnits::Frames:
-                    text = p.time.to_frames();
-                    format = std::string(text.size(), '0');
+                    text = string::Format("{0}").arg(p.value.to_frames());
+                    format = "000000";
                     break;
                 case TimeUnits::Seconds:
-                    text = p.time.to_seconds();
-                    format = std::string(text.size(), '0');
+                    text = string::Format("{0}").arg(p.value.to_seconds(), 2);
+                    format = "000000.00";
                     break;
                 case TimeUnits::Timecode:
-                    text = p.time.to_timecode();
+                    text = p.value.to_timecode();
                     format = "00:00:00;00";
                     break;
                 default: break;

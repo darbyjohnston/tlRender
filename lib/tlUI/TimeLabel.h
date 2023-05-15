@@ -12,10 +12,10 @@ namespace tl
     {
         class TimeUnitsModel;
 
-        //! Time value editor.
-        class TimeEdit : public IWidget
+        //! Time label.
+        class TimeLabel : public IWidget
         {
-            TLRENDER_NON_COPYABLE(TimeEdit);
+            TLRENDER_NON_COPYABLE(TimeLabel);
 
         protected:
             void _init(
@@ -23,13 +23,13 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            TimeEdit();
+            TimeLabel();
 
         public:
-            ~TimeEdit() override;
+            ~TimeLabel() override;
 
             //! Create a new widget.
-            static std::shared_ptr<TimeEdit> create(
+            static std::shared_ptr<TimeLabel> create(
                 const std::shared_ptr<TimeUnitsModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
@@ -43,20 +43,22 @@ namespace tl
             //! Set the time value.
             void setValue(const otime::RationalTime&);
 
-            //! Set the time value callback.
-            void setCallback(const std::function<void(const otime::RationalTime&)>&);
+            //! Set the margin role.
+            void setMarginRole(SizeRole);
 
             //! Set the font role.
             void setFontRole(FontRole);
 
-            void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void keyPressEvent(KeyEvent&) override;
-            void keyReleaseEvent(KeyEvent&) override;
+            void clipEvent(
+                const math::BBox2i&,
+                bool,
+                const ClipEvent&) override;
+            void drawEvent(
+                const math::BBox2i&,
+                const DrawEvent&) override;
 
         private:
-            void _commitValue(const std::string&);
-            void _commitValue(const otime::RationalTime&);
             void _textUpdate();
 
             TLRENDER_PRIVATE();

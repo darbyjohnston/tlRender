@@ -8,13 +8,15 @@
 #include <tlTimelineUI/TimelineWidget.h>
 
 #include <tlUI/ButtonGroup.h>
+#include <tlUI/ComboBox.h>
 #include <tlUI/IncButtons.h>
 #include <tlUI/FloatEdit.h>
 #include <tlUI/FloatModel.h>
-#include <tlUI/Label.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/Splitter.h>
 #include <tlUI/TimeEdit.h>
+#include <tlUI/TimeLabel.h>
+#include <tlUI/TimeUnitsModel.h>
 #include <tlUI/ToolButton.h>
 
 #include <tlCore/StringFormat.h>
@@ -27,17 +29,22 @@ namespace tl
         {
             struct MainWindow::Private
             {
+                std::shared_ptr<ui::TimeUnitsModel> timeUnitsModel;
+                std::shared_ptr<ui::FloatModel> speedModel;
+                timelineui::ItemOptions itemOptions;
+
                 std::shared_ptr<timelineui::TimelineViewport> timelineViewport;
                 std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
                 std::shared_ptr<ui::ButtonGroup> playbackButtonGroup;
                 std::shared_ptr<ui::ButtonGroup> frameButtonGroup;
                 std::shared_ptr<ui::TimeEdit> currentTimeEdit;
-                std::shared_ptr<ui::Label> durationLabel;
-                std::shared_ptr<ui::FloatModel> speedModel;
+                std::shared_ptr<ui::TimeLabel> durationLabel;
                 std::shared_ptr<ui::FloatEdit> speedEdit;
+                std::shared_ptr<ui::ComboBox> timeUnitsComboBox;
                 std::shared_ptr<ui::Splitter> splitter;
                 std::shared_ptr<ui::RowLayout> layout;
 
+                std::shared_ptr<observer::ValueObserver<ui::TimeUnits> > timeUnitsObserver;
                 std::shared_ptr<observer::ValueObserver<double> > speedObserver;
                 std::shared_ptr<observer::ValueObserver<float> > speedObserver2;
                 std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
@@ -52,6 +59,12 @@ namespace tl
                 TLRENDER_P();
 
                 setBackgroundRole(ui::ColorRole::Window);
+
+                p.timeUnitsModel = ui::TimeUnitsModel::create(context);
+                p.speedModel = ui::FloatModel::create(context);
+                p.speedModel->setRange(math::FloatRange(0.F, 1000.F));
+                p.speedModel->setStep(1.F);
+                p.speedModel->setLargeStep(10.F);
 
                 p.timelineViewport = timelineui::TimelineViewport::create(context);
                 p.timelineViewport->setPlayers({ player });
@@ -86,19 +99,19 @@ namespace tl
                 p.frameButtonGroup->addButton(frameNextButton);
                 p.frameButtonGroup->addButton(timeEndButton);
 
-                p.currentTimeEdit = ui::TimeEdit::create(nullptr, context);
+                p.currentTimeEdit = ui::TimeEdit::create(p.timeUnitsModel, context);
                 auto currentTimeIncButtons = ui::IncButtons::create(context);
 
-                p.durationLabel = ui::Label::create(context);
-                p.durationLabel->setText(
-                    player->getTimeRange().duration().to_timecode());
+                p.durationLabel = ui::TimeLabel::create(p.timeUnitsModel, context);
+                p.durationLabel->setValue(player->getTimeRange().duration());
 
-                p.speedModel = ui::FloatModel::create(context);
-                p.speedModel->setRange(math::FloatRange(0.F, 1000.F));
-                p.speedModel->setStep(1.F);
-                p.speedModel->setLargeStep(10.F);
                 p.speedEdit = ui::FloatEdit::create(p.speedModel, context);
                 auto speedIncButtons = ui::FloatIncButtons::create(p.speedModel, context);
+
+                p.timeUnitsComboBox = ui::ComboBox::create(context);
+                p.timeUnitsComboBox->setItems(ui::getTimeUnitsLabels());
+                p.timeUnitsComboBox->setCurrentIndex(
+                    static_cast<int>(p.timeUnitsModel->getTimeUnits()));
 
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
                 p.layout->setSpacingRole(ui::SizeRole::None);
@@ -127,8 +140,9 @@ namespace tl
                 hLayout2->setSpacingRole(ui::SizeRole::SpacingTool);
                 p.speedEdit->setParent(hLayout2);
                 speedIncButtons->setParent(hLayout2);
+                p.timeUnitsComboBox->setParent(hLayout2);
 
-                p.currentTimeEdit->setTimeCallback(
+                p.currentTimeEdit->setCallback(
                     [player](const otime::RationalTime& value)
                     {
                         player->seek(value);
@@ -143,6 +157,21 @@ namespace tl
                     [player]
                     {
                         player->framePrev();
+                    });
+
+                p.timeUnitsComboBox->setIndexCallback(
+                    [this](int value)
+                    {
+                        _p->timeUnitsModel->setTimeUnits(
+                            static_cast<ui::TimeUnits>(value));
+                    });
+
+                p.timeUnitsObserver = observer::ValueObserver<ui::TimeUnits>::create(
+                    p.timeUnitsModel->observeTimeUnits(),
+                    [this](ui::TimeUnits value)
+                    {
+                        _p->itemOptions.timeUnits = value;
+                        _p->timelineWidget->setItemOptions(_p->itemOptions);
                     });
 
                 p.speedObserver = observer::ValueObserver<double>::create(
@@ -169,7 +198,7 @@ namespace tl
                     player->observeCurrentTime(),
                     [this](const otime::RationalTime& value)
                     {
-                        _p->currentTimeEdit->setTime(value);
+                        _p->currentTimeEdit->setValue(value);
                     });
 
                 p.playbackButtonGroup->setCheckedCallback(

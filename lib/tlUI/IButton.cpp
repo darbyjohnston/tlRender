@@ -129,8 +129,12 @@ namespace tl
             }
         }
 
-        void IButton::tickEvent(const TickEvent& event)
+        void IButton::tickEvent(
+            bool parentsVisible,
+            bool parentsEnabled,
+            const TickEvent& event)
         {
+            IWidget::tickEvent(parentsVisible, parentsEnabled, event);
             TLRENDER_P();
             if (event.displayScale != p.iconScale)
             {

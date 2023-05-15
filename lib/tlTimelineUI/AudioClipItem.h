@@ -34,9 +34,13 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            void setScale(float) override;
             void setOptions(const ItemOptions&) override;
 
-            void tickEvent(const ui::TickEvent&) override;
+            void tickEvent(
+                bool,
+                bool,
+                const ui::TickEvent&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
             void clipEvent(
                 const math::BBox2i&,

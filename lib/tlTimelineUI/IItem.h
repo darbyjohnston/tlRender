@@ -7,24 +7,12 @@
 #include <tlTimelineUI/IOManager.h>
 
 #include <tlUI/IWidget.h>
+#include <tlUI/TimeUnitsModel.h>
 
 namespace tl
 {
     namespace timelineui
     {
-        //! Time units.
-        enum class TimeUnits
-        {
-            Seconds,
-            Frames,
-            Timecode,
-
-            Count,
-            First = Seconds
-        };
-        TLRENDER_ENUM(TimeUnits);
-        TLRENDER_ENUM_SERIALIZE(TimeUnits);
-
         //! Item data.
         struct ItemData
         {
@@ -36,8 +24,7 @@ namespace tl
         //! Item options.
         struct ItemOptions
         {
-            TimeUnits timeUnits = TimeUnits::Timecode;
-            float scale = 500.F;
+            ui::TimeUnits timeUnits = ui::TimeUnits::Timecode;
             float clipRectScale = 2.F;
             bool thumbnails = true;
             int thumbnailHeight = 100;
@@ -63,6 +50,7 @@ namespace tl
         public:
             ~IItem() override;
 
+            virtual void setScale(float);
             virtual void setOptions(const ItemOptions&);
 
         protected:
@@ -72,12 +60,13 @@ namespace tl
 
             static std::string _durationLabel(
                 const otime::RationalTime&,
-                TimeUnits);
+                ui::TimeUnits);
             static std::string _timeLabel(
                 const otime::RationalTime&,
-                TimeUnits);
+                ui::TimeUnits);
 
             ItemData _data;
+            float _scale = 500.F;
             ItemOptions _options;
         };
     }
