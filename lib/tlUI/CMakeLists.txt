@@ -35,6 +35,8 @@ set(HEADERS
     Splitter.h
     StackLayout.h
     Style.h
+    TimeEdit.h
+    TimeUnitsModel.h
     ToolButton.h)
 set(HEADERS_PRIVATE)
 
@@ -74,6 +76,8 @@ set(SOURCE
     Splitter.cpp
     StackLayout.cpp
     Style.cpp
+    TimeEdit.cpp
+    TimeUnitsModel.cpp
     ToolButton.cpp)
 
 add_library(tlUI ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})

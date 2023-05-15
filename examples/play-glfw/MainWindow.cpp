@@ -12,9 +12,9 @@
 #include <tlUI/FloatEdit.h>
 #include <tlUI/FloatModel.h>
 #include <tlUI/Label.h>
-#include <tlUI/LineEdit.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/Splitter.h>
+#include <tlUI/TimeEdit.h>
 #include <tlUI/ToolButton.h>
 
 #include <tlCore/StringFormat.h>
@@ -31,7 +31,7 @@ namespace tl
                 std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
                 std::shared_ptr<ui::ButtonGroup> playbackButtonGroup;
                 std::shared_ptr<ui::ButtonGroup> frameButtonGroup;
-                std::shared_ptr<ui::LineEdit> currentTimeEdit;
+                std::shared_ptr<ui::TimeEdit> currentTimeEdit;
                 std::shared_ptr<ui::Label> durationLabel;
                 std::shared_ptr<ui::FloatModel> speedModel;
                 std::shared_ptr<ui::FloatEdit> speedEdit;
@@ -86,8 +86,7 @@ namespace tl
                 p.frameButtonGroup->addButton(frameNextButton);
                 p.frameButtonGroup->addButton(timeEndButton);
 
-                p.currentTimeEdit = ui::LineEdit::create(context);
-                p.currentTimeEdit->setFormat("00:00:00:00");
+                p.currentTimeEdit = ui::TimeEdit::create(nullptr, context);
                 auto currentTimeIncButtons = ui::IncButtons::create(context);
 
                 p.durationLabel = ui::Label::create(context);
@@ -129,24 +128,21 @@ namespace tl
                 p.speedEdit->setParent(hLayout2);
                 speedIncButtons->setParent(hLayout2);
 
-                p.currentTimeEdit->setTextCallback(
-                    [player](const std::string& value)
+                p.currentTimeEdit->setTimeCallback(
+                    [player](const otime::RationalTime& value)
                     {
-                        const otime::TimeRange& timeRange = player->getTimeRange();
-                        const otime::RationalTime time = otime::RationalTime::from_timecode(
-                            value,
-                            timeRange.duration().rate());
-                        player->seek(time);
+                        player->seek(value);
                     });
-                p.currentTimeEdit->setFocusCallback(
-                    [this, player](bool value)
+
+                currentTimeIncButtons->setIncCallback(
+                    [player]
                     {
-                        if (!value)
-                        {
-                            const otime::RationalTime time = player->observeCurrentTime()->get();
-                            const std::string text = time.to_timecode();
-                            _p->currentTimeEdit->setText(text);
-                        }
+                        player->frameNext();
+                    });
+                currentTimeIncButtons->setDecCallback(
+                    [player]
+                    {
+                        player->framePrev();
                     });
 
                 p.speedObserver = observer::ValueObserver<double>::create(
@@ -173,8 +169,7 @@ namespace tl
                     player->observeCurrentTime(),
                     [this](const otime::RationalTime& value)
                     {
-                        const std::string text = value.to_timecode();
-                        _p->currentTimeEdit->setText(text);
+                        _p->currentTimeEdit->setTime(value);
                     });
 
                 p.playbackButtonGroup->setCheckedCallback(
