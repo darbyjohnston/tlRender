@@ -264,6 +264,68 @@ namespace tl
             p.mouse.currentTimeDrag = false;
         }
 
+        void TimelineItem::keyPressEvent(ui::KeyEvent& event)
+        {
+            TLRENDER_P();
+            if (isEnabled())
+            {
+                switch (event.key)
+                {
+                case ui::Key::Space:
+                    event.accept = true;
+                    switch (p.player->observePlayback()->get())
+                    {
+                    case timeline::Playback::Stop:
+                        p.player->setPlayback(timeline::Playback::Forward);
+                        break;
+                    case timeline::Playback::Forward:
+                    case timeline::Playback::Reverse:
+                        p.player->setPlayback(timeline::Playback::Stop);
+                        break;
+                    default: break;
+                    }
+                    break;
+                case ui::Key::Up:
+                    event.accept = true;
+                    p.player->timeAction(timeline::TimeAction::FrameNextX10);
+                    break;
+                case ui::Key::Down:
+                    event.accept = true;
+                    p.player->timeAction(timeline::TimeAction::FramePrevX10);
+                    break;
+                case ui::Key::Right:
+                    event.accept = true;
+                    p.player->timeAction(timeline::TimeAction::FrameNext);
+                    break;
+                case ui::Key::Left:
+                    event.accept = true;
+                    p.player->timeAction(timeline::TimeAction::FramePrev);
+                    break;
+                case ui::Key::PageUp:
+                    event.accept = true;
+                    p.player->timeAction(timeline::TimeAction::FrameNextX100);
+                    break;
+                case ui::Key::PageDown:
+                    event.accept = true;
+                    p.player->timeAction(timeline::TimeAction::FramePrevX100);
+                    break;
+                case ui::Key::Home:
+                    event.accept = true;
+                    p.player->timeAction(timeline::TimeAction::Start);
+                    break;
+                case ui::Key::End:
+                    event.accept = true;
+                    p.player->timeAction(timeline::TimeAction::End);
+                    break;
+                }
+            }
+        }
+
+        void TimelineItem::keyReleaseEvent(ui::KeyEvent& event)
+        {
+            event.accept = true;
+        }
+
         void TimelineItem::_drawTimeTicks(
             const math::BBox2i& drawRect,
             const ui::DrawEvent& event)
