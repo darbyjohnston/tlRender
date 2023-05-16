@@ -380,11 +380,6 @@ namespace tl
             p.settingsObject = nullptr;
         }
 
-        const std::shared_ptr<timeline::TimeUnitsModel>& App::timeUnitsModel() const
-        {
-            return _p->timeUnitsModel;
-        }
-
         qt::TimeObject* App::timeObject() const
         {
             return _p->timeObject;
