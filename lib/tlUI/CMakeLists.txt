@@ -37,7 +37,6 @@ set(HEADERS
     Style.h
     TimeEdit.h
     TimeLabel.h
-    TimeUnitsModel.h
     ToolButton.h)
 set(HEADERS_PRIVATE)
 
@@ -79,7 +78,6 @@ set(SOURCE
     Style.cpp
     TimeEdit.cpp
     TimeLabel.cpp
-    TimeUnitsModel.cpp
     ToolButton.cpp)
 
 add_library(tlUI ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})

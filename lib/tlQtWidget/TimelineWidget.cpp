@@ -25,7 +25,6 @@ namespace tl
     {
         namespace
         {
-
             class Clipboard : public ui::IClipboard
             {
                 TLRENDER_NON_COPYABLE(Clipboard);
@@ -70,6 +69,7 @@ namespace tl
         {
             std::weak_ptr<system::Context> context;
 
+            qt::TimeObject* timeObject = nullptr;
             std::shared_ptr<timeline::Player> player;
             float mouseWheelScale = 20.F;
 
@@ -79,6 +79,7 @@ namespace tl
             std::shared_ptr<Clipboard> clipboard;
             std::shared_ptr<timeline::IRender> render;
             std::shared_ptr<ui::EventLoop> eventLoop;
+            timelineui::ItemOptions itemOptions;
             std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
 
             std::chrono::steady_clock::time_point mouseWheelTimer;
@@ -131,6 +132,31 @@ namespace tl
         TimelineWidget::~TimelineWidget()
         {}
 
+        void TimelineWidget::setTimeObject(qt::TimeObject * timeObject)
+        {
+            TLRENDER_P();
+            if (timeObject == p.timeObject)
+                return;
+            if (p.timeObject)
+            {
+                disconnect(
+                    p.timeObject,
+                    SIGNAL(unitsChanged(tl::timeline::TimeUnits)),
+                    this,
+                    SLOT(_setTimeUnits(tl::timeline::TimeUnits)));
+            }
+            p.timeObject = timeObject;
+            if (p.timeObject)
+            {
+                p.itemOptions.timeUnits = p.timeObject->units();
+                p.timelineWidget->setItemOptions(p.itemOptions);
+                connect(
+                    p.timeObject,
+                    SIGNAL(unitsChanged(tl::timeline::TimeUnits)),
+                    SLOT(_setTimeUnits(tl::timeline::TimeUnits)));
+            }
+        }
+
         void TimelineWidget::setPlayer(const std::shared_ptr<timeline::Player>& player)
         {
             TLRENDER_P();
@@ -140,14 +166,16 @@ namespace tl
             p.timelineWidget->setPlayer(p.player);
         }
 
-        const timelineui::ItemOptions& TimelineWidget::itemOptions() const
-        {
-            return _p->timelineWidget->getItemOptions();
-        }
-
         void TimelineWidget::setFrameView(bool value)
         {
             _p->timelineWidget->setFrameView(value);
+        }
+
+        void TimelineWidget::setThumbnails(bool value)
+        {
+            TLRENDER_P();
+            p.itemOptions.thumbnails = value;
+            _p->timelineWidget->setItemOptions(p.itemOptions);
         }
 
         void TimelineWidget::setStopOnScrub(bool value)
@@ -159,11 +187,6 @@ namespace tl
         {
             TLRENDER_P();
             p.mouseWheelScale = value;
-        }
-
-        void TimelineWidget::setItemOptions(const timelineui::ItemOptions& value)
-        {
-            _p->timelineWidget->setItemOptions(value);
         }
 
         void TimelineWidget::initializeGL()
@@ -417,6 +440,13 @@ namespace tl
             {
                 update();
             }
+        }
+
+        void TimelineWidget::_setTimeUnits(timeline::TimeUnits value)
+        {
+            TLRENDER_P();
+            p.itemOptions.timeUnits = value;
+            p.timelineWidget->setItemOptions(p.itemOptions);
         }
 
         int TimelineWidget::_toUI(int value) const

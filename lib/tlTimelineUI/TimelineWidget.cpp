@@ -108,6 +108,7 @@ namespace tl
                     p.scrollWidget->setScrollPos(math::Vector2i());
                     p.scale = _getTimelineScale();
                     _setItemScale(p.timelineItem, p.scale);
+                    _setItemOptions(p.timelineItem, p.itemOptions);
                     p.scrollWidget->setWidget(p.timelineItem);
                 }
             }

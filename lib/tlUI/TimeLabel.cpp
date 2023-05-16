@@ -5,7 +5,8 @@
 #include <tlUI/TimeLabel.h>
 
 #include <tlUI/LayoutUtil.h>
-#include <tlUI/TimeUnitsModel.h>
+
+#include <tlTimeline/TimeUnits.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -15,7 +16,7 @@ namespace tl
     {
         struct TimeLabel::Private
         {
-            std::shared_ptr<TimeUnitsModel> timeUnitsModel;
+            std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             otime::RationalTime value = time::invalidTime;
             std::string text;
             std::string format;
@@ -37,11 +38,11 @@ namespace tl
             };
             DrawData draw;
 
-            std::shared_ptr<observer::ValueObserver<TimeUnits> > timeUnitsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::TimeUnits> > timeUnitsObserver;
         };
 
         void TimeLabel::_init(
-            const std::shared_ptr<TimeUnitsModel>& timeUnitsModel,
+            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -51,14 +52,14 @@ namespace tl
             p.timeUnitsModel = timeUnitsModel;
             if (!p.timeUnitsModel)
             {
-                p.timeUnitsModel = TimeUnitsModel::create(context);
+                p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
             }
 
             _textUpdate();
 
-            p.timeUnitsObserver = observer::ValueObserver<TimeUnits>::create(
+            p.timeUnitsObserver = observer::ValueObserver<timeline::TimeUnits>::create(
                 p.timeUnitsModel->observeTimeUnits(),
-                [this](TimeUnits)
+                [this](timeline::TimeUnits)
                 {
                     _textUpdate();
                 });
@@ -72,7 +73,7 @@ namespace tl
         {}
 
         std::shared_ptr<TimeLabel> TimeLabel::create(
-            const std::shared_ptr<TimeUnitsModel>& timeUnitsModel,
+            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -81,7 +82,7 @@ namespace tl
             return out;
         }
 
-        const std::shared_ptr<TimeUnitsModel>& TimeLabel::getTimeUnitsModel() const
+        const std::shared_ptr<timeline::TimeUnitsModel>& TimeLabel::getTimeUnitsModel() const
         {
             return _p->timeUnitsModel;
         }
@@ -191,15 +192,15 @@ namespace tl
             {
                 switch (p.timeUnitsModel->getTimeUnits())
                 {
-                case TimeUnits::Frames:
+                case timeline::TimeUnits::Frames:
                     p.text = string::Format("{0}").arg(p.value.to_frames());
                     p.format = "000000";
                     break;
-                case TimeUnits::Seconds:
+                case timeline::TimeUnits::Seconds:
                     p.text = string::Format("{0}").arg(p.value.to_seconds(), 2);
                     p.format = "000000.00";
                     break;
-                case TimeUnits::Timecode:
+                case timeline::TimeUnits::Timecode:
                     p.text = p.value.to_timecode();
                     p.format = "00:00:00;00";
                     break;

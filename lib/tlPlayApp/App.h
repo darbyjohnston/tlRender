@@ -12,6 +12,11 @@
 
 namespace tl
 {
+    namespace timeline
+    {
+        class TimeUnitsModel;
+    }
+
     namespace qt
     {
         class OutputDevice;
@@ -43,6 +48,9 @@ namespace tl
                 const std::shared_ptr<system::Context>&);
 
             ~App() override;
+
+            //! Get the time units model.
+            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel() const;
 
             //! Get the time object.
             qt::TimeObject* timeObject() const;

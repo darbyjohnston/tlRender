@@ -8,10 +8,13 @@
 
 namespace tl
 {
-    namespace ui
+    namespace timeline
     {
         class TimeUnitsModel;
+    }
 
+    namespace ui
+    {
         //! Time value editor.
         class TimeEdit : public IWidget
         {
@@ -19,7 +22,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<TimeUnitsModel>&,
+                const std::shared_ptr<timeline::TimeUnitsModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -30,12 +33,12 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<TimeEdit> create(
-                const std::shared_ptr<TimeUnitsModel>&,
+                const std::shared_ptr<timeline::TimeUnitsModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the time units model.
-            const std::shared_ptr<TimeUnitsModel>& getTimeUnitsModel() const;
+            const std::shared_ptr<timeline::TimeUnitsModel>& getTimeUnitsModel() const;
 
             //! Get the time value.
             const otime::RationalTime& getValue() const;

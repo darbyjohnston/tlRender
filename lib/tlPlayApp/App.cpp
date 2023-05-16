@@ -61,6 +61,7 @@ namespace tl
             Options options;
 
             qt::ContextObject* contextObject = nullptr;
+            std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             qt::TimeObject* timeObject = nullptr;
             SettingsObject* settingsObject = nullptr;
             qt::TimelineThumbnailObject* thumbnailObject = nullptr;
@@ -201,9 +202,10 @@ namespace tl
             setStyleSheet(qtwidget::styleSheet());
             qtwidget::initFonts(context);
 
-            // Create objects.
+            // Create models and objects.
             p.contextObject = new qt::ContextObject(context, this);
-            p.timeObject = new qt::TimeObject(this);
+            p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
+            p.timeObject = new qt::TimeObject(p.timeUnitsModel, this);
 
             p.settingsObject = new SettingsObject(p.options.resetSettings, p.timeObject, this);
             connect(
@@ -376,6 +378,11 @@ namespace tl
             //! \bug Why is it necessary to manually delete this to get the settings to save?
             delete p.settingsObject;
             p.settingsObject = nullptr;
+        }
+
+        const std::shared_ptr<timeline::TimeUnitsModel>& App::timeUnitsModel() const
+        {
+            return _p->timeUnitsModel;
         }
 
         qt::TimeObject* App::timeObject() const

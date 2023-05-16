@@ -21,6 +21,7 @@ set(HEADERS
     RenderOptions.h
     RenderOptionsInline.h
     RenderUtil.h
+    TimeUnits.h
     Timeline.h
     Transition.h
     Util.h
@@ -44,6 +45,7 @@ set(SOURCE
     PlayerPrivate.cpp
     ReadCache.cpp
     RenderUtil.cpp
+    TimeUnits.cpp
     Timeline.cpp
     TimelineCreate.cpp
     TimelinePrivate.cpp

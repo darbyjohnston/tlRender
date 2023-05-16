@@ -147,15 +147,15 @@ namespace tl
             p.actions["Timeline/Thumbnails"]->setText(tr("Timeline Thumbnails"));
 
             p.actions["TimeUnits/Frames"] = new QAction(parent);
-            p.actions["TimeUnits/Frames"]->setData(QVariant::fromValue<qt::TimeUnits>(qt::TimeUnits::Frames));
+            p.actions["TimeUnits/Frames"]->setData(static_cast<int>(timeline::TimeUnits::Frames));
             p.actions["TimeUnits/Frames"]->setCheckable(true);
             p.actions["TimeUnits/Frames"]->setText(tr("Frames"));
             p.actions["TimeUnits/Seconds"] = new QAction(parent);
-            p.actions["TimeUnits/Seconds"]->setData(QVariant::fromValue<qt::TimeUnits>(qt::TimeUnits::Seconds));
+            p.actions["TimeUnits/Seconds"]->setData(static_cast<int>(timeline::TimeUnits::Seconds));
             p.actions["TimeUnits/Seconds"]->setCheckable(true);
             p.actions["TimeUnits/Seconds"]->setText(tr("Seconds"));
             p.actions["TimeUnits/Timecode"] = new QAction(parent);
-            p.actions["TimeUnits/Timecode"]->setData(QVariant::fromValue<qt::TimeUnits>(qt::TimeUnits::Timecode));
+            p.actions["TimeUnits/Timecode"]->setData(static_cast<int>(timeline::TimeUnits::Timecode));
             p.actions["TimeUnits/Timecode"]->setCheckable(true);
             p.actions["TimeUnits/Timecode"]->setText(tr("Timecode"));
             p.actionGroups["TimeUnits"] = new QActionGroup(this);
@@ -354,7 +354,8 @@ namespace tl
                 &QActionGroup::triggered,
                 [app](QAction* action)
                 {
-                    app->timeObject()->setUnits(action->data().value<qt::TimeUnits>());
+                    app->timeObject()->setUnits(
+                        static_cast<timeline::TimeUnits>(action->data().toInt()));
                 });
 
             connect(
@@ -574,7 +575,8 @@ namespace tl
                 QSignalBlocker blocker(p.actionGroups["TimeUnits"]);
                 for (auto action : p.actionGroups["TimeUnits"]->actions())
                 {
-                    if (action->data().value<qt::TimeUnits>() == p.app->timeObject()->units())
+                    if (static_cast<timeline::TimeUnits>(action->data().toInt()) ==
+                        p.app->timeObject()->units())
                     {
                         action->setChecked(true);
                         break;

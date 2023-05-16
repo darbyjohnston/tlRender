@@ -77,24 +77,24 @@ namespace tl
 
         std::string IItem::_durationLabel(
             const otime::RationalTime& value,
-            ui::TimeUnits timeUnits)
+            timeline::TimeUnits timeUnits)
         {
             std::string out;
             if (!time::compareExact(value, time::invalidTime))
             {
                 switch (timeUnits)
                 {
-                case ui::TimeUnits::Seconds:
+                case timeline::TimeUnits::Seconds:
                     out = string::Format("{0} @ {1}").
                         arg(value.rescaled_to(1.0).value(), 2).
                         arg(value.rate());
                     break;
-                case ui::TimeUnits::Frames:
+                case timeline::TimeUnits::Frames:
                     out = string::Format("{0} @ {1}").
                         arg(value.value()).
                         arg(value.rate());
                     break;
-                case ui::TimeUnits::Timecode:
+                case timeline::TimeUnits::Timecode:
                     out = string::Format("{0} @ {1}").
                         arg(value.to_timecode()).
                         arg(value.rate());
@@ -106,20 +106,20 @@ namespace tl
 
         std::string IItem::_timeLabel(
             const otime::RationalTime& value,
-            ui::TimeUnits timeUnits)
+            timeline::TimeUnits timeUnits)
         {
             std::string out;
             if (!time::compareExact(value, time::invalidTime))
             {
                 switch (timeUnits)
                 {
-                case ui::TimeUnits::Seconds:
+                case timeline::TimeUnits::Seconds:
                     out = string::Format("{0}").arg(value.rescaled_to(1.0).value(), 2);
                     break;
-                case ui::TimeUnits::Frames:
+                case timeline::TimeUnits::Frames:
                     out = string::Format("{0}").arg(value.value());
                     break;
-                case ui::TimeUnits::Timecode:
+                case timeline::TimeUnits::Timecode:
                     out = string::Format("{0}").arg(value.to_timecode());
                     break;
                 }

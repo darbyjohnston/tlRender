@@ -6,7 +6,7 @@
 
 #include <tlQt/Util.h>
 
-#include <tlCore/Time.h>
+#include <tlTimeline/TimeUnits.h>
 
 #include <QMetaType>
 #include <QObject>
@@ -17,36 +17,20 @@ namespace tl
     {
         Q_NAMESPACE
 
-        //! Time units.
-        enum class TimeUnits
-        {
-            Frames,
-            Seconds,
-            Timecode,
-
-            Count,
-            First = Frames
-        };
-        TLRENDER_ENUM(TimeUnits);
-        TLRENDER_ENUM_SERIALIZE(TimeUnits);
-        Q_ENUM_NS(TimeUnits);
-        QDataStream& operator << (QDataStream&, const TimeUnits&);
-        QDataStream& operator >> (QDataStream&, TimeUnits&);
-
         //! Get the time units size hint string.
-        QString sizeHintString(TimeUnits);
+        QString sizeHintString(timeline::TimeUnits);
 
         //! Get the time units validator regular expression.
-        QString validator(TimeUnits);
+        QString validator(timeline::TimeUnits);
 
         //! Convert a time value to text.
-        QString timeToText(const otime::RationalTime&, TimeUnits);
+        QString timeToText(const otime::RationalTime&, timeline::TimeUnits);
 
         //! Convert text to a time value.
         otime::RationalTime textToTime(
             const QString& text,
             double rate,
-            TimeUnits,
+            timeline::TimeUnits,
             otime::ErrorStatus*);
 
         //! Time object.
@@ -54,30 +38,32 @@ namespace tl
         {
             Q_OBJECT
             Q_PROPERTY(
-                tl::qt::TimeUnits units
+                tl::timeline::TimeUnits units
                 READ units
                 WRITE setUnits
                 NOTIFY unitsChanged)
 
         public:
-            TimeObject(QObject* parent = nullptr);
+            TimeObject(
+                const std::shared_ptr<timeline::TimeUnitsModel>&,
+                QObject* parent = nullptr);
 
             //! Get the time units.
-            TimeUnits units() const;
+            timeline::TimeUnits units() const;
 
         public Q_SLOTS:
             //! Set the time units.
-            void setUnits(tl::qt::TimeUnits);
+            void setUnits(tl::timeline::TimeUnits);
 
         Q_SIGNALS:
             //! This signal is emitted when the time units are changed.
-            void unitsChanged(tl::qt::TimeUnits);
+            void unitsChanged(tl::timeline::TimeUnits);
 
         private:
-            TimeUnits _units = TimeUnits::Timecode;
+            std::shared_ptr<timeline::TimeUnitsModel> _model;
         };
+
+        QDataStream& operator << (QDataStream& ds, const timeline::TimeUnits& value);
+        QDataStream& operator >> (QDataStream& ds, timeline::TimeUnits& value);
     }
 }
-
-Q_DECLARE_METATYPE(tl::qt::TimeUnits);
-

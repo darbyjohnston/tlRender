@@ -4,8 +4,9 @@
 
 #include <tlUI/TimeEdit.h>
 
-#include <tlUI/TimeUnitsModel.h>
 #include <tlUI/LineEdit.h>
+
+#include <tlTimeline/TimeUnits.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -15,7 +16,7 @@ namespace tl
     {
         struct TimeEdit::Private
         {
-            std::shared_ptr<TimeUnitsModel> timeUnitsModel;
+            std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             otime::RationalTime value = time::invalidTime;
             std::function<void(const otime::RationalTime&)> callback;
             std::shared_ptr<LineEdit> lineEdit;
@@ -26,11 +27,11 @@ namespace tl
             };
             SizeData size;
 
-            std::shared_ptr<observer::ValueObserver<TimeUnits> > timeUnitsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::TimeUnits> > timeUnitsObserver;
         };
 
         void TimeEdit::_init(
-            const std::shared_ptr<TimeUnitsModel>& timeUnitsModel,
+            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -43,7 +44,7 @@ namespace tl
             p.timeUnitsModel = timeUnitsModel;
             if (!p.timeUnitsModel)
             {
-                p.timeUnitsModel = TimeUnitsModel::create(context);
+                p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
             }
 
             _textUpdate();
@@ -62,9 +63,9 @@ namespace tl
                     }
                 });
 
-            p.timeUnitsObserver = observer::ValueObserver<TimeUnits>::create(
+            p.timeUnitsObserver = observer::ValueObserver<timeline::TimeUnits>::create(
                 p.timeUnitsModel->observeTimeUnits(),
-                [this](TimeUnits)
+                [this](timeline::TimeUnits)
                 {
                     _textUpdate();
                 });
@@ -78,7 +79,7 @@ namespace tl
         {}
 
         std::shared_ptr<TimeEdit> TimeEdit::create(
-            const std::shared_ptr<TimeUnitsModel>& timeUnitsModel,
+            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -87,7 +88,7 @@ namespace tl
             return out;
         }
 
-        const std::shared_ptr<TimeUnitsModel>& TimeEdit::getTimeUnitsModel() const
+        const std::shared_ptr<timeline::TimeUnitsModel>& TimeEdit::getTimeUnitsModel() const
         {
             return _p->timeUnitsModel;
         }
@@ -177,17 +178,17 @@ namespace tl
             {
                 switch (p.timeUnitsModel->getTimeUnits())
                 {
-                case TimeUnits::Frames:
+                case timeline::TimeUnits::Frames:
                     tmp = otime::RationalTime::from_frames(
                         atoi(value.c_str()),
                         p.value.rate());
                     break;
-                case TimeUnits::Seconds:
+                case timeline::TimeUnits::Seconds:
                     tmp = otime::RationalTime::from_seconds(
                         atof(value.c_str()),
                         p.value.rate());
                     break;
-                case TimeUnits::Timecode:
+                case timeline::TimeUnits::Timecode:
                     tmp = otime::RationalTime::from_timecode(
                         value,
                         p.value.rate(),
@@ -230,15 +231,15 @@ namespace tl
             {
                 switch (p.timeUnitsModel->getTimeUnits())
                 {
-                case TimeUnits::Frames:
+                case timeline::TimeUnits::Frames:
                     text = string::Format("{0}").arg(p.value.to_frames());
                     format = "000000";
                     break;
-                case TimeUnits::Seconds:
+                case timeline::TimeUnits::Seconds:
                     text = string::Format("{0}").arg(p.value.to_seconds(), 2);
                     format = "000000.00";
                     break;
-                case TimeUnits::Timecode:
+                case timeline::TimeUnits::Timecode:
                     text = p.value.to_timecode();
                     format = "00:00:00;00";
                     break;

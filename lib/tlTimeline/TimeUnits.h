@@ -10,7 +10,7 @@
 
 namespace tl
 {
-    namespace ui
+    namespace timeline
     {
         //! Time units.
         enum class TimeUnits

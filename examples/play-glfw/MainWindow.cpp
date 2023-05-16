@@ -16,8 +16,9 @@
 #include <tlUI/Splitter.h>
 #include <tlUI/TimeEdit.h>
 #include <tlUI/TimeLabel.h>
-#include <tlUI/TimeUnitsModel.h>
 #include <tlUI/ToolButton.h>
+
+#include <tlTimeline/TimeUnits.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -29,7 +30,7 @@ namespace tl
         {
             struct MainWindow::Private
             {
-                std::shared_ptr<ui::TimeUnitsModel> timeUnitsModel;
+                std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
                 std::shared_ptr<ui::FloatModel> speedModel;
                 timelineui::ItemOptions itemOptions;
 
@@ -44,7 +45,7 @@ namespace tl
                 std::shared_ptr<ui::Splitter> splitter;
                 std::shared_ptr<ui::RowLayout> layout;
 
-                std::shared_ptr<observer::ValueObserver<ui::TimeUnits> > timeUnitsObserver;
+                std::shared_ptr<observer::ValueObserver<timeline::TimeUnits> > timeUnitsObserver;
                 std::shared_ptr<observer::ValueObserver<double> > speedObserver;
                 std::shared_ptr<observer::ValueObserver<float> > speedObserver2;
                 std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
@@ -60,7 +61,7 @@ namespace tl
 
                 setBackgroundRole(ui::ColorRole::Window);
 
-                p.timeUnitsModel = ui::TimeUnitsModel::create(context);
+                p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
                 p.speedModel = ui::FloatModel::create(context);
                 p.speedModel->setRange(math::FloatRange(0.F, 1000.F));
                 p.speedModel->setStep(1.F);
@@ -109,7 +110,7 @@ namespace tl
                 auto speedIncButtons = ui::FloatIncButtons::create(p.speedModel, context);
 
                 p.timeUnitsComboBox = ui::ComboBox::create(context);
-                p.timeUnitsComboBox->setItems(ui::getTimeUnitsLabels());
+                p.timeUnitsComboBox->setItems(timeline::getTimeUnitsLabels());
                 p.timeUnitsComboBox->setCurrentIndex(
                     static_cast<int>(p.timeUnitsModel->getTimeUnits()));
 
@@ -163,12 +164,12 @@ namespace tl
                     [this](int value)
                     {
                         _p->timeUnitsModel->setTimeUnits(
-                            static_cast<ui::TimeUnits>(value));
+                            static_cast<timeline::TimeUnits>(value));
                     });
 
-                p.timeUnitsObserver = observer::ValueObserver<ui::TimeUnits>::create(
+                p.timeUnitsObserver = observer::ValueObserver<timeline::TimeUnits>::create(
                     p.timeUnitsModel->observeTimeUnits(),
-                    [this](ui::TimeUnits value)
+                    [this](timeline::TimeUnits value)
                     {
                         _p->itemOptions.timeUnits = value;
                         _p->timelineWidget->setItemOptions(_p->itemOptions);

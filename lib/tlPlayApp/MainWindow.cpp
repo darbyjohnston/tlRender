@@ -211,7 +211,7 @@ namespace tl
             setCentralWidget(p.timelineViewport);
 
             p.timelineWidget = new qtwidget::TimelineWidget(app->getContext());
-            //p.timelineWidget->setTimeObject(app->timeObject());
+            p.timelineWidget->setTimeObject(app->timeObject());
             auto timelineDockWidget = new QDockWidget;
             timelineDockWidget->setObjectName("Timeline");
             timelineDockWidget->setWindowTitle(tr("Timeline"));
@@ -659,9 +659,7 @@ namespace tl
                     }
                     else if ("Timeline/Thumbnails" == name)
                     {
-                        auto itemOptions = _p->timelineWidget->itemOptions();
-                        itemOptions.thumbnails = value.toBool();
-                        _p->timelineWidget->setItemOptions(itemOptions);
+                        _p->timelineWidget->setThumbnails(value.toBool());
                     }
                 });
 
@@ -1056,9 +1054,7 @@ namespace tl
                 nullptr);
             p.timelineWidget->setFrameView(p.app->settingsObject()->value("Timeline/FrameView").toBool());
             p.timelineWidget->setStopOnScrub(p.app->settingsObject()->value("Timeline/StopOnScrub").toBool());
-            auto itemOptions = p.timelineWidget->itemOptions();
-            itemOptions.thumbnails = p.app->settingsObject()->value("Timeline/Thumbnails").toBool();
-            p.timelineWidget->setItemOptions(itemOptions);
+            p.timelineWidget->setThumbnails(p.app->settingsObject()->value("Timeline/Thumbnails").toBool());
 
             {
                 const QSignalBlocker blocker(p.volumeSlider);

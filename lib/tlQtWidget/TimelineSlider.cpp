@@ -30,7 +30,7 @@ namespace tl
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
             qt::TimelinePlayer* timelinePlayer = nullptr;
-            qt::TimeUnits units = qt::TimeUnits::Timecode;
+            timeline::TimeUnits units = timeline::TimeUnits::Timecode;
             qt::TimeObject* timeObject = nullptr;
             bool thumbnails = true;
             qint64 thumbnailRequestId = 0;
@@ -85,8 +85,8 @@ namespace tl
                 p.units = p.timeObject->units();
                 connect(
                     p.timeObject,
-                    SIGNAL(unitsChanged(tl::qt::TimeUnits)),
-                    SLOT(setUnits(tl::qt::TimeUnits)));
+                    SIGNAL(unitsChanged(tl::timeline::TimeUnits)),
+                    SLOT(setUnits(tl::timeline::TimeUnits)));
             }
             update();
         }
@@ -151,7 +151,7 @@ namespace tl
             _thumbnailsUpdate();
         }
 
-        qt::TimeUnits TimelineSlider::units() const
+        timeline::TimeUnits TimelineSlider::units() const
         {
             return _p->units;
         }
@@ -166,7 +166,7 @@ namespace tl
             return _p->stopOnScrub;
         }
 
-        void TimelineSlider::setUnits(qt::TimeUnits value)
+        void TimelineSlider::setUnits(timeline::TimeUnits value)
         {
             TLRENDER_P();
             if (value == p.units)

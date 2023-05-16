@@ -2,14 +2,14 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/TimeUnitsModel.h>
+#include <tlTimeline/TimeUnits.h>
 
 #include <tlCore/Error.h>
 #include <tlCore/String.h>
 
 namespace tl
 {
-    namespace ui
+    namespace timeline
     {
         TLRENDER_ENUM_IMPL(
             TimeUnits,

@@ -4,13 +4,20 @@
 
 #pragma once
 
-#include <tlTimelineUI/TimelineItem.h>
+#include <tlQt/TimeObject.h>
+
+#include <tlCore/Vector.h>
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_1_Core>
 
 namespace tl
 {
+    namespace timeline
+    {
+        class Player;
+    }
+
     namespace qtwidget
     {
         //! Timeline widget.
@@ -27,11 +34,11 @@ namespace tl
 
             ~TimelineWidget() override;
 
+            //! Set the time object.
+            void setTimeObject(qt::TimeObject*);
+
             //! Set the timeline player.
             void setPlayer(const std::shared_ptr<timeline::Player>&);
-
-            //! Get the item options.
-            const timelineui::ItemOptions& itemOptions() const;
 
         public Q_SLOTS:
             //! Set whether the to frame the view.
@@ -40,11 +47,11 @@ namespace tl
             //! Set whether to stop playback when scrubbing.
             void setStopOnScrub(bool);
 
+            //! Set whether thumbnails are enabled.
+            void setThumbnails(bool);
+
             //! Set the mouse wheel scale.
             void setMouseWheelScale(float);
-
-            //! Set the item options.
-            void setItemOptions(const timelineui::ItemOptions&);
 
         Q_SIGNALS:
             //! This signal is emitted when the frame view is changed.
@@ -69,6 +76,9 @@ namespace tl
             void keyReleaseEvent(QKeyEvent*) override;
 
             void timerEvent(QTimerEvent*) override;
+
+        private Q_SLOTS:
+            void _setTimeUnits(tl::timeline::TimeUnits);
 
         private:
             int _toUI(int) const;

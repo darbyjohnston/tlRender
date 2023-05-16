@@ -7,7 +7,8 @@
 #include <tlTimelineUI/IOManager.h>
 
 #include <tlUI/IWidget.h>
-#include <tlUI/TimeUnitsModel.h>
+
+#include <tlTimeline/TimeUnits.h>
 
 namespace tl
 {
@@ -24,7 +25,7 @@ namespace tl
         //! Item options.
         struct ItemOptions
         {
-            ui::TimeUnits timeUnits = ui::TimeUnits::Timecode;
+            timeline::TimeUnits timeUnits = timeline::TimeUnits::Timecode;
             float clipRectScale = 2.F;
             bool thumbnails = true;
             int thumbnailHeight = 100;
@@ -60,10 +61,10 @@ namespace tl
 
             static std::string _durationLabel(
                 const otime::RationalTime&,
-                ui::TimeUnits);
+                timeline::TimeUnits);
             static std::string _timeLabel(
                 const otime::RationalTime&,
-                ui::TimeUnits);
+                timeline::TimeUnits);
 
             ItemData _data;
             float _scale = 500.F;

@@ -4,6 +4,7 @@
 
 #include <tlPlayApp/SettingsObject.h>
 
+#include <tlQt/MetaTypes.h>
 #include <tlQt/ToolTipsFilter.h>
 
 #include <tlTimeline/Player.h>
@@ -85,9 +86,9 @@ namespace tl
                 version("Misc/ToolTipsEnabled"), true).toBool();
 
             p.timeObject = timeObject;
-            p.timeObject->setUnits(p.settings.value(
-                version("TimeUnits"),
-                QVariant::fromValue(p.timeObject->units())).value<qt::TimeUnits>());
+            p.timeObject->setUnits(static_cast<timeline::TimeUnits>(p.settings.value(
+                version("TimeUnits2"),
+                static_cast<int>(p.timeObject->units())).toInt()));
 
             p.toolTipsFilter = new qt::ToolTipsFilter(this);
 
@@ -111,8 +112,8 @@ namespace tl
                 p.toolTipsEnabled);
 
             p.settings.setValue(
-                version("TimeUnits"),
-                QVariant::fromValue(p.timeObject->units()));
+                version("TimeUnits2"),
+                static_cast<int>(p.timeObject->units()));
         }
 
         QVariant SettingsObject::value(const QString& name)
