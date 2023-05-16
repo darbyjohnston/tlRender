@@ -18,7 +18,7 @@ namespace tl
         struct TimeSpinBox::Private
         {
             otime::RationalTime value = time::invalidTime;
-            timeline::TimeUnits units = timeline::TimeUnits::Timecode;
+            timeline::TimeUnits timeUnits = timeline::TimeUnits::Timecode;
             QRegularExpressionValidator* validator = nullptr;
             qt::TimeObject* timeObject = nullptr;
         };
@@ -55,18 +55,18 @@ namespace tl
             {
                 disconnect(
                     p.timeObject,
-                    SIGNAL(unitsChanged(tl::timeline::TimeUnits)),
+                    SIGNAL(timeUnitsChanged(tl::timeline::TimeUnits)),
                     this,
-                    SLOT(setUnits(tl::timeline::TimeUnits)));
+                    SLOT(setTimeUnits(tl::timeline::TimeUnits)));
             }
             p.timeObject = timeObject;
             if (p.timeObject)
             {
-                p.units = p.timeObject->units();
+                p.timeUnits = p.timeObject->timeUnits();
                 connect(
                     p.timeObject,
-                    SIGNAL(unitsChanged(tl::timeline::TimeUnits)),
-                    SLOT(setUnits(tl::timeline::TimeUnits)));
+                    SIGNAL(timeUnitsChanged(tl::timeline::TimeUnits)),
+                    SLOT(setTimeUnits(tl::timeline::TimeUnits)));
             }
             _vaidatorUpdate();
             _textUpdate();
@@ -78,9 +78,9 @@ namespace tl
             return _p->value;
         }
 
-        timeline::TimeUnits TimeSpinBox::units() const
+        timeline::TimeUnits TimeSpinBox::timeUnits() const
         {
-            return _p->units;
+            return _p->timeUnits;
         }
 
         void TimeSpinBox::stepBy(int steps)
@@ -107,13 +107,13 @@ namespace tl
             _textUpdate();
         }
 
-        void TimeSpinBox::setUnits(timeline::TimeUnits units)
+        void TimeSpinBox::setTimeUnits(timeline::TimeUnits value)
         {
             TLRENDER_P();
-            if (units == p.units)
+            if (value == p.timeUnits)
                 return;
-            p.units = units;
-            Q_EMIT unitsChanged(p.units);
+            p.timeUnits = value;
+            Q_EMIT timeUnitsChanged(p.timeUnits);
             _vaidatorUpdate();
             _textUpdate();
             updateGeometry();
@@ -131,7 +131,7 @@ namespace tl
             ensurePolished();
             int h = lineEdit()->minimumSizeHint().height();
             const QFontMetrics fm(fontMetrics());
-            int w = fm.horizontalAdvance(" " + qt::sizeHintString(p.units));
+            int w = fm.horizontalAdvance(" " + qt::sizeHintString(p.timeUnits));
             w += 2; // cursor blinking space
             QStyleOptionSpinBox opt;
             initStyleOption(&opt);
@@ -143,7 +143,7 @@ namespace tl
         {
             TLRENDER_P();
             otime::ErrorStatus errorStatus;
-            const auto time = qt::textToTime(lineEdit()->text(), p.value.rate(), p.units, &errorStatus);
+            const auto time = qt::textToTime(lineEdit()->text(), p.value.rate(), p.timeUnits, &errorStatus);
             if (!otime::is_error(errorStatus) && time != p.value)
             {
                 p.value = time;
@@ -159,14 +159,14 @@ namespace tl
             {
                 p.validator->setParent(nullptr);
             }
-            p.validator = new QRegularExpressionValidator(QRegularExpression(qt::validator(p.units)), this);
+            p.validator = new QRegularExpressionValidator(QRegularExpression(qt::validator(p.timeUnits)), this);
             lineEdit()->setValidator(p.validator);
         }
 
         void TimeSpinBox::_textUpdate()
         {
             TLRENDER_P();
-            lineEdit()->setText(qt::timeToText(p.value, p.units));
+            lineEdit()->setText(qt::timeToText(p.value, p.timeUnits));
         }
     }
 }

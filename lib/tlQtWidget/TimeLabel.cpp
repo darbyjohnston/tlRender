@@ -16,7 +16,7 @@ namespace tl
         struct TimeLabel::Private
         {
             otime::RationalTime value = time::invalidTime;
-            timeline::TimeUnits units = timeline::TimeUnits::Timecode;
+            timeline::TimeUnits timeUnits = timeline::TimeUnits::Timecode;
             QLabel* label = nullptr;
             qt::TimeObject* timeObject = nullptr;
         };
@@ -53,18 +53,18 @@ namespace tl
             {
                 disconnect(
                     p.timeObject,
-                    SIGNAL(unitsChanged(tl::qt::Time::Units)),
+                    SIGNAL(timeUnitsChanged(tl::timeline::TimeUnits)),
                     this,
-                    SLOT(setUnits(tl::qt::Time::Units)));
+                    SLOT(setTimeUnits(tl::timeline::TimeUnits)));
             }
             p.timeObject = timeObject;
             if (p.timeObject)
             {
-                p.units = p.timeObject->units();
+                p.timeUnits = p.timeObject->timeUnits();
                 connect(
                     p.timeObject,
-                    SIGNAL(unitsChanged(tl::timeline::TimeUnits)),
-                    SLOT(setUnits(tl::timeline::TimeUnits)));
+                    SIGNAL(timeUnitsChanged(tl::timeline::TimeUnits)),
+                    SLOT(setTimeUnits(tl::timeline::TimeUnits)));
             }
             _textUpdate();
             updateGeometry();
@@ -75,9 +75,9 @@ namespace tl
             return _p->value;
         }
 
-        timeline::TimeUnits TimeLabel::units() const
+        timeline::TimeUnits TimeLabel::timeUnits() const
         {
-            return _p->units;
+            return _p->timeUnits;
         }
 
         void TimeLabel::setValue(const otime::RationalTime& value)
@@ -90,12 +90,12 @@ namespace tl
             _textUpdate();
         }
 
-        void TimeLabel::setUnits(timeline::TimeUnits units)
+        void TimeLabel::setTimeUnits(timeline::TimeUnits value)
         {
             TLRENDER_P();
-            if (units == p.units)
+            if (value == p.timeUnits)
                 return;
-            p.units = units;
+            p.timeUnits = value;
             _textUpdate();
             updateGeometry();
         }
@@ -103,7 +103,7 @@ namespace tl
         void TimeLabel::_textUpdate()
         {
             TLRENDER_P();
-            p.label->setText(qt::timeToText(p.value, p.units));
+            p.label->setText(qt::timeToText(p.value, p.timeUnits));
         }
     }
 }

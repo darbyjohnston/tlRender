@@ -348,7 +348,7 @@ namespace tl
                 &QActionGroup::triggered,
                 [app](QAction* action)
                 {
-                    app->timeObject()->setUnits(
+                    app->timeObject()->setTimeUnits(
                         static_cast<timeline::TimeUnits>(action->data().toInt()));
                 });
 
@@ -565,7 +565,7 @@ namespace tl
                 for (auto action : p.actionGroups["TimeUnits"]->actions())
                 {
                     if (static_cast<timeline::TimeUnits>(action->data().toInt()) ==
-                        p.app->timeObject()->units())
+                        p.app->timeObject()->timeUnits())
                     {
                         action->setChecked(true);
                         break;

@@ -38,10 +38,10 @@ namespace tl
         {
             Q_OBJECT
             Q_PROPERTY(
-                tl::timeline::TimeUnits units
-                READ units
-                WRITE setUnits
-                NOTIFY unitsChanged)
+                tl::timeline::TimeUnits timeUnits
+                READ timeUnits
+                WRITE setTimeUnits
+                NOTIFY timeUnitsChanged)
 
         public:
             TimeObject(
@@ -49,21 +49,21 @@ namespace tl
                 QObject* parent = nullptr);
 
             //! Get the time units.
-            timeline::TimeUnits units() const;
+            timeline::TimeUnits timeUnits() const;
 
         public Q_SLOTS:
             //! Set the time units.
-            void setUnits(tl::timeline::TimeUnits);
+            void setTimeUnits(tl::timeline::TimeUnits);
 
         Q_SIGNALS:
             //! This signal is emitted when the time units are changed.
-            void unitsChanged(tl::timeline::TimeUnits);
+            void timeUnitsChanged(tl::timeline::TimeUnits);
 
         private:
             std::shared_ptr<timeline::TimeUnitsModel> _model;
         };
 
-        QDataStream& operator << (QDataStream& ds, const timeline::TimeUnits& value);
-        QDataStream& operator >> (QDataStream& ds, timeline::TimeUnits& value);
+        QDataStream& operator << (QDataStream&, const timeline::TimeUnits&);
+        QDataStream& operator >> (QDataStream&, timeline::TimeUnits&);
     }
 }

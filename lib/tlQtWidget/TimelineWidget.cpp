@@ -141,18 +141,18 @@ namespace tl
             {
                 disconnect(
                     p.timeObject,
-                    SIGNAL(unitsChanged(tl::timeline::TimeUnits)),
+                    SIGNAL(timeUnitsChanged(tl::timeline::TimeUnits)),
                     this,
                     SLOT(_setTimeUnits(tl::timeline::TimeUnits)));
             }
             p.timeObject = timeObject;
             if (p.timeObject)
             {
-                p.itemOptions.timeUnits = p.timeObject->units();
+                p.itemOptions.timeUnits = p.timeObject->timeUnits();
                 p.timelineWidget->setItemOptions(p.itemOptions);
                 connect(
                     p.timeObject,
-                    SIGNAL(unitsChanged(tl::timeline::TimeUnits)),
+                    SIGNAL(timeUnitsChanged(tl::timeline::TimeUnits)),
                     SLOT(_setTimeUnits(tl::timeline::TimeUnits)));
             }
         }

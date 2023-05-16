@@ -235,7 +235,7 @@ namespace tl
             {
                 p.timeUnitsComboBox->addItem(QString::fromUtf8(label.c_str()));
             }
-            p.timeUnitsComboBox->setCurrentIndex(static_cast<int>(app->timeObject()->units()));
+            p.timeUnitsComboBox->setCurrentIndex(static_cast<int>(app->timeObject()->timeUnits()));
             p.timeUnitsComboBox->setToolTip(tr("Time units"));
             p.speedSpinBox = new QDoubleSpinBox;
             p.speedSpinBox->setRange(0.0, 120.0);
@@ -581,7 +581,7 @@ namespace tl
                 QOverload<int>::of(&QComboBox::currentIndexChanged),
                 [app](int value)
                 {
-                    app->timeObject()->setUnits(
+                    app->timeObject()->setTimeUnits(
                         static_cast<timeline::TimeUnits>(value));
                 });
 
@@ -658,7 +658,7 @@ namespace tl
 
             connect(
                 app->timeObject(),
-                &qt::TimeObject::unitsChanged,
+                &qt::TimeObject::timeUnitsChanged,
                 [this](timeline::TimeUnits value)
                 {
                     _p->timeUnitsComboBox->setCurrentIndex(

@@ -86,9 +86,9 @@ namespace tl
                 version("Misc/ToolTipsEnabled"), true).toBool();
 
             p.timeObject = timeObject;
-            p.timeObject->setUnits(static_cast<timeline::TimeUnits>(p.settings.value(
+            p.timeObject->setTimeUnits(static_cast<timeline::TimeUnits>(p.settings.value(
                 version("TimeUnits2"),
-                static_cast<int>(p.timeObject->units())).toInt()));
+                static_cast<int>(p.timeObject->timeUnits())).toInt()));
 
             p.toolTipsFilter = new qt::ToolTipsFilter(this);
 
@@ -113,7 +113,7 @@ namespace tl
 
             p.settings.setValue(
                 version("TimeUnits2"),
-                static_cast<int>(p.timeObject->units()));
+                static_cast<int>(p.timeObject->timeUnits()));
         }
 
         QVariant SettingsObject::value(const QString& name)

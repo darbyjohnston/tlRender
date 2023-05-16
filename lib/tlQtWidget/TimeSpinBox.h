@@ -24,10 +24,10 @@ namespace tl
                 WRITE setValue
                 NOTIFY valueChanged)
             Q_PROPERTY(
-                tl::timeline::TimeUnits units
-                READ units
-                WRITE setUnits
-                NOTIFY unitsChanged)
+                tl::timeline::TimeUnits timeUnits
+                READ timeUnits
+                WRITE setTimeUnits
+                NOTIFY timeUnitsChanged)
 
         public:
             TimeSpinBox(QWidget* parent = nullptr);
@@ -41,7 +41,7 @@ namespace tl
             const otime::RationalTime& value() const;
 
             //! Get the time units.
-            timeline::TimeUnits units() const;
+            timeline::TimeUnits timeUnits() const;
 
             void stepBy(int steps) override;
             QValidator::State validate(QString&, int& pos) const override;
@@ -52,14 +52,14 @@ namespace tl
             void setValue(const otime::RationalTime&);
 
             //! Set the time units.
-            void setUnits(tl::timeline::TimeUnits);
+            void setTimeUnits(tl::timeline::TimeUnits);
 
         Q_SIGNALS:
             //! This signal is emitted when the time is changed.
             void valueChanged(const otime::RationalTime&);
 
             //! This signal is emitted when the time units are changed.
-            void unitsChanged(tl::timeline::TimeUnits);
+            void timeUnitsChanged(tl::timeline::TimeUnits);
 
         protected:
             QAbstractSpinBox::StepEnabled stepEnabled() const override;

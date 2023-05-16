@@ -23,9 +23,9 @@ namespace tl
                 READ value
                 WRITE setValue)
             Q_PROPERTY(
-                tl::timeline::TimeUnits units
-                READ units
-                WRITE setUnits)
+                tl::timeline::TimeUnits timeUnits
+                READ timeUnits
+                WRITE setTimeUnits)
 
         public:
             TimeLabel(QWidget* parent = nullptr);
@@ -39,14 +39,14 @@ namespace tl
             const otime::RationalTime& value() const;
 
             //! Get the time units.
-            timeline::TimeUnits units() const;
+            timeline::TimeUnits timeUnits() const;
 
         public Q_SLOTS:
             //! Set the time value.
             void setValue(const otime::RationalTime&);
 
             //! Set the time units.
-            void setUnits(tl::timeline::TimeUnits);
+            void setTimeUnits(tl::timeline::TimeUnits);
 
         private:
             void _textUpdate();

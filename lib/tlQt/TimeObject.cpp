@@ -112,18 +112,18 @@ namespace tl
             _model(model)
         {}
 
-        timeline::TimeUnits TimeObject::units() const
+        timeline::TimeUnits TimeObject::timeUnits() const
         {
             return _model->getTimeUnits();
         }
 
-        void TimeObject::setUnits(timeline::TimeUnits value)
+        void TimeObject::setTimeUnits(timeline::TimeUnits value)
         {
             const timeline::TimeUnits units = _model->getTimeUnits();
             _model->setTimeUnits(value);
             if (units != _model->getTimeUnits())
             {
-                Q_EMIT unitsChanged(_model->getTimeUnits());
+                Q_EMIT timeUnitsChanged(_model->getTimeUnits());
             }
         }
 
