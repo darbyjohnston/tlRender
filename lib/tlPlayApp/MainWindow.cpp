@@ -40,6 +40,7 @@
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
+#include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QDragEnterEvent>
 #include <QDragMoveEvent>
@@ -94,7 +95,7 @@ namespace tl
             qtwidget::TimelineWidget* timelineWidget = nullptr;
             qtwidget::TimeSpinBox* currentTimeSpinBox = nullptr;
             qtwidget::TimeLabel* durationLabel = nullptr;
-            QToolButton* timeUnitsButton = nullptr;
+            QComboBox* timeUnitsComboBox = nullptr;
             QDoubleSpinBox* speedSpinBox = nullptr;
             QToolButton* speedButton = nullptr;
             QSlider* volumeSlider = nullptr;
@@ -229,11 +230,13 @@ namespace tl
             p.durationLabel->setFont(fixedFont);
             p.durationLabel->setToolTip(tr("Timeline duration"));
             p.durationLabel->setContentsMargins(5, 0, 5, 0);
-            p.timeUnitsButton = new QToolButton;
-            p.timeUnitsButton->setText(tr("Time"));
-            p.timeUnitsButton->setPopupMode(QToolButton::InstantPopup);
-            p.timeUnitsButton->setMenu(p.playbackActions->timeUnitsMenu());
-            p.timeUnitsButton->setToolTip(tr("Time units"));
+            p.timeUnitsComboBox = new QComboBox;
+            for (const auto& label : timeline::getTimeUnitsLabels())
+            {
+                p.timeUnitsComboBox->addItem(QString::fromUtf8(label.c_str()));
+            }
+            p.timeUnitsComboBox->setCurrentIndex(static_cast<int>(app->timeObject()->units()));
+            p.timeUnitsComboBox->setToolTip(tr("Time units"));
             p.speedSpinBox = new QDoubleSpinBox;
             p.speedSpinBox->setRange(0.0, 120.0);
             p.speedSpinBox->setSingleStep(1.0);
@@ -262,7 +265,7 @@ namespace tl
             bottomToolBar->addAction(p.playbackActions->actions()["End"]);
             bottomToolBar->addWidget(p.currentTimeSpinBox);
             bottomToolBar->addWidget(p.durationLabel);
-            bottomToolBar->addWidget(p.timeUnitsButton);
+            bottomToolBar->addWidget(p.timeUnitsComboBox);
             bottomToolBar->addWidget(p.speedSpinBox);
             bottomToolBar->addWidget(p.speedButton);
             bottomToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
@@ -574,6 +577,15 @@ namespace tl
                 });
 
             connect(
+                p.timeUnitsComboBox,
+                QOverload<int>::of(&QComboBox::currentIndexChanged),
+                [app](int value)
+                {
+                    app->timeObject()->setUnits(
+                        static_cast<timeline::TimeUnits>(value));
+                });
+
+            connect(
                 p.speedSpinBox,
                 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 [this](double value)
@@ -642,6 +654,15 @@ namespace tl
                         _p->timelineViewport->viewPos(),
                         _p->timelineViewport->viewZoom(),
                         _p->timelineViewport->hasFrameView());
+                });
+
+            connect(
+                app->timeObject(),
+                &qt::TimeObject::unitsChanged,
+                [this](timeline::TimeUnits value)
+                {
+                    _p->timeUnitsComboBox->setCurrentIndex(
+                        static_cast<int>(value));
                 });
 
             connect(

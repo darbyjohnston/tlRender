@@ -40,8 +40,8 @@ namespace tl
                 std::shared_ptr<ui::ButtonGroup> frameButtonGroup;
                 std::shared_ptr<ui::TimeEdit> currentTimeEdit;
                 std::shared_ptr<ui::TimeLabel> durationLabel;
-                std::shared_ptr<ui::FloatEdit> speedEdit;
                 std::shared_ptr<ui::ComboBox> timeUnitsComboBox;
+                std::shared_ptr<ui::FloatEdit> speedEdit;
                 std::shared_ptr<ui::Splitter> splitter;
                 std::shared_ptr<ui::RowLayout> layout;
 
@@ -106,13 +106,13 @@ namespace tl
                 p.durationLabel = ui::TimeLabel::create(p.timeUnitsModel, context);
                 p.durationLabel->setValue(player->getTimeRange().duration());
 
-                p.speedEdit = ui::FloatEdit::create(p.speedModel, context);
-                auto speedIncButtons = ui::FloatIncButtons::create(p.speedModel, context);
-
                 p.timeUnitsComboBox = ui::ComboBox::create(context);
                 p.timeUnitsComboBox->setItems(timeline::getTimeUnitsLabels());
                 p.timeUnitsComboBox->setCurrentIndex(
                     static_cast<int>(p.timeUnitsModel->getTimeUnits()));
+
+                p.speedEdit = ui::FloatEdit::create(p.speedModel, context);
+                auto speedIncButtons = ui::FloatIncButtons::create(p.speedModel, context);
 
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
                 p.layout->setSpacingRole(ui::SizeRole::None);
@@ -137,11 +137,11 @@ namespace tl
                 p.currentTimeEdit->setParent(hLayout2);
                 currentTimeIncButtons->setParent(hLayout2);
                 p.durationLabel->setParent(hLayout);
+                p.timeUnitsComboBox->setParent(hLayout);
                 hLayout2 = ui::HorizontalLayout::create(context, hLayout);
                 hLayout2->setSpacingRole(ui::SizeRole::SpacingTool);
                 p.speedEdit->setParent(hLayout2);
                 speedIncButtons->setParent(hLayout2);
-                p.timeUnitsComboBox->setParent(hLayout2);
 
                 p.currentTimeEdit->setCallback(
                     [player](const otime::RationalTime& value)

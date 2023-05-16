@@ -11,9 +11,10 @@
 #include <tlUI/PushButton.h>
 #include <tlUI/TimeEdit.h>
 #include <tlUI/TimeLabel.h>
-#include <tlUI/TimeUnitsModel.h>
 #include <tlUI/ToolButton.h>
 #include <tlUI/RowLayout.h>
+
+#include <tlTimeline/TimeUnits.h>
 
 namespace tl
 {
@@ -127,7 +128,7 @@ namespace tl
                     }));
                 comboBox3->setEnabled(false);
 
-                auto timeUnitsModel = ui::TimeUnitsModel::create(context);
+                auto timeUnitsModel = timeline::TimeUnitsModel::create(context);
                 auto timeEdit0 = ui::TimeEdit::create(timeUnitsModel, context);
                 timeEdit0->setValue(otime::RationalTime(0.0, 24.0));
                 auto timeEdit1 = ui::TimeEdit::create(timeUnitsModel, context);
@@ -138,13 +139,13 @@ namespace tl
                 auto timeLabel0 = ui::TimeLabel::create(timeUnitsModel, context);
                 timeLabel0->setValue(otime::RationalTime(240.0, 24.0));
                 auto timeUnitsComboBox = ui::ComboBox::create(context);
-                timeUnitsComboBox->setItems(ui::getTimeUnitsLabels());
+                timeUnitsComboBox->setItems(timeline::getTimeUnitsLabels());
                 timeUnitsComboBox->setCurrentIndex(
                     static_cast<int>(timeUnitsModel->getTimeUnits()));
                 timeUnitsComboBox->setIndexCallback(
                     [timeUnitsModel](int value)
                     {
-                        timeUnitsModel->setTimeUnits(static_cast<ui::TimeUnits>(value));
+                        timeUnitsModel->setTimeUnits(static_cast<timeline::TimeUnits>(value));
                     });
 
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());

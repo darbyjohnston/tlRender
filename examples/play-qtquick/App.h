@@ -37,6 +37,7 @@ namespace tl
                 std::string _input;
 
                 qt::ContextObject* _contextObject = nullptr;
+                std::shared_ptr<timeline::TimeUnitsModel> _timeUnitsModel;
                 qt::TimeObject* _timeObject = nullptr;
                 qt::TimelinePlayer* _timelinePlayer = nullptr;
 

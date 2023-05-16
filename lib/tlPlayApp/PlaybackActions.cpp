@@ -26,7 +26,6 @@ namespace tl
             QMap<QString, QActionGroup*> actionGroups;
 
             QMenu* menu = nullptr;
-            QMenu* timeUnitsMenu = nullptr;
             QMenu* speedMenu = nullptr;
         };
 
@@ -220,11 +219,6 @@ namespace tl
             p.menu->addAction(p.actions["Timeline/StopOnScrub"]);
             p.menu->addAction(p.actions["Timeline/Thumbnails"]);
 
-            p.timeUnitsMenu = new QMenu;
-            p.timeUnitsMenu->addAction(p.actions["TimeUnits/Frames"]);
-            p.timeUnitsMenu->addAction(p.actions["TimeUnits/Seconds"]);
-            p.timeUnitsMenu->addAction(p.actions["TimeUnits/Timecode"]);
-
             p.speedMenu = new QMenu;
             for (auto i : speeds)
             {
@@ -404,11 +398,6 @@ namespace tl
         QMenu* PlaybackActions::menu() const
         {
             return _p->menu;
-        }
-
-        QMenu* PlaybackActions::timeUnitsMenu() const
-        {
-            return _p->timeUnitsMenu;
         }
 
         QMenu* PlaybackActions::speedMenu() const

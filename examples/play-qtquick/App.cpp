@@ -48,9 +48,10 @@ namespace tl
                 setOrganizationName("tlRender");
                 setApplicationName("play-qtquick");
 
-                // Create objects.
+                // Create models and objects.
                 _contextObject = new qt::ContextObject(context, this);
-                _timeObject = new qt::TimeObject(this);
+                _timeUnitsModel = timeline::TimeUnitsModel::create(context);
+                _timeObject = new qt::TimeObject(_timeUnitsModel, this);
 
                 // Open the input file.
                 auto timeline = timeline::Timeline::create(_input, context);
