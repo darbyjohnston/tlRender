@@ -36,6 +36,7 @@ namespace tl
             {
                 int margin = 0;
                 int spacing = 0;
+                int border = 0;
                 math::Vector2i labelSize;
                 math::Vector2i durationSize;
                 int thumbnailWidth = 0;
@@ -205,6 +206,7 @@ namespace tl
 
             p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
             p.size.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
+            p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
 
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
@@ -262,16 +264,14 @@ namespace tl
             const ui::DrawEvent& event)
         {
             IItem::drawEvent(drawRect, event);
+            TLRENDER_P();
+            
+            const math::BBox2i& g = _geometry;
 
-            const int b = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
-            math::BBox2i g = _geometry;
-
-            //event.render->drawMesh(
-            //    border(g, b, _margin / 2),
-            //    event.style->getColorRole(ColorRole::Border));
-
-            event.render->drawRect(
-                g.margin(-b),
+            const math::BBox2i g2 = g.margin(-p.size.border);
+            event.render->drawMesh(
+                ui::rect(g2, p.size.margin),
+                math::Vector2i(),
                 imaging::Color4f(.2F, .4F, .4F));
 
             _drawInfo(drawRect, event);
@@ -279,10 +279,6 @@ namespace tl
             {
                 _drawThumbnails(drawRect, event);
             }
-
-            //event.render->drawRect(
-            //    drawRect,
-            //    imaging::Color4f(1.F, 0.F, 0.F, .2F));
         }
 
         void VideoClipItem::_textUpdate()
