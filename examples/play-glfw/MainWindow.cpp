@@ -9,9 +9,9 @@
 
 #include <tlUI/ButtonGroup.h>
 #include <tlUI/ComboBox.h>
+#include <tlUI/DoubleEdit.h>
+#include <tlUI/DoubleModel.h>
 #include <tlUI/IncButtons.h>
-#include <tlUI/FloatEdit.h>
-#include <tlUI/FloatModel.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/Splitter.h>
 #include <tlUI/TimeEdit.h>
@@ -31,7 +31,7 @@ namespace tl
             struct MainWindow::Private
             {
                 std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
-                std::shared_ptr<ui::FloatModel> speedModel;
+                std::shared_ptr<ui::DoubleModel> speedModel;
                 timelineui::ItemOptions itemOptions;
 
                 std::shared_ptr<timelineui::TimelineViewport> timelineViewport;
@@ -39,7 +39,7 @@ namespace tl
                 std::shared_ptr<ui::ButtonGroup> playbackButtonGroup;
                 std::shared_ptr<ui::ButtonGroup> frameButtonGroup;
                 std::shared_ptr<ui::TimeEdit> currentTimeEdit;
-                std::shared_ptr<ui::FloatEdit> speedEdit;
+                std::shared_ptr<ui::DoubleEdit> speedEdit;
                 std::shared_ptr<ui::TimeLabel> durationLabel;
                 std::shared_ptr<ui::ComboBox> timeUnitsComboBox;
                 std::shared_ptr<ui::Splitter> splitter;
@@ -47,7 +47,7 @@ namespace tl
 
                 std::shared_ptr<observer::ValueObserver<timeline::TimeUnits> > timeUnitsObserver;
                 std::shared_ptr<observer::ValueObserver<double> > speedObserver;
-                std::shared_ptr<observer::ValueObserver<float> > speedObserver2;
+                std::shared_ptr<observer::ValueObserver<double> > speedObserver2;
                 std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
                 std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
             };
@@ -62,8 +62,8 @@ namespace tl
                 setBackgroundRole(ui::ColorRole::Window);
 
                 p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
-                p.speedModel = ui::FloatModel::create(context);
-                p.speedModel->setRange(math::FloatRange(0.F, 1000.F));
+                p.speedModel = ui::DoubleModel::create(context);
+                p.speedModel->setRange(math::DoubleRange(0.0, 1000.0));
                 p.speedModel->setStep(1.F);
                 p.speedModel->setLargeStep(10.F);
 
@@ -103,8 +103,8 @@ namespace tl
                 p.currentTimeEdit = ui::TimeEdit::create(p.timeUnitsModel, context);
                 auto currentTimeIncButtons = ui::IncButtons::create(context);
 
-                p.speedEdit = ui::FloatEdit::create(p.speedModel, context);
-                auto speedIncButtons = ui::FloatIncButtons::create(p.speedModel, context);
+                p.speedEdit = ui::DoubleEdit::create(p.speedModel, context);
+                auto speedIncButtons = ui::DoubleIncButtons::create(p.speedModel, context);
 
                 p.durationLabel = ui::TimeLabel::create(p.timeUnitsModel, context);
                 p.durationLabel->setValue(player->getTimeRange().duration());
@@ -181,9 +181,9 @@ namespace tl
                     {
                         _p->speedModel->setValue(value);
                     });
-                p.speedObserver2 = observer::ValueObserver<float>::create(
+                p.speedObserver2 = observer::ValueObserver<double>::create(
                     p.speedModel->observeValue(),
-                    [player](float value)
+                    [player](double value)
                     {
                         player->setSpeed(value);
                     });

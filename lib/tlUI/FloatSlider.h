@@ -34,7 +34,7 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Get the floating point model.
+            //! Get the model.
             const std::shared_ptr<FloatModel>& getModel() const;
 
             void setVisible(bool) override;

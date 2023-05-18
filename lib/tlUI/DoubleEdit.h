@@ -10,32 +10,32 @@ namespace tl
 {
     namespace ui
     {
-        class FloatModel;
+        class DoubleModel;
 
-        //! Floating point number editor.
-        class FloatEdit : public IWidget
+        //! Double precision floating point number editor.
+        class DoubleEdit : public IWidget
         {
-            TLRENDER_NON_COPYABLE(FloatEdit);
+            TLRENDER_NON_COPYABLE(DoubleEdit);
 
         protected:
             void _init(
-                const std::shared_ptr<FloatModel>&,
+                const std::shared_ptr<DoubleModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            FloatEdit();
+            DoubleEdit();
 
         public:
-            ~FloatEdit() override;
+            ~DoubleEdit() override;
 
             //! Create a new widget.
-            static std::shared_ptr<FloatEdit> create(
-                const std::shared_ptr<FloatModel>&,
+            static std::shared_ptr<DoubleEdit> create(
+                const std::shared_ptr<DoubleModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the model.
-            const std::shared_ptr<FloatModel>& getModel() const;
+            const std::shared_ptr<DoubleModel>& getModel() const;
 
             //! Set the number of digits to display.
             void setDigits(int);

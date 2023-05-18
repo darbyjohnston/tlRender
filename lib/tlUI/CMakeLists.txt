@@ -1,6 +1,8 @@
 set(HEADERS
     ButtonGroup.h
     ComboBox.h
+    DoubleEdit.h
+    DoubleModel.h
     DrawUtil.h
     Event.h
     EventLoop.h
@@ -43,6 +45,8 @@ set(HEADERS_PRIVATE)
 set(SOURCE
     ButtonGroup.cpp
     ComboBox.cpp
+    DoubleEdit.cpp
+    DoubleModel.cpp
     DrawUtil.cpp
     Event.cpp
     EventLoop.cpp

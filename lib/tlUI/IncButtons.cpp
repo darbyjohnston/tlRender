@@ -4,6 +4,7 @@
 
 #include <tlUI/IncButtons.h>
 
+#include <tlUI/DoubleModel.h>
 #include <tlUI/FloatModel.h>
 #include <tlUI/IntModel.h>
 
@@ -322,6 +323,84 @@ namespace tl
             TLRENDER_P();
             const float value = p.model->getValue();
             const math::FloatRange& range = p.model->getRange();
+            _incButton->setEnabled(value < range.getMax());
+            _decButton->setEnabled(value > range.getMin());
+        }
+
+        struct DoubleIncButtons::Private
+        {
+            std::shared_ptr<DoubleModel> model;
+            std::shared_ptr<observer::ValueObserver<double> > valueObserver;
+            std::shared_ptr<observer::ValueObserver<math::DoubleRange> > rangeObserver;
+        };
+
+        void DoubleIncButtons::_init(
+            const std::shared_ptr<DoubleModel>& model,
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            IncButtons::_init(context, parent);
+            setName("tl::ui::DoubleIncButtons");
+            TLRENDER_P();
+
+            p.model = model;
+
+            _modelUpdate();
+
+            _incButton->setClickedCallback(
+                [this]
+                {
+                    _p->model->incrementStep();
+                });
+
+            _decButton->setClickedCallback(
+                [this]
+                {
+                    _p->model->decrementStep();
+                });
+
+            p.valueObserver = observer::ValueObserver<double>::create(
+                p.model->observeValue(),
+                [this](double)
+                {
+                    _modelUpdate();
+                });
+
+            p.rangeObserver = observer::ValueObserver<math::DoubleRange>::create(
+                p.model->observeRange(),
+                [this](const math::DoubleRange&)
+                {
+                    _modelUpdate();
+                });
+        }
+
+        DoubleIncButtons::DoubleIncButtons() :
+            _p(new Private)
+        {}
+
+        DoubleIncButtons::~DoubleIncButtons()
+        {}
+
+        std::shared_ptr<DoubleIncButtons> DoubleIncButtons::create(
+            const std::shared_ptr<DoubleModel>& model,
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            auto out = std::shared_ptr<DoubleIncButtons>(new DoubleIncButtons);
+            out->_init(model, context, parent);
+            return out;
+        }
+
+        const std::shared_ptr<DoubleModel>& DoubleIncButtons::getModel() const
+        {
+            return _p->model;
+        }
+
+        void DoubleIncButtons::_modelUpdate()
+        {
+            TLRENDER_P();
+            const double value = p.model->getValue();
+            const math::DoubleRange& range = p.model->getRange();
             _incButton->setEnabled(value < range.getMax());
             _decButton->setEnabled(value > range.getMin());
         }

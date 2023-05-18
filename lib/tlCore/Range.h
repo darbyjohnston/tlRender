@@ -61,21 +61,28 @@ namespace tl
         //! This typedef provides a floating point range.
         typedef Range<float> FloatRange;
 
+        //! This typedef provides a double precision floating point range.
+        typedef Range<double> DoubleRange;
+
         void to_json(nlohmann::json&, const IntRange&);
         void to_json(nlohmann::json&, const SizeTRange&);
         void to_json(nlohmann::json&, const FloatRange&);
+        void to_json(nlohmann::json&, const DoubleRange&);
 
         void from_json(const nlohmann::json&, IntRange&);
         void from_json(const nlohmann::json&, SizeTRange&);
         void from_json(const nlohmann::json&, FloatRange&);
+        void from_json(const nlohmann::json&, DoubleRange&);
 
         std::ostream& operator << (std::ostream&, const IntRange&);
         std::ostream& operator << (std::ostream&, const SizeTRange&);
         std::ostream& operator << (std::ostream&, const FloatRange&);
+        std::ostream& operator << (std::ostream&, const DoubleRange&);
 
         std::istream& operator >> (std::istream&, IntRange&);
         std::istream& operator >> (std::istream&, SizeTRange&);
         std::istream& operator >> (std::istream&, FloatRange&);
+        std::istream& operator >> (std::istream&, DoubleRange&);
     }
 }
 
