@@ -24,7 +24,7 @@ namespace tl
             otime::TimeRange inOutRange = time::invalidTimeRange;
             timeline::PlayerCacheInfo cacheInfo;
             bool stopOnScrub = true;
-            ui::FontRole fontRole = ui::FontRole::Label;
+            ui::FontRole fontRole = ui::FontRole::Mono;
 
             struct SizeData
             {
@@ -150,9 +150,9 @@ namespace tl
             float y =
                 p.size.margin +
                 p.size.fontMetrics.lineHeight +
-                p.size.spacing +
-                p.size.fontMetrics.lineHeight +
+                p.size.border * 4 +
                 p.size.margin +
+                p.size.border +
                 p.size.margin;
             for (const auto& child : _children)
             {
@@ -162,7 +162,7 @@ namespace tl
                     _geometry.min.y + y,
                     sizeHint.x,
                     sizeHint.y));
-                y += sizeHint.y;// +_spacing;
+                y += sizeHint.y;;
             }
 
             if (auto scrollArea = getParentT<ui::ScrollArea>())
@@ -176,7 +176,7 @@ namespace tl
             IItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
+            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, event.displayScale);
             p.size.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
             p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
 
@@ -187,10 +187,6 @@ namespace tl
             {
                 childrenHeight += child->getSizeHint().y;
             }
-            //if (!_children.empty())
-            //{
-            //    childrenHeight += (_children.size() - 1) * _spacing;
-            //}
 
             _sizeHint = math::Vector2i(
                 p.size.margin +
@@ -198,9 +194,9 @@ namespace tl
                 p.size.margin,
                 p.size.margin +
                 p.size.fontMetrics.lineHeight +
-                p.size.spacing +
-                p.size.fontMetrics.lineHeight +
+                p.size.border * 4 +
                 p.size.margin +
+                p.size.border +
                 p.size.margin +
                 childrenHeight +
                 p.size.margin);
@@ -234,20 +230,21 @@ namespace tl
             int h =
                 p.size.margin +
                 p.size.fontMetrics.lineHeight +
-                p.size.spacing +
-                p.size.fontMetrics.lineHeight +
+                p.size.border * 4 +
                 p.size.margin;
             event.render->drawRect(
                 math::BBox2i(g.min.x, y, g.w(), h),
                 event.style->getColorRole(ui::ColorRole::Base));
 
-            y = y + h - p.size.border;
+            y = y + h;
             h = p.size.border;
             event.render->drawRect(
                 math::BBox2i(g.min.x, y, g.w(), h),
                 event.style->getColorRole(ui::ColorRole::Border));
 
+            _drawInOutPoints(drawRect, event);
             _drawTimeTicks(drawRect, event);
+            _drawCacheInfo(drawRect, event);
             _drawCurrentTime(drawRect, event);
         }
 
@@ -358,6 +355,32 @@ namespace tl
             event.accept = true;
         }
 
+        void TimelineItem::_drawInOutPoints(
+            const math::BBox2i& drawRect,
+            const ui::DrawEvent& event)
+        {
+            TLRENDER_P();
+            if (!time::compareExact(_p->inOutRange, time::invalidTimeRange) &&
+                !time::compareExact(_p->inOutRange, _p->timeRange))
+            {
+                const math::BBox2i& g = _geometry;
+
+                const int x0 = _timeToPos(_p->inOutRange.start_time());
+                const int x1 = _timeToPos(_p->inOutRange.end_time_inclusive());
+
+                const math::BBox2i bbox(
+                    x0,
+                    p.size.scrollPos.y +
+                    g.min.y +
+                    p.size.margin,
+                    x1 - x0 + 1,
+                    p.size.fontMetrics.lineHeight);
+                event.render->drawRect(
+                    bbox,
+                    imaging::Color4f(1.F, .7F, .2F, .1F));
+            }
+        }
+
         void TimelineItem::_drawTimeTicks(
             const math::BBox2i& drawRect,
             const ui::DrawEvent& event)
@@ -406,21 +429,16 @@ namespace tl
                 size_t i = 1;
                 for (double t = 0.0; t < duration; t += seconds)
                 {
-                    const int y =
-                        p.size.scrollPos.y +
-                        g.min.y +
-                        p.size.margin +
-                        p.size.fontMetrics.lineHeight +
-                        p.size.spacing;
-                    const int h =
-                        p.size.fontMetrics.lineHeight;
-                    math::BBox2i bbox(
+                    const math::BBox2i bbox(
                         g.min.x +
                         p.size.margin +
                         t / duration * w,
-                        y,
+                        p.size.scrollPos.y +
+                        g.min.y +
+                        p.size.margin,
                         2,
-                        h);
+                        p.size.fontMetrics.lineHeight +
+                        p.size.border * 4);
                     if (bbox.intersects(drawRect))
                     {
                         mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
@@ -552,6 +570,83 @@ namespace tl
             }*/
         }
 
+        void TimelineItem::_drawCacheInfo(
+            const math::BBox2i& drawRect,
+            const ui::DrawEvent& event)
+        {
+            TLRENDER_P();
+
+            const math::BBox2i& g = _geometry;
+
+            geom::TriangleMesh2 mesh;
+            size_t i = 1;
+            for (const auto& t : p.cacheInfo.videoFrames)
+            {
+                const int x0 = _timeToPos(t.start_time());
+                const int x1 = _timeToPos(t.end_time_inclusive());
+                const math::BBox2i bbox(
+                    x0,
+                    p.size.scrollPos.y +
+                    g.min.y +
+                    p.size.margin +
+                    p.size.fontMetrics.lineHeight,
+                    x1 - x0 + 1,
+                    p.size.border * 2);
+                if (bbox.intersects(drawRect))
+                {
+                    mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
+                    mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));
+                    mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.max.y + 1));
+                    mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.max.y + 1));
+                    mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
+                    mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
+                    i += 4;
+                }
+            }
+            if (!mesh.v.empty())
+            {
+                event.render->drawMesh(
+                    mesh,
+                    math::Vector2i(),
+                    imaging::Color4f(.2F, .4F, .4F));
+            }
+
+            mesh.v.clear();
+            mesh.triangles.clear();
+            i = 1;
+            for (const auto& t : p.cacheInfo.audioFrames)
+            {
+                const int x0 = _timeToPos(t.start_time());
+                const int x1 = _timeToPos(t.end_time_inclusive());
+                const math::BBox2i bbox(
+                    x0,
+                    p.size.scrollPos.y +
+                    g.min.y +
+                    p.size.margin +
+                    p.size.fontMetrics.lineHeight +
+                    p.size.border * 2,
+                    x1 - x0 + 1,
+                    p.size.border * 2);
+                if (bbox.intersects(drawRect))
+                {
+                    mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
+                    mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));
+                    mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.max.y + 1));
+                    mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.max.y + 1));
+                    mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
+                    mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
+                    i += 4;
+                }
+            }
+            if (!mesh.v.empty())
+            {
+                event.render->drawMesh(
+                    mesh,
+                    math::Vector2i(),
+                    imaging::Color4f(.3F, .25F, .4F));
+            }
+        }
+
         void TimelineItem::_drawCurrentTime(
             const math::BBox2i& drawRect,
             const ui::DrawEvent& event)
@@ -635,17 +730,16 @@ namespace tl
             return out;
         }
 
-        float TimelineItem::_timeToPos(const otime::RationalTime& value) const
+        int TimelineItem::_timeToPos(const otime::RationalTime& value) const
         {
             TLRENDER_P();
-            float out = 0.F;
-            const otime::RationalTime& currentTime = p.player->observeCurrentTime()->get();
-            if (!time::compareExact(currentTime, time::invalidTime) &&
+            int out = 0;
+            if (!time::compareExact(value, time::invalidTime) &&
                 p.timeRange.duration().value() > 0.0)
             {
                 const math::BBox2i bbox = _geometry.margin(-p.size.margin);
                 const float normalized =
-                    (currentTime.value() - p.timeRange.start_time().value()) /
+                    (value.value() - p.timeRange.start_time().value()) /
                     p.timeRange.duration().value();
                 out = bbox.min.x + normalized * bbox.w();
             }

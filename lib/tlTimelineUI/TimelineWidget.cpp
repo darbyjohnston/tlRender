@@ -56,7 +56,7 @@ namespace tl
                 context,
                 ui::ScrollType::Both,
                 shared_from_this());
-            p.scrollWidget->setMarginRole(ui::SizeRole::MarginSmall);
+            p.scrollWidget->setMarginRole(ui::SizeRole::MarginInside);
 
             p.scrollWidget->setScrollPosCallback(
                 [this](const math::Vector2i&)
@@ -240,7 +240,7 @@ namespace tl
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
+            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, event.displayScale);
 
             const int sa = event.style->getSizeRole(ui::SizeRole::ScrollArea, event.displayScale);
             _sizeHint.x = sa;

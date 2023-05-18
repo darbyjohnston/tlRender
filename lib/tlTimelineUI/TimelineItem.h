@@ -60,7 +60,13 @@ namespace tl
             void keyReleaseEvent(ui::KeyEvent&) override;
 
         private:
+            void _drawInOutPoints(
+                const math::BBox2i&,
+                const ui::DrawEvent&);
             void _drawTimeTicks(
+                const math::BBox2i&,
+                const ui::DrawEvent&);
+            void _drawCacheInfo(
                 const math::BBox2i&,
                 const ui::DrawEvent&);
             void _drawCurrentTime(
@@ -68,7 +74,7 @@ namespace tl
                 const ui::DrawEvent&);
 
             otime::RationalTime _posToTime(float) const;
-            float _timeToPos(const otime::RationalTime&) const;
+            int _timeToPos(const otime::RationalTime&) const;
 
             void _resetMouse();
 
