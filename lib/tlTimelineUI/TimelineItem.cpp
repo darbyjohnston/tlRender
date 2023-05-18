@@ -149,7 +149,7 @@ namespace tl
                 p.size.margin +
                 p.size.fontMetrics.lineHeight +
                 p.size.margin +
-                p.size.border * 4 +
+                p.size.spacing +
                 p.size.margin +
                 p.size.border +
                 p.size.margin;
@@ -194,7 +194,7 @@ namespace tl
                 p.size.margin +
                 p.size.fontMetrics.lineHeight +
                 p.size.margin +
-                p.size.border * 4 +
+                p.size.spacing +
                 p.size.margin +
                 p.size.border +
                 p.size.margin +
@@ -231,7 +231,7 @@ namespace tl
                 p.size.margin +
                 p.size.fontMetrics.lineHeight +
                 p.size.margin +
-                p.size.border * 4 +
+                p.size.spacing +
                 p.size.margin;
             event.render->drawRect(
                 math::BBox2i(g.min.x, y, g.w(), h),
@@ -389,6 +389,7 @@ namespace tl
         {
             TLRENDER_P();
 
+            const int handle = event.style->getSizeRole(ui::SizeRole::Handle, event.displayScale);
             const math::BBox2i& g = _geometry;
 
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
@@ -397,22 +398,51 @@ namespace tl
             const int distanceMin = p.size.border + p.size.spacing + labelMaxSize.x;
 
             const int w = _sizeHint.x - p.size.margin * 2;
-            const int frameTick = 1.0 /
-                p.timeRange.duration().value() * w;
-            const int secondsTick = 1.0 /
-                p.timeRange.duration().rescaled_to(1.0).value() * w;
-            const int minutesTick = 60.0 /
-                p.timeRange.duration().rescaled_to(1.0).value() * w;
-            const int hoursTick = 3600.0 /
-                p.timeRange.duration().rescaled_to(1.0).value() * w;
+            const float duration = p.timeRange.duration().rescaled_to(1.0).value();
+            const int frameTick = 1.0 / p.timeRange.duration().value() * w;
+            if (frameTick >= handle)
+            {
+                geom::TriangleMesh2 mesh;
+                size_t i = 1;
+                for (double t = 0.0; t < duration; t += 1.0 / p.timeRange.duration().rate())
+                {
+                    const math::BBox2i bbox(
+                        g.min.x +
+                        p.size.margin +
+                        t / duration * w,
+                        p.size.scrollPos.y +
+                        g.min.y +
+                        p.size.margin +
+                        p.size.fontMetrics.lineHeight,
+                        p.size.border,
+                        p.size.margin +
+                        p.size.spacing);
+                    if (bbox.intersects(drawRect))
+                    {
+                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
+                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));
+                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.max.y + 1));
+                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.max.y + 1));
+                        mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
+                        mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
+                        i += 4;
+                    }
+                }
+                if (!mesh.v.empty())
+                {
+                    event.render->drawMesh(
+                        mesh,
+                        math::Vector2i(),
+                        event.style->getColorRole(ui::ColorRole::Button));
+                }
+            }
+
+            const int secondsTick = 1.0 / duration * w;
+            const int minutesTick = 60.0 / duration * w;
+            const int hoursTick = 3600.0 / duration * w;
             double seconds = 0;
             int tick = 0;
-            if (frameTick >= distanceMin)
-            {
-                seconds = 1.0 / p.timeRange.duration().rate();
-                tick = frameTick;
-            }
-            else if (secondsTick >= distanceMin)
+            if (secondsTick >= distanceMin)
             {
                 seconds = 1.0;
                 tick = secondsTick;
@@ -429,7 +459,6 @@ namespace tl
             }
             if (seconds > 0.0 && tick > 0)
             {
-                const float duration = p.timeRange.duration().rescaled_to(1.0).value();
                 geom::TriangleMesh2 mesh;
                 size_t i = 1;
                 for (double t = 0.0; t < duration; t += seconds)
@@ -444,7 +473,7 @@ namespace tl
                         p.size.border,
                         p.size.fontMetrics.lineHeight +
                         p.size.margin +
-                        p.size.border * 4);
+                        p.size.spacing);
                     if (bbox.intersects(drawRect))
                     {
                         mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
@@ -515,7 +544,9 @@ namespace tl
                     g.min.y +
                     p.size.margin +
                     p.size.fontMetrics.lineHeight +
-                    p.size.margin,
+                    p.size.margin +
+                    p.size.spacing -
+                    p.size.border * 4,
                     x1 - x0 + 1,
                     p.size.border * 2);
                 if (bbox.intersects(drawRect))
@@ -551,6 +582,7 @@ namespace tl
                     p.size.margin +
                     p.size.fontMetrics.lineHeight +
                     p.size.margin +
+                    p.size.spacing -
                     p.size.border * 2,
                     x1 - x0 + 1,
                     p.size.border * 2);
