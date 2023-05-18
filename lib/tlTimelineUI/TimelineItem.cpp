@@ -150,6 +150,7 @@ namespace tl
             float y =
                 p.size.margin +
                 p.size.fontMetrics.lineHeight +
+                p.size.margin +
                 p.size.border * 4 +
                 p.size.margin +
                 p.size.border +
@@ -194,6 +195,7 @@ namespace tl
                 p.size.margin,
                 p.size.margin +
                 p.size.fontMetrics.lineHeight +
+                p.size.margin +
                 p.size.border * 4 +
                 p.size.margin +
                 p.size.border +
@@ -230,6 +232,7 @@ namespace tl
             int h =
                 p.size.margin +
                 p.size.fontMetrics.lineHeight +
+                p.size.margin +
                 p.size.border * 4 +
                 p.size.margin;
             event.render->drawRect(
@@ -374,7 +377,8 @@ namespace tl
                     g.min.y +
                     p.size.margin,
                     x1 - x0 + 1,
-                    p.size.fontMetrics.lineHeight);
+                    p.size.fontMetrics.lineHeight +
+                    p.size.margin);
                 event.render->drawRect(
                     bbox,
                     imaging::Color4f(1.F, .7F, .2F, .1F));
@@ -438,6 +442,7 @@ namespace tl
                         p.size.margin,
                         2,
                         p.size.fontMetrics.lineHeight +
+                        p.size.margin +
                         p.size.border * 4);
                     if (bbox.intersects(drawRect))
                     {
@@ -589,7 +594,8 @@ namespace tl
                     p.size.scrollPos.y +
                     g.min.y +
                     p.size.margin +
-                    p.size.fontMetrics.lineHeight,
+                    p.size.fontMetrics.lineHeight +
+                    p.size.margin,
                     x1 - x0 + 1,
                     p.size.border * 2);
                 if (bbox.intersects(drawRect))
@@ -624,6 +630,7 @@ namespace tl
                     g.min.y +
                     p.size.margin +
                     p.size.fontMetrics.lineHeight +
+                    p.size.margin +
                     p.size.border * 2,
                     x1 - x0 + 1,
                     p.size.border * 2);
