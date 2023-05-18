@@ -39,9 +39,9 @@ namespace tl
                 std::shared_ptr<ui::ButtonGroup> playbackButtonGroup;
                 std::shared_ptr<ui::ButtonGroup> frameButtonGroup;
                 std::shared_ptr<ui::TimeEdit> currentTimeEdit;
+                std::shared_ptr<ui::FloatEdit> speedEdit;
                 std::shared_ptr<ui::TimeLabel> durationLabel;
                 std::shared_ptr<ui::ComboBox> timeUnitsComboBox;
-                std::shared_ptr<ui::FloatEdit> speedEdit;
                 std::shared_ptr<ui::Splitter> splitter;
                 std::shared_ptr<ui::RowLayout> layout;
 
@@ -103,6 +103,9 @@ namespace tl
                 p.currentTimeEdit = ui::TimeEdit::create(p.timeUnitsModel, context);
                 auto currentTimeIncButtons = ui::IncButtons::create(context);
 
+                p.speedEdit = ui::FloatEdit::create(p.speedModel, context);
+                auto speedIncButtons = ui::FloatIncButtons::create(p.speedModel, context);
+
                 p.durationLabel = ui::TimeLabel::create(p.timeUnitsModel, context);
                 p.durationLabel->setValue(player->getTimeRange().duration());
 
@@ -110,9 +113,6 @@ namespace tl
                 p.timeUnitsComboBox->setItems(timeline::getTimeUnitsLabels());
                 p.timeUnitsComboBox->setCurrentIndex(
                     static_cast<int>(p.timeUnitsModel->getTimeUnits()));
-
-                p.speedEdit = ui::FloatEdit::create(p.speedModel, context);
-                auto speedIncButtons = ui::FloatIncButtons::create(p.speedModel, context);
 
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
                 p.layout->setSpacingRole(ui::SizeRole::None);
@@ -136,12 +136,12 @@ namespace tl
                 hLayout2->setSpacingRole(ui::SizeRole::SpacingTool);
                 p.currentTimeEdit->setParent(hLayout2);
                 currentTimeIncButtons->setParent(hLayout2);
-                p.durationLabel->setParent(hLayout);
-                p.timeUnitsComboBox->setParent(hLayout);
                 hLayout2 = ui::HorizontalLayout::create(context, hLayout);
                 hLayout2->setSpacingRole(ui::SizeRole::SpacingTool);
                 p.speedEdit->setParent(hLayout2);
                 speedIncButtons->setParent(hLayout2);
+                p.durationLabel->setParent(hLayout);
+                p.timeUnitsComboBox->setParent(hLayout);
 
                 p.currentTimeEdit->setCallback(
                     [player](const otime::RationalTime& value)

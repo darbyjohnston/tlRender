@@ -94,10 +94,10 @@ namespace tl
             qtwidget::TimelineViewport* timelineViewport = nullptr;
             qtwidget::TimelineWidget* timelineWidget = nullptr;
             qtwidget::TimeSpinBox* currentTimeSpinBox = nullptr;
-            qtwidget::TimeLabel* durationLabel = nullptr;
-            QComboBox* timeUnitsComboBox = nullptr;
             QDoubleSpinBox* speedSpinBox = nullptr;
             QToolButton* speedButton = nullptr;
+            qtwidget::TimeLabel* durationLabel = nullptr;
+            QComboBox* timeUnitsComboBox = nullptr;
             QSlider* volumeSlider = nullptr;
             FilesTool* filesTool = nullptr;
             CompareTool* compareTool = nullptr;
@@ -224,9 +224,19 @@ namespace tl
             p.currentTimeSpinBox = new qtwidget::TimeSpinBox;
             p.currentTimeSpinBox->setTimeObject(app->timeObject());
             p.currentTimeSpinBox->setToolTip(tr("Current time"));
+            p.speedSpinBox = new QDoubleSpinBox;
+            p.speedSpinBox->setRange(0.0, 120.0);
+            p.speedSpinBox->setSingleStep(1.0);
+            const QFont fixedFont("Noto Mono");
+            p.speedSpinBox->setFont(fixedFont);
+            p.speedSpinBox->setToolTip(tr("Timeline speed (frames per second)"));
+            p.speedButton = new QToolButton;
+            p.speedButton->setText(tr("FPS"));
+            p.speedButton->setPopupMode(QToolButton::InstantPopup);
+            p.speedButton->setMenu(p.playbackActions->speedMenu());
+            p.speedButton->setToolTip(tr("Playback speed"));
             p.durationLabel = new qtwidget::TimeLabel;
             p.durationLabel->setTimeObject(app->timeObject());
-            const QFont fixedFont("Noto Mono");
             p.durationLabel->setFont(fixedFont);
             p.durationLabel->setToolTip(tr("Timeline duration"));
             p.durationLabel->setContentsMargins(5, 0, 5, 0);
@@ -237,16 +247,6 @@ namespace tl
             }
             p.timeUnitsComboBox->setCurrentIndex(static_cast<int>(app->timeObject()->timeUnits()));
             p.timeUnitsComboBox->setToolTip(tr("Time units"));
-            p.speedSpinBox = new QDoubleSpinBox;
-            p.speedSpinBox->setRange(0.0, 120.0);
-            p.speedSpinBox->setSingleStep(1.0);
-            p.speedSpinBox->setFont(fixedFont);
-            p.speedSpinBox->setToolTip(tr("Timeline speed (frames per second)"));
-            p.speedButton = new QToolButton;
-            p.speedButton->setText(tr("FPS"));
-            p.speedButton->setPopupMode(QToolButton::InstantPopup);
-            p.speedButton->setMenu(p.playbackActions->speedMenu());
-            p.speedButton->setToolTip(tr("Playback speed"));
             p.volumeSlider = new QSlider(Qt::Horizontal);
             p.volumeSlider->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
             p.volumeSlider->setToolTip(tr("Audio volume"));
@@ -264,10 +264,10 @@ namespace tl
             bottomToolBar->addAction(p.playbackActions->actions()["FrameNext"]);
             bottomToolBar->addAction(p.playbackActions->actions()["End"]);
             bottomToolBar->addWidget(p.currentTimeSpinBox);
-            bottomToolBar->addWidget(p.durationLabel);
-            bottomToolBar->addWidget(p.timeUnitsComboBox);
             bottomToolBar->addWidget(p.speedSpinBox);
             bottomToolBar->addWidget(p.speedButton);
+            bottomToolBar->addWidget(p.durationLabel);
+            bottomToolBar->addWidget(p.timeUnitsComboBox);
             bottomToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
             bottomToolBar->addAction(p.audioActions->actions()["Mute"]);
             bottomToolBar->addWidget(p.volumeSlider);
@@ -577,15 +577,6 @@ namespace tl
                 });
 
             connect(
-                p.timeUnitsComboBox,
-                QOverload<int>::of(&QComboBox::currentIndexChanged),
-                [app](int value)
-                {
-                    app->timeObject()->setTimeUnits(
-                        static_cast<timeline::TimeUnits>(value));
-                });
-
-            connect(
                 p.speedSpinBox,
                 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 [this](double value)
@@ -594,6 +585,15 @@ namespace tl
                     {
                         _p->timelinePlayers[0]->setSpeed(value);
                     }
+                });
+
+            connect(
+                p.timeUnitsComboBox,
+                QOverload<int>::of(&QComboBox::currentIndexChanged),
+                [app](int value)
+                {
+                    app->timeObject()->setTimeUnits(
+                        static_cast<timeline::TimeUnits>(value));
                 });
 
             connect(
@@ -1018,13 +1018,13 @@ namespace tl
                     p.currentTimeSpinBox->setValue(p.timelinePlayers[0]->currentTime());
                 }
 
-                const auto& timeRange = p.timelinePlayers[0]->timeRange();
-                p.durationLabel->setValue(timeRange.duration());
-
                 {
                     QSignalBlocker blocker(p.speedSpinBox);
                     p.speedSpinBox->setValue(p.timelinePlayers[0]->speed());
                 }
+
+                const auto& timeRange = p.timelinePlayers[0]->timeRange();
+                p.durationLabel->setValue(timeRange.duration());
 
                 {
                     QSignalBlocker blocker(p.volumeSlider);
@@ -1038,12 +1038,12 @@ namespace tl
                     p.currentTimeSpinBox->setValue(time::invalidTime);
                 }
 
-                p.durationLabel->setValue(time::invalidTime);
-
                 {
                     QSignalBlocker blocker(p.speedSpinBox);
                     p.speedSpinBox->setValue(0.0);
                 }
+
+                p.durationLabel->setValue(time::invalidTime);
 
                 {
                     QSignalBlocker blocker(p.volumeSlider);
