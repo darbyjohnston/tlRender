@@ -49,6 +49,7 @@ namespace tl
             Pressed,
             Checked,
             KeyFocus,
+            Overlay,
             Red,
             Green,
             Blue,

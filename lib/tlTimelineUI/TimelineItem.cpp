@@ -6,6 +6,8 @@
 
 #include <tlTimelineUI/TrackItem.h>
 
+#include <tlUI/ScrollArea.h>
+
 #include <tlTimeline/Util.h>
 
 #include <tlCore/StringFormat.h>
@@ -28,7 +30,9 @@ namespace tl
             {
                 int margin = 0;
                 int spacing = 0;
+                int border = 0;
                 imaging::FontMetrics fontMetrics;
+                math::Vector2i scrollPos;
             };
             SizeData size;
 
@@ -148,9 +152,8 @@ namespace tl
                 p.size.fontMetrics.lineHeight +
                 p.size.spacing +
                 p.size.fontMetrics.lineHeight +
-                p.size.spacing +
-                p.size.fontMetrics.lineHeight +
-                p.size.spacing;
+                p.size.margin +
+                p.size.margin;
             for (const auto& child : _children)
             {
                 const auto& sizeHint = child->getSizeHint();
@@ -161,6 +164,11 @@ namespace tl
                     sizeHint.y));
                 y += sizeHint.y;// +_spacing;
             }
+
+            if (auto scrollArea = getParentT<ui::ScrollArea>())
+            {
+                p.size.scrollPos = scrollArea->getScrollPos();
+            }
         }
 
         void TimelineItem::sizeHintEvent(const ui::SizeHintEvent& event)
@@ -170,6 +178,8 @@ namespace tl
 
             p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
             p.size.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
+            p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
+
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
 
             int childrenHeight = 0;
@@ -190,9 +200,8 @@ namespace tl
                 p.size.fontMetrics.lineHeight +
                 p.size.spacing +
                 p.size.fontMetrics.lineHeight +
-                p.size.spacing +
-                p.size.fontMetrics.lineHeight +
-                p.size.spacing +
+                p.size.margin +
+                p.size.margin +
                 childrenHeight +
                 p.size.margin);
         }
@@ -210,11 +219,34 @@ namespace tl
             }
         }
 
-        void TimelineItem::drawEvent(
+        void TimelineItem::drawOverlayEvent(
             const math::BBox2i& drawRect,
             const ui::DrawEvent& event)
         {
-            IItem::drawEvent(drawRect, event);
+            IItem::drawOverlayEvent(drawRect, event);
+            TLRENDER_P();
+
+            const math::BBox2i& g = _geometry;
+
+            int y =
+                p.size.scrollPos.y +
+                g.min.y;
+            int h =
+                p.size.margin +
+                p.size.fontMetrics.lineHeight +
+                p.size.spacing +
+                p.size.fontMetrics.lineHeight +
+                p.size.margin;
+            event.render->drawRect(
+                math::BBox2i(g.min.x, y, g.w(), h),
+                event.style->getColorRole(ui::ColorRole::Base));
+
+            y = y + h - p.size.border;
+            h = p.size.border;
+            event.render->drawRect(
+                math::BBox2i(g.min.x, y, g.w(), h),
+                event.style->getColorRole(ui::ColorRole::Border));
+
             _drawTimeTicks(drawRect, event);
             _drawCurrentTime(drawRect, event);
         }
@@ -375,19 +407,20 @@ namespace tl
                 for (double t = 0.0; t < duration; t += seconds)
                 {
                     const int y =
+                        p.size.scrollPos.y +
                         g.min.y +
                         p.size.margin +
                         p.size.fontMetrics.lineHeight +
                         p.size.spacing;
+                    const int h =
+                        p.size.fontMetrics.lineHeight;
                     math::BBox2i bbox(
                         g.min.x +
                         p.size.margin +
                         t / duration * w,
                         y,
                         2,
-                        g.max.y -
-                        p.size.margin -
-                        y);
+                        h);
                     if (bbox.intersects(drawRect))
                     {
                         mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
@@ -533,10 +566,10 @@ namespace tl
             {
                 math::Vector2i pos(
                     _timeToPos(currentTime),
-                    g.min.y +
-                    p.size.margin);
+                    p.size.scrollPos.y +
+                    g.min.y);
 
-                geom::TriangleMesh2 mesh;
+                /*geom::TriangleMesh2 mesh;
                 mesh.v.push_back(math::Vector2f(
                     pos.x -
                     p.size.fontMetrics.lineHeight / 3,
@@ -559,14 +592,22 @@ namespace tl
                 event.render->drawMesh(
                     mesh,
                     math::Vector2i(),
-                    event.style->getColorRole(ui::ColorRole::Text));
+                    event.style->getColorRole(ui::ColorRole::Text));*/
+                event.render->drawRect(
+                    math::BBox2i(
+                        pos.x - p.size.border,
+                        pos.y,
+                        p.size.border * 2,
+                        g.h()),
+                    event.style->getColorRole(ui::ColorRole::Red));
 
                 std::string label = _timeLabel(currentTime, _options.timeUnits);
                 event.render->drawText(
                     event.fontSystem->getGlyphs(label, fontInfo),
                     math::Vector2i(
-                        pos.x,
+                        pos.x + p.size.spacing,
                         pos.y +
+                        p.size.margin +
                         p.size.fontMetrics.ascender),
                     event.style->getColorRole(ui::ColorRole::Text));
             }

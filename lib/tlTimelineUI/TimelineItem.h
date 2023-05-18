@@ -48,7 +48,7 @@ namespace tl
                 const math::BBox2i&,
                 bool,
                 const ui::ClipEvent&) override;
-            void drawEvent(
+            void drawOverlayEvent(
                 const math::BBox2i&,
                 const ui::DrawEvent&) override;
             void enterEvent() override;

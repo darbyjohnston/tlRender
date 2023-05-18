@@ -242,6 +242,13 @@ namespace tl
             }
         }
 
+        void IWidget::drawOverlayEvent(
+            const math::BBox2i&,
+            const DrawEvent&)
+        {
+            _updates &= ~static_cast<int>(Update::Draw);
+        }
+
         void IWidget::enterEvent()
         {}
 

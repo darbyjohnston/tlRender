@@ -26,6 +26,23 @@ namespace tl
             return _children;
         }
 
+        template<typename T>
+        inline std::shared_ptr<T> IWidget::getParentT() const
+        {
+            std::shared_ptr<T> out;
+            auto parent = _parent.lock();
+            while (parent)
+            {
+                if (auto t = std::dynamic_pointer_cast<T>(parent))
+                {
+                    out = t;
+                    break;
+                }
+                parent = parent->_parent.lock();
+            }
+            return out;
+        }
+
         inline const std::weak_ptr<EventLoop>& IWidget::getEventLoop()
         {
             return getTopLevel()->_eventLoop;

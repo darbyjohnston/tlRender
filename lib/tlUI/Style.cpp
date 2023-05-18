@@ -42,6 +42,7 @@ namespace tl
             "Pressed",
             "Checked",
             "KeyFocus",
+            "Overlay",
             "Red",
             "Green",
             "Blue",
@@ -95,6 +96,7 @@ namespace tl
             p.colorRoles[ColorRole::Pressed] = imaging::Color4f(1.F, 1.F, 1.F, .2F);
             p.colorRoles[ColorRole::Checked] = imaging::Color4f(.6F, .4F, .2F);
             p.colorRoles[ColorRole::KeyFocus] = imaging::Color4f(.6F, .6F, .4F);
+            p.colorRoles[ColorRole::Overlay] = imaging::Color4f(0.F, 0.F, 0.F, .5F);
             p.colorRoles[ColorRole::Red] = imaging::Color4f(.6F, .3F, .3F);
             p.colorRoles[ColorRole::Green] = imaging::Color4f(.3F, .6F, .3F);
             p.colorRoles[ColorRole::Blue] = imaging::Color4f(.3F, .3F, .6F);

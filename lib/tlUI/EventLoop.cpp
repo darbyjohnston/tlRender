@@ -651,6 +651,8 @@ namespace tl
                             event);
                     }
                 }
+                event.render->setClipRect(drawRect);
+                widget->drawOverlayEvent(drawRect, event);
             }
         }
 

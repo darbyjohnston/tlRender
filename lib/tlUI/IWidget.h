@@ -55,6 +55,10 @@ namespace tl
             //! Get the children widgets.
             const std::list<std::shared_ptr<IWidget> >& getChildren() const;
 
+            //! Get the first parent widget of the given type.
+            template<typename T>
+            std::shared_ptr<T> getParentT() const;
+
             //! Get the top level widget.
             std::shared_ptr<IWidget> getTopLevel();
 
@@ -185,6 +189,11 @@ namespace tl
 
             //! Draw event.
             virtual void drawEvent(
+                const math::BBox2i&,
+                const DrawEvent&);
+
+            //! Draw overlay event.
+            virtual void drawOverlayEvent(
                 const math::BBox2i&,
                 const DrawEvent&);
 
