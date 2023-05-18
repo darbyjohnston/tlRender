@@ -85,17 +85,17 @@ namespace tl
                 switch (timeUnits)
                 {
                 case timeline::TimeUnits::Seconds:
-                    out = string::Format("{0} @ {1}").
+                    out = string::Format("{0} {1}").
                         arg(value.rescaled_to(1.0).value(), 2).
                         arg(value.rate());
                     break;
                 case timeline::TimeUnits::Frames:
-                    out = string::Format("{0} @ {1}").
+                    out = string::Format("{0} {1}").
                         arg(value.value()).
                         arg(value.rate());
                     break;
                 case timeline::TimeUnits::Timecode:
-                    out = string::Format("{0} @ {1}").
+                    out = string::Format("{0} {1}").
                         arg(value.to_timecode()).
                         arg(value.rate());
                     break;

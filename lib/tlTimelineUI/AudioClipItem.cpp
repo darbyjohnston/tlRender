@@ -28,8 +28,9 @@ namespace tl
             std::vector<file::MemoryRead> memoryRead;
             otime::TimeRange timeRange = time::invalidTimeRange;
             std::string label;
+            ui::FontRole labelFontRole = ui::FontRole::Label;
             std::string durationLabel;
-            ui::FontRole fontRole = ui::FontRole::Label;
+            ui::FontRole durationFontRole = ui::FontRole::Mono;
             bool ioInfoInit = true;
             io::Info ioInfo;
 
@@ -38,6 +39,7 @@ namespace tl
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
+                int lineHeight = 0;
                 math::Vector2i labelSize;
                 math::Vector2i durationSize;
                 int waveformWidth = 0;
@@ -289,9 +291,12 @@ namespace tl
             p.size.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
             p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
 
-            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            const auto fontMetrics = event.getFontMetrics(p.fontRole);
+            auto fontInfo = event.style->getFontRole(p.labelFontRole, event.displayScale);
+            auto fontMetrics = event.getFontMetrics(p.labelFontRole);
+            p.size.lineHeight = fontMetrics.lineHeight;
             p.size.labelSize = event.fontSystem->getSize(p.label, fontInfo);
+            fontInfo = event.style->getFontRole(p.durationFontRole, event.displayScale);
+            fontMetrics = event.getFontMetrics(p.durationFontRole);
             p.size.durationSize = event.fontSystem->getSize(p.durationLabel, fontInfo);
 
             const int waveformWidth = _options.thumbnails ?
@@ -308,7 +313,7 @@ namespace tl
             _sizeHint = math::Vector2i(
                 p.timeRange.duration().rescaled_to(1.0).value() * _scale,
                 p.size.margin +
-                fontMetrics.lineHeight +
+                p.size.lineHeight +
                 p.size.margin);
             if (_options.thumbnails)
             {
@@ -374,8 +379,6 @@ namespace tl
         {
             TLRENDER_P();
 
-            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            const auto fontMetrics = event.getFontMetrics(p.fontRole);
             const math::BBox2i& g = _geometry;
 
             const math::BBox2i labelGeometry(
@@ -384,7 +387,7 @@ namespace tl
                 g.min.y +
                 p.size.margin,
                 p.size.labelSize.x,
-                p.size.labelSize.y);
+                p.size.lineHeight);
             const math::BBox2i durationGeometry(
                 g.max.x -
                 p.size.margin -
@@ -392,7 +395,7 @@ namespace tl
                 g.min.y +
                 p.size.margin,
                 p.size.durationSize.x,
-                p.size.durationSize.y);
+                p.size.lineHeight);
             const bool labelVisible = drawRect.intersects(labelGeometry);
             const bool durationVisible =
                 drawRect.intersects(durationGeometry) &&
@@ -400,6 +403,8 @@ namespace tl
 
             if (labelVisible)
             {
+                const auto fontInfo = event.style->getFontRole(p.labelFontRole, event.displayScale);
+                const auto fontMetrics = event.getFontMetrics(p.labelFontRole);
                 if (!p.label.empty() && p.draw.labelGlyphs.empty())
                 {
                     p.draw.labelGlyphs = event.fontSystem->getGlyphs(p.label, fontInfo);
@@ -415,6 +420,8 @@ namespace tl
 
             if (durationVisible)
             {
+                const auto fontInfo = event.style->getFontRole(p.durationFontRole, event.displayScale);
+                const auto fontMetrics = event.getFontMetrics(p.durationFontRole);
                 if (!p.durationLabel.empty() && p.draw.durationGlyphs.empty())
                 {
                     p.draw.durationGlyphs = event.fontSystem->getGlyphs(p.durationLabel, fontInfo);
@@ -424,6 +431,8 @@ namespace tl
                     math::Vector2i(
                         durationGeometry.min.x,
                         durationGeometry.min.y +
+                        p.size.lineHeight / 2 -
+                        fontMetrics.lineHeight / 2 +
                         fontMetrics.ascender),
                     event.style->getColorRole(ui::ColorRole::Text));
             }
@@ -435,7 +444,6 @@ namespace tl
         {
             TLRENDER_P();
 
-            const auto fontMetrics = event.getFontMetrics(p.fontRole);
             const math::BBox2i& g = _geometry;
             const auto now = std::chrono::steady_clock::now();
 
@@ -444,7 +452,7 @@ namespace tl
                 p.size.margin,
                 g.min.y +
                 p.size.margin +
-                fontMetrics.lineHeight +
+                p.size.lineHeight +
                 p.size.spacing,
                 _sizeHint.x - p.size.margin * 2,
                 _options.waveformHeight);
@@ -487,7 +495,7 @@ namespace tl
                         x,
                         g.min.y +
                         p.size.margin +
-                        fontMetrics.lineHeight +
+                        p.size.lineHeight +
                         p.size.spacing,
                         p.size.waveformWidth,
                         _options.waveformHeight);
