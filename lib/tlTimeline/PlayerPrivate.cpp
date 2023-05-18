@@ -409,7 +409,7 @@ namespace tl
                     otime::RationalTime(p->mutex.audioOffset, 1.0).rescaled_to(p->ioInfo.audio.sampleRate).value();
                 externalTime = p->mutex.externalTime;
             }
-            double speed = 0.F;
+            double speed = 0.0;
             float volume = 1.F;
             bool mute = false;
             std::chrono::steady_clock::time_point muteTimeout;
