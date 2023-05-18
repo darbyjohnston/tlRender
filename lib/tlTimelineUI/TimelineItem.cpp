@@ -10,8 +10,6 @@
 
 #include <tlTimeline/Util.h>
 
-#include <tlCore/StringFormat.h>
-
 namespace tl
 {
     namespace timelineui
@@ -391,9 +389,12 @@ namespace tl
         {
             TLRENDER_P();
 
-            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const math::BBox2i& g = _geometry;
-            const int handle = event.style->getSizeRole(ui::SizeRole::Handle, event.displayScale);
+
+            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+            const std::string labelMax = _timeLabel(p.timeRange.duration(), _options.timeUnits);
+            const math::Vector2i labelMaxSize = event.fontSystem->getSize(labelMax, fontInfo);
+            const int distanceMin = p.size.border + p.size.spacing + labelMaxSize.x;
 
             const int w = _sizeHint.x - p.size.margin * 2;
             const int frameTick = 1.0 /
@@ -406,22 +407,22 @@ namespace tl
                 p.timeRange.duration().rescaled_to(1.0).value() * w;
             double seconds = 0;
             int tick = 0;
-            if (frameTick >= handle)
+            if (frameTick >= distanceMin)
             {
                 seconds = 1.0 / p.timeRange.duration().rate();
                 tick = frameTick;
             }
-            else if (secondsTick >= handle)
+            else if (secondsTick >= distanceMin)
             {
                 seconds = 1.0;
                 tick = secondsTick;
             }
-            else if (minutesTick >= handle)
+            else if (minutesTick >= distanceMin)
             {
                 seconds = 60.0;
                 tick = minutesTick;
             }
-            else if (hoursTick >= handle)
+            else if (hoursTick >= distanceMin)
             {
                 seconds = 3600.0;
                 tick = hoursTick;
@@ -440,7 +441,7 @@ namespace tl
                         p.size.scrollPos.y +
                         g.min.y +
                         p.size.margin,
-                        2,
+                        p.size.border,
                         p.size.fontMetrics.lineHeight +
                         p.size.margin +
                         p.size.border * 4);
@@ -462,117 +463,36 @@ namespace tl
                         math::Vector2i(),
                         event.style->getColorRole(ui::ColorRole::Button));
                 }
-            }
 
-            /*if (frameWidth >= handle)
-            {
-                geom::TriangleMesh2 mesh;
-                size_t i = 1;
-                for (double t = 0.0; t < p.timeRange.duration().value(); t += 1.0)
+                for (double t = 0.0; t < duration; t += seconds)
                 {
-                    math::BBox2i bbox(
+                    const math::BBox2i bbox(
                         g.min.x +
                         p.size.margin +
-                        t / p.timeRange.duration().value() * (_sizeHint.x - p.size.margin * 2),
-                        g.min.y +
-                        p.size.margin +
-                        p.size.fontMetrics.lineHeight +
-                        p.size.spacing +
-                        p.size.fontMetrics.lineHeight / 2,
-                        1,
-                        p.size.fontMetrics.lineHeight / 2);
-                    if (bbox.intersects(drawRect))
-                    {
-                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
-                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));
-                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.max.y + 1));
-                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.max.y + 1));
-                        mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
-                        mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
-                        i += 4;
-                    }
-                }
-                if (!mesh.v.empty())
-                {
-                    event.render->drawMesh(
-                        mesh,
-                        math::Vector2i(),
-                        imaging::Color4f(.6F, .6F, .6F));
-                }
-            }
-
-            if (secondsWidth >= handle)
-            {
-                std::string labelMax = _timeLabel(p.timeRange.end_time_inclusive(), _options.timeUnits);
-                math::Vector2i labelMaxSize = event.fontSystem->getSize(labelMax, fontInfo);
-                if (labelMaxSize.x < (secondsWidth - p.size.spacing))
-                {
-                    for (double t = 0.0;
-                        t < p.timeRange.duration().value();
-                        t += p.timeRange.duration().rate())
-                    {
-                        math::BBox2i bbox(
-                            g.min.x +
-                            p.size.margin +
-                            t / p.timeRange.duration().value() * (_sizeHint.x - p.size.margin * 2),
-                            g.min.y +
-                            p.size.margin +
-                            p.size.fontMetrics.lineHeight +
-                            p.size.spacing +
-                            p.size.fontMetrics.lineHeight +
-                            p.size.spacing,
-                            labelMaxSize.x,
-                            p.size.fontMetrics.lineHeight);
-                        if (bbox.intersects(drawRect))
-                        {
-                            std::string label = _timeLabel(
-                                p.timeRange.start_time() + otime::RationalTime(t, p.timeRange.duration().rate()),
-                                _options.timeUnits);
-                            event.render->drawText(
-                                event.fontSystem->getGlyphs(label, fontInfo),
-                                math::Vector2i(
-                                    bbox.min.x,
-                                    bbox.min.y +
-                                    p.size.fontMetrics.ascender),
-                                event.style->getColorRole(ColorRole::Text));
-                        }
-                    }
-                }
-
-                geom::TriangleMesh2 mesh;
-                size_t i = 1;
-                for (double t = 0.0;
-                    t < p.timeRange.duration().value();
-                    t += p.timeRange.duration().rate())
-                {
-                    math::BBox2i bbox(
-                        g.min.x +
-                        p.size.margin + t / p.timeRange.duration().value() * (_sizeHint.x - p.size.margin * 2),
-                        g.min.y +
-                        p.size.margin +
-                        p.size.fontMetrics.lineHeight +
+                        t / duration * w +
+                        p.size.border +
                         p.size.spacing,
-                        2,
+                        p.size.scrollPos.y +
+                        g.min.y +
+                        p.size.margin,
+                        labelMaxSize.x,
                         p.size.fontMetrics.lineHeight);
                     if (bbox.intersects(drawRect))
                     {
-                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
-                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));
-                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.max.y + 1));
-                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.max.y + 1));
-                        mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
-                        mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
-                        i += 4;
+                        const std::string label = _timeLabel(
+                            p.timeRange.start_time() +
+                            otime::RationalTime(t, 1.0).rescaled_to(p.timeRange.duration().rate()),
+                            _options.timeUnits);
+                        event.render->drawText(
+                            event.fontSystem->getGlyphs(label, fontInfo),
+                            math::Vector2i(
+                                bbox.min.x,
+                                bbox.min.y +
+                                p.size.fontMetrics.ascender),
+                            event.style->getColorRole(ui::ColorRole::Button));
                     }
                 }
-                if (!mesh.v.empty())
-                {
-                    event.render->drawMesh(
-                        mesh,
-                        math::Vector2i(),
-                        imaging::Color4f(.8F, .8F, .8F));
-                }
-            }*/
+            }
         }
 
         void TimelineItem::_drawCacheInfo(
@@ -666,35 +586,11 @@ namespace tl
             const otime::RationalTime& currentTime = p.player->observeCurrentTime()->get();
             if (!time::compareExact(currentTime, time::invalidTime))
             {
-                math::Vector2i pos(
+                const math::Vector2i pos(
                     _timeToPos(currentTime),
                     p.size.scrollPos.y +
                     g.min.y);
 
-                /*geom::TriangleMesh2 mesh;
-                mesh.v.push_back(math::Vector2f(
-                    pos.x -
-                    p.size.fontMetrics.lineHeight / 3,
-                    pos.y +
-                    p.size.fontMetrics.lineHeight +
-                    p.size.spacing));
-                mesh.v.push_back(math::Vector2f(
-                    pos.x +
-                    p.size.fontMetrics.lineHeight / 3,
-                    pos.y +
-                    p.size.fontMetrics.lineHeight +
-                    p.size.spacing));
-                mesh.v.push_back(math::Vector2f(
-                    pos.x,
-                    pos.y +
-                    p.size.fontMetrics.lineHeight +
-                    p.size.spacing +
-                    p.size.fontMetrics.lineHeight / 2));
-                mesh.triangles.push_back(geom::Triangle2({ 1, 2, 3 }));
-                event.render->drawMesh(
-                    mesh,
-                    math::Vector2i(),
-                    event.style->getColorRole(ui::ColorRole::Text));*/
                 event.render->drawRect(
                     math::BBox2i(
                         pos.x - p.size.border,
