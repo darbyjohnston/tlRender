@@ -34,7 +34,7 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            void setScale(float) override;
+            void setScale(double) override;
             void setOptions(const ItemOptions&) override;
 
             void tickEvent(

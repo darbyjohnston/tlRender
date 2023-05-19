@@ -36,11 +36,11 @@ namespace tl
             void setPlayer(const std::shared_ptr<timeline::Player>&);
 
             //! Set the view zoom.
-            void setViewZoom(float);
+            void setViewZoom(double);
 
             //! Set the view zoom.
             void setViewZoom(
-                float,
+                double,
                 const tl::math::Vector2i& focus);
 
             //! Frame the view.
@@ -81,16 +81,16 @@ namespace tl
 
         private:
             void _setViewZoom(
-                float zoomNew,
-                float zoomPrev,
+                double zoomNew,
+                double zoomPrev,
                 const math::Vector2i& focus,
                 const math::Vector2i& scrollPos);
 
-            float _getTimelineScale() const;
+            double _getTimelineScale() const;
 
             void _setItemScale(
                 const std::shared_ptr<IWidget>&,
-                float);
+                double);
             void _setItemOptions(
                 const std::shared_ptr<IWidget>&,
                 const ItemOptions&);

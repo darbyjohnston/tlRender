@@ -126,7 +126,7 @@ namespace tl
             return out;
         }
 
-        void AudioClipItem::setScale(float value)
+        void AudioClipItem::setScale(double value)
         {
             const bool changed = value != _scale;
             IItem::setScale(value);

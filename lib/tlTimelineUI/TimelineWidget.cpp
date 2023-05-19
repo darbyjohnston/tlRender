@@ -17,7 +17,7 @@ namespace tl
             std::function<void(bool)> frameViewCallback;
             bool stopOnScrub = true;
             float mouseWheelScale = 1.1F;
-            float scale = 500.F;
+            double scale = 500.0;
             ItemOptions itemOptions;
 
             std::shared_ptr<ui::ScrollWidget> scrollWidget;
@@ -114,13 +114,13 @@ namespace tl
             }
         }
 
-        void TimelineWidget::setViewZoom(float value)
+        void TimelineWidget::setViewZoom(double value)
         {
             setViewZoom(value, math::Vector2i(_geometry.w() / 2, _geometry.h() / 2));
         }
 
         void TimelineWidget::setViewZoom(
-            float zoom,
+            double zoom,
             const math::Vector2i& focus)
         {
             TLRENDER_P();
@@ -312,12 +312,12 @@ namespace tl
             event.accept = true;
             if (event.dy > 0)
             {
-                const float zoom = p.scale * p.mouseWheelScale;
+                const double zoom = p.scale * p.mouseWheelScale;
                 setViewZoom(zoom, event.pos);
             }
             else
             {
-                const float zoom = p.scale / p.mouseWheelScale;
+                const double zoom = p.scale / p.mouseWheelScale;
                 setViewZoom(zoom, event.pos);
             }
         }
@@ -352,17 +352,17 @@ namespace tl
         }
 
         void TimelineWidget::_setViewZoom(
-            float zoomNew,
-            float zoomPrev,
+            double zoomNew,
+            double zoomPrev,
             const math::Vector2i& focus,
             const math::Vector2i& scrollPos)
         {
             TLRENDER_P();
             const int w = _geometry.w();
             const int h = _geometry.h();
-            const float zoomMin = _getTimelineScale();
-            const float zoomMax = w;
-            const float zoomClamped = math::clamp(zoomNew, zoomMin, zoomMax);
+            const double zoomMin = _getTimelineScale();
+            const double zoomMax = w;
+            const double zoomClamped = math::clamp(zoomNew, zoomMin, zoomMax);
             if (zoomClamped != p.scale)
             {
                 p.scale = zoomClamped;
@@ -370,7 +370,7 @@ namespace tl
                 {
                     _setItemScale(p.timelineItem, p.scale);
                 }
-                const float s = zoomClamped / zoomPrev;
+                const double s = zoomClamped / zoomPrev;
                 const math::Vector2i scrollPosNew(
                     (scrollPos.x + focus.x) * s - focus.x,
                     scrollPos.y);
@@ -380,10 +380,10 @@ namespace tl
             }
         }
 
-        float TimelineWidget::_getTimelineScale() const
+        double TimelineWidget::_getTimelineScale() const
         {
             TLRENDER_P();
-            float out = 100.F;
+            double out = 100.0;
             if (p.player)
             {
                 const otime::TimeRange& timeRange = p.player->getTimeRange();
@@ -399,7 +399,7 @@ namespace tl
 
         void TimelineWidget::_setItemScale(
             const std::shared_ptr<IWidget>& widget,
-            float value)
+            double value)
         {
             if (auto item = std::dynamic_pointer_cast<IItem>(widget))
             {

@@ -123,7 +123,7 @@ namespace tl
             return out;
         }
 
-        void VideoClipItem::setScale(float value)
+        void VideoClipItem::setScale(double value)
         {
             const bool changed = value != _scale;
             IItem::setScale(value);

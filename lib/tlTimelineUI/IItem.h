@@ -51,13 +51,13 @@ namespace tl
         public:
             ~IItem() override;
 
-            virtual void setScale(float);
+            virtual void setScale(double);
             virtual void setOptions(const ItemOptions&);
 
         protected:
             static math::BBox2i _getClipRect(
                 const math::BBox2i&,
-                float scale);
+                double scale);
 
             static std::string _durationLabel(
                 const otime::RationalTime&,
@@ -67,7 +67,7 @@ namespace tl
                 timeline::TimeUnits);
 
             ItemData _data;
-            float _scale = 500.F;
+            double _scale = 500.0;
             ItemOptions _options;
         };
     }

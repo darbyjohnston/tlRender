@@ -44,7 +44,7 @@ namespace tl
         IItem::~IItem()
         {}
 
-        void IItem::setScale(float value)
+        void IItem::setScale(double value)
         {
             if (value == _scale)
                 return;
@@ -64,7 +64,7 @@ namespace tl
 
         math::BBox2i IItem::_getClipRect(
             const math::BBox2i& value,
-            float scale)
+            double scale)
         {
             math::BBox2i out;
             const math::Vector2i c = value.getCenter();

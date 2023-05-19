@@ -54,16 +54,16 @@ namespace tl
             const math::Vector2i& viewPos() const;
 
             //! Get the view zoom.
-            float viewZoom() const;
+            double viewZoom() const;
 
             //! Get whether the view is framed.
             bool hasFrameView() const;
 
             //! Set the view position and zoom.
-            void setViewPosAndZoom(const math::Vector2i&, float);
+            void setViewPosAndZoom(const math::Vector2i&, double);
 
             //! Set the view zoom.
-            void setViewZoom(float, const math::Vector2i& focus = math::Vector2i());
+            void setViewZoom(double, const math::Vector2i& focus = math::Vector2i());
 
             //! Frame the view.
             void frameView();
@@ -79,7 +79,7 @@ namespace tl
 
             //! Set the view position and zoom callback.
             void setViewPosAndZoomCallback(
-                const std::function<void(const math::Vector2i&, float)>&);
+                const std::function<void(const math::Vector2i&, double)>&);
 
             //! Set the frame view callback.
             void setFrameViewCallback(const std::function<void(bool)>&);
