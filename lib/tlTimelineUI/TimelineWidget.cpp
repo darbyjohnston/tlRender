@@ -149,11 +149,11 @@ namespace tl
             TLRENDER_P();
             if (value == p.frameView)
                 return;
-            p.frameView = value;
-            if (p.frameView)
+            if (value)
             {
                 frameView();
             }
+            p.frameView = value;
             if (p.frameViewCallback)
             {
                 p.frameViewCallback(p.frameView);
@@ -341,7 +341,7 @@ namespace tl
                 break;
             case ui::Key::Backspace:
                 event.accept = true;
-                frameView();
+                setFrameView(true);
                 break;
             }
         }
