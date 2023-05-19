@@ -176,11 +176,13 @@ namespace tl
         void RowLayout::childAddedEvent(const ChildEvent&)
         {
             _updates |= Update::Size;
+            _updates |= Update::Draw;
         }
 
         void RowLayout::childRemovedEvent(const ChildEvent&)
         {
             _updates |= Update::Size;
+            _updates |= Update::Draw;
         }
 
         void HorizontalLayout::_init(

@@ -121,7 +121,7 @@ namespace tl
             ///@{
 
             //! Is the widget visible?
-            bool isVisible() const;
+            bool isVisible(bool andParentsVisible = true) const;
 
             //! Set whether the widget is visible.
             virtual void setVisible(bool);
@@ -139,7 +139,7 @@ namespace tl
             ///@{
 
             //! Is the widget enabled?
-            bool isEnabled() const;
+            bool isEnabled(bool andParentsEnabled = true) const;
 
             //! Set whether the widget is enabled.
             virtual void setEnabled(bool);

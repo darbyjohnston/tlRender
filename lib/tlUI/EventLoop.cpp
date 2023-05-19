@@ -335,7 +335,7 @@ namespace tl
                     }
                 }
                 _clipEvent();
-                _p->updates &= ~static_cast<int>(Update::Size);
+                p.updates &= ~static_cast<int>(Update::Size);
             }
 
             if (_getDrawUpdate())
@@ -415,8 +415,8 @@ namespace tl
                 {
                     _tickEvent(
                         widget,
-                        widget->isVisible(),
-                        widget->isEnabled(),
+                        widget->isVisible(false),
+                        widget->isEnabled(false),
                         event);
                 }
             }
@@ -429,8 +429,8 @@ namespace tl
             const TickEvent& event)
         {
             TLRENDER_P();
-            const bool parentsVisible = visible && widget->isVisible();
-            const bool parentsEnabled = enabled && widget->isEnabled();
+            const bool parentsVisible = visible && widget->isVisible(false);
+            const bool parentsEnabled = enabled && widget->isEnabled(false);
             for (const auto& child : widget->getChildren())
             {
                 _tickEvent(
@@ -531,7 +531,7 @@ namespace tl
                     _clipEvent(
                         widget,
                         widget->getGeometry(),
-                        !widget->isVisible(),
+                        !widget->isVisible(false),
                         event);
                 }
             }
@@ -545,7 +545,7 @@ namespace tl
         {
             const math::BBox2i& g = widget->getGeometry();
             clipped |= !g.intersects(clipRect);
-            clipped |= !widget->isVisible();
+            clipped |= !widget->isVisible(false);
             const math::BBox2i clipRect2 = g.intersect(clipRect);
             widget->clipEvent(clipRect2, clipped, event);
             const math::BBox2i childrenClipRect =

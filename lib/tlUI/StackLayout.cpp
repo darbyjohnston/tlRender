@@ -75,13 +75,11 @@ namespace tl
         void StackLayout::childAddedEvent(const ChildEvent& event)
         {
             _widgetUpdate();
-            _updates |= Update::Size;
         }
 
         void StackLayout::childRemovedEvent(const ChildEvent& event)
         {
             _widgetUpdate();
-            _updates |= Update::Size;
         }
 
         void StackLayout::sizeHintEvent(const SizeHintEvent& event)
@@ -119,6 +117,8 @@ namespace tl
             {
                 child->setVisible(child == currentWidget);
             }
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
         }
     }
 }

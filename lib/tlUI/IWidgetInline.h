@@ -78,9 +78,14 @@ namespace tl
             return _geometry;
         }
 
-        inline bool IWidget::isVisible() const
+        inline bool IWidget::isVisible(bool andParentsVisible) const
         {
-            return _visible && _parentsVisible;
+            bool out = _visible;
+            if (andParentsVisible)
+            {
+                out &= _parentsVisible;
+            }
+            return out;
         }
 
         inline bool IWidget::isClipped() const
@@ -93,9 +98,14 @@ namespace tl
             return _geometry;
         }
 
-        inline bool IWidget::isEnabled() const
+        inline bool IWidget::isEnabled(bool andParentsEnabled) const
         {
-            return _enabled && _parentsEnabled;
+            bool out = _enabled;
+            if (andParentsEnabled)
+            {
+                out &= _parentsEnabled;
+            }
+            return _enabled;
         }
 
         inline bool IWidget::acceptsKeyFocus() const

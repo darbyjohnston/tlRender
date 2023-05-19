@@ -73,6 +73,7 @@ namespace tl
             p.gridPos[child].row = row;
             p.gridPos[child].column = column;
             _updates |= Update::Size;
+            _updates |= Update::Draw;
         }
 
         void GridLayout::setMarginRole(SizeRole value)
@@ -82,6 +83,7 @@ namespace tl
                 return;
             p.marginRole = value;
             _updates |= Update::Size;
+            _updates |= Update::Draw;
         }
 
         void GridLayout::setSpacingRole(SizeRole value)
@@ -91,6 +93,7 @@ namespace tl
                 return;
             p.spacingRole = value;
             _updates |= Update::Size;
+            _updates |= Update::Draw;
         }
 
         void GridLayout::setGeometry(const math::BBox2i& value)
@@ -243,6 +246,7 @@ namespace tl
                 p.gridPos.erase(i);
             }
             _updates |= Update::Size;
+            _updates |= Update::Draw;
         }
 
         GridPos GridLayout::Private::getSize() const
