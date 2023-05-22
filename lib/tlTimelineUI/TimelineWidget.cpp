@@ -273,6 +273,7 @@ namespace tl
                 setFrameView(false);
                 break;
             }
+            default: break;
             }
         }
 
@@ -292,10 +293,9 @@ namespace tl
             switch (p.mouse.mode)
             {
             case Private::MouseMode::Scroll:
-            {
                 p.mouse.scrollPos = p.scrollWidget->getScrollPos();
                 break;
-            }
+            default: break;
             }
         }
 
@@ -343,6 +343,7 @@ namespace tl
                 event.accept = true;
                 setFrameView(true);
                 break;
+            default: break;
             }
         }
 

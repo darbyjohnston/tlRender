@@ -409,6 +409,7 @@ namespace tl
             case ui::Key::Backspace:
                 event.accept = true;
                 frameView();
+            default: break;
             }
         }
 

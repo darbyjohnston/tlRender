@@ -675,6 +675,7 @@ namespace tl
                     releaseKeyFocus();
                 }
                 break;
+            default: break;
             }
         }
 

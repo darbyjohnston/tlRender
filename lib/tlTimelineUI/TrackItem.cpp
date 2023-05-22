@@ -64,6 +64,7 @@ namespace tl
                             context,
                             shared_from_this());
                         break;
+                    default: break;
                     }
                     const auto timeRangeOpt = track->trimmed_range_of_child(clip);
                     if (timeRangeOpt.has_value())
@@ -90,6 +91,7 @@ namespace tl
                             context,
                             shared_from_this());
                         break;
+                    default: break;
                     }
                     const auto timeRangeOpt = track->trimmed_range_of_child(gap);
                     if (timeRangeOpt.has_value())

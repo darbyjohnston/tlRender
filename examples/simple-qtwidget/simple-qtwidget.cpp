@@ -17,7 +17,9 @@ int main(int argc, char* argv[])
     // Initialize.
     auto context = tl::system::Context::create();
     tl::qtwidget::init(context);
+#if (QT_VERSION < QT_VERSION_CHECK(6, 5, 0))
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
 
     // Parse the command line.
     if (argc != 2)

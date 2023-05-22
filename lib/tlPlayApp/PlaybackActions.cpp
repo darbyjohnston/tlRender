@@ -102,10 +102,10 @@ namespace tl
             p.actions["FramePrev"]->setToolTip(tr("Go to the previous frame"));
             p.actions["FramePrevX10"] = new QAction(parent);
             p.actions["FramePrevX10"]->setText(tr("Previous Frame X10"));
-            p.actions["FramePrevX10"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Left));
+            p.actions["FramePrevX10"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Left));
             p.actions["FramePrevX100"] = new QAction(parent);
             p.actions["FramePrevX100"]->setText(tr("Previous Frame X100"));
-            p.actions["FramePrevX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left));
+            p.actions["FramePrevX100"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Left));
             p.actions["FrameNext"] = new QAction(parent);
             p.actions["FrameNext"]->setText(tr("Next Frame"));
             p.actions["FrameNext"]->setIcon(QIcon(":/Icons/FrameNext.svg"));
@@ -113,23 +113,23 @@ namespace tl
             p.actions["FrameNext"]->setToolTip(tr("Go to the next frame"));
             p.actions["FrameNextX10"] = new QAction(parent);
             p.actions["FrameNextX10"]->setText(tr("Next Frame X10"));
-            p.actions["FrameNextX10"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Right));
+            p.actions["FrameNextX10"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Right));
             p.actions["FrameNextX100"] = new QAction(parent);
             p.actions["FrameNextX100"]->setText(tr("Next Frame X100"));
-            p.actions["FrameNextX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
+            p.actions["FrameNextX100"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Right));
 
             p.actions["SetInPoint"] = new QAction(parent);
             p.actions["SetInPoint"]->setText(tr("Set In Point"));
             p.actions["SetInPoint"]->setShortcut(QKeySequence(Qt::Key_I));
             p.actions["ResetInPoint"] = new QAction(parent);
             p.actions["ResetInPoint"]->setText(tr("Reset In Point"));
-            p.actions["ResetInPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_I));
+            p.actions["ResetInPoint"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_I));
             p.actions["SetOutPoint"] = new QAction(parent);
             p.actions["SetOutPoint"]->setText(tr("Set Out Point"));
             p.actions["SetOutPoint"]->setShortcut(QKeySequence(Qt::Key_O));
             p.actions["ResetOutPoint"] = new QAction(parent);
             p.actions["ResetOutPoint"]->setText(tr("Reset Out Point"));
-            p.actions["ResetOutPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_O));
+            p.actions["ResetOutPoint"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_O));
 
             p.actions["FocusCurrentFrame"] = new QAction(parent);
             p.actions["FocusCurrentFrame"]->setText(tr("Focus Current Frame"));

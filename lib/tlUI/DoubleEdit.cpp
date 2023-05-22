@@ -160,6 +160,7 @@ namespace tl
                     event.accept = true;
                     p.model->decrementLargeStep();
                     break;
+                default: break;
                 }
             }
         }

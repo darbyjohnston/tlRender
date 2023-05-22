@@ -160,6 +160,7 @@ namespace tl
                         p.value -
                         otime::RationalTime(p.value.rate(), p.value.rate()));
                     break;
+                default: break;
                 }
             }
         }

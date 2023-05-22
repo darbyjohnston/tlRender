@@ -219,6 +219,7 @@ namespace tl
                         }
                         break;
                     }
+                    default: break;
                     }
                 }
                 return out;

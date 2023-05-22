@@ -99,6 +99,7 @@ namespace tl
                         arg(value.to_timecode()).
                         arg(value.rate());
                     break;
+                default: break;
                 }
             }
             return out;
@@ -122,6 +123,7 @@ namespace tl
                 case timeline::TimeUnits::Timecode:
                     out = string::Format("{0}").arg(value.to_timecode());
                     break;
+                default: break;
                 }
             }
             return out;

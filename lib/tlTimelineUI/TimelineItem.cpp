@@ -347,6 +347,7 @@ namespace tl
                     event.accept = true;
                     p.player->timeAction(timeline::TimeAction::End);
                     break;
+                default: break;
                 }
             }
         }
