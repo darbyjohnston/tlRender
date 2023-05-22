@@ -66,7 +66,7 @@ namespace tl
                 1.F,
                 Imf::INCREASING_Y,
                 toImf(_compression));
-            addDwaCompressionLevel(header, _dwaCompressionLevel);
+            header.dwaCompressionLevel() = _dwaCompressionLevel;
             writeTags(image->getTags(), io::sequenceDefaultSpeed, header);
             Imf::RgbaOutputFile f(fileName.c_str(), header);
             const size_t scanlineSize = static_cast<size_t>(info.size.w) * 4 * 2;
