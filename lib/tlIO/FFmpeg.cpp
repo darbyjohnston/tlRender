@@ -148,6 +148,16 @@ namespace tl
             return timecode;
         }
 
+        Packet::Packet()
+        {
+            p = av_packet_alloc();
+        }
+
+        Packet::~Packet()
+        {
+            av_packet_free(&p);
+        }
+
         std::string getErrorLabel(int r)
         {
             char buf[string::cBufferSize];
