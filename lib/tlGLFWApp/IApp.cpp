@@ -397,7 +397,16 @@ namespace tl
         void IApp::_cursorPosCallback(GLFWwindow* glfwWindow, double x, double y)
         {
             IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
-            app->_p->eventLoop->cursorPos(math::Vector2i(x, y));
+            math::Vector2i pos;
+#if defined(__APPLE__)
+            //! \bug The mouse position needs to be scaled on macOS?
+            pos.x = x * app->_p->contentScale.x;
+            pos.y = y * app->_p->contentScale.y;
+#else // __APPLE__
+            pos.x = x;
+            pos.y = y;
+#endif // __APPLE__
+            app->_p->eventLoop->cursorPos(pos);
         }
 
         void IApp::_mouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods)
