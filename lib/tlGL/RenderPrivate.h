@@ -154,6 +154,20 @@ namespace tl
             std::map<std::string, std::shared_ptr<gl::VBO> > vbos;
             std::map<std::string, std::shared_ptr<gl::VAO> > vaos;
 
+            std::chrono::steady_clock::time_point timer;
+            struct Stats
+            {
+                int time = 0;
+                size_t rects = 0;
+                size_t meshes = 0;
+                size_t meshTriangles = 0;
+                size_t text = 0;
+                size_t textTriangles = 0;
+                size_t textures = 0;
+                size_t images = 0;
+            };
+            Stats currentStats;
+            std::list<Stats> stats;
             std::chrono::steady_clock::time_point logTimer;
 
             void drawTextMesh(const geom::TriangleMesh2&);

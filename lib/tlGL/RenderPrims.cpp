@@ -17,6 +17,7 @@ namespace tl
             const imaging::Color4f& color)
         {
             TLRENDER_P();
+            ++(p.currentStats.rects);
 
             p.shaders["rect"]->bind();
             p.shaders["rect"]->setUniform("color", color);
@@ -40,6 +41,9 @@ namespace tl
             const imaging::Color4f& color)
         {
             TLRENDER_P();
+            ++(p.currentStats.meshes);
+            p.currentStats.meshTriangles += mesh.triangles.size();
+
             const size_t size = mesh.triangles.size();
             if (size > 0)
             {
@@ -81,6 +85,8 @@ namespace tl
         {
             if (!mesh.triangles.empty())
             {
+                currentStats.textTriangles += mesh.triangles.size();
+
                 const size_t size = mesh.triangles.size();
                 if (!vbos["text"] || (vbos["text"] && vbos["text"]->getSize() != size * 3))
                 {
@@ -109,6 +115,7 @@ namespace tl
             const imaging::Color4f& color)
         {
             TLRENDER_P();
+            ++(p.currentStats.text);
 
             p.shaders["text"]->bind();
             p.shaders["text"]->setUniform("color", color);
@@ -159,7 +166,6 @@ namespace tl
                             glBindTexture(GL_TEXTURE_2D, textures[textureIndex]);
 
                             p.drawTextMesh(mesh);
-
                             mesh = geom::TriangleMesh2();
                             meshIndex = 0;
                         }
@@ -213,6 +219,7 @@ namespace tl
             const imaging::Color4f& color)
         {
             TLRENDER_P();
+            ++(p.currentStats.textures);
 
             p.shaders["texture"]->bind();
             p.shaders["texture"]->setUniform("color", color);
@@ -241,6 +248,7 @@ namespace tl
             const timeline::ImageOptions& imageOptions)
         {
             TLRENDER_P();
+            ++(p.currentStats.images);
 
             const auto& info = image->getInfo();
             auto textures = p.textureCache.get(info, imageOptions.imageFilters);

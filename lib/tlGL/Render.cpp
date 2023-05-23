@@ -374,6 +374,8 @@ namespace tl
         {
             TLRENDER_P();
 
+            p.timer = std::chrono::steady_clock::now();
+
             p.renderSize = renderSize;
             _setColorConfig(colorConfigOptions);
             _setLUT(lutOptions);
@@ -505,19 +507,70 @@ namespace tl
         void Render::end()
         {
             TLRENDER_P();
-            const auto logTime = std::chrono::steady_clock::now();
-            const std::chrono::duration<float> logDiff = logTime - p.logTimer;
+
+            const auto now = std::chrono::steady_clock::now();
+            const auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(now - p.timer);
+            p.currentStats.time = diff.count();
+            p.stats.push_back(p.currentStats);
+            p.currentStats = Private::Stats();
+            while (p.stats.size() > 60)
+            {
+                p.stats.pop_front();
+            }
+
+            const std::chrono::duration<float> logDiff = now - p.logTimer;
             if (logDiff.count() > 10.F)
             {
-                p.logTimer = logTime;
+                p.logTimer = now;
                 if (auto context = _context.lock())
                 {
+                    Private::Stats average;
+                    const size_t size = p.stats.size();
+                    if (size > 0)
+                    {
+                        for (const auto& i : p.stats)
+                        {
+                            average.time += i.time;
+                            average.rects += i.rects;
+                            average.meshes += i.meshes;
+                            average.meshTriangles += i.meshTriangles;
+                            average.text += i.text;
+                            average.textTriangles += i.textTriangles;
+                            average.textures += i.textures;
+                            average.images += i.images;
+                        }
+                        average.time /= p.stats.size();
+                        average.rects /= p.stats.size();
+                        average.meshes /= p.stats.size();
+                        average.meshTriangles /= p.stats.size();
+                        average.text /= p.stats.size();
+                        average.textTriangles /= p.stats.size();
+                        average.textures /= p.stats.size();
+                        average.images /= p.stats.size();
+                    }
+
                     context->log(
                         string::Format("tl::gl::Render {0}").arg(this),
                         string::Format(
                             "\n"
-                            "    Glyph texture atlas: {0}%\n"
-                            "    Glyph IDs: {1}\n").
+                            "    Average render time: {0}ms\n"
+                            "    Average rectangle count: {1}\n"
+                            "    Average mesh count: {2}\n"
+                            "    Average mesh triangles: {3}\n"
+                            "    Average text count: {4}\n"
+                            "    Average text triangles: {5}\n"
+                            "    Average texture count: {6}\n"
+                            "    Average image count: {7}\n"
+                            "    Glyph texture atlas: {8}%\n"
+                            "    Glyph IDs: {9}").
+                        arg(average.time).
+                        arg(average.rects).
+                        arg(average.meshes).
+                        arg(average.meshTriangles).
+                        arg(average.text).
+                        arg(average.textTriangles).
+                        arg(average.textures).
+                        arg(average.images).
                         arg(p.glyphTextureAtlas->getPercentageUsed()).
                         arg(p.glyphIDs.size()));
                 }
