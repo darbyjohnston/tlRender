@@ -108,15 +108,13 @@ namespace tl
                     TLRENDER_ASSERT(text[i].size() == glyphs.size());
                     for (size_t j = 0; j < text[i].size(); ++j)
                     {
-                        uint16_t width = 0;
-                        uint16_t height = 0;
-                        if (glyphs[j])
+                        imaging::Size size;
+                        if (glyphs[j] && glyphs[j]->image)
                         {
-                            width = glyphs[j]->width;
-                            height = glyphs[j]->height;
+                            size = glyphs[j]->image->getSize();
                         }
                         std::stringstream ss;
-                        ss << "Glyph '" << text[i][j] << "' size: " << width << "," << height;
+                        ss << "Glyph '" << text[i][j] << "' size: " << size;
                         _print(ss.str());
                     }
                     {
