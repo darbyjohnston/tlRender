@@ -353,6 +353,7 @@ namespace tl
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
+                imaging::FontInfo fontInfo;
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
             };
@@ -549,24 +550,25 @@ namespace tl
             p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
 
-            _sizeHint = math::Vector2i();
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
-            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            p.size.textSize = math::Vector2i();
-            for (const auto& i : p.items)
+            auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+            if (fontInfo != p.size.fontInfo)
             {
-                if (!i.text.empty())
+                p.size.fontInfo = fontInfo;
+                p.size.textSize = math::Vector2i();
+                for (const auto& i : p.items)
                 {
-                    const math::Vector2i textSize = event.fontSystem->getSize(i.text, fontInfo);
-                    p.size.textSize.x = std::max(p.size.textSize.x, textSize.x);
-                    p.size.textSize.y = std::max(p.size.textSize.y, textSize.y);
-
-                    _sizeHint.x = std::max(
-                        _sizeHint.x,
-                        p.size.textSize.x + p.size.margin * 2);
-                    _sizeHint.y = p.size.fontMetrics.lineHeight;
+                    if (!i.text.empty())
+                    {
+                        const math::Vector2i textSize = event.fontSystem->getSize(i.text, fontInfo);
+                        p.size.textSize.x = std::max(p.size.textSize.x, textSize.x);
+                        p.size.textSize.y = std::max(p.size.textSize.y, textSize.y);
+                    }
                 }
             }
+
+            _sizeHint.x = p.size.textSize.x + p.size.margin * 2;
+            _sizeHint.y = p.size.fontMetrics.lineHeight;
             if (p.iconImage)
             {
                 _sizeHint.x += p.iconImage->getWidth();
@@ -671,8 +673,7 @@ namespace tl
             {
                 if (p.draw.glyphs.empty())
                 {
-                    const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-                    p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
+                    p.draw.glyphs = event.fontSystem->getGlyphs(p.text, p.size.fontInfo);
                 }
                 const math::Vector2i pos(
                     x + p.size.margin,

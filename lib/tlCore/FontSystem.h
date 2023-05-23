@@ -28,6 +28,7 @@ namespace tl
             uint16_t    size   = 12;
 
             bool operator == (const FontInfo&) const noexcept;
+            bool operator != (const FontInfo&) const noexcept;
             bool operator < (const FontInfo&) const;
         };
 
@@ -49,6 +50,7 @@ namespace tl
             FontInfo fontInfo;
 
             bool operator == (const GlyphInfo&) const noexcept;
+            bool operator != (const GlyphInfo&) const noexcept;
             bool operator < (const GlyphInfo&) const;
         };
 

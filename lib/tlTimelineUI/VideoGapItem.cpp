@@ -23,6 +23,8 @@ namespace tl
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
+                imaging::FontInfo labelFontInfo;
+                imaging::FontInfo durationFontInfo;
                 int lineHeight = 0;
                 math::Vector2i labelSize;
                 math::Vector2i durationSize;
@@ -93,12 +95,19 @@ namespace tl
             p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
 
             auto fontInfo = event.style->getFontRole(p.labelFontRole, event.displayScale);
-            auto fontMetrics = event.getFontMetrics(p.labelFontRole);
-            p.size.lineHeight = fontMetrics.lineHeight;
-            p.size.labelSize = event.fontSystem->getSize(p.label, fontInfo);
+            if (fontInfo != p.size.labelFontInfo)
+            {
+                p.size.labelFontInfo = fontInfo;
+                auto fontMetrics = event.getFontMetrics(p.labelFontRole);
+                p.size.lineHeight = fontMetrics.lineHeight;
+                p.size.labelSize = event.fontSystem->getSize(p.label, fontInfo);
+            }
             fontInfo = event.style->getFontRole(p.durationFontRole, event.displayScale);
-            fontMetrics = event.getFontMetrics(p.durationFontRole);
-            p.size.durationSize = event.fontSystem->getSize(p.durationLabel, fontInfo);
+            if (fontInfo != p.size.durationFontInfo)
+            {
+                p.size.durationFontInfo = fontInfo;
+                p.size.durationSize = event.fontSystem->getSize(p.durationLabel, fontInfo);
+            }
 
             _sizeHint = math::Vector2i(
                 p.timeRange.duration().rescaled_to(1.0).value() * _scale,
@@ -158,12 +167,11 @@ namespace tl
 
             if (labelVisible)
             {
-                const auto fontInfo = event.style->getFontRole(p.labelFontRole, event.displayScale);
-                const auto fontMetrics = event.getFontMetrics(p.labelFontRole);
                 if (!p.label.empty() && p.draw.labelGlyphs.empty())
                 {
-                    p.draw.labelGlyphs = event.fontSystem->getGlyphs(p.label, fontInfo);
+                    p.draw.labelGlyphs = event.fontSystem->getGlyphs(p.label, p.size.labelFontInfo);
                 }
+                const auto fontMetrics = event.getFontMetrics(p.labelFontRole);
                 event.render->drawText(
                     p.draw.labelGlyphs,
                     math::Vector2i(
@@ -175,12 +183,11 @@ namespace tl
 
             if (durationVisible)
             {
-                const auto fontInfo = event.style->getFontRole(p.durationFontRole, event.displayScale);
-                const auto fontMetrics = event.getFontMetrics(p.durationFontRole);
                 if (!p.durationLabel.empty() && p.draw.durationGlyphs.empty())
                 {
-                    p.draw.durationGlyphs = event.fontSystem->getGlyphs(p.durationLabel, fontInfo);
+                    p.draw.durationGlyphs = event.fontSystem->getGlyphs(p.durationLabel, p.size.durationFontInfo);
                 }
+                const auto fontMetrics = event.getFontMetrics(p.durationFontRole);
                 event.render->drawText(
                     p.draw.durationGlyphs,
                     math::Vector2i(

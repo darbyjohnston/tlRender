@@ -20,6 +20,7 @@ namespace tl
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
+                imaging::FontInfo fontInfo;
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
             };
@@ -100,8 +101,12 @@ namespace tl
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
 
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
-            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
+            auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+            if (fontInfo != p.size.fontInfo)
+            {
+                p.size.fontInfo = fontInfo;
+                p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
+            }
 
             _sizeHint = math::Vector2i();
             for (const auto& child : _children)
@@ -140,8 +145,7 @@ namespace tl
 
             if (!p.text.empty() && p.draw.glyphs.empty())
             {
-                const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-                p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
+                p.draw.glyphs = event.fontSystem->getGlyphs(p.text, p.size.fontInfo);
             }
             event.render->drawText(
                 p.draw.glyphs,

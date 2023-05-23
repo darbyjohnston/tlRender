@@ -106,6 +106,7 @@ namespace tl
             {
                 int margin = 0;
                 int border = 0;
+                imaging::FontInfo fontInfo;
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
                 math::Vector2i formatSize;
@@ -264,9 +265,13 @@ namespace tl
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
 
-            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
-            p.size.formatSize = event.fontSystem->getSize(p.format, fontInfo);
+            auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+            if (fontInfo != p.size.fontInfo)
+            {
+                p.size.fontInfo = fontInfo;
+                p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
+                p.size.formatSize = event.fontSystem->getSize(p.format, fontInfo);
+            }
 
             _sizeHint.x =
                 p.size.formatSize.x +
@@ -327,14 +332,13 @@ namespace tl
             event.render->setClipRect(g.margin(-p.size.border * 2));
 
             const math::BBox2i g2 = g.margin(-(p.size.border * 2 + p.size.margin));
-            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             if (p.selection.isValid())
             {
                 const auto selection = p.selection.getSorted();
                 const std::string text0 = p.text.substr(0, selection.first);
-                const int x0 = event.fontSystem->getSize(text0, fontInfo).x;
+                const int x0 = event.fontSystem->getSize(text0, p.size.fontInfo).x;
                 const std::string text1 = p.text.substr(0, selection.second);
-                const int x1 = event.fontSystem->getSize(text1, fontInfo).x;
+                const int x1 = event.fontSystem->getSize(text1, p.size.fontInfo).x;
                 event.render->drawRect(
                     math::BBox2i(g2.x() + x0, g2.y(), x1 - x0, g2.h()),
                     event.style->getColorRole(ColorRole::Checked));
@@ -346,8 +350,8 @@ namespace tl
                 p.size.fontMetrics.ascender);
             if (!p.text.empty() && p.draw.glyphs.empty())
             {
-                p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
-                p.draw.glyphsBBox = event.fontSystem->getBBox(p.text, fontInfo);
+                p.draw.glyphs = event.fontSystem->getGlyphs(p.text, p.size.fontInfo);
+                p.draw.glyphsBBox = event.fontSystem->getBBox(p.text, p.size.fontInfo);
             }
             event.render->drawText(
                 p.draw.glyphs,
@@ -371,7 +375,7 @@ namespace tl
             if (p.cursorVisible)
             {
                 const std::string text = p.text.substr(0, p.cursorPos);
-                const int x = event.fontSystem->getSize(text, fontInfo).x;
+                const int x = event.fontSystem->getSize(text, p.size.fontInfo).x;
                 event.render->drawRect(
                     math::BBox2i(
                         g2.x() + x,

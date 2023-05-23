@@ -14,9 +14,14 @@ namespace tl
             size(size)
         {}
 
-        inline bool FontInfo::operator == (const FontInfo& other) const noexcept
+        inline bool FontInfo::operator == (const FontInfo & other) const noexcept
         {
             return family == other.family && size == other.size;
+        }
+
+        inline bool FontInfo::operator != (const FontInfo& other) const noexcept
+        {
+            return !(*this == other);
         }
 
         inline bool FontInfo::operator < (const FontInfo& other) const
@@ -32,9 +37,14 @@ namespace tl
             fontInfo(fontInfo)
         {}
 
-        inline bool GlyphInfo::operator == (const GlyphInfo& other) const noexcept
+        inline bool GlyphInfo::operator == (const GlyphInfo & other) const noexcept
         {
             return code == other.code && fontInfo == other.fontInfo;
+        }
+
+        inline bool GlyphInfo::operator != (const GlyphInfo& other) const noexcept
+        {
+            return !(*this == other);
         }
 
         inline bool GlyphInfo::operator < (const GlyphInfo& other) const
