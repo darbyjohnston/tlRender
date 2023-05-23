@@ -106,7 +106,7 @@ namespace tl
             {
                 int margin = 0;
                 int border = 0;
-                imaging::FontInfo fontInfo;
+                imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
                 math::Vector2i formatSize;

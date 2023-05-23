@@ -20,7 +20,7 @@ namespace tl
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
-                imaging::FontInfo fontInfo;
+                imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
             };

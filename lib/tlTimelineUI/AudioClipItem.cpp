@@ -39,8 +39,8 @@ namespace tl
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
-                imaging::FontInfo labelFontInfo;
-                imaging::FontInfo durationFontInfo;
+                imaging::FontInfo labelFontInfo = imaging::FontInfo("", 0);
+                imaging::FontInfo durationFontInfo = imaging::FontInfo("", 0);
                 int lineHeight = 0;
                 math::Vector2i labelSize;
                 math::Vector2i durationSize;
