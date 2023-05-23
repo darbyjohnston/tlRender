@@ -124,31 +124,61 @@ namespace tl
             return out;
         }
 
-        int Style::getSizeRole(SizeRole value, float scale) const
+        int Style::getSizeRole(SizeRole role, float scale) const
         {
             TLRENDER_P();
-            const auto i = p.sizeRoles.find(value);
+            const auto i = p.sizeRoles.find(role);
             return (i != p.sizeRoles.end() ? i->second : 0) * scale;
         }
 
-        imaging::Color4f Style::getColorRole(ColorRole value) const
+        void Style::setSizeRole(SizeRole role, int value)
         {
             TLRENDER_P();
-            const auto i = p.colorRoles.find(value);
+            auto i = p.sizeRoles.find(role);
+            if (i != p.sizeRoles.end() && value != i->second)
+            {
+                i->second = value;
+            }
+        }
+
+        imaging::Color4f Style::getColorRole(ColorRole role) const
+        {
+            TLRENDER_P();
+            const auto i = p.colorRoles.find(role);
             return i != p.colorRoles.end() ? i->second : imaging::Color4f();
         }
 
-        imaging::FontInfo Style::getFontRole(FontRole value, float scale) const
+        void Style::setColorRole(ColorRole role, const imaging::Color4f& value)
+        {
+            TLRENDER_P();
+            auto i = p.colorRoles.find(role);
+            if (i != p.colorRoles.end() && value != i->second)
+            {
+                i->second = value;
+            }
+        }
+
+        imaging::FontInfo Style::getFontRole(FontRole role, float scale) const
         {
             TLRENDER_P();
             imaging::FontInfo out;
-            const auto i = p.fontRoles.find(value);
+            const auto i = p.fontRoles.find(role);
             if (i != p.fontRoles.end())
             {
                 out = i->second;
             }
             out.size *= scale;
             return out;
+        }
+
+        void Style::setFontRole(FontRole role, const imaging::FontInfo& value)
+        {
+            TLRENDER_P();
+            const auto i = p.fontRoles.find(role);
+            if (i != p.fontRoles.end() && value != i->second)
+            {
+                i->second = value;
+            }
         }
     }
 }

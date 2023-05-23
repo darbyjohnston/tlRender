@@ -98,11 +98,20 @@ namespace tl
             //! Get a size role.
             int getSizeRole(SizeRole, float scale) const;
 
+            //! Set a size role.
+            void setSizeRole(SizeRole, int);
+
             //! Get a color role.
             imaging::Color4f getColorRole(ColorRole) const;
 
+            //! Set a color role.
+            void setColorRole(ColorRole, const imaging::Color4f&);
+
             //! Get a font role.
             imaging::FontInfo getFontRole(FontRole, float scale) const;
+
+            //! Set a font role.
+            void setFontRole(FontRole, const imaging::FontInfo&);
 
         private:
             TLRENDER_PRIVATE();
