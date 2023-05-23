@@ -42,9 +42,8 @@ namespace tl
         {
             TLRENDER_P();
             ++(p.currentStats.meshes);
-            p.currentStats.meshTriangles += mesh.triangles.size();
-
             const size_t size = mesh.triangles.size();
+            p.currentStats.meshTriangles += mesh.triangles.size();
             if (size > 0)
             {
                 p.shaders["mesh"]->bind();
@@ -59,7 +58,7 @@ namespace tl
 
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-                if (!p.vbos["mesh"] || (p.vbos["mesh"] && p.vbos["mesh"]->getSize() != size * 3))
+                if (!p.vbos["mesh"] || (p.vbos["mesh"] && p.vbos["mesh"]->getSize() < size * 3))
                 {
                     p.vbos["mesh"] = VBO::create(size * 3, VBOType::Pos2_F32);
                     p.vaos["mesh"].reset();
@@ -76,19 +75,18 @@ namespace tl
                 if (p.vaos["mesh"] && p.vbos["mesh"])
                 {
                     p.vaos["mesh"]->bind();
-                    p.vaos["mesh"]->draw(GL_TRIANGLES, 0, p.vbos["mesh"]->getSize());
+                    p.vaos["mesh"]->draw(GL_TRIANGLES, 0, size * 3);
                 }
             }
         }
 
         void Render::Private::drawTextMesh(const geom::TriangleMesh2& mesh)
         {
-            if (!mesh.triangles.empty())
+            const size_t size = mesh.triangles.size();
+            currentStats.textTriangles += size;
+            if (size > 0)
             {
-                currentStats.textTriangles += mesh.triangles.size();
-
-                const size_t size = mesh.triangles.size();
-                if (!vbos["text"] || (vbos["text"] && vbos["text"]->getSize() != size * 3))
+                if (!vbos["text"] || (vbos["text"] && vbos["text"]->getSize() < size * 3))
                 {
                     vbos["text"] = VBO::create(size * 3, VBOType::Pos2_F32_UV_U16);
                     vaos["text"].reset();
@@ -104,7 +102,7 @@ namespace tl
                 if (vaos["text"] && vbos["text"])
                 {
                     vaos["text"]->bind();
-                    vaos["text"]->draw(GL_TRIANGLES, 0, vbos["text"]->getSize());
+                    vaos["text"]->draw(GL_TRIANGLES, 0, size * 3);
                 }
             }
         }

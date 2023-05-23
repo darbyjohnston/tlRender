@@ -381,7 +381,6 @@ namespace tl
             _setLUT(lutOptions);
             p.renderOptions = renderOptions;
             p.textureCache.setSize(renderOptions.textureCacheSize);
-            //p.glyphIDs.clear();
 
             glEnable(GL_BLEND);
             glBlendEquation(GL_FUNC_ADD);
@@ -507,6 +506,13 @@ namespace tl
         void Render::end()
         {
             TLRENDER_P();
+
+            //! \bug Should these be reset periodically?
+            //p.glyphIDs.clear();
+            //p.vbos["mesh"].reset();
+            //p.vaos["mesh"].reset();
+            //p.vbos["text"].reset();
+            //p.vaos["text"].reset();
 
             const auto now = std::chrono::steady_clock::now();
             const auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(now - p.timer);
