@@ -139,10 +139,10 @@ namespace tl
                     }
                     rsbDeltaPrev = glyph->rsbDelta;
 
-                    if (!glyph->data.empty())
+                    if (glyph->image && glyph->image->isValid())
                     {
                         TextureAtlasID id = 0;
-                        const auto i = p.glyphIDs.find(glyph->glyphInfo);
+                        const auto i = p.glyphIDs.find(glyph->info);
                         if (i != p.glyphIDs.end())
                         {
                             id = i->second;
@@ -150,11 +150,8 @@ namespace tl
                         TextureAtlasItem item;
                         if (!p.glyphTextureAtlas->getItem(id, item))
                         {
-                            const imaging::Info info(glyph->width, glyph->height, imaging::PixelType::L_U8);
-                            auto image = imaging::Image::create(info);
-                            memcpy(image->getData(), glyph->data.data(), image->getDataByteCount());
-                            id = p.glyphTextureAtlas->addItem(image, item);
-                            p.glyphIDs[glyph->glyphInfo] = id;
+                            id = p.glyphTextureAtlas->addItem(glyph->image, item);
+                            p.glyphIDs[glyph->info] = id;
                         }
                         if (item.textureIndex != textureIndex)
                         {
@@ -168,7 +165,11 @@ namespace tl
                         }
 
                         const math::Vector2i& offset = glyph->offset;
-                        const math::BBox2i bbox(pos.x + x + offset.x, pos.y - offset.y, glyph->width, glyph->height);
+                        const math::BBox2i bbox(
+                            pos.x + x + offset.x,
+                            pos.y - offset.y,
+                            glyph->image->getWidth(),
+                            glyph->image->getHeight());
                         const auto& min = bbox.min;
                         const auto& max = bbox.max;
 

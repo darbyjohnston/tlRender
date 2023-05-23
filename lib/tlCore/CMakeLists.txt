@@ -17,6 +17,7 @@ set(HEADERS
     FileInfo.h
     FileInfoInline.h
     FontSystem.h
+    FontSystemInline.h
     HDR.h
     HDRInline.h
     ICoreSystem.h

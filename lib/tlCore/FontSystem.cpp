@@ -56,42 +56,6 @@ namespace tl
             return out;
         }
 
-        FontInfo::FontInfo() noexcept
-        {}
-
-        FontInfo::FontInfo(const std::string& family, uint16_t size) :
-            family(family),
-            size(size)
-        {}
-
-        bool FontInfo::operator == (const FontInfo& other) const noexcept
-        {
-            return family == other.family && size == other.size;
-        }
-
-        bool FontInfo::operator < (const FontInfo& other) const
-        {
-            return std::tie(family, size) < std::tie(other.family, other.size);
-        }
-
-        GlyphInfo::GlyphInfo() noexcept
-        {}
-
-        GlyphInfo::GlyphInfo(uint32_t code, const FontInfo& fontInfo) noexcept :
-            code(code),
-            fontInfo(fontInfo)
-        {}
-
-        bool GlyphInfo::operator == (const GlyphInfo& other) const noexcept
-        {
-            return code == other.code && fontInfo == other.fontInfo;
-        }
-
-        bool GlyphInfo::operator < (const GlyphInfo& other) const
-        {
-            return std::tie(code, fontInfo) < std::tie(other.code, other.fontInfo);
-        }
-
         struct FontSystem::Private
         {
             std::shared_ptr<Glyph> getGlyph(uint32_t code, const FontInfo&);
@@ -263,15 +227,14 @@ namespace tl
                         }
 
                         out = std::make_shared<Glyph>();
-                        out->glyphInfo = GlyphInfo(code, fontInfo);
+                        out->info = GlyphInfo(code, fontInfo);
                         auto ftBitmap = i->second->glyph->bitmap;
-                        out->data.resize(ftBitmap.width * ftBitmap.rows);
-                        out->width = ftBitmap.width;
-                        out->height = ftBitmap.rows;
+                        const imaging::Info imageInfo(ftBitmap.width, ftBitmap.rows, imaging::PixelType::L_U8);
+                        out->image = imaging::Image::create(imageInfo);
                         for (size_t y = 0; y < ftBitmap.rows; ++y)
                         {
-                            uint8_t* dataP = out->data.data() + ftBitmap.width * y;
-                            unsigned char* bitmapP = ftBitmap.buffer + y * ftBitmap.pitch;
+                            uint8_t* dataP = out->image->getData() + ftBitmap.width * y;
+                            const unsigned char* bitmapP = ftBitmap.buffer + y * ftBitmap.pitch;
                             for (size_t x = 0; x < ftBitmap.width; ++x)
                             {
                                 dataP[x] = bitmapP[x];
@@ -282,7 +245,7 @@ namespace tl
                         out->lsbDelta = i->second->glyph->lsb_delta;
                         out->rsbDelta = i->second->glyph->rsb_delta;
 
-                        glyphCache.add(out->glyphInfo, out);
+                        glyphCache.add(out->info, out);
                     }
                 }
             }
