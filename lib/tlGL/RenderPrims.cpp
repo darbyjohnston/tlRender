@@ -77,7 +77,7 @@ namespace tl
             }
         }
 
-        void Render::Private::_drawTextMesh(const geom::TriangleMesh2& mesh)
+        void Render::Private::drawTextMesh(const geom::TriangleMesh2& mesh)
         {
             if (!mesh.triangles.empty())
             {
@@ -161,10 +161,9 @@ namespace tl
                             textureIndex = item.textureIndex;
                             glBindTexture(GL_TEXTURE_2D, textures[textureIndex]);
 
-                            p._drawTextMesh(mesh);
-                            mesh.v.clear();
-                            mesh.t.clear();
-                            mesh.triangles.clear();
+                            p.drawTextMesh(mesh);
+
+                            mesh = geom::TriangleMesh2();
                             meshIndex = 0;
                         }
 
@@ -204,7 +203,7 @@ namespace tl
                     x += glyph->advance;
                 }
             }
-            p._drawTextMesh(mesh);
+            p.drawTextMesh(mesh);
         }
 
         void Render::drawTexture(

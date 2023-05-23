@@ -154,7 +154,7 @@ namespace tl
             std::map<std::string, std::shared_ptr<gl::VBO> > vbos;
             std::map<std::string, std::shared_ptr<gl::VAO> > vaos;
 
-            void _drawTextMesh(const geom::TriangleMesh2&);
+            void drawTextMesh(const geom::TriangleMesh2&);
         };
     }
 }
