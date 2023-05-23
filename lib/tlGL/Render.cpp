@@ -341,6 +341,12 @@ namespace tl
         void Render::_init(const std::shared_ptr<system::Context>& context)
         {
             IRender::_init(context);
+            TLRENDER_P();
+            p.glyphTextureAtlas = TextureAtlas::create(
+                1,
+                4096,
+                imaging::PixelType::L_U8,
+                timeline::ImageFilter::Linear);
         }
 
         Render::Render() :
@@ -370,6 +376,7 @@ namespace tl
             _setLUT(lutOptions);
             p.renderOptions = renderOptions;
             p.textureCache.setSize(renderOptions.textureCacheSize);
+            //p.glyphIDs.clear();
 
             glEnable(GL_BLEND);
             glBlendEquation(GL_FUNC_ADD);
@@ -469,8 +476,6 @@ namespace tl
 
             p.vbos["rect"] = VBO::create(2 * 3, VBOType::Pos2_F32);
             p.vaos["rect"] = VAO::create(p.vbos["rect"]->getType(), p.vbos["rect"]->getID());
-            p.vbos["text"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
-            p.vaos["text"] = VAO::create(p.vbos["text"]->getType(), p.vbos["text"]->getID());
             p.vbos["texture"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
             p.vaos["texture"] = VAO::create(p.vbos["texture"]->getType(), p.vbos["texture"]->getID());
             p.vbos["image"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);

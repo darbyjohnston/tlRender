@@ -10,8 +10,7 @@
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Shader.h>
 #include <tlGL/Texture.h>
-
-#include <tlCore/LRUCache.h>
+#include <tlGL/TextureAtlas.h>
 
 #if defined(TLRENDER_OCIO)
 #include <OpenColorIO/OpenColorIO.h>
@@ -150,9 +149,12 @@ namespace tl
             std::map<std::string, std::shared_ptr<Shader> > shaders;
             std::map<std::string, std::shared_ptr<OffscreenBuffer> > buffers;
             TextureCache textureCache;
-            memory::LRUCache<imaging::GlyphInfo, std::shared_ptr<Texture> > glyphTextureCache;
+            std::shared_ptr<TextureAtlas> glyphTextureAtlas;
+            std::map<imaging::GlyphInfo, TextureAtlasID> glyphIDs;
             std::map<std::string, std::shared_ptr<gl::VBO> > vbos;
             std::map<std::string, std::shared_ptr<gl::VAO> > vaos;
+
+            void _drawTextMesh(const geom::TriangleMesh2&);
         };
     }
 }

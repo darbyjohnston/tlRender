@@ -4,6 +4,7 @@ set(HEADERS
     Render.h
     Shader.h
     Texture.h
+    TextureAtlas.h
     Util.h)
 set(PRIVATE_HEADERS
     RenderPrivate.h)
@@ -18,6 +19,7 @@ set(SOURCE
     RenderVideo.cpp
     Shader.cpp
     Texture.cpp
+    TextureAtlas.cpp
     Util.cpp)
 
 set(LIBRARIES tlTimeline)
