@@ -154,6 +154,8 @@ namespace tl
             std::map<std::string, std::shared_ptr<gl::VBO> > vbos;
             std::map<std::string, std::shared_ptr<gl::VAO> > vaos;
 
+            std::chrono::steady_clock::time_point logTimer;
+
             void drawTextMesh(const geom::TriangleMesh2&);
         };
     }

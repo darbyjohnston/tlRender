@@ -342,11 +342,14 @@ namespace tl
         {
             IRender::_init(context);
             TLRENDER_P();
+
             p.glyphTextureAtlas = TextureAtlas::create(
                 1,
                 4096,
                 imaging::PixelType::L_U8,
                 timeline::ImageFilter::Linear);
+
+            p.logTimer = std::chrono::steady_clock::now();
         }
 
         Render::Render() :
@@ -500,7 +503,26 @@ namespace tl
         }
 
         void Render::end()
-        {}
+        {
+            TLRENDER_P();
+            const auto logTime = std::chrono::steady_clock::now();
+            const std::chrono::duration<float> logDiff = logTime - p.logTimer;
+            if (logDiff.count() > 10.F)
+            {
+                p.logTimer = logTime;
+                if (auto context = _context.lock())
+                {
+                    context->log(
+                        string::Format("tl::gl::Render {0}").arg(this),
+                        string::Format(
+                            "\n"
+                            "    Glyph texture atlas: {0}%\n"
+                            "    Glyph IDs: {1}\n").
+                        arg(p.glyphTextureAtlas->getPercentageUsed()).
+                        arg(p.glyphIDs.size()));
+                }
+            }
+        }
 
         imaging::Size Render::getRenderSize() const
         {
