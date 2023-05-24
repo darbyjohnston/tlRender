@@ -136,6 +136,7 @@ namespace tl
                 std::shared_ptr<audio::AudioConvert> convert;
                 std::list<std::shared_ptr<audio::Audio> > buffer;
                 size_t rtAudioCurrentFrame = 0;
+                size_t backwardsSize = std::numeric_limits<size_t>::max();
             };
             AudioThread audioThread;
         };
