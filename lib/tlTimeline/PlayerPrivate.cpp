@@ -522,7 +522,7 @@ namespace tl
                         }
 
                         size_t size = std::min(
-                            getAudioBufferFrameCount(p->playerOptions.audioBufferFrameCount),
+                            p->playerOptions.audioBufferFrameCount,
                             static_cast<size_t>(p->ioInfo.audio.sampleRate - offset));
 
                         if (backwards)

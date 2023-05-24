@@ -134,7 +134,7 @@ namespace tl
                                     auto audioSystem = context->getSystem<audio::System>();
                                     rtParameters.deviceId = audioSystem->getDefaultOutputDevice();
                                     rtParameters.nChannels = p.audioThread.info.channelCount;
-                                    unsigned int rtBufferFrames = getAudioBufferFrameCount(p.playerOptions.audioBufferFrameCount);
+                                    unsigned int rtBufferFrames = p.playerOptions.audioBufferFrameCount;
                                     p.thread.rtAudio->openStream(
                                         &rtParameters,
                                         nullptr,

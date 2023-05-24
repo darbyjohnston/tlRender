@@ -33,7 +33,6 @@ Q_DECLARE_METATYPE(tl::os::EnvListSeparator);
 Q_DECLARE_METATYPE(tl::io::FileType);
 
 Q_DECLARE_METATYPE(tl::timeline::AlphaBlend);
-Q_DECLARE_METATYPE(tl::timeline::AudioBufferFrameCount);
 Q_DECLARE_METATYPE(tl::timeline::Channels);
 Q_DECLARE_METATYPE(tl::timeline::CompareMode);
 Q_DECLARE_METATYPE(tl::timeline::FileSequenceAudio);

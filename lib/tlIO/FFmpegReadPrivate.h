@@ -184,7 +184,7 @@ namespace tl
 
             struct AudioRequest
             {
-                otime::TimeRange time = time::invalidTimeRange;
+                otime::TimeRange timeRange = time::invalidTimeRange;
                 std::promise<io::AudioData> promise;
             };
             struct AudioMutex

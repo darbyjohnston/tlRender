@@ -289,11 +289,11 @@ namespace tl
             return future;
         }
 
-        std::future<io::AudioData> Read::readAudio(const otime::TimeRange& time)
+        std::future<io::AudioData> Read::readAudio(const otime::TimeRange& timeRange)
         {
             TLRENDER_P();
             auto request = std::make_shared<Private::AudioRequest>();
-            request->time = time;
+            request->timeRange = timeRange;
             auto future = request->promise.get_future();
             bool valid = false;
             {
@@ -462,11 +462,12 @@ namespace tl
                         if (p.audioMutex.currentRequest)
                         {
                             if (!time::compareExact(
-                                p.audioMutex.currentRequest->time.start_time(),
+                                p.audioMutex.currentRequest->timeRange.start_time(),
                                 p.audioThread.currentTime))
                             {
                                 seek = true;
-                                p.audioThread.currentTime = p.audioMutex.currentRequest->time.start_time();
+                                p.audioThread.currentTime =
+                                    p.audioMutex.currentRequest->timeRange.start_time();
                             }
                         }
                     }
@@ -488,7 +489,7 @@ namespace tl
                     {
                         std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                         if ((p.audioMutex.currentRequest &&
-                            p.audioMutex.currentRequest->time.duration().rescaled_to(p.info.audio.sampleRate).value() <= bufferSize) ||
+                            p.audioMutex.currentRequest->timeRange.duration().rescaled_to(p.info.audio.sampleRate).value() <= bufferSize) ||
                             (p.audioMutex.currentRequest && !p.readAudio->isValid()) ||
                             (p.audioMutex.currentRequest && p.readAudio->isEOF()))
                         {
@@ -498,8 +499,8 @@ namespace tl
                     if (request)
                     {
                         io::AudioData data;
-                        data.time = request->time.start_time();
-                        data.audio = audio::Audio::create(p.info.audio, request->time.duration().value());
+                        data.time = request->timeRange.start_time();
+                        data.audio = audio::Audio::create(p.info.audio, request->timeRange.duration().value());
                         data.audio->zero();
                         size_t offset = 0;
                         if (data.time < p.info.audioTime.start_time())
@@ -509,7 +510,7 @@ namespace tl
                         p.readAudio->bufferCopy(data.audio->getData() + offset, data.audio->getByteCount() - offset);
                         request->promise.set_value(data);
 
-                        p.audioThread.currentTime += request->time.duration();
+                        p.audioThread.currentTime += request->timeRange.duration();
                     }
                 }
 
