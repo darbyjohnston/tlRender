@@ -21,7 +21,7 @@ jobs:
       TLRENDER_PROGRAMS: ON
       TLRENDER_EXAMPLES: ON
       TLRENDER_TESTS: ON
-      TLRENDER_GCOV: ON
+      TLRENDER_GCOV: OFF
 
     steps:
     - uses: actions/checkout@v2
