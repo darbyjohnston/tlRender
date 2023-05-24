@@ -339,12 +339,16 @@ namespace tl
                         renderSize,
                         p.colorConfigOptions,
                         p.lutOptions); 
-                    p.render->drawVideo(
-                        p.videoData,
-                        timeline::getBBoxes(p.compareOptions.mode, p.timelineSizes),
-                        p.imageOptions,
-                        p.displayOptions,
-                        p.compareOptions);
+                    if (!p.videoData.empty() &&
+                        p.videoData.size() == p.timelineSizes.size())
+                    {
+                        p.render->drawVideo(
+                            p.videoData,
+                            timeline::getBBoxes(p.compareOptions.mode, p.timelineSizes),
+                            p.imageOptions,
+                            p.displayOptions,
+                            p.compareOptions);
+                    }
                     p.render->end();
                 }
             }

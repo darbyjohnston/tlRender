@@ -226,20 +226,22 @@ namespace tl
 
             // Read the timeline.
             _timeline = timeline::Timeline::create(_input, _context);
-            _timelineRange = _timeline->getTimeRange();
+            _timeRange = _timeline->getTimeRange();
             _print(string::Format("Timeline range: {0}-{1}").
-                arg(_timelineRange.start_time().value()).
-                arg(_timelineRange.end_time_inclusive().value()));
+                arg(_timeRange.start_time().value()).
+                arg(_timeRange.end_time_inclusive().value()));
             _print(string::Format("Timeline speed: {0}").arg(_timeRange.duration().rate()));
 
             // Time range.
-            _timeRange = time::isValid(_options.inOutRange) ?
-                _options.inOutRange :
-                _timelineRange;
-            _currentTime = _timeRange.start_time();
+            if (time::isValid(_options.inOutRange))
+            {
+                _timeRange = _options.inOutRange;
+            }
             _print(string::Format("In/out range: {0}-{1}").
                 arg(_timeRange.start_time().value()).
                 arg(_timeRange.end_time_inclusive().value()));
+            _inputTime = _timeRange.start_time();
+            _outputTime = otime::RationalTime(0.0, _timeRange.duration().rate());
 
             // Render information.
             const auto& info = _timeline->getIOInfo();
@@ -365,7 +367,7 @@ namespace tl
                 _renderSize,
                 _options.colorConfigOptions,
                 _options.lutOptions);
-            const auto videoData = _timeline->getVideo(_currentTime).get();
+            const auto videoData = _timeline->getVideo(_inputTime).get();
             _render->drawVideo(
                 { videoData },
                 { math::BBox2i(0, 0, _renderSize.w, _renderSize.h) });
@@ -388,19 +390,20 @@ namespace tl
                 format,
                 type,
                 _outputImage->getData());
-            _writer->writeVideo(_currentTime, _outputImage);
+            _writer->writeVideo(_outputTime, _outputImage);
 
             // Advance the time.
-            _currentTime += otime::RationalTime(1, _currentTime.rate());
-            if (_currentTime > _timeRange.end_time_inclusive())
+            _inputTime += otime::RationalTime(1, _inputTime.rate());
+            if (_inputTime > _timeRange.end_time_inclusive())
             {
                 _running = false;
             }
+            _outputTime += otime::RationalTime(1, _outputTime.rate());
         }
 
         void App::_printProgress()
         {
-            const int64_t c = static_cast<int64_t>(_currentTime.value() - _timeRange.start_time().value());
+            const int64_t c = static_cast<int64_t>(_inputTime.value() - _timeRange.start_time().value());
             const int64_t d = static_cast<int64_t>(_timeRange.duration().value());
             if (d >= 100 && c % (d / 100) == 0)
             {

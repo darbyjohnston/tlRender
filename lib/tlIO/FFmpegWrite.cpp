@@ -10,6 +10,7 @@ extern "C"
 {
 #include <libavcodec/avcodec.h>
 #include <libavutil/imgutils.h>
+#include <libavutil/opt.h>
 }
 
 namespace tl
@@ -124,6 +125,8 @@ namespace tl
             {
                 p.avCodecContext->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
             }
+            p.avCodecContext->thread_count = 0;
+            p.avCodecContext->thread_type = FF_THREAD_FRAME;
 
             r = avcodec_open2(p.avCodecContext, avCodec, NULL);
             if (r < 0)
@@ -196,7 +199,7 @@ namespace tl
                 throw std::runtime_error(string::Format("{0}: Incompatible pixel type").arg(p.fileName));
                 break;
             }
-            p.swsContext = sws_getContext(
+            /*p.swsContext = sws_getContext(
                 videoInfo.size.w,
                 videoInfo.size.h,
                 p.avPixelFormatIn,
@@ -206,7 +209,26 @@ namespace tl
                 swsScaleFlags,
                 0,
                 0,
-                0);
+                0);*/
+            p.swsContext = sws_alloc_context();
+            if (!p.swsContext)
+            {
+                throw std::runtime_error(string::Format("{0}: Cannot allocate context").arg(p.fileName));
+            }
+            av_opt_set_defaults(p.swsContext);
+            r = av_opt_set_int(p.swsContext, "srcw", videoInfo.size.w, AV_OPT_SEARCH_CHILDREN);
+            r = av_opt_set_int(p.swsContext, "srch", videoInfo.size.h, AV_OPT_SEARCH_CHILDREN);
+            r = av_opt_set_int(p.swsContext, "src_format", p.avPixelFormatIn, AV_OPT_SEARCH_CHILDREN);
+            r = av_opt_set_int(p.swsContext, "dstw", videoInfo.size.w, AV_OPT_SEARCH_CHILDREN);
+            r = av_opt_set_int(p.swsContext, "dsth", videoInfo.size.h, AV_OPT_SEARCH_CHILDREN);
+            r = av_opt_set_int(p.swsContext, "dst_format", p.avCodecContext->pix_fmt, AV_OPT_SEARCH_CHILDREN);
+            r = av_opt_set_int(p.swsContext, "sws_flags", swsScaleFlags, AV_OPT_SEARCH_CHILDREN);
+            r = av_opt_set_int(p.swsContext, "threads", 0, AV_OPT_SEARCH_CHILDREN);
+            r = sws_init_context(p.swsContext, nullptr, nullptr);
+            if (r < 0)
+            {
+                throw std::runtime_error(string::Format("{0}: Cannot initialize sws context").arg(p.fileName));
+            }
 
             p.opened = true;
         }

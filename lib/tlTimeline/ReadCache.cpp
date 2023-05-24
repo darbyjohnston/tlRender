@@ -12,7 +12,22 @@ namespace tl
     {
         struct ReadCache::Private
         {
-            memory::LRUCache<std::string, ReadCacheItem> cache;
+            enum class FileNameType
+            {
+                Regular,
+                Sequence
+            };
+
+            static FileNameType getFileNameType(const file::Path& path)
+            {
+                return path.getNumber().empty() ?
+                    FileNameType::Regular :
+                    FileNameType::Sequence;
+            }
+
+            typedef std::pair<std::string, FileNameType> Key;
+
+            memory::LRUCache<Key, ReadCacheItem> cache;
         };
 
         void ReadCache::_init()
@@ -36,12 +51,19 @@ namespace tl
 
         void ReadCache::add(const ReadCacheItem& read)
         {
-            _p->cache.add(read.read->getPath().get(), read);
+            const file::Path& path = read.read->getPath();
+            const Private::Key key(
+                path.get(),
+                Private::getFileNameType(path));
+            _p->cache.add(key, read);
         }
 
-        bool ReadCache::get(const std::string& fileName, ReadCacheItem& out)
+        bool ReadCache::get(const file::Path& path, ReadCacheItem& out)
         {
-            return _p->cache.get(fileName, out);
+            const Private::Key key(
+                path.get(),
+                Private::getFileNameType(path));
+            return _p->cache.get(key, out);
         }
 
         void ReadCache::setMax(size_t value)

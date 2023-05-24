@@ -37,7 +37,7 @@ namespace tl
             void add(const ReadCacheItem&);
 
             //! Get an item from the cache.
-            bool get(const std::string& fileName, ReadCacheItem&);
+            bool get(const file::Path&, ReadCacheItem&);
 
             //! Set the maximum number of read objects.
             void setMax(size_t);

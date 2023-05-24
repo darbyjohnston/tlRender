@@ -276,31 +276,36 @@ namespace tl
 
             event.render->drawRect(g, imaging::Color4f(0.F, 0.F, 0.F));
 
-            const math::BBox2i viewportPrev = event.render->getViewport();
-            const math::Matrix4x4f transformPrev = event.render->getTransform();
+            if (!p.videoData.empty() &&
+                p.videoData.size() == p.timelineSizes.size())
+            {
+                const math::BBox2i viewportPrev = event.render->getViewport();
+                const math::Matrix4x4f transformPrev = event.render->getTransform();
 
-            event.render->setViewport(math::BBox2i(0, 0, g.w(), g.h()));
-            math::Matrix4x4f vm;
-            vm = vm * math::translate(math::Vector3f(p.viewPos.x, p.viewPos.y, 0.F));
-            vm = vm * math::scale(math::Vector3f(p.viewZoom, p.viewZoom, 1.F));
-            const auto pm = math::ortho(
-                0.F,
-                static_cast<float>(g.w()),
-                static_cast<float>(g.h()),
-                0.F,
-                -1.F,
-                1.F);
-            event.render->setTransform(pm * vm);
+                event.render->setViewport(math::BBox2i(0, 0, g.w(), g.h()));
+                math::Matrix4x4f vm;
+                vm = vm * math::translate(math::Vector3f(p.viewPos.x, p.viewPos.y, 0.F));
+                vm = vm * math::scale(math::Vector3f(p.viewZoom, p.viewZoom, 1.F));
+                const auto pm = math::ortho(
+                    0.F,
+                    static_cast<float>(g.w()),
+                    static_cast<float>(g.h()),
+                    0.F,
+                    -1.F,
+                    1.F);
+                event.render->setTransform(pm * vm);
 
-            event.render->drawVideo(
-                p.videoData,
-                timeline::getBBoxes(p.compareOptions.mode, p.timelineSizes),
-                p.imageOptions,
-                p.displayOptions,
-                p.compareOptions);
+                event.render->drawVideo(
+                    p.videoData,
+                    timeline::getBBoxes(p.compareOptions.mode, p.timelineSizes),
+                    p.imageOptions,
+                    p.displayOptions,
+                    p.compareOptions);
 
-            event.render->setViewport(viewportPrev);
-            event.render->setTransform(transformPrev);
+
+                event.render->setViewport(viewportPrev);
+                event.render->setTransform(transformPrev);
+            }
         }
 
         void TimelineViewport::mouseMoveEvent(MouseMoveEvent& event)

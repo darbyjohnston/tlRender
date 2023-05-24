@@ -84,6 +84,10 @@ namespace tl
             }
 
             p.label = p.path.get(-1, false);
+            if (p.label.empty())
+            {
+                p.label = clip->name();
+            }
             _textUpdate();
 
             p.cancelObserver = observer::ValueObserver<bool>::create(
@@ -419,11 +423,11 @@ namespace tl
                             const auto k = p.videoDataFutures.find(time);
                             if (k == p.videoDataFutures.end())
                             {
-                                const auto mediaTime = timeline::mediaTime(
+                                const auto mediaTime = timeline::toVideoMediaTime(
                                     time,
                                     p.track,
                                     p.clip,
-                                    p.ioInfo.videoTime.duration().rate());
+                                    p.ioInfo);
                                 p.videoDataFutures[time] = _data.ioManager->readVideo(p.path, mediaTime);
                             }
                         }

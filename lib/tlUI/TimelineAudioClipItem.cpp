@@ -482,17 +482,12 @@ namespace tl
                             const auto j = p.audioDataFutures.find(time);
                             if (j == p.audioDataFutures.end())
                             {
-                                const otime::RationalTime mediaTime = timeline::mediaTime(
-                                    time,
+                                const otime::TimeRange mediaRange = timeline::toAudioMediaTime(
+                                    otime::TimeRange(time, otime::RationalTime(time.rate(), time.rate())),
                                     p.track,
                                     p.clip,
-                                    p.ioInfo.audioTime.duration().rate());
-                                const otime::TimeRange mediaTimeRange(
-                                    mediaTime,
-                                    otime::RationalTime(
-                                        p.ioInfo.audioTime.duration().rate(),
-                                        p.ioInfo.audioTime.duration().rate()));
-                                p.audioDataFutures[time].future = _data.ioManager->readAudio(p.path, mediaTimeRange);
+                                    p.ioInfo);
+                                p.audioDataFutures[time].future = _data.ioManager->readAudio(p.path, mediaRange);
                                 p.audioDataFutures[time].size = bbox.getSize();
                             }
                         }
