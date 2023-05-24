@@ -238,24 +238,24 @@ namespace tl
                         {
                             if (auto otioItem = dynamic_cast<otio::Item*>(otioChild.value))
                             {
-                                const otime::TimeRange requestTimeRange = otime::TimeRange(
-                                    otime::RationalTime(request->seconds, 1.0) - timeRange.start_time().rescaled_to(1.0),
-                                    otime::RationalTime(1.0, 1.0));
-                                otio::ErrorStatus errorStatus;
-                                const auto rangeOptional = otioItem->trimmed_range_in_parent(&errorStatus);
+                                const auto rangeOptional = otioItem->trimmed_range_in_parent();
                                 if (rangeOptional.has_value())
                                 {
-                                    const auto range = rangeOptional.value();
-                                    if (range.intersects(requestTimeRange))
+                                    const otime::TimeRange clipTimeRange(
+                                        rangeOptional.value().start_time().rescaled_to(1.0),
+                                        rangeOptional.value().duration().rescaled_to(1.0));
+                                    const double start = request->seconds -
+                                        timeRange.start_time().rescaled_to(1.0).value();
+                                    const otime::TimeRange requestTimeRange = otime::TimeRange(
+                                        otime::RationalTime(start, 1.0),
+                                        otime::RationalTime(1.0, 1.0));
+                                    if (requestTimeRange.intersects(clipTimeRange))
                                     {
                                         AudioLayerData audioData;
-                                        const otime::TimeRange clamped = requestTimeRange.clamped(range);
-                                        audioData.timeRange = otime::TimeRange::range_from_start_end_time(
-                                            time::round(clamped.start_time()),
-                                            time::round(clamped.end_time_exclusive()));
+                                        audioData.seconds = request->seconds;
                                         if (auto otioClip = dynamic_cast<const otio::Clip*>(otioItem))
                                         {
-                                            audioData.audio = readAudio(otioTrack, otioClip, audioData.timeRange);
+                                            audioData.audio = readAudio(otioTrack, otioClip, requestTimeRange);
                                         }
                                         request->layerData.push_back(std::move(audioData));
                                     }
@@ -345,7 +345,7 @@ namespace tl
                             if (j.audio.valid())
                             {
                                 const auto audioData = j.audio.get();
-                                layer.audio = padToOneSecond(audioData.audio, j.timeRange);
+                                layer.audio = audioData.audio;
                             }
                             data.layers.push_back(layer);
                         }
@@ -506,38 +506,6 @@ namespace tl
                     clip,
                     ioInfo);
                 out = item.read->readAudio(mediaRange);
-            }
-            return out;
-        }
-
-        std::shared_ptr<audio::Audio> Timeline::Private::padToOneSecond(
-            const std::shared_ptr<audio::Audio>& audio,
-            const otime::TimeRange& timeRange)
-        {
-            std::shared_ptr<audio::Audio> out;
-            if (audio)
-            {
-                std::list<std::shared_ptr<audio::Audio> > list;
-                const auto& info = audio->getInfo();
-                const otime::RationalTime offset = timeRange.start_time() -
-                    time::floor(timeRange.start_time().rescaled_to(1.0)).
-                    rescaled_to(info.sampleRate);
-                if (offset.value() > 0.0)
-                {
-                    auto silence = audio::Audio::create(info, offset.value());
-                    silence->zero();
-                    list.push_back(silence);
-                }
-                list.push_back(audio);
-                const size_t sampleCount = audio::getSampleCount(list);
-                if (sampleCount < info.sampleRate)
-                {
-                    auto silence = audio::Audio::create(info, info.sampleRate - sampleCount);
-                    silence->zero();
-                    list.push_back(silence);
-                }
-                out = audio::Audio::create(info, info.sampleRate);
-                audio::copy(list, out->getData(), out->getByteCount());
             }
             return out;
         }

@@ -30,6 +30,32 @@ namespace tl
             return out;
         }
 
+        std::vector<otime::TimeRange> seconds(const otime::TimeRange& value)
+        {
+            std::vector<otime::TimeRange> out;
+            if (value != invalidTimeRange)
+            {
+                const otime::TimeRange seconds(
+                    value.start_time().rescaled_to(1.0),
+                    value.duration().rescaled_to(1.0));
+                for (double t = std::floor(seconds.start_time().value());
+                    t < std::ceil(seconds.end_time_exclusive().value());
+                    t += 1.0)
+                {
+                    const double start = std::max(t, seconds.start_time().value());
+                    const double end = std::min(t + 1.0, seconds.end_time_exclusive().value());
+                    const otime::TimeRange second(
+                        otime::RationalTime(start, 1.0),
+                        otime::RationalTime(end - start, 1.0));
+                    const otime::TimeRange scaled(
+                        second.start_time().rescaled_to(value.duration().rate()),
+                        second.duration().rescaled_to(value.duration().rate()));
+                    out.push_back(scaled);
+                }
+            }
+            return out;
+        }
+
         std::pair<int, int> toRational(double value)
         {
             const std::array<std::pair<int, int>, 6> common =

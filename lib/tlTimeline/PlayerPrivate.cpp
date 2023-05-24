@@ -494,7 +494,7 @@ namespace tl
                         }
 
                         const size_t size = std::min(
-                            getAudioBufferFrameCount(p->playerOptions.audioBufferFrameCount),
+                            p->playerOptions.audioBufferFrameCount,
                             static_cast<size_t>(p->ioInfo.audio.sampleRate - offset));
                         //std::cout << "size: " << size << std::endl;
                         auto tmp = audio::Audio::create(p->ioInfo.audio, size);

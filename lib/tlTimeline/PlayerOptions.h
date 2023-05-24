@@ -22,26 +22,6 @@ namespace tl
         TLRENDER_ENUM(TimerMode);
         TLRENDER_ENUM_SERIALIZE(TimerMode);
 
-        //! Audio buffer frame counts.
-        enum class AudioBufferFrameCount
-        {
-            _16,
-            _32,
-            _64,
-            _128,
-            _256,
-            _512,
-            _1024,
-
-            Count,
-            First = _16
-        };
-        TLRENDER_ENUM(AudioBufferFrameCount);
-        TLRENDER_ENUM_SERIALIZE(AudioBufferFrameCount);
-
-        //! Get the audio buffer frame count.
-        size_t getAudioBufferFrameCount(AudioBufferFrameCount);
-
         //! Timeline player cache options.
         struct PlayerCacheOptions
         {
@@ -84,7 +64,7 @@ namespace tl
             TimerMode timerMode = TimerMode::System;
 
             //! Audio buffer frame count.
-            AudioBufferFrameCount audioBufferFrameCount = AudioBufferFrameCount::_256;
+            size_t audioBufferFrameCount = 2048;
 
             //! Timeout for muting the audio when playback stutters.
             std::chrono::milliseconds muteTimeout = std::chrono::milliseconds(500);

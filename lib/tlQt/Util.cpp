@@ -86,7 +86,6 @@ namespace tl
 #endif // QT_VERSION
 
             qRegisterMetaType<timeline::AlphaBlend>("tl::timeline::AlphaBlend");
-            qRegisterMetaType<timeline::AudioBufferFrameCount>("tl::timeline::AudioBufferFrameCount");
             qRegisterMetaType<timeline::AudioData>("tl::timeline::AudioData");
             qRegisterMetaType<timeline::AudioLayer>("tl::timeline::AudioLayer");
             qRegisterMetaType<timeline::Channels>("tl::timeline::Channels");
@@ -115,7 +114,6 @@ namespace tl
             qRegisterMetaType<timeline::VideoLayer>("tl::timeline::VideoLayer");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<timeline::AlphaBlend>();
-            QMetaType::registerComparators<timeline::AudioBufferFrameCount>();
             QMetaType::registerComparators<timeline::Channels>();
             QMetaType::registerComparators<timeline::CompareMode>();
             QMetaType::registerComparators<timeline::FileSequenceAudio>();

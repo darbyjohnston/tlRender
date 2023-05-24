@@ -602,8 +602,8 @@ namespace tl
                     playerOptions.cache.readBehind = _cacheReadBehind();
                     playerOptions.timerMode = p.settingsObject->value("Performance/TimerMode").
                         value<timeline::TimerMode>();
-                    playerOptions.audioBufferFrameCount = p.settingsObject->value("Performance/AudioBufferFrameCount").
-                        value<timeline::AudioBufferFrameCount>();
+                    playerOptions.audioBufferFrameCount =
+                        p.settingsObject->value("Performance/AudioBufferFrameCount").toInt();
                     if (item->init)
                     {
                         if (0 == i)

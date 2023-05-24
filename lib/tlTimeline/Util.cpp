@@ -428,8 +428,8 @@ namespace tl
                 }
             }
             const otime::TimeRange mediaRange(
-                time::floor(clipRange.start_time().rescaled_to(ioInfo.audio.sampleRate)),
-                time::ceil(clipRange.duration().rescaled_to(ioInfo.audio.sampleRate)));
+                time::round(clipRange.start_time().rescaled_to(ioInfo.audio.sampleRate)),
+                time::round(clipRange.duration().rescaled_to(ioInfo.audio.sampleRate)));
             return mediaRange;
         }
     }

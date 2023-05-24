@@ -59,6 +59,9 @@ namespace tl
         //! Get the frames in a time range.
         std::vector<otime::RationalTime> frames(const otime::TimeRange&);
 
+        //! Split a time range at into seconds.
+        std::vector<otime::TimeRange> seconds(const otime::TimeRange&);
+
         //! Sleep for the given time.
         void sleep(const std::chrono::microseconds&);
 

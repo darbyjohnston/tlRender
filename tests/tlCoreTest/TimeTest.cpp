@@ -107,14 +107,14 @@ namespace tl
                             otime::RationalTime(0.0, 24.0),
                             otime::RationalTime(1.0, 24.0),
                             otime::RationalTime(2.0, 24.0)
-                        } }),
+                        }}),
                     Data({
                         otime::TimeRange(
                             otime::RationalTime(0.0, 1.0),
                             otime::RationalTime(1.0, 1.0)),
                         {
                             otime::RationalTime(0.0, 1.0)
-                        } }),
+                        }}),
                     Data({
                         otime::TimeRange(
                             otime::RationalTime(0.0, 1.0),
@@ -123,12 +123,112 @@ namespace tl
                             otime::RationalTime(0.0, 1.0),
                             otime::RationalTime(1.0, 1.0),
                             otime::RationalTime(2.0, 1.0)
-                        } })
+                        }})
                 };
                 for (const auto& i : data)
                 {
                     const auto frames = time::frames(i.range);
                     TLRENDER_ASSERT(frames == i.frames);
+                }
+            }
+            {
+                struct Data
+                {
+                    otime::TimeRange range;
+                    std::vector<otime::TimeRange> seconds;
+                };
+                const std::vector<Data> data =
+                {
+                    Data({time::invalidTimeRange, {}}),
+                    Data({
+                        otime::TimeRange(
+                            otime::RationalTime(0.0, 24.0),
+                            otime::RationalTime(24.0, 24.0)),
+                        {
+                            otime::TimeRange(
+                                otime::RationalTime(0.0, 24.0),
+                                otime::RationalTime(24.0, 24.0))
+                        }}),
+                    Data({
+                        otime::TimeRange(
+                            otime::RationalTime(0.0, 24.0),
+                            otime::RationalTime(72.0, 24.0)),
+                        {
+                            otime::TimeRange(
+                                otime::RationalTime(0.0, 24.0),
+                                otime::RationalTime(24.0, 24.0)),
+                            otime::TimeRange(
+                                otime::RationalTime(24.0, 24.0),
+                                otime::RationalTime(24.0, 24.0)),
+                            otime::TimeRange(
+                                otime::RationalTime(48.0, 24.0),
+                                otime::RationalTime(24.0, 24.0))
+                        }}),
+                    Data({
+                        otime::TimeRange(
+                            otime::RationalTime(12.0, 24.0),
+                            otime::RationalTime(12.0, 24.0)),
+                        {
+                            otime::TimeRange(
+                                otime::RationalTime(12.0, 24.0),
+                                otime::RationalTime(12.0, 24.0))
+                        }}),
+                    Data({
+                        otime::TimeRange(
+                            otime::RationalTime(12.0, 24.0),
+                            otime::RationalTime(24.0, 24.0)),
+                        {
+                            otime::TimeRange(
+                                otime::RationalTime(12.0, 24.0),
+                                otime::RationalTime(12.0, 24.0)),
+                            otime::TimeRange(
+                                otime::RationalTime(24.0, 24.0),
+                                otime::RationalTime(12.0, 24.0))
+                        }}),
+                    Data({
+                        otime::TimeRange(
+                            otime::RationalTime(23.0, 24.0),
+                            otime::RationalTime(24.0, 24.0)),
+                        {
+                            otime::TimeRange(
+                                otime::RationalTime(23.0, 24.0),
+                                otime::RationalTime(1.0, 24.0)),
+                            otime::TimeRange(
+                                otime::RationalTime(24.0, 24.0),
+                                otime::RationalTime(23.0, 24.0))
+                        }}),
+                    Data({
+                        otime::TimeRange(
+                            otime::RationalTime(-1.0, 24.0),
+                            otime::RationalTime(24.0, 24.0)),
+                        {
+                            otime::TimeRange(
+                                otime::RationalTime(-1.0, 24.0),
+                                otime::RationalTime(1.0, 24.0)),
+                            otime::TimeRange(
+                                otime::RationalTime(0.0, 24.0),
+                                otime::RationalTime(23.0, 24.0))
+                        }}),
+                    Data({
+                        otime::TimeRange(
+                            otime::RationalTime(-1.0, 24.0),
+                            otime::RationalTime(48.0, 24.0)),
+                        {
+                            otime::TimeRange(
+                                otime::RationalTime(-1.0, 24.0),
+                                otime::RationalTime(1.0, 24.0)),
+                            otime::TimeRange(
+                                otime::RationalTime(0.0, 24.0),
+                                otime::RationalTime(24.0, 24.0)),
+                            otime::TimeRange(
+                                otime::RationalTime(24.0, 24.0),
+                                otime::RationalTime(23.0, 24.0))
+                        }})
+                };
+                for (const auto& i : data)
+                {
+                    const auto seconds = time::seconds(i.range);
+                    TLRENDER_ASSERT(seconds == i.seconds);
                 }
             }
             {
@@ -153,7 +253,9 @@ namespace tl
                 for (const auto& i : data)
                 {
                     const auto rational = toRational(i.rate);
-                    TLRENDER_ASSERT(rational.first == i.rational.first && rational.second == i.rational.second);
+                    TLRENDER_ASSERT(
+                        rational.first == i.rational.first &&
+                        rational.second == i.rational.second);
                 }
             }
         }

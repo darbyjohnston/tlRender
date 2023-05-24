@@ -196,7 +196,7 @@ namespace tl
         struct PerformanceSettingsWidget::Private
         {
             QComboBox* timerModeComboBox = nullptr;
-            QComboBox* audioBufferFrameCountComboBox = nullptr;
+            QSpinBox* audioBufferFrameCountSpinBox = nullptr;
             QSpinBox* videoRequestCountSpinBox = nullptr;
             QSpinBox* audioRequestCountSpinBox = nullptr;
             QSpinBox* sequenceThreadCountSpinBox = nullptr;
@@ -216,11 +216,8 @@ namespace tl
                 p.timerModeComboBox->addItem(QString::fromUtf8(i.c_str()));
             }
 
-            p.audioBufferFrameCountComboBox = new QComboBox;
-            for (const auto& i : timeline::getAudioBufferFrameCountLabels())
-            {
-                p.audioBufferFrameCountComboBox->addItem(QString::fromUtf8(i.c_str()));
-            }
+            p.audioBufferFrameCountSpinBox = new QSpinBox;
+            p.audioBufferFrameCountSpinBox->setRange(1024, 4096);
 
             p.videoRequestCountSpinBox = new QSpinBox;
             p.videoRequestCountSpinBox->setRange(1, 64);
@@ -241,7 +238,7 @@ namespace tl
             label->setWordWrap(true);
             layout->addRow(label);
             layout->addRow(tr("Timer mode:"), p.timerModeComboBox);
-            layout->addRow(tr("Audio buffer frames:"), p.audioBufferFrameCountComboBox);
+            layout->addRow(tr("Audio buffer frames:"), p.audioBufferFrameCountSpinBox);
             layout->addRow(tr("Video requests:"), p.videoRequestCountSpinBox);
             layout->addRow(tr("Audio requests:"), p.audioRequestCountSpinBox);
             layout->addRow(tr("Sequence I/O threads:"), p.sequenceThreadCountSpinBox);
@@ -250,9 +247,9 @@ namespace tl
             setLayout(layout);
 
             p.timerModeComboBox->setCurrentIndex(
-                static_cast<int>(settingsObject->value("Performance/TimerMode").toInt()));
-            p.audioBufferFrameCountComboBox->setCurrentIndex(
-                static_cast<int>(settingsObject->value("Performance/AudioBufferFrameCount").toInt()));
+                settingsObject->value("Performance/TimerMode").toInt());
+            p.audioBufferFrameCountSpinBox->setValue(
+                settingsObject->value("Performance/AudioBufferFrameCount").toInt());
             p.videoRequestCountSpinBox->setValue(
                 settingsObject->value("Performance/VideoRequestCount").toInt());
             p.audioRequestCountSpinBox->setValue(
@@ -273,8 +270,8 @@ namespace tl
                 });
 
             connect(
-                p.audioBufferFrameCountComboBox,
-                QOverload<int>::of(&QComboBox::activated),
+                p.audioBufferFrameCountSpinBox,
+                QOverload<int>::of(&QSpinBox::valueChanged),
                 [settingsObject](int value)
                 {
                     settingsObject->setValue("Performance/AudioBufferFrameCount", value);
@@ -332,8 +329,8 @@ namespace tl
                     }
                     else if (name == "Performance/AudioBufferFrameCount")
                     {
-                        QSignalBlocker signalBlocker(_p->audioRequestCountSpinBox);
-                        _p->audioBufferFrameCountComboBox->setCurrentIndex(value.toInt());
+                        QSignalBlocker signalBlocker(_p->audioBufferFrameCountSpinBox);
+                        _p->audioBufferFrameCountSpinBox->setValue(value.toInt());
                     }
                     else if (name == "Performance/VideoRequestCount")
                     {
