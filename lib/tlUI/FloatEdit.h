@@ -28,13 +28,13 @@ namespace tl
         public:
             ~FloatEdit() override;
 
-            //! Create a new floating point number editor.
+            //! Create a new widget.
             static std::shared_ptr<FloatEdit> create(
                 const std::shared_ptr<FloatModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Get the floating point model.
+            //! Get the model.
             const std::shared_ptr<FloatModel>& getModel() const;
 
             //! Set the number of digits to display.

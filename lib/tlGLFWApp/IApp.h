@@ -64,6 +64,7 @@ namespace tl
             static void _cursorEnterCallback(GLFWwindow*, int);
             static void _cursorPosCallback(GLFWwindow*, double, double);
             static void _mouseButtonCallback(GLFWwindow*, int, int, int);
+            static void _scrollCallback(GLFWwindow*, double, double);
             static void _keyCallback(GLFWwindow*, int, int, int, int);
             static void _charCallback(GLFWwindow*, unsigned int);
 

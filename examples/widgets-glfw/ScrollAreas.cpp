@@ -4,8 +4,8 @@
 
 #include "ScrollAreas.h"
 
-#include <tlUI/GeometryUtil.h>
 #include <tlUI/GridLayout.h>
+#include <tlUI/LayoutUtil.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/ScrollWidget.h>
 

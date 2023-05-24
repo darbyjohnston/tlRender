@@ -26,9 +26,26 @@ namespace tl
             return _children;
         }
 
-        inline const std::weak_ptr<EventLoop>& IWidget::getEventLoop() const
+        template<typename T>
+        inline std::shared_ptr<T> IWidget::getParentT() const
         {
-            return _eventLoop;
+            std::shared_ptr<T> out;
+            auto parent = _parent.lock();
+            while (parent)
+            {
+                if (auto t = std::dynamic_pointer_cast<T>(parent))
+                {
+                    out = t;
+                    break;
+                }
+                parent = parent->_parent.lock();
+            }
+            return out;
+        }
+
+        inline const std::weak_ptr<EventLoop>& IWidget::getEventLoop()
+        {
+            return getTopLevel()->_eventLoop;
         }
 
         inline const math::Vector2i& IWidget::getSizeHint() const
@@ -61,9 +78,14 @@ namespace tl
             return _geometry;
         }
 
-        inline bool IWidget::isVisible() const
+        inline bool IWidget::isVisible(bool andParentsVisible) const
         {
-            return _visible;
+            bool out = _visible;
+            if (andParentsVisible)
+            {
+                out &= _parentsVisible;
+            }
+            return out;
         }
 
         inline bool IWidget::isClipped() const
@@ -76,14 +98,24 @@ namespace tl
             return _geometry;
         }
 
-        inline bool IWidget::isEnabled() const
+        inline bool IWidget::isEnabled(bool andParentsEnabled) const
         {
+            bool out = _enabled;
+            if (andParentsEnabled)
+            {
+                out &= _parentsEnabled;
+            }
             return _enabled;
         }
 
         inline bool IWidget::acceptsKeyFocus() const
         {
             return false;
+        }
+        
+        inline bool IWidget::hasKeyFocus() const
+        {
+            return _keyFocus;
         }
     }
 }

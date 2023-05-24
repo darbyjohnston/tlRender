@@ -17,7 +17,9 @@ int main(int argc, char* argv[])
     // Initialize.
     auto context = tl::system::Context::create();
     tl::qtwidget::init(context);
+#if (QT_VERSION < QT_VERSION_CHECK(6, 5, 0))
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
 
     // Parse the command line.
     if (argc != 2)
@@ -38,7 +40,7 @@ int main(int argc, char* argv[])
         // Create the timeline player.
         auto timeline = tl::timeline::Timeline::create(argv[1], context);
         auto timelinePlayer = new tl::qt::TimelinePlayer(
-            tl::timeline::TimelinePlayer::create(timeline, context), context);
+            tl::timeline::Player::create(timeline, context), context);
 
         // Create the timeline viewport.
         auto timelineViewport = new tl::qtwidget::TimelineViewport(context);

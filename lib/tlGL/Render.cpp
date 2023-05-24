@@ -341,6 +341,15 @@ namespace tl
         void Render::_init(const std::shared_ptr<system::Context>& context)
         {
             IRender::_init(context);
+            TLRENDER_P();
+
+            p.glyphTextureAtlas = TextureAtlas::create(
+                1,
+                4096,
+                imaging::PixelType::L_U8,
+                timeline::ImageFilter::Linear);
+
+            p.logTimer = std::chrono::steady_clock::now();
         }
 
         Render::Render() :
@@ -365,6 +374,8 @@ namespace tl
         {
             TLRENDER_P();
 
+            p.timer = std::chrono::steady_clock::now();
+
             p.renderSize = renderSize;
             _setColorConfig(colorConfigOptions);
             _setLUT(lutOptions);
@@ -374,41 +385,42 @@ namespace tl
             glEnable(GL_BLEND);
             glBlendEquation(GL_FUNC_ADD);
 
+            if (!p.shaders["rect"])
+            {
+                p.shaders["rect"] = Shader::create(vertexSource(), meshFragmentSource());
+            }
             if (!p.shaders["mesh"])
             {
                 p.shaders["mesh"] = Shader::create(vertexSource(), meshFragmentSource());
             }
-
             if (!p.shaders["text"])
             {
                 p.shaders["text"] = Shader::create(vertexSource(), textFragmentSource());
             }
-
             if (!p.shaders["texture"])
             {
                 p.shaders["texture"] = Shader::create(vertexSource(), textureFragmentSource());
             }
-
             if (!p.shaders["image"])
             {
                 p.shaders["image"] = Shader::create(vertexSource(), imageFragmentSource());
             }
-
+            if (!p.shaders["wipe"])
+            {
+                p.shaders["wipe"] = Shader::create(vertexSource(), meshFragmentSource());
+            }
             if (!p.shaders["overlay"])
             {
                 p.shaders["overlay"] = Shader::create(vertexSource(), textureFragmentSource());
             }
-
             if (!p.shaders["difference"])
             {
                 p.shaders["difference"] = Shader::create(vertexSource(), differenceFragmentSource());
             }
-
             if (!p.shaders["dissolve"])
             {
                 p.shaders["dissolve"] = Shader::create(vertexSource(), textureFragmentSource());
             }
-
             if (!p.shaders["display"])
             {
                 std::string colorConfigDef;
@@ -428,7 +440,7 @@ namespace tl
                     lut = "fColor = lutFunc(fColor);";
                 }
 #endif // TLRENDER_OCIO
-                std::string source = displayFragmentSource(
+                const std::string source = displayFragmentSource(
                     colorConfigDef,
                     colorConfig,
                     lutDef,
@@ -468,8 +480,6 @@ namespace tl
 
             p.vbos["rect"] = VBO::create(2 * 3, VBOType::Pos2_F32);
             p.vaos["rect"] = VAO::create(p.vbos["rect"]->getType(), p.vbos["rect"]->getID());
-            p.vbos["text"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
-            p.vaos["text"] = VAO::create(p.vbos["text"]->getType(), p.vbos["text"]->getID());
             p.vbos["texture"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
             p.vaos["texture"] = VAO::create(p.vbos["texture"]->getType(), p.vbos["texture"]->getID());
             p.vbos["image"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
@@ -494,7 +504,84 @@ namespace tl
         }
 
         void Render::end()
-        {}
+        {
+            TLRENDER_P();
+
+            //! \bug Should these be reset periodically?
+            //p.glyphIDs.clear();
+            //p.vbos["mesh"].reset();
+            //p.vaos["mesh"].reset();
+            //p.vbos["text"].reset();
+            //p.vaos["text"].reset();
+
+            const auto now = std::chrono::steady_clock::now();
+            const auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(now - p.timer);
+            p.currentStats.time = diff.count();
+            p.stats.push_back(p.currentStats);
+            p.currentStats = Private::Stats();
+            while (p.stats.size() > 60)
+            {
+                p.stats.pop_front();
+            }
+
+            const std::chrono::duration<float> logDiff = now - p.logTimer;
+            if (logDiff.count() > 10.F)
+            {
+                p.logTimer = now;
+                if (auto context = _context.lock())
+                {
+                    Private::Stats average;
+                    const size_t size = p.stats.size();
+                    if (size > 0)
+                    {
+                        for (const auto& i : p.stats)
+                        {
+                            average.time += i.time;
+                            average.rects += i.rects;
+                            average.meshes += i.meshes;
+                            average.meshTriangles += i.meshTriangles;
+                            average.text += i.text;
+                            average.textTriangles += i.textTriangles;
+                            average.textures += i.textures;
+                            average.images += i.images;
+                        }
+                        average.time /= p.stats.size();
+                        average.rects /= p.stats.size();
+                        average.meshes /= p.stats.size();
+                        average.meshTriangles /= p.stats.size();
+                        average.text /= p.stats.size();
+                        average.textTriangles /= p.stats.size();
+                        average.textures /= p.stats.size();
+                        average.images /= p.stats.size();
+                    }
+
+                    context->log(
+                        string::Format("tl::gl::Render {0}").arg(this),
+                        string::Format(
+                            "\n"
+                            "    Average render time: {0}ms\n"
+                            "    Average rectangle count: {1}\n"
+                            "    Average mesh count: {2}\n"
+                            "    Average mesh triangles: {3}\n"
+                            "    Average text count: {4}\n"
+                            "    Average text triangles: {5}\n"
+                            "    Average texture count: {6}\n"
+                            "    Average image count: {7}\n"
+                            "    Glyph texture atlas: {8}%\n"
+                            "    Glyph IDs: {9}").
+                        arg(average.time).
+                        arg(average.rects).
+                        arg(average.meshes).
+                        arg(average.meshTriangles).
+                        arg(average.text).
+                        arg(average.textTriangles).
+                        arg(average.textures).
+                        arg(average.images).
+                        arg(p.glyphTextureAtlas->getPercentageUsed()).
+                        arg(p.glyphIDs.size()));
+                }
+            }
+        }
 
         imaging::Size Render::getRenderSize() const
         {

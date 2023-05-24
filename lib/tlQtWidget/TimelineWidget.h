@@ -4,13 +4,20 @@
 
 #pragma once
 
-#include <tlUI/TimelineItem.h>
+#include <tlQt/TimeObject.h>
+
+#include <tlCore/Vector.h>
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_1_Core>
 
 namespace tl
 {
+    namespace timeline
+    {
+        class Player;
+    }
+
     namespace qtwidget
     {
         //! Timeline widget.
@@ -27,32 +34,24 @@ namespace tl
 
             ~TimelineWidget() override;
 
-            //! Set the timeline player.
-            void setTimelinePlayer(const std::shared_ptr<timeline::TimelinePlayer>&);
+            //! Set the time object.
+            void setTimeObject(qt::TimeObject*);
 
-            //! Get the item options.
-            const ui::TimelineItemOptions& itemOptions() const;
+            //! Set the timeline player.
+            void setPlayer(const std::shared_ptr<timeline::Player>&);
 
         public Q_SLOTS:
-            //! Set the view zoom.
-            void setViewZoom(float);
-
-            //! Set the view zoom.
-            void setViewZoom(
-                float,
-                const tl::math::Vector2i& focus);
-
             //! Set whether the to frame the view.
             void setFrameView(bool);
 
             //! Set whether to stop playback when scrubbing.
             void setStopOnScrub(bool);
 
+            //! Set whether thumbnails are enabled.
+            void setThumbnails(bool);
+
             //! Set the mouse wheel scale.
             void setMouseWheelScale(float);
-
-            //! Set the item options.
-            void setItemOptions(const ui::TimelineItemOptions&);
 
         Q_SIGNALS:
             //! This signal is emitted when the frame view is changed.
@@ -78,20 +77,10 @@ namespace tl
 
             void timerEvent(QTimerEvent*) override;
 
+        private Q_SLOTS:
+            void _setTimeUnits(tl::timeline::TimeUnits);
+
         private:
-            void _frameView();
-
-            void _setViewZoom(
-                float zoomNew,
-                float zoomPrev,
-                const math::Vector2i& focus,
-                const math::Vector2i& scrollPos);
-
-            float _timelineScale() const;
-            void _setItemOptions(
-                const std::shared_ptr<ui::IWidget>&,
-                const ui::TimelineItemOptions&);
-
             int _toUI(int) const;
             math::Vector2i _toUI(const math::Vector2i&) const;
             int _fromUI(int) const;

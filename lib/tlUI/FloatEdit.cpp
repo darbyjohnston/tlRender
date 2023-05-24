@@ -5,7 +5,7 @@
 #include <tlUI/FloatEdit.h>
 
 #include <tlUI/FloatModel.h>
-#include <tlUI/GeometryUtil.h>
+#include <tlUI/LayoutUtil.h>
 #include <tlUI/LineEdit.h>
 
 #include <tlCore/StringFormat.h>
@@ -47,6 +47,21 @@ namespace tl
             {
                 p.model = FloatModel::create(context);
             }
+
+            p.lineEdit->setTextCallback(
+                [this](const std::string& value)
+                {
+                    _p->model->setValue(std::atof(value.c_str()));
+                    _textUpdate();
+                });
+            p.lineEdit->setFocusCallback(
+                [this](bool value)
+                {
+                    if (!value)
+                    {
+                        _textUpdate();
+                    }
+                });
 
             p.valueObserver = observer::ValueObserver<float>::create(
                 p.model->observeValue(),
@@ -125,7 +140,7 @@ namespace tl
         void FloatEdit::keyPressEvent(KeyEvent& event)
         {
             TLRENDER_P();
-            if (_enabled && p.model)
+            if (isEnabled() && p.model)
             {
                 switch (event.key)
                 {
@@ -145,6 +160,7 @@ namespace tl
                     event.accept = true;
                     p.model->decrementLargeStep();
                     break;
+                default: break;
                 }
             }
         }

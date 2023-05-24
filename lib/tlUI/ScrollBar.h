@@ -11,6 +11,9 @@ namespace tl
     namespace ui
     {
         //! Scroll bar.
+        //! 
+        //! \todo Handle clicks not on the scroll bar handle.
+        //! \todo Set a minimum scroll bar handle size.
         class ScrollBar : public IWidget
         {
             TLRENDER_NON_COPYABLE(ScrollBar);
@@ -26,7 +29,7 @@ namespace tl
         public:
             ~ScrollBar() override;
 
-            //! Create a new scroll bar.
+            //! Create a new widget.
             static std::shared_ptr<ScrollBar> create(
                 Orientation,
                 const std::shared_ptr<system::Context>&,
@@ -46,7 +49,6 @@ namespace tl
 
             void setVisible(bool) override;
             void setEnabled(bool) override;
-            void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void drawEvent(
                 const math::BBox2i&,

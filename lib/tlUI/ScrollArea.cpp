@@ -67,13 +67,17 @@ namespace tl
             return _p->scrollPos;
         }
 
-        void ScrollArea::setScrollPos(const math::Vector2i& value)
+        void ScrollArea::setScrollPos(const math::Vector2i& value, bool clamp)
         {
             TLRENDER_P();
-            const math::BBox2i g = _geometry.margin(-p.size.border);
-            const math::Vector2i tmp(
-                math::clamp(value.x, 0, std::max(0, p.scrollSize.x - g.w())),
-                math::clamp(value.y, 0, std::max(0, p.scrollSize.y - g.h())));
+            math::Vector2i tmp = value;
+            if (clamp)
+            {
+                const math::BBox2i g = _geometry.margin(-p.size.border);
+                tmp = math::Vector2i(
+                    math::clamp(tmp.x, 0, std::max(0, p.scrollSize.x - g.w())),
+                    math::clamp(tmp.y, 0, std::max(0, p.scrollSize.y - g.h())));
+            }
             if (tmp == p.scrollPos)
                 return;
             p.scrollPos = tmp;
@@ -101,6 +105,7 @@ namespace tl
             IWidget::setGeometry(value);
             TLRENDER_P();
             const math::BBox2i g = value.margin(-p.size.border);
+
             math::Vector2i scrollSize;
             for (const auto& child : _children)
             {
@@ -117,9 +122,25 @@ namespace tl
             if (scrollSize != p.scrollSize)
             {
                 p.scrollSize = scrollSize;
+                _updates |= Update::Size;
+                _updates |= Update::Draw;
                 if (p.scrollSizeCallback)
                 {
                     p.scrollSizeCallback(p.scrollSize);
+                }
+            }
+
+            const math::Vector2i scrollPos(
+                math::clamp(p.scrollPos.x, 0, std::max(0, p.scrollSize.x - g.w())),
+                math::clamp(p.scrollPos.y, 0, std::max(0, p.scrollSize.y - g.h())));
+            if (scrollPos != p.scrollPos)
+            {
+                p.scrollPos = scrollPos;
+                _updates |= Update::Size;
+                _updates |= Update::Draw;
+                if (p.scrollPosCallback)
+                {
+                    p.scrollPosCallback(p.scrollPos);
                 }
             }
         }

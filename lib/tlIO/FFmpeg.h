@@ -57,6 +57,15 @@ namespace tl
         //! Get the timecode from a data stream if it exists.
         std::string getTimecodeFromDataStream(AVFormatContext*);
 
+        //! RAII class for FFmpeg packets.
+        class Packet
+        {
+        public:
+            Packet();
+            ~Packet();
+            AVPacket* p = nullptr;
+        };
+
         //! Get a label for a FFmpeg error code.
         std::string getErrorLabel(int);
 

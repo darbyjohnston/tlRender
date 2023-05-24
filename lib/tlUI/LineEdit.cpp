@@ -5,26 +5,108 @@
 #include <tlUI/LineEdit.h>
 
 #include <tlUI/DrawUtil.h>
-#include <tlUI/GeometryUtil.h>
+#include <tlUI/EventLoop.h>
+#include <tlUI/IClipboard.h>
+#include <tlUI/LayoutUtil.h>
+
+#include <tlTimeline/RenderUtil.h>
 
 namespace tl
 {
     namespace ui
     {
+        namespace
+        {
+            typedef std::pair<int, int> SelectionPair;
+
+            class Selection
+            {
+            public:
+                const SelectionPair& get() const;
+                SelectionPair getSorted() const;
+                bool isValid() const;
+                void set(const SelectionPair&);
+                void setFirst(int);
+                void setSecond(int);
+
+                void select(int first, int second);
+                void clear();
+
+            private:
+                SelectionPair _pair = std::make_pair(-1, -1);
+            };
+
+            const SelectionPair& Selection::get() const
+            {
+                return _pair;
+            }
+
+            SelectionPair Selection::getSorted() const
+            {
+                return std::make_pair(
+                    std::min(_pair.first, _pair.second),
+                    std::max(_pair.first, _pair.second));
+            }
+
+            bool Selection::isValid() const
+            {
+                return
+                    _pair.first != -1 &&
+                    _pair.second != -1 &&
+                    _pair.first != _pair.second;
+            }
+
+            void Selection::set(const SelectionPair& value)
+            {
+                _pair = value;
+            }
+
+            void Selection::setFirst(int value)
+            {
+                _pair.first = value;
+            }
+
+            void Selection::setSecond(int value)
+            {
+                _pair.second = value;
+            }
+
+            void Selection::select(int first, int second)
+            {
+                if (-1 == _pair.first)
+                {
+                    _pair.first = first;
+                    _pair.second = second;
+                }
+                else
+                {
+                    _pair.second = second;
+                }
+            }
+
+            void Selection::clear()
+            {
+                _pair = std::make_pair(-1, -1);
+            }
+        }
+
         struct LineEdit::Private
         {
             std::string text;
             std::function<void(const std::string&)> textCallback;
             std::string format = "                    ";
+            std::function<void(bool)> focusCallback;
             FontRole fontRole = FontRole::Mono;
-            size_t cursorPos = 0;
+            int cursorPos = 0;
             bool cursorVisible = false;
             std::chrono::steady_clock::time_point cursorTimer;
+            Selection selection;
 
             struct SizeData
             {
                 int margin = 0;
                 int border = 0;
+                imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
                 math::Vector2i formatSize;
@@ -81,7 +163,7 @@ namespace tl
             if (value == p.text)
                 return;
             p.text = value;
-            p.cursorPos = std::min(p.cursorPos, p.text.size());
+            p.cursorPos = std::min(p.cursorPos, static_cast<int>(p.text.size()));
             _textUpdate();
         }
 
@@ -97,6 +179,11 @@ namespace tl
                 return;
             p.format = value;
             _textUpdate();
+        }
+
+        void LineEdit::setFocusCallback(const std::function<void(bool)>& value)
+        {
+            _p->focusCallback = value;
         }
 
         void LineEdit::setFontRole(FontRole value)
@@ -144,8 +231,12 @@ namespace tl
             return true;
         }
 
-        void LineEdit::tickEvent(const TickEvent& event)
+        void LineEdit::tickEvent(
+            bool parentsVisible,
+            bool parentsEnabled,
+            const TickEvent& event)
         {
+            IWidget::tickEvent(parentsVisible, parentsEnabled, event);
             TLRENDER_P();
             if (hasKeyFocus())
             {
@@ -174,9 +265,13 @@ namespace tl
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
 
-            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
-            p.size.formatSize = event.fontSystem->getSize(p.format, fontInfo);
+            auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+            if (fontInfo != p.size.fontInfo)
+            {
+                p.size.fontInfo = fontInfo;
+                p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
+                p.size.formatSize = event.fontSystem->getSize(p.format, fontInfo);
+            }
 
             _sizeHint.x =
                 p.size.formatSize.x +
@@ -210,8 +305,9 @@ namespace tl
             TLRENDER_P();
 
             const math::BBox2i g = _getAlignGeometry();
+            const bool enabled = isEnabled();
 
-            if (event.focusWidget == shared_from_this())
+            if (_keyFocus)
             {
                 event.render->drawMesh(
                     border(g, p.size.border * 2),
@@ -230,21 +326,37 @@ namespace tl
                 g.margin(-p.size.border * 2),
                 event.style->getColorRole(ColorRole::Base));
 
+            const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
+            const timeline::ClipRectState clipRectState(event.render);
+            event.render->setClipRectEnabled(true);
+            event.render->setClipRect(g.margin(-p.size.border * 2));
+
             const math::BBox2i g2 = g.margin(-(p.size.border * 2 + p.size.margin));
+            if (p.selection.isValid())
+            {
+                const auto selection = p.selection.getSorted();
+                const std::string text0 = p.text.substr(0, selection.first);
+                const int x0 = event.fontSystem->getSize(text0, p.size.fontInfo).x;
+                const std::string text1 = p.text.substr(0, selection.second);
+                const int x1 = event.fontSystem->getSize(text1, p.size.fontInfo).x;
+                event.render->drawRect(
+                    math::BBox2i(g2.x() + x0, g2.y(), x1 - x0, g2.h()),
+                    event.style->getColorRole(ColorRole::Checked));
+            }
+
             math::Vector2i pos(
                 g2.x(),
                 g2.y() + g2.h() / 2 - p.size.fontMetrics.lineHeight / 2 +
                 p.size.fontMetrics.ascender);
             if (!p.text.empty() && p.draw.glyphs.empty())
             {
-                const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-                p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
-                p.draw.glyphsBBox = event.fontSystem->getBBox(p.text, fontInfo);
+                p.draw.glyphs = event.fontSystem->getGlyphs(p.text, p.size.fontInfo);
+                p.draw.glyphsBBox = event.fontSystem->getBBox(p.text, p.size.fontInfo);
             }
             event.render->drawText(
                 p.draw.glyphs,
                 pos,
-                event.style->getColorRole(_enabled ?
+                event.style->getColorRole(enabled ?
                     ColorRole::Text :
                     ColorRole::TextDisabled));
             
@@ -262,19 +374,11 @@ namespace tl
 
             if (p.cursorVisible)
             {
-                int x = g2.x();
-                if (p.cursorPos < p.draw.glyphsBBox.size())
-                {
-                    x += p.draw.glyphsBBox[p.cursorPos].min.x;
-                }
-                else if (!p.draw.glyphsBBox.empty())
-                {
-                    x += p.draw.glyphsBBox.back().min.x +
-                        p.draw.glyphsBBox.back().w();
-                }
+                const std::string text = p.text.substr(0, p.cursorPos);
+                const int x = event.fontSystem->getSize(text, p.size.fontInfo).x;
                 event.render->drawRect(
                     math::BBox2i(
-                        x,
+                        g2.x() + x,
                         g2.y(),
                         p.size.border,
                         g2.h()),
@@ -294,12 +398,17 @@ namespace tl
             if (p.mouse.press)
             {
                 event.accept = true;
-                const size_t cursorPos = _getCursorPos(event.pos);
+                const int cursorPos = _getCursorPos(event.pos);
                 if (cursorPos != p.cursorPos)
                 {
                     p.cursorPos = cursorPos;
                     p.cursorVisible = true;
                     p.cursorTimer = std::chrono::steady_clock::now();
+                    _updates |= Update::Draw;
+                }
+                if (cursorPos != p.selection.get().second)
+                {
+                    p.selection.setSecond(cursorPos);
                     _updates |= Update::Draw;
                 }
             }
@@ -310,7 +419,7 @@ namespace tl
             TLRENDER_P();
             event.accept = true;
             p.mouse.press = true;
-            const size_t cursorPos = _getCursorPos(event.pos);
+            const int cursorPos = _getCursorPos(event.pos);
             if (cursorPos != p.cursorPos)
             {
                 p.cursorPos = cursorPos;
@@ -318,7 +427,13 @@ namespace tl
                 p.cursorTimer = std::chrono::steady_clock::now();
                 _updates |= Update::Draw;
             }
-            takeFocus();
+            const SelectionPair selection(cursorPos, cursorPos);
+            if (selection != p.selection.get())
+            {
+                p.selection.set(selection);
+                _updates |= Update::Draw;
+            }
+            takeKeyFocus();
         }
 
         void LineEdit::mouseReleaseEvent(MouseClickEvent& event)
@@ -328,18 +443,122 @@ namespace tl
             p.mouse.press = false;
         }
 
+        void LineEdit::keyFocusEvent(bool value)
+        {
+            IWidget::keyFocusEvent(value);
+            TLRENDER_P();
+            if (!value)
+            {
+                p.selection.clear();
+                _updates |= Update::Draw;
+            }
+            if (p.focusCallback)
+            {
+                p.focusCallback(value);
+            }
+        }
+
         void LineEdit::keyPressEvent(KeyEvent& event)
         {
             TLRENDER_P();
             switch (event.key)
             {
+            case Key::A:
+                if (event.modifiers & static_cast<int>(ui::KeyModifier::Control))
+                {
+                    event.accept = true;
+
+                    p.selection.clear();
+                    p.selection.select(0, p.text.size());
+
+                    _updates |= Update::Draw;
+                }
+                break;
+            case Key::C:
+                if (event.modifiers & static_cast<int>(ui::KeyModifier::Control))
+                {
+                    if (p.selection.isValid())
+                    {
+                        event.accept = true;
+                        if (auto eventLoop = getEventLoop().lock())
+                        {
+                            const auto selection = p.selection.getSorted();
+                            const std::string text = p.text.substr(
+                                selection.first,
+                                selection.second - selection.first);
+                            eventLoop->getClipboard()->setText(text);
+                        }
+                    }
+                }
+                break;
+            case Key::V:
+                if (event.modifiers & static_cast<int>(ui::KeyModifier::Control))
+                {
+                    event.accept = true;
+                    if (auto eventLoop = getEventLoop().lock())
+                    {
+                        const std::string text = eventLoop->getClipboard()->getText();
+                        if (p.selection.isValid())
+                        {
+                            const auto selection = p.selection.getSorted();
+                            p.text.replace(
+                                selection.first,
+                                selection.second - selection.first,
+                                text);
+                            p.selection.clear();
+                            p.cursorPos = selection.first + text.size();
+                        }
+                        else
+                        {
+                            p.text.insert(p.cursorPos, text);
+                            p.cursorPos += text.size();
+                        }
+                        _textUpdate();
+                    }
+                }
+                break;
+            case Key::X:
+                if (event.modifiers & static_cast<int>(ui::KeyModifier::Control))
+                {
+                    if (p.selection.isValid())
+                    {
+                        event.accept = true;
+                        if (auto eventLoop = getEventLoop().lock())
+                        {
+                            const auto selection = p.selection.getSorted();
+                            const std::string text = p.text.substr(
+                                selection.first,
+                                selection.second - selection.first);
+                            eventLoop->getClipboard()->setText(text);
+                            p.text.replace(
+                                selection.first,
+                                selection.second - selection.first,
+                                "");
+                            p.selection.clear();
+                            p.cursorPos = selection.first;
+                            _textUpdate();
+                        }
+                    }
+                }
+                break;
             case Key::Left:
                 if (p.cursorPos > 0)
                 {
                     event.accept = true;
+
+                    if (event.modifiers & static_cast<int>(ui::KeyModifier::Shift))
+                    {
+                        p.selection.select(p.cursorPos, p.cursorPos - 1);
+                    }
+                    else
+                    {
+                        p.selection.clear();
+                    }
+
                     p.cursorPos--;
                     p.cursorVisible = true;
                     p.cursorTimer = std::chrono::steady_clock::now();
+                    
                     _updates |= Update::Draw;
                 }
                 break;
@@ -347,9 +566,20 @@ namespace tl
                 if (p.cursorPos < p.text.size())
                 {
                     event.accept = true;
+
+                    if (event.modifiers & static_cast<int>(ui::KeyModifier::Shift))
+                    {
+                        p.selection.select(p.cursorPos, p.cursorPos + 1);
+                    }
+                    else
+                    {
+                        p.selection.clear();
+                    }
+
                     p.cursorPos++;
                     p.cursorVisible = true;
                     p.cursorTimer = std::chrono::steady_clock::now();
+
                     _updates |= Update::Draw;
                 }
                 break;
@@ -357,9 +587,20 @@ namespace tl
                 if (p.cursorPos > 0)
                 {
                     event.accept = true;
+
+                    if (event.modifiers & static_cast<int>(ui::KeyModifier::Shift))
+                    {
+                        p.selection.select(p.cursorPos, 0);
+                    }
+                    else
+                    {
+                        p.selection.clear();
+                    }
+
                     p.cursorPos = 0;
                     p.cursorVisible = true;
                     p.cursorTimer = std::chrono::steady_clock::now();
+
                     _updates |= Update::Draw;
                 }
                 break;
@@ -367,14 +608,36 @@ namespace tl
                 if (p.cursorPos < p.text.size())
                 {
                     event.accept = true;
+
+                    if (event.modifiers & static_cast<int>(ui::KeyModifier::Shift))
+                    {
+                        p.selection.select(p.cursorPos, p.text.size());
+                    }
+                    else
+                    {
+                        p.selection.clear();
+                    }
+
                     p.cursorPos = p.text.size();
                     p.cursorVisible = true;
                     p.cursorTimer = std::chrono::steady_clock::now();
+
                     _updates |= Update::Draw;
                 }
                 break;
             case Key::Backspace:
-                if (p.cursorPos > 0)
+                if (p.selection.isValid())
+                {
+                    event.accept = true;
+                    const auto selection = p.selection.getSorted();
+                    p.text.erase(
+                        selection.first,
+                        selection.second - selection.first);
+                    p.selection.clear();
+                    p.cursorPos = selection.first;
+                    _textUpdate();
+                }
+                else if (p.cursorPos > 0)
                 {
                     event.accept = true;
                     const auto i = p.text.begin() + p.cursorPos - 1;
@@ -384,7 +647,18 @@ namespace tl
                 }
                 break;
             case Key::Delete:
-                if (p.cursorPos < p.text.size())
+                if (p.selection.isValid())
+                {
+                    event.accept = true;
+                    const auto selection = p.selection.getSorted();
+                    p.text.erase(
+                        selection.first,
+                        selection.second - selection.first);
+                    p.selection.clear();
+                    p.cursorPos = selection.first;
+                    _textUpdate();
+                }
+                else if (p.cursorPos < p.text.size())
                 {
                     event.accept = true;
                     const auto i = p.text.begin() + p.cursorPos;
@@ -392,13 +666,20 @@ namespace tl
                     _textUpdate();
                 }
                 break;
+            case Key::Enter:
+                if (p.textCallback)
+                {
+                    p.textCallback(p.text);
+                }
+                break;
             case Key::Escape:
                 if (hasKeyFocus())
                 {
                     event.accept = true;
-                    releaseFocus();
+                    releaseKeyFocus();
                 }
                 break;
+            default: break;
             }
         }
 
@@ -411,8 +692,21 @@ namespace tl
         {
             TLRENDER_P();
             event.accept = true;
-            p.text.insert(p.cursorPos, event.text);
-            p.cursorPos += event.text.size();
+            if (p.selection.isValid())
+            {
+                const auto selection = p.selection.getSorted();
+                p.text.replace(
+                    selection.first,
+                    selection.second - selection.first,
+                    event.text);
+                p.selection.clear();
+                p.cursorPos = selection.first + event.text.size();
+            }
+            else
+            {
+                p.text.insert(p.cursorPos, event.text);
+                p.cursorPos += event.text.size();
+            }
             _textUpdate();
         }
 
@@ -427,10 +721,10 @@ namespace tl
                 _vAlign);
         }
 
-        size_t LineEdit::_getCursorPos(const math::Vector2i& value)
+        int LineEdit::_getCursorPos(const math::Vector2i& value)
         {
             TLRENDER_P();
-            size_t out = 0;
+            int out = 0;
             const math::BBox2i g = _getAlignGeometry();
             const math::BBox2i g2 = g.margin(-p.size.border * 2);
             const math::Vector2i pos(

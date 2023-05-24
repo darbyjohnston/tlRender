@@ -16,7 +16,7 @@ namespace tl
     {
         struct TimelinePlayer::Private
         {
-            std::shared_ptr<timeline::TimelinePlayer> timelinePlayer;
+            std::shared_ptr<timeline::Player> player;
 
             std::shared_ptr<observer::ValueObserver<double> > speedObserver;
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
@@ -34,57 +34,57 @@ namespace tl
         };
 
         void TimelinePlayer::_init(
-            const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer,
+            const std::shared_ptr<timeline::Player>& player,
             const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
 
-            p.timelinePlayer = timelinePlayer;
+            p.player = player;
 
             p.speedObserver = observer::ValueObserver<double>::create(
-                p.timelinePlayer->observeSpeed(),
+                p.player->observeSpeed(),
                 [this](double value)
                 {
                     Q_EMIT speedChanged(value);
                 });
 
             p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
-                p.timelinePlayer->observePlayback(),
+                p.player->observePlayback(),
                 [this](timeline::Playback value)
                 {
                     Q_EMIT playbackChanged(value);
                 });
 
             p.loopObserver = observer::ValueObserver<timeline::Loop>::create(
-                p.timelinePlayer->observeLoop(),
+                p.player->observeLoop(),
                 [this](timeline::Loop value)
                 {
                     Q_EMIT loopChanged(value);
                 });
 
             p.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
-                p.timelinePlayer->observeCurrentTime(),
+                p.player->observeCurrentTime(),
                 [this](const otime::RationalTime& value)
                 {
                     Q_EMIT currentTimeChanged(value);
                 });
 
             p.inOutRangeObserver = observer::ValueObserver<otime::TimeRange>::create(
-                p.timelinePlayer->observeInOutRange(),
+                p.player->observeInOutRange(),
                 [this](const otime::TimeRange value)
                 {
                     Q_EMIT inOutRangeChanged(value);
                 });
 
             p.videoLayerObserver = observer::ValueObserver<uint16_t>::create(
-                p.timelinePlayer->observeVideoLayer(),
+                p.player->observeVideoLayer(),
                 [this](uint16_t value)
                 {
                     Q_EMIT videoLayerChanged(value);
                 });
 
             p.currentVideoObserver = observer::ValueObserver<timeline::VideoData>::create(
-                p.timelinePlayer->observeCurrentVideo(),
+                p.player->observeCurrentVideo(),
                 [this](const timeline::VideoData& value)
                 {
                     Q_EMIT currentVideoChanged(value);
@@ -92,42 +92,42 @@ namespace tl
                 observer::CallbackAction::Suppress);
 
             p.volumeObserver = observer::ValueObserver<float>::create(
-                p.timelinePlayer->observeVolume(),
+                p.player->observeVolume(),
                 [this](float value)
                 {
                     Q_EMIT volumeChanged(value);
                 });
 
             p.muteObserver = observer::ValueObserver<bool>::create(
-                p.timelinePlayer->observeMute(),
+                p.player->observeMute(),
                 [this](bool value)
                 {
                     Q_EMIT muteChanged(value);
                 });
 
             p.audioOffsetObserver = observer::ValueObserver<double>::create(
-                p.timelinePlayer->observeAudioOffset(),
+                p.player->observeAudioOffset(),
                 [this](double value)
                 {
                     Q_EMIT audioOffsetChanged(value);
                 });
 
             p.currentAudioObserver = observer::ListObserver<timeline::AudioData>::create(
-                p.timelinePlayer->observeCurrentAudio(),
+                p.player->observeCurrentAudio(),
                 [this](const std::vector<timeline::AudioData>& value)
                 {
                     Q_EMIT currentAudioChanged(value);
                 });
 
             p.cacheOptionsObserver = observer::ValueObserver<timeline::PlayerCacheOptions>::create(
-                p.timelinePlayer->observeCacheOptions(),
+                p.player->observeCacheOptions(),
                 [this](const timeline::PlayerCacheOptions& value)
                 {
                     Q_EMIT cacheOptionsChanged(value);
                 });
 
             p.cacheInfoObserver = observer::ValueObserver<timeline::PlayerCacheInfo>::create(
-                p.timelinePlayer->observeCacheInfo(),
+                p.player->observeCacheInfo(),
                 [this](const timeline::PlayerCacheInfo& value)
                 {
                     Q_EMIT cacheInfoChanged(value);
@@ -137,13 +137,13 @@ namespace tl
         }
 
         TimelinePlayer::TimelinePlayer(
-            const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer,
+            const std::shared_ptr<timeline::Player>& player,
             const std::shared_ptr<system::Context>& context,
             QObject* parent) :
             QObject(parent),
             _p(new Private)
         {
-            _init(timelinePlayer, context);
+            _init(player, context);
         }
 
         TimelinePlayer::~TimelinePlayer()
@@ -151,240 +151,240 @@ namespace tl
         
         const std::weak_ptr<system::Context>& TimelinePlayer::context() const
         {
-            return _p->timelinePlayer->getContext();
+            return _p->player->getContext();
         }
 
-        const std::shared_ptr<timeline::TimelinePlayer>& TimelinePlayer::timelinePlayer() const
+        const std::shared_ptr<timeline::Player>& TimelinePlayer::player() const
         {
-            return _p->timelinePlayer;
+            return _p->player;
         }
 
         const std::shared_ptr<timeline::Timeline>& TimelinePlayer::timeline() const
         {
-            return _p->timelinePlayer->getTimeline();
+            return _p->player->getTimeline();
         }
 
         const file::Path& TimelinePlayer::path() const
         {
-            return _p->timelinePlayer->getPath();
+            return _p->player->getPath();
         }
 
         const file::Path& TimelinePlayer::audioPath() const
         {
-            return _p->timelinePlayer->getAudioPath();
+            return _p->player->getAudioPath();
         }
 
         const timeline::PlayerOptions& TimelinePlayer::getPlayerOptions() const
         {
-            return _p->timelinePlayer->getPlayerOptions();
+            return _p->player->getPlayerOptions();
         }
 
         const timeline::Options& TimelinePlayer::getOptions() const
         {
-            return _p->timelinePlayer->getOptions();
+            return _p->player->getOptions();
         }
 
         const otime::TimeRange& TimelinePlayer::timeRange() const
         {
-            return _p->timelinePlayer->getTimeRange();
+            return _p->player->getTimeRange();
         }
 
         const io::Info& TimelinePlayer::ioInfo() const
         {
-            return _p->timelinePlayer->getIOInfo();
+            return _p->player->getIOInfo();
         }
 
         double TimelinePlayer::defaultSpeed() const
         {
-            return _p->timelinePlayer->getDefaultSpeed();
+            return _p->player->getDefaultSpeed();
         }
 
         double TimelinePlayer::speed() const
         {
-            return _p->timelinePlayer->observeSpeed()->get();
+            return _p->player->observeSpeed()->get();
         }
 
         timeline::Playback TimelinePlayer::playback() const
         {
-            return _p->timelinePlayer->observePlayback()->get();
+            return _p->player->observePlayback()->get();
         }
 
         timeline::Loop TimelinePlayer::loop() const
         {
-            return _p->timelinePlayer->observeLoop()->get();
+            return _p->player->observeLoop()->get();
         }
 
         const otime::RationalTime& TimelinePlayer::currentTime() const
         {
-            return _p->timelinePlayer->observeCurrentTime()->get();
+            return _p->player->observeCurrentTime()->get();
         }
 
         const otime::TimeRange& TimelinePlayer::inOutRange() const
         {
-            return _p->timelinePlayer->observeInOutRange()->get();
+            return _p->player->observeInOutRange()->get();
         }
 
         int TimelinePlayer::videoLayer() const
         {
-            return _p->timelinePlayer->observeVideoLayer()->get();
+            return _p->player->observeVideoLayer()->get();
         }
 
         const timeline::VideoData& TimelinePlayer::currentVideo() const
         {
-            return _p->timelinePlayer->observeCurrentVideo()->get();
+            return _p->player->observeCurrentVideo()->get();
         }
 
         float TimelinePlayer::volume() const
         {
-            return _p->timelinePlayer->observeVolume()->get();
+            return _p->player->observeVolume()->get();
         }
 
         bool TimelinePlayer::isMuted() const
         {
-            return _p->timelinePlayer->observeMute()->get();
+            return _p->player->observeMute()->get();
         }
 
         double TimelinePlayer::audioOffset() const
         {
-            return _p->timelinePlayer->observeAudioOffset()->get();
+            return _p->player->observeAudioOffset()->get();
         }
 
         const std::vector<timeline::AudioData>& TimelinePlayer::currentAudio() const
         {
-            return _p->timelinePlayer->observeCurrentAudio()->get();
+            return _p->player->observeCurrentAudio()->get();
         }
 
         const timeline::PlayerCacheOptions& TimelinePlayer::cacheOptions() const
         {
-            return _p->timelinePlayer->observeCacheOptions()->get();
+            return _p->player->observeCacheOptions()->get();
         }
 
         const timeline::PlayerCacheInfo& TimelinePlayer::cacheInfo() const
         {
-            return _p->timelinePlayer->observeCacheInfo()->get();
+            return _p->player->observeCacheInfo()->get();
         }
 
         void TimelinePlayer::setSpeed(double value)
         {
-            _p->timelinePlayer->setSpeed(value);
+            _p->player->setSpeed(value);
         }
 
         void TimelinePlayer::setPlayback(timeline::Playback value)
         {
-            _p->timelinePlayer->setPlayback(value);
+            _p->player->setPlayback(value);
         }
 
         void TimelinePlayer::stop()
         {
-            _p->timelinePlayer->setPlayback(timeline::Playback::Stop);
+            _p->player->setPlayback(timeline::Playback::Stop);
         }
 
         void TimelinePlayer::forward()
         {
-            _p->timelinePlayer->setPlayback(timeline::Playback::Forward);
+            _p->player->setPlayback(timeline::Playback::Forward);
         }
 
         void TimelinePlayer::reverse()
         {
-            _p->timelinePlayer->setPlayback(timeline::Playback::Reverse);
+            _p->player->setPlayback(timeline::Playback::Reverse);
         }
 
         void TimelinePlayer::togglePlayback()
         {
-            _p->timelinePlayer->setPlayback(
-                timeline::Playback::Stop == _p->timelinePlayer->observePlayback()->get() ?
+            _p->player->setPlayback(
+                timeline::Playback::Stop == _p->player->observePlayback()->get() ?
                 timeline::Playback::Forward :
                 timeline::Playback::Stop);
         }
 
         void TimelinePlayer::setLoop(timeline::Loop value)
         {
-            _p->timelinePlayer->setLoop(value);
+            _p->player->setLoop(value);
         }
 
         void TimelinePlayer::seek(const otime::RationalTime& value)
         {
-            _p->timelinePlayer->seek(value);
+            _p->player->seek(value);
         }
 
         void TimelinePlayer::timeAction(timeline::TimeAction value)
         {
-            _p->timelinePlayer->timeAction(value);
+            _p->player->timeAction(value);
         }
 
         void TimelinePlayer::start()
         {
-            _p->timelinePlayer->start();
+            _p->player->start();
         }
 
         void TimelinePlayer::end()
         {
-            _p->timelinePlayer->end();
+            _p->player->end();
         }
 
         void TimelinePlayer::framePrev()
         {
-            _p->timelinePlayer->framePrev();
+            _p->player->framePrev();
         }
 
         void TimelinePlayer::frameNext()
         {
-            _p->timelinePlayer->frameNext();
+            _p->player->frameNext();
         }
 
         void TimelinePlayer::setInOutRange(const otime::TimeRange& value)
         {
-            _p->timelinePlayer->setInOutRange(value);
+            _p->player->setInOutRange(value);
         }
 
         void TimelinePlayer::setInPoint()
         {
-            _p->timelinePlayer->setInPoint();
+            _p->player->setInPoint();
         }
 
         void TimelinePlayer::resetInPoint()
         {
-            _p->timelinePlayer->resetInPoint();
+            _p->player->resetInPoint();
         }
 
         void TimelinePlayer::setOutPoint()
         {
-            _p->timelinePlayer->setOutPoint();
+            _p->player->setOutPoint();
         }
 
         void TimelinePlayer::resetOutPoint()
         {
-            _p->timelinePlayer->resetOutPoint();
+            _p->player->resetOutPoint();
         }
 
         void TimelinePlayer::setVideoLayer(int value)
         {
-            _p->timelinePlayer->setVideoLayer(math::clamp(value, 0, static_cast<int>(std::numeric_limits<uint16_t>::max())));
+            _p->player->setVideoLayer(math::clamp(value, 0, static_cast<int>(std::numeric_limits<uint16_t>::max())));
         }
 
         void TimelinePlayer::setVolume(float value)
         {
-            _p->timelinePlayer->setVolume(value);
+            _p->player->setVolume(value);
         }
 
         void TimelinePlayer::setMute(bool value)
         {
-            _p->timelinePlayer->setMute(value);
+            _p->player->setMute(value);
         }
 
         void TimelinePlayer::setAudioOffset(double value)
         {
-            _p->timelinePlayer->setAudioOffset(value);
+            _p->player->setAudioOffset(value);
         }
 
         void TimelinePlayer::setCacheOptions(const timeline::PlayerCacheOptions& value)
         {
-            _p->timelinePlayer->setCacheOptions(value);
+            _p->player->setCacheOptions(value);
         }
 
         void TimelinePlayer::timerEvent(QTimerEvent* event)
         {
-            _p->timelinePlayer->tick();
+            _p->player->tick();
         }
     }
 }

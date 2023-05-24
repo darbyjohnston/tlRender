@@ -46,6 +46,21 @@ namespace tl
                 p.model = IntModel::create(context);
             }
 
+            p.lineEdit->setTextCallback(
+                [this](const std::string& value)
+                {
+                    _p->model->setValue(std::atoi(value.c_str()));
+                    _textUpdate();
+                });
+            p.lineEdit->setFocusCallback(
+                [this](bool value)
+                {
+                    if (!value)
+                    {
+                        _textUpdate();
+                    }
+                });
+
             p.valueObserver = observer::ValueObserver<int>::create(
                 p.model->observeValue(),
                 [this](int)
@@ -114,7 +129,7 @@ namespace tl
         void IntEdit::keyPressEvent(KeyEvent& event)
         {
             TLRENDER_P();
-            if (_enabled && p.model)
+            if (isEnabled() && p.model)
             {
                 switch (event.key)
                 {
@@ -134,6 +149,7 @@ namespace tl
                     event.accept = true;
                     p.model->decrementLargeStep();
                     break;
+                default: break;
                 }
             }
         }

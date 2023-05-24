@@ -108,6 +108,7 @@ namespace tl
             qRegisterMetaType<timeline::PlayerCacheOptions>("tl::timeline::PlayerCacheOptions");
             qRegisterMetaType<timeline::PlayerOptions>("tl::timeline::PlayerOptions");
             qRegisterMetaType<timeline::TimeAction>("tl::timeline::TimeAction");
+            qRegisterMetaType<timeline::TimeUnits>("tl::timeline::TimeUnits");
             qRegisterMetaType<timeline::TimerMode>("tl::timeline::TimerMode");
             qRegisterMetaType<timeline::Transition>("tl::timeline::Transition");
             qRegisterMetaType<timeline::VideoData>("tl::timeline::VideoData");
@@ -123,14 +124,9 @@ namespace tl
             QMetaType::registerComparators<timeline::Loop>();
             QMetaType::registerComparators<timeline::Playback>();
             QMetaType::registerComparators<timeline::TimeAction>();
+            QMetaType::registerComparators<timeline::TimeUnits>();
             QMetaType::registerComparators<timeline::TimerMode>();
             QMetaType::registerComparators<timeline::Transition>();
-#endif // QT_VERSION
-
-            qRegisterMetaType<TimeUnits>("tl::qt::TimeUnits");
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-            qRegisterMetaTypeStreamOperators<TimeUnits>("tl::qt::TimeUnits");
-            QMetaType::registerComparators<TimeUnits>();
 #endif // QT_VERSION
 
             QSurfaceFormat surfaceFormat;

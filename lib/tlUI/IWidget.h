@@ -55,14 +55,18 @@ namespace tl
             //! Get the children widgets.
             const std::list<std::shared_ptr<IWidget> >& getChildren() const;
 
+            //! Get the first parent widget of the given type.
+            template<typename T>
+            std::shared_ptr<T> getParentT() const;
+
             //! Get the top level widget.
-            std::shared_ptr<IWidget> getTopLevel() const;
+            std::shared_ptr<IWidget> getTopLevel();
 
             //! Set the event loop.
             void setEventLoop(const std::weak_ptr<EventLoop>&);
 
             //! Get the event loop.
-            const std::weak_ptr<EventLoop>& getEventLoop() const;
+            const std::weak_ptr<EventLoop>& getEventLoop();
 
             ///@}
 
@@ -117,7 +121,7 @@ namespace tl
             ///@{
 
             //! Is the widget visible?
-            bool isVisible() const;
+            bool isVisible(bool andParentsVisible = true) const;
 
             //! Set whether the widget is visible.
             virtual void setVisible(bool);
@@ -135,7 +139,7 @@ namespace tl
             ///@{
 
             //! Is the widget enabled?
-            bool isEnabled() const;
+            bool isEnabled(bool andParentsEnabled = true) const;
 
             //! Set whether the widget is enabled.
             virtual void setEnabled(bool);
@@ -152,10 +156,10 @@ namespace tl
             bool hasKeyFocus() const;
 
             //! Take the key focus.
-            void takeFocus();
+            void takeKeyFocus();
 
             //! Release the key focus.
-            void releaseFocus();
+            void releaseKeyFocus();
 
             ///@}
 
@@ -169,7 +173,10 @@ namespace tl
             virtual void childRemovedEvent(const ChildEvent&);
 
             //! Tick event.
-            virtual void tickEvent(const TickEvent&);
+            virtual void tickEvent(
+                bool parentsVisible,
+                bool parentsEnabled,
+                const TickEvent&);
 
             //! Size hint event.
             virtual void sizeHintEvent(const SizeHintEvent&);
@@ -182,6 +189,11 @@ namespace tl
 
             //! Draw event.
             virtual void drawEvent(
+                const math::BBox2i&,
+                const DrawEvent&);
+
+            //! Draw overlay event.
+            virtual void drawOverlayEvent(
                 const math::BBox2i&,
                 const DrawEvent&);
 
@@ -199,6 +211,12 @@ namespace tl
 
             //! Mouse release event.
             virtual void mouseReleaseEvent(MouseClickEvent&);
+
+            //! Scroll event.
+            virtual void scrollEvent(ScrollEvent&);
+
+            //! Key focus event.
+            virtual void keyFocusEvent(bool);
 
             //! Key press event.
             virtual void keyPressEvent(KeyEvent&);
@@ -224,10 +242,13 @@ namespace tl
             VAlign _vAlign = VAlign::Center;
             math::BBox2i _geometry;
             bool _visible = true;
+            bool _parentsVisible = true;
             bool _clipped = false;
             bool _enabled = true;
+            bool _parentsEnabled = true;
             ColorRole _backgroundRole = ColorRole::None;
             int _updates = 0;
+            bool _keyFocus = false;
         };
     }
 }

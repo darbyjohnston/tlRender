@@ -17,6 +17,7 @@ namespace tl
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
+                imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
             };
@@ -92,8 +93,12 @@ namespace tl
             if (!_text.empty())
             {
                 p.size.fontMetrics = event.getFontMetrics(_fontRole);
-                const auto fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
-                p.size.textSize = event.fontSystem->getSize(_text, fontInfo);
+                auto fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
+                if (fontInfo != p.size.fontInfo)
+                {
+                    p.size.fontInfo = fontInfo;
+                    p.size.textSize = event.fontSystem->getSize(_text, fontInfo);
+                }
 
                 _sizeHint.x = p.size.textSize.x + p.size.margin * 2;
                 _sizeHint.y = p.size.fontMetrics.lineHeight;
@@ -138,8 +143,9 @@ namespace tl
             TLRENDER_P();
 
             const math::BBox2i& g = _geometry;
+            const bool enabled = isEnabled();
 
-            if (event.focusWidget == shared_from_this())
+            if (_keyFocus)
             {
                 event.render->drawMesh(
                     border(g, p.size.border * 2),
@@ -181,7 +187,7 @@ namespace tl
             int x = g2.x() + p.size.margin;
             if (_iconImage)
             {
-                const auto iconSize = _iconImage->getSize();
+                const imaging::Size& iconSize = _iconImage->getSize();
                 event.render->drawImage(
                   _iconImage,
                   math::BBox2i(
@@ -189,7 +195,7 @@ namespace tl
                       g2.y() + g2.h() / 2 - iconSize.h / 2,
                       iconSize.w,
                       iconSize.h),
-                  event.style->getColorRole(_enabled ?
+                  event.style->getColorRole(enabled ?
                       ColorRole::Text :
                       ColorRole::TextDisabled));
                 x += iconSize.w + p.size.spacing;
@@ -199,8 +205,7 @@ namespace tl
             {
                 if (p.draw.glyphs.empty())
                 {
-                    const auto fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
-                    p.draw.glyphs = event.fontSystem->getGlyphs(_text, fontInfo);
+                    p.draw.glyphs = event.fontSystem->getGlyphs(_text, p.size.fontInfo);
                 }
                 const math::Vector2i pos(
                     x + p.size.margin,
@@ -209,7 +214,7 @@ namespace tl
                 event.render->drawText(
                     p.draw.glyphs,
                     pos,
-                    event.style->getColorRole(_enabled ?
+                    event.style->getColorRole(enabled ?
                         ColorRole::Text :
                         ColorRole::TextDisabled));
             }
@@ -229,9 +234,10 @@ namespace tl
                 if (hasKeyFocus())
                 {
                     event.accept = true;
-                    releaseFocus();
+                    releaseKeyFocus();
                 }
                 break;
+            default: break;
             }
         }
 

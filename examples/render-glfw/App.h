@@ -5,7 +5,7 @@
 #include <tlApp/IApp.h>
 
 #include <tlTimeline/IRender.h>
-#include <tlTimeline/TimelinePlayer.h>
+#include <tlTimeline/Player.h>
 
 #include <tlCore/FontSystem.h>
 
@@ -85,7 +85,7 @@ namespace tl
                 std::string _input;
                 Options _options;
 
-                std::vector<std::shared_ptr<timeline::TimelinePlayer> > _timelinePlayers;
+                std::vector<std::shared_ptr<timeline::Player> > _players;
                 std::vector<imaging::Size> _videoSizes;
 
                 GLFWwindow* _glfwWindow = nullptr;

@@ -61,6 +61,7 @@ namespace tl
             Options options;
 
             qt::ContextObject* contextObject = nullptr;
+            std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             qt::TimeObject* timeObject = nullptr;
             SettingsObject* settingsObject = nullptr;
             qt::TimelineThumbnailObject* thumbnailObject = nullptr;
@@ -201,9 +202,10 @@ namespace tl
             setStyleSheet(qtwidget::styleSheet());
             qtwidget::initFonts(context);
 
-            // Create objects.
+            // Create models and objects.
             p.contextObject = new qt::ContextObject(context, this);
-            p.timeObject = new qt::TimeObject(this);
+            p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
+            p.timeObject = new qt::TimeObject(p.timeUnitsModel, this);
 
             p.settingsObject = new SettingsObject(p.options.resetSettings, p.timeObject, this);
             connect(
@@ -593,6 +595,7 @@ namespace tl
                         createMemoryTimeline(otioTimeline, item->path.getDirectory(), options.pathOptions);
                     }
                     auto timeline = timeline::Timeline::create(otioTimeline, _context, options);
+                    const otime::TimeRange& timeRange = timeline->getTimeRange();
 
                     timeline::PlayerOptions playerOptions;
                     playerOptions.cache.readAhead = _cacheReadAhead();
@@ -603,10 +606,21 @@ namespace tl
                         value<timeline::AudioBufferFrameCount>();
                     if (item->init)
                     {
-                        playerOptions.currentTime = items[0]->currentTime;
+                        if (0 == i)
+                        {
+                            playerOptions.currentTime = items[0]->currentTime;
+                        }
+                        else
+                        {
+                            playerOptions.currentTime = timeline::getExternalTime(
+                                items[0]->currentTime,
+                                items[0]->timeRange,
+                                timeRange,
+                                playerOptions.externalTimeMode);
+                        }
                     }
-                    auto timelinePlayer = timeline::TimelinePlayer::create(timeline, _context, playerOptions);
-                    qtTimelinePlayer = new qt::TimelinePlayer(timelinePlayer, _context, this);
+                    auto player = timeline::Player::create(timeline, _context, playerOptions);
+                    qtTimelinePlayer = new qt::TimelinePlayer(player, _context, this);
                     item->timeRange = qtTimelinePlayer->timeRange();
                     item->ioInfo = qtTimelinePlayer->ioInfo();
                     if (!item->init)
@@ -635,8 +649,8 @@ namespace tl
                     if (i > 0)
                     {
                         qtTimelinePlayer->setVideoLayer(items[i]->videoLayer);
-                        qtTimelinePlayer->timelinePlayer()->setExternalTime(
-                            newTimelinePlayers[0]->timelinePlayer());
+                        qtTimelinePlayer->player()->setExternalTime(
+                            newTimelinePlayers[0]->player());
                     }
                 }
                 catch (const std::exception& e)

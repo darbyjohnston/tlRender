@@ -75,10 +75,10 @@ namespace tl
             }
         }
 
-        std::shared_ptr<IWidget> IWidget::getTopLevel() const
+        std::shared_ptr<IWidget> IWidget::getTopLevel()
         {
-            std::shared_ptr<IWidget> out;
-            auto parent = _parent.lock();
+            std::shared_ptr<IWidget> out = shared_from_this();
+            auto parent = out->_parent.lock();
             while (parent)
             {
                 out = parent;
@@ -159,7 +159,7 @@ namespace tl
             _visible = value;
             if (!_visible)
             {
-                releaseFocus();
+                releaseKeyFocus();
             }
             _updates |= Update::Size;
             _updates |= Update::Draw;
@@ -172,55 +172,27 @@ namespace tl
             _enabled = value;
             if (!_enabled)
             {
-                releaseFocus();
+                releaseKeyFocus();
             }
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
 
-        bool IWidget::hasKeyFocus() const
+        void IWidget::takeKeyFocus()
         {
-            bool out = false;
-            if (auto topLevel = getTopLevel())
+            if (auto eventLoop = getEventLoop().lock())
             {
-                if (auto eventLoop = topLevel->getEventLoop().lock())
-                {
-                    if (auto keyFocus = eventLoop->getKeyFocus().lock())
-                    {
-                        if (keyFocus == shared_from_this())
-                        {
-                            out = true;
-                        }
-                    }
-                }
-            }
-            return out;
-        }
-
-        void IWidget::takeFocus()
-        {
-            if (auto topLevel = getTopLevel())
-            {
-                if (auto eventLoop = topLevel->getEventLoop().lock())
-                {
-                    eventLoop->setKeyFocus(shared_from_this());
-                }
+                eventLoop->setKeyFocus(shared_from_this());
             }
         }
 
-        void IWidget::releaseFocus()
+        void IWidget::releaseKeyFocus()
         {
-            if (auto topLevel = getTopLevel())
+            if (_keyFocus)
             {
-                if (auto eventLoop = topLevel->getEventLoop().lock())
+                if (auto eventLoop = getEventLoop().lock())
                 {
-                    if (auto keyFocus = eventLoop->getKeyFocus().lock())
-                    {
-                        if (keyFocus == shared_from_this())
-                        {
-                            eventLoop->setKeyFocus(nullptr);
-                        }
-                    }
+                    eventLoop->setKeyFocus(nullptr);
                 }
             }
         }
@@ -231,8 +203,14 @@ namespace tl
         void IWidget::childRemovedEvent(const ChildEvent&)
         {}
 
-        void IWidget::tickEvent(const TickEvent&)
-        {}
+        void IWidget::tickEvent(
+            bool parentsVisible,
+            bool parentsEnabled,
+            const TickEvent&)
+        {
+            _parentsVisible = parentsVisible;
+            _parentsEnabled = parentsEnabled;
+        }
 
         void IWidget::sizeHintEvent(const SizeHintEvent&)
         {
@@ -246,7 +224,7 @@ namespace tl
         {
             if (clipped && clipped != _clipped)
             {
-                releaseFocus();
+                releaseKeyFocus();
             }
             _clipped = clipped;
         }
@@ -264,6 +242,13 @@ namespace tl
             }
         }
 
+        void IWidget::drawOverlayEvent(
+            const math::BBox2i&,
+            const DrawEvent&)
+        {
+            _updates &= ~static_cast<int>(Update::Draw);
+        }
+
         void IWidget::enterEvent()
         {}
 
@@ -278,6 +263,14 @@ namespace tl
 
         void IWidget::mouseReleaseEvent(MouseClickEvent&)
         {}
+
+        void IWidget::scrollEvent(ScrollEvent&)
+        {}
+
+        void IWidget::keyFocusEvent(bool value)
+        {
+            _keyFocus = value;
+        }
 
         void IWidget::keyPressEvent(KeyEvent&)
         {}

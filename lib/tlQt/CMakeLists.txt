@@ -26,7 +26,7 @@ if(TLRENDER_QT6)
 elseif(TLRENDER_QT5)
     list(APPEND LIBRARIES Qt5::Gui)
 endif()
-list(APPEND LIBRARIES tlUI tlGL tlDevice)
+list(APPEND LIBRARIES tlGL tlDevice)
 
 add_library(tlQt ${HEADERS} ${PRIVATE_HEADERS} ${SOURCE})
 target_link_libraries(tlQt ${LIBRARIES})

@@ -28,13 +28,13 @@ namespace tl
         public:
             ~IntEdit() override;
 
-            //! Create a new integer number editor.
+            //! Create a new widget.
             static std::shared_ptr<IntEdit> create(
                 const std::shared_ptr<IntModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Get the integer model.
+            //! Get the model.
             const std::shared_ptr<IntModel>& getModel() const;
 
             //! Set the number of digits to display.

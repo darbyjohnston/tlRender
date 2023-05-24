@@ -25,7 +25,7 @@ namespace tl
         public:
             ~FloatModel();
 
-            //! Create a new floating point value model.
+            //! Create a new model.
             static std::shared_ptr<FloatModel> create(
                 const std::shared_ptr<system::Context>&);
 

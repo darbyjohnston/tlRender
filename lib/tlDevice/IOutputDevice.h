@@ -6,7 +6,7 @@
 
 #include <tlDevice/DeviceData.h>
 
-#include <tlTimeline/TimelinePlayer.h>
+#include <tlTimeline/Player.h>
 
 namespace tl
 {

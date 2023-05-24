@@ -26,7 +26,6 @@ namespace tl
             QMap<QString, QActionGroup*> actionGroups;
 
             QMenu* menu = nullptr;
-            QMenu* timeUnitsMenu = nullptr;
             QMenu* speedMenu = nullptr;
         };
 
@@ -103,10 +102,10 @@ namespace tl
             p.actions["FramePrev"]->setToolTip(tr("Go to the previous frame"));
             p.actions["FramePrevX10"] = new QAction(parent);
             p.actions["FramePrevX10"]->setText(tr("Previous Frame X10"));
-            p.actions["FramePrevX10"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Left));
+            p.actions["FramePrevX10"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Left));
             p.actions["FramePrevX100"] = new QAction(parent);
             p.actions["FramePrevX100"]->setText(tr("Previous Frame X100"));
-            p.actions["FramePrevX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left));
+            p.actions["FramePrevX100"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Left));
             p.actions["FrameNext"] = new QAction(parent);
             p.actions["FrameNext"]->setText(tr("Next Frame"));
             p.actions["FrameNext"]->setIcon(QIcon(":/Icons/FrameNext.svg"));
@@ -114,23 +113,23 @@ namespace tl
             p.actions["FrameNext"]->setToolTip(tr("Go to the next frame"));
             p.actions["FrameNextX10"] = new QAction(parent);
             p.actions["FrameNextX10"]->setText(tr("Next Frame X10"));
-            p.actions["FrameNextX10"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Right));
+            p.actions["FrameNextX10"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Right));
             p.actions["FrameNextX100"] = new QAction(parent);
             p.actions["FrameNextX100"]->setText(tr("Next Frame X100"));
-            p.actions["FrameNextX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
+            p.actions["FrameNextX100"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Right));
 
             p.actions["SetInPoint"] = new QAction(parent);
             p.actions["SetInPoint"]->setText(tr("Set In Point"));
             p.actions["SetInPoint"]->setShortcut(QKeySequence(Qt::Key_I));
             p.actions["ResetInPoint"] = new QAction(parent);
             p.actions["ResetInPoint"]->setText(tr("Reset In Point"));
-            p.actions["ResetInPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_I));
+            p.actions["ResetInPoint"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_I));
             p.actions["SetOutPoint"] = new QAction(parent);
             p.actions["SetOutPoint"]->setText(tr("Set Out Point"));
             p.actions["SetOutPoint"]->setShortcut(QKeySequence(Qt::Key_O));
             p.actions["ResetOutPoint"] = new QAction(parent);
             p.actions["ResetOutPoint"]->setText(tr("Reset Out Point"));
-            p.actions["ResetOutPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_O));
+            p.actions["ResetOutPoint"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_O));
 
             p.actions["FocusCurrentFrame"] = new QAction(parent);
             p.actions["FocusCurrentFrame"]->setText(tr("Focus Current Frame"));
@@ -147,15 +146,15 @@ namespace tl
             p.actions["Timeline/Thumbnails"]->setText(tr("Timeline Thumbnails"));
 
             p.actions["TimeUnits/Frames"] = new QAction(parent);
-            p.actions["TimeUnits/Frames"]->setData(QVariant::fromValue<qt::TimeUnits>(qt::TimeUnits::Frames));
+            p.actions["TimeUnits/Frames"]->setData(static_cast<int>(timeline::TimeUnits::Frames));
             p.actions["TimeUnits/Frames"]->setCheckable(true);
             p.actions["TimeUnits/Frames"]->setText(tr("Frames"));
             p.actions["TimeUnits/Seconds"] = new QAction(parent);
-            p.actions["TimeUnits/Seconds"]->setData(QVariant::fromValue<qt::TimeUnits>(qt::TimeUnits::Seconds));
+            p.actions["TimeUnits/Seconds"]->setData(static_cast<int>(timeline::TimeUnits::Seconds));
             p.actions["TimeUnits/Seconds"]->setCheckable(true);
             p.actions["TimeUnits/Seconds"]->setText(tr("Seconds"));
             p.actions["TimeUnits/Timecode"] = new QAction(parent);
-            p.actions["TimeUnits/Timecode"]->setData(QVariant::fromValue<qt::TimeUnits>(qt::TimeUnits::Timecode));
+            p.actions["TimeUnits/Timecode"]->setData(static_cast<int>(timeline::TimeUnits::Timecode));
             p.actions["TimeUnits/Timecode"]->setCheckable(true);
             p.actions["TimeUnits/Timecode"]->setText(tr("Timecode"));
             p.actionGroups["TimeUnits"] = new QActionGroup(this);
@@ -219,11 +218,6 @@ namespace tl
             p.menu->addAction(p.actions["Timeline/FrameView"]);
             p.menu->addAction(p.actions["Timeline/StopOnScrub"]);
             p.menu->addAction(p.actions["Timeline/Thumbnails"]);
-
-            p.timeUnitsMenu = new QMenu;
-            p.timeUnitsMenu->addAction(p.actions["TimeUnits/Frames"]);
-            p.timeUnitsMenu->addAction(p.actions["TimeUnits/Seconds"]);
-            p.timeUnitsMenu->addAction(p.actions["TimeUnits/Timecode"]);
 
             p.speedMenu = new QMenu;
             for (auto i : speeds)
@@ -354,7 +348,8 @@ namespace tl
                 &QActionGroup::triggered,
                 [app](QAction* action)
                 {
-                    app->timeObject()->setUnits(action->data().value<qt::TimeUnits>());
+                    app->timeObject()->setTimeUnits(
+                        static_cast<timeline::TimeUnits>(action->data().toInt()));
                 });
 
             connect(
@@ -403,11 +398,6 @@ namespace tl
         QMenu* PlaybackActions::menu() const
         {
             return _p->menu;
-        }
-
-        QMenu* PlaybackActions::timeUnitsMenu() const
-        {
-            return _p->timeUnitsMenu;
         }
 
         QMenu* PlaybackActions::speedMenu() const
@@ -574,7 +564,8 @@ namespace tl
                 QSignalBlocker blocker(p.actionGroups["TimeUnits"]);
                 for (auto action : p.actionGroups["TimeUnits"]->actions())
                 {
-                    if (action->data().value<qt::TimeUnits>() == p.app->timeObject()->units())
+                    if (static_cast<timeline::TimeUnits>(action->data().toInt()) ==
+                        p.app->timeObject()->timeUnits())
                     {
                         action->setChecked(true);
                         break;

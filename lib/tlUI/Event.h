@@ -65,7 +65,6 @@ namespace tl
             std::shared_ptr<imaging::FontSystem> fontSystem;
             float displayScale = 1.F;
             std::map<FontRole, imaging::FontMetrics> fontMetrics;
-            std::shared_ptr<IWidget> focusWidget;
 
             imaging::FontMetrics getFontMetrics(FontRole) const;
         };
@@ -75,6 +74,15 @@ namespace tl
         {
             math::Vector2i pos;
             math::Vector2i prev;
+            bool accept = false;
+        };
+
+        //! Scroll event (mouse wheel or touch pad).
+        struct ScrollEvent
+        {
+            math::Vector2i pos;
+            float dx = 0.F;
+            float dy = 0.F;
             bool accept = false;
         };
 

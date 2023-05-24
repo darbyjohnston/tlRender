@@ -25,7 +25,7 @@ namespace tl
         public:
             ~ListButton() override;
 
-            //! Create a new list button.
+            //! Create a new widget.
             static std::shared_ptr<ListButton> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

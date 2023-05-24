@@ -7,11 +7,9 @@
 #include <tlCore/Context.h>
 #include <tlCore/LRUCache.h>
 
-#if defined(TLRENDER_FREETYPE)
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
-#endif // TLRENDER_FREETYPE
 
 #include <algorithm>
 #include <codecvt>
@@ -58,42 +56,6 @@ namespace tl
             return out;
         }
 
-        FontInfo::FontInfo() noexcept
-        {}
-
-        FontInfo::FontInfo(const std::string& family, uint16_t size) :
-            family(family),
-            size(size)
-        {}
-
-        bool FontInfo::operator == (const FontInfo& other) const noexcept
-        {
-            return family == other.family && size == other.size;
-        }
-
-        bool FontInfo::operator < (const FontInfo& other) const
-        {
-            return std::tie(family, size) < std::tie(other.family, other.size);
-        }
-
-        GlyphInfo::GlyphInfo() noexcept
-        {}
-
-        GlyphInfo::GlyphInfo(uint32_t code, const FontInfo& fontInfo) noexcept :
-            code(code),
-            fontInfo(fontInfo)
-        {}
-
-        bool GlyphInfo::operator == (const GlyphInfo& other) const noexcept
-        {
-            return code == other.code && fontInfo == other.fontInfo;
-        }
-
-        bool GlyphInfo::operator < (const GlyphInfo& other) const
-        {
-            return std::tie(code, fontInfo) < std::tie(other.code, other.fontInfo);
-        }
-
         struct FontSystem::Private
         {
             std::shared_ptr<Glyph> getGlyph(uint32_t code, const FontInfo&);
@@ -105,10 +67,8 @@ namespace tl
                 std::vector<math::BBox2i>* = nullptr);
 
             std::weak_ptr<system::Context> context;
-#if defined(TLRENDER_FREETYPE)
             FT_Library ftLibrary = nullptr;
             std::map<std::string, FT_Face> ftFaces;
-#endif // TLRENDER_FREETYPE
             std::wstring_convert<std::codecvt_utf8<tl_char_t>, tl_char_t> utf32Convert;
             memory::LRUCache<GlyphInfo, std::shared_ptr<Glyph> > glyphCache;
         };
@@ -119,7 +79,6 @@ namespace tl
 
             p.context = context;
 
-#if defined(TLRENDER_FREETYPE)
             FT_Error ftError = FT_Init_FreeType(&p.ftLibrary);
             if (ftError)
             {
@@ -141,7 +100,6 @@ namespace tl
             {
                 throw std::runtime_error("Cannot create font");
             }
-#endif // TLRENDER_FREETYPE
         }
 
         FontSystem::FontSystem() :
@@ -151,7 +109,6 @@ namespace tl
         FontSystem::~FontSystem()
         {
             TLRENDER_P();
-#if defined(TLRENDER_FREETYPE)
             if (p.ftLibrary)
             {
                 for (const auto& i : p.ftFaces)
@@ -160,7 +117,6 @@ namespace tl
                 }
                 FT_Done_FreeType(p.ftLibrary);
             }
-#endif // TLRENDER_FREETYPE
         }
 
         std::shared_ptr<FontSystem> FontSystem::create(const std::shared_ptr<system::Context>& context)
@@ -184,7 +140,6 @@ namespace tl
         {
             TLRENDER_P();
             FontMetrics out;
-#if defined(TLRENDER_FREETYPE)
             const auto i = p.ftFaces.find(info.family);
             if (i != p.ftFaces.end())
             {
@@ -197,7 +152,6 @@ namespace tl
                 out.descender = i->second->size->metrics.descender / 64;
                 out.lineHeight = i->second->size->metrics.height / 64;
             }
-#endif // TLRENDER_FREETYPE
             return out;
         }
 
@@ -245,7 +199,6 @@ namespace tl
             std::shared_ptr<Glyph> out;
             if (!glyphCache.get(GlyphInfo(code, fontInfo), out))
             {
-#if defined(TLRENDER_FREETYPE)
                 const auto i = ftFaces.find(fontInfo.family);
                 if (i != ftFaces.end())
                 {
@@ -274,15 +227,14 @@ namespace tl
                         }
 
                         out = std::make_shared<Glyph>();
-                        out->glyphInfo = GlyphInfo(code, fontInfo);
+                        out->info = GlyphInfo(code, fontInfo);
                         auto ftBitmap = i->second->glyph->bitmap;
-                        out->data.resize(ftBitmap.width * ftBitmap.rows);
-                        out->width = ftBitmap.width;
-                        out->height = ftBitmap.rows;
+                        const imaging::Info imageInfo(ftBitmap.width, ftBitmap.rows, imaging::PixelType::L_U8);
+                        out->image = imaging::Image::create(imageInfo);
                         for (size_t y = 0; y < ftBitmap.rows; ++y)
                         {
-                            uint8_t* dataP = out->data.data() + ftBitmap.width * y;
-                            unsigned char* bitmapP = ftBitmap.buffer + y * ftBitmap.pitch;
+                            uint8_t* dataP = out->image->getData() + ftBitmap.width * y;
+                            const unsigned char* bitmapP = ftBitmap.buffer + y * ftBitmap.pitch;
                             for (size_t x = 0; x < ftBitmap.width; ++x)
                             {
                                 dataP[x] = bitmapP[x];
@@ -293,10 +245,9 @@ namespace tl
                         out->lsbDelta = i->second->glyph->lsb_delta;
                         out->rsbDelta = i->second->glyph->rsb_delta;
 
-                        glyphCache.add(out->glyphInfo, out);
+                        glyphCache.add(out->info, out);
                     }
                 }
-#endif // TLRENDER_FREETYPE
             }
             return out;
         }
@@ -321,7 +272,6 @@ namespace tl
             math::Vector2i& size,
             std::vector<math::BBox2i>* glyphGeom)
         {
-#if defined(TLRENDER_FREETYPE)
             const auto i = ftFaces.find(fontInfo.family);
             if (i != ftFaces.end())
             {
@@ -418,7 +368,6 @@ namespace tl
                 size.x = std::max(size.x, pos.x);
                 size.y = pos.y;
             }
-#endif // TLRENDER_FREETYPE
         }
     }
 }

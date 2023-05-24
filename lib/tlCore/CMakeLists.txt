@@ -17,6 +17,7 @@ set(HEADERS
     FileInfo.h
     FileInfoInline.h
     FontSystem.h
+    FontSystemInline.h
     HDR.h
     HDRInline.h
     ICoreSystem.h
@@ -101,7 +102,7 @@ else()
 endif()
 
 set(LIBRARIES OTIO Imath::Imath)
-set(LIBRARIES_PRIVATE nlohmann_json::nlohmann_json GLM fseq)
+set(LIBRARIES_PRIVATE FreeType nlohmann_json::nlohmann_json MINIZIP::minizip ZLIB GLM fseq)
 if(TLRENDER_OCIO)
     list(APPEND LIBRARIES OpenColorIO::OpenColorIO)
 endif()
@@ -110,9 +111,6 @@ if(TLRENDER_AUDIO)
 endif()
 if(TLRENDER_FFMPEG)
     list(APPEND LIBRARIES_PRIVATE FFmpeg::swresample)
-endif()
-if(TLRENDER_FREETYPE)
-    list(APPEND LIBRARIES_PRIVATE FreeType)
 endif()
 if(TLRENDER_PYTHON)
     list(APPEND LIBRARIES_PRIVATE Python3::Python)

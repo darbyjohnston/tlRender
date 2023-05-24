@@ -51,7 +51,7 @@ namespace tl
             }
 
             p.layout = GridLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(SizeRole::SpacingSmall);
+            p.layout->setSpacingRole(SizeRole::MarginInside);
             p.layout->setStretch(Stretch::Expanding);
             p.scrollArea->setParent(p.layout);
             p.layout->setGridPos(p.scrollArea, 0, 0);
@@ -164,9 +164,9 @@ namespace tl
             return _p->scrollArea->getScrollPos();
         }
 
-        void ScrollWidget::setScrollPos(const math::Vector2i& value)
+        void ScrollWidget::setScrollPos(const math::Vector2i& value, bool clamp)
         {
-            _p->scrollArea->setScrollPos(value);
+            _p->scrollArea->setScrollPos(value, clamp);
         }
         
         void ScrollWidget::setScrollPosCallback(const std::function<void(const math::Vector2i&)>& value)

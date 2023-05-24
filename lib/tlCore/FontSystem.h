@@ -4,12 +4,7 @@
 
 #pragma once
 
-#include <tlCore/BBox.h>
-#include <tlCore/Util.h>
-
-#include <memory>
-#include <string>
-#include <vector>
+#include <tlCore/Image.h>
 
 namespace tl
 {
@@ -30,17 +25,18 @@ namespace tl
             FontInfo(const std::string& family, uint16_t size);
 
             std::string family = "NotoSans-Regular";
-            uint16_t size = 12;
+            uint16_t    size   = 12;
 
             bool operator == (const FontInfo&) const noexcept;
+            bool operator != (const FontInfo&) const noexcept;
             bool operator < (const FontInfo&) const;
         };
 
         //! Font metrics.
         struct FontMetrics
         {
-            int16_t ascender = 0;
-            int16_t descender = 0;
+            int16_t ascender   = 0;
+            int16_t descender  = 0;
             int16_t lineHeight = 0;
         };
 
@@ -50,28 +46,28 @@ namespace tl
             GlyphInfo() noexcept;
             GlyphInfo(uint32_t code, const FontInfo&) noexcept;
 
-            uint32_t code = 0;
+            uint32_t code     = 0;
             FontInfo fontInfo;
 
             bool operator == (const GlyphInfo&) const noexcept;
+            bool operator != (const GlyphInfo&) const noexcept;
             bool operator < (const GlyphInfo&) const;
         };
 
         //! Font glyph.
         struct Glyph
         {
-            GlyphInfo glyphInfo;
-            std::vector<uint8_t> data;
-            uint16_t width = 0;
-            uint16_t height = 0;
-            math::Vector2i offset;
-            int16_t advance = 0;
-            int32_t lsbDelta = 0;
-            int32_t rsbDelta = 0;
+            GlyphInfo                       info;
+            std::shared_ptr<imaging::Image> image;
+            math::Vector2i                  offset;
+            int16_t                         advance  = 0;
+            int32_t                         lsbDelta = 0;
+            int32_t                         rsbDelta = 0;
         };
 
         //! Font system.
         //!
+        //! \todo Add text elide functionality.
         //! \todo Add support for gamma correction?
         //! - https://www.freetype.org/freetype2/docs/text-rendering-general.html
         class FontSystem : public std::enable_shared_from_this<FontSystem>
@@ -134,3 +130,5 @@ namespace tl
         };
     }
 }
+
+#include <tlCore/FontSystemInline.h>

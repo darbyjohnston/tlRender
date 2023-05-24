@@ -25,7 +25,7 @@ namespace tl
         public:
             ~GridLayout() override;
 
-            //! Create a new grid layout.
+            //! Create a new layout.
             static std::shared_ptr<GridLayout> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

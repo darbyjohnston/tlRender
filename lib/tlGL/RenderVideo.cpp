@@ -150,8 +150,8 @@ namespace tl
             glStencilFunc(GL_ALWAYS, 1, 0xFF);
             glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
             glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-            p.shaders["mesh"]->bind();
-            p.shaders["mesh"]->setUniform("color", imaging::Color4f(1.F, 0.F, 0.F));
+            p.shaders["wipe"]->bind();
+            p.shaders["wipe"]->setUniform("color", imaging::Color4f(1.F, 0.F, 0.F));
             {
                 if (p.vbos["wipe"])
                 {
@@ -191,8 +191,8 @@ namespace tl
             glClear(GL_STENCIL_BUFFER_BIT);
             glStencilFunc(GL_ALWAYS, 1, 0xFF);
             glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-            p.shaders["mesh"]->bind();
-            p.shaders["mesh"]->setUniform("color", imaging::Color4f(0.F, 1.F, 0.F));
+            p.shaders["wipe"]->bind();
+            p.shaders["wipe"]->setUniform("color", imaging::Color4f(0.F, 1.F, 0.F));
             {
                 if (p.vbos["wipe"])
                 {

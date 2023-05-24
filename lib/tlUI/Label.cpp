@@ -4,7 +4,7 @@
 
 #include <tlUI/Label.h>
 
-#include <tlUI/GeometryUtil.h>
+#include <tlUI/LayoutUtil.h>
 
 namespace tl
 {
@@ -19,13 +19,14 @@ namespace tl
             struct SizeData
             {
                 int margin = 0;
+                imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
                 imaging::FontMetrics fontMetrics;
+                math::Vector2i textSize;
             };
             SizeData size;
 
             struct DrawData
             {
-                math::Vector2i textSize;
                 std::vector<std::shared_ptr<imaging::Glyph> > glyphs;
             };
             DrawData draw;
@@ -91,12 +92,19 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
+
             p.size.margin = event.style->getSizeRole(p.marginRole, event.displayScale);
-            p.size.fontMetrics = event.getFontMetrics(p.fontRole);
-            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            p.draw.textSize = event.fontSystem->getSize(p.text, fontInfo);
+
+            auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+            if (fontInfo != p.size.fontInfo)
+            {
+                p.size.fontInfo = fontInfo;
+                p.size.fontMetrics = event.getFontMetrics(p.fontRole);
+                p.size.textSize = event.fontSystem->getSize(p.text, p.size.fontInfo);
+            }
+
             _sizeHint.x =
-                p.draw.textSize.x +
+                p.size.textSize.x +
                 p.size.margin * 2;
             _sizeHint.y =
                 p.size.fontMetrics.lineHeight +
@@ -135,8 +143,7 @@ namespace tl
 
             if (!p.text.empty() && p.draw.glyphs.empty())
             {
-                const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-                p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
+                p.draw.glyphs = event.fontSystem->getGlyphs(p.text, p.size.fontInfo);
             }
             const math::Vector2i pos(
                 g.x(),

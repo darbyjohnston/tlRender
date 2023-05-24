@@ -30,7 +30,7 @@ namespace tl
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
             qt::TimelinePlayer* timelinePlayer = nullptr;
-            qt::TimeUnits units = qt::TimeUnits::Timecode;
+            timeline::TimeUnits timeUnits = timeline::TimeUnits::Timecode;
             qt::TimeObject* timeObject = nullptr;
             bool thumbnails = true;
             qint64 thumbnailRequestId = 0;
@@ -75,18 +75,18 @@ namespace tl
             {
                 disconnect(
                     p.timeObject,
-                    SIGNAL(unitsChanged(tl::qt::Time::Units)),
+                    SIGNAL(timeUnitsChanged(tl::timeline::TimeUnits)),
                     this,
-                    SLOT(setUnits(tl::qt::Time::Units)));
+                    SLOT(setTimeUnits(tl::timeline::TimeUnits)));
             }
             p.timeObject = timeObject;
             if (p.timeObject)
             {
-                p.units = p.timeObject->units();
+                p.timeUnits = p.timeObject->timeUnits();
                 connect(
                     p.timeObject,
-                    SIGNAL(unitsChanged(tl::qt::TimeUnits)),
-                    SLOT(setUnits(tl::qt::TimeUnits)));
+                    SIGNAL(timeUnitsChanged(tl::timeline::TimeUnits)),
+                    SLOT(setTimeUnits(tl::timeline::TimeUnits)));
             }
             update();
         }
@@ -151,9 +151,9 @@ namespace tl
             _thumbnailsUpdate();
         }
 
-        qt::TimeUnits TimelineSlider::units() const
+        timeline::TimeUnits TimelineSlider::timeUnits() const
         {
-            return _p->units;
+            return _p->timeUnits;
         }
 
         bool TimelineSlider::hasThumbnails() const
@@ -166,12 +166,12 @@ namespace tl
             return _p->stopOnScrub;
         }
 
-        void TimelineSlider::setUnits(qt::TimeUnits value)
+        void TimelineSlider::setTimeUnits(timeline::TimeUnits value)
         {
             TLRENDER_P();
-            if (value == p.units)
+            if (value == p.timeUnits)
                 return;
-            p.units = value;
+            p.timeUnits = value;
             update();
         }
 

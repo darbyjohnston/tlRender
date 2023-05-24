@@ -11,6 +11,8 @@ namespace tl
     namespace ui
     {
         //! Text line edit.
+        //! 
+        //! \todo Scroll the view with the cursor.
         class LineEdit : public IWidget
         {
             TLRENDER_NON_COPYABLE(LineEdit);
@@ -25,7 +27,7 @@ namespace tl
         public:
             ~LineEdit() override;
 
-            //! Create a new text line edit.
+            //! Create a new widget
             static std::shared_ptr<LineEdit> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
@@ -42,13 +44,19 @@ namespace tl
             //! Set the formatting text.
             void setFormat(const std::string&);
 
+            //! Set the lost focus callback.
+            void setFocusCallback(const std::function<void(bool)>&);
+
             //! Set the font role.
             void setFontRole(FontRole);
 
             void setVisible(bool) override;
             void setEnabled(bool) override;
             bool acceptsKeyFocus() const override;
-            void tickEvent(const TickEvent&) override;
+            void tickEvent(
+                bool,
+                bool,
+                const TickEvent&) override;
             void clipEvent(
                 const math::BBox2i&,
                 bool,
@@ -62,6 +70,7 @@ namespace tl
             void mouseMoveEvent(MouseMoveEvent&) override;
             void mousePressEvent(MouseClickEvent&) override;
             void mouseReleaseEvent(MouseClickEvent&) override;
+            void keyFocusEvent(bool) override;
             void keyPressEvent(KeyEvent&) override;
             void keyReleaseEvent(KeyEvent&) override;
             void textEvent(TextEvent&) override;
@@ -69,7 +78,7 @@ namespace tl
         private:
             math::BBox2i _getAlignGeometry() const;
 
-            size_t _getCursorPos(const math::Vector2i&);
+            int _getCursorPos(const math::Vector2i&);
 
             void _textUpdate();
 

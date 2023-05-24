@@ -2,17 +2,17 @@ set(HEADERS
     ColorConfigOptionsTest.h
     IRenderTest.h
     LUTOptionsTest.h
-    TimelinePlayerTest.h
+    PlayerTest.h
     TimelineTest.h
-    TimelineUtilTest.h)
+    UtilTest.h)
 
 set(SOURCE
     ColorConfigOptionsTest.cpp
     IRenderTest.cpp
     LUTOptionsTest.cpp
-    TimelinePlayerTest.cpp
+    PlayerTest.cpp
     TimelineTest.cpp
-    TimelineUtilTest.cpp)
+    UtilTest.cpp)
 
 add_library(tlTimelineTest ${SOURCE} ${HEADERS})
 target_link_libraries(tlTimelineTest tlTestLib tlTimeline)

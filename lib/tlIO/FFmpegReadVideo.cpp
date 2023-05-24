@@ -534,14 +534,13 @@ namespace tl
             if (_avStream != -1 &&
                 _buffer.size() < _options.videoBufferSize)
             {
-                AVPacket packet;
-                av_init_packet(&packet);
+                Packet packet;
                 int decoding = 0;
                 while (0 == decoding)
                 {
                     if (!_eof)
                     {
-                        decoding = av_read_frame(_avFormatContext, &packet);
+                        decoding = av_read_frame(_avFormatContext, packet.p);
                         if (AVERROR_EOF == decoding)
                         {
                             _eof = true;
@@ -553,11 +552,11 @@ namespace tl
                             break;
                         }
                     }
-                    if ((_eof && _avStream != -1) || (_avStream == packet.stream_index))
+                    if ((_eof && _avStream != -1) || (_avStream == packet.p->stream_index))
                     {
                         decoding = avcodec_send_packet(
                             _avCodecContext[_avStream],
-                            _eof ? nullptr : &packet);
+                            _eof ? nullptr : packet.p);
                         if (AVERROR_EOF == decoding)
                         {
                             decoding = 0;
@@ -586,14 +585,14 @@ namespace tl
                             break;
                         }
                     }
-                    if (packet.buf)
+                    if (packet.p->buf)
                     {
-                        av_packet_unref(&packet);
+                        av_packet_unref(packet.p);
                     }
                 }
-                if (packet.buf)
+                if (packet.p->buf)
                 {
-                    av_packet_unref(&packet);
+                    av_packet_unref(packet.p);
                 }
                 //std::cout << "video buffer size: " << _buffer.size() << std::endl;
             }

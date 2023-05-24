@@ -5,7 +5,7 @@
 #include <tlGLFWApp/IApp.h>
 
 #include <tlTimeline/IRender.h>
-#include <tlTimeline/TimelinePlayer.h>
+#include <tlTimeline/Player.h>
 
 struct GLFWwindow;
 
@@ -71,7 +71,7 @@ namespace tl
             private:
                 std::string _input;
                 Options _options;
-                std::shared_ptr<timeline::TimelinePlayer> _timelinePlayer;
+                std::shared_ptr<timeline::Player> _player;
                 std::shared_ptr<MainWindow> _mainWindow;
             };
         }

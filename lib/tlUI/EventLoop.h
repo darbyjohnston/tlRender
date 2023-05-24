@@ -4,13 +4,17 @@
 
 #pragma once
 
-#include <tlUI/IWidget.h>
+#include <tlUI/Event.h>
+
+#include <list>
 
 namespace tl
 {
     //! User interface.
     namespace ui
     {
+        class IClipboard;
+
         //! Event loop.
         class EventLoop : public std::enable_shared_from_this<EventLoop>
         {
@@ -21,6 +25,7 @@ namespace tl
                 const std::shared_ptr<Style>&,
                 const std::shared_ptr<IconLibrary>&,
                 const std::shared_ptr<imaging::FontSystem>&,
+                const std::shared_ptr<IClipboard>&,
                 const std::shared_ptr<system::Context>&);
 
             EventLoop();
@@ -33,6 +38,7 @@ namespace tl
                 const std::shared_ptr<Style>&,
                 const std::shared_ptr<IconLibrary>&,
                 const std::shared_ptr<imaging::FontSystem>&,
+                const std::shared_ptr<IClipboard>&,
                 const std::shared_ptr<system::Context>&);
 
             //! Add a top level widget.
@@ -45,9 +51,6 @@ namespace tl
             //! roles, fonts, and other metrics to support different
             //! resolutions.
             void setDisplayScale(float);
-
-            //! Get the key focus widget.
-            const std::weak_ptr<IWidget>& getKeyFocus() const;
 
             //! Set the key focus widget.
             void setKeyFocus(const std::shared_ptr<IWidget>&);
@@ -67,6 +70,9 @@ namespace tl
             //! Handle mouse button presses.
             void mouseButton(int button, bool press, int modifiers);
 
+            //! Handle scrolling (mouse wheel or touch pad).
+            void scroll(float dx, float dy);
+
             //! Tick the event loop.
             void tick();
 
@@ -76,10 +82,15 @@ namespace tl
             //! Draw the user interface.
             void draw(const std::shared_ptr<timeline::IRender>&);
 
+            //! Get the clipboard.
+            const std::shared_ptr<IClipboard>& getClipboard() const;
+
         protected:
             void _tickEvent();
             void _tickEvent(
                 const std::shared_ptr<IWidget>&,
+                bool visible,
+                bool enabled,
                 const TickEvent&);
 
             bool _getSizeUpdate();
@@ -118,6 +129,8 @@ namespace tl
             void _getKeyFocus(
                 const std::shared_ptr<IWidget>&,
                 std::list<std::shared_ptr<IWidget> >&);
+
+            void _purgeTopLevelWidgets();
 
         private:
             TLRENDER_PRIVATE();

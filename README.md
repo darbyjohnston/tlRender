@@ -19,6 +19,7 @@ Currently supported:
 * Multi-channel audio
 * Color management
 * A/B comparison
+* OTIOZ file bundles
 
 To do:
 * Software rendering
@@ -47,22 +48,23 @@ Contents:
 The core libraries providing timeline rendering, playback, and I/O.
 
 Required dependencies:
+* [FreeType](https://www.freetype.org)
 * [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
 * [Imath](https://github.com/AcademySoftwareFoundation/Imath)
-* [FSeq](https://github.com/darbyjohnston/FSeq)
 * [nlohmann_json](https://github.com/nlohmann/json)
+* [minizip-ng](https://github.com/zlib-ng/minizip-ng)
+* [ZLIB](https://zlib.net)
+* [FSeq](https://github.com/darbyjohnston/FSeq)
 
 Optional dependencies:
 * [OpenColorIO](https://github.com/AcademySoftwareFoundation/OpenColorIO)
 * [RtAudio](https://github.com/thestk/rtaudio)
 * [libsamplerate](https://github.com/libsndfile/libsamplerate)
-* [FreeType](https://www.freetype.org)
 * [JPEG](https://libjpeg-turbo.org)
 * [TIFF](http://www.libtiff.org)
 * [PNG](https://libpng.sourceforge.io/index.html)
 * [OpenEXR](https://www.openexr.com/)
 * [FFmpeg](https://ffmpeg.org)
-* [ZLIB](https://zlib.net)
 
 ## tlGL
 
@@ -104,7 +106,6 @@ except for Qt. Qt should be installed separately.
 | TLRENDER_PYTHON   | Enable Python support (for OTIO Python adapters)  | FALSE     |
 | TLRENDER_OCIO     | Enable support for OpenColorIO                    | TRUE      |
 | TLRENDER_AUDIO    | Enable support for audio                          | TRUE      |
-| TLRENDER_FREETYPE | Enable support for FreeType font rendering        | TRUE      |
 | TLRENDER_JPEG     | Enable support for JPEG                           | TRUE      |
 | TLRENDER_TIFF     | Enable support for TIFF                           | TRUE      |
 | TLRENDER_PNG      | Enable support for PNG                            | TRUE      |
@@ -154,7 +155,7 @@ export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
 When running CMake with the super build script, add the Qt location to
 "CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT6":
 ```
-cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/6.4.1/gcc_64" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Debug
+cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/6.5.0/gcc_64" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
 ### Building on Linux with Qt 5
@@ -169,7 +170,7 @@ cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=
 
 Build with only the required dependencies, disabling all optional dependencies.
 ```
-cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DTLRENDER_OCIO=OFF -DTLRENDER_AUDIO=OFF -DTLRENDER_FREETYPE=OFF -DTLRENDER_JPEG=OFF -DTLRENDER_TIFF=OFF -DTLRENDER_PNG=OFF -DTLRENDER_EXR=OFF -DTLRENDER_FFMPEG=OFF -DTLRENDER_PROGRAMS=OFF -DTLRENDER_EXAMPLES=OFF -DTLRENDER_TESTS=OFF
+cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DTLRENDER_OCIO=OFF -DTLRENDER_AUDIO=OFF -DTLRENDER_JPEG=OFF -DTLRENDER_TIFF=OFF -DTLRENDER_PNG=OFF -DTLRENDER_EXR=OFF -DTLRENDER_FFMPEG=OFF -DTLRENDER_PROGRAMS=OFF -DTLRENDER_EXAMPLES=OFF -DTLRENDER_TESTS=OFF
 ```
 
 ### Notes for building on Linux
@@ -211,7 +212,7 @@ Try running the "play-glfw" example:
 When running CMake with the super build script add the Qt location to
 "CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT6":
 ```
-cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/6.4.1/clang_64" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Debug
+cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/6.5.0/macos" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
 ### Building on macOS with Qt 5
@@ -231,6 +232,12 @@ architecture:
 ```
 ```
 -DCMAKE_OSX_ARCHITECTURES=arm64
+```
+
+These aliases are convenient for switching between architectures:
+```
+alias arm="env /usr/bin/arch -arm64 /bin/zsh --login"
+alias intel="env /usr/bin/arch -x86_64 /bin/zsh --login"
 ```
 
 ## Building FFmpeg on Windows
@@ -292,7 +299,7 @@ set PATH=%CD%\install\bin;%PATH%
 When running CMake with the super build script add the Qt location to
 "CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT6":
 ```
-cmake ..\etc\SuperBuild -DCMAKE_INSTALL_PREFIX=%CD%\install -DCMAKE_PREFIX_PATH="%CD%\install;C:\Qt\6.4.1\msvc2019_64" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Debug
+cmake ..\etc\SuperBuild -DCMAKE_INSTALL_PREFIX=%CD%\install -DCMAKE_PREFIX_PATH="%CD%\install;C:\Qt\6.5.0\msvc2019_64" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
 ### Building on Windows with Qt 5

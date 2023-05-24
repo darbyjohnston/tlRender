@@ -25,7 +25,7 @@ namespace tl
         public:
             ~PushButton() override;
 
-            //! Create a new push button.
+            //! Create a new widget.
             static std::shared_ptr<PushButton> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

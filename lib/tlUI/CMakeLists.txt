@@ -1,5 +1,8 @@
 set(HEADERS
     ButtonGroup.h
+    ComboBox.h
+    DoubleEdit.h
+    DoubleModel.h
     DrawUtil.h
     Event.h
     EventLoop.h
@@ -7,11 +10,10 @@ set(HEADERS
     FloatEditSlider.h
     FloatModel.h
     FloatSlider.h
-    GeometryUtil.h
     GridLayout.h
     GroupBox.h
     IButton.h
-    ITimelineItem.h
+    IClipboard.h
     IWidget.h
     IWidgetInline.h
     IWidgetOptions.h
@@ -22,6 +24,7 @@ set(HEADERS
     IntModel.h
     IntSlider.h
     Label.h
+    LayoutUtil.h
     LineEdit.h
     ListButton.h
     PieChart.h
@@ -34,20 +37,16 @@ set(HEADERS
     Splitter.h
     StackLayout.h
     Style.h
-    TimelineAudioClipItem.h
-    TimelineAudioGapItem.h
-    TimelineIOManager.h
-    TimelineItem.h
-    TimelineTrackItem.h
-    TimelineVideoClipItem.h
-    TimelineVideoGapItem.h
-    TimelineViewport.h
-    TimelineWidget.h
+    TimeEdit.h
+    TimeLabel.h
     ToolButton.h)
 set(HEADERS_PRIVATE)
 
 set(SOURCE
     ButtonGroup.cpp
+    ComboBox.cpp
+    DoubleEdit.cpp
+    DoubleModel.cpp
     DrawUtil.cpp
     Event.cpp
     EventLoop.cpp
@@ -55,11 +54,10 @@ set(SOURCE
     FloatEditSlider.cpp
     FloatModel.cpp
     FloatSlider.cpp
-    GeometryUtil.cpp
     GridLayout.cpp
     GroupBox.cpp
     IButton.cpp
-    ITimelineItem.cpp
+    IClipboard.cpp
     IWidget.cpp
     IWidgetOptions.cpp
     IconLibrary.cpp
@@ -69,6 +67,7 @@ set(SOURCE
     IntModel.cpp
     IntSlider.cpp
     Label.cpp
+    LayoutUtil.cpp
     LineEdit.cpp
     ListButton.cpp
     PieChart.cpp
@@ -81,19 +80,12 @@ set(SOURCE
     Splitter.cpp
     StackLayout.cpp
     Style.cpp
-    TimelineAudioClipItem.cpp
-    TimelineAudioGapItem.cpp
-    TimelineIOManager.cpp
-    TimelineItem.cpp
-    TimelineTrackItem.cpp
-    TimelineVideoClipItem.cpp
-    TimelineVideoGapItem.cpp
-    TimelineViewport.cpp
-    TimelineWidget.cpp
+    TimeEdit.cpp
+    TimeLabel.cpp
     ToolButton.cpp)
 
 add_library(tlUI ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
-target_link_libraries(tlUI PUBLIC tlTimeline PRIVATE ${LIBRARIES_PRIVATE})
+target_link_libraries(tlUI PUBLIC tlIO PRIVATE ${LIBRARIES_PRIVATE})
 set_target_properties(tlUI PROPERTIES FOLDER lib)
 set_target_properties(tlUI PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

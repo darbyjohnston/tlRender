@@ -13,21 +13,24 @@ set(HEADERS
     LUTOptions.h
     LUTOptionsInline.h
     MemoryReference.h
+    Player.h
+    PlayerInline.h
+    PlayerOptions.h
+    PlayerOptionsInline.h
     ReadCache.h
     RenderOptions.h
     RenderOptionsInline.h
     RenderUtil.h
+    TimeUnits.h
     Timeline.h
-    TimelinePlayer.h
-    TimelinePlayerInline.h
     Transition.h
     Util.h
     UtilInline.h
     Video.h
     VideoInline.h)
 set(PRIVATE_HEADERS
-    TimelinePrivate.h
-    TimelinePlayerPrivate.h)
+    PlayerPrivate.h
+    TimelinePrivate.h)
 
 set(SOURCE
     ColorConfigOptions.cpp
@@ -37,13 +40,15 @@ set(SOURCE
     ImageOptions.cpp
     LUTOptions.cpp
     MemoryReference.cpp
+    Player.cpp
+    PlayerOptions.cpp
+    PlayerPrivate.cpp
     ReadCache.cpp
     RenderUtil.cpp
+    TimeUnits.cpp
     Timeline.cpp
     TimelineCreate.cpp
     TimelinePrivate.cpp
-    TimelinePlayer.cpp
-    TimelinePlayerPrivate.cpp
     Transition.cpp
     Util.cpp)
 

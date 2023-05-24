@@ -28,6 +28,11 @@ namespace tl
             json = { value.getMin(), value.getMax() };
         }
 
+        void to_json(nlohmann::json& json, const DoubleRange& value)
+        {
+            json = { value.getMin(), value.getMax() };
+        }
+
         void from_json(const nlohmann::json& json, IntRange& value)
         {
             int min = 0;
@@ -55,6 +60,15 @@ namespace tl
             value = FloatRange(min, max);
         }
 
+        void from_json(const nlohmann::json& json, DoubleRange& value)
+        {
+            double min = 0.0;
+            double max = 0.0;
+            json.at(0).get_to(min);
+            json.at(1).get_to(max);
+            value = DoubleRange(min, max);
+        }
+
         std::ostream& operator << (std::ostream& os, const IntRange& value)
         {
             os << value.getMin() << "-" << value.getMax();
@@ -68,6 +82,12 @@ namespace tl
         }
 
         std::ostream& operator << (std::ostream& os, const FloatRange& value)
+        {
+            os << value.getMin() << "-" << value.getMax();
+            return os;
+        }
+
+        std::ostream& operator << (std::ostream& os, const DoubleRange& value)
         {
             os << value.getMin() << "-" << value.getMax();
             return os;
@@ -139,6 +159,29 @@ namespace tl
                 ss >> max;
             }
             value = FloatRange(min, max);
+            return is;
+        }
+
+        std::istream& operator >> (std::istream& is, DoubleRange& value)
+        {
+            std::string s;
+            is >> s;
+            auto split = string::split(s, '-');
+            if (split.size() != 2)
+            {
+                throw error::ParseError();
+            }
+            double min = 0.0;
+            double max = 0.0;
+            {
+                std::stringstream ss(split[0]);
+                ss >> min;
+            }
+            {
+                std::stringstream ss(split[1]);
+                ss >> max;
+            }
+            value = DoubleRange(min, max);
             return is;
         }
     }

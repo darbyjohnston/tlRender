@@ -17,9 +17,10 @@ namespace tl
             const imaging::Color4f& color)
         {
             TLRENDER_P();
+            ++(p.currentStats.rects);
 
-            p.shaders["mesh"]->bind();
-            p.shaders["mesh"]->setUniform("color", color);
+            p.shaders["rect"]->bind();
+            p.shaders["rect"]->setUniform("color", color);
 
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -40,7 +41,9 @@ namespace tl
             const imaging::Color4f& color)
         {
             TLRENDER_P();
+            ++(p.currentStats.meshes);
             const size_t size = mesh.triangles.size();
+            p.currentStats.meshTriangles += mesh.triangles.size();
             if (size > 0)
             {
                 p.shaders["mesh"]->bind();
@@ -55,7 +58,7 @@ namespace tl
 
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-                if (!p.vbos["mesh"] || (p.vbos["mesh"] && p.vbos["mesh"]->getSize() != size * 3))
+                if (!p.vbos["mesh"] || (p.vbos["mesh"] && p.vbos["mesh"]->getSize() < size * 3))
                 {
                     p.vbos["mesh"] = VBO::create(size * 3, VBOType::Pos2_F32);
                     p.vaos["mesh"].reset();
@@ -72,10 +75,35 @@ namespace tl
                 if (p.vaos["mesh"] && p.vbos["mesh"])
                 {
                     p.vaos["mesh"]->bind();
-                    p.vaos["mesh"]->draw(GL_TRIANGLES, 0, p.vbos["mesh"]->getSize());
+                    p.vaos["mesh"]->draw(GL_TRIANGLES, 0, size * 3);
                 }
+            }
+        }
 
-                p.shaders["mesh"]->setUniform("transform.mvp", p.transform);
+        void Render::Private::drawTextMesh(const geom::TriangleMesh2& mesh)
+        {
+            const size_t size = mesh.triangles.size();
+            currentStats.textTriangles += size;
+            if (size > 0)
+            {
+                if (!vbos["text"] || (vbos["text"] && vbos["text"]->getSize() < size * 3))
+                {
+                    vbos["text"] = VBO::create(size * 3, VBOType::Pos2_F32_UV_U16);
+                    vaos["text"].reset();
+                }
+                if (vbos["text"])
+                {
+                    vbos["text"]->copy(convert(mesh, vbos["text"]->getType()));
+                }
+                if (!vaos["text"] && vbos["text"])
+                {
+                    vaos["text"] = VAO::create(vbos["text"]->getType(), vbos["text"]->getID());
+                }
+                if (vaos["text"] && vbos["text"])
+                {
+                    vaos["text"]->bind();
+                    vaos["text"]->draw(GL_TRIANGLES, 0, size * 3);
+                }
             }
         }
 
@@ -85,6 +113,7 @@ namespace tl
             const imaging::Color4f& color)
         {
             TLRENDER_P();
+            ++(p.currentStats.text);
 
             p.shaders["text"]->bind();
             p.shaders["text"]->setUniform("color", color);
@@ -93,10 +122,14 @@ namespace tl
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
             glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
+            uint8_t textureIndex = 0;
+            const auto textures = p.glyphTextureAtlas->getTextures();
+            glBindTexture(GL_TEXTURE_2D, textures[textureIndex]);
 
             int x = 0;
             int32_t rsbDeltaPrev = 0;
-            uint8_t textureIndex = 0;
+            geom::TriangleMesh2 mesh;
+            size_t meshIndex = 0;
             for (const auto& glyph : glyphs)
             {
                 if (glyph)
@@ -111,35 +144,71 @@ namespace tl
                     }
                     rsbDeltaPrev = glyph->rsbDelta;
 
-                    if (!glyph->data.empty())
+                    if (glyph->image && glyph->image->isValid())
                     {
-                        std::shared_ptr<Texture> texture;
-                        if (!p.glyphTextureCache.get(glyph->glyphInfo, texture))
+                        TextureAtlasID id = 0;
+                        const auto i = p.glyphIDs.find(glyph->info);
+                        if (i != p.glyphIDs.end())
                         {
-                            const imaging::Info info(glyph->width, glyph->height, imaging::PixelType::L_U8);
-                            texture = Texture::create(info);
-                            texture->copy(glyph->data.data(), info);
-                            p.glyphTextureCache.add(glyph->glyphInfo, texture);
+                            id = i->second;
                         }
-                        glBindTexture(GL_TEXTURE_2D, texture->getID());
+                        TextureAtlasItem item;
+                        if (!p.glyphTextureAtlas->getItem(id, item))
+                        {
+                            id = p.glyphTextureAtlas->addItem(glyph->image, item);
+                            p.glyphIDs[glyph->info] = id;
+                        }
+                        if (item.textureIndex != textureIndex)
+                        {
+                            textureIndex = item.textureIndex;
+                            glBindTexture(GL_TEXTURE_2D, textures[textureIndex]);
+
+                            p.drawTextMesh(mesh);
+                            mesh = geom::TriangleMesh2();
+                            meshIndex = 0;
+                        }
 
                         const math::Vector2i& offset = glyph->offset;
-                        const math::BBox2i bbox(pos.x + x + offset.x, pos.y - offset.y, glyph->width, glyph->height);
+                        const math::BBox2i bbox(
+                            pos.x + x + offset.x,
+                            pos.y - offset.y,
+                            glyph->image->getWidth(),
+                            glyph->image->getHeight());
+                        const auto& min = bbox.min;
+                        const auto& max = bbox.max;
 
-                        if (p.vbos["text"])
-                        {
-                            p.vbos["text"]->copy(convert(geom::bbox(bbox), p.vbos["text"]->getType()));
-                        }
-                        if (p.vaos["text"])
-                        {
-                            p.vaos["text"]->bind();
-                            p.vaos["text"]->draw(GL_TRIANGLES, 0, p.vbos["text"]->getSize());
-                        }
+                        mesh.v.push_back(math::Vector2f(min.x, min.y));
+                        mesh.v.push_back(math::Vector2f(max.x + 1, min.y));
+                        mesh.v.push_back(math::Vector2f(max.x + 1, max.y + 1));
+                        mesh.v.push_back(math::Vector2f(min.x, max.y + 1));
+                        mesh.t.push_back(math::Vector2f(item.textureU.getMin(), item.textureV.getMin()));
+                        mesh.t.push_back(math::Vector2f(item.textureU.getMax(), item.textureV.getMin()));
+                        mesh.t.push_back(math::Vector2f(item.textureU.getMax(), item.textureV.getMax()));
+                        mesh.t.push_back(math::Vector2f(item.textureU.getMin(), item.textureV.getMax()));
+
+                        geom::Triangle2 triangle;
+                        triangle.v[0].v = meshIndex + 1;
+                        triangle.v[1].v = meshIndex + 2;
+                        triangle.v[2].v = meshIndex + 3;
+                        triangle.v[0].t = meshIndex + 1;
+                        triangle.v[1].t = meshIndex + 2;
+                        triangle.v[2].t = meshIndex + 3;
+                        mesh.triangles.push_back(triangle);
+                        triangle.v[0].v = meshIndex + 3;
+                        triangle.v[1].v = meshIndex + 4;
+                        triangle.v[2].v = meshIndex + 1;
+                        triangle.v[0].t = meshIndex + 3;
+                        triangle.v[1].t = meshIndex + 4;
+                        triangle.v[2].t = meshIndex + 1;
+                        mesh.triangles.push_back(triangle);
+
+                        meshIndex += 4;
                     }
 
                     x += glyph->advance;
                 }
             }
+            p.drawTextMesh(mesh);
         }
 
         void Render::drawTexture(
@@ -148,6 +217,7 @@ namespace tl
             const imaging::Color4f& color)
         {
             TLRENDER_P();
+            ++(p.currentStats.textures);
 
             p.shaders["texture"]->bind();
             p.shaders["texture"]->setUniform("color", color);
@@ -176,6 +246,7 @@ namespace tl
             const timeline::ImageOptions& imageOptions)
         {
             TLRENDER_P();
+            ++(p.currentStats.images);
 
             const auto& info = image->getInfo();
             auto textures = p.textureCache.get(info, imageOptions.imageFilters);

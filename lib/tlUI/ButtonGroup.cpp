@@ -60,6 +60,7 @@ namespace tl
             case ButtonGroupType::Toggle:
                 button->setCheckable(true);
                 break;
+            default: break;
             }
             const size_t index = p.buttons.size();
             p.buttons.push_back(button);
@@ -100,6 +101,7 @@ namespace tl
                             _p->checkedCallback(index, value);
                         }
                         break;
+                    default: break;
                     }
                 });
         }
@@ -131,6 +133,7 @@ namespace tl
                     }
                 }
                 break;
+            default: break;
             }
         }
 

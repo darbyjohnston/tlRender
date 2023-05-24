@@ -4,7 +4,7 @@
 
 #include <tlUI/IWidget.h>
 
-#include <tlTimeline/TimelinePlayer.h>
+#include <tlTimeline/Player.h>
 
 namespace tl
 {
@@ -19,7 +19,7 @@ namespace tl
 
             protected:
                 void _init(
-                    const std::shared_ptr<timeline::TimelinePlayer>&,
+                    const std::shared_ptr<timeline::Player>&,
                     const std::shared_ptr<system::Context>&);
 
                 MainWindow();
@@ -28,7 +28,7 @@ namespace tl
                 ~MainWindow();
 
                 static std::shared_ptr<MainWindow> create(
-                    const std::shared_ptr<timeline::TimelinePlayer>&,
+                    const std::shared_ptr<timeline::Player>&,
                     const std::shared_ptr<system::Context>&);
 
                 void setGeometry(const math::BBox2i&) override;

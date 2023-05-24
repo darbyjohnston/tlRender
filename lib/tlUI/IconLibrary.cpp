@@ -7,6 +7,7 @@
 #include <tlIO/IOSystem.h>
 
 #include <tlCore/StringFormat.h>
+#include <tlCore/LRUCache.h>
 
 namespace
 {
@@ -20,6 +21,8 @@ namespace
 #include "Resources/Clear_96.h"
 #include "Resources/Color_192.h"
 #include "Resources/Color_96.h"
+#include "Resources/ComboBoxArrow_192.h"
+#include "Resources/ComboBoxArrow_96.h"
 #include "Resources/Compare_192.h"
 #include "Resources/Compare_96.h"
 #include "Resources/CompareA_192.h"
@@ -123,15 +126,18 @@ namespace tl
             struct Request
             {
                 std::string name;
-                float contentScale = 1.F;
+                float displayScale = 1.F;
                 std::promise<std::shared_ptr<imaging::Image> > promise;
             };
             const size_t requestTimeout = 5;
+
+            typedef std::pair<std::string, float> CacheKey;
 
             struct Mutex
             {
                 std::list<std::shared_ptr<Request> > requests;
                 bool stopped = false;
+                memory::LRUCache<CacheKey, std::shared_ptr<imaging::Image> > cache;
                 std::mutex mutex;
             };
             Mutex mutex;
@@ -155,6 +161,7 @@ namespace tl
             p.iconData["BellowsOpen_96.png"] = BellowsOpen_96_png;
             p.iconData["Clear_96.png"] = Clear_96_png;
             p.iconData["Color_96.png"] = Color_96_png;
+            p.iconData["ComboBoxArrow_96.png"] = ComboBoxArrow_96_png;
             p.iconData["Compare_96.png"] = Compare_96_png;
             p.iconData["CompareA_96.png"] = CompareA_96_png;
             p.iconData["CompareB_96.png"] = CompareB_96_png;
@@ -202,6 +209,7 @@ namespace tl
             p.iconData["BellowsOpen_192.png"] = BellowsOpen_192_png;
             p.iconData["Clear_192.png"] = Clear_192_png;
             p.iconData["Color_192.png"] = Color_192_png;
+            p.iconData["ComboBoxArrow_192.png"] = ComboBoxArrow_192_png;
             p.iconData["Compare_192.png"] = Compare_192_png;
             p.iconData["CompareA_192.png"] = CompareA_192_png;
             p.iconData["CompareB_192.png"] = CompareB_192_png;
@@ -244,6 +252,8 @@ namespace tl
             p.iconData["WindowFullScreen_192.png"] = WindowFullScreen_192_png;
             p.iconData["WindowSecondary_192.png"] = WindowSecondary_192_png;            
 
+            p.mutex.cache.setMax(100);
+
             p.thread.running = true;
             p.thread.thread = std::thread(
                 [this]
@@ -273,7 +283,7 @@ namespace tl
                         {
                             std::shared_ptr<imaging::Image> image;
                             int dpi = 96;
-                            if (request->contentScale >= 2.F)
+                            if (request->displayScale >= 2.F)
                             {
                                 dpi = 192;
                             }
@@ -303,6 +313,12 @@ namespace tl
                                 {}
                             }
                             request->promise.set_value(image);
+                            {
+                                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                                p.mutex.cache.add(
+                                    std::make_pair(request->name, request->displayScale),
+                                    image);
+                            }
                         }
                     }
 
@@ -338,25 +354,33 @@ namespace tl
 
         std::future<std::shared_ptr<imaging::Image> > IconLibrary::request(
             const std::string& name,
-            float contentScale)
+            float displayScale)
         {
             TLRENDER_P();
             auto request = std::make_shared<Private::Request>();
             request->name = name;
-            request->contentScale = contentScale;
+            request->displayScale = displayScale;
             auto future = request->promise.get_future();
             bool valid = false;
+            std::shared_ptr<imaging::Image> cached;
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                if (!p.mutex.stopped)
+                if (!p.mutex.cache.get(std::make_pair(name, displayScale), cached))
                 {
-                    valid = true;
-                    p.mutex.requests.push_back(request);
+                    if (!p.mutex.stopped)
+                    {
+                        valid = true;
+                        p.mutex.requests.push_back(request);
+                    }
                 }
             }
             if (valid)
             {
                 p.thread.cv.notify_one();
+            }
+            else if (cached)
+            {
+                request->promise.set_value(cached);
             }
             else
             {

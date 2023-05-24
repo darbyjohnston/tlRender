@@ -34,9 +34,6 @@ namespace tl
             //! Get the menu.
             QMenu* menu() const;
 
-            //! Get the time units menu.
-            QMenu* timeUnitsMenu() const;
-
             //! Get the speed menu.
             QMenu* speedMenu() const;
 

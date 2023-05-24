@@ -67,7 +67,6 @@ namespace tl
                 GlyphInfo b(1, FontInfo("NotoMono-Regular", 14));
                 TLRENDER_ASSERT(a < b);
             }
-#if defined(TLRENDER_FREETYPE)
             {
                 auto fontSystem = FontSystem::create(_context);
                 FontInfo fi("NotoMono-Regular", 14);
@@ -109,15 +108,13 @@ namespace tl
                     TLRENDER_ASSERT(text[i].size() == glyphs.size());
                     for (size_t j = 0; j < text[i].size(); ++j)
                     {
-                        uint16_t width = 0;
-                        uint16_t height = 0;
-                        if (glyphs[j])
+                        imaging::Size size;
+                        if (glyphs[j] && glyphs[j]->image)
                         {
-                            width = glyphs[j]->width;
-                            height = glyphs[j]->height;
+                            size = glyphs[j]->image->getSize();
                         }
                         std::stringstream ss;
-                        ss << "Glyph '" << text[i][j] << "' size: " << width << "," << height;
+                        ss << "Glyph '" << text[i][j] << "' size: " << size;
                         _print(ss.str());
                     }
                     {
@@ -132,7 +129,6 @@ namespace tl
                     }
                 }
             }
-#endif // TLRENDER_FREETYPE
         }
     }
 }

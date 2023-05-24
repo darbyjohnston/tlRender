@@ -10,6 +10,7 @@ namespace tl
 {
     namespace ui
     {
+        class DoubleModel;
         class FloatModel;
         class IntModel;
 
@@ -28,7 +29,7 @@ namespace tl
         public:
             ~IncButton() override;
 
-            //! Create a new increment button.
+            //! Create a new widget.
             static std::shared_ptr<IncButton> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
@@ -57,7 +58,7 @@ namespace tl
         public:
             ~IncButtons() override;
 
-            //! Create new increment buttons.
+            //! Create a new widget.
             static std::shared_ptr<IncButtons> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
@@ -92,13 +93,13 @@ namespace tl
         public:
             ~IntIncButtons() override;
 
-            //! Create new increment buttons.
+            //! Create a new widget.
             static std::shared_ptr<IntIncButtons> create(
                 const std::shared_ptr<IntModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Get the integer model.
+            //! Get the model.
             const std::shared_ptr<IntModel>& getModel() const;
 
         private:
@@ -123,14 +124,46 @@ namespace tl
         public:
             ~FloatIncButtons() override;
 
-            //! Create new increment buttons.
+            //! Create a new widget.
             static std::shared_ptr<FloatIncButtons> create(
                 const std::shared_ptr<FloatModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Get the floating point model.
+            //! Get the model.
             const std::shared_ptr<FloatModel>& getModel() const;
+
+        private:
+            void _modelUpdate();
+
+            TLRENDER_PRIVATE();
+        };
+
+        //! Buttons for incrementing and decrementing a double precision
+        //! floating point value.
+        class DoubleIncButtons : public IncButtons
+        {
+            TLRENDER_NON_COPYABLE(DoubleIncButtons);
+
+        protected:
+            void _init(
+                const std::shared_ptr<DoubleModel>&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            DoubleIncButtons();
+
+        public:
+            ~DoubleIncButtons() override;
+
+            //! Create a new widget.
+            static std::shared_ptr<DoubleIncButtons> create(
+                const std::shared_ptr<DoubleModel>&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            //! Get the model.
+            const std::shared_ptr<DoubleModel>& getModel() const;
 
         private:
             void _modelUpdate();

@@ -768,9 +768,10 @@ namespace tl
             {
                 tags["Original Data Window"] = serialize(originalDataWindowAttribute(header).value());
             }
-            if (hasDwaCompressionLevel(header))
+            if (Imf::DWAA_COMPRESSION == header.compression() ||
+                Imf::DWAB_COMPRESSION == header.compression())
             {
-                tags["DWA Compression Level"] = serialize(dwaCompressionLevelAttribute(header).value());
+                tags["DWA Compression Level"] = serialize(header.dwaCompressionLevel());
             }
 
             // Other attributes.

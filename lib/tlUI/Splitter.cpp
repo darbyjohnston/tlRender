@@ -4,7 +4,7 @@
 
 #include <tlUI/Splitter.h>
 
-#include <tlUI/GeometryUtil.h>
+#include <tlUI/LayoutUtil.h>
 
 namespace tl
 {

@@ -5,7 +5,7 @@
 #include <tlUI/PieChart.h>
 
 #include <tlUI/DrawUtil.h>
-#include <tlUI/GeometryUtil.h>
+#include <tlUI/LayoutUtil.h>
 
 #include <tlCore/StringFormat.h>
 

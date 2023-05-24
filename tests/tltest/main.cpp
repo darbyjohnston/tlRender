@@ -18,9 +18,9 @@
 #include <tlTimelineTest/ColorConfigOptionsTest.h>
 #include <tlTimelineTest/IRenderTest.h>
 #include <tlTimelineTest/LUTOptionsTest.h>
-#include <tlTimelineTest/TimelinePlayerTest.h>
+#include <tlTimelineTest/PlayerTest.h>
 #include <tlTimelineTest/TimelineTest.h>
-#include <tlTimelineTest/TimelineUtilTest.h>
+#include <tlTimelineTest/UtilTest.h>
 
 #include <tlIOTest/CineonTest.h>
 #include <tlIOTest/DPXTest.h>
@@ -167,9 +167,9 @@ int main(int argc, char* argv[])
             tests.push_back(timeline_tests::ColorConfigOptionsTest::create(context));
             tests.push_back(timeline_tests::IRenderTest::create(context));
             tests.push_back(timeline_tests::LUTOptionsTest::create(context));
-            tests.push_back(timeline_tests::TimelinePlayerTest::create(context));
+            tests.push_back(timeline_tests::PlayerTest::create(context));
             tests.push_back(timeline_tests::TimelineTest::create(context));
-            tests.push_back(timeline_tests::TimelineUtilTest::create(context));
+            tests.push_back(timeline_tests::UtilTest::create(context));
         }
         if (1)
         {

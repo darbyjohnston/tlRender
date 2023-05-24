@@ -25,7 +25,7 @@ namespace tl
         public:
             ~GroupBox() override;
 
-            //! Create a new group box.
+            //! Create a new widget.
             static std::shared_ptr<GroupBox> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

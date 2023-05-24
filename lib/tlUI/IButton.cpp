@@ -14,10 +14,11 @@ namespace tl
         {
             bool checkable = false;
             std::string icon;
-            bool iconInit = false;
             float iconScale = 1.F;
+            bool iconInit = false;
             std::future<std::shared_ptr<imaging::Image> > iconFuture;
             bool repeatClick = false;
+            bool repeatClickInit = false;
             std::chrono::steady_clock::time_point repeatClickTimer;
         };
 
@@ -128,11 +129,16 @@ namespace tl
             }
         }
 
-        void IButton::tickEvent(const TickEvent& event)
+        void IButton::tickEvent(
+            bool parentsVisible,
+            bool parentsEnabled,
+            const TickEvent& event)
         {
+            IWidget::tickEvent(parentsVisible, parentsEnabled, event);
             TLRENDER_P();
             if (event.displayScale != p.iconScale)
             {
+                p.iconScale = event.displayScale;
                 p.iconInit = true;
                 p.iconFuture = std::future<std::shared_ptr<imaging::Image> >();
                 _iconImage.reset();
@@ -140,7 +146,6 @@ namespace tl
             if (!p.icon.empty() && p.iconInit)
             {
                 p.iconInit = false;
-                p.iconScale = event.displayScale;
                 p.iconFuture = event.iconLibrary->request(p.icon, event.displayScale);
             }
             if (p.iconFuture.valid() &&
@@ -152,11 +157,13 @@ namespace tl
             }
             if (_pressed && p.repeatClick)
             {
+                const float duration = p.repeatClickInit ? .4F : .02F;
                 const auto now = std::chrono::steady_clock::now();
                 const std::chrono::duration<float> diff = now - p.repeatClickTimer;
-                if (diff.count() > .2F)
+                if (diff.count() > duration)
                 {
                     _click();
+                    p.repeatClickInit = false;
                     p.repeatClickTimer = now;
                 }
             }
@@ -199,12 +206,13 @@ namespace tl
             event.accept = true;
             if (acceptsKeyFocus())
             {
-                takeFocus();
+                takeKeyFocus();
             }
             _pressed = true;
             _updates |= Update::Draw;
             if (p.repeatClick)
             {
+                p.repeatClickInit = true;
                 p.repeatClickTimer = std::chrono::steady_clock::now();
             }
         }

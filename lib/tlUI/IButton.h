@@ -55,7 +55,10 @@ namespace tl
 
             void setVisible(bool) override;
             void setEnabled(bool) override;
-            void tickEvent(const TickEvent&) override;
+            void tickEvent(
+                bool,
+                bool,
+                const TickEvent&) override;
             void clipEvent(
                 const math::BBox2i&,
                 bool,
