@@ -61,7 +61,7 @@ namespace tl
             p.scrollWidget->setScrollPosCallback(
                 [this](const math::Vector2i&)
                 {
-                    _p->frameView = false;
+                    setFrameView(false);
                 });
         }
 
