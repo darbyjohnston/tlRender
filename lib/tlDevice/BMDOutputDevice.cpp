@@ -24,6 +24,8 @@ namespace tl
         namespace
         {
             const size_t pixelDataMax = 3;
+            //! \todo Should this be the same as
+            //! timeline::PlayerOptions().audioBufferFrameCount?
             const size_t audioBufferCount = 3000;
 
             class DLIteratorWrapper
