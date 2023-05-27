@@ -89,6 +89,7 @@ namespace tl
 
         TimelineWidget::TimelineWidget(
             const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<ui::Style>& style,
             QWidget* parent) :
             QOpenGLWidget(parent),
             _p(new Private)
@@ -108,7 +109,7 @@ namespace tl
             setMouseTracking(true);
             setFocusPolicy(Qt::StrongFocus);
 
-            p.style = ui::Style::create(context);
+            p.style = style ? style : ui::Style::create(context);
             p.iconLibrary = ui::IconLibrary::create(context);
             p.fontSystem = imaging::FontSystem::create(context);
             p.clipboard = Clipboard::create(context);
