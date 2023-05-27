@@ -31,7 +31,6 @@ namespace tl
             timeline::CompareOptions compareOptions;
             std::vector<qt::TimelinePlayer*> timelinePlayers;
             std::vector<imaging::Size> timelineSizes;
-            std::vector<imaging::Size> timelineSizesTmp;
             math::Vector2i viewPos;
             float viewZoom = 1.F;
             bool frameView = true;
@@ -131,13 +130,13 @@ namespace tl
 
             p.timelinePlayers = value;
 
-            p.timelineSizesTmp.clear();
+            p.timelineSizes.clear();
             for (const auto& i : p.timelinePlayers)
             {
                 const auto& ioInfo = i->ioInfo();
                 if (!ioInfo.video.empty())
                 {
-                    p.timelineSizesTmp.push_back(ioInfo.video[0].size);
+                    p.timelineSizes.push_back(ioInfo.video[0].size);
                 }
             }
 
@@ -145,10 +144,6 @@ namespace tl
             for (const auto& i : p.timelinePlayers)
             {
                 p.videoData.push_back(i->currentVideo());
-            }
-            if (!p.videoData.empty())
-            {
-                p.timelineSizes = p.timelineSizesTmp;
             }
 
             update();
@@ -226,7 +221,6 @@ namespace tl
         void TimelineViewport::_currentVideoCallback(const timeline::VideoData& value)
         {
             TLRENDER_P();
-            p.timelineSizes = p.timelineSizesTmp;
             if (p.videoData.size() != p.timelinePlayers.size())
             {
                 p.videoData = std::vector<timeline::VideoData>(p.timelinePlayers.size());
@@ -350,8 +344,7 @@ namespace tl
                         renderSize,
                         p.colorConfigOptions,
                         p.lutOptions); 
-                    if (!p.videoData.empty() &&
-                        p.videoData.size() == p.timelineSizes.size())
+                    if (!p.videoData.empty())
                     {
                         p.render->drawVideo(
                             p.videoData,

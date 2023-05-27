@@ -85,7 +85,7 @@ namespace tl
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions)
         {
-            if (!videoData.empty())
+            if (!videoData.empty() && !bbox.empty())
             {
                 _drawVideo(
                     videoData[0],
@@ -102,7 +102,7 @@ namespace tl
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions)
         {
-            if (videoData.size() > 1)
+            if (videoData.size() > 1 && bbox.size() > 1)
             {
                 _drawVideo(
                     videoData[1],
@@ -174,7 +174,7 @@ namespace tl
             }
             glStencilFunc(GL_EQUAL, 1, 0xFF);
             glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-            if (!videoData.empty())
+            if (!videoData.empty() && !bbox.empty())
             {
                 _drawVideo(
                     videoData[0],
@@ -215,7 +215,7 @@ namespace tl
             }
             glStencilFunc(GL_EQUAL, 1, 0xFF);
             glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-            if (videoData.size() > 1)
+            if (videoData.size() > 1 && bbox.size() > 1)
             {
                 _drawVideo(
                     videoData[1],
@@ -234,7 +234,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            if (videoData.size() > 1)
+            if (videoData.size() > 1 && bbox.size() > 1)
             {
                 _drawVideo(
                     videoData[1],
@@ -337,8 +337,7 @@ namespace tl
             const timeline::CompareOptions& compareOptions)
         {
             TLRENDER_P();
-
-            if (!videoData.empty())
+            if (!videoData.empty() && !bbox.empty())
             {
                 const imaging::Size offscreenBufferSize(
                     p.viewport.w(),
@@ -485,7 +484,7 @@ namespace tl
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions)
         {
-            for (size_t i = 0; i < videoData.size(); ++i)
+            for (size_t i = 0; i < videoData.size() && i < bbox.size(); ++i)
             {
                 _drawVideo(
                     videoData[i],
