@@ -123,6 +123,7 @@ namespace tl
 
         private Q_SLOTS:
             void _activeCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
+            void _audioOffsetCallback(double);
             void _settingsCallback();
 
         private:

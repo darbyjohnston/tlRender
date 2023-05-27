@@ -90,12 +90,6 @@ namespace tl
             p.a->setIfChanged(p.files->getItem(p.files->getSize() - 1));
             p.aIndex->setIfChanged(_index(p.a->get()));
 
-            if (p.b->isEmpty())
-            {
-                p.b->pushBack(p.a->get());
-                p.bIndexes->setIfChanged(_bIndexes());
-            }
-
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
         }
@@ -118,18 +112,22 @@ namespace tl
                     p.a->setIfChanged(aNewIndex != -1 ? files[aNewIndex] : nullptr);
                     p.aIndex->setIfChanged(_index(p.a->get()));
 
-                    auto b = p.b->get();
-                    auto j = b.begin();
-                    while (j != b.end())
+                    std::vector<std::shared_ptr<FilesModelItem> > b;
+                    if (files.size() > 1)
                     {
-                        const auto k = std::find(files.begin(), files.end(), *j);
-                        if (k == files.end())
+                        b = p.b->get();
+                        auto j = b.begin();
+                        while (j != b.end())
                         {
-                            j = b.erase(j);
-                        }
-                        else
-                        {
-                            ++j;
+                            const auto k = std::find(files.begin(), files.end(), *j);
+                            if (k == files.end())
+                            {
+                                j = b.erase(j);
+                            }
+                            else
+                            {
+                                ++j;
+                            }
                         }
                     }
                     p.b->setIfChanged(b);
@@ -518,6 +516,12 @@ namespace tl
             }
             switch (p.compareOptions->get().mode)
             {
+            case timeline::CompareMode::A:
+                if (!p.b->isEmpty())
+                {
+                    out.push_back(p.b->getItem(0));
+                }
+                break;
             case timeline::CompareMode::B:
             case timeline::CompareMode::Wipe:
             case timeline::CompareMode::Overlay:

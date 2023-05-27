@@ -130,6 +130,7 @@ namespace tl
             }
 
             p.timelinePlayers = value;
+
             p.timelineSizesTmp.clear();
             for (const auto& i : p.timelinePlayers)
             {
@@ -139,7 +140,17 @@ namespace tl
                     p.timelineSizesTmp.push_back(ioInfo.video[0].size);
                 }
             }
+
             p.videoData.clear();
+            for (const auto& i : p.timelinePlayers)
+            {
+                p.videoData.push_back(i->currentVideo());
+            }
+            if (!p.videoData.empty())
+            {
+                p.timelineSizes = p.timelineSizesTmp;
+            }
+
             update();
 
             for (const auto& i : p.timelinePlayers)
