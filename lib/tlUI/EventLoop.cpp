@@ -34,6 +34,8 @@ namespace tl
             size_t widgetCount = 0;
             std::list<int> tickTimes;
             std::chrono::steady_clock::time_point logTimer;
+
+            std::shared_ptr<observer::ValueObserver<bool> > styleChangedObserver;
         };
 
         void EventLoop::_init(
@@ -50,6 +52,14 @@ namespace tl
             p.fontSystem = fontSystem;
             p.clipboard = clipboard;
             p.logTimer = std::chrono::steady_clock::now();
+
+            p.styleChangedObserver = observer::ValueObserver<bool>::create(
+                p.style->observeChanged(),
+                [this](bool)
+                {
+                    _p->updates |= Update::Size;
+                    _p->updates |= Update::Draw;
+                });
         }
 
         EventLoop::EventLoop() :

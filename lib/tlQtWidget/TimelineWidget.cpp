@@ -81,7 +81,6 @@ namespace tl
             std::shared_ptr<ui::EventLoop> eventLoop;
             timelineui::ItemOptions itemOptions;
             std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
-
             std::chrono::steady_clock::time_point mouseWheelTimer;
 
             int timer = 0;
@@ -89,7 +88,6 @@ namespace tl
 
         TimelineWidget::TimelineWidget(
             const std::shared_ptr<system::Context>& context,
-            const std::shared_ptr<ui::Style>& style,
             QWidget* parent) :
             QOpenGLWidget(parent),
             _p(new Private)
@@ -109,7 +107,7 @@ namespace tl
             setMouseTracking(true);
             setFocusPolicy(Qt::StrongFocus);
 
-            p.style = style ? style : ui::Style::create(context);
+            p.style = ui::Style::create(context);
             p.iconLibrary = ui::IconLibrary::create(context);
             p.fontSystem = imaging::FontSystem::create(context);
             p.clipboard = Clipboard::create(context);
@@ -126,6 +124,8 @@ namespace tl
                     Q_EMIT frameViewChanged(value);
                 });
             p.eventLoop->addWidget(p.timelineWidget);
+
+            _styleUpdate();
 
             p.timer = startTimer(10);
         }
@@ -443,6 +443,17 @@ namespace tl
             }
         }
 
+        bool TimelineWidget::event(QEvent* event)
+        {
+            TLRENDER_P();
+            bool out = QOpenGLWidget::event(event);
+            if (event->type() == QEvent::StyleChange)
+            {
+                _styleUpdate();
+            }
+            return out;
+        }
+
         void TimelineWidget::_setTimeUnits(timeline::TimeUnits value)
         {
             TLRENDER_P();
@@ -472,6 +483,36 @@ namespace tl
         {
             const float devicePixelRatio = window()->devicePixelRatio();
             return devicePixelRatio > 0.F ? (value / devicePixelRatio) : math::Vector2i();
+        }
+
+        namespace
+        {
+            imaging::Color4f fromQt(const QColor& value)
+            {
+                return imaging::Color4f(
+                    value.redF(),
+                    value.greenF(),
+                    value.blueF(),
+                    value.alphaF());
+            }
+        }
+
+        void TimelineWidget::_styleUpdate()
+        {
+            TLRENDER_P();
+            const auto palette = this->palette();
+            p.style->setColorRole(
+                ui::ColorRole::Window,
+                fromQt(palette.color(QPalette::ColorRole::Window)));
+            p.style->setColorRole(
+                ui::ColorRole::Base,
+                fromQt(palette.color(QPalette::ColorRole::Base)));
+            p.style->setColorRole(
+                ui::ColorRole::Button,
+                fromQt(palette.color(QPalette::ColorRole::Button)));
+            p.style->setColorRole(
+                ui::ColorRole::Text,
+                fromQt(palette.color(QPalette::ColorRole::WindowText)));
         }
     }
 }

@@ -18,11 +18,6 @@ namespace tl
         class Player;
     }
 
-    namespace ui
-    {
-        class Style;
-    }
-
     namespace qtwidget
     {
         //! Timeline widget.
@@ -35,7 +30,6 @@ namespace tl
         public:
             TimelineWidget(
                 const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<ui::Style>& = nullptr,
                 QWidget* parent = nullptr);
 
             ~TimelineWidget() override;
@@ -82,6 +76,7 @@ namespace tl
             void keyReleaseEvent(QKeyEvent*) override;
 
             void timerEvent(QTimerEvent*) override;
+            bool event(QEvent*) override;
 
         private Q_SLOTS:
             void _setTimeUnits(tl::timeline::TimeUnits);
@@ -91,6 +86,8 @@ namespace tl
             math::Vector2i _toUI(const math::Vector2i&) const;
             int _fromUI(int) const;
             math::Vector2i _fromUI(const math::Vector2i&) const;
+
+            void _styleUpdate();
 
             TLRENDER_PRIVATE();
         };
