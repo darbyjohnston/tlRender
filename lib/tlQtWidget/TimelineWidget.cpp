@@ -211,7 +211,7 @@ namespace tl
             gl::initGLAD();
             if (auto context = p.context.lock())
             {
-                p.render = gl::Render::create(context);
+                //p.render = gl::Render::create(context);
             }
         }
 
