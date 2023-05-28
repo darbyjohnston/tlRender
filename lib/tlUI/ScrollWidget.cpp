@@ -174,6 +174,12 @@ namespace tl
             _p->scrollPosCallback = value;
         }
 
+        void ScrollWidget::setScrollBarsVisible(bool value)
+        {
+            _p->horizontalScrollBar->setVisible(value);
+            _p->verticalScrollBar->setVisible(value);
+        }
+
         void ScrollWidget::setMarginRole(SizeRole value)
         {
             _p->layout->setMarginRole(value);

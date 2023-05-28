@@ -50,6 +50,9 @@ namespace tl
             //! Set the scroll position callback.
             void setScrollPosCallback(const std::function<void(const math::Vector2i&)>&);
 
+            //! Set whether the scroll bars are visible.
+            void setScrollBarsVisible(bool);
+
             //! Set the margin role.
             void setMarginRole(SizeRole);
 

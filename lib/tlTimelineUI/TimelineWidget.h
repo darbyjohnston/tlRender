@@ -52,6 +52,12 @@ namespace tl
             //! Set the frame view callback.
             void setFrameViewCallback(const std::function<void(bool)>&);
 
+            //! Set whether the scroll bars are visible.
+            void setScrollBarsVisible(bool);
+
+            //! Set the mouse scroll key modifier.
+            void setScrollKeyModifier(ui::KeyModifier);
+
             //! Set whether to stop playback when scrubbing.
             void setStopOnScrub(bool);
 

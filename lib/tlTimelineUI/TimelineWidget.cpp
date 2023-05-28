@@ -15,6 +15,7 @@ namespace tl
             std::shared_ptr<timeline::Player> player;
             bool frameView = true;
             std::function<void(bool)> frameViewCallback;
+            ui::KeyModifier scrollKeyModifier = ui::KeyModifier::Control;
             bool stopOnScrub = true;
             float mouseWheelScale = 1.1F;
             double scale = 500.0;
@@ -165,6 +166,16 @@ namespace tl
             _p->frameViewCallback = value;
         }
 
+        void TimelineWidget::setScrollBarsVisible(bool value)
+        {
+            _p->scrollWidget->setScrollBarsVisible(value);
+        }
+
+        void TimelineWidget::setScrollKeyModifier(ui::KeyModifier value)
+        {
+            _p->scrollKeyModifier = value;
+        }
+
         void TimelineWidget::setStopOnScrub(bool value)
         {
             TLRENDER_P();
@@ -282,7 +293,7 @@ namespace tl
             TLRENDER_P();
             event.accept = true;
             p.mouse.pressPos = event.pos;
-            if (event.modifiers & static_cast<int>(ui::KeyModifier::Control))
+            if (event.modifiers & static_cast<int>(p.scrollKeyModifier))
             {
                 p.mouse.mode = Private::MouseMode::Scroll;
             }
