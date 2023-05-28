@@ -126,6 +126,7 @@ namespace tl
                 {
                     Q_EMIT frameViewChanged(value);
                 });
+            //p.timelineWidget->setScrollBarsVisible(false);
             p.eventLoop->addWidget(p.timelineWidget);
 
             _styleUpdate();
