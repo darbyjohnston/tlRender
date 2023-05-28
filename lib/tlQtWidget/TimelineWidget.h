@@ -18,6 +18,11 @@ namespace tl
         class Player;
     }
 
+    namespace ui
+    {
+        class Style;
+    }
+
     namespace qtwidget
     {
         //! Timeline widget.
@@ -30,6 +35,7 @@ namespace tl
         public:
             TimelineWidget(
                 const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<ui::Style>& = nullptr,
                 QWidget* parent = nullptr);
 
             ~TimelineWidget() override;

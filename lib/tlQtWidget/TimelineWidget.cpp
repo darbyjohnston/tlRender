@@ -4,6 +4,8 @@
 
 #include <tlQtWidget/TimelineWidget.h>
 
+#include <tlQtWidget/Util.h>
+
 #include <tlTimelineUI/TimelineWidget.h>
 
 #include <tlUI/EventLoop.h>
@@ -88,6 +90,7 @@ namespace tl
 
         TimelineWidget::TimelineWidget(
             const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<ui::Style>& style,
             QWidget* parent) :
             QOpenGLWidget(parent),
             _p(new Private)
@@ -107,7 +110,7 @@ namespace tl
             setMouseTracking(true);
             setFocusPolicy(Qt::StrongFocus);
 
-            p.style = ui::Style::create(context);
+            p.style = style ? style : ui::Style::create(context);
             p.iconLibrary = ui::IconLibrary::create(context);
             p.fontSystem = imaging::FontSystem::create(context);
             p.clipboard = Clipboard::create(context);
@@ -485,21 +488,9 @@ namespace tl
             return devicePixelRatio > 0.F ? (value / devicePixelRatio) : math::Vector2i();
         }
 
-        namespace
-        {
-            imaging::Color4f fromQt(const QColor& value)
-            {
-                return imaging::Color4f(
-                    value.redF(),
-                    value.greenF(),
-                    value.blueF(),
-                    value.alphaF());
-            }
-        }
-
         void TimelineWidget::_styleUpdate()
         {
-            TLRENDER_P();
+            /*TLRENDER_P();
             const auto palette = this->palette();
             p.style->setColorRole(
                 ui::ColorRole::Window,
@@ -512,7 +503,7 @@ namespace tl
                 fromQt(palette.color(QPalette::ColorRole::Button)));
             p.style->setColorRole(
                 ui::ColorRole::Text,
-                fromQt(palette.color(QPalette::ColorRole::WindowText)));
+                fromQt(palette.color(QPalette::ColorRole::WindowText)));*/
         }
     }
 }
