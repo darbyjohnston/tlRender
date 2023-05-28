@@ -176,16 +176,26 @@ namespace tl
             _p->timelineWidget->setFrameView(value);
         }
 
-        void TimelineWidget::setThumbnails(bool value)
+        void TimelineWidget::setScrollBarsVisible(bool value)
         {
-            TLRENDER_P();
-            p.itemOptions.thumbnails = value;
-            _p->timelineWidget->setItemOptions(p.itemOptions);
+            _p->timelineWidget->setScrollBarsVisible(value);
+        }
+
+        void TimelineWidget::setScrollKeyModifier(ui::KeyModifier value)
+        {
+            _p->timelineWidget->setScrollKeyModifier(value);
         }
 
         void TimelineWidget::setStopOnScrub(bool value)
         {
             _p->timelineWidget->setStopOnScrub(value);
+        }
+
+        void TimelineWidget::setThumbnails(bool value)
+        {
+            TLRENDER_P();
+            p.itemOptions.thumbnails = value;
+            _p->timelineWidget->setItemOptions(p.itemOptions);
         }
 
         void TimelineWidget::setMouseWheelScale(float value)

@@ -6,6 +6,8 @@
 
 #include <tlQt/TimeObject.h>
 
+#include <tlUI/Event.h>
+
 #include <tlCore/Vector.h>
 
 #include <QOpenGLWidget>
@@ -16,11 +18,6 @@ namespace tl
     namespace timeline
     {
         class Player;
-    }
-
-    namespace ui
-    {
-        class Style;
     }
 
     namespace qtwidget
@@ -49,6 +46,12 @@ namespace tl
         public Q_SLOTS:
             //! Set whether the to frame the view.
             void setFrameView(bool);
+
+            //! Set whether the scroll bars are visible.
+            void setScrollBarsVisible(bool);
+
+            //! Set the mouse scroll key modifier.
+            void setScrollKeyModifier(ui::KeyModifier);
 
             //! Set whether to stop playback when scrubbing.
             void setStopOnScrub(bool);
