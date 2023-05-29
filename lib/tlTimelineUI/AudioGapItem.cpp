@@ -143,7 +143,7 @@ namespace tl
             event.render->drawMesh(
                 ui::rect(g2, p.size.margin),
                 math::Vector2i(),
-                imaging::Color4f(.25F, .24F, .3F));
+                _options.colors[ColorRole::AudioGap]);
 
             const math::BBox2i labelGeometry(
                 g.min.x +

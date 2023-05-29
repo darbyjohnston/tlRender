@@ -143,7 +143,7 @@ namespace tl
             event.render->drawMesh(
                 ui::rect(g2, p.size.margin),
                 math::Vector2i(),
-                imaging::Color4f(.25F, .31F, .31F));
+                _options.colors[ColorRole::VideoGap]);
 
             const math::BBox2i labelGeometry(
                 g.min.x +

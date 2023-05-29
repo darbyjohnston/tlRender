@@ -363,7 +363,7 @@ namespace tl
             event.render->drawMesh(
                 ui::rect(g2, p.size.margin),
                 math::Vector2i(),
-                imaging::Color4f(.3F, .25F, .4F));
+                _options.colors[ColorRole::AudioClip]);
 
             _drawInfo(drawRect, event);
             if (_options.thumbnails)

@@ -16,6 +16,8 @@ namespace tl
         {
             return
                 timeUnits == other.timeUnits &&
+                cacheDisplay == other.cacheDisplay &&
+                colors == other.colors &&
                 clipRectScale == other.clipRectScale &&
                 thumbnails == other.thumbnails &&
                 thumbnailHeight == other.thumbnailHeight &&

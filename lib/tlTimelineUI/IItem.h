@@ -22,10 +22,40 @@ namespace tl
             std::shared_ptr<IOManager> ioManager;
         };
 
+        //! Cache display options.
+        enum class CacheDisplay
+        {
+            VideoAndAudio,
+            VideoOnly
+        };
+
+        //! Timeline color roles.
+        enum class ColorRole
+        {
+            InOut,
+            VideoCache,
+            AudioCache,
+            VideoClip,
+            VideoGap,
+            AudioClip,
+            AudioGap
+        };
+
         //! Item options.
         struct ItemOptions
         {
             timeline::TimeUnits timeUnits = timeline::TimeUnits::Timecode;
+            CacheDisplay cacheDisplay = CacheDisplay::VideoAndAudio;
+            std::map<ColorRole, imaging::Color4f> colors =
+            {
+                { ColorRole::InOut, imaging::Color4f(1.F, .7F, .2F, .1F) },
+                { ColorRole::VideoCache, imaging::Color4f(.2F, .4F, .4F) },
+                { ColorRole::AudioCache, imaging::Color4f(.3F, .25F, .4F) },
+                { ColorRole::VideoClip, imaging::Color4f(.2F, .4F, .4F) },
+                { ColorRole::VideoGap, imaging::Color4f(.25F, .31F, .31F) },
+                { ColorRole::AudioClip, imaging::Color4f(.3F, .25F, .4F) },
+                { ColorRole::AudioGap, imaging::Color4f(.25F, .24F, .3F) }
+            };
             float clipRectScale = 2.F;
             bool thumbnails = true;
             int thumbnailHeight = 100;

@@ -285,7 +285,8 @@ namespace tl
             const math::BBox2i g2 = g.margin(-p.size.border);
             event.render->drawMesh(
                 ui::rect(g2, p.size.margin),
-                math::Vector2i(),imaging::Color4f(.2F, .4F, .4F));
+                math::Vector2i(),
+                _options.colors[ColorRole::VideoClip]);
 
             _drawInfo(drawRect, event);
             if (_options.thumbnails)
