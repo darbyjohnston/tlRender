@@ -169,33 +169,6 @@ namespace tl
             void* reader = nullptr;
         };
 
-        class ZipMemoryReference : public RawMemoryReference
-        {
-        public:
-            struct Schema
-            {
-                static auto constexpr name = "ZipMemoryReference";
-                static int constexpr version = 1;
-            };
-
-            ZipMemoryReference(
-                const std::shared_ptr<file::FileIO>& fileIO,
-                const std::string& target_url = std::string(),
-                const uint8_t* memory = nullptr,
-                size_t memory_size = 0,
-                const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
-                const otio::AnyDictionary& metadata = otio::AnyDictionary()) :
-                RawMemoryReference(target_url, memory, memory_size, available_range, metadata),
-                _fileIO(fileIO)
-            {}
-
-        protected:
-            ~ZipMemoryReference() override
-            {}
-
-            std::shared_ptr<file::FileIO> _fileIO;
-        };
-
         otio::SerializableObject::Retainer<otio::Timeline> read(
             const file::Path& path,
             otio::ErrorStatus* errorStatus)
