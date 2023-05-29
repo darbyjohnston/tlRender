@@ -73,7 +73,6 @@ namespace tl
 
             qt::TimeObject* timeObject = nullptr;
             std::shared_ptr<timeline::Player> player;
-            float mouseWheelScale = 20.F;
 
             std::shared_ptr<ui::Style> style;
             std::shared_ptr<ui::IconLibrary> iconLibrary;
@@ -200,8 +199,12 @@ namespace tl
 
         void TimelineWidget::setMouseWheelScale(float value)
         {
-            TLRENDER_P();
-            p.mouseWheelScale = value;
+            _p->timelineWidget->setMouseWheelScale(value);
+        }
+
+        void TimelineWidget::setItemOptions(const timelineui::ItemOptions& value)
+        {
+            _p->timelineWidget->setItemOptions(value);
         }
 
         void TimelineWidget::initializeGL()

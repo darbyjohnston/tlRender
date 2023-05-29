@@ -6,9 +6,7 @@
 
 #include <tlQt/TimeObject.h>
 
-#include <tlUI/Event.h>
-
-#include <tlCore/Vector.h>
+#include <tlTimelineUI/IItem.h>
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_1_Core>
@@ -61,6 +59,9 @@ namespace tl
 
             //! Set the mouse wheel scale.
             void setMouseWheelScale(float);
+
+            //! Set the item options.
+            void setItemOptions(const timelineui::ItemOptions&);
 
         Q_SIGNALS:
             //! This signal is emitted when the frame view is changed.
