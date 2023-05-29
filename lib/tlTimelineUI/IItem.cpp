@@ -123,8 +123,13 @@ namespace tl
                     out = string::Format("{0}").arg(value.value());
                     break;
                 case timeline::TimeUnits::Timecode:
-                    out = string::Format("{0}").arg(value.to_timecode());
+                {
+                    const otime::RationalTime valid(
+                        value.value(),
+                        otime::RationalTime::nearest_valid_timecode_rate(value.rate()));
+                    out = string::Format("{0}").arg(valid.to_timecode());
                     break;
+                }
                 default: break;
                 }
             }
