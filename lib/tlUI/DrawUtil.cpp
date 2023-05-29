@@ -10,24 +10,6 @@ namespace tl
 {
     namespace ui
     {
-        imaging::Color4f lighter(const imaging::Color4f& color, float amount)
-        {
-            return imaging::Color4f(
-                color.r + amount,
-                color.g + amount,
-                color.b + amount,
-                color.a);
-        }
-
-        imaging::Color4f darker(const imaging::Color4f& color, float amount)
-        {
-            return imaging::Color4f(
-                color.r - amount,
-                color.g - amount,
-                color.b - amount,
-                color.a);
-        }
-
         geom::TriangleMesh2 rect(
             const math::BBox2i& bbox,
             int cornerRadius,
