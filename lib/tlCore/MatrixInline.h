@@ -191,14 +191,14 @@ namespace tl
         }
 
         template<typename T>
-        inline Matrix4x4<T> ortho(T left, T right, T bottom, T top, T near, T far)
+        inline Matrix4x4<T> ortho(T left, T right, T bottom, T top, T nearClip, T farClip)
         {
             const T a = T(2) / (right - left);
             const T b = T(2) / (top - bottom);
-            const T c = T(-2) / (far - near);
+            const T c = T(-2) / (farClip - nearClip);
             const T x = -(right + left) / (right - left);
             const T y = -(top + bottom) / (top - bottom);
-            const T z = -(far + near) / (far - near);
+            const T z = -(farClip + nearClip) / (farClip - nearClip);
             return Matrix4x4<T>(
                 a, T(0), T(0), T(0),
                 T(0), b, T(0), T(0),
@@ -207,12 +207,12 @@ namespace tl
         }
 
         template<typename T>
-        inline Matrix4x4<T> perspective(T fov, T aspect, T near, T far)
+        inline Matrix4x4<T> perspective(T fov, T aspect, T nearClip, T farClip)
         {
             const T f = T(1) / std::tan(deg2rad(fov) / T(2));
             const T a = f / aspect;
-            const T b = (far + near) / (near - far);
-            const T c = T(2) * far * near / (near - far);
+            const T b = (farClip + nearClip) / (nearClip - farClip);
+            const T c = T(2) * farClip * nearClip / (nearClip - farClip);
             return Matrix4x4<T>(
                 a, T(0), T(0), T(0),
                 T(0), f, T(0), T(0),
