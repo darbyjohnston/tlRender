@@ -388,7 +388,7 @@ namespace tl
                     scrollPos.y);
                 p.scrollWidget->setScrollPos(scrollPosNew, false);
 
-                setFrameView(zoomClamped == zoomMin);
+                setFrameView(zoomNew <= zoomMin);
             }
         }
 
