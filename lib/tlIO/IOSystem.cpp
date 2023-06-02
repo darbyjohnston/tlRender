@@ -102,6 +102,11 @@ namespace tl
             }
             return nullptr;
         }
+        
+        void System::addPlugin(const std::shared_ptr<IPlugin>& plugin)
+        {
+            _plugins.push_back(plugin);
+        }
 
         std::set<std::string> System::getExtensions(int types) const
         {

@@ -52,8 +52,13 @@ set(SOURCE
     Transition.cpp
     Util.cpp)
 
+set(LIBRARIES tlIO)
+if(TLRENDER_USD)
+    list(APPEND LIBRARIES tlUSD)
+endif()    
+
 add_library(tlTimeline ${HEADERS} ${PRIVATE_HEADERS} ${SOURCE})
-target_link_libraries(tlTimeline tlIO)
+target_link_libraries(tlTimeline ${LIBRARIES})
 set_target_properties(tlTimeline PROPERTIES FOLDER lib)
 set_target_properties(tlTimeline PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

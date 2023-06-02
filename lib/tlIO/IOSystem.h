@@ -32,6 +32,9 @@ namespace tl
 
             //! Get the list of plugins.
             const std::vector<std::shared_ptr<IPlugin> >& getPlugins() const;
+            
+            //! Add a plugin.
+            void addPlugin(const std::shared_ptr<IPlugin>&);
 
             //! Get a plugin.
             template<typename T>
