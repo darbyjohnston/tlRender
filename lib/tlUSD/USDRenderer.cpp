@@ -480,21 +480,20 @@ namespace tl
 
                         GlfSimpleLight cameraLight(
                             GfVec4f(cameraPos[0], cameraPos[1], cameraPos[2], 1.F));
-                        cameraLight.SetAmbient(GfVec4f(.1F, .1F, .1F, 1.F));
-                        cameraLight.SetDiffuse(GfVec4f(.9F, .9F, .9F, 1.F));
+                        cameraLight.SetAmbient(GfVec4f(.01F, .01F, .01F, 01.F));
                         const GlfSimpleLightVector lights({ cameraLight });
 
                         GlfSimpleMaterial material;
-                        material.SetEmission(GfVec4f(.8F, .8F, .8F, 1.F));
-                        material.SetDiffuse(GfVec4f(0.F, 0.F, 0.F, 1.F));
+                        material.SetAmbient(GfVec4f(0.2f, 0.2f, 0.2f, 1.0));
+                        material.SetSpecular(GfVec4f(0.1f, 0.1f, 0.1f, 1.0f));
                         material.SetShininess(32.F);
-                        const GfVec4f ambient(.1F, .1F, .1F, 1.F);
+                        const GfVec4f ambient(0.01f, 0.01f, 0.01f, 1.0f);
                         item.engine->SetLightingState(lights, material, ambient);
 
                         UsdImagingGLRenderParams renderParams;
                         renderParams.frame = timeCode;
                         //renderParams.complexity = 1.F;
-                        //renderParams.colorCorrectionMode = HdxColorCorrectionTokens->disabled;
+                        renderParams.colorCorrectionMode = HdxColorCorrectionTokens->sRGB;
                         //renderParams.clearColor = GfVec4f(0.F);
                         //renderParams.showProxy = true;
                         //renderParams.showRender = true;
