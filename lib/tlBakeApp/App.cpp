@@ -4,6 +4,10 @@
 
 #include <tlBakeApp/App.h>
 
+#if defined(TLRENDER_USD)
+#include <tlUSD/USD.h>
+#endif // TLRENDER_USD
+
 #include <tlGL/Render.h>
 #include <tlGL/Util.h>
 
@@ -196,8 +200,17 @@ namespace tl
 
         App::~App()
         {
+            _timeline.reset();
             _buffer.reset();
             _render.reset();
+ #if defined(TLRENDER_USD)
+            if (_usdPlugin)
+            {
+                auto ioSystem = _context->getSystem<io::System>();
+                ioSystem->removePlugin(_usdPlugin);
+                _usdPlugin.reset();
+            }
+#endif // TLRENDER_USD
             if (_glfwWindow)
             {
                 glfwDestroyWindow(_glfwWindow);
@@ -223,6 +236,64 @@ namespace tl
             }
 
             _startTime = std::chrono::steady_clock::now();
+
+            // Initialize GLFW.
+            glfwSetErrorCallback(glfwErrorCallback);
+            int glfwMajor = 0;
+            int glfwMinor = 0;
+            int glfwRevision = 0;
+            glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRevision);
+            _log(string::Format("GLFW version: {0}.{1}.{2}").arg(glfwMajor).arg(glfwMinor).arg(glfwRevision));
+            if (!glfwInit())
+            {
+                throw std::runtime_error("Cannot initialize GLFW");
+            }
+
+            // Create the window.
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+            glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
+            //glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+            _glfwWindow = glfwCreateWindow(1, 1, "tlbake", NULL, NULL);
+            if (!_glfwWindow)
+            {
+                throw std::runtime_error("Cannot create window");
+            }
+            glfwMakeContextCurrent(_glfwWindow);
+            if (!gladLoaderLoadGL())
+            {
+                throw std::runtime_error("Cannot initialize GLAD");
+            }
+            /*GLint flags = 0;
+            glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+            if (flags & static_cast<GLint>(GL_CONTEXT_FLAG_DEBUG_BIT))
+            {
+                glEnable(GL_DEBUG_OUTPUT);
+                glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+                glDebugMessageCallback(glDebugOutput, _context.get());
+                glDebugMessageControl(
+                    static_cast<GLenum>(GL_DONT_CARE),
+                    static_cast<GLenum>(GL_DONT_CARE),
+                    static_cast<GLenum>(GL_DONT_CARE),
+                    0,
+                    nullptr,
+                    GL_TRUE);
+            }*/
+            const int glMajor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MAJOR);
+            const int glMinor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MINOR);
+            const int glRevision = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_REVISION);
+            _log(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
+
+            // Create the USD plugin.
+#if defined(TLRENDER_USD)
+            auto logSystem = _context->getSystem<log::System>();
+            auto ioSystem = _context->getSystem<io::System>();
+            _usdPlugin = usd::Plugin::create(logSystem);
+            ioSystem->addPlugin(_usdPlugin);
+#endif // TLRENDER_USD
 
             // Read the timeline.
             _timeline = timeline::Timeline::create(_input, _context);
@@ -253,61 +324,6 @@ namespace tl
                 _options.renderSize :
                 info.video[0].size;
             _print(string::Format("Render size: {0}").arg(_renderSize));
-
-            // Initialize GLFW.
-            glfwSetErrorCallback(glfwErrorCallback);
-            int glfwMajor = 0;
-            int glfwMinor = 0;
-            int glfwRevision = 0;
-            glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRevision);
-            _log(string::Format("GLFW version: {0}.{1}.{2}").arg(glfwMajor).arg(glfwMinor).arg(glfwRevision));
-            if (!glfwInit())
-            {
-                throw std::runtime_error("Cannot initialize GLFW");
-            }
-
-            // Create the window.
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-            glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-            glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
-            //glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-            _glfwWindow = glfwCreateWindow(
-                100,
-                100,
-                "tlbake",
-                NULL,
-                NULL);
-            if (!_glfwWindow)
-            {
-                throw std::runtime_error("Cannot create window");
-            }
-            glfwMakeContextCurrent(_glfwWindow);
-            if (!gladLoaderLoadGL())
-            {
-                throw std::runtime_error("Cannot initialize GLAD");
-            }
-            /*GLint flags = 0;
-            glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-            if (flags & static_cast<GLint>(GL_CONTEXT_FLAG_DEBUG_BIT))
-            {
-                glEnable(GL_DEBUG_OUTPUT);
-                glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-                glDebugMessageCallback(glDebugOutput, _context.get());
-                glDebugMessageControl(
-                    static_cast<GLenum>(GL_DONT_CARE),
-                    static_cast<GLenum>(GL_DONT_CARE),
-                    static_cast<GLenum>(GL_DONT_CARE),
-                    0,
-                    nullptr,
-                    GL_TRUE);
-            }*/
-            const int glMajor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MAJOR);
-            const int glMinor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MINOR);
-            const int glRevision = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_REVISION);
-            _log(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
 
             // Create the renderer.
             _render = gl::Render::create(_context);

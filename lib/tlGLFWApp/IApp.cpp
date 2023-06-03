@@ -231,6 +231,7 @@ namespace tl
             glfwSetCharCallback(p.glfwWindow, _charCallback);
             glfwShowWindow(p.glfwWindow);
 
+            // Create the USD plugin.
 #if defined(TLRENDER_USD)
             auto logSystem = _context->getSystem<log::System>();
             auto ioSystem = _context->getSystem<io::System>();
@@ -265,9 +266,12 @@ namespace tl
             p.render.reset();
             p.offscreenBuffer.reset();
 #if defined(TLRENDER_USD)
-            auto ioSystem = _context->getSystem<io::System>();
-            ioSystem->removePlugin(p.usdPlugin);
-            p.usdPlugin.reset();
+            if (p.usdPlugin)
+            {
+                auto ioSystem = _context->getSystem<io::System>();
+                ioSystem->removePlugin(p.usdPlugin);
+                p.usdPlugin.reset();
+            }
 #endif // TLRENDER_USD
             if (p.glfwWindow)
             {

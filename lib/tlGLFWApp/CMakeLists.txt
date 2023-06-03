@@ -7,7 +7,7 @@ set(SOURCE
 set(LIBRARIES tlApp tlUI tlGL GLFW)
 if(TLRENDER_USD)
     list(APPEND LIBRARIES tlUSD)
-endif()    
+endif()
 
 add_library(tlGLFWApp ${HEADERS} ${SOURCE})
 target_link_libraries(tlGLFWApp ${LIBRARIES})

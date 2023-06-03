@@ -84,6 +84,7 @@ namespace tl
             otime::RationalTime _outputTime = time::invalidTime;
 
             GLFWwindow* _glfwWindow = nullptr;
+            std::shared_ptr<io::IPlugin> _usdPlugin;
             std::shared_ptr<timeline::IRender> _render;
             std::shared_ptr<gl::OffscreenBuffer> _buffer;
 
