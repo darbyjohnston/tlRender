@@ -1,11 +1,13 @@
 set(HEADERS
     USD.h
+    USDPrivate.h
     Util.h)
 set(PRIVATE_HEADERS)
 
 set(SOURCE
     USD.cpp
     USDRead.cpp
+    USDRenderer.cpp
     Util.cpp)
 
 add_library(tlUSD ${HEADERS} ${PRIVATE_HEADERS} ${SOURCE})

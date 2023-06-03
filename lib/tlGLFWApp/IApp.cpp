@@ -7,10 +7,17 @@
 #include <tlUI/EventLoop.h>
 #include <tlUI/IClipboard.h>
 
+#if defined(TLRENDER_USD)
+#include <tlUSD/USD.h>
+#endif // TLRENDER_USD
+
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Render.h>
 
+#include <tlIO/IOSystem.h>
+
 #include <tlCore/FontSystem.h>
+#include <tlCore/LogSystem.h>
 #include <tlCore/StringFormat.h>
 
 #include <tlGlad/gl.h>
@@ -106,6 +113,7 @@ namespace tl
             imaging::Size frameBufferSize;
             math::Vector2f contentScale = math::Vector2f(1.F, 1.F);
 
+            std::shared_ptr<io::IPlugin> usdPlugin;
             std::shared_ptr<ui::Style> style;
             std::shared_ptr<ui::IconLibrary> iconLibrary;
             std::shared_ptr<imaging::FontSystem> fontSystem;
@@ -223,6 +231,13 @@ namespace tl
             glfwSetCharCallback(p.glfwWindow, _charCallback);
             glfwShowWindow(p.glfwWindow);
 
+#if defined(TLRENDER_USD)
+            auto logSystem = _context->getSystem<log::System>();
+            auto ioSystem = _context->getSystem<io::System>();
+            p.usdPlugin = usd::Plugin::create(logSystem);
+            ioSystem->addPlugin(p.usdPlugin);
+#endif // TLRENDER_USD
+
             // Initialize the user interface.
             p.style = ui::Style::create(_context);
             p.iconLibrary = ui::IconLibrary::create(_context);
@@ -249,6 +264,11 @@ namespace tl
             p.eventLoop.reset();
             p.render.reset();
             p.offscreenBuffer.reset();
+#if defined(TLRENDER_USD)
+            auto ioSystem = _context->getSystem<io::System>();
+            ioSystem->removePlugin(p.usdPlugin);
+            p.usdPlugin.reset();
+#endif // TLRENDER_USD
             if (p.glfwWindow)
             {
                 glfwDestroyWindow(p.glfwWindow);

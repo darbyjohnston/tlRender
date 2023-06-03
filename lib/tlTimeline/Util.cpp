@@ -6,10 +6,6 @@
 
 #include <tlTimeline/MemoryReference.h>
 
-#if defined(TLRENDER_USD)
-#include <tlUSD/Util.h>
-#endif // TLRENDER_USD
-
 #include <tlIO/IOSystem.h>
 #include <tlIO/Util.h>
 
@@ -29,9 +25,6 @@ namespace tl
         void init(const std::shared_ptr<system::Context>& context)
         {
             io::init(context);
-#if defined(TLRENDER_USD)
-            usd::init(context);
-#endif // TLRENDER_USD
 
             const std::vector<std::pair<std::string, bool> > registerTypes
             {

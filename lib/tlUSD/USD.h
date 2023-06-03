@@ -10,11 +10,15 @@ namespace tl
 {
     namespace usd
     {
+        class Renderer;
+        
         //! USD reader.
         class Read : public io::IRead
         {
         protected:
             void _init(
+                int64_t id,
+                const std::shared_ptr<Renderer>&,
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
                 const io::Options&,
@@ -27,6 +31,8 @@ namespace tl
 
             //! Create a new reader.
             static std::shared_ptr<Read> create(
+                int64_t id,
+                const std::shared_ptr<Renderer>&,
                 const file::Path&,
                 const io::Options&,
                 const std::weak_ptr<log::System>&);
@@ -36,10 +42,6 @@ namespace tl
             void cancelRequests() override;
 
         private:
-            void _open(const file::Path&);
-            void _createWindow();
-            void _run();
-            
             TLRENDER_PRIVATE();
         };
 
@@ -47,6 +49,8 @@ namespace tl
         class Plugin : public io::IPlugin
         {
         protected:
+            void _init(const std::weak_ptr<log::System>&);
+            
             Plugin();
 
         public:
@@ -67,6 +71,9 @@ namespace tl
                 const file::Path&,
                 const io::Info&,
                 const io::Options& = io::Options()) override;
+                
+        private:
+            TLRENDER_PRIVATE();
         };
     }
 }

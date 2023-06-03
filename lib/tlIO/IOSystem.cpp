@@ -108,6 +108,15 @@ namespace tl
             _plugins.push_back(plugin);
         }
 
+        void System::removePlugin(const std::shared_ptr<IPlugin>& plugin)
+        {
+            const auto i = std::find(_plugins.begin(), _plugins.end(), plugin);
+            if (i != _plugins.end())
+            {
+                _plugins.erase(i);
+            }
+        }
+
         std::set<std::string> System::getExtensions(int types) const
         {
             std::set<std::string> out;

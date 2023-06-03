@@ -35,6 +35,9 @@ namespace tl
             
             //! Add a plugin.
             void addPlugin(const std::shared_ptr<IPlugin>&);
+            
+            //! Remove a plugin.
+            void removePlugin(const std::shared_ptr<IPlugin>&);
 
             //! Get a plugin.
             template<typename T>
