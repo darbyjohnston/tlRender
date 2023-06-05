@@ -39,6 +39,11 @@ namespace tl
         {
             return 0 == ::rmdir(fileName.c_str());
         }
+        
+        bool rm(const std::string& fileName)
+        {
+            return 0 == ::remove(fileName.c_str());
+        }
 		
 		std::string getTemp()
 		{
