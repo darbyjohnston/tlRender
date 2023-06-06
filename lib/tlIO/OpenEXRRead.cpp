@@ -193,7 +193,7 @@ namespace tl
                         }
 
                         // Get the tags.
-                        readTags(_f->header(), _info.tags);
+                        readTags(header, _info.tags);
 
                         // Get the layers.
                         std::string view;
@@ -235,7 +235,7 @@ namespace tl
                         }
                     }
                 }
-
+                
                 const io::Info& getInfo() const
                 {
                     return _info;
