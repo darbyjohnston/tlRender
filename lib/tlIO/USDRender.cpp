@@ -420,9 +420,14 @@ namespace tl
             {
                 if (auto logSystem = p.logSystem.lock())
                 {
-                    const std::string rendererId =
+                    const std::string renderer =
                         UsdImagingGLEngine::GetRendererDisplayName(
                             engine->GetCurrentRendererId());
+                    std::vector<std::string> aovs;
+                    for (const auto& i : engine->GetRendererAovs())
+                    {
+                        aovs.push_back(i.GetText());
+                    }
                     logSystem->print(
                         "tl::usd::Render",
                         string::Format(
@@ -430,13 +435,15 @@ namespace tl
                             "    File name: {0}\n"
                             "    Time code: {1}-{2}:{3}\n"
                             "    GPU enabled: {4}\n"
-                            "    Renderer ID: {5}").
+                            "    Renderer ID: {5}\n"
+                            "    Renderer AOVs available: {6}").
                         arg(fileName).
                         arg(stage->GetStartTimeCode()).
                         arg(stage->GetEndTimeCode()).
                         arg(stage->GetTimeCodesPerSecond()).
                         arg(engine->GetGPUEnabled()).
-                        arg(rendererId));
+                        arg(renderer).
+                        arg(string::join(aovs, ", ")));
                 }
             }
         }
