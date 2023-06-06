@@ -296,6 +296,16 @@ namespace tl
             return out;
         }
 
+        std::shared_ptr<Image> Image::create(const Size& size, PixelType pixelType)
+        {
+            return create(Info(size, pixelType));
+        }
+
+        std::shared_ptr<Image> Image::create(SizeType w, SizeType h, PixelType pixelType)
+        {
+            return create(Info(w, h, pixelType));
+        }
+
         void Image::setTags(const Tags& value)
         {
             _tags = value;

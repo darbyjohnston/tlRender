@@ -513,7 +513,7 @@ namespace tl
                         fileIO->readU16(&h);
                         uint32_t pixelType = 0;
                         fileIO->readU32(&pixelType);
-                        image = imaging::Image::create(imaging::Info(w, h, static_cast<imaging::PixelType>(pixelType)));
+                        image = imaging::Image::create(w, h, static_cast<imaging::PixelType>(pixelType));
                         fileIO->read(image->getData(), image->getDataByteCount());
                     }
                     else
@@ -621,10 +621,10 @@ namespace tl
                                     switch (HdxGetHioFormat(colorTextureHandle->GetDescriptor().format))
                                     {
                                     case HioFormat::HioFormatFloat16Vec4:
-                                        image = imaging::Image::create(imaging::Info(
+                                        image = imaging::Image::create(
                                             renderOptions.renderWidth,
                                             renderHeight,
-                                            imaging::PixelType::RGBA_F16));
+                                            imaging::PixelType::RGBA_F16);
                                         memcpy(image->getData(), mappedColorTextureBuffer.get(), image->getDataByteCount());
                                         break;
                                     default: break;
@@ -641,10 +641,10 @@ namespace tl
                                     switch (HdStHioConversions::GetHioFormat(colorRenderBuffer->GetFormat()))
                                     {
                                     case HioFormat::HioFormatFloat16Vec4:
-                                        image = imaging::Image::create(imaging::Info(
+                                        image = imaging::Image::create(
                                             renderOptions.renderWidth,
                                             renderHeight,
-                                            imaging::PixelType::RGBA_F16));
+                                            imaging::PixelType::RGBA_F16);
                                         memcpy(image->getData(), colorRenderBuffer->Map(), image->getDataByteCount());
                                         break;
                                     default: break;
