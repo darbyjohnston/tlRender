@@ -27,6 +27,8 @@ set(HEADERS
     LayoutUtil.h
     LineEdit.h
     ListButton.h
+    MenuBar.h
+    MenuItem.h
     PieChart.h
     PushButton.h
     RowLayout.h
@@ -70,6 +72,8 @@ set(SOURCE
     LayoutUtil.cpp
     LineEdit.cpp
     ListButton.cpp
+    MenuBar.cpp
+    MenuItem.cpp
     PieChart.cpp
     PushButton.cpp
     RowLayout.cpp
