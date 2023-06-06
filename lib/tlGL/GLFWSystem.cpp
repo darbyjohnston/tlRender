@@ -4,6 +4,8 @@
 
 #include <tlGL/GLFWSystem.h>
 
+#include <tlCore/Context.h>
+#include <tlCore/LogSystem.h>
 #include <tlCore/StringFormat.h>
 
 #include <tlGlad/gl.h>
@@ -27,12 +29,14 @@ namespace tl
         
         struct GLFWSystem::Private
         {
+            bool glfwInit = false;
         };
         
         void GLFWSystem::_init(const std::shared_ptr<system::Context>& context)
         {
             ISystem::_init("tl::gl::GLFWSystem", context);
-
+            TLRENDER_P();
+            
             // Initialize GLFW.
             glfwSetErrorCallback(glfwErrorCallback);
             int glfwMajor = 0;
@@ -42,8 +46,13 @@ namespace tl
             _log(string::Format("GLFW version: {0}.{1}.{2}").arg(glfwMajor).arg(glfwMinor).arg(glfwRevision));
             if (!glfwInit())
             {
-                throw std::runtime_error("Cannot initialize GLFW");
+                //! \todo Only log the error for now so that non-OpenGL
+                //! tests can run.
+                //throw std::runtime_error("Cannot initialize GLFW");
+                auto logSystem = context->getSystem<log::System>();
+                logSystem->print("tl::gl::GLFWSystem", "Cannot initialize GLFW", log::Type::Error);
             }
+            p.glfwInit = true;
         }
         
         GLFWSystem::GLFWSystem() :
@@ -52,7 +61,11 @@ namespace tl
 
         GLFWSystem::~GLFWSystem()
         {
-            glfwTerminate();
+            TLRENDER_P();
+            if (p.glfwInit)
+            {
+                glfwTerminate();
+            }
         }
 
         std::shared_ptr<GLFWSystem> GLFWSystem::create(const std::shared_ptr<system::Context>& context)
