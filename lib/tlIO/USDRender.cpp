@@ -121,10 +121,17 @@ namespace tl
             TLRENDER_P();
             p.logSystem = logSystem;
 
+#if defined(__APPLE__)
+            const int glVersionMinor = 1;
+            const int glProfile = GLFW_OPENGL_CORE_PROFILE;
+#else //__APPLE__
+            const int glVersionMinor = 5;
+            const int glProfile = GLFW_OPENGL_COMPAT_PROFILE;
+#endif //__APPLE__
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, glVersionMinor);
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, glProfile);
             glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
             glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
             p.glfwWindow = glfwCreateWindow(1, 1, "tl::usd::Render", NULL, NULL);
