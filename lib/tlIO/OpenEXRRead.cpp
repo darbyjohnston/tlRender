@@ -192,50 +192,49 @@ namespace tl
                             logSystem->print(id, string::join(s, '\n'));
                         }
 
-                        // Get the tags.
-                        readTags(header, _info.tags);
+                    // Get the tags.
+                    readTags(_f->header(), _info.tags);
 
-                        // Get the layers.
-                        std::string view;
-                        if (header.hasView()) view = header.view() + " ";
-                        std::vector<Layer> layers = getLayers(header.channels(), channelGrouping);
-                        size_t offset = _info.video.size();
-                        _info.video.resize( offset + layers.size() );
-                        for (size_t i = 0; i < layers.size(); ++i)
+                    // Get the layers.
+                    std::string view;
+                    if (header.hasView()) view = header.view() + " ";
+                    std::vector<Layer> layers = getLayers(header.channels(), channelGrouping);
+                    size_t offset = _info.video.size();
+                    _info.video.resize( offset + layers.size() );
+                    for (size_t i = 0; i < layers.size(); ++i)
+                    {
+                        layers[i].partNumber = partNumber;
+                        const auto& layer = layers[i];
+                        _layers.push_back( layer );
+                        const math::Vector2i sampling(layer.channels[0].sampling.x, layer.channels[0].sampling.y);
+                        if (sampling.x != 1 || sampling.y != 1)
+                            _fast = false;
+                        auto& info = _info.video[offset + i];
+                        info.name = view + layer.name;
+                        info.size.w = _displayWindow.w();
+                        info.size.h = _displayWindow.h();
+                        info.size.pixelAspectRatio = header.pixelAspectRatio();
+                        switch (layer.channels[0].pixelType)
                         {
-                            layers[i].partNumber = partNumber;
-                            const auto& layer = layers[i];
-                            _layers.push_back( layer );
-                            const math::Vector2i sampling(layer.channels[0].sampling.x, layer.channels[0].sampling.y);
-                            if (sampling.x != 1 || sampling.y != 1)
-                                _fast = false;
-                            auto& info = _info.video[offset + i];
-                            info.name = view + layer.name;
-                            info.size.w = _displayWindow.w();
-                            info.size.h = _displayWindow.h();
-                            info.size.pixelAspectRatio = header.pixelAspectRatio();
-                            switch (layer.channels[0].pixelType)
-                            {
-                            case Imf::PixelType::HALF:
-                                info.pixelType = imaging::getFloatType(layer.channels.size(), 16);
-                                break;
-                            case Imf::PixelType::FLOAT:
-                                info.pixelType = imaging::getFloatType(layer.channels.size(), 32);
-                                break;
-                            case Imf::PixelType::UINT:
-                                info.pixelType = imaging::getIntType(layer.channels.size(), 32);
-                                break;
-                            default: break;
-                            }
-                            if (imaging::PixelType::None == info.pixelType)
-                            {
-                                throw std::runtime_error(string::Format("{0}: Unsupported image type").arg(fileName));
-                            }
-                            info.layout.mirror.y = true;
+                        case Imf::PixelType::HALF:
+                            info.pixelType = imaging::getFloatType(layer.channels.size(), 16);
+                            break;
+                        case Imf::PixelType::FLOAT:
+                            info.pixelType = imaging::getFloatType(layer.channels.size(), 32);
+                            break;
+                        case Imf::PixelType::UINT:
+                            info.pixelType = imaging::getIntType(layer.channels.size(), 32);
+                            break;
+                        default: break;
                         }
+                        if (imaging::PixelType::None == info.pixelType)
+                        {
+                            throw std::runtime_error(string::Format("{0}: Unsupported image type").arg(fileName));
+                        }
+                        info.layout.mirror.y = true;
                     }
                 }
-                
+
                 const io::Info& getInfo() const
                 {
                     return _info;
