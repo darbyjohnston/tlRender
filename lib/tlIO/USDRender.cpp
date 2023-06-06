@@ -523,7 +523,6 @@ namespace tl
                             const GfVec2i renderResolution(renderWidth, renderHeight);
                             const GfFrustum frustum = gfCamera.GetFrustum();
                             const GfVec3d cameraPos = frustum.GetPosition();
-                            stageCacheItem.engine->SetRendererAov(HdAovTokens->color);
                             stageCacheItem.engine->SetCameraState(
                                 frustum.ComputeViewMatrix(),
                                 frustum.ComputeProjectionMatrix());
@@ -532,6 +531,12 @@ namespace tl
                                 0.0,
                                 static_cast<double>(renderWidth),
                                 static_cast<double>(renderHeight)));
+
+                            //for (const auto& token : stageCacheItem.engine->GetRendererAovs())
+                            //{
+                            //    std::cout << token.GetText() << std::endl;
+                            //}
+                            stageCacheItem.engine->SetRendererAov(HdAovTokens->color);
 
                             // Setup a light.
                             GlfSimpleLight cameraLight(
@@ -583,6 +588,7 @@ namespace tl
                                         stageCacheItem.engine->GetHgi(),
                                         colorTextureHandle,
                                         &size);
+                                    //std::cout << colorTextureHandle->GetDescriptor().format << std::endl;
                                     switch (HdxGetHioFormat(colorTextureHandle->GetDescriptor().format))
                                     {
                                     case HioFormat::HioFormatFloat16Vec4:
@@ -613,18 +619,21 @@ namespace tl
                                 }
                             }
 
-                            // Add the rendered frame to the disk cache.                            
-                            auto diskCacheItem = std::make_shared<Private::DiskCacheItem>();
-                            diskCacheItem->fileName = string::Format("{0}/{1}.img").
-                                arg(p.thread.tempDir).
-                                arg(diskCacheItem);
-                            //std::cout << "write temp file: " << diskCacheItem->fileName << std::endl;
-                            auto tempFile = file::FileIO::create(diskCacheItem->fileName, file::Mode::Write);
-                            tempFile->writeU16(image->getWidth());
-                            tempFile->writeU16(image->getHeight());
-                            tempFile->writeU32(static_cast<uint32_t>(image->getPixelType()));
-                            tempFile->write(image->getData(), image->getDataByteCount());
-                            p.thread.diskCache.add({ fileName, request->time }, diskCacheItem);
+                            // Add the rendered frame to the disk cache.
+                            if (image)
+                            {
+                                auto diskCacheItem = std::make_shared<Private::DiskCacheItem>();
+                                diskCacheItem->fileName = string::Format("{0}/{1}.img").
+                                    arg(p.thread.tempDir).
+                                    arg(diskCacheItem);
+                                //std::cout << "write temp file: " << diskCacheItem->fileName << std::endl;
+                                auto tempFile = file::FileIO::create(diskCacheItem->fileName, file::Mode::Write);
+                                tempFile->writeU16(image->getWidth());
+                                tempFile->writeU16(image->getHeight());
+                                tempFile->writeU32(static_cast<uint32_t>(image->getPixelType()));
+                                tempFile->write(image->getData(), image->getDataByteCount());
+                                p.thread.diskCache.add({ fileName, request->time }, diskCacheItem);
+                            }
                         }
                     }
                     
