@@ -38,14 +38,6 @@ namespace tl
 {
     namespace usd
     {
-        namespace
-        {
-            const size_t stageCacheSize = 10;
-            const size_t diskCacheSize = 1500;
-            const size_t renderWidth = 1920; //4096;
-            const size_t renderHeight = 1080; //2160;
-        }
-        
         struct Render::Private
         {
             std::weak_ptr<log::System> logSystem;
@@ -69,6 +61,7 @@ namespace tl
             
             struct Mutex
             {
+                RenderOptions renderOptions;
                 std::list<std::shared_ptr<InfoRequest> > infoRequests;
                 std::list<std::shared_ptr<Request> > requests;
                 bool stopped = false;
@@ -140,8 +133,6 @@ namespace tl
                 throw std::runtime_error("Cannot create window");
             }
 
-            p.thread.stageCache.setMax(stageCacheSize);
-            p.thread.diskCache.setMax(diskCacheSize);
             p.thread.logTimer = std::chrono::steady_clock::now();
             p.thread.running = true;
             p.thread.thread = std::thread(
@@ -197,6 +188,13 @@ namespace tl
             auto out = std::shared_ptr<Render>(new Render);
             out->_init(logSystem);
             return out;
+        }
+        
+        void Render::setRenderOptions(const RenderOptions& value)
+        {
+            TLRENDER_P();
+            std::unique_lock<std::mutex> lock(p.mutex.mutex);
+            p.mutex.renderOptions = value;
         }
         
         std::future<io::Info> Render::getInfo(int64_t id, const file::Path& path)
@@ -401,9 +399,10 @@ namespace tl
             TLRENDER_P();
                         
             TfDiagnosticMgr::GetInstance().SetQuiet(true);
-            
-            p.thread.tempDir = file::createTempDir();
-            
+
+            const TfTokenVector purposes({ UsdGeomTokens->default_, UsdGeomTokens->proxy });
+
+            RenderOptions renderOptions;
             while (p.thread.running)
             {
                 // Check requests.
@@ -414,13 +413,15 @@ namespace tl
                     if (p.thread.cv.wait_for(
                         lock,
                         std::chrono::milliseconds(5),
-                        [this]
+                        [this, &renderOptions]
                         {
                             return
+                                _p->mutex.renderOptions != renderOptions ||
                                 !_p->mutex.infoRequests.empty() ||
                                 !_p->mutex.requests.empty();
                         }))
                     {
+                        renderOptions = p.mutex.renderOptions;
                         if (!p.mutex.infoRequests.empty())
                         {
                             infoRequest = p.mutex.infoRequests.front();
@@ -432,6 +433,19 @@ namespace tl
                             p.mutex.requests.pop_front();
                         }
                     }
+                }
+
+                // Set options.
+                p.thread.stageCache.setMax(renderOptions.stageCacheSize);
+                p.thread.diskCache.setMax(renderOptions.diskCacheSize);
+                if (renderOptions.diskCacheSize > 0 && p.thread.tempDir.empty())
+                {
+                    p.thread.tempDir = file::createTempDir();
+                    //std::cout << this << " temp dir: " << p.thread.tempDir << std::endl;
+                }
+                else if (0 == renderOptions.diskCacheSize && !p.thread.tempDir.empty())
+                {
+                    p.thread.tempDir = std::string();
                 }
 
                 // Handle information requests.
@@ -449,11 +463,30 @@ namespace tl
                     io::Info info;
                     if (stageCacheItem.stage)
                     {
-                        info.video.push_back(
-                            imaging::Info(renderWidth, renderHeight, imaging::PixelType::RGBA_F16));
                         const double startTimeCode = stageCacheItem.stage->GetStartTimeCode();
                         const double endTimeCode = stageCacheItem.stage->GetEndTimeCode();
                         const double timeCodesPerSecond = stageCacheItem.stage->GetTimeCodesPerSecond();
+                        GfCamera gfCamera;
+                        auto camera = getCamera(stageCacheItem.stage);
+                        if (camera)
+                        {
+                            //std::cout << fileName << " camera: " <<
+                            //    camera.GetPath().GetAsToken().GetText() << std::endl;
+                            gfCamera = camera.GetCamera(startTimeCode);
+                        }
+                        else
+                        {
+                            gfCamera = getCameraToFrameStage(stageCacheItem.stage, startTimeCode, purposes);
+                        }
+                        float aspectRatio = gfCamera.GetAspectRatio();
+                        if (GfIsClose(aspectRatio, 0.F, 1e-4))
+                        {
+                            aspectRatio = 1.F;
+                        }
+                        info.video.push_back(imaging::Info(
+                            renderOptions.renderWidth,
+                            renderOptions.renderWidth / aspectRatio,
+                            imaging::PixelType::RGBA_F16));
                         info.videoTime = otime::TimeRange::range_from_start_end_time_inclusive(
                             otime::RationalTime(startTimeCode, timeCodesPerSecond),
                             otime::RationalTime(endTimeCode, timeCodesPerSecond));
@@ -469,7 +502,8 @@ namespace tl
                     const std::string fileName = request->path.get();
                     std::shared_ptr<imaging::Image> image;
                     std::shared_ptr<Private::DiskCacheItem> diskCacheItem;
-                    if (p.thread.diskCache.get(Private::DiskCacheKey({ fileName, request->time }), diskCacheItem))
+                    if (renderOptions.diskCacheSize > 0 &&
+                        p.thread.diskCache.get(Private::DiskCacheKey({ fileName, request->time }), diskCacheItem))
                     {
                         //std::cout << "read temp file: " << diskCacheItem->fileName << std::endl;
                         auto fileIO = file::FileIO::create(diskCacheItem->fileName, file::Mode::Read);
@@ -495,41 +529,36 @@ namespace tl
                         }
                         if (stageCacheItem.stage && stageCacheItem.engine)
                         {
-                            const TfTokenVector purposes({ UsdGeomTokens->default_, UsdGeomTokens->proxy });
                             const double timeCode = request->time.rescaled_to(
                                 stageCacheItem.stage->GetTimeCodesPerSecond()).value();
                             //std::cout << fileName << " timeCode: " << timeCode << std::endl;
                             
                             // Setup the camera.
-                            auto camera = getCamera(stageCacheItem.stage);
                             GfCamera gfCamera;
+                            auto camera = getCamera(stageCacheItem.stage);
                             if (camera)
                             {
-                                //std::cout << fileName << " camera: " << camera.GetPath().GetAsToken().GetText() << std::endl;
                                 gfCamera = camera.GetCamera(timeCode);
                             }
                             else
                             {
                                 gfCamera = getCameraToFrameStage(stageCacheItem.stage, timeCode, purposes);
                             }
-                            float aspectRatio = gfCamera.GetAspectRatio();
-                            if (GfIsClose(aspectRatio, 0.F, 1e-4))
-                            {
-                                aspectRatio = 1.F;
-                            }
-                            const size_t renderHeight = std::max<size_t>(
-                                static_cast<size_t>(static_cast<float>(renderWidth) / aspectRatio),
-                                1u);
-                            const GfVec2i renderResolution(renderWidth, renderHeight);
                             const GfFrustum frustum = gfCamera.GetFrustum();
                             const GfVec3d cameraPos = frustum.GetPosition();
                             stageCacheItem.engine->SetCameraState(
                                 frustum.ComputeViewMatrix(),
                                 frustum.ComputeProjectionMatrix());
+                            float aspectRatio = gfCamera.GetAspectRatio();
+                            if (GfIsClose(aspectRatio, 0.F, 1e-4))
+                            {
+                                aspectRatio = 1.F;
+                            }
+                            const size_t renderHeight = renderOptions.renderWidth / aspectRatio;
                             stageCacheItem.engine->SetRenderViewport(GfVec4d(
                                 0.0,
                                 0.0,
-                                static_cast<double>(renderWidth),
+                                static_cast<double>(renderOptions.renderWidth),
                                 static_cast<double>(renderHeight)));
 
                             //for (const auto& token : stageCacheItem.engine->GetRendererAovs())
@@ -592,8 +621,10 @@ namespace tl
                                     switch (HdxGetHioFormat(colorTextureHandle->GetDescriptor().format))
                                     {
                                     case HioFormat::HioFormatFloat16Vec4:
-                                        image = imaging::Image::create(
-                                            imaging::Info(renderWidth, renderHeight, imaging::PixelType::RGBA_F16));
+                                        image = imaging::Image::create(imaging::Info(
+                                            renderOptions.renderWidth,
+                                            renderHeight,
+                                            imaging::PixelType::RGBA_F16));
                                         memcpy(image->getData(), mappedColorTextureBuffer.get(), image->getDataByteCount());
                                         break;
                                     default: break;
@@ -610,8 +641,10 @@ namespace tl
                                     switch (HdStHioConversions::GetHioFormat(colorRenderBuffer->GetFormat()))
                                     {
                                     case HioFormat::HioFormatFloat16Vec4:
-                                        image = imaging::Image::create(
-                                            imaging::Info(renderWidth, renderHeight, imaging::PixelType::RGBA_F16));
+                                        image = imaging::Image::create(imaging::Info(
+                                            renderOptions.renderWidth,
+                                            renderHeight,
+                                            imaging::PixelType::RGBA_F16));
                                         memcpy(image->getData(), colorRenderBuffer->Map(), image->getDataByteCount());
                                         break;
                                     default: break;
@@ -620,7 +653,7 @@ namespace tl
                             }
 
                             // Add the rendered frame to the disk cache.
-                            if (image)
+                            if (renderOptions.diskCacheSize > 0 && image)
                             {
                                 auto diskCacheItem = std::make_shared<Private::DiskCacheItem>();
                                 diskCacheItem->fileName = string::Format("{0}/{1}.img").

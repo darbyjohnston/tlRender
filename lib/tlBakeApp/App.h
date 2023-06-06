@@ -16,6 +16,9 @@
 #if defined(TLRENDER_FFMPEG)
 #include <tlIO/FFmpeg.h>
 #endif // TLRENDER_FFMPEG
+#if defined(TLRENDER_USD)
+#include <tlIO/USD.h>
+#endif // TLRENDER_USD
 
 struct GLFWwindow;
 
@@ -42,6 +45,9 @@ namespace tl
             std::string ffmpegWriteProfile;
             int ffmpegThreadCount = ffmpeg::threadCount;
 #endif // TLRENDER_FFMPEG
+#if defined(TLRENDER_USD)
+            usd::RenderOptions usdRenderOptions;
+#endif // TLRENDER_USD
         };
 
         //! Application.

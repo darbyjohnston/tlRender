@@ -7,6 +7,10 @@
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/Player.h>
 
+#if defined(TLRENDER_USD)
+#include <tlIO/USD.h>
+#endif // TLRENDER_USD
+
 struct GLFWwindow;
 
 namespace tl
@@ -41,6 +45,9 @@ namespace tl
                 otime::TimeRange inOutRange = time::invalidTimeRange;
                 timeline::ColorConfigOptions colorConfigOptions;
                 timeline::LUTOptions lutOptions;
+#if defined(TLRENDER_USD)
+                usd::RenderOptions usdRenderOptions;
+#endif // TLRENDER_USD
             };
 
             //! Application.

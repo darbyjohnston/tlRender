@@ -25,6 +25,9 @@
 #include <tlTimeline/Util.h>
 
 #include <tlIO/IOSystem.h>
+#if defined(TLRENDER_USD)
+#include <tlIO/USD.h>
+#endif // TLRENDER_USD
 
 #include <tlCore/AudioSystem.h>
 #include <tlCore/Math.h>
@@ -53,6 +56,9 @@ namespace tl
                 timeline::ColorConfigOptions colorConfigOptions;
                 timeline::LUTOptions lutOptions;
                 bool resetSettings = false;
+#if defined(TLRENDER_USD)
+                usd::RenderOptions usdRenderOptions;
+#endif // TLRENDER_USD
             };
         }
 
@@ -107,86 +113,103 @@ namespace tl
                         "Timeline, movie, image sequence, or folder.",
                         true)
                 },
-        {
-            app::CmdLineValueOption<std::string>::create(
-                p.options.audioFileName,
-                { "-audio", "-a" },
-                "Audio file name."),
-            app::CmdLineValueOption<std::string>::create(
-                p.options.compareFileName,
-                { "-compare", "-b" },
-                "A/B comparison \"B\" file name."),
-            app::CmdLineValueOption<timeline::CompareMode>::create(
-                p.options.compareOptions.mode,
-                { "-compareMode", "-c" },
-                "A/B comparison mode.",
-                string::Format("{0}").arg(p.options.compareOptions.mode),
-                string::join(timeline::getCompareModeLabels(), ", ")),
-            app::CmdLineValueOption<math::Vector2f>::create(
-                p.options.compareOptions.wipeCenter,
-                { "-wipeCenter", "-wc" },
-                "A/B comparison wipe center.",
-                string::Format("{0}").arg(p.options.compareOptions.wipeCenter)),
-            app::CmdLineValueOption<float>::create(
-                p.options.compareOptions.wipeRotation,
-                { "-wipeRotation", "-wr" },
-                "A/B comparison wipe rotation.",
-                string::Format("{0}").arg(p.options.compareOptions.wipeRotation)),
-            app::CmdLineValueOption<double>::create(
-                p.options.speed,
-                { "-speed" },
-                "Playback speed."),
-            app::CmdLineValueOption<timeline::Playback>::create(
-                p.options.playback,
-                { "-playback", "-p" },
-                "Playback mode.",
-                string::Format("{0}").arg(p.options.playback),
-                string::join(timeline::getPlaybackLabels(), ", ")),
-            app::CmdLineValueOption<timeline::Loop>::create(
-                p.options.loop,
-                { "-loop" },
-                "Playback loop mode.",
-                string::Format("{0}").arg(p.options.loop),
-                string::join(timeline::getLoopLabels(), ", ")),
-            app::CmdLineValueOption<otime::RationalTime>::create(
-                p.options.seek,
-                { "-seek" },
-                "Seek to the given time."),
-            app::CmdLineValueOption<otime::TimeRange>::create(
-                p.options.inOutRange,
-                { "-inOutRange" },
-                "Set the in/out points range."),
-            app::CmdLineValueOption<std::string>::create(
-                p.options.colorConfigOptions.fileName,
-                { "-colorConfig", "-cc" },
-                "Color configuration file name (config.ocio)."),
-            app::CmdLineValueOption<std::string>::create(
-                p.options.colorConfigOptions.input,
-                { "-colorInput", "-ci" },
-                "Input color space."),
-            app::CmdLineValueOption<std::string>::create(
-                p.options.colorConfigOptions.display,
-                { "-colorDisplay", "-cd" },
-                "Display color space."),
-            app::CmdLineValueOption<std::string>::create(
-                p.options.colorConfigOptions.view,
-                { "-colorView", "-cv" },
-                "View color space."),
-            app::CmdLineValueOption<std::string>::create(
-                p.options.lutOptions.fileName,
-                { "-lut" },
-                "LUT file name."),
-            app::CmdLineValueOption<timeline::LUTOrder>::create(
-                p.options.lutOptions.order,
-                { "-lutOrder" },
-                "LUT operation order.",
-                string::Format("{0}").arg(p.options.lutOptions.order),
-                string::join(timeline::getLUTOrderLabels(), ", ")),
-            app::CmdLineFlagOption::create(
-                p.options.resetSettings,
-                { "-resetSettings" },
-                "Reset settings to defaults.")
-        });
+                {
+                    app::CmdLineValueOption<std::string>::create(
+                        p.options.audioFileName,
+                        { "-audio", "-a" },
+                        "Audio file name."),
+                    app::CmdLineValueOption<std::string>::create(
+                        p.options.compareFileName,
+                        { "-compare", "-b" },
+                        "A/B comparison \"B\" file name."),
+                    app::CmdLineValueOption<timeline::CompareMode>::create(
+                        p.options.compareOptions.mode,
+                        { "-compareMode", "-c" },
+                        "A/B comparison mode.",
+                        string::Format("{0}").arg(p.options.compareOptions.mode),
+                        string::join(timeline::getCompareModeLabels(), ", ")),
+                    app::CmdLineValueOption<math::Vector2f>::create(
+                        p.options.compareOptions.wipeCenter,
+                        { "-wipeCenter", "-wc" },
+                        "A/B comparison wipe center.",
+                        string::Format("{0}").arg(p.options.compareOptions.wipeCenter)),
+                    app::CmdLineValueOption<float>::create(
+                        p.options.compareOptions.wipeRotation,
+                        { "-wipeRotation", "-wr" },
+                        "A/B comparison wipe rotation.",
+                        string::Format("{0}").arg(p.options.compareOptions.wipeRotation)),
+                    app::CmdLineValueOption<double>::create(
+                        p.options.speed,
+                        { "-speed" },
+                        "Playback speed."),
+                    app::CmdLineValueOption<timeline::Playback>::create(
+                        p.options.playback,
+                        { "-playback", "-p" },
+                        "Playback mode.",
+                        string::Format("{0}").arg(p.options.playback),
+                        string::join(timeline::getPlaybackLabels(), ", ")),
+                    app::CmdLineValueOption<timeline::Loop>::create(
+                        p.options.loop,
+                        { "-loop" },
+                        "Playback loop mode.",
+                        string::Format("{0}").arg(p.options.loop),
+                        string::join(timeline::getLoopLabels(), ", ")),
+                    app::CmdLineValueOption<otime::RationalTime>::create(
+                        p.options.seek,
+                        { "-seek" },
+                        "Seek to the given time."),
+                    app::CmdLineValueOption<otime::TimeRange>::create(
+                        p.options.inOutRange,
+                        { "-inOutRange" },
+                        "Set the in/out points range."),
+                    app::CmdLineValueOption<std::string>::create(
+                        p.options.colorConfigOptions.fileName,
+                        { "-colorConfig", "-cc" },
+                        "Color configuration file name (config.ocio)."),
+                    app::CmdLineValueOption<std::string>::create(
+                        p.options.colorConfigOptions.input,
+                        { "-colorInput", "-ci" },
+                        "Input color space."),
+                    app::CmdLineValueOption<std::string>::create(
+                        p.options.colorConfigOptions.display,
+                        { "-colorDisplay", "-cd" },
+                        "Display color space."),
+                    app::CmdLineValueOption<std::string>::create(
+                        p.options.colorConfigOptions.view,
+                        { "-colorView", "-cv" },
+                        "View color space."),
+                    app::CmdLineValueOption<std::string>::create(
+                        p.options.lutOptions.fileName,
+                        { "-lut" },
+                        "LUT file name."),
+                    app::CmdLineValueOption<timeline::LUTOrder>::create(
+                        p.options.lutOptions.order,
+                        { "-lutOrder" },
+                        "LUT operation order.",
+                        string::Format("{0}").arg(p.options.lutOptions.order),
+                        string::join(timeline::getLUTOrderLabels(), ", ")),
+                    app::CmdLineFlagOption::create(
+                        p.options.resetSettings,
+                        { "-resetSettings" },
+                        "Reset settings to defaults."),
+#if defined(TLRENDER_USD)
+                    app::CmdLineValueOption<size_t>::create(
+                        p.options.usdRenderOptions.renderWidth,
+                        { "-usdRenderWidth" },
+                        "USD render width.",
+                        string::Format("{0}").arg(p.options.usdRenderOptions.renderWidth)),
+                    app::CmdLineValueOption<size_t>::create(
+                        p.options.usdRenderOptions.stageCacheSize,
+                        { "-usdStageCacheSize" },
+                        "USD stage cache size.",
+                        string::Format("{0}").arg(p.options.usdRenderOptions.stageCacheSize)),
+                    app::CmdLineValueOption<size_t>::create(
+                        p.options.usdRenderOptions.diskCacheSize,
+                        { "-usdDiskCacheSize" },
+                        "USD disk cache size. A size of zero disables the cache.",
+                        string::Format("{0}").arg(p.options.usdRenderOptions.diskCacheSize)),
+#endif // TLRENDER_USD
+                });
             const int exitCode = getExit();
             if (exitCode != 0)
             {
@@ -201,6 +224,28 @@ namespace tl
             setPalette(qtwidget::darkStyle());
             setStyleSheet(qtwidget::styleSheet());
             qtwidget::initFonts(context);
+
+            // Set I/O options.
+            io::Options ioOptions;
+#if defined(TLRENDER_USD)
+            {
+                std::stringstream ss;
+                ss << p.options.usdRenderOptions.renderWidth;
+                ioOptions["usd/renderWidth"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << p.options.usdRenderOptions.stageCacheSize;
+                ioOptions["usd/stageCacheSize"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << p.options.usdRenderOptions.diskCacheSize;
+                ioOptions["usd/diskCacheSize"] = ss.str();
+            }
+#endif // TLRENDER_USD
+            auto ioSystem = context->getSystem<io::System>();
+            ioSystem->setOptions(ioOptions);
 
             // Create models and objects.
             p.contextObject = new qt::ContextObject(context, this);

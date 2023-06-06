@@ -8,6 +8,8 @@
 
 #include <tlUI/EventLoop.h>
 
+#include <tlIO/IOSystem.h>
+
 #include <tlCore/StringFormat.h>
 
 namespace tl
@@ -114,8 +116,47 @@ namespace tl
                         { "-lutOrder" },
                         "LUT operation order.",
                         string::Format("{0}").arg(_options.lutOptions.order),
-                        string::join(timeline::getLUTOrderLabels(), ", "))
+                        string::join(timeline::getLUTOrderLabels(), ", ")),
+#if defined(TLRENDER_USD)
+                    app::CmdLineValueOption<size_t>::create(
+                        _options.usdRenderOptions.renderWidth,
+                        { "-usdRenderWidth" },
+                        "USD render width.",
+                        string::Format("{0}").arg(_options.usdRenderOptions.renderWidth)),
+                    app::CmdLineValueOption<size_t>::create(
+                        _options.usdRenderOptions.stageCacheSize,
+                        { "-usdStageCacheSize" },
+                        "USD stage cache size.",
+                        string::Format("{0}").arg(_options.usdRenderOptions.stageCacheSize)),
+                    app::CmdLineValueOption<size_t>::create(
+                        _options.usdRenderOptions.diskCacheSize,
+                        { "-usdDiskCacheSize" },
+                        "USD disk cache size. A size of zero disables the cache.",
+                        string::Format("{0}").arg(_options.usdRenderOptions.diskCacheSize)),
+#endif // TLRENDER_USD
                 });
+
+                // Set I/O options.
+                io::Options ioOptions;
+#if defined(TLRENDER_USD)
+                {
+                    std::stringstream ss;
+                    ss << _options.usdRenderOptions.renderWidth;
+                    ioOptions["usd/renderWidth"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << _options.usdRenderOptions.stageCacheSize;
+                    ioOptions["usd/stageCacheSize"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << _options.usdRenderOptions.diskCacheSize;
+                    ioOptions["usd/diskCacheSize"] = ss.str();
+                }
+#endif // TLRENDER_USD
+                auto ioSystem = context->getSystem<io::System>();
+                ioSystem->setOptions(ioOptions);
 
                 // Read the timeline.
                 auto timeline = timeline::Timeline::create(_input, _context);

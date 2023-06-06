@@ -10,6 +10,19 @@ namespace tl
 {
     namespace usd
     {
+        bool RenderOptions::operator == (const RenderOptions& other) const
+        {
+            return
+                renderWidth == other.renderWidth &&
+                stageCacheSize == other.stageCacheSize &&
+                diskCacheSize == other.diskCacheSize;
+        }
+        
+        bool RenderOptions::operator != (const RenderOptions& other) const
+        {
+            return !(*this == other);
+        }
+
         struct Plugin::Private
         {
             int64_t id = -1;
@@ -39,6 +52,36 @@ namespace tl
             auto out = std::shared_ptr<Plugin>(new Plugin);
             out->_init(logSystem);
             return out;
+        }
+        
+        void Plugin::setOptions(const io::Options& value)
+        {
+            const bool changed = value != _options;
+            IPlugin::setOptions(value);
+            TLRENDER_P();
+            if (changed)
+            {
+                RenderOptions renderOptions;
+                auto i = _options.find("usd/renderWidth");
+                if (i != _options.end())
+                {
+                    std::stringstream ss(i->second);
+                    ss >> renderOptions.renderWidth;
+                }
+                i = _options.find("usd/stageCacheSize");
+                if (i != _options.end())
+                {
+                    std::stringstream ss(i->second);
+                    ss >> renderOptions.stageCacheSize;
+                }
+                i = _options.find("usd/diskCacheSize");
+                if (i != _options.end())
+                {
+                    std::stringstream ss(i->second);
+                    ss >> renderOptions.diskCacheSize;
+                }
+                p.render->setRenderOptions(renderOptions);
+            }
         }
 
         std::shared_ptr<io::IRead> Plugin::read(

@@ -160,15 +160,16 @@ if(TLRENDER_FFMPEG)
         add_definitions(-DTLRENDER_FFMPEG)
     endif()
 endif()
+if(TLRENDER_USD)
+    find_package(pxr REQUIRED)
+    if(pxr_FOUND)
+        add_definitions(-DTLRENDER_USD)
+    endif()
+endif()
 
 # Python dependencies
 if(TLRENDER_PYTHON)
     find_package(Python3 REQUIRED COMPONENTS Development)
-endif()
-
-# USD dependencies
-if(TLRENDER_USD)
-    find_package(pxr REQUIRED)
 endif()
 
 # Qt dependencies

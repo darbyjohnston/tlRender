@@ -135,18 +135,35 @@ namespace tl
                         string::Format("{0}").arg(_options.exrDWACompressionLevel)),
 #endif // TLRENDER_EXR
 #if defined(TLRENDER_FFMPEG)
-                    app::CmdLineValueOption<int>::create(
-                        _options.ffmpegThreadCount,
-                        { "-ffmpegThreadCount" },
-                        "Number of threads for FFmpeg I/O.",
-                        string::Format("{0}").arg(_options.ffmpegThreadCount)),
                     app::CmdLineValueOption<std::string>::create(
                         _options.ffmpegWriteProfile,
                         { "-ffmpegProfile", "-ffp" },
                         "FFmpeg output profile.",
                         std::string(),
                         string::join(ffmpeg::getProfileLabels(), ", ")),
+                    app::CmdLineValueOption<int>::create(
+                        _options.ffmpegThreadCount,
+                        { "-ffmpegThreadCount" },
+                        "Number of threads for FFmpeg I/O.",
+                        string::Format("{0}").arg(_options.ffmpegThreadCount)),
 #endif // TLRENDER_FFMPEG
+#if defined(TLRENDER_USD)
+                    app::CmdLineValueOption<size_t>::create(
+                        _options.usdRenderOptions.renderWidth,
+                        { "-usdRenderWidth" },
+                        "USD render width.",
+                        string::Format("{0}").arg(_options.usdRenderOptions.renderWidth)),
+                    app::CmdLineValueOption<size_t>::create(
+                        _options.usdRenderOptions.stageCacheSize,
+                        { "-usdStageCacheSize" },
+                        "USD stage cache size.",
+                        string::Format("{0}").arg(_options.usdRenderOptions.stageCacheSize)),
+                    app::CmdLineValueOption<size_t>::create(
+                        _options.usdRenderOptions.diskCacheSize,
+                        { "-usdDiskCacheSize" },
+                        "USD disk cache size. A size of zero disables the cache.",
+                        string::Format("{0}").arg(_options.usdRenderOptions.diskCacheSize)),
+#endif // TLRENDER_USD
                 });
 
             // Set I/O options.
@@ -184,7 +201,25 @@ namespace tl
                 ioOptions["ffmpeg/ThreadCount"] = ss.str();
             }
 #endif // TLRENDER_FFMPEG
-            context->getSystem<io::System>()->setOptions(ioOptions);
+#if defined(TLRENDER_USD)
+            {
+                std::stringstream ss;
+                ss << _options.usdRenderOptions.renderWidth;
+                ioOptions["usd/renderWidth"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << _options.usdRenderOptions.stageCacheSize;
+                ioOptions["usd/stageCacheSize"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << _options.usdRenderOptions.diskCacheSize;
+                ioOptions["usd/diskCacheSize"] = ss.str();
+            }
+#endif // TLRENDER_USD
+            auto ioSystem = context->getSystem<io::System>();
+            ioSystem->setOptions(ioOptions);
         }
 
         App::App()

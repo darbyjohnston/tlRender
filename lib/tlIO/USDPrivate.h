@@ -24,6 +24,9 @@ namespace tl
             //! Create a new renderer.
             static std::shared_ptr<Render> create(const std::weak_ptr<log::System>&);
 
+            //! Set render options.
+            void setRenderOptions(const RenderOptions&);
+            
             //! Get information.
             std::future<io::Info> getInfo(
                 int64_t id,

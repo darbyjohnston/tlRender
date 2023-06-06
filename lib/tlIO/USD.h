@@ -11,6 +11,17 @@ namespace tl
     namespace usd
     {
         class Render;
+
+        //! USD renderer options.
+        struct RenderOptions
+        {
+            size_t renderWidth = 1920;
+            size_t stageCacheSize = 10;
+            size_t diskCacheSize = 0;
+            
+            bool operator == (const RenderOptions&) const;
+            bool operator != (const RenderOptions&) const;
+        };
         
         //! USD reader.
         class Read : public io::IRead
@@ -56,7 +67,8 @@ namespace tl
         public:
             //! Create a new plugin.
             static std::shared_ptr<Plugin> create(const std::weak_ptr<log::System>&);
-
+            
+            void setOptions(const io::Options&) override;
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
                 const io::Options& = io::Options()) override;
