@@ -590,6 +590,7 @@ namespace tl
                                             imaging::Info(renderWidth, renderHeight, imaging::PixelType::RGBA_F16));
                                         memcpy(image->getData(), mappedColorTextureBuffer.get(), image->getDataByteCount());
                                         break;
+                                    default: break;
                                     }
                                 }
                             }
@@ -607,6 +608,7 @@ namespace tl
                                             imaging::Info(renderWidth, renderHeight, imaging::PixelType::RGBA_F16));
                                         memcpy(image->getData(), colorRenderBuffer->Map(), image->getDataByteCount());
                                         break;
+                                    default: break;
                                     }
                                 }
                             }
