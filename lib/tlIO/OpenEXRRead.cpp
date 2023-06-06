@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BSD-3-Clause
-// Copyright (c) 2021-2022 Darby Johnston
+// Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
 #include <tlIO/OpenEXR.h>
@@ -196,7 +196,8 @@ namespace tl
                         readTags(header, _info.tags);
 
                         // Get the layers.
-                        
+                        std::string view;
+                        if (header.hasView()) view = header.view() + " ";
                         std::vector<Layer> layers = getLayers(header.channels(), channelGrouping);
                         size_t offset = _info.video.size();
                         _info.video.resize( offset + layers.size() );
@@ -209,7 +210,7 @@ namespace tl
                             if (sampling.x != 1 || sampling.y != 1)
                                 _fast = false;
                             auto& info = _info.video[offset + i];
-                            info.name = layer.name;
+                            info.name = view + layer.name;
                             info.size.w = _displayWindow.w();
                             info.size.h = _displayWindow.h();
                             info.size.pixelAspectRatio = header.pixelAspectRatio();
