@@ -6,14 +6,31 @@
 
 #include <tlIO/USDPrivate.h>
 
+#include <tlCore/Error.h>
+
 namespace tl
 {
     namespace usd
     {
+        TLRENDER_ENUM_IMPL(
+            DrawMode,
+            "Points",
+            "Wireframe",
+            "WireframeOnSurface",
+            "ShadedFlat",
+            "ShadedSmooth",
+            "GeomOnly",
+            "GeomFlat",
+            "GeomSmooth");
+        TLRENDER_ENUM_SERIALIZE_IMPL(DrawMode);
+        
         bool RenderOptions::operator == (const RenderOptions& other) const
         {
             return
                 renderWidth == other.renderWidth &&
+                complexity == other.complexity &&
+                drawMode == other.drawMode &&
+                enableLighting == other.enableLighting &&
                 stageCacheSize == other.stageCacheSize &&
                 diskCacheSize == other.diskCacheSize;
         }
@@ -67,6 +84,24 @@ namespace tl
                 {
                     std::stringstream ss(i->second);
                     ss >> renderOptions.renderWidth;
+                }
+                i = _options.find("usd/complexity");
+                if (i != _options.end())
+                {
+                    std::stringstream ss(i->second);
+                    ss >> renderOptions.complexity;
+                }
+                i = _options.find("usd/drawMode");
+                if (i != _options.end())
+                {
+                    std::stringstream ss(i->second);
+                    ss >> renderOptions.drawMode;
+                }
+                i = _options.find("usd/enableLighting");
+                if (i != _options.end())
+                {
+                    std::stringstream ss(i->second);
+                    ss >> renderOptions.enableLighting;
                 }
                 i = _options.find("usd/stageCacheSize");
                 if (i != _options.end())

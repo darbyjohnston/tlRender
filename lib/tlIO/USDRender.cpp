@@ -405,6 +405,22 @@ namespace tl
                 gfCamera.SetTransform(xf);
                 return gfCamera;
             }
+            
+            UsdImagingGLDrawMode toUSD(DrawMode value)
+            {
+                const std::vector<UsdImagingGLDrawMode> data =
+                {
+                    UsdImagingGLDrawMode::DRAW_POINTS,
+                    UsdImagingGLDrawMode::DRAW_WIREFRAME,
+                    UsdImagingGLDrawMode::DRAW_WIREFRAME_ON_SURFACE,
+                    UsdImagingGLDrawMode::DRAW_SHADED_FLAT,
+                    UsdImagingGLDrawMode::DRAW_SHADED_SMOOTH,
+                    UsdImagingGLDrawMode::DRAW_GEOM_ONLY,
+                    UsdImagingGLDrawMode::DRAW_GEOM_FLAT,
+                    UsdImagingGLDrawMode::DRAW_GEOM_SMOOTH
+                };
+                return data[static_cast<size_t>(value)];
+            };
         }
 
         void Render::_open(
@@ -644,12 +660,10 @@ namespace tl
                             // Render the frame.
                             UsdImagingGLRenderParams renderParams;
                             renderParams.frame = timeCode;
-                            //renderParams.complexity = 1.F;
+                            renderParams.complexity = renderOptions.complexity;
+                            renderParams.drawMode = toUSD(renderOptions.drawMode);
+                            renderParams.enableLighting = renderOptions.enableLighting;
                             renderParams.colorCorrectionMode = HdxColorCorrectionTokens->sRGB;
-                            //renderParams.clearColor = GfVec4f(0.F);
-                            //renderParams.showProxy = true;
-                            //renderParams.showRender = true;
-                            //renderParams.showGuides = false;
                             const UsdPrim& pseudoRoot = stageCacheItem.stage->GetPseudoRoot();
                             unsigned int sleepTime = 10;
                             while (true)

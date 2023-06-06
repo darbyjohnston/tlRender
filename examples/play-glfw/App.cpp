@@ -123,6 +123,22 @@ namespace tl
                         { "-usdRenderWidth" },
                         "USD render width.",
                         string::Format("{0}").arg(_options.usdRenderOptions.renderWidth)),
+                    app::CmdLineValueOption<float>::create(
+                        _options.usdRenderOptions.complexity,
+                        { "-usdComplexity" },
+                        "USD render complexity setting.",
+                        string::Format("{0}").arg(_options.usdRenderOptions.complexity)),
+                    app::CmdLineValueOption<usd::DrawMode>::create(
+                        _options.usdRenderOptions.drawMode,
+                        { "-usdDrawMode" },
+                        "USD render draw mode.",
+                        string::Format("{0}").arg(_options.usdRenderOptions.drawMode),
+                        string::join(usd::getDrawModeLabels(), ", ")),
+                    app::CmdLineValueOption<bool>::create(
+                        _options.usdRenderOptions.enableLighting,
+                        { "-usdEnableLighting" },
+                        "USD render enable lighting setting.",
+                        string::Format("{0}").arg(_options.usdRenderOptions.enableLighting)),
                     app::CmdLineValueOption<size_t>::create(
                         _options.usdRenderOptions.stageCacheSize,
                         { "-usdStageCacheSize" },
@@ -131,7 +147,7 @@ namespace tl
                     app::CmdLineValueOption<size_t>::create(
                         _options.usdRenderOptions.diskCacheSize,
                         { "-usdDiskCacheSize" },
-                        "USD disk cache size. A size of zero disables the cache.",
+                        "USD disk cache size. A size of zero disables the disk cache.",
                         string::Format("{0}").arg(_options.usdRenderOptions.diskCacheSize)),
 #endif // TLRENDER_USD
                 });
@@ -143,6 +159,21 @@ namespace tl
                     std::stringstream ss;
                     ss << _options.usdRenderOptions.renderWidth;
                     ioOptions["usd/renderWidth"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << _options.usdRenderOptions.complexity;
+                    ioOptions["usd/complexity"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << _options.usdRenderOptions.drawMode;
+                    ioOptions["usd/drawMode"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << _options.usdRenderOptions.enableLighting;
+                    ioOptions["usd/enableLighting"] = ss.str();
                 }
                 {
                     std::stringstream ss;

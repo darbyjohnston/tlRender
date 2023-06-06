@@ -12,12 +12,33 @@ namespace tl
     {
         class Render;
 
+        //! USD draw modes.
+        enum class DrawMode
+        {
+            Points,
+            Wireframe,
+            WireframeOnSurface,
+            ShadedFlat,
+            ShadedSmooth,
+            GeomOnly,
+            GeomFlat,
+            GeomSmooth,
+            
+            Count,
+            First = Points
+        };
+        TLRENDER_ENUM(DrawMode);
+        TLRENDER_ENUM_SERIALIZE(DrawMode);
+        
         //! USD renderer options.
         struct RenderOptions
         {
-            size_t renderWidth = 1920;
-            size_t stageCacheSize = 10;
-            size_t diskCacheSize = 0;
+            size_t   renderWidth    = 1920;
+            float    complexity     = 1.F;
+            DrawMode drawMode       = DrawMode::ShadedSmooth;
+            bool     enableLighting = true;
+            size_t   stageCacheSize = 10;
+            size_t   diskCacheSize  = 0;
             
             bool operator == (const RenderOptions&) const;
             bool operator != (const RenderOptions&) const;
