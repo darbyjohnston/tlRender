@@ -12,7 +12,6 @@
 #include <pxr/pxr.h>
 #include <pxr/base/tf/diagnostic.h>
 #include <pxr/base/tf/token.h>
-#include <pxr/usd/usd/stage.h>
 #include <pxr/usd/usd/timeCode.h>
 #include <pxr/usd/usd/primRange.h>
 #include <pxr/usd/usdGeom/camera.h>
@@ -22,7 +21,6 @@
 #include <pxr/usdImaging/usdAppUtils/api.h>
 #include <pxr/usdImaging/usdAppUtils/camera.h>
 #include <pxr/usdImaging/usdAppUtils/frameRecorder.h>
-#include <pxr/usdImaging/usdImagingGL/engine.h>
 #include <pxr/imaging/hd/renderBuffer.h>
 #include <pxr/imaging/hdSt/hioConversions.h>
 #include <pxr/imaging/hdSt/textureUtils.h>
@@ -163,6 +161,21 @@ namespace tl
                     }
                     cancelRequests();
                 });
+            
+            if (auto logSystem = p.logSystem.lock())
+            {
+                std::vector<std::string> renderers;
+                for (const auto& id : UsdImagingGLEngine::GetRendererPlugins())
+                {
+                    renderers.push_back(UsdImagingGLEngine::GetRendererDisplayName(id));
+                }
+                logSystem->print(
+                    "tl::usd::Render",
+                    string::Format(
+                        "\n"
+                        "    Renderers: {0}").
+                    arg(string::join(renderers, ", ")));
+            }
         }
 
         Render::Render() :
@@ -393,6 +406,40 @@ namespace tl
                 return gfCamera;
             }
         }
+
+        void Render::_open(
+            const std::string& fileName,
+            UsdStageRefPtr& stage,
+            std::shared_ptr<UsdImagingGLEngine>& engine)
+        {
+            TLRENDER_P();
+            stage = UsdStage::Open(fileName);
+            const bool gpuEnabled = true;
+            engine = std::make_shared<UsdImagingGLEngine>(HdDriver(), TfToken(), gpuEnabled);
+            if (stage && engine)
+            {
+                if (auto logSystem = p.logSystem.lock())
+                {
+                    const std::string rendererId =
+                        UsdImagingGLEngine::GetRendererDisplayName(
+                            engine->GetCurrentRendererId());
+                    logSystem->print(
+                        "tl::usd::Render",
+                        string::Format(
+                            "\n"
+                            "    File name: {0}\n"
+                            "    Time code: {1}-{2}:{3}\n"
+                            "    GPU enabled: {4}\n"
+                            "    Renderer ID: {5}").
+                        arg(fileName).
+                        arg(stage->GetStartTimeCode()).
+                        arg(stage->GetEndTimeCode()).
+                        arg(stage->GetTimeCodesPerSecond()).
+                        arg(engine->GetGPUEnabled()).
+                        arg(rendererId));
+                }
+            }
+        }
         
         void Render::_run()
         {
@@ -441,7 +488,17 @@ namespace tl
                 if (renderOptions.diskCacheSize > 0 && p.thread.tempDir.empty())
                 {
                     p.thread.tempDir = file::createTempDir();
-                    //std::cout << this << " temp dir: " << p.thread.tempDir << std::endl;
+                    if (auto logSystem = p.logSystem.lock())
+                    {
+                        logSystem->print(
+                            "tl::usd::Render",
+                            string::Format(
+                                "\n"
+                                "    Temp directory: {0}\n"
+                                "    Disk cache size: {1}").
+                            arg(p.thread.tempDir).
+                            arg(renderOptions.diskCacheSize));
+                    }
                 }
                 else if (0 == renderOptions.diskCacheSize && !p.thread.tempDir.empty())
                 {
@@ -455,9 +512,7 @@ namespace tl
                     Private::StageCacheItem stageCacheItem;
                     if (!p.thread.stageCache.get(fileName, stageCacheItem))
                     {
-                        stageCacheItem.stage = UsdStage::Open(fileName);
-                        const bool gpuEnabled = true;
-                        stageCacheItem.engine = std::make_shared<UsdImagingGLEngine>(HdDriver(), TfToken(), gpuEnabled);
+                        _open(fileName, stageCacheItem.stage, stageCacheItem.engine);
                         p.thread.stageCache.add(fileName, stageCacheItem);
                     }
                     io::Info info;
@@ -522,9 +577,7 @@ namespace tl
                         Private::StageCacheItem stageCacheItem;
                         if (!p.thread.stageCache.get(fileName, stageCacheItem))
                         {
-                            stageCacheItem.stage = UsdStage::Open(fileName);
-                            const bool gpuEnabled = true;
-                            stageCacheItem.engine = std::make_shared<UsdImagingGLEngine>(HdDriver(), TfToken(), gpuEnabled);
+                            _open(fileName, stageCacheItem.stage, stageCacheItem.engine);
                             p.thread.stageCache.add(fileName, stageCacheItem);
                         }
                         if (stageCacheItem.stage && stageCacheItem.engine)
@@ -675,6 +728,36 @@ namespace tl
                     data.image = image;
                     request->promise.set_value(data);
                 }
+
+                // Logging.
+                {
+                    const auto now = std::chrono::steady_clock::now();
+                    const std::chrono::duration<float> diff = now - p.thread.logTimer;
+                    if (diff.count() > 10.F)
+                    {
+                        p.thread.logTimer = now;
+                        if (auto logSystem = p.logSystem.lock())
+                        {
+                            size_t requestsSize = 0;
+                            {
+                                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                                requestsSize = p.mutex.requests.size();
+                            }
+                            logSystem->print(
+                                "tl::usd::Render",
+                                string::Format(
+                                    "\n"
+                                    "    Requests: {0}\n"
+                                    "    Stage cache size: {1}/{2}\n"
+                                    "    Disk cache size: {3}/{4}").
+                                arg(requestsSize).
+                                arg(p.thread.stageCache.getSize()).
+                                arg(p.thread.stageCache.getMax()).
+                                arg(p.thread.diskCache.getSize()).
+                                arg(p.thread.diskCache.getMax()));
+                        }
+                    }
+            }
             }
         }
     }

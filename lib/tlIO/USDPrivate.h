@@ -6,6 +6,9 @@
 
 #include <tlIO/USD.h>
 
+#include <pxr/usd/usd/stage.h>
+#include <pxr/usdImaging/usdImagingGL/engine.h>
+
 namespace tl
 {
     namespace usd
@@ -46,7 +49,10 @@ namespace tl
             void cancelRequests();
 
         private:
-            void _createWindow();
+            void _open(
+                const std::string&,
+                PXR_NS::UsdStageRefPtr&,
+                std::shared_ptr<PXR_NS::UsdImagingGLEngine>&);
             void _run();
 
             TLRENDER_PRIVATE();
