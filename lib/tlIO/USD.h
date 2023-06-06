@@ -10,7 +10,7 @@ namespace tl
 {
     namespace usd
     {
-        class Renderer;
+        class Render;
         
         //! USD reader.
         class Read : public io::IRead
@@ -18,7 +18,7 @@ namespace tl
         protected:
             void _init(
                 int64_t id,
-                const std::shared_ptr<Renderer>&,
+                const std::shared_ptr<Render>&,
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
                 const io::Options&,
@@ -32,7 +32,7 @@ namespace tl
             //! Create a new reader.
             static std::shared_ptr<Read> create(
                 int64_t id,
-                const std::shared_ptr<Renderer>&,
+                const std::shared_ptr<Render>&,
                 const file::Path&,
                 const io::Options&,
                 const std::weak_ptr<log::System>&);

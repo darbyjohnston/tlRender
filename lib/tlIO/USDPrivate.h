@@ -4,25 +4,25 @@
 
 #pragma once
 
-#include <tlUSD/USD.h>
+#include <tlIO/USD.h>
 
 namespace tl
 {
     namespace usd
     {
         //! USD renderer.
-        class Renderer : public std::enable_shared_from_this<Renderer>
+        class Render : public std::enable_shared_from_this<Render>
         {
         protected:
             void _init(const std::weak_ptr<log::System>&);
 
-            Renderer();
+            Render();
 
         public:
-            ~Renderer();
+            ~Render();
 
             //! Create a new renderer.
-            static std::shared_ptr<Renderer> create(const std::weak_ptr<log::System>&);
+            static std::shared_ptr<Render> create(const std::weak_ptr<log::System>&);
 
             //! Get information.
             std::future<io::Info> getInfo(

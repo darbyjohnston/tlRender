@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlGL/RenderPrivate.h>
+#include <tlTimeline/GLRenderPrivate.h>
 
 #include <tlGL/Mesh.h>
 #include <tlGL/Util.h>
@@ -13,18 +13,18 @@
 
 namespace tl
 {
-    namespace gl
+    namespace timeline
     {
-        void Render::drawVideo(
-            const std::vector<timeline::VideoData>& videoData,
+        void GLRender::drawVideo(
+            const std::vector<VideoData>& videoData,
             const std::vector<math::BBox2i>& bbox,
-            const std::vector<timeline::ImageOptions>& imageOptions,
-            const std::vector<timeline::DisplayOptions>& displayOptions,
-            const timeline::CompareOptions& compareOptions)
+            const std::vector<ImageOptions>& imageOptions,
+            const std::vector<DisplayOptions>& displayOptions,
+            const CompareOptions& compareOptions)
         {
             switch (compareOptions.mode)
             {
-            case timeline::CompareMode::A:
+            case CompareMode::A:
                 _drawVideoA(
                     videoData,
                     bbox,
@@ -32,7 +32,7 @@ namespace tl
                     displayOptions,
                     compareOptions);
                 break;
-            case timeline::CompareMode::B:
+            case CompareMode::B:
                 _drawVideoB(
                     videoData,
                     bbox,
@@ -40,7 +40,7 @@ namespace tl
                     displayOptions,
                     compareOptions);
                 break;
-            case timeline::CompareMode::Wipe:
+            case CompareMode::Wipe:
                 _drawVideoWipe(
                     videoData,
                     bbox,
@@ -48,7 +48,7 @@ namespace tl
                     displayOptions,
                     compareOptions);
                 break;
-            case timeline::CompareMode::Overlay:
+            case CompareMode::Overlay:
                 _drawVideoOverlay(
                     videoData,
                     bbox,
@@ -56,7 +56,7 @@ namespace tl
                     displayOptions,
                     compareOptions);
                 break;
-            case timeline::CompareMode::Difference:
+            case CompareMode::Difference:
                 _drawVideoDifference(
                     videoData,
                     bbox,
@@ -64,9 +64,9 @@ namespace tl
                     displayOptions,
                     compareOptions);
                 break;
-            case timeline::CompareMode::Horizontal:
-            case timeline::CompareMode::Vertical:
-            case timeline::CompareMode::Tile:
+            case CompareMode::Horizontal:
+            case CompareMode::Vertical:
+            case CompareMode::Tile:
                 _drawVideoTile(
                     videoData,
                     bbox,
@@ -78,46 +78,46 @@ namespace tl
             }
         }
 
-        void Render::_drawVideoA(
-            const std::vector<timeline::VideoData>& videoData,
+        void GLRender::_drawVideoA(
+            const std::vector<VideoData>& videoData,
             const std::vector<math::BBox2i>& bbox,
-            const std::vector<timeline::ImageOptions>& imageOptions,
-            const std::vector<timeline::DisplayOptions>& displayOptions,
-            const timeline::CompareOptions& compareOptions)
+            const std::vector<ImageOptions>& imageOptions,
+            const std::vector<DisplayOptions>& displayOptions,
+            const CompareOptions& compareOptions)
         {
             if (!videoData.empty() && !bbox.empty())
             {
                 _drawVideo(
                     videoData[0],
                     bbox[0],
-                    !imageOptions.empty() ? std::make_shared<timeline::ImageOptions>(imageOptions[0]) : nullptr,
-                    !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions());
+                    !imageOptions.empty() ? std::make_shared<ImageOptions>(imageOptions[0]) : nullptr,
+                    !displayOptions.empty() ? displayOptions[0] : DisplayOptions());
             }
         }
 
-        void Render::_drawVideoB(
-            const std::vector<timeline::VideoData>& videoData,
+        void GLRender::_drawVideoB(
+            const std::vector<VideoData>& videoData,
             const std::vector<math::BBox2i>& bbox,
-            const std::vector<timeline::ImageOptions>& imageOptions,
-            const std::vector<timeline::DisplayOptions>& displayOptions,
-            const timeline::CompareOptions& compareOptions)
+            const std::vector<ImageOptions>& imageOptions,
+            const std::vector<DisplayOptions>& displayOptions,
+            const CompareOptions& compareOptions)
         {
             if (videoData.size() > 1 && bbox.size() > 1)
             {
                 _drawVideo(
                     videoData[1],
                     bbox[1],
-                    imageOptions.size() > 1 ? std::make_shared<timeline::ImageOptions>(imageOptions[1]) : nullptr,
-                    displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions());
+                    imageOptions.size() > 1 ? std::make_shared<ImageOptions>(imageOptions[1]) : nullptr,
+                    displayOptions.size() > 1 ? displayOptions[1] : DisplayOptions());
             }
         }
 
-        void Render::_drawVideoWipe(
-            const std::vector<timeline::VideoData>& videoData,
+        void GLRender::_drawVideoWipe(
+            const std::vector<VideoData>& videoData,
             const std::vector<math::BBox2i>& bbox,
-            const std::vector<timeline::ImageOptions>& imageOptions,
-            const std::vector<timeline::DisplayOptions>& displayOptions,
-            const timeline::CompareOptions& compareOptions)
+            const std::vector<ImageOptions>& imageOptions,
+            const std::vector<DisplayOptions>& displayOptions,
+            const CompareOptions& compareOptions)
         {
             TLRENDER_P();
 
@@ -139,7 +139,7 @@ namespace tl
                 pts[i].y = sin(rad) * radius + y;
             }
 
-            SetAndRestore stencilTest(GL_STENCIL_TEST, GL_TRUE);
+            gl::SetAndRestore stencilTest(GL_STENCIL_TEST, GL_TRUE);
 
             glViewport(
                 p.viewport.x(),
@@ -179,8 +179,8 @@ namespace tl
                 _drawVideo(
                     videoData[0],
                     bbox[0],
-                    !imageOptions.empty() ? std::make_shared<timeline::ImageOptions>(imageOptions[0]) : nullptr,
-                    !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions());
+                    !imageOptions.empty() ? std::make_shared<ImageOptions>(imageOptions[0]) : nullptr,
+                    !displayOptions.empty() ? displayOptions[0] : DisplayOptions());
             }
 
             glViewport(
@@ -220,17 +220,17 @@ namespace tl
                 _drawVideo(
                     videoData[1],
                     bbox[1],
-                    imageOptions.size() > 1 ? std::make_shared<timeline::ImageOptions>(imageOptions[1]) : nullptr,
-                    displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions());
+                    imageOptions.size() > 1 ? std::make_shared<ImageOptions>(imageOptions[1]) : nullptr,
+                    displayOptions.size() > 1 ? displayOptions[1] : DisplayOptions());
             }
         }
 
-        void Render::_drawVideoOverlay(
-            const std::vector<timeline::VideoData>& videoData,
+        void GLRender::_drawVideoOverlay(
+            const std::vector<VideoData>& videoData,
             const std::vector<math::BBox2i>& bbox,
-            const std::vector<timeline::ImageOptions>& imageOptions,
-            const std::vector<timeline::DisplayOptions>& displayOptions,
-            const timeline::CompareOptions& compareOptions)
+            const std::vector<ImageOptions>& imageOptions,
+            const std::vector<DisplayOptions>& displayOptions,
+            const CompareOptions& compareOptions)
         {
             TLRENDER_P();
 
@@ -239,15 +239,15 @@ namespace tl
                 _drawVideo(
                     videoData[1],
                     bbox[1],
-                    imageOptions.size() > 1 ? std::make_shared<timeline::ImageOptions>(imageOptions[1]) : nullptr,
-                    displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions());
+                    imageOptions.size() > 1 ? std::make_shared<ImageOptions>(imageOptions[1]) : nullptr,
+                    displayOptions.size() > 1 ? displayOptions[1] : DisplayOptions());
             }
             if (!videoData.empty() && !bbox.empty())
             {
                 const imaging::Size offscreenBufferSize(
                     bbox[0].w(),
                     bbox[0].h());
-                OffscreenBufferOptions offscreenBufferOptions;
+                gl::OffscreenBufferOptions offscreenBufferOptions;
                 offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
                 if (!displayOptions.empty())
                 {
@@ -258,16 +258,16 @@ namespace tl
                     offscreenBufferSize,
                     offscreenBufferOptions))
                 {
-                    p.buffers["overlay"] = OffscreenBuffer::create(
+                    p.buffers["overlay"] = gl::OffscreenBuffer::create(
                         offscreenBufferSize,
                         offscreenBufferOptions);
                 }
 
                 if (p.buffers["overlay"])
                 {
-                    const SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
+                    const gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
 
-                    OffscreenBufferBinding binding(p.buffers["overlay"]);
+                    gl::OffscreenBufferBinding binding(p.buffers["overlay"]);
                     glViewport(
                         0,
                         0,
@@ -290,8 +290,8 @@ namespace tl
                     _drawVideo(
                         videoData[0],
                         math::BBox2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h),
-                        !imageOptions.empty() ? std::make_shared<timeline::ImageOptions>(imageOptions[0]) : nullptr,
-                        !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions());
+                        !imageOptions.empty() ? std::make_shared<ImageOptions>(imageOptions[0]) : nullptr,
+                        !displayOptions.empty() ? displayOptions[0] : DisplayOptions());
 
                     p.shaders["display"]->bind();
                     p.shaders["display"]->setUniform("transform.mvp", p.transform);
@@ -329,12 +329,12 @@ namespace tl
             }
         }
 
-        void Render::_drawVideoDifference(
-            const std::vector<timeline::VideoData>& videoData,
+        void GLRender::_drawVideoDifference(
+            const std::vector<VideoData>& videoData,
             const std::vector<math::BBox2i>& bbox,
-            const std::vector<timeline::ImageOptions>& imageOptions,
-            const std::vector<timeline::DisplayOptions>& displayOptions,
-            const timeline::CompareOptions& compareOptions)
+            const std::vector<ImageOptions>& imageOptions,
+            const std::vector<DisplayOptions>& displayOptions,
+            const CompareOptions& compareOptions)
         {
             TLRENDER_P();
             if (!videoData.empty() && !bbox.empty())
@@ -342,7 +342,7 @@ namespace tl
                 const imaging::Size offscreenBufferSize(
                     p.viewport.w(),
                     p.viewport.h());
-                OffscreenBufferOptions offscreenBufferOptions;
+                gl::OffscreenBufferOptions offscreenBufferOptions;
                 offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
                 if (!imageOptions.empty())
                 {
@@ -353,16 +353,16 @@ namespace tl
                     offscreenBufferSize,
                     offscreenBufferOptions))
                 {
-                    p.buffers["difference0"] = OffscreenBuffer::create(
+                    p.buffers["difference0"] = gl::OffscreenBuffer::create(
                         offscreenBufferSize,
                         offscreenBufferOptions);
                 }
 
                 if (p.buffers["difference0"])
                 {
-                    const SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
+                    const gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
 
-                    OffscreenBufferBinding binding(p.buffers["difference0"]);
+                    gl::OffscreenBufferBinding binding(p.buffers["difference0"]);
                     glViewport(
                         0,
                         0,
@@ -385,8 +385,8 @@ namespace tl
                     _drawVideo(
                         videoData[0],
                         math::BBox2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h),
-                        !imageOptions.empty() ? std::make_shared<timeline::ImageOptions>(imageOptions[0]) : nullptr,
-                        !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions());
+                        !imageOptions.empty() ? std::make_shared<ImageOptions>(imageOptions[0]) : nullptr,
+                        !displayOptions.empty() ? displayOptions[0] : DisplayOptions());
 
                     p.shaders["display"]->bind();
                     p.shaders["display"]->setUniform("transform.mvp", p.transform);
@@ -394,7 +394,7 @@ namespace tl
 
                 if (videoData.size() > 1)
                 {
-                    offscreenBufferOptions = OffscreenBufferOptions();
+                    offscreenBufferOptions = gl::OffscreenBufferOptions();
                     offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
                     if (imageOptions.size() > 1)
                     {
@@ -405,16 +405,16 @@ namespace tl
                         offscreenBufferSize,
                         offscreenBufferOptions))
                     {
-                        p.buffers["difference1"] = OffscreenBuffer::create(
+                        p.buffers["difference1"] = gl::OffscreenBuffer::create(
                             offscreenBufferSize,
                             offscreenBufferOptions);
                     }
 
                     if (p.buffers["difference1"])
                     {
-                        const SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
+                        const gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
 
-                        OffscreenBufferBinding binding(p.buffers["difference1"]);
+                        gl::OffscreenBufferBinding binding(p.buffers["difference1"]);
                         glViewport(
                             0,
                             0,
@@ -437,8 +437,8 @@ namespace tl
                         _drawVideo(
                             videoData[1],
                             math::BBox2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h),
-                            imageOptions.size() > 1 ? std::make_shared<timeline::ImageOptions>(imageOptions[1]) : nullptr,
-                            displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions());
+                            imageOptions.size() > 1 ? std::make_shared<ImageOptions>(imageOptions[1]) : nullptr,
+                            displayOptions.size() > 1 ? displayOptions[1] : DisplayOptions());
                     }
                 }
 
@@ -477,20 +477,20 @@ namespace tl
             }
         }
 
-        void Render::_drawVideoTile(
-            const std::vector<timeline::VideoData>& videoData,
+        void GLRender::_drawVideoTile(
+            const std::vector<VideoData>& videoData,
             const std::vector<math::BBox2i>& bbox,
-            const std::vector<timeline::ImageOptions>& imageOptions,
-            const std::vector<timeline::DisplayOptions>& displayOptions,
-            const timeline::CompareOptions& compareOptions)
+            const std::vector<ImageOptions>& imageOptions,
+            const std::vector<DisplayOptions>& displayOptions,
+            const CompareOptions& compareOptions)
         {
             for (size_t i = 0; i < videoData.size() && i < bbox.size(); ++i)
             {
                 _drawVideo(
                     videoData[i],
                     bbox[i],
-                    i < imageOptions.size() ? std::make_shared<timeline::ImageOptions>(imageOptions[i]) : nullptr,
-                    i < displayOptions.size() ? displayOptions[i] : timeline::DisplayOptions());
+                    i < imageOptions.size() ? std::make_shared<ImageOptions>(imageOptions[i]) : nullptr,
+                    i < displayOptions.size() ? displayOptions[i] : DisplayOptions());
             }
         }
         
@@ -526,11 +526,11 @@ namespace tl
             }
         }
 
-        void Render::_drawVideo(
-            const timeline::VideoData& videoData,
+        void GLRender::_drawVideo(
+            const VideoData& videoData,
             const math::BBox2i& bbox,
-            const std::shared_ptr<timeline::ImageOptions>& imageOptions,
-            const timeline::DisplayOptions& displayOptions)
+            const std::shared_ptr<ImageOptions>& imageOptions,
+            const DisplayOptions& displayOptions)
         {
             TLRENDER_P();
             
@@ -548,7 +548,7 @@ namespace tl
             p.shaders["image"]->setUniform("transform.mvp", transform);
 
             const imaging::Size offscreenBufferSize(bbox.w(), bbox.h());
-            OffscreenBufferOptions offscreenBufferOptions;
+            gl::OffscreenBufferOptions offscreenBufferOptions;
             offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
             if (imageOptions.get())
             {
@@ -559,16 +559,16 @@ namespace tl
                 offscreenBufferSize,
                 offscreenBufferOptions))
             {
-                p.buffers["video"] = OffscreenBuffer::create(
+                p.buffers["video"] = gl::OffscreenBuffer::create(
                     offscreenBufferSize,
                     offscreenBufferOptions);
             }
 
             if (p.buffers["video"])
             {
-                const SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
+                const gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
 
-                OffscreenBufferBinding binding(p.buffers["video"]);
+                gl::OffscreenBufferBinding binding(p.buffers["video"]);
                 glViewport(0, 0, offscreenBufferSize.w, offscreenBufferSize.h);
                 glClearColor(0.F, 0.F, 0.F, 0.F);
                 glClear(GL_COLOR_BUFFER_BIT);
@@ -577,7 +577,7 @@ namespace tl
                 {
                     switch (layer.transition)
                     {
-                        case timeline::Transition::Dissolve:
+                        case Transition::Dissolve:
                         {
                             if (layer.image && layer.imageB)
                             {
@@ -586,13 +586,13 @@ namespace tl
                                     offscreenBufferSize,
                                     offscreenBufferOptions))
                                 {
-                                    p.buffers["dissolve"] = OffscreenBuffer::create(
+                                    p.buffers["dissolve"] = gl::OffscreenBuffer::create(
                                         offscreenBufferSize,
                                         offscreenBufferOptions);
                                 }
                                 if (p.buffers["dissolve"])
                                 {
-                                    OffscreenBufferBinding binding(p.buffers["dissolve"]);
+                                    gl::OffscreenBufferBinding binding(p.buffers["dissolve"]);
                                     glViewport(0, 0, offscreenBufferSize.w, offscreenBufferSize.h);
                                     glClearColor(0.F, 0.F, 0.F, 0.F);
                                     glClear(GL_COLOR_BUFFER_BIT);
@@ -690,12 +690,12 @@ namespace tl
                 p.shaders["display"]->setUniform("channels", static_cast<int>(displayOptions.channels));
                 p.shaders["display"]->setUniform("mirrorX", displayOptions.mirror.x);
                 p.shaders["display"]->setUniform("mirrorY", displayOptions.mirror.y);
-                const bool colorMatrixEnabled = displayOptions.colorEnabled && displayOptions.color != timeline::Color();
+                const bool colorMatrixEnabled = displayOptions.colorEnabled && displayOptions.color != Color();
                 p.shaders["display"]->setUniform("colorEnabled", colorMatrixEnabled);
                 p.shaders["display"]->setUniform("colorAdd", displayOptions.color.add);
                 if (colorMatrixEnabled)
                 {
-                    p.shaders["display"]->setUniform("colorMatrix", timeline::color(displayOptions.color));
+                    p.shaders["display"]->setUniform("colorMatrix", color(displayOptions.color));
                 }
                 p.shaders["display"]->setUniform("colorInvert", displayOptions.colorEnabled ? displayOptions.color.invert : false);
                 p.shaders["display"]->setUniform("levelsEnabled", displayOptions.levelsEnabled);

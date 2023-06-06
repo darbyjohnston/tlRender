@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlGL/RenderPrivate.h>
+#include <tlTimeline/GLRenderPrivate.h>
 
 #include <tlGL/Mesh.h>
 #include <tlGL/Util.h>
@@ -23,14 +23,14 @@
 
 namespace tl
 {
-    namespace gl
+    namespace timeline
     {
         void copyTextures(
             const std::shared_ptr<imaging::Image>& image,
-            const std::vector<std::shared_ptr<Texture> >& textures,
+            const std::vector<std::shared_ptr<gl::Texture> >& textures,
             size_t offset)
         {
-            std::vector<std::shared_ptr<Texture> > out;
+            std::vector<std::shared_ptr<gl::Texture> > out;
             const auto& info = image->getInfo();
             switch (info.pixelType)
             {
@@ -133,13 +133,13 @@ namespace tl
 
         namespace
         {
-            std::vector<std::shared_ptr<Texture> > getTextures(
+            std::vector<std::shared_ptr<gl::Texture> > getTextures(
                 const imaging::Info& info,
-                const timeline::ImageFilters& imageFilters,
+                const ImageFilters& imageFilters,
                 size_t offset)
             {
-                std::vector<std::shared_ptr<Texture> > out;
-                TextureOptions options;
+                std::vector<std::shared_ptr<gl::Texture> > out;
+                gl::TextureOptions options;
                 options.filters = imageFilters;
                 options.pbo = true;
                 switch (info.pixelType)
@@ -148,7 +148,7 @@ namespace tl
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                     auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U8);
-                    out.push_back(Texture::create(infoTmp, options));
+                    out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
                     const std::size_t w = info.size.w;
@@ -156,50 +156,50 @@ namespace tl
                     const std::size_t w2 = w / 2;
                     const std::size_t h2 = h / 2;
                     infoTmp = imaging::Info(imaging::Size(w2, h2), imaging::PixelType::L_U8);
-                    out.push_back(Texture::create(infoTmp, options));
+                    out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
-                    out.push_back(Texture::create(infoTmp, options));
+                    out.push_back(gl::Texture::create(infoTmp, options));
                     break;
                 }
                 case imaging::PixelType::YUV_422P_U8:
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                     auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U8);
-                    out.push_back(Texture::create(infoTmp, options));
+                    out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
                     const std::size_t w = info.size.w;
                     const std::size_t h = info.size.h;
                     const std::size_t w2 = w / 2;
                     infoTmp = imaging::Info(imaging::Size(w2, h), imaging::PixelType::L_U8);
-                    out.push_back(Texture::create(infoTmp, options));
+                    out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
-                    out.push_back(Texture::create(infoTmp, options));
+                    out.push_back(gl::Texture::create(infoTmp, options));
                     break;
                 }
                 case imaging::PixelType::YUV_444P_U8:
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                     auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U8);
-                    out.push_back(Texture::create(infoTmp, options));
+                    out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
                     const std::size_t w = info.size.w;
                     const std::size_t h = info.size.h;
                     infoTmp = imaging::Info(imaging::Size(w, h), imaging::PixelType::L_U8);
-                    out.push_back(Texture::create(infoTmp, options));
+                    out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
-                    out.push_back(Texture::create(infoTmp, options));
+                    out.push_back(gl::Texture::create(infoTmp, options));
                     break;
                 }
                 case imaging::PixelType::YUV_420P_U16:
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                     auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U16);
-                    out.push_back(Texture::create(infoTmp, options));
+                    out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
                     const std::size_t w = info.size.w;
@@ -207,49 +207,49 @@ namespace tl
                     const std::size_t w2 = w / 2;
                     const std::size_t h2 = h / 2;
                     infoTmp = imaging::Info(imaging::Size(w2, h2), imaging::PixelType::L_U16);
-                    out.push_back(Texture::create(infoTmp, options));
+                    out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
-                    out.push_back(Texture::create(infoTmp, options));
+                    out.push_back(gl::Texture::create(infoTmp, options));
                     break;
                 }
                 case imaging::PixelType::YUV_422P_U16:
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                     auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U16);
-                    out.push_back(Texture::create(infoTmp, options));
+                    out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
                     const std::size_t w = info.size.w;
                     const std::size_t h = info.size.h;
                     const std::size_t w2 = w / 2;
                     infoTmp = imaging::Info(imaging::Size(w2, h), imaging::PixelType::L_U16);
-                    out.push_back(Texture::create(infoTmp, options));
+                    out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
-                    out.push_back(Texture::create(infoTmp, options));
+                    out.push_back(gl::Texture::create(infoTmp, options));
                     break;
                 }
                 case imaging::PixelType::YUV_444P_U16:
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                     auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U16);
-                    out.push_back(Texture::create(infoTmp, options));
+                    out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
                     const std::size_t w = info.size.w;
                     const std::size_t h = info.size.h;
                     infoTmp = imaging::Info(imaging::Size(w, h), imaging::PixelType::L_U16);
-                    out.push_back(Texture::create(infoTmp, options));
+                    out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
-                    out.push_back(Texture::create(infoTmp, options));
+                    out.push_back(gl::Texture::create(infoTmp, options));
                     break;
                 }
                 default:
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                    auto texture = Texture::create(info, options);
+                    auto texture = gl::Texture::create(info, options);
                     out.push_back(texture);
                     break;
                 }
@@ -266,12 +266,12 @@ namespace tl
             _cacheUpdate();
         }
 
-        std::vector<std::shared_ptr<Texture> > TextureCache::get(
+        std::vector<std::shared_ptr<gl::Texture> > TextureCache::get(
             const imaging::Info& info,
-            const timeline::ImageFilters& imageFilters,
+            const ImageFilters& imageFilters,
             size_t offset)
         {
-            std::vector<std::shared_ptr<Texture> > out;
+            std::vector<std::shared_ptr<gl::Texture> > out;
             const auto i = std::find_if(
                 _cache.begin(),
                 _cache.end(),
@@ -294,8 +294,8 @@ namespace tl
 
         void TextureCache::add(
             const imaging::Info& info,
-            const timeline::ImageFilters& imageFilters,
-            const std::vector<std::shared_ptr<Texture> >& textures)
+            const ImageFilters& imageFilters,
+            const std::vector<std::shared_ptr<gl::Texture> >& textures)
         {
             _cache.push_front({ info, imageFilters, textures });
             _cacheUpdate();
@@ -338,39 +338,39 @@ namespace tl
         }
 #endif // TLRENDER_OCIO
 
-        void Render::_init(const std::shared_ptr<system::Context>& context)
+        void GLRender::_init(const std::shared_ptr<system::Context>& context)
         {
             IRender::_init(context);
             TLRENDER_P();
 
-            p.glyphTextureAtlas = TextureAtlas::create(
+            p.glyphTextureAtlas = gl::TextureAtlas::create(
                 1,
                 4096,
                 imaging::PixelType::L_U8,
-                timeline::ImageFilter::Linear);
+                ImageFilter::Linear);
 
             p.logTimer = std::chrono::steady_clock::now();
         }
 
-        Render::Render() :
+        GLRender::GLRender() :
             _p(new Private)
         {}
 
-        Render::~Render()
+        GLRender::~GLRender()
         {}
 
-        std::shared_ptr<Render> Render::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<GLRender> GLRender::create(const std::shared_ptr<system::Context>& context)
         {
-            auto out = std::shared_ptr<Render>(new Render);
+            auto out = std::shared_ptr<GLRender>(new GLRender);
             out->_init(context);
             return out;
         }
 
-        void Render::begin(
+        void GLRender::begin(
             const imaging::Size& renderSize,
-            const timeline::ColorConfigOptions& colorConfigOptions,
-            const timeline::LUTOptions& lutOptions,
-            const timeline::RenderOptions& renderOptions)
+            const ColorConfigOptions& colorConfigOptions,
+            const LUTOptions& lutOptions,
+            const RenderOptions& renderOptions)
         {
             TLRENDER_P();
 
@@ -387,39 +387,39 @@ namespace tl
 
             if (!p.shaders["rect"])
             {
-                p.shaders["rect"] = Shader::create(vertexSource(), meshFragmentSource());
+                p.shaders["rect"] = gl::Shader::create(vertexSource(), meshFragmentSource());
             }
             if (!p.shaders["mesh"])
             {
-                p.shaders["mesh"] = Shader::create(vertexSource(), meshFragmentSource());
+                p.shaders["mesh"] = gl::Shader::create(vertexSource(), meshFragmentSource());
             }
             if (!p.shaders["text"])
             {
-                p.shaders["text"] = Shader::create(vertexSource(), textFragmentSource());
+                p.shaders["text"] = gl::Shader::create(vertexSource(), textFragmentSource());
             }
             if (!p.shaders["texture"])
             {
-                p.shaders["texture"] = Shader::create(vertexSource(), textureFragmentSource());
+                p.shaders["texture"] = gl::Shader::create(vertexSource(), textureFragmentSource());
             }
             if (!p.shaders["image"])
             {
-                p.shaders["image"] = Shader::create(vertexSource(), imageFragmentSource());
+                p.shaders["image"] = gl::Shader::create(vertexSource(), imageFragmentSource());
             }
             if (!p.shaders["wipe"])
             {
-                p.shaders["wipe"] = Shader::create(vertexSource(), meshFragmentSource());
+                p.shaders["wipe"] = gl::Shader::create(vertexSource(), meshFragmentSource());
             }
             if (!p.shaders["overlay"])
             {
-                p.shaders["overlay"] = Shader::create(vertexSource(), textureFragmentSource());
+                p.shaders["overlay"] = gl::Shader::create(vertexSource(), textureFragmentSource());
             }
             if (!p.shaders["difference"])
             {
-                p.shaders["difference"] = Shader::create(vertexSource(), differenceFragmentSource());
+                p.shaders["difference"] = gl::Shader::create(vertexSource(), differenceFragmentSource());
             }
             if (!p.shaders["dissolve"])
             {
-                p.shaders["dissolve"] = Shader::create(vertexSource(), textureFragmentSource());
+                p.shaders["dissolve"] = gl::Shader::create(vertexSource(), textureFragmentSource());
             }
             if (!p.shaders["display"])
             {
@@ -448,10 +448,10 @@ namespace tl
                     p.lutOptions.order);
                 if (auto context = _context.lock())
                 {
-                    //context->log("tl::gl::Render", source);
-                    context->log("tl::gl::Render", "Creating display shader");
+                    //context->log("tl::gl::GLRender", source);
+                    context->log("tl::gl::GLRender", "Creating display shader");
                 }
-                p.shaders["display"] = Shader::create(vertexSource(), source);
+                p.shaders["display"] = gl::Shader::create(vertexSource(), source);
             }
             p.shaders["display"]->bind();
             size_t texturesOffset = 1;
@@ -478,16 +478,16 @@ namespace tl
             }
 #endif // TLRENDER_OCIO
 
-            p.vbos["rect"] = VBO::create(2 * 3, VBOType::Pos2_F32);
-            p.vaos["rect"] = VAO::create(p.vbos["rect"]->getType(), p.vbos["rect"]->getID());
-            p.vbos["texture"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
-            p.vaos["texture"] = VAO::create(p.vbos["texture"]->getType(), p.vbos["texture"]->getID());
-            p.vbos["image"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
-            p.vaos["image"] = VAO::create(p.vbos["image"]->getType(), p.vbos["image"]->getID());
-            p.vbos["wipe"] = VBO::create(1 * 3, VBOType::Pos2_F32);
-            p.vaos["wipe"] = VAO::create(p.vbos["wipe"]->getType(), p.vbos["wipe"]->getID());
-            p.vbos["video"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
-            p.vaos["video"] = VAO::create(p.vbos["video"]->getType(), p.vbos["video"]->getID());
+            p.vbos["rect"] = gl::VBO::create(2 * 3, gl::VBOType::Pos2_F32);
+            p.vaos["rect"] = gl::VAO::create(p.vbos["rect"]->getType(), p.vbos["rect"]->getID());
+            p.vbos["texture"] = gl::VBO::create(2 * 3, gl::VBOType::Pos2_F32_UV_U16);
+            p.vaos["texture"] = gl::VAO::create(p.vbos["texture"]->getType(), p.vbos["texture"]->getID());
+            p.vbos["image"] = gl::VBO::create(2 * 3, gl::VBOType::Pos2_F32_UV_U16);
+            p.vaos["image"] = gl::VAO::create(p.vbos["image"]->getType(), p.vbos["image"]->getID());
+            p.vbos["wipe"] = gl::VBO::create(1 * 3, gl::VBOType::Pos2_F32);
+            p.vaos["wipe"] = gl::VAO::create(p.vbos["wipe"]->getType(), p.vbos["wipe"]->getID());
+            p.vbos["video"] = gl::VBO::create(2 * 3, gl::VBOType::Pos2_F32_UV_U16);
+            p.vaos["video"] = gl::VAO::create(p.vbos["video"]->getType(), p.vbos["video"]->getID());
 
             setViewport(math::BBox2i(0, 0, renderSize.w, renderSize.h));
             if (renderOptions.clear)
@@ -503,7 +503,7 @@ namespace tl
                 1.F));
         }
 
-        void Render::end()
+        void GLRender::end()
         {
             TLRENDER_P();
 
@@ -556,7 +556,7 @@ namespace tl
                     }
 
                     context->log(
-                        string::Format("tl::gl::Render {0}").arg(this),
+                        string::Format("tl::timeline::GLRender {0}").arg(this),
                         string::Format(
                             "\n"
                             "    Average render time: {0}ms\n"
@@ -583,22 +583,22 @@ namespace tl
             }
         }
 
-        imaging::Size Render::getRenderSize() const
+        imaging::Size GLRender::getRenderSize() const
         {
             return _p->renderSize;
         }
 
-        void Render::setRenderSize(const imaging::Size& value)
+        void GLRender::setRenderSize(const imaging::Size& value)
         {
             _p->renderSize = value;
         }
 
-        math::BBox2i Render::getViewport() const
+        math::BBox2i GLRender::getViewport() const
         {
             return _p->viewport;
         }
 
-        void Render::setViewport(const math::BBox2i& value)
+        void GLRender::setViewport(const math::BBox2i& value)
         {
             TLRENDER_P();
             p.viewport = value;
@@ -609,18 +609,18 @@ namespace tl
                 value.h());
         }
 
-        void Render::clearViewport(const imaging::Color4f& value)
+        void GLRender::clearViewport(const imaging::Color4f& value)
         {
             glClearColor(value.r, value.g, value.b, value.a);
             glClear(GL_COLOR_BUFFER_BIT);
         }
 
-        bool Render::getClipRectEnabled() const
+        bool GLRender::getClipRectEnabled() const
         {
             return _p->clipRectEnabled;
         }
 
-        void Render::setClipRectEnabled(bool value)
+        void GLRender::setClipRectEnabled(bool value)
         {
             TLRENDER_P();
             p.clipRectEnabled = value;
@@ -634,12 +634,12 @@ namespace tl
             }
         }
 
-        math::BBox2i Render::getClipRect() const
+        math::BBox2i GLRender::getClipRect() const
         {
             return _p->clipRect;
         }
 
-        void Render::setClipRect(const math::BBox2i& value)
+        void GLRender::setClipRect(const math::BBox2i& value)
         {
             TLRENDER_P();
             p.clipRect = value;
@@ -650,12 +650,12 @@ namespace tl
                 value.h());
         }
 
-        math::Matrix4x4f Render::getTransform() const
+        math::Matrix4x4f GLRender::getTransform() const
         {
             return _p->transform;
         }
 
-        void Render::setTransform(const math::Matrix4x4f& value)
+        void GLRender::setTransform(const math::Matrix4x4f& value)
         {
             TLRENDER_P();
             p.transform = value;
@@ -689,7 +689,7 @@ namespace tl
 #endif // TLRENDER_OCIO
         }
 
-        void Render::_setColorConfig(const timeline::ColorConfigOptions& value)
+        void GLRender::_setColorConfig(const ColorConfigOptions& value)
         {
             TLRENDER_P();
             if (value == p.colorConfigOptions)
@@ -866,7 +866,7 @@ namespace tl
             p.shaders["display"].reset();
         }
 
-        void Render::_setLUT(const timeline::LUTOptions& value)
+        void GLRender::_setLUT(const LUTOptions& value)
         {
             TLRENDER_P();
             if (value == p.lutOptions)

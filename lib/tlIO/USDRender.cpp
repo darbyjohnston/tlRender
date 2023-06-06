@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUSD/USDPrivate.h>
+#include <tlIO/USDPrivate.h>
 
 #include <tlCore/File.h>
 #include <tlCore/LRUCache.h>
@@ -41,14 +41,15 @@ namespace tl
         namespace
         {
             const size_t stageCacheSize = 10;
-            const size_t diskCacheSize = 1000;
-            const size_t renderWidth = 4096;
-            const size_t renderHeight = 2160;
+            const size_t diskCacheSize = 1500;
+            const size_t renderWidth = 1920; //4096;
+            const size_t renderHeight = 1080; //2160;
         }
         
-        struct Renderer::Private
+        struct Render::Private
         {
             std::weak_ptr<log::System> logSystem;
+            GLFWwindow* glfwWindow = nullptr;
             
             io::Info info;
             struct InfoRequest
@@ -107,7 +108,6 @@ namespace tl
                 memory::LRUCache<std::string, StageCacheItem> stageCache;
                 memory::LRUCache<DiskCacheKey, std::shared_ptr<DiskCacheItem> > diskCache;
                 std::string tempDir;
-                GLFWwindow* glfwWindow = nullptr;
                 std::chrono::steady_clock::time_point logTimer;
                 std::condition_variable cv;
                 std::thread thread;
@@ -116,12 +116,25 @@ namespace tl
             Thread thread;
         };
         
-        void Renderer::_init(const std::weak_ptr<log::System>& logSystem)
+        void Render::_init(const std::weak_ptr<log::System>& logSystem)
         {
             TLRENDER_P();
+            p.logSystem = logSystem;
+
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+            glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+            glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
+            p.glfwWindow = glfwCreateWindow(1, 1, "tl::usd::Render", NULL, NULL);
+            if (!p.glfwWindow)
+            {
+                throw std::runtime_error("Cannot create window");
+            }
+
             p.thread.stageCache.setMax(stageCacheSize);
             p.thread.diskCache.setMax(diskCacheSize);
-            p.logSystem = logSystem;
             p.thread.logTimer = std::chrono::steady_clock::now();
             p.thread.running = true;
             p.thread.thread = std::thread(
@@ -130,21 +143,17 @@ namespace tl
                     TLRENDER_P();
                     try
                     {
-                        _createWindow();
+                        glfwMakeContextCurrent(p.glfwWindow);
                         _run();
                         p.thread.stageCache.clear();
                         p.thread.diskCache.clear();
-                        if (p.thread.glfwWindow)
-                        {
-                            glfwDestroyWindow(p.thread.glfwWindow);
-                        }
                     }
                     catch (const std::exception& e)
                     {
                         //std::cout << e.what() << std::endl;
                         if (auto logSystem = p.logSystem.lock())
                         {
-                            const std::string id = string::Format("tl::usd::Renderer ({0}: {1})").
+                            const std::string id = string::Format("tl::usd::Render ({0}: {1})").
                                 arg(__FILE__).
                                 arg(__LINE__);
                             logSystem->print(id, e.what(), log::Type::Error);
@@ -158,11 +167,11 @@ namespace tl
                 });
         }
 
-        Renderer::Renderer() :
+        Render::Render() :
             _p(new Private)
         {}
 
-        Renderer::~Renderer()
+        Render::~Render()
         {
             TLRENDER_P();
             p.thread.running = false;
@@ -170,16 +179,20 @@ namespace tl
             {
                 p.thread.thread.join();
             }
+            if (p.glfwWindow)
+            {
+                glfwDestroyWindow(p.glfwWindow);
+            }
         }
 
-        std::shared_ptr<Renderer> Renderer::create(const std::weak_ptr<log::System>& logSystem)
+        std::shared_ptr<Render> Render::create(const std::weak_ptr<log::System>& logSystem)
         {
-            auto out = std::shared_ptr<Renderer>(new Renderer);
+            auto out = std::shared_ptr<Render>(new Render);
             out->_init(logSystem);
             return out;
         }
         
-        std::future<io::Info> Renderer::getInfo(int64_t id, const file::Path& path)
+        std::future<io::Info> Render::getInfo(int64_t id, const file::Path& path)
         {
             TLRENDER_P();
             auto request = std::make_shared<Private::InfoRequest>();
@@ -206,7 +219,7 @@ namespace tl
             return future;
         }
 
-        std::future<io::VideoData> Renderer::render(
+        std::future<io::VideoData> Render::render(
             int64_t id,
             const file::Path& path,
             const otime::RationalTime& time,
@@ -238,7 +251,7 @@ namespace tl
             return future;
         }
         
-        void Renderer::cancelRequests(int64_t id)
+        void Render::cancelRequests(int64_t id)
         {
             TLRENDER_P();
             std::list<std::shared_ptr<Private::InfoRequest> > infoRequests;
@@ -282,7 +295,7 @@ namespace tl
             }
         }
         
-        void Renderer::cancelRequests()
+        void Render::cancelRequests()
         {
             TLRENDER_P();
             std::list<std::shared_ptr<Private::InfoRequest> > infoRequests;
@@ -301,24 +314,7 @@ namespace tl
                 request->promise.set_value(io::VideoData());
             }
         }
-        
-        void Renderer::_createWindow()
-        {
-            TLRENDER_P();
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
-            glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-            glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
-            p.thread.glfwWindow = glfwCreateWindow(1, 1, "tl::usd::Renderer", NULL, NULL);
-            if (!p.thread.glfwWindow)
-            {
-                throw std::runtime_error("Cannot create window");
-            }
-            glfwMakeContextCurrent(p.thread.glfwWindow);
-        }
-        
+                
         namespace
         {
             UsdGeomCamera getCamera(
@@ -393,7 +389,7 @@ namespace tl
             }
         }
         
-        void Renderer::_run()
+        void Render::_run()
         {
             TLRENDER_P();
                         

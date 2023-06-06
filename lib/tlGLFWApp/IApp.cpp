@@ -7,14 +7,11 @@
 #include <tlUI/EventLoop.h>
 #include <tlUI/IClipboard.h>
 
-#if defined(TLRENDER_USD)
-#include <tlUSD/USD.h>
-#endif // TLRENDER_USD
-
-#include <tlGL/OffscreenBuffer.h>
-#include <tlGL/Render.h>
+#include <tlTimeline/GLRender.h>
 
 #include <tlIO/IOSystem.h>
+
+#include <tlGL/OffscreenBuffer.h>
 
 #include <tlCore/FontSystem.h>
 #include <tlCore/LogSystem.h>
@@ -34,11 +31,6 @@ namespace tl
     {
         namespace
         {
-            void glfwErrorCallback(int, const char* description)
-            {
-                std::cerr << "GLFW ERROR: " << description << std::endl;
-            }
-
             /*void APIENTRY glDebugOutput(
                 GLenum         source,
                 GLenum         type,
@@ -113,7 +105,6 @@ namespace tl
             imaging::Size frameBufferSize;
             math::Vector2f contentScale = math::Vector2f(1.F, 1.F);
 
-            std::shared_ptr<io::IPlugin> usdPlugin;
             std::shared_ptr<ui::Style> style;
             std::shared_ptr<ui::IconLibrary> iconLibrary;
             std::shared_ptr<imaging::FontSystem> fontSystem;
@@ -160,18 +151,6 @@ namespace tl
                 return;
             }
 
-            // Initialize GLFW.
-            glfwSetErrorCallback(glfwErrorCallback);
-            int glfwMajor = 0;
-            int glfwMinor = 0;
-            int glfwRevision = 0;
-            glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRevision);
-            _log(string::Format("GLFW version: {0}.{1}.{2}").arg(glfwMajor).arg(glfwMinor).arg(glfwRevision));
-            if (!glfwInit())
-            {
-                throw std::runtime_error("Cannot initialize GLFW");
-            }
-
             // Create the window.
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
@@ -189,6 +168,7 @@ namespace tl
             {
                 throw std::runtime_error("Cannot create window");
             }
+            
             glfwSetWindowUserPointer(p.glfwWindow, this);
             int width = 0;
             int height = 0;
@@ -231,14 +211,6 @@ namespace tl
             glfwSetCharCallback(p.glfwWindow, _charCallback);
             glfwShowWindow(p.glfwWindow);
 
-            // Create the USD plugin.
-#if defined(TLRENDER_USD)
-            auto logSystem = _context->getSystem<log::System>();
-            auto ioSystem = _context->getSystem<io::System>();
-            p.usdPlugin = usd::Plugin::create(logSystem);
-            ioSystem->addPlugin(p.usdPlugin);
-#endif // TLRENDER_USD
-
             // Initialize the user interface.
             p.style = ui::Style::create(_context);
             p.iconLibrary = ui::IconLibrary::create(_context);
@@ -252,7 +224,7 @@ namespace tl
                 _context);
 
             // Create the renderer.
-            p.render = gl::Render::create(_context);
+            p.render = timeline::GLRender::create(_context);
         }
 
         IApp::IApp() :
@@ -265,19 +237,10 @@ namespace tl
             p.eventLoop.reset();
             p.render.reset();
             p.offscreenBuffer.reset();
-#if defined(TLRENDER_USD)
-            if (p.usdPlugin)
-            {
-                auto ioSystem = _context->getSystem<io::System>();
-                ioSystem->removePlugin(p.usdPlugin);
-                p.usdPlugin.reset();
-            }
-#endif // TLRENDER_USD
             if (p.glfwWindow)
             {
                 glfwDestroyWindow(p.glfwWindow);
             }
-            glfwTerminate();
         }
 
         void IApp::run()

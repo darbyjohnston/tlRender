@@ -2,9 +2,9 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUSD/USD.h>
+#include <tlIO/USD.h>
 
-#include <tlUSD/USDPrivate.h>
+#include <tlIO/USDPrivate.h>
 
 namespace tl
 {
@@ -13,7 +13,7 @@ namespace tl
         struct Plugin::Private
         {
             int64_t id = -1;
-            std::shared_ptr<Renderer> renderer;
+            std::shared_ptr<Render> render;
         };
         
         void Plugin::_init(const std::weak_ptr<log::System>& logSystem)
@@ -27,7 +27,7 @@ namespace tl
                 },
                 logSystem);
             TLRENDER_P();
-            p.renderer = Renderer::create(logSystem);
+            p.render = Render::create(logSystem);
         }
         
         Plugin::Plugin() :
@@ -47,7 +47,7 @@ namespace tl
         {
             TLRENDER_P();
             ++(p.id);
-            return Read::create(p.id, p.renderer, path, io::merge(options, _options), _logSystem);
+            return Read::create(p.id, p.render, path, io::merge(options, _options), _logSystem);
         }
         
         std::shared_ptr<io::IRead> Plugin::read(
@@ -57,7 +57,7 @@ namespace tl
         {
             TLRENDER_P();
             ++(p.id);
-            return Read::create(p.id, p.renderer, path, io::merge(options, _options), _logSystem);
+            return Read::create(p.id, p.render, path, io::merge(options, _options), _logSystem);
         }
         
         imaging::Info Plugin::getWriteInfo(

@@ -4,10 +4,7 @@ set(HEADERS
 set(SOURCE
     App.cpp)
 
-set(LIBRARIES tlApp tlGL GLFW)
-if(TLRENDER_USD)
-    list(APPEND LIBRARIES tlUSD)
-endif()
+set(LIBRARIES tlApp tlGL)
 
 add_library(tlBakeApp ${HEADERS} ${SOURCE})
 target_link_libraries(tlBakeApp ${LIBRARIES})

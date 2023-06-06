@@ -4,9 +4,10 @@
 
 #include <tlQtWidget/TimelineViewport.h>
 
+#include <tlTimeline/GLRender.h>
+
 #include <tlGL/Mesh.h>
 #include <tlGL/OffscreenBuffer.h>
-#include <tlGL/Render.h>
 #include <tlGL/Shader.h>
 #include <tlGL/Util.h>
 
@@ -252,7 +253,7 @@ namespace tl
             {
                 if (auto context = p.context.lock())
                 {
-                    p.render = gl::Render::create(context);
+                    p.render = timeline::GLRender::create(context);
                 }
 
                 const std::string vertexSource =

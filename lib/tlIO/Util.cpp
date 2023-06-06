@@ -6,6 +6,8 @@
 
 #include <tlIO/IOSystem.h>
 
+#include <tlGL/Util.h>
+
 #include <tlCore/Context.h>
 
 namespace tl
@@ -14,6 +16,7 @@ namespace tl
     {
         void init(const std::shared_ptr<system::Context>& context)
         {
+            gl::init(context);
             if (!context->getSystem<System>())
             {
                 context->addSystem(System::create(context));

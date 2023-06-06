@@ -19,12 +19,13 @@ namespace tl
 
         protected:
             void _init(const std::shared_ptr<system::Context>&);
+            
             System();
 
         public:
             ~System() override;
 
-            //! Create a new I/O system.
+            //! Create a new system.
             static std::shared_ptr<System> create(const std::shared_ptr<system::Context>&);
 
             //! Set the plugin options.

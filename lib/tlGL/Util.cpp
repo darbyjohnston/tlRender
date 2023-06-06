@@ -4,7 +4,7 @@
 
 #include <tlGL/Util.h>
 
-#include <tlTimeline/Util.h>
+#include <tlGL/GLFWSystem.h>
 
 #include <tlCore/Assert.h>
 #include <tlCore/Context.h>
@@ -20,7 +20,8 @@ namespace tl
     {
         void init(const std::shared_ptr<system::Context>& context)
         {
-            timeline::init(context);
+            auto glfwSystem = GLFWSystem::create(context);
+            context->addSystem(glfwSystem);
         }
 
         void initGLAD()
@@ -99,6 +100,7 @@ namespace tl
             };
             return data[static_cast<std::size_t>(value)];
         }
+        
         struct SetAndRestore::Private
         {
             unsigned int id = 0;

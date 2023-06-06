@@ -4,11 +4,8 @@
 
 #include <tlBakeApp/App.h>
 
-#if defined(TLRENDER_USD)
-#include <tlUSD/USD.h>
-#endif // TLRENDER_USD
+#include <tlTimeline/GLRender.h>
 
-#include <tlGL/Render.h>
 #include <tlGL/Util.h>
 
 #include <tlIO/IOSystem.h>
@@ -30,11 +27,6 @@ namespace tl
     {
         namespace
         {
-            void glfwErrorCallback(int, const char* description)
-            {
-                std::cerr << "GLFW ERROR: " << description << std::endl;
-            }
-
             /*void APIENTRY glDebugOutput(
                 GLenum         source,
                 GLenum         type,
@@ -203,19 +195,10 @@ namespace tl
             _timeline.reset();
             _buffer.reset();
             _render.reset();
- #if defined(TLRENDER_USD)
-            if (_usdPlugin)
-            {
-                auto ioSystem = _context->getSystem<io::System>();
-                ioSystem->removePlugin(_usdPlugin);
-                _usdPlugin.reset();
-            }
-#endif // TLRENDER_USD
             if (_glfwWindow)
             {
                 glfwDestroyWindow(_glfwWindow);
             }
-            glfwTerminate();
         }
 
         std::shared_ptr<App> App::create(
@@ -236,18 +219,6 @@ namespace tl
             }
 
             _startTime = std::chrono::steady_clock::now();
-
-            // Initialize GLFW.
-            glfwSetErrorCallback(glfwErrorCallback);
-            int glfwMajor = 0;
-            int glfwMinor = 0;
-            int glfwRevision = 0;
-            glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRevision);
-            _log(string::Format("GLFW version: {0}.{1}.{2}").arg(glfwMajor).arg(glfwMinor).arg(glfwRevision));
-            if (!glfwInit())
-            {
-                throw std::runtime_error("Cannot initialize GLFW");
-            }
 
             // Create the window.
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -287,14 +258,6 @@ namespace tl
             const int glRevision = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_REVISION);
             _log(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
 
-            // Create the USD plugin.
-#if defined(TLRENDER_USD)
-            auto logSystem = _context->getSystem<log::System>();
-            auto ioSystem = _context->getSystem<io::System>();
-            _usdPlugin = usd::Plugin::create(logSystem);
-            ioSystem->addPlugin(_usdPlugin);
-#endif // TLRENDER_USD
-
             // Read the timeline.
             _timeline = timeline::Timeline::create(_input, _context);
             _timeRange = _timeline->getTimeRange();
@@ -326,7 +289,7 @@ namespace tl
             _print(string::Format("Render size: {0}").arg(_renderSize));
 
             // Create the renderer.
-            _render = gl::Render::create(_context);
+            _render = timeline::GLRender::create(_context);
             gl::OffscreenBufferOptions offscreenBufferOptions;
             offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
             _buffer = gl::OffscreenBuffer::create(_renderSize, offscreenBufferOptions);

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlGL/Render.h>
+#include <tlTimeline/GLRender.h>
 
 #include <tlGL/Mesh.h>
 #include <tlGL/OffscreenBuffer.h>
@@ -24,7 +24,7 @@ namespace OCIO = OCIO_NAMESPACE;
 
 namespace tl
 {
-    namespace gl
+    namespace timeline
     {
         std::string vertexSource();
         std::string meshFragmentSource();
@@ -36,7 +36,7 @@ namespace tl
             const std::string& colorConfig,
             const std::string& lutDef,
             const std::string& lut,
-            timeline::LUTOrder);
+            LUTOrder);
         std::string differenceFragmentSource();
 
         struct Pos2_F32
@@ -55,7 +55,7 @@ namespace tl
 
         void copyTextures(
             const std::shared_ptr<imaging::Image>&,
-            const std::vector<std::shared_ptr<Texture> >&,
+            const std::vector<std::shared_ptr<gl::Texture> >&,
             size_t offset = 0);
 
         class TextureCache
@@ -63,15 +63,15 @@ namespace tl
         public:
             void setSize(size_t);
 
-            std::vector<std::shared_ptr<Texture> > get(
+            std::vector<std::shared_ptr<gl::Texture> > get(
                 const imaging::Info&,
-                const timeline::ImageFilters&,
+                const ImageFilters&,
                 size_t offset = 0);
 
             void add(
                 const imaging::Info&,
-                const timeline::ImageFilters&,
-                const std::vector<std::shared_ptr<Texture> >&);
+                const ImageFilters&,
+                const std::vector<std::shared_ptr<gl::Texture> >&);
 
         private:
             void _cacheUpdate();
@@ -81,8 +81,8 @@ namespace tl
             struct TextureData
             {
                 imaging::Info info;
-                timeline::ImageFilters imageFilters;
-                std::vector<std::shared_ptr<Texture> > texture;
+                ImageFilters imageFilters;
+                std::vector<std::shared_ptr<gl::Texture> > texture;
             };
 
             std::list<TextureData> _cache;
@@ -129,12 +129,12 @@ namespace tl
         };
 #endif // TLRENDER_OCIO
 
-        struct Render::Private
+        struct GLRender::Private
         {
             imaging::Size renderSize;
-            timeline::ColorConfigOptions colorConfigOptions;
-            timeline::LUTOptions lutOptions;
-            timeline::RenderOptions renderOptions;
+            ColorConfigOptions colorConfigOptions;
+            LUTOptions lutOptions;
+            RenderOptions renderOptions;
 
 #if defined(TLRENDER_OCIO)
             std::unique_ptr<OCIOColorConfigData> colorConfigData;
@@ -146,11 +146,11 @@ namespace tl
             bool clipRectEnabled = false;
             math::BBox2i clipRect;
 
-            std::map<std::string, std::shared_ptr<Shader> > shaders;
-            std::map<std::string, std::shared_ptr<OffscreenBuffer> > buffers;
+            std::map<std::string, std::shared_ptr<gl::Shader> > shaders;
+            std::map<std::string, std::shared_ptr<gl::OffscreenBuffer> > buffers;
             TextureCache textureCache;
-            std::shared_ptr<TextureAtlas> glyphTextureAtlas;
-            std::map<imaging::GlyphInfo, TextureAtlasID> glyphIDs;
+            std::shared_ptr<gl::TextureAtlas> glyphTextureAtlas;
+            std::map<imaging::GlyphInfo, gl::TextureAtlasID> glyphIDs;
             std::map<std::string, std::shared_ptr<gl::VBO> > vbos;
             std::map<std::string, std::shared_ptr<gl::VAO> > vaos;
 

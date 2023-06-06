@@ -4,9 +4,10 @@
 
 #include <tlQt/OutputDevicePrivate.h>
 
+#include <tlTimeline/GLRender.h>
+
 #include <tlGL/Mesh.h>
 #include <tlGL/OffscreenBuffer.h>
-#include <tlGL/Render.h>
 #include <tlGL/Shader.h>
 #include <tlGL/Texture.h>
 #include <tlGL/Util.h>
@@ -400,7 +401,7 @@ namespace tl
             std::shared_ptr<timeline::IRender> render;
             if (auto context = p.context.lock())
             {
-                render = gl::Render::create(context);
+                render = timeline::GLRender::create(context);
             }
 
             int deviceIndex = -1;

@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlGL/RenderPrivate.h>
+#include <tlTimeline/GLRenderPrivate.h>
 
 #include <tlGlad/gl.h>
 
@@ -10,9 +10,9 @@
 
 namespace tl
 {
-    namespace gl
+    namespace timeline
     {
-        void Render::drawRect(
+        void GLRender::drawRect(
             const math::BBox2i& bbox,
             const imaging::Color4f& color)
         {
@@ -35,7 +35,7 @@ namespace tl
             }
         }
 
-        void Render::drawMesh(
+        void GLRender::drawMesh(
             const geom::TriangleMesh2& mesh,
             const math::Vector2i& position,
             const imaging::Color4f& color)
@@ -60,17 +60,17 @@ namespace tl
 
                 if (!p.vbos["mesh"] || (p.vbos["mesh"] && p.vbos["mesh"]->getSize() < size * 3))
                 {
-                    p.vbos["mesh"] = VBO::create(size * 3, VBOType::Pos2_F32);
+                    p.vbos["mesh"] = gl::VBO::create(size * 3, gl::VBOType::Pos2_F32);
                     p.vaos["mesh"].reset();
                 }
                 if (p.vbos["mesh"])
                 {
-                    p.vbos["mesh"]->copy(convert(mesh, VBOType::Pos2_F32));
+                    p.vbos["mesh"]->copy(convert(mesh, gl::VBOType::Pos2_F32));
                 }
 
                 if (!p.vaos["mesh"] && p.vbos["mesh"])
                 {
-                    p.vaos["mesh"] = VAO::create(p.vbos["mesh"]->getType(), p.vbos["mesh"]->getID());
+                    p.vaos["mesh"] = gl::VAO::create(p.vbos["mesh"]->getType(), p.vbos["mesh"]->getID());
                 }
                 if (p.vaos["mesh"] && p.vbos["mesh"])
                 {
@@ -80,7 +80,7 @@ namespace tl
             }
         }
 
-        void Render::Private::drawTextMesh(const geom::TriangleMesh2& mesh)
+        void GLRender::Private::drawTextMesh(const geom::TriangleMesh2& mesh)
         {
             const size_t size = mesh.triangles.size();
             currentStats.textTriangles += size;
@@ -88,7 +88,7 @@ namespace tl
             {
                 if (!vbos["text"] || (vbos["text"] && vbos["text"]->getSize() < size * 3))
                 {
-                    vbos["text"] = VBO::create(size * 3, VBOType::Pos2_F32_UV_U16);
+                    vbos["text"] = gl::VBO::create(size * 3, gl::VBOType::Pos2_F32_UV_U16);
                     vaos["text"].reset();
                 }
                 if (vbos["text"])
@@ -97,7 +97,7 @@ namespace tl
                 }
                 if (!vaos["text"] && vbos["text"])
                 {
-                    vaos["text"] = VAO::create(vbos["text"]->getType(), vbos["text"]->getID());
+                    vaos["text"] = gl::VAO::create(vbos["text"]->getType(), vbos["text"]->getID());
                 }
                 if (vaos["text"] && vbos["text"])
                 {
@@ -107,7 +107,7 @@ namespace tl
             }
         }
 
-        void Render::drawText(
+        void GLRender::drawText(
             const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
             const math::Vector2i& pos,
             const imaging::Color4f& color)
@@ -146,13 +146,13 @@ namespace tl
 
                     if (glyph->image && glyph->image->isValid())
                     {
-                        TextureAtlasID id = 0;
+                        gl::TextureAtlasID id = 0;
                         const auto i = p.glyphIDs.find(glyph->info);
                         if (i != p.glyphIDs.end())
                         {
                             id = i->second;
                         }
-                        TextureAtlasItem item;
+                        gl::TextureAtlasItem item;
                         if (!p.glyphTextureAtlas->getItem(id, item))
                         {
                             id = p.glyphTextureAtlas->addItem(glyph->image, item);
@@ -211,7 +211,7 @@ namespace tl
             p.drawTextMesh(mesh);
         }
 
-        void Render::drawTexture(
+        void GLRender::drawTexture(
             unsigned int id,
             const math::BBox2i& bbox,
             const imaging::Color4f& color)
@@ -239,11 +239,11 @@ namespace tl
             }
         }
 
-        void Render::drawImage(
+        void GLRender::drawImage(
             const std::shared_ptr<imaging::Image>& image,
             const math::BBox2i& bbox,
             const imaging::Color4f& color,
-            const timeline::ImageOptions& imageOptions)
+            const ImageOptions& imageOptions)
         {
             TLRENDER_P();
             ++(p.currentStats.images);
@@ -258,8 +258,8 @@ namespace tl
             imaging::VideoLevels videoLevels = info.videoLevels;
             switch (imageOptions.videoLevels)
             {
-            case timeline::InputVideoLevels::FullRange:  videoLevels = imaging::VideoLevels::FullRange;  break;
-            case timeline::InputVideoLevels::LegalRange: videoLevels = imaging::VideoLevels::LegalRange; break;
+            case InputVideoLevels::FullRange:  videoLevels = imaging::VideoLevels::FullRange;  break;
+            case InputVideoLevels::LegalRange: videoLevels = imaging::VideoLevels::LegalRange; break;
             default: break;
             }
             p.shaders["image"]->setUniform("videoLevels", static_cast<int>(videoLevels));
@@ -284,13 +284,13 @@ namespace tl
 
             switch (imageOptions.alphaBlend)
             {
-            case timeline::AlphaBlend::None:
+            case AlphaBlend::None:
                 glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ONE);
                 break;
-            case timeline::AlphaBlend::Straight:
+            case AlphaBlend::Straight:
                 glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
                 break;
-            case timeline::AlphaBlend::Premultiplied:
+            case AlphaBlend::Premultiplied:
                 glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
                 break;
             default: break;

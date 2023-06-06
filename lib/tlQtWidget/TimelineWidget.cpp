@@ -12,7 +12,8 @@
 #include <tlUI/IClipboard.h>
 #include <tlUI/RowLayout.h>
 
-#include <tlGL/Render.h>
+#include <tlTimeline/GLRender.h>
+
 #include <tlGL/Util.h>
 
 #include <QClipboard>
@@ -214,7 +215,7 @@ namespace tl
             gl::initGLAD();
             if (auto context = p.context.lock())
             {
-                p.render = gl::Render::create(context);
+                p.render = timeline::GLRender::create(context);
             }
         }
 
