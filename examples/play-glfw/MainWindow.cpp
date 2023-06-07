@@ -12,6 +12,8 @@
 #include <tlUI/DoubleEdit.h>
 #include <tlUI/DoubleModel.h>
 #include <tlUI/IncButtons.h>
+#include <tlUI/Label.h>
+#include <tlUI/MenuBar.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/Splitter.h>
 #include <tlUI/TimeEdit.h>
@@ -30,10 +32,12 @@ namespace tl
         {
             struct MainWindow::Private
             {
+                std::shared_ptr<timeline::Player> player;
                 std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
                 std::shared_ptr<ui::DoubleModel> speedModel;
                 timelineui::ItemOptions itemOptions;
 
+                std::shared_ptr<ui::MenuBar> menuBar;
                 std::shared_ptr<timelineui::TimelineViewport> timelineViewport;
                 std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
                 std::shared_ptr<ui::ButtonGroup> playbackButtonGroup;
@@ -42,6 +46,8 @@ namespace tl
                 std::shared_ptr<ui::DoubleEdit> speedEdit;
                 std::shared_ptr<ui::TimeLabel> durationLabel;
                 std::shared_ptr<ui::ComboBox> timeUnitsComboBox;
+                std::shared_ptr<ui::Label> statusLabel;
+                std::shared_ptr<ui::Label> infoLabel;
                 std::shared_ptr<ui::Splitter> splitter;
                 std::shared_ptr<ui::RowLayout> layout;
 
@@ -61,16 +67,38 @@ namespace tl
 
                 setBackgroundRole(ui::ColorRole::Window);
 
+                p.player = player;
                 p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
                 p.speedModel = ui::DoubleModel::create(context);
                 p.speedModel->setRange(math::DoubleRange(0.0, 1000.0));
                 p.speedModel->setStep(1.F);
                 p.speedModel->setLargeStep(10.F);
 
+                auto fileMenuItem = ui::MenuItem::create("File");
+                auto fileOpenMenuItem = ui::MenuItem::create("Open", fileMenuItem);
+                auto fileCloseMenuItem = ui::MenuItem::create("Close", fileMenuItem);
+                auto fileExitMenuItem = ui::MenuItem::create("Exit", fileMenuItem);
+                auto compareMenuItem = ui::MenuItem::create("Compare");
+                auto viewMenuItem = ui::MenuItem::create("View");
+                auto renderMenuItem = ui::MenuItem::create("Render");
+                auto playbackMenuItem = ui::MenuItem::create("Playback");
+                auto audioMenuItem = ui::MenuItem::create("Audio");
+                auto windowMenuItem = ui::MenuItem::create("Window");
+                auto windowFullScreenMenuItem = ui::MenuItem::create("Full Screen", windowMenuItem);
+                p.menuBar = ui::MenuBar::create(context);
+                p.menuBar->addMenuItem(fileMenuItem);
+                p.menuBar->addMenuItem(compareMenuItem);
+                p.menuBar->addMenuItem(viewMenuItem);
+                p.menuBar->addMenuItem(renderMenuItem);
+                p.menuBar->addMenuItem(playbackMenuItem);
+                p.menuBar->addMenuItem(audioMenuItem);
+                p.menuBar->addMenuItem(windowMenuItem);
+
                 p.timelineViewport = timelineui::TimelineViewport::create(context);
                 p.timelineViewport->setPlayers({ player });
 
                 p.timelineWidget = timelineui::TimelineWidget::create(context);
+                p.timelineWidget->setScrollBarsVisible(false);
                 p.timelineWidget->setPlayer(player);
 
                 auto stopButton = ui::ToolButton::create(context);
@@ -114,17 +142,24 @@ namespace tl
                 p.timeUnitsComboBox->setCurrentIndex(
                     static_cast<int>(p.timeUnitsModel->getTimeUnits()));
 
+                p.statusLabel = ui::Label::create(context);
+                p.statusLabel->setTextWidth(20);
+                p.statusLabel->setHStretch(ui::Stretch::Expanding);
+                p.infoLabel = ui::Label::create(context);
+                p.infoLabel->setTextWidth(20);
+
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
                 p.layout->setSpacingRole(ui::SizeRole::None);
+                p.menuBar->setParent(p.layout);
                 p.splitter = ui::Splitter::create(ui::Orientation::Vertical, context, p.layout);
                 p.splitter->setSplit(.7F);
                 p.timelineViewport->setParent(p.splitter);
                 p.timelineWidget->setParent(p.splitter);
                 auto hLayout = ui::HorizontalLayout::create(context, p.layout);
-                hLayout->setMarginRole(ui::SizeRole::MarginSmall);
+                hLayout->setMarginRole(ui::SizeRole::MarginInside);
                 hLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
                 auto hLayout2 = ui::HorizontalLayout::create(context, hLayout);
-                hLayout2->setSpacingRole(ui::SizeRole::SpacingTool);
+                hLayout2->setSpacingRole(ui::SizeRole::None);
                 reverseButton->setParent(hLayout2);
                 stopButton->setParent(hLayout2);
                 forwardButton->setParent(hLayout2);
@@ -142,6 +177,13 @@ namespace tl
                 speedIncButtons->setParent(hLayout2);
                 p.durationLabel->setParent(hLayout);
                 p.timeUnitsComboBox->setParent(hLayout);
+                hLayout = ui::HorizontalLayout::create(context, p.layout);
+                hLayout->setMarginRole(ui::SizeRole::MarginInside);
+                hLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
+                p.statusLabel->setParent(hLayout);
+                p.infoLabel->setParent(hLayout);
+
+                _infoUpdate();
 
                 p.currentTimeEdit->setCallback(
                     [player](const otime::RationalTime& value)
@@ -249,6 +291,15 @@ namespace tl
             {
                 IWidget::setGeometry(value);
                 _p->layout->setGeometry(value);
+            }
+
+            void MainWindow::_infoUpdate()
+            {
+                TLRENDER_P();
+                const file::Path& path = p.player->getPath();
+                const io::Info& info = p.player->getIOInfo();
+                const std::string text = string::Format("{0}").arg(path.get(-1, false));
+                p.infoLabel->setText(text);
             }
         }
     }

@@ -213,6 +213,7 @@ namespace tl
 
             p.timelineWidget = new qtwidget::TimelineWidget(app->getContext());
             p.timelineWidget->setTimeObject(app->timeObject());
+            p.timelineWidget->setScrollBarsVisible(false);
             auto timelineDockWidget = new QDockWidget;
             timelineDockWidget->setObjectName("Timeline");
             timelineDockWidget->setWindowTitle(tr("Timeline"));

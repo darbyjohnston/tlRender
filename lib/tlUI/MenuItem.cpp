@@ -43,5 +43,10 @@ namespace tl
             out->_init(text, parent);
             return out;
         }
+
+        const std::string& MenuItem::getText() const
+        {
+            return _p->text;
+        }
     }
 }

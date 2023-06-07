@@ -34,6 +34,8 @@ namespace tl
                 void setGeometry(const math::BBox2i&) override;
 
             private:
+                void _infoUpdate();
+
                 TLRENDER_PRIVATE();
             };
         }

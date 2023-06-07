@@ -53,6 +53,9 @@ namespace tl
             //! Set whether the scroll bars are visible.
             void setScrollBarsVisible(bool);
 
+            //! Set whether the scroll area has a border.
+            void setBorder(bool);
+
             //! Set the margin role.
             void setMarginRole(SizeRole);
 

@@ -13,6 +13,7 @@ namespace tl
         struct Label::Private
         {
             std::string text;
+            size_t textWidth = 0;
             SizeRole marginRole = SizeRole::None;
             FontRole fontRole = FontRole::Label;
 
@@ -67,6 +68,17 @@ namespace tl
             _updates |= Update::Draw;
         }
 
+        void Label::setTextWidth(size_t value)
+        {
+            TLRENDER_P();
+            if (value == p.textWidth)
+                return;
+            p.textWidth = value;
+            p.draw.glyphs.clear();
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
+        }
+
         void Label::setMarginRole(SizeRole value)
         {
             TLRENDER_P();
@@ -100,7 +112,7 @@ namespace tl
             {
                 p.size.fontInfo = fontInfo;
                 p.size.fontMetrics = event.getFontMetrics(p.fontRole);
-                p.size.textSize = event.fontSystem->getSize(p.text, p.size.fontInfo);
+                p.size.textSize = event.fontSystem->getSize(_getText(), p.size.fontInfo);
             }
 
             _sizeHint.x =
@@ -141,9 +153,10 @@ namespace tl
                 _hAlign,
                 _vAlign).margin(-p.size.margin);
 
-            if (!p.text.empty() && p.draw.glyphs.empty())
+            const std::string text = _getText();
+            if (!text.empty() && p.draw.glyphs.empty())
             {
-                p.draw.glyphs = event.fontSystem->getGlyphs(p.text, p.size.fontInfo);
+                p.draw.glyphs = event.fontSystem->getGlyphs(text, p.size.fontInfo);
             }
             const math::Vector2i pos(
                 g.x(),
@@ -152,6 +165,21 @@ namespace tl
                 p.draw.glyphs,
                 pos,
                 event.style->getColorRole(ColorRole::Text));
+        }
+        
+        std::string Label::_getText() const
+        {
+            TLRENDER_P();
+            std::string out;
+            if (!p.text.empty() && p.textWidth > 0)
+            {
+                out = p.text.substr(0, std::min(p.textWidth, p.text.size()));
+            }
+            else
+            {
+                out = p.text;
+            }
+            return out;
         }
     }
 }

@@ -17,10 +17,11 @@ namespace tl
             math::Vector2i scrollPos;
             std::function<void(const math::Vector2i&)> scrollSizeCallback;
             std::function<void(const math::Vector2i&)> scrollPosCallback;
+            bool border = true;
 
             struct SizeData
             {
-                int border = 1;
+                int border = 0;
             };
             SizeData size;
         };
@@ -100,6 +101,16 @@ namespace tl
             return _geometry.margin(-p.size.border);
         }
 
+        void ScrollArea::setBorder(bool value)
+        {
+            TLRENDER_P();
+            if (value == p.border)
+                return;
+            p.border = value;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
+        }
+
         void ScrollArea::setGeometry(const math::BBox2i& value)
         {
             IWidget::setGeometry(value);
@@ -150,7 +161,9 @@ namespace tl
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
+            p.size.border = p.border ?
+                event.style->getSizeRole(SizeRole::Border, event.displayScale) :
+                0;
 
             _sizeHint = math::Vector2i();
             switch (p.scrollType)
@@ -191,10 +204,13 @@ namespace tl
 
             const math::BBox2i& g = _geometry;
 
-            event.render->drawMesh(
-                border(g, p.size.border),
-                math::Vector2i(),
-                event.style->getColorRole(ColorRole::Border));
+            if (p.border)
+            {
+                event.render->drawMesh(
+                    border(g, p.size.border),
+                    math::Vector2i(),
+                    event.style->getColorRole(ColorRole::Border));
+            }
         }
     }
 }

@@ -4,6 +4,9 @@
 
 #include <tlUI/MenuBar.h>
 
+#include <tlUI/ListButton.h>
+#include <tlUI/RowLayout.h>
+
 namespace tl
 {
     namespace ui
@@ -11,17 +14,8 @@ namespace tl
         struct MenuBar::Private
         {
             std::list<std::shared_ptr<MenuItem> > menuItems;
-            
-            struct SizeData
-            {
-                int margin = 0;
-                int margin2 = 0;
-                int spacing = 0;
-                int border = 0;
-                imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
-                imaging::FontMetrics fontMetrics;
-            };
-            SizeData size;
+            std::list<std::shared_ptr<ListButton> > buttons;
+            std::shared_ptr<HorizontalLayout> layout;
         };
 
         void MenuBar::_init(
@@ -29,6 +23,9 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::MenuBar", context, parent);
+            TLRENDER_P();
+            p.layout = HorizontalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(SizeRole::None);
         }
 
         MenuBar::MenuBar() :
@@ -51,21 +48,29 @@ namespace tl
         {
             TLRENDER_P();
             p.menuItems.push_back(item);
+            if (auto context = _context.lock())
+            {
+                auto button = ListButton::create(context);
+                button->setText(item->getText());
+                p.buttons.push_back(button);
+                button->setParent(p.layout);
+            }
             _updates |= Update::Size;
             _updates |= Update::Draw;            
+        }
+
+        void MenuBar::setGeometry(const math::BBox2i& value)
+        {
+            IWidget::setGeometry(value);
+            TLRENDER_P();
+            p.layout->setGeometry(value);
         }
 
         void MenuBar::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
-
-            p.size.margin = event.style->getSizeRole(SizeRole::Margin, event.displayScale);
-            p.size.margin2 = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);
-            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
-            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
-            
-            _sizeHint.x = _sizeHint.y = 0;
+            _sizeHint = p.layout->getSizeHint();
         }
     }
 }

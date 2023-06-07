@@ -147,6 +147,7 @@ namespace tl
             const math::BBox2i& g = _geometry;
             const bool enabled = isEnabled();
 
+            // Draw the border.
             if (_keyFocus)
             {
                 event.render->drawMesh(
@@ -162,7 +163,9 @@ namespace tl
                     event.style->getColorRole(ColorRole::Border));
             }
 
-            const auto mesh = rect(g.margin(-p.size.border * 2));
+            // Draw the background and checked state.
+            const math::BBox2i g2 = g.margin(-p.size.border * 2);
+            const auto mesh = rect(g2);
             const ColorRole colorRole = _checked ?
                 ColorRole::Checked :
                 _buttonRole;
@@ -174,6 +177,7 @@ namespace tl
                     event.style->getColorRole(colorRole));
             }
 
+            // Draw the pressed and hover states.
             if (_pressed && _geometry.contains(_cursorPos))
             {
                 event.render->drawMesh(
@@ -189,7 +193,8 @@ namespace tl
                     event.style->getColorRole(ColorRole::Hover));
             }
 
-            int x = g.x() + p.size.border + p.size.margin;
+            // Draw the icon.
+            int x = g2.x() + p.size.margin;
             if (_iconImage)
             {
                 const imaging::Size& iconSize = _iconImage->getSize();
@@ -197,15 +202,16 @@ namespace tl
                   _iconImage,
                   math::BBox2i(
                       x,
-                      g.y() + g.h() / 2 - iconSize.h / 2,
+                      g2.y() + g2.h() / 2 - iconSize.h / 2,
                       iconSize.w,
                       iconSize.h),
-                    event.style->getColorRole(enabled ?
-                        ColorRole::Text :
-                        ColorRole::TextDisabled));
+                  event.style->getColorRole(enabled ?
+                      ColorRole::Text :
+                      ColorRole::TextDisabled));
                 x += iconSize.w + p.size.spacing;
             }
             
+            // Draw the text.
             if (!_text.empty())
             {
                 if (p.draw.glyphs.empty())
@@ -213,10 +219,8 @@ namespace tl
                     p.draw.glyphs = event.fontSystem->getGlyphs(_text, p.size.fontInfo);
                 }
                 const math::Vector2i pos(
-                    x +
-                    (g.max.x - p.size.border - p.size.margin - x) / 2 - p.size.textSize.x / 2,
-                    g.y() +
-                    g.h() / 2 - p.size.textSize.y / 2 +
+                    x + p.size.margin2,
+                    g2.y() + g2.h() / 2 - p.size.textSize.y / 2 +
                     p.size.fontMetrics.ascender);
                 event.render->drawText(
                     p.draw.glyphs,

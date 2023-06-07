@@ -29,6 +29,8 @@ namespace tl
                 const std::string& text,
                 const std::shared_ptr<MenuItem>& parent = nullptr);
 
+            const std::string& getText() const;
+
         private:
             TLRENDER_PRIVATE();
         };

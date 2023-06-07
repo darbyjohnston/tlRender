@@ -33,7 +33,8 @@ namespace tl
 
             //! Add a menu item.
             void addMenuItem(const std::shared_ptr<MenuItem>&);
-            
+
+            void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:
