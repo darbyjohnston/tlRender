@@ -2,8 +2,6 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlIO/USD.h>
-
 #include <tlIO/USDPrivate.h>
 
 #include <tlCore/Error.h>

@@ -2,6 +2,10 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif // NOMINMAX
+
 #include <pxr/pxr.h>
 #include <pxr/base/tf/diagnostic.h>
 #include <pxr/base/tf/token.h>
