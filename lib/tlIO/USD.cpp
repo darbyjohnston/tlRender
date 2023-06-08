@@ -51,7 +51,8 @@ namespace tl
                 {
                     { ".usd", io::FileType::Sequence },
                     { ".usda", io::FileType::Sequence },
-                    { ".usdc", io::FileType::Sequence }
+                    { ".usdc", io::FileType::Sequence },
+                    { ".usdz", io::FileType::Sequence }
                 },
                 logSystem);
             TLRENDER_P();
