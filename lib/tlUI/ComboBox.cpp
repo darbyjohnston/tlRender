@@ -530,7 +530,7 @@ namespace tl
             if (p.arrowIconInit)
             {
                 p.arrowIconInit = false;
-                p.arrowIconFuture = event.iconLibrary->request("ComboBoxArrow", event.displayScale);
+                p.arrowIconFuture = event.iconLibrary->request("MenuArrow", event.displayScale);
             }
             if (p.arrowIconFuture.valid() &&
                 p.arrowIconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)

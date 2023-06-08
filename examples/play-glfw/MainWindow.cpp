@@ -137,7 +137,7 @@ namespace tl
                 p.speedEdit = ui::DoubleEdit::create(p.speedModel, context);
                 auto speedIncButtons = ui::DoubleIncButtons::create(p.speedModel, context);
                 p.speedButton = ui::ToolButton::create(context);
-                p.speedButton->setIcon("ComboBoxArrow");
+                p.speedButton->setIcon("MenuArrow");
 
                 p.durationLabel = ui::TimeLabel::create(p.timeUnitsModel, context);
                 p.durationLabel->setValue(player->getTimeRange().duration());

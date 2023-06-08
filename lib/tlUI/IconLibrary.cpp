@@ -21,8 +21,6 @@ namespace
 #include "Resources/Clear_96.h"
 #include "Resources/Color_192.h"
 #include "Resources/Color_96.h"
-#include "Resources/ComboBoxArrow_192.h"
-#include "Resources/ComboBoxArrow_96.h"
 #include "Resources/Compare_192.h"
 #include "Resources/Compare_96.h"
 #include "Resources/CompareA_192.h"
@@ -73,6 +71,8 @@ namespace
 #include "Resources/Increment_96.h"
 #include "Resources/Info_192.h"
 #include "Resources/Info_96.h"
+#include "Resources/MenuArrow_192.h"
+#include "Resources/MenuArrow_96.h"
 #include "Resources/Messages_192.h"
 #include "Resources/Messages_96.h"
 #include "Resources/Mute_192.h"
@@ -161,7 +161,6 @@ namespace tl
             p.iconData["BellowsOpen_96.png"] = BellowsOpen_96_png;
             p.iconData["Clear_96.png"] = Clear_96_png;
             p.iconData["Color_96.png"] = Color_96_png;
-            p.iconData["ComboBoxArrow_96.png"] = ComboBoxArrow_96_png;
             p.iconData["Compare_96.png"] = Compare_96_png;
             p.iconData["CompareA_96.png"] = CompareA_96_png;
             p.iconData["CompareB_96.png"] = CompareB_96_png;
@@ -187,6 +186,7 @@ namespace tl
             p.iconData["FramePrev_96.png"] = FramePrev_96_png;
             p.iconData["Increment_96.png"] = Increment_96_png;
             p.iconData["Info_96.png"] = Info_96_png;
+            p.iconData["MenuArrow_96.png"] = MenuArrow_96_png;
             p.iconData["Messages_96.png"] = Messages_96_png;
             p.iconData["Mute_96.png"] = Mute_96_png;
             p.iconData["Next_96.png"] = Next_96_png;
@@ -209,7 +209,6 @@ namespace tl
             p.iconData["BellowsOpen_192.png"] = BellowsOpen_192_png;
             p.iconData["Clear_192.png"] = Clear_192_png;
             p.iconData["Color_192.png"] = Color_192_png;
-            p.iconData["ComboBoxArrow_192.png"] = ComboBoxArrow_192_png;
             p.iconData["Compare_192.png"] = Compare_192_png;
             p.iconData["CompareA_192.png"] = CompareA_192_png;
             p.iconData["CompareB_192.png"] = CompareB_192_png;
@@ -235,6 +234,7 @@ namespace tl
             p.iconData["FramePrev_192.png"] = FramePrev_192_png;
             p.iconData["Increment_192.png"] = Increment_192_png;
             p.iconData["Info_192.png"] = Info_192_png;
+            p.iconData["MenuArrow_192.png"] = MenuArrow_192_png;
             p.iconData["Messages_192.png"] = Messages_192_png;
             p.iconData["Mute_192.png"] = Mute_192_png;
             p.iconData["Next_192.png"] = Next_192_png;
