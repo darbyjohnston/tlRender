@@ -44,7 +44,7 @@ namespace tl
             return out;
         }
         
-        void MenuBar::addMenuItem(const std::shared_ptr<MenuItem>& item)
+        void MenuBar::addMenu(const std::shared_ptr<MenuItem>& item)
         {
             TLRENDER_P();
             p.menuItems.push_back(item);

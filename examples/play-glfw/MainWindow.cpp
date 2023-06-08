@@ -9,6 +9,7 @@
 
 #include <tlUI/ButtonGroup.h>
 #include <tlUI/ComboBox.h>
+#include <tlUI/Divider.h>
 #include <tlUI/DoubleEdit.h>
 #include <tlUI/DoubleModel.h>
 #include <tlUI/IncButtons.h>
@@ -44,8 +45,10 @@ namespace tl
                 std::shared_ptr<ui::ButtonGroup> frameButtonGroup;
                 std::shared_ptr<ui::TimeEdit> currentTimeEdit;
                 std::shared_ptr<ui::DoubleEdit> speedEdit;
+                std::shared_ptr<ui::ToolButton> speedButton;
                 std::shared_ptr<ui::TimeLabel> durationLabel;
                 std::shared_ptr<ui::ComboBox> timeUnitsComboBox;
+                std::shared_ptr<ui::ToolButton> audioButton;
                 std::shared_ptr<ui::Label> statusLabel;
                 std::shared_ptr<ui::Label> infoLabel;
                 std::shared_ptr<ui::Splitter> splitter;
@@ -86,13 +89,13 @@ namespace tl
                 auto windowMenuItem = ui::MenuItem::create("Window");
                 auto windowFullScreenMenuItem = ui::MenuItem::create("Full Screen", windowMenuItem);
                 p.menuBar = ui::MenuBar::create(context);
-                p.menuBar->addMenuItem(fileMenuItem);
-                p.menuBar->addMenuItem(compareMenuItem);
-                p.menuBar->addMenuItem(viewMenuItem);
-                p.menuBar->addMenuItem(renderMenuItem);
-                p.menuBar->addMenuItem(playbackMenuItem);
-                p.menuBar->addMenuItem(audioMenuItem);
-                p.menuBar->addMenuItem(windowMenuItem);
+                p.menuBar->addMenu(fileMenuItem);
+                p.menuBar->addMenu(compareMenuItem);
+                p.menuBar->addMenu(viewMenuItem);
+                p.menuBar->addMenu(renderMenuItem);
+                p.menuBar->addMenu(playbackMenuItem);
+                p.menuBar->addMenu(audioMenuItem);
+                p.menuBar->addMenu(windowMenuItem);
 
                 p.timelineViewport = timelineui::TimelineViewport::create(context);
                 p.timelineViewport->setPlayers({ player });
@@ -133,6 +136,8 @@ namespace tl
 
                 p.speedEdit = ui::DoubleEdit::create(p.speedModel, context);
                 auto speedIncButtons = ui::DoubleIncButtons::create(p.speedModel, context);
+                p.speedButton = ui::ToolButton::create(context);
+                p.speedButton->setIcon("ComboBoxArrow");
 
                 p.durationLabel = ui::TimeLabel::create(p.timeUnitsModel, context);
                 p.durationLabel->setValue(player->getTimeRange().duration());
@@ -141,6 +146,9 @@ namespace tl
                 p.timeUnitsComboBox->setItems(timeline::getTimeUnitsLabels());
                 p.timeUnitsComboBox->setCurrentIndex(
                     static_cast<int>(p.timeUnitsModel->getTimeUnits()));
+
+                p.audioButton = ui::ToolButton::create(context);
+                p.audioButton->setIcon("Volume");
 
                 p.statusLabel = ui::Label::create(context);
                 p.statusLabel->setTextWidth(20);
@@ -155,6 +163,7 @@ namespace tl
                 p.splitter->setSplit(.7F);
                 p.timelineViewport->setParent(p.splitter);
                 p.timelineWidget->setParent(p.splitter);
+                ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
                 auto hLayout = ui::HorizontalLayout::create(context, p.layout);
                 hLayout->setMarginRole(ui::SizeRole::MarginInside);
                 hLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
@@ -175,8 +184,11 @@ namespace tl
                 hLayout2->setSpacingRole(ui::SizeRole::SpacingTool);
                 p.speedEdit->setParent(hLayout2);
                 speedIncButtons->setParent(hLayout2);
+                p.speedButton->setParent(hLayout2);
                 p.durationLabel->setParent(hLayout);
                 p.timeUnitsComboBox->setParent(hLayout);
+                p.audioButton->setParent(hLayout);
+                ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
                 hLayout = ui::HorizontalLayout::create(context, p.layout);
                 hLayout->setMarginRole(ui::SizeRole::MarginInside);
                 hLayout->setSpacingRole(ui::SizeRole::SpacingSmall);

@@ -344,9 +344,9 @@ namespace tl
             bool iconInit = false;
             std::future<std::shared_ptr<imaging::Image> > iconFuture;
             std::shared_ptr<imaging::Image> iconImage;
-            bool icon2Init = false;
-            std::future<std::shared_ptr<imaging::Image> > icon2Future;
-            std::shared_ptr<imaging::Image> icon2Image;
+            bool arrowIconInit = false;
+            std::future<std::shared_ptr<imaging::Image> > arrowIconFuture;
+            std::shared_ptr<imaging::Image> arrowIconImage;
 
             struct SizeData
             {
@@ -511,9 +511,9 @@ namespace tl
                 p.iconInit = true;
                 p.iconFuture = std::future<std::shared_ptr<imaging::Image> >();
                 p.iconImage.reset();
-                p.icon2Init = true;
-                p.icon2Future = std::future<std::shared_ptr<imaging::Image> >();
-                p.icon2Image.reset();
+                p.arrowIconInit = true;
+                p.arrowIconFuture = std::future<std::shared_ptr<imaging::Image> >();
+                p.arrowIconImage.reset();
             }
             if (!p.icon.empty() && p.iconInit)
             {
@@ -527,15 +527,15 @@ namespace tl
                 _updates |= Update::Size;
                 _updates |= Update::Draw;
             }
-            if (p.icon2Init)
+            if (p.arrowIconInit)
             {
-                p.icon2Init = false;
-                p.icon2Future = event.iconLibrary->request("ComboBoxArrow", event.displayScale);
+                p.arrowIconInit = false;
+                p.arrowIconFuture = event.iconLibrary->request("ComboBoxArrow", event.displayScale);
             }
-            if (p.icon2Future.valid() &&
-                p.icon2Future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+            if (p.arrowIconFuture.valid() &&
+                p.arrowIconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
-                p.icon2Image = p.icon2Future.get();
+                p.arrowIconImage = p.arrowIconFuture.get();
                 _updates |= Update::Size;
                 _updates |= Update::Draw;
             }
@@ -580,13 +580,13 @@ namespace tl
                     _sizeHint.y,
                     static_cast<int>(p.iconImage->getHeight()));
             }
-            if (p.icon2Image)
+            if (p.arrowIconImage)
             {
-                _sizeHint.x += p.icon2Image->getWidth();
+                _sizeHint.x += p.arrowIconImage->getWidth();
                 _sizeHint.x += p.size.spacing;
                 _sizeHint.y = std::max(
                     _sizeHint.y,
-                    static_cast<int>(p.icon2Image->getHeight()));
+                    static_cast<int>(p.arrowIconImage->getHeight()));
             }
             _sizeHint.x +=
                 p.size.margin * 2 +
@@ -688,11 +688,11 @@ namespace tl
                 x += p.size.textSize.x + p.size.margin * 2 + p.size.spacing;
             }
 
-            if (p.icon2Image)
+            if (p.arrowIconImage)
             {
-                const imaging::Size& iconSize = p.icon2Image->getSize();
+                const imaging::Size& iconSize = p.arrowIconImage->getSize();
                 event.render->drawImage(
-                    p.icon2Image,
+                    p.arrowIconImage,
                     math::BBox2i(
                         x,
                         g2.y() + g2.h() / 2 - iconSize.h / 2,

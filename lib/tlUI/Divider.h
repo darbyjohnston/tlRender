@@ -5,40 +5,34 @@
 #pragma once
 
 #include <tlUI/IWidget.h>
-#include <tlUI/MenuItem.h>
 
 namespace tl
 {
     namespace ui
     {
-        //! Menu bar.
-        class MenuBar : public IWidget
+        //! Divider.
+        class Divider : public IWidget
         {
-            TLRENDER_NON_COPYABLE(MenuBar);
+            TLRENDER_NON_COPYABLE(Divider);
 
         protected:
             void _init(
+                Orientation,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            MenuBar();
+            Divider();
 
         public:
-            ~MenuBar() override;
+            ~Divider() override;
 
             //! Create a new widget.
-            static std::shared_ptr<MenuBar> create(
+            static std::shared_ptr<Divider> create(
+                Orientation,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Add a menu.
-            void addMenu(const std::shared_ptr<MenuItem>&);
-
-            void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-
-        private:
-            TLRENDER_PRIVATE();
         };
     }
 }

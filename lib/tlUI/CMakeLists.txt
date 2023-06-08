@@ -1,6 +1,7 @@
 set(HEADERS
     ButtonGroup.h
     ComboBox.h
+    Divider.h
     DoubleEdit.h
     DoubleModel.h
     DrawUtil.h
@@ -47,6 +48,7 @@ set(HEADERS_PRIVATE)
 set(SOURCE
     ButtonGroup.cpp
     ComboBox.cpp
+    Divider.cpp
     DoubleEdit.cpp
     DoubleModel.cpp
     DrawUtil.cpp
