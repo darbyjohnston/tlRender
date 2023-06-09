@@ -506,9 +506,10 @@ namespace tl
                 }
 
                 // Set options.
-                p.thread.stageCache.setMax(renderOptions.stageCacheSize);
-                p.thread.diskCache.setMax(renderOptions.diskCacheSize);
-                if (renderOptions.diskCacheSize > 0 && p.thread.tempDir.empty())
+                p.thread.stageCache.setMax(renderOptions.stageCacheCount);
+                p.thread.diskCache.setMax(renderOptions.diskCacheByteCount);
+                if (renderOptions.diskCacheByteCount > 0 &&
+                    p.thread.tempDir.empty())
                 {
                     p.thread.tempDir = file::createTempDir();
                     if (auto logSystem = p.logSystem.lock())
@@ -518,12 +519,13 @@ namespace tl
                             string::Format(
                                 "\n"
                                 "    Temp directory: {0}\n"
-                                "    Disk cache size: {1}").
+                                "    Disk cache: {1}GB").
                             arg(p.thread.tempDir).
-                            arg(renderOptions.diskCacheSize));
+                            arg(renderOptions.diskCacheByteCount / memory::gigabyte));
                     }
                 }
-                else if (0 == renderOptions.diskCacheSize && !p.thread.tempDir.empty())
+                else if (0 == renderOptions.diskCacheByteCount &&
+                    !p.thread.tempDir.empty())
                 {
                     p.thread.tempDir = std::string();
                 }
@@ -580,7 +582,7 @@ namespace tl
                     const std::string fileName = request->path.get();
                     std::shared_ptr<imaging::Image> image;
                     std::shared_ptr<Private::DiskCacheItem> diskCacheItem;
-                    if (renderOptions.diskCacheSize > 0 &&
+                    if (renderOptions.diskCacheByteCount > 0 &&
                         p.thread.diskCache.get(Private::DiskCacheKey({ fileName, request->time }), diskCacheItem))
                     {
                         //std::cout << "read temp file: " << diskCacheItem->fileName << std::endl;
@@ -727,7 +729,7 @@ namespace tl
                             }
 
                             // Add the rendered frame to the disk cache.
-                            if (renderOptions.diskCacheSize > 0 && image)
+                            if (renderOptions.diskCacheByteCount > 0 && image)
                             {
                                 auto diskCacheItem = std::make_shared<Private::DiskCacheItem>();
                                 diskCacheItem->fileName = string::Format("{0}/{1}.img").
@@ -738,8 +740,9 @@ namespace tl
                                 tempFile->writeU16(image->getWidth());
                                 tempFile->writeU16(image->getHeight());
                                 tempFile->writeU32(static_cast<uint32_t>(image->getPixelType()));
-                                tempFile->write(image->getData(), image->getDataByteCount());
-                                p.thread.diskCache.add({ fileName, request->time }, diskCacheItem);
+                                const size_t byteCount = image->getDataByteCount();
+                                tempFile->write(image->getData(), byteCount);
+                                p.thread.diskCache.add({ fileName, request->time }, diskCacheItem, byteCount);
                             }
                         }
                     }
@@ -769,13 +772,13 @@ namespace tl
                                 string::Format(
                                     "\n"
                                     "    Requests: {0}\n"
-                                    "    Stage cache size: {1}/{2}\n"
-                                    "    Disk cache size: {3}/{4}").
+                                    "    Stage cache: {1}/{2}\n"
+                                    "    Disk cache: {3}/{4}GB").
                                 arg(requestsSize).
                                 arg(p.thread.stageCache.getSize()).
                                 arg(p.thread.stageCache.getMax()).
-                                arg(p.thread.diskCache.getSize()).
-                                arg(p.thread.diskCache.getMax()));
+                                arg(p.thread.diskCache.getSize() / memory::gigabyte).
+                                arg(p.thread.diskCache.getMax() / memory::gigabyte));
                         }
                     }
             }

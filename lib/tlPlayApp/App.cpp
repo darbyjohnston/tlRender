@@ -57,7 +57,12 @@ namespace tl
                 timeline::LUTOptions lutOptions;
                 bool resetSettings = false;
 #if defined(TLRENDER_USD)
-                usd::RenderOptions usdRenderOptions;
+                size_t usdRenderWidth = usd::RenderOptions().renderWidth;
+                float usdComplexity = usd::RenderOptions().complexity;
+                usd::DrawMode usdDrawMode = usd::RenderOptions().drawMode;
+                bool usdEnableLighting = usd::RenderOptions().enableLighting;
+                size_t usdStageCache = usd::RenderOptions().stageCacheCount;
+                size_t usdDiskCache = usd::RenderOptions().diskCacheByteCount / memory::gigabyte;
 #endif // TLRENDER_USD
             };
         }
@@ -194,36 +199,36 @@ namespace tl
                         "Reset settings to defaults."),
 #if defined(TLRENDER_USD)
                     app::CmdLineValueOption<size_t>::create(
-                        p.options.usdRenderOptions.renderWidth,
+                        p.options.usdRenderWidth,
                         { "-usdRenderWidth" },
                         "USD render width.",
-                        string::Format("{0}").arg(p.options.usdRenderOptions.renderWidth)),
+                        string::Format("{0}").arg(p.options.usdRenderWidth)),
                     app::CmdLineValueOption<float>::create(
-                        p.options.usdRenderOptions.complexity,
+                        p.options.usdComplexity,
                         { "-usdComplexity" },
                         "USD render complexity setting.",
-                        string::Format("{0}").arg(p.options.usdRenderOptions.complexity)),
+                        string::Format("{0}").arg(p.options.usdComplexity)),
                     app::CmdLineValueOption<usd::DrawMode>::create(
-                        p.options.usdRenderOptions.drawMode,
+                        p.options.usdDrawMode,
                         { "-usdDrawMode" },
                         "USD render draw mode.",
-                        string::Format("{0}").arg(p.options.usdRenderOptions.drawMode),
+                        string::Format("{0}").arg(p.options.usdDrawMode),
                         string::join(usd::getDrawModeLabels(), ", ")),
                     app::CmdLineValueOption<bool>::create(
-                        p.options.usdRenderOptions.enableLighting,
+                        p.options.usdEnableLighting,
                         { "-usdEnableLighting" },
                         "USD render enable lighting setting.",
-                        string::Format("{0}").arg(p.options.usdRenderOptions.enableLighting)),
+                        string::Format("{0}").arg(p.options.usdEnableLighting)),
                     app::CmdLineValueOption<size_t>::create(
-                        p.options.usdRenderOptions.stageCacheSize,
-                        { "-usdStageCacheSize" },
+                        p.options.usdStageCache,
+                        { "-usdStageCache" },
                         "USD stage cache size.",
-                        string::Format("{0}").arg(p.options.usdRenderOptions.stageCacheSize)),
+                        string::Format("{0}").arg(p.options.usdStageCache)),
                     app::CmdLineValueOption<size_t>::create(
-                        p.options.usdRenderOptions.diskCacheSize,
-                        { "-usdDiskCacheSize" },
-                        "USD disk cache size. A size of zero disables the cache.",
-                        string::Format("{0}").arg(p.options.usdRenderOptions.diskCacheSize)),
+                        p.options.usdDiskCache,
+                        { "-usdDiskCache" },
+                        "USD disk cache size in gigabytes. A size of zero disables the cache.",
+                        string::Format("{0}").arg(p.options.usdDiskCache)),
 #endif // TLRENDER_USD
                 });
             const int exitCode = getExit();
@@ -246,33 +251,33 @@ namespace tl
 #if defined(TLRENDER_USD)
             {
                 std::stringstream ss;
-                ss << p.options.usdRenderOptions.renderWidth;
+                ss << p.options.usdRenderWidth;
                 ioOptions["usd/renderWidth"] = ss.str();
             }
             {
                 std::stringstream ss;
-                ss << p.options.usdRenderOptions.complexity;
+                ss << p.options.usdComplexity;
                 ioOptions["usd/complexity"] = ss.str();
             }
             {
                 std::stringstream ss;
-                ss << p.options.usdRenderOptions.drawMode;
+                ss << p.options.usdDrawMode;
                 ioOptions["usd/drawMode"] = ss.str();
             }
             {
                 std::stringstream ss;
-                ss << p.options.usdRenderOptions.enableLighting;
+                ss << p.options.usdEnableLighting;
                 ioOptions["usd/enableLighting"] = ss.str();
             }
             {
                 std::stringstream ss;
-                ss << p.options.usdRenderOptions.stageCacheSize;
-                ioOptions["usd/stageCacheSize"] = ss.str();
+                ss << p.options.usdStageCache;
+                ioOptions["usd/stageCacheCount"] = ss.str();
             }
             {
                 std::stringstream ss;
-                ss << p.options.usdRenderOptions.diskCacheSize;
-                ioOptions["usd/diskCacheSize"] = ss.str();
+                ss << p.options.usdDiskCache * memory::gigabyte;
+                ioOptions["usd/diskCacheByteCount"] = ss.str();
             }
 #endif // TLRENDER_USD
             auto ioSystem = context->getSystem<io::System>();

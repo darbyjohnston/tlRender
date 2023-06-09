@@ -29,8 +29,8 @@ namespace tl
                 complexity == other.complexity &&
                 drawMode == other.drawMode &&
                 enableLighting == other.enableLighting &&
-                stageCacheSize == other.stageCacheSize &&
-                diskCacheSize == other.diskCacheSize;
+                stageCacheCount == other.stageCacheCount &&
+                diskCacheByteCount == other.diskCacheByteCount;
         }
         
         bool RenderOptions::operator != (const RenderOptions& other) const
@@ -102,17 +102,17 @@ namespace tl
                     std::stringstream ss(i->second);
                     ss >> renderOptions.enableLighting;
                 }
-                i = _options.find("usd/stageCacheSize");
+                i = _options.find("usd/stageCacheCount");
                 if (i != _options.end())
                 {
                     std::stringstream ss(i->second);
-                    ss >> renderOptions.stageCacheSize;
+                    ss >> renderOptions.stageCacheCount;
                 }
-                i = _options.find("usd/diskCacheSize");
+                i = _options.find("usd/diskCacheByteCount");
                 if (i != _options.end())
                 {
                     std::stringstream ss(i->second);
-                    ss >> renderOptions.diskCacheSize;
+                    ss >> renderOptions.diskCacheByteCount;
                 }
                 p.render->setRenderOptions(renderOptions);
             }

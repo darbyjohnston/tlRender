@@ -149,36 +149,36 @@ namespace tl
 #endif // TLRENDER_FFMPEG
 #if defined(TLRENDER_USD)
                     app::CmdLineValueOption<size_t>::create(
-                        _options.usdRenderOptions.renderWidth,
+                        _options.usdRenderWidth,
                         { "-usdRenderWidth" },
                         "USD render width.",
-                        string::Format("{0}").arg(_options.usdRenderOptions.renderWidth)),
+                        string::Format("{0}").arg(_options.usdRenderWidth)),
                     app::CmdLineValueOption<float>::create(
-                        _options.usdRenderOptions.complexity,
+                        _options.usdComplexity,
                         { "-usdComplexity" },
                         "USD render complexity setting.",
-                        string::Format("{0}").arg(_options.usdRenderOptions.complexity)),
+                        string::Format("{0}").arg(_options.usdComplexity)),
                     app::CmdLineValueOption<usd::DrawMode>::create(
-                        _options.usdRenderOptions.drawMode,
+                        _options.usdDrawMode,
                         { "-usdDrawMode" },
                         "USD render draw mode.",
-                        string::Format("{0}").arg(_options.usdRenderOptions.drawMode),
+                        string::Format("{0}").arg(_options.usdDrawMode),
                         string::join(usd::getDrawModeLabels(), ", ")),
                     app::CmdLineValueOption<bool>::create(
-                        _options.usdRenderOptions.enableLighting,
+                        _options.usdEnableLighting,
                         { "-usdEnableLighting" },
                         "USD render enable lighting setting.",
-                        string::Format("{0}").arg(_options.usdRenderOptions.enableLighting)),
+                        string::Format("{0}").arg(_options.usdEnableLighting)),
                     app::CmdLineValueOption<size_t>::create(
-                        _options.usdRenderOptions.stageCacheSize,
-                        { "-usdStageCacheSize" },
+                        _options.usdStageCache,
+                        { "-usdStageCache" },
                         "USD stage cache size.",
-                        string::Format("{0}").arg(_options.usdRenderOptions.stageCacheSize)),
+                        string::Format("{0}").arg(_options.usdStageCache)),
                     app::CmdLineValueOption<size_t>::create(
-                        _options.usdRenderOptions.diskCacheSize,
-                        { "-usdDiskCacheSize" },
-                        "USD disk cache size. A size of zero disables the cache.",
-                        string::Format("{0}").arg(_options.usdRenderOptions.diskCacheSize)),
+                        _options.usdDiskCache,
+                        { "-usdDiskCache" },
+                        "USD disk cache size in gigabytes. A size of zero disables the cache.",
+                        string::Format("{0}").arg(_options.usdDiskCache)),
 #endif // TLRENDER_USD
                 });
 
@@ -220,33 +220,33 @@ namespace tl
 #if defined(TLRENDER_USD)
             {
                 std::stringstream ss;
-                ss << _options.usdRenderOptions.renderWidth;
+                ss << _options.usdRenderWidth;
                 ioOptions["usd/renderWidth"] = ss.str();
             }
             {
                 std::stringstream ss;
-                ss << _options.usdRenderOptions.complexity;
+                ss << _options.usdComplexity;
                 ioOptions["usd/complexity"] = ss.str();
             }
             {
                 std::stringstream ss;
-                ss << _options.usdRenderOptions.drawMode;
+                ss << _options.usdDrawMode;
                 ioOptions["usd/drawMode"] = ss.str();
             }
             {
                 std::stringstream ss;
-                ss << _options.usdRenderOptions.enableLighting;
+                ss << _options.usdEnableLighting;
                 ioOptions["usd/enableLighting"] = ss.str();
             }
             {
                 std::stringstream ss;
-                ss << _options.usdRenderOptions.stageCacheSize;
-                ioOptions["usd/stageCacheSize"] = ss.str();
+                ss << _options.usdStageCache;
+                ioOptions["usd/stageCacheCount"] = ss.str();
             }
             {
                 std::stringstream ss;
-                ss << _options.usdRenderOptions.diskCacheSize;
-                ioOptions["usd/diskCacheSize"] = ss.str();
+                ss << _options.usdDiskCache * memory::gigabyte;
+                ioOptions["usd/diskCacheByteCount"] = ss.str();
             }
 #endif // TLRENDER_USD
             auto ioSystem = context->getSystem<io::System>();

@@ -33,12 +33,12 @@ namespace tl
         //! USD renderer options.
         struct RenderOptions
         {
-            size_t   renderWidth    = 1920;
-            float    complexity     = 1.F;
-            DrawMode drawMode       = DrawMode::ShadedSmooth;
-            bool     enableLighting = true;
-            size_t   stageCacheSize = 10;
-            size_t   diskCacheSize  = 0;
+            size_t   renderWidth        = 1920;
+            float    complexity         = 1.F;
+            DrawMode drawMode           = DrawMode::ShadedSmooth;
+            bool     enableLighting     = true;
+            size_t   stageCacheCount    = 10;
+            size_t   diskCacheByteCount = 0;
             
             bool operator == (const RenderOptions&) const;
             bool operator != (const RenderOptions&) const;

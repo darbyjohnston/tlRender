@@ -46,7 +46,12 @@ namespace tl
                 timeline::ColorConfigOptions colorConfigOptions;
                 timeline::LUTOptions lutOptions;
 #if defined(TLRENDER_USD)
-                usd::RenderOptions usdRenderOptions;
+            size_t usdRenderWidth = usd::RenderOptions().renderWidth;
+            float usdComplexity = usd::RenderOptions().complexity;
+            usd::DrawMode usdDrawMode = usd::RenderOptions().drawMode;
+            bool usdEnableLighting = usd::RenderOptions().enableLighting;
+            size_t usdStageCache = usd::RenderOptions().stageCacheCount;
+            size_t usdDiskCache = usd::RenderOptions().diskCacheByteCount / memory::gigabyte;
 #endif // TLRENDER_USD
             };
 
