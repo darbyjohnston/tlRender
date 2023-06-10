@@ -376,7 +376,10 @@ namespace tl
             size_t out = 0;
             for (const auto& i : value)
             {
-                out += i->getSampleCount();
+                if (i)
+                {
+                    out += i->getSampleCount();
+                }
             }
             return out;
         }
