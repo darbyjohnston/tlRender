@@ -132,7 +132,7 @@ namespace tl
                     swrInputBufferP,
                     sampleCount);
                 //std::cout << "swrOutputCount: " << swrOutputCount << std::endl << std::endl;
-                out = Audio::create(p.outputInfo, swrOutputCount);
+                out = Audio::create(p.outputInfo, swrOutputCount > 0 ? swrOutputCount : 0);
                 memcpy(out->getData(), swrOutputBuffer->getData(), out->getByteCount());
             }
 #endif // TLRENDER_FFMPEG

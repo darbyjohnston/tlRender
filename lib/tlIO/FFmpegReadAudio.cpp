@@ -495,7 +495,7 @@ namespace tl
                         (const uint8_t **)_avFrame->data,
                         _avFrame->nb_samples);
                     //std::cout << "swrOutputCount: " << swrOutputCount << std::endl << std::endl;
-                    auto tmp = audio::Audio::create(_info, swrOutputCount);
+                    auto tmp = audio::Audio::create(_info, swrOutputCount > 0 ? swrOutputCount : 0);
                     memcpy(tmp->getData(), swrOutputBuffer->getData(), tmp->getByteCount());
                     _buffer.push_back(tmp);
                     out = 1;
