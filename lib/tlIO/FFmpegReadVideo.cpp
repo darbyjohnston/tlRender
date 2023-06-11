@@ -357,6 +357,10 @@ namespace tl
                     _tags["Video Pixel Type"] = ss.str();
                 }
                 {
+                    _tags["Video Codec"] =
+                        avcodec_get_name(_avCodecContext[_avStream]->codec_id);
+                }
+                {
                     std::stringstream ss;
                     ss << _info.videoLevels;
                     _tags["Video Levels"] = ss.str();

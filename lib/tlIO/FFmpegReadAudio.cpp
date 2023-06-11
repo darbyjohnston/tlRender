@@ -240,6 +240,10 @@ namespace tl
                     ss << _timeRange.duration().rescaled_to(1.0).value() << " seconds";
                     _tags["Audio Duration"] = ss.str();
                 }
+                {
+                    _tags["Audio Codec"] = 
+                        avcodec_get_name(_avCodecContext[_avStream]->codec_id);
+                }
             }
         }
 
