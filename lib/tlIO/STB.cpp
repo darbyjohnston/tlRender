@@ -63,6 +63,22 @@ namespace tl
             case imaging::PixelType::RGBA_U16:
                 out.pixelType = info.pixelType;
                 break;
+            case imaging::PixelType::L_F16:
+                out.pixelType = imaging::PixelType::L_U8;
+                break;
+            case imaging::PixelType::LA_F16:
+                out.pixelType = imaging::PixelType::LA_U8;
+                break;
+            case imaging::PixelType::RGB_F16:
+            case imaging::PixelType::RGB_U32:
+            case imaging::PixelType::RGB_F32:
+                out.pixelType = imaging::PixelType::RGB_U8;
+                break;
+            case imaging::PixelType::RGBA_F16:
+            case imaging::PixelType::RGBA_U32:
+            case imaging::PixelType::RGBA_F32:
+                out.pixelType = imaging::PixelType::RGBA_U8;
+                break;
             default: break;
             }
             out.layout.endian = memory::Endian::MSB;
