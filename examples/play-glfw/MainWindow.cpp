@@ -4,9 +4,12 @@
 
 #include "MainWindow.h"
 
+#include "FileMenu.h"
+
 #include <tlTimelineUI/TimelineViewport.h>
 #include <tlTimelineUI/TimelineWidget.h>
 
+#include <tlUI/Action.h>
 #include <tlUI/ButtonGroup.h>
 #include <tlUI/ComboBox.h>
 #include <tlUI/Divider.h>
@@ -14,6 +17,7 @@
 #include <tlUI/DoubleModel.h>
 #include <tlUI/IncButtons.h>
 #include <tlUI/Label.h>
+#include <tlUI/Menu.h>
 #include <tlUI/MenuBar.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/Splitter.h>
@@ -63,6 +67,7 @@ namespace tl
 
             void MainWindow::_init(
                 const std::shared_ptr<timeline::Player>& player,
+                const std::shared_ptr<App>& app,
                 const std::shared_ptr<system::Context>& context)
             {
                 IWidget::_init("MainWindow", context);
@@ -77,25 +82,14 @@ namespace tl
                 p.speedModel->setStep(1.F);
                 p.speedModel->setLargeStep(10.F);
 
-                auto fileMenuItem = ui::MenuItem::create("File");
-                auto fileOpenMenuItem = ui::MenuItem::create("Open", fileMenuItem);
-                auto fileCloseMenuItem = ui::MenuItem::create("Close", fileMenuItem);
-                auto fileExitMenuItem = ui::MenuItem::create("Exit", fileMenuItem);
-                auto compareMenuItem = ui::MenuItem::create("Compare");
-                auto viewMenuItem = ui::MenuItem::create("View");
-                auto renderMenuItem = ui::MenuItem::create("Render");
-                auto playbackMenuItem = ui::MenuItem::create("Playback");
-                auto audioMenuItem = ui::MenuItem::create("Audio");
-                auto windowMenuItem = ui::MenuItem::create("Window");
-                auto windowFullScreenMenuItem = ui::MenuItem::create("Full Screen", windowMenuItem);
                 p.menuBar = ui::MenuBar::create(context);
-                p.menuBar->addMenu(fileMenuItem);
-                p.menuBar->addMenu(compareMenuItem);
-                p.menuBar->addMenu(viewMenuItem);
-                p.menuBar->addMenu(renderMenuItem);
-                p.menuBar->addMenu(playbackMenuItem);
-                p.menuBar->addMenu(audioMenuItem);
-                p.menuBar->addMenu(windowMenuItem);
+                p.menuBar->addMenu("File", FileMenu::create(app, context));
+                //p.menuBar->addMenu("Compare", compareMenuItem);
+                //p.menuBar->addMenu("View", viewMenuItem);
+                //p.menuBar->addMenu("Render", renderMenuItem);
+                //p.menuBar->addMenu("Playback", playbackMenuItem);
+                //p.menuBar->addMenu("Audio", audioMenuItem);
+                //p.menuBar->addMenu("Window", windowMenuItem);
 
                 p.timelineViewport = timelineui::TimelineViewport::create(context);
                 p.timelineViewport->setPlayers({ player });
@@ -292,10 +286,11 @@ namespace tl
 
             std::shared_ptr<MainWindow> MainWindow::create(
                 const std::shared_ptr<timeline::Player>& player,
+                const std::shared_ptr<App>& app,
                 const std::shared_ptr<system::Context>& context)
             {
                 auto out = std::shared_ptr<MainWindow>(new MainWindow);
-                out->_init(player, context);
+                out->_init(player, app, context);
                 return out;
             }
 

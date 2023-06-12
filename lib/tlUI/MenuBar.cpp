@@ -4,6 +4,7 @@
 
 #include <tlUI/MenuBar.h>
 
+#include <tlUI/EventLoop.h>
 #include <tlUI/ListButton.h>
 #include <tlUI/RowLayout.h>
 
@@ -13,7 +14,7 @@ namespace tl
     {
         struct MenuBar::Private
         {
-            std::list<std::shared_ptr<MenuItem> > menuItems;
+            std::list<std::shared_ptr<IPopup> > menus;
             std::list<std::shared_ptr<ListButton> > buttons;
             std::shared_ptr<HorizontalLayout> layout;
         };
@@ -44,19 +45,34 @@ namespace tl
             return out;
         }
         
-        void MenuBar::addMenu(const std::shared_ptr<MenuItem>& item)
+        void MenuBar::addMenu(
+            const std::string& text,
+            const std::shared_ptr<IPopup>& menu)
         {
             TLRENDER_P();
-            p.menuItems.push_back(item);
+            p.menus.push_back(menu);
             if (auto context = _context.lock())
             {
                 auto button = ListButton::create(context);
-                button->setText(item->getText());
+                button->setText(text);
                 p.buttons.push_back(button);
                 button->setParent(p.layout);
+                button->setClickedCallback(
+                    [this, menu, button]
+                    {
+                        if (auto eventLoop = getEventLoop().lock())
+                        {
+                            menu->open(eventLoop, button->getGeometry());
+                        }
+                    });
+                menu->setCloseCallback(
+                    [button]
+                    {
+                        button->takeKeyFocus();
+                    });
+                _updates |= Update::Size;
+                _updates |= Update::Draw;
             }
-            _updates |= Update::Size;
-            _updates |= Update::Draw;            
         }
 
         void MenuBar::setGeometry(const math::BBox2i& value)

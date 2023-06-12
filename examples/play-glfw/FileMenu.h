@@ -2,9 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/IWidget.h>
-
-#include <tlTimeline/Player.h>
+#include <tlUI/Menu.h>
 
 namespace tl
 {
@@ -14,32 +12,26 @@ namespace tl
         {
             class App;
 
-            //! Main window.
-            class MainWindow : public ui::IWidget
+            //! File menu.
+            class FileMenu : public ui::Menu
             {
-                TLRENDER_NON_COPYABLE(MainWindow);
+                TLRENDER_NON_COPYABLE(FileMenu);
 
             protected:
                 void _init(
-                    const std::shared_ptr<timeline::Player>&,
                     const std::shared_ptr<App>&,
                     const std::shared_ptr<system::Context>&);
 
-                MainWindow();
+                FileMenu();
 
             public:
-                ~MainWindow();
+                ~FileMenu();
 
-                static std::shared_ptr<MainWindow> create(
-                    const std::shared_ptr<timeline::Player>&,
+                static std::shared_ptr<FileMenu> create(
                     const std::shared_ptr<App>&,
                     const std::shared_ptr<system::Context>&);
 
-                void setGeometry(const math::BBox2i&) override;
-
             private:
-                void _infoUpdate();
-
                 TLRENDER_PRIVATE();
             };
         }

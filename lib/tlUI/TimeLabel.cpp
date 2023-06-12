@@ -127,15 +127,15 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
+
             p.size.margin = event.style->getSizeRole(p.marginRole, event.displayScale);
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
+
             auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            if (fontInfo != p.size.fontInfo)
-            {
-                p.size.fontInfo = fontInfo;
-                p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
-                p.size.formatSize = event.fontSystem->getSize(p.format, fontInfo);
-            }
+            p.size.fontInfo = fontInfo;
+            p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
+            p.size.formatSize = event.fontSystem->getSize(p.format, fontInfo);
+
             _sizeHint.x =
                 std::max(p.size.textSize.x, p.size.formatSize.x) +
                 p.size.margin * 2;

@@ -108,12 +108,9 @@ namespace tl
             p.size.margin = event.style->getSizeRole(p.marginRole, event.displayScale);
 
             auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            if (fontInfo != p.size.fontInfo)
-            {
-                p.size.fontInfo = fontInfo;
-                p.size.fontMetrics = event.getFontMetrics(p.fontRole);
-                p.size.textSize = event.fontSystem->getSize(_getText(), p.size.fontInfo);
-            }
+            p.size.fontInfo = fontInfo;
+            p.size.fontMetrics = event.getFontMetrics(p.fontRole);
+            p.size.textSize = event.fontSystem->getSize(_getText(), p.size.fontInfo);
 
             _sizeHint.x =
                 p.size.textSize.x +

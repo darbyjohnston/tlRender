@@ -44,6 +44,9 @@ namespace tl
             //! Add a top level widget.
             void addWidget(const std::shared_ptr<IWidget>&);
 
+            //! Remove a top level widget.
+            void removeWidget(const std::shared_ptr<IWidget>&);
+
             //! Set the user interface display resolution.
             void setDisplaySize(const imaging::Size&);
 

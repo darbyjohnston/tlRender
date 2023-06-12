@@ -4,39 +4,41 @@
 
 #pragma once
 
+#include <tlUI/Action.h>
 #include <tlUI/IPopup.h>
 
 namespace tl
 {
     namespace ui
     {
-        //! Menu bar.
-        class MenuBar : public IWidget
+        //! Menu.
+        class Menu : public IPopup
         {
-            TLRENDER_NON_COPYABLE(MenuBar);
+            TLRENDER_NON_COPYABLE(Menu);
 
         protected:
             void _init(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            MenuBar();
+            Menu();
 
         public:
-            ~MenuBar() override;
+            ~Menu() override;
 
             //! Create a new widget.
-            static std::shared_ptr<MenuBar> create(
+            static std::shared_ptr<Menu> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Add a menu.
-            void addMenu(
-                const std::string& text,
-                const std::shared_ptr<IPopup>&);
+            //! Add an action.
+            void addAction(const std::shared_ptr<Action>&);
 
-            void setGeometry(const math::BBox2i&) override;
-            void sizeHintEvent(const SizeHintEvent&) override;
+            //! Add a divider.
+            void addDivider();
+
+            //! Clear the menu.
+            void clear();
 
         private:
             TLRENDER_PRIVATE();

@@ -372,10 +372,11 @@ namespace tl
         void TimelineViewport::mousePressEvent(ui::MouseClickEvent& event)
         {
             TLRENDER_P();
+            event.accept = true;
+            takeKeyFocus();
             if (0 == event.button &&
                 event.modifiers & static_cast<int>(ui::KeyModifier::Control))
             {
-                event.accept = true;
                 p.mouse.pressed = true;
                 p.mouse.pressPos = event.pos;
                 p.mouse.viewPos = p.viewPos;

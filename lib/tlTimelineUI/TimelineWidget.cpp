@@ -293,6 +293,7 @@ namespace tl
         {
             TLRENDER_P();
             event.accept = true;
+            takeKeyFocus();
             p.mouse.pressPos = event.pos;
             if (event.modifiers & static_cast<int>(p.scrollKeyModifier))
             {

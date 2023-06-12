@@ -1,9 +1,11 @@
 set(HEADERS
     App.h
+    FileMenu.h
     MainWindow.h)
 
 set(SOURCE
     App.cpp
+    FileMenu.cpp
     MainWindow.cpp
     main.cpp)
 

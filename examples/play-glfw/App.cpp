@@ -194,7 +194,10 @@ namespace tl
                 _player = timeline::Player::create(timeline, _context);
 
                 // Create the main window.
-                _mainWindow = MainWindow::create(_player, _context);
+                _mainWindow = MainWindow::create(
+                    _player,
+                    std::dynamic_pointer_cast<App>(shared_from_this()),
+                    _context);
                 getEventLoop()->addWidget(_mainWindow);
 
                 // Initialize the timeline player.

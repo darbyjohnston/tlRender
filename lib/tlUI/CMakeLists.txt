@@ -1,4 +1,5 @@
 set(HEADERS
+    Action.h
     ButtonGroup.h
     ComboBox.h
     Divider.h
@@ -15,6 +16,7 @@ set(HEADERS
     GroupBox.h
     IButton.h
     IClipboard.h
+    IPopup.h
     IWidget.h
     IWidgetInline.h
     IWidgetOptions.h
@@ -28,8 +30,8 @@ set(HEADERS
     LayoutUtil.h
     LineEdit.h
     ListButton.h
+    Menu.h
     MenuBar.h
-    MenuItem.h
     PieChart.h
     PushButton.h
     RowLayout.h
@@ -46,6 +48,7 @@ set(HEADERS
 set(HEADERS_PRIVATE)
 
 set(SOURCE
+    Action.cpp
     ButtonGroup.cpp
     ComboBox.cpp
     Divider.cpp
@@ -62,6 +65,7 @@ set(SOURCE
     GroupBox.cpp
     IButton.cpp
     IClipboard.cpp
+    IPopup.cpp
     IWidget.cpp
     IWidgetOptions.cpp
     IconLibrary.cpp
@@ -74,8 +78,8 @@ set(SOURCE
     LayoutUtil.cpp
     LineEdit.cpp
     ListButton.cpp
+    Menu.cpp
     MenuBar.cpp
-    MenuItem.cpp
     PieChart.cpp
     PushButton.cpp
     RowLayout.cpp

@@ -63,7 +63,7 @@ namespace tl
             std::shared_ptr<IWidget> getTopLevel();
 
             //! Set the event loop.
-            void setEventLoop(const std::weak_ptr<EventLoop>&);
+            void setEventLoop(const std::shared_ptr<EventLoop>&);
 
             //! Get the event loop.
             const std::weak_ptr<EventLoop>& getEventLoop();

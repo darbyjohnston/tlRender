@@ -127,27 +127,81 @@ namespace tl
 
             if (auto widget = p.hover.lock())
             {
-                widget->leaveEvent();
                 p.hover.reset();
+                widget->leaveEvent();
             }
             if (auto widget = p.mousePress.lock())
             {
+                p.mousePress.reset();
                 p.mouseClickEvent.pos = p.cursorPos;
                 p.mouseClickEvent.accept = false;
                 widget->mouseReleaseEvent(p.mouseClickEvent);
-                p.mousePress.reset();
             }
             if (auto widget = p.keyFocus.lock())
             {
-                widget->keyFocusEvent(false);
                 p.keyFocus.reset();
+                widget->keyFocusEvent(false);
             }
             if (auto widget = p.keyPress.lock())
             {
+                p.keyPress.reset();
                 p.keyEvent.pos = p.cursorPos;
                 p.keyEvent.accept = false;
                 widget->keyReleaseEvent(p.keyEvent);
-                p.keyPress.reset();
+            }
+
+            p.updates |= Update::Size;
+            p.updates |= Update::Draw;
+        }
+
+        void EventLoop::removeWidget(const std::shared_ptr<IWidget>& widget)
+        {
+            TLRENDER_P();
+
+            widget->setEventLoop(nullptr);
+            bool top = false;
+            if (!p.topLevelWidgets.empty())
+            {
+                top = p.topLevelWidgets.front().lock() == widget;
+            }
+            auto i = std::find_if(
+                p.topLevelWidgets.begin(),
+                p.topLevelWidgets.end(),
+                [widget](const std::weak_ptr<IWidget>& other)
+                {
+                    return widget == other.lock();
+                });
+            if (i != p.topLevelWidgets.end())
+            {
+                p.topLevelWidgets.erase(i);
+            }
+
+            if (top)
+            {
+                if (auto widget = p.hover.lock())
+                {
+                    p.hover.reset();
+                    widget->leaveEvent();
+                }
+                if (auto widget = p.mousePress.lock())
+                {
+                    p.mousePress.reset();
+                    p.mouseClickEvent.pos = p.cursorPos;
+                    p.mouseClickEvent.accept = false;
+                    widget->mouseReleaseEvent(p.mouseClickEvent);
+                }
+                if (auto widget = p.keyFocus.lock())
+                {
+                    p.keyFocus.reset();
+                    widget->keyFocusEvent(false);
+                }
+                if (auto widget = p.keyPress.lock())
+                {
+                    p.keyPress.reset();
+                    p.keyEvent.pos = p.cursorPos;
+                    p.keyEvent.accept = false;
+                    widget->keyReleaseEvent(p.keyEvent);
+                }
             }
 
             p.updates |= Update::Size;
@@ -292,8 +346,8 @@ namespace tl
             {
                 if (auto widget = p.mousePress.lock())
                 {
-                    widget->mouseReleaseEvent(p.mouseClickEvent);
                     p.mousePress.reset();
+                    widget->mouseReleaseEvent(p.mouseClickEvent);
                 }
 
                 MouseMoveEvent moveEvent;
