@@ -47,6 +47,10 @@ namespace tl
                 {
                     "ZipMemoryReference",
                     otio::TypeRegistry::instance().register_type<tl::timeline::ZipMemoryReference>()
+                },
+                {
+                    "ZipMemorySequenceReference",
+                    otio::TypeRegistry::instance().register_type<tl::timeline::ZipMemorySequenceReference>()
                 }
             };
             for (const auto& t : registerTypes)

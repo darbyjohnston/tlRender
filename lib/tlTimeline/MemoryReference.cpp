@@ -172,5 +172,19 @@ namespace tl
 
         ZipMemoryReference::~ZipMemoryReference()
         {}
+
+        ZipMemorySequenceReference::ZipMemorySequenceReference(
+            const std::shared_ptr<file::FileIO>& fileIO,
+            const std::string& target_url,
+            const std::vector<const uint8_t*>& memory,
+            const std::vector<size_t> memory_sizes,
+            const otio::optional<otio::TimeRange>& available_range,
+            const otio::AnyDictionary& metadata) :
+            RawMemorySequenceReference(target_url, memory, memory_sizes, available_range, metadata),
+            _fileIO(fileIO)
+        {}
+
+        ZipMemorySequenceReference::~ZipMemorySequenceReference()
+        {}
     }
 }

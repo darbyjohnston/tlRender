@@ -176,5 +176,29 @@ namespace tl
 
             std::shared_ptr<file::FileIO> _fileIO;
         };
+
+        //! Zip file memory sequence reference for .otioz support.
+        class ZipMemorySequenceReference : public RawMemorySequenceReference
+        {
+        public:
+            struct Schema
+            {
+                static auto constexpr name = "ZipMemorySequenceReference";
+                static int constexpr version = 1;
+            };
+
+            ZipMemorySequenceReference(
+                const std::shared_ptr<file::FileIO>& fileIO = nullptr,
+                const std::string& target_url = std::string(),
+                const std::vector<const uint8_t*>& memory = {},
+                const std::vector<size_t> memory_sizes = {},
+                const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
+                const otio::AnyDictionary& metadata = otio::AnyDictionary());
+
+        protected:
+            ~ZipMemorySequenceReference() override;
+
+            std::shared_ptr<file::FileIO> _fileIO;
+        };
     }
 }
