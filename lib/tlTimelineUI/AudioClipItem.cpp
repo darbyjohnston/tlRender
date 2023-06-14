@@ -42,6 +42,7 @@ namespace tl
                 imaging::FontInfo labelFontInfo = imaging::FontInfo("", 0);
                 imaging::FontInfo durationFontInfo = imaging::FontInfo("", 0);
                 int lineHeight = 0;
+                bool textUpdate = true;
                 math::Vector2i labelSize;
                 math::Vector2i durationSize;
                 int waveformWidth = 0;
@@ -143,16 +144,11 @@ namespace tl
 
         void AudioClipItem::setOptions(const ItemOptions& value)
         {
-            const bool timeUnitsChanged = value.timeUnits != _options.timeUnits;
             const bool thumbnailsChanged =
                 value.thumbnails != _options.thumbnails ||
                 value.waveformHeight != _options.waveformHeight;
             IItem::setOptions(value);
             TLRENDER_P();
-            if (timeUnitsChanged)
-            {
-                _textUpdate();
-            }
             if (thumbnailsChanged)
             {
                 _data.ioManager->cancelRequests();
@@ -295,7 +291,7 @@ namespace tl
             p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
 
             auto fontInfo = event.style->getFontRole(p.labelFontRole, event.displayScale);
-            if (fontInfo != p.size.labelFontInfo)
+            if (fontInfo != p.size.labelFontInfo || p.size.textUpdate)
             {
                 p.size.labelFontInfo = event.style->getFontRole(p.labelFontRole, event.displayScale);
                 auto fontMetrics = event.getFontMetrics(p.labelFontRole);
@@ -303,11 +299,12 @@ namespace tl
                 p.size.labelSize = event.fontSystem->getSize(p.label, p.size.labelFontInfo);
             }
             fontInfo = event.style->getFontRole(p.durationFontRole, event.displayScale);
-            if (fontInfo != p.size.durationFontInfo)
+            if (fontInfo != p.size.durationFontInfo || p.size.textUpdate)
             {
                 p.size.durationFontInfo = fontInfo;
                 p.size.durationSize = event.fontSystem->getSize(p.durationLabel, p.size.durationFontInfo);
             }
+            p.size.textUpdate = false;
 
             const int waveformWidth = _options.thumbnails ?
                 (otime::RationalTime(1.0, 1.0).value() * _scale) :
@@ -372,12 +369,17 @@ namespace tl
             }
         }
 
+        void AudioClipItem::_timeUnitsUpdate(timeline::TimeUnits value)
+        {
+            IItem::_timeUnitsUpdate(value);
+            _textUpdate();
+        }
+
         void AudioClipItem::_textUpdate()
         {
             TLRENDER_P();
-            p.durationLabel = IItem::_durationLabel(
-                p.timeRange.duration(),
-                _options.timeUnits);
+            p.durationLabel = IItem::_durationLabel(p.timeRange.duration());
+            p.size.textUpdate = true;
             p.draw.durationGlyphs.clear();
             _updates |= ui::Update::Size;
             _updates |= ui::Update::Draw;

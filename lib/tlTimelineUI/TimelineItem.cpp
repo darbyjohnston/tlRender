@@ -358,6 +358,13 @@ namespace tl
             event.accept = true;
         }
 
+        void TimelineItem::_timeUnitsUpdate(timeline::TimeUnits value)
+        {
+            IItem::_timeUnitsUpdate(value);
+            _updates |= ui::Update::Size;
+            _updates |= ui::Update::Draw;
+        }
+
         void TimelineItem::_drawInOutPoints(
             const math::BBox2i& drawRect,
             const ui::DrawEvent& event)
@@ -395,7 +402,7 @@ namespace tl
             const math::BBox2i& g = _geometry;
 
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            const std::string labelMax = _timeLabel(p.timeRange.duration(), _options.timeUnits);
+            const std::string labelMax = _data.timeUnitsModel->getLabel(p.timeRange.duration());
             const math::Vector2i labelMaxSize = event.fontSystem->getSize(labelMax, fontInfo);
             const int distanceMin = p.size.border + p.size.spacing + labelMaxSize.x;
 
@@ -510,10 +517,9 @@ namespace tl
                         p.size.fontMetrics.lineHeight);
                     if (bbox.intersects(drawRect))
                     {
-                        const std::string label = _timeLabel(
+                        const std::string label = _data.timeUnitsModel->getLabel(
                             p.timeRange.start_time() +
-                            otime::RationalTime(t, 1.0).rescaled_to(p.timeRange.duration().rate()),
-                            _options.timeUnits);
+                            otime::RationalTime(t, 1.0).rescaled_to(p.timeRange.duration().rate()));
                         event.render->drawText(
                             event.fontSystem->getGlyphs(label, fontInfo),
                             math::Vector2i(
@@ -642,7 +648,7 @@ namespace tl
                         g.h()),
                     event.style->getColorRole(ui::ColorRole::Red));
 
-                std::string label = _timeLabel(currentTime, _options.timeUnits);
+                const std::string label = _data.timeUnitsModel->getLabel(currentTime);
                 event.render->drawText(
                     event.fontSystem->getGlyphs(label, fontInfo),
                     math::Vector2i(

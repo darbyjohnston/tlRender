@@ -6,6 +6,9 @@
 
 #include <tlCore/Error.h>
 #include <tlCore/String.h>
+#include <tlCore/StringFormat.h>
+
+#include <cstdlib>
 
 namespace tl
 {
@@ -17,6 +20,99 @@ namespace tl
             "Seconds",
             "Timecode");
         TLRENDER_ENUM_SERIALIZE_IMPL(TimeUnits);
+
+        std::string timeToText(const otime::RationalTime& time, timeline::TimeUnits units)
+        {
+            std::string out;
+            switch (units)
+            {
+            case timeline::TimeUnits::Frames:
+                out = string::Format("{0}").
+                    arg(time::isValid(time) ? time.to_frames() : 0);
+                break;
+            case timeline::TimeUnits::Seconds:
+                out = string::Format("{0}").
+                    arg(time::isValid(time) ? time.to_seconds() : 0.0, 2);
+                break;
+            case timeline::TimeUnits::Timecode:
+            {
+                otime::ErrorStatus errorStatus;
+                out = time::isValid(time) ?
+                    time.to_timecode(&errorStatus) :
+                    "00:00:00:00";
+                break;
+            }
+            default: break;
+            }
+            return out;
+        }
+
+        otime::RationalTime textToTime(
+            const std::string& text,
+            double rate,
+            timeline::TimeUnits units,
+            otime::ErrorStatus* errorStatus)
+        {
+            otime::RationalTime out = time::invalidTime;
+            switch (units)
+            {
+            case timeline::TimeUnits::Frames:
+            {
+                const int value = std::atoi(text.c_str());
+                out = otime::RationalTime::from_frames(value, rate);
+                break;
+            }
+            case timeline::TimeUnits::Seconds:
+            {
+                const double value = std::atof(text.c_str());
+                out = otime::RationalTime::from_seconds(value).rescaled_to(rate);
+                break;
+            }
+            case timeline::TimeUnits::Timecode:
+                out = otime::RationalTime::from_timecode(text, rate, errorStatus);
+                break;
+            default: break;
+            }
+            return out;
+        }
+
+        std::string formatString(timeline::TimeUnits units)
+        {
+            std::string out;
+            switch (units)
+            {
+            case timeline::TimeUnits::Frames:
+                out = "000000";
+                break;
+            case timeline::TimeUnits::Seconds:
+                out = "000000.00";
+                break;
+            case timeline::TimeUnits::Timecode:
+                out = "00:00:00;00";
+                break;
+            default: break;
+            }
+            return out;
+        }
+
+        std::string validator(timeline::TimeUnits units)
+        {
+            std::string out;
+            switch (units)
+            {
+            case timeline::TimeUnits::Frames:
+                out = "[0-9]*";
+                break;
+            case timeline::TimeUnits::Seconds:
+                out = "[0-9]*\\.[0-9]+|[0-9]+";
+                break;
+            case timeline::TimeUnits::Timecode:
+                out = "[0-9][0-9]:[0-9][0-9]:[0-9][0-9]:[0-9][0-9]";
+                break;
+            default: break;
+            }
+            return out;
+        }
 
         struct TimeUnitsModel::Private
         {
@@ -58,6 +154,11 @@ namespace tl
         void TimeUnitsModel::setTimeUnits(TimeUnits value)
         {
             _p->timeUnits->setIfChanged(value);
+        }
+
+        std::string TimeUnitsModel::getLabel(const otime::RationalTime& value) const
+        {
+            return timeToText(value, _p->timeUnits->get());
         }
     }
 }

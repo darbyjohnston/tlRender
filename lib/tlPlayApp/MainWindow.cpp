@@ -207,12 +207,15 @@ namespace tl
             windowToolBar->addAction(p.windowActions->actions()["Secondary"]);
             addToolBar(Qt::TopToolBarArea, windowToolBar);
 
-            p.timelineViewport = new qtwidget::TimelineViewport(app->getContext());
+            auto context = app->getContext();
+            p.timelineViewport = new qtwidget::TimelineViewport(context);
             p.timelineViewport->installEventFilter(this);
             setCentralWidget(p.timelineViewport);
 
-            p.timelineWidget = new qtwidget::TimelineWidget(app->getContext());
-            p.timelineWidget->setTimeObject(app->timeObject());
+            p.timelineWidget = new qtwidget::TimelineWidget(
+                ui::Style::create(context),
+                app->timeUnitsModel(),
+                context);
             p.timelineWidget->setScrollBarsVisible(false);
             auto timelineDockWidget = new QDockWidget;
             timelineDockWidget->setObjectName("Timeline");
@@ -332,14 +335,14 @@ namespace tl
             windowToolBar->addAction(settingsDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, settingsDockWidget);
 
-            p.messagesTool = new MessagesTool(app->getContext());
+            p.messagesTool = new MessagesTool(context);
             auto messagesDockWidget = new MessagesDockWidget(p.messagesTool);
             messagesDockWidget->hide();
             p.windowActions->menu()->addAction(messagesDockWidget->toggleViewAction());
             windowToolBar->addAction(messagesDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, messagesDockWidget);
 
-            p.systemLogTool = new SystemLogTool(app->getContext());
+            p.systemLogTool = new SystemLogTool(context);
             auto systemLogDockWidget = new SystemLogDockWidget(p.systemLogTool);
             systemLogDockWidget->hide();
             systemLogDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F11));
@@ -406,7 +409,7 @@ namespace tl
                 });
 
             p.logObserver = observer::ListObserver<log::Item>::create(
-                app->getContext()->getLogSystem()->observeLog(),
+                context->getLogSystem()->observeLog(),
                 [this](const std::vector<log::Item>& value)
                 {
                     for (const auto& i : value)

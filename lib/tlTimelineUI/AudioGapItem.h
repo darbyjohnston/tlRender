@@ -34,8 +34,6 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            void setOptions(const ItemOptions&) override;
-
             void sizeHintEvent(const ui::SizeHintEvent&) override;
             void clipEvent(
                 const math::BBox2i&,
@@ -44,6 +42,9 @@ namespace tl
             void drawEvent(
                 const math::BBox2i&,
                 const ui::DrawEvent&) override;
+
+        protected:
+            void _timeUnitsUpdate(timeline::TimeUnits);
 
         private:
             void _textUpdate();

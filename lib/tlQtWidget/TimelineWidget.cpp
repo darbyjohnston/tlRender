@@ -72,7 +72,6 @@ namespace tl
         {
             std::weak_ptr<system::Context> context;
 
-            qt::TimeObject* timeObject = nullptr;
             std::shared_ptr<timeline::Player> player;
 
             std::shared_ptr<ui::Style> style;
@@ -89,8 +88,9 @@ namespace tl
         };
 
         TimelineWidget::TimelineWidget(
-            const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<ui::Style>& style,
+            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
+            const std::shared_ptr<system::Context>& context,
             QWidget* parent) :
             QOpenGLWidget(parent),
             _p(new Private)
@@ -110,7 +110,7 @@ namespace tl
             setMouseTracking(true);
             setFocusPolicy(Qt::StrongFocus);
 
-            p.style = style ? style : ui::Style::create(context);
+            p.style = style;
             p.iconLibrary = ui::IconLibrary::create(context);
             p.fontSystem = imaging::FontSystem::create(context);
             p.clipboard = Clipboard::create(context);
@@ -120,7 +120,7 @@ namespace tl
                 p.fontSystem,
                 p.clipboard,
                 context);
-            p.timelineWidget = timelineui::TimelineWidget::create(context);
+            p.timelineWidget = timelineui::TimelineWidget::create(timeUnitsModel, context);
             p.timelineWidget->setFrameViewCallback(
                 [this](bool value)
                 {
@@ -136,31 +136,6 @@ namespace tl
 
         TimelineWidget::~TimelineWidget()
         {}
-
-        void TimelineWidget::setTimeObject(qt::TimeObject * timeObject)
-        {
-            TLRENDER_P();
-            if (timeObject == p.timeObject)
-                return;
-            if (p.timeObject)
-            {
-                disconnect(
-                    p.timeObject,
-                    SIGNAL(timeUnitsChanged(tl::timeline::TimeUnits)),
-                    this,
-                    SLOT(_setTimeUnits(tl::timeline::TimeUnits)));
-            }
-            p.timeObject = timeObject;
-            if (p.timeObject)
-            {
-                p.itemOptions.timeUnits = p.timeObject->timeUnits();
-                p.timelineWidget->setItemOptions(p.itemOptions);
-                connect(
-                    p.timeObject,
-                    SIGNAL(timeUnitsChanged(tl::timeline::TimeUnits)),
-                    SLOT(_setTimeUnits(tl::timeline::TimeUnits)));
-            }
-        }
 
         void TimelineWidget::setPlayer(const std::shared_ptr<timeline::Player>& player)
         {
@@ -470,13 +445,6 @@ namespace tl
                 _styleUpdate();
             }
             return out;
-        }
-
-        void TimelineWidget::_setTimeUnits(timeline::TimeUnits value)
-        {
-            TLRENDER_P();
-            p.itemOptions.timeUnits = value;
-            p.timelineWidget->setItemOptions(p.itemOptions);
         }
 
         int TimelineWidget::_toUI(int value) const

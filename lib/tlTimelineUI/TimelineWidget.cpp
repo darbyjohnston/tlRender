@@ -12,6 +12,7 @@ namespace tl
     {
         struct TimelineWidget::Private
         {
+            std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             std::shared_ptr<timeline::Player> player;
             bool frameView = true;
             std::function<void(bool)> frameViewCallback;
@@ -47,11 +48,14 @@ namespace tl
         };
 
         void TimelineWidget::_init(
+            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::TimelineWidget", context, parent);
             TLRENDER_P();
+
+            p.timeUnitsModel = timeUnitsModel;
 
             p.scrollWidget = ui::ScrollWidget::create(
                 context,
@@ -75,11 +79,12 @@ namespace tl
         {}
 
         std::shared_ptr<TimelineWidget> TimelineWidget::create(
+            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TimelineWidget>(new TimelineWidget);
-            out->_init(context, parent);
+            out->_init(timeUnitsModel, context, parent);
             return out;
         }
 
@@ -104,6 +109,7 @@ namespace tl
                     itemData.ioManager = IOManager::create(
                         p.player->getOptions().ioOptions,
                         context);
+                    itemData.timeUnitsModel = p.timeUnitsModel;
 
                     p.timelineItem = TimelineItem::create(p.player, itemData, context);
                     p.timelineItem->setStopOnScrub(p.stopOnScrub);

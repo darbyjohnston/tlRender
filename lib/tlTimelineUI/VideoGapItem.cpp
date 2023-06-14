@@ -26,6 +26,7 @@ namespace tl
                 imaging::FontInfo labelFontInfo = imaging::FontInfo("", 0);
                 imaging::FontInfo durationFontInfo = imaging::FontInfo("", 0);
                 int lineHeight = 0;
+                bool textUpdate = true;
                 math::Vector2i labelSize;
                 math::Vector2i durationSize;
             };
@@ -76,15 +77,6 @@ namespace tl
             return out;
         }
 
-        void VideoGapItem::setOptions(const ItemOptions& value)
-        {
-            IItem::setOptions(value);
-            if (_updates & ui::Update::Size)
-            {
-                _textUpdate();
-            }
-        }
-
         void VideoGapItem::sizeHintEvent(const ui::SizeHintEvent& event)
         {
             IItem::sizeHintEvent(event);
@@ -95,7 +87,7 @@ namespace tl
             p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
 
             auto fontInfo = event.style->getFontRole(p.labelFontRole, event.displayScale);
-            if (fontInfo != p.size.labelFontInfo)
+            if (fontInfo != p.size.labelFontInfo || p.size.textUpdate)
             {
                 p.size.labelFontInfo = fontInfo;
                 auto fontMetrics = event.getFontMetrics(p.labelFontRole);
@@ -103,11 +95,12 @@ namespace tl
                 p.size.labelSize = event.fontSystem->getSize(p.label, fontInfo);
             }
             fontInfo = event.style->getFontRole(p.durationFontRole, event.displayScale);
-            if (fontInfo != p.size.durationFontInfo)
+            if (fontInfo != p.size.durationFontInfo || p.size.textUpdate)
             {
                 p.size.durationFontInfo = fontInfo;
                 p.size.durationSize = event.fontSystem->getSize(p.durationLabel, fontInfo);
             }
+            p.size.textUpdate = false;
 
             _sizeHint = math::Vector2i(
                 p.timeRange.duration().rescaled_to(1.0).value() * _scale,
@@ -200,12 +193,17 @@ namespace tl
             }
         }
 
+        void VideoGapItem::_timeUnitsUpdate(timeline::TimeUnits value)
+        {
+            IItem::_timeUnitsUpdate(value);
+            _textUpdate();
+        }
+
         void VideoGapItem::_textUpdate()
         {
             TLRENDER_P();
-            p.durationLabel = IItem::_durationLabel(
-                p.timeRange.duration(),
-                _options.timeUnits);
+            p.durationLabel = IItem::_durationLabel(p.timeRange.duration());
+            p.size.textUpdate = true;
             p.draw.durationGlyphs.clear();
             _updates |= ui::Update::Size;
             _updates |= ui::Update::Draw;

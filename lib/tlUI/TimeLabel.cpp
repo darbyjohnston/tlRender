@@ -194,22 +194,9 @@ namespace tl
             p.format = std::string();
             if (p.timeUnitsModel)
             {
-                switch (p.timeUnitsModel->getTimeUnits())
-                {
-                case timeline::TimeUnits::Frames:
-                    p.text = string::Format("{0}").arg(p.value.to_frames());
-                    p.format = "000000";
-                    break;
-                case timeline::TimeUnits::Seconds:
-                    p.text = string::Format("{0}").arg(p.value.to_seconds(), 2);
-                    p.format = "000000.00";
-                    break;
-                case timeline::TimeUnits::Timecode:
-                    p.text = p.value.to_timecode();
-                    p.format = "00:00:00;00";
-                    break;
-                default: break;
-                }
+                const timeline::TimeUnits timeUnits = p.timeUnitsModel->getTimeUnits();
+                p.text = timeline::timeToText(p.value, timeUnits);
+                p.format = timeline::formatString(timeUnits);
             }
             p.draw.glyphs.clear();
             _updates |= Update::Size;

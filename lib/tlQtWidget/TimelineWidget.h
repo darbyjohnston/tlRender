@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlQt/TimeObject.h>
-
 #include <tlTimelineUI/IItem.h>
 
 #include <QOpenGLWidget>
@@ -29,14 +27,12 @@ namespace tl
 
         public:
             TimelineWidget(
+                const std::shared_ptr<ui::Style>&,
+                const std::shared_ptr<timeline::TimeUnitsModel>&,
                 const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<ui::Style>& = nullptr,
                 QWidget* parent = nullptr);
 
             ~TimelineWidget() override;
-
-            //! Set the time object.
-            void setTimeObject(qt::TimeObject*);
 
             //! Set the timeline player.
             void setPlayer(const std::shared_ptr<timeline::Player>&);
@@ -87,9 +83,6 @@ namespace tl
 
             void timerEvent(QTimerEvent*) override;
             bool event(QEvent*) override;
-
-        private Q_SLOTS:
-            void _setTimeUnits(tl::timeline::TimeUnits);
 
         private:
             int _toUI(int) const;

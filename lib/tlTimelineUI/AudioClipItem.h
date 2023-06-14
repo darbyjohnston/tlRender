@@ -50,6 +50,9 @@ namespace tl
                 const math::BBox2i&,
                 const ui::DrawEvent&) override;
 
+        protected:
+            void _timeUnitsUpdate(timeline::TimeUnits);
+
         private:
             void _textUpdate();
 

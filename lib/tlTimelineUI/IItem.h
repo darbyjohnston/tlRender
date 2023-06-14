@@ -20,6 +20,7 @@ namespace tl
             std::string directory;
             file::PathOptions pathOptions;
             std::shared_ptr<IOManager> ioManager;
+            std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
         };
 
         //! Cache display options.
@@ -44,7 +45,6 @@ namespace tl
         //! Item options.
         struct ItemOptions
         {
-            timeline::TimeUnits timeUnits = timeline::TimeUnits::Timecode;
             CacheDisplay cacheDisplay = CacheDisplay::VideoAndAudio;
             std::map<ColorRole, imaging::Color4f> colors =
             {
@@ -89,16 +89,16 @@ namespace tl
                 const math::BBox2i&,
                 double scale);
 
-            static std::string _durationLabel(
-                const otime::RationalTime&,
-                timeline::TimeUnits);
-            static std::string _timeLabel(
-                const otime::RationalTime&,
-                timeline::TimeUnits);
+            std::string _durationLabel(const otime::RationalTime&);
+
+            virtual void _timeUnitsUpdate(timeline::TimeUnits);
 
             ItemData _data;
             double _scale = 500.0;
             ItemOptions _options;
+
+        private:
+            TLRENDER_PRIVATE();
         };
     }
 }

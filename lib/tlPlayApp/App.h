@@ -7,6 +7,7 @@
 #include <tlApp/IApp.h>
 
 #include <tlTimeline/IRender.h>
+#include <tlTimeline/TimeUnits.h>
 
 #include <QApplication>
 
@@ -43,6 +44,9 @@ namespace tl
                 const std::shared_ptr<system::Context>&);
 
             ~App() override;
+
+            //! Get the time units model.
+            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel() const;
 
             //! Get the time object.
             qt::TimeObject* timeObject() const;

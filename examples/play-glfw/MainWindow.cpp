@@ -64,7 +64,6 @@ namespace tl
                 std::shared_ptr<ui::Splitter> splitter;
                 std::shared_ptr<ui::RowLayout> layout;
 
-                std::shared_ptr<observer::ValueObserver<timeline::TimeUnits> > timeUnitsObserver;
                 std::shared_ptr<observer::ValueObserver<double> > speedObserver;
                 std::shared_ptr<observer::ValueObserver<double> > speedObserver2;
                 std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
@@ -100,7 +99,7 @@ namespace tl
                 p.timelineViewport = timelineui::TimelineViewport::create(context);
                 p.timelineViewport->setPlayers({ player });
 
-                p.timelineWidget = timelineui::TimelineWidget::create(context);
+                p.timelineWidget = timelineui::TimelineWidget::create(p.timeUnitsModel, context);
                 p.timelineWidget->setScrollBarsVisible(false);
                 p.timelineWidget->setPlayer(player);
 
@@ -219,14 +218,6 @@ namespace tl
                     {
                         _p->timeUnitsModel->setTimeUnits(
                             static_cast<timeline::TimeUnits>(value));
-                    });
-
-                p.timeUnitsObserver = observer::ValueObserver<timeline::TimeUnits>::create(
-                    p.timeUnitsModel->observeTimeUnits(),
-                    [this](timeline::TimeUnits value)
-                    {
-                        _p->itemOptions.timeUnits = value;
-                        _p->timelineWidget->setItemOptions(_p->itemOptions);
                     });
 
                 p.speedObserver = observer::ValueObserver<double>::create(

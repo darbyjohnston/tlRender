@@ -131,7 +131,8 @@ namespace tl
             ensurePolished();
             int h = lineEdit()->minimumSizeHint().height();
             const QFontMetrics fm(fontMetrics());
-            int w = fm.horizontalAdvance(" " + qt::sizeHintString(p.timeUnits));
+            const std::string s = " " + timeline::formatString(p.timeUnits);
+            int w = fm.horizontalAdvance(QString::fromUtf8(s.c_str()));
             w += 2; // cursor blinking space
             QStyleOptionSpinBox opt;
             initStyleOption(&opt);
@@ -143,7 +144,11 @@ namespace tl
         {
             TLRENDER_P();
             otime::ErrorStatus errorStatus;
-            const auto time = qt::textToTime(lineEdit()->text(), p.value.rate(), p.timeUnits, &errorStatus);
+            const otime::RationalTime time = timeline::textToTime(
+                lineEdit()->text().toUtf8().data(),
+                p.value.rate(),
+                p.timeUnits,
+                &errorStatus);
             if (!otime::is_error(errorStatus) && time != p.value)
             {
                 p.value = time;
@@ -159,14 +164,18 @@ namespace tl
             {
                 p.validator->setParent(nullptr);
             }
-            p.validator = new QRegularExpressionValidator(QRegularExpression(qt::validator(p.timeUnits)), this);
+            const std::string s = timeline::validator(p.timeUnits);
+            p.validator = new QRegularExpressionValidator(
+                QRegularExpression(QString::fromUtf8(s.c_str())),
+                this);
             lineEdit()->setValidator(p.validator);
         }
 
         void TimeSpinBox::_textUpdate()
         {
             TLRENDER_P();
-            lineEdit()->setText(qt::timeToText(p.value, p.timeUnits));
+            const std::string s = timeline::timeToText(p.value, p.timeUnits);
+            lineEdit()->setText(QString::fromUtf8(s.c_str()));
         }
     }
 }

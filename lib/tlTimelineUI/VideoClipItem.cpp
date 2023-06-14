@@ -38,9 +38,10 @@ namespace tl
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
-                imaging::FontInfo labelFontInfo = imaging::FontInfo("", 0);
-                imaging::FontInfo durationFontInfo = imaging::FontInfo("", 0);
+                imaging::FontInfo labelFontInfo;
+                imaging::FontInfo durationFontInfo;
                 int lineHeight = 0;
+                bool textUpdate = true;
                 math::Vector2i labelSize;
                 math::Vector2i durationSize;
                 int thumbnailWidth = 0;
@@ -144,16 +145,11 @@ namespace tl
 
         void VideoClipItem::setOptions(const ItemOptions& value)
         {
-            const bool timeUnitsChanged = value.timeUnits != _options.timeUnits;
             const bool thumbnailsChanged =
                 value.thumbnails != _options.thumbnails ||
                 value.thumbnailHeight != _options.thumbnailHeight;
             IItem::setOptions(value);
             TLRENDER_P();
-            if (timeUnitsChanged)
-            {
-                _textUpdate();
-            }
             if (thumbnailsChanged)
             {
                 _data.ioManager->cancelRequests();
@@ -213,7 +209,7 @@ namespace tl
             p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
 
             auto fontInfo = event.style->getFontRole(p.labelFontRole, event.displayScale);
-            if (fontInfo != p.size.labelFontInfo)
+            if (fontInfo != p.size.labelFontInfo || p.size.textUpdate)
             {
                 p.size.labelFontInfo = fontInfo;
                 auto fontMetrics = event.getFontMetrics(p.labelFontRole);
@@ -221,11 +217,12 @@ namespace tl
                 p.size.labelSize = event.fontSystem->getSize(p.label, fontInfo);
             }
             fontInfo = event.style->getFontRole(p.durationFontRole, event.displayScale);
-            if (fontInfo != p.size.durationFontInfo)
+            if (fontInfo != p.size.durationFontInfo || p.size.textUpdate)
             {
                 p.size.durationFontInfo = fontInfo;
                 p.size.durationSize = event.fontSystem->getSize(p.durationLabel, fontInfo);
             }
+            p.size.textUpdate = false;
 
             const int thumbnailWidth = (_options.thumbnails && !p.ioInfo.video.empty()) ?
                 static_cast<int>(_options.thumbnailHeight * p.ioInfo.video[0].size.getAspect()) :
@@ -295,12 +292,17 @@ namespace tl
             }
         }
 
+        void VideoClipItem::_timeUnitsUpdate(timeline::TimeUnits value)
+        {
+            IItem::_timeUnitsUpdate(value);
+            _textUpdate();
+        }
+
         void VideoClipItem::_textUpdate()
         {
             TLRENDER_P();
-            p.durationLabel = IItem::_durationLabel(
-                p.timeRange.duration(),
-                _options.timeUnits);
+            p.durationLabel = IItem::_durationLabel(p.timeRange.duration());
+            p.size.textUpdate = true;
             p.draw.durationGlyphs.clear();
             _updates |= ui::Update::Size;
             _updates |= ui::Update::Draw;
