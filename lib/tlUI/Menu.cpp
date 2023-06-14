@@ -39,6 +39,10 @@ namespace tl
                 void setFontRole(FontRole) override;
 
                 bool acceptsKeyFocus() const override;
+                void tickEvent(
+                    bool,
+                    bool,
+                    const TickEvent&) override;
                 void sizeHintEvent(const SizeHintEvent&) override;
                 void clipEvent(
                     const math::BBox2i&,
@@ -54,6 +58,12 @@ namespace tl
                 Key _shortcut = Key::Unknown;
                 int _shortcutModifiers = 0;
                 std::string _shortcutText;
+
+                std::string icon;
+                float iconScale = 1.F;
+                bool iconInit = false;
+                std::future<std::shared_ptr<imaging::Image> > iconFuture;
+                std::shared_ptr<imaging::Image> iconImage;
 
                 struct SizeData
                 {
@@ -135,6 +145,12 @@ namespace tl
             {
                 return true;
             }
+
+            void MenuButton::tickEvent(
+                bool,
+                bool,
+                const TickEvent&)
+            {}
 
             void MenuButton::sizeHintEvent(const SizeHintEvent& event)
             {
