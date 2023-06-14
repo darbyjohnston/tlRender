@@ -91,6 +91,8 @@ namespace
 #include "Resources/Reset_96.h"
 #include "Resources/Settings_192.h"
 #include "Resources/Settings_96.h"
+#include "Resources/SubMenuArrow_192.h"
+#include "Resources/SubMenuArrow_96.h"
 #include "Resources/TimeEnd_192.h"
 #include "Resources/TimeEnd_96.h"
 #include "Resources/TimeStart_192.h"
@@ -196,6 +198,7 @@ namespace tl
             p.iconData["Prev_96.png"] = Prev_96_png;
             p.iconData["Reset_96.png"] = Reset_96_png;
             p.iconData["Settings_96.png"] = Settings_96_png;
+            p.iconData["SubMenuArrow_96.png"] = SubMenuArrow_96_png;
             p.iconData["TimeEnd_96.png"] = TimeEnd_96_png;
             p.iconData["TimeStart_96.png"] = TimeStart_96_png;
             p.iconData["ViewFrame_96.png"] = ViewFrame_96_png;
@@ -244,6 +247,7 @@ namespace tl
             p.iconData["Prev_192.png"] = Prev_192_png;
             p.iconData["Reset_192.png"] = Reset_192_png;
             p.iconData["Settings_192.png"] = Settings_192_png;
+            p.iconData["SubMenuArrow_192.png"] = SubMenuArrow_192_png;
             p.iconData["TimeEnd_192.png"] = TimeEnd_192_png;
             p.iconData["TimeStart_192.png"] = TimeStart_192_png;
             p.iconData["ViewFrame_192.png"] = ViewFrame_192_png;

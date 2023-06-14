@@ -34,6 +34,8 @@ namespace tl
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
                 void setShortcut(Key, int modifiers = 0);
+                
+                void setSubMenuIcon(const std::string&);
 
                 void setText(const std::string&) override;
                 void setFontRole(FontRole) override;
@@ -59,11 +61,11 @@ namespace tl
                 int _shortcutModifiers = 0;
                 std::string _shortcutText;
 
-                std::string icon;
-                float iconScale = 1.F;
-                bool iconInit = false;
-                std::future<std::shared_ptr<imaging::Image> > iconFuture;
-                std::shared_ptr<imaging::Image> iconImage;
+                std::string _subMenuIcon;
+                float _subMenuIconScale = 1.F;
+                bool _subMenuIconInit = false;
+                std::future<std::shared_ptr<imaging::Image> > _subMenuIconFuture;
+                std::shared_ptr<imaging::Image> _subMenuIconImage;
 
                 struct SizeData
                 {
@@ -119,6 +121,13 @@ namespace tl
                 _updates |= Update::Size;
                 _updates |= Update::Draw;
             }
+        
+            void MenuButton::setSubMenuIcon(const std::string& icon)
+            {
+                _subMenuIcon = icon;
+                _subMenuIconInit = true;
+                _subMenuIconImage.reset();
+            }
 
             void MenuButton::setText(const std::string& value)
             {
@@ -147,10 +156,31 @@ namespace tl
             }
 
             void MenuButton::tickEvent(
-                bool,
-                bool,
-                const TickEvent&)
-            {}
+                bool parentsVisible,
+                bool parentsEnabled,
+                const TickEvent& event)
+            {
+                IButton::tickEvent(parentsVisible, parentsEnabled, event);
+                if (event.displayScale != _subMenuIconScale)
+                {
+                    _subMenuIconScale = event.displayScale;
+                    _subMenuIconInit = true;
+                    _subMenuIconFuture = std::future<std::shared_ptr<imaging::Image> >();
+                    _subMenuIconImage.reset();
+                }
+                if (!_subMenuIcon.empty() && _subMenuIconInit)
+                {
+                    _subMenuIconInit = false;
+                    _subMenuIconFuture = event.iconLibrary->request(_subMenuIcon, event.displayScale);
+                }
+                if (_subMenuIconFuture.valid() &&
+                    _subMenuIconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                {
+                    _subMenuIconImage = _subMenuIconFuture.get();
+                    _updates |= Update::Size;
+                    _updates |= Update::Draw;
+                }
+            }
 
             void MenuButton::sizeHintEvent(const SizeHintEvent& event)
             {
@@ -185,6 +215,13 @@ namespace tl
 
                     _sizeHint.x += _size.spacing * 4 + _size.shortcutSize.x;
                     _sizeHint.y = std::max(_sizeHint.y, _size.shortcutSize.y);
+                }
+                if (_subMenuIconImage)
+                {
+                    _sizeHint.x += _size.spacing + _subMenuIconImage->getWidth();
+                    _sizeHint.y = std::max(
+                        _sizeHint.y,
+                        static_cast<int>(_subMenuIconImage->getHeight()));
                 }
                 _sizeHint.x +=
                     _size.margin * 2 +
@@ -307,6 +344,22 @@ namespace tl
                             ColorRole::Text :
                             ColorRole::TextDisabled));
                 }
+
+                // Draw the sub menu icon.
+                if (_subMenuIconImage)
+                {
+                    const imaging::Size& iconSize = _subMenuIconImage->getSize();
+                    event.render->drawImage(
+                      _subMenuIconImage,
+                      math::BBox2i(
+                          g2.max.x - _size.margin - iconSize.w,
+                          g2.y() + g2.h() / 2 - iconSize.h / 2,
+                          iconSize.w,
+                          iconSize.h),
+                      event.style->getColorRole(enabled ?
+                          ColorRole::Text :
+                          ColorRole::TextDisabled));
+                }
             }
 
             void MenuButton::keyPressEvent(KeyEvent& event)
@@ -409,6 +462,7 @@ namespace tl
 
                 auto button = MenuButton::create(context);
                 button->setText(text);
+                button->setSubMenuIcon("SubMenuArrow");
                 button->setPressedCallback(
                     [this, out, button]
                     {
