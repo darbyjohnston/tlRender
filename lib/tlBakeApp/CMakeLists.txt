@@ -4,8 +4,10 @@ set(HEADERS
 set(SOURCE
     App.cpp)
 
+set(LIBRARIES tlApp tlGL)
+
 add_library(tlBakeApp ${HEADERS} ${SOURCE})
-target_link_libraries(tlBakeApp tlApp tlGL GLFW)
+target_link_libraries(tlBakeApp ${LIBRARIES})
 set_target_properties(tlBakeApp PROPERTIES FOLDER lib)
 set_target_properties(tlBakeApp PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

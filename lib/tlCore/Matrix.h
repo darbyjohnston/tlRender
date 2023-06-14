@@ -77,11 +77,11 @@ namespace tl
 
         //! Create an orthographic matrix.
         template<typename T>
-        Matrix4x4<T> ortho(T left, T right, T bottom, T top, T near, T far);
+        Matrix4x4<T> ortho(T left, T right, T bottom, T top, T nearClip, T farClip);
 
         //! Create a perspective matrix.
         template<typename T>
-        Matrix4x4<T> perspective(T fov, T aspect, T near, T far);
+        Matrix4x4<T> perspective(T fov, T aspect, T nearClip, T farClip);
 
         void to_json(nlohmann::json&, const Matrix3x3f&);
         void to_json(nlohmann::json&, const Matrix4x4f&);

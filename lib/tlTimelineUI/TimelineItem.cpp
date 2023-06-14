@@ -268,9 +268,10 @@ namespace tl
         void TimelineItem::mousePressEvent(ui::MouseClickEvent& event)
         {
             TLRENDER_P();
+            event.accept = true;
+            takeKeyFocus();
             if (0 == event.modifiers)
             {
-                event.accept = true;
                 p.mouse.pressed = true;
                 p.mouse.pressPos = event.pos;
                 if (p.stopOnScrub)
@@ -357,6 +358,13 @@ namespace tl
             event.accept = true;
         }
 
+        void TimelineItem::_timeUnitsUpdate(timeline::TimeUnits value)
+        {
+            IItem::_timeUnitsUpdate(value);
+            _updates |= ui::Update::Size;
+            _updates |= ui::Update::Draw;
+        }
+
         void TimelineItem::_drawInOutPoints(
             const math::BBox2i& drawRect,
             const ui::DrawEvent& event)
@@ -380,7 +388,7 @@ namespace tl
                     p.size.margin);
                 event.render->drawRect(
                     bbox,
-                    imaging::Color4f(1.F, .7F, .2F, .1F));
+                    _options.colors[ColorRole::InOut]);
             }
         }
 
@@ -394,7 +402,7 @@ namespace tl
             const math::BBox2i& g = _geometry;
 
             const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            const std::string labelMax = _timeLabel(p.timeRange.duration(), _options.timeUnits);
+            const std::string labelMax = _data.timeUnitsModel->getLabel(p.timeRange.duration());
             const math::Vector2i labelMaxSize = event.fontSystem->getSize(labelMax, fontInfo);
             const int distanceMin = p.size.border + p.size.spacing + labelMaxSize.x;
 
@@ -509,10 +517,9 @@ namespace tl
                         p.size.fontMetrics.lineHeight);
                     if (bbox.intersects(drawRect))
                     {
-                        const std::string label = _timeLabel(
+                        const std::string label = _data.timeUnitsModel->getLabel(
                             p.timeRange.start_time() +
-                            otime::RationalTime(t, 1.0).rescaled_to(p.timeRange.duration().rate()),
-                            _options.timeUnits);
+                            otime::RationalTime(t, 1.0).rescaled_to(p.timeRange.duration().rate()));
                         event.render->drawText(
                             event.fontSystem->getGlyphs(label, fontInfo),
                             math::Vector2i(
@@ -533,77 +540,86 @@ namespace tl
 
             const math::BBox2i& g = _geometry;
 
-            geom::TriangleMesh2 mesh;
-            size_t i = 1;
-            for (const auto& t : p.cacheInfo.videoFrames)
+            if (CacheDisplay::VideoAndAudio == _options.cacheDisplay ||
+                CacheDisplay::VideoOnly == _options.cacheDisplay)
             {
-                const int x0 = _timeToPos(t.start_time());
-                const int x1 = _timeToPos(t.end_time_inclusive());
-                const math::BBox2i bbox(
-                    x0,
-                    p.size.scrollPos.y +
-                    g.min.y +
-                    p.size.margin +
-                    p.size.fontMetrics.lineHeight +
-                    p.size.margin +
-                    p.size.spacing -
-                    p.size.border * 4,
-                    x1 - x0 + 1,
-                    p.size.border * 2);
-                if (bbox.intersects(drawRect))
+                geom::TriangleMesh2 mesh;
+                size_t i = 1;
+                for (const auto& t : p.cacheInfo.videoFrames)
                 {
-                    mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
-                    mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));
-                    mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.max.y + 1));
-                    mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.max.y + 1));
-                    mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
-                    mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
-                    i += 4;
+                    const int x0 = _timeToPos(t.start_time());
+                    const int x1 = _timeToPos(t.end_time_inclusive());
+                    const int h = CacheDisplay::VideoAndAudio == _options.cacheDisplay ?
+                        p.size.border * 2 :
+                        p.size.border * 4;
+                    const math::BBox2i bbox(
+                        x0,
+                        p.size.scrollPos.y +
+                        g.min.y +
+                        p.size.margin +
+                        p.size.fontMetrics.lineHeight +
+                        p.size.margin +
+                        p.size.spacing -
+                        p.size.border * 4,
+                        x1 - x0 + 1,
+                        h);
+                    if (bbox.intersects(drawRect))
+                    {
+                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
+                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));
+                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.max.y + 1));
+                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.max.y + 1));
+                        mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
+                        mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
+                        i += 4;
+                    }
                 }
-            }
-            if (!mesh.v.empty())
-            {
-                event.render->drawMesh(
-                    mesh,
-                    math::Vector2i(),
-                    imaging::Color4f(.2F, .4F, .4F));
+                if (!mesh.v.empty())
+                {
+                    event.render->drawMesh(
+                        mesh,
+                        math::Vector2i(),
+                        _options.colors[ColorRole::VideoCache]);
+                }
             }
 
-            mesh.v.clear();
-            mesh.triangles.clear();
-            i = 1;
-            for (const auto& t : p.cacheInfo.audioFrames)
+            if (CacheDisplay::VideoAndAudio == _options.cacheDisplay)
             {
-                const int x0 = _timeToPos(t.start_time());
-                const int x1 = _timeToPos(t.end_time_inclusive());
-                const math::BBox2i bbox(
-                    x0,
-                    p.size.scrollPos.y +
-                    g.min.y +
-                    p.size.margin +
-                    p.size.fontMetrics.lineHeight +
-                    p.size.margin +
-                    p.size.spacing -
-                    p.size.border * 2,
-                    x1 - x0 + 1,
-                    p.size.border * 2);
-                if (bbox.intersects(drawRect))
+                geom::TriangleMesh2 mesh;
+                size_t i = 1;
+                for (const auto& t : p.cacheInfo.audioFrames)
                 {
-                    mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
-                    mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));
-                    mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.max.y + 1));
-                    mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.max.y + 1));
-                    mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
-                    mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
-                    i += 4;
+                    const int x0 = _timeToPos(t.start_time());
+                    const int x1 = _timeToPos(t.end_time_inclusive());
+                    const math::BBox2i bbox(
+                        x0,
+                        p.size.scrollPos.y +
+                        g.min.y +
+                        p.size.margin +
+                        p.size.fontMetrics.lineHeight +
+                        p.size.margin +
+                        p.size.spacing -
+                        p.size.border * 2,
+                        x1 - x0 + 1,
+                        p.size.border * 2);
+                    if (bbox.intersects(drawRect))
+                    {
+                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
+                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));
+                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.max.y + 1));
+                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.max.y + 1));
+                        mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
+                        mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
+                        i += 4;
+                    }
                 }
-            }
-            if (!mesh.v.empty())
-            {
-                event.render->drawMesh(
-                    mesh,
-                    math::Vector2i(),
-                    imaging::Color4f(.3F, .25F, .4F));
+                if (!mesh.v.empty())
+                {
+                    event.render->drawMesh(
+                        mesh,
+                        math::Vector2i(),
+                        _options.colors[ColorRole::AudioCache]);
+                }
             }
         }
 
@@ -632,7 +648,7 @@ namespace tl
                         g.h()),
                     event.style->getColorRole(ui::ColorRole::Red));
 
-                std::string label = _timeLabel(currentTime, _options.timeUnits);
+                const std::string label = _data.timeUnitsModel->getLabel(currentTime);
                 event.render->drawText(
                     event.fontSystem->getGlyphs(label, fontInfo),
                     math::Vector2i(

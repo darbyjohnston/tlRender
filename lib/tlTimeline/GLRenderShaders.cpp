@@ -2,13 +2,13 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlGL/RenderPrivate.h>
+#include <tlTimeline/GLRenderPrivate.h>
 
 #include <tlCore/StringFormat.h>
 
 namespace tl
 {
-    namespace gl
+    namespace timeline
     {
         std::string vertexSource()
         {
@@ -247,7 +247,7 @@ namespace tl
             const std::string& colorConfig,
             const std::string& lutDef,
             const std::string& lut,
-            timeline::LUTOrder lutOrder)
+            LUTOrder lutOrder)
         {
             std::vector<std::string> args;
             args.push_back(videoLevels);
@@ -255,24 +255,24 @@ namespace tl
             args.push_back(lutDef);
             switch (lutOrder)
             {
-            case timeline::LUTOrder::PreColorConfig:
+            case LUTOrder::PreColorConfig:
                 args.push_back(lut);
                 args.push_back(colorConfig);
                 break;
-            case timeline::LUTOrder::PostColorConfig:
+            case LUTOrder::PostColorConfig:
                 args.push_back(colorConfig);
                 args.push_back(lut);
                 break;
             default: break;
             }
-            const bool swap = timeline::LUTOrder::PreColorConfig == lutOrder;
+            const bool swap = LUTOrder::PreColorConfig == lutOrder;
             return string::Format(
                 "#version 410\n"
                 "\n"
                 "in vec2 fTexture;\n"
                 "out vec4 fColor;\n"
                 "\n"
-                "// enum tl::render::Channels\n"
+                "// enum tl::timeline::Channels\n"
                 "const uint Channels_Color = 0;\n"
                 "const uint Channels_Red   = 1;\n"
                 "const uint Channels_Green = 2;\n"

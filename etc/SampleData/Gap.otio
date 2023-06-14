@@ -25,7 +25,7 @@
                                     "value": 0
                                 }
                             },
-                            "target_url": "file://PSR63_2012-06-02.mov"
+                            "target_url": "PSR63_2012-06-02.mov"
                         },
                         "source_range": {
                             "OTIO_SCHEMA": "TimeRange.1",
@@ -76,7 +76,7 @@
                                     "value": 0
                                 }
                             },
-                            "target_url": "file://Dinky_2015-06-11.m4v"
+                            "target_url": "Dinky_2015-06-11.m4v"
                         },
                         "source_range": {
                             "OTIO_SCHEMA": "TimeRange.1",
@@ -117,7 +117,7 @@
                                     "value": 0
                                 }
                             },
-                            "target_url": "file://PSR63_2012-06-02.mov"
+                            "target_url": "PSR63_2012-06-02.mov"
                         },
                         "source_range": {
                             "OTIO_SCHEMA": "TimeRange.1",
@@ -168,7 +168,7 @@
                                     "value": 0
                                 }
                             },
-                            "target_url": "file://Dinky_2015-06-11.m4v"
+                            "target_url": "Dinky_2015-06-11.m4v"
                         },
                         "source_range": {
                             "OTIO_SCHEMA": "TimeRange.1",

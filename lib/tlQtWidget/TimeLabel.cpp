@@ -103,7 +103,8 @@ namespace tl
         void TimeLabel::_textUpdate()
         {
             TLRENDER_P();
-            p.label->setText(qt::timeToText(p.value, p.timeUnits));
+            const std::string label = timeline::timeToText(p.value, p.timeUnits);
+            p.label->setText(QString::fromUtf8(label.c_str()));
         }
     }
 }

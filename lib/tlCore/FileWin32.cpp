@@ -37,6 +37,12 @@ namespace tl
         {
             return 0 == _wrmdir(string::toWide(fileName).c_str());
         }
+        
+        bool rm(const std::string& fileName)
+        {
+            //! \todo Implement
+            return false;
+        }
 
         std::string getTemp()
         {

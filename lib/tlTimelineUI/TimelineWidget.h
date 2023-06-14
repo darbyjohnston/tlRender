@@ -19,6 +19,7 @@ namespace tl
 
         protected:
             void _init(
+                const std::shared_ptr<timeline::TimeUnitsModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -29,6 +30,7 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<TimelineWidget> create(
+                const std::shared_ptr<timeline::TimeUnitsModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -51,6 +53,12 @@ namespace tl
 
             //! Set the frame view callback.
             void setFrameViewCallback(const std::function<void(bool)>&);
+
+            //! Set whether the scroll bars are visible.
+            void setScrollBarsVisible(bool);
+
+            //! Set the mouse scroll key modifier.
+            void setScrollKeyModifier(ui::KeyModifier);
 
             //! Set whether to stop playback when scrubbing.
             void setStopOnScrub(bool);

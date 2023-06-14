@@ -17,22 +17,6 @@ namespace tl
     {
         Q_NAMESPACE
 
-        //! Get the time units size hint string.
-        QString sizeHintString(timeline::TimeUnits);
-
-        //! Get the time units validator regular expression.
-        QString validator(timeline::TimeUnits);
-
-        //! Convert a time value to text.
-        QString timeToText(const otime::RationalTime&, timeline::TimeUnits);
-
-        //! Convert text to a time value.
-        otime::RationalTime textToTime(
-            const QString& text,
-            double rate,
-            timeline::TimeUnits,
-            otime::ErrorStatus*);
-
         //! Time object.
         class TimeObject : public QObject
         {

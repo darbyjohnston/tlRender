@@ -17,7 +17,7 @@ namespace tl
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
-                imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
+                imaging::FontInfo fontInfo;
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
             };
@@ -85,7 +85,7 @@ namespace tl
         {
             IButton::sizeHintEvent(event);
             TLRENDER_P();
-            
+
             p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);
             p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
@@ -95,13 +95,10 @@ namespace tl
             {
                 p.size.fontMetrics = event.getFontMetrics(_fontRole);
                 auto fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
-                if (fontInfo != p.size.fontInfo)
-                {
-                    p.size.fontInfo = fontInfo;
-                    p.size.textSize = event.fontSystem->getSize(_text, fontInfo);
-                }
+                p.size.fontInfo = fontInfo;
+                p.size.textSize = event.fontSystem->getSize(_text, fontInfo);
 
-                _sizeHint.x = p.size.textSize.x;
+                _sizeHint.x = p.size.textSize.x + p.size.margin * 2;
                 _sizeHint.y = p.size.fontMetrics.lineHeight;
             }
             if (_iconImage)
@@ -146,6 +143,16 @@ namespace tl
             const math::BBox2i& g = _geometry;
             const bool enabled = isEnabled();
 
+            // Draw the key focus.
+            if (_keyFocus)
+            {
+                event.render->drawMesh(
+                    border(g, p.size.border * 2),
+                    math::Vector2i(),
+                    event.style->getColorRole(ColorRole::KeyFocus));
+            }
+
+            // Draw the background and checked state.
             const ColorRole colorRole = _checked ?
                 ColorRole::Checked :
                 _buttonRole;
@@ -156,6 +163,7 @@ namespace tl
                     event.style->getColorRole(colorRole));
             }
 
+            // Draw the pressed and hover states.
             if (_pressed && _geometry.contains(_cursorPos))
             {
                 event.render->drawRect(
@@ -169,14 +177,7 @@ namespace tl
                     event.style->getColorRole(ColorRole::Hover));
             }
 
-            if (_keyFocus)
-            {
-                event.render->drawMesh(
-                    border(g, p.size.border * 2),
-                    math::Vector2i(),
-                    event.style->getColorRole(ColorRole::KeyFocus));
-            }
-
+            // Draw the icon.
             const math::BBox2i g2 = g.margin(-p.size.border * 2);
             int x = g2.x() + p.size.margin;
             if (_iconImage)
@@ -189,12 +190,13 @@ namespace tl
                       g2.y() + g2.h() / 2 - iconSize.h / 2,
                       iconSize.w,
                       iconSize.h),
-                    event.style->getColorRole(enabled ?
-                        ColorRole::Text :
-                        ColorRole::TextDisabled));
+                  event.style->getColorRole(enabled ?
+                      ColorRole::Text :
+                      ColorRole::TextDisabled));
                 x += iconSize.w + p.size.spacing;
             }
-            
+
+            // Draw the text.
             if (!_text.empty())
             {
                 if (p.draw.glyphs.empty())
@@ -202,7 +204,7 @@ namespace tl
                     p.draw.glyphs = event.fontSystem->getGlyphs(_text, p.size.fontInfo);
                 }
                 const math::Vector2i pos(
-                    x,
+                    x + p.size.margin,
                     g2.y() + g2.h() / 2 - p.size.textSize.y / 2 +
                     p.size.fontMetrics.ascender);
                 event.render->drawText(
@@ -221,6 +223,11 @@ namespace tl
             case Key::Space:
             case Key::Enter:
                 event.accept = true;
+                takeKeyFocus();
+                if (_pressedCallback)
+                {
+                    _pressedCallback();
+                }
                 _click();
                 break;
             case Key::Escape:

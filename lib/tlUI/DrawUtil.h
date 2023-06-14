@@ -11,12 +11,6 @@ namespace tl
 {
     namespace ui
     {
-        //! Get a lighter color.
-        imaging::Color4f lighter(const imaging::Color4f&, float);
-
-        //! Get a darker color.
-        imaging::Color4f darker(const imaging::Color4f&, float);
-
         //! Create a mesh for drawing a rectangle.
         geom::TriangleMesh2 rect(
             const math::BBox2i&,

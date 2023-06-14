@@ -106,7 +106,7 @@ namespace tl
             {
                 int margin = 0;
                 int border = 0;
-                imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
+                imaging::FontInfo fontInfo;
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
                 math::Vector2i formatSize;
@@ -266,12 +266,9 @@ namespace tl
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
 
             auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            if (fontInfo != p.size.fontInfo)
-            {
-                p.size.fontInfo = fontInfo;
-                p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
-                p.size.formatSize = event.fontSystem->getSize(p.format, fontInfo);
-            }
+            p.size.fontInfo = fontInfo;
+            p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
+            p.size.formatSize = event.fontSystem->getSize(p.format, fontInfo);
 
             _sizeHint.x =
                 p.size.formatSize.x +

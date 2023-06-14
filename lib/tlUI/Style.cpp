@@ -65,6 +65,7 @@ namespace tl
             std::map<SizeRole, int> sizeRoles;
             std::map<ColorRole, imaging::Color4f> colorRoles;
             std::map<FontRole, imaging::FontInfo> fontRoles;
+            std::shared_ptr<observer::Value<bool> > changed;
         };
 
         void Style::_init(
@@ -107,6 +108,8 @@ namespace tl
             p.fontRoles[FontRole::Label] = imaging::FontInfo("NotoSans-Regular", 12 * 1);
             p.fontRoles[FontRole::Mono] = imaging::FontInfo("NotoMono-Regular", 12 * 1);
             p.fontRoles[FontRole::Title] = imaging::FontInfo("NotoSans-Regular", 24 * 1);
+
+            p.changed = observer::Value<bool>::create();
         }
 
         Style::Style() :
@@ -138,6 +141,7 @@ namespace tl
             if (i != p.sizeRoles.end() && value != i->second)
             {
                 i->second = value;
+                p.changed->setAlways(true);
             }
         }
 
@@ -155,6 +159,7 @@ namespace tl
             if (i != p.colorRoles.end() && value != i->second)
             {
                 i->second = value;
+                p.changed->setAlways(true);
             }
         }
 
@@ -178,7 +183,13 @@ namespace tl
             if (i != p.fontRoles.end() && value != i->second)
             {
                 i->second = value;
+                p.changed->setAlways(true);
             }
+        }
+
+        std::shared_ptr<observer::IValue<bool> > Style::observeChanged() const
+        {
+            return _p->changed;
         }
     }
 }

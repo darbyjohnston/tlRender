@@ -7,6 +7,7 @@
 #include <tlUI/ButtonGroup.h>
 #include <tlUI/DrawUtil.h>
 #include <tlUI/EventLoop.h>
+#include <tlUI/IPopup.h>
 #include <tlUI/ListButton.h>
 #include <tlUI/RowLayout.h>
 
@@ -16,307 +17,92 @@ namespace tl
     {
         namespace
         {
-            class MenuWidget : public IWidget
+            class ComboBoxMenu : public IPopup
             {
-                TLRENDER_NON_COPYABLE(MenuWidget);
-
-            protected:
-                void _init(
-                    const std::shared_ptr<system::Context>&,
-                    const std::shared_ptr<IWidget>& parent = nullptr);
-
-                MenuWidget();
-
-            public:
-                ~MenuWidget() override;
-
-                static std::shared_ptr<MenuWidget> create(
-                    const std::shared_ptr<system::Context>&,
-                    const std::shared_ptr<IWidget>& parent = nullptr);
-
-                void setGeometry(const math::BBox2i&) override;
-                void sizeHintEvent(const SizeHintEvent&) override;
-                void drawEvent(
-                    const math::BBox2i&,
-                    const DrawEvent&) override;
-
-            private:
-                int _border = 0;
-            };
-
-            void MenuWidget::_init(
-                const std::shared_ptr<system::Context>& context,
-                const std::shared_ptr<IWidget>& parent)
-            {
-                IWidget::_init("tl::ui::MenuWidget", context, parent);
-            }
-
-            MenuWidget::MenuWidget()
-            {}
-
-            MenuWidget::~MenuWidget()
-            {}
-
-            std::shared_ptr<MenuWidget> MenuWidget::create(
-                const std::shared_ptr<system::Context>& context,
-                const std::shared_ptr<IWidget>& parent)
-            {
-                auto out = std::shared_ptr<MenuWidget>(new MenuWidget);
-                out->_init(context, parent);
-                return out;
-            }
-
-            void MenuWidget::setGeometry(const math::BBox2i& value)
-            {
-                IWidget::setGeometry(value);
-                const math::BBox2i g = value.margin(-_border);
-                math::Vector2i pos = g.min;
-                for (const auto& child : _children)
-                {
-                    const math::Vector2i& sizeHint = child->getSizeHint();
-                    child->setGeometry(math::BBox2i(
-                        pos.x,
-                        pos.y,
-                        g.w(),
-                        sizeHint.y));
-                    pos.y += sizeHint.y;
-                }
-            }
-
-            void MenuWidget::sizeHintEvent(const SizeHintEvent& event)
-            {
-                IWidget::sizeHintEvent(event);
-
-                _border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
-
-                _sizeHint = math::Vector2i();
-                for (const auto& child : _children)
-                {
-                    const math::Vector2i& sizeHint = child->getSizeHint();
-                    _sizeHint.x = std::max(_sizeHint.x, sizeHint.x);
-                    _sizeHint.y += sizeHint.y;
-                }
-                _sizeHint.x += _border * 2;
-                _sizeHint.y += _border * 2;
-            }
-
-            void MenuWidget::drawEvent(
-                const math::BBox2i& drawRect,
-                const DrawEvent& event)
-            {
-                IWidget::drawEvent(drawRect, event);
-
-                const math::BBox2i& g = _geometry;
-
-                event.render->drawMesh(
-                    border(g, _border),
-                    math::Vector2i(),
-                    event.style->getColorRole(ColorRole::Border));
-
-                const math::BBox2i g2 = g.margin(-_border);
-                event.render->drawRect(
-                    g2,
-                    event.style->getColorRole(ColorRole::Button));
-            }
-
-            class Overlay : public IWidget
-            {
-                TLRENDER_NON_COPYABLE(Overlay);
+                TLRENDER_NON_COPYABLE(ComboBoxMenu);
 
             protected:
                 void _init(
                     const std::vector<ComboBoxItem>&,
-                    const math::BBox2i& comboBoxGeometry,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
-                Overlay();
+                ComboBoxMenu();
 
             public:
-                ~Overlay() override;
+                ~ComboBoxMenu() override;
 
-                static std::shared_ptr<Overlay> create(
+                static std::shared_ptr<ComboBoxMenu> create(
                     const std::vector<ComboBoxItem>&,
-                    const math::BBox2i& comboBoxGeometry,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
                 void setCallback(const std::function<void(int)>&);
 
-                void setGeometry(const math::BBox2i&) override;
-                void drawEvent(
-                    const math::BBox2i&,
-                    const DrawEvent&) override;
-                void enterEvent() override;
-                void leaveEvent() override;
-                void mouseMoveEvent(MouseMoveEvent&) override;
-                void mousePressEvent(MouseClickEvent&) override;
-                void mouseReleaseEvent(MouseClickEvent&) override;
-                void keyPressEvent(KeyEvent&) override;
-                void keyReleaseEvent(KeyEvent&) override;
-
             private:
-                math::BBox2i _comboBoxGeometry;
                 std::shared_ptr<ButtonGroup> _buttonGroup;
-                std::shared_ptr<MenuWidget> _menuWidget;
+                std::shared_ptr<VerticalLayout> _layout;
                 std::function<void(int)> _callback;
             };
 
-            void Overlay::_init(
+            void ComboBoxMenu::_init(
                 const std::vector<ComboBoxItem>& items,
-                const math::BBox2i& comboBoxGeometry,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                IWidget::_init("tl::ui::Overlay", context, parent);
-
-                _comboBoxGeometry = comboBoxGeometry;
+                IPopup::_init("tl::ui::ComboBoxMenu", context, parent);
 
                 std::vector<std::shared_ptr<ListButton> > buttons;
                 _buttonGroup = ButtonGroup::create(ButtonGroupType::Click, context);
                 for (const auto& item : items)
                 {
-                    auto button = ListButton::create(context);
+                    auto button = ListButton::create(context, shared_from_this());
                     button->setText(item.text);
                     button->setIcon(item.icon);
                     buttons.push_back(button);
                     _buttonGroup->addButton(button);
                 }
 
-                _menuWidget = MenuWidget::create(context, shared_from_this());
+                _layout = VerticalLayout::create(context, shared_from_this());
+                _layout->setSpacingRole(SizeRole::None);
                 for (const auto& button : buttons)
                 {
-                    button->setParent(_menuWidget);
+                    button->setParent(_layout);
                 }
-
+                
+                auto weak = std::weak_ptr<ComboBoxMenu>(std::dynamic_pointer_cast<ComboBoxMenu>(shared_from_this()));
                 _buttonGroup->setClickedCallback(
-                    [this](int index)
+                    [weak](int value)
                     {
-                        if (_callback)
+                        if (auto widget = weak.lock())
                         {
-                            _callback(index);
+                            if (widget->_callback)
+                            {
+                                widget->_callback(value);
+                            }
                         }
                     });
             }
 
-            Overlay::Overlay()
+            ComboBoxMenu::ComboBoxMenu()
             {}
 
-            Overlay::~Overlay()
+            ComboBoxMenu::~ComboBoxMenu()
             {}
 
-            std::shared_ptr<Overlay> Overlay::create(
+            std::shared_ptr<ComboBoxMenu> ComboBoxMenu::create(
                 const std::vector<ComboBoxItem>& items,
-                const math::BBox2i& comboBoxGeometry,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                auto out = std::shared_ptr<Overlay>(new Overlay);
-                out->_init(items, comboBoxGeometry, context, parent);
+                auto out = std::shared_ptr<ComboBoxMenu>(new ComboBoxMenu);
+                out->_init(items, context, parent);
                 return out;
             }
 
-            void Overlay::setCallback(const std::function<void(int)>& value)
+            void ComboBoxMenu::setCallback(const std::function<void(int)>& value)
             {
                 _callback = value;
-            }
-
-            void Overlay::setGeometry(const math::BBox2i& value)
-            {
-                IWidget::setGeometry(value);
-                const math::Vector2i& sizeHint = _menuWidget->getSizeHint();
-                std::vector<math::BBox2i> bboxes;
-                bboxes.push_back(math::BBox2i(
-                    _comboBoxGeometry.min.x,
-                    _comboBoxGeometry.max.y,
-                    sizeHint.x,
-                    sizeHint.y));
-                bboxes.push_back(math::BBox2i(
-                    _comboBoxGeometry.max.x - sizeHint.x + 1,
-                    _comboBoxGeometry.max.y,
-                    sizeHint.x,
-                    sizeHint.y));
-                bboxes.push_back(math::BBox2i(
-                    _comboBoxGeometry.min.x,
-                    _comboBoxGeometry.min.y - sizeHint.y + 1,
-                    sizeHint.x,
-                    sizeHint.y));
-                bboxes.push_back(math::BBox2i(
-                    _comboBoxGeometry.max.x - sizeHint.x + 1,
-                    _comboBoxGeometry.min.y - sizeHint.y + 1,
-                    sizeHint.x,
-                    sizeHint.y));
-                for (auto& bbox : bboxes)
-                {
-                    bbox = bbox.intersect(value);
-                }
-                std::stable_sort(
-                    bboxes.begin(),
-                    bboxes.end(),
-                    [](const math::BBox2i& a, const math::BBox2i& b)
-                    {
-                        return a.getArea() > b.getArea();
-                    });
-                _menuWidget->setGeometry(bboxes.front());
-            }
-
-            void Overlay::drawEvent(
-                const math::BBox2i& drawRect,
-                const DrawEvent& event)
-            {
-                IWidget::drawEvent(drawRect, event);
-                //event.render->drawRect(
-                //    _geometry,
-                //    imaging::Color4f(0.F, 0.F, 0.F, .2F));
-            }
-
-            void Overlay::enterEvent()
-            {}
-
-            void Overlay::leaveEvent()
-            {}
-
-            void Overlay::mouseMoveEvent(MouseMoveEvent& event)
-            {
-                event.accept = true;
-            }
-
-            void Overlay::mousePressEvent(MouseClickEvent& event)
-            {
-                event.accept = true;
-                if (_callback)
-                {
-                    _callback(-1);
-                }
-            }
-
-            void Overlay::mouseReleaseEvent(MouseClickEvent& event)
-            {
-                event.accept = true;
-            }
-
-            void Overlay::keyPressEvent(KeyEvent& event)
-            {
-                switch (event.key)
-                {
-                case Key::Tab:
-                    break;
-                case Key::Escape:
-                    event.accept = true;
-                    if (_callback)
-                    {
-                        _callback(-1);
-                    }
-                    break;
-                default:
-                    event.accept = true;
-                    break;
-                }
-            }
-
-            void Overlay::keyReleaseEvent(KeyEvent& event)
-            {
-                event.accept = true;
             }
         }
 
@@ -344,16 +130,18 @@ namespace tl
             bool iconInit = false;
             std::future<std::shared_ptr<imaging::Image> > iconFuture;
             std::shared_ptr<imaging::Image> iconImage;
-            bool icon2Init = false;
-            std::future<std::shared_ptr<imaging::Image> > icon2Future;
-            std::shared_ptr<imaging::Image> icon2Image;
+            bool arrowIconInit = false;
+            std::future<std::shared_ptr<imaging::Image> > arrowIconFuture;
+            std::shared_ptr<imaging::Image> arrowIconImage;
+
+            std::shared_ptr<ComboBoxMenu> menu;
 
             struct SizeData
             {
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
-                imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
+                imaging::FontInfo fontInfo;
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
             };
@@ -372,8 +160,6 @@ namespace tl
                 bool pressed = false;
             };
             MouseData mouse;
-
-            std::shared_ptr<Overlay> overlay;
         };
 
         void ComboBox::_init(
@@ -511,9 +297,9 @@ namespace tl
                 p.iconInit = true;
                 p.iconFuture = std::future<std::shared_ptr<imaging::Image> >();
                 p.iconImage.reset();
-                p.icon2Init = true;
-                p.icon2Future = std::future<std::shared_ptr<imaging::Image> >();
-                p.icon2Image.reset();
+                p.arrowIconInit = true;
+                p.arrowIconFuture = std::future<std::shared_ptr<imaging::Image> >();
+                p.arrowIconImage.reset();
             }
             if (!p.icon.empty() && p.iconInit)
             {
@@ -527,15 +313,15 @@ namespace tl
                 _updates |= Update::Size;
                 _updates |= Update::Draw;
             }
-            if (p.icon2Init)
+            if (p.arrowIconInit)
             {
-                p.icon2Init = false;
-                p.icon2Future = event.iconLibrary->request("ComboBoxArrow", event.displayScale);
+                p.arrowIconInit = false;
+                p.arrowIconFuture = event.iconLibrary->request("MenuArrow", event.displayScale);
             }
-            if (p.icon2Future.valid() &&
-                p.icon2Future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+            if (p.arrowIconFuture.valid() &&
+                p.arrowIconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
-                p.icon2Image = p.icon2Future.get();
+                p.arrowIconImage = p.arrowIconFuture.get();
                 _updates |= Update::Size;
                 _updates |= Update::Draw;
             }
@@ -552,18 +338,15 @@ namespace tl
 
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
             auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            if (fontInfo != p.size.fontInfo)
+            p.size.fontInfo = fontInfo;
+            p.size.textSize = math::Vector2i();
+            for (const auto& i : p.items)
             {
-                p.size.fontInfo = fontInfo;
-                p.size.textSize = math::Vector2i();
-                for (const auto& i : p.items)
+                if (!i.text.empty())
                 {
-                    if (!i.text.empty())
-                    {
-                        const math::Vector2i textSize = event.fontSystem->getSize(i.text, fontInfo);
-                        p.size.textSize.x = std::max(p.size.textSize.x, textSize.x);
-                        p.size.textSize.y = std::max(p.size.textSize.y, textSize.y);
-                    }
+                    const math::Vector2i textSize = event.fontSystem->getSize(i.text, fontInfo);
+                    p.size.textSize.x = std::max(p.size.textSize.x, textSize.x);
+                    p.size.textSize.y = std::max(p.size.textSize.y, textSize.y);
                 }
             }
 
@@ -580,13 +363,13 @@ namespace tl
                     _sizeHint.y,
                     static_cast<int>(p.iconImage->getHeight()));
             }
-            if (p.icon2Image)
+            if (p.arrowIconImage)
             {
-                _sizeHint.x += p.icon2Image->getWidth();
+                _sizeHint.x += p.arrowIconImage->getWidth();
                 _sizeHint.x += p.size.spacing;
                 _sizeHint.y = std::max(
                     _sizeHint.y,
-                    static_cast<int>(p.icon2Image->getHeight()));
+                    static_cast<int>(p.arrowIconImage->getHeight()));
             }
             _sizeHint.x +=
                 p.size.margin * 2 +
@@ -688,11 +471,11 @@ namespace tl
                 x += p.size.textSize.x + p.size.margin * 2 + p.size.spacing;
             }
 
-            if (p.icon2Image)
+            if (p.arrowIconImage)
             {
-                const imaging::Size& iconSize = p.icon2Image->getSize();
+                const imaging::Size& iconSize = p.arrowIconImage->getSize();
                 event.render->drawImage(
-                    p.icon2Image,
+                    p.arrowIconImage,
                     math::BBox2i(
                         x,
                         g2.y() + g2.h() / 2 - iconSize.h / 2,
@@ -732,7 +515,6 @@ namespace tl
             p.mouse.pressed = true;
             _updates |= Update::Draw;
             _click();
-            _resetMouse();
         }
 
         void ComboBox::mouseReleaseEvent(MouseClickEvent& event)
@@ -749,9 +531,11 @@ namespace tl
             switch (event.key)
             {
             case Key::Up:
+                event.accept = true;
                 _commitIndex(p.currentIndex - 1);
                 break;
             case Key::Down:
+                event.accept = true;
                 _commitIndex(p.currentIndex + 1);
                 break;
             case Key::Space:
@@ -789,34 +573,44 @@ namespace tl
         void ComboBox::_click()
         {
             TLRENDER_P();
+            takeKeyFocus();
             if (auto context = _context.lock())
             {
                 if (auto eventLoop = getEventLoop().lock())
                 {
-                    p.overlay = Overlay::create(
-                        p.items,
-                        _geometry.margin(-p.size.border),
-                        context);
-                    auto weak = std::weak_ptr<ComboBox>(std::dynamic_pointer_cast<ComboBox>(shared_from_this()));
-                    p.overlay->setCallback(
-                        [weak](int index)
-                        {
-                            if (auto widget = weak.lock())
+                    if (!p.menu)
+                    {
+                        p.menu = ComboBoxMenu::create(p.items, context);
+                        p.menu->open(eventLoop, _geometry.margin(-p.size.border));
+                        auto weak = std::weak_ptr<ComboBox>(std::dynamic_pointer_cast<ComboBox>(shared_from_this()));
+                        p.menu->setCallback(
+                            [weak](int index)
                             {
-                                widget->_p->overlay.reset();
-                                if (widget->acceptsKeyFocus())
+                                if (auto widget = weak.lock())
                                 {
+                                    widget->_p->menu->close();
+                                    widget->_p->menu.reset();
                                     widget->takeKeyFocus();
+                                    if (index != -1)
+                                    {
+                                        widget->_commitIndex(index);
+                                    }
                                 }
-                                widget->_updates |= Update::Size;
-                                widget->_updates |= Update::Draw;
-                                if (index != -1)
+                            });
+                        p.menu->setCloseCallback(
+                            [weak]
+                            {
+                                if (auto widget = weak.lock())
                                 {
-                                    widget->_commitIndex(index);
+                                    widget->_p->menu.reset();
                                 }
-                            }
-                        });
-                    eventLoop->addWidget(p.overlay);
+                            });
+                    }
+                    else
+                    {
+                        p.menu->close();
+                        p.menu.reset();
+                    }
                 }
             }
         }

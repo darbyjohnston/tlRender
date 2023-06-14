@@ -8,5 +8,5 @@ set(SOURCE
     main.cpp)
 
 add_executable(test-patterns ${SOURCE} ${HEADERS})
-target_link_libraries(test-patterns tlApp tlGL GLFW)
+target_link_libraries(test-patterns tlApp tlGL)
 set_target_properties(test-patterns PROPERTIES FOLDER examples)

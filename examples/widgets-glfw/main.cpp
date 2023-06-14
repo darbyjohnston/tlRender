@@ -4,7 +4,7 @@
 
 #include "App.h"
 
-#include <tlGL/Util.h>
+#include <tlTimeline/Util.h>
 
 #include <iostream>
 
@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
     try
     {
         auto context = tl::system::Context::create();
-        tl::gl::init(context);
+        tl::timeline::init(context);
         auto app = tl::examples::ui_glfw::App::create(argc, argv, context);
         if (0 == app->getExit())
         {

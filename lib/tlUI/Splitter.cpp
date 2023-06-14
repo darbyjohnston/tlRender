@@ -92,7 +92,7 @@ namespace tl
                 w = p.size.handle;
                 p.size.handleGeometry.push_back(math::BBox2i(x, y, w, h));
                 x += w;
-                w = g.w() - g.w() * p.split - p.size.handle;
+                w = g.x() + g.w() - x;
                 childGeometry.push_back(math::BBox2i(x, y, w, h));
                 break;
             case Orientation::Vertical:
@@ -103,7 +103,7 @@ namespace tl
                 h = p.size.handle;
                 p.size.handleGeometry.push_back(math::BBox2i(x, y, w, h));
                 y += h;
-                h = g.h() - g.h() * p.split - p.size.handle;
+                h = g.y() + g.h() - y;
                 childGeometry.push_back(math::BBox2i(x, y, w, h));
                 break;
             }

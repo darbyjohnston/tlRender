@@ -6,8 +6,9 @@
 
 #include "TestPatterns.h"
 
+#include <tlTimeline/GLRender.h>
+
 #include <tlGL/OffscreenBuffer.h>
-#include <tlGL/Render.h>
 #include <tlGL/Util.h>
 
 #include <tlIO/IOSystem.h>
@@ -33,11 +34,6 @@ namespace tl
         {
             namespace
             {
-                void glfwErrorCallback(int, const char* description)
-                {
-                    std::cerr << "GLFW ERROR: " << description << std::endl;
-                }
-
                 /*void APIENTRY glDebugOutput(
                     GLenum         source,
                     GLenum         type,
@@ -71,18 +67,6 @@ namespace tl
                     context,
                     "test-patterns",
                     "Example test patterns application.");
-
-                // Initialize GLFW.
-                glfwSetErrorCallback(glfwErrorCallback);
-                int glfwMajor = 0;
-                int glfwMinor = 0;
-                int glfwRevision = 0;
-                glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRevision);
-                _log(string::Format("GLFW version: {0}.{1}.{2}").arg(glfwMajor).arg(glfwMinor).arg(glfwRevision));
-                if (!glfwInit())
-                {
-                    throw std::runtime_error("Cannot initialize GLFW");
-                }
 
                 // Create the window.
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -137,7 +121,6 @@ namespace tl
                 {
                     glfwDestroyWindow(_glfwWindow);
                 }
-                glfwTerminate();
             }
 
             std::shared_ptr<App> App::create(
@@ -225,7 +208,7 @@ namespace tl
                         auto image = imaging::Image::create(info);
 
                         // Render the test pattern.
-                        auto render = gl::Render::create(_context);
+                        auto render = timeline::GLRender::create(_context);
                         auto pattern = TestPatternFactory::create(name, size, _context);
                         for (double i = ioInfo.videoTime.start_time().value(); i < ioInfo.videoTime.duration().value(); i = i + 1.0)
                         {

@@ -4,9 +4,10 @@
 
 #include <tlQtWidget/TimelineViewport.h>
 
+#include <tlTimeline/GLRender.h>
+
 #include <tlGL/Mesh.h>
 #include <tlGL/OffscreenBuffer.h>
-#include <tlGL/Render.h>
 #include <tlGL/Shader.h>
 #include <tlGL/Util.h>
 
@@ -31,7 +32,6 @@ namespace tl
             timeline::CompareOptions compareOptions;
             std::vector<qt::TimelinePlayer*> timelinePlayers;
             std::vector<imaging::Size> timelineSizes;
-            std::vector<imaging::Size> timelineSizesTmp;
             math::Vector2i viewPos;
             float viewZoom = 1.F;
             bool frameView = true;
@@ -130,16 +130,23 @@ namespace tl
             }
 
             p.timelinePlayers = value;
-            p.timelineSizesTmp.clear();
+
+            p.timelineSizes.clear();
             for (const auto& i : p.timelinePlayers)
             {
                 const auto& ioInfo = i->ioInfo();
                 if (!ioInfo.video.empty())
                 {
-                    p.timelineSizesTmp.push_back(ioInfo.video[0].size);
+                    p.timelineSizes.push_back(ioInfo.video[0].size);
                 }
             }
+
             p.videoData.clear();
+            for (const auto& i : p.timelinePlayers)
+            {
+                p.videoData.push_back(i->currentVideo());
+            }
+
             update();
 
             for (const auto& i : p.timelinePlayers)
@@ -215,7 +222,6 @@ namespace tl
         void TimelineViewport::_currentVideoCallback(const timeline::VideoData& value)
         {
             TLRENDER_P();
-            p.timelineSizes = p.timelineSizesTmp;
             if (p.videoData.size() != p.timelinePlayers.size())
             {
                 p.videoData = std::vector<timeline::VideoData>(p.timelinePlayers.size());
@@ -247,7 +253,7 @@ namespace tl
             {
                 if (auto context = p.context.lock())
                 {
-                    p.render = gl::Render::create(context);
+                    p.render = timeline::GLRender::create(context);
                 }
 
                 const std::string vertexSource =
@@ -339,8 +345,7 @@ namespace tl
                         renderSize,
                         p.colorConfigOptions,
                         p.lutOptions); 
-                    if (!p.videoData.empty() &&
-                        p.videoData.size() == p.timelineSizes.size())
+                    if (!p.videoData.empty())
                     {
                         p.render->drawVideo(
                             p.videoData,

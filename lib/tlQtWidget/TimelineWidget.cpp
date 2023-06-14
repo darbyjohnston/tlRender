@@ -4,13 +4,16 @@
 
 #include <tlQtWidget/TimelineWidget.h>
 
+#include <tlQtWidget/Util.h>
+
 #include <tlTimelineUI/TimelineWidget.h>
 
 #include <tlUI/EventLoop.h>
 #include <tlUI/IClipboard.h>
 #include <tlUI/RowLayout.h>
 
-#include <tlGL/Render.h>
+#include <tlTimeline/GLRender.h>
+
 #include <tlGL/Util.h>
 
 #include <QClipboard>
@@ -69,9 +72,7 @@ namespace tl
         {
             std::weak_ptr<system::Context> context;
 
-            qt::TimeObject* timeObject = nullptr;
             std::shared_ptr<timeline::Player> player;
-            float mouseWheelScale = 20.F;
 
             std::shared_ptr<ui::Style> style;
             std::shared_ptr<ui::IconLibrary> iconLibrary;
@@ -81,13 +82,14 @@ namespace tl
             std::shared_ptr<ui::EventLoop> eventLoop;
             timelineui::ItemOptions itemOptions;
             std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
-
             std::chrono::steady_clock::time_point mouseWheelTimer;
 
             int timer = 0;
         };
 
         TimelineWidget::TimelineWidget(
+            const std::shared_ptr<ui::Style>& style,
+            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<system::Context>& context,
             QWidget* parent) :
             QOpenGLWidget(parent),
@@ -108,7 +110,7 @@ namespace tl
             setMouseTracking(true);
             setFocusPolicy(Qt::StrongFocus);
 
-            p.style = ui::Style::create(context);
+            p.style = style;
             p.iconLibrary = ui::IconLibrary::create(context);
             p.fontSystem = imaging::FontSystem::create(context);
             p.clipboard = Clipboard::create(context);
@@ -118,44 +120,22 @@ namespace tl
                 p.fontSystem,
                 p.clipboard,
                 context);
-            p.timelineWidget = timelineui::TimelineWidget::create(context);
+            p.timelineWidget = timelineui::TimelineWidget::create(timeUnitsModel, context);
             p.timelineWidget->setFrameViewCallback(
                 [this](bool value)
                 {
                     Q_EMIT frameViewChanged(value);
                 });
+            //p.timelineWidget->setScrollBarsVisible(false);
             p.eventLoop->addWidget(p.timelineWidget);
+
+            _styleUpdate();
 
             p.timer = startTimer(10);
         }
 
         TimelineWidget::~TimelineWidget()
         {}
-
-        void TimelineWidget::setTimeObject(qt::TimeObject * timeObject)
-        {
-            TLRENDER_P();
-            if (timeObject == p.timeObject)
-                return;
-            if (p.timeObject)
-            {
-                disconnect(
-                    p.timeObject,
-                    SIGNAL(timeUnitsChanged(tl::timeline::TimeUnits)),
-                    this,
-                    SLOT(_setTimeUnits(tl::timeline::TimeUnits)));
-            }
-            p.timeObject = timeObject;
-            if (p.timeObject)
-            {
-                p.itemOptions.timeUnits = p.timeObject->timeUnits();
-                p.timelineWidget->setItemOptions(p.itemOptions);
-                connect(
-                    p.timeObject,
-                    SIGNAL(timeUnitsChanged(tl::timeline::TimeUnits)),
-                    SLOT(_setTimeUnits(tl::timeline::TimeUnits)));
-            }
-        }
 
         void TimelineWidget::setPlayer(const std::shared_ptr<timeline::Player>& player)
         {
@@ -171,11 +151,14 @@ namespace tl
             _p->timelineWidget->setFrameView(value);
         }
 
-        void TimelineWidget::setThumbnails(bool value)
+        void TimelineWidget::setScrollBarsVisible(bool value)
         {
-            TLRENDER_P();
-            p.itemOptions.thumbnails = value;
-            _p->timelineWidget->setItemOptions(p.itemOptions);
+            _p->timelineWidget->setScrollBarsVisible(value);
+        }
+
+        void TimelineWidget::setScrollKeyModifier(ui::KeyModifier value)
+        {
+            _p->timelineWidget->setScrollKeyModifier(value);
         }
 
         void TimelineWidget::setStopOnScrub(bool value)
@@ -183,10 +166,21 @@ namespace tl
             _p->timelineWidget->setStopOnScrub(value);
         }
 
-        void TimelineWidget::setMouseWheelScale(float value)
+        void TimelineWidget::setThumbnails(bool value)
         {
             TLRENDER_P();
-            p.mouseWheelScale = value;
+            p.itemOptions.thumbnails = value;
+            _p->timelineWidget->setItemOptions(p.itemOptions);
+        }
+
+        void TimelineWidget::setMouseWheelScale(float value)
+        {
+            _p->timelineWidget->setMouseWheelScale(value);
+        }
+
+        void TimelineWidget::setItemOptions(const timelineui::ItemOptions& value)
+        {
+            _p->timelineWidget->setItemOptions(value);
         }
 
         void TimelineWidget::initializeGL()
@@ -196,7 +190,7 @@ namespace tl
             gl::initGLAD();
             if (auto context = p.context.lock())
             {
-                p.render = gl::Render::create(context);
+                p.render = timeline::GLRender::create(context);
             }
         }
 
@@ -442,11 +436,15 @@ namespace tl
             }
         }
 
-        void TimelineWidget::_setTimeUnits(timeline::TimeUnits value)
+        bool TimelineWidget::event(QEvent* event)
         {
             TLRENDER_P();
-            p.itemOptions.timeUnits = value;
-            p.timelineWidget->setItemOptions(p.itemOptions);
+            bool out = QOpenGLWidget::event(event);
+            if (event->type() == QEvent::StyleChange)
+            {
+                _styleUpdate();
+            }
+            return out;
         }
 
         int TimelineWidget::_toUI(int value) const
@@ -471,6 +469,24 @@ namespace tl
         {
             const float devicePixelRatio = window()->devicePixelRatio();
             return devicePixelRatio > 0.F ? (value / devicePixelRatio) : math::Vector2i();
+        }
+
+        void TimelineWidget::_styleUpdate()
+        {
+            /*TLRENDER_P();
+            const auto palette = this->palette();
+            p.style->setColorRole(
+                ui::ColorRole::Window,
+                fromQt(palette.color(QPalette::ColorRole::Window)));
+            p.style->setColorRole(
+                ui::ColorRole::Base,
+                fromQt(palette.color(QPalette::ColorRole::Base)));
+            p.style->setColorRole(
+                ui::ColorRole::Button,
+                fromQt(palette.color(QPalette::ColorRole::Button)));
+            p.style->setColorRole(
+                ui::ColorRole::Text,
+                fromQt(palette.color(QPalette::ColorRole::WindowText)));*/
         }
     }
 }

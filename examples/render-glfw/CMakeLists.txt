@@ -6,5 +6,5 @@ set(SOURCE
     main.cpp)
 
 add_executable(render-glfw ${SOURCE} ${HEADERS})
-target_link_libraries(render-glfw tlApp tlGL GLFW)
+target_link_libraries(render-glfw tlApp tlGL)
 set_target_properties(render-glfw PROPERTIES FOLDER examples)

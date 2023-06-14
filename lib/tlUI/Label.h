@@ -33,6 +33,10 @@ namespace tl
             //! Set the text.
             void setText(const std::string&);
 
+            //! Set the number of characters to show. A value of
+            //! zero (the default) shows the entire text.
+            void setTextWidth(size_t);
+
             //! Set the margin role.
             void setMarginRole(SizeRole);
 
@@ -49,6 +53,7 @@ namespace tl
                 const DrawEvent&) override;
 
         private:
+            std::string _getText() const;
             TLRENDER_PRIVATE();
         };
     }

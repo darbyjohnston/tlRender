@@ -4,8 +4,9 @@
 
 #include <tlQt/TimelineThumbnailObject.h>
 
+#include <tlTimeline/GLRender.h>
+
 #include <tlGL/OffscreenBuffer.h>
-#include <tlGL/Render.h>
 #include <tlGL/Util.h>
 
 #include <tlTimeline/Timeline.h>
@@ -208,7 +209,7 @@ namespace tl
 
             if (auto context = p.context.lock())
             {
-                auto render = gl::Render::create(context);
+                auto render = timeline::GLRender::create(context);
 
                 std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
                 while (p.running)

@@ -19,12 +19,13 @@ namespace tl
 
         protected:
             void _init(const std::shared_ptr<system::Context>&);
+            
             System();
 
         public:
             ~System() override;
 
-            //! Create a new I/O system.
+            //! Create a new system.
             static std::shared_ptr<System> create(const std::shared_ptr<system::Context>&);
 
             //! Set the plugin options.
@@ -32,6 +33,12 @@ namespace tl
 
             //! Get the list of plugins.
             const std::vector<std::shared_ptr<IPlugin> >& getPlugins() const;
+            
+            //! Add a plugin.
+            void addPlugin(const std::shared_ptr<IPlugin>&);
+            
+            //! Remove a plugin.
+            void removePlugin(const std::shared_ptr<IPlugin>&);
 
             //! Get a plugin.
             template<typename T>

@@ -31,7 +31,7 @@ set(SOURCE
     SGIWrite.cpp
     Util.cpp)
 
-set(LIBRARIES tlCore)
+set(LIBRARIES)
 set(LIBRARIES_PRIVATE)
 if(TLRENDER_JPEG)
     list(APPEND HEADERS_PRIVATE JPEG.h)
@@ -60,6 +60,12 @@ if(TLRENDER_FFMPEG)
         FFmpegReadVideo.cpp FFmpegWrite.cpp)
     list(APPEND LIBRARIES_PRIVATE FFmpeg)
 endif()
+if(TLRENDER_USD)
+    list(APPEND HEADERS_PRIVATE USD.h USDPrivate.h)
+    list(APPEND SOURCE USD.cpp USDRead.cpp USDRender.cpp)
+    list(APPEND LIBRARIES_PRIVATE tf usd usdGeom usdImagingGL usdAppUtils hd)
+endif()
+list(APPEND LIBRARIES tlGL)
 
 add_library(tlIO ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
 target_link_libraries(tlIO PUBLIC ${LIBRARIES} PRIVATE ${LIBRARIES_PRIVATE})

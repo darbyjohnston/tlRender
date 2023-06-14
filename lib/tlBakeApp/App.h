@@ -16,6 +16,9 @@
 #if defined(TLRENDER_FFMPEG)
 #include <tlIO/FFmpeg.h>
 #endif // TLRENDER_FFMPEG
+#if defined(TLRENDER_USD)
+#include <tlIO/USD.h>
+#endif // TLRENDER_USD
 
 struct GLFWwindow;
 
@@ -42,6 +45,14 @@ namespace tl
             std::string ffmpegWriteProfile;
             int ffmpegThreadCount = ffmpeg::threadCount;
 #endif // TLRENDER_FFMPEG
+#if defined(TLRENDER_USD)
+            size_t usdRenderWidth = usd::RenderOptions().renderWidth;
+            float usdComplexity = usd::RenderOptions().complexity;
+            usd::DrawMode usdDrawMode = usd::RenderOptions().drawMode;
+            bool usdEnableLighting = usd::RenderOptions().enableLighting;
+            size_t usdStageCache = usd::RenderOptions().stageCacheCount;
+            size_t usdDiskCache = usd::RenderOptions().diskCacheByteCount / memory::gigabyte;
+#endif // TLRENDER_USD
         };
 
         //! Application.
@@ -84,6 +95,7 @@ namespace tl
             otime::RationalTime _outputTime = time::invalidTime;
 
             GLFWwindow* _glfwWindow = nullptr;
+            std::shared_ptr<io::IPlugin> _usdPlugin;
             std::shared_ptr<timeline::IRender> _render;
             std::shared_ptr<gl::OffscreenBuffer> _buffer;
 

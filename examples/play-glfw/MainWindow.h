@@ -12,6 +12,8 @@ namespace tl
     {
         namespace play_glfw
         {
+            class App;
+
             //! Main window.
             class MainWindow : public ui::IWidget
             {
@@ -20,6 +22,7 @@ namespace tl
             protected:
                 void _init(
                     const std::shared_ptr<timeline::Player>&,
+                    const std::shared_ptr<App>&,
                     const std::shared_ptr<system::Context>&);
 
                 MainWindow();
@@ -29,11 +32,14 @@ namespace tl
 
                 static std::shared_ptr<MainWindow> create(
                     const std::shared_ptr<timeline::Player>&,
+                    const std::shared_ptr<App>&,
                     const std::shared_ptr<system::Context>&);
 
                 void setGeometry(const math::BBox2i&) override;
 
             private:
+                void _infoUpdate();
+
                 TLRENDER_PRIVATE();
             };
         }

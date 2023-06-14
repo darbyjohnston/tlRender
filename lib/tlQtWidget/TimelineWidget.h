@@ -4,9 +4,7 @@
 
 #pragma once
 
-#include <tlQt/TimeObject.h>
-
-#include <tlCore/Vector.h>
+#include <tlTimelineUI/IItem.h>
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_1_Core>
@@ -29,13 +27,12 @@ namespace tl
 
         public:
             TimelineWidget(
+                const std::shared_ptr<ui::Style>&,
+                const std::shared_ptr<timeline::TimeUnitsModel>&,
                 const std::shared_ptr<system::Context>&,
                 QWidget* parent = nullptr);
 
             ~TimelineWidget() override;
-
-            //! Set the time object.
-            void setTimeObject(qt::TimeObject*);
 
             //! Set the timeline player.
             void setPlayer(const std::shared_ptr<timeline::Player>&);
@@ -43,6 +40,12 @@ namespace tl
         public Q_SLOTS:
             //! Set whether the to frame the view.
             void setFrameView(bool);
+
+            //! Set whether the scroll bars are visible.
+            void setScrollBarsVisible(bool);
+
+            //! Set the mouse scroll key modifier.
+            void setScrollKeyModifier(ui::KeyModifier);
 
             //! Set whether to stop playback when scrubbing.
             void setStopOnScrub(bool);
@@ -52,6 +55,9 @@ namespace tl
 
             //! Set the mouse wheel scale.
             void setMouseWheelScale(float);
+
+            //! Set the item options.
+            void setItemOptions(const timelineui::ItemOptions&);
 
         Q_SIGNALS:
             //! This signal is emitted when the frame view is changed.
@@ -76,15 +82,15 @@ namespace tl
             void keyReleaseEvent(QKeyEvent*) override;
 
             void timerEvent(QTimerEvent*) override;
-
-        private Q_SLOTS:
-            void _setTimeUnits(tl::timeline::TimeUnits);
+            bool event(QEvent*) override;
 
         private:
             int _toUI(int) const;
             math::Vector2i _toUI(const math::Vector2i&) const;
             int _fromUI(int) const;
             math::Vector2i _fromUI(const math::Vector2i&) const;
+
+            void _styleUpdate();
 
             TLRENDER_PRIVATE();
         };

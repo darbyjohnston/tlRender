@@ -55,5 +55,14 @@ namespace tl
                 "tl::qtwidget::initFonts",
                 string::Format("Added Qt application fonts: {0}").arg(string::join(fontFamilyList, ", ")));
         }
+
+        imaging::Color4f fromQt(const QColor& value)
+        {
+            return imaging::Color4f(
+                value.redF(),
+                value.greenF(),
+                value.blueF(),
+                value.alphaF());
+        }
     }
 }

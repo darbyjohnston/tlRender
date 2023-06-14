@@ -177,26 +177,12 @@ namespace tl
             otime::ErrorStatus errorStatus;
             if (p.timeUnitsModel)
             {
-                switch (p.timeUnitsModel->getTimeUnits())
-                {
-                case timeline::TimeUnits::Frames:
-                    tmp = otime::RationalTime::from_frames(
-                        atoi(value.c_str()),
-                        p.value.rate());
-                    break;
-                case timeline::TimeUnits::Seconds:
-                    tmp = otime::RationalTime::from_seconds(
-                        atof(value.c_str()),
-                        p.value.rate());
-                    break;
-                case timeline::TimeUnits::Timecode:
-                    tmp = otime::RationalTime::from_timecode(
-                        value,
-                        p.value.rate(),
-                        &errorStatus);
-                    break;
-                default: break;
-                }
+                const timeline::TimeUnits timeUnits = p.timeUnitsModel->getTimeUnits();
+                tmp = timeline::textToTime(
+                    value,
+                    p.value.rate(),
+                    timeUnits,
+                    &errorStatus);
             }
             const bool valid =
                 tmp != time::invalidTime &&
@@ -230,22 +216,9 @@ namespace tl
             std::string format;
             if (p.timeUnitsModel)
             {
-                switch (p.timeUnitsModel->getTimeUnits())
-                {
-                case timeline::TimeUnits::Frames:
-                    text = string::Format("{0}").arg(p.value.to_frames());
-                    format = "000000";
-                    break;
-                case timeline::TimeUnits::Seconds:
-                    text = string::Format("{0}").arg(p.value.to_seconds(), 2);
-                    format = "000000.00";
-                    break;
-                case timeline::TimeUnits::Timecode:
-                    text = p.value.to_timecode();
-                    format = "00:00:00;00";
-                    break;
-                default: break;
-                }
+                const timeline::TimeUnits timeUnits = p.timeUnitsModel->getTimeUnits();
+                text = timeline::timeToText(p.value, timeUnits);
+                format = timeline::formatString(timeUnits);
             }
             p.lineEdit->setText(text);
             p.lineEdit->setFormat(format);

@@ -19,6 +19,9 @@ namespace tl
 
         // Remove a directory.
         bool rmdir(const std::string&);
+        
+        // Remove a file.
+        bool rm(const std::string&);
 
         // Get the temporary directory.
         std::string getTemp();

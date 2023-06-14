@@ -25,6 +25,9 @@
 #include <tlTimeline/Util.h>
 
 #include <tlIO/IOSystem.h>
+#if defined(TLRENDER_USD)
+#include <tlIO/USD.h>
+#endif // TLRENDER_USD
 
 #include <tlCore/AudioSystem.h>
 #include <tlCore/Math.h>
@@ -53,6 +56,14 @@ namespace tl
                 timeline::ColorConfigOptions colorConfigOptions;
                 timeline::LUTOptions lutOptions;
                 bool resetSettings = false;
+#if defined(TLRENDER_USD)
+                size_t usdRenderWidth = usd::RenderOptions().renderWidth;
+                float usdComplexity = usd::RenderOptions().complexity;
+                usd::DrawMode usdDrawMode = usd::RenderOptions().drawMode;
+                bool usdEnableLighting = usd::RenderOptions().enableLighting;
+                size_t usdStageCache = usd::RenderOptions().stageCacheCount;
+                size_t usdDiskCache = usd::RenderOptions().diskCacheByteCount / memory::gigabyte;
+#endif // TLRENDER_USD
             };
         }
 
@@ -107,86 +118,119 @@ namespace tl
                         "Timeline, movie, image sequence, or folder.",
                         true)
                 },
-        {
-            app::CmdLineValueOption<std::string>::create(
-                p.options.audioFileName,
-                { "-audio", "-a" },
-                "Audio file name."),
-            app::CmdLineValueOption<std::string>::create(
-                p.options.compareFileName,
-                { "-compare", "-b" },
-                "A/B comparison \"B\" file name."),
-            app::CmdLineValueOption<timeline::CompareMode>::create(
-                p.options.compareOptions.mode,
-                { "-compareMode", "-c" },
-                "A/B comparison mode.",
-                string::Format("{0}").arg(p.options.compareOptions.mode),
-                string::join(timeline::getCompareModeLabels(), ", ")),
-            app::CmdLineValueOption<math::Vector2f>::create(
-                p.options.compareOptions.wipeCenter,
-                { "-wipeCenter", "-wc" },
-                "A/B comparison wipe center.",
-                string::Format("{0}").arg(p.options.compareOptions.wipeCenter)),
-            app::CmdLineValueOption<float>::create(
-                p.options.compareOptions.wipeRotation,
-                { "-wipeRotation", "-wr" },
-                "A/B comparison wipe rotation.",
-                string::Format("{0}").arg(p.options.compareOptions.wipeRotation)),
-            app::CmdLineValueOption<double>::create(
-                p.options.speed,
-                { "-speed" },
-                "Playback speed."),
-            app::CmdLineValueOption<timeline::Playback>::create(
-                p.options.playback,
-                { "-playback", "-p" },
-                "Playback mode.",
-                string::Format("{0}").arg(p.options.playback),
-                string::join(timeline::getPlaybackLabels(), ", ")),
-            app::CmdLineValueOption<timeline::Loop>::create(
-                p.options.loop,
-                { "-loop" },
-                "Playback loop mode.",
-                string::Format("{0}").arg(p.options.loop),
-                string::join(timeline::getLoopLabels(), ", ")),
-            app::CmdLineValueOption<otime::RationalTime>::create(
-                p.options.seek,
-                { "-seek" },
-                "Seek to the given time."),
-            app::CmdLineValueOption<otime::TimeRange>::create(
-                p.options.inOutRange,
-                { "-inOutRange" },
-                "Set the in/out points range."),
-            app::CmdLineValueOption<std::string>::create(
-                p.options.colorConfigOptions.fileName,
-                { "-colorConfig", "-cc" },
-                "Color configuration file name (config.ocio)."),
-            app::CmdLineValueOption<std::string>::create(
-                p.options.colorConfigOptions.input,
-                { "-colorInput", "-ci" },
-                "Input color space."),
-            app::CmdLineValueOption<std::string>::create(
-                p.options.colorConfigOptions.display,
-                { "-colorDisplay", "-cd" },
-                "Display color space."),
-            app::CmdLineValueOption<std::string>::create(
-                p.options.colorConfigOptions.view,
-                { "-colorView", "-cv" },
-                "View color space."),
-            app::CmdLineValueOption<std::string>::create(
-                p.options.lutOptions.fileName,
-                { "-lut" },
-                "LUT file name."),
-            app::CmdLineValueOption<timeline::LUTOrder>::create(
-                p.options.lutOptions.order,
-                { "-lutOrder" },
-                "LUT operation order.",
-                string::Format("{0}").arg(p.options.lutOptions.order),
-                string::join(timeline::getLUTOrderLabels(), ", ")),
-            app::CmdLineFlagOption::create(
-                p.options.resetSettings,
-                { "-resetSettings" },
-                "Reset settings to defaults.")
-        });
+                {
+                    app::CmdLineValueOption<std::string>::create(
+                        p.options.audioFileName,
+                        { "-audio", "-a" },
+                        "Audio file name."),
+                    app::CmdLineValueOption<std::string>::create(
+                        p.options.compareFileName,
+                        { "-compare", "-b" },
+                        "A/B comparison \"B\" file name."),
+                    app::CmdLineValueOption<timeline::CompareMode>::create(
+                        p.options.compareOptions.mode,
+                        { "-compareMode", "-c" },
+                        "A/B comparison mode.",
+                        string::Format("{0}").arg(p.options.compareOptions.mode),
+                        string::join(timeline::getCompareModeLabels(), ", ")),
+                    app::CmdLineValueOption<math::Vector2f>::create(
+                        p.options.compareOptions.wipeCenter,
+                        { "-wipeCenter", "-wc" },
+                        "A/B comparison wipe center.",
+                        string::Format("{0}").arg(p.options.compareOptions.wipeCenter)),
+                    app::CmdLineValueOption<float>::create(
+                        p.options.compareOptions.wipeRotation,
+                        { "-wipeRotation", "-wr" },
+                        "A/B comparison wipe rotation.",
+                        string::Format("{0}").arg(p.options.compareOptions.wipeRotation)),
+                    app::CmdLineValueOption<double>::create(
+                        p.options.speed,
+                        { "-speed" },
+                        "Playback speed."),
+                    app::CmdLineValueOption<timeline::Playback>::create(
+                        p.options.playback,
+                        { "-playback", "-p" },
+                        "Playback mode.",
+                        string::Format("{0}").arg(p.options.playback),
+                        string::join(timeline::getPlaybackLabels(), ", ")),
+                    app::CmdLineValueOption<timeline::Loop>::create(
+                        p.options.loop,
+                        { "-loop" },
+                        "Playback loop mode.",
+                        string::Format("{0}").arg(p.options.loop),
+                        string::join(timeline::getLoopLabels(), ", ")),
+                    app::CmdLineValueOption<otime::RationalTime>::create(
+                        p.options.seek,
+                        { "-seek" },
+                        "Seek to the given time."),
+                    app::CmdLineValueOption<otime::TimeRange>::create(
+                        p.options.inOutRange,
+                        { "-inOutRange" },
+                        "Set the in/out points range."),
+                    app::CmdLineValueOption<std::string>::create(
+                        p.options.colorConfigOptions.fileName,
+                        { "-colorConfig", "-cc" },
+                        "Color configuration file name (config.ocio)."),
+                    app::CmdLineValueOption<std::string>::create(
+                        p.options.colorConfigOptions.input,
+                        { "-colorInput", "-ci" },
+                        "Input color space."),
+                    app::CmdLineValueOption<std::string>::create(
+                        p.options.colorConfigOptions.display,
+                        { "-colorDisplay", "-cd" },
+                        "Display color space."),
+                    app::CmdLineValueOption<std::string>::create(
+                        p.options.colorConfigOptions.view,
+                        { "-colorView", "-cv" },
+                        "View color space."),
+                    app::CmdLineValueOption<std::string>::create(
+                        p.options.lutOptions.fileName,
+                        { "-lut" },
+                        "LUT file name."),
+                    app::CmdLineValueOption<timeline::LUTOrder>::create(
+                        p.options.lutOptions.order,
+                        { "-lutOrder" },
+                        "LUT operation order.",
+                        string::Format("{0}").arg(p.options.lutOptions.order),
+                        string::join(timeline::getLUTOrderLabels(), ", ")),
+                    app::CmdLineFlagOption::create(
+                        p.options.resetSettings,
+                        { "-resetSettings" },
+                        "Reset settings to defaults."),
+#if defined(TLRENDER_USD)
+                    app::CmdLineValueOption<size_t>::create(
+                        p.options.usdRenderWidth,
+                        { "-usdRenderWidth" },
+                        "USD render width.",
+                        string::Format("{0}").arg(p.options.usdRenderWidth)),
+                    app::CmdLineValueOption<float>::create(
+                        p.options.usdComplexity,
+                        { "-usdComplexity" },
+                        "USD render complexity setting.",
+                        string::Format("{0}").arg(p.options.usdComplexity)),
+                    app::CmdLineValueOption<usd::DrawMode>::create(
+                        p.options.usdDrawMode,
+                        { "-usdDrawMode" },
+                        "USD render draw mode.",
+                        string::Format("{0}").arg(p.options.usdDrawMode),
+                        string::join(usd::getDrawModeLabels(), ", ")),
+                    app::CmdLineValueOption<bool>::create(
+                        p.options.usdEnableLighting,
+                        { "-usdEnableLighting" },
+                        "USD render enable lighting setting.",
+                        string::Format("{0}").arg(p.options.usdEnableLighting)),
+                    app::CmdLineValueOption<size_t>::create(
+                        p.options.usdStageCache,
+                        { "-usdStageCache" },
+                        "USD stage cache size.",
+                        string::Format("{0}").arg(p.options.usdStageCache)),
+                    app::CmdLineValueOption<size_t>::create(
+                        p.options.usdDiskCache,
+                        { "-usdDiskCache" },
+                        "USD disk cache size in gigabytes. A size of zero disables the cache.",
+                        string::Format("{0}").arg(p.options.usdDiskCache)),
+#endif // TLRENDER_USD
+                });
             const int exitCode = getExit();
             if (exitCode != 0)
             {
@@ -201,6 +245,43 @@ namespace tl
             setPalette(qtwidget::darkStyle());
             setStyleSheet(qtwidget::styleSheet());
             qtwidget::initFonts(context);
+
+            // Set I/O options.
+            io::Options ioOptions;
+#if defined(TLRENDER_USD)
+            {
+                std::stringstream ss;
+                ss << p.options.usdRenderWidth;
+                ioOptions["usd/renderWidth"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << p.options.usdComplexity;
+                ioOptions["usd/complexity"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << p.options.usdDrawMode;
+                ioOptions["usd/drawMode"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << p.options.usdEnableLighting;
+                ioOptions["usd/enableLighting"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << p.options.usdStageCache;
+                ioOptions["usd/stageCacheCount"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << p.options.usdDiskCache * memory::gigabyte;
+                ioOptions["usd/diskCacheByteCount"] = ss.str();
+            }
+#endif // TLRENDER_USD
+            auto ioSystem = context->getSystem<io::System>();
+            ioSystem->setOptions(ioOptions);
 
             // Create models and objects.
             p.contextObject = new qt::ContextObject(context, this);
@@ -378,6 +459,11 @@ namespace tl
             //! \bug Why is it necessary to manually delete this to get the settings to save?
             delete p.settingsObject;
             p.settingsObject = nullptr;
+        }
+
+        const std::shared_ptr<timeline::TimeUnitsModel>& App::timeUnitsModel() const
+        {
+            return _p->timeUnitsModel;
         }
 
         qt::TimeObject* App::timeObject() const
@@ -560,123 +646,173 @@ namespace tl
                 p.active[0]->audioOffset = p.timelinePlayers[0]->audioOffset();
             }
 
+            // Find the timeline players that need to be created.
+            std::vector<qt::TimelinePlayer*> timelinePlayers(items.size(), nullptr);
+            std::vector<std::shared_ptr<FilesModelItem> > active = p.active;
+            for (size_t i = 0; i < items.size(); ++i)
+            {
+                const auto j = std::find(active.begin(), active.end(), items[i]);
+                if (j != active.end())
+                {
+                    const size_t k = j - active.begin();
+                    timelinePlayers[i] = p.timelinePlayers[k];
+                    active.erase(j);
+                }
+            }
+
+            // Find the timeline players that need to be destroyed.
+            std::vector<qt::TimelinePlayer*> timelinePlayersDestroy;
+            for (size_t i = 0; i < p.active.size(); ++i)
+            {
+                const auto j = std::find(items.begin(), items.end(), p.active[i]);
+                if (j == items.end())
+                {
+                    timelinePlayersDestroy.push_back(p.timelinePlayers[i]);
+                }
+                p.timelinePlayers[i] = nullptr;
+            }
+
+            // Disconnect signals.
+            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
+            {
+                disconnect(
+                    p.timelinePlayers[0],
+                    SIGNAL(audioOffsetChanged(double)),
+                    this,
+                    SLOT(_audioOffsetCallback(double)));
+            }
+
             // Create new timeline players.
-            std::vector<qt::TimelinePlayer*> newTimelinePlayers;
             auto audioSystem = _context->getSystem<audio::System>();
             for (size_t i = 0; i < items.size(); ++i)
             {
                 const auto& item = items[i];
-                qt::TimelinePlayer* qtTimelinePlayer = nullptr;
-                try
+                auto& timelinePlayer = timelinePlayers[i];
+                if (!timelinePlayer)
                 {
-                    timeline::Options options;
-                    options.fileSequenceAudio = p.settingsObject->value("FileSequence/Audio").
-                        value<timeline::FileSequenceAudio>();
-                    options.fileSequenceAudioFileName = p.settingsObject->value("FileSequence/AudioFileName").
-                        toString().toUtf8().data();
-                    options.fileSequenceAudioDirectory = p.settingsObject->value("FileSequence/AudioDirectory").
-                        toString().toUtf8().data();
-                    options.videoRequestCount = p.settingsObject->value("Performance/VideoRequestCount").toInt();
-                    options.audioRequestCount = p.settingsObject->value("Performance/AudioRequestCount").toInt();
-                    options.ioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").
-                        arg(p.settingsObject->value("Performance/SequenceThreadCount").toInt());
-                    options.ioOptions["ffmpeg/YUVToRGBConversion"] = string::Format("{0}").
-                        arg(p.settingsObject->value("Performance/FFmpegYUVToRGBConversion").toBool());
-                    options.ioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").
-                        arg(p.settingsObject->value("Performance/FFmpegThreadCount").toInt());
-                    options.pathOptions.maxNumberDigits = std::min(
-                        p.settingsObject->value("Misc/MaxFileSequenceDigits").toInt(),
-                        255);
-                    auto otioTimeline = item->audioPath.isEmpty() ?
-                        timeline::create(item->path.get(), _context, options) :
-                        timeline::create(item->path.get(), item->audioPath.get(), _context, options);
-                    if (0)
+                    try
                     {
-                        createMemoryTimeline(otioTimeline, item->path.getDirectory(), options.pathOptions);
-                    }
-                    auto timeline = timeline::Timeline::create(otioTimeline, _context, options);
-                    const otime::TimeRange& timeRange = timeline->getTimeRange();
+                        timeline::Options options;
+                        options.fileSequenceAudio = p.settingsObject->value("FileSequence/Audio").
+                            value<timeline::FileSequenceAudio>();
+                        options.fileSequenceAudioFileName = p.settingsObject->value("FileSequence/AudioFileName").
+                            toString().toUtf8().data();
+                        options.fileSequenceAudioDirectory = p.settingsObject->value("FileSequence/AudioDirectory").
+                            toString().toUtf8().data();
+                        options.videoRequestCount = p.settingsObject->value("Performance/VideoRequestCount").toInt();
+                        options.audioRequestCount = p.settingsObject->value("Performance/AudioRequestCount").toInt();
+                        options.ioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").
+                            arg(p.settingsObject->value("Performance/SequenceThreadCount").toInt());
+                        options.ioOptions["ffmpeg/YUVToRGBConversion"] = string::Format("{0}").
+                            arg(p.settingsObject->value("Performance/FFmpegYUVToRGBConversion").toBool());
+                        options.ioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").
+                            arg(p.settingsObject->value("Performance/FFmpegThreadCount").toInt());
+                        options.pathOptions.maxNumberDigits = std::min(
+                            p.settingsObject->value("Misc/MaxFileSequenceDigits").toInt(),
+                            255);
+                        auto otioTimeline = item->audioPath.isEmpty() ?
+                            timeline::create(item->path.get(), _context, options) :
+                            timeline::create(item->path.get(), item->audioPath.get(), _context, options);
+                        if (0)
+                        {
+                            createMemoryTimeline(otioTimeline, item->path.getDirectory(), options.pathOptions);
+                        }
+                        auto timeline = timeline::Timeline::create(otioTimeline, _context, options);
+                        const otime::TimeRange& timeRange = timeline->getTimeRange();
 
-                    timeline::PlayerOptions playerOptions;
-                    playerOptions.cache.readAhead = _cacheReadAhead();
-                    playerOptions.cache.readBehind = _cacheReadBehind();
-                    playerOptions.timerMode = p.settingsObject->value("Performance/TimerMode").
-                        value<timeline::TimerMode>();
-                    playerOptions.audioBufferFrameCount =
-                        p.settingsObject->value("Performance/AudioBufferFrameCount").toInt();
-                    if (item->init)
-                    {
-                        if (0 == i)
+                        timeline::PlayerOptions playerOptions;
+                        playerOptions.cache.readAhead = _cacheReadAhead();
+                        playerOptions.cache.readBehind = _cacheReadBehind();
+                        playerOptions.timerMode = p.settingsObject->value("Performance/TimerMode").
+                            value<timeline::TimerMode>();
+                        playerOptions.audioBufferFrameCount =
+                            p.settingsObject->value("Performance/AudioBufferFrameCount").toInt();
+                        if (item->init)
                         {
-                            playerOptions.currentTime = items[0]->currentTime;
+                            if (0 == i)
+                            {
+                                playerOptions.currentTime = items[0]->currentTime;
+                            }
+                            else
+                            {
+                                playerOptions.currentTime = timeline::getExternalTime(
+                                    items[0]->currentTime,
+                                    items[0]->timeRange,
+                                    timeRange,
+                                    playerOptions.externalTimeMode);
+                            }
                         }
-                        else
-                        {
-                            playerOptions.currentTime = timeline::getExternalTime(
-                                items[0]->currentTime,
-                                items[0]->timeRange,
-                                timeRange,
-                                playerOptions.externalTimeMode);
-                        }
+                        auto player = timeline::Player::create(timeline, _context, playerOptions);
+                        timelinePlayer = new qt::TimelinePlayer(player, _context, this);
                     }
-                    auto player = timeline::Player::create(timeline, _context, playerOptions);
-                    qtTimelinePlayer = new qt::TimelinePlayer(player, _context, this);
-                    item->timeRange = qtTimelinePlayer->timeRange();
-                    item->ioInfo = qtTimelinePlayer->ioInfo();
+                    catch (const std::exception& e)
+                    {
+                        _log(e.what(), log::Type::Error);
+                    }
+                }
+            }
+
+            // Initialize timeline players.
+            for (size_t i = 0; i < items.size(); ++i)
+            {
+                const auto& item = items[i];
+                auto& timelinePlayer = timelinePlayers[i];
+                if (timelinePlayer)
+                {
+                    item->timeRange = timelinePlayer->timeRange();
+                    item->ioInfo = timelinePlayer->ioInfo();
+
                     if (!item->init)
                     {
                         item->init = true;
-                        item->speed = qtTimelinePlayer->speed();
-                        item->playback = qtTimelinePlayer->playback();
-                        item->loop = qtTimelinePlayer->loop();
-                        item->currentTime = qtTimelinePlayer->currentTime();
-                        item->inOutRange = qtTimelinePlayer->inOutRange();
-                        item->videoLayer = qtTimelinePlayer->videoLayer();
-                        item->audioOffset = qtTimelinePlayer->audioOffset();
+                        item->speed = timelinePlayer->speed();
+                        item->playback = timelinePlayer->playback();
+                        item->loop = timelinePlayer->loop();
+                        item->currentTime = timelinePlayer->currentTime();
+                        item->inOutRange = timelinePlayer->inOutRange();
+                        item->videoLayer = timelinePlayer->videoLayer();
+                        item->audioOffset = timelinePlayer->audioOffset();
                     }
                     else if (0 == i)
                     {
-                        qtTimelinePlayer->setSpeed(items[0]->speed);
-                        qtTimelinePlayer->setLoop(items[0]->loop);
-                        qtTimelinePlayer->setInOutRange(items[0]->inOutRange);
-                        qtTimelinePlayer->setVideoLayer(items[0]->videoLayer);
-                        qtTimelinePlayer->setVolume(p.volume);
-                        qtTimelinePlayer->setMute(p.mute);
-                        qtTimelinePlayer->setAudioOffset(items[0]->audioOffset);
+                        timelinePlayer->setSpeed(items[0]->speed);
+                        timelinePlayer->setLoop(items[0]->loop);
+                        timelinePlayer->setInOutRange(items[0]->inOutRange);
+                        timelinePlayer->setVideoLayer(items[0]->videoLayer);
+                        timelinePlayer->setVolume(p.volume);
+                        timelinePlayer->setMute(p.mute);
+                        timelinePlayer->setAudioOffset(items[0]->audioOffset);
 
-                        qtTimelinePlayer->setPlayback(items[0]->playback);
+                        timelinePlayer->setPlayback(items[0]->playback);
                     }
-                    if (i > 0)
+
+                    if (0 == i)
                     {
-                        qtTimelinePlayer->setVideoLayer(items[i]->videoLayer);
-                        qtTimelinePlayer->player()->setExternalTime(
-                            newTimelinePlayers[0]->player());
+                        timelinePlayer->player()->setExternalTime(nullptr);
+                    }
+                    else
+                    {
+                        timelinePlayer->setVideoLayer(items[i]->videoLayer);
+                        timelinePlayer->player()->setExternalTime(
+                            timelinePlayers[0]->player());
                     }
                 }
-                catch (const std::exception& e)
-                {
-                    _log(e.what(), log::Type::Error);
-                }
-                newTimelinePlayers.push_back(qtTimelinePlayer);
             }
 
             // Connect signals.
-            if (!newTimelinePlayers.empty() && newTimelinePlayers[0])
+            if (!timelinePlayers.empty() && timelinePlayers[0])
             {
                 connect(
-                    newTimelinePlayers[0],
-                    &qt::TimelinePlayer::audioOffsetChanged,
-                    [this](double)
-                    {
-                        _audioUpdate();
-                    });
+                    timelinePlayers[0],
+                    SIGNAL(audioOffsetChanged(double)),
+                    SLOT(_audioOffsetCallback(double)));
             }
 
             // Set the main window timeline players.
             if (p.mainWindow)
             {
                 std::vector<qt::TimelinePlayer*> validTimelinePlayers;
-                for (const auto& i : newTimelinePlayers)
+                for (const auto& i : timelinePlayers)
                 {
                     if (i)
                     {
@@ -686,16 +822,19 @@ namespace tl
                 p.mainWindow->setTimelinePlayers(validTimelinePlayers);
             }
 
-            // Delete the previous timeline players.
-            for (size_t i = 0; i < p.timelinePlayers.size(); ++i)
+            p.active = items;
+            p.timelinePlayers = timelinePlayers;
+            for (auto i : timelinePlayersDestroy)
             {
-                delete p.timelinePlayers[i];
+                delete i;
             }
 
-            p.active = items;
-            p.timelinePlayers = newTimelinePlayers;
-
             _cacheUpdate();
+            _audioUpdate();
+        }
+
+        void App::_audioOffsetCallback(double)
+        {
             _audioUpdate();
         }
 

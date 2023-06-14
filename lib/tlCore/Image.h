@@ -33,7 +33,7 @@ namespace tl
         {
         public:
             constexpr Size() noexcept;
-            constexpr explicit Size(
+            constexpr Size(
                 SizeType w,
                 SizeType h,
                 float pixelAspectRatio = 1.F) noexcept;
@@ -279,6 +279,12 @@ namespace tl
 
             //! Create a new image.
             static std::shared_ptr<Image> create(const Info&);
+
+            //! Create a new image.
+            static std::shared_ptr<Image> create(const Size&, PixelType);
+
+            //! Create a new image.
+            static std::shared_ptr<Image> create(SizeType w, SizeType h, PixelType);
 
             //! Get the image information.
             const Info& getInfo() const;

@@ -169,33 +169,6 @@ namespace tl
             void* reader = nullptr;
         };
 
-        class ZipMemoryReference : public RawMemoryReference
-        {
-        public:
-            struct Schema
-            {
-                static auto constexpr name = "ZipMemoryReference";
-                static int constexpr version = 1;
-            };
-
-            ZipMemoryReference(
-                const std::shared_ptr<file::FileIO>& fileIO,
-                const std::string& target_url = std::string(),
-                const uint8_t* memory = nullptr,
-                size_t memory_size = 0,
-                const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
-                const otio::AnyDictionary& metadata = otio::AnyDictionary()) :
-                RawMemoryReference(target_url, memory, memory_size, available_range, metadata),
-                _fileIO(fileIO)
-            {}
-
-        protected:
-            ~ZipMemoryReference() override
-            {}
-
-            std::shared_ptr<file::FileIO> _fileIO;
-        };
-
         otio::SerializableObject::Retainer<otio::Timeline> read(
             const file::Path& path,
             otio::ErrorStatus* errorStatus)
@@ -253,7 +226,8 @@ namespace tl
                         if (auto externalReference =
                             dynamic_cast<otio::ExternalReference*>(clip->media_reference()))
                         {
-                            const std::string mediaFileName = removeFileURLPrefix(externalReference->target_url());
+                            const std::string mediaFileName = removeFileURLPrefix(
+                                externalReference->target_url());
 
                             int32_t err = mz_zip_reader_locate_entry(zipReader.reader, mediaFileName.c_str(), 0);
                             if (err != MZ_OK)
@@ -281,6 +255,50 @@ namespace tl
                                 fileInfo->uncompressed_size,
                                 clip->available_range(),
                                 externalReference->metadata());
+                            clip->set_media_reference(memoryReference);
+                        }
+                        else if (auto imageSequenceReference =
+                            dynamic_cast<otio::ImageSequenceReference*>(clip->media_reference()))
+                        {
+                            std::vector<const uint8_t*> memory;
+                            std::vector<size_t> memory_sizes;
+                            for (int number = 0;
+                                number < imageSequenceReference->number_of_images_in_sequence();
+                                ++number)
+                            {
+                                const std::string mediaFileName = removeFileURLPrefix(
+                                    imageSequenceReference->target_url_for_image_number(number));
+
+                                int32_t err = mz_zip_reader_locate_entry(zipReader.reader, mediaFileName.c_str(), 0);
+                                if (err != MZ_OK)
+                                {
+                                    throw std::runtime_error(string::Format(
+                                        "{0}: Cannot find zip entry").arg(mediaFileName));
+                                }
+                                err = mz_zip_reader_entry_get_info(zipReader.reader, &fileInfo);
+                                if (err != MZ_OK)
+                                {
+                                    throw std::runtime_error(string::Format(
+                                        "{0}: Cannot get zip entry information").arg(mediaFileName));
+                                }
+
+                                const size_t headerSize =
+                                    30 +
+                                    fileInfo->filename_size +
+                                    fileInfo->extrafield_size;
+                                memory.push_back(
+                                    fileIO->getMemoryStart() +
+                                    fileInfo->disk_offset +
+                                    headerSize);
+                                memory_sizes.push_back(fileInfo->uncompressed_size);
+                            }
+                            auto memoryReference = new ZipMemorySequenceReference(
+                                fileIO,
+                                imageSequenceReference->target_url_for_image_number(0),
+                                memory,
+                                memory_sizes,
+                                clip->available_range(),
+                                imageSequenceReference->metadata());
                             clip->set_media_reference(memoryReference);
                         }
                     }

@@ -44,6 +44,14 @@ namespace tl
                     "SharedMemorySequenceReference",
                     otio::TypeRegistry::instance().register_type<tl::timeline::SharedMemorySequenceReference>()
                 },
+                {
+                    "ZipMemoryReference",
+                    otio::TypeRegistry::instance().register_type<tl::timeline::ZipMemoryReference>()
+                },
+                {
+                    "ZipMemorySequenceReference",
+                    otio::TypeRegistry::instance().register_type<tl::timeline::ZipMemorySequenceReference>()
+                }
             };
             for (const auto& t : registerTypes)
             {
@@ -268,15 +276,24 @@ namespace tl
 
         namespace
         {
-            const std::string fileURLPrefix = "file://";
+            const std::vector<std::string> fileURLPrefixes =
+            {
+                "file:////",
+                "file:///",
+                "file://"
+            };
         }
 
         std::string removeFileURLPrefix(const std::string& value)
         {
             std::string out = value;
-            if (0 == out.compare(0, fileURLPrefix.size(), fileURLPrefix))
+            for (const auto& prefix :fileURLPrefixes)
             {
-                out.replace(0, fileURLPrefix.size(), "");
+                if (0 == out.compare(0, prefix.size(), prefix))
+                {
+                    out.replace(0, prefix.size(), "");
+                    break;
+                }
             }
             return out;
         }

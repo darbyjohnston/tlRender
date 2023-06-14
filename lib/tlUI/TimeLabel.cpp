@@ -26,7 +26,7 @@ namespace tl
             struct SizeData
             {
                 int margin = 0;
-                imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
+                imaging::FontInfo fontInfo;
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
                 math::Vector2i formatSize;
@@ -127,15 +127,15 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
+
             p.size.margin = event.style->getSizeRole(p.marginRole, event.displayScale);
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
+
             auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            if (fontInfo != p.size.fontInfo)
-            {
-                p.size.fontInfo = fontInfo;
-                p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
-                p.size.formatSize = event.fontSystem->getSize(p.format, fontInfo);
-            }
+            p.size.fontInfo = fontInfo;
+            p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
+            p.size.formatSize = event.fontSystem->getSize(p.format, fontInfo);
+
             _sizeHint.x =
                 std::max(p.size.textSize.x, p.size.formatSize.x) +
                 p.size.margin * 2;
@@ -194,22 +194,9 @@ namespace tl
             p.format = std::string();
             if (p.timeUnitsModel)
             {
-                switch (p.timeUnitsModel->getTimeUnits())
-                {
-                case timeline::TimeUnits::Frames:
-                    p.text = string::Format("{0}").arg(p.value.to_frames());
-                    p.format = "000000";
-                    break;
-                case timeline::TimeUnits::Seconds:
-                    p.text = string::Format("{0}").arg(p.value.to_seconds(), 2);
-                    p.format = "000000.00";
-                    break;
-                case timeline::TimeUnits::Timecode:
-                    p.text = p.value.to_timecode();
-                    p.format = "00:00:00;00";
-                    break;
-                default: break;
-                }
+                const timeline::TimeUnits timeUnits = p.timeUnitsModel->getTimeUnits();
+                p.text = timeline::timeToText(p.value, timeUnits);
+                p.format = timeline::formatString(timeUnits);
             }
             p.draw.glyphs.clear();
             _updates |= Update::Size;

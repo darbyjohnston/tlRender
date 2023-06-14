@@ -27,6 +27,12 @@ namespace tl
             bool operator != (const Color4f&) const;
         };
 
+        //! Get a lighter color.
+        imaging::Color4f lighter(const imaging::Color4f&, float);
+
+        //! Get a darker color.
+        imaging::Color4f darker(const imaging::Color4f&, float);
+
         void to_json(nlohmann::json&, const Color4f&);
 
         void from_json(const nlohmann::json&, Color4f&);

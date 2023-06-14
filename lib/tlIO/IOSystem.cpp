@@ -23,6 +23,9 @@
 #if defined(TLRENDER_TIFF)
 #include <tlIO/TIFF.h>
 #endif // TLRENDER_TIFF
+#if defined(TLRENDER_USD)
+#include <tlIO/USD.h>
+#endif // TLRENDER_USD
 
 #include <tlCore/Context.h>
 #include <tlCore/File.h>
@@ -61,6 +64,9 @@ namespace tl
 #if defined(TLRENDER_TIFF)
                 _plugins.push_back(tiff::Plugin::create(logSystem));
 #endif // TLRENDER_TIFF
+#if defined(TLRENDER_USD)
+                _plugins.push_back(usd::Plugin::create(logSystem));
+#endif // TLRENDER_USD
             }
         }
 
@@ -101,6 +107,20 @@ namespace tl
                 }
             }
             return nullptr;
+        }
+        
+        void System::addPlugin(const std::shared_ptr<IPlugin>& plugin)
+        {
+            _plugins.push_back(plugin);
+        }
+
+        void System::removePlugin(const std::shared_ptr<IPlugin>& plugin)
+        {
+            const auto i = std::find(_plugins.begin(), _plugins.end(), plugin);
+            if (i != _plugins.end())
+            {
+                _plugins.erase(i);
+            }
         }
 
         std::set<std::string> System::getExtensions(int types) const

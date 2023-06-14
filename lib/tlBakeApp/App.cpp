@@ -4,7 +4,8 @@
 
 #include <tlBakeApp/App.h>
 
-#include <tlGL/Render.h>
+#include <tlTimeline/GLRender.h>
+
 #include <tlGL/Util.h>
 
 #include <tlIO/IOSystem.h>
@@ -26,11 +27,6 @@ namespace tl
     {
         namespace
         {
-            void glfwErrorCallback(int, const char* description)
-            {
-                std::cerr << "GLFW ERROR: " << description << std::endl;
-            }
-
             /*void APIENTRY glDebugOutput(
                 GLenum         source,
                 GLenum         type,
@@ -139,18 +135,51 @@ namespace tl
                         string::Format("{0}").arg(_options.exrDWACompressionLevel)),
 #endif // TLRENDER_EXR
 #if defined(TLRENDER_FFMPEG)
-                    app::CmdLineValueOption<int>::create(
-                        _options.ffmpegThreadCount,
-                        { "-ffmpegThreadCount" },
-                        "Number of threads for FFmpeg I/O.",
-                        string::Format("{0}").arg(_options.ffmpegThreadCount)),
                     app::CmdLineValueOption<std::string>::create(
                         _options.ffmpegWriteProfile,
                         { "-ffmpegProfile", "-ffp" },
                         "FFmpeg output profile.",
                         std::string(),
                         string::join(ffmpeg::getProfileLabels(), ", ")),
+                    app::CmdLineValueOption<int>::create(
+                        _options.ffmpegThreadCount,
+                        { "-ffmpegThreadCount" },
+                        "Number of threads for FFmpeg I/O.",
+                        string::Format("{0}").arg(_options.ffmpegThreadCount)),
 #endif // TLRENDER_FFMPEG
+#if defined(TLRENDER_USD)
+                    app::CmdLineValueOption<size_t>::create(
+                        _options.usdRenderWidth,
+                        { "-usdRenderWidth" },
+                        "USD render width.",
+                        string::Format("{0}").arg(_options.usdRenderWidth)),
+                    app::CmdLineValueOption<float>::create(
+                        _options.usdComplexity,
+                        { "-usdComplexity" },
+                        "USD render complexity setting.",
+                        string::Format("{0}").arg(_options.usdComplexity)),
+                    app::CmdLineValueOption<usd::DrawMode>::create(
+                        _options.usdDrawMode,
+                        { "-usdDrawMode" },
+                        "USD render draw mode.",
+                        string::Format("{0}").arg(_options.usdDrawMode),
+                        string::join(usd::getDrawModeLabels(), ", ")),
+                    app::CmdLineValueOption<bool>::create(
+                        _options.usdEnableLighting,
+                        { "-usdEnableLighting" },
+                        "USD render enable lighting setting.",
+                        string::Format("{0}").arg(_options.usdEnableLighting)),
+                    app::CmdLineValueOption<size_t>::create(
+                        _options.usdStageCache,
+                        { "-usdStageCache" },
+                        "USD stage cache size.",
+                        string::Format("{0}").arg(_options.usdStageCache)),
+                    app::CmdLineValueOption<size_t>::create(
+                        _options.usdDiskCache,
+                        { "-usdDiskCache" },
+                        "USD disk cache size in gigabytes. A size of zero disables the cache.",
+                        string::Format("{0}").arg(_options.usdDiskCache)),
+#endif // TLRENDER_USD
                 });
 
             // Set I/O options.
@@ -188,7 +217,40 @@ namespace tl
                 ioOptions["ffmpeg/ThreadCount"] = ss.str();
             }
 #endif // TLRENDER_FFMPEG
-            context->getSystem<io::System>()->setOptions(ioOptions);
+#if defined(TLRENDER_USD)
+            {
+                std::stringstream ss;
+                ss << _options.usdRenderWidth;
+                ioOptions["usd/renderWidth"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << _options.usdComplexity;
+                ioOptions["usd/complexity"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << _options.usdDrawMode;
+                ioOptions["usd/drawMode"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << _options.usdEnableLighting;
+                ioOptions["usd/enableLighting"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << _options.usdStageCache;
+                ioOptions["usd/stageCacheCount"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << _options.usdDiskCache * memory::gigabyte;
+                ioOptions["usd/diskCacheByteCount"] = ss.str();
+            }
+#endif // TLRENDER_USD
+            auto ioSystem = context->getSystem<io::System>();
+            ioSystem->setOptions(ioOptions);
         }
 
         App::App()
@@ -196,13 +258,13 @@ namespace tl
 
         App::~App()
         {
+            _timeline.reset();
             _buffer.reset();
             _render.reset();
             if (_glfwWindow)
             {
                 glfwDestroyWindow(_glfwWindow);
             }
-            glfwTerminate();
         }
 
         std::shared_ptr<App> App::create(
@@ -223,6 +285,44 @@ namespace tl
             }
 
             _startTime = std::chrono::steady_clock::now();
+
+            // Create the window.
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+            glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
+            //glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+            _glfwWindow = glfwCreateWindow(1, 1, "tlbake", NULL, NULL);
+            if (!_glfwWindow)
+            {
+                throw std::runtime_error("Cannot create window");
+            }
+            glfwMakeContextCurrent(_glfwWindow);
+            if (!gladLoaderLoadGL())
+            {
+                throw std::runtime_error("Cannot initialize GLAD");
+            }
+            /*GLint flags = 0;
+            glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+            if (flags & static_cast<GLint>(GL_CONTEXT_FLAG_DEBUG_BIT))
+            {
+                glEnable(GL_DEBUG_OUTPUT);
+                glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+                glDebugMessageCallback(glDebugOutput, _context.get());
+                glDebugMessageControl(
+                    static_cast<GLenum>(GL_DONT_CARE),
+                    static_cast<GLenum>(GL_DONT_CARE),
+                    static_cast<GLenum>(GL_DONT_CARE),
+                    0,
+                    nullptr,
+                    GL_TRUE);
+            }*/
+            const int glMajor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MAJOR);
+            const int glMinor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MINOR);
+            const int glRevision = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_REVISION);
+            _log(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
 
             // Read the timeline.
             _timeline = timeline::Timeline::create(_input, _context);
@@ -254,63 +354,8 @@ namespace tl
                 info.video[0].size;
             _print(string::Format("Render size: {0}").arg(_renderSize));
 
-            // Initialize GLFW.
-            glfwSetErrorCallback(glfwErrorCallback);
-            int glfwMajor = 0;
-            int glfwMinor = 0;
-            int glfwRevision = 0;
-            glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRevision);
-            _log(string::Format("GLFW version: {0}.{1}.{2}").arg(glfwMajor).arg(glfwMinor).arg(glfwRevision));
-            if (!glfwInit())
-            {
-                throw std::runtime_error("Cannot initialize GLFW");
-            }
-
-            // Create the window.
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-            glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-            glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
-            //glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-            _glfwWindow = glfwCreateWindow(
-                100,
-                100,
-                "tlbake",
-                NULL,
-                NULL);
-            if (!_glfwWindow)
-            {
-                throw std::runtime_error("Cannot create window");
-            }
-            glfwMakeContextCurrent(_glfwWindow);
-            if (!gladLoaderLoadGL())
-            {
-                throw std::runtime_error("Cannot initialize GLAD");
-            }
-            /*GLint flags = 0;
-            glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-            if (flags & static_cast<GLint>(GL_CONTEXT_FLAG_DEBUG_BIT))
-            {
-                glEnable(GL_DEBUG_OUTPUT);
-                glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-                glDebugMessageCallback(glDebugOutput, _context.get());
-                glDebugMessageControl(
-                    static_cast<GLenum>(GL_DONT_CARE),
-                    static_cast<GLenum>(GL_DONT_CARE),
-                    static_cast<GLenum>(GL_DONT_CARE),
-                    0,
-                    nullptr,
-                    GL_TRUE);
-            }*/
-            const int glMajor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MAJOR);
-            const int glMinor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MINOR);
-            const int glRevision = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_REVISION);
-            _log(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
-
             // Create the renderer.
-            _render = gl::Render::create(_context);
+            _render = timeline::GLRender::create(_context);
             gl::OffscreenBufferOptions offscreenBufferOptions;
             offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
             _buffer = gl::OffscreenBuffer::create(_renderSize, offscreenBufferOptions);

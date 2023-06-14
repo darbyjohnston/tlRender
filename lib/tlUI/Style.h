@@ -7,6 +7,7 @@
 #include <tlCore/Color.h>
 #include <tlCore/Context.h>
 #include <tlCore/FontSystem.h>
+#include <tlCore/ValueObserver.h>
 
 namespace tl
 {
@@ -112,6 +113,9 @@ namespace tl
 
             //! Set a font role.
             void setFontRole(FontRole, const imaging::FontInfo&);
+
+            //! Observe style changes.
+            std::shared_ptr<observer::IValue<bool> > observeChanged() const;
 
         private:
             TLRENDER_PRIVATE();

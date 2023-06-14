@@ -310,6 +310,7 @@ namespace tl
                 try
                 {
                     p.thread.rtAudio->abortStream();
+                    p.thread.rtAudio->closeStream();
                 }
                 catch (const std::exception&)
                 {

@@ -87,7 +87,7 @@ namespace tl
             return out;
         }
 
-        void IWidget::setEventLoop(const std::weak_ptr<EventLoop>& value)
+        void IWidget::setEventLoop(const std::shared_ptr<EventLoop>& value)
         {
             _eventLoop = value;
         }

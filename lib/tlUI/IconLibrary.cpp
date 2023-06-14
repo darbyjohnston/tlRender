@@ -21,8 +21,6 @@ namespace
 #include "Resources/Clear_96.h"
 #include "Resources/Color_192.h"
 #include "Resources/Color_96.h"
-#include "Resources/ComboBoxArrow_192.h"
-#include "Resources/ComboBoxArrow_96.h"
 #include "Resources/Compare_192.h"
 #include "Resources/Compare_96.h"
 #include "Resources/CompareA_192.h"
@@ -73,6 +71,8 @@ namespace
 #include "Resources/Increment_96.h"
 #include "Resources/Info_192.h"
 #include "Resources/Info_96.h"
+#include "Resources/MenuArrow_192.h"
+#include "Resources/MenuArrow_96.h"
 #include "Resources/Messages_192.h"
 #include "Resources/Messages_96.h"
 #include "Resources/Mute_192.h"
@@ -91,6 +91,8 @@ namespace
 #include "Resources/Reset_96.h"
 #include "Resources/Settings_192.h"
 #include "Resources/Settings_96.h"
+#include "Resources/SubMenuArrow_192.h"
+#include "Resources/SubMenuArrow_96.h"
 #include "Resources/TimeEnd_192.h"
 #include "Resources/TimeEnd_96.h"
 #include "Resources/TimeStart_192.h"
@@ -161,7 +163,6 @@ namespace tl
             p.iconData["BellowsOpen_96.png"] = BellowsOpen_96_png;
             p.iconData["Clear_96.png"] = Clear_96_png;
             p.iconData["Color_96.png"] = Color_96_png;
-            p.iconData["ComboBoxArrow_96.png"] = ComboBoxArrow_96_png;
             p.iconData["Compare_96.png"] = Compare_96_png;
             p.iconData["CompareA_96.png"] = CompareA_96_png;
             p.iconData["CompareB_96.png"] = CompareB_96_png;
@@ -187,6 +188,7 @@ namespace tl
             p.iconData["FramePrev_96.png"] = FramePrev_96_png;
             p.iconData["Increment_96.png"] = Increment_96_png;
             p.iconData["Info_96.png"] = Info_96_png;
+            p.iconData["MenuArrow_96.png"] = MenuArrow_96_png;
             p.iconData["Messages_96.png"] = Messages_96_png;
             p.iconData["Mute_96.png"] = Mute_96_png;
             p.iconData["Next_96.png"] = Next_96_png;
@@ -196,6 +198,7 @@ namespace tl
             p.iconData["Prev_96.png"] = Prev_96_png;
             p.iconData["Reset_96.png"] = Reset_96_png;
             p.iconData["Settings_96.png"] = Settings_96_png;
+            p.iconData["SubMenuArrow_96.png"] = SubMenuArrow_96_png;
             p.iconData["TimeEnd_96.png"] = TimeEnd_96_png;
             p.iconData["TimeStart_96.png"] = TimeStart_96_png;
             p.iconData["ViewFrame_96.png"] = ViewFrame_96_png;
@@ -209,7 +212,6 @@ namespace tl
             p.iconData["BellowsOpen_192.png"] = BellowsOpen_192_png;
             p.iconData["Clear_192.png"] = Clear_192_png;
             p.iconData["Color_192.png"] = Color_192_png;
-            p.iconData["ComboBoxArrow_192.png"] = ComboBoxArrow_192_png;
             p.iconData["Compare_192.png"] = Compare_192_png;
             p.iconData["CompareA_192.png"] = CompareA_192_png;
             p.iconData["CompareB_192.png"] = CompareB_192_png;
@@ -235,6 +237,7 @@ namespace tl
             p.iconData["FramePrev_192.png"] = FramePrev_192_png;
             p.iconData["Increment_192.png"] = Increment_192_png;
             p.iconData["Info_192.png"] = Info_192_png;
+            p.iconData["MenuArrow_192.png"] = MenuArrow_192_png;
             p.iconData["Messages_192.png"] = Messages_192_png;
             p.iconData["Mute_192.png"] = Mute_192_png;
             p.iconData["Next_192.png"] = Next_192_png;
@@ -244,6 +247,7 @@ namespace tl
             p.iconData["Prev_192.png"] = Prev_192_png;
             p.iconData["Reset_192.png"] = Reset_192_png;
             p.iconData["Settings_192.png"] = Settings_192_png;
+            p.iconData["SubMenuArrow_192.png"] = SubMenuArrow_192_png;
             p.iconData["TimeEnd_192.png"] = TimeEnd_192_png;
             p.iconData["TimeStart_192.png"] = TimeStart_192_png;
             p.iconData["ViewFrame_192.png"] = ViewFrame_192_png;

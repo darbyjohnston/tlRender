@@ -205,7 +205,7 @@ namespace tl
                 static_cast<int>(FileType::Audio)) const;
 
             //! Set the plugin options.
-            void setOptions(const Options&);
+            virtual void setOptions(const Options&);
 
             //! Create a reader for the given path.
             virtual std::shared_ptr<IRead> read(

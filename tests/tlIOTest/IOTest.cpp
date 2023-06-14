@@ -42,7 +42,7 @@ namespace tl
             {
                 const auto time = otime::RationalTime(1.0, 24.0);
                 const uint16_t layer = 1;
-                const auto image = imaging::Image::create(imaging::Info(160, 80, imaging::PixelType::L_U8));
+                const auto image = imaging::Image::create(160, 80, imaging::PixelType::L_U8);
                 const VideoData v(time, layer, image);
                 TLRENDER_ASSERT(time::compareExact(time, v.time));
                 TLRENDER_ASSERT(layer == v.layer);
@@ -51,7 +51,7 @@ namespace tl
             {
                 const auto time = otime::RationalTime(1.0, 24.0);
                 const uint16_t layer = 1;
-                const auto image = imaging::Image::create(imaging::Info(16, 16, imaging::PixelType::L_U8));
+                const auto image = imaging::Image::create(16, 16, imaging::PixelType::L_U8);
                 const VideoData a(time, layer, image);
                 VideoData b(time, layer, image);
                 TLRENDER_ASSERT(a == b);

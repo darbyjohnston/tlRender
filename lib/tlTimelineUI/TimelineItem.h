@@ -56,6 +56,9 @@ namespace tl
             void keyPressEvent(ui::KeyEvent&) override;
             void keyReleaseEvent(ui::KeyEvent&) override;
 
+        protected:
+            void _timeUnitsUpdate(timeline::TimeUnits);
+
         private:
             void _drawInOutPoints(
                 const math::BBox2i&,

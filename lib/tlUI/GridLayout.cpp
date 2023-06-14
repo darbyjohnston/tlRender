@@ -39,6 +39,14 @@ namespace tl
             void getStretch(
                 std::vector<bool>& rows,
                 std::vector<bool>& columns) const;
+
+            void getVisible(
+                int& rows,
+                int& columns) const;
+
+            void getVisible(
+                std::vector<bool>& rows,
+                std::vector<bool>& columns) const;
         };
 
         void GridLayout::_init(
@@ -110,21 +118,24 @@ namespace tl
 
             // Get the total size.
             math::Vector2i totalSize;
-            for (int i = 0; i < rowSizeHints.size(); ++i)
+            for (const auto& i : rowSizeHints)
             {
-                totalSize.y += rowSizeHints[i];
-                if (i < rowSizeHints.size() - 1)
-                {
-                    totalSize.y += p.size.spacing;
-                }
+                totalSize.y += i;
             }
-            for (int i = 0; i < columnSizeHints.size(); ++i)
+            for (const auto& i : columnSizeHints)
             {
-                totalSize.x += columnSizeHints[i];
-                if (i < columnSizeHints.size() - 1)
-                {
-                    totalSize.x += p.size.spacing;
-                }
+                totalSize.x += i;
+            }
+            int rowsVisible = 0;
+            int columnsVisible = 0;
+            p.getVisible(rowsVisible, columnsVisible);
+            if (rowsVisible > 0)
+            {
+                totalSize.y += (rowsVisible - 1) * p.size.spacing;
+            }
+            if (columnsVisible > 0)
+            {
+                totalSize.x += (columnsVisible - 1) * p.size.spacing;
             }
 
             // Get the layout stretch.
@@ -184,14 +195,15 @@ namespace tl
             // Layout the children.
             for (const auto& i : p.gridPos)
             {
+                const bool visible = i.first->isVisible(false);
                 math::Vector2i pos = g.min;
                 for (int j = 0; j < i.second.row; ++j)
                 {
-                    pos.y += rowSizes[j] + p.size.spacing;
+                    pos.y += rowSizes[j] + (visible ? p.size.spacing : 0);
                 }
                 for (int j = 0; j < i.second.column; ++j)
                 {
-                    pos.x += columnSizes[j] + p.size.spacing;
+                    pos.x += columnSizes[j] + (visible ? p.size.spacing : 0);
                 }
                 const math::Vector2i size(
                     columnSizes[i.second.column],
@@ -223,13 +235,16 @@ namespace tl
             }
 
             // Add spacing.
-            if (!rowSizeHints.empty())
+            int rowsVisible = 0;
+            int columnsVisible = 0;
+            p.getVisible(rowsVisible, columnsVisible);
+            if (rowsVisible > 0)
             {
-                _sizeHint.y += (rowSizeHints.size() - 1) * p.size.spacing;
+                _sizeHint.y += (rowsVisible - 1) * p.size.spacing;
             }
-            if (!columnSizeHints.empty())
+            if (columnsVisible > 0)
             {
-                _sizeHint.x += (columnSizeHints.size() - 1) * p.size.spacing;
+                _sizeHint.x += (columnsVisible - 1) * p.size.spacing;
             }
 
             // Add the margin.
@@ -274,9 +289,13 @@ namespace tl
             columns = std::vector<int>(size.column, false);
             for (const auto& i : gridPos)
             {
-                const math::Vector2i& sizeHint = i.first->getSizeHint();
-                rows[i.second.row] = std::max(rows[i.second.row], sizeHint.y);
-                columns[i.second.column] = std::max(columns[i.second.column], sizeHint.x);
+                const bool visible = i.first->isVisible(false);
+                if (visible)
+                {
+                    const math::Vector2i& sizeHint = i.first->getSizeHint();
+                    rows[i.second.row] = std::max(rows[i.second.row], sizeHint.y);
+                    columns[i.second.column] = std::max(columns[i.second.column], sizeHint.x);
+                }
             }
         }
 
@@ -289,14 +308,58 @@ namespace tl
             columns = std::vector<bool>(size.column, false);
             for (const auto& i : gridPos)
             {
-                if (Stretch::Expanding == i.first->getVStretch())
+                const bool visible = i.first->isVisible(false);
+                if (visible)
                 {
-                    rows[i.second.row] = true;
+                    if (Stretch::Expanding == i.first->getVStretch())
+                    {
+                        rows[i.second.row] = true;
+                    }
+                    if (Stretch::Expanding == i.first->getHStretch())
+                    {
+                        columns[i.second.column] = true;
+                    }
                 }
-                if (Stretch::Expanding == i.first->getHStretch())
+            }
+        }
+
+        void GridLayout::Private::getVisible(
+            int& rows,
+            int& columns) const
+        {
+            rows = 0;
+            columns = 0;
+            std::vector<bool> rowsVisible;
+            std::vector<bool> columnsVisible;
+            getVisible(rowsVisible, columnsVisible);
+            for (auto i : rowsVisible)
+            {
+                if (i)
                 {
-                    columns[i.second.column] = true;
+                    ++rows;
                 }
+            }
+            for (auto i : columnsVisible)
+            {
+                if (i)
+                {
+                    ++columns;
+                }
+            }
+        }
+
+        void GridLayout::Private::getVisible(
+            std::vector<bool>& rows,
+            std::vector<bool>& columns) const
+        {
+            const GridPos size = getSize();
+            rows = std::vector<bool>(size.row, false);
+            columns = std::vector<bool>(size.column, false);
+            for (const auto& i : gridPos)
+            {
+                const bool visible = i.first->isVisible(false);
+                rows[i.second.row] = visible;
+                columns[i.second.column] = visible;
             }
         }
     }

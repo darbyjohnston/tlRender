@@ -95,6 +95,9 @@ namespace tl
             Alt     = 4
         };
 
+        //! Get a keyboard modifer label.
+        std::string getKeyModifierLabel(int);
+
         //! Mouse click event.
         struct MouseClickEvent
         {
@@ -201,6 +204,9 @@ namespace tl
         };
         TLRENDER_ENUM(Key);
         TLRENDER_ENUM_SERIALIZE(Key);
+
+        //! Get a keyboard shortcut label.
+        std::string getLabel(Key, int modifiers = 0);
 
         //! Key event.
         struct KeyEvent

@@ -7,6 +7,10 @@
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/Player.h>
 
+#if defined(TLRENDER_USD)
+#include <tlIO/USD.h>
+#endif // TLRENDER_USD
+
 struct GLFWwindow;
 
 namespace tl
@@ -41,6 +45,14 @@ namespace tl
                 otime::TimeRange inOutRange = time::invalidTimeRange;
                 timeline::ColorConfigOptions colorConfigOptions;
                 timeline::LUTOptions lutOptions;
+#if defined(TLRENDER_USD)
+                size_t usdRenderWidth = usd::RenderOptions().renderWidth;
+                float usdComplexity = usd::RenderOptions().complexity;
+                usd::DrawMode usdDrawMode = usd::RenderOptions().drawMode;
+                bool usdEnableLighting = usd::RenderOptions().enableLighting;
+                size_t usdStageCache = usd::RenderOptions().stageCacheCount;
+                size_t usdDiskCache = usd::RenderOptions().diskCacheByteCount / memory::gigabyte;
+#endif // TLRENDER_USD
             };
 
             //! Application.

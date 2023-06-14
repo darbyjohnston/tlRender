@@ -8,6 +8,8 @@
 
 #include <tlUI/EventLoop.h>
 
+#include <tlIO/IOSystem.h>
+
 #include <tlCore/StringFormat.h>
 
 namespace tl
@@ -114,15 +116,88 @@ namespace tl
                         { "-lutOrder" },
                         "LUT operation order.",
                         string::Format("{0}").arg(_options.lutOptions.order),
-                        string::join(timeline::getLUTOrderLabels(), ", "))
+                        string::join(timeline::getLUTOrderLabels(), ", ")),
+#if defined(TLRENDER_USD)
+                    app::CmdLineValueOption<size_t>::create(
+                        _options.usdRenderWidth,
+                        { "-usdRenderWidth" },
+                        "USD render width.",
+                        string::Format("{0}").arg(_options.usdRenderWidth)),
+                    app::CmdLineValueOption<float>::create(
+                        _options.usdComplexity,
+                        { "-usdComplexity" },
+                        "USD render complexity setting.",
+                        string::Format("{0}").arg(_options.usdComplexity)),
+                    app::CmdLineValueOption<usd::DrawMode>::create(
+                        _options.usdDrawMode,
+                        { "-usdDrawMode" },
+                        "USD render draw mode.",
+                        string::Format("{0}").arg(_options.usdDrawMode),
+                        string::join(usd::getDrawModeLabels(), ", ")),
+                    app::CmdLineValueOption<bool>::create(
+                        _options.usdEnableLighting,
+                        { "-usdEnableLighting" },
+                        "USD render enable lighting setting.",
+                        string::Format("{0}").arg(_options.usdEnableLighting)),
+                    app::CmdLineValueOption<size_t>::create(
+                        _options.usdStageCache,
+                        { "-usdStageCache" },
+                        "USD stage cache size.",
+                        string::Format("{0}").arg(_options.usdStageCache)),
+                    app::CmdLineValueOption<size_t>::create(
+                        _options.usdDiskCache,
+                        { "-usdDiskCache" },
+                        "USD disk cache size in gigabytes. A size of zero disables the disk cache.",
+                        string::Format("{0}").arg(_options.usdDiskCache)),
+#endif // TLRENDER_USD
                 });
+
+                // Set I/O options.
+                io::Options ioOptions;
+#if defined(TLRENDER_USD)
+                {
+                    std::stringstream ss;
+                    ss << _options.usdRenderWidth;
+                    ioOptions["usd/renderWidth"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << _options.usdComplexity;
+                    ioOptions["usd/complexity"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << _options.usdDrawMode;
+                    ioOptions["usd/drawMode"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << _options.usdEnableLighting;
+                    ioOptions["usd/enableLighting"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << _options.usdStageCache;
+                    ioOptions["usd/stageCacheCount"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << _options.usdDiskCache * memory::gigabyte;
+                    ioOptions["usd/diskCacheByteCount"] = ss.str();
+                }
+#endif // TLRENDER_USD
+                auto ioSystem = context->getSystem<io::System>();
+                ioSystem->setOptions(ioOptions);
 
                 // Read the timeline.
                 auto timeline = timeline::Timeline::create(_input, _context);
                 _player = timeline::Player::create(timeline, _context);
 
                 // Create the main window.
-                _mainWindow = MainWindow::create(_player, _context);
+                _mainWindow = MainWindow::create(
+                    _player,
+                    std::dynamic_pointer_cast<App>(shared_from_this()),
+                    _context);
                 getEventLoop()->addWidget(_mainWindow);
 
                 // Initialize the timeline player.

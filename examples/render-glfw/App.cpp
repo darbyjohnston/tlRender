@@ -4,7 +4,7 @@
 
 #include "App.h"
 
-#include <tlGL/Render.h>
+#include <tlTimeline/GLRender.h>
 
 #include <tlCore/Math.h>
 #include <tlCore/StringFormat.h>
@@ -26,11 +26,6 @@ namespace tl
         {
             namespace
             {
-                void glfwErrorCallback(int, const char* description)
-                {
-                    std::cerr << "GLFW ERROR: " << description << std::endl;
-                }
-
                 /*void APIENTRY glDebugOutput(
                     GLenum         source,
                     GLenum         type,
@@ -141,7 +136,6 @@ namespace tl
                 {
                     glfwDestroyWindow(_glfwWindow);
                 }
-                glfwTerminate();
             }
 
             std::shared_ptr<App> App::create(
@@ -183,18 +177,6 @@ namespace tl
                         _videoSizes.push_back(ioInfo.video[0].size);
                     }
                     _videoData.push_back(timeline::VideoData());
-                }
-
-                // Initialize GLFW.
-                glfwSetErrorCallback(glfwErrorCallback);
-                int glfwMajor = 0;
-                int glfwMinor = 0;
-                int glfwRevision = 0;
-                glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRevision);
-                _log(string::Format("GLFW version: {0}.{1}.{2}").arg(glfwMajor).arg(glfwMinor).arg(glfwRevision));
-                if (!glfwInit())
-                {
-                    throw std::runtime_error("Cannot initialize GLFW");
                 }
 
                 // Create the window.
@@ -253,7 +235,7 @@ namespace tl
 
                 // Create the renderer.
                 _fontSystem = imaging::FontSystem::create(_context);
-                _render = gl::Render::create(_context);
+                _render = timeline::GLRender::create(_context);
 
                 // Print the shortcuts help.
                 _printShortcutsHelp();

@@ -31,6 +31,10 @@ set(HEADERS
 set(PRIVATE_HEADERS
     PlayerPrivate.h
     TimelinePrivate.h)
+list(APPEND HEADERS
+    GLRender.h)
+list(APPEND PRIVATE_HEADERS
+    GLRenderPrivate.h)
 
 set(SOURCE
     ColorConfigOptions.cpp
@@ -51,6 +55,11 @@ set(SOURCE
     TimelinePrivate.cpp
     Transition.cpp
     Util.cpp)
+list(APPEND SOURCE
+    GLRender.cpp
+    GLRenderPrims.cpp
+    GLRenderShaders.cpp
+    GLRenderVideo.cpp)
 
 add_library(tlTimeline ${HEADERS} ${PRIVATE_HEADERS} ${SOURCE})
 target_link_libraries(tlTimeline tlIO)

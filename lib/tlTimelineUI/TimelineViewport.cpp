@@ -21,7 +21,6 @@ namespace tl
             timeline::CompareOptions compareOptions;
             std::vector<std::shared_ptr<timeline::Player> > players;
             std::vector<imaging::Size> timelineSizes;
-            std::vector<imaging::Size> timelineSizesTmp;
             math::Vector2i viewPos;
             double viewZoom = 1.0;
             bool frameView = true;
@@ -74,6 +73,7 @@ namespace tl
             if (value == p.colorConfigOptions)
                 return;
             p.colorConfigOptions = value;
+            p.renderBuffer = true;
             _updates |= ui::Update::Draw;
         }
 
@@ -83,6 +83,7 @@ namespace tl
             if (value == p.lutOptions)
                 return;
             p.lutOptions = value;
+            p.renderBuffer = true;
             _updates |= ui::Update::Draw;
         }
 
@@ -92,6 +93,7 @@ namespace tl
             if (value == p.imageOptions)
                 return;
             p.imageOptions = value;
+            p.renderBuffer = true;
             _updates |= ui::Update::Draw;
         }
 
@@ -101,6 +103,7 @@ namespace tl
             if (value == p.displayOptions)
                 return;
             p.displayOptions = value;
+            p.renderBuffer = true;
             _updates |= ui::Update::Draw;
         }
 
@@ -110,6 +113,7 @@ namespace tl
             if (value == p.compareOptions)
                 return;
             p.compareOptions = value;
+            p.renderBuffer = true;
             _updates |= ui::Update::Draw;
         }
 
@@ -117,17 +121,21 @@ namespace tl
         {
             TLRENDER_P();
             p.videoDataObservers.clear();
+
             p.players = value;
-            p.timelineSizesTmp.clear();
+
+            p.timelineSizes.clear();
             for (const auto& i : p.players)
             {
                 const auto& ioInfo = i->getIOInfo();
                 if (!ioInfo.video.empty())
                 {
-                    p.timelineSizesTmp.push_back(ioInfo.video[0].size);
+                    p.timelineSizes.push_back(ioInfo.video[0].size);
                 }
             }
+
             p.videoData.clear();
+            p.renderBuffer = true;
             _updates |= ui::Update::Draw;
             for (size_t i = 0; i < p.players.size(); ++i)
             {
@@ -136,7 +144,6 @@ namespace tl
                         p.players[i]->observeCurrentVideo(),
                         [this, i](const timeline::VideoData& value)
                         {
-                            _p->timelineSizes = _p->timelineSizesTmp;
                             if (_p->videoData.size() != _p->players.size())
                             {
                                 _p->videoData = std::vector<timeline::VideoData>(_p->players.size());
@@ -178,6 +185,7 @@ namespace tl
             p.viewPos = pos;
             p.viewZoom = zoom;
             p.frameView = false;
+            p.renderBuffer = true;
             _updates |= ui::Update::Draw;
             if (p.viewPosAndZoomCallback)
             {
@@ -201,11 +209,15 @@ namespace tl
         void TimelineViewport::frameView()
         {
             TLRENDER_P();
-            p.frameView = true;
-            _updates |= ui::Update::Draw;
-            if (p.frameViewCallback)
+            if (!p.frameView)
             {
-                p.frameViewCallback(p.frameView);
+                p.frameView = true;
+                p.renderBuffer = true;
+                _updates |= ui::Update::Draw;
+                if (p.frameViewCallback)
+                {
+                    p.frameViewCallback(p.frameView);
+                }
             }
         }
 
@@ -296,8 +308,7 @@ namespace tl
             event.render->drawRect(g, imaging::Color4f(0.F, 0.F, 0.F));
 
             if (p.renderBuffer &&
-                !p.videoData.empty() &&
-                p.videoData.size() == p.timelineSizes.size())
+                !p.videoData.empty())
             {
                 p.renderBuffer = false;
 
@@ -357,6 +368,7 @@ namespace tl
                 p.viewPos.x = p.mouse.viewPos.x + (event.pos.x - p.mouse.pressPos.x);
                 p.viewPos.y = p.mouse.viewPos.y + (event.pos.y - p.mouse.pressPos.y);
                 p.frameView = false;
+                p.renderBuffer = true;
                 _updates |= ui::Update::Draw;
                 if (p.viewPosAndZoomCallback)
                 {
@@ -372,10 +384,11 @@ namespace tl
         void TimelineViewport::mousePressEvent(ui::MouseClickEvent& event)
         {
             TLRENDER_P();
+            event.accept = true;
+            takeKeyFocus();
             if (0 == event.button &&
                 event.modifiers & static_cast<int>(ui::KeyModifier::Control))
             {
-                event.accept = true;
                 p.mouse.pressed = true;
                 p.mouse.pressPos = event.pos;
                 p.mouse.viewPos = p.viewPos;

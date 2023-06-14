@@ -7,7 +7,7 @@
 #include <tlQt/MetaTypes.h>
 #include <tlQt/TimeObject.h>
 
-#include <tlGL/Util.h>
+#include <tlTimeline/Util.h>
 
 #include <tlDevice/Util.h>
 
@@ -22,8 +22,8 @@ namespace tl
     {
         void init(const std::shared_ptr<system::Context>& context)
         {
+            timeline::init(context);
             device::init(context);
-            gl::init(context);
 
             qRegisterMetaType<otime::RationalTime>("otime::RationalTime");
             qRegisterMetaType<otime::TimeRange>("otime::TimeRange");
