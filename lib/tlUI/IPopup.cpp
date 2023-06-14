@@ -13,7 +13,10 @@ namespace tl
     {
         struct IPopup::Private
         {
+            PopupStyle popupStyle = PopupStyle::Menu;
+            ColorRole popupRole = ColorRole::Window;
             math::BBox2i buttonGeometry;
+            bool open = false;
             std::function<void(void)> closeCallback;
             int border = 0;
         };
@@ -39,7 +42,13 @@ namespace tl
         {
             TLRENDER_P();
             p.buttonGeometry = buttonGeometry;
+            p.open = true;
             eventLoop->addWidget(shared_from_this());
+        }
+
+        bool IPopup::isOpen() const
+        {
+            return _p->open;
         }
 
         void IPopup::close()
@@ -53,11 +62,27 @@ namespace tl
             {
                 p.closeCallback();
             }
+            p.open = false;
         }
 
         void IPopup::setCloseCallback(const std::function<void(void)>& value)
         {
             _p->closeCallback = value;
+        }
+
+        void IPopup::setPopupStyle(PopupStyle value)
+        {
+            TLRENDER_P();
+            p.popupStyle = value;
+        }
+
+        void IPopup::setPopupRole(ColorRole value)
+        {
+            TLRENDER_P();
+            if (value == p.popupRole)
+                return;
+            p.popupRole = value;
+            _updates |= Update::Draw;
         }
 
         void IPopup::setGeometry(const math::BBox2i& value)
@@ -71,26 +96,43 @@ namespace tl
                 sizeHint.x += p.border * 2;
                 sizeHint.y += p.border * 2;
                 std::vector<math::BBox2i> bboxes;
-                bboxes.push_back(math::BBox2i(
-                    p.buttonGeometry.min.x,
-                    p.buttonGeometry.max.y,
-                    sizeHint.x,
-                    sizeHint.y));
-                bboxes.push_back(math::BBox2i(
-                    p.buttonGeometry.max.x - sizeHint.x + 1,
-                    p.buttonGeometry.max.y,
-                    sizeHint.x,
-                    sizeHint.y));
-                bboxes.push_back(math::BBox2i(
-                    p.buttonGeometry.min.x,
-                    p.buttonGeometry.min.y - sizeHint.y + 1,
-                    sizeHint.x,
-                    sizeHint.y));
-                bboxes.push_back(math::BBox2i(
-                    p.buttonGeometry.max.x - sizeHint.x + 1,
-                    p.buttonGeometry.min.y - sizeHint.y + 1,
-                    sizeHint.x,
-                    sizeHint.y));
+                switch (p.popupStyle)
+                {
+                case PopupStyle::Menu:
+                    bboxes.push_back(math::BBox2i(
+                        p.buttonGeometry.min.x,
+                        p.buttonGeometry.max.y,
+                        sizeHint.x,
+                        sizeHint.y));
+                    bboxes.push_back(math::BBox2i(
+                        p.buttonGeometry.max.x - sizeHint.x + 1,
+                        p.buttonGeometry.max.y,
+                        sizeHint.x,
+                        sizeHint.y));
+                    bboxes.push_back(math::BBox2i(
+                        p.buttonGeometry.min.x,
+                        p.buttonGeometry.min.y - sizeHint.y + 1,
+                        sizeHint.x,
+                        sizeHint.y));
+                    bboxes.push_back(math::BBox2i(
+                        p.buttonGeometry.max.x - sizeHint.x + 1,
+                        p.buttonGeometry.min.y - sizeHint.y + 1,
+                        sizeHint.x,
+                        sizeHint.y));
+                    break;
+                case PopupStyle::SubMenu:
+                    bboxes.push_back(math::BBox2i(
+                        p.buttonGeometry.max.x + 1,
+                        p.buttonGeometry.min.y,
+                        sizeHint.x,
+                        sizeHint.y));
+                    bboxes.push_back(math::BBox2i(
+                        p.buttonGeometry.min.x - sizeHint.x + 1,
+                        p.buttonGeometry.min.y,
+                        sizeHint.x,
+                        sizeHint.y));
+                    break;
+                }
                 for (auto& bbox : bboxes)
                 {
                     bbox = bbox.intersect(value);
@@ -132,53 +174,8 @@ namespace tl
                     event.style->getColorRole(ColorRole::Border));
 
                 const math::BBox2i g2 = g.margin(-p.border);
-                event.render->drawRect(g2, event.style->getColorRole(ColorRole::Button));
+                event.render->drawRect(g2, event.style->getColorRole(p.popupRole));
             }
-        }
-
-        void IPopup::enterEvent()
-        {}
-
-        void IPopup::leaveEvent()
-        {}
-
-        void IPopup::mouseMoveEvent(MouseMoveEvent& event)
-        {
-            event.accept = true;
-        }
-
-        void IPopup::mousePressEvent(MouseClickEvent& event)
-        {
-            TLRENDER_P();
-            event.accept = true;
-            close();
-        }
-
-        void IPopup::mouseReleaseEvent(MouseClickEvent& event)
-        {
-            event.accept = true;
-        }
-
-        void IPopup::keyPressEvent(KeyEvent& event)
-        {
-            TLRENDER_P();
-            switch (event.key)
-            {
-            case Key::Tab:
-                break;
-            case Key::Escape:
-                event.accept = true;
-                close();
-                break;
-            default:
-                event.accept = true;
-                break;
-            }
-        }
-
-        void IPopup::keyReleaseEvent(KeyEvent& event)
-        {
-            event.accept = true;
         }
     }
 }

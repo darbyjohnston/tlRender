@@ -17,9 +17,9 @@ namespace tl
     {
         namespace
         {
-            class MenuPopup : public IPopup
+            class ComboBoxMenu : public IPopup
             {
-                TLRENDER_NON_COPYABLE(MenuPopup);
+                TLRENDER_NON_COPYABLE(ComboBoxMenu);
 
             protected:
                 void _init(
@@ -27,12 +27,12 @@ namespace tl
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
-                MenuPopup();
+                ComboBoxMenu();
 
             public:
-                ~MenuPopup() override;
+                ~ComboBoxMenu() override;
 
-                static std::shared_ptr<MenuPopup> create(
+                static std::shared_ptr<ComboBoxMenu> create(
                     const std::vector<ComboBoxItem>&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
@@ -45,12 +45,12 @@ namespace tl
                 std::function<void(int)> _callback;
             };
 
-            void MenuPopup::_init(
+            void ComboBoxMenu::_init(
                 const std::vector<ComboBoxItem>& items,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                IPopup::_init("tl::ui::MenuPopup", context, parent);
+                IPopup::_init("tl::ui::ComboBoxMenu", context, parent);
 
                 std::vector<std::shared_ptr<ListButton> > buttons;
                 _buttonGroup = ButtonGroup::create(ButtonGroupType::Click, context);
@@ -70,7 +70,7 @@ namespace tl
                     button->setParent(_layout);
                 }
                 
-                auto weak = std::weak_ptr<MenuPopup>(std::dynamic_pointer_cast<MenuPopup>(shared_from_this()));
+                auto weak = std::weak_ptr<ComboBoxMenu>(std::dynamic_pointer_cast<ComboBoxMenu>(shared_from_this()));
                 _buttonGroup->setClickedCallback(
                     [weak](int value)
                     {
@@ -82,37 +82,25 @@ namespace tl
                             }
                         }
                     });
-
-                setCloseCallback(
-                    [weak]
-                    {
-                        if (auto widget = weak.lock())
-                        {
-                            if (widget->_callback)
-                            {
-                                widget->_callback(-1);
-                            }
-                        }
-                    });
             }
 
-            MenuPopup::MenuPopup()
+            ComboBoxMenu::ComboBoxMenu()
             {}
 
-            MenuPopup::~MenuPopup()
+            ComboBoxMenu::~ComboBoxMenu()
             {}
 
-            std::shared_ptr<MenuPopup> MenuPopup::create(
+            std::shared_ptr<ComboBoxMenu> ComboBoxMenu::create(
                 const std::vector<ComboBoxItem>& items,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                auto out = std::shared_ptr<MenuPopup>(new MenuPopup);
+                auto out = std::shared_ptr<ComboBoxMenu>(new ComboBoxMenu);
                 out->_init(items, context, parent);
                 return out;
             }
 
-            void MenuPopup::setCallback(const std::function<void(int)>& value)
+            void ComboBoxMenu::setCallback(const std::function<void(int)>& value)
             {
                 _callback = value;
             }
@@ -146,14 +134,14 @@ namespace tl
             std::future<std::shared_ptr<imaging::Image> > arrowIconFuture;
             std::shared_ptr<imaging::Image> arrowIconImage;
 
-            std::shared_ptr<MenuPopup> menuPopup;
+            std::shared_ptr<ComboBoxMenu> menu;
 
             struct SizeData
             {
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
-                imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
+                imaging::FontInfo fontInfo;
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
             };
@@ -527,7 +515,6 @@ namespace tl
             p.mouse.pressed = true;
             _updates |= Update::Draw;
             _click();
-            _resetMouse();
         }
 
         void ComboBox::mouseReleaseEvent(MouseClickEvent& event)
@@ -586,26 +573,44 @@ namespace tl
         void ComboBox::_click()
         {
             TLRENDER_P();
+            takeKeyFocus();
             if (auto context = _context.lock())
             {
                 if (auto eventLoop = getEventLoop().lock())
                 {
-                    p.menuPopup = MenuPopup::create(p.items, context);
-                    p.menuPopup->open(eventLoop, _geometry.margin(-p.size.border));
-                    auto weak = std::weak_ptr<ComboBox>(std::dynamic_pointer_cast<ComboBox>(shared_from_this()));
-                    p.menuPopup->setCallback(
-                        [weak](int index)
-                        {
-                            if (auto widget = weak.lock())
+                    if (!p.menu)
+                    {
+                        p.menu = ComboBoxMenu::create(p.items, context);
+                        p.menu->open(eventLoop, _geometry.margin(-p.size.border));
+                        auto weak = std::weak_ptr<ComboBox>(std::dynamic_pointer_cast<ComboBox>(shared_from_this()));
+                        p.menu->setCallback(
+                            [weak](int index)
                             {
-                                widget->_p->menuPopup.reset();
-                                widget->takeKeyFocus();
-                                if (index != -1)
+                                if (auto widget = weak.lock())
                                 {
-                                    widget->_commitIndex(index);
+                                    widget->_p->menu->close();
+                                    widget->_p->menu.reset();
+                                    widget->takeKeyFocus();
+                                    if (index != -1)
+                                    {
+                                        widget->_commitIndex(index);
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        p.menu->setCloseCallback(
+                            [weak]
+                            {
+                                if (auto widget = weak.lock())
+                                {
+                                    widget->_p->menu.reset();
+                                }
+                            });
+                    }
+                    else
+                    {
+                        p.menu->close();
+                        p.menu.reset();
+                    }
                 }
             }
         }

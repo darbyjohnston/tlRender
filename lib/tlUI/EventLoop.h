@@ -118,11 +118,11 @@ namespace tl
                 const math::BBox2i&,
                 const DrawEvent&);
 
-            std::shared_ptr<IWidget> _getUnderCursor(
-                const math::Vector2i&);
-            std::shared_ptr<IWidget> _getUnderCursor(
+            std::list<std::shared_ptr<IWidget> > _getUnderCursor(const math::Vector2i&);
+            void _getUnderCursor(
                 const std::shared_ptr<IWidget>&,
-                const math::Vector2i&);
+                const math::Vector2i&,
+                std::list<std::shared_ptr<IWidget> >&);
 
             void _setHover(const std::shared_ptr<IWidget>&);
             void _hoverUpdate(MouseMoveEvent&);

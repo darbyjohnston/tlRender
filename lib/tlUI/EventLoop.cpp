@@ -5,6 +5,7 @@
 #include <tlUI/EventLoop.h>
 
 #include <tlUI/DrawUtil.h>
+#include <tlUI/IPopup.h>
 #include <tlUI/IWidget.h>
 
 #include <tlCore/StringFormat.h>
@@ -122,33 +123,14 @@ namespace tl
         {
             TLRENDER_P();
 
+            //if (auto focusWidget = p.keyFocus.lock())
+            //{
+            //    p.keyFocus.reset();
+            //    focusWidget->keyFocusEvent(false);
+            //}
+
             widget->setEventLoop(shared_from_this());
             p.topLevelWidgets.push_back(widget);
-
-            if (auto widget = p.hover.lock())
-            {
-                p.hover.reset();
-                widget->leaveEvent();
-            }
-            if (auto widget = p.mousePress.lock())
-            {
-                p.mousePress.reset();
-                p.mouseClickEvent.pos = p.cursorPos;
-                p.mouseClickEvent.accept = false;
-                widget->mouseReleaseEvent(p.mouseClickEvent);
-            }
-            if (auto widget = p.keyFocus.lock())
-            {
-                p.keyFocus.reset();
-                widget->keyFocusEvent(false);
-            }
-            if (auto widget = p.keyPress.lock())
-            {
-                p.keyPress.reset();
-                p.keyEvent.pos = p.cursorPos;
-                p.keyEvent.accept = false;
-                widget->keyReleaseEvent(p.keyEvent);
-            }
 
             p.updates |= Update::Size;
             p.updates |= Update::Draw;
@@ -158,12 +140,44 @@ namespace tl
         {
             TLRENDER_P();
 
-            widget->setEventLoop(nullptr);
-            bool top = false;
-            if (!p.topLevelWidgets.empty())
+            if (auto hoverWidget = p.hover.lock())
             {
-                top = p.topLevelWidgets.front().lock() == widget;
+                if (hoverWidget->getTopLevel() == widget)
+                {
+                    p.hover.reset();
+                    hoverWidget->leaveEvent();
+                }
             }
+            if (auto pressedWidget = p.mousePress.lock())
+            {
+                if (pressedWidget->getTopLevel() == widget)
+                {
+                    p.mousePress.reset();
+                    p.mouseClickEvent.pos = p.cursorPos;
+                    p.mouseClickEvent.accept = false;
+                    pressedWidget->mouseReleaseEvent(p.mouseClickEvent);
+                }
+            }
+            if (auto focusWidget = p.keyFocus.lock())
+            {
+                if (focusWidget->getTopLevel() == widget)
+                {
+                    p.keyFocus.reset();
+                    focusWidget->keyFocusEvent(false);
+                }
+            }
+            if (auto keyPressWidget = p.keyPress.lock())
+            {
+                if (keyPressWidget->getTopLevel() == widget)
+                {
+                    p.keyPress.reset();
+                    p.keyEvent.pos = p.cursorPos;
+                    p.keyEvent.accept = false;
+                    keyPressWidget->keyReleaseEvent(p.keyEvent);
+                }
+            }
+
+            widget->setEventLoop(nullptr);
             auto i = std::find_if(
                 p.topLevelWidgets.begin(),
                 p.topLevelWidgets.end(),
@@ -174,34 +188,6 @@ namespace tl
             if (i != p.topLevelWidgets.end())
             {
                 p.topLevelWidgets.erase(i);
-            }
-
-            if (top)
-            {
-                if (auto widget = p.hover.lock())
-                {
-                    p.hover.reset();
-                    widget->leaveEvent();
-                }
-                if (auto widget = p.mousePress.lock())
-                {
-                    p.mousePress.reset();
-                    p.mouseClickEvent.pos = p.cursorPos;
-                    p.mouseClickEvent.accept = false;
-                    widget->mouseReleaseEvent(p.mouseClickEvent);
-                }
-                if (auto widget = p.keyFocus.lock())
-                {
-                    p.keyFocus.reset();
-                    widget->keyFocusEvent(false);
-                }
-                if (auto widget = p.keyPress.lock())
-                {
-                    p.keyPress.reset();
-                    p.keyEvent.pos = p.cursorPos;
-                    p.keyEvent.accept = false;
-                    widget->keyReleaseEvent(p.keyEvent);
-                }
             }
 
             p.updates |= Update::Size;
@@ -217,45 +203,65 @@ namespace tl
             p.keyEvent.accept = false;
             if (press)
             {
-                if (auto widget = p.keyFocus.lock())
+                // First check if any popups should be closed.
+                bool popupClose = false;
+                if (Key::Escape == key && !p.topLevelWidgets.empty())
                 {
-                    while (widget)
+                    if (auto popup = std::dynamic_pointer_cast<IPopup>(
+                        p.topLevelWidgets.back().lock()))
                     {
-                        widget->keyPressEvent(p.keyEvent);
-                        if (p.keyEvent.accept)
-                        {
-                            p.keyPress = widget;
-                            break;
-                        }
-                        widget = widget->getParent().lock();
+                        popupClose = true;
+                        popup->close();
                     }
                 }
-                if (!p.keyEvent.accept)
+
+                if (!popupClose)
                 {
-                    auto widget = _getUnderCursor(p.cursorPos);
-                    while (widget)
+                    // Send event to the focused widget.
+                    if (auto widget = p.keyFocus.lock())
                     {
-                        widget->keyPressEvent(p.keyEvent);
-                        if (p.keyEvent.accept)
+                        while (widget)
                         {
-                            p.keyPress = widget;
-                            break;
+                            widget->keyPressEvent(p.keyEvent);
+                            if (p.keyEvent.accept)
+                            {
+                                p.keyPress = widget;
+                                break;
+                            }
+                            widget = widget->getParent().lock();
                         }
-                        widget = widget->getParent().lock();
                     }
-                }
-                if (!p.keyEvent.accept && Key::Tab == key)
-                {
-                    auto keyFocus = p.keyFocus.lock();
-                    if (modifiers == static_cast<int>(KeyModifier::Shift))
+
+                    // Send event to the hovered widget.
+                    if (!p.keyEvent.accept)
                     {
-                        keyFocus = _keyFocusPrev(keyFocus);
+                        auto widgets = _getUnderCursor(p.cursorPos);
+                        while (!widgets.empty())
+                        {
+                            widgets.back()->keyPressEvent(p.keyEvent);
+                            if (p.keyEvent.accept)
+                            {
+                                p.keyPress = widgets.back();
+                                break;
+                            }
+                            widgets.pop_back();
+                        }
                     }
-                    else
+
+                    // Handle tab key navigation.
+                    if (!p.keyEvent.accept && Key::Tab == key)
                     {
-                        keyFocus = _keyFocusNext(keyFocus);
+                        auto keyFocus = p.keyFocus.lock();
+                        if (modifiers == static_cast<int>(KeyModifier::Shift))
+                        {
+                            keyFocus = _keyFocusPrev(keyFocus);
+                        }
+                        else
+                        {
+                            keyFocus = _keyFocusNext(keyFocus);
+                        }
+                        setKeyFocus(keyFocus);
                     }
-                    setKeyFocus(keyFocus);
                 }
             }
             else if (auto widget = p.keyPress.lock())
@@ -269,6 +275,8 @@ namespace tl
             TLRENDER_P();
             TextEvent event;
             event.text = value;
+
+            // Send event to the focused widget.
             if (auto widget = p.keyFocus.lock())
             {
                 while (widget)
@@ -281,17 +289,19 @@ namespace tl
                     widget = widget->getParent().lock();
                 }
             }
+
+            // Send event to the hovered widget.
             if (!event.accept)
             {
-                auto widget = _getUnderCursor(p.cursorPos);
-                while (widget)
+                auto widgets = _getUnderCursor(p.cursorPos);
+                while (!widgets.empty())
                 {
-                    widget->textEvent(event);
+                    widgets.back()->textEvent(event);
                     if (event.accept)
                     {
                         break;
                     }
-                    widget = widget->getParent().lock();
+                    widgets.pop_back();
                 }
             }
         }
@@ -330,16 +340,26 @@ namespace tl
             p.mouseClickEvent.accept = false;
             if (press)
             {
-                auto widget = _getUnderCursor(p.cursorPos);
-                while (widget)
+                auto widgets = _getUnderCursor(p.cursorPos);
+                auto i = widgets.rbegin();
+                for (; i != widgets.rend(); ++i)
                 {
-                    widget->mousePressEvent(p.mouseClickEvent);
+                    (*i)->mousePressEvent(p.mouseClickEvent);
                     if (p.mouseClickEvent.accept)
                     {
-                        p.mousePress = widget;
+                        p.mousePress = *i;
                         break;
                     }
-                    widget = widget->getParent().lock();
+                }
+
+                // Close popups.
+                auto j = widgets.rbegin();
+                for (; j != i && j != widgets.rend(); ++j)
+                {
+                    if (auto popup = std::dynamic_pointer_cast<IPopup>(*j))
+                    {
+                        popup->close();
+                    }
                 }
             }
             else
@@ -364,15 +384,15 @@ namespace tl
             event.pos = p.cursorPos;
             event.dx = dx;
             event.dy = dy;
-            auto widget = _getUnderCursor(p.cursorPos);
-            while (widget)
+            auto widgets = _getUnderCursor(p.cursorPos);
+            while (!widgets.empty())
             {
-                widget->scrollEvent(event);
+                widgets.back()->scrollEvent(event);
                 if (event.accept)
                 {
                     break;
                 }
-                widget = widget->getParent().lock();
+                widgets.pop_back();
             }
         }
 
@@ -720,13 +740,13 @@ namespace tl
             }
         }
 
-        std::shared_ptr<IWidget> EventLoop::_getUnderCursor(
+        std::list<std::shared_ptr<IWidget> > EventLoop::_getUnderCursor(
             const math::Vector2i& pos)
         {
             TLRENDER_P();
-            std::shared_ptr<IWidget> out;
-            for (auto i = p.topLevelWidgets.rbegin();
-                i != p.topLevelWidgets.rend();
+            std::list<std::shared_ptr<IWidget> > out;
+            for (auto i = p.topLevelWidgets.begin();
+                i != p.topLevelWidgets.end();
                 ++i)
             {
                 if (auto widget = i->lock())
@@ -735,30 +755,30 @@ namespace tl
                         widget->isEnabled() &&
                         widget->getGeometry().contains(pos))
                     {
-                        out = _getUnderCursor(widget, pos);
-                        break;
+                        out.push_back(widget);
+                        _getUnderCursor(widget, pos, out);
                     }
                 }
             }
             return out;
         }
 
-        std::shared_ptr<IWidget> EventLoop::_getUnderCursor(
+        void EventLoop::_getUnderCursor(
             const std::shared_ptr<IWidget>& widget,
-            const math::Vector2i& pos)
+            const math::Vector2i& pos,
+            std::list<std::shared_ptr<IWidget> >& out)
         {
-            std::shared_ptr<IWidget> out = widget;
             for (const auto& child : widget->getChildren())
             {
                 if (!child->isClipped() &&
                     child->isEnabled() &&
                     child->getGeometry().contains(pos))
                 {
-                    out = _getUnderCursor(child, pos);
+                    out.push_back(child);
+                    _getUnderCursor(child, pos, out);
                     break;
                 }
             }
-            return out;
         }
 
         void EventLoop::_setHover(const std::shared_ptr<IWidget>& hover)
@@ -779,6 +799,7 @@ namespace tl
             }
             else if (hover)
             {
+                //std::cout << "enter: " << hover->getName() << std::endl;
                 hover->enterEvent();
             }
             p.hover = hover;
@@ -786,17 +807,17 @@ namespace tl
 
         void EventLoop::_hoverUpdate(MouseMoveEvent& event)
         {
-            auto widget = _getUnderCursor(event.pos);
-            while (widget)
+            auto widgets = _getUnderCursor(event.pos);
+            while (!widgets.empty())
             {
-                widget->mouseMoveEvent(event);
+                widgets.back()->mouseMoveEvent(event);
                 if (event.accept)
                 {
                     break;
                 }
-                widget = widget->getParent().lock();
+                widgets.pop_back();
             }
-            _setHover(widget);
+            _setHover(!widgets.empty() ? widgets.back() : nullptr);
         }
 
         std::shared_ptr<IWidget> EventLoop::_keyFocusNext(const std::shared_ptr<IWidget>& value)

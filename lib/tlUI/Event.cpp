@@ -7,6 +7,8 @@
 #include <tlCore/Error.h>
 #include <tlCore/String.h>
 
+#include <sstream>
+
 namespace tl
 {
     namespace ui
@@ -31,6 +33,24 @@ namespace tl
                 out = i->second;
             }
             return out;
+        }
+
+        std::string getKeyModifierLabel(int value)
+        {
+            std::vector<std::string> out;
+            if (value & static_cast<size_t>(KeyModifier::Shift))
+            {
+                out.push_back("Shift");
+            }
+            if (value & static_cast<size_t>(KeyModifier::Control))
+            {
+                out.push_back("Ctrl");
+            }
+            if (value & static_cast<size_t>(KeyModifier::Alt))
+            {
+                out.push_back("Alt");
+            }
+            return string::join(out, '+');
         }
 
         TLRENDER_ENUM_IMPL(
@@ -124,5 +144,17 @@ namespace tl
             "RightAlt",
             "RightSuper");
         TLRENDER_ENUM_SERIALIZE_IMPL(Key);
+
+        std::string getLabel(Key key, int modifiers)
+        {
+            std::stringstream ss;
+            if (modifiers)
+            {
+                ss << getKeyModifierLabel(modifiers);
+                ss << "+";
+            }
+            ss << key;
+            return ss.str();
+        }
     }
 }

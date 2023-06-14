@@ -4,7 +4,13 @@
 
 #include "MainWindow.h"
 
+#include "AudioMenu.h"
+#include "CompareMenu.h"
 #include "FileMenu.h"
+#include "PlaybackMenu.h"
+#include "RenderMenu.h"
+#include "ViewMenu.h"
+#include "WindowMenu.h"
 
 #include <tlTimelineUI/TimelineViewport.h>
 #include <tlTimelineUI/TimelineWidget.h>
@@ -84,12 +90,12 @@ namespace tl
 
                 p.menuBar = ui::MenuBar::create(context);
                 p.menuBar->addMenu("File", FileMenu::create(app, context));
-                //p.menuBar->addMenu("Compare", compareMenuItem);
-                //p.menuBar->addMenu("View", viewMenuItem);
-                //p.menuBar->addMenu("Render", renderMenuItem);
-                //p.menuBar->addMenu("Playback", playbackMenuItem);
-                //p.menuBar->addMenu("Audio", audioMenuItem);
-                //p.menuBar->addMenu("Window", windowMenuItem);
+                p.menuBar->addMenu("Compare", CompareMenu::create(app, context));
+                p.menuBar->addMenu("View", ViewMenu::create(app, context));
+                p.menuBar->addMenu("Render", RenderMenu::create(app, context));
+                p.menuBar->addMenu("Playback", PlaybackMenu::create(app, context));
+                p.menuBar->addMenu("Audio", AudioMenu::create(app, context));
+                p.menuBar->addMenu("Window", WindowMenu::create(app, context));
 
                 p.timelineViewport = timelineui::TimelineViewport::create(context);
                 p.timelineViewport->setPlayers({ player });

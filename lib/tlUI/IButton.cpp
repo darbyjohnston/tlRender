@@ -99,6 +99,16 @@ namespace tl
             p.repeatClick = value;
         }
 
+        void IButton::setHoveredCallback(const std::function<void(bool)>& value)
+        {
+            _hoveredCallback = value;
+        }
+
+        void IButton::setPressedCallback(const std::function<void(void)>& value)
+        {
+            _pressedCallback = value;
+        }
+
         void IButton::setClickedCallback(const std::function<void(void)>& value)
         {
             _clickedCallback = value;
@@ -186,12 +196,20 @@ namespace tl
         {
             _inside = true;
             _updates |= Update::Draw;
+            if (_hoveredCallback)
+            {
+                _hoveredCallback(_inside);
+            }
         }
 
         void IButton::leaveEvent()
         {
             _inside = false;
             _updates |= Update::Draw;
+            if (_hoveredCallback)
+            {
+                _hoveredCallback(_inside);
+            }
         }
 
         void IButton::mouseMoveEvent(MouseMoveEvent& event)
@@ -210,6 +228,10 @@ namespace tl
             }
             _pressed = true;
             _updates |= Update::Draw;
+            if (_pressedCallback)
+            {
+                _pressedCallback();
+            }
             if (p.repeatClick)
             {
                 p.repeatClickInit = true;
@@ -253,6 +275,10 @@ namespace tl
                 _pressed = false;
                 _inside = false;
                 _updates |= Update::Draw;
+                if (_hoveredCallback)
+                {
+                    _hoveredCallback(_inside);
+                }
             }
         }
     }

@@ -43,7 +43,13 @@ namespace tl
 
             //! Set the button role.
             void setButtonRole(ColorRole);
-            
+
+            //! Set the hovered callback.
+            void setHoveredCallback(const std::function<void(bool)>&);
+
+            //! Set the pressed callback.
+            void setPressedCallback(const std::function<void(void)>&);
+
             //! Set whether the button repeats clicks when pressed.
             void setRepeatClick(bool);
 
@@ -81,6 +87,8 @@ namespace tl
             math::Vector2i _cursorPos;
             bool _pressed = false;
             bool _checked = false;
+            std::function<void(bool)> _hoveredCallback;
+            std::function<void(void)> _pressedCallback;
             std::function<void(void)> _clickedCallback;
             std::function<void(bool)> _checkedCallback;
 

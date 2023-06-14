@@ -1,12 +1,24 @@
 set(HEADERS
     App.h
+    AudioMenu.h
+    CompareMenu.h
     FileMenu.h
-    MainWindow.h)
+    MainWindow.h
+    PlaybackMenu.h
+    RenderMenu.h
+    ViewMenu.h
+    WindowMenu.h)
 
 set(SOURCE
     App.cpp
+    AudioMenu.cpp
+    CompareMenu.cpp
     FileMenu.cpp
     MainWindow.cpp
+    PlaybackMenu.cpp
+    RenderMenu.cpp
+    ViewMenu.cpp
+    WindowMenu.cpp
     main.cpp)
 
 add_executable(play-glfw ${SOURCE} ${HEADERS})

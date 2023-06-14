@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore/Context.h>
+#include <tlUI/Event.h>
 
 namespace tl
 {
@@ -33,11 +33,32 @@ namespace tl
             //! Set the text.
             void setText(const std::string&);
 
+            //! Get the keyboard shortcut.
+            Key getShortcut() const;
+
+            //! Get the keyboard shortcut modifiers.
+            int getShortcutModifiers() const;
+
+            //! Set the keyboard shortcut.
+            void setShortut(Key, int modifiers = 0);
+
+            //! Get the icon.
+            const std::string& getIcon() const;
+
+            //! Set the icon.
+            void setIcon(const std::string&);
+
+            //! Set the pressed callback.
+            void setPressedCallback(const std::function<void(void)>&);
+
+            //! Activate the pressed callback.
+            void doPressedCallback();
+
             //! Set the clicked callback.
             void setClickedCallback(const std::function<void(void)>&);
 
-            //! Click the action.
-            void click();
+            //! Activate the clicked callback.
+            void doClickedCallback();
 
         private:
             TLRENDER_PRIVATE();

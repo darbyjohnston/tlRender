@@ -17,7 +17,7 @@ namespace tl
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
-                imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
+                imaging::FontInfo fontInfo;
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
             };
@@ -223,6 +223,11 @@ namespace tl
             case Key::Space:
             case Key::Enter:
                 event.accept = true;
+                takeKeyFocus();
+                if (_pressedCallback)
+                {
+                    _pressedCallback();
+                }
                 _click();
                 break;
             case Key::Escape:

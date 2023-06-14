@@ -12,26 +12,24 @@ namespace tl
         {
             class App;
 
-            //! File menu.
-            class FileMenu : public ui::Menu
+            //! Window menu.
+            class WindowMenu : public ui::Menu
             {
-                TLRENDER_NON_COPYABLE(FileMenu);
+                TLRENDER_NON_COPYABLE(WindowMenu);
 
             protected:
                 void _init(
                     const std::shared_ptr<App>&,
                     const std::shared_ptr<system::Context>&);
 
-                FileMenu();
+                WindowMenu();
 
             public:
-                ~FileMenu();
+                ~WindowMenu();
 
-                static std::shared_ptr<FileMenu> create(
+                static std::shared_ptr<WindowMenu> create(
                     const std::shared_ptr<App>&,
                     const std::shared_ptr<system::Context>&);
-
-                void close() override;
 
             private:
                 TLRENDER_PRIVATE();

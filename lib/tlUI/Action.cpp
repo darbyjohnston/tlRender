@@ -12,6 +12,10 @@ namespace tl
         {
             std::weak_ptr<system::Context> context;
             std::string text;
+            Key shortcut = Key::Unknown;
+            int shortcutModifiers = 0;
+            std::string icon;
+            std::function<void(void)> pressedCallback;
             std::function<void(void)> clickedCallback;
         };
 
@@ -44,12 +48,52 @@ namespace tl
             _p->text = value;
         }
 
+        Key Action::getShortcut() const
+        {
+            return _p->shortcut;
+        }
+
+        int Action::getShortcutModifiers() const
+        {
+            return _p->shortcutModifiers;
+        }
+
+        void Action::setShortut(Key key, int modifiers)
+        {
+            _p->shortcut = key;
+            _p->shortcutModifiers = modifiers;
+        }
+
+        const std::string& Action::getIcon() const
+        {
+            return _p->icon;
+        }
+
+        void Action::setIcon(const std::string& value)
+        {
+            _p->icon = value;
+        }
+
+        void Action::setPressedCallback(const std::function<void(void)>& value)
+        {
+            _p->pressedCallback = value;
+        }
+
+        void Action::doPressedCallback()
+        {
+            TLRENDER_P();
+            if (p.pressedCallback)
+            {
+                p.pressedCallback();
+            }
+        }
+
         void Action::setClickedCallback(const std::function<void(void)>& value)
         {
             _p->clickedCallback = value;
         }
 
-        void Action::click()
+        void Action::doClickedCallback()
         {
             TLRENDER_P();
             if (p.clickedCallback)

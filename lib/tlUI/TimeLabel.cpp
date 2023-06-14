@@ -26,7 +26,7 @@ namespace tl
             struct SizeData
             {
                 int margin = 0;
-                imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
+                imaging::FontInfo fontInfo;
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
                 math::Vector2i formatSize;

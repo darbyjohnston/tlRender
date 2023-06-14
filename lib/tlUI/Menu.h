@@ -34,6 +34,9 @@ namespace tl
             //! Add an action.
             void addAction(const std::shared_ptr<Action>&);
 
+            //! Add a sub menu.
+            std::shared_ptr<Menu> addSubMenu(const std::string&);
+
             //! Add a divider.
             void addDivider();
 
