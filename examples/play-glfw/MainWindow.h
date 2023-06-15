@@ -21,7 +21,6 @@ namespace tl
 
             protected:
                 void _init(
-                    const std::shared_ptr<timeline::Player>&,
                     const std::shared_ptr<App>&,
                     const std::shared_ptr<system::Context>&);
 
@@ -31,7 +30,6 @@ namespace tl
                 ~MainWindow();
 
                 static std::shared_ptr<MainWindow> create(
-                    const std::shared_ptr<timeline::Player>&,
                     const std::shared_ptr<App>&,
                     const std::shared_ptr<system::Context>&);
 
@@ -40,6 +38,7 @@ namespace tl
                 void keyReleaseEvent(ui::KeyEvent&) override;
 
             private:
+                void _setPlayer(const std::shared_ptr<timeline::Player>&);
                 void _infoUpdate();
 
                 TLRENDER_PRIVATE();

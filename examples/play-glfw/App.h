@@ -77,13 +77,16 @@ namespace tl
                     char* argv[],
                     const std::shared_ptr<system::Context>&);
 
+                //! Observe the current timeline player.
+                std::shared_ptr<observer::IValue<std::shared_ptr<timeline::Player> > > observePlayer() const;
+
             protected:
                 void _tick() override;
 
             private:
                 std::string _input;
                 Options _options;
-                std::shared_ptr<timeline::Player> _player;
+                std::shared_ptr<observer::Value<std::shared_ptr<timeline::Player> > > _player;
                 std::shared_ptr<MainWindow> _mainWindow;
             };
         }

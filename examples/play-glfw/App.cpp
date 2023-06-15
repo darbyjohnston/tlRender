@@ -191,27 +191,27 @@ namespace tl
 
                 // Read the timeline.
                 auto timeline = timeline::Timeline::create(_input, _context);
-                _player = timeline::Player::create(timeline, _context);
-
-                // Create the main window.
-                _mainWindow = MainWindow::create(
-                    _player,
-                    std::dynamic_pointer_cast<App>(shared_from_this()),
-                    _context);
-                getEventLoop()->addWidget(_mainWindow);
+                auto player = timeline::Player::create(timeline, _context);
 
                 // Initialize the timeline player.
                 if (time::isValid(_options.inOutRange))
                 {
-                    _player->setInOutRange(_options.inOutRange);
-                    _player->seek(_options.inOutRange.start_time());
+                    player->setInOutRange(_options.inOutRange);
+                    player->seek(_options.inOutRange.start_time());
                 }
                 if (time::isValid(_options.seek))
                 {
-                    _player->seek(_options.seek);
+                    player->seek(_options.seek);
                 }
-                _player->setLoop(_options.loop);
+                player->setLoop(_options.loop);
                 //_player->setPlayback(_options.playback);
+                _player = observer::Value<std::shared_ptr<timeline::Player> >::create(player);
+
+                // Create the main window.
+                _mainWindow = MainWindow::create(
+                    std::dynamic_pointer_cast<App>(shared_from_this()),
+                    _context);
+                getEventLoop()->addWidget(_mainWindow);
             }
 
             App::App()
@@ -230,9 +230,17 @@ namespace tl
                 return out;
             }
 
+            std::shared_ptr<observer::IValue<std::shared_ptr<timeline::Player> > > App::observePlayer() const
+            {
+                return _player;
+            }
+
             void App::_tick()
             {
-                _player->tick();
+                if (auto player = _player->get())
+                {
+                    player->tick();
+                }
             }
         }
     }

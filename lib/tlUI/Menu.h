@@ -4,13 +4,25 @@
 
 #pragma once
 
-#include <tlUI/Action.h>
 #include <tlUI/IPopup.h>
 
 namespace tl
 {
     namespace ui
     {
+        // Menu item.
+        struct MenuItem
+        {
+            std::string text;
+            std::string icon;
+            Key shortcut = Key::Unknown;
+            int shortcutModifiers = 0;
+            std::function<void(void)> callback;
+            bool checkable = false;
+            bool checked = false;
+            std::function<void(bool)> checkedCallback;
+        };
+
         //! Menu.
         class Menu : public IPopup
         {
@@ -31,11 +43,11 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Add an action.
-            void addAction(const std::shared_ptr<Action>&);
+            //! Add a menu item.
+            void addItem(const std::shared_ptr<MenuItem>&);
 
-            //! Get the actions.
-            const std::list<std::shared_ptr<Action> >& getActions() const;
+            //! Set whether a menu item is checked.
+            void setItemChecked(const std::shared_ptr<MenuItem>&, bool);
 
             //! Add a sub menu.
             std::shared_ptr<Menu> addSubMenu(const std::string&);
@@ -45,6 +57,9 @@ namespace tl
 
             //! Clear the menu.
             void clear();
+
+            //! Handle keyboard shortcuts.
+            bool shortcut(Key, int);
 
         private:
             TLRENDER_PRIVATE();

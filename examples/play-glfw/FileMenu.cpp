@@ -25,20 +25,18 @@ namespace tl
                 Menu::_init(context);
                 TLRENDER_P();
 
-                auto openAction = ui::Action::create(context);
-                openAction->setText("Open");
-                openAction->setShortut(
-                    ui::Key::O,
-                    static_cast<int>(ui::KeyModifier::Control));
-                openAction->setIcon("FileOpen");
-                openAction->setClickedCallback(
-                    [this]
+                auto item = std::make_shared<ui::MenuItem>();
+                item->text = "Open";
+                item->icon = "FileOpen";
+                item->shortcut = ui::Key::O;
+                item->shortcutModifiers = static_cast<int>(ui::KeyModifier::Control);
+                item->callback = [this]
                     {
                         close();
-                    });
-                addAction(openAction);
+                    };
+                addItem(item);
 
-                auto openWithAudioAction = ui::Action::create(context);
+                /*auto openWithAudioAction = ui::Action::create(context);
                 openWithAudioAction->setText("Open With Separate Audio");
                 openWithAudioAction->setShortut(
                     ui::Key::O,
@@ -86,19 +84,18 @@ namespace tl
                     {
                         close();
                     });
-                addAction(reloadAction);
+                addAction(reloadAction);*/
 
                 p.recentMenu = addSubMenu("Recent");
                 for (size_t i = 0; i < 10; ++i)
                 {
-                    auto recentAction = ui::Action::create(context);
-                    recentAction->setText("File name");
-                    recentAction->setClickedCallback(
-                        [this]
+                    item = std::make_shared<ui::MenuItem>();
+                    item->text = "File Name";
+                    item->callback = [this]
                         {
                             close();
-                        });
-                    p.recentMenu->addAction(recentAction);
+                        };
+                    p.recentMenu->addItem(item);
                 }
 
                 addDivider();
@@ -106,17 +103,16 @@ namespace tl
                 p.currentMenu = addSubMenu("Current");
                 for (size_t i = 0; i < 10; ++i)
                 {
-                    auto currentAction = ui::Action::create(context);
-                    currentAction->setText("File name");
-                    currentAction->setClickedCallback(
-                        [this]
-                        {
-                            close();
-                        });
-                    p.currentMenu->addAction(currentAction);
+                    item = std::make_shared<ui::MenuItem>();
+                    item->text = "File Name";
+                    item->callback = [this]
+                    {
+                        close();
+                    };
+                    p.currentMenu->addItem(item);
                 }
 
-                auto nextAction = ui::Action::create(context);
+                /*auto nextAction = ui::Action::create(context);
                 nextAction->setText("Next");
                 nextAction->setShortut(
                     ui::Key::PageDown,
@@ -180,7 +176,17 @@ namespace tl
                     {
                         app->exit();
                     });
-                addAction(exitAction);
+                addAction(exitAction);*/
+
+                item = std::make_shared<ui::MenuItem>();
+                item->text = "Exit";
+                item->shortcut = ui::Key::Q;
+                item->shortcutModifiers = static_cast<int>(ui::KeyModifier::Control);
+                item->callback = [app]
+                {
+                    app->exit();
+                };
+                addItem(item);
             }
 
             FileMenu::FileMenu() :
@@ -202,7 +208,9 @@ namespace tl
             void FileMenu::close()
             {
                 Menu::close();
-                _p->recentMenu->close();
+                TLRENDER_P();
+                p.recentMenu->close();
+                p.currentMenu->close();
             }
         }
     }

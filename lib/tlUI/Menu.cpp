@@ -395,8 +395,8 @@ namespace tl
 
         struct Menu::Private
         {
-            std::list<std::shared_ptr<Action> > actions;
-            std::map<std::shared_ptr<Action>, std::shared_ptr<MenuButton> > buttons;
+            std::list<std::shared_ptr<MenuItem> > items;
+            std::map<std::shared_ptr<MenuItem>, std::shared_ptr<MenuButton> > buttons;
             std::shared_ptr<VerticalLayout> layout;
         };
 
@@ -426,34 +426,39 @@ namespace tl
             return out;
         }
 
-        void Menu::addAction(const std::shared_ptr<Action>& action)
+        void Menu::addItem(const std::shared_ptr<MenuItem>& item)
         {
             TLRENDER_P();
-            p.actions.push_back(action);
+            p.items.push_back(item);
             if (auto context = _context.lock())
             {
                 auto button = MenuButton::create(context);
-                button->setText(action->getText());
-                button->setShortcut(action->getShortcut(), action->getShortcutModifiers());
-                button->setIcon(action->getIcon());
-                button->setPressedCallback(
-                    [action]
-                    {
-                        action->doPressedCallback();
-                    });
-                button->setClickedCallback(
-                    [action]
-                    {
-                        action->doClickedCallback();
-                    });
+                button->setText(item->text);
+                button->setIcon(item->icon);
+                button->setShortcut(item->shortcut, item->shortcutModifiers);
+                button->setPressedCallback(item->callback);
+                button->setClickedCallback(item->callback);
+                button->setCheckable(item->checkable);
+                button->setChecked(item->checked);
+                button->setCheckedCallback(item->checkedCallback);
                 button->setParent(p.layout);
-                p.buttons[action] = button;
+                p.buttons[item] = button;
             }
         }
 
-        const std::list<std::shared_ptr<Action> >& Menu::getActions() const
+        void Menu::setItemChecked(const std::shared_ptr<MenuItem>& item, bool value)
         {
-            return _p->actions;
+            TLRENDER_P();
+            const auto i = std::find(p.items.begin(), p.items.end(), item);
+            if (i != p.items.end())
+            {
+                i->get()->checked = value;
+            }
+            const auto j = p.buttons.find(item);
+            if (j != p.buttons.end())
+            {
+                j->second->setChecked(value);
+            }
         }
 
         std::shared_ptr<Menu> Menu::addSubMenu(const std::string& text)
@@ -505,8 +510,33 @@ namespace tl
             {
                 child->setParent(nullptr);
             }
-            p.actions.clear();
+            p.items.clear();
             p.buttons.clear();
+        }
+
+        bool Menu::shortcut(Key shortcut, int modifiers)
+        {
+            TLRENDER_P();
+            bool out = false;
+            for (const auto& item : p.items)
+            {
+                if (shortcut == item->shortcut &&
+                    modifiers == item->shortcutModifiers)
+                {
+                    if (item->callback)
+                    {
+                        item->callback();
+                        out = true;
+                    }
+                    if (item->checkedCallback)
+                    {
+                        item->checked = !item->checked;
+                        item->checkedCallback(item->checked);
+                        out = true;
+                    }
+                }
+            }
+            return out;
         }
     }
 }

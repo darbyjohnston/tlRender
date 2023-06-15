@@ -103,14 +103,13 @@ namespace tl
             }
         }
 
-        std::list<std::shared_ptr<Action> > MenuBar::getActions() const
+        bool MenuBar::shortcut(Key shortcut, int modifiers)
         {
             TLRENDER_P();
-            std::list<std::shared_ptr<Action> > out;
+            bool out = false;
             for (const auto& menu : p.menus)
             {
-                const auto& actions = menu->getActions();
-                out.insert(out.end(), actions.begin(), actions.end());
+                out |= menu->shortcut(shortcut, modifiers);
             }
             return out;
         }

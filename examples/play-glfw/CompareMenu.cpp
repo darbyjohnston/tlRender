@@ -23,7 +23,7 @@ namespace tl
                 Menu::_init(context);
                 TLRENDER_P();
 
-                auto aAction = ui::Action::create(context);
+                /*auto aAction = ui::Action::create(context);
                 aAction->setText("A");
                 aAction->setClickedCallback(
                     [this]
@@ -39,7 +39,7 @@ namespace tl
                     {
                         close();
                     });
-                addAction(bAction);
+                addAction(bAction);*/
             }
 
             CompareMenu::CompareMenu() :

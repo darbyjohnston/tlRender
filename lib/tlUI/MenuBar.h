@@ -37,8 +37,8 @@ namespace tl
                 const std::string& text,
                 const std::shared_ptr<Menu>&);
 
-            //! Get the actions.
-            std::list<std::shared_ptr<Action> > getActions() const;
+            //! Handle keyboard shortcuts.
+            bool shortcut(Key, int);
 
             void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;

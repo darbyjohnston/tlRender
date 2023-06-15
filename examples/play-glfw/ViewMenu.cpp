@@ -23,14 +23,14 @@ namespace tl
                 Menu::_init(context);
                 TLRENDER_P();
 
-                auto frameAction = ui::Action::create(context);
+                /*auto frameAction = ui::Action::create(context);
                 frameAction->setText("Frame");
                 frameAction->setClickedCallback(
                     [this]
                     {
                         close();
                     });
-                addAction(frameAction);
+                addAction(frameAction);*/
             }
 
             ViewMenu::ViewMenu() :

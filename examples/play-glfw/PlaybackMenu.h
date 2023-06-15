@@ -4,6 +4,8 @@
 
 #include <tlUI/Menu.h>
 
+#include <tlTimeline/Player.h>
+
 namespace tl
 {
     namespace examples
@@ -32,6 +34,9 @@ namespace tl
                     const std::shared_ptr<system::Context>&);
 
             private:
+                void _setPlayer(const std::shared_ptr<timeline::Player>&);
+                void _playbackUpdate();
+
                 TLRENDER_PRIVATE();
             };
         }
