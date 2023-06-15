@@ -36,6 +36,8 @@ namespace tl
                     const std::shared_ptr<system::Context>&);
 
                 void setGeometry(const math::BBox2i&) override;
+                void keyPressEvent(ui::KeyEvent&) override;
+                void keyReleaseEvent(ui::KeyEvent&) override;
 
             private:
                 void _infoUpdate();

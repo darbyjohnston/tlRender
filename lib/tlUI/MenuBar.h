@@ -4,12 +4,14 @@
 
 #pragma once
 
-#include <tlUI/IPopup.h>
+#include <tlUI/Menu.h>
 
 namespace tl
 {
     namespace ui
     {
+        class Action;
+
         //! Menu bar.
         class MenuBar : public IWidget
         {
@@ -33,7 +35,10 @@ namespace tl
             //! Add a menu.
             void addMenu(
                 const std::string& text,
-                const std::shared_ptr<IPopup>&);
+                const std::shared_ptr<Menu>&);
+
+            //! Get the actions.
+            std::list<std::shared_ptr<Action> > getActions() const;
 
             void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;

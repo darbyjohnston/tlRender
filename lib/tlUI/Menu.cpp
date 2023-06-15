@@ -451,6 +451,11 @@ namespace tl
             }
         }
 
+        const std::list<std::shared_ptr<Action> >& Menu::getActions() const
+        {
+            return _p->actions;
+        }
+
         std::shared_ptr<Menu> Menu::addSubMenu(const std::string& text)
         {
             TLRENDER_P();

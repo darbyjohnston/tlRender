@@ -297,6 +297,26 @@ namespace tl
                 _p->layout->setGeometry(value);
             }
 
+            void MainWindow::keyPressEvent(ui::KeyEvent& event)
+            {
+                TLRENDER_P();
+                for (const auto& action : p.menuBar->getActions())
+                {
+                    if (action->getShortcut() == event.key &&
+                        action->getShortcutModifiers() == event.modifiers)
+                    {
+                        event.accept = true;
+                        action->doPressedCallback();
+                        action->doClickedCallback();
+                    }
+                }
+            }
+
+            void MainWindow::keyReleaseEvent(ui::KeyEvent& event)
+            {
+                event.accept = true;
+            }
+
             void MainWindow::_infoUpdate()
             {
                 TLRENDER_P();

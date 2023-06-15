@@ -34,6 +34,9 @@ namespace tl
             //! Add an action.
             void addAction(const std::shared_ptr<Action>&);
 
+            //! Get the actions.
+            const std::list<std::shared_ptr<Action> >& getActions() const;
+
             //! Add a sub menu.
             std::shared_ptr<Menu> addSubMenu(const std::string&);
 
