@@ -97,12 +97,6 @@ jobs:
         cd tlRender/src/tlRender-build &&
         sh ../../../../etc/Linux/lcov.sh
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2.1.0
-      with:
-        files: ${{ github.workspace }}/build/tlRender/src/tlRender-build/coverage_filtered.info
-        fail_ci_if_error: false
-
   linux-minimal-build:
     runs-on: ubuntu-latest
 
