@@ -43,7 +43,8 @@ namespace tl
                         app::CmdLineValueArg<std::string>::create(
                             p.input,
                             "input",
-                            "The input timeline.")
+                            "The input timeline, movie, or image sequence.",
+                            true)
                     },
                 {
                     app::CmdLineValueOption<std::string>::create(
@@ -200,23 +201,26 @@ namespace tl
                 ioSystem->setOptions(ioOptions);
 
                 // Read the timeline.
-                auto timeline = timeline::Timeline::create(p.input, _context);
-                auto player = timeline::Player::create(timeline, _context);
-
-                // Initialize the timeline player.
-                if (time::isValid(p.options.inOutRange))
+                p.player = observer::Value<std::shared_ptr<timeline::Player> >::create();
+                p.players = observer::List<std::shared_ptr<timeline::Player> >::create();
+                if (!p.input.empty())
                 {
-                    player->setInOutRange(p.options.inOutRange);
-                    player->seek(p.options.inOutRange.start_time());
+                    open(p.input);
+                    if (auto player = p.player->get())
+                    {
+                        if (time::isValid(p.options.inOutRange))
+                        {
+                            player->setInOutRange(p.options.inOutRange);
+                            player->seek(p.options.inOutRange.start_time());
+                        }
+                        if (time::isValid(p.options.seek))
+                        {
+                            player->seek(p.options.seek);
+                        }
+                        player->setLoop(p.options.loop);
+                        player->setPlayback(p.options.playback);
+                    }
                 }
-                if (time::isValid(p.options.seek))
-                {
-                    player->seek(p.options.seek);
-                }
-                player->setLoop(p.options.loop);
-                //player->setPlayback(p.options.playback);
-                p.player = observer::Value<std::shared_ptr<timeline::Player> >::create(player);
-                p.players = observer::List<std::shared_ptr<timeline::Player> >::create({ player });
 
                 // Create the main window.
                 p.mainWindow = MainWindow::create(
@@ -240,6 +244,38 @@ namespace tl
                 auto out = std::shared_ptr<App>(new App);
                 out->_init(argc, argv, context);
                 return out;
+            }
+
+            void App::open(const std::string& fileName)
+            {
+                TLRENDER_P();
+                try
+                {
+                    auto timeline = timeline::Timeline::create(fileName, _context);
+                    auto player = timeline::Player::create(timeline, _context);
+                    p.player->setIfChanged(player);
+                    p.players->setIfChanged({ player });
+                }
+                catch (const std::exception& e)
+                {
+                    std::cerr << e.what() << std::endl;
+                    p.player->setIfChanged(nullptr);
+                    p.players->clear();
+                }
+            }
+
+            void App::close()
+            {
+                TLRENDER_P();
+                p.player->setIfChanged(nullptr);
+                p.players->clear();
+            }
+
+            void App::closeAll()
+            {
+                TLRENDER_P();
+                p.player->setIfChanged(nullptr);
+                p.players->clear();
             }
 
             std::shared_ptr<observer::IValue<std::shared_ptr<timeline::Player> > > App::observePlayer() const

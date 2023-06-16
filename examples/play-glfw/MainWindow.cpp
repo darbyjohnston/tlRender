@@ -391,7 +391,14 @@ namespace tl
 
                 p.player = value;
 
-                p.timelineViewport->setPlayers({ p.player });
+                if (p.player)
+                {
+                    p.timelineViewport->setPlayers({ p.player });
+                }
+                else
+                {
+                    p.timelineViewport->setPlayers({});
+                }
                 p.timelineWidget->setPlayer(p.player);
                 p.durationLabel->setValue(p.player ?
                     p.player->getTimeRange().duration() :
@@ -420,6 +427,12 @@ namespace tl
                         {
                             _p->currentTimeEdit->setValue(value);
                         });
+                }
+                else
+                {
+                    p.speedModel->setValue(0.0);
+                    p.playbackButtonGroup->setChecked(0, true);
+                    p.currentTimeEdit->setValue(time::invalidTime);
                 }
             }
 

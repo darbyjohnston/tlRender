@@ -48,13 +48,15 @@ Contents:
 The core libraries providing timeline rendering, playback, and I/O.
 
 Required dependencies:
-* [FreeType](https://www.freetype.org)
-* [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
+* [FSeq](https://github.com/darbyjohnston/FSeq)
+* [ZLIB](https://zlib.net)
+* [GLM](https://github.com/g-truc/glm)
 * [Imath](https://github.com/AcademySoftwareFoundation/Imath)
 * [nlohmann_json](https://github.com/nlohmann/json)
 * [minizip-ng](https://github.com/zlib-ng/minizip-ng)
-* [ZLIB](https://zlib.net)
-* [FSeq](https://github.com/darbyjohnston/FSeq)
+* [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
+* [FreeType](https://www.freetype.org)
+* [GLFW](https://www.glfw.org/)
 
 Optional dependencies:
 * [OpenColorIO](https://github.com/AcademySoftwareFoundation/OpenColorIO)
@@ -65,6 +67,8 @@ Optional dependencies:
 * [PNG](https://libpng.sourceforge.io/index.html)
 * [OpenEXR](https://www.openexr.com/)
 * [FFmpeg](https://ffmpeg.org)
+* [nativefiledialog-extended](https://github.com/btzy/nativefiledialog-extended)
+* [Qt version 5 or 6](https://www.qt.io)
 
 ## tlGL
 

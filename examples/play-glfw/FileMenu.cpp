@@ -6,6 +6,10 @@
 
 #include "App.h"
 
+#if defined(TLRENDER_NFD)
+#include <nfd.hpp>
+#endif // TLRENDER_NFD
+
 namespace tl
 {
     namespace examples
@@ -25,17 +29,29 @@ namespace tl
                 Menu::_init(context);
                 TLRENDER_P();
 
+                auto appWeak = std::weak_ptr<App>(app);
                 auto item = std::make_shared<ui::MenuItem>(
                     "Open",
                     "FileOpen",
                     ui::Key::O,
                     static_cast<int>(ui::KeyModifier::Control),
-                    [this]
+                    [this, appWeak]
                     {
                         close();
+#if defined(TLRENDER_NFD)
+                        if (auto app = appWeak.lock())
+                        {
+                            nfdu8char_t* outPath = nullptr;
+                            NFD::OpenDialog(outPath);
+                            if (outPath)
+                            {
+                                app->open(outPath);
+                                NFD::FreePath(outPath);
+                            }
+                        }
+#endif // TLRENDER_NFD
                     });
                 addItem(item);
-                setItemEnabled(item, false);
 
                 item = std::make_shared<ui::MenuItem>(
                     "Open With Separate Audio",
@@ -53,24 +69,30 @@ namespace tl
                     "Close",
                     ui::Key::E,
                     static_cast<int>(ui::KeyModifier::Control),
-                    [this]
+                    [this, appWeak]
                     {
                         close();
+                        if (auto app = appWeak.lock())
+                        {
+                            app->closeAll();
+                        }
                     });
                 addItem(item);
-                setItemEnabled(item, false);
 
                 item = std::make_shared<ui::MenuItem>(
                     "Close All",
                     ui::Key::E,
                     static_cast<int>(ui::KeyModifier::Shift) |
                     static_cast<int>(ui::KeyModifier::Control),
-                    [this]
+                    [this, appWeak]
                     {
                         close();
+                        if (auto app = appWeak.lock())
+                        {
+                            app->closeAll();
+                        }
                     });
                 addItem(item);
-                setItemEnabled(item, false);
 
                 item = std::make_shared<ui::MenuItem>(
                     "Reload",
@@ -160,7 +182,6 @@ namespace tl
 
                 addDivider();
 
-                auto appWeak = std::weak_ptr<App>(app);
                 item = std::make_shared<ui::MenuItem>(
                     "Exit",
                     ui::Key::Q,

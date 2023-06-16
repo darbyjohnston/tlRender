@@ -39,7 +39,7 @@ namespace tl
                 imaging::Size windowSize = imaging::Size(1280, 720);
                 bool fullscreen = false;
                 bool hud = true;
-                timeline::Playback playback = timeline::Playback::Forward;
+                timeline::Playback playback = timeline::Playback::Stop;
                 timeline::Loop loop = timeline::Loop::Loop;
                 otime::RationalTime seek = time::invalidTime;
                 otime::TimeRange inOutRange = time::invalidTimeRange;
@@ -76,6 +76,15 @@ namespace tl
                     int argc,
                     char* argv[],
                     const std::shared_ptr<system::Context>&);
+
+                //! Open a new timeline player.
+                void open(const std::string&);
+
+                //! Close the current timeline player.
+                void close();
+
+                //! Close all of the timeline players.
+                void closeAll();
 
                 //! Observe the current timeline player.
                 std::shared_ptr<observer::IValue<std::shared_ptr<timeline::Player> > > observePlayer() const;

@@ -307,8 +307,7 @@ namespace tl
 
             event.render->drawRect(g, imaging::Color4f(0.F, 0.F, 0.F));
 
-            if (p.renderBuffer &&
-                !p.videoData.empty())
+            if (p.renderBuffer)
             {
                 p.renderBuffer = false;
 

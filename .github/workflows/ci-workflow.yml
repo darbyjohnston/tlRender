@@ -16,7 +16,7 @@ jobs:
       TLRENDER_PNG: ON
       TLRENDER_EXR: ON
       TLRENDER_FFMPEG: ON
-      TLRENDER_GL: ON
+      TLRENDER_NFD: ON
       TLRENDER_QT5: ON
       TLRENDER_PROGRAMS: ON
       TLRENDER_EXAMPLES: ON
@@ -36,7 +36,6 @@ jobs:
       run: sudo apt-get install lcov
 
     - name: Install OpenGL dev
-      if: env.TLRENDER_GL == 'ON'
       run: sudo apt-get install xorg-dev libglu1-mesa-dev mesa-common-dev
 
     - name: Install ALSA dev
@@ -76,7 +75,7 @@ jobs:
           -DTLRENDER_PNG=$TLRENDER_PNG \
           -DTLRENDER_EXR=$TLRENDER_EXR \
           -DTLRENDER_FFMPEG=$TLRENDER_FFMPEG \
-          -DTLRENDER_GL=$TLRENDER_GL \
+          -DTLRENDER_NFD=$TLRENDER_NFD \
           -DTLRENDER_QT5=$TLRENDER_QT5 \
           -DTLRENDER_PROGRAMS=$TLRENDER_PROGRAMS \
           -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
@@ -116,7 +115,7 @@ jobs:
       TLRENDER_PNG: OFF
       TLRENDER_EXR: OFF
       TLRENDER_FFMPEG: OFF
-      TLRENDER_GL: ON
+      TLRENDER_NFD: OFF
       TLRENDER_QT5: OFF
       TLRENDER_PROGRAMS: ON
       TLRENDER_EXAMPLES: ON
@@ -132,7 +131,6 @@ jobs:
       run: sudo apt-get update
 
     - name: Install OpenGL dev
-      if: env.TLRENDER_GL == 'ON'
       run: sudo apt-get install xorg-dev libglu1-mesa-dev mesa-common-dev
       
     - name: Setup environment
@@ -158,7 +156,7 @@ jobs:
           -DTLRENDER_PNG=$TLRENDER_PNG \
           -DTLRENDER_EXR=$TLRENDER_EXR \
           -DTLRENDER_FFMPEG=$TLRENDER_FFMPEG \
-          -DTLRENDER_GL=$TLRENDER_GL \
+          -DTLRENDER_NFD=$TLRENDER_NFD \
           -DTLRENDER_QT5=$TLRENDER_QT5 \
           -DTLRENDER_PROGRAMS=$TLRENDER_PROGRAMS \
           -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
@@ -185,7 +183,7 @@ jobs:
       TLRENDER_PNG: ON
       TLRENDER_EXR: ON
       TLRENDER_FFMPEG: ON
-      TLRENDER_GL: ON
+      TLRENDER_NFD: ON
       TLRENDER_QT5: OFF
       TLRENDER_PROGRAMS: ON
       TLRENDER_EXAMPLES: ON
@@ -222,7 +220,7 @@ jobs:
           -DTLRENDER_PNG=$TLRENDER_PNG \
           -DTLRENDER_EXR=$TLRENDER_EXR \
           -DTLRENDER_FFMPEG=$TLRENDER_FFMPEG \
-          -DTLRENDER_GL=$TLRENDER_GL \
+          -DTLRENDER_NFD=$TLRENDER_NFD \
           -DTLRENDER_QT5=$TLRENDER_QT5 \
           -DTLRENDER_PROGRAMS=$TLRENDER_PROGRAMS \
           -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
@@ -250,7 +248,7 @@ jobs:
       TLRENDER_PNG: ON
       TLRENDER_EXR: ON
       TLRENDER_FFMPEG: OFF
-      TLRENDER_GL: ON
+      TLRENDER_NFD: ON
       TLRENDER_QT5: OFF
       TLRENDER_PROGRAMS: ON
       TLRENDER_EXAMPLES: ON
@@ -283,7 +281,7 @@ jobs:
           -DTLRENDER_PNG=${{ env.TLRENDER_PNG }} `
           -DTLRENDER_EXR=${{ env.TLRENDER_EXR }} `
           -DTLRENDER_FFMPEG=${{ env.TLRENDER_FFMPEG }} `
-          -DTLRENDER_GL=${{ env.TLRENDER_GL }} `
+          -DTLRENDER_NFD=${{ env.TLRENDER_NFD }} `
           -DTLRENDER_QT5=${{ env.TLRENDER_QT5 }} `
           -DTLRENDER_PROGRAMS=${{ env.TLRENDER_PROGRAMS }} `
           -DTLRENDER_EXAMPLES=${{ env.TLRENDER_EXAMPLES }} `
