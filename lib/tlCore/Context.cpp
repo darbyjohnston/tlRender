@@ -42,7 +42,11 @@ namespace tl
 
         Context::~Context()
         {
-            std::cout << std::endl;
+            _systemTimes.clear();
+            while (!_systems.empty())
+            {
+                _systems.pop_back();
+            }
         }
 
         std::shared_ptr<Context> Context::create()
@@ -54,7 +58,8 @@ namespace tl
 
         void Context::addSystem(const std::shared_ptr<ICoreSystem>& system)
         {
-            _systems[system] = std::chrono::steady_clock::now();
+            _systems.push_back(system);
+            _systemTimes[system] = std::chrono::steady_clock::now();
         }
 
         void Context::log(const std::string& prefix, const std::string& value, log::Type type)
@@ -65,7 +70,7 @@ namespace tl
         void Context::tick()
         {
             const auto now = std::chrono::steady_clock::now();
-            for (auto& i : _systems)
+            for (auto& i : _systemTimes)
             {
                 const auto tickTime = i.first->getTickTime();
                 if (tickTime > std::chrono::milliseconds(0) &&
