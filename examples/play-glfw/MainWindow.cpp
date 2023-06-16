@@ -361,15 +361,20 @@ namespace tl
             void MainWindow::_setPlayer(const std::shared_ptr<timeline::Player>& value)
             {
                 TLRENDER_P();
+
                 p.speedObserver.reset();
                 p.playbackObserver.reset();
                 p.currentTimeObserver.reset();
+
                 p.player = value;
+
                 p.timelineViewport->setPlayers({ p.player });
                 p.timelineWidget->setPlayer(p.player);
                 p.durationLabel->setValue(p.player ?
                     p.player->getTimeRange().duration() :
                     time::invalidTime);
+                _infoUpdate();
+
                 if (p.player)
                 {
                     p.speedObserver = observer::ValueObserver<double>::create(
