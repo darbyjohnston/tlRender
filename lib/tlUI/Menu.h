@@ -19,6 +19,10 @@ namespace tl
                 const std::function<void(void)>& callback);
             MenuItem(
                 const std::string&               text,
+                const std::string&               icon,
+                const std::function<void(void)>& callback);
+            MenuItem(
+                const std::string&               text,
                 Key                              shortcut,
                 int                              shortcutModifiers,
                 const std::function<void(void)>& callback);
@@ -30,6 +34,10 @@ namespace tl
                 const std::function<void(void)>& callback);
             MenuItem(
                 const std::string&               text,
+                const std::function<void(bool)>& checkedCallback);
+            MenuItem(
+                const std::string&               text,
+                const std::string&               icon,
                 const std::function<void(bool)>& checkedCallback);
             MenuItem(
                 const std::string&               text,
@@ -78,6 +86,9 @@ namespace tl
 
             //! Set whether a menu item is checked.
             void setItemChecked(const std::shared_ptr<MenuItem>&, bool);
+
+            //! Set whether a menu item is enabled.
+            void setItemEnabled(const std::shared_ptr<MenuItem>&, bool);
 
             //! Add a sub menu.
             std::shared_ptr<Menu> addSubMenu(const std::string&);

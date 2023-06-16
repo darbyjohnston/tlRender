@@ -17,9 +17,18 @@ namespace tl
         {}
 
         MenuItem::MenuItem(
-            const std::string& text,
+            const std::string&               text,
             const std::function<void(void)>& callback) :
             text(text),
+            callback(callback)
+        {}
+
+        MenuItem::MenuItem(
+            const std::string&               text,
+            const std::string&               icon,
+            const std::function<void(void)>& callback) :
+            text(text),
+            icon(icon),
             callback(callback)
         {}
 
@@ -48,9 +57,19 @@ namespace tl
         {}
 
         MenuItem::MenuItem(
-            const std::string& text,
+            const std::string&               text,
             const std::function<void(bool)>& checkedCallback) :
             text(text),
+            checkable(true),
+            checkedCallback(checkedCallback)
+        {}
+
+        MenuItem::MenuItem(
+            const std::string&               text,
+            const std::string&               icon,
+            const std::function<void(bool)>& checkedCallback) :
+            text(text),
+            icon(icon),
             checkable(true),
             checkedCallback(checkedCallback)
         {}
@@ -623,6 +642,16 @@ namespace tl
             }
         }
 
+        void Menu::setItemEnabled(const std::shared_ptr<MenuItem>& item, bool value)
+        {
+            TLRENDER_P();
+            const auto i = p.buttons.find(item);
+            if (i != p.buttons.end())
+            {
+                i->second->setEnabled(value);
+            }
+        }
+
         std::shared_ptr<Menu> Menu::addSubMenu(const std::string& text)
         {
             TLRENDER_P();
@@ -692,7 +721,7 @@ namespace tl
                     }
                     if (item->checkedCallback)
                     {
-                        item->checked = !item->checked;
+                        setItemChecked(item, !item->checked);
                         item->checkedCallback(item->checked);
                         out = true;
                     }

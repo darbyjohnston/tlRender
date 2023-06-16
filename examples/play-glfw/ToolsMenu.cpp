@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include "CompareMenu.h"
+#include "ToolsMenu.h"
 
 #include "App.h"
 
@@ -12,11 +12,11 @@ namespace tl
     {
         namespace play_glfw
         {
-            struct CompareMenu::Private
+            struct ToolsMenu::Private
             {
             };
 
-            void CompareMenu::_init(
+            void ToolsMenu::_init(
                 const std::shared_ptr<App>& app,
                 const std::shared_ptr<system::Context>& context)
             {
@@ -24,11 +24,11 @@ namespace tl
                 TLRENDER_P();
 
                 auto item = std::make_shared<ui::MenuItem>(
-                    "A",
-                    "CompareA",
-                    ui::Key::A,
-                    static_cast<int>(ui::KeyModifier::Control),
-                    [this]
+                    "Files",
+                    "Files",
+                    ui::Key::F1,
+                    0,
+                    [this](bool value)
                     {
                         close();
                     });
@@ -36,11 +36,11 @@ namespace tl
                 setItemEnabled(item, false);
 
                 item = std::make_shared<ui::MenuItem>(
-                    "B",
-                    "CompareB",
-                    ui::Key::B,
-                    static_cast<int>(ui::KeyModifier::Control),
-                    [this]
+                    "Compare",
+                    "Compare",
+                    ui::Key::F2,
+                    0,
+                    [this](bool value)
                     {
                         close();
                     });
@@ -48,11 +48,11 @@ namespace tl
                 setItemEnabled(item, false);
 
                 item = std::make_shared<ui::MenuItem>(
-                    "Wipe",
-                    "CompareWipe",
-                    ui::Key::W,
-                    static_cast<int>(ui::KeyModifier::Control),
-                    [this]
+                    "Color",
+                    "Color",
+                    ui::Key::F3,
+                    0,
+                    [this](bool value)
                     {
                         close();
                     });
@@ -60,9 +60,11 @@ namespace tl
                 setItemEnabled(item, false);
 
                 item = std::make_shared<ui::MenuItem>(
-                    "Overlay",
-                    "CompareOverlay",
-                    [this]
+                    "Information",
+                    "Info",
+                    ui::Key::F4,
+                    0,
+                    [this](bool value)
                     {
                         close();
                     });
@@ -70,9 +72,11 @@ namespace tl
                 setItemEnabled(item, false);
 
                 item = std::make_shared<ui::MenuItem>(
-                    "Difference",
-                    "CompareDifference",
-                    [this]
+                    "Audio",
+                    "Audio",
+                    ui::Key::F5,
+                    0,
+                    [this](bool value)
                     {
                         close();
                     });
@@ -80,9 +84,11 @@ namespace tl
                 setItemEnabled(item, false);
 
                 item = std::make_shared<ui::MenuItem>(
-                    "Horizontal",
-                    "CompareHorizontal",
-                    [this]
+                    "Devices",
+                    "Devices",
+                    ui::Key::F6,
+                    0,
+                    [this](bool value)
                     {
                         close();
                     });
@@ -90,9 +96,11 @@ namespace tl
                 setItemEnabled(item, false);
 
                 item = std::make_shared<ui::MenuItem>(
-                    "Vertical",
-                    "CompareVertical",
-                    [this]
+                    "Settings",
+                    "Settings",
+                    ui::Key::F9,
+                    0,
+                    [this](bool value)
                     {
                         close();
                     });
@@ -100,25 +108,11 @@ namespace tl
                 setItemEnabled(item, false);
 
                 item = std::make_shared<ui::MenuItem>(
-                    "Tile",
-                    "CompareTile",
-                    ui::Key::T,
-                    static_cast<int>(ui::KeyModifier::Control),
-                    [this]
-                    {
-                        close();
-                    });
-                addItem(item);
-                setItemEnabled(item, false);
-
-                addDivider();
-
-                item = std::make_shared<ui::MenuItem>(
-                    "Next",
-                    "Next",
-                    ui::Key::PageDown,
-                    static_cast<int>(ui::KeyModifier::Shift),
-                    [this]
+                    "Messages",
+                    "Messages",
+                    ui::Key::F10,
+                    0,
+                    [this](bool value)
                     {
                         close();
                     });
@@ -126,11 +120,11 @@ namespace tl
                 setItemEnabled(item, false);
 
                 item = std::make_shared<ui::MenuItem>(
-                    "Previous",
-                    "Prev",
-                    ui::Key::PageUp,
-                    static_cast<int>(ui::KeyModifier::Shift),
-                    [this]
+                    "System Log",
+                    "System Log",
+                    ui::Key::F11,
+                    0,
+                    [this](bool value)
                     {
                         close();
                     });
@@ -138,18 +132,18 @@ namespace tl
                 setItemEnabled(item, false);
             }
 
-            CompareMenu::CompareMenu() :
+            ToolsMenu::ToolsMenu() :
                 _p(new Private)
             {}
 
-            CompareMenu::~CompareMenu()
+            ToolsMenu::~ToolsMenu()
             {}
 
-            std::shared_ptr<CompareMenu> CompareMenu::create(
+            std::shared_ptr<ToolsMenu> ToolsMenu::create(
                 const std::shared_ptr<App>& app,
                 const std::shared_ptr<system::Context>& context)
             {
-                auto out = std::shared_ptr<CompareMenu>(new CompareMenu);
+                auto out = std::shared_ptr<ToolsMenu>(new ToolsMenu);
                 out->_init(app, context);
                 return out;
             }

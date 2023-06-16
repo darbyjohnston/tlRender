@@ -11,6 +11,7 @@
 #include "FrameMenu.h"
 #include "PlaybackMenu.h"
 #include "RenderMenu.h"
+#include "ToolsMenu.h"
 #include "ViewMenu.h"
 #include "WindowMenu.h"
 
@@ -52,12 +53,13 @@ namespace tl
 
                 std::shared_ptr<FileMenu> fileMenu;
                 std::shared_ptr<CompareMenu> compareMenu;
+                std::shared_ptr<WindowMenu> windowMenu;
                 std::shared_ptr<ViewMenu> viewMenu;
                 std::shared_ptr<RenderMenu> renderMenu;
                 std::shared_ptr<PlaybackMenu> playbackMenu;
                 std::shared_ptr<FrameMenu> frameMenu;
                 std::shared_ptr<AudioMenu> audioMenu;
-                std::shared_ptr<WindowMenu> windowMenu;
+                std::shared_ptr<ToolsMenu> toolsMenu;
                 std::shared_ptr<ui::MenuBar> menuBar;
                 std::shared_ptr<timelineui::TimelineViewport> timelineViewport;
                 std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
@@ -98,21 +100,24 @@ namespace tl
 
                 p.fileMenu = FileMenu::create(app, context);
                 p.compareMenu = CompareMenu::create(app, context);
+                p.windowMenu = WindowMenu::create(app, context);
+                p.windowMenu->setFullScreen(app->isWindowFullScreen());
                 p.viewMenu = ViewMenu::create(app, context);
                 p.renderMenu = RenderMenu::create(app, context);
                 p.playbackMenu = PlaybackMenu::create(app, context);
                 p.frameMenu = FrameMenu::create(app, context);
                 p.audioMenu = AudioMenu::create(app, context);
-                p.windowMenu = WindowMenu::create(app, context);
+                p.toolsMenu = ToolsMenu::create(app, context);
                 p.menuBar = ui::MenuBar::create(context);
                 p.menuBar->addMenu("File", p.fileMenu);
                 p.menuBar->addMenu("Compare", p.compareMenu);
+                p.menuBar->addMenu("Window", p.windowMenu);
                 p.menuBar->addMenu("View", p.viewMenu);
                 p.menuBar->addMenu("Render", p.renderMenu);
                 p.menuBar->addMenu("Playback", p.playbackMenu);
                 p.menuBar->addMenu("Frame", p.frameMenu);
                 p.menuBar->addMenu("Audio", p.audioMenu);
-                p.menuBar->addMenu("Window", p.windowMenu);
+                p.menuBar->addMenu("Tools", p.toolsMenu);
 
                 p.timelineViewport = timelineui::TimelineViewport::create(context);
 
@@ -211,6 +216,17 @@ namespace tl
 
                 _playbackUpdate();
                 _infoUpdate();
+
+                p.windowMenu->setResizeCallback(
+                    [app](const imaging::Size& value)
+                    {
+                        app->setWindowSize(value);
+                    });
+                p.windowMenu->setFullScreenCallback(
+                    [app](bool value)
+                    {
+                        app->setWindowFullScreen(value);
+                    });
 
                 p.playbackMenu->setFrameTimelineViewCallback(
                     [this](bool value)

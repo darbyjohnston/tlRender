@@ -95,7 +95,7 @@ namespace tl
                 math::Vector2i sizeHint = children.front()->getSizeHint();
                 sizeHint.x += p.border * 2;
                 sizeHint.y += p.border * 2;
-                std::vector<math::BBox2i> bboxes;
+                std::list<math::BBox2i> bboxes;
                 switch (p.popupStyle)
                 {
                 case PopupStyle::Menu:
@@ -133,18 +133,20 @@ namespace tl
                         sizeHint.y));
                     break;
                 }
-                for (auto& bbox : bboxes)
+                std::list<std::pair<math::BBox2i, math::BBox2i> > intersect;
+                for (const auto& bbox : bboxes)
                 {
-                    bbox = bbox.intersect(value);
+                    intersect.push_back(std::make_pair(bbox, bbox.intersect(value)));
                 }
                 std::stable_sort(
-                    bboxes.begin(),
-                    bboxes.end(),
-                    [](const math::BBox2i& a, const math::BBox2i& b)
+                    intersect.begin(),
+                    intersect.end(),
+                    [](const std::pair<math::BBox2i, math::BBox2i>& a,
+                        const std::pair<math::BBox2i, math::BBox2i>& b)
                     {
-                        return a.getArea() > b.getArea();
+                        return a.second.getArea() > b.second.getArea();
                     });
-                children.front()->setGeometry(bboxes.front().margin(-p.border));
+                children.front()->setGeometry(intersect.front().first.margin(-p.border));
             }
         }
 

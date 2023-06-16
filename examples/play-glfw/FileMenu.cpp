@@ -35,56 +35,51 @@ namespace tl
                         close();
                     });
                 addItem(item);
+                setItemEnabled(item, false);
 
-                /*auto openWithAudioAction = ui::Action::create(context);
-                openWithAudioAction->setText("Open With Separate Audio");
-                openWithAudioAction->setShortut(
+                item = std::make_shared<ui::MenuItem>(
+                    "Open With Separate Audio",
                     ui::Key::O,
                     static_cast<int>(ui::KeyModifier::Shift) |
-                    static_cast<int>(ui::KeyModifier::Control));
-                openWithAudioAction->setIcon("FileOpenSeparateAudio");
-                openWithAudioAction->setClickedCallback(
+                    static_cast<int>(ui::KeyModifier::Control),
                     [this]
                     {
                         close();
                     });
-                addAction(openWithAudioAction);
+                addItem(item);
+                setItemEnabled(item, false);
 
-                auto closeAction = ui::Action::create(context);
-                closeAction->setText("Close");
-                closeAction->setShortut(
+                item = std::make_shared<ui::MenuItem>(
+                    "Close",
                     ui::Key::E,
-                    static_cast<int>(ui::KeyModifier::Control));
-                closeAction->setIcon("FileClose");
-                closeAction->setClickedCallback(
+                    static_cast<int>(ui::KeyModifier::Control),
                     [this]
                     {
                         close();
                     });
-                addAction(closeAction);
+                addItem(item);
+                setItemEnabled(item, false);
 
-                auto closeAllAction = ui::Action::create(context);
-                closeAllAction->setText("Close All");
-                closeAllAction->setShortut(
+                item = std::make_shared<ui::MenuItem>(
+                    "Close All",
                     ui::Key::E,
                     static_cast<int>(ui::KeyModifier::Shift) |
-                    static_cast<int>(ui::KeyModifier::Control));
-                closeAllAction->setIcon("FileCloseAll");
-                closeAllAction->setClickedCallback(
+                    static_cast<int>(ui::KeyModifier::Control),
                     [this]
                     {
                         close();
                     });
-                addAction(closeAllAction);
+                addItem(item);
+                setItemEnabled(item, false);
 
-                auto reloadAction = ui::Action::create(context);
-                reloadAction->setText("Reload");
-                reloadAction->setClickedCallback(
+                item = std::make_shared<ui::MenuItem>(
+                    "Reload",
                     [this]
                     {
                         close();
                     });
-                addAction(reloadAction);*/
+                addItem(item);
+                setItemEnabled(item, false);
 
                 p.recentMenu = addSubMenu("Recent");
                 for (size_t i = 0; i < 10; ++i)
@@ -96,6 +91,7 @@ namespace tl
                             close();
                         });
                     p.recentMenu->addItem(item);
+                    p.recentMenu->setItemEnabled(item, false);
                 }
 
                 addDivider();
@@ -110,73 +106,59 @@ namespace tl
                             close();
                         });
                     p.currentMenu->addItem(item);
+                    p.currentMenu->setItemEnabled(item, false);
                 }
 
-                /*auto nextAction = ui::Action::create(context);
-                nextAction->setText("Next");
-                nextAction->setShortut(
+                item = std::make_shared<ui::MenuItem>(
+                    "Next",
+                    "Next",
                     ui::Key::PageDown,
-                    static_cast<int>(ui::KeyModifier::Control));
-                nextAction->setIcon("Next");
-                nextAction->setClickedCallback(
+                    static_cast<int>(ui::KeyModifier::Control),
                     [this]
                     {
                         close();
                     });
-                addAction(nextAction);
+                addItem(item);
+                setItemEnabled(item, false);
 
-                auto prevAction = ui::Action::create(context);
-                prevAction->setText("Prev");
-                prevAction->setShortut(
+                item = std::make_shared<ui::MenuItem>(
+                    "Previous",
+                    "Prev",
                     ui::Key::PageUp,
-                    static_cast<int>(ui::KeyModifier::Control));
-                prevAction->setIcon("Prev");
-                prevAction->setClickedCallback(
+                    static_cast<int>(ui::KeyModifier::Control),
                     [this]
                     {
                         close();
                     });
-                addAction(prevAction);
+                addItem(item);
+                setItemEnabled(item, false);
 
                 addDivider();
 
-                auto nextLayerAction = ui::Action::create(context);
-                nextLayerAction->setText("Next Layer");
-                nextLayerAction->setShortut(
+                item = std::make_shared<ui::MenuItem>(
+                    "Next Layer",
                     ui::Key::Equal,
-                    static_cast<int>(ui::KeyModifier::Control));
-                nextLayerAction->setClickedCallback(
+                    static_cast<int>(ui::KeyModifier::Control),
                     [this]
                     {
                         close();
                     });
-                addAction(nextLayerAction);
+                addItem(item);
+                setItemEnabled(item, false);
 
-                auto prevLayerAction = ui::Action::create(context);
-                prevLayerAction->setText("Previous Layer");
-                prevLayerAction->setShortut(
+                item = std::make_shared<ui::MenuItem>(
+                    "Previous Layer",
+                    "Prev",
                     ui::Key::Minus,
-                    static_cast<int>(ui::KeyModifier::Control));
-                prevLayerAction->setClickedCallback(
+                    static_cast<int>(ui::KeyModifier::Control),
                     [this]
                     {
                         close();
                     });
-                addAction(prevLayerAction);
+                addItem(item);
+                setItemEnabled(item, false);
 
                 addDivider();
-
-                auto exitAction = ui::Action::create(context);
-                exitAction->setText("Exit");
-                exitAction->setShortut(
-                    ui::Key::Q,
-                    static_cast<int>(ui::KeyModifier::Control));
-                exitAction->setClickedCallback(
-                    [app]
-                    {
-                        app->exit();
-                    });
-                addAction(exitAction);*/
 
                 item = std::make_shared<ui::MenuItem>(
                     "Exit",

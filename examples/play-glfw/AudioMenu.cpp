@@ -22,6 +22,40 @@ namespace tl
             {
                 Menu::_init(context);
                 TLRENDER_P();
+
+                auto item = std::make_shared<ui::MenuItem>(
+                    "Increase Volume",
+                    ui::Key::Period,
+                    0,
+                    [this]
+                    {
+                        close();
+                    });
+                addItem(item);
+                setItemEnabled(item, false);
+
+                item = std::make_shared<ui::MenuItem>(
+                    "Decrease Volume",
+                    ui::Key::Comma,
+                    0,
+                    [this]
+                    {
+                        close();
+                    });
+                addItem(item);
+                setItemEnabled(item, false);
+
+                item = std::make_shared<ui::MenuItem>(
+                    "Mute",
+                    "Mute",
+                    ui::Key::M,
+                    0,
+                    [this](bool value)
+                    {
+                        close();
+                    });
+                addItem(item);
+                setItemEnabled(item, false);
             }
 
             AudioMenu::AudioMenu() :

@@ -7,6 +7,7 @@ set(HEADERS
     MainWindow.h
     PlaybackMenu.h
     RenderMenu.h
+    ToolsMenu.h
     ViewMenu.h
     WindowMenu.h)
 
@@ -20,6 +21,7 @@ set(SOURCE
     PlaybackMenu.cpp
     RenderMenu.cpp
     ViewMenu.cpp
+    ToolsMenu.cpp
     WindowMenu.cpp
     main.cpp)
 
