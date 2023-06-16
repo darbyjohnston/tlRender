@@ -25,15 +25,15 @@ namespace tl
                 Menu::_init(context);
                 TLRENDER_P();
 
-                auto item = std::make_shared<ui::MenuItem>();
-                item->text = "Open";
-                item->icon = "FileOpen";
-                item->shortcut = ui::Key::O;
-                item->shortcutModifiers = static_cast<int>(ui::KeyModifier::Control);
-                item->callback = [this]
+                auto item = std::make_shared<ui::MenuItem>(
+                    "Open",
+                    "FileOpen",
+                    ui::Key::O,
+                    static_cast<int>(ui::KeyModifier::Control),
+                    [this]
                     {
                         close();
-                    };
+                    });
                 addItem(item);
 
                 /*auto openWithAudioAction = ui::Action::create(context);
@@ -89,12 +89,12 @@ namespace tl
                 p.recentMenu = addSubMenu("Recent");
                 for (size_t i = 0; i < 10; ++i)
                 {
-                    item = std::make_shared<ui::MenuItem>();
-                    item->text = "File Name";
-                    item->callback = [this]
+                    item = std::make_shared<ui::MenuItem>(
+                        "File Name",
+                        [this]
                         {
                             close();
-                        };
+                        });
                     p.recentMenu->addItem(item);
                 }
 
@@ -103,12 +103,12 @@ namespace tl
                 p.currentMenu = addSubMenu("Current");
                 for (size_t i = 0; i < 10; ++i)
                 {
-                    item = std::make_shared<ui::MenuItem>();
-                    item->text = "File Name";
-                    item->callback = [this]
-                    {
-                        close();
-                    };
+                    item = std::make_shared<ui::MenuItem>(
+                        "File Name",
+                        [this]
+                        {
+                            close();
+                        });
                     p.currentMenu->addItem(item);
                 }
 
@@ -178,14 +178,14 @@ namespace tl
                     });
                 addAction(exitAction);*/
 
-                item = std::make_shared<ui::MenuItem>();
-                item->text = "Exit";
-                item->shortcut = ui::Key::Q;
-                item->shortcutModifiers = static_cast<int>(ui::KeyModifier::Control);
-                item->callback = [app]
-                {
-                    app->exit();
-                };
+                item = std::make_shared<ui::MenuItem>(
+                    "Exit",
+                    ui::Key::Q,
+                    static_cast<int>(ui::KeyModifier::Control),
+                    [app]
+                    {
+                        app->exit();
+                    });
                 addItem(item);
             }
 

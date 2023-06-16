@@ -8,6 +8,7 @@
 #include "AudioMenu.h"
 #include "CompareMenu.h"
 #include "FileMenu.h"
+#include "FrameMenu.h"
 #include "PlaybackMenu.h"
 #include "RenderMenu.h"
 #include "ViewMenu.h"
@@ -49,6 +50,14 @@ namespace tl
                 std::shared_ptr<ui::DoubleModel> speedModel;
                 timelineui::ItemOptions itemOptions;
 
+                std::shared_ptr<FileMenu> fileMenu;
+                std::shared_ptr<CompareMenu> compareMenu;
+                std::shared_ptr<ViewMenu> viewMenu;
+                std::shared_ptr<RenderMenu> renderMenu;
+                std::shared_ptr<PlaybackMenu> playbackMenu;
+                std::shared_ptr<FrameMenu> frameMenu;
+                std::shared_ptr<AudioMenu> audioMenu;
+                std::shared_ptr<WindowMenu> windowMenu;
                 std::shared_ptr<ui::MenuBar> menuBar;
                 std::shared_ptr<timelineui::TimelineViewport> timelineViewport;
                 std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
@@ -87,14 +96,23 @@ namespace tl
                 p.speedModel->setStep(1.F);
                 p.speedModel->setLargeStep(10.F);
 
+                p.fileMenu = FileMenu::create(app, context);
+                p.compareMenu = CompareMenu::create(app, context);
+                p.viewMenu = ViewMenu::create(app, context);
+                p.renderMenu = RenderMenu::create(app, context);
+                p.playbackMenu = PlaybackMenu::create(app, context);
+                p.frameMenu = FrameMenu::create(app, context);
+                p.audioMenu = AudioMenu::create(app, context);
+                p.windowMenu = WindowMenu::create(app, context);
                 p.menuBar = ui::MenuBar::create(context);
-                p.menuBar->addMenu("File", FileMenu::create(app, context));
-                p.menuBar->addMenu("Compare", CompareMenu::create(app, context));
-                p.menuBar->addMenu("View", ViewMenu::create(app, context));
-                p.menuBar->addMenu("Render", RenderMenu::create(app, context));
-                p.menuBar->addMenu("Playback", PlaybackMenu::create(app, context));
-                p.menuBar->addMenu("Audio", AudioMenu::create(app, context));
-                p.menuBar->addMenu("Window", WindowMenu::create(app, context));
+                p.menuBar->addMenu("File", p.fileMenu);
+                p.menuBar->addMenu("Compare", p.compareMenu);
+                p.menuBar->addMenu("View", p.viewMenu);
+                p.menuBar->addMenu("Render", p.renderMenu);
+                p.menuBar->addMenu("Playback", p.playbackMenu);
+                p.menuBar->addMenu("Frame", p.frameMenu);
+                p.menuBar->addMenu("Audio", p.audioMenu);
+                p.menuBar->addMenu("Window", p.windowMenu);
 
                 p.timelineViewport = timelineui::TimelineViewport::create(context);
 
@@ -191,7 +209,38 @@ namespace tl
                 p.statusLabel->setParent(hLayout);
                 p.infoLabel->setParent(hLayout);
 
+                _playbackUpdate();
                 _infoUpdate();
+
+                p.playbackMenu->setFrameTimelineViewCallback(
+                    [this](bool value)
+                    {
+                        _p->timelineWidget->setFrameView(value);
+                    });
+                p.playbackMenu->setStopOnScrubCallback(
+                    [this](bool value)
+                    {
+                        _p->timelineWidget->setStopOnScrub(value);
+                    });
+                p.playbackMenu->setTimelineThumbnailsCallback(
+                    [this](bool value)
+                    {
+                        auto options = _p->timelineWidget->getItemOptions();
+                        options.thumbnails = value;
+                        _p->timelineWidget->setItemOptions(options);
+                    });
+
+                p.frameMenu->setFocusCurrentFrameCallback(
+                    [this]
+                    {
+                        _p->currentTimeEdit->takeKeyFocus();
+                    });
+
+                p.timelineWidget->setFrameViewCallback(
+                    [this](bool value)
+                    {
+                        _p->playbackMenu->setFrameTimelineView(value);
+                    });
 
                 p.currentTimeEdit->setCallback(
                     [this](const otime::RationalTime& value)
@@ -344,6 +393,17 @@ namespace tl
                             _p->currentTimeEdit->setValue(value);
                         });
                 }
+            }
+
+            void MainWindow::_playbackUpdate()
+            {
+                TLRENDER_P();
+                p.playbackMenu->setFrameTimelineView(
+                    p.timelineWidget->hasFrameView());
+                p.playbackMenu->setStopOnScrub(
+                    p.timelineWidget->hasStopOnScrub());
+                p.playbackMenu->setTimelineThumbnails(
+                    p.timelineWidget->getItemOptions().thumbnails);
             }
 
             void MainWindow::_infoUpdate()

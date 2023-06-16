@@ -152,6 +152,11 @@ namespace tl
             _updates |= ui::Update::Draw;
         }
 
+        bool TimelineWidget::hasFrameView() const
+        {
+            return _p->frameView;
+        }
+
         void TimelineWidget::setFrameView(bool value)
         {
             TLRENDER_P();
@@ -173,14 +178,29 @@ namespace tl
             _p->frameViewCallback = value;
         }
 
+        bool TimelineWidget::areScrollBarsVisible() const
+        {
+            return _p->scrollWidget->areScrollBarsVisible();
+        }
+
         void TimelineWidget::setScrollBarsVisible(bool value)
         {
             _p->scrollWidget->setScrollBarsVisible(value);
         }
 
+        ui::KeyModifier TimelineWidget::getScrollKeyModifier() const
+        {
+            return _p->scrollKeyModifier;
+        }
+
         void TimelineWidget::setScrollKeyModifier(ui::KeyModifier value)
         {
             _p->scrollKeyModifier = value;
+        }
+
+        bool TimelineWidget::hasStopOnScrub() const
+        {
+            return _p->stopOnScrub;
         }
 
         void TimelineWidget::setStopOnScrub(bool value)
@@ -191,6 +211,11 @@ namespace tl
             {
                 p.timelineItem->setStopOnScrub(p.stopOnScrub);
             }
+        }
+
+        float TimelineWidget::getMouseWheelScale() const
+        {
+            return _p->mouseWheelScale;
         }
 
         void TimelineWidget::setMouseWheelScale(float value)

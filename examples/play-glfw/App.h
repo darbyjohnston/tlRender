@@ -80,14 +80,14 @@ namespace tl
                 //! Observe the current timeline player.
                 std::shared_ptr<observer::IValue<std::shared_ptr<timeline::Player> > > observePlayer() const;
 
+                //! Observe the list of timeline players.
+                std::shared_ptr<observer::IList<std::shared_ptr<timeline::Player> > > observePlayers() const;
+
             protected:
                 void _tick() override;
 
             private:
-                std::string _input;
-                Options _options;
-                std::shared_ptr<observer::Value<std::shared_ptr<timeline::Player> > > _player;
-                std::shared_ptr<MainWindow> _mainWindow;
+                TLRENDER_PRIVATE();
             };
         }
     }

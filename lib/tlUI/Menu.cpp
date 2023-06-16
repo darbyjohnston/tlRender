@@ -13,6 +13,74 @@ namespace tl
 {
     namespace ui
     {
+        MenuItem::MenuItem()
+        {}
+
+        MenuItem::MenuItem(
+            const std::string& text,
+            const std::function<void(void)>& callback) :
+            text(text),
+            callback(callback)
+        {}
+
+        MenuItem::MenuItem(
+            const std::string& text,
+            Key                              shortcut,
+            int                              shortcutModifiers,
+            const std::function<void(void)>& callback) :
+            text(text),
+            shortcut(shortcut),
+            shortcutModifiers(shortcutModifiers),
+            callback(callback)
+        {}
+
+        MenuItem::MenuItem(
+            const std::string& text,
+            const std::string& icon,
+            Key                              shortcut,
+            int                              shortcutModifiers,
+            const std::function<void(void)>& callback) :
+            text(text),
+            icon(icon),
+            shortcut(shortcut),
+            shortcutModifiers(shortcutModifiers),
+            callback(callback)
+        {}
+
+        MenuItem::MenuItem(
+            const std::string& text,
+            const std::function<void(bool)>& checkedCallback) :
+            text(text),
+            checkable(true),
+            checkedCallback(checkedCallback)
+        {}
+
+        MenuItem::MenuItem(
+            const std::string&               text,
+            Key                              shortcut,
+            int                              shortcutModifiers,
+            const std::function<void(bool)>& checkedCallback) :
+            text(text),
+            shortcut(shortcut),
+            shortcutModifiers(shortcutModifiers),
+            checkable(true),
+            checkedCallback(checkedCallback)
+        {}
+
+        MenuItem::MenuItem(
+            const std::string&               text,
+            const std::string&               icon,
+            Key                              shortcut,
+            int                              shortcutModifiers,
+            const std::function<void(bool)>& checkedCallback) :
+            text(text),
+            icon(icon),
+            shortcut(shortcut),
+            shortcutModifiers(shortcutModifiers),
+            checkable(true),
+            checkedCallback(checkedCallback)
+        {}
+
         namespace
         {
             class MenuButton : public IButton
@@ -436,7 +504,6 @@ namespace tl
                 button->setText(item->text);
                 button->setIcon(item->icon);
                 button->setShortcut(item->shortcut, item->shortcutModifiers);
-                button->setPressedCallback(item->callback);
                 button->setClickedCallback(item->callback);
                 button->setCheckable(item->checkable);
                 button->setChecked(item->checked);

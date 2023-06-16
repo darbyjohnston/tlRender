@@ -156,7 +156,7 @@ namespace tl
             bool hasKeyFocus() const;
 
             //! Take the key focus.
-            void takeKeyFocus();
+            virtual void takeKeyFocus();
 
             //! Release the key focus.
             void releaseKeyFocus();

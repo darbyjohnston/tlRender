@@ -174,6 +174,13 @@ namespace tl
             _p->scrollPosCallback = value;
         }
 
+        bool ScrollWidget::areScrollBarsVisible() const
+        {
+            return
+                _p->horizontalScrollBar->isVisible() &&
+                _p->verticalScrollBar->isVisible();
+        }
+
         void ScrollWidget::setScrollBarsVisible(bool value)
         {
             _p->horizontalScrollBar->setVisible(value);

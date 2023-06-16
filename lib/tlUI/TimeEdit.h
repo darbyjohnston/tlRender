@@ -53,6 +53,7 @@ namespace tl
             void setFontRole(FontRole);
 
             void setGeometry(const math::BBox2i&) override;
+            void takeKeyFocus() override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void keyPressEvent(KeyEvent&) override;
             void keyReleaseEvent(KeyEvent&) override;

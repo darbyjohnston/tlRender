@@ -3,6 +3,7 @@ set(HEADERS
     AudioMenu.h
     CompareMenu.h
     FileMenu.h
+    FrameMenu.h
     MainWindow.h
     PlaybackMenu.h
     RenderMenu.h
@@ -14,6 +15,7 @@ set(SOURCE
     AudioMenu.cpp
     CompareMenu.cpp
     FileMenu.cpp
+    FrameMenu.cpp
     MainWindow.cpp
     PlaybackMenu.cpp
     RenderMenu.cpp

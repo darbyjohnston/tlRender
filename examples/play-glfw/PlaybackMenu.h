@@ -33,9 +33,21 @@ namespace tl
                     const std::shared_ptr<App>&,
                     const std::shared_ptr<system::Context>&);
 
+                void setFrameTimelineView(bool);
+                void setStopOnScrub(bool);
+                void setTimelineThumbnails(bool);
+
+                void setFrameTimelineViewCallback(
+                    const std::function<void(bool)>&);
+                void setStopOnScrubCallback(
+                    const std::function<void(bool)>&);
+                void setTimelineThumbnailsCallback(
+                    const std::function<void(bool)>&);
+
             private:
                 void _setPlayer(const std::shared_ptr<timeline::Player>&);
                 void _playbackUpdate();
+                void _loopUpdate();
 
                 TLRENDER_PRIVATE();
             };

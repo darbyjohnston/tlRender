@@ -13,6 +13,36 @@ namespace tl
         // Menu item.
         struct MenuItem
         {
+            MenuItem();
+            MenuItem(
+                const std::string&               text,
+                const std::function<void(void)>& callback);
+            MenuItem(
+                const std::string&               text,
+                Key                              shortcut,
+                int                              shortcutModifiers,
+                const std::function<void(void)>& callback);
+            MenuItem(
+                const std::string&               text,
+                const std::string&               icon,
+                Key                              shortcut,
+                int                              shortcutModifiers,
+                const std::function<void(void)>& callback);
+            MenuItem(
+                const std::string&               text,
+                const std::function<void(bool)>& checkedCallback);
+            MenuItem(
+                const std::string&               text,
+                Key                              shortcut,
+                int                              shortcutModifiers,
+                const std::function<void(bool)>& checkedCallback);
+            MenuItem(
+                const std::string&               text,
+                const std::string&               icon,
+                Key                              shortcut,
+                int                              shortcutModifiers,
+                const std::function<void(bool)>& checkedCallback);
+
             std::string text;
             std::string icon;
             Key shortcut = Key::Unknown;

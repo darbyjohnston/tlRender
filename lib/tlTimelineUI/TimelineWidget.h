@@ -48,20 +48,35 @@ namespace tl
             //! Frame the view.
             void frameView();
 
+            //! Get whether the view is framed automatically.
+            bool hasFrameView() const;
+
             //! Set whether the view is framed automatically.
             void setFrameView(bool);
 
             //! Set the frame view callback.
             void setFrameViewCallback(const std::function<void(bool)>&);
 
+            //! Get whether the scroll bars are visible.
+            bool areScrollBarsVisible() const;
+
             //! Set whether the scroll bars are visible.
             void setScrollBarsVisible(bool);
+
+            //! Get the mouse scroll key modifier.
+            ui::KeyModifier getScrollKeyModifier() const;
 
             //! Set the mouse scroll key modifier.
             void setScrollKeyModifier(ui::KeyModifier);
 
+            //! Get whether to stop playback when scrubbing.
+            bool hasStopOnScrub() const;
+
             //! Set whether to stop playback when scrubbing.
             void setStopOnScrub(bool);
+
+            //! Get the mouse wheel scale.
+            float getMouseWheelScale() const;
 
             //! Set the mouse wheel scale.
             void setMouseWheelScale(float);
