@@ -160,13 +160,17 @@ namespace tl
 
                 addDivider();
 
+                auto appWeak = std::weak_ptr<App>(app);
                 item = std::make_shared<ui::MenuItem>(
                     "Exit",
                     ui::Key::Q,
                     static_cast<int>(ui::KeyModifier::Control),
-                    [app]
+                    [appWeak]
                     {
-                        app->exit();
+                        if (auto app = appWeak.lock())
+                        {
+                            app->exit();
+                        }
                     });
                 addItem(item);
             }

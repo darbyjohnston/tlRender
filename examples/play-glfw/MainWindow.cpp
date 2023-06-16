@@ -217,15 +217,22 @@ namespace tl
                 _playbackUpdate();
                 _infoUpdate();
 
+                auto appWeak = std::weak_ptr<App>(app);
                 p.windowMenu->setResizeCallback(
-                    [app](const imaging::Size& value)
+                    [appWeak](const imaging::Size& value)
                     {
-                        app->setWindowSize(value);
+                        if (auto app = appWeak.lock())
+                        {
+                            app->setWindowSize(value);
+                        }
                     });
                 p.windowMenu->setFullScreenCallback(
-                    [app](bool value)
+                    [appWeak](bool value)
                     {
-                        app->setWindowFullScreen(value);
+                        if (auto app = appWeak.lock())
+                        {
+                            app->setWindowFullScreen(value);
+                        }
                     });
 
                 p.playbackMenu->setFrameTimelineViewCallback(
