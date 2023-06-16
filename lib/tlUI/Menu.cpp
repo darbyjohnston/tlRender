@@ -129,11 +129,17 @@ namespace tl
                 int _shortcutModifiers = 0;
                 std::string _shortcutText;
 
-                std::string _subMenuIcon;
-                float _subMenuIconScale = 1.F;
-                bool _subMenuIconInit = false;
-                std::future<std::shared_ptr<imaging::Image> > _subMenuIconFuture;
-                std::shared_ptr<imaging::Image> _subMenuIconImage;
+                float _iconScale = 1.F;
+                struct IconData
+                {
+                    std::string name;
+                    bool init = false;
+                    std::future<std::shared_ptr<imaging::Image> > future;
+                    std::shared_ptr<imaging::Image> image;
+                };
+                IconData _checkedIcon;
+                IconData _uncheckedIcon;
+                IconData _subMenuIcon;
 
                 struct SizeData
                 {
@@ -160,7 +166,11 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent)
             {
                 IButton::_init("tl::ui::MenuButton", context, parent);
+                
                 setButtonRole(ColorRole::None);
+                
+                _checkedIcon.name = "MenuChecked";
+                _uncheckedIcon.name = "MenuUnchecked";
             }
 
             MenuButton::MenuButton()
@@ -190,11 +200,11 @@ namespace tl
                 _updates |= Update::Draw;
             }
         
-            void MenuButton::setSubMenuIcon(const std::string& icon)
+            void MenuButton::setSubMenuIcon(const std::string& name)
             {
-                _subMenuIcon = icon;
-                _subMenuIconInit = true;
-                _subMenuIconImage.reset();
+                _subMenuIcon.name = name;
+                _subMenuIcon.init = true;
+                _subMenuIcon.image.reset();
             }
 
             void MenuButton::setText(const std::string& value)
@@ -229,22 +239,52 @@ namespace tl
                 const TickEvent& event)
             {
                 IButton::tickEvent(parentsVisible, parentsEnabled, event);
-                if (event.displayScale != _subMenuIconScale)
+                if (event.displayScale != _iconScale)
                 {
-                    _subMenuIconScale = event.displayScale;
-                    _subMenuIconInit = true;
-                    _subMenuIconFuture = std::future<std::shared_ptr<imaging::Image> >();
-                    _subMenuIconImage.reset();
+                    _iconScale = event.displayScale;
+                    _checkedIcon.init = true;
+                    _checkedIcon.future = std::future<std::shared_ptr<imaging::Image> >();
+                    _checkedIcon.image.reset();
+                    _uncheckedIcon.init = true;
+                    _uncheckedIcon.future = std::future<std::shared_ptr<imaging::Image> >();
+                    _uncheckedIcon.image.reset();
+                    _subMenuIcon.init = true;
+                    _subMenuIcon.future = std::future<std::shared_ptr<imaging::Image> >();
+                    _subMenuIcon.image.reset();
                 }
-                if (!_subMenuIcon.empty() && _subMenuIconInit)
+                if (!_checkedIcon.name.empty() && _checkedIcon.init)
                 {
-                    _subMenuIconInit = false;
-                    _subMenuIconFuture = event.iconLibrary->request(_subMenuIcon, event.displayScale);
+                    _checkedIcon.init = false;
+                    _checkedIcon.future = event.iconLibrary->request(_checkedIcon.name, event.displayScale);
                 }
-                if (_subMenuIconFuture.valid() &&
-                    _subMenuIconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                if (_checkedIcon.future.valid() &&
+                    _checkedIcon.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
-                    _subMenuIconImage = _subMenuIconFuture.get();
+                    _checkedIcon.image = _checkedIcon.future.get();
+                    _updates |= Update::Size;
+                    _updates |= Update::Draw;
+                }
+                if (!_uncheckedIcon.name.empty() && _uncheckedIcon.init)
+                {
+                    _uncheckedIcon.init = false;
+                    _uncheckedIcon.future = event.iconLibrary->request(_uncheckedIcon.name, event.displayScale);
+                }
+                if (_uncheckedIcon.future.valid() &&
+                    _uncheckedIcon.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                {
+                    _uncheckedIcon.image = _uncheckedIcon.future.get();
+                    _updates |= Update::Size;
+                    _updates |= Update::Draw;
+                }
+                if (!_subMenuIcon.name.empty() && _subMenuIcon.init)
+                {
+                    _subMenuIcon.init = false;
+                    _subMenuIcon.future = event.iconLibrary->request(_subMenuIcon.name, event.displayScale);
+                }
+                if (_subMenuIcon.future.valid() &&
+                    _subMenuIcon.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                {
+                    _subMenuIcon.image = _subMenuIcon.future.get();
                     _updates |= Update::Size;
                     _updates |= Update::Draw;
                 }
@@ -268,6 +308,16 @@ namespace tl
                     _sizeHint.x = _iconImage->getWidth() + _size.spacing;
                     _sizeHint.y = _iconImage->getHeight();
                 }
+                else if (_checked && _checkedIcon.image)
+                {
+                    _sizeHint.x = _checkedIcon.image->getWidth() + _size.spacing;
+                    _sizeHint.y = _checkedIcon.image->getHeight();
+                }
+                else if (!_checked && _uncheckedIcon.image)
+                {
+                    _sizeHint.x = _uncheckedIcon.image->getWidth() + _size.spacing;
+                    _sizeHint.y = _uncheckedIcon.image->getHeight();
+                }
                 if (!_text.empty())
                 {
                     _size.textSize = event.fontSystem->getSize(_text, fontInfo);
@@ -284,12 +334,12 @@ namespace tl
                     _sizeHint.x += _size.spacing * 4 + _size.shortcutSize.x;
                     _sizeHint.y = std::max(_sizeHint.y, _size.shortcutSize.y);
                 }
-                if (_subMenuIconImage)
+                if (_subMenuIcon.image)
                 {
-                    _sizeHint.x += _size.spacing + _subMenuIconImage->getWidth();
+                    _sizeHint.x += _size.spacing + _subMenuIcon.image->getWidth();
                     _sizeHint.y = std::max(
                         _sizeHint.y,
-                        static_cast<int>(_subMenuIconImage->getHeight()));
+                        static_cast<int>(_subMenuIcon.image->getHeight()));
                 }
                 _sizeHint.x +=
                     _size.margin * 2 +
@@ -330,17 +380,14 @@ namespace tl
                         event.style->getColorRole(ColorRole::KeyFocus));
                 }
 
-                // Draw the background and checked state.
-                const ColorRole colorRole = _checked ?
-                    ColorRole::Checked :
-                    _buttonRole;
-                if (colorRole != ColorRole::None)
+                // Draw the background.
+                if (_buttonRole != ColorRole::None)
                 {
                     event.render->drawRect(
                         g,
-                        event.style->getColorRole(colorRole));
+                        event.style->getColorRole(_buttonRole));
                 }
-
+                
                 // Draw the pressed and hover states.
                 if (_pressed && _geometry.contains(_cursorPos))
                 {
@@ -361,8 +408,56 @@ namespace tl
                 if (_iconImage)
                 {
                     const imaging::Size& iconSize = _iconImage->getSize();
+                    if (_checked)
+                    {
+                        event.render->drawRect(
+                            math::BBox2i(g2.x(), g2.y(), g2.h(), g2.h()),
+                            event.style->getColorRole(ColorRole::Checked));
+                    }
                     event.render->drawImage(
                         _iconImage,
+                        math::BBox2i(
+                            x,
+                            g2.y() + g2.h() / 2 - iconSize.h / 2,
+                            iconSize.w,
+                            iconSize.h),
+                        event.style->getColorRole(enabled ?
+                            ColorRole::Text :
+                            ColorRole::TextDisabled));
+                    x += iconSize.w + _size.spacing;
+                }
+                else if (_checked && _checkedIcon.image)
+                {
+                    const imaging::Size& iconSize = _checkedIcon.image->getSize();
+                    if (_checked)
+                    {
+                        event.render->drawRect(
+                            math::BBox2i(g2.x(), g2.y(), g2.h(), g2.h()),
+                            event.style->getColorRole(ColorRole::Checked));
+                    }
+                    event.render->drawImage(
+                        _checkedIcon.image,
+                        math::BBox2i(
+                            x,
+                            g2.y() + g2.h() / 2 - iconSize.h / 2,
+                            iconSize.w,
+                            iconSize.h),
+                        event.style->getColorRole(enabled ?
+                            ColorRole::Text :
+                            ColorRole::TextDisabled));
+                    x += iconSize.w + _size.spacing;
+                }
+                else if (!_checked && _uncheckedIcon.image)
+                {
+                    const imaging::Size& iconSize = _uncheckedIcon.image->getSize();
+                    if (_checked)
+                    {
+                        event.render->drawRect(
+                            math::BBox2i(g2.x(), g2.y(), g2.h(), g2.h()),
+                            event.style->getColorRole(ColorRole::Checked));
+                    }
+                    event.render->drawImage(
+                        _uncheckedIcon.image,
                         math::BBox2i(
                             x,
                             g2.y() + g2.h() / 2 - iconSize.h / 2,
@@ -414,11 +509,11 @@ namespace tl
                 }
 
                 // Draw the sub menu icon.
-                if (_subMenuIconImage)
+                if (_subMenuIcon.image)
                 {
-                    const imaging::Size& iconSize = _subMenuIconImage->getSize();
+                    const imaging::Size& iconSize = _subMenuIcon.image->getSize();
                     event.render->drawImage(
-                      _subMenuIconImage,
+                      _subMenuIcon.image,
                       math::BBox2i(
                           g2.max.x - _size.margin - iconSize.w,
                           g2.y() + g2.h() / 2 - iconSize.h / 2,

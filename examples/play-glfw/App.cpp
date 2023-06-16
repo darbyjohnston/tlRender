@@ -154,7 +154,7 @@ namespace tl
                         { "-usdStageCache" },
                         "USD stage cache size.",
                         string::Format("{0}").arg(p.options.usdStageCache)),
-                    app::CmdLineValueOption<sizep.t>::create(
+                    app::CmdLineValueOption<size_t>::create(
                         p.options.usdDiskCache,
                         { "-usdDiskCache" },
                         "USD disk cache size in gigabytes. A size of zero disables the disk cache.",
@@ -167,32 +167,32 @@ namespace tl
 #if defined(TLRENDER_USD)
                 {
                     std::stringstream ss;
-                    ss << _options.usdRenderWidth;
+                    ss << p.options.usdRenderWidth;
                     ioOptions["usd/renderWidth"] = ss.str();
                 }
                 {
                     std::stringstream ss;
-                    ss << _options.usdComplexity;
+                    ss << p.options.usdComplexity;
                     ioOptions["usd/complexity"] = ss.str();
                 }
                 {
                     std::stringstream ss;
-                    ss << _options.usdDrawMode;
+                    ss << p.options.usdDrawMode;
                     ioOptions["usd/drawMode"] = ss.str();
                 }
                 {
                     std::stringstream ss;
-                    ss << _options.usdEnableLighting;
+                    ss << p.options.usdEnableLighting;
                     ioOptions["usd/enableLighting"] = ss.str();
                 }
                 {
                     std::stringstream ss;
-                    ss << _options.usdStageCache;
+                    ss << p.options.usdStageCache;
                     ioOptions["usd/stageCacheCount"] = ss.str();
                 }
                 {
                     std::stringstream ss;
-                    ss << _options.usdDiskCache * memory::gigabyte;
+                    ss << p.options.usdDiskCache * memory::gigabyte;
                     ioOptions["usd/diskCacheByteCount"] = ss.str();
                 }
 #endif // TLRENDER_USD

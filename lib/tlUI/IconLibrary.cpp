@@ -73,6 +73,10 @@ namespace
 #include "Resources/Info_96.h"
 #include "Resources/MenuArrow_192.h"
 #include "Resources/MenuArrow_96.h"
+#include "Resources/MenuChecked_192.h"
+#include "Resources/MenuChecked_96.h"
+#include "Resources/MenuUnchecked_192.h"
+#include "Resources/MenuUnchecked_96.h"
 #include "Resources/Messages_192.h"
 #include "Resources/Messages_96.h"
 #include "Resources/Mute_192.h"
@@ -189,6 +193,8 @@ namespace tl
             p.iconData["Increment_96.png"] = Increment_96_png;
             p.iconData["Info_96.png"] = Info_96_png;
             p.iconData["MenuArrow_96.png"] = MenuArrow_96_png;
+            p.iconData["MenuChecked_96.png"] = MenuChecked_96_png;
+            p.iconData["MenuUnchecked_96.png"] = MenuUnchecked_96_png;
             p.iconData["Messages_96.png"] = Messages_96_png;
             p.iconData["Mute_96.png"] = Mute_96_png;
             p.iconData["Next_96.png"] = Next_96_png;
@@ -238,6 +244,8 @@ namespace tl
             p.iconData["Increment_192.png"] = Increment_192_png;
             p.iconData["Info_192.png"] = Info_192_png;
             p.iconData["MenuArrow_192.png"] = MenuArrow_192_png;
+            p.iconData["MenuChecked_192.png"] = MenuChecked_192_png;
+            p.iconData["MenuUnchecked_192.png"] = MenuUnchecked_192_png;
             p.iconData["Messages_192.png"] = Messages_192_png;
             p.iconData["Mute_192.png"] = Mute_192_png;
             p.iconData["Next_192.png"] = Next_192_png;
