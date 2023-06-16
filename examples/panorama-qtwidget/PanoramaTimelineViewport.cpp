@@ -4,7 +4,7 @@
 
 #include "PanoramaTimelineViewport.h"
 
-#include <tlGL/Util.h>
+#include <tlGL/Init.h>
 
 #include <QMouseEvent>
 #include <QSurfaceFormat>

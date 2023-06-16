@@ -6,8 +6,8 @@
 
 #include <tlTimeline/GLRender.h>
 
+#include <tlGL/Init.h>
 #include <tlGL/OffscreenBuffer.h>
-#include <tlGL/Util.h>
 
 #include <tlTimeline/Timeline.h>
 

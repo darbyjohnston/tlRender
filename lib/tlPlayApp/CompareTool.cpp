@@ -12,8 +12,6 @@
 
 #include <tlQtWidget/FloatSlider.h>
 
-#include <tlQt/Util.h>
-
 #include <QBoxLayout>
 #include <QFormLayout>
 #include <QHeaderView>

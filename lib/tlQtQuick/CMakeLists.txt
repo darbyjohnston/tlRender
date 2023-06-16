@@ -1,10 +1,10 @@
 set(HEADERS
     GLFramebufferObject.h
-    Util.h)
+    Init.h)
 
 set(SOURCE
     GLFramebufferObject.cpp
-    Util.cpp)
+    Init.cpp)
 
 set(LIBRARIES)
 if(TLRENDER_QT6)

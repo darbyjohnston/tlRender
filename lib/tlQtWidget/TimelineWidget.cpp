@@ -14,7 +14,7 @@
 
 #include <tlTimeline/GLRender.h>
 
-#include <tlGL/Util.h>
+#include <tlGL/Init.h>
 
 #include <QClipboard>
 #include <QDragEnterEvent>

@@ -41,7 +41,9 @@ namespace tl
         {}
 
         Context::~Context()
-        {}
+        {
+            std::cout << std::endl;
+        }
 
         std::shared_ptr<Context> Context::create()
         {

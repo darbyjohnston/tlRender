@@ -4,7 +4,7 @@
 
 #include <tlResourceApp/App.h>
 
-#include <tlIO/Util.h>
+#include <tlIO/Init.h>
 
 #include <iostream>
 

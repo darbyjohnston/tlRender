@@ -7,62 +7,18 @@
 #include <tlTimeline/MemoryReference.h>
 
 #include <tlIO/IOSystem.h>
-#include <tlIO/Util.h>
 
-#include <tlCore/Context.h>
 #include <tlCore/FileInfo.h>
 #include <tlCore/StringFormat.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/imageSequenceReference.h>
-#include <opentimelineio/typeRegistry.h>
 
 namespace tl
 {
     namespace timeline
     {
-        void init(const std::shared_ptr<system::Context>& context)
-        {
-            io::init(context);
-
-            const std::vector<std::pair<std::string, bool> > registerTypes
-            {
-                {
-                    "RawMemoryReference",
-                    otio::TypeRegistry::instance().register_type<tl::timeline::RawMemoryReference>()
-                },
-                {
-                    "SharedMemoryReference",
-                    otio::TypeRegistry::instance().register_type<tl::timeline::SharedMemoryReference>()
-                },
-                {
-                    "RawMemorySequenceReference",
-                    otio::TypeRegistry::instance().register_type<tl::timeline::RawMemorySequenceReference>()
-                },
-                {
-                    "SharedMemorySequenceReference",
-                    otio::TypeRegistry::instance().register_type<tl::timeline::SharedMemorySequenceReference>()
-                },
-                {
-                    "ZipMemoryReference",
-                    otio::TypeRegistry::instance().register_type<tl::timeline::ZipMemoryReference>()
-                },
-                {
-                    "ZipMemorySequenceReference",
-                    otio::TypeRegistry::instance().register_type<tl::timeline::ZipMemorySequenceReference>()
-                }
-            };
-            for (const auto& t : registerTypes)
-            {
-                context->log(
-                    "tl::timeline::init",
-                    string::Format("register type {0}: {1}").
-                        arg(t.first).
-                        arg(t.second));
-            }
-        }
-
         std::vector<otime::TimeRange> toRanges(std::vector<otime::RationalTime> frames)
         {
             std::vector<otime::TimeRange> out;

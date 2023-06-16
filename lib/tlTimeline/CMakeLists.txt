@@ -10,6 +10,7 @@ set(HEADERS
     IRender.h
     ImageOptions.h
     ImageOptionsInline.h
+    Init.h
     LUTOptions.h
     LUTOptionsInline.h
     MemoryReference.h
@@ -42,6 +43,7 @@ set(SOURCE
     DisplayOptions.cpp
     IRender.cpp
     ImageOptions.cpp
+    Init.cpp
     LUTOptions.cpp
     MemoryReference.cpp
     Player.cpp

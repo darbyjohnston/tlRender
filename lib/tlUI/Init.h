@@ -13,8 +13,8 @@ namespace tl
         class Context;
     }
 
-    //! Device support.
-    namespace device
+    //! User interface library.
+    namespace ui
     {
         //! Initialize the library.
         void init(const std::shared_ptr<system::Context>&);

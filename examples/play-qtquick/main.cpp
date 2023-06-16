@@ -4,7 +4,7 @@
 
 #include "App.h"
 
-#include <tlQtQuick/Util.h>
+#include <tlQtQuick/Init.h>
 
 #include <tlCore/Context.h>
 

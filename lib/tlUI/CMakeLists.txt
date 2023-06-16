@@ -22,6 +22,7 @@ set(HEADERS
     IWidgetOptions.h
     IconLibrary.h
     IncButtons.h
+    Init.h
     IntEdit.h
     IntEditSlider.h
     IntModel.h
@@ -70,6 +71,7 @@ set(SOURCE
     IWidgetOptions.cpp
     IconLibrary.cpp
     IncButtons.cpp
+    Init.cpp
     IntEdit.cpp
     IntEditSlider.cpp
     IntModel.cpp
@@ -93,6 +95,11 @@ set(SOURCE
     TimeEdit.cpp
     TimeLabel.cpp
     ToolButton.cpp)
+
+set(LIBRARIES_PRIVATE)
+if(TLRENDER_NFD)
+    list(APPEND LIBRARIES_PRIVATE NFD)
+endif()
 
 add_library(tlUI ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
 target_link_libraries(tlUI PUBLIC tlIO PRIVATE ${LIBRARIES_PRIVATE})

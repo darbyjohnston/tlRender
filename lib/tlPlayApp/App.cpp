@@ -12,8 +12,8 @@
 #include <tlPlayApp/OpenSeparateAudioDialog.h>
 #include <tlPlayApp/SettingsObject.h>
 
+#include <tlQtWidget/Init.h>
 #include <tlQtWidget/Style.h>
-#include <tlQtWidget/Util.h>
 
 #include <tlQt/ContextObject.h>
 #include <tlQt/MetaTypes.h>

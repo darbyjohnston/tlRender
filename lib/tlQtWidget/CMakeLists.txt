@@ -3,6 +3,7 @@ set(HEADERS
     FileWidget.h
     FilmstripWidget.h
     FloatSlider.h
+    Init.h
     IntSlider.h
     SearchWidget.h
     Separator.h
@@ -24,6 +25,7 @@ set(SOURCE
     FileWidget.cpp
     FilmstripWidget.cpp
     FloatSlider.cpp
+    Init.cpp
     IntSlider.cpp
     SearchWidget.cpp
     Separator.cpp

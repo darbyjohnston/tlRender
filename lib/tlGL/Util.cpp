@@ -4,10 +4,7 @@
 
 #include <tlGL/Util.h>
 
-#include <tlGL/GLFWSystem.h>
-
 #include <tlCore/Assert.h>
-#include <tlCore/Context.h>
 
 #include <tlGlad/gl.h>
 
@@ -18,17 +15,6 @@ namespace tl
 {
     namespace gl
     {
-        void init(const std::shared_ptr<system::Context>& context)
-        {
-            auto glfwSystem = GLFWSystem::create(context);
-            context->addSystem(glfwSystem);
-        }
-
-        void initGLAD()
-        {
-            gladLoaderLoadGL();
-        }
-
         unsigned int getReadPixelsFormat(imaging::PixelType value)
         {
             const std::array<GLenum, static_cast<std::size_t>(imaging::PixelType::Count)> data =

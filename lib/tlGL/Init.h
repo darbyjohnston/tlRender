@@ -13,11 +13,13 @@ namespace tl
         class Context;
     }
 
-    //! Qt support.
-    namespace qt
+    //! OpenGL renderer.
+    namespace gl
     {
-        //! Initialize the library. This needs to be called before the Qt
-        //! application is created.
+        //! Initialize the library.
         void init(const std::shared_ptr<system::Context>&);
+
+        //! Initialize GLAD.
+        void initGLAD();
     }
 }

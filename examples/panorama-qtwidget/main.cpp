@@ -4,7 +4,7 @@
 
 #include "PanoramaTimelineViewport.h"
 
-#include <tlQtWidget/Util.h>
+#include <tlQtWidget/Init.h>
 
 #include <tlQt/ContextObject.h>
 #include <tlQt/TimelinePlayer.h>

@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "MainWindow.h"
+
 #include <tlQt/ContextObject.h>
 
 #include <tlApp/IApp.h>
@@ -28,9 +30,12 @@ namespace tl
                     char** argv,
                     const std::shared_ptr<system::Context>&);
 
+                ~App() override;
+
             private:
                 std::string _input;
                 qt::ContextObject* _contextObject = nullptr;
+                MainWindow* _mainWindow = nullptr;
             };
         }
     }

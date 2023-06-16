@@ -12,9 +12,6 @@ namespace tl
 {
     namespace timeline
     {
-        //! Initialize the library.
-        void init(const std::shared_ptr<system::Context>&);
-
         //! Convert frames to ranges.
         std::vector<otime::TimeRange> toRanges(std::vector<otime::RationalTime>);
 
