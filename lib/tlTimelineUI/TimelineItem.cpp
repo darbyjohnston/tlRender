@@ -268,10 +268,10 @@ namespace tl
         void TimelineItem::mousePressEvent(ui::MouseClickEvent& event)
         {
             TLRENDER_P();
-            event.accept = true;
-            takeKeyFocus();
             if (0 == event.modifiers)
             {
+                event.accept = true;
+                takeKeyFocus();
                 p.mouse.pressed = true;
                 p.mouse.pressPos = event.pos;
                 if (p.stopOnScrub)
