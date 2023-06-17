@@ -1,5 +1,4 @@
 set(HEADERS
-    Action.h
     ButtonGroup.h
     ComboBox.h
     Divider.h
@@ -49,7 +48,6 @@ set(HEADERS
 set(HEADERS_PRIVATE)
 
 set(SOURCE
-    Action.cpp
     ButtonGroup.cpp
     ComboBox.cpp
     Divider.cpp

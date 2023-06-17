@@ -18,7 +18,6 @@
 #include <tlTimelineUI/TimelineViewport.h>
 #include <tlTimelineUI/TimelineWidget.h>
 
-#include <tlUI/Action.h>
 #include <tlUI/ButtonGroup.h>
 #include <tlUI/ComboBox.h>
 #include <tlUI/Divider.h>
