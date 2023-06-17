@@ -133,20 +133,24 @@ namespace tl
                         sizeHint.y));
                     break;
                 }
-                std::list<std::pair<math::BBox2i, math::BBox2i> > intersect;
+                struct Intersect
+                {
+                    math::BBox2i original;
+                    math::BBox2i intersected;
+                };
+                std::vector<Intersect> intersect;
                 for (const auto& bbox : bboxes)
                 {
-                    intersect.push_back(std::make_pair(bbox, bbox.intersect(value)));
+                    intersect.push_back({ bbox, bbox.intersect(value) });
                 }
                 std::stable_sort(
                     intersect.begin(),
                     intersect.end(),
-                    [](const std::pair<math::BBox2i, math::BBox2i>& a,
-                        const std::pair<math::BBox2i, math::BBox2i>& b)
+                    [](const Intersect& a, const Intersect& b)
                     {
-                        return a.second.getArea() > b.second.getArea();
+                        return a.intersected.getArea() > b.intersected.getArea();
                     });
-                children.front()->setGeometry(intersect.front().first.margin(-p.border));
+                children.front()->setGeometry(intersect.front().original.margin(-p.border));
             }
         }
 
