@@ -45,12 +45,16 @@ namespace
 #include "Resources/Decrement_96.h"
 #include "Resources/Devices_192.h"
 #include "Resources/Devices_96.h"
+#include "Resources/Directory_192.h"
+#include "Resources/Directory_96.h"
 #include "Resources/DockWidgetClose_192.h"
 #include "Resources/DockWidgetClose_96.h"
 #include "Resources/DockWidgetNormal_192.h"
 #include "Resources/DockWidgetNormal_96.h"
 #include "Resources/Empty_192.h"
 #include "Resources/Empty_96.h"
+#include "Resources/File_192.h"
+#include "Resources/File_96.h"
 #include "Resources/FileBrowser_192.h"
 #include "Resources/FileBrowser_96.h"
 #include "Resources/FileClose_192.h"
@@ -179,9 +183,11 @@ namespace tl
             p.iconData["Copy_96.png"] = Copy_96_png;
             p.iconData["Decrement_96.png"] = Decrement_96_png;
             p.iconData["Devices_96.png"] = Devices_96_png;
+            p.iconData["Directory_96.png"] = Directory_96_png;
             p.iconData["DockWidgetClose_96.png"] = DockWidgetClose_96_png;
             p.iconData["DockWidgetNormal_96.png"] = DockWidgetNormal_96_png;
             p.iconData["Empty_96.png"] = Empty_96_png;
+            p.iconData["File_96.png"] = File_96_png;
             p.iconData["FileBrowser_96.png"] = FileBrowser_96_png;
             p.iconData["FileClose_96.png"] = FileClose_96_png;
             p.iconData["FileCloseAll_96.png"] = FileCloseAll_96_png;
@@ -230,9 +236,11 @@ namespace tl
             p.iconData["Copy_192.png"] = Copy_192_png;
             p.iconData["Decrement_192.png"] = Decrement_192_png;
             p.iconData["Devices_192.png"] = Devices_192_png;
+            p.iconData["Directory_192.png"] = Directory_192_png;
             p.iconData["DockWidgetClose_192.png"] = DockWidgetClose_192_png;
             p.iconData["DockWidgetNormal_192.png"] = DockWidgetNormal_192_png;
             p.iconData["Empty_192.png"] = Empty_192_png;
+            p.iconData["File_192.png"] = File_192_png;
             p.iconData["FileBrowser_192.png"] = FileBrowser_192_png;
             p.iconData["FileClose_192.png"] = FileClose_192_png;
             p.iconData["FileCloseAll_192.png"] = FileCloseAll_192_png;
