@@ -232,7 +232,7 @@ namespace tl
             void FileMenu::_openFile()
             {
                 TLRENDER_P();
-/*#if defined(TLRENDER_NFD)
+#if defined(TLRENDER_NFD)
                 if (auto app = p.app.lock())
                 {
                     nfdu8char_t* outPath = nullptr;
@@ -243,7 +243,7 @@ namespace tl
                         NFD::FreePath(outPath);
                     }
                 }
-#else  // TLRENDER_NFD*/
+#else  // TLRENDER_NFD
                 if (auto app = p.app.lock())
                 {
                     if (auto context = _context.lock())
@@ -275,7 +275,7 @@ namespace tl
                             });
                     }
                 }
-//#endif // TLRENDER_NFD
+#endif // TLRENDER_NFD
             }
         }
     }
