@@ -2,14 +2,14 @@ set(HEADERS
     DeviceData.h
     IDeviceSystem.h
     IOutputDevice.h
-    Util.h)
+    Init.h)
 set(HEADERS_PRIVATE)
 
 set(SOURCE
     DeviceData.cpp
     IDeviceSystem.cpp
     IOutputDevice.cpp
-    Util.cpp)
+    Init.cpp)
 
 set(INCLUDE_DIRS)
 set(LIBRARIES tlTimeline)

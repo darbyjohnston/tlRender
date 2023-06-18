@@ -57,7 +57,7 @@ namespace tl
             void keyReleaseEvent(ui::KeyEvent&) override;
 
         protected:
-            void _timeUnitsUpdate(timeline::TimeUnits);
+            void _timeUnitsUpdate(timeline::TimeUnits) override;
 
         private:
             void _drawInOutPoints(

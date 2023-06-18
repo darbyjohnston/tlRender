@@ -4,6 +4,8 @@
 
 #include <tlUI/Menu.h>
 
+#include <tlTimeline/Player.h>
+
 namespace tl
 {
     namespace examples
@@ -34,6 +36,8 @@ namespace tl
                 void close() override;
 
             private:
+                void _openFile();
+
                 TLRENDER_PRIVATE();
             };
         }

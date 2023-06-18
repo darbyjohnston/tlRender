@@ -7,7 +7,7 @@
 #include <tlUI/ButtonGroup.h>
 #include <tlUI/DrawUtil.h>
 #include <tlUI/EventLoop.h>
-#include <tlUI/IPopup.h>
+#include <tlUI/IMenuPopup.h>
 #include <tlUI/ListButton.h>
 #include <tlUI/RowLayout.h>
 
@@ -17,7 +17,7 @@ namespace tl
     {
         namespace
         {
-            class ComboBoxMenu : public IPopup
+            class ComboBoxMenu : public IMenuPopup
             {
                 TLRENDER_NON_COPYABLE(ComboBoxMenu);
 

@@ -23,14 +23,43 @@ namespace tl
                 Menu::_init(context);
                 TLRENDER_P();
 
-                auto frameAction = ui::Action::create(context);
-                frameAction->setText("Frame");
-                frameAction->setClickedCallback(
+                auto item = std::make_shared<ui::MenuItem>(
+                    "Frame",
+                    "ViewFrame",
                     [this]
                     {
                         close();
                     });
-                addAction(frameAction);
+                addItem(item);
+                setItemEnabled(item, false);
+
+                item = std::make_shared<ui::MenuItem>(
+                    "Zoom 1:1",
+                    "ViewZoom1To1",
+                    [this]
+                    {
+                        close();
+                    });
+                addItem(item);
+                setItemEnabled(item, false);
+
+                item = std::make_shared<ui::MenuItem>(
+                    "Zoom In",
+                    [this]
+                    {
+                        close();
+                    });
+                addItem(item);
+                setItemEnabled(item, false);
+
+                item = std::make_shared<ui::MenuItem>(
+                    "Zoom Out",
+                    [this]
+                    {
+                        close();
+                    });
+                addItem(item);
+                setItemEnabled(item, false);
             }
 
             ViewMenu::ViewMenu() :

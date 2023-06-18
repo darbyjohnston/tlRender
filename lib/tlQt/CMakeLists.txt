@@ -1,24 +1,24 @@
 set(HEADERS
     ContextObject.h
+    Init.h
     MetaTypes.h
     OutputDevice.h
     TimeObject.h
     TimelinePlayer.h
     TimelineThumbnailObject.h
-    ToolTipsFilter.h
-    Util.h)
+    ToolTipsFilter.h)
 set(PRIVATE_HEADERS
     OutputDevicePrivate.h)
 
 set(SOURCE
     ContextObject.cpp
+    Init.cpp
     OutputDevice.cpp
     OutputDevicePrivate.cpp
     TimeObject.cpp
     TimelinePlayer.cpp
     TimelineThumbnailObject.cpp
-    ToolTipsFilter.cpp
-    Util.cpp)
+    ToolTipsFilter.cpp)
 
 set(LIBRARIES)
 if(TLRENDER_QT6)

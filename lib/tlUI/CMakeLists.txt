@@ -1,5 +1,4 @@
 set(HEADERS
-    Action.h
     ButtonGroup.h
     ComboBox.h
     Divider.h
@@ -8,6 +7,7 @@ set(HEADERS
     DrawUtil.h
     Event.h
     EventLoop.h
+    FileBrowser.h
     FloatEdit.h
     FloatEditSlider.h
     FloatModel.h
@@ -16,12 +16,15 @@ set(HEADERS
     GroupBox.h
     IButton.h
     IClipboard.h
+    IDialog.h
+    IMenuPopup.h
     IPopup.h
     IWidget.h
     IWidgetInline.h
     IWidgetOptions.h
     IconLibrary.h
     IncButtons.h
+    Init.h
     IntEdit.h
     IntEditSlider.h
     IntModel.h
@@ -45,10 +48,10 @@ set(HEADERS
     TimeEdit.h
     TimeLabel.h
     ToolButton.h)
-set(HEADERS_PRIVATE)
+set(HEADERS_PRIVATE
+    FileBrowserPrivate.h)
 
 set(SOURCE
-    Action.cpp
     ButtonGroup.cpp
     ComboBox.cpp
     Divider.cpp
@@ -57,6 +60,7 @@ set(SOURCE
     DrawUtil.cpp
     Event.cpp
     EventLoop.cpp
+    FileBrowser.cpp
     FloatEdit.cpp
     FloatEditSlider.cpp
     FloatModel.cpp
@@ -65,11 +69,14 @@ set(SOURCE
     GroupBox.cpp
     IButton.cpp
     IClipboard.cpp
+    IDialog.cpp
+    IMenuPopup.cpp
     IPopup.cpp
     IWidget.cpp
     IWidgetOptions.cpp
     IconLibrary.cpp
     IncButtons.cpp
+    Init.cpp
     IntEdit.cpp
     IntEditSlider.cpp
     IntModel.cpp
@@ -93,6 +100,11 @@ set(SOURCE
     TimeEdit.cpp
     TimeLabel.cpp
     ToolButton.cpp)
+
+set(LIBRARIES_PRIVATE)
+if(TLRENDER_NFD)
+    list(APPEND LIBRARIES_PRIVATE NFD)
+endif()
 
 add_library(tlUI ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
 target_link_libraries(tlUI PUBLIC tlIO PRIVATE ${LIBRARIES_PRIVATE})

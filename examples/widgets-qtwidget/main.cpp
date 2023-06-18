@@ -4,7 +4,7 @@
 
 #include "App.h"
 
-#include <tlQtWidget/Util.h>
+#include <tlQtWidget/Init.h>
 
 #include <tlCore/Context.h>
 

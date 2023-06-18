@@ -6,9 +6,8 @@
 
 #include <tlCore/LogSystem.h>
 
+#include <list>
 #include <map>
-#include <memory>
-#include <vector>
 
 namespace tl
 {
@@ -52,7 +51,8 @@ namespace tl
 
         private:
             std::shared_ptr<log::System> _logSystem;
-            std::map<std::shared_ptr<ICoreSystem>, std::chrono::steady_clock::time_point> _systems;
+            std::list<std::shared_ptr<ICoreSystem> > _systems;
+            std::map<std::shared_ptr<ICoreSystem>, std::chrono::steady_clock::time_point> _systemTimes;
             TLRENDER_PRIVATE();
         };
     }

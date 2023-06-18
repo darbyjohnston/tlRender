@@ -20,6 +20,7 @@ namespace tl
             "MarginSmall",
             "MarginLarge",
             "MarginInside",
+            "MarginDialog",
             "Spacing",
             "SpacingSmall",
             "SpacingLarge",
@@ -78,6 +79,7 @@ namespace tl
             p.sizeRoles[SizeRole::MarginSmall] = 5;
             p.sizeRoles[SizeRole::MarginLarge] = 20;
             p.sizeRoles[SizeRole::MarginInside] = 2;
+            p.sizeRoles[SizeRole::MarginDialog] = 40;
             p.sizeRoles[SizeRole::Spacing] = 10;
             p.sizeRoles[SizeRole::SpacingSmall] = 5;
             p.sizeRoles[SizeRole::SpacingLarge] = 20;
@@ -107,7 +109,7 @@ namespace tl
 
             p.fontRoles[FontRole::Label] = imaging::FontInfo("NotoSans-Regular", 12 * 1);
             p.fontRoles[FontRole::Mono] = imaging::FontInfo("NotoMono-Regular", 12 * 1);
-            p.fontRoles[FontRole::Title] = imaging::FontInfo("NotoSans-Regular", 24 * 1);
+            p.fontRoles[FontRole::Title] = imaging::FontInfo("NotoSans-Regular", 18 * 1);
 
             p.changed = observer::Value<bool>::create();
         }

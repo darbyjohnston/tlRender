@@ -4,7 +4,7 @@
 
 #include <tlPlayApp/App.h>
 
-#include <tlQtWidget/Util.h>
+#include <tlQtWidget/Init.h>
 
 #include <iostream>
 

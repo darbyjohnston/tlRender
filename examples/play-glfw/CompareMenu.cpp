@@ -23,23 +23,119 @@ namespace tl
                 Menu::_init(context);
                 TLRENDER_P();
 
-                auto aAction = ui::Action::create(context);
-                aAction->setText("A");
-                aAction->setClickedCallback(
+                auto item = std::make_shared<ui::MenuItem>(
+                    "A",
+                    "CompareA",
+                    ui::Key::A,
+                    static_cast<int>(ui::KeyModifier::Control),
                     [this]
                     {
                         close();
                     });
-                addAction(aAction);
+                addItem(item);
+                setItemEnabled(item, false);
 
-                auto bAction = ui::Action::create(context);
-                bAction->setText("B");
-                bAction->setClickedCallback(
+                item = std::make_shared<ui::MenuItem>(
+                    "B",
+                    "CompareB",
+                    ui::Key::B,
+                    static_cast<int>(ui::KeyModifier::Control),
                     [this]
                     {
                         close();
                     });
-                addAction(bAction);
+                addItem(item);
+                setItemEnabled(item, false);
+
+                item = std::make_shared<ui::MenuItem>(
+                    "Wipe",
+                    "CompareWipe",
+                    ui::Key::W,
+                    static_cast<int>(ui::KeyModifier::Control),
+                    [this]
+                    {
+                        close();
+                    });
+                addItem(item);
+                setItemEnabled(item, false);
+
+                item = std::make_shared<ui::MenuItem>(
+                    "Overlay",
+                    "CompareOverlay",
+                    [this]
+                    {
+                        close();
+                    });
+                addItem(item);
+                setItemEnabled(item, false);
+
+                item = std::make_shared<ui::MenuItem>(
+                    "Difference",
+                    "CompareDifference",
+                    [this]
+                    {
+                        close();
+                    });
+                addItem(item);
+                setItemEnabled(item, false);
+
+                item = std::make_shared<ui::MenuItem>(
+                    "Horizontal",
+                    "CompareHorizontal",
+                    [this]
+                    {
+                        close();
+                    });
+                addItem(item);
+                setItemEnabled(item, false);
+
+                item = std::make_shared<ui::MenuItem>(
+                    "Vertical",
+                    "CompareVertical",
+                    [this]
+                    {
+                        close();
+                    });
+                addItem(item);
+                setItemEnabled(item, false);
+
+                item = std::make_shared<ui::MenuItem>(
+                    "Tile",
+                    "CompareTile",
+                    ui::Key::T,
+                    static_cast<int>(ui::KeyModifier::Control),
+                    [this]
+                    {
+                        close();
+                    });
+                addItem(item);
+                setItemEnabled(item, false);
+
+                addDivider();
+
+                item = std::make_shared<ui::MenuItem>(
+                    "Next",
+                    "Next",
+                    ui::Key::PageDown,
+                    static_cast<int>(ui::KeyModifier::Shift),
+                    [this]
+                    {
+                        close();
+                    });
+                addItem(item);
+                setItemEnabled(item, false);
+
+                item = std::make_shared<ui::MenuItem>(
+                    "Previous",
+                    "Prev",
+                    ui::Key::PageUp,
+                    static_cast<int>(ui::KeyModifier::Shift),
+                    [this]
+                    {
+                        close();
+                    });
+                addItem(item);
+                setItemEnabled(item, false);
             }
 
             CompareMenu::CompareMenu() :

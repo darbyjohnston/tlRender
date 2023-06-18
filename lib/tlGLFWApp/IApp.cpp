@@ -202,7 +202,7 @@ namespace tl
             _log(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
             glfwSetFramebufferSizeCallback(p.glfwWindow, _frameBufferSizeCallback);
             glfwSetWindowContentScaleCallback(p.glfwWindow, _windowContentScaleCallback);
-            _setFullscreenWindow(p.options.fullscreen);
+            setWindowFullScreen(p.options.fullscreen);
             glfwSetCursorEnterCallback(p.glfwWindow, _cursorEnterCallback);
             glfwSetCursorPosCallback(p.glfwWindow, _cursorPosCallback);
             glfwSetMouseButtonCallback(p.glfwWindow, _mouseButtonCallback);
@@ -318,10 +318,17 @@ namespace tl
             return _p->eventLoop;
         }
 
-        void IApp::_tick()
-        {}
+        void IApp::setWindowSize(const imaging::Size& value)
+        {
+            glfwSetWindowSize(_p->glfwWindow, value.w, value.h);
+        }
 
-        void IApp::_setFullscreenWindow(bool value)
+        bool IApp::isWindowFullScreen() const
+        {
+            return _p->fullscreen;
+        }
+
+        void IApp::setWindowFullScreen(bool value)
         {
             TLRENDER_P();
             if (value == p.fullscreen)
@@ -360,6 +367,9 @@ namespace tl
                     0);
             }
         }
+
+        void IApp::_tick()
+        {}
 
         void IApp::_frameBufferSizeCallback(GLFWwindow* glfwWindow, int width, int height)
         {

@@ -21,6 +21,7 @@ namespace tl
             MarginSmall,
             MarginLarge,
             MarginInside,
+            MarginDialog,
             Spacing,
             SpacingSmall,
             SpacingLarge,

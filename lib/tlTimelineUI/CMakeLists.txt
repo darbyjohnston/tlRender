@@ -3,6 +3,7 @@ set(HEADERS
     AudioGapItem.h
     IItem.h
     IOManager.h
+    Init.h
     TimelineItem.h
     TimelineViewport.h
     TimelineWidget.h
@@ -16,6 +17,7 @@ set(SOURCE
     AudioGapItem.cpp
     IItem.cpp
     IOManager.cpp
+    Init.cpp
     TimelineItem.cpp
     TimelineViewport.cpp
     TimelineWidget.cpp

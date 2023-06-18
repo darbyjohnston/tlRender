@@ -4,11 +4,13 @@
 
 #include <tlQtQuick/GLFramebufferObject.h>
 
+#include <tlQtQuick/Init.h>
+
 #include <tlQt/TimelinePlayer.h>
 
 #include <tlTimeline/GLRender.h>
 
-#include <tlGL/Util.h>
+#include <tlGL/Init.h>
 
 #include <QOpenGLFramebufferObject>
 
@@ -42,10 +44,7 @@ namespace tl
                     {
                         _init = true;
                         gl::initGLAD();
-                        if (auto context = qtquick::context().lock())
-                        {
-                            _render = timeline::GLRender::create(context);
-                        }
+                        _render = timeline::GLRender::create(qtquick::getContext());
                     }
 
                     QOpenGLFramebufferObject* fbo = framebufferObject();

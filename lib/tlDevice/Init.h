@@ -13,7 +13,7 @@ namespace tl
         class Context;
     }
 
-    //! Device support.
+    //! Hardware output device library.
     namespace device
     {
         //! Initialize the library.

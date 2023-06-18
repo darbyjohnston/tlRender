@@ -4,18 +4,20 @@
 
 #include "MainWindow.h"
 
+#include "App.h"
 #include "AudioMenu.h"
 #include "CompareMenu.h"
 #include "FileMenu.h"
+#include "FrameMenu.h"
 #include "PlaybackMenu.h"
 #include "RenderMenu.h"
+#include "ToolsMenu.h"
 #include "ViewMenu.h"
 #include "WindowMenu.h"
 
 #include <tlTimelineUI/TimelineViewport.h>
 #include <tlTimelineUI/TimelineWidget.h>
 
-#include <tlUI/Action.h>
 #include <tlUI/ButtonGroup.h>
 #include <tlUI/ComboBox.h>
 #include <tlUI/Divider.h>
@@ -48,6 +50,15 @@ namespace tl
                 std::shared_ptr<ui::DoubleModel> speedModel;
                 timelineui::ItemOptions itemOptions;
 
+                std::shared_ptr<FileMenu> fileMenu;
+                std::shared_ptr<CompareMenu> compareMenu;
+                std::shared_ptr<WindowMenu> windowMenu;
+                std::shared_ptr<ViewMenu> viewMenu;
+                std::shared_ptr<RenderMenu> renderMenu;
+                std::shared_ptr<PlaybackMenu> playbackMenu;
+                std::shared_ptr<FrameMenu> frameMenu;
+                std::shared_ptr<AudioMenu> audioMenu;
+                std::shared_ptr<ToolsMenu> toolsMenu;
                 std::shared_ptr<ui::MenuBar> menuBar;
                 std::shared_ptr<timelineui::TimelineViewport> timelineViewport;
                 std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
@@ -64,6 +75,7 @@ namespace tl
                 std::shared_ptr<ui::Splitter> splitter;
                 std::shared_ptr<ui::RowLayout> layout;
 
+                std::shared_ptr<observer::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
                 std::shared_ptr<observer::ValueObserver<double> > speedObserver;
                 std::shared_ptr<observer::ValueObserver<double> > speedObserver2;
                 std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
@@ -71,7 +83,6 @@ namespace tl
             };
 
             void MainWindow::_init(
-                const std::shared_ptr<timeline::Player>& player,
                 const std::shared_ptr<App>& app,
                 const std::shared_ptr<system::Context>& context)
             {
@@ -80,28 +91,37 @@ namespace tl
 
                 setBackgroundRole(ui::ColorRole::Window);
 
-                p.player = player;
                 p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
                 p.speedModel = ui::DoubleModel::create(context);
                 p.speedModel->setRange(math::DoubleRange(0.0, 1000.0));
                 p.speedModel->setStep(1.F);
                 p.speedModel->setLargeStep(10.F);
 
+                p.fileMenu = FileMenu::create(app, context);
+                p.compareMenu = CompareMenu::create(app, context);
+                p.windowMenu = WindowMenu::create(app, context);
+                p.windowMenu->setFullScreen(app->isWindowFullScreen());
+                p.viewMenu = ViewMenu::create(app, context);
+                p.renderMenu = RenderMenu::create(app, context);
+                p.playbackMenu = PlaybackMenu::create(app, context);
+                p.frameMenu = FrameMenu::create(app, context);
+                p.audioMenu = AudioMenu::create(app, context);
+                p.toolsMenu = ToolsMenu::create(app, context);
                 p.menuBar = ui::MenuBar::create(context);
-                p.menuBar->addMenu("File", FileMenu::create(app, context));
-                p.menuBar->addMenu("Compare", CompareMenu::create(app, context));
-                p.menuBar->addMenu("View", ViewMenu::create(app, context));
-                p.menuBar->addMenu("Render", RenderMenu::create(app, context));
-                p.menuBar->addMenu("Playback", PlaybackMenu::create(app, context));
-                p.menuBar->addMenu("Audio", AudioMenu::create(app, context));
-                p.menuBar->addMenu("Window", WindowMenu::create(app, context));
+                p.menuBar->addMenu("File", p.fileMenu);
+                p.menuBar->addMenu("Compare", p.compareMenu);
+                p.menuBar->addMenu("Window", p.windowMenu);
+                p.menuBar->addMenu("View", p.viewMenu);
+                p.menuBar->addMenu("Render", p.renderMenu);
+                p.menuBar->addMenu("Playback", p.playbackMenu);
+                p.menuBar->addMenu("Frame", p.frameMenu);
+                p.menuBar->addMenu("Audio", p.audioMenu);
+                p.menuBar->addMenu("Tools", p.toolsMenu);
 
                 p.timelineViewport = timelineui::TimelineViewport::create(context);
-                p.timelineViewport->setPlayers({ player });
 
                 p.timelineWidget = timelineui::TimelineWidget::create(p.timeUnitsModel, context);
                 p.timelineWidget->setScrollBarsVisible(false);
-                p.timelineWidget->setPlayer(player);
 
                 auto stopButton = ui::ToolButton::create(context);
                 stopButton->setIcon("PlaybackStop");
@@ -139,7 +159,6 @@ namespace tl
                 p.speedButton->setIcon("MenuArrow");
 
                 p.durationLabel = ui::TimeLabel::create(p.timeUnitsModel, context);
-                p.durationLabel->setValue(player->getTimeRange().duration());
 
                 p.timeUnitsComboBox = ui::ComboBox::create(context);
                 p.timeUnitsComboBox->setItems(timeline::getTimeUnitsLabels());
@@ -194,23 +213,81 @@ namespace tl
                 p.statusLabel->setParent(hLayout);
                 p.infoLabel->setParent(hLayout);
 
+                _playbackUpdate();
                 _infoUpdate();
 
-                p.currentTimeEdit->setCallback(
-                    [player](const otime::RationalTime& value)
+                auto appWeak = std::weak_ptr<App>(app);
+                p.windowMenu->setResizeCallback(
+                    [appWeak](const imaging::Size& value)
                     {
-                        player->seek(value);
+                        if (auto app = appWeak.lock())
+                        {
+                            app->setWindowSize(value);
+                        }
+                    });
+                p.windowMenu->setFullScreenCallback(
+                    [appWeak](bool value)
+                    {
+                        if (auto app = appWeak.lock())
+                        {
+                            app->setWindowFullScreen(value);
+                        }
+                    });
+
+                p.playbackMenu->setFrameTimelineViewCallback(
+                    [this](bool value)
+                    {
+                        _p->timelineWidget->setFrameView(value);
+                    });
+                p.playbackMenu->setStopOnScrubCallback(
+                    [this](bool value)
+                    {
+                        _p->timelineWidget->setStopOnScrub(value);
+                    });
+                p.playbackMenu->setTimelineThumbnailsCallback(
+                    [this](bool value)
+                    {
+                        auto options = _p->timelineWidget->getItemOptions();
+                        options.thumbnails = value;
+                        _p->timelineWidget->setItemOptions(options);
+                    });
+
+                p.frameMenu->setFocusCurrentFrameCallback(
+                    [this]
+                    {
+                        _p->currentTimeEdit->takeKeyFocus();
+                    });
+
+                p.timelineWidget->setFrameViewCallback(
+                    [this](bool value)
+                    {
+                        _p->playbackMenu->setFrameTimelineView(value);
+                    });
+
+                p.currentTimeEdit->setCallback(
+                    [this](const otime::RationalTime& value)
+                    {
+                        if (_p->player)
+                        {
+                            _p->player->seek(value);
+                        }
                     });
 
                 currentTimeIncButtons->setIncCallback(
-                    [player]
+                    [this]
                     {
-                        player->frameNext();
+                        if (_p->player)
+                        {
+                            _p->player->frameNext();
+                        }
                     });
                 currentTimeIncButtons->setDecCallback(
-                    [player]
+                    [this]
                     {
-                        player->framePrev();
+                        if (_p->player)
+                        {
+                            _p->player->framePrev();
+                        }
                     });
 
                 p.timeUnitsComboBox->setIndexCallback(
@@ -220,56 +297,52 @@ namespace tl
                             static_cast<timeline::TimeUnits>(value));
                     });
 
-                p.speedObserver = observer::ValueObserver<double>::create(
-                    player->observeSpeed(),
-                    [this](double value)
-                    {
-                        _p->speedModel->setValue(value);
-                    });
-                p.speedObserver2 = observer::ValueObserver<double>::create(
-                    p.speedModel->observeValue(),
-                    [player](double value)
-                    {
-                        player->setSpeed(value);
-                    });
-
-                p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
-                    player->observePlayback(),
-                    [this](timeline::Playback value)
-                    {
-                        _p->playbackButtonGroup->setChecked(static_cast<int>(value), true);
-                    });
-
-                p.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
-                    player->observeCurrentTime(),
-                    [this](const otime::RationalTime& value)
-                    {
-                        _p->currentTimeEdit->setValue(value);
-                    });
-
                 p.playbackButtonGroup->setCheckedCallback(
-                    [player](int index, bool value)
+                    [this](int index, bool value)
                     {
-                        player->setPlayback(static_cast<timeline::Playback>(index));
+                        if (_p->player)
+                        {
+                            _p->player->setPlayback(static_cast<timeline::Playback>(index));
+                        }
                     });
 
                 p.frameButtonGroup->setClickedCallback(
-                    [player](int index)
+                    [this](int index)
                     {
-                        switch (index)
+                        if (_p->player)
                         {
-                        case 0:
-                            player->timeAction(timeline::TimeAction::Start);
-                            break;
-                        case 1:
-                            player->timeAction(timeline::TimeAction::FramePrev);
-                            break;
-                        case 2:
-                            player->timeAction(timeline::TimeAction::FrameNext);
-                            break;
-                        case 3:
-                            player->timeAction(timeline::TimeAction::End);
-                            break;
+                            switch (index)
+                            {
+                            case 0:
+                                _p->player->timeAction(timeline::TimeAction::Start);
+                                break;
+                            case 1:
+                                _p->player->timeAction(timeline::TimeAction::FramePrev);
+                                break;
+                            case 2:
+                                _p->player->timeAction(timeline::TimeAction::FrameNext);
+                                break;
+                            case 3:
+                                _p->player->timeAction(timeline::TimeAction::End);
+                                break;
+                            }
+                        }
+                    });
+
+                p.playerObserver = observer::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+                    app->observePlayer(),
+                    [this](const std::shared_ptr<timeline::Player>& value)
+                    {
+                        _setPlayer(value);
+                    });
+
+                p.speedObserver2 = observer::ValueObserver<double>::create(
+                    p.speedModel->observeValue(),
+                    [this](double value)
+                    {
+                        if (_p->player)
+                        {
+                            _p->player->setSpeed(value);
                         }
                     });
             }
@@ -282,12 +355,11 @@ namespace tl
             {}
 
             std::shared_ptr<MainWindow> MainWindow::create(
-                const std::shared_ptr<timeline::Player>& player,
                 const std::shared_ptr<App>& app,
                 const std::shared_ptr<system::Context>& context)
             {
                 auto out = std::shared_ptr<MainWindow>(new MainWindow);
-                out->_init(player, app, context);
+                out->_init(app, context);
                 return out;
             }
 
@@ -297,12 +369,93 @@ namespace tl
                 _p->layout->setGeometry(value);
             }
 
+            void MainWindow::keyPressEvent(ui::KeyEvent& event)
+            {
+                TLRENDER_P();
+                event.accept = p.menuBar->shortcut(event.key, event.modifiers);
+            }
+
+            void MainWindow::keyReleaseEvent(ui::KeyEvent& event)
+            {
+                event.accept = true;
+            }
+
+            void MainWindow::_setPlayer(const std::shared_ptr<timeline::Player>& value)
+            {
+                TLRENDER_P();
+
+                p.speedObserver.reset();
+                p.playbackObserver.reset();
+                p.currentTimeObserver.reset();
+
+                p.player = value;
+
+                if (p.player)
+                {
+                    p.timelineViewport->setPlayers({ p.player });
+                }
+                else
+                {
+                    p.timelineViewport->setPlayers({});
+                }
+                p.timelineWidget->setPlayer(p.player);
+                p.durationLabel->setValue(p.player ?
+                    p.player->getTimeRange().duration() :
+                    time::invalidTime);
+                _infoUpdate();
+
+                if (p.player)
+                {
+                    p.speedObserver = observer::ValueObserver<double>::create(
+                        p.player->observeSpeed(),
+                        [this](double value)
+                        {
+                            _p->speedModel->setValue(value);
+                        });
+
+                    p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
+                        p.player->observePlayback(),
+                        [this](timeline::Playback value)
+                        {
+                            _p->playbackButtonGroup->setChecked(static_cast<int>(value), true);
+                        });
+
+                    p.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
+                        p.player->observeCurrentTime(),
+                        [this](const otime::RationalTime& value)
+                        {
+                            _p->currentTimeEdit->setValue(value);
+                        });
+                }
+                else
+                {
+                    p.speedModel->setValue(0.0);
+                    p.playbackButtonGroup->setChecked(0, true);
+                    p.currentTimeEdit->setValue(time::invalidTime);
+                }
+            }
+
+            void MainWindow::_playbackUpdate()
+            {
+                TLRENDER_P();
+                p.playbackMenu->setFrameTimelineView(
+                    p.timelineWidget->hasFrameView());
+                p.playbackMenu->setStopOnScrub(
+                    p.timelineWidget->hasStopOnScrub());
+                p.playbackMenu->setTimelineThumbnails(
+                    p.timelineWidget->getItemOptions().thumbnails);
+            }
+
             void MainWindow::_infoUpdate()
             {
                 TLRENDER_P();
-                const file::Path& path = p.player->getPath();
-                const io::Info& info = p.player->getIOInfo();
-                const std::string text = string::Format("{0}").arg(path.get(-1, false));
+                std::string text;
+                if (p.player)
+                {
+                    const file::Path& path = p.player->getPath();
+                    const io::Info& info = p.player->getIOInfo();
+                    text = string::Format("{0}").arg(path.get(-1, false));
+                }
                 p.infoLabel->setText(text);
             }
         }

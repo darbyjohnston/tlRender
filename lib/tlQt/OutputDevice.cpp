@@ -6,11 +6,11 @@
 
 #include <tlTimeline/GLRender.h>
 
+#include <tlGL/Init.h>
 #include <tlGL/Mesh.h>
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Shader.h>
 #include <tlGL/Texture.h>
-#include <tlGL/Util.h>
 
 #include <tlDevice/IOutputDevice.h>
 

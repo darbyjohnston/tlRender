@@ -10,20 +10,8 @@
 
 namespace tl
 {
-    namespace system
-    {
-        class Context;
-    }
-
-    //! OpenGL renderer.
     namespace gl
     {
-        //! Initialize the library.
-        void init(const std::shared_ptr<system::Context>&);
-
-        //! Initialize GLAD.
-        void initGLAD();
-
         //! Get the glReadPixels format.
         unsigned int getReadPixelsFormat(imaging::PixelType);
 

@@ -31,6 +31,8 @@ namespace tl
                     const std::shared_ptr<App>&,
                     const std::shared_ptr<system::Context>&);
 
+                void close() override;
+
             private:
                 TLRENDER_PRIVATE();
             };

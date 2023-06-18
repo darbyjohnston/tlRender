@@ -31,6 +31,13 @@ namespace tl
                     const std::shared_ptr<App>&,
                     const std::shared_ptr<system::Context>&);
 
+                void setResizeCallback(const std::function<void(const imaging::Size&)>&);
+
+                void setFullScreen(bool);
+                void setFullScreenCallback(const std::function<void(bool)>&);
+
+                void close() override;
+
             private:
                 TLRENDER_PRIVATE();
             };

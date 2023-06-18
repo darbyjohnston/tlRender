@@ -11,8 +11,6 @@
 
 #include <tlQtWidget/SearchWidget.h>
 
-#include <tlQt/Util.h>
-
 #include <tlIO/IO.h>
 
 #include <QAction>

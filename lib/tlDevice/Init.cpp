@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlDevice/Util.h>
+#include <tlDevice/Init.h>
 
 #if defined(TLRENDER_BMD)
 #include <tlDevice/BMDDeviceSystem.h>

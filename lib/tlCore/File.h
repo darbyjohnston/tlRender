@@ -23,6 +23,9 @@ namespace tl
         // Remove a file.
         bool rm(const std::string&);
 
+        // Get the current working directory.
+        std::string getCWD();
+
         // Get the temporary directory.
         std::string getTemp();
 

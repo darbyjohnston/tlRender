@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlQt/Util.h>
-
 #include <tlTimeline/Timeline.h>
 
 #include <QWidget>

@@ -54,11 +54,19 @@ namespace tl
             //! Get the event loop.
             const std::shared_ptr<ui::EventLoop> getEventLoop() const;
 
+            //! Set the window size.
+            void setWindowSize(const imaging::Size&);
+
+            //! Get whether the window is in full screen mode.
+            bool isWindowFullScreen() const;
+
+            //! Set whether the window is in full screen mode.
+            void setWindowFullScreen(bool);
+
         protected:
             virtual void _tick();
 
         private:
-            void _setFullscreenWindow(bool);
             static void _frameBufferSizeCallback(GLFWwindow*, int, int);
             static void _windowContentScaleCallback(GLFWwindow*, float, float);
             static void _cursorEnterCallback(GLFWwindow*, int);

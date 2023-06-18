@@ -10,8 +10,6 @@
 #include <tlPlayApp/FilesView.h>
 #include <tlPlayApp/SettingsObject.h>
 
-#include <tlQt/Util.h>
-
 #include <QBoxLayout>
 #include <QHeaderView>
 #include <QLabel>

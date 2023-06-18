@@ -163,7 +163,7 @@ namespace tl
             if (value == p.text)
                 return;
             p.text = value;
-            p.cursorPos = std::min(p.cursorPos, static_cast<int>(p.text.size()));
+            p.cursorPos = p.text.size();
             _textUpdate();
         }
 

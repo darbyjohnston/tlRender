@@ -16,7 +16,7 @@ namespace tl
         {
             for (const auto& i : _systems)
             {
-                if (auto system = std::dynamic_pointer_cast<T>(i.first))
+                if (auto system = std::dynamic_pointer_cast<T>(i))
                 {
                     return system;
                 }

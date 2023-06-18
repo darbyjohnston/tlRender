@@ -13,6 +13,7 @@ namespace tl
         class Context;
     }
 
+    //! I/O library.
     namespace io
     {
         //! Initialize the library.

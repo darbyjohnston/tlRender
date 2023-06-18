@@ -1,5 +1,6 @@
 set(HEADERS
     GLFWSystem.h
+    Init.h
     Mesh.h
     OffscreenBuffer.h
     Shader.h
@@ -10,6 +11,7 @@ set(PRIVATE_HEADERS)
 
 set(SOURCE
     GLFWSystem.cpp
+    Init.cpp
     Mesh.cpp
     Mesh.cpp
     OffscreenBuffer.cpp

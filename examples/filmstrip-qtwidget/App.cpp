@@ -4,8 +4,6 @@
 
 #include "App.h"
 
-#include "MainWindow.h"
-
 #include <tlCore/Math.h>
 #include <tlCore/StringFormat.h>
 #include <tlCore/Time.h>
@@ -51,8 +49,16 @@ namespace tl
                 _contextObject = new qt::ContextObject(context, this);
 
                 // Create the main window.
-                auto mainWindow = new MainWindow(_input, _context);
-                mainWindow->show();
+                _mainWindow = new MainWindow(_input, _context);
+                _mainWindow->show();
+            }
+
+            App::~App()
+            {
+                delete _mainWindow;
+                _mainWindow = nullptr;
+                delete _contextObject;
+                _contextObject = nullptr;
             }
         }
     }

@@ -123,6 +123,11 @@ namespace tl
             _p->lineEdit->setGeometry(value);
         }
 
+        void TimeEdit::takeKeyFocus()
+        {
+            _p->lineEdit->takeKeyFocus();
+        }
+
         void TimeEdit::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);

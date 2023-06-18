@@ -44,6 +44,22 @@ namespace tl
             return false;
         }
 
+        std::string getCWD()
+        {
+            wchar_t buf[MAX_PATH];
+            if (!::_wgetcwd(buf, MAX_PATH))
+            {
+                buf[0] = 0;
+            }
+            std::string out = string::fromWide(buf);
+            const size_t size = out.size();
+            if (size > 0 && out[size - 1] != '\\')
+            {
+                out.push_back('\\');
+            }
+            return out;
+        }
+
         std::string getTemp()
         {
             std::string out;

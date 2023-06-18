@@ -2,11 +2,11 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlIO/Util.h>
+#include <tlIO/Init.h>
 
 #include <tlIO/IOSystem.h>
 
-#include <tlGL/Util.h>
+#include <tlGL/Init.h>
 
 #include <tlCore/Context.h>
 

@@ -4,13 +4,11 @@
 
 #if defined(TLRENDER_QT5) || defined(TLRENDER_QT6)
 #include <tlQtTest/TimeObjectTest.h>
-#include <tlQt/Util.h>
+#include <tlQt/Init.h>
 #endif // TLRENDER_QT5 || TLRENDER_QT6
 
-#if defined(TLRENDER_GL)
 #include <tlGLTest/MeshTest.h>
-#include <tlGL/Util.h>
-#endif // TLRENDER_GL
+#include <tlGL/Init.h>
 
 #include <tlAppTest/AppTest.h>
 #include <tlAppTest/CmdLineTest.h>
@@ -42,7 +40,6 @@
 #if defined(TLRENDER_TIFF)
 #include <tlIOTest/TIFFTest.h>
 #endif // TLRENDER_TIFF
-#include <tlIO/Util.h>
 
 #include <tlCoreTest/AudioTest.h>
 #include <tlCoreTest/BBoxTest.h>
@@ -71,6 +68,8 @@
 #include <tlCoreTest/ValueObserverTest.h>
 #include <tlCoreTest/VectorTest.h>
 
+#include <tlTimeline/Init.h>
+
 #include <tlCore/Context.h>
 
 #include <iostream>
@@ -84,10 +83,8 @@ int main(int argc, char* argv[])
     auto context = system::Context::create();
 #if defined(TLRENDER_QT5) || defined(TLRENDER_QT6)
     qt::init(context);
-#elif defined(TLRENDER_GL)
-    gl::init(context);
 #else // TLRENDER_QT5 || TLRENDER_QT6
-    io::init(context);
+    timeline::init(context);
 #endif // TLRENDER_QT5 || TLRENDER_QT6
 
     auto logObserver = observer::ListObserver<log::Item>::create(

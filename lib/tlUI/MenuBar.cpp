@@ -15,7 +15,7 @@ namespace tl
     {
         struct MenuBar::Private
         {
-            std::list<std::shared_ptr<IPopup> > menus;
+            std::list<std::shared_ptr<Menu> > menus;
             std::list<std::shared_ptr<ListButton> > buttons;
             std::shared_ptr<HorizontalLayout> layout;
         };
@@ -48,7 +48,7 @@ namespace tl
         
         void MenuBar::addMenu(
             const std::string& text,
-            const std::shared_ptr<IPopup>& menu)
+            const std::shared_ptr<Menu>& menu)
         {
             TLRENDER_P();
             p.menus.push_back(menu);
@@ -63,7 +63,7 @@ namespace tl
                     {
                         if (value)
                         {
-                            std::shared_ptr<IPopup> openMenu;
+                            std::shared_ptr<Menu> openMenu;
                             for (auto& i : _p->menus)
                             {
                                 if (i->isOpen())
@@ -101,6 +101,17 @@ namespace tl
                 _updates |= Update::Size;
                 _updates |= Update::Draw;
             }
+        }
+
+        bool MenuBar::shortcut(Key shortcut, int modifiers)
+        {
+            TLRENDER_P();
+            bool out = false;
+            for (const auto& menu : p.menus)
+            {
+                out |= menu->shortcut(shortcut, modifiers);
+            }
+            return out;
         }
 
         void MenuBar::setGeometry(const math::BBox2i& value)

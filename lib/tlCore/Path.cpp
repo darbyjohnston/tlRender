@@ -15,6 +15,28 @@ namespace tl
 {
     namespace file
     {
+        bool hasEndSeparator(const std::string& value)
+        {
+            bool out = false;
+            const size_t size = value.size();
+            if (size > 0 && ('/' == value[size - 1] || '\\' == value[size - 1]))
+            {
+                out = true;
+            }
+            return out;
+        }
+
+        std::string appendSeparator(const std::string& value)
+        {
+            std::string out = value;
+            const size_t size = out.size();
+            if (size > 0 && !('/' == out[size - 1] || '\\' == out[size - 1]))
+            {
+                out += '/';
+            }
+            return out;
+        }
+
         Path::Path()
         {}
 
@@ -66,25 +88,11 @@ namespace tl
             _extension(extension)
         {}
 
-        namespace
-        {
-            std::string directoryFix(const std::string& value)
-            {
-                std::string out = value;
-                const size_t size = out.size();
-                if (size > 0 && !('/' == out[size - 1] || '\\' == out[size - 1]))
-                {
-                    out += '/';
-                }
-                return out;
-            }
-        }
-
         Path::Path(
             const std::string& directory,
             const std::string& value,
             const PathOptions& options) :
-            Path(directoryFix(directory) + value, options)
+            Path(appendSeparator(directory) + value, options)
         {}
 
         std::string Path::get(int number, bool directory) const

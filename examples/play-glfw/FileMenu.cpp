@@ -6,6 +6,15 @@
 
 #include "App.h"
 
+#include <tlUI/EventLoop.h>
+#include <tlUI/FileBrowser.h>
+
+#include <tlCore/File.h>
+
+#if defined(TLRENDER_NFD)
+#include <nfd.hpp>
+#endif // TLRENDER_NFD
+
 namespace tl
 {
     namespace examples
@@ -14,8 +23,14 @@ namespace tl
         {
             struct FileMenu::Private
             {
+                std::weak_ptr<App> app;
+                std::shared_ptr<timeline::Player> player;
+
                 std::shared_ptr<Menu> recentMenu;
                 std::shared_ptr<Menu> currentMenu;
+                std::shared_ptr<ui::FileBrowser> fileBrowser;
+
+                std::shared_ptr<observer::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
             };
 
             void FileMenu::_init(
@@ -25,80 +40,82 @@ namespace tl
                 Menu::_init(context);
                 TLRENDER_P();
 
-                auto openAction = ui::Action::create(context);
-                openAction->setText("Open");
-                openAction->setShortut(
+                p.app = app;
+
+                auto appWeak = std::weak_ptr<App>(app);
+                auto item = std::make_shared<ui::MenuItem>(
+                    "Open",
+                    "FileOpen",
                     ui::Key::O,
-                    static_cast<int>(ui::KeyModifier::Control));
-                openAction->setIcon("FileOpen");
-                openAction->setClickedCallback(
-                    [this]
+                    static_cast<int>(ui::KeyModifier::Control),
+                    [this, appWeak]
                     {
                         close();
+                        _openFile();
                     });
-                addAction(openAction);
+                addItem(item);
 
-                auto openWithAudioAction = ui::Action::create(context);
-                openWithAudioAction->setText("Open With Separate Audio");
-                openWithAudioAction->setShortut(
+                item = std::make_shared<ui::MenuItem>(
+                    "Open With Separate Audio",
                     ui::Key::O,
                     static_cast<int>(ui::KeyModifier::Shift) |
-                    static_cast<int>(ui::KeyModifier::Control));
-                openWithAudioAction->setIcon("FileOpenSeparateAudio");
-                openWithAudioAction->setClickedCallback(
+                    static_cast<int>(ui::KeyModifier::Control),
                     [this]
                     {
                         close();
                     });
-                addAction(openWithAudioAction);
+                addItem(item);
+                setItemEnabled(item, false);
 
-                auto closeAction = ui::Action::create(context);
-                closeAction->setText("Close");
-                closeAction->setShortut(
+                item = std::make_shared<ui::MenuItem>(
+                    "Close",
                     ui::Key::E,
-                    static_cast<int>(ui::KeyModifier::Control));
-                closeAction->setIcon("FileClose");
-                closeAction->setClickedCallback(
-                    [this]
+                    static_cast<int>(ui::KeyModifier::Control),
+                    [this, appWeak]
                     {
                         close();
+                        if (auto app = appWeak.lock())
+                        {
+                            app->closeAll();
+                        }
                     });
-                addAction(closeAction);
+                addItem(item);
 
-                auto closeAllAction = ui::Action::create(context);
-                closeAllAction->setText("Close All");
-                closeAllAction->setShortut(
+                item = std::make_shared<ui::MenuItem>(
+                    "Close All",
                     ui::Key::E,
                     static_cast<int>(ui::KeyModifier::Shift) |
-                    static_cast<int>(ui::KeyModifier::Control));
-                closeAllAction->setIcon("FileCloseAll");
-                closeAllAction->setClickedCallback(
-                    [this]
+                    static_cast<int>(ui::KeyModifier::Control),
+                    [this, appWeak]
                     {
                         close();
+                        if (auto app = appWeak.lock())
+                        {
+                            app->closeAll();
+                        }
                     });
-                addAction(closeAllAction);
+                addItem(item);
 
-                auto reloadAction = ui::Action::create(context);
-                reloadAction->setText("Reload");
-                reloadAction->setClickedCallback(
+                item = std::make_shared<ui::MenuItem>(
+                    "Reload",
                     [this]
                     {
                         close();
                     });
-                addAction(reloadAction);
+                addItem(item);
+                setItemEnabled(item, false);
 
                 p.recentMenu = addSubMenu("Recent");
                 for (size_t i = 0; i < 10; ++i)
                 {
-                    auto recentAction = ui::Action::create(context);
-                    recentAction->setText("File name");
-                    recentAction->setClickedCallback(
+                    item = std::make_shared<ui::MenuItem>(
+                        "File Name",
                         [this]
                         {
                             close();
                         });
-                    p.recentMenu->addAction(recentAction);
+                    p.recentMenu->addItem(item);
+                    p.recentMenu->setItemEnabled(item, false);
                 }
 
                 addDivider();
@@ -106,81 +123,86 @@ namespace tl
                 p.currentMenu = addSubMenu("Current");
                 for (size_t i = 0; i < 10; ++i)
                 {
-                    auto currentAction = ui::Action::create(context);
-                    currentAction->setText("File name");
-                    currentAction->setClickedCallback(
+                    item = std::make_shared<ui::MenuItem>(
+                        "File Name",
                         [this]
                         {
                             close();
                         });
-                    p.currentMenu->addAction(currentAction);
+                    p.currentMenu->addItem(item);
+                    p.currentMenu->setItemEnabled(item, false);
                 }
 
-                auto nextAction = ui::Action::create(context);
-                nextAction->setText("Next");
-                nextAction->setShortut(
+                item = std::make_shared<ui::MenuItem>(
+                    "Next",
+                    "Next",
                     ui::Key::PageDown,
-                    static_cast<int>(ui::KeyModifier::Control));
-                nextAction->setIcon("Next");
-                nextAction->setClickedCallback(
+                    static_cast<int>(ui::KeyModifier::Control),
                     [this]
                     {
                         close();
                     });
-                addAction(nextAction);
+                addItem(item);
+                setItemEnabled(item, false);
 
-                auto prevAction = ui::Action::create(context);
-                prevAction->setText("Prev");
-                prevAction->setShortut(
+                item = std::make_shared<ui::MenuItem>(
+                    "Previous",
+                    "Prev",
                     ui::Key::PageUp,
-                    static_cast<int>(ui::KeyModifier::Control));
-                prevAction->setIcon("Prev");
-                prevAction->setClickedCallback(
+                    static_cast<int>(ui::KeyModifier::Control),
                     [this]
                     {
                         close();
                     });
-                addAction(prevAction);
+                addItem(item);
+                setItemEnabled(item, false);
 
                 addDivider();
 
-                auto nextLayerAction = ui::Action::create(context);
-                nextLayerAction->setText("Next Layer");
-                nextLayerAction->setShortut(
+                item = std::make_shared<ui::MenuItem>(
+                    "Next Layer",
                     ui::Key::Equal,
-                    static_cast<int>(ui::KeyModifier::Control));
-                nextLayerAction->setClickedCallback(
+                    static_cast<int>(ui::KeyModifier::Control),
                     [this]
                     {
                         close();
                     });
-                addAction(nextLayerAction);
+                addItem(item);
+                setItemEnabled(item, false);
 
-                auto prevLayerAction = ui::Action::create(context);
-                prevLayerAction->setText("Previous Layer");
-                prevLayerAction->setShortut(
+                item = std::make_shared<ui::MenuItem>(
+                    "Previous Layer",
+                    "Prev",
                     ui::Key::Minus,
-                    static_cast<int>(ui::KeyModifier::Control));
-                prevLayerAction->setClickedCallback(
+                    static_cast<int>(ui::KeyModifier::Control),
                     [this]
                     {
                         close();
                     });
-                addAction(prevLayerAction);
+                addItem(item);
+                setItemEnabled(item, false);
 
                 addDivider();
 
-                auto exitAction = ui::Action::create(context);
-                exitAction->setText("Exit");
-                exitAction->setShortut(
+                item = std::make_shared<ui::MenuItem>(
+                    "Exit",
                     ui::Key::Q,
-                    static_cast<int>(ui::KeyModifier::Control));
-                exitAction->setClickedCallback(
-                    [app]
+                    static_cast<int>(ui::KeyModifier::Control),
+                    [appWeak]
                     {
-                        app->exit();
+                        if (auto app = appWeak.lock())
+                        {
+                            app->exit();
+                        }
                     });
-                addAction(exitAction);
+                addItem(item);
+
+                p.playerObserver = observer::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+                    app->observePlayer(),
+                    [this](const std::shared_ptr<timeline::Player>& value)
+                    {
+                        _p->player = value;
+                    });
             }
 
             FileMenu::FileMenu() :
@@ -202,7 +224,58 @@ namespace tl
             void FileMenu::close()
             {
                 Menu::close();
-                _p->recentMenu->close();
+                TLRENDER_P();
+                p.recentMenu->close();
+                p.currentMenu->close();
+            }
+
+            void FileMenu::_openFile()
+            {
+                TLRENDER_P();
+#if defined(TLRENDER_NFD)
+                if (auto app = p.app.lock())
+                {
+                    nfdu8char_t* outPath = nullptr;
+                    NFD::OpenDialog(outPath);
+                    if (outPath)
+                    {
+                        app->open(outPath);
+                        NFD::FreePath(outPath);
+                    }
+                }
+#else  // TLRENDER_NFD
+                if (auto app = p.app.lock())
+                {
+                    if (auto context = _context.lock())
+                    {
+                        std::string path;
+                        if (p.player)
+                        {
+                            path = p.player->getPath().get();
+                        }
+                        else
+                        {
+                            path = file::getCWD();
+                        }
+                        p.fileBrowser = ui::FileBrowser::create(path, context);
+                        p.fileBrowser->open(app->getEventLoop());
+                        p.fileBrowser->setFileCallback(
+                            [this](const std::string& value)
+                            {
+                                if (auto app = _p->app.lock())
+                                {
+                                    app->open(value);
+                                }
+                                _p->fileBrowser->close();
+                            });
+                        p.fileBrowser->setCloseCallback(
+                            [this]
+                            {
+                                _p->fileBrowser.reset();
+                            });
+                    }
+                }
+#endif // TLRENDER_NFD
             }
         }
     }

@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlQtQuick/Util.h>
-
 #include <tlTimeline/Timeline.h>
 
 #include <QQuickFramebufferObject>

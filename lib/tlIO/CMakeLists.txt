@@ -5,10 +5,10 @@ set(HEADERS
     IOInline.h
     IOSystem.h
     IOSystemInline.h
+    Init.h
     PPM.h
     SequenceIO.h
-    SGI.h
-    Util.h)
+    SGI.h)
 set(HEADERS_PRIVATE
     SequenceIOReadPrivate.h)
 
@@ -21,6 +21,7 @@ set(SOURCE
     DPX.cpp
     IO.cpp
     IOSystem.cpp
+    Init.cpp
     PPM.cpp
     PPMRead.cpp
     PPMWrite.cpp
@@ -28,8 +29,7 @@ set(SOURCE
     SequenceIOWrite.cpp
     SGI.cpp
     SGIRead.cpp
-    SGIWrite.cpp
-    Util.cpp)
+    SGIWrite.cpp)
 
 set(LIBRARIES)
 set(LIBRARIES_PRIVATE)
