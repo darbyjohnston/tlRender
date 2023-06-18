@@ -120,14 +120,24 @@ namespace tl
             math::Vector2i scrollSize;
             for (const auto& child : _children)
             {
-                const math::Vector2i sizeHint = child->getSizeHint();
-                scrollSize.x = std::max(scrollSize.x, sizeHint.x);
-                scrollSize.y = std::max(scrollSize.y, sizeHint.y);
+                math::Vector2i size = child->getSizeHint();
+                switch (p.scrollType)
+                {
+                case ScrollType::Horizontal:
+                    size.y = std::max(size.y, g.h());
+                    break;
+                case ScrollType::Vertical:
+                    size.x = std::max(size.x, g.w());
+                    break;
+                default: break;
+                }
+                scrollSize.x = std::max(scrollSize.x, size.x);
+                scrollSize.y = std::max(scrollSize.y, size.y);
                 const math::BBox2i g2(
                     g.min.x - p.scrollPos.x,
                     g.min.y - p.scrollPos.y,
-                    sizeHint.x,
-                    sizeHint.y);
+                    size.x,
+                    size.y);
                 child->setGeometry(g2);
             }
             if (scrollSize != p.scrollSize)

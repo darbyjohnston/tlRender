@@ -22,6 +22,12 @@ namespace tl
             bool operator != (const PathOptions&) const;
         };
 
+        //! Does the given path end with a separator?
+        bool hasEndSeparator(const std::string&);
+
+        //! Add a path separator to the end if necessary.
+        std::string appendSeparator(const std::string&);
+
         //! File system path.
         class Path
         {

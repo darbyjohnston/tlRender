@@ -14,6 +14,8 @@ namespace tl
         {
             struct PlaybackMenu::Private
             {
+                std::shared_ptr<timeline::Player> player;
+
                 std::map<timeline::Playback, std::shared_ptr<ui::MenuItem> > playbackItems;
                 timeline::Playback playbackPrev = timeline::Playback::Forward;
                 std::map<timeline::Loop, std::shared_ptr<ui::MenuItem> > loopItems;
@@ -23,8 +25,6 @@ namespace tl
                 std::function<void(bool)> frameTimelineViewCallback;
                 std::function<void(bool)> stopOnScrubCallback;
                 std::function<void(bool)> timelineThumbnailsCallback;
-
-                std::shared_ptr<timeline::Player> player;
 
                 std::shared_ptr<observer::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
                 std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;

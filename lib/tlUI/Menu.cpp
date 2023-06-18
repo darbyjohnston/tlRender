@@ -586,7 +586,7 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IPopup::_init("tl::ui::Menu", context, parent);
+            IMenuPopup::_init("tl::ui::Menu", context, parent);
             TLRENDER_P();
             p.layout = VerticalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(SizeRole::None);
@@ -659,7 +659,7 @@ namespace tl
             if (auto context = _context.lock())
             {
                 out = Menu::create(context);
-                out->setPopupStyle(ui::PopupStyle::SubMenu);
+                out->setPopupStyle(MenuPopupStyle::SubMenu);
 
                 auto button = MenuButton::create(context);
                 button->setText(text);

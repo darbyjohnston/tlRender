@@ -7,6 +7,7 @@ set(HEADERS
     DrawUtil.h
     Event.h
     EventLoop.h
+    FileBrowser.h
     FloatEdit.h
     FloatEditSlider.h
     FloatModel.h
@@ -15,6 +16,8 @@ set(HEADERS
     GroupBox.h
     IButton.h
     IClipboard.h
+    IDialog.h
+    IMenuPopup.h
     IPopup.h
     IWidget.h
     IWidgetInline.h
@@ -45,7 +48,8 @@ set(HEADERS
     TimeEdit.h
     TimeLabel.h
     ToolButton.h)
-set(HEADERS_PRIVATE)
+set(HEADERS_PRIVATE
+    FileBrowserPrivate.h)
 
 set(SOURCE
     ButtonGroup.cpp
@@ -56,6 +60,7 @@ set(SOURCE
     DrawUtil.cpp
     Event.cpp
     EventLoop.cpp
+    FileBrowser.cpp
     FloatEdit.cpp
     FloatEditSlider.cpp
     FloatModel.cpp
@@ -64,6 +69,8 @@ set(SOURCE
     GroupBox.cpp
     IButton.cpp
     IClipboard.cpp
+    IDialog.cpp
+    IMenuPopup.cpp
     IPopup.cpp
     IWidget.cpp
     IWidgetOptions.cpp

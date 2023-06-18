@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlUI/IPopup.h>
+#include <tlUI/IMenuPopup.h>
 
 namespace tl
 {
@@ -51,18 +51,18 @@ namespace tl
                 int                              shortcutModifiers,
                 const std::function<void(bool)>& checkedCallback);
 
-            std::string text;
-            std::string icon;
-            Key shortcut = Key::Unknown;
-            int shortcutModifiers = 0;
+            std::string               text;
+            std::string               icon;
+            Key                       shortcut          = Key::Unknown;
+            int                       shortcutModifiers = 0;
             std::function<void(void)> callback;
-            bool checkable = false;
-            bool checked = false;
+            bool                      checkable         = false;
+            bool                      checked           = false;
             std::function<void(bool)> checkedCallback;
         };
 
         //! Menu.
-        class Menu : public IPopup
+        class Menu : public IMenuPopup
         {
             TLRENDER_NON_COPYABLE(Menu);
 

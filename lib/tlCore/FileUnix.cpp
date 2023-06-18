@@ -44,7 +44,23 @@ namespace tl
         {
             return 0 == ::remove(fileName.c_str());
         }
-		
+
+        std::string getCWD()
+        {
+            char buf[PATH_MAX];
+            if (!getcwd(buf, PATH_MAX))
+            {
+                buf[0] = 0;
+            }
+            std::string out(buf);
+            const size_t size = out.size();
+            if (size > 0 && out[size - 1] != '/')
+            {
+                out.push_back('/');
+            }
+            return out;
+        }
+            
 		std::string getTemp()
 		{
 			std::string out;
