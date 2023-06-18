@@ -106,6 +106,15 @@ namespace tl
                 for (auto i : _fileInfos)
                 {
                     auto button = ListButton::create(context);
+                    switch (i.getType())
+                    {
+                    case file::Type::File:
+                        button->setIcon("File");
+                        break;
+                    case file::Type::Directory:
+                        button->setIcon("Directory");
+                        break;
+                    }
                     button->setText(i.getPath().get(-1, false));
                     button->setParent(_layout);
                     _buttons.push_back(button);
