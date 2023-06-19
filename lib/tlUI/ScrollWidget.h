@@ -56,6 +56,9 @@ namespace tl
             //! Set whether the scroll bars are visible.
             void setScrollBarsVisible(bool);
 
+            //! Set whether scroll events are enabled.
+            void setScrollEventsEnabled(bool);
+
             //! Set whether the scroll area has a border.
             void setBorder(bool);
 

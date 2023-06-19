@@ -23,6 +23,13 @@ namespace tl
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
         };
 
+        //! In/out points display options.
+        enum class InOutDisplay
+        {
+            InsideRange,
+            OutsideRange
+        };
+        
         //! Cache display options.
         enum class CacheDisplay
         {
@@ -45,6 +52,7 @@ namespace tl
         //! Item options.
         struct ItemOptions
         {
+            InOutDisplay inOutDisplay = InOutDisplay::InsideRange;
             CacheDisplay cacheDisplay = CacheDisplay::VideoAndAudio;
             std::map<ColorRole, imaging::Color4f> colors =
             {

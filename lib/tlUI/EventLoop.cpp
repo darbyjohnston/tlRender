@@ -236,15 +236,14 @@ namespace tl
                     if (!p.keyEvent.accept)
                     {
                         auto widgets = _getUnderCursor(p.cursorPos);
-                        while (!widgets.empty())
+                        for (auto i = widgets.rbegin(); i != widgets.rend(); ++i)
                         {
-                            widgets.back()->keyPressEvent(p.keyEvent);
+                            (*i)->keyPressEvent(p.keyEvent);
                             if (p.keyEvent.accept)
                             {
-                                p.keyPress = widgets.back();
+                                p.keyPress = *i;
                                 break;
                             }
-                            widgets.pop_back();
                         }
                     }
 
@@ -294,14 +293,13 @@ namespace tl
             if (!event.accept)
             {
                 auto widgets = _getUnderCursor(p.cursorPos);
-                while (!widgets.empty())
+                for (auto i = widgets.rbegin(); i != widgets.rend(); ++i)
                 {
-                    widgets.back()->textEvent(event);
+                    (*i)->textEvent(event);
                     if (event.accept)
                     {
                         break;
                     }
-                    widgets.pop_back();
                 }
             }
         }
@@ -385,14 +383,13 @@ namespace tl
             event.dx = dx;
             event.dy = dy;
             auto widgets = _getUnderCursor(p.cursorPos);
-            while (!widgets.empty())
+            for (auto i = widgets.rbegin(); i != widgets.rend(); ++i)
             {
-                widgets.back()->scrollEvent(event);
+                (*i)->scrollEvent(event);
                 if (event.accept)
                 {
                     break;
                 }
-                widgets.pop_back();
             }
         }
 
@@ -745,11 +742,9 @@ namespace tl
         {
             TLRENDER_P();
             std::list<std::shared_ptr<IWidget> > out;
-            for (auto i = p.topLevelWidgets.begin();
-                i != p.topLevelWidgets.end();
-                ++i)
+            for (const auto& i : p.topLevelWidgets)
             {
-                if (auto widget = i->lock())
+                if (auto widget = i.lock())
                 {
                     if (!widget->isClipped() &&
                         widget->isEnabled() &&

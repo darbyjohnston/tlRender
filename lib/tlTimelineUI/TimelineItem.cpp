@@ -149,8 +149,7 @@ namespace tl
                 p.size.margin +
                 p.size.fontMetrics.lineHeight +
                 p.size.margin +
-                p.size.spacing +
-                p.size.margin +
+                p.size.border * 4 +
                 p.size.border +
                 p.size.margin;
             for (const auto& child : _children)
@@ -194,8 +193,7 @@ namespace tl
                 p.size.margin +
                 p.size.fontMetrics.lineHeight +
                 p.size.margin +
-                p.size.spacing +
-                p.size.margin +
+                p.size.border * 4 +
                 p.size.border +
                 p.size.margin +
                 childrenHeight +
@@ -231,8 +229,7 @@ namespace tl
                 p.size.margin +
                 p.size.fontMetrics.lineHeight +
                 p.size.margin +
-                p.size.spacing +
-                p.size.margin;
+                p.size.border * 4;
             event.render->drawRect(
                 math::BBox2i(g.min.x, y, g.w(), h),
                 event.style->getColorRole(ui::ColorRole::Base));
@@ -375,20 +372,57 @@ namespace tl
             {
                 const math::BBox2i& g = _geometry;
 
-                const int x0 = _timeToPos(_p->inOutRange.start_time());
-                const int x1 = _timeToPos(_p->inOutRange.end_time_inclusive());
-
-                const math::BBox2i bbox(
-                    x0,
-                    p.size.scrollPos.y +
-                    g.min.y +
-                    p.size.margin,
-                    x1 - x0 + 1,
-                    p.size.fontMetrics.lineHeight +
-                    p.size.margin);
-                event.render->drawRect(
-                    bbox,
-                    _options.colors[ColorRole::InOut]);
+                switch (_options.inOutDisplay)
+                {
+                case InOutDisplay::InsideRange:
+                {
+                    const int x0 = _timeToPos(_p->inOutRange.start_time());
+                    const int x1 = _timeToPos(_p->inOutRange.end_time_inclusive());
+                    const math::BBox2i bbox(
+                        x0,
+                        p.size.scrollPos.y +
+                        g.min.y,
+                        x1 - x0 + 1,
+                        p.size.margin +
+                        p.size.fontMetrics.lineHeight +
+                        p.size.margin);
+                    event.render->drawRect(
+                        bbox,
+                        _options.colors[ColorRole::InOut]);
+                    break;
+                }
+                case InOutDisplay::OutsideRange:
+                {
+                    int x0 = _timeToPos(_p->timeRange.start_time());
+                    int x1 = _timeToPos(_p->inOutRange.start_time());
+                    math::BBox2i bbox(
+                        x0,
+                        p.size.scrollPos.y +
+                        g.min.y,
+                        x1 - x0 + 1,
+                        p.size.margin +
+                        p.size.fontMetrics.lineHeight +
+                        p.size.margin);
+                    event.render->drawRect(
+                        bbox,
+                        _options.colors[ColorRole::InOut]);
+                    x0 = _timeToPos(_p->inOutRange.end_time_inclusive());
+                    x1 = _timeToPos(_p->timeRange.end_time_inclusive());
+                    bbox = math::BBox2i(
+                        x0,
+                        p.size.scrollPos.y +
+                        g.min.y,
+                        x1 - x0 + 1,
+                        p.size.margin +
+                        p.size.fontMetrics.lineHeight +
+                        p.size.margin);
+                    event.render->drawRect(
+                        bbox,
+                        _options.colors[ColorRole::InOut]);
+                    break;
+                }
+                default: break;
+                }
             }
         }
 
@@ -425,7 +459,7 @@ namespace tl
                         p.size.fontMetrics.lineHeight,
                         p.size.border,
                         p.size.margin +
-                        p.size.spacing);
+                        p.size.border * 4);
                     if (bbox.intersects(drawRect))
                     {
                         mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
@@ -477,12 +511,12 @@ namespace tl
                         p.size.margin +
                         t / duration * w,
                         p.size.scrollPos.y +
-                        g.min.y +
-                        p.size.margin,
+                        g.min.y,
                         p.size.border,
+                        p.size.margin +
                         p.size.fontMetrics.lineHeight +
                         p.size.margin +
-                        p.size.spacing);
+                        p.size.border * 4);
                     if (bbox.intersects(drawRect))
                     {
                         mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
@@ -558,9 +592,7 @@ namespace tl
                         g.min.y +
                         p.size.margin +
                         p.size.fontMetrics.lineHeight +
-                        p.size.margin +
-                        p.size.spacing -
-                        p.size.border * 4,
+                        p.size.margin,
                         x1 - x0 + 1,
                         h);
                     if (bbox.intersects(drawRect))
@@ -598,7 +630,6 @@ namespace tl
                         p.size.margin +
                         p.size.fontMetrics.lineHeight +
                         p.size.margin +
-                        p.size.spacing -
                         p.size.border * 2,
                         x1 - x0 + 1,
                         p.size.border * 2);

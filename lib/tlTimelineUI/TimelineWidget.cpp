@@ -61,8 +61,8 @@ namespace tl
                 context,
                 ui::ScrollType::Both,
                 shared_from_this());
+            p.scrollWidget->setScrollEventsEnabled(false);
             p.scrollWidget->setBorder(false);
-            //p.scrollWidget->setMarginRole(ui::SizeRole::MarginInside);
 
             p.scrollWidget->setScrollPosCallback(
                 [this](const math::Vector2i&)

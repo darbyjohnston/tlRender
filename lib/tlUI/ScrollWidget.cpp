@@ -16,6 +16,7 @@ namespace tl
         struct ScrollWidget::Private
         {
             ScrollType scrollType = ScrollType::Both;
+            bool scrollEventsEnabled = true;
             std::shared_ptr<ScrollArea> scrollArea;
             std::shared_ptr<ScrollBar> horizontalScrollBar;
             std::shared_ptr<ScrollBar> verticalScrollBar;
@@ -187,6 +188,11 @@ namespace tl
             _p->verticalScrollBar->setVisible(value);
         }
 
+        void ScrollWidget::setScrollEventsEnabled(bool value)
+        {
+            _p->scrollEventsEnabled = value;
+        }
+
         void ScrollWidget::setBorder(bool value)
         {
             _p->scrollArea->setBorder(value);
@@ -213,9 +219,13 @@ namespace tl
         {
             IWidget::scrollEvent(event);
             TLRENDER_P();
-            math::Vector2i scrollPos = getScrollPos();
-            scrollPos.y += event.dy * getLineStep();
-            setScrollPos(scrollPos);
+            if (p.scrollEventsEnabled)
+            {
+                event.accept = true;
+                math::Vector2i scrollPos = getScrollPos();
+                scrollPos.y += event.dy * getLineStep();
+                setScrollPos(scrollPos);
+            }
         }
 
         void ScrollWidget::keyPressEvent(KeyEvent& event)
