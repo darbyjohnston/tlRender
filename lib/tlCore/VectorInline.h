@@ -164,7 +164,7 @@ namespace tl
 
         inline Vector2i operator * (const Vector2i& a, float b)
         {
-            return Vector2i(a.x * b, a.y * b);
+            return Vector2i(static_cast<int>(a.x * b), static_cast<int>(a.y * b));
         }
 
         inline Vector2f operator * (const Vector2f& a, float b)
@@ -184,7 +184,7 @@ namespace tl
 
         inline Vector2i operator / (const Vector2i& a, float b)
         {
-            return Vector2i(a.x / b, a.y / b);
+            return Vector2i(static_cast<int>(a.x / b), static_cast<int>(a.y / b));
         }
 
         inline Vector2f operator / (const Vector2f& a, float b)
