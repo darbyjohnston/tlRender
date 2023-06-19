@@ -13,6 +13,7 @@ namespace tl
         //! Text line edit.
         //! 
         //! \todo Scroll the view with the cursor.
+        //! \todo Double click to select text.
         class LineEdit : public IWidget
         {
             TLRENDER_NON_COPYABLE(LineEdit);
