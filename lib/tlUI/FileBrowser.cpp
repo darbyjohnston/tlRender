@@ -5,6 +5,7 @@
 #include <tlUI/FileBrowserPrivate.h>
 
 #include <tlCore/File.h>
+#include <tlCore/Directory.h>
 
 namespace tl
 {
@@ -100,7 +101,9 @@ namespace tl
             }
             _buttons.clear();
             _buttonGroup->clearButtons();
-            _fileInfos = file::dirList(_path);
+            file::ListOptions listOptions;
+            listOptions.sequence = false;
+            _fileInfos = file::list(_path, listOptions);
             if (auto context = _context.lock())
             {
                 for (auto i : _fileInfos)

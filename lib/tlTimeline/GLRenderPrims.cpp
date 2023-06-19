@@ -80,6 +80,51 @@ namespace tl
             }
         }
 
+        void GLRender::drawColorMesh(
+            const geom::TriangleMesh2& mesh,
+            const math::Vector2i& position,
+            const imaging::Color4f& color)
+        {
+            TLRENDER_P();
+            ++(p.currentStats.meshes);
+            const size_t size = mesh.triangles.size();
+            p.currentStats.meshTriangles += mesh.triangles.size();
+            if (size > 0)
+            {
+                p.shaders["colorMesh"]->bind();
+                const auto transform =
+                    p.transform *
+                    math::translate(math::Vector3f(
+                        position.x,
+                        position.y,
+                        0.F));
+                p.shaders["colorMesh"]->setUniform("transform.mvp", transform);
+                p.shaders["colorMesh"]->setUniform("color", color);
+
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+                if (!p.vbos["colorMesh"] || (p.vbos["colorMesh"] && p.vbos["colorMesh"]->getSize() < size * 3))
+                {
+                    p.vbos["colorMesh"] = gl::VBO::create(size * 3, gl::VBOType::Pos2_F32_Color_F32);
+                    p.vaos["colorMesh"].reset();
+                }
+                if (p.vbos["colorMesh"])
+                {
+                    p.vbos["colorMesh"]->copy(convert(mesh, gl::VBOType::Pos2_F32_Color_F32));
+                }
+
+                if (!p.vaos["colorMesh"] && p.vbos["colorMesh"])
+                {
+                    p.vaos["colorMesh"] = gl::VAO::create(p.vbos["colorMesh"]->getType(), p.vbos["colorMesh"]->getID());
+                }
+                if (p.vaos["colorMesh"] && p.vbos["colorMesh"])
+                {
+                    p.vaos["colorMesh"]->bind();
+                    p.vaos["colorMesh"]->draw(GL_TRIANGLES, 0, size * 3);
+                }
+            }
+        }
+
         void GLRender::Private::drawTextMesh(const geom::TriangleMesh2& mesh)
         {
             const size_t size = mesh.triangles.size();

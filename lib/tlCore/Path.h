@@ -16,7 +16,7 @@ namespace tl
         //! File system path options.
         struct PathOptions
         {
-            uint8_t maxNumberDigits = 9;
+            size_t maxNumberDigits = 9;
 
             bool operator == (const PathOptions&) const;
             bool operator != (const PathOptions&) const;

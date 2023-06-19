@@ -9,8 +9,8 @@
 
 #include <tlIO/IOSystem.h>
 
+#include <tlCore/Directory.h>
 #include <tlCore/File.h>
-#include <tlCore/FileInfo.h>
 #include <tlCore/StringFormat.h>
 
 #include <opentimelineio/externalReference.h>
@@ -74,7 +74,9 @@ namespace tl
                 case FileSequenceAudio::Directory:
                 {
                     const file::Path directoryPath(path.getDirectory(), fileSequenceAudioDirectory, pathOptions);
-                    for (const auto& fileInfo : file::dirList(directoryPath.get(), pathOptions))
+                    file::ListOptions listOptions;
+                    listOptions.maxNumberDigits = pathOptions.maxNumberDigits;
+                    for (const auto& fileInfo : file::list(directoryPath.get(), listOptions))
                     {
                         if (file::Type::File == fileInfo.getType())
                         {

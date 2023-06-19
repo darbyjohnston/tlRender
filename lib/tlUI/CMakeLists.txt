@@ -45,6 +45,7 @@ set(HEADERS
     Splitter.h
     StackLayout.h
     Style.h
+    StyleInline.h
     TimeEdit.h
     TimeLabel.h
     ToolButton.h)

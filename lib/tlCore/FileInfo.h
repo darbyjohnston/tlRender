@@ -64,11 +64,6 @@ namespace tl
             int _permissions = 0;
             time_t _time = 0;
         };
-
-        //! Get the contents of the given directory.
-        std::vector<FileInfo> dirList(
-            const std::string&,
-            const PathOptions& = PathOptions());
     }
 }
 

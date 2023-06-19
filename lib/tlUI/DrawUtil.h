@@ -29,5 +29,12 @@ namespace tl
             int width,
             int radius = 0,
             size_t resolution = 8);
+
+        //! Create a mesh for drawing a shadow.
+        geom::TriangleMesh2 shadow(
+            const math::BBox2i&,
+            int cornerRadius,
+            const float alpha = .3F,
+            size_t resolution = 8);
     }
 }

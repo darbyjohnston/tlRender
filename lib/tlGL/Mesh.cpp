@@ -38,15 +38,16 @@ namespace tl
         {
             const std::array<size_t, static_cast<size_t>(VBOType::Count)> data =
             {
-                8,  // 2 * sizeof(float)
-                12, // 2 * sizeof(float) + 2 * sizeof(uint16_t)
-                12, // 3 * sizeof(float)
-                16, // 3 * sizeof(float) + 2 * sizeof(uint16_t)
-                20, // 3 * sizeof(float) + 2 * sizeof(uint16_t) + sizeof(PackedNormal)
-                24, // 3 * sizeof(float) + 2 * sizeof(uint16_t) + sizeof(PackedNormal) + sizeof(PackedColor)
-                32, // 3 * sizeof(float) + 2 * sizeof(float) + 3 * sizeof(float)
-                44, // 3 * sizeof(float) + 2 * sizeof(float) + 3 * sizeof(float) + 3 * sizeof(float)
-                16  // 3 * sizeof(float) + sizeof(PackedColor)
+                2 * sizeof(float),
+                2 * sizeof(float) + 2 * sizeof(uint16_t),
+                2 * sizeof(float) + 4 * sizeof(float),
+                3 * sizeof(float),
+                3 * sizeof(float) + 2 * sizeof(uint16_t),
+                3 * sizeof(float) + 2 * sizeof(uint16_t) + sizeof(PackedNormal),
+                3 * sizeof(float) + 2 * sizeof(uint16_t) + sizeof(PackedNormal) + sizeof(PackedColor),
+                3 * sizeof(float) + 2 * sizeof(float) + 3 * sizeof(float),
+                3 * sizeof(float) + 2 * sizeof(float) + 3 * sizeof(float) + 4 * sizeof(float),
+                3 * sizeof(float) + sizeof(PackedColor)
             };
             return data[static_cast<size_t>(value)];
         }
@@ -112,6 +113,33 @@ namespace tl
                         pu16[0] = t ? math::clamp(static_cast<int>(mesh.t[t - 1].x * 65535.F), 0, 65535) : 0;
                         pu16[1] = t ? math::clamp(static_cast<int>(mesh.t[t - 1].y * 65535.F), 0, 65535) : 0;
                         p += 2 * sizeof(uint16_t);
+                    }
+                }
+                break;
+            case gl::VBOType::Pos2_F32_Color_F32:
+                for (size_t i = range.getMin(); i <= range.getMax(); ++i)
+                {
+                    const geom::Vertex2* vertices[] =
+                    {
+                        &mesh.triangles[i].v[0],
+                        &mesh.triangles[i].v[1],
+                        &mesh.triangles[i].v[2]
+                    };
+                    for (size_t k = 0; k < 3; ++k)
+                    {
+                        const size_t v = vertices[k]->v;
+                        float* pf = reinterpret_cast<float*>(p);
+                        pf[0] = v ? mesh.v[v - 1].x : 0.F;
+                        pf[1] = v ? mesh.v[v - 1].y : 0.F;
+                        p += 2 * sizeof(float);
+
+                        const size_t c = vertices[k]->c;
+                        pf = reinterpret_cast<float*>(p);
+                        pf[0] = c ? mesh.c[c - 1].x : 1.F;
+                        pf[1] = c ? mesh.c[c - 1].y : 1.F;
+                        pf[2] = c ? mesh.c[c - 1].z : 1.F;
+                        pf[3] = c ? mesh.c[c - 1].w : 1.F;
+                        p += 4 * sizeof(float);
                     }
                 }
                 break;
@@ -250,11 +278,12 @@ namespace tl
                         packedNormal->z = n ? math::clamp(static_cast<int>(mesh.n[n - 1].z * 511.F), -512, 511) : 0;
                         p += sizeof(PackedNormal);
 
+                        const size_t c = vertices[k]->c;
                         auto packedColor = reinterpret_cast<PackedColor*>(p);
-                        packedColor->r = v ? math::clamp(static_cast<int>(mesh.c[v - 1].x * 255.F), 0, 255) : 0;
-                        packedColor->g = v ? math::clamp(static_cast<int>(mesh.c[v - 1].y * 255.F), 0, 255) : 0;
-                        packedColor->b = v ? math::clamp(static_cast<int>(mesh.c[v - 1].z * 255.F), 0, 255) : 0;
-                        packedColor->a = 255;
+                        packedColor->r = c ? math::clamp(static_cast<int>(mesh.c[c - 1].x * 255.F), 0, 255) : 255;
+                        packedColor->g = c ? math::clamp(static_cast<int>(mesh.c[c - 1].y * 255.F), 0, 255) : 255;
+                        packedColor->b = c ? math::clamp(static_cast<int>(mesh.c[c - 1].z * 255.F), 0, 255) : 255;
+                        packedColor->a = c ? math::clamp(static_cast<int>(mesh.c[c - 1].w * 255.F), 0, 255) : 255;
                         p += sizeof(PackedColor);
                     }
                 }
@@ -323,11 +352,13 @@ namespace tl
                         pf[2] = n ? mesh.n[n - 1].z : 0.F;
                         p += 3 * sizeof(float);
 
+                        const size_t c = vertices[k]->c;
                         pf = reinterpret_cast<float*>(p);
-                        pf[0] = v ? mesh.c[v - 1].x : 1.F;
-                        pf[1] = v ? mesh.c[v - 1].y : 1.F;
-                        pf[2] = v ? mesh.c[v - 1].z : 1.F;
-                        p += 3 * sizeof(float);
+                        pf[0] = c ? mesh.c[c - 1].x : 1.F;
+                        pf[1] = c ? mesh.c[c - 1].y : 1.F;
+                        pf[2] = c ? mesh.c[c - 1].z : 1.F;
+                        pf[3] = c ? mesh.c[c - 1].w : 1.F;
+                        p += 4 * sizeof(float);
                     }
                 }
                 break;
@@ -426,6 +457,12 @@ namespace tl
                 glVertexAttribPointer(1, 2, GL_UNSIGNED_SHORT, GL_TRUE, static_cast<GLsizei>(byteCount), (GLvoid*)8);
                 glEnableVertexAttribArray(1);
                 break;
+            case VBOType::Pos2_F32_Color_F32:
+                glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(byteCount), (GLvoid*)0);
+                glEnableVertexAttribArray(0);
+                glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(byteCount), (GLvoid*)8);
+                glEnableVertexAttribArray(1);
+                break;
             case VBOType::Pos3_F32:
                 glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(byteCount), (GLvoid*)0);
                 glEnableVertexAttribArray(0);
@@ -451,7 +488,7 @@ namespace tl
                 glEnableVertexAttribArray(1);
                 glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(byteCount), (GLvoid*)20);
                 glEnableVertexAttribArray(2);
-                glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(byteCount), (GLvoid*)32);
+                glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(byteCount), (GLvoid*)32);
                 glEnableVertexAttribArray(3);
                 break;
             case VBOType::Pos3_F32_Color_U8:

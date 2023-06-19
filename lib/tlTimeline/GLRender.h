@@ -51,6 +51,10 @@ namespace tl
                 const geom::TriangleMesh2&,
                 const math::Vector2i& position,
                 const imaging::Color4f&) override;
+            void drawColorMesh(
+                const geom::TriangleMesh2&,
+                const math::Vector2i& position,
+                const imaging::Color4f&) override;
             void drawText(
                 const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
                 const math::Vector2i& position,

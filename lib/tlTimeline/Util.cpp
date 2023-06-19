@@ -8,7 +8,7 @@
 
 #include <tlIO/IOSystem.h>
 
-#include <tlCore/FileInfo.h>
+#include <tlCore/Directory.h>
 #include <tlCore/StringFormat.h>
 
 #include <opentimelineio/clip.h>
@@ -174,7 +174,9 @@ namespace tl
             case file::Type::Directory:
             {
                 auto ioSystem = context->getSystem<io::System>();
-                for (const auto& fileInfo : file::dirList(fileName, pathOptions))
+                file::ListOptions listOptions;
+                listOptions.maxNumberDigits = pathOptions.maxNumberDigits;
+                for (const auto& fileInfo : file::list(fileName, listOptions))
                 {
                     const file::Path& path = fileInfo.getPath();
                     const std::string extension = string::toLower(path.getExtension());

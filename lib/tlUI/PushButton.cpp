@@ -20,6 +20,7 @@ namespace tl
                 int border = 0;
                 imaging::FontInfo fontInfo;
                 imaging::FontMetrics fontMetrics;
+                bool textInit = true;
                 math::Vector2i textSize;
             };
             SizeData size;
@@ -61,6 +62,7 @@ namespace tl
             TLRENDER_P();
             if (changed)
             {
+                p.size.textInit = true;
                 p.draw.glyphs.clear();
             }
         }
@@ -72,6 +74,7 @@ namespace tl
             TLRENDER_P();
             if (changed)
             {
+                p.size.textInit = true;
                 p.draw.glyphs.clear();
             }
         }
@@ -95,9 +98,13 @@ namespace tl
             if (!_text.empty())
             {
                 p.size.fontMetrics = event.getFontMetrics(_fontRole);
-                auto fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
-                p.size.fontInfo = fontInfo;
-                p.size.textSize = event.fontSystem->getSize(_text, fontInfo);
+                const auto fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
+                if (fontInfo != p.size.fontInfo || p.size.textInit)
+                {
+                    p.size.fontInfo = fontInfo;
+                    p.size.textInit = false;
+                    p.size.textSize = event.fontSystem->getSize(_text, fontInfo);
+                }
 
                 _sizeHint.x = p.size.textSize.x + p.size.margin2 * 2;
                 _sizeHint.y = p.size.fontMetrics.lineHeight;

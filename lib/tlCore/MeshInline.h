@@ -9,18 +9,20 @@ namespace tl
         inline Vertex2::Vertex2()
         {}
 
-        inline Vertex2::Vertex2(size_t v, size_t t) :
+        inline Vertex2::Vertex2(size_t v, size_t t, size_t c) :
             v(v),
-            t(t)
+            t(t),
+            c(c)
         {}
 
         inline Vertex3::Vertex3()
         {}
 
-        inline Vertex3::Vertex3(size_t v, size_t t, size_t n) :
+        inline Vertex3::Vertex3(size_t v, size_t t, size_t n, size_t c) :
             v(v),
             t(t),
-            n(n)
+            n(n),
+            c(c)
         {}
 
         inline float edge(const math::Vector2f& p, const math::Vector2f& v0, const math::Vector2f& v1)

@@ -10,6 +10,7 @@ set(HEADERS
     ColorInline.h
     Context.h
     ContextInline.h
+    Directory.h
     Error.h
     File.h
     FileIO.h
@@ -65,6 +66,7 @@ set(SOURCE
     BBox.cpp
     Color.cpp
     Context.cpp
+    Directory.cpp
     Error.cpp
     FileIO.cpp
     FileInfo.cpp

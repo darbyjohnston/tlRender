@@ -25,6 +25,7 @@ namespace tl
         {
             Pos2_F32,
             Pos2_F32_UV_U16,
+            Pos2_F32_Color_F32,
             Pos3_F32,
             Pos3_F32_UV_U16,
             Pos3_F32_UV_U16_Normal_U10,

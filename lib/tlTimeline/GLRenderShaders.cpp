@@ -49,6 +49,45 @@ namespace tl
                 "    fColor = color;\n"
                 "}\n";
         }
+        std::string colorMeshVertexSource()
+        {
+            return
+                "#version 410\n"
+                "\n"
+                "in vec3 vPos;\n"
+                "in vec4 vColor;\n"
+                "out vec4 abcColor;\n"
+                "\n"
+                "struct Transform\n"
+                "{\n"
+                "    mat4 mvp;\n"
+                "};\n"
+                "\n"
+                "uniform Transform transform;\n"
+                "\n"
+                "void main()\n"
+                "{\n"
+                "    gl_Position = transform.mvp * vec4(vPos, 1.0);\n"
+                "    abcColor = vColor;\n"
+                "}\n";
+        }
+
+        std::string colorMeshFragmentSource()
+        {
+            return
+                "#version 410\n"
+                "\n"
+                "in vec4 abcColor;\n"
+                "out vec4 fColor;\n"
+                "\n"
+                "uniform vec4 color;\n"
+                "\n"
+                "void main()\n"
+                "{\n"
+                "\n"
+                "    fColor = abcColor * color;\n"
+                "}\n";
+        }
 
         std::string textFragmentSource()
         {

@@ -28,6 +28,8 @@ namespace tl
     {
         std::string vertexSource();
         std::string meshFragmentSource();
+        std::string colorMeshVertexSource();
+        std::string colorMeshFragmentSource();
         std::string textFragmentSource();
         std::string textureFragmentSource();
         std::string imageFragmentSource();
@@ -38,20 +40,6 @@ namespace tl
             const std::string& lut,
             LUTOrder);
         std::string differenceFragmentSource();
-
-        struct Pos2_F32
-        {
-            float vx;
-            float vy;
-        };
-
-        struct Pos2_F32_UV_U16
-        {
-            float    vx;
-            float    vy;
-            uint16_t tx;
-            uint16_t ty;
-        };
 
         void copyTextures(
             const std::shared_ptr<imaging::Image>&,

@@ -18,7 +18,13 @@ namespace tl
             math::BBox2i buttonGeometry;
             bool open = false;
             std::function<void(void)> closeCallback;
-            int border = 0;
+
+            struct SizeData
+            {
+                int margin = 0;
+                int border = 0;
+            };
+            SizeData size;
         };
 
         void IMenuPopup::_init(
@@ -93,8 +99,8 @@ namespace tl
             if (!children.empty())
             {
                 math::Vector2i sizeHint = children.front()->getSizeHint();
-                sizeHint.x += p.border * 2;
-                sizeHint.y += p.border * 2;
+                sizeHint.x += p.size.border * 2;
+                sizeHint.y += p.size.border * 2;
                 std::list<math::BBox2i> bboxes;
                 switch (p.popupStyle)
                 {
@@ -150,7 +156,7 @@ namespace tl
                     {
                         return a.intersected.getArea() > b.intersected.getArea();
                     });
-                children.front()->setGeometry(intersect.front().original.margin(-p.border));
+                children.front()->setGeometry(intersect.front().original.margin(-p.size.border));
             }
         }
 
@@ -158,7 +164,8 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
-            p.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
+            p.size.margin = event.style->getSizeRole(SizeRole::Margin, event.displayScale);
+            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
         }
 
         void IMenuPopup::drawEvent(
@@ -173,14 +180,23 @@ namespace tl
             const auto& children = getChildren();
             if (!children.empty())
             {
-                const math::BBox2i g = children.front()->getGeometry().margin(p.border);
+                const math::BBox2i g = children.front()->getGeometry();
+                const math::BBox2i g2(
+                    g.min.x - p.size.margin,
+                    g.min.y,
+                    g.w() + p.size.margin * 2,
+                    g.h() + p.size.margin);
+                event.render->drawColorMesh(
+                    shadow(g2, p.size.margin),
+                    math::Vector2i(),
+                    imaging::Color4f(1.F, 1.F, 1.F));
+
                 event.render->drawMesh(
-                    border(g, p.border),
+                    border(g.margin(p.size.border), p.size.border),
                     math::Vector2i(),
                     event.style->getColorRole(ColorRole::Border));
 
-                const math::BBox2i g2 = g.margin(-p.border);
-                event.render->drawRect(g2, event.style->getColorRole(p.popupRole));
+                event.render->drawRect(g, event.style->getColorRole(p.popupRole));
             }
         }
     }

@@ -119,7 +119,13 @@ namespace tl
             std::shared_ptr<observer::IValue<bool> > observeChanged() const;
 
         private:
+            std::vector<int> _sizeRoles;
+            std::vector<imaging::Color4f> _colorRoles;
+            std::vector<imaging::FontInfo> _fontRoles;
+
             TLRENDER_PRIVATE();
         };
     }
 }
+
+#include <tlUI/StyleInline.h>

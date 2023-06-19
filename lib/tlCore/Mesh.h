@@ -18,21 +18,23 @@ namespace tl
         struct Vertex2
         {
             Vertex2();
-            Vertex2(size_t v, size_t t = 0);
+            Vertex2(size_t v, size_t t = 0, size_t c = 0);
 
             size_t v;
             size_t t;
+            size_t c;
         };
 
         //! Three-dimensional vertex.
         struct Vertex3
         {
             Vertex3();
-            Vertex3(size_t v, size_t t = 0, size_t n = 0);
+            Vertex3(size_t v, size_t t = 0, size_t n = 0, size_t c = 0);
 
             size_t v;
             size_t t;
             size_t n;
+            size_t c;
         };
 
         //! Two-dimensional triangle.
@@ -51,7 +53,7 @@ namespace tl
         struct TriangleMesh2
         {
             std::vector<math::Vector2f> v;
-            std::vector<math::Vector2f> c;
+            std::vector<math::Vector4f> c;
             std::vector<math::Vector2f> t;
             std::vector<Triangle2> triangles;
         };
@@ -60,7 +62,7 @@ namespace tl
         struct TriangleMesh3
         {
             std::vector<math::Vector3f> v;
-            std::vector<math::Vector3f> c;
+            std::vector<math::Vector4f> c;
             std::vector<math::Vector2f> t;
             std::vector<math::Vector3f> n;
             std::vector<Triangle3> triangles;
@@ -87,4 +89,3 @@ namespace tl
 }
 
 #include <tlCore/MeshInline.h>
-

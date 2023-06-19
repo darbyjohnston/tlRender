@@ -387,39 +387,63 @@ namespace tl
 
             if (!p.shaders["rect"])
             {
-                p.shaders["rect"] = gl::Shader::create(vertexSource(), meshFragmentSource());
+                p.shaders["rect"] = gl::Shader::create(
+                    vertexSource(),
+                    meshFragmentSource());
             }
             if (!p.shaders["mesh"])
             {
-                p.shaders["mesh"] = gl::Shader::create(vertexSource(), meshFragmentSource());
+                p.shaders["mesh"] = gl::Shader::create(
+                    vertexSource(),
+                    meshFragmentSource());
+            }
+            if (!p.shaders["colorMesh"])
+            {
+                p.shaders["colorMesh"] = gl::Shader::create(
+                    colorMeshVertexSource(),
+                    colorMeshFragmentSource());
             }
             if (!p.shaders["text"])
             {
-                p.shaders["text"] = gl::Shader::create(vertexSource(), textFragmentSource());
+                p.shaders["text"] = gl::Shader::create(
+                    vertexSource(),
+                    textFragmentSource());
             }
             if (!p.shaders["texture"])
             {
-                p.shaders["texture"] = gl::Shader::create(vertexSource(), textureFragmentSource());
+                p.shaders["texture"] = gl::Shader::create(
+                    vertexSource(),
+                    textureFragmentSource());
             }
             if (!p.shaders["image"])
             {
-                p.shaders["image"] = gl::Shader::create(vertexSource(), imageFragmentSource());
+                p.shaders["image"] = gl::Shader::create(
+                    vertexSource(),
+                    imageFragmentSource());
             }
             if (!p.shaders["wipe"])
             {
-                p.shaders["wipe"] = gl::Shader::create(vertexSource(), meshFragmentSource());
+                p.shaders["wipe"] = gl::Shader::create(
+                    vertexSource(),
+                    meshFragmentSource());
             }
             if (!p.shaders["overlay"])
             {
-                p.shaders["overlay"] = gl::Shader::create(vertexSource(), textureFragmentSource());
+                p.shaders["overlay"] = gl::Shader::create(
+                    vertexSource(),
+                    textureFragmentSource());
             }
             if (!p.shaders["difference"])
             {
-                p.shaders["difference"] = gl::Shader::create(vertexSource(), differenceFragmentSource());
+                p.shaders["difference"] = gl::Shader::create(
+                    vertexSource(),
+                    differenceFragmentSource());
             }
             if (!p.shaders["dissolve"])
             {
-                p.shaders["dissolve"] = gl::Shader::create(vertexSource(), textureFragmentSource());
+                p.shaders["dissolve"] = gl::Shader::create(
+                    vertexSource(),
+                    textureFragmentSource());
             }
             if (!p.shaders["display"])
             {

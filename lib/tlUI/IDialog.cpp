@@ -19,6 +19,7 @@ namespace tl
             struct SizeData
             {
                 int margin = 0;
+                int margin2 = 0;
                 int border = 0;
             };
             SizeData size;
@@ -83,6 +84,7 @@ namespace tl
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
             p.size.margin = event.style->getSizeRole(SizeRole::MarginDialog, event.displayScale);
+            p.size.margin2 = event.style->getSizeRole(SizeRole::Margin, event.displayScale);
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
         }
 
@@ -98,14 +100,23 @@ namespace tl
             const auto& children = getChildren();
             if (!children.empty())
             {
-                const math::BBox2i g = children.front()->getGeometry().margin(p.size.border);
+                const math::BBox2i g = children.front()->getGeometry();
+                const math::BBox2i g2(
+                    g.min.x - p.size.margin2,
+                    g.min.y,
+                    g.w() + p.size.margin2 * 2,
+                    g.h() + p.size.margin2);
+                event.render->drawColorMesh(
+                    shadow(g2, p.size.margin2),
+                    math::Vector2i(),
+                    imaging::Color4f(1.F, 1.F, 1.F));
+
                 event.render->drawMesh(
-                    border(g, p.size.border),
+                    border(g.margin(p.size.border), p.size.border),
                     math::Vector2i(),
                     event.style->getColorRole(ColorRole::Border));
-
-                const math::BBox2i g2 = g.margin(-p.size.border);
-                event.render->drawRect(g2, event.style->getColorRole(ColorRole::Window));
+                
+                event.render->drawRect(g, event.style->getColorRole(ColorRole::Window));
             }
         }
     }

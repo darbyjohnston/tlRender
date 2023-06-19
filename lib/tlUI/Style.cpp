@@ -63,9 +63,6 @@ namespace tl
         struct Style::Private
         {
             std::weak_ptr<system::Context> context;
-            std::map<SizeRole, int> sizeRoles;
-            std::map<ColorRole, imaging::Color4f> colorRoles;
-            std::map<FontRole, imaging::FontInfo> fontRoles;
             std::shared_ptr<observer::Value<bool> > changed;
         };
 
@@ -75,41 +72,44 @@ namespace tl
             TLRENDER_P();
             p.context = context;
 
-            p.sizeRoles[SizeRole::Margin] = 10;
-            p.sizeRoles[SizeRole::MarginSmall] = 5;
-            p.sizeRoles[SizeRole::MarginLarge] = 20;
-            p.sizeRoles[SizeRole::MarginInside] = 2;
-            p.sizeRoles[SizeRole::MarginDialog] = 40;
-            p.sizeRoles[SizeRole::Spacing] = 10;
-            p.sizeRoles[SizeRole::SpacingSmall] = 5;
-            p.sizeRoles[SizeRole::SpacingLarge] = 20;
-            p.sizeRoles[SizeRole::SpacingTool] = 2;
-            p.sizeRoles[SizeRole::Border] = 1;
-            p.sizeRoles[SizeRole::ScrollArea] = 200;
-            p.sizeRoles[SizeRole::Handle] = 10;
-            p.sizeRoles[SizeRole::HandleSmall] = 6;
+            _sizeRoles.resize(static_cast<size_t>(SizeRole::Count));
+            _sizeRoles[static_cast<size_t>(SizeRole::Margin)] = 10;
+            _sizeRoles[static_cast<size_t>(SizeRole::MarginSmall)] = 5;
+            _sizeRoles[static_cast<size_t>(SizeRole::MarginLarge)] = 20;
+            _sizeRoles[static_cast<size_t>(SizeRole::MarginInside)] = 2;
+            _sizeRoles[static_cast<size_t>(SizeRole::MarginDialog)] = 40;
+            _sizeRoles[static_cast<size_t>(SizeRole::Spacing)] = 10;
+            _sizeRoles[static_cast<size_t>(SizeRole::SpacingSmall)] = 5;
+            _sizeRoles[static_cast<size_t>(SizeRole::SpacingLarge)] = 20;
+            _sizeRoles[static_cast<size_t>(SizeRole::SpacingTool)] = 2;
+            _sizeRoles[static_cast<size_t>(SizeRole::Border)] = 1;
+            _sizeRoles[static_cast<size_t>(SizeRole::ScrollArea)] = 200;
+            _sizeRoles[static_cast<size_t>(SizeRole::Handle)] = 10;
+            _sizeRoles[static_cast<size_t>(SizeRole::HandleSmall)] = 6;
 
-            p.colorRoles[ColorRole::Window] = imaging::Color4f(.2F, .2F, .2F);
-            p.colorRoles[ColorRole::Base] = imaging::Color4f(.17F, .17F, .17F);
-            p.colorRoles[ColorRole::Button] = imaging::Color4f(.3F, .3F, .3F);
-            p.colorRoles[ColorRole::Text] = imaging::Color4f(1.F, 1.F, 1.F);
-            p.colorRoles[ColorRole::TextDisabled] = imaging::Color4f(.5F, .5F, .5F);
-            p.colorRoles[ColorRole::Border] = imaging::Color4f(.13F, .13F, .13F);
-            p.colorRoles[ColorRole::Hover] = imaging::Color4f(1.F, 1.F, 1.F, .1F);
-            p.colorRoles[ColorRole::Pressed] = imaging::Color4f(1.F, 1.F, 1.F, .2F);
-            p.colorRoles[ColorRole::Checked] = imaging::Color4f(.6F, .4F, .2F);
-            p.colorRoles[ColorRole::KeyFocus] = imaging::Color4f(.6F, .6F, .4F);
-            p.colorRoles[ColorRole::Overlay] = imaging::Color4f(0.F, 0.F, 0.F, .5F);
-            p.colorRoles[ColorRole::Red] = imaging::Color4f(.6F, .3F, .3F);
-            p.colorRoles[ColorRole::Green] = imaging::Color4f(.3F, .6F, .3F);
-            p.colorRoles[ColorRole::Blue] = imaging::Color4f(.3F, .3F, .6F);
-            p.colorRoles[ColorRole::Cyan] = imaging::Color4f(.3F, .6F, .6F);
-            p.colorRoles[ColorRole::Magenta] = imaging::Color4f(.6F, .3F, .6F);
-            p.colorRoles[ColorRole::Yellow] = imaging::Color4f(.6F, .6F, .3F);
+            _colorRoles.resize(static_cast<size_t>(ColorRole::Count));
+            _colorRoles[static_cast<size_t>(ColorRole::Window)] = imaging::Color4f(.2F, .2F, .2F);
+            _colorRoles[static_cast<size_t>(ColorRole::Base)] = imaging::Color4f(.17F, .17F, .17F);
+            _colorRoles[static_cast<size_t>(ColorRole::Button)] = imaging::Color4f(.3F, .3F, .3F);
+            _colorRoles[static_cast<size_t>(ColorRole::Text)] = imaging::Color4f(1.F, 1.F, 1.F);
+            _colorRoles[static_cast<size_t>(ColorRole::TextDisabled)] = imaging::Color4f(.5F, .5F, .5F);
+            _colorRoles[static_cast<size_t>(ColorRole::Border)] = imaging::Color4f(.13F, .13F, .13F);
+            _colorRoles[static_cast<size_t>(ColorRole::Hover)] = imaging::Color4f(1.F, 1.F, 1.F, .1F);
+            _colorRoles[static_cast<size_t>(ColorRole::Pressed)] = imaging::Color4f(1.F, 1.F, 1.F, .2F);
+            _colorRoles[static_cast<size_t>(ColorRole::Checked)] = imaging::Color4f(.6F, .4F, .2F);
+            _colorRoles[static_cast<size_t>(ColorRole::KeyFocus)] = imaging::Color4f(.6F, .6F, .4F);
+            _colorRoles[static_cast<size_t>(ColorRole::Overlay)] = imaging::Color4f(0.F, 0.F, 0.F, .5F);
+            _colorRoles[static_cast<size_t>(ColorRole::Red)] = imaging::Color4f(.6F, .3F, .3F);
+            _colorRoles[static_cast<size_t>(ColorRole::Green)] = imaging::Color4f(.3F, .6F, .3F);
+            _colorRoles[static_cast<size_t>(ColorRole::Blue)] = imaging::Color4f(.3F, .3F, .6F);
+            _colorRoles[static_cast<size_t>(ColorRole::Cyan)] = imaging::Color4f(.3F, .6F, .6F);
+            _colorRoles[static_cast<size_t>(ColorRole::Magenta)] = imaging::Color4f(.6F, .3F, .6F);
+            _colorRoles[static_cast<size_t>(ColorRole::Yellow)] = imaging::Color4f(.6F, .6F, .3F);
 
-            p.fontRoles[FontRole::Label] = imaging::FontInfo("NotoSans-Regular", 12 * 1);
-            p.fontRoles[FontRole::Mono] = imaging::FontInfo("NotoMono-Regular", 12 * 1);
-            p.fontRoles[FontRole::Title] = imaging::FontInfo("NotoSans-Regular", 18 * 1);
+            _fontRoles.resize(static_cast<size_t>(FontRole::Count));
+            _fontRoles[static_cast<size_t>(FontRole::Label)] = imaging::FontInfo("NotoSans-Regular", 12 * 1);
+            _fontRoles[static_cast<size_t>(FontRole::Mono)] = imaging::FontInfo("NotoMono-Regular", 12 * 1);
+            _fontRoles[static_cast<size_t>(FontRole::Title)] = imaging::FontInfo("NotoSans-Regular", 18 * 1);
 
             p.changed = observer::Value<bool>::create();
         }
@@ -129,64 +129,31 @@ namespace tl
             return out;
         }
 
-        int Style::getSizeRole(SizeRole role, float scale) const
-        {
-            TLRENDER_P();
-            const auto i = p.sizeRoles.find(role);
-            return (i != p.sizeRoles.end() ? i->second : 0) * scale;
-        }
-
         void Style::setSizeRole(SizeRole role, int value)
         {
             TLRENDER_P();
-            auto i = p.sizeRoles.find(role);
-            if (i != p.sizeRoles.end() && value != i->second)
-            {
-                i->second = value;
-                p.changed->setAlways(true);
-            }
-        }
-
-        imaging::Color4f Style::getColorRole(ColorRole role) const
-        {
-            TLRENDER_P();
-            const auto i = p.colorRoles.find(role);
-            return i != p.colorRoles.end() ? i->second : imaging::Color4f();
+            if (_sizeRoles[static_cast<size_t>(role)] == value)
+                return;
+            _sizeRoles[static_cast<size_t>(role)] = value;
+            p.changed->setAlways(true);
         }
 
         void Style::setColorRole(ColorRole role, const imaging::Color4f& value)
         {
             TLRENDER_P();
-            auto i = p.colorRoles.find(role);
-            if (i != p.colorRoles.end() && value != i->second)
-            {
-                i->second = value;
-                p.changed->setAlways(true);
-            }
-        }
-
-        imaging::FontInfo Style::getFontRole(FontRole role, float scale) const
-        {
-            TLRENDER_P();
-            imaging::FontInfo out;
-            const auto i = p.fontRoles.find(role);
-            if (i != p.fontRoles.end())
-            {
-                out = i->second;
-            }
-            out.size *= scale;
-            return out;
+            if (_colorRoles[static_cast<size_t>(role)] == value)
+                return;
+            _colorRoles[static_cast<size_t>(role)] = value;
+            p.changed->setAlways(true);
         }
 
         void Style::setFontRole(FontRole role, const imaging::FontInfo& value)
         {
             TLRENDER_P();
-            const auto i = p.fontRoles.find(role);
-            if (i != p.fontRoles.end() && value != i->second)
-            {
-                i->second = value;
-                p.changed->setAlways(true);
-            }
+            if (_fontRoles[static_cast<size_t>(role)] == value)
+                return;
+            _fontRoles[static_cast<size_t>(role)] = value;
+            p.changed->setAlways(true);
         }
 
         std::shared_ptr<observer::IValue<bool> > Style::observeChanged() const

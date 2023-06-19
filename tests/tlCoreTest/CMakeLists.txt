@@ -3,6 +3,7 @@ set(HEADERS
     BBoxTest.h
     ColorTest.h
     ContextTest.h
+    DirectoryTest.h
     ErrorTest.h
     FileIOTest.h
     FileInfoTest.h
@@ -31,6 +32,7 @@ set(SOURCE
     BBoxTest.cpp
     ColorTest.cpp
     ContextTest.cpp
+    DirectoryTest.cpp
     ErrorTest.cpp
     FileIOTest.cpp
     FileInfoTest.cpp

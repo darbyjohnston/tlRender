@@ -83,6 +83,12 @@ namespace tl
                 const math::Vector2i& position,
                 const imaging::Color4f&) = 0;
 
+            //! Draw a triangle mesh with vertex color information.
+            virtual void drawColorMesh(
+                const geom::TriangleMesh2&,
+                const math::Vector2i& position,
+                const imaging::Color4f&) = 0;
+
             //! Draw text.
             virtual void drawText(
                 const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
