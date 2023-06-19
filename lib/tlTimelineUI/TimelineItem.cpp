@@ -292,7 +292,7 @@ namespace tl
             p.mouse.currentTimeDrag = false;
         }
 
-        void TimelineItem::keyPressEvent(ui::KeyEvent& event)
+        /*void TimelineItem::keyPressEvent(ui::KeyEvent& event)
         {
             TLRENDER_P();
             if (isEnabled())
@@ -353,7 +353,7 @@ namespace tl
         void TimelineItem::keyReleaseEvent(ui::KeyEvent& event)
         {
             event.accept = true;
-        }
+        }*/
 
         void TimelineItem::_timeUnitsUpdate(timeline::TimeUnits value)
         {

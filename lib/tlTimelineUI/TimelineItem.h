@@ -53,8 +53,8 @@ namespace tl
             void mouseMoveEvent(ui::MouseMoveEvent&) override;
             void mousePressEvent(ui::MouseClickEvent&) override;
             void mouseReleaseEvent(ui::MouseClickEvent&) override;
-            void keyPressEvent(ui::KeyEvent&) override;
-            void keyReleaseEvent(ui::KeyEvent&) override;
+            //void keyPressEvent(ui::KeyEvent&) override;
+            //void keyReleaseEvent(ui::KeyEvent&) override;
 
         protected:
             void _timeUnitsUpdate(timeline::TimeUnits) override;
