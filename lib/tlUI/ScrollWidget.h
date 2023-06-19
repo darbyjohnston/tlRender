@@ -64,8 +64,14 @@ namespace tl
 
             void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
+            void scrollEvent(ScrollEvent&) override;
+            void keyPressEvent(KeyEvent&) override;
+            void keyReleaseEvent(KeyEvent&) override;
 
         private:
+            int getLineStep() const;
+            int getPageStep() const;
+
             TLRENDER_PRIVATE();
         };
     }
