@@ -59,7 +59,7 @@ namespace tl
             void setKeyFocus(const std::shared_ptr<IWidget>&);
 
             //! Handle key presses.
-            void key(Key, bool press, int modifiers);
+            bool key(Key, bool press, int modifiers);
 
             //! Handle text input.
             void text(const std::string&);

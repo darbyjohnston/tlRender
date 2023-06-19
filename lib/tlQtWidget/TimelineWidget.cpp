@@ -409,21 +409,25 @@ namespace tl
         void TimelineWidget::keyPressEvent(QKeyEvent* event)
         {
             TLRENDER_P();
-            event->accept();
-            p.eventLoop->key(
+            if (p.eventLoop->key(
                 fromQtKey(event->key()),
                 true,
-                fromQtModifiers(event->modifiers()));
+                fromQtModifiers(event->modifiers())))
+            {
+                event->accept();
+            }
         }
 
         void TimelineWidget::keyReleaseEvent(QKeyEvent* event)
         {
             TLRENDER_P();
-            event->accept();
-            p.eventLoop->key(
+            if (p.eventLoop->key(
                 fromQtKey(event->key()),
                 false,
-                fromQtModifiers(event->modifiers()));
+                fromQtModifiers(event->modifiers())))
+            {
+                event->accept();
+            }
         }
 
         void TimelineWidget::timerEvent(QTimerEvent*)

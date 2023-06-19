@@ -194,7 +194,7 @@ namespace tl
             p.updates |= Update::Draw;
         }
 
-        void EventLoop::key(Key key, bool press, int modifiers)
+        bool EventLoop::key(Key key, bool press, int modifiers)
         {
             TLRENDER_P();
             p.keyEvent.key = key;
@@ -267,6 +267,7 @@ namespace tl
             {
                 widget->keyReleaseEvent(p.keyEvent);
             }
+            return p.keyEvent.accept;
         }
 
         void EventLoop::text(const std::string& value)
