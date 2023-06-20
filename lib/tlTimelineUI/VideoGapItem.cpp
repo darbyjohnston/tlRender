@@ -193,9 +193,9 @@ namespace tl
             }
         }
 
-        void VideoGapItem::_timeUnitsUpdate(timeline::TimeUnits value)
+        void VideoGapItem::_timeUnitsUpdate()
         {
-            IItem::_timeUnitsUpdate(value);
+            IItem::_timeUnitsUpdate();
             _textUpdate();
         }
 

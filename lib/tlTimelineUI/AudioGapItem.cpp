@@ -193,9 +193,9 @@ namespace tl
             }
         }
 
-        void AudioGapItem::_timeUnitsUpdate(timeline::TimeUnits value)
+        void AudioGapItem::_timeUnitsUpdate()
         {
-            IItem::_timeUnitsUpdate(value);
+            IItem::_timeUnitsUpdate();
             _textUpdate();
         }
 

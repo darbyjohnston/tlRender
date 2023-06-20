@@ -369,9 +369,9 @@ namespace tl
             }
         }
 
-        void AudioClipItem::_timeUnitsUpdate(timeline::TimeUnits value)
+        void AudioClipItem::_timeUnitsUpdate()
         {
-            IItem::_timeUnitsUpdate(value);
+            IItem::_timeUnitsUpdate();
             _textUpdate();
         }
 

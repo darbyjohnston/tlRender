@@ -51,7 +51,7 @@ namespace tl
                 const ui::DrawEvent&) override;
 
         protected:
-            void _timeUnitsUpdate(timeline::TimeUnits) override;
+            void _timeUnitsUpdate() override;
 
         private:
             void _textUpdate();

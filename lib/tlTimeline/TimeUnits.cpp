@@ -114,15 +114,31 @@ namespace tl
             return out;
         }
 
+        void ITimeUnitsModel::_init(const std::shared_ptr<system::Context>& context)
+        {
+            _timeUnitsChanged = observer::Value<bool>::create();
+        }
+
+        ITimeUnitsModel::ITimeUnitsModel()
+        {}
+
+        ITimeUnitsModel::~ITimeUnitsModel()
+        {}
+
+        std::shared_ptr<observer::IValue<bool> > ITimeUnitsModel::observeTimeUnitsChanged() const
+        {
+            return _timeUnitsChanged;
+        }
+
         struct TimeUnitsModel::Private
         {
             std::shared_ptr<observer::Value<TimeUnits> > timeUnits;
         };
 
-        void TimeUnitsModel::_init(
-            const std::shared_ptr<system::Context>& context)
+        void TimeUnitsModel::_init(const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
+            ITimeUnitsModel::_init(context);
             p.timeUnits = observer::Value<TimeUnits>::create(TimeUnits::Timecode);
         }
 
@@ -153,7 +169,10 @@ namespace tl
 
         void TimeUnitsModel::setTimeUnits(TimeUnits value)
         {
-            _p->timeUnits->setIfChanged(value);
+            if (_p->timeUnits->setIfChanged(value))
+            {
+                _timeUnitsChanged->setAlways(true);
+            }
         }
 
         std::string TimeUnitsModel::getLabel(const otime::RationalTime& value) const

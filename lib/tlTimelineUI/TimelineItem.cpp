@@ -355,9 +355,9 @@ namespace tl
             event.accept = true;
         }*/
 
-        void TimelineItem::_timeUnitsUpdate(timeline::TimeUnits value)
+        void TimelineItem::_timeUnitsUpdate()
         {
-            IItem::_timeUnitsUpdate(value);
+            IItem::_timeUnitsUpdate();
             _updates |= ui::Update::Size;
             _updates |= ui::Update::Draw;
         }

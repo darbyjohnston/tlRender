@@ -41,14 +41,36 @@ namespace tl
         //! Get a time units validator regular expression.
         std::string validator(timeline::TimeUnits);
 
+        //! Base class for time units models.
+        class ITimeUnitsModel : public std::enable_shared_from_this<ITimeUnitsModel>
+        {
+            TLRENDER_NON_COPYABLE(ITimeUnitsModel);
+
+        protected:
+            void _init(const std::shared_ptr<system::Context>&);
+
+            ITimeUnitsModel();
+
+        public:
+            virtual ~ITimeUnitsModel() = 0;
+
+            //! Observer when the time units are changed.
+            std::shared_ptr<observer::IValue<bool> > observeTimeUnitsChanged() const;
+
+            //! Get a time label in the current time units.
+            virtual std::string getLabel(const otime::RationalTime&) const = 0;
+
+        protected:
+            std::shared_ptr<observer::Value<bool> > _timeUnitsChanged;
+        };
+
         //! Time units model.
-        class TimeUnitsModel : public std::enable_shared_from_this<TimeUnitsModel>
+        class TimeUnitsModel : public ITimeUnitsModel
         {
             TLRENDER_NON_COPYABLE(TimeUnitsModel);
 
         protected:
-            void _init(
-                const std::shared_ptr<system::Context>&);
+            void _init(const std::shared_ptr<system::Context>&);
 
             TimeUnitsModel();
 
@@ -68,8 +90,7 @@ namespace tl
             //! Set the time units.
             void setTimeUnits(TimeUnits);
 
-            //! Get a time label using the current time units.
-            virtual std::string getLabel(const otime::RationalTime&) const;
+            std::string getLabel(const otime::RationalTime&) const override;
 
             TLRENDER_PRIVATE();
         };

@@ -12,7 +12,7 @@ namespace tl
     {
         struct TimelineWidget::Private
         {
-            std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
+            std::shared_ptr<timeline::ITimeUnitsModel> timeUnitsModel;
             std::shared_ptr<timeline::Player> player;
             bool frameView = true;
             std::function<void(bool)> frameViewCallback;
@@ -48,7 +48,7 @@ namespace tl
         };
 
         void TimelineWidget::_init(
-            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
+            const std::shared_ptr<timeline::ITimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -79,7 +79,7 @@ namespace tl
         {}
 
         std::shared_ptr<TimelineWidget> TimelineWidget::create(
-            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
+            const std::shared_ptr<timeline::ITimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {

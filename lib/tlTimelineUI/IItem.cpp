@@ -31,7 +31,7 @@ namespace tl
 
         struct IItem::Private
         {
-            std::shared_ptr<observer::ValueObserver<timeline::TimeUnits> > timeUnitsObserver;
+            std::shared_ptr<observer::ValueObserver<bool> > timeUnitsObserver;
         };
 
         void IItem::_init(
@@ -45,11 +45,11 @@ namespace tl
 
             _data = data;
 
-            p.timeUnitsObserver = observer::ValueObserver<timeline::TimeUnits>::create(
-                data.timeUnitsModel->observeTimeUnits(),
-                [this](timeline::TimeUnits value)
+            p.timeUnitsObserver = observer::ValueObserver<bool>::create(
+                data.timeUnitsModel->observeTimeUnitsChanged(),
+                [this](bool)
                 {
-                    _timeUnitsUpdate(value);
+                    _timeUnitsUpdate();
                 });
         }
 
@@ -98,7 +98,7 @@ namespace tl
                 arg(value.rate());
         }
 
-        void IItem::_timeUnitsUpdate(timeline::TimeUnits)
+        void IItem::_timeUnitsUpdate()
         {}
     }
 }

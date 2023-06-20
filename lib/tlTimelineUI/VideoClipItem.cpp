@@ -292,9 +292,9 @@ namespace tl
             }
         }
 
-        void VideoClipItem::_timeUnitsUpdate(timeline::TimeUnits value)
+        void VideoClipItem::_timeUnitsUpdate()
         {
-            IItem::_timeUnitsUpdate(value);
+            IItem::_timeUnitsUpdate();
             _textUpdate();
         }
 
