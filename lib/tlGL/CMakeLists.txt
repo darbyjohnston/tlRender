@@ -1,5 +1,4 @@
 set(HEADERS
-    GLFWSystem.h
     Init.h
     Mesh.h
     OffscreenBuffer.h
@@ -7,10 +6,12 @@ set(HEADERS
     Texture.h
     TextureAtlas.h
     Util.h)
+if(TLRENDER_GLFW)
+    list(APPEND HEADERS GLFWSystem.h)
+endif()
 set(PRIVATE_HEADERS)
 
 set(SOURCE
-    GLFWSystem.cpp
     Init.cpp
     Mesh.cpp
     Mesh.cpp
@@ -19,8 +20,14 @@ set(SOURCE
     Texture.cpp
     TextureAtlas.cpp
     Util.cpp)
+if(TLRENDER_GLFW)
+    list(APPEND SOURCE GLFWSystem.cpp)
+endif()
 
-set(LIBRARIES tlCore GLFW tlGlad)
+set(LIBRARIES tlCore tlGlad)
+if(TLRENDER_GLFW)
+    list(APPEND LIBRARIES GLFW)
+endif()
 set(LIBRARIES_PRIVATE)
 
 add_library(tlGL ${HEADERS} ${PRIVATE_HEADERS} ${SOURCE})

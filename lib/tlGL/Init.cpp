@@ -4,7 +4,9 @@
 
 #include <tlGL/Init.h>
 
+#if defined(TLRENDER_GLFW)
 #include <tlGL/GLFWSystem.h>
+#endif // TLRENDER_GLFW
 
 #include <tlCore/Context.h>
 
@@ -16,10 +18,12 @@ namespace tl
     {
         void init(const std::shared_ptr<system::Context>& context)
         {
+#if defined(TLRENDER_GLFW)
             if (!context->getSystem<GLFWSystem>())
             {
                 context->addSystem(GLFWSystem::create(context));
             }
+#endif // TLRENDER_GLFW
         }
 
         void initGLAD()

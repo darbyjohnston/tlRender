@@ -1,5 +1,7 @@
 add_subdirectory(tlresource)
-add_subdirectory(tlbake)
+if(TLRENDER_GLFW)
+    add_subdirectory(tlbake)
+endif()
 if(TLRENDER_QT6 OR TLRENDER_QT5)
     add_subdirectory(tlplay)
 endif()

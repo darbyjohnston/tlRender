@@ -26,6 +26,7 @@ project(
 
 set(TLRENDER_MMAP TRUE CACHE BOOL "Enable memory-mapped file I/O")
 set(TLRENDER_PYTHON FALSE CACHE BOOL "Enable Python support (for OTIO Python adapters)")
+set(TLRENDER_GLFW TRUE CACHE BOOL "Enable support for GLFW")
 set(TLRENDER_OCIO TRUE CACHE BOOL "Enable support for OpenColorIO")
 set(TLRENDER_AUDIO TRUE CACHE BOOL "Enable support for audio")
 set(TLRENDER_JPEG TRUE CACHE BOOL "Enable support for JPEG I/O")
@@ -112,7 +113,12 @@ find_package(minizip REQUIRED)
 find_package(OTIO REQUIRED)
 find_package(FreeType)
 find_package(OpenGL REQUIRED)
-find_package(GLFW REQUIRED)
+
+# GLFW dependency
+if(TLRENDER_GLFW)
+    find_package(GLFW REQUIRED)
+    add_definitions(-DTLRENDER_GLFW)
+endif()
 
 # OpenColorIO dependencies
 if(TLRENDER_OCIO)
