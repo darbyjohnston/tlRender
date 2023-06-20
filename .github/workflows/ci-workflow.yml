@@ -25,7 +25,7 @@ jobs:
       TLRENDER_GCOV: ON
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
@@ -103,7 +103,7 @@ jobs:
         sh ../../../../etc/Linux/lcov.sh
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2.1.0
+      uses: codecov/codecov-action@v3
       with:
         files: ${{ github.workspace }}/build/tlRender/src/tlRender-build/coverage_filtered.info
         fail_ci_if_error: true
@@ -130,7 +130,7 @@ jobs:
       TLRENDER_GCOV: OFF
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
@@ -200,7 +200,7 @@ jobs:
       TLRENDER_GCOV: OFF
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
@@ -267,7 +267,7 @@ jobs:
       TLRENDER_GCOV: OFF
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
