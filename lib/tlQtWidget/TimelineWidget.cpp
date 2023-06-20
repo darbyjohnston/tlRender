@@ -89,7 +89,7 @@ namespace tl
 
         TimelineWidget::TimelineWidget(
             const std::shared_ptr<ui::Style>& style,
-            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
+            const std::shared_ptr<timeline::ITimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<system::Context>& context,
             QWidget* parent) :
             QOpenGLWidget(parent),

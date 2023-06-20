@@ -28,7 +28,7 @@ namespace tl
         public:
             TimelineWidget(
                 const std::shared_ptr<ui::Style>&,
-                const std::shared_ptr<timeline::TimeUnitsModel>&,
+                const std::shared_ptr<timeline::ITimeUnitsModel>&,
                 const std::shared_ptr<system::Context>&,
                 QWidget* parent = nullptr);
 
