@@ -16,7 +16,7 @@ namespace tl
             std::string label;
             ui::FontRole labelFontRole = ui::FontRole::Label;
             std::string durationLabel;
-            ui::FontRole durationFontRole = ui::FontRole::Mono;
+            ui::FontRole durationFontRole = ui::FontRole::Label;
 
             struct SizeData
             {
@@ -186,8 +186,6 @@ namespace tl
                     math::Vector2i(
                         durationGeometry.min.x,
                         durationGeometry.min.y +
-                        p.size.lineHeight / 2 -
-                        fontMetrics.lineHeight / 2 +
                         fontMetrics.ascender),
                     event.style->getColorRole(ui::ColorRole::Text));
             }
