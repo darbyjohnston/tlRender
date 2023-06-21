@@ -25,7 +25,7 @@ project(
 # Build options
 
 set(TLRENDER_MMAP TRUE CACHE BOOL "Enable memory-mapped file I/O")
-set(TLRENDER_COVERAGE FALSE CACHE BOOL "Enable gcov code coverage")
+set(TLRENDER_COVERAGE FALSE CACHE BOOL "Enable code coverage")
 set(TLRENDER_PYTHON FALSE CACHE BOOL "Enable Python support (for OTIO Python adapters)")
 set(TLRENDER_OCIO TRUE CACHE BOOL "Enable support for OpenColorIO")
 set(TLRENDER_AUDIO TRUE CACHE BOOL "Enable support for audio")
