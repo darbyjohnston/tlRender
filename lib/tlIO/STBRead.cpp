@@ -103,7 +103,7 @@ namespace tl
                     
                     stbi_set_flip_vertically_on_load(1);
 
-                    int x, y, n;
+                    int x = 0, y = 0, n = 1;
                     stbi_uc* data = nullptr;
 
                     if (_memory)

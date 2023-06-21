@@ -56,7 +56,7 @@ namespace tl
                 uint16_t layer) override;
         };
 
-        //! SGI writer.
+        //! STB writer.
         class Write : public io::ISequenceWrite
         {
         protected:
