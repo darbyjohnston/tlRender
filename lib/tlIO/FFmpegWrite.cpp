@@ -109,6 +109,11 @@ namespace tl
             {
                 throw std::runtime_error(string::Format("{0}: Cannot allocate stream").arg(p.fileName));
             }
+            AVPixelFormat pix_fmt = AV_PIX_FMT_YUV420P;
+            if (avCodec->pix_fmts != nullptr)
+            {
+                pix_fmt = avCodec->pix_fmts[0];
+            }
 
             p.avCodecContext->codec_id = avCodec->id;
             p.avCodecContext->codec_type = AVMEDIA_TYPE_VIDEO;
@@ -116,7 +121,7 @@ namespace tl
             p.avCodecContext->width = videoInfo.size.w;
             p.avCodecContext->height = videoInfo.size.h;
             p.avCodecContext->sample_aspect_ratio = AVRational({ 1, 1 });
-            p.avCodecContext->pix_fmt = avCodec->pix_fmts[0];
+            p.avCodecContext->pix_fmt = pix_fmt;
             const auto rational = time::toRational(info.videoTime.duration().rate());
             p.avCodecContext->time_base = { rational.second, rational.first };
             p.avCodecContext->framerate = { rational.first, rational.second };
