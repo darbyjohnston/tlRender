@@ -170,7 +170,7 @@ namespace tl
                     int numberOfParts = _f->parts();
                     int partNumber;
 
-                    for ( partNumber = 0; partNumber < numberOfParts; ++partNumber )
+                    for (partNumber = 0; partNumber < numberOfParts; ++partNumber)
                     {
                         const Imf::Header& header = _f->header(partNumber);
 
@@ -212,12 +212,12 @@ namespace tl
                         if (header.hasView()) view = header.view() + " ";
                         std::vector<Layer> layers = getLayers(header.channels(), channelGrouping);
                         size_t offset = _info.video.size();
-                        _info.video.resize( offset + layers.size() );
+                        _info.video.resize(offset + layers.size());
                         for (size_t i = 0; i < layers.size(); ++i)
                         {
                             layers[i].partNumber = partNumber;
                             const auto& layer = layers[i];
-                            _layers.push_back( layer );
+                            _layers.push_back(layer);
                             const math::Vector2i sampling(layer.channels[0].sampling.x, layer.channels[0].sampling.y);
                             if (sampling.x != 1 || sampling.y != 1)
                                 _fast = false;
@@ -302,7 +302,7 @@ namespace tl
                                     sampling.y,
                                     0.F));
                         }
-                        Imf::InputPart in( *_f.get(), _layers[layer].partNumber );
+                        Imf::InputPart in(*_f.get(), _layers[layer].partNumber);
                         in.setFrameBuffer(frameBuffer);
                         in.readPixels(_displayWindow.min.y, _displayWindow.max.y);
                     }
@@ -325,7 +325,7 @@ namespace tl
                                     sampling.y,
                                     0.F));
                         }
-                        Imf::InputPart in( *_f.get(), _layers[layer].partNumber );
+                        Imf::InputPart in(*_f.get(), _layers[layer].partNumber);
                         in.setFrameBuffer(frameBuffer);
                         for (int y = _displayWindow.min.y; y <= _displayWindow.max.y; ++y)
                         {
