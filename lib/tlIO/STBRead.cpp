@@ -7,7 +7,7 @@
 #define STBI_NO_HDR
 #define STBI_NO_PNM
 #define STB_IMAGE_IMPLEMENTATION
-#include <tlIO/stb_image.h>
+#include <stb/stb_image.h>
 
 #include <tlIO/STB.h>
 
@@ -24,28 +24,64 @@ namespace tl
             {
             public:
                 File(const std::string& fileName, const file::MemoryRead* memory)
-                {
-                    int w = 0, h = 0, n = 0, bits = 8;
-                    int res = stbi_info(fileName.c_str(), &w, &h, &n);
-                    if (res == 0)
-                        throw std::runtime_error(string::Format("{0}: {1}").
-                            arg(fileName).
-                            arg("Corrupted image type"));
-
-                    _info.size.w = w;
-                    _info.size.h = h;
-                    
-                    res = stbi_is_16_bit(fileName.c_str());
-                    if (res) bits = 16;
-                    
-                    _info.pixelType = imaging::getIntType(n, bits);
-                    if (imaging::PixelType::None == _info.pixelType)
                     {
-                        throw std::runtime_error(string::Format("{0}: {1}").
-                            arg(fileName).
-                            arg("Unsupported image type"));
-                    }
-                    _info.layout.endian = memory::Endian::MSB;
+                        int res = 0, w = 0, h = 0, n = 0, bits = 8;
+
+                        _memory = memory;
+                        
+                        if (memory)
+                        {
+                            res = stbi_info_from_memory(memory->p, memory->size, &w,
+                                                        &h, &n);
+                            if (res == 0)
+                                throw std::runtime_error(
+                                    string::Format("{0}: {1}")
+                                        .arg(fileName)
+                                        .arg("Corrupted image type"));
+                            
+                            _info.size.w = w;
+                            _info.size.h = h;
+                            
+                            res = stbi_is_16_bit_from_memory(memory->p, memory->size);
+                            if (res) bits = 16;
+                            
+                            _info.pixelType = imaging::getIntType(n, bits);
+                            
+                            if (imaging::PixelType::None == _info.pixelType)
+                            {
+                                throw std::runtime_error(
+                                    string::Format("{0}: {1}")
+                                        .arg(fileName)
+                                        .arg("Unsupported image type"));
+                            }
+                            _info.layout.endian = memory::Endian::MSB;
+                        }
+                        else
+                        {
+
+                            res = stbi_info(fileName.c_str(), &w, &h, &n);
+                            if (res == 0)
+                                throw std::runtime_error(
+                                    string::Format("{0}: {1}")
+                                        .arg(fileName)
+                                        .arg("Corrupted image type"));
+
+                            _info.size.w = w;
+                            _info.size.h = h;
+                    
+                            res = stbi_is_16_bit(fileName.c_str());
+                            if (res) bits = 16;
+                    
+                            _info.pixelType = imaging::getIntType(n, bits);
+                            if (imaging::PixelType::None == _info.pixelType)
+                            {
+                                throw std::runtime_error(
+                                    string::Format("{0}: {1}")
+                                        .arg(fileName)
+                                        .arg("Unsupported image type"));
+                            }
+                            _info.layout.endian = memory::Endian::MSB;
+                        }
                 }
 
                 const imaging::Info& getInfo() const
@@ -69,11 +105,25 @@ namespace tl
 
                     int x, y, n;
                     stbi_uc* data = nullptr;
-                    if (bytes == 1)
-                        data = stbi_load(fileName.c_str(), &x, &y, &n, 0);
-                    else if (bytes == 2)
-                        data = reinterpret_cast<stbi_uc*>(
-                            stbi_load_16(fileName.c_str(), &x, &y, &n, 0));
+
+                    if (_memory)
+                    {
+                        if (bytes == 1)
+                            data = stbi_load_from_memory(_memory->p, _memory->size,
+                                                         &x, &y, &n, 0);
+                        else if (bytes == 2)
+                            data = reinterpret_cast<stbi_uc*>(
+                                stbi_load_16_from_memory(_memory->p, _memory->size,
+                                                         &x, &y, &n, 0));
+                    }
+                    else
+                    {
+                        if (bytes == 1)
+                            data = stbi_load(fileName.c_str(), &x, &y, &n, 0);
+                        else if (bytes == 2)
+                            data = reinterpret_cast<stbi_uc*>(
+                                stbi_load_16(fileName.c_str(), &x, &y, &n, 0));
+                    }
                                                        
                     memcpy(
                         out.image->getData(), data,
@@ -86,6 +136,7 @@ namespace tl
 
             private:
                 imaging::Info _info;
+                const file::MemoryRead* _memory;
             };
         }
 

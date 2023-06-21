@@ -4,7 +4,7 @@
 
 #define STBIW_WINDOWS_UTF8
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <tlIO/stb_image_write.h>
+#include <stb/stb_image_write.h>
 
 #include <tlIO/STB.h>
 

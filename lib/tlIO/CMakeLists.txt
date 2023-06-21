@@ -1,6 +1,4 @@
 set(HEADERS
-    stb_image.h
-    stb_image_write.h
     Cineon.h
     DPX.h
     IO.h
