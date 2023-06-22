@@ -41,6 +41,11 @@ namespace tl
                 const otio::Clip*,
                 const otime::TimeRange&);
 
+            void trimAudio(
+                const std::shared_ptr<audio::Audio>&,
+                int64_t seconds,
+                const otime::TimeRange&);
+
             std::weak_ptr<system::Context> context;
             otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
             file::Path path;
@@ -78,6 +83,7 @@ namespace tl
                 AudioLayerData(AudioLayerData&&) = default;
 
                 int64_t seconds = -1;
+                otime::TimeRange timeRange;
                 std::future<io::AudioData> audio;
             };
             struct AudioRequest
