@@ -489,7 +489,7 @@ namespace tl
                     time,
                     track,
                     clip,
-                    ioInfo);
+                    item.ioInfo);
                 out = item.read->readVideo(mediaTime, videoLayer);
             }
             return out;
@@ -508,7 +508,7 @@ namespace tl
                     timeRange,
                     track,
                     clip,
-                    ioInfo);
+                    item.ioInfo);
                 out = item.read->readAudio(mediaRange);
             }
             return out;
