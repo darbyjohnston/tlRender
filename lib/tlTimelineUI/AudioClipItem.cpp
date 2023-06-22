@@ -100,7 +100,11 @@ namespace tl
                 p.timeRange = rangeOpt.value();
             }
 
-            p.label = p.path.get(-1, false);
+            p.label = clip->name();
+            if (p.label.empty())
+            {
+                p.label = p.path.get(-1, false);
+            }
             _textUpdate();
 
             p.cancelObserver = observer::ValueObserver<bool>::create(

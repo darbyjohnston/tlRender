@@ -55,7 +55,11 @@ namespace tl
                 p.timeRange = rangeOpt.value();
             }
 
-            p.label = _nameLabel(gap->name());
+            p.label = gap->name();
+            if (p.label.empty())
+            {
+                p.label = "Gap";
+            }
             _textUpdate();
         }
 
@@ -205,13 +209,6 @@ namespace tl
             p.draw.durationGlyphs.clear();
             _updates |= ui::Update::Size;
             _updates |= ui::Update::Draw;
-        }
-
-        std::string VideoGapItem::_nameLabel(const std::string& name)
-        {
-            return !name.empty() ?
-                name :
-                std::string("Gap");
         }
     }
 }

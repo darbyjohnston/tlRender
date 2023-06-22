@@ -93,10 +93,10 @@ namespace tl
                 p.timeRange = rangeOpt.value();
             }
 
-            p.label = p.path.get(-1, false);
+            p.label = clip->name();
             if (p.label.empty())
             {
-                p.label = clip->name();
+                p.label = p.path.get(-1, false);
             }
             _textUpdate();
 

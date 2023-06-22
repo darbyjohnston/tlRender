@@ -49,8 +49,6 @@ namespace tl
         private:
             void _textUpdate();
 
-            static std::string _nameLabel(const std::string&);
-
             TLRENDER_PRIVATE();
         };
     }
