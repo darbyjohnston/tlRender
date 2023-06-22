@@ -308,8 +308,9 @@ namespace tl
             }
         }
 
-        void IApp::exit()
+        void IApp::exit(int r)
         {
+            _exit = r;
             _p->running = false;
         }
 

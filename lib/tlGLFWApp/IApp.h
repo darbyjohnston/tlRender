@@ -49,7 +49,7 @@ namespace tl
             virtual void run();
 
             //! Exit the application.
-            void exit();
+            void exit(int = 0);
 
             //! Get the event loop.
             const std::shared_ptr<ui::EventLoop> getEventLoop() const;

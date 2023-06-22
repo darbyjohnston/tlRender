@@ -162,6 +162,12 @@ namespace tl
                         string::Format("{0}").arg(p.options.usdDiskCache)),
 #endif // TLRENDER_USD
                 });
+                const int exitCode = getExit();
+                if (exitCode != 0)
+                {
+                    exit(exitCode);
+                    return;
+                }
 
                 // Set I/O options.
                 io::Options ioOptions;
