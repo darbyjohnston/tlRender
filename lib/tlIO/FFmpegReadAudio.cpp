@@ -198,7 +198,7 @@ namespace tl
                     if (!otime::is_error(errorStatus))
                     {
                         startTime = time::floor(time.rescaled_to(sampleRate));
-                        //std::cout << "start time: " << startTime << std::endl;
+                        //std::cout << fileName << " start time: " << startTime << std::endl;
                     }
                 }
                 _timeRange = otime::TimeRange(
