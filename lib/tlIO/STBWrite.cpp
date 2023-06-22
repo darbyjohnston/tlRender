@@ -31,21 +31,29 @@ namespace tl
                         throw std::runtime_error(string::Format("{0}: {1}").
                             arg(fileName).
                             arg("Unsupported image depth"));
-
+                    
                     stbi_flip_vertically_on_write(1);
     
                     file::Path path(fileName);
                     std::string ext = path.getExtension();
+                    int res = 0;
                     if (string::compareNoCase(ext, ".tga"))
-                        stbi_write_tga(fileName.c_str(), info.size.w,
-                                       info.size.h, comp, image->getData());
+                        res = stbi_write_tga(
+                            fileName.c_str(), info.size.w, info.size.h, comp,
+                            image->getData());
                     else if (string::compareNoCase(ext, ".bmp"))
-                        stbi_write_bmp(fileName.c_str(), info.size.w,
-                                       info.size.h, comp, image->getData());
+                        res = stbi_write_bmp(
+                            fileName.c_str(), info.size.w, info.size.h, comp,
+                            image->getData());
                     else
                         throw std::runtime_error(string::Format("{0}: {1}").
                             arg(fileName).
                             arg("Unsupported image format"));
+                    
+                    if (res == 0)
+                        throw std::runtime_error(string::Format("{0}: {1}").
+                            arg(fileName).
+                            arg("Save image failed"));
                 }
             };
         }

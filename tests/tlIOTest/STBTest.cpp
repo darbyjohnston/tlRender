@@ -149,6 +149,22 @@ namespace tl
                                 {
                                     _printError(e.what());
                                 }
+                                {
+                                    std::stringstream ss;
+                                    ss << fileName << '_' << size << '_' << pixelType << ".0.bmp";
+                                    _print(ss.str());
+                                    path = file::Path(ss.str());
+                                }
+                                try
+                                {
+                                    write(plugin, image, path, imageInfo);
+                                    read(plugin, image, path, memoryIO);
+                                    readError(plugin, image, path, memoryIO);
+                                }
+                                catch (const std::exception& e)
+                                {
+                                    _printError(e.what());
+                                }
                             }
                         }
                     }
