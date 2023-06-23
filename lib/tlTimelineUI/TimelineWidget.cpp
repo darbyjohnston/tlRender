@@ -105,7 +105,7 @@ namespace tl
                 {
                     ItemData itemData;
                     itemData.directory = p.player->getPath().getDirectory();
-                    itemData.pathOptions = p.player->getOptions().pathOptions;
+                    itemData.options = p.player->getOptions();
                     itemData.ioManager = IOManager::create(
                         p.player->getOptions().ioOptions,
                         context);

@@ -9,6 +9,7 @@
 #include <tlUI/IWidget.h>
 
 #include <tlTimeline/TimeUnits.h>
+#include <tlTimeline/Timeline.h>
 
 namespace tl
 {
@@ -18,7 +19,7 @@ namespace tl
         struct ItemData
         {
             std::string directory;
-            file::PathOptions pathOptions;
+            timeline::Options options;
             std::shared_ptr<IOManager> ioManager;
             std::shared_ptr<timeline::ITimeUnitsModel> timeUnitsModel;
         };

@@ -83,7 +83,7 @@ namespace tl
             p.path = timeline::getPath(
                 p.clip->media_reference(),
                 itemData.directory,
-                itemData.pathOptions);
+                itemData.options.pathOptions);
             p.memoryRead = timeline::getMemoryRead(
                 p.clip->media_reference());
 
@@ -509,7 +509,8 @@ namespace tl
                                     time,
                                     p.track,
                                     p.clip,
-                                    p.ioInfo);
+                                    p.ioInfo,
+                                    _data.options.fixMissingTimecode);
                                 p.videoDataFutures[time] = _data.ioManager->readVideo(
                                     p.path,
                                     p.memoryRead,

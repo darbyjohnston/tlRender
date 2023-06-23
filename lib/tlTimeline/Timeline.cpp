@@ -55,6 +55,7 @@ namespace tl
                 videoRequestCount == other.videoRequestCount &&
                 audioRequestCount == other.audioRequestCount &&
                 requestTimeout == other.requestTimeout &&
+                fixMissingTimecode == other.fixMissingTimecode &&
                 ioOptions == other.ioOptions &&
                 pathOptions == other.pathOptions;
         }

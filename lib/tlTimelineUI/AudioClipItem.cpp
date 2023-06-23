@@ -90,7 +90,7 @@ namespace tl
             p.path = timeline::getPath(
                 p.clip->media_reference(),
                 itemData.directory,
-                itemData.pathOptions);
+                itemData.options.pathOptions);
             p.memoryRead = timeline::getMemoryRead(
                 p.clip->media_reference());
 
@@ -541,7 +541,8 @@ namespace tl
                                     otime::TimeRange(time, otime::RationalTime(time.rate(), time.rate())),
                                     p.track,
                                     p.clip,
-                                    p.ioInfo);
+                                    p.ioInfo,
+                                    _data.options.fixMissingTimecode);
                                 p.audioDataFutures[time].future = _data.ioManager->readAudio(
                                     p.path,
                                     p.memoryRead,

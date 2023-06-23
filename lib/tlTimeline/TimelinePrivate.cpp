@@ -489,7 +489,8 @@ namespace tl
                     time,
                     track,
                     clip,
-                    item.ioInfo);
+                    item.ioInfo,
+                    options.fixMissingTimecode);
                 out = item.read->readVideo(mediaTime, videoLayer);
             }
             return out;
@@ -508,7 +509,8 @@ namespace tl
                     timeRange,
                     track,
                     clip,
-                    item.ioInfo);
+                    item.ioInfo,
+                    options.fixMissingTimecode);
                 out = item.read->readAudio(mediaRange);
             }
             return out;
