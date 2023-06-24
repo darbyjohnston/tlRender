@@ -293,10 +293,12 @@ namespace tl
             else if (auto rawMemoryRef = dynamic_cast<const RawMemoryReference*>(ref))
             {
                 url = rawMemoryRef->target_url();
+                pathOptions.maxNumberDigits = 0;
             }
             else if (auto sharedMemoryRef = dynamic_cast<const SharedMemoryReference*>(ref))
             {
                 url = sharedMemoryRef->target_url();
+                pathOptions.maxNumberDigits = 0;
             }
             else if (auto rawMemorySequenceRef = dynamic_cast<const RawMemorySequenceReference*>(ref))
             {
