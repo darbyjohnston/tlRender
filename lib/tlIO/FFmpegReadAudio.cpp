@@ -174,6 +174,7 @@ namespace tl
                         r);
                 }
 
+                otime::RationalTime timeReference = time::invalidTime;
                 imaging::Tags tags;
                 AVDictionaryEntry* tag = nullptr;
                 while ((tag = av_dict_get(_avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
@@ -184,6 +185,10 @@ namespace tl
                     if (string::compareNoCase(key, "timecode"))
                     {
                         timecode = value;
+                    }
+                    else if (string::compareNoCase(key, "time_reference"))
+                    {
+                        timeReference = otime::RationalTime(std::atoi(value.c_str()), sampleRate);
                     }
                 }
 
@@ -200,6 +205,10 @@ namespace tl
                         startTime = time::floor(time.rescaled_to(sampleRate));
                         //std::cout << fileName << " start time: " << startTime << std::endl;
                     }
+                }
+                else if (!time::compareExact(timeReference, time::invalidTime))
+                {
+                    startTime = timeReference;
                 }
                 _timeRange = otime::TimeRange(
                     startTime,
