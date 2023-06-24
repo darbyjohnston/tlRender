@@ -4,6 +4,7 @@
 
 #include <tlIO/FFmpegReadPrivate.h>
 
+#include <tlCore/Assert.h>
 #include <tlCore/LogSystem.h>
 #include <tlCore/StringFormat.h>
 
@@ -22,7 +23,6 @@ namespace tl
 
         AVIOBufferData::AVIOBufferData(const uint8_t* p, size_t size) :
             p(p),
-            pCurrent(p),
             size(size)
         {}
 
@@ -30,17 +30,20 @@ namespace tl
         {
             AVIOBufferData* bufferData = static_cast<AVIOBufferData*>(opaque);
 
-            const size_t remaining = (bufferData->p + bufferData->size) - bufferData->pCurrent;
-            bufSize = std::min(static_cast<size_t>(bufSize), remaining);
-            if (!bufSize)
+            const int64_t remaining = bufferData->size - bufferData->offset;
+            int bufSizeClamped = math::clamp(
+                static_cast<int64_t>(bufSize),
+                static_cast<int64_t>(0),
+                remaining);
+            if (!bufSizeClamped)
             {
                 return AVERROR_EOF;
             }
 
-            memcpy(buf, bufferData->pCurrent, bufSize);
-            bufferData->pCurrent += bufSize;
+            memcpy(buf, bufferData->p + bufferData->offset, bufSizeClamped);
+            bufferData->offset += bufSizeClamped;
 
-            return bufSize;
+            return bufSizeClamped;
         }
 
         int64_t avIOBufferSeek(void* opaque, int64_t offset, int whence)
@@ -52,7 +55,10 @@ namespace tl
                 return bufferData->size;
             }
 
-            bufferData->pCurrent = bufferData->p + offset;
+            bufferData->offset = math::clamp(
+                offset,
+                static_cast<int64_t>(0),
+                static_cast<int64_t>(bufferData->size));
 
             return offset;
         }

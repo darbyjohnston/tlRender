@@ -275,15 +275,14 @@ namespace tl
             {
                 avcodec_parameters_free(&i.second);
             }
+            if (_avIOContext && _avIOContext->buffer)
+            {
+                av_free(_avIOContext->buffer);
+            }
             if (_avIOContext)
             {
                 avio_context_free(&_avIOContext);
             }
-            //! \bug Free'd by avio_context_free()?
-            //if (_avIOContextBuffer)
-            //{
-            //    av_free(_avIOContextBuffer);
-            //}
             if (_avFormatContext)
             {
                 avformat_close_input(&_avFormatContext);

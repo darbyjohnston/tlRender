@@ -28,8 +28,8 @@ namespace tl
             AVIOBufferData(const uint8_t* p, size_t size);
 
             const uint8_t* p = nullptr;
-            const uint8_t* pCurrent = nullptr;
             size_t size = 0;
+            size_t offset = 0;
         };
 
         int avIOBufferRead(void* opaque, uint8_t* buf, int bufSize);
