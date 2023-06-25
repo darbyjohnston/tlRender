@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlCore/DrivesModel.h>
+#include <tlCore/Path.h>
 
 #include <tlCore/FileInfo.h>
 
