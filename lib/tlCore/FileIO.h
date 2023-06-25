@@ -51,7 +51,7 @@ namespace tl
         public:
             ~FileIO();
 
-            //! Create a file I/O object.
+            //! Create a new file I/O object.
             static std::shared_ptr<FileIO> create(
                 const std::string& fileName,
                 Mode);

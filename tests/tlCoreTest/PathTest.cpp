@@ -6,6 +6,8 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/Path.h>
+#include <tlCore/String.h>
+#include <tlCore/StringFormat.h>
 
 #include <iostream>
 
@@ -100,6 +102,10 @@ namespace tl
                 TLRENDER_ASSERT(a == b);
                 b = Path("/tmp");
                 TLRENDER_ASSERT(a != b);
+            }
+            {
+                const auto drives = getDrives();
+                _print(string::Format("Drives: {0}").arg(string::join(drives, ", ")));
             }
         }
     }

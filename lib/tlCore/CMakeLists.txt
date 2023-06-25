@@ -10,7 +10,6 @@ set(HEADERS
     ColorInline.h
     Context.h
     ContextInline.h
-    Directory.h
     Error.h
     File.h
     FileIO.h
@@ -52,6 +51,7 @@ set(HEADERS
     StringFormatInline.h
     Time.h
     TimeInline.h
+    Timer.h
     Util.h
     ValueObserver.h
     ValueObserverInline.h
@@ -66,7 +66,6 @@ set(SOURCE
     BBox.cpp
     Color.cpp
     Context.cpp
-    Directory.cpp
     Error.cpp
     FileIO.cpp
     FileInfo.cpp
@@ -85,6 +84,7 @@ set(SOURCE
     String.cpp
     StringFormat.cpp
     Time.cpp
+    Timer.cpp
     Vector.cpp)
 if (WIN32)
     list(APPEND SOURCE
@@ -93,6 +93,7 @@ if (WIN32)
         FileInfoWin32.cpp
         FileWin32.cpp
         OSWin32.cpp
+        PathWin32.cpp
         TimeWin32.cpp)
 else()
     list(APPEND SOURCE
@@ -100,6 +101,7 @@ else()
         FileInfoUnix.cpp
         FileUnix.cpp
         OSUnix.cpp
+        PathUnix.cpp
         TimeUnix.cpp)
 endif()
 

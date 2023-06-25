@@ -22,12 +22,6 @@ namespace tl
             bool operator != (const PathOptions&) const;
         };
 
-        //! Does the given path end with a separator?
-        bool hasEndSeparator(const std::string&);
-
-        //! Add a path separator to the end if necessary.
-        std::string appendSeparator(const std::string&);
-
         //! File system path.
         class Path
         {
@@ -81,6 +75,35 @@ namespace tl
             uint8_t _padding = 0;
             std::string _extension;
         };
+
+        //! Does the given path end with a separator?
+        bool hasEndSeparator(const std::string&);
+
+        //! Remove an ending path separator.
+        std::string removeEndSeparator(const std::string&);
+
+        //! Add a path separator to the end if necessary.
+        std::string appendSeparator(const std::string&);
+
+        //! Get the list of file system drives.
+        std::vector<std::string> getDrives();
+
+        //! User paths.
+        enum class UserPath
+        {
+            Home,
+            Desktop,
+            Documents,
+            Downloads,
+
+            Count,
+            First = Home
+        };
+        TLRENDER_ENUM(UserPath);
+        TLRENDER_ENUM_SERIALIZE(UserPath);
+
+        //! Get a user path.
+        std::string getUserPath(UserPath);
     }
 }
 

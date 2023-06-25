@@ -40,6 +40,11 @@
     std::istream& operator >> (std::istream&, ENUM&)
 
 //! Implementation macro for enum utilities.
+//! 
+//! Required includes:
+//! * array
+//! * string
+//! * vector
 #define TLRENDER_ENUM_IMPL(ENUM, ...) \
     std::vector<ENUM> get##ENUM##Enums() \
     { \

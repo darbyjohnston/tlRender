@@ -60,6 +60,10 @@ namespace tl
                 const Path path("tmp");
                 const FileInfo f(path);
             }
+            for (const auto& i : list("."))
+            {
+                _print(i.getPath().get());
+            }
         }
     }
 }

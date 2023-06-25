@@ -4,13 +4,120 @@
 
 #include <tlUI/FileBrowserPrivate.h>
 
+#include <tlUI/Spacer.h>
+
 #include <tlCore/File.h>
-#include <tlCore/Directory.h>
+#include <tlCore/FileInfo.h>
 
 namespace tl
 {
     namespace ui
     {
+        void PathsWidget::_init(
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            IWidget::_init("tl::ui::PathsWidget", context, parent);
+
+            _drivesModel = DrivesModel::create(context);
+
+            _buttonGroup = ButtonGroup::create(ButtonGroupType::Click, context);
+
+            _layout = VerticalLayout::create(context, shared_from_this());
+            _layout->setSpacingRole(SizeRole::None);
+
+            _pathsUpdate();
+
+            _buttonGroup->setClickedCallback(
+                [this](int value)
+                {
+                    if (value >= 0 &&
+                        value < _paths.size())
+                    {
+                        const std::string& path = _paths[value].first;
+                        if (_callback)
+                        {
+                            _callback(path);
+                        }
+                    }
+                });
+
+            _drivesObserver = observer::ListObserver<std::string>::create(
+                _drivesModel->observeDrives(),
+                [this](const std::vector<std::string>& value)
+                {
+                    _drives = value;
+                    _pathsUpdate();
+                });
+        }
+
+        PathsWidget::PathsWidget()
+        {}
+
+        PathsWidget::~PathsWidget()
+        {}
+
+        std::shared_ptr<PathsWidget> PathsWidget::create(
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            auto out = std::shared_ptr<PathsWidget>(new PathsWidget);
+            out->_init(context, parent);
+            return out;
+        }
+
+        void PathsWidget::setCallback(const std::function<void(const std::string&)>& value)
+        {
+            _callback = value;
+        }
+
+        void PathsWidget::setGeometry(const math::BBox2i& value)
+        {
+            IWidget::setGeometry(value);
+            _layout->setGeometry(value);
+        }
+
+        void PathsWidget::sizeHintEvent(const SizeHintEvent& event)
+        {
+            IWidget::sizeHintEvent(event);
+            _sizeHint = _layout->getSizeHint();
+        }
+
+        void PathsWidget::_pathsUpdate()
+        {
+            _paths.clear();
+            for (const auto& i : _drives)
+            {
+                _paths.push_back(std::make_pair(i, i));
+            }
+            std::string path = file::getUserPath(file::UserPath::Home);
+            _paths.push_back(std::make_pair(path, file::Path(path).getBaseName()));
+            path = file::getUserPath(file::UserPath::Desktop);
+            _paths.push_back(std::make_pair(path, file::Path(path).getBaseName()));
+            path = file::getUserPath(file::UserPath::Documents);
+            _paths.push_back(std::make_pair(path, file::Path(path).getBaseName()));
+            path = file::getUserPath(file::UserPath::Downloads);
+            _paths.push_back(std::make_pair(path, file::Path(path).getBaseName()));
+
+            for (auto i : _buttons)
+            {
+                i->setParent(nullptr);
+            }
+            _buttons.clear();
+            _buttonGroup->clearButtons();
+            if (auto context = _context.lock())
+            {
+                for (auto i : _paths)
+                {
+                    auto button = ListButton::create(context);
+                    button->setText(i.second);
+                    button->setParent(_layout);
+                    _buttons.push_back(button);
+                    _buttonGroup->addButton(button);
+                }
+            }
+        }
+
         void DirectoryWidget::_init(
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -25,21 +132,26 @@ namespace tl
             _buttonGroup->setClickedCallback(
                 [this](int value)
                 {
-                    if (_fileCallback && 
-                        value >= 0 &&
+                    if (value >= 0 &&
                         value < _fileInfos.size())
                     {
                         const file::FileInfo& fileInfo = _fileInfos[value];
                         switch (fileInfo.getType())
                         {
                         case file::Type::File:
-                            _fileCallback(fileInfo.getPath().get(-1, false));
+                            if (_fileCallback)
+                            {
+                                _fileCallback(fileInfo.getPath().get(-1, false));
+                            }
                             break;
                         case file::Type::Directory:
                         {
                             _path = file::Path(_path, fileInfo.getPath().get(-1, false)).get();
                             _directoryUpdate();
-                            _pathCallback(_path);
+                            if (_pathCallback)
+                            {
+                                _pathCallback(_path);
+                            }
                             break;
                         }
                         default: break;
@@ -144,11 +256,15 @@ namespace tl
             _cwdButton = ToolButton::create(context);
             _cwdButton->setText("Current");
 
-            _directoryWidget = DirectoryWidget::create(context);
+            _pathsWidget = PathsWidget::create(context);
+            _pathsScrollWidget = ScrollWidget::create(context);
+            _pathsScrollWidget->setWidget(_pathsWidget);
+            _pathsScrollWidget->setVStretch(Stretch::Expanding);
 
-            _scrollWidget = ScrollWidget::create(context, ScrollType::Vertical);
-            _scrollWidget->setWidget(_directoryWidget);
-            _scrollWidget->setVStretch(Stretch::Expanding);
+            _directoryWidget = DirectoryWidget::create(context);
+            _directoryScrollWidget = ScrollWidget::create(context);
+            _directoryScrollWidget->setWidget(_directoryWidget);
+            _directoryScrollWidget->setVStretch(Stretch::Expanding);
 
             _okButton = PushButton::create(context);
             _okButton->setText("Ok");
@@ -164,7 +280,10 @@ namespace tl
             _pathEdit->setParent(hLayout);
             _upButton->setParent(hLayout);
             _cwdButton->setParent(hLayout);
-            _scrollWidget->setParent(_layout);
+            _splitter = Splitter::create(Orientation::Horizontal, context, _layout);
+            _pathsScrollWidget->setParent(_splitter);
+            _directoryScrollWidget->setParent(_splitter);
+            _splitter->setSplit(0.2);
             hLayout = HorizontalLayout::create(context, _layout);
             hLayout->setSpacingRole(SizeRole::SpacingSmall);
             auto spacer = Spacer::create(context, hLayout);
@@ -217,6 +336,13 @@ namespace tl
                 [this]
                 {
                     _path = file::Path(file::getCWD());
+                });
+
+            _pathsWidget->setCallback(
+                [this](const std::string& value)
+                {
+                    _path = file::Path(value, "");
+                    _pathUpdate();
                 });
 
             _directoryWidget->setFileCallback(
@@ -306,6 +432,7 @@ namespace tl
         {
             _pathEdit->setText(_path.get());
             _directoryWidget->setPath(_path.getDirectory());
+            _directoryScrollWidget->setScrollPos(math::Vector2i(0, 0));
         }
 
         struct FileBrowser::Private

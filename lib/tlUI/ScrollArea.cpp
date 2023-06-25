@@ -129,6 +129,10 @@ namespace tl
                 case ScrollType::Vertical:
                     size.x = std::max(size.x, g.w());
                     break;
+                case ScrollType::Both:
+                    size.x = std::max(size.x, g.w());
+                    size.y = std::max(size.y, g.h());
+                    break;
                 default: break;
                 }
                 scrollSize.x = std::max(scrollSize.x, size.x);

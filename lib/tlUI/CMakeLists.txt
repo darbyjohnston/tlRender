@@ -5,6 +5,7 @@ set(HEADERS
     DoubleEdit.h
     DoubleModel.h
     DrawUtil.h
+    DrivesModel.h
     Event.h
     EventLoop.h
     FileBrowser.h
@@ -59,6 +60,7 @@ set(SOURCE
     DoubleEdit.cpp
     DoubleModel.cpp
     DrawUtil.cpp
+    DrivesModel.cpp
     Event.cpp
     EventLoop.cpp
     FileBrowser.cpp

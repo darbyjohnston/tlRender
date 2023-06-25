@@ -8,7 +8,7 @@
 
 #include <tlIO/IOSystem.h>
 
-#include <tlCore/Directory.h>
+#include <tlCore/FileInfo.h>
 #include <tlCore/StringFormat.h>
 
 #include <opentimelineio/clip.h>

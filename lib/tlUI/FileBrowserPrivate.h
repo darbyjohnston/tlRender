@@ -7,11 +7,12 @@
 #include <tlUI/FileBrowser.h>
 
 #include <tlUI/ButtonGroup.h>
+#include <tlUI/DrivesModel.h>
 #include <tlUI/ListButton.h>
 #include <tlUI/LineEdit.h>
 #include <tlUI/PushButton.h>
 #include <tlUI/RowLayout.h>
-#include <tlUI/Spacer.h>
+#include <tlUI/Splitter.h>
 #include <tlUI/ScrollWidget.h>
 #include <tlUI/ToolButton.h>
 
@@ -21,6 +22,42 @@ namespace tl
 {
     namespace ui
     {
+        class PathsWidget : public IWidget
+        {
+            TLRENDER_NON_COPYABLE(PathsWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            PathsWidget();
+
+        public:
+            ~PathsWidget() override;
+
+            static std::shared_ptr<PathsWidget> create(
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            void setCallback(const std::function<void(const std::string&)>&);
+
+            void setGeometry(const math::BBox2i&) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
+
+        private:
+            void _pathsUpdate();
+
+            std::vector<std::pair<std::string, std::string> > _paths;
+            std::shared_ptr<DrivesModel> _drivesModel;
+            std::vector<std::string> _drives;
+            std::vector<std::shared_ptr<ListButton> > _buttons;
+            std::shared_ptr<ButtonGroup> _buttonGroup;
+            std::shared_ptr<VerticalLayout> _layout;
+            std::function<void(const std::string&)> _callback;
+            std::shared_ptr<observer::ListObserver<std::string> > _drivesObserver;
+        };
+
         class DirectoryWidget : public IWidget
         {
             TLRENDER_NON_COPYABLE(DirectoryWidget);
@@ -96,8 +133,11 @@ namespace tl
             std::shared_ptr<LineEdit> _pathEdit;
             std::shared_ptr<ToolButton> _upButton;
             std::shared_ptr<ToolButton> _cwdButton;
+            std::shared_ptr<PathsWidget> _pathsWidget;
+            std::shared_ptr<ScrollWidget> _pathsScrollWidget;
             std::shared_ptr<DirectoryWidget> _directoryWidget;
-            std::shared_ptr<ScrollWidget> _scrollWidget;
+            std::shared_ptr<ScrollWidget> _directoryScrollWidget;
+            std::shared_ptr<Splitter> _splitter;
             std::shared_ptr<PushButton> _okButton;
             std::shared_ptr<PushButton> _cancelButton;
             std::shared_ptr<VerticalLayout> _layout;

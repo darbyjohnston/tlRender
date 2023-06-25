@@ -4,10 +4,12 @@
 
 #include <tlCore/Path.h>
 
+#include <tlCore/Error.h>
 #include <tlCore/String.h>
 
 #include <fseq.h>
 
+#include <array>
 #include <iomanip>
 #include <sstream>
 
@@ -15,28 +17,6 @@ namespace tl
 {
     namespace file
     {
-        bool hasEndSeparator(const std::string& value)
-        {
-            bool out = false;
-            const size_t size = value.size();
-            if (size > 0 && ('/' == value[size - 1] || '\\' == value[size - 1]))
-            {
-                out = true;
-            }
-            return out;
-        }
-
-        std::string appendSeparator(const std::string& value)
-        {
-            std::string out = value;
-            const size_t size = out.size();
-            if (size > 0 && !('/' == out[size - 1] || '\\' == out[size - 1]))
-            {
-                out += '/';
-            }
-            return out;
-        }
-
         Path::Path()
         {}
 
@@ -150,5 +130,46 @@ namespace tl
         {
             return !(*this == other);
         }
+
+        bool hasEndSeparator(const std::string& value)
+        {
+            bool out = false;
+            const size_t size = value.size();
+            if (size > 0 && ('/' == value[size - 1] || '\\' == value[size - 1]))
+            {
+                out = true;
+            }
+            return out;
+        }
+
+        std::string removeEndSeparator(const std::string& value)
+        {
+            std::string out = value;
+            const size_t size = out.size();
+            if (size > 0 && ('/' == out[size - 1] || '\\' == out[size - 1]))
+            {
+                out.pop_back();
+            }
+            return out;
+        }
+
+        std::string appendSeparator(const std::string& value)
+        {
+            std::string out = value;
+            const size_t size = out.size();
+            if (size > 0 && !('/' == out[size - 1] || '\\' == out[size - 1]))
+            {
+                out += '/';
+            }
+            return out;
+        }
+
+        TLRENDER_ENUM_IMPL(
+            UserPath,
+            "Home",
+            "Desktop",
+            "Documents",
+            "Downloads");
+        TLRENDER_ENUM_SERIALIZE_IMPL(UserPath);
     }
 }

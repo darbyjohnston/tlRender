@@ -7,6 +7,7 @@
 #include <tlCore/AudioSystem.h>
 #include <tlCore/OS.h>
 #include <tlCore/StringFormat.h>
+#include <tlCore/Timer.h>
 
 #include <sstream>
 
@@ -33,6 +34,7 @@ namespace tl
                 arg(info.cores).
                 arg(info.ramGB));
 
+            addSystem(time::TimerSystem::create(shared_from_this()));
             addSystem(audio::System::create(shared_from_this()));
         }
 
