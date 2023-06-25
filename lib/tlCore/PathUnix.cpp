@@ -6,6 +6,22 @@
 
 #include <tlCore/FileInfo.h>
 
+#if defined(__APPLE__)
+#include <ApplicationServices/ApplicationServices.h>
+#include <CoreFoundation/CFBundle.h>
+#include <CoreServices/CoreServices.h>
+#endif // __APPLE__
+
+#if defined(__linux__)
+#include <linux/limits.h>
+#endif // __linux__
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <pwd.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <unistd.h>
+
 namespace tl
 {
     namespace file
