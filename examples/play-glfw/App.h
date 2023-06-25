@@ -78,6 +78,9 @@ namespace tl
                     const std::shared_ptr<system::Context>&);
 
                 //! Open a new timeline player.
+                void open();
+
+                //! Open a new timeline player.
                 void open(const std::string&);
 
                 //! Close the current timeline player.

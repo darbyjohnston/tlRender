@@ -6,15 +6,6 @@
 
 #include "App.h"
 
-#include <tlUI/EventLoop.h>
-#include <tlUI/FileBrowser.h>
-
-#include <tlCore/File.h>
-
-#if defined(TLRENDER_NFD)
-#include <nfd.hpp>
-#endif // TLRENDER_NFD
-
 namespace tl
 {
     namespace examples
@@ -28,7 +19,6 @@ namespace tl
 
                 std::shared_ptr<Menu> recentMenu;
                 std::shared_ptr<Menu> currentMenu;
-                std::shared_ptr<ui::FileBrowser> fileBrowser;
 
                 std::shared_ptr<observer::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
             };
@@ -51,12 +41,16 @@ namespace tl
                     [this, appWeak]
                     {
                         close();
-                        _openFile();
+                        if (auto app = appWeak.lock())
+                        {
+                            app->open();
+                        }
                     });
                 addItem(item);
 
                 item = std::make_shared<ui::MenuItem>(
                     "Open With Separate Audio",
+                    "FileOpenSeparateAudio",
                     ui::Key::O,
                     static_cast<int>(ui::KeyModifier::Shift) |
                     static_cast<int>(ui::KeyModifier::Control),
@@ -69,6 +63,7 @@ namespace tl
 
                 item = std::make_shared<ui::MenuItem>(
                     "Close",
+                    "FileClose",
                     ui::Key::E,
                     static_cast<int>(ui::KeyModifier::Control),
                     [this, appWeak]
@@ -83,6 +78,7 @@ namespace tl
 
                 item = std::make_shared<ui::MenuItem>(
                     "Close All",
+                    "FileCloseAll",
                     ui::Key::E,
                     static_cast<int>(ui::KeyModifier::Shift) |
                     static_cast<int>(ui::KeyModifier::Control),
@@ -227,55 +223,6 @@ namespace tl
                 TLRENDER_P();
                 p.recentMenu->close();
                 p.currentMenu->close();
-            }
-
-            void FileMenu::_openFile()
-            {
-                TLRENDER_P();
-#if defined(TLRENDER_NFD)
-                if (auto app = p.app.lock())
-                {
-                    nfdu8char_t* outPath = nullptr;
-                    NFD::OpenDialog(outPath);
-                    if (outPath)
-                    {
-                        app->open(outPath);
-                        NFD::FreePath(outPath);
-                    }
-                }
-#else  // TLRENDER_NFD
-                if (auto app = p.app.lock())
-                {
-                    if (auto context = _context.lock())
-                    {
-                        std::string path;
-                        if (p.player)
-                        {
-                            path = p.player->getPath().get();
-                        }
-                        else
-                        {
-                            path = file::getCWD();
-                        }
-                        p.fileBrowser = ui::FileBrowser::create(path, context);
-                        p.fileBrowser->open(app->getEventLoop());
-                        p.fileBrowser->setFileCallback(
-                            [this](const std::string& value)
-                            {
-                                if (auto app = _p->app.lock())
-                                {
-                                    app->open(value);
-                                }
-                                _p->fileBrowser->close();
-                            });
-                        p.fileBrowser->setCloseCallback(
-                            [this]
-                            {
-                                _p->fileBrowser.reset();
-                            });
-                    }
-                }
-#endif // TLRENDER_NFD
             }
         }
     }

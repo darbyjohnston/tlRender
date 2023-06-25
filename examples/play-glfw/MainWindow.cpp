@@ -8,6 +8,7 @@
 #include "AudioMenu.h"
 #include "CompareMenu.h"
 #include "FileMenu.h"
+#include "FileToolBar.h"
 #include "FrameMenu.h"
 #include "PlaybackMenu.h"
 #include "RenderMenu.h"
@@ -60,6 +61,7 @@ namespace tl
                 std::shared_ptr<AudioMenu> audioMenu;
                 std::shared_ptr<ToolsMenu> toolsMenu;
                 std::shared_ptr<ui::MenuBar> menuBar;
+                std::shared_ptr<FileToolBar> fileToolBar;
                 std::shared_ptr<timelineui::TimelineViewport> timelineViewport;
                 std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
                 std::shared_ptr<ui::ButtonGroup> playbackButtonGroup;
@@ -117,6 +119,8 @@ namespace tl
                 p.menuBar->addMenu("Frame", p.frameMenu);
                 p.menuBar->addMenu("Audio", p.audioMenu);
                 p.menuBar->addMenu("Tools", p.toolsMenu);
+
+                p.fileToolBar = FileToolBar::create(app, context);
 
                 p.timelineViewport = timelineui::TimelineViewport::create(context);
 
@@ -177,12 +181,16 @@ namespace tl
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
                 p.layout->setSpacingRole(ui::SizeRole::None);
                 p.menuBar->setParent(p.layout);
+                ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
+                auto hLayout = ui::HorizontalLayout::create(context, p.layout);
+                hLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
+                p.fileToolBar->setParent(hLayout);
                 p.splitter = ui::Splitter::create(ui::Orientation::Vertical, context, p.layout);
                 p.splitter->setSplit(.7F);
                 p.timelineViewport->setParent(p.splitter);
                 p.timelineWidget->setParent(p.splitter);
                 ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
-                auto hLayout = ui::HorizontalLayout::create(context, p.layout);
+                hLayout = ui::HorizontalLayout::create(context, p.layout);
                 hLayout->setMarginRole(ui::SizeRole::MarginInside);
                 hLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
                 auto hLayout2 = ui::HorizontalLayout::create(context, hLayout);
