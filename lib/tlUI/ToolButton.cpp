@@ -36,6 +36,8 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IButton::_init("tl::ui::ToolButton", context, parent);
+
+            _buttonRole = ColorRole::None;
         }
 
         ToolButton::ToolButton() :
@@ -155,13 +157,13 @@ namespace tl
                     math::Vector2i(),
                     event.style->getColorRole(ColorRole::KeyFocus));
             }
-            else
-            {
-                event.render->drawMesh(
-                    border(g.margin(-p.size.border), p.size.border),
-                    math::Vector2i(),
-                    event.style->getColorRole(ColorRole::Border));
-            }
+            //else
+            //{
+            //    event.render->drawMesh(
+            //        border(g.margin(-p.size.border), p.size.border),
+            //        math::Vector2i(),
+            //        event.style->getColorRole(ColorRole::Border));
+            //}
 
             const math::BBox2i g2 = g.margin(-p.size.border * 2);
             const ColorRole colorRole = _checked ?
