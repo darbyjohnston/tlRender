@@ -95,7 +95,7 @@ namespace tl
 
                 p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
                 p.speedModel = ui::DoubleModel::create(context);
-                p.speedModel->setRange(math::DoubleRange(0.0, 1000.0));
+                p.speedModel->setRange(math::DoubleRange(0.0, 1000000.0));
                 p.speedModel->setStep(1.F);
                 p.speedModel->setLargeStep(10.F);
 
@@ -173,10 +173,10 @@ namespace tl
                 p.audioButton->setIcon("Volume");
 
                 p.statusLabel = ui::Label::create(context);
-                p.statusLabel->setTextWidth(20);
+                p.statusLabel->setTextWidth(80);
                 p.statusLabel->setHStretch(ui::Stretch::Expanding);
                 p.infoLabel = ui::Label::create(context);
-                p.infoLabel->setTextWidth(20);
+                p.infoLabel->setTextWidth(40);
 
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
                 p.layout->setSpacingRole(ui::SizeRole::None);
