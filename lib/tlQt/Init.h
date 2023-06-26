@@ -11,9 +11,18 @@ namespace tl
     //! Qt support library.
     namespace qt
     {
+        //! Surface formats.
+        enum class DefaultSurfaceFormat
+        {
+            None,
+            OpenGL_4_1_CoreProfile
+        };
+
         //! Initialize the library. This needs to be called before the Qt
         //! application is created.
-        void init(const std::shared_ptr<system::Context>&);
+        void init(
+            DefaultSurfaceFormat,
+            const std::shared_ptr<system::Context>&);
 
         //! Qt support system.
         class System : public system::ISystem
@@ -21,7 +30,9 @@ namespace tl
             TLRENDER_NON_COPYABLE(System);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(
+                DefaultSurfaceFormat,
+                const std::shared_ptr<system::Context>&);
 
             System();
 
@@ -29,7 +40,9 @@ namespace tl
             ~System() override;
 
             //! Create a new system.
-            static std::shared_ptr<System> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<System> create(
+                DefaultSurfaceFormat,
+                const std::shared_ptr<system::Context>&);
         };
     }
 }

@@ -14,23 +14,29 @@
 #include <tlCore/Context.h>
 #include <tlCore/Mesh.h>
 
-//#include <QSurfaceFormat>
+#include <QSurfaceFormat>
 
 namespace tl
 {
     namespace qt
     {
-        void init(const std::shared_ptr<system::Context>& context)
+        void init(
+            DefaultSurfaceFormat defaultSurfaceFormat,
+            const std::shared_ptr<system::Context>& context)
         {
             timeline::init(context);
             device::init(context);
             if (!context->getSystem<System>())
             {
-                context->addSystem(System::create(context));
+                context->addSystem(System::create(
+                    defaultSurfaceFormat,
+                    context));
             }
         }
 
-        void System::_init(const std::shared_ptr<system::Context>& context)
+        void System::_init(
+            DefaultSurfaceFormat defaultSurfaceFormat,
+            const std::shared_ptr<system::Context>& context)
         {
             ISystem::_init("tl::qt::System", context);
 
@@ -136,11 +142,19 @@ namespace tl
             QMetaType::registerComparators<timeline::Transition>();
 #endif // QT_VERSION
 
-            //QSurfaceFormat surfaceFormat;
-            //surfaceFormat.setMajorVersion(4);
-            //surfaceFormat.setMinorVersion(1);
-            //surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
-            //QSurfaceFormat::setDefaultFormat(surfaceFormat);
+            switch (defaultSurfaceFormat)
+            {
+            case DefaultSurfaceFormat::OpenGL_4_1_CoreProfile:
+            {
+                QSurfaceFormat surfaceFormat;
+                surfaceFormat.setMajorVersion(4);
+                surfaceFormat.setMinorVersion(1);
+                surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
+                QSurfaceFormat::setDefaultFormat(surfaceFormat);
+                break;
+            }
+            default: break;
+            }
         }
 
         System::System()
@@ -149,10 +163,12 @@ namespace tl
         System::~System()
         {}
 
-        std::shared_ptr<System> System::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<System> System::create(
+            DefaultSurfaceFormat defaultSurfaceFormat,
+            const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<System>(new System);
-            out->_init(context);
+            out->_init(defaultSurfaceFormat, context);
             return out;
         }
     }

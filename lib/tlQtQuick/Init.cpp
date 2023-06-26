@@ -19,9 +19,11 @@ namespace tl
             std::shared_ptr<system::Context> _context;
         }
 
-        void init(const std::shared_ptr<system::Context>& context)
+        void init(
+            qt::DefaultSurfaceFormat defaultSurfaceFormat,
+            const std::shared_ptr<system::Context>& context)
         {
-            qt::init(context);
+            qt::init(defaultSurfaceFormat, context);
             if (!context->getSystem<System>())
             {
                 context->addSystem(System::create(context));

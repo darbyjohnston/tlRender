@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore/ISystem.h>
+#include <tlQt/Init.h>
 
 namespace tl
 {
@@ -13,7 +13,9 @@ namespace tl
     {
         //! Initialize the library. This needs to be called before the Qt
         //! application is created.
-        void init(const std::shared_ptr<system::Context>&);
+        void init(
+            qt::DefaultSurfaceFormat,
+            const std::shared_ptr<system::Context>&);
 
         //! Initialize the fonts. This needs to be called after the Qt
         //! application is created.

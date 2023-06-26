@@ -16,7 +16,9 @@ int main(int argc, char* argv[])
     try
     {
         auto context = tl::system::Context::create();
-        tl::qtquick::init(context);
+        tl::qtquick::init(
+            tl::qt::DefaultSurfaceFormat::OpenGL_4_1_CoreProfile,
+            context);
 #if (QT_VERSION < QT_VERSION_CHECK(6, 5, 0))
         QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif

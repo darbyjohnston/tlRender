@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore/ISystem.h>
+#include <tlQt/Init.h>
 
 namespace tl
 {
@@ -18,7 +18,9 @@ namespace tl
     {
         //! Initialize the library. This needs to be called before the Qt
         //! application is created.
-        void init(const std::shared_ptr<system::Context>&);
+        void init(
+            qt::DefaultSurfaceFormat,
+            const std::shared_ptr<system::Context>&);
 
         //! Qt Quick support system.
         class System : public system::ISystem
@@ -34,7 +36,8 @@ namespace tl
             ~System() override;
 
             //! Create a new system.
-            static std::shared_ptr<System> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<System> create(
+                const std::shared_ptr<system::Context>&);
         };
 
         //! Get the context singleton.
