@@ -60,6 +60,7 @@ namespace tl
         void IMenuPopup::close()
         {
             TLRENDER_P();
+            p.open = false;
             if (auto eventLoop = getEventLoop().lock())
             {
                 eventLoop->removeWidget(shared_from_this());
@@ -68,7 +69,6 @@ namespace tl
             {
                 p.closeCallback();
             }
-            p.open = false;
         }
 
         void IMenuPopup::setCloseCallback(const std::function<void(void)>& value)

@@ -55,6 +55,7 @@ namespace tl
         void IDialog::close()
         {
             TLRENDER_P();
+            p.open = false;
             if (auto eventLoop = getEventLoop().lock())
             {
                 eventLoop->removeWidget(shared_from_this());
@@ -63,7 +64,6 @@ namespace tl
             {
                 p.closeCallback();
             }
-            p.open = false;
         }
 
         void IDialog::setCloseCallback(const std::function<void(void)>& value)
