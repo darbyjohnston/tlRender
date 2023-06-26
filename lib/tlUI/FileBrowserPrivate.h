@@ -130,9 +130,9 @@ namespace tl
             void _pathUpdate();
 
             file::Path _path;
-            std::shared_ptr<LineEdit> _pathEdit;
             std::shared_ptr<ToolButton> _upButton;
             std::shared_ptr<ToolButton> _cwdButton;
+            std::shared_ptr<LineEdit> _pathEdit;
             std::shared_ptr<PathsWidget> _pathsWidget;
             std::shared_ptr<ScrollWidget> _pathsScrollWidget;
             std::shared_ptr<DirectoryWidget> _directoryWidget;

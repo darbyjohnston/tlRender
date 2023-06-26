@@ -47,6 +47,8 @@ namespace
 #include "Resources/Devices_96.h"
 #include "Resources/Directory_192.h"
 #include "Resources/Directory_96.h"
+#include "Resources/DirectoryUp_192.h"
+#include "Resources/DirectoryUp_96.h"
 #include "Resources/DockWidgetClose_192.h"
 #include "Resources/DockWidgetClose_96.h"
 #include "Resources/DockWidgetNormal_192.h"
@@ -184,6 +186,7 @@ namespace tl
             p.iconData["Decrement_96.png"] = Decrement_96_png;
             p.iconData["Devices_96.png"] = Devices_96_png;
             p.iconData["Directory_96.png"] = Directory_96_png;
+            p.iconData["DirectoryUp_96.png"] = DirectoryUp_96_png;
             p.iconData["DockWidgetClose_96.png"] = DockWidgetClose_96_png;
             p.iconData["DockWidgetNormal_96.png"] = DockWidgetNormal_96_png;
             p.iconData["Empty_96.png"] = Empty_96_png;
@@ -237,6 +240,7 @@ namespace tl
             p.iconData["Decrement_192.png"] = Decrement_192_png;
             p.iconData["Devices_192.png"] = Devices_192_png;
             p.iconData["Directory_192.png"] = Directory_192_png;
+            p.iconData["DirectoryUp_192.png"] = DirectoryUp_192_png;
             p.iconData["DockWidgetClose_192.png"] = DockWidgetClose_192_png;
             p.iconData["DockWidgetNormal_192.png"] = DockWidgetNormal_192_png;
             p.iconData["Empty_192.png"] = Empty_192_png;

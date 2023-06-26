@@ -90,7 +90,9 @@ namespace tl
             {
                 _paths.push_back(std::make_pair(i, i));
             }
-            std::string path = file::getUserPath(file::UserPath::Home);
+            std::string path = file::getCWD();
+            _paths.push_back(std::make_pair(path, "Current"));            
+            path = file::getUserPath(file::UserPath::Home);
             _paths.push_back(std::make_pair(path, file::Path(path).getBaseName()));
             path = file::getUserPath(file::UserPath::Desktop);
             _paths.push_back(std::make_pair(path, file::Path(path).getBaseName()));
@@ -247,14 +249,11 @@ namespace tl
 
             _path = file::Path(path);
 
+            _upButton = ToolButton::create(context);
+            _upButton->setIcon("DirectoryUp");
+
             _pathEdit = LineEdit::create(context);
             _pathEdit->setHStretch(Stretch::Expanding);
-
-            _upButton = ToolButton::create(context);
-            _upButton->setText("Up");
-
-            _cwdButton = ToolButton::create(context);
-            _cwdButton->setText("Current");
 
             _pathsWidget = PathsWidget::create(context);
             _pathsScrollWidget = ScrollWidget::create(context);
@@ -277,9 +276,8 @@ namespace tl
             _layout->setMarginRole(SizeRole::MarginSmall);
             auto hLayout = HorizontalLayout::create(context, _layout);
             hLayout->setSpacingRole(SizeRole::SpacingSmall);
-            _pathEdit->setParent(hLayout);
             _upButton->setParent(hLayout);
-            _cwdButton->setParent(hLayout);
+            _pathEdit->setParent(hLayout);
             _splitter = Splitter::create(Orientation::Horizontal, context, _layout);
             _pathsScrollWidget->setParent(_splitter);
             _directoryScrollWidget->setParent(_splitter);
@@ -292,25 +290,6 @@ namespace tl
             _cancelButton->setParent(hLayout);
 
             _pathUpdate();
-
-            _pathEdit->setTextCallback(
-                [this](const std::string& value)
-                {
-                    if (file::exists(value))
-                    {
-                        _path = file::Path(value, _path.get(-1, false));
-                    }
-                    else
-                    {
-                        std::string path = value;
-                        if (file::hasEndSeparator(path))
-                        {
-                            path.pop_back();
-                        }
-                        _path = file::Path(file::Path(path).getDirectory(), "");
-                    }
-                    _pathUpdate();
-                });
 
             _upButton->setClickedCallback(
                 [this]
@@ -332,10 +311,23 @@ namespace tl
                     _pathUpdate();
                 });
 
-            _cwdButton->setClickedCallback(
-                [this]
+            _pathEdit->setTextCallback(
+                [this](const std::string& value)
                 {
-                    _path = file::Path(file::getCWD());
+                    if (file::exists(value))
+                    {
+                        _path = file::Path(value, _path.get(-1, false));
+                    }
+                    else
+                    {
+                        std::string path = value;
+                        if (file::hasEndSeparator(path))
+                        {
+                            path.pop_back();
+                        }
+                        _path = file::Path(file::Path(path).getDirectory(), "");
+                    }
+                    _pathUpdate();
                 });
 
             _pathsWidget->setCallback(
