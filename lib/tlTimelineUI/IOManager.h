@@ -36,7 +36,8 @@ namespace tl
             //! Get information.
             std::future<io::Info> getInfo(
                 const file::Path&,
-                const std::vector<file::MemoryRead>&);
+                const std::vector<file::MemoryRead>&,
+                const otime::RationalTime& startTime);
 
             //! Read video data.
             std::future<io::VideoData> readVideo(

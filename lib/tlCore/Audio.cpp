@@ -384,25 +384,31 @@ namespace tl
             return out;
         }
 
-        void copy(std::list<std::shared_ptr<Audio> >& in, uint8_t* out, size_t byteCount)
+        void copy(std::list<std::shared_ptr<Audio> >& in, uint8_t* out, size_t sampleCount)
         {
             size_t size = 0;
-            while (!in.empty() && (size + in.front()->getByteCount() <= byteCount))
+            while (!in.empty() && (size + in.front()->getSampleCount() <= sampleCount))
             {
-                const size_t itemByteCount = in.front()->getByteCount();
-                std::memcpy(out, in.front()->getData(), itemByteCount);
-                size += itemByteCount;
-                out += itemByteCount;
+                std::memcpy(out, in.front()->getData(), in.front()->getByteCount());
+                size += in.front()->getSampleCount();
+                out += in.front()->getByteCount();
                 in.pop_front();
             }
-            if (!in.empty() && size < byteCount)
+            if (!in.empty() && size < sampleCount)
             {
                 auto item = in.front();
                 in.pop_front();
-                std::memcpy(out, item->getData(), byteCount - size);
-                const size_t newItemByteCount = item->getByteCount() - (byteCount - size);
-                auto newItem = audio::Audio::create(item->getInfo(), newItemByteCount / item->getInfo().getByteCount());
-                std::memcpy(newItem->getData(), item->getData() + byteCount - size, newItemByteCount);
+                const size_t remainingSize = sampleCount - size;
+                std::memcpy(
+                    out,
+                    item->getData(), remainingSize *
+                    item->getInfo().getByteCount());
+                const size_t newItemSampleCount = item->getSampleCount() - remainingSize;
+                auto newItem = audio::Audio::create(item->getInfo(), newItemSampleCount);
+                std::memcpy(
+                    newItem->getData(),
+                    item->getData() + remainingSize * item->getInfo().getByteCount(),
+                    newItem->getByteCount());
                 in.push_front(newItem);
             }
         }

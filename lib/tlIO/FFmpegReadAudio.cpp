@@ -193,7 +193,11 @@ namespace tl
                 }
 
                 otime::RationalTime startTime(0.0, sampleRate);
-                if (!timecode.empty())
+                if (!time::compareExact(_options.startTime, time::invalidTime))
+                {
+                    startTime = _options.startTime.rescaled_to(sampleRate);
+                }
+                else if (!timecode.empty())
                 {
                     otime::ErrorStatus errorStatus;
                     const otime::RationalTime time = otime::RationalTime::from_timecode(
@@ -457,9 +461,9 @@ namespace tl
             return audio::getSampleCount(_buffer);
         }
 
-        void ReadAudio::bufferCopy(uint8_t* out, size_t byteCount)
+        void ReadAudio::bufferCopy(uint8_t* out, size_t sampleCount)
         {
-            audio::copy(_buffer, out, byteCount);
+            audio::copy(_buffer, out, sampleCount);
         }
 
         bool ReadAudio::isEOF() const

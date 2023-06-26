@@ -27,6 +27,7 @@ namespace tl
             file::Path path;
             std::vector<file::MemoryRead> memoryRead;
             otime::TimeRange timeRange = time::invalidTimeRange;
+            otime::TimeRange availableRange = time::invalidTimeRange;
             std::string label;
             ui::FontRole labelFontRole = ui::FontRole::Label;
             std::string durationLabel;
@@ -98,6 +99,16 @@ namespace tl
             if (rangeOpt.has_value())
             {
                 p.timeRange = rangeOpt.value();
+            }
+            otio::ErrorStatus error;
+            const otime::TimeRange availableRange = clip->available_range(&error);
+            if (!otio::is_error(error))
+            {
+                p.availableRange = availableRange;
+            }
+            else if (clip->source_range().has_value())
+            {
+                p.availableRange = clip->source_range().value();
             }
 
             p.label = clip->name();
@@ -490,7 +501,10 @@ namespace tl
                 if (p.ioInfoInit)
                 {
                     p.ioInfoInit = false;
-                    p.ioInfo = _data.ioManager->getInfo(p.path, p.memoryRead).get();
+                    p.ioInfo = _data.ioManager->getInfo(
+                        p.path,
+                        p.memoryRead,
+                        p.availableRange.start_time()).get();
                     _updates |= ui::Update::Size;
                     _updates |= ui::Update::Draw;
                 }
@@ -541,8 +555,7 @@ namespace tl
                                     otime::TimeRange(time, otime::RationalTime(time.rate(), time.rate())),
                                     p.track,
                                     p.clip,
-                                    p.ioInfo,
-                                    _data.options.fixMissingTimecode);
+                                    p.ioInfo);
                                 p.audioDataFutures[time].future = _data.ioManager->readAudio(
                                     p.path,
                                     p.memoryRead,

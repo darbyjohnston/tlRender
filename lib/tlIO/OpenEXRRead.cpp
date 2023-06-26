@@ -327,7 +327,7 @@ namespace tl
         {
             ISequenceRead::_init(path, memory, options, logSystem);
 
-            auto option = options.find("exr/ChannelGrouping");
+            auto option = options.find("OpenEXR/ChannelGrouping");
             if (option != options.end())
             {
                 std::stringstream ss(option->second);

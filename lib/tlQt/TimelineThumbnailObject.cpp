@@ -264,7 +264,7 @@ namespace tl
                         options.audioRequestCount = 1;
                         options.requestTimeout = std::chrono::milliseconds(25);
                         options.ioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(1);
-                        options.ioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(1);
+                        options.ioOptions["FFmpeg/ThreadCount"] = string::Format("{0}").arg(1);
                         try
                         {
                             request.timeline = timeline::Timeline::create(request.fileName.toUtf8().data(), context, options);

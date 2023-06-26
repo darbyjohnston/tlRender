@@ -198,55 +198,55 @@ namespace tl
             {
                 std::stringstream ss;
                 ss << _options.exrCompression;
-                ioOptions["exr/Compression"] = ss.str();
+                ioOptions["OpenEXR/Compression"] = ss.str();
             }
             {
                 std::stringstream ss;
                 ss << _options.exrDWACompressionLevel;
-                ioOptions["exr/DWACompressionLevel"] = ss.str();
+                ioOptions["OpenEXR/DWACompressionLevel"] = ss.str();
             }
 #endif // TLRENDER_EXR
 #if defined(TLRENDER_FFMPEG)
             if (!_options.ffmpegWriteProfile.empty())
             {
-                ioOptions["ffmpeg/WriteProfile"] = _options.ffmpegWriteProfile;
+                ioOptions["FFmpeg/WriteProfile"] = _options.ffmpegWriteProfile;
             }
             {
                 std::stringstream ss;
                 ss << _options.ffmpegThreadCount;
-                ioOptions["ffmpeg/ThreadCount"] = ss.str();
+                ioOptions["FFmpeg/ThreadCount"] = ss.str();
             }
 #endif // TLRENDER_FFMPEG
 #if defined(TLRENDER_USD)
             {
                 std::stringstream ss;
                 ss << _options.usdRenderWidth;
-                ioOptions["usd/renderWidth"] = ss.str();
+                ioOptions["USD/renderWidth"] = ss.str();
             }
             {
                 std::stringstream ss;
                 ss << _options.usdComplexity;
-                ioOptions["usd/complexity"] = ss.str();
+                ioOptions["USD/complexity"] = ss.str();
             }
             {
                 std::stringstream ss;
                 ss << _options.usdDrawMode;
-                ioOptions["usd/drawMode"] = ss.str();
+                ioOptions["USD/drawMode"] = ss.str();
             }
             {
                 std::stringstream ss;
                 ss << _options.usdEnableLighting;
-                ioOptions["usd/enableLighting"] = ss.str();
+                ioOptions["USD/enableLighting"] = ss.str();
             }
             {
                 std::stringstream ss;
                 ss << _options.usdStageCache;
-                ioOptions["usd/stageCacheCount"] = ss.str();
+                ioOptions["USD/stageCacheCount"] = ss.str();
             }
             {
                 std::stringstream ss;
                 ss << _options.usdDiskCache * memory::gigabyte;
-                ioOptions["usd/diskCacheByteCount"] = ss.str();
+                ioOptions["USD/diskCacheByteCount"] = ss.str();
             }
 #endif // TLRENDER_USD
             auto ioSystem = context->getSystem<io::System>();

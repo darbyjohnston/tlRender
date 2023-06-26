@@ -50,7 +50,7 @@ namespace tl
             AVCodecID avCodecID = AV_CODEC_ID_MPEG4;
             Profile profile = Profile::None;
             int avProfile = FF_PROFILE_UNKNOWN;
-            auto option = options.find("ffmpeg/WriteProfile");
+            auto option = options.find("FFmpeg/WriteProfile");
             if (option != options.end())
             {
                 std::stringstream ss(option->second);

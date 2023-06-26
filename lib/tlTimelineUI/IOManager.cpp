@@ -7,6 +7,7 @@
 #include <tlIO/IOSystem.h>
 
 #include <tlCore/LRUCache.h>
+#include <tlCore/StringFormat.h>
 
 #include <sstream>
 
@@ -61,7 +62,8 @@ namespace tl
 
         std::future<io::Info> IOManager::getInfo(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memoryRead)
+            const std::vector<file::MemoryRead>& memoryRead,
+            const otime::RationalTime& startTime)
         {
             TLRENDER_P();
             std::future<io::Info> out;
@@ -72,7 +74,9 @@ namespace tl
                 if (auto context = p.context.lock())
                 {
                     auto ioSystem = context->getSystem<io::System>();
-                    read = ioSystem->read(path, memoryRead, p.ioOptions);
+                    io::Options options = p.ioOptions;
+                    options["FFmpeg/StartTime"] = string::Format("{0}").arg(startTime);
+                    read = ioSystem->read(path, memoryRead, options);
                     p.cache.add(fileName, read);
                 }
             }

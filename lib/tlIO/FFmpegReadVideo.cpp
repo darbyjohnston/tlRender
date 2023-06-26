@@ -317,7 +317,11 @@ namespace tl
                 }
 
                 otime::RationalTime startTime(0.0, speed);
-                if (!timecode.empty())
+                if (!time::compareExact(_options.startTime, time::invalidTime))
+                {
+                    startTime = _options.startTime;
+                }
+                else if (!timecode.empty())
                 {
                     otime::ErrorStatus errorStatus;
                     const otime::RationalTime time = otime::RationalTime::from_timecode(
@@ -327,13 +331,11 @@ namespace tl
                     if (!otime::is_error(errorStatus))
                     {
                         startTime = time::floor(time);
-                        //std::cout << fileName << " start time: " << startTime << std::endl;
                     }
                 }
                 _timeRange = otime::TimeRange(
                     startTime,
                     otime::RationalTime(sequenceSize, speed));
-                //std::cout << "time range: " << _timeRange << std::endl;
 
                 for (const auto& i : tags)
                 {

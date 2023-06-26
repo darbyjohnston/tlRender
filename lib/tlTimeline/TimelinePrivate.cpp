@@ -23,9 +23,7 @@ namespace tl
                 if (auto context = this->context.lock())
                 {
                     // The first video clip defines the video information for the timeline.
-                    io::Options ioOptions = options.ioOptions;
-                    ioOptions["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(clip->duration().rate());
-                    auto item = getRead(clip, ioOptions);
+                    auto item = getRead(clip, options.ioOptions);
                     if (item.read)
                     {
                         this->ioInfo.video = item.ioInfo.video;
@@ -446,6 +444,18 @@ namespace tl
                     const auto memoryRead = getMemoryRead(clip->media_reference());
                     io::Options options = ioOptions;
                     options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(timeRange.duration().rate());
+                    otio::ErrorStatus error;
+                    otime::RationalTime startTime = time::invalidTime;
+                    const otime::TimeRange availableRange = clip->available_range(&error);
+                    if (!otio::is_error(error))
+                    {
+                        startTime = availableRange.start_time();
+                    }
+                    else if (clip->source_range().has_value())
+                    {
+                        startTime = clip->source_range().value().start_time();
+                    }
+                    options["FFmpeg/StartTime"] = string::Format("{0}").arg(startTime);
                     const auto ioSystem = context->getSystem<io::System>();
                     out.read = ioSystem->read(path, memoryRead, options);
                     if (out.read)
@@ -489,8 +499,7 @@ namespace tl
                     time,
                     track,
                     clip,
-                    item.ioInfo,
-                    options.fixMissingTimecode);
+                    item.ioInfo);
                 out = item.read->readVideo(mediaTime, videoLayer);
             }
             return out;
@@ -509,8 +518,7 @@ namespace tl
                     timeRange,
                     track,
                     clip,
-                    item.ioInfo,
-                    options.fixMissingTimecode);
+                    item.ioInfo);
                 out = item.read->readAudio(mediaRange);
             }
             return out;

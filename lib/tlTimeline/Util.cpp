@@ -362,26 +362,9 @@ namespace tl
             const otime::RationalTime& time,
             const otio::Track* track,
             const otio::Clip* clip,
-            const io::Info& ioInfo,
-            bool fixMissingTimecode)
+            const io::Info& ioInfo)
         {
             otime::RationalTime clipTime = track->transformed_time(time, clip);
-            if (fixMissingTimecode)
-            {
-                if (auto externalReference =
-                    dynamic_cast<const otio::ExternalReference*>(clip->media_reference()))
-                {
-                    // If the available range start time is greater than the
-                    // video end time we assume the media is missing timecode
-                    // and adjust accordingly.
-                    const auto availableRangeOpt = externalReference->available_range();
-                    if (availableRangeOpt.has_value() &&
-                        availableRangeOpt->start_time() > ioInfo.videoTime.end_time_inclusive())
-                    {
-                        clipTime -= availableRangeOpt->start_time();
-                    }
-                }
-            }
             const auto mediaTime = time::round(
                 clipTime.rescaled_to(ioInfo.videoTime.duration().rate()));
             return mediaTime;
@@ -391,27 +374,9 @@ namespace tl
             const otime::TimeRange& timeRange,
             const otio::Track* track,
             const otio::Clip* clip,
-            const io::Info& ioInfo,
-            bool fixMissingTimecode)
+            const io::Info& ioInfo)
         {
             otime::TimeRange clipRange = track->transformed_time_range(timeRange, clip);
-            if (fixMissingTimecode)
-            {
-                if (auto externalReference = dynamic_cast<const otio::ExternalReference*>(clip->media_reference()))
-                {
-                    // If the available range start time is greater than the
-                    // video end time we assume the media is missing timecode
-                    // and adjust accordingly.
-                    const auto availableRangeOpt = externalReference->available_range();
-                    if (availableRangeOpt.has_value() &&
-                        availableRangeOpt->start_time() > ioInfo.audioTime.end_time_inclusive())
-                    {
-                        clipRange = otime::TimeRange(
-                            clipRange.start_time() - availableRangeOpt->start_time(),
-                            clipRange.duration());
-                    }
-                }
-            }
             const otime::TimeRange mediaRange(
                 time::round(clipRange.start_time().rescaled_to(ioInfo.audio.sampleRate)),
                 time::round(clipRange.duration().rescaled_to(ioInfo.audio.sampleRate)));

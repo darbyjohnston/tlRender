@@ -353,82 +353,87 @@ namespace tl
         void AudioTest::_copy()
         {
             {
-                const Info info(1, DataType::S8, 10);
+                const Info info(2, DataType::S16, 10);
 
-                uint8_t data[10];
-                std::memset(data, 0, 10);
+                std::vector<uint8_t> data(10 * info.getByteCount(), 0);
 
                 std::list<std::shared_ptr<Audio> > list;
                 for (size_t i = 0; i < 10; ++i)
                 {
                     auto item = Audio::create(info, 1);
-                    item->getData()[0] = i;
+                    reinterpret_cast<audio::S16_T*>(item->getData())[0] = i;
+                    reinterpret_cast<audio::S16_T*>(item->getData())[1] = i;
                     list.push_back(item);
                 }
 
-                copy(list, data, 10);
+                copy(list, data.data(), 10);
 
                 TLRENDER_ASSERT(list.empty());
+                audio::S16_T* p = reinterpret_cast<audio::S16_T*>(data.data());
                 for (size_t i = 0; i < 10; ++i)
                 {
-                    TLRENDER_ASSERT(i == data[i]);
+                    TLRENDER_ASSERT(i == p[i * 2]);
+                    TLRENDER_ASSERT(i == p[i * 2 + 1]);
                 }
             }
             {
-                const Info info(1, DataType::S8, 10);
+                const Info info(2, DataType::S16, 10);
 
-                uint8_t data[10];
-                std::memset(data, 0, 10);
+                std::vector<uint8_t> data(10 * info.getByteCount(), 0);
 
                 std::list<std::shared_ptr<Audio> > list;
                 for (size_t i = 0; i < 5; ++i)
                 {
                     auto item = Audio::create(info, 1);
-                    item->getData()[0] = i;
+                    reinterpret_cast<audio::S16_T*>(item->getData())[0] = i;
+                    reinterpret_cast<audio::S16_T*>(item->getData())[1] = i;
                     list.push_back(item);
                 }
 
-                copy(list, data, 10);
+                copy(list, data.data(), 10);
 
                 TLRENDER_ASSERT(list.empty());
+                audio::S16_T* p = reinterpret_cast<audio::S16_T*>(data.data());
                 size_t i = 0;
                 for (; i < 5; ++i)
                 {
-                    TLRENDER_ASSERT(i == data[i]);
+                    TLRENDER_ASSERT(i == p[i * 2]);
+                    TLRENDER_ASSERT(i == p[i * 2 + 1]);
                 }
                 for (; i < 10; ++i)
                 {
-                    TLRENDER_ASSERT(0 == data[i]);
+                    TLRENDER_ASSERT(0 == p[i * 2]);
+                    TLRENDER_ASSERT(0 == p[i * 2 + 1]);
                 }
             }
             {
-                const Info info(1, DataType::S8, 10);
+                const Info info(2, DataType::S16, 10);
 
-                uint8_t data[10];
-                std::memset(data, 0, 10);
+                std::vector<uint8_t> data(10 * info.getByteCount(), 0);
 
                 std::list<std::shared_ptr<Audio> > list;
                 for (size_t i = 0; i < 15; ++i)
                 {
                     auto item = Audio::create(info, 1);
-                    item->getData()[0] = i;
+                    reinterpret_cast<audio::S16_T*>(item->getData())[0] = i;
+                    reinterpret_cast<audio::S16_T*>(item->getData())[1] = i;
                     list.push_back(item);
                 }
 
-                copy(list, data, 10);
+                copy(list, data.data(), 10);
 
                 TLRENDER_ASSERT(5 == list.size());
+                audio::S16_T* p = reinterpret_cast<audio::S16_T*>(data.data());
                 for (size_t i = 0; i < 10; ++i)
                 {
-                    TLRENDER_ASSERT(i == data[i]);
+                    TLRENDER_ASSERT(i == p[i * 2]);
+                    TLRENDER_ASSERT(i == p[i * 2 + 1]);
                 }
             }
             {
-                const Info info(1, DataType::S8, 10);
+                const Info info(2, DataType::S16, 10);
 
-                auto data = Audio::create(info, 10);
-                uint8_t* dataP = data->getData();
-                std::memset(dataP, 0, 10);
+                std::vector<uint8_t> data(10 * info.getByteCount(), 0);
 
                 std::list<std::shared_ptr<Audio> > list;
                 for (size_t i = 0; i < 4; ++i)
@@ -436,20 +441,23 @@ namespace tl
                     auto item = Audio::create(info, 4);
                     for (size_t j = 0; j < 4; ++j)
                     {
-                        item->getData()[j] = i * 4 + j;
+                        reinterpret_cast<audio::S16_T*>(item->getData())[j * 2] = i * 4 + j;
+                        reinterpret_cast<audio::S16_T*>(item->getData())[j * 2 + 1] = i * 4 + j;
                     }
                     list.push_back(item);
                 }
 
-                copy(list, dataP, 10);
+                copy(list, data.data(), 10);
 
                 TLRENDER_ASSERT(2 == list.size());
-                TLRENDER_ASSERT(2 == list.front()->getByteCount());
-                TLRENDER_ASSERT(10 == list.front()->getData()[0]);
-                TLRENDER_ASSERT(11 == list.front()->getData()[1]);
+                TLRENDER_ASSERT(2 == list.front()->getSampleCount());
+                TLRENDER_ASSERT(10 == reinterpret_cast<audio::S16_T*>(list.front()->getData())[0]);
+                TLRENDER_ASSERT(11 == reinterpret_cast<audio::S16_T*>(list.front()->getData())[2]);
+                audio::S16_T* p = reinterpret_cast<audio::S16_T*>(data.data());
                 for (size_t i = 0; i < 10; ++i)
                 {
-                    TLRENDER_ASSERT(i == dataP[i]);
+                    TLRENDER_ASSERT(i == p[i * 2]);
+                    TLRENDER_ASSERT(i == p[i * 2 + 1]);
                 }
             }
         }

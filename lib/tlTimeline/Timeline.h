@@ -47,8 +47,6 @@ namespace tl
             size_t audioRequestCount = 16;
             std::chrono::milliseconds requestTimeout = std::chrono::milliseconds(5);
 
-            bool fixMissingTimecode = true;
-
             io::Options ioOptions;
 
             file::PathOptions pathOptions;

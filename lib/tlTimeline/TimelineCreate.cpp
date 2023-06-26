@@ -255,7 +255,7 @@ namespace tl
                                 fileInfo->disk_offset +
                                 headerSize,
                                 fileInfo->uncompressed_size,
-                                clip->available_range(),
+                                externalReference->available_range(),
                                 externalReference->metadata());
                             clip->set_media_reference(memoryReference);
                         }
@@ -299,7 +299,7 @@ namespace tl
                                 imageSequenceReference->target_url_for_image_number(0),
                                 memory,
                                 memory_sizes,
-                                clip->available_range(),
+                                imageSequenceReference->available_range(),
                                 imageSequenceReference->metadata());
                             clip->set_media_reference(memoryReference);
                         }
@@ -378,6 +378,7 @@ namespace tl
                     if (!info.video.empty())
                     {
                         startTime = info.videoTime.start_time();
+
                         auto videoClip = new otio::Clip;
                         videoClip->set_source_range(info.videoTime);
                         isSequence = io::FileType::Sequence == ioSystem->getFileType(path.getExtension()) &&
@@ -395,7 +396,9 @@ namespace tl
                         }
                         else
                         {
-                            videoClip->set_media_reference(new otio::ExternalReference(path.get(-1, false)));
+                            videoClip->set_media_reference(new otio::ExternalReference(
+                                path.get(-1, false),
+                                info.videoTime));
                         }
                         videoTrack = new otio::Track("Video", otio::nullopt, otio::Track::Kind::video);
                         videoTrack->append_child(videoClip, &errorStatus);
@@ -428,7 +431,9 @@ namespace tl
 
                                     auto audioClip = new otio::Clip;
                                     audioClip->set_source_range(audioInfo.audioTime);
-                                    audioClip->set_media_reference(new otio::ExternalReference(audioPath.get(-1, false)));
+                                    audioClip->set_media_reference(new otio::ExternalReference(
+                                        audioPath.get(-1, false),
+                                        audioInfo.audioTime));
 
                                     audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
                                     audioTrack->append_child(audioClip, &errorStatus);
@@ -443,9 +448,16 @@ namespace tl
 
                     if (!audioTrack && info.audio.isValid())
                     {
+                        if (time::compareExact(startTime, time::invalidTime))
+                        {
+                            startTime = info.audioTime.start_time();
+                        }
+
                         auto audioClip = new otio::Clip;
                         audioClip->set_source_range(info.audioTime);
-                        audioClip->set_media_reference(new otio::ExternalReference(path.get(-1, false)));
+                        audioClip->set_media_reference(new otio::ExternalReference(
+                            path.get(-1, false),
+                            info.audioTime));
 
                         audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
                         audioTrack->append_child(audioClip, &errorStatus);
@@ -574,7 +586,9 @@ namespace tl
                         }
                         else
                         {
-                            videoClip->set_media_reference(new otio::ExternalReference(path.get(-1, false)));
+                            videoClip->set_media_reference(new otio::ExternalReference(
+                                path.get(-1, false),
+                                info.videoTime));
                         }
                         videoTrack = new otio::Track("Video", otio::nullopt, otio::Track::Kind::video);
                         videoTrack->append_child(videoClip, &errorStatus);
@@ -597,7 +611,9 @@ namespace tl
 
                         auto audioClip = new otio::Clip;
                         audioClip->set_source_range(audioInfo.audioTime);
-                        audioClip->set_media_reference(new otio::ExternalReference(audioPath.get(-1, false)));
+                        audioClip->set_media_reference(new otio::ExternalReference(
+                            audioPath.get(-1, false),
+                            audioInfo.audioTime));
 
                         audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
                         audioTrack->append_child(audioClip, &errorStatus);

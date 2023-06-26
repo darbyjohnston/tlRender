@@ -73,13 +73,19 @@ namespace tl
 
             TLRENDER_P();
 
-            auto i = options.find("ffmpeg/YUVToRGBConversion");
+            auto i = options.find("FFmpeg/StartTime");
+            if (i != options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> p.options.startTime;
+            }
+            i = options.find("FFmpeg/YUVToRGBConversion");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);
                 ss >> p.options.yuvToRGBConversion;
             }
-            i = options.find("ffmpeg/AudioChannelCount");
+            i = options.find("FFmpeg/AudioChannelCount");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);
@@ -87,37 +93,37 @@ namespace tl
                 ss >> channelCount;
                 p.options.audioConvertInfo.channelCount = std::min(channelCount, static_cast<size_t>(255));
             }
-            i = options.find("ffmpeg/AudioDataType");
+            i = options.find("FFmpeg/AudioDataType");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);
                 ss >> p.options.audioConvertInfo.dataType;
             }
-            i = options.find("ffmpeg/AudioSampleRate");
+            i = options.find("FFmpeg/AudioSampleRate");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);
                 ss >> p.options.audioConvertInfo.sampleRate;
             }
-            i = options.find("ffmpeg/ThreadCount");
+            i = options.find("FFmpeg/ThreadCount");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);
                 ss >> p.options.threadCount;
             }
-            i = options.find("ffmpeg/RequestTimeout");
+            i = options.find("FFmpeg/RequestTimeout");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);
                 ss >> p.options.requestTimeout;
             }
-            i = options.find("ffmpeg/VideoBufferSize");
+            i = options.find("FFmpeg/VideoBufferSize");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);
                 ss >> p.options.videoBufferSize;
             }
-            i = options.find("ffmpeg/AudioBufferSize");
+            i = options.find("FFmpeg/AudioBufferSize");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);
@@ -491,13 +497,19 @@ namespace tl
                 // Handle requests.
                 {
                     const size_t bufferSize = p.readAudio->getBufferSize();
+                    bool intersects = false;
                     std::shared_ptr<Private::AudioRequest> request;
                     {
                         std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                        if (p.audioMutex.currentRequest)
+                        {
+                            intersects = p.audioMutex.currentRequest->timeRange.intersects(p.info.audioTime);
+                        }
                         if ((p.audioMutex.currentRequest &&
                             p.audioMutex.currentRequest->timeRange.duration().rescaled_to(p.info.audio.sampleRate).value() <= bufferSize) ||
                             (p.audioMutex.currentRequest && !p.readAudio->isValid()) ||
-                            (p.audioMutex.currentRequest && p.readAudio->isEOF()))
+                            (p.audioMutex.currentRequest && p.readAudio->isEOF()) ||
+                            !intersects)
                         {
                             request = std::move(p.audioMutex.currentRequest);
                         }
@@ -508,12 +520,17 @@ namespace tl
                         data.time = request->timeRange.start_time();
                         data.audio = audio::Audio::create(p.info.audio, request->timeRange.duration().value());
                         data.audio->zero();
-                        size_t offset = 0;
-                        if (data.time < p.info.audioTime.start_time())
+                        if (intersects)
                         {
-                            offset = (p.info.audioTime.start_time() - data.time).value() * p.info.audio.getByteCount();
+                            size_t offset = 0;
+                            if (data.time < p.info.audioTime.start_time())
+                            {
+                                offset = (p.info.audioTime.start_time() - data.time).value();
+                            }
+                            p.readAudio->bufferCopy(
+                                data.audio->getData() + offset * p.info.audio.getByteCount(),
+                                data.audio->getSampleCount() - offset);
                         }
-                        p.readAudio->bufferCopy(data.audio->getData() + offset, data.audio->getByteCount() - offset);
                         request->promise.set_value(data);
 
                         p.audioThread.currentTime += request->timeRange.duration();

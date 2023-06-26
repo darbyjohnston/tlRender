@@ -71,16 +71,14 @@ namespace tl
             const otime::RationalTime&,
             const otio::Track*,
             const otio::Clip*,
-            const io::Info&,
-            bool fixMissingTimecode);
+            const io::Info&);
 
         //! Transform track time to audio media time.
         otime::TimeRange toAudioMediaTime(
             const otime::TimeRange&,
             const otio::Track*,
             const otio::Clip*,
-            const io::Info&,
-            bool fixMissingTimecode);
+            const io::Info&);
     }
 }
 

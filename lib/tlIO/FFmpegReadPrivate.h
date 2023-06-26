@@ -39,6 +39,7 @@ namespace tl
 
         struct Options
         {
+            otime::RationalTime startTime = time::invalidTime;
             bool yuvToRGBConversion = false;
             audio::Info audioConvertInfo;
             size_t threadCount = ffmpeg::threadCount;
@@ -119,7 +120,7 @@ namespace tl
             void process(const otime::RationalTime& currentTime);
 
             size_t getBufferSize() const;
-            void bufferCopy(uint8_t*, size_t byteCount);
+            void bufferCopy(uint8_t*, size_t sampleCount);
 
             bool isEOF() const;
 
