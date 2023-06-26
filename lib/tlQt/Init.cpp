@@ -14,7 +14,7 @@
 #include <tlCore/Context.h>
 #include <tlCore/Mesh.h>
 
-#include <QSurfaceFormat>
+//#include <QSurfaceFormat>
 
 namespace tl
 {
@@ -136,11 +136,11 @@ namespace tl
             QMetaType::registerComparators<timeline::Transition>();
 #endif // QT_VERSION
 
-            QSurfaceFormat surfaceFormat;
-            surfaceFormat.setMajorVersion(4);
-            surfaceFormat.setMinorVersion(1);
-            surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
-            QSurfaceFormat::setDefaultFormat(surfaceFormat);
+            //QSurfaceFormat surfaceFormat;
+            //surfaceFormat.setMajorVersion(4);
+            //surfaceFormat.setMinorVersion(1);
+            //surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
+            //QSurfaceFormat::setDefaultFormat(surfaceFormat);
         }
 
         System::System()
