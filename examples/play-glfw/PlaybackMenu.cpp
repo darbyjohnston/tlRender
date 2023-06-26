@@ -96,7 +96,10 @@ namespace tl
                                 timeline::Playback::Stop == playback ?
                                 _p->playbackPrev :
                                 timeline::Playback::Stop);
-                            _p->playbackPrev = playback;
+                            if (playback != timeline::Playback::Stop)
+                            {
+                                _p->playbackPrev = playback;
+                            }
                         }
                         close();
                     });
