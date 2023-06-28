@@ -40,6 +40,9 @@
 #if defined(TLRENDER_TIFF)
 #include <tlIOTest/TIFFTest.h>
 #endif // TLRENDER_TIFF
+#if defined(TLRENDER_STB)
+#include <tlIOTest/STBTest.h>
+#endif // TLRENDER_STB
 
 #include <tlCoreTest/AudioTest.h>
 #include <tlCoreTest/BBoxTest.h>
@@ -145,6 +148,7 @@ int main(int argc, char* argv[])
             tests.push_back(io_tests::IOTest::create(context));
             tests.push_back(io_tests::PPMTest::create(context));
             tests.push_back(io_tests::SGITest::create(context));
+            tests.push_back(io_tests::STBTest::create(context));
 #if defined(TLRENDER_FFMPEG)
             tests.push_back(io_tests::FFmpegTest::create(context));
 #endif // TLRENDER_FFMPEG

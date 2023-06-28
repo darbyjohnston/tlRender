@@ -8,6 +8,9 @@
 #include <tlIO/DPX.h>
 #include <tlIO/PPM.h>
 #include <tlIO/SGI.h>
+#if defined(TLRENDER_STB)
+#include <tlIO/STB.h>
+#endif
 #if defined(TLRENDER_FFMPEG)
 #include <tlIO/FFmpeg.h>
 #endif // TLRENDER_FFMPEG
@@ -49,6 +52,9 @@ namespace tl
                 _plugins.push_back(dpx::Plugin::create(logSystem));
                 _plugins.push_back(ppm::Plugin::create(logSystem));
                 _plugins.push_back(sgi::Plugin::create(logSystem));
+#if defined(TLRENDER_STB)
+                _plugins.push_back(stb::Plugin::create(logSystem));
+#endif
 #if defined(TLRENDER_FFMPEG)
                 _plugins.push_back(ffmpeg::Plugin::create(logSystem));
 #endif // TLRENDER_FFMPEG

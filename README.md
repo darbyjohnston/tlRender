@@ -112,6 +112,7 @@ except for Qt. Qt should be installed separately.
 | TLRENDER_AUDIO    | Enable support for audio                          | TRUE      |
 | TLRENDER_JPEG     | Enable support for JPEG                           | TRUE      |
 | TLRENDER_TIFF     | Enable support for TIFF                           | TRUE      |
+| TLRENDER_STB      | Enable support for STB I/O (TGA, BMP, PSD)        | TRUE      |
 | TLRENDER_PNG      | Enable support for PNG                            | TRUE      |
 | TLRENDER_EXR      | Enable support for OpenEXR                        | TRUE      |
 | TLRENDER_FFMPEG   | Enable support for FFmpeg                         | TRUE      |
@@ -174,7 +175,7 @@ cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=
 
 Build with only the required dependencies, disabling all optional dependencies.
 ```
-cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DTLRENDER_OCIO=OFF -DTLRENDER_AUDIO=OFF -DTLRENDER_JPEG=OFF -DTLRENDER_TIFF=OFF -DTLRENDER_PNG=OFF -DTLRENDER_EXR=OFF -DTLRENDER_FFMPEG=OFF -DTLRENDER_PROGRAMS=OFF -DTLRENDER_EXAMPLES=OFF -DTLRENDER_TESTS=OFF
+cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DTLRENDER_OCIO=OFF -DTLRENDER_AUDIO=OFF -DTLRENDER_JPEG=OFF -DTLRENDER_TIFF=OFF -DTLRENDER_STB=OFF -DTLRENDER_PNG=OFF -DTLRENDER_EXR=OFF -DTLRENDER_FFMPEG=OFF -DTLRENDER_PROGRAMS=OFF -DTLRENDER_EXAMPLES=OFF -DTLRENDER_TESTS=OFF
 ```
 
 ### Notes for building on Linux
