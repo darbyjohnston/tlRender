@@ -109,6 +109,10 @@ namespace tl
             {
                 throw std::runtime_error(string::Format("{0}: Cannot allocate stream").arg(p.fileName));
             }
+            if (!avCodec->pix_fmts)
+            {
+                throw std::runtime_error(string::Format("{0}: No pixel formats available").arg(p.fileName));
+            }
 
             p.avCodecContext->codec_id = avCodec->id;
             p.avCodecContext->codec_type = AVMEDIA_TYPE_VIDEO;
