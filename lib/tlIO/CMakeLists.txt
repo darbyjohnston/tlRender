@@ -8,8 +8,7 @@ set(HEADERS
     Init.h
     PPM.h
     SequenceIO.h
-    SGI.h
-    STB.h)
+    SGI.h)
 set(HEADERS_PRIVATE
     SequenceIOReadPrivate.h)
 
@@ -30,10 +29,7 @@ set(SOURCE
     SequenceIOWrite.cpp
     SGI.cpp
     SGIRead.cpp
-    SGIWrite.cpp
-    STB.cpp
-    STBRead.cpp
-    STBWrite.cpp)
+    SGIWrite.cpp)
 
 set(LIBRARIES)
 set(LIBRARIES_PRIVATE)
@@ -46,6 +42,10 @@ if(TLRENDER_TIFF)
     list(APPEND HEADERS_PRIVATE TIFF.h)
     list(APPEND SOURCE TIFF.cpp TIFFRead.cpp TIFFWrite.cpp)
     list(APPEND LIBRARIES_PRIVATE TIFF)
+endif()
+if(TLRENDER_STB)
+    list(APPEND HEADERS_PRIVATE STB.h)
+    list(APPEND SOURCE STB.cpp STBRead.cpp STBWrite.cpp)
 endif()
 if(TLRENDER_PNG)
     list(APPEND HEADERS_PRIVATE PNG.h)
