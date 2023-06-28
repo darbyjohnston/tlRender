@@ -25,7 +25,7 @@ namespace tl
             {
             public:
                 File(const std::string& fileName, const file::MemoryRead* memory)
-                    {
+                {
                         int res = 0, w = 0, h = 0, n = 0, bits = 8;
 
                         _memory = memory;
