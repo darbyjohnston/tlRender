@@ -17,8 +17,6 @@ namespace tl
 
     namespace play
     {
-        class FilesModel;
-
         //! Base class for files table models.
         class FilesTableModel : public QAbstractTableModel
         {
