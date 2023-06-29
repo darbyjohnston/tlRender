@@ -2,9 +2,9 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlQtPlayApp/App.h>
+#include "App.h"
 
-#include <tlQtWidget/Init.h>
+#include <tlTimelineUI/Init.h>
 
 #include <iostream>
 
@@ -14,16 +14,12 @@ int main(int argc, char* argv[])
     try
     {
         auto context = tl::system::Context::create();
-        tl::qtwidget::init(
-            tl::qt::DefaultSurfaceFormat::OpenGL_4_1_CoreProfile,
-            context);
-#if (QT_VERSION < QT_VERSION_CHECK(6, 5, 0))
-        QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#endif
-        tl::qtplay::App app(argc, argv, context);
-        if (0 == app.getExit())
+        tl::timelineui::init(context);
+        auto app = tl::examples::play_gl::App::create(argc, argv, context);
+        if (0 == app->getExit())
         {
-            r = app.exec();
+            app->run();
+            r = app->getExit();
         }
     }
     catch(const std::exception& e)
