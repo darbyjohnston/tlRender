@@ -402,8 +402,9 @@ namespace tl
             {
                 if (!p.options.compareFileName.empty())
                 {
-                    p.filesModel->setCompareOptions(p.options.compareOptions);
                     open(QString::fromUtf8(p.options.compareFileName.c_str()));
+                    p.filesModel->setCompareOptions(p.options.compareOptions);
+                    p.filesModel->setB(0, true);
                 }
 
                 open(
