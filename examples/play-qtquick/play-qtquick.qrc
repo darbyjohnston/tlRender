@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>play-qtquick.qml</file>
-    </qresource>
-</RCC>
