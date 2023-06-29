@@ -14,17 +14,14 @@ namespace tl
         {
             otime::TimeRange timeRange = time::invalidTimeRange;
             std::string label;
-            ui::FontRole labelFontRole = ui::FontRole::Label;
             std::string durationLabel;
-            ui::FontRole durationFontRole = ui::FontRole::Label;
+            ui::FontRole fontRole = ui::FontRole::Label;
 
             struct SizeData
             {
                 int margin = 0;
-                int spacing = 0;
                 int border = 0;
-                imaging::FontInfo labelFontInfo = imaging::FontInfo("", 0);
-                imaging::FontInfo durationFontInfo = imaging::FontInfo("", 0);
+                imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
                 int lineHeight = 0;
                 bool textUpdate = true;
                 math::Vector2i labelSize;
@@ -87,21 +84,15 @@ namespace tl
             TLRENDER_P();
 
             p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
-            p.size.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
             p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
 
-            auto fontInfo = event.style->getFontRole(p.labelFontRole, event.displayScale);
-            if (fontInfo != p.size.labelFontInfo || p.size.textUpdate)
+            auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+            if (fontInfo != p.size.fontInfo || p.size.textUpdate)
             {
-                p.size.labelFontInfo = fontInfo;
-                auto fontMetrics = event.getFontMetrics(p.labelFontRole);
+                p.size.fontInfo = fontInfo;
+                auto fontMetrics = event.getFontMetrics(p.fontRole);
                 p.size.lineHeight = fontMetrics.lineHeight;
                 p.size.labelSize = event.fontSystem->getSize(p.label, fontInfo);
-            }
-            fontInfo = event.style->getFontRole(p.durationFontRole, event.displayScale);
-            if (fontInfo != p.size.durationFontInfo || p.size.textUpdate)
-            {
-                p.size.durationFontInfo = fontInfo;
                 p.size.durationSize = event.fontSystem->getSize(p.durationLabel, fontInfo);
             }
             p.size.textUpdate = false;
@@ -166,9 +157,9 @@ namespace tl
             {
                 if (!p.label.empty() && p.draw.labelGlyphs.empty())
                 {
-                    p.draw.labelGlyphs = event.fontSystem->getGlyphs(p.label, p.size.labelFontInfo);
+                    p.draw.labelGlyphs = event.fontSystem->getGlyphs(p.label, p.size.fontInfo);
                 }
-                const auto fontMetrics = event.getFontMetrics(p.labelFontRole);
+                const auto fontMetrics = event.getFontMetrics(p.fontRole);
                 event.render->drawText(
                     p.draw.labelGlyphs,
                     math::Vector2i(
@@ -182,9 +173,9 @@ namespace tl
             {
                 if (!p.durationLabel.empty() && p.draw.durationGlyphs.empty())
                 {
-                    p.draw.durationGlyphs = event.fontSystem->getGlyphs(p.durationLabel, p.size.durationFontInfo);
+                    p.draw.durationGlyphs = event.fontSystem->getGlyphs(p.durationLabel, p.size.fontInfo);
                 }
-                const auto fontMetrics = event.getFontMetrics(p.durationFontRole);
+                const auto fontMetrics = event.getFontMetrics(p.fontRole);
                 event.render->drawText(
                     p.draw.durationGlyphs,
                     math::Vector2i(
