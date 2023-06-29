@@ -8,6 +8,7 @@ set(HEADERS
     TimelineViewport.h
     TimelineWidget.h
     TrackItem.h
+    TransitionItem.h
     VideoClipItem.h
     VideoGapItem.h)
 set(HEADERS_PRIVATE)
@@ -22,6 +23,7 @@ set(SOURCE
     TimelineViewport.cpp
     TimelineWidget.cpp
     TrackItem.cpp
+    TransitionItem.cpp
     VideoClipItem.cpp
     VideoGapItem.cpp)
 

@@ -6,6 +6,7 @@
 
 #include <tlTimelineUI/AudioClipItem.h>
 #include <tlTimelineUI/AudioGapItem.h>
+#include <tlTimelineUI/TransitionItem.h>
 #include <tlTimelineUI/VideoClipItem.h>
 #include <tlTimelineUI/VideoGapItem.h>
 
@@ -19,8 +20,9 @@ namespace tl
         {
             TrackType trackType = TrackType::None;
             otime::TimeRange timeRange = time::invalidTimeRange;
-            std::map<std::shared_ptr<IItem>, otime::TimeRange> childTimeRanges;
-            int margin = 0;
+            std::map<std::shared_ptr<IItem>, otime::TimeRange> itemTimeRanges;
+            std::vector<std::shared_ptr<IItem> > clipsAndGaps;
+            std::vector<std::shared_ptr<IItem> > transitions;
         };
 
         void TrackItem::_init(
@@ -47,18 +49,18 @@ namespace tl
             {
                 if (auto clip = dynamic_cast<otio::Clip*>(child.value))
                 {
-                    std::shared_ptr<IItem> clipItem;
+                    std::shared_ptr<IItem> item;
                     switch (p.trackType)
                     {
                     case TrackType::Video:
-                        clipItem = VideoClipItem::create(
+                        item = VideoClipItem::create(
                             clip,
                             itemData,
                             context,
                             shared_from_this());
                         break;
                     case TrackType::Audio:
-                        clipItem = AudioClipItem::create(
+                        item = AudioClipItem::create(
                             clip,
                             itemData,
                             context,
@@ -69,23 +71,24 @@ namespace tl
                     const auto timeRangeOpt = track->trimmed_range_of_child(clip);
                     if (timeRangeOpt.has_value())
                     {
-                        p.childTimeRanges[clipItem] = timeRangeOpt.value();
+                        p.itemTimeRanges[item] = timeRangeOpt.value();
                     }
+                    p.clipsAndGaps.push_back(item);
                 }
                 else if (auto gap = dynamic_cast<otio::Gap*>(child.value))
                 {
-                    std::shared_ptr<IItem> gapItem;
+                    std::shared_ptr<IItem> item;
                     switch (p.trackType)
                     {
                     case TrackType::Video:
-                        gapItem = VideoGapItem::create(
+                        item = VideoGapItem::create(
                             gap,
                             itemData,
                             context,
                             shared_from_this());
                         break;
                     case TrackType::Audio:
-                        gapItem = AudioGapItem::create(
+                        item = AudioGapItem::create(
                             gap,
                             itemData,
                             context,
@@ -96,8 +99,24 @@ namespace tl
                     const auto timeRangeOpt = track->trimmed_range_of_child(gap);
                     if (timeRangeOpt.has_value())
                     {
-                        p.childTimeRanges[gapItem] = timeRangeOpt.value();
+                        p.itemTimeRanges[item] = timeRangeOpt.value();
                     }
+                    p.clipsAndGaps.push_back(item);
+                }
+                else if (auto transition = dynamic_cast<otio::Transition*>(child.value))
+                {
+                    auto item = TransitionItem::create(
+                        transition,
+                        itemData,
+                        context,
+                        shared_from_this());
+                    const auto timeRangeOpt = track->trimmed_range_of_child(transition);
+                    if (timeRangeOpt.has_value())
+                    {
+                        const otime::TimeRange timeRange = timeRangeOpt.value();
+                        p.itemTimeRanges[item] = timeRange;
+                    }
+                    p.transitions.push_back(item);
                 }
             }
         }
@@ -124,22 +143,38 @@ namespace tl
         {
             IItem::setGeometry(value);
             TLRENDER_P();
-            for (auto child : _children)
+            int y = _geometry.min.y;
+            int h = 0;
+            for (auto item : p.clipsAndGaps)
             {
-                if (auto item = std::dynamic_pointer_cast<IItem>(child))
+                const auto i = p.itemTimeRanges.find(item);
+                if (i != p.itemTimeRanges.end())
                 {
-                    const auto i = p.childTimeRanges.find(item);
-                    if (i != p.childTimeRanges.end())
-                    {
-                        const math::Vector2i& sizeHint = child->getSizeHint();
-                        math::BBox2i bbox(
-                            _geometry.min.x +
-                            i->second.start_time().rescaled_to(1.0).value() * _scale,
-                            _geometry.min.y,
-                            sizeHint.x,
-                            sizeHint.y);
-                        child->setGeometry(bbox);
-                    }
+                    const math::Vector2i& sizeHint = item->getSizeHint();
+                    const math::BBox2i bbox(
+                        _geometry.min.x +
+                        i->second.start_time().rescaled_to(1.0).value() * _scale,
+                        y,
+                        sizeHint.x,
+                        sizeHint.y);
+                    item->setGeometry(bbox);
+                    h = std::max(h, sizeHint.y);
+                }
+            }
+            y += h;
+            for (auto item : p.transitions)
+            {
+                const auto i = p.itemTimeRanges.find(item);
+                if (i != p.itemTimeRanges.end())
+                {
+                    const math::Vector2i& sizeHint = item->getSizeHint();
+                    const math::BBox2i bbox(
+                        _geometry.min.x +
+                        i->second.start_time().rescaled_to(1.0).value() * _scale,
+                        y,
+                        sizeHint.x,
+                        sizeHint.y);
+                    item->setGeometry(bbox);
                 }
             }
         }
@@ -149,17 +184,21 @@ namespace tl
             IItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
-
-            int childrenHeight = 0;
-            for (const auto& child : _children)
+            int clipsAndGapsHeight = 0;
+            for (const auto& item : p.clipsAndGaps)
             {
-                childrenHeight = std::max(childrenHeight, child->getSizeHint().y);
+                clipsAndGapsHeight = std::max(clipsAndGapsHeight, item->getSizeHint().y);
+            }
+            int transitionsHeight = 0;
+            for (const auto& item : p.transitions)
+            {
+                transitionsHeight = std::max(transitionsHeight, item->getSizeHint().y);
             }
 
             _sizeHint = math::Vector2i(
                 p.timeRange.duration().rescaled_to(1.0).value() * _scale,
-                childrenHeight);
+                clipsAndGapsHeight +
+                transitionsHeight);
         }
 
         void TrackItem::drawEvent(
