@@ -48,7 +48,12 @@ namespace tl
                 const math::BBox2i&,
                 const ui::DrawEvent&) override;
 
+        protected:
+            void _timeUnitsUpdate() override;
+
         private:
+            void _textUpdate();
+
             TLRENDER_PRIVATE();
         };
     }
