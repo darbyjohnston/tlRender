@@ -23,6 +23,7 @@
 #include <tlQtPlayApp/SettingsObject.h>
 #include <tlQtPlayApp/SettingsTool.h>
 #include <tlQtPlayApp/SystemLogTool.h>
+#include <tlQtPlayApp/ToolActions.h>
 #include <tlQtPlayApp/ViewActions.h>
 #include <tlQtPlayApp/WindowActions.h>
 
@@ -86,11 +87,12 @@ namespace tl
 
             FileActions* fileActions = nullptr;
             CompareActions* compareActions = nullptr;
+            WindowActions* windowActions = nullptr;
             ViewActions* viewActions = nullptr;
             RenderActions* renderActions = nullptr;
             PlaybackActions* playbackActions = nullptr;
             AudioActions* audioActions = nullptr;
-            WindowActions* windowActions = nullptr;
+            ToolActions* toolActions = nullptr;
 
             qtwidget::TimelineViewport* timelineViewport = nullptr;
             qtwidget::TimelineWidget* timelineWidget = nullptr;
@@ -144,20 +146,22 @@ namespace tl
 
             p.fileActions = new FileActions(app, this);
             p.compareActions = new CompareActions(app, this);
+            p.windowActions = new WindowActions(app, this);
             p.viewActions = new ViewActions(app, this);
             p.renderActions = new RenderActions(app, this);
             p.playbackActions = new PlaybackActions(app, this);
             p.audioActions = new AudioActions(app, this);
-            p.windowActions = new WindowActions(app, this);
+            p.toolActions = new ToolActions(app, this);
 
             auto menuBar = new QMenuBar;
             menuBar->addMenu(p.fileActions->menu());
             menuBar->addMenu(p.compareActions->menu());
+            menuBar->addMenu(p.windowActions->menu());
             menuBar->addMenu(p.viewActions->menu());
             menuBar->addMenu(p.renderActions->menu());
             menuBar->addMenu(p.playbackActions->menu());
             menuBar->addMenu(p.audioActions->menu());
-            menuBar->addMenu(p.windowActions->menu());
+            menuBar->addMenu(p.toolActions->menu());
             setMenuBar(menuBar);
 
             auto fileToolBar = new QToolBar;
@@ -188,6 +192,16 @@ namespace tl
             compareToolBar->addAction(p.compareActions->actions()["Tile"]);
             addToolBar(Qt::TopToolBarArea, compareToolBar);
 
+            auto windowToolBar = new QToolBar;
+            windowToolBar->setObjectName("WindowToolBar");
+            windowToolBar->setWindowTitle("Window Tool Bar");
+            windowToolBar->setIconSize(QSize(20, 20));
+            windowToolBar->setAllowedAreas(Qt::TopToolBarArea);
+            windowToolBar->setFloatable(false);
+            windowToolBar->addAction(p.windowActions->actions()["FullScreen"]);
+            windowToolBar->addAction(p.windowActions->actions()["Secondary"]);
+            addToolBar(Qt::TopToolBarArea, windowToolBar);
+
             auto viewToolBar = new QToolBar;
             viewToolBar->setObjectName("ViewToolBar");
             viewToolBar->setWindowTitle("View Tool Bar");
@@ -198,15 +212,13 @@ namespace tl
             viewToolBar->addAction(p.viewActions->actions()["Zoom1To1"]);
             addToolBar(Qt::TopToolBarArea, viewToolBar);
 
-            auto windowToolBar = new QToolBar;
-            windowToolBar->setObjectName("WindowToolBar");
-            windowToolBar->setWindowTitle("Window Tool Bar");
-            windowToolBar->setIconSize(QSize(20, 20));
-            windowToolBar->setAllowedAreas(Qt::TopToolBarArea);
-            windowToolBar->setFloatable(false);
-            windowToolBar->addAction(p.windowActions->actions()["FullScreen"]);
-            windowToolBar->addAction(p.windowActions->actions()["Secondary"]);
-            addToolBar(Qt::TopToolBarArea, windowToolBar);
+            auto toolsToolBar = new QToolBar;
+            toolsToolBar->setObjectName("ToolsToolBar");
+            toolsToolBar->setWindowTitle("Tools Tool Bar");
+            toolsToolBar->setIconSize(QSize(20, 20));
+            toolsToolBar->setAllowedAreas(Qt::TopToolBarArea);
+            toolsToolBar->setFloatable(false);
+            addToolBar(Qt::TopToolBarArea, toolsToolBar);
 
             auto context = app->getContext();
             p.timelineViewport = new qtwidget::TimelineViewport(context);
@@ -283,71 +295,71 @@ namespace tl
             p.windowActions->menu()->addAction(compareToolBar->toggleViewAction());
             p.windowActions->menu()->addAction(windowToolBar->toggleViewAction());
             p.windowActions->menu()->addAction(viewToolBar->toggleViewAction());
+            p.windowActions->menu()->addAction(toolsToolBar->toggleViewAction());
             p.windowActions->menu()->addAction(timelineDockWidget->toggleViewAction());
             p.windowActions->menu()->addAction(bottomToolBar->toggleViewAction());
 
             p.filesTool = new FilesTool(p.fileActions->actions(), app);
             auto filesDockWidget = new FilesDockWidget(p.filesTool);
             filesDockWidget->hide();
-            p.windowActions->menu()->addSeparator();
-            p.windowActions->menu()->addAction(filesDockWidget->toggleViewAction());
-            windowToolBar->addAction(filesDockWidget->toggleViewAction());
+            p.toolActions->menu()->addAction(filesDockWidget->toggleViewAction());
+            toolsToolBar->addAction(filesDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, filesDockWidget);
 
             p.compareTool = new CompareTool(p.compareActions->actions(), app);
             auto compareDockWidget = new CompareDockWidget(p.compareTool);
             compareDockWidget->hide();
-            p.windowActions->menu()->addAction(compareDockWidget->toggleViewAction());
-            windowToolBar->addAction(compareDockWidget->toggleViewAction());
+            p.toolActions->menu()->addAction(compareDockWidget->toggleViewAction());
+            toolsToolBar->addAction(compareDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, compareDockWidget);
 
             p.colorTool = new ColorTool(app->colorModel());
             auto colorDockWidget = new ColorDockWidget(p.colorTool);
             colorDockWidget->hide();
-            p.windowActions->menu()->addAction(colorDockWidget->toggleViewAction());
-            windowToolBar->addAction(colorDockWidget->toggleViewAction());
+            p.toolActions->menu()->addAction(colorDockWidget->toggleViewAction());
+            toolsToolBar->addAction(colorDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, colorDockWidget);
 
             p.infoTool = new InfoTool(app);
             auto infoDockWidget = new InfoDockWidget(p.infoTool);
             infoDockWidget->hide();
-            p.windowActions->menu()->addAction(infoDockWidget->toggleViewAction());
-            windowToolBar->addAction(infoDockWidget->toggleViewAction());
+            p.toolActions->menu()->addAction(infoDockWidget->toggleViewAction());
+            toolsToolBar->addAction(infoDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, infoDockWidget);
 
             p.audioTool = new AudioTool();
             auto audioDockWidget = new AudioDockWidget(p.audioTool);
             audioDockWidget->hide();
-            p.windowActions->menu()->addAction(audioDockWidget->toggleViewAction());
-            windowToolBar->addAction(audioDockWidget->toggleViewAction());
+            p.toolActions->menu()->addAction(audioDockWidget->toggleViewAction());
+            toolsToolBar->addAction(audioDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, audioDockWidget);
 
             p.devicesTool = new DevicesTool(app);
             auto deviceDockWidget = new DevicesDockWidget(p.devicesTool);
             deviceDockWidget->hide();
-            p.windowActions->menu()->addAction(deviceDockWidget->toggleViewAction());
-            windowToolBar->addAction(deviceDockWidget->toggleViewAction());
+            p.toolActions->menu()->addAction(deviceDockWidget->toggleViewAction());
+            toolsToolBar->addAction(deviceDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, deviceDockWidget);
 
             p.settingsTool = new SettingsTool(app->settingsObject(), app->timeObject());
             auto settingsDockWidget = new SettingsDockWidget(p.settingsTool);
             settingsDockWidget->hide();
-            p.windowActions->menu()->addAction(settingsDockWidget->toggleViewAction());
-            windowToolBar->addAction(settingsDockWidget->toggleViewAction());
+            p.toolActions->menu()->addAction(settingsDockWidget->toggleViewAction());
+            toolsToolBar->addAction(settingsDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, settingsDockWidget);
 
             p.messagesTool = new MessagesTool(context);
             auto messagesDockWidget = new MessagesDockWidget(p.messagesTool);
             messagesDockWidget->hide();
-            p.windowActions->menu()->addAction(messagesDockWidget->toggleViewAction());
-            windowToolBar->addAction(messagesDockWidget->toggleViewAction());
+            p.toolActions->menu()->addAction(messagesDockWidget->toggleViewAction());
+            toolsToolBar->addAction(messagesDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, messagesDockWidget);
 
             p.systemLogTool = new SystemLogTool(context);
             auto systemLogDockWidget = new SystemLogDockWidget(p.systemLogTool);
             systemLogDockWidget->hide();
             systemLogDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F11));
-            p.windowActions->menu()->addAction(systemLogDockWidget->toggleViewAction());
+            p.toolActions->menu()->addAction(systemLogDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, systemLogDockWidget);
 
             p.infoLabel = new QLabel;
@@ -470,44 +482,6 @@ namespace tl
                 });
 
             connect(
-                p.viewActions->actions()["Frame"],
-                &QAction::triggered,
-                [this]
-                {
-                    _p->timelineViewport->frameView();
-                });
-            connect(
-                p.viewActions->actions()["Zoom1To1"],
-                &QAction::triggered,
-                [this]
-                {
-                    _p->timelineViewport->viewZoom1To1();
-                });
-            connect(
-                p.viewActions->actions()["ZoomIn"],
-                &QAction::triggered,
-                [this]
-                {
-                    _p->timelineViewport->viewZoomIn();
-                });
-            connect(
-                p.viewActions->actions()["ZoomOut"],
-                &QAction::triggered,
-                [this]
-                {
-                    _p->timelineViewport->viewZoomOut();
-                });
-
-            connect(
-                p.playbackActions->actions()["FocusCurrentFrame"],
-                &QAction::triggered,
-                [this]
-                {
-                    _p->currentTimeSpinBox->setFocus(Qt::OtherFocusReason);
-                    _p->currentTimeSpinBox->selectAll();
-                });
-
-            connect(
                 p.windowActions,
                 &WindowActions::resize,
                 [this](const imaging::Size& size)
@@ -559,6 +533,44 @@ namespace tl
                         }
                         _p->secondaryWindow->show();
                     }
+                });
+
+            connect(
+                p.viewActions->actions()["Frame"],
+                &QAction::triggered,
+                [this]
+                {
+                    _p->timelineViewport->frameView();
+                });
+            connect(
+                p.viewActions->actions()["Zoom1To1"],
+                &QAction::triggered,
+                [this]
+                {
+                    _p->timelineViewport->viewZoom1To1();
+                });
+            connect(
+                p.viewActions->actions()["ZoomIn"],
+                &QAction::triggered,
+                [this]
+                {
+                    _p->timelineViewport->viewZoomIn();
+                });
+            connect(
+                p.viewActions->actions()["ZoomOut"],
+                &QAction::triggered,
+                [this]
+                {
+                    _p->timelineViewport->viewZoomOut();
+                });
+
+            connect(
+                p.playbackActions->actions()["FocusCurrentFrame"],
+                &QAction::triggered,
+                [this]
+                {
+                    _p->currentTimeSpinBox->setFocus(Qt::OtherFocusReason);
+                    _p->currentTimeSpinBox->selectAll();
                 });
 
             connect(

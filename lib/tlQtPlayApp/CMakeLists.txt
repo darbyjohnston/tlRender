@@ -27,6 +27,7 @@ set(HEADERS
     SettingsObject.h
     SettingsTool.h
     SystemLogTool.h
+    ToolActions.h
     ToolWidget.h
     ViewActions.h
     WindowActions.h)
@@ -60,6 +61,7 @@ set(SOURCE
     SettingsObject.cpp
     SettingsTool.cpp
     SystemLogTool.cpp
+    ToolActions.cpp
     ToolWidget.cpp
     ViewActions.cpp
     WindowActions.cpp)

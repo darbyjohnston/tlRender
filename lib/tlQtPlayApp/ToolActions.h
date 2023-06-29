@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore/Image.h>
+#include <tlCore/Util.h>
 
 #include <QAction>
 #include <QObject>
@@ -18,25 +18,21 @@ namespace tl
     {
         class App;
 
-        //! Window actions.
-        class WindowActions : public QObject
+        //! Tool actions.
+        class ToolActions : public QObject
         {
             Q_OBJECT
 
         public:
-            WindowActions(App*, QObject* parent = nullptr);
+            ToolActions(App*, QObject* parent = nullptr);
 
-            ~WindowActions() override;
+            ~ToolActions() override;
 
             //! Get the actions.
             const QMap<QString, QAction*>& actions() const;
 
             //! Get the menu.
             QMenu* menu() const;
-
-        Q_SIGNALS:
-            //! This signal is emitted to resize the window.
-            void resize(const tl::imaging::Size&);
 
         private:
             void _actionsUpdate();
