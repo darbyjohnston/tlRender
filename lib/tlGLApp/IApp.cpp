@@ -209,6 +209,7 @@ namespace tl
             glfwSetScrollCallback(p.glfwWindow, _scrollCallback);
             glfwSetKeyCallback(p.glfwWindow, _keyCallback);
             glfwSetCharCallback(p.glfwWindow, _charCallback);
+            glfwSetDropCallback(p.glfwWindow, _dropCallback);
             glfwShowWindow(p.glfwWindow);
 
             // Initialize the user interface.
@@ -368,6 +369,9 @@ namespace tl
                     0);
             }
         }
+
+        void IApp::_drop(const std::vector<std::string>&)
+        {}
 
         void IApp::_tick()
         {}
@@ -585,6 +589,17 @@ namespace tl
             IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
             std::wstring_convert<std::codecvt_utf8<tl_char_t>, tl_char_t> utf32Convert;
             app->_p->eventLoop->text(utf32Convert.to_bytes(c));
+        }
+
+        void IApp::_dropCallback(GLFWwindow* glfwWindow, int count, const char** fileNames)
+        {
+            IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
+            std::vector<std::string> tmp;
+            for (int i = 0; i < count; ++i)
+            {
+                tmp.push_back(fileNames[i]);
+            }
+            app->_drop(tmp);
         }
     }
 }

@@ -336,6 +336,14 @@ namespace tl
             return _p->players;
         }
 
+        void App::_drop(const std::vector<std::string>& value)
+        {
+            if (!value.empty())
+            {
+                open(value[0]);
+            }
+        }
+
         void App::_tick()
         {
             TLRENDER_P();

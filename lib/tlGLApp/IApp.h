@@ -64,6 +64,8 @@ namespace tl
             void setWindowFullScreen(bool);
 
         protected:
+            virtual void _drop(const std::vector<std::string>&);
+
             virtual void _tick();
 
         private:
@@ -75,6 +77,7 @@ namespace tl
             static void _scrollCallback(GLFWwindow*, double, double);
             static void _keyCallback(GLFWwindow*, int, int, int, int);
             static void _charCallback(GLFWwindow*, unsigned int);
+            static void _dropCallback(GLFWwindow*, int, const char**);
 
             TLRENDER_PRIVATE();
         };

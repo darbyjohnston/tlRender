@@ -20,15 +20,6 @@ namespace tl
     {
         class MainWindow;
 
-        //! HUD elements.
-        enum class HUDElement
-        {
-            UpperLeft,
-            UpperRight,
-            LowerLeft,
-            LowerRight
-        };
-
         //! Application options.
         struct Options
         {
@@ -94,6 +85,7 @@ namespace tl
             std::shared_ptr<observer::IList<std::shared_ptr<timeline::Player> > > observePlayers() const;
 
         protected:
+            void _drop(const std::vector<std::string>&) override;
             void _tick() override;
 
         private:
