@@ -175,9 +175,7 @@ namespace tl
             IItem::setGeometry(value);
             TLRENDER_P();
             int y = _geometry.min.y +
-                p.size.margin +
-                p.size.lineHeight +
-                p.size.margin;
+                p.size.lineHeight;
             int h = 0;
             for (auto item : p.clipsAndGaps)
             {
@@ -218,7 +216,7 @@ namespace tl
             IItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
+            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, event.displayScale);
 
             auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             if (fontInfo != p.size.fontInfo || p.size.textUpdate)
@@ -244,9 +242,7 @@ namespace tl
 
             _sizeHint = math::Vector2i(
                 p.timeRange.duration().rescaled_to(1.0).value() * _scale,
-                p.size.margin +
                 p.size.lineHeight +
-                p.size.margin +
                 clipsAndGapsHeight +
                 transitionsHeight);
         }
@@ -263,16 +259,14 @@ namespace tl
             const math::BBox2i labelGeometry(
                 g.min.x +
                 p.size.margin,
-                g.min.y +
-                p.size.margin,
+                g.min.y,
                 p.size.labelSize.x,
                 p.size.lineHeight);
             const math::BBox2i durationGeometry(
                 g.max.x -
                 p.size.margin -
                 p.size.durationSize.x,
-                g.min.y +
-                p.size.margin,
+                g.min.y,
                 p.size.durationSize.x,
                 p.size.lineHeight);
             const bool labelVisible = drawRect.intersects(labelGeometry);

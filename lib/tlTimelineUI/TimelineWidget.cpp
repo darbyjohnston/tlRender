@@ -21,16 +21,10 @@ namespace tl
             float mouseWheelScale = 1.1F;
             double scale = 500.0;
             ItemOptions itemOptions;
+            bool sizeInit = true;
 
             std::shared_ptr<ui::ScrollWidget> scrollWidget;
             std::shared_ptr<TimelineItem> timelineItem;
-
-            struct SizeData
-            {
-                bool init = true;
-                int margin = 0;
-            };
-            SizeData size;
 
             enum class MouseMode
             {
@@ -247,9 +241,9 @@ namespace tl
             IWidget::setGeometry(value);
             TLRENDER_P();
             p.scrollWidget->setGeometry(value);
-            if (p.size.init)
+            if (p.sizeInit)
             {
-                p.size.init = false;
+                p.sizeInit = false;
                 frameView();
             }
             else if (changed && p.frameView)
@@ -282,9 +276,6 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
-
-            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, event.displayScale);
-
             const int sa = event.style->getSizeRole(ui::SizeRole::ScrollArea, event.displayScale);
             _sizeHint.x = sa;
             _sizeHint.y = sa * 2;
@@ -436,7 +427,7 @@ namespace tl
                 if (duration > 0.0)
                 {
                     const math::BBox2i scrollViewport = p.scrollWidget->getViewport();
-                    out = (scrollViewport.w() - p.size.margin * 2) / duration;
+                    out = scrollViewport.w() / duration;
                 }
             }
             return out;

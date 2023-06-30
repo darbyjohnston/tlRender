@@ -21,7 +21,6 @@ namespace tl
             struct SizeData
             {
                 int margin = 0;
-                int spacing = 0;
                 int border = 0;
                 imaging::FontInfo labelFontInfo = imaging::FontInfo("", 0);
                 imaging::FontInfo durationFontInfo = imaging::FontInfo("", 0);
@@ -86,8 +85,7 @@ namespace tl
             IItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
-            p.size.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
+            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, event.displayScale);
             p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
 
             auto fontInfo = event.style->getFontRole(p.labelFontRole, event.displayScale);
@@ -108,9 +106,8 @@ namespace tl
 
             _sizeHint = math::Vector2i(
                 p.timeRange.duration().rescaled_to(1.0).value() * _scale,
-                p.size.margin +
                 p.size.lineHeight +
-                p.size.margin);
+                p.size.border * 2);
         }
 
         void TransitionItem::clipEvent(
@@ -134,27 +131,23 @@ namespace tl
             IItem::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::BBox2i& g = _geometry;
+            const math::BBox2i g = _geometry.margin(-p.size.border);
 
-            const math::BBox2i g2 = g.margin(-p.size.border);
-            event.render->drawMesh(
-                ui::rect(g2, p.size.margin),
-                math::Vector2i(),
+            event.render->drawRect(
+                g,
                 _options.colors[ColorRole::Transition]);
 
             const math::BBox2i labelGeometry(
                 g.min.x +
                 p.size.margin,
-                g.min.y +
-                p.size.margin,
+                g.min.y,
                 p.size.labelSize.x,
                 p.size.lineHeight);
             const math::BBox2i durationGeometry(
                 g.max.x -
                 p.size.margin -
                 p.size.durationSize.x,
-                g.min.y +
-                p.size.margin,
+                g.min.y,
                 p.size.durationSize.x,
                 p.size.lineHeight);
             const bool labelVisible = drawRect.intersects(labelGeometry);

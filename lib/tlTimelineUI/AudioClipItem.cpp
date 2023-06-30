@@ -37,7 +37,6 @@ namespace tl
             struct SizeData
             {
                 int margin = 0;
-                int spacing = 0;
                 int border = 0;
                 imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
                 int lineHeight = 0;
@@ -299,8 +298,7 @@ namespace tl
             IItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
-            p.size.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
+            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, event.displayScale);
             p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
 
             auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
@@ -327,12 +325,11 @@ namespace tl
 
             _sizeHint = math::Vector2i(
                 p.timeRange.duration().rescaled_to(1.0).value() * _scale,
-                p.size.margin +
                 p.size.lineHeight +
-                p.size.margin);
+                p.size.border * 2);
             if (_options.thumbnails)
             {
-                _sizeHint.y += p.size.spacing + _options.waveformHeight;
+                _sizeHint.y += _options.waveformHeight;
             }
         }
 
@@ -362,12 +359,10 @@ namespace tl
             IItem::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::BBox2i& g = _geometry;
+            const math::BBox2i g = _geometry.margin(-p.size.border);
 
-            const math::BBox2i g2 = g.margin(-p.size.border);
-            event.render->drawMesh(
-                ui::rect(g2, p.size.margin),
-                math::Vector2i(),
+            event.render->drawRect(
+                g,
                 _options.colors[ColorRole::AudioClip]);
 
             _drawInfo(drawRect, event);
@@ -399,21 +394,19 @@ namespace tl
         {
             TLRENDER_P();
 
-            const math::BBox2i& g = _geometry;
+            const math::BBox2i g = _geometry.margin(-p.size.border);
 
             const math::BBox2i labelGeometry(
                 g.min.x +
                 p.size.margin,
-                g.min.y +
-                p.size.margin,
+                g.min.y,
                 p.size.labelSize.x,
                 p.size.lineHeight);
             const math::BBox2i durationGeometry(
                 g.max.x -
                 p.size.margin -
                 p.size.durationSize.x,
-                g.min.y +
-                p.size.margin,
+                g.min.y,
                 p.size.durationSize.x,
                 p.size.lineHeight);
             const bool labelVisible = drawRect.intersects(labelGeometry);
@@ -460,17 +453,14 @@ namespace tl
         {
             TLRENDER_P();
 
-            const math::BBox2i& g = _geometry;
+            const math::BBox2i g = _geometry.margin(-p.size.border);
             const auto now = std::chrono::steady_clock::now();
 
             const math::BBox2i bbox(
-                g.min.x +
-                p.size.margin,
+                g.min.x,
                 g.min.y +
-                p.size.margin +
-                p.size.lineHeight +
-                p.size.spacing,
-                _sizeHint.x - p.size.margin * 2,
+                p.size.lineHeight,
+                g.w(),
                 _options.waveformHeight);
             event.render->drawRect(
                 bbox,
@@ -505,17 +495,14 @@ namespace tl
 
             if (p.size.waveformWidth > 0)
             {
-                const int w = _sizeHint.x - p.size.margin * 2;
+                const int w = _sizeHint.x;
                 for (int x = 0; x < w; x += p.size.waveformWidth)
                 {
                     math::BBox2i bbox(
                         g.min.x +
-                        p.size.margin +
                         x,
                         g.min.y +
-                        p.size.margin +
-                        p.size.lineHeight +
-                        p.size.spacing,
+                        p.size.lineHeight,
                         p.size.waveformWidth,
                         _options.waveformHeight);
                     if (bbox.intersects(clipRect))

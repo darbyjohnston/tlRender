@@ -150,8 +150,7 @@ namespace tl
                 p.size.fontMetrics.lineHeight +
                 p.size.margin +
                 p.size.border * 4 +
-                p.size.border +
-                p.size.margin;
+                p.size.border;
             for (const auto& child : _children)
             {
                 const auto& sizeHint = child->getSizeHint();
@@ -187,17 +186,13 @@ namespace tl
             }
 
             _sizeHint = math::Vector2i(
-                p.size.margin +
-                p.timeRange.duration().rescaled_to(1.0).value() * _scale +
-                p.size.margin,
+                p.timeRange.duration().rescaled_to(1.0).value() * _scale,
                 p.size.margin +
                 p.size.fontMetrics.lineHeight +
                 p.size.margin +
                 p.size.border * 4 +
                 p.size.border +
-                p.size.margin +
-                childrenHeight +
-                p.size.margin);
+                childrenHeight);
         }
 
         void TimelineItem::clipEvent(
@@ -275,8 +270,7 @@ namespace tl
                 {
                     p.player->setPlayback(timeline::Playback::Stop);
                 }
-                const math::BBox2i bbox = _geometry.margin(-p.size.margin);
-                if (bbox.contains(event.pos))
+                if (_geometry.contains(event.pos))
                 {
                     p.mouse.currentTimeDrag = true;
                     p.player->seek(_posToTime(event.pos.x));
@@ -440,7 +434,7 @@ namespace tl
             const math::Vector2i labelMaxSize = event.fontSystem->getSize(labelMax, fontInfo);
             const int distanceMin = p.size.border + p.size.spacing + labelMaxSize.x;
 
-            const int w = _sizeHint.x - p.size.margin * 2;
+            const int w = _sizeHint.x;
             const float duration = p.timeRange.duration().rescaled_to(1.0).value();
             const int frameTick = 1.0 / p.timeRange.duration().value() * w;
             if (frameTick >= handle)
@@ -451,7 +445,6 @@ namespace tl
                 {
                     const math::BBox2i bbox(
                         g.min.x +
-                        p.size.margin +
                         t / duration * w,
                         p.size.scrollPos.y +
                         g.min.y +
@@ -508,7 +501,6 @@ namespace tl
                 {
                     const math::BBox2i bbox(
                         g.min.x +
-                        p.size.margin +
                         t / duration * w,
                         p.size.scrollPos.y +
                         g.min.y,
@@ -540,7 +532,6 @@ namespace tl
                 {
                     const math::BBox2i bbox(
                         g.min.x +
-                        p.size.margin +
                         t / duration * w +
                         p.size.border +
                         p.size.spacing,
@@ -695,11 +686,10 @@ namespace tl
         {
             TLRENDER_P();
             otime::RationalTime out = time::invalidTime;
-            const math::BBox2i bbox = _geometry.margin(-p.size.margin);
-            if (bbox.w() > 0)
+            if (_geometry.w() > 0)
             {
                 const double normalized =
-                    (value - bbox.min.x) / static_cast<double>(bbox.w());
+                    (value - _geometry.min.x) / static_cast<double>(_geometry.w());
                 out = time::round(
                     p.timeRange.start_time() +
                     otime::RationalTime(
@@ -720,11 +710,10 @@ namespace tl
             if (!time::compareExact(value, time::invalidTime) &&
                 p.timeRange.duration().value() > 0.0)
             {
-                const math::BBox2i bbox = _geometry.margin(-p.size.margin);
                 const float normalized =
                     (value.value() - p.timeRange.start_time().value()) /
                     p.timeRange.duration().value();
-                out = bbox.min.x + normalized * bbox.w();
+                out = _geometry.min.x + normalized * _geometry.w();
             }
             return out;
         }
