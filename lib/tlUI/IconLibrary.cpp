@@ -285,7 +285,7 @@ namespace tl
                     TLRENDER_P();
                     while (p.thread.running)
                     {
-                        std::shared_ptr<Private::Request> request;
+                        std::list<std::shared_ptr<Private::Request> > requests;
                         {
                             std::unique_lock<std::mutex> lock(p.mutex.mutex);
                             if (p.thread.cv.wait_for(
@@ -296,14 +296,10 @@ namespace tl
                                     return !_p->mutex.requests.empty();
                                 }))
                             {
-                                if (!p.mutex.requests.empty())
-                                {
-                                    request = p.mutex.requests.front();
-                                    p.mutex.requests.pop_front();
-                                }
+                                std::swap(requests, p.mutex.requests);
                             }
                         }
-                        if (request)
+                        for (const auto& request : requests)
                         {
                             std::shared_ptr<imaging::Image> image;
                             int dpi = 96;
