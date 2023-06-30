@@ -1,6 +1,7 @@
 set(HEADERS
     AudioClipItem.h
     AudioGapItem.h
+    IBasicItem.h
     IItem.h
     IOManager.h
     Init.h
@@ -16,6 +17,7 @@ set(HEADERS_PRIVATE)
 set(SOURCE
     AudioClipItem.cpp
     AudioGapItem.cpp
+    IBasicItem.cpp
     IItem.cpp
     IOManager.cpp
     Init.cpp

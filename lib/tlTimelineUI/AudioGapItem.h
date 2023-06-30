@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlTimelineUI/IItem.h>
+#include <tlTimelineUI/IBasicItem.h>
 
 #include <opentimelineio/gap.h>
 
@@ -13,7 +13,7 @@ namespace tl
     namespace timelineui
     {
         //! Audio gap item.
-        class AudioGapItem : public IItem
+        class AudioGapItem : public IBasicItem
         {
         protected:
             void _init(
@@ -33,23 +33,6 @@ namespace tl
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
-
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
-            void clipEvent(
-                const math::BBox2i&,
-                bool,
-                const ui::ClipEvent&) override;
-            void drawEvent(
-                const math::BBox2i&,
-                const ui::DrawEvent&) override;
-
-        protected:
-            void _timeUnitsUpdate() override;
-
-        private:
-            void _textUpdate();
-
-            TLRENDER_PRIVATE();
         };
     }
 }

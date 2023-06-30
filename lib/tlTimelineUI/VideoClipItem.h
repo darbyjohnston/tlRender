@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlTimelineUI/IItem.h>
+#include <tlTimelineUI/IBasicItem.h>
 
 #include <opentimelineio/clip.h>
 
@@ -13,7 +13,7 @@ namespace tl
     namespace timelineui
     {
         //! Video clip item.
-        class VideoClipItem : public IItem
+        class VideoClipItem : public IBasicItem
         {
         protected:
             void _init(
@@ -50,12 +50,7 @@ namespace tl
                 const math::BBox2i&,
                 const ui::DrawEvent&) override;
 
-        protected:
-            void _timeUnitsUpdate() override;
-
         private:
-            void _textUpdate();
-
             void _drawInfo(
                 const math::BBox2i&,
                 const ui::DrawEvent&);

@@ -28,32 +28,15 @@ namespace tl
             std::vector<file::MemoryRead> memoryRead;
             otime::TimeRange timeRange = time::invalidTimeRange;
             otime::TimeRange availableRange = time::invalidTimeRange;
-            std::string label;
-            std::string durationLabel;
-            ui::FontRole fontRole = ui::FontRole::Label;
             bool ioInfoInit = true;
             io::Info ioInfo;
 
             struct SizeData
             {
-                int margin = 0;
-                int border = 0;
-                imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
-                int lineHeight = 0;
-                bool textUpdate = true;
-                math::Vector2i labelSize;
-                math::Vector2i durationSize;
                 int waveformWidth = 0;
                 math::BBox2i clipRect;
             };
             SizeData size;
-
-            struct DrawData
-            {
-                std::vector<std::shared_ptr<imaging::Glyph> > labelGlyphs;
-                std::vector<std::shared_ptr<imaging::Glyph> > durationGlyphs;
-            };
-            DrawData draw;
 
             struct AudioFuture
             {
@@ -79,20 +62,27 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IItem::_init("tl::timelineui::AudioClipItem", itemData, context, parent);
+            const auto rangeOpt = clip->trimmed_range_in_parent();
+            const auto path = timeline::getPath(
+                clip->media_reference(),
+                itemData.directory,
+                itemData.options.pathOptions);
+            IBasicItem::_init(
+                rangeOpt.has_value() ? rangeOpt.value() : time::invalidTimeRange,
+                !clip->name().empty() ? clip->name() : path.get(-1, false),
+                _options.colors[ColorRole::AudioClip],
+                "tl::timelineui::AudioClipItem",
+                itemData,
+                context,
+                parent);
             TLRENDER_P();
 
             p.clip = clip;
             p.track = dynamic_cast<otio::Track*>(clip->parent());
 
-            p.path = timeline::getPath(
-                p.clip->media_reference(),
-                itemData.directory,
-                itemData.options.pathOptions);
-            p.memoryRead = timeline::getMemoryRead(
-                p.clip->media_reference());
+            p.path = path;
+            p.memoryRead = timeline::getMemoryRead(p.clip->media_reference());
 
-            auto rangeOpt = clip->trimmed_range_in_parent();
             if (rangeOpt.has_value())
             {
                 p.timeRange = rangeOpt.value();
@@ -107,13 +97,6 @@ namespace tl
             {
                 p.availableRange = clip->source_range().value();
             }
-
-            p.label = clip->name();
-            if (p.label.empty())
-            {
-                p.label = p.path.get(-1, false);
-            }
-            _textUpdate();
 
             p.cancelObserver = observer::ValueObserver<bool>::create(
                 _data.ioManager->observeCancelRequests(),
@@ -144,7 +127,7 @@ namespace tl
         void AudioClipItem::setScale(double value)
         {
             const bool changed = value != _scale;
-            IItem::setScale(value);
+            IBasicItem::setScale(value);
             TLRENDER_P();
             if (changed)
             {
@@ -159,7 +142,7 @@ namespace tl
             const bool thumbnailsChanged =
                 value.thumbnails != _options.thumbnails ||
                 value.waveformHeight != _options.waveformHeight;
-            IItem::setOptions(value);
+            IBasicItem::setOptions(value);
             TLRENDER_P();
             if (thumbnailsChanged)
             {
@@ -295,23 +278,8 @@ namespace tl
 
         void AudioClipItem::sizeHintEvent(const ui::SizeHintEvent& event)
         {
-            IItem::sizeHintEvent(event);
+            IBasicItem::sizeHintEvent(event);
             TLRENDER_P();
-
-            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, event.displayScale);
-            p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
-
-            auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-            if (fontInfo != p.size.fontInfo || p.size.textUpdate)
-            {
-                p.size.fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
-                auto fontMetrics = event.getFontMetrics(p.fontRole);
-                p.size.lineHeight = fontMetrics.lineHeight;
-                p.size.labelSize = event.fontSystem->getSize(p.label, p.size.fontInfo);
-                p.size.durationSize = event.fontSystem->getSize(p.durationLabel, p.size.fontInfo);
-            }
-            p.size.textUpdate = false;
-
             const int waveformWidth = _options.thumbnails ?
                 (otime::RationalTime(1.0, 1.0).value() * _scale) :
                 0;
@@ -322,11 +290,6 @@ namespace tl
                 p.audioData.clear();
                 _updates |= ui::Update::Draw;
             }
-
-            _sizeHint = math::Vector2i(
-                p.timeRange.duration().rescaled_to(1.0).value() * _scale,
-                p.size.lineHeight +
-                p.size.border * 2);
             if (_options.thumbnails)
             {
                 _sizeHint.y += _options.waveformHeight;
@@ -338,16 +301,11 @@ namespace tl
             bool clipped,
             const ui::ClipEvent& event)
         {
-            IItem::clipEvent(clipRect, clipped, event);
+            IBasicItem::clipEvent(clipRect, clipped, event);
             TLRENDER_P();
             if (clipRect == p.size.clipRect)
                 return;
             p.size.clipRect = clipRect;
-            if (clipped)
-            {
-                p.draw.labelGlyphs.clear();
-                p.draw.durationGlyphs.clear();
-            }
             _data.ioManager->cancelRequests();
             _updates |= ui::Update::Draw;
         }
@@ -356,94 +314,10 @@ namespace tl
             const math::BBox2i& drawRect,
             const ui::DrawEvent& event)
         {
-            IItem::drawEvent(drawRect, event);
-            TLRENDER_P();
-
-            const math::BBox2i g = _geometry.margin(-p.size.border);
-
-            event.render->drawRect(
-                g,
-                _options.colors[ColorRole::AudioClip]);
-
-            _drawInfo(drawRect, event);
+            IBasicItem::drawEvent(drawRect, event);
             if (_options.thumbnails)
             {
                 _drawWaveforms(drawRect, event);
-            }
-        }
-
-        void AudioClipItem::_timeUnitsUpdate()
-        {
-            IItem::_timeUnitsUpdate();
-            _textUpdate();
-        }
-
-        void AudioClipItem::_textUpdate()
-        {
-            TLRENDER_P();
-            p.durationLabel = IItem::_durationLabel(p.timeRange.duration());
-            p.size.textUpdate = true;
-            p.draw.durationGlyphs.clear();
-            _updates |= ui::Update::Size;
-            _updates |= ui::Update::Draw;
-        }
-
-        void AudioClipItem::_drawInfo(
-            const math::BBox2i& drawRect,
-            const ui::DrawEvent& event)
-        {
-            TLRENDER_P();
-
-            const math::BBox2i g = _geometry.margin(-p.size.border);
-
-            const math::BBox2i labelGeometry(
-                g.min.x +
-                p.size.margin,
-                g.min.y,
-                p.size.labelSize.x,
-                p.size.lineHeight);
-            const math::BBox2i durationGeometry(
-                g.max.x -
-                p.size.margin -
-                p.size.durationSize.x,
-                g.min.y,
-                p.size.durationSize.x,
-                p.size.lineHeight);
-            const bool labelVisible = drawRect.intersects(labelGeometry);
-            const bool durationVisible =
-                drawRect.intersects(durationGeometry) &&
-                !durationGeometry.intersects(labelGeometry);
-
-            if (labelVisible)
-            {
-                if (!p.label.empty() && p.draw.labelGlyphs.empty())
-                {
-                    p.draw.labelGlyphs = event.fontSystem->getGlyphs(p.label, p.size.fontInfo);
-                }
-                const auto fontMetrics = event.getFontMetrics(p.fontRole);
-                event.render->drawText(
-                    p.draw.labelGlyphs,
-                    math::Vector2i(
-                        labelGeometry.min.x,
-                        labelGeometry.min.y +
-                        fontMetrics.ascender),
-                    event.style->getColorRole(ui::ColorRole::Text));
-            }
-
-            if (durationVisible)
-            {
-                if (!p.durationLabel.empty() && p.draw.durationGlyphs.empty())
-                {
-                    p.draw.durationGlyphs = event.fontSystem->getGlyphs(p.durationLabel, p.size.fontInfo);
-                }
-                const auto fontMetrics = event.getFontMetrics(p.fontRole);
-                event.render->drawText(
-                    p.draw.durationGlyphs,
-                    math::Vector2i(
-                        durationGeometry.min.x,
-                        durationGeometry.min.y +
-                        fontMetrics.ascender),
-                    event.style->getColorRole(ui::ColorRole::Text));
             }
         }
 
@@ -453,13 +327,13 @@ namespace tl
         {
             TLRENDER_P();
 
-            const math::BBox2i g = _geometry.margin(-p.size.border);
+            const math::BBox2i g = _getInsideGeometry();
             const auto now = std::chrono::steady_clock::now();
 
             const math::BBox2i bbox(
                 g.min.x,
                 g.min.y +
-                p.size.lineHeight,
+                _getLineHeight(),
                 g.w(),
                 _options.waveformHeight);
             event.render->drawRect(
@@ -502,7 +376,7 @@ namespace tl
                         g.min.x +
                         x,
                         g.min.y +
-                        p.size.lineHeight,
+                        _getLineHeight(),
                         p.size.waveformWidth,
                         _options.waveformHeight);
                     if (bbox.intersects(clipRect))
