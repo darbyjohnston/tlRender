@@ -622,7 +622,7 @@
                     }
                 ],
                 "kind": "Audio", 
-                "name": "Track"
+                "name": "Audio"
             }
         ], 
         "name": "Stack"
