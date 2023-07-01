@@ -23,7 +23,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::Loop> > loopObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
             std::shared_ptr<observer::ValueObserver<otime::TimeRange> > inOutRangeObserver;
-            std::shared_ptr<observer::ValueObserver<uint16_t> > videoLayerObserver;
+            std::shared_ptr<observer::ValueObserver<size_t> > videoLayerObserver;
             std::shared_ptr<observer::ValueObserver<timeline::VideoData> > currentVideoObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
@@ -76,9 +76,9 @@ namespace tl
                     Q_EMIT inOutRangeChanged(value);
                 });
 
-            p.videoLayerObserver = observer::ValueObserver<uint16_t>::create(
+            p.videoLayerObserver = observer::ValueObserver<size_t>::create(
                 p.player->observeVideoLayer(),
-                [this](uint16_t value)
+                [this](size_t value)
                 {
                     Q_EMIT videoLayerChanged(value);
                 });

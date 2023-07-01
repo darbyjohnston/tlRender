@@ -56,7 +56,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->open();
+                        app->openDialog();
                     }
                 });
             p.buttons["OpenSeparateAudio"]->setClickedCallback(
@@ -71,7 +71,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->close();
+                        app->getFilesModel()->close();
                     }
                 });
             p.buttons["CloseAll"]->setClickedCallback(
@@ -79,7 +79,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->closeAll();
+                        app->getFilesModel()->closeAll();
                     }
                 });
 

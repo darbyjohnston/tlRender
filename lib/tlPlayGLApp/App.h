@@ -4,6 +4,8 @@
 
 #include <tlGLApp/IApp.h>
 
+#include <tlPlay/FilesModel.h>
+
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/Player.h>
 
@@ -28,6 +30,7 @@ namespace tl
             imaging::Size windowSize = imaging::Size(1280, 720);
             bool fullscreen = false;
             bool hud = true;
+            double speed = 0.0;
             timeline::Playback playback = timeline::Playback::Stop;
             timeline::Loop loop = timeline::Loop::Loop;
             otime::RationalTime seek = time::invalidTime;
@@ -66,17 +69,16 @@ namespace tl
                 char* argv[],
                 const std::shared_ptr<system::Context>&);
 
-            //! Open a new timeline player.
-            void open();
+            //! Open a file.
+            void open(
+                const std::string&,
+                const std::string& audioFileName = std::string());
 
-            //! Open a new timeline player.
-            void open(const std::string&);
+            //! Open a file dialog.
+            void openDialog();
 
-            //! Close the current timeline player.
-            void close();
-
-            //! Close all of the timeline players.
-            void closeAll();
+            //! Get the files model.
+            const std::shared_ptr<play::FilesModel>& getFilesModel() const;
 
             //! Observe the current timeline player.
             std::shared_ptr<observer::IValue<std::shared_ptr<timeline::Player> > > observePlayer() const;
@@ -92,6 +94,14 @@ namespace tl
             void _tick() override;
 
         private:
+            void _activeCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
+
+            otime::RationalTime _cacheReadAhead() const;
+            otime::RationalTime _cacheReadBehind() const;
+
+            void _cacheUpdate();
+            void _audioUpdate();
+
             TLRENDER_PRIVATE();
         };
     }

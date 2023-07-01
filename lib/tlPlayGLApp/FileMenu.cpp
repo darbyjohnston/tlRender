@@ -41,7 +41,7 @@ namespace tl
                     close();
                     if (auto app = appWeak.lock())
                     {
-                        app->open();
+                        app->openDialog();
                     }
                 });
             addItem(item);
@@ -69,7 +69,7 @@ namespace tl
                     close();
                     if (auto app = appWeak.lock())
                     {
-                        app->closeAll();
+                        app->getFilesModel()->close();
                     }
                 });
             addItem(item);
@@ -85,19 +85,22 @@ namespace tl
                     close();
                     if (auto app = appWeak.lock())
                     {
-                        app->closeAll();
+                        app->getFilesModel()->closeAll();
                     }
                 });
             addItem(item);
 
             item = std::make_shared<ui::MenuItem>(
                 "Reload",
-                [this]
+                [this, appWeak]
                 {
                     close();
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getFilesModel()->reload();
+                    }
                 });
             addItem(item);
-            setItemEnabled(item, false);
 
             p.recentMenu = addSubMenu("Recent");
             for (size_t i = 0; i < 10; ++i)
@@ -132,24 +135,30 @@ namespace tl
                 "Next",
                 ui::Key::PageDown,
                 static_cast<int>(ui::KeyModifier::Control),
-                [this]
+                [this, appWeak]
                 {
                     close();
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getFilesModel()->next();
+                    }
                 });
             addItem(item);
-            setItemEnabled(item, false);
 
             item = std::make_shared<ui::MenuItem>(
                 "Previous",
                 "Prev",
                 ui::Key::PageUp,
                 static_cast<int>(ui::KeyModifier::Control),
-                [this]
+                [this, appWeak]
                 {
                     close();
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getFilesModel()->prev();
+                    }
                 });
             addItem(item);
-            setItemEnabled(item, false);
 
             addDivider();
 
@@ -157,24 +166,30 @@ namespace tl
                 "Next Layer",
                 ui::Key::Equal,
                 static_cast<int>(ui::KeyModifier::Control),
-                [this]
+                [this, appWeak]
                 {
                     close();
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getFilesModel()->nextLayer();
+                    }
                 });
             addItem(item);
-            setItemEnabled(item, false);
 
             item = std::make_shared<ui::MenuItem>(
                 "Previous Layer",
                 "Prev",
                 ui::Key::Minus,
                 static_cast<int>(ui::KeyModifier::Control),
-                [this]
+                [this, appWeak]
                 {
                     close();
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getFilesModel()->prevLayer();
+                    }
                 });
             addItem(item);
-            setItemEnabled(item, false);
 
             addDivider();
 

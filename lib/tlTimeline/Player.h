@@ -132,17 +132,26 @@ namespace tl
             //! Get the default playback speed.
             double getDefaultSpeed() const;
 
+            //! Get the playback speed.
+            double getSpeed() const;
+
             //! Observe the playback speed.
             std::shared_ptr<observer::IValue<double> > observeSpeed() const;
 
             //! Set the playback speed.
             void setSpeed(double);
 
+            //! Get the playback mode.
+            Playback getPlayback() const;
+
             //! Observe the playback mode.
             std::shared_ptr<observer::IValue<Playback> > observePlayback() const;
 
             //! Set the playback mode.
             void setPlayback(Playback);
+
+            //! Get the playback loop.
+            Loop getLoop() const;
 
             //! Observe the playback loop mode.
             std::shared_ptr<observer::IValue<Loop> > observeLoop() const;
@@ -154,6 +163,9 @@ namespace tl
 
             //! \name Time
             ///@{
+
+            //! Get the current time.
+            otime::RationalTime getCurrentTime() const;
 
             //! Observe the current time.
             std::shared_ptr<observer::IValue<otime::RationalTime> > observeCurrentTime() const;
@@ -184,6 +196,9 @@ namespace tl
             //! \name In/Out Points
             ///@{
 
+            //! Get the in/out points range.
+            otime::TimeRange getInOutRange() const;
+
             //! Observe the in/out points range.
             std::shared_ptr<observer::IValue<otime::TimeRange> > observeInOutRange() const;
 
@@ -207,11 +222,14 @@ namespace tl
             //! \name Video
             ///@{
 
+            //! Get the current video layer.
+            size_t getVideoLayer() const;
+            
             //! Observe the current video layer.
-            std::shared_ptr<observer::IValue<uint16_t> > observeVideoLayer() const;
+            std::shared_ptr<observer::IValue<size_t> > observeVideoLayer() const;
 
             //! Set the current video layer.
-            void setVideoLayer(uint16_t);
+            void setVideoLayer(size_t);
 
             //! Observe the current video data.
             std::shared_ptr<observer::IValue<VideoData> > observeCurrentVideo() const;
@@ -232,6 +250,9 @@ namespace tl
 
             //! Set the audio mute.
             void setMute(bool);
+
+            //! Get the audio sync offset (in seconds).
+            double getAudioOffset() const;
 
             //! Observe the audio sync offset (in seconds).
             std::shared_ptr<observer::IValue<double> > observeAudioOffset() const;

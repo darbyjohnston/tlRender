@@ -93,7 +93,7 @@ namespace tl
                 playerOptions.currentTime :
                 p.timeline->getTimeRange().start_time());
             p.inOutRange = observer::Value<otime::TimeRange>::create(p.timeline->getTimeRange());
-            p.videoLayer = observer::Value<uint16_t>::create();
+            p.videoLayer = observer::Value<size_t>::create();
             p.currentVideoData = observer::Value<VideoData>::create();
             p.volume = observer::Value<float>::create(1.F);
             p.mute = observer::Value<bool>::create(false);
@@ -167,7 +167,7 @@ namespace tl
                         Playback playback = Playback::Stop;
                         otime::RationalTime currentTime = time::invalidTime;
                         otime::TimeRange inOutRange = time::invalidTimeRange;
-                        uint16_t videoLayer = 0;
+                        size_t videoLayer = 0;
                         double audioOffset = 0.0;
                         bool clearRequests = false;
                         bool clearCache = false;
@@ -380,6 +380,11 @@ namespace tl
             return _p->timeline->getTimeRange().duration().rate();
         }
 
+        double Player::getSpeed() const
+        {
+            return _p->speed->get();
+        }
+
         std::shared_ptr<observer::IValue<double> > Player::observeSpeed() const
         {
             return _p->speed;
@@ -404,6 +409,11 @@ namespace tl
                     p.audioMutex.speed = value;
                 }
             }
+        }
+
+        Playback Player::getPlayback() const
+        {
+            return _p->playback->get();
         }
 
         std::shared_ptr<observer::IValue<Playback> > Player::observePlayback() const
@@ -483,6 +493,11 @@ namespace tl
             }
         }
 
+        Loop Player::getLoop() const
+        {
+            return _p->loop->get();
+        }
+
         std::shared_ptr<observer::IValue<Loop> > Player::observeLoop() const
         {
             return _p->loop;
@@ -491,6 +506,11 @@ namespace tl
         void Player::setLoop(Loop value)
         {
             _p->loop->setIfChanged(value);
+        }
+
+        otime::RationalTime Player::getCurrentTime() const
+        {
+            return _p->currentTime->get();
         }
 
         std::shared_ptr<observer::IValue<otime::RationalTime> > Player::observeCurrentTime() const
@@ -630,6 +650,11 @@ namespace tl
             }
         }
 
+        otime::TimeRange Player::getInOutRange() const
+        {
+            return _p->inOutRange->get();
+        }
+
         std::shared_ptr<observer::IValue<otime::TimeRange> > Player::observeInOutRange() const
         {
             return _p->inOutRange;
@@ -678,12 +703,17 @@ namespace tl
                 p.timeline->getTimeRange().end_time_inclusive()));
         }
 
-        std::shared_ptr<observer::IValue<uint16_t> > Player::observeVideoLayer() const
+        size_t Player::getVideoLayer() const
+        {
+            return _p->videoLayer->get();
+        }
+
+        std::shared_ptr<observer::IValue<size_t> > Player::observeVideoLayer() const
         {
             return _p->videoLayer;
         }
 
-        void Player::setVideoLayer(uint16_t layer)
+        void Player::setVideoLayer(size_t layer)
         {
             TLRENDER_P();
             if (p.videoLayer->setIfChanged(layer))
@@ -728,6 +758,11 @@ namespace tl
                 std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                 p.audioMutex.mute = value;
             }
+        }
+
+        double Player::getAudioOffset() const
+        {
+            return _p->audioOffset->get();
         }
 
         std::shared_ptr<observer::IValue<double> > Player::observeAudioOffset() const

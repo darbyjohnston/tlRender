@@ -103,7 +103,7 @@ namespace tl
         void Player::Private::cacheUpdate(
             const otime::RationalTime& currentTime,
             const otime::TimeRange& inOutRange,
-            uint16_t videoLayer,
+            size_t videoLayer,
             double audioOffset,
             CacheDirection cacheDirection,
             const PlayerCacheOptions& cacheOptions)
@@ -566,7 +566,7 @@ namespace tl
             // Get mutex protected values.
             otime::RationalTime currentTime = time::invalidTime;
             otime::TimeRange inOutRange = time::invalidTimeRange;
-            uint16_t videoLayer = 0;
+            size_t videoLayer = 0;
             PlayerCacheInfo cacheInfo;
             {
                 std::unique_lock<std::mutex> lock(mutex.mutex);

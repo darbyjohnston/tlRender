@@ -649,7 +649,7 @@ namespace tl
             }
 
             // Find the timeline players that need to be created.
-            std::vector<qt::TimelinePlayer*> timelinePlayers(items.size(), nullptr);
+            std::vector<qt::TimelinePlayer*> playersNew(items.size(), nullptr);
             std::vector<std::shared_ptr<play::FilesModelItem> > active = p.active;
             for (size_t i = 0; i < items.size(); ++i)
             {
@@ -657,19 +657,19 @@ namespace tl
                 if (j != active.end())
                 {
                     const size_t k = j - active.begin();
-                    timelinePlayers[i] = p.timelinePlayers[k];
+                    playersNew[i] = p.timelinePlayers[k];
                     active.erase(j);
                 }
             }
 
             // Find the timeline players that need to be destroyed.
-            std::vector<qt::TimelinePlayer*> timelinePlayersDestroy;
+            std::vector<qt::TimelinePlayer*> playersToDestroy;
             for (size_t i = 0; i < p.active.size(); ++i)
             {
                 const auto j = std::find(items.begin(), items.end(), p.active[i]);
                 if (j == items.end())
                 {
-                    timelinePlayersDestroy.push_back(p.timelinePlayers[i]);
+                    playersToDestroy.push_back(p.timelinePlayers[i]);
                 }
                 p.timelinePlayers[i] = nullptr;
             }
@@ -689,7 +689,7 @@ namespace tl
             for (size_t i = 0; i < items.size(); ++i)
             {
                 const auto& item = items[i];
-                auto& timelinePlayer = timelinePlayers[i];
+                auto& timelinePlayer = playersNew[i];
                 if (!timelinePlayer)
                 {
                     try
@@ -758,7 +758,7 @@ namespace tl
             for (size_t i = 0; i < items.size(); ++i)
             {
                 const auto& item = items[i];
-                auto& timelinePlayer = timelinePlayers[i];
+                auto& timelinePlayer = playersNew[i];
                 if (timelinePlayer)
                 {
                     item->timeRange = timelinePlayer->timeRange();
@@ -796,16 +796,16 @@ namespace tl
                     {
                         timelinePlayer->setVideoLayer(items[i]->videoLayer);
                         timelinePlayer->player()->setExternalTime(
-                            timelinePlayers[0]->player());
+                            playersNew[0]->player());
                     }
                 }
             }
 
             // Connect signals.
-            if (!timelinePlayers.empty() && timelinePlayers[0])
+            if (!playersNew.empty() && playersNew[0])
             {
                 connect(
-                    timelinePlayers[0],
+                    playersNew[0],
                     SIGNAL(audioOffsetChanged(double)),
                     SLOT(_audioOffsetCallback(double)));
             }
@@ -814,7 +814,7 @@ namespace tl
             if (p.mainWindow)
             {
                 std::vector<qt::TimelinePlayer*> validTimelinePlayers;
-                for (const auto& i : timelinePlayers)
+                for (const auto& i : playersNew)
                 {
                     if (i)
                     {
@@ -825,8 +825,8 @@ namespace tl
             }
 
             p.active = items;
-            p.timelinePlayers = timelinePlayers;
-            for (auto i : timelinePlayersDestroy)
+            p.timelinePlayers = playersNew;
+            for (auto i : playersToDestroy)
             {
                 delete i;
             }
