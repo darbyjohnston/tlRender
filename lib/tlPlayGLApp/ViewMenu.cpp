@@ -5,6 +5,9 @@
 #include <tlPlayGLApp/ViewMenu.h>
 
 #include <tlPlayGLApp/App.h>
+#include <tlPlayGLApp/MainWindow.h>
+
+#include <tlTimelineUI/TimelineViewport.h>
 
 namespace tl
 {
@@ -12,31 +15,43 @@ namespace tl
     {
         struct ViewMenu::Private
         {
+            std::shared_ptr<ui::MenuItem> frameMenuItem;
+
+            std::shared_ptr<observer::ValueObserver<bool> > frameViewObserver;
         };
 
         void ViewMenu::_init(
+            const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context)
         {
             Menu::_init(context);
             TLRENDER_P();
 
-            auto item = std::make_shared<ui::MenuItem>(
+            auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
+            p.frameMenuItem = std::make_shared<ui::MenuItem>(
                 "Frame",
                 "ViewFrame",
-                [this]
+                [this, mainWindowWeak](bool value)
                 {
                     close();
+                    if (auto mainWindow = mainWindowWeak.lock())
+                    {
+                        mainWindow->getTimelineViewport()->setFrameView(value);
+                    }
                 });
-            addItem(item);
-            setItemEnabled(item, false);
+            addItem(p.frameMenuItem);
 
-            item = std::make_shared<ui::MenuItem>(
+            auto item = std::make_shared<ui::MenuItem>(
                 "Zoom 1:1",
                 "ViewZoom1To1",
-                [this]
+                [this, mainWindowWeak]
                 {
                     close();
+                if (auto mainWindow = mainWindowWeak.lock())
+                {
+                    mainWindow->getTimelineViewport()->viewZoom1To1();
+                }
                 });
             addItem(item);
             setItemEnabled(item, false);
@@ -58,6 +73,13 @@ namespace tl
                 });
             addItem(item);
             setItemEnabled(item, false);
+
+            p.frameViewObserver = observer::ValueObserver<bool>::create(
+                mainWindow->getTimelineViewport()->observeFrameView(),
+                [this](bool value)
+                {
+                    setItemChecked(_p->frameMenuItem, value);
+                });
         }
 
         ViewMenu::ViewMenu() :
@@ -68,11 +90,12 @@ namespace tl
         {}
 
         std::shared_ptr<ViewMenu> ViewMenu::create(
+            const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<ViewMenu>(new ViewMenu);
-            out->_init(app, context);
+            out->_init(mainWindow, app, context);
             return out;
         }
     }

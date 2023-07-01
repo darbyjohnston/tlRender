@@ -9,6 +9,7 @@ namespace tl
     namespace play_gl
     {
         class App;
+        class MainWindow;
 
         //! View menu.
         class ViewMenu : public ui::Menu
@@ -17,6 +18,7 @@ namespace tl
 
         protected:
             void _init(
+                const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&);
 
@@ -26,6 +28,7 @@ namespace tl
             ~ViewMenu();
 
             static std::shared_ptr<ViewMenu> create(
+                const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&);
 

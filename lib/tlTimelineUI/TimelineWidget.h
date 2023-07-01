@@ -50,12 +50,12 @@ namespace tl
 
             //! Get whether the view is framed automatically.
             bool hasFrameView() const;
+            
+            //! Observe whether the view is framed automatically.
+            std::shared_ptr<observer::IValue<bool> > observeFrameView() const;
 
             //! Set whether the view is framed automatically.
             void setFrameView(bool);
-
-            //! Set the frame view callback.
-            void setFrameViewCallback(const std::function<void(bool)>&);
 
             //! Get whether the scroll bars are visible.
             bool areScrollBarsVisible() const;
@@ -72,6 +72,9 @@ namespace tl
             //! Get whether to stop playback when scrubbing.
             bool hasStopOnScrub() const;
 
+            //! Observe whether to stop playback when scrubbing.
+            std::shared_ptr<observer::IValue<bool> > observeStopOnScrub() const;
+
             //! Set whether to stop playback when scrubbing.
             void setStopOnScrub(bool);
 
@@ -83,6 +86,9 @@ namespace tl
 
             //! Get the item options.
             const ItemOptions& getItemOptions() const;
+
+            //! Observe the item options.
+            std::shared_ptr<observer::IValue<ItemOptions> > observeItemOptions() const;
 
             //! Set the item options.
             void setItemOptions(const ItemOptions&);

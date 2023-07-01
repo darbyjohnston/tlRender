@@ -336,6 +336,11 @@ namespace tl
             return _p->players;
         }
 
+        const std::shared_ptr<MainWindow>& App::getMainWindow() const
+        {
+            return _p->mainWindow;
+        }
+
         void App::_drop(const std::vector<std::string>& value)
         {
             if (!value.empty())

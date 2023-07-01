@@ -2,6 +2,7 @@ set(HEADERS
     App.h
     AudioMenu.h
     CompareMenu.h
+    CompareToolBar.h
     FileMenu.h
     FileToolBar.h
     FrameMenu.h
@@ -9,13 +10,17 @@ set(HEADERS
     PlaybackMenu.h
     RenderMenu.h
     ToolsMenu.h
+    ToolsToolBar.h
     ViewMenu.h
-    WindowMenu.h)
+    ViewToolBar.h
+    WindowMenu.h
+    WindowToolBar.h)
 
 set(SOURCE
     App.cpp
     AudioMenu.cpp
     CompareMenu.cpp
+    CompareToolBar.cpp
     FileMenu.cpp
     FileToolBar.cpp
     FrameMenu.cpp
@@ -23,8 +28,11 @@ set(SOURCE
     PlaybackMenu.cpp
     RenderMenu.cpp
     ViewMenu.cpp
+    ViewToolBar.cpp
     ToolsMenu.cpp
-    WindowMenu.cpp)
+    ToolsToolBar.cpp
+    WindowMenu.cpp
+    WindowToolBar.cpp)
 
 add_library(tlPlayGLApp ${HEADERS} ${SOURCE})
 target_link_libraries(tlPlayGLApp tlPlay tlTimelineUI tlGLApp)

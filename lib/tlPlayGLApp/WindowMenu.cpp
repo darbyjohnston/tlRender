@@ -14,8 +14,8 @@ namespace tl
         {
             std::shared_ptr<Menu> resizeMenu;
             std::shared_ptr<ui::MenuItem> fullScreenItem;
-            std::function<void(const imaging::Size&)> resizeCallback;
-            std::function<void(bool)> fullScreenCallback;
+
+            std::shared_ptr<observer::ValueObserver<bool> > fullScreenObserver;
         };
 
         void WindowMenu::_init(
@@ -27,26 +27,27 @@ namespace tl
 
             p.resizeMenu = addSubMenu("Resize");
 
+            auto appWeak = std::weak_ptr<App>(app);
             auto item = std::make_shared<ui::MenuItem>(
                 "1280x720",
-                [this]
+                [this, appWeak]
                 {
                     close();
-                    if (_p->resizeCallback)
+                    if (auto app = appWeak.lock())
                     {
-                        _p->resizeCallback(imaging::Size(1280, 720));
+                        app->setWindowSize(imaging::Size(1280, 720));
                     }
                 });
             p.resizeMenu->addItem(item);
 
             item = std::make_shared<ui::MenuItem>(
                 "1920x1080",
-                [this]
+                [this, appWeak]
                 {
                     close();
-                    if (_p->resizeCallback)
+                    if (auto app = appWeak.lock())
                     {
-                        _p->resizeCallback(imaging::Size(1920, 1080));
+                        app->setWindowSize(imaging::Size(1920, 1080));
                     }
                 });
             p.resizeMenu->addItem(item);
@@ -58,12 +59,12 @@ namespace tl
                 "WindowFullScreen",
                 ui::Key::U,
                 0,
-                [this](bool value)
+                [this, appWeak](bool value)
                 {
                     close();
-                    if (_p->fullScreenCallback)
+                    if (auto app = appWeak.lock())
                     {
-                        _p->fullScreenCallback(value);
+                        app->setFullScreen(value);
                     }
                 });
             addItem(p.fullScreenItem);
@@ -153,6 +154,13 @@ namespace tl
                 });
             addItem(item);
             setItemEnabled(item, false);
+
+            p.fullScreenObserver = observer::ValueObserver<bool>::create(
+                app->observeFullScreen(),
+                [this](bool value)
+                {
+                    setItemChecked(_p->fullScreenItem, value);
+                });
         }
 
         WindowMenu::WindowMenu() :
@@ -169,21 +177,6 @@ namespace tl
             auto out = std::shared_ptr<WindowMenu>(new WindowMenu);
             out->_init(app, context);
             return out;
-        }
-            
-        void WindowMenu::setResizeCallback(const std::function<void(const imaging::Size&)>& value)
-        {
-            _p->resizeCallback = value;
-        }
-
-        void WindowMenu::setFullScreen(bool value)
-        {
-            setItemChecked(_p->fullScreenItem, value);
-        }
-
-        void WindowMenu::setFullScreenCallback(const std::function<void(bool)>& value)
-        {
-            _p->fullScreenCallback = value;
         }
 
         void WindowMenu::close()

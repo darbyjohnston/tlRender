@@ -8,6 +8,12 @@
 
 namespace tl
 {
+    namespace timelineui
+    {
+        class TimelineViewport;
+        class TimelineWidget;
+    }
+
     namespace play_gl
     {
         class App;
@@ -27,9 +33,19 @@ namespace tl
         public:
             ~MainWindow();
 
+            //! Create a new main window.
             static std::shared_ptr<MainWindow> create(
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&);
+
+            //! Get the timeline viewport.
+            const std::shared_ptr<timelineui::TimelineViewport>& getTimelineViewport() const;
+
+            //! Get the timeline widget.
+            const std::shared_ptr<timelineui::TimelineWidget>& getTimelineWidget() const;
+
+            //! Focus the current frame widget.
+            void focusCurrentFrame();
 
             void setGeometry(const math::BBox2i&) override;
             void keyPressEvent(ui::KeyEvent&) override;
@@ -37,7 +53,6 @@ namespace tl
 
         private:
             void _setPlayer(const std::shared_ptr<timeline::Player>&);
-            void _playbackUpdate();
             void _infoUpdate();
 
             TLRENDER_PRIVATE();

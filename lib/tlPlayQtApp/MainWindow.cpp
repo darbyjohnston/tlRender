@@ -537,10 +537,10 @@ namespace tl
 
             connect(
                 p.viewActions->actions()["Frame"],
-                &QAction::triggered,
-                [this]
+                &QAction::toggled,
+                [this](bool value)
                 {
-                    _p->timelineViewport->frameView();
+                    _p->timelineViewport->setFrameView(value);
                 });
             connect(
                 p.viewActions->actions()["Zoom1To1"],
@@ -664,13 +664,15 @@ namespace tl
                 });
             connect(
                 p.timelineViewport,
-                &qtwidget::TimelineViewport::frameViewActivated,
-                [this]
+                &qtwidget::TimelineViewport::frameViewChanged,
+                [this](bool value)
                 {
+                    _p->viewActions->actions()["Frame"]->setChecked(value);
+
                     _p->app->outputDevice()->setView(
                         _p->timelineViewport->viewPos(),
                         _p->timelineViewport->viewZoom(),
-                        _p->timelineViewport->hasFrameView());
+                        value);
                 });
 
             connect(
@@ -945,9 +947,9 @@ namespace tl
                     SLOT(setViewPosAndZoom(const tl::math::Vector2i&, float)));
                 connect(
                     p.timelineViewport,
-                    SIGNAL(frameViewActivated()),
+                    SIGNAL(frameViewChanged(bool)),
                     p.secondaryWindow->viewport(),
-                    SLOT(frameView()));
+                    SLOT(setFrameView(bool)));
 
                 connect(
                     p.secondaryWindow,
@@ -1069,6 +1071,8 @@ namespace tl
             }
 
             p.compareActions->setCompareOptions(p.compareOptions);
+
+            p.viewActions->actions()["Frame"]->setChecked(p.timelineViewport->hasFrameView());
 
             p.renderActions->setImageOptions(p.imageOptions);
             p.renderActions->setDisplayOptions(p.displayOptions);

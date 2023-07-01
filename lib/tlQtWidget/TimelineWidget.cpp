@@ -85,6 +85,8 @@ namespace tl
             std::chrono::steady_clock::time_point mouseWheelTimer;
 
             int timer = 0;
+
+            std::shared_ptr<observer::ValueObserver<bool> > frameViewObserver;
         };
 
         TimelineWidget::TimelineWidget(
@@ -121,15 +123,17 @@ namespace tl
                 p.clipboard,
                 context);
             p.timelineWidget = timelineui::TimelineWidget::create(timeUnitsModel, context);
-            p.timelineWidget->setFrameViewCallback(
-                [this](bool value)
-                {
-                    Q_EMIT frameViewChanged(value);
-                });
             //p.timelineWidget->setScrollBarsVisible(false);
             p.eventLoop->addWidget(p.timelineWidget);
 
             _styleUpdate();
+
+            p.frameViewObserver = observer::ValueObserver<bool>::create(
+                p.timelineWidget->observeFrameView(),
+                [this](bool value)
+                {
+                    Q_EMIT frameViewChanged(value);
+                });
 
             p.timer = startTimer(10);
         }

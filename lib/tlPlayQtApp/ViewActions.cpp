@@ -28,6 +28,7 @@ namespace tl
             p.app = app;
 
             p.actions["Frame"] = new QAction(this);
+            p.actions["Frame"]->setCheckable(true);
             p.actions["Frame"]->setText(tr("Frame"));
             p.actions["Frame"]->setIcon(QIcon(":/Icons/ViewFrame.svg"));
             p.actions["Frame"]->setToolTip(tr("Frame the view to fit the window"));

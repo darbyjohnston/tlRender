@@ -56,17 +56,20 @@ namespace tl
             //! Get the view zoom.
             double viewZoom() const;
 
-            //! Get whether the view is framed.
-            bool hasFrameView() const;
-
             //! Set the view position and zoom.
             void setViewPosAndZoom(const math::Vector2i&, double);
 
             //! Set the view zoom.
             void setViewZoom(double, const math::Vector2i& focus = math::Vector2i());
 
-            //! Frame the view.
-            void frameView();
+            //! Get whether the view is framed automatically.
+            bool hasFrameView() const;
+
+            //! Observe whether the view is framed automatically.
+            std::shared_ptr<observer::IValue<bool> > observeFrameView() const;
+
+            //! Set whether the view is framed automatically.
+            void setFrameView(bool);
 
             //! Set the view zoom to 1:1.
             void viewZoom1To1();
@@ -80,9 +83,6 @@ namespace tl
             //! Set the view position and zoom callback.
             void setViewPosAndZoomCallback(
                 const std::function<void(const math::Vector2i&, double)>&);
-
-            //! Set the frame view callback.
-            void setFrameViewCallback(const std::function<void(bool)>&);
 
             void setVisible(bool) override;
             void setEnabled(bool) override;

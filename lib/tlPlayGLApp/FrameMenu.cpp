@@ -5,6 +5,7 @@
 #include <tlPlayGLApp/FrameMenu.h>
 
 #include <tlPlayGLApp/App.h>
+#include <tlPlayGLApp/MainWindow.h>
 
 namespace tl
 {
@@ -13,12 +14,12 @@ namespace tl
         struct FrameMenu::Private
         {
             std::shared_ptr<timeline::Player> player;
-            std::function<void(void)> focusCurrentFrameCallback;
 
             std::shared_ptr<observer::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
         };
 
         void FrameMenu::_init(
+            const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context)
         {
@@ -32,11 +33,11 @@ namespace tl
                 0,
                 [this]
                 {
+                    close();
                     if (_p->player)
                     {
                         _p->player->start();
                     }
-                    close();
                 });
             addItem(item);
 
@@ -47,11 +48,11 @@ namespace tl
                 0,
                 [this]
                 {
+                    close();
                     if (_p->player)
                     {
                         _p->player->end();
                     }
-                    close();
                 });
             addItem(item);
 
@@ -64,11 +65,11 @@ namespace tl
                 0,
                 [this]
                 {
+                    close();
                     if (_p->player)
                     {
                         _p->player->framePrev();
                     }
-                close();
                 });
             addItem(item);
 
@@ -78,11 +79,11 @@ namespace tl
                 static_cast<int>(ui::KeyModifier::Shift),
                 [this]
                 {
+                    close();
                     if (_p->player)
                     {
                         _p->player->timeAction(timeline::TimeAction::FramePrevX10);
                     }
-                    close();
                 });
             addItem(item);
 
@@ -92,11 +93,11 @@ namespace tl
                 static_cast<int>(ui::KeyModifier::Control),
                 [this]
                 {
+                    close();
                     if (_p->player)
                     {
                         _p->player->timeAction(timeline::TimeAction::FramePrevX100);
                     }
-                    close();
                 });
             addItem(item);
 
@@ -109,11 +110,11 @@ namespace tl
                 0,
                 [this]
                 {
+                    close();
                     if (_p->player)
                     {
                         _p->player->frameNext();
                     }
-                close();
                 });
             addItem(item);
 
@@ -123,11 +124,11 @@ namespace tl
                 static_cast<int>(ui::KeyModifier::Shift),
                 [this]
                 {
+                    close();
                     if (_p->player)
                     {
                         _p->player->timeAction(timeline::TimeAction::FrameNextX10);
                     }
-                    close();
                 });
             addItem(item);
 
@@ -137,27 +138,28 @@ namespace tl
                 static_cast<int>(ui::KeyModifier::Control),
                 [this]
                 {
+                    close();
                     if (_p->player)
                     {
                         _p->player->timeAction(timeline::TimeAction::FrameNextX100);
                     }
-                    close();
                 });
             addItem(item);
 
             addDivider();
 
+            auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
             item = std::make_shared<ui::MenuItem>(
                 "Focus Current Frame",
                 ui::Key::F,
                 static_cast<int>(ui::KeyModifier::Control),
-                [this]
+                [this, mainWindowWeak]
                 {
-                    if (_p->focusCurrentFrameCallback)
-                    {
-                        _p->focusCurrentFrameCallback();
-                    }
                     close();
+                    if (auto mainWindow = mainWindowWeak.lock())
+                    {
+                        mainWindow->focusCurrentFrame();
+                    }
                 });
             addItem(item);
 
@@ -177,18 +179,13 @@ namespace tl
         {}
 
         std::shared_ptr<FrameMenu> FrameMenu::create(
+            const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<FrameMenu>(new FrameMenu);
-            out->_init(app, context);
+            out->_init(mainWindow, app, context);
             return out;
-        }
-
-        void FrameMenu::setFocusCurrentFrameCallback(
-            const std::function<void(void)>& value)
-        {
-            _p->focusCurrentFrameCallback = value;
         }
 
         void FrameMenu::_setPlayer(const std::shared_ptr<timeline::Player>& value)

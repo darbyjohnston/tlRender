@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/Menu.h>
+#include <tlUI/IWidget.h>
 
 #include <tlTimeline/Player.h>
 
@@ -11,34 +11,31 @@ namespace tl
     namespace play_gl
     {
         class App;
-        class MainWindow;
 
-        //! Frame menu.
-        class FrameMenu : public ui::Menu
+        //! Tools tool bar.
+        class ToolsToolBar : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(FrameMenu);
+            TLRENDER_NON_COPYABLE(ToolsToolBar);
 
         protected:
             void _init(
-                const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&);
 
-            FrameMenu();
+            ToolsToolBar();
 
         public:
-            ~FrameMenu();
+            ~ToolsToolBar();
 
-            static std::shared_ptr<FrameMenu> create(
-                const std::shared_ptr<MainWindow>&,
+            static std::shared_ptr<ToolsToolBar> create(
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&);
 
-        private:
-            void _setPlayer(const std::shared_ptr<timeline::Player>&);
+            void setGeometry(const math::BBox2i&) override;
+            void sizeHintEvent(const ui::SizeHintEvent&) override;
 
+        private:
             TLRENDER_PRIVATE();
         };
     }
 }
-

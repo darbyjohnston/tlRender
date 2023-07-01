@@ -14,13 +14,13 @@ namespace tl
         {
             std::shared_ptr<timeline::ITimeUnitsModel> timeUnitsModel;
             std::shared_ptr<timeline::Player> player;
-            bool frameView = true;
+            std::shared_ptr<observer::Value<bool> > frameView;
             std::function<void(bool)> frameViewCallback;
             ui::KeyModifier scrollKeyModifier = ui::KeyModifier::Control;
-            bool stopOnScrub = true;
+            std::shared_ptr<observer::Value<bool> > stopOnScrub;
             float mouseWheelScale = 1.1F;
             double scale = 500.0;
-            ItemOptions itemOptions;
+            std::shared_ptr<observer::Value<ItemOptions> > itemOptions;
             bool sizeInit = true;
 
             std::shared_ptr<ui::ScrollWidget> scrollWidget;
@@ -51,18 +51,16 @@ namespace tl
 
             p.timeUnitsModel = timeUnitsModel;
 
+            p.frameView = observer::Value<bool>::create(true);
+            p.stopOnScrub = observer::Value<bool>::create(true);
+            p.itemOptions = observer::Value<ItemOptions>::create();
+
             p.scrollWidget = ui::ScrollWidget::create(
                 context,
                 ui::ScrollType::Both,
                 shared_from_this());
             p.scrollWidget->setScrollEventsEnabled(false);
             p.scrollWidget->setBorder(false);
-
-            p.scrollWidget->setScrollPosCallback(
-                [this](const math::Vector2i&)
-                {
-                    setFrameView(false);
-                });
         }
 
         TimelineWidget::TimelineWidget() :
@@ -106,11 +104,11 @@ namespace tl
                     itemData.timeUnitsModel = p.timeUnitsModel;
 
                     p.timelineItem = TimelineItem::create(p.player, itemData, context);
-                    p.timelineItem->setStopOnScrub(p.stopOnScrub);
+                    p.timelineItem->setStopOnScrub(p.stopOnScrub->get());
                     p.scrollWidget->setScrollPos(math::Vector2i());
                     p.scale = _getTimelineScale();
                     _setItemScale(p.timelineItem, p.scale);
-                    _setItemOptions(p.timelineItem, p.itemOptions);
+                    _setItemOptions(p.timelineItem, p.itemOptions->get());
                     p.scrollWidget->setWidget(p.timelineItem);
                 }
             }
@@ -148,28 +146,24 @@ namespace tl
 
         bool TimelineWidget::hasFrameView() const
         {
+            return _p->frameView->get();
+        }
+
+        std::shared_ptr<observer::IValue<bool> > TimelineWidget::observeFrameView() const
+        {
             return _p->frameView;
         }
 
         void TimelineWidget::setFrameView(bool value)
         {
             TLRENDER_P();
-            if (value == p.frameView)
-                return;
-            if (value)
+            if (p.frameView->setIfChanged(value))
             {
-                frameView();
+                if (value)
+                {
+                    frameView();
+                }
             }
-            p.frameView = value;
-            if (p.frameViewCallback)
-            {
-                p.frameViewCallback(p.frameView);
-            }
-        }
-
-        void TimelineWidget::setFrameViewCallback(const std::function<void(bool)>& value)
-        {
-            _p->frameViewCallback = value;
         }
 
         bool TimelineWidget::areScrollBarsVisible() const
@@ -194,16 +188,23 @@ namespace tl
 
         bool TimelineWidget::hasStopOnScrub() const
         {
+            return _p->stopOnScrub->get();
+        }
+
+        std::shared_ptr<observer::IValue<bool> > TimelineWidget::observeStopOnScrub() const
+        {
             return _p->stopOnScrub;
         }
 
         void TimelineWidget::setStopOnScrub(bool value)
         {
             TLRENDER_P();
-            p.stopOnScrub = value;
-            if (p.timelineItem)
+            if (p.stopOnScrub->setIfChanged(value))
             {
-                p.timelineItem->setStopOnScrub(p.stopOnScrub);
+                if (p.timelineItem)
+                {
+                    p.timelineItem->setStopOnScrub(value);
+                }
             }
         }
 
@@ -220,18 +221,23 @@ namespace tl
 
         const ItemOptions& TimelineWidget::getItemOptions() const
         {
+            return _p->itemOptions->get();
+        }
+
+        std::shared_ptr<observer::IValue<ItemOptions> > TimelineWidget::observeItemOptions() const
+        {
             return _p->itemOptions;
         }
 
         void TimelineWidget::setItemOptions(const ItemOptions& value)
         {
             TLRENDER_P();
-            if (value == p.itemOptions)
-                return;
-            p.itemOptions = value;
-            if (p.timelineItem)
+            if (p.itemOptions->setIfChanged(value))
             {
-                _setItemOptions(p.timelineItem, p.itemOptions);
+                if (p.timelineItem)
+                {
+                    _setItemOptions(p.timelineItem, value);
+                }
             }
         }
 

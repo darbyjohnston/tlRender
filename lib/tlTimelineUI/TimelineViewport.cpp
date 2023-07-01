@@ -23,9 +23,8 @@ namespace tl
             std::vector<imaging::Size> timelineSizes;
             math::Vector2i viewPos;
             double viewZoom = 1.0;
-            bool frameView = true;
+            std::shared_ptr<observer::Value<bool> > frameView;
             std::function<void(const math::Vector2i&, double)> viewPosAndZoomCallback;
-            std::function<void(bool)> frameViewCallback;
             
             std::shared_ptr<gl::OffscreenBuffer> buffer;
             bool renderBuffer = false;
@@ -47,8 +46,12 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::TimelineViewport", context, parent);
+            TLRENDER_P();
+
             setHStretch(ui::Stretch::Expanding);
             setVStretch(ui::Stretch::Expanding);
+
+            p.frameView = observer::Value<bool>::create(true);
         }
 
         TimelineViewport::TimelineViewport() :
@@ -172,11 +175,6 @@ namespace tl
             return _p->viewZoom;
         }
 
-        bool TimelineViewport::hasFrameView() const
-        {
-            return _p->frameView;
-        }
-
         void TimelineViewport::setViewPosAndZoom(const math::Vector2i& pos, double zoom)
         {
             TLRENDER_P();
@@ -184,17 +182,13 @@ namespace tl
                 return;
             p.viewPos = pos;
             p.viewZoom = zoom;
-            p.frameView = false;
             p.renderBuffer = true;
             _updates |= ui::Update::Draw;
             if (p.viewPosAndZoomCallback)
             {
                 p.viewPosAndZoomCallback(p.viewPos, p.viewZoom);
             }
-            if (p.frameViewCallback)
-            {
-                p.frameViewCallback(p.frameView);
-            }
+            setFrameView(false);
         }
 
         void TimelineViewport::setViewZoom(double zoom, const math::Vector2i& focus)
@@ -206,18 +200,23 @@ namespace tl
             setViewPosAndZoom(pos, zoom);
         }
 
-        void TimelineViewport::frameView()
+        bool TimelineViewport::hasFrameView() const
+        {
+            return _p->frameView->get();
+        }
+
+        std::shared_ptr<observer::IValue<bool> > TimelineViewport::observeFrameView() const
+        {
+            return _p->frameView;
+        }
+
+        void TimelineViewport::setFrameView(bool value)
         {
             TLRENDER_P();
-            if (!p.frameView)
+            if (p.frameView->setIfChanged(value))
             {
-                p.frameView = true;
                 p.renderBuffer = true;
                 _updates |= ui::Update::Draw;
-                if (p.frameViewCallback)
-                {
-                    p.frameViewCallback(p.frameView);
-                }
             }
         }
 
@@ -298,7 +297,7 @@ namespace tl
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            if (p.frameView)
+            if (p.frameView->get())
             {
                 _frameView();
             }
@@ -366,17 +365,13 @@ namespace tl
             {
                 p.viewPos.x = p.mouse.viewPos.x + (event.pos.x - p.mouse.pressPos.x);
                 p.viewPos.y = p.mouse.viewPos.y + (event.pos.y - p.mouse.pressPos.y);
-                p.frameView = false;
                 p.renderBuffer = true;
                 _updates |= ui::Update::Draw;
                 if (p.viewPosAndZoomCallback)
                 {
                     p.viewPosAndZoomCallback(p.viewPos, p.viewZoom);
                 }
-                if (p.frameViewCallback)
-                {
-                    p.frameViewCallback(p.frameView);
-                }
+                setFrameView(false);
             }
         }
 
@@ -420,7 +415,7 @@ namespace tl
                 break;
             case ui::Key::Backspace:
                 event.accept = true;
-                frameView();
+                setFrameView(true);
             default: break;
             }
         }

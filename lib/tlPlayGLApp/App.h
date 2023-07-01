@@ -84,6 +84,9 @@ namespace tl
             //! Observe the list of timeline players.
             std::shared_ptr<observer::IList<std::shared_ptr<timeline::Player> > > observePlayers() const;
 
+            //! Get the main window.
+            const std::shared_ptr<MainWindow>& getMainWindow() const;
+
         protected:
             void _drop(const std::vector<std::string>&) override;
             void _tick() override;

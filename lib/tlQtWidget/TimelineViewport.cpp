@@ -180,9 +180,9 @@ namespace tl
                 return;
             p.viewPos = pos;
             p.viewZoom = zoom;
-            p.frameView = false;
             update();
             Q_EMIT viewPosAndZoomChanged(p.viewPos, p.viewZoom);
+            setFrameView(false);
         }
 
         void TimelineViewport::setViewZoom(float zoom, const math::Vector2i& focus)
@@ -194,11 +194,14 @@ namespace tl
             setViewPosAndZoom(pos, zoom);
         }
 
-        void TimelineViewport::frameView()
+        void TimelineViewport::setFrameView(bool value)
         {
             TLRENDER_P();
-            p.frameView = true;
+            if (value == p.frameView)
+                return;
+            p.frameView = value;
             update();
+            Q_EMIT frameViewChanged(p.frameView);
         }
         
         void TimelineViewport::viewZoom1To1()
@@ -466,9 +469,9 @@ namespace tl
             {
                 p.viewPos.x = p.viewPosMousePress.x + (p.mousePos.x - p.mousePress.x);
                 p.viewPos.y = p.viewPosMousePress.y + (p.mousePos.y - p.mousePress.y);
-                p.frameView = false;
                 update();
                 Q_EMIT viewPosAndZoomChanged(p.viewPos, p.viewZoom);
+                setFrameView(false);
             }
         }
 
@@ -503,7 +506,7 @@ namespace tl
                 break;
             case Qt::Key::Key_Backspace:
                 event->accept();
-                frameView();
+                setFrameView(true);
                 break;
             }
         }
@@ -547,7 +550,6 @@ namespace tl
                 p.viewPos = viewPos;
                 p.viewZoom = zoom;
                 Q_EMIT viewPosAndZoomChanged(p.viewPos, p.viewZoom);
-                Q_EMIT frameViewActivated();
             }
         }
     }

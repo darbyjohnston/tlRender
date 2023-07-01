@@ -5,6 +5,9 @@
 #include <tlPlayGLApp/PlaybackMenu.h>
 
 #include <tlPlayGLApp/App.h>
+#include <tlPlayGLApp/MainWindow.h>
+
+#include <tlTimelineUI/TimelineWidget.h>
 
 namespace tl
 {
@@ -17,19 +20,20 @@ namespace tl
             std::map<timeline::Playback, std::shared_ptr<ui::MenuItem> > playbackItems;
             timeline::Playback playbackPrev = timeline::Playback::Forward;
             std::map<timeline::Loop, std::shared_ptr<ui::MenuItem> > loopItems;
-            std::shared_ptr<ui::MenuItem> frameTimelineViewItem;
+            std::shared_ptr<ui::MenuItem> frameViewItem;
             std::shared_ptr<ui::MenuItem> stopOnScrubItem;
-            std::shared_ptr<ui::MenuItem> timelineThumbnailsItem;
-            std::function<void(bool)> frameTimelineViewCallback;
-            std::function<void(bool)> stopOnScrubCallback;
-            std::function<void(bool)> timelineThumbnailsCallback;
+            std::shared_ptr<ui::MenuItem> thumbnailsItem;
 
             std::shared_ptr<observer::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
             std::shared_ptr<observer::ValueObserver<timeline::Loop> > loopObserver;
+            std::shared_ptr<observer::ValueObserver<bool> > frameViewObserver;
+            std::shared_ptr<observer::ValueObserver<bool> > stopOnScrubObserver;
+            std::shared_ptr<observer::ValueObserver<timelineui::ItemOptions> > itemOptionsObserver;
         };
 
         void PlaybackMenu::_init(
+            const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context)
         {
@@ -43,11 +47,11 @@ namespace tl
                 0,
                 [this](bool value)
                 {
+                    close();
                     if (_p->player)
                     {
                         _p->player->setPlayback(timeline::Playback::Stop);
                     }
-                    close();
                 });
             addItem(p.playbackItems[timeline::Playback::Stop]);
 
@@ -58,11 +62,11 @@ namespace tl
                 0,
                 [this](bool value)
                 {
+                    close();
                     if (_p->player)
                     {
                         _p->player->setPlayback(timeline::Playback::Forward);
                     }
-                    close();
                 });
             addItem(p.playbackItems[timeline::Playback::Forward]);
 
@@ -73,11 +77,11 @@ namespace tl
                 0,
                 [this](bool value)
                 {
+                    close();
                     if (_p->player)
                     {
                         _p->player->setPlayback(timeline::Playback::Reverse);
                     }
-                    close();
                 });
             addItem(p.playbackItems[timeline::Playback::Reverse]);
 
@@ -87,6 +91,7 @@ namespace tl
                 0,
                 [this]
                 {
+                    close();
                     if (_p->player)
                     {
                         const timeline::Playback playback = _p->player->observePlayback()->get();
@@ -99,7 +104,6 @@ namespace tl
                             _p->playbackPrev = playback;
                         }
                     }
-                    close();
                 });
             addItem(item);
 
@@ -109,11 +113,11 @@ namespace tl
                 "Loop Playback",
                 [this]
                 {
+                    close();
                     if (_p->player)
                     {
                         _p->player->setLoop(timeline::Loop::Loop);
                     }
-                    close();
                 });
             addItem(p.loopItems[timeline::Loop::Loop]);
 
@@ -121,11 +125,11 @@ namespace tl
                 "Playback Once",
                 [this]
                 {
+                    close();
                     if (_p->player)
                     {
                         _p->player->setLoop(timeline::Loop::Once);
                     }
-                    close();
                 });
             addItem(p.loopItems[timeline::Loop::Once]);
 
@@ -133,11 +137,11 @@ namespace tl
                 "Ping-Pong Playback",
                 [this]
                 {
+                    close();
                     if (_p->player)
                     {
                         _p->player->setLoop(timeline::Loop::PingPong);
                     }
-                    close();
                 });
             addItem(p.loopItems[timeline::Loop::PingPong]);
 
@@ -149,11 +153,11 @@ namespace tl
                 0,
                 [this]
                 {
+                    close();
                     if (_p->player)
                     {
                         _p->player->setInPoint();
                     }
-                    close();
                 });
             addItem(item);
 
@@ -163,11 +167,11 @@ namespace tl
                 static_cast<int>(ui::KeyModifier::Shift),
                 [this]
                 {
+                    close();
                     if (_p->player)
                     {
                         _p->player->resetInPoint();
                     }
-                    close();
                 });
             addItem(item);
 
@@ -177,11 +181,11 @@ namespace tl
                 0,
                 [this]
                 {
+                    close();
                     if (_p->player)
                     {
                         _p->player->setOutPoint();
                     }
-                    close();
                 });
             addItem(item);
 
@@ -191,51 +195,54 @@ namespace tl
                 static_cast<int>(ui::KeyModifier::Shift),
                 [this]
                 {
+                    close();
                     if (_p->player)
                     {
                         _p->player->resetOutPoint();
                     }
-                    close();
                 });
             addItem(item);
 
             addDivider();
 
-            p.frameTimelineViewItem = std::make_shared<ui::MenuItem>(
+            auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
+            p.frameViewItem = std::make_shared<ui::MenuItem>(
                 "Frame Timeline View",
-                [this](bool value)
+                [this, mainWindowWeak](bool value)
                 {
-                    if (_p->frameTimelineViewCallback)
-                    {
-                        _p->frameTimelineViewCallback(value);
-                    }
                     close();
+                    if (auto mainWindow = mainWindowWeak.lock())
+                    {
+                        mainWindow->getTimelineWidget()->setFrameView(value);
+                    }
                 });
-            addItem(p.frameTimelineViewItem);
+            addItem(p.frameViewItem);
 
             p.stopOnScrubItem = std::make_shared<ui::MenuItem>(
                 "Stop When Scrubbing",
-                [this](bool value)
+                [this, mainWindowWeak](bool value)
                 {
-                    if (_p->stopOnScrubCallback)
-                    {
-                        _p->stopOnScrubCallback(value);
-                    }
                     close();
+                    if (auto mainWindow = mainWindowWeak.lock())
+                    {
+                        mainWindow->getTimelineWidget()->setStopOnScrub(value);
+                    }
                 });
             addItem(p.stopOnScrubItem);
 
-            p.timelineThumbnailsItem = std::make_shared<ui::MenuItem>(
+            p.thumbnailsItem = std::make_shared<ui::MenuItem>(
                 "Timeline Thumbnails",
-                [this](bool value)
+                [this, mainWindowWeak](bool value)
                 {
-                    if (_p->timelineThumbnailsCallback)
-                    {
-                        _p->timelineThumbnailsCallback(value);
-                    }
                     close();
+                    if (auto mainWindow = mainWindowWeak.lock())
+                    {
+                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        options.thumbnails = value;
+                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                    }
                 });
-            addItem(p.timelineThumbnailsItem);
+            addItem(p.thumbnailsItem);
 
             _playbackUpdate();
             _loopUpdate();
@@ -245,6 +252,27 @@ namespace tl
                 [this](const std::shared_ptr<timeline::Player>& value)
                 {
                     _setPlayer(value);
+                });
+
+            p.frameViewObserver = observer::ValueObserver<bool>::create(
+                mainWindow->getTimelineWidget()->observeFrameView(),
+                [this](bool value)
+                {
+                    setItemChecked(_p->frameViewItem, value);
+                });
+
+            p.stopOnScrubObserver = observer::ValueObserver<bool>::create(
+                mainWindow->getTimelineWidget()->observeStopOnScrub(),
+                [this](bool value)
+                {
+                    setItemChecked(_p->stopOnScrubItem, value);
+                });
+
+            p.itemOptionsObserver = observer::ValueObserver<timelineui::ItemOptions>::create(
+                mainWindow->getTimelineWidget()->observeItemOptions(),
+                [this](const timelineui::ItemOptions& value)
+                {
+                    setItemChecked(_p->thumbnailsItem, value.thumbnails);
                 });
         }
 
@@ -256,45 +284,13 @@ namespace tl
         {}
 
         std::shared_ptr<PlaybackMenu> PlaybackMenu::create(
+            const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<PlaybackMenu>(new PlaybackMenu);
-            out->_init(app, context);
+            out->_init(mainWindow, app, context);
             return out;
-        }
-
-        void PlaybackMenu::setFrameTimelineView(bool value)
-        {
-            setItemChecked(_p->frameTimelineViewItem, value);
-        }
-
-        void PlaybackMenu::setStopOnScrub(bool value)
-        {
-            setItemChecked(_p->stopOnScrubItem, value);
-        }
-
-        void PlaybackMenu::setTimelineThumbnails(bool value)
-        {
-            setItemChecked(_p->timelineThumbnailsItem, value);
-        }
-
-        void PlaybackMenu::setFrameTimelineViewCallback(
-            const std::function<void(bool)>& value)
-        {
-            _p->frameTimelineViewCallback = value;
-        }
-
-        void PlaybackMenu::setStopOnScrubCallback(
-            const std::function<void(bool)>& value)
-        {
-            _p->stopOnScrubCallback = value;
-        }
-
-        void PlaybackMenu::setTimelineThumbnailsCallback(
-            const std::function<void(bool)>& value)
-        {
-            _p->timelineThumbnailsCallback = value;
         }
 
         void PlaybackMenu::_setPlayer(const std::shared_ptr<timeline::Player>& value)

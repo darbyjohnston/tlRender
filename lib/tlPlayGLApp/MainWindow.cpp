@@ -7,14 +7,18 @@
 #include <tlPlayGLApp/App.h>
 #include <tlPlayGLApp/AudioMenu.h>
 #include <tlPlayGLApp/CompareMenu.h>
+#include <tlPlayGLApp/CompareToolBar.h>
 #include <tlPlayGLApp/FileMenu.h>
 #include <tlPlayGLApp/FileToolBar.h>
 #include <tlPlayGLApp/FrameMenu.h>
 #include <tlPlayGLApp/PlaybackMenu.h>
 #include <tlPlayGLApp/RenderMenu.h>
 #include <tlPlayGLApp/ToolsMenu.h>
+#include <tlPlayGLApp/ToolsToolBar.h>
 #include <tlPlayGLApp/ViewMenu.h>
+#include <tlPlayGLApp/ViewToolBar.h>
 #include <tlPlayGLApp/WindowMenu.h>
+#include <tlPlayGLApp/WindowToolBar.h>
 
 #include <tlTimelineUI/TimelineViewport.h>
 #include <tlTimelineUI/TimelineWidget.h>
@@ -49,6 +53,8 @@ namespace tl
             std::shared_ptr<ui::DoubleModel> speedModel;
             timelineui::ItemOptions itemOptions;
 
+            std::shared_ptr<timelineui::TimelineViewport> timelineViewport;
+            std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
             std::shared_ptr<FileMenu> fileMenu;
             std::shared_ptr<CompareMenu> compareMenu;
             std::shared_ptr<WindowMenu> windowMenu;
@@ -60,8 +66,10 @@ namespace tl
             std::shared_ptr<ToolsMenu> toolsMenu;
             std::shared_ptr<ui::MenuBar> menuBar;
             std::shared_ptr<FileToolBar> fileToolBar;
-            std::shared_ptr<timelineui::TimelineViewport> timelineViewport;
-            std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
+            std::shared_ptr<CompareToolBar> compareToolBar;
+            std::shared_ptr<WindowToolBar> windowToolBar;
+            std::shared_ptr<ViewToolBar> viewToolBar;
+            std::shared_ptr<ToolsToolBar> toolsToolBar;
             std::shared_ptr<ui::ButtonGroup> playbackButtonGroup;
             std::shared_ptr<ui::ButtonGroup> frameButtonGroup;
             std::shared_ptr<ui::TimeEdit> currentTimeEdit;
@@ -97,14 +105,27 @@ namespace tl
             p.speedModel->setStep(1.F);
             p.speedModel->setLargeStep(10.F);
 
+            p.timelineViewport = timelineui::TimelineViewport::create(context);
+
+            p.timelineWidget = timelineui::TimelineWidget::create(p.timeUnitsModel, context);
+            p.timelineWidget->setScrollBarsVisible(false);
+
             p.fileMenu = FileMenu::create(app, context);
             p.compareMenu = CompareMenu::create(app, context);
             p.windowMenu = WindowMenu::create(app, context);
-            p.windowMenu->setFullScreen(app->isWindowFullScreen());
-            p.viewMenu = ViewMenu::create(app, context);
+            p.viewMenu = ViewMenu::create(
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                app,
+                context);
             p.renderMenu = RenderMenu::create(app, context);
-            p.playbackMenu = PlaybackMenu::create(app, context);
-            p.frameMenu = FrameMenu::create(app, context);
+            p.playbackMenu = PlaybackMenu::create(
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                app,
+                context);
+            p.frameMenu = FrameMenu::create(
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                app,
+                context);
             p.audioMenu = AudioMenu::create(app, context);
             p.toolsMenu = ToolsMenu::create(app, context);
             p.menuBar = ui::MenuBar::create(context);
@@ -119,11 +140,13 @@ namespace tl
             p.menuBar->addMenu("Tools", p.toolsMenu);
 
             p.fileToolBar = FileToolBar::create(app, context);
-
-            p.timelineViewport = timelineui::TimelineViewport::create(context);
-
-            p.timelineWidget = timelineui::TimelineWidget::create(p.timeUnitsModel, context);
-            p.timelineWidget->setScrollBarsVisible(false);
+            p.compareToolBar = CompareToolBar::create(app, context);
+            p.windowToolBar = WindowToolBar::create(app, context);
+            p.viewToolBar = ViewToolBar::create(
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                app,
+                context);
+            p.toolsToolBar = ToolsToolBar::create(app, context);
 
             auto stopButton = ui::ToolButton::create(context);
             stopButton->setIcon("PlaybackStop");
@@ -181,8 +204,16 @@ namespace tl
             p.menuBar->setParent(p.layout);
             ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
             auto hLayout = ui::HorizontalLayout::create(context, p.layout);
-            hLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            hLayout->setSpacingRole(ui::SizeRole::None);
             p.fileToolBar->setParent(hLayout);
+            ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
+            p.compareToolBar->setParent(hLayout);
+            ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
+            p.windowToolBar->setParent(hLayout);
+            ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
+            p.viewToolBar->setParent(hLayout);
+            ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
+            p.toolsToolBar->setParent(hLayout);
             p.splitter = ui::Splitter::create(ui::Orientation::Vertical, context, p.layout);
             p.splitter->setSplit(.7F);
             p.timelineViewport->setParent(p.splitter);
@@ -219,56 +250,7 @@ namespace tl
             p.statusLabel->setParent(hLayout);
             p.infoLabel->setParent(hLayout);
 
-            _playbackUpdate();
             _infoUpdate();
-
-            auto appWeak = std::weak_ptr<App>(app);
-            p.windowMenu->setResizeCallback(
-                [appWeak](const imaging::Size& value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->setWindowSize(value);
-                    }
-                });
-            p.windowMenu->setFullScreenCallback(
-                [appWeak](bool value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->setWindowFullScreen(value);
-                    }
-                });
-
-            p.playbackMenu->setFrameTimelineViewCallback(
-                [this](bool value)
-                {
-                    _p->timelineWidget->setFrameView(value);
-                });
-            p.playbackMenu->setStopOnScrubCallback(
-                [this](bool value)
-                {
-                    _p->timelineWidget->setStopOnScrub(value);
-                });
-            p.playbackMenu->setTimelineThumbnailsCallback(
-                [this](bool value)
-                {
-                    auto options = _p->timelineWidget->getItemOptions();
-                    options.thumbnails = value;
-                    _p->timelineWidget->setItemOptions(options);
-                });
-
-            p.frameMenu->setFocusCurrentFrameCallback(
-                [this]
-                {
-                    _p->currentTimeEdit->takeKeyFocus();
-                });
-
-            p.timelineWidget->setFrameViewCallback(
-                [this](bool value)
-                {
-                    _p->playbackMenu->setFrameTimelineView(value);
-                });
 
             p.currentTimeEdit->setCallback(
                 [this](const otime::RationalTime& value)
@@ -369,6 +351,21 @@ namespace tl
             return out;
         }
 
+        const std::shared_ptr<timelineui::TimelineViewport>& MainWindow::getTimelineViewport() const
+        {
+            return _p->timelineViewport;
+        }
+
+        const std::shared_ptr<timelineui::TimelineWidget>& MainWindow::getTimelineWidget() const
+        {
+            return _p->timelineWidget;
+        }
+
+        void MainWindow::focusCurrentFrame()
+        {
+            _p->currentTimeEdit->takeKeyFocus();
+        }
+
         void MainWindow::setGeometry(const math::BBox2i& value)
         {
             IWidget::setGeometry(value);
@@ -439,17 +436,6 @@ namespace tl
                 p.playbackButtonGroup->setChecked(0, true);
                 p.currentTimeEdit->setValue(time::invalidTime);
             }
-        }
-
-        void MainWindow::_playbackUpdate()
-        {
-            TLRENDER_P();
-            p.playbackMenu->setFrameTimelineView(
-                p.timelineWidget->hasFrameView());
-            p.playbackMenu->setStopOnScrub(
-                p.timelineWidget->hasStopOnScrub());
-            p.playbackMenu->setTimelineThumbnails(
-                p.timelineWidget->getItemOptions().thumbnails);
         }
 
         void MainWindow::_infoUpdate()
