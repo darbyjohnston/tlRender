@@ -121,10 +121,10 @@ namespace tl
                     switch (index.column())
                     {
                     case 1:
-                        if (!item->ioInfo.video.empty() &&
-                            item->videoLayer < item->ioInfo.video.size())
+                        if (!item->videoLayers.empty() &&
+                            item->videoLayer < item->videoLayers.size())
                         {
-                            const std::string s = item->ioInfo.video[item->videoLayer].name;
+                            const std::string s = item->videoLayers[item->videoLayer];
                             out.setValue(QString::fromUtf8(s.c_str()));
                         }
                         break;

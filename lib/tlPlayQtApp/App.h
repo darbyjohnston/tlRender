@@ -10,6 +10,8 @@
 #include <tlTimeline/TimeUnits.h>
 
 #include <QApplication>
+#include <QPointer>
+#include <QVector>
 
 namespace tl
 {
@@ -23,8 +25,9 @@ namespace tl
     namespace qt
     {
         class OutputDevice;
-        class TimelineThumbnailObject;
         class TimeObject;
+        class TimelinePlayer;
+        class TimelineThumbnailObject;
     }
 
     //! Qt playback application.
@@ -130,11 +133,12 @@ namespace tl
             void muteChanged(bool);
 
         private Q_SLOTS:
+            void _filesCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
             void _activeCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
             void _audioOffsetCallback(double);
-            void _settingsCallback();
 
         private:
+            QVector<QPointer<qt::TimelinePlayer> > _activePlayers() const;
             otime::RationalTime _cacheReadAhead() const;
             otime::RationalTime _cacheReadBehind() const;
 

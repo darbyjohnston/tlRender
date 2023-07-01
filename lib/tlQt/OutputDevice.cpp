@@ -174,57 +174,63 @@ namespace tl
             p.cv.notify_one();
         }
 
-        void OutputDevice::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& value)
+        void OutputDevice::setTimelinePlayers(const QVector<QPointer<qt::TimelinePlayer> >& value)
         {
             TLRENDER_P();
             if (value == p.timelinePlayers)
                 return;
-            for (const auto& i : p.timelinePlayers)
+            for (const auto& player : p.timelinePlayers)
             {
-                disconnect(
-                    i,
-                    SIGNAL(playbackChanged(tl::timeline::Playback)),
-                    this,
-                    SLOT(_playbackCallback(tl::timeline::Playback)));
-                disconnect(
-                    i,
-                    SIGNAL(currentTimeChanged(const otime::RationalTime&)),
-                    this,
-                    SLOT(_currentTimeCallback(const otime::RationalTime&)));
-                disconnect(
-                    i,
-                    SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
-                    this,
-                    SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
-                disconnect(
-                    i,
-                    SIGNAL(currentAudioChanged(const std::vector<tl::timeline::AudioData>&)),
-                    this,
-                    SLOT(_currentAudioCallback(const std::vector<tl::timeline::AudioData>&)));
+                if (player)
+                {
+                    disconnect(
+                        player,
+                        SIGNAL(playbackChanged(tl::timeline::Playback)),
+                        this,
+                        SLOT(_playbackCallback(tl::timeline::Playback)));
+                    disconnect(
+                        player,
+                        SIGNAL(currentTimeChanged(const otime::RationalTime&)),
+                        this,
+                        SLOT(_currentTimeCallback(const otime::RationalTime&)));
+                    disconnect(
+                        player,
+                        SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
+                        this,
+                        SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
+                    disconnect(
+                        player,
+                        SIGNAL(currentAudioChanged(const std::vector<tl::timeline::AudioData>&)),
+                        this,
+                        SLOT(_currentAudioCallback(const std::vector<tl::timeline::AudioData>&)));
+                }
             }
             p.timelinePlayers = value;
-            for (const auto& i : p.timelinePlayers)
+            for (const auto& player : p.timelinePlayers)
             {
-                connect(
-                    i,
-                    SIGNAL(playbackChanged(tl::timeline::Playback)),
-                    SLOT(_playbackCallback(tl::timeline::Playback)));
-                connect(
-                    i,
-                    SIGNAL(currentTimeChanged(const otime::RationalTime&)),
-                    SLOT(_currentTimeCallback(const otime::RationalTime&)));
-                connect(
-                    i,
-                    SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
-                    SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
-                connect(
-                    i,
-                    SIGNAL(currentAudioChanged(const std::vector<tl::timeline::AudioData>&)),
-                    SLOT(_currentAudioCallback(const std::vector<tl::timeline::AudioData>&)));
+                if (player)
+                {
+                    connect(
+                        player,
+                        SIGNAL(playbackChanged(tl::timeline::Playback)),
+                        SLOT(_playbackCallback(tl::timeline::Playback)));
+                    connect(
+                        player,
+                        SIGNAL(currentTimeChanged(const otime::RationalTime&)),
+                        SLOT(_currentTimeCallback(const otime::RationalTime&)));
+                    connect(
+                        player,
+                        SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
+                        SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
+                    connect(
+                        player,
+                        SIGNAL(currentAudioChanged(const std::vector<tl::timeline::AudioData>&)),
+                        SLOT(_currentAudioCallback(const std::vector<tl::timeline::AudioData>&)));
+                }
             }
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
-                if (!p.timelinePlayers.empty())
+                if (!p.timelinePlayers.empty() && p.timelinePlayers.front())
                 {
                     p.playback = p.timelinePlayers.front()->playback();
                     p.currentTime = p.timelinePlayers.front()->currentTime();
@@ -238,15 +244,18 @@ namespace tl
                 p.videoData.clear();
                 for (const auto& i : p.timelinePlayers)
                 {
-                    const auto& ioInfo = i->ioInfo();
-                    if (!ioInfo.video.empty())
+                    if (i)
                     {
-                        p.sizes.push_back(ioInfo.video[0].size);
+                        const auto& ioInfo = i->ioInfo();
+                        if (!ioInfo.video.empty())
+                        {
+                            p.sizes.push_back(ioInfo.video[0].size);
+                        }
+                        p.videoData.push_back(i->currentVideo());
                     }
-                    p.videoData.push_back(i->currentVideo());
                 }
                 p.audioData.clear();
-                if (!p.timelinePlayers.empty())
+                if (!p.timelinePlayers.empty() && p.timelinePlayers.front())
                 {
                     p.audioData = p.timelinePlayers.front()->currentAudio();
                 }

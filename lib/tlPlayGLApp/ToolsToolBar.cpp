@@ -21,7 +21,7 @@ namespace tl
             std::map<std::string, std::shared_ptr<ui::ToolButton> > buttons;
             std::shared_ptr<ui::HorizontalLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
+            std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playerObserver;
         };
 
         void ToolsToolBar::_init(
@@ -37,11 +37,11 @@ namespace tl
             p.app = app;
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.playerObserver = observer::ValueObserver<std::shared_ptr<timeline::Player> >::create(
-                app->observePlayer(),
-                [this](const std::shared_ptr<timeline::Player>& value)
+            p.playerObserver = observer::ListObserver<std::shared_ptr<timeline::Player> >::create(
+                app->observeActivePlayers(),
+                [this](const std::vector<std::shared_ptr<timeline::Player> >& value)
                 {
-                    _p->player = value;
+                    _p->player = !value.empty() ? value[0] : nullptr;
                 });
         }
 

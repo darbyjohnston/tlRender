@@ -15,7 +15,7 @@ namespace tl
         {
             std::shared_ptr<timeline::Player> player;
 
-            std::shared_ptr<observer::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
+            std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playerObserver;
         };
 
         void FrameMenu::_init(
@@ -163,11 +163,11 @@ namespace tl
                 });
             addItem(item);
 
-            p.playerObserver = observer::ValueObserver<std::shared_ptr<timeline::Player> >::create(
-                app->observePlayer(),
-                [this](const std::shared_ptr<timeline::Player>& value)
+            p.playerObserver = observer::ListObserver<std::shared_ptr<timeline::Player> >::create(
+                app->observeActivePlayers(),
+                [this](const std::vector<std::shared_ptr<timeline::Player> >& value)
                 {
-                    _setPlayer(value);
+                    _setPlayer(!value.empty() ? value[0] : nullptr);
                 });
         }
 

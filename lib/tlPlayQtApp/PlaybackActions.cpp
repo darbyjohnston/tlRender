@@ -20,7 +20,7 @@ namespace tl
         {
             App* app = nullptr;
 
-            std::vector<qt::TimelinePlayer*> timelinePlayers;
+            QVector<QPointer<qt::TimelinePlayer> > timelinePlayers;
 
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
@@ -405,10 +405,10 @@ namespace tl
             return _p->speedMenu;
         }
 
-        void PlaybackActions::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& timelinePlayers)
+        void PlaybackActions::setTimelinePlayers(const QVector<QPointer<qt::TimelinePlayer> >& timelinePlayers)
         {
             TLRENDER_P();
-            if (!p.timelinePlayers.empty())
+            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
             {
                 disconnect(
                     p.timelinePlayers[0],

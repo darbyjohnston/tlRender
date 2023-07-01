@@ -30,7 +30,7 @@ namespace tl
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
-            std::vector<qt::TimelinePlayer*> timelinePlayers;
+            QVector<QPointer<qt::TimelinePlayer> > timelinePlayers;
             std::vector<imaging::Size> timelineSizes;
             math::Vector2i viewPos;
             float viewZoom = 1.F;
@@ -116,45 +116,57 @@ namespace tl
             update();
         }
 
-        void TimelineViewport::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& value)
+        void TimelineViewport::setTimelinePlayers(const QVector<QPointer<qt::TimelinePlayer> >& value)
         {
             TLRENDER_P();
 
-            for (const auto& i : p.timelinePlayers)
+            for (const auto& player : p.timelinePlayers)
             {
-                disconnect(
-                    i,
-                    SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
-                    this,
-                    SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
+                if (player)
+                {
+                    disconnect(
+                        player,
+                        SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
+                        this,
+                        SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
+                }
             }
 
             p.timelinePlayers = value;
 
             p.timelineSizes.clear();
-            for (const auto& i : p.timelinePlayers)
+            for (const auto& player : p.timelinePlayers)
             {
-                const auto& ioInfo = i->ioInfo();
-                if (!ioInfo.video.empty())
+                if (player)
                 {
-                    p.timelineSizes.push_back(ioInfo.video[0].size);
+                    const auto& ioInfo = player->ioInfo();
+                    if (!ioInfo.video.empty())
+                    {
+                        p.timelineSizes.push_back(ioInfo.video[0].size);
+                    }
                 }
             }
 
             p.videoData.clear();
-            for (const auto& i : p.timelinePlayers)
+            for (const auto& player : p.timelinePlayers)
             {
-                p.videoData.push_back(i->currentVideo());
+                if (player)
+                {
+                    p.videoData.push_back(player->currentVideo());
+                }
             }
 
             update();
 
-            for (const auto& i : p.timelinePlayers)
+            for (const auto& player : p.timelinePlayers)
             {
-                connect(
-                    i,
-                    SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
-                    SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
+                if (player)
+                {
+                    connect(
+                        player,
+                        SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
+                        SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
+                }
             }
         }
 
@@ -235,12 +247,13 @@ namespace tl
                 {
                     p.videoData[i] = timeline::VideoData();
                 }
-            }
-            const auto i = std::find(p.timelinePlayers.begin(), p.timelinePlayers.end(), sender());
-            if (i != p.timelinePlayers.end())
+            }            
+            for (size_t i = 0; i < p.timelinePlayers.size(); ++i)
             {
-                const size_t index = i - p.timelinePlayers.begin();
-                p.videoData[index] = value;
+                if (p.timelinePlayers[i] == sender())
+                {
+                    p.videoData[i] = value;
+                }
             }
             update();
         }

@@ -80,11 +80,8 @@ namespace tl
             //! Get the files model.
             const std::shared_ptr<play::FilesModel>& getFilesModel() const;
 
-            //! Observe the current timeline player.
-            std::shared_ptr<observer::IValue<std::shared_ptr<timeline::Player> > > observePlayer() const;
-
-            //! Observe the list of timeline players.
-            std::shared_ptr<observer::IList<std::shared_ptr<timeline::Player> > > observePlayers() const;
+            //! Observe the active timeline players.
+            std::shared_ptr<observer::IList<std::shared_ptr<timeline::Player> > > observeActivePlayers() const;
 
             //! Get the main window.
             const std::shared_ptr<MainWindow>& getMainWindow() const;
@@ -94,10 +91,12 @@ namespace tl
             void _tick() override;
 
         private:
+            void _filesCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
             void _activeCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
 
-            otime::RationalTime _cacheReadAhead() const;
-            otime::RationalTime _cacheReadBehind() const;
+            std::vector<std::shared_ptr<timeline::Player> > _getActivePlayers() const;
+            otime::RationalTime _getCacheReadAhead() const;
+            otime::RationalTime _getCacheReadBehind() const;
 
             void _cacheUpdate();
             void _audioUpdate();

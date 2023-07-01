@@ -6,6 +6,8 @@
 
 #include <tlPlay/FilesModel.h>
 
+#include <tlCore/Time.h>
+
 #include <QAbstractTableModel>
 
 namespace tl

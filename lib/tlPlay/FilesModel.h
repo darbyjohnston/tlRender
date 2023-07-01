@@ -4,11 +4,19 @@
 
 #pragma once
 
-#include <tlTimeline/IRender.h>
-#include <tlTimeline/Player.h>
+#include <tlTimeline/CompareOptions.h>
+
+#include <tlCore/Path.h>
+#include <tlCore/ListObserver.h>
+#include <tlCore/ValueObserver.h>
 
 namespace tl
 {
+    namespace system
+    {
+        class Context;
+    }
+
     namespace play
     {
         //! Files model item.
@@ -17,17 +25,8 @@ namespace tl
             file::Path path;
             file::Path audioPath;
 
-            otime::TimeRange timeRange = time::invalidTimeRange;
-            io::Info ioInfo;
-
-            bool init = false;
-            double speed = 0.0;
-            timeline::Playback playback = timeline::Playback::Stop;
-            timeline::Loop loop = timeline::Loop::Loop;
-            otime::RationalTime currentTime = time::invalidTime;
-            otime::TimeRange inOutRange = time::invalidTimeRange;
-            uint16_t videoLayer = 0;
-            double audioOffset = 0.0;
+            std::vector<std::string> videoLayers;
+            size_t videoLayer = 0;
         };
 
         //! Files model.
@@ -37,6 +36,7 @@ namespace tl
 
         protected:
             void _init(const std::shared_ptr<system::Context>&);
+
             FilesModel();
 
         public:

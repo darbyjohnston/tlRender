@@ -4,6 +4,8 @@
 
 #include <tlPlay/FilesModel.h>
 
+#include <tlCore/Math.h>
+
 namespace tl
 {
     namespace play
@@ -112,22 +114,18 @@ namespace tl
                     p.a->setIfChanged(aNewIndex != -1 ? files[aNewIndex] : nullptr);
                     p.aIndex->setIfChanged(_index(p.a->get()));
 
-                    std::vector<std::shared_ptr<FilesModelItem> > b;
-                    if (files.size() > 1)
+                    auto b = p.b->get();
+                    auto j = b.begin();
+                    while (j != b.end())
                     {
-                        b = p.b->get();
-                        auto j = b.begin();
-                        while (j != b.end())
+                        const auto k = std::find(files.begin(), files.end(), *j);
+                        if (k == files.end())
                         {
-                            const auto k = std::find(files.begin(), files.end(), *j);
-                            if (k == files.end())
-                            {
-                                j = b.erase(j);
-                            }
-                            else
-                            {
-                                ++j;
-                            }
+                            j = b.erase(j);
+                        }
+                        else
+                        {
+                            ++j;
                         }
                     }
                     p.b->setIfChanged(b);
@@ -407,7 +405,7 @@ namespace tl
             TLRENDER_P();
             const int index = _index(item);
             if (index != -1 &&
-                layer < p.files->getItem(index)->ioInfo.video.size() &&
+                layer < p.files->getItem(index)->videoLayers.size() &&
                 layer != p.files->getItem(index)->videoLayer)
             {
                 p.files->getItem(index)->videoLayer = layer;
@@ -423,7 +421,7 @@ namespace tl
             {
                 auto item = p.files->getItem(index);
                 int layer = item->videoLayer + 1;
-                if (layer >= item->ioInfo.video.size())
+                if (layer >= item->videoLayers.size())
                 {
                     layer = 0;
                 }
@@ -442,7 +440,7 @@ namespace tl
                 int layer = item->videoLayer - 1;
                 if (layer < 0)
                 {
-                    layer = static_cast<int>(item->ioInfo.video.size()) - 1;
+                    layer = static_cast<int>(item->videoLayers.size()) - 1;
                 }
                 item->videoLayer = std::max(layer, 0);
                 p.layers->setIfChanged(_getLayers());

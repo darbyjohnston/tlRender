@@ -26,9 +26,9 @@ namespace tl
                     index.row() >= 0 &&
                     index.row() < files.size())
                 {
-                    for (const auto& video : files[index.row()]->ioInfo.video)
+                    for (const auto& layer : files[index.row()]->videoLayers)
                     {
-                        out->addItem(QString::fromUtf8(video.name.c_str()));
+                        out->addItem(QString::fromUtf8(layer.c_str()));
                     }
                 }
             }

@@ -38,7 +38,7 @@ namespace tl
             QMenu* speedMenu() const;
 
             //! Set the timeline players.
-            void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
+            void setTimelinePlayers(const QVector<QPointer<qt::TimelinePlayer> >&);
 
         private Q_SLOTS:
             void _playbackCallback(tl::timeline::Playback);

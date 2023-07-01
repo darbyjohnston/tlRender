@@ -24,7 +24,7 @@ namespace tl
             std::shared_ptr<ui::MenuItem> stopOnScrubItem;
             std::shared_ptr<ui::MenuItem> thumbnailsItem;
 
-            std::shared_ptr<observer::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
+            std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playerObserver;
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
             std::shared_ptr<observer::ValueObserver<timeline::Loop> > loopObserver;
             std::shared_ptr<observer::ValueObserver<bool> > frameViewObserver;
@@ -247,11 +247,11 @@ namespace tl
             _playbackUpdate();
             _loopUpdate();
 
-            p.playerObserver = observer::ValueObserver<std::shared_ptr<timeline::Player> >::create(
-                app->observePlayer(),
-                [this](const std::shared_ptr<timeline::Player>& value)
+            p.playerObserver = observer::ListObserver<std::shared_ptr<timeline::Player> >::create(
+                app->observeActivePlayers(),
+                [this](const std::vector<std::shared_ptr<timeline::Player> >& value)
                 {
-                    _setPlayer(value);
+                    _setPlayer(!value.empty() ? value[0] : nullptr);
                 });
 
             p.frameViewObserver = observer::ValueObserver<bool>::create(

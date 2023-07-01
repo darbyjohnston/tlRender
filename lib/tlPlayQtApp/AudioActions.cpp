@@ -14,7 +14,7 @@ namespace tl
         {
             App* app = nullptr;
 
-            std::vector<qt::TimelinePlayer*> timelinePlayers;
+            QVector<QPointer<qt::TimelinePlayer> > timelinePlayers;
 
             QMap<QString, QAction*> actions;
 
@@ -82,7 +82,7 @@ namespace tl
             return _p->menu;
         }
 
-        void AudioActions::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& timelinePlayers)
+        void AudioActions::setTimelinePlayers(const QVector<QPointer<qt::TimelinePlayer> >& timelinePlayers)
         {
             TLRENDER_P();
             if (!p.timelinePlayers.empty())
