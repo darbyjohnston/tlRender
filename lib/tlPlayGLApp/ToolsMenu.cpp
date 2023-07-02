@@ -119,7 +119,6 @@ namespace tl
 
             item = std::make_shared<ui::MenuItem>(
                 "System Log",
-                "System Log",
                 ui::Key::F11,
                 0,
                 [this](bool value)

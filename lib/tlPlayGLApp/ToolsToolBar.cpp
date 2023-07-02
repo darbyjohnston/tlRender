@@ -31,10 +31,58 @@ namespace tl
             IWidget::_init("tl::examples::play_gl::ToolsToolBar", context);
             TLRENDER_P();
 
+            p.app = app;
+
+            p.buttons["Files"] = ui::ToolButton::create(context);
+            p.buttons["Files"]->setIcon("Files");
+            p.buttons["Files"]->setCheckable(true);
+            p.buttons["Files"]->setEnabled(false);
+
+            p.buttons["Compare"] = ui::ToolButton::create(context);
+            p.buttons["Compare"]->setIcon("Compare");
+            p.buttons["Compare"]->setCheckable(true);
+            p.buttons["Compare"]->setEnabled(false);
+
+            p.buttons["Color"] = ui::ToolButton::create(context);
+            p.buttons["Color"]->setIcon("Color");
+            p.buttons["Color"]->setCheckable(true);
+            p.buttons["Color"]->setEnabled(false);
+
+            p.buttons["Info"] = ui::ToolButton::create(context);
+            p.buttons["Info"]->setIcon("Info");
+            p.buttons["Info"]->setCheckable(true);
+            p.buttons["Info"]->setEnabled(false);
+
+            p.buttons["Audio"] = ui::ToolButton::create(context);
+            p.buttons["Audio"]->setIcon("Audio");
+            p.buttons["Audio"]->setCheckable(true);
+            p.buttons["Audio"]->setEnabled(false);
+
+            p.buttons["Devices"] = ui::ToolButton::create(context);
+            p.buttons["Devices"]->setIcon("Devices");
+            p.buttons["Devices"]->setCheckable(true);
+            p.buttons["Devices"]->setEnabled(false);
+
+            p.buttons["Settings"] = ui::ToolButton::create(context);
+            p.buttons["Settings"]->setIcon("Settings");
+            p.buttons["Settings"]->setCheckable(true);
+            p.buttons["Settings"]->setEnabled(false);
+
+            p.buttons["Messages"] = ui::ToolButton::create(context);
+            p.buttons["Messages"]->setIcon("Messages");
+            p.buttons["Messages"]->setCheckable(true);
+            p.buttons["Messages"]->setEnabled(false);
+
             p.layout = ui::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ui::SizeRole::None);
-
-            p.app = app;
+            p.buttons["Files"]->setParent(p.layout);
+            p.buttons["Compare"]->setParent(p.layout);
+            p.buttons["Color"]->setParent(p.layout);
+            p.buttons["Info"]->setParent(p.layout);
+            p.buttons["Audio"]->setParent(p.layout);
+            p.buttons["Devices"]->setParent(p.layout);
+            p.buttons["Settings"]->setParent(p.layout);
+            p.buttons["Messages"]->setParent(p.layout);
 
             auto appWeak = std::weak_ptr<App>(app);
             p.playerObserver = observer::ListObserver<std::shared_ptr<timeline::Player> >::create(
