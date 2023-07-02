@@ -129,11 +129,16 @@ namespace tl
 {
     namespace ui
     {
+        namespace
+        {
+            const size_t requestCount = 10;
+        }
+
         struct IconLibrary::Private
         {
             std::weak_ptr<system::Context> context;
             
-            std::map<std::string, std::vector<uint8_t> > iconData;
+            std::map<std::pair<std::string, int>, std::vector<uint8_t> > iconData;
             
             struct Request
             {
@@ -168,115 +173,115 @@ namespace tl
             TLRENDER_P();
             p.context = context;
             
-            p.iconData["Audio_96.png"] = Audio_96_png;
-            p.iconData["BellowsClosed_96.png"] = BellowsClosed_96_png;
-            p.iconData["BellowsOpen_96.png"] = BellowsOpen_96_png;
-            p.iconData["Clear_96.png"] = Clear_96_png;
-            p.iconData["Color_96.png"] = Color_96_png;
-            p.iconData["Compare_96.png"] = Compare_96_png;
-            p.iconData["CompareA_96.png"] = CompareA_96_png;
-            p.iconData["CompareB_96.png"] = CompareB_96_png;
-            p.iconData["CompareDifference_96.png"] = CompareDifference_96_png;
-            p.iconData["CompareHorizontal_96.png"] = CompareHorizontal_96_png;
-            p.iconData["CompareOverlay_96.png"] = CompareOverlay_96_png;
-            p.iconData["CompareTile_96.png"] = CompareTile_96_png;
-            p.iconData["CompareVertical_96.png"] = CompareVertical_96_png;
-            p.iconData["CompareWipe_96.png"] = CompareWipe_96_png;
-            p.iconData["Copy_96.png"] = Copy_96_png;
-            p.iconData["Decrement_96.png"] = Decrement_96_png;
-            p.iconData["Devices_96.png"] = Devices_96_png;
-            p.iconData["Directory_96.png"] = Directory_96_png;
-            p.iconData["DirectoryUp_96.png"] = DirectoryUp_96_png;
-            p.iconData["DockWidgetClose_96.png"] = DockWidgetClose_96_png;
-            p.iconData["DockWidgetNormal_96.png"] = DockWidgetNormal_96_png;
-            p.iconData["Empty_96.png"] = Empty_96_png;
-            p.iconData["File_96.png"] = File_96_png;
-            p.iconData["FileBrowser_96.png"] = FileBrowser_96_png;
-            p.iconData["FileClose_96.png"] = FileClose_96_png;
-            p.iconData["FileCloseAll_96.png"] = FileCloseAll_96_png;
-            p.iconData["FileOpen_96.png"] = FileOpen_96_png;
-            p.iconData["FileOpenSeparateAudio_96.png"] = FileOpenSeparateAudio_96_png;
-            p.iconData["Files_96.png"] = Files_96_png;
-            p.iconData["FrameNext_96.png"] = FrameNext_96_png;
-            p.iconData["FramePrev_96.png"] = FramePrev_96_png;
-            p.iconData["Increment_96.png"] = Increment_96_png;
-            p.iconData["Info_96.png"] = Info_96_png;
-            p.iconData["MenuArrow_96.png"] = MenuArrow_96_png;
-            p.iconData["MenuChecked_96.png"] = MenuChecked_96_png;
-            p.iconData["MenuUnchecked_96.png"] = MenuUnchecked_96_png;
-            p.iconData["Messages_96.png"] = Messages_96_png;
-            p.iconData["Mute_96.png"] = Mute_96_png;
-            p.iconData["Next_96.png"] = Next_96_png;
-            p.iconData["PlaybackForward_96.png"] = PlaybackForward_96_png;
-            p.iconData["PlaybackReverse_96.png"] = PlaybackReverse_96_png;
-            p.iconData["PlaybackStop_96.png"] = PlaybackStop_96_png;
-            p.iconData["Prev_96.png"] = Prev_96_png;
-            p.iconData["Reset_96.png"] = Reset_96_png;
-            p.iconData["Settings_96.png"] = Settings_96_png;
-            p.iconData["SubMenuArrow_96.png"] = SubMenuArrow_96_png;
-            p.iconData["TimeEnd_96.png"] = TimeEnd_96_png;
-            p.iconData["TimeStart_96.png"] = TimeStart_96_png;
-            p.iconData["ViewFrame_96.png"] = ViewFrame_96_png;
-            p.iconData["ViewZoom1To1_96.png"] = ViewZoom1To1_96_png;
-            p.iconData["Volume_96.png"] = Volume_96_png;
-            p.iconData["WindowFullScreen_96.png"] = WindowFullScreen_96_png;
-            p.iconData["WindowSecondary_96.png"] = WindowSecondary_96_png;            
+            p.iconData[std::make_pair("Audio", 96)] = Audio_96_png;
+            p.iconData[std::make_pair("BellowsClosed", 96)] = BellowsClosed_96_png;
+            p.iconData[std::make_pair("BellowsOpen", 96)] = BellowsOpen_96_png;
+            p.iconData[std::make_pair("Clear", 96)] = Clear_96_png;
+            p.iconData[std::make_pair("Color", 96)] = Color_96_png;
+            p.iconData[std::make_pair("Compare", 96)] = Compare_96_png;
+            p.iconData[std::make_pair("CompareA", 96)] = CompareA_96_png;
+            p.iconData[std::make_pair("CompareB", 96)] = CompareB_96_png;
+            p.iconData[std::make_pair("CompareDifference", 96)] = CompareDifference_96_png;
+            p.iconData[std::make_pair("CompareHorizontal", 96)] = CompareHorizontal_96_png;
+            p.iconData[std::make_pair("CompareOverlay", 96)] = CompareOverlay_96_png;
+            p.iconData[std::make_pair("CompareTile", 96)] = CompareTile_96_png;
+            p.iconData[std::make_pair("CompareVertical", 96)] = CompareVertical_96_png;
+            p.iconData[std::make_pair("CompareWipe", 96)] = CompareWipe_96_png;
+            p.iconData[std::make_pair("Copy", 96)] = Copy_96_png;
+            p.iconData[std::make_pair("Decrement", 96)] = Decrement_96_png;
+            p.iconData[std::make_pair("Devices", 96)] = Devices_96_png;
+            p.iconData[std::make_pair("Directory", 96)] = Directory_96_png;
+            p.iconData[std::make_pair("DirectoryUp", 96)] = DirectoryUp_96_png;
+            p.iconData[std::make_pair("DockWidgetClose", 96)] = DockWidgetClose_96_png;
+            p.iconData[std::make_pair("DockWidgetNormal", 96)] = DockWidgetNormal_96_png;
+            p.iconData[std::make_pair("Empty", 96)] = Empty_96_png;
+            p.iconData[std::make_pair("File", 96)] = File_96_png;
+            p.iconData[std::make_pair("FileBrowser", 96)] = FileBrowser_96_png;
+            p.iconData[std::make_pair("FileClose", 96)] = FileClose_96_png;
+            p.iconData[std::make_pair("FileCloseAll", 96)] = FileCloseAll_96_png;
+            p.iconData[std::make_pair("FileOpen", 96)] = FileOpen_96_png;
+            p.iconData[std::make_pair("FileOpenSeparateAudio", 96)] = FileOpenSeparateAudio_96_png;
+            p.iconData[std::make_pair("Files", 96)] = Files_96_png;
+            p.iconData[std::make_pair("FrameNext", 96)] = FrameNext_96_png;
+            p.iconData[std::make_pair("FramePrev", 96)] = FramePrev_96_png;
+            p.iconData[std::make_pair("Increment", 96)] = Increment_96_png;
+            p.iconData[std::make_pair("Info", 96)] = Info_96_png;
+            p.iconData[std::make_pair("MenuArrow", 96)] = MenuArrow_96_png;
+            p.iconData[std::make_pair("MenuChecked", 96)] = MenuChecked_96_png;
+            p.iconData[std::make_pair("MenuUnchecked", 96)] = MenuUnchecked_96_png;
+            p.iconData[std::make_pair("Messages", 96)] = Messages_96_png;
+            p.iconData[std::make_pair("Mute", 96)] = Mute_96_png;
+            p.iconData[std::make_pair("Next", 96)] = Next_96_png;
+            p.iconData[std::make_pair("PlaybackForward", 96)] = PlaybackForward_96_png;
+            p.iconData[std::make_pair("PlaybackReverse", 96)] = PlaybackReverse_96_png;
+            p.iconData[std::make_pair("PlaybackStop", 96)] = PlaybackStop_96_png;
+            p.iconData[std::make_pair("Prev", 96)] = Prev_96_png;
+            p.iconData[std::make_pair("Reset", 96)] = Reset_96_png;
+            p.iconData[std::make_pair("Settings", 96)] = Settings_96_png;
+            p.iconData[std::make_pair("SubMenuArrow", 96)] = SubMenuArrow_96_png;
+            p.iconData[std::make_pair("TimeEnd", 96)] = TimeEnd_96_png;
+            p.iconData[std::make_pair("TimeStart", 96)] = TimeStart_96_png;
+            p.iconData[std::make_pair("ViewFrame", 96)] = ViewFrame_96_png;
+            p.iconData[std::make_pair("ViewZoom1To1", 96)] = ViewZoom1To1_96_png;
+            p.iconData[std::make_pair("Volume", 96)] = Volume_96_png;
+            p.iconData[std::make_pair("WindowFullScreen", 96)] = WindowFullScreen_96_png;
+            p.iconData[std::make_pair("WindowSecondary", 96)] = WindowSecondary_96_png;
 
-            p.iconData["Audio_192.png"] = Audio_192_png;
-            p.iconData["BellowsClosed_192.png"] = BellowsClosed_192_png;
-            p.iconData["BellowsOpen_192.png"] = BellowsOpen_192_png;
-            p.iconData["Clear_192.png"] = Clear_192_png;
-            p.iconData["Color_192.png"] = Color_192_png;
-            p.iconData["Compare_192.png"] = Compare_192_png;
-            p.iconData["CompareA_192.png"] = CompareA_192_png;
-            p.iconData["CompareB_192.png"] = CompareB_192_png;
-            p.iconData["CompareDifference_192.png"] = CompareDifference_192_png;
-            p.iconData["CompareHorizontal_192.png"] = CompareHorizontal_192_png;
-            p.iconData["CompareOverlay_192.png"] = CompareOverlay_192_png;
-            p.iconData["CompareTile_192.png"] = CompareTile_192_png;
-            p.iconData["CompareVertical_192.png"] = CompareVertical_192_png;
-            p.iconData["CompareWipe_192.png"] = CompareWipe_192_png;
-            p.iconData["Copy_192.png"] = Copy_192_png;
-            p.iconData["Decrement_192.png"] = Decrement_192_png;
-            p.iconData["Devices_192.png"] = Devices_192_png;
-            p.iconData["Directory_192.png"] = Directory_192_png;
-            p.iconData["DirectoryUp_192.png"] = DirectoryUp_192_png;
-            p.iconData["DockWidgetClose_192.png"] = DockWidgetClose_192_png;
-            p.iconData["DockWidgetNormal_192.png"] = DockWidgetNormal_192_png;
-            p.iconData["Empty_192.png"] = Empty_192_png;
-            p.iconData["File_192.png"] = File_192_png;
-            p.iconData["FileBrowser_192.png"] = FileBrowser_192_png;
-            p.iconData["FileClose_192.png"] = FileClose_192_png;
-            p.iconData["FileCloseAll_192.png"] = FileCloseAll_192_png;
-            p.iconData["FileOpen_192.png"] = FileOpen_192_png;
-            p.iconData["FileOpenSeparateAudio_192.png"] = FileOpenSeparateAudio_192_png;
-            p.iconData["Files_192.png"] = Files_192_png;
-            p.iconData["FrameNext_192.png"] = FrameNext_192_png;
-            p.iconData["FramePrev_192.png"] = FramePrev_192_png;
-            p.iconData["Increment_192.png"] = Increment_192_png;
-            p.iconData["Info_192.png"] = Info_192_png;
-            p.iconData["MenuArrow_192.png"] = MenuArrow_192_png;
-            p.iconData["MenuChecked_192.png"] = MenuChecked_192_png;
-            p.iconData["MenuUnchecked_192.png"] = MenuUnchecked_192_png;
-            p.iconData["Messages_192.png"] = Messages_192_png;
-            p.iconData["Mute_192.png"] = Mute_192_png;
-            p.iconData["Next_192.png"] = Next_192_png;
-            p.iconData["PlaybackForward_192.png"] = PlaybackForward_192_png;
-            p.iconData["PlaybackReverse_192.png"] = PlaybackReverse_192_png;
-            p.iconData["PlaybackStop_192.png"] = PlaybackStop_192_png;
-            p.iconData["Prev_192.png"] = Prev_192_png;
-            p.iconData["Reset_192.png"] = Reset_192_png;
-            p.iconData["Settings_192.png"] = Settings_192_png;
-            p.iconData["SubMenuArrow_192.png"] = SubMenuArrow_192_png;
-            p.iconData["TimeEnd_192.png"] = TimeEnd_192_png;
-            p.iconData["TimeStart_192.png"] = TimeStart_192_png;
-            p.iconData["ViewFrame_192.png"] = ViewFrame_192_png;
-            p.iconData["ViewZoom1To1_192.png"] = ViewZoom1To1_192_png;
-            p.iconData["Volume_192.png"] = Volume_192_png;
-            p.iconData["WindowFullScreen_192.png"] = WindowFullScreen_192_png;
-            p.iconData["WindowSecondary_192.png"] = WindowSecondary_192_png;            
+            p.iconData[std::make_pair("Audio", 192)] = Audio_192_png;
+            p.iconData[std::make_pair("BellowsClosed", 192)] = BellowsClosed_192_png;
+            p.iconData[std::make_pair("BellowsOpen", 192)] = BellowsOpen_192_png;
+            p.iconData[std::make_pair("Clear", 192)] = Clear_192_png;
+            p.iconData[std::make_pair("Color", 192)] = Color_192_png;
+            p.iconData[std::make_pair("Compare", 192)] = Compare_192_png;
+            p.iconData[std::make_pair("CompareA", 192)] = CompareA_192_png;
+            p.iconData[std::make_pair("CompareB", 192)] = CompareB_192_png;
+            p.iconData[std::make_pair("CompareDifference", 192)] = CompareDifference_192_png;
+            p.iconData[std::make_pair("CompareHorizontal", 192)] = CompareHorizontal_192_png;
+            p.iconData[std::make_pair("CompareOverlay", 192)] = CompareOverlay_192_png;
+            p.iconData[std::make_pair("CompareTile", 192)] = CompareTile_192_png;
+            p.iconData[std::make_pair("CompareVertical", 192)] = CompareVertical_192_png;
+            p.iconData[std::make_pair("CompareWipe", 192)] = CompareWipe_192_png;
+            p.iconData[std::make_pair("Copy", 192)] = Copy_192_png;
+            p.iconData[std::make_pair("Decrement", 192)] = Decrement_192_png;
+            p.iconData[std::make_pair("Devices", 192)] = Devices_192_png;
+            p.iconData[std::make_pair("Directory", 192)] = Directory_192_png;
+            p.iconData[std::make_pair("DirectoryUp", 192)] = DirectoryUp_192_png;
+            p.iconData[std::make_pair("DockWidgetClose", 192)] = DockWidgetClose_192_png;
+            p.iconData[std::make_pair("DockWidgetNormal", 192)] = DockWidgetNormal_192_png;
+            p.iconData[std::make_pair("Empty", 192)] = Empty_192_png;
+            p.iconData[std::make_pair("File", 192)] = File_192_png;
+            p.iconData[std::make_pair("FileBrowser", 192)] = FileBrowser_192_png;
+            p.iconData[std::make_pair("FileClose", 192)] = FileClose_192_png;
+            p.iconData[std::make_pair("FileCloseAll", 192)] = FileCloseAll_192_png;
+            p.iconData[std::make_pair("FileOpen", 192)] = FileOpen_192_png;
+            p.iconData[std::make_pair("FileOpenSeparateAudio", 192)] = FileOpenSeparateAudio_192_png;
+            p.iconData[std::make_pair("Files", 192)] = Files_192_png;
+            p.iconData[std::make_pair("FrameNext", 192)] = FrameNext_192_png;
+            p.iconData[std::make_pair("FramePrev", 192)] = FramePrev_192_png;
+            p.iconData[std::make_pair("Increment", 192)] = Increment_192_png;
+            p.iconData[std::make_pair("Info", 192)] = Info_192_png;
+            p.iconData[std::make_pair("MenuArrow", 192)] = MenuArrow_192_png;
+            p.iconData[std::make_pair("MenuChecked", 192)] = MenuChecked_192_png;
+            p.iconData[std::make_pair("MenuUnchecked", 192)] = MenuUnchecked_192_png;
+            p.iconData[std::make_pair("Messages", 192)] = Messages_192_png;
+            p.iconData[std::make_pair("Mute", 192)] = Mute_192_png;
+            p.iconData[std::make_pair("Next", 192)] = Next_192_png;
+            p.iconData[std::make_pair("PlaybackForward", 192)] = PlaybackForward_192_png;
+            p.iconData[std::make_pair("PlaybackReverse", 192)] = PlaybackReverse_192_png;
+            p.iconData[std::make_pair("PlaybackStop", 192)] = PlaybackStop_192_png;
+            p.iconData[std::make_pair("Prev", 192)] = Prev_192_png;
+            p.iconData[std::make_pair("Reset", 192)] = Reset_192_png;
+            p.iconData[std::make_pair("Settings", 192)] = Settings_192_png;
+            p.iconData[std::make_pair("SubMenuArrow", 192)] = SubMenuArrow_192_png;
+            p.iconData[std::make_pair("TimeEnd", 192)] = TimeEnd_192_png;
+            p.iconData[std::make_pair("TimeStart", 192)] = TimeStart_192_png;
+            p.iconData[std::make_pair("ViewFrame", 192)] = ViewFrame_192_png;
+            p.iconData[std::make_pair("ViewZoom1To1", 192)] = ViewZoom1To1_192_png;
+            p.iconData[std::make_pair("Volume", 192)] = Volume_192_png;
+            p.iconData[std::make_pair("WindowFullScreen", 192)] = WindowFullScreen_192_png;
+            p.iconData[std::make_pair("WindowSecondary", 192)] = WindowSecondary_192_png;
 
-            p.mutex.cache.setMax(100);
+            p.mutex.cache.setMax(1000);
 
             p.thread.running = true;
             p.thread.thread = std::thread(
@@ -296,21 +301,27 @@ namespace tl
                                     return !_p->mutex.requests.empty();
                                 }))
                             {
-                                std::swap(requests, p.mutex.requests);
+                                for (
+                                    size_t i = 0;
+                                    i < requestCount && !p.mutex.requests.empty();
+                                    ++i)
+                                {
+                                    auto request = p.mutex.requests.front();
+                                    p.mutex.requests.pop_front();
+                                    requests.push_back(request);
+                                }
                             }
                         }
+                        
+                        std::vector<std::future<io::VideoData> > futures;
                         for (const auto& request : requests)
                         {
-                            std::shared_ptr<imaging::Image> image;
                             int dpi = 96;
                             if (request->displayScale >= 2.F)
                             {
                                 dpi = 192;
                             }
-                            const std::string name = string::Format("{0}_{1}.png").
-                                arg(request->name).
-                                arg(dpi);
-                            const auto i = p.iconData.find(name);
+                            const auto i = p.iconData.find(std::make_pair(request->name, dpi));
                             if (i != p.iconData.end())
                             {
                                 try
@@ -318,20 +329,28 @@ namespace tl
                                     if (auto context = p.context.lock())
                                     {
                                         auto io = context->getSystem<io::System>();
+                                        const std::string name = string::Format("{0}_{1}.png").
+                                            arg(request->name).
+                                            arg(dpi);
                                         auto reader = io->read(
                                             file::Path(name),
                                             { file::MemoryRead(i->second.data(), i->second.size()) });
                                         if (reader)
                                         {
                                             const auto ioInfo = reader->getInfo().get();
-                                            const auto videoData = reader->readVideo(ioInfo.videoTime.start_time()).get();
-                                            image = videoData.image;
+                                            futures.push_back(reader->readVideo(ioInfo.videoTime.start_time()));
                                         }
                                     }
                                 }
                                 catch (const std::exception&)
-                                {}
+                                {
+                                }
                             }
+                        }
+                        size_t i = 0;
+                        for (const auto& request : requests)
+                        {
+                            auto image = futures[i].get().image;
                             request->promise.set_value(image);
                             {
                                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -339,9 +358,9 @@ namespace tl
                                     std::make_pair(request->name, request->displayScale),
                                     image);
                             }
+                            ++i;
                         }
                     }
-
                     {
                         std::unique_lock<std::mutex> lock(p.mutex.mutex);
                         p.mutex.stopped = true;
