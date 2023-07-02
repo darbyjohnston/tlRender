@@ -17,7 +17,10 @@ namespace tl
 
             std::shared_ptr<Menu> recentMenu;
             std::shared_ptr<Menu> currentMenu;
+            std::vector<std::shared_ptr<ui::MenuItem> > currentItems;
 
+            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
+            std::shared_ptr<observer::ValueObserver<int> > filesAObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playerObserver;
         };
 
@@ -118,17 +121,6 @@ namespace tl
             addDivider();
 
             p.currentMenu = addSubMenu("Current");
-            for (size_t i = 0; i < 10; ++i)
-            {
-                item = std::make_shared<ui::MenuItem>(
-                    "File Name",
-                    [this]
-                    {
-                        close();
-                    });
-                p.currentMenu->addItem(item);
-                p.currentMenu->setItemEnabled(item, false);
-            }
 
             item = std::make_shared<ui::MenuItem>(
                 "Next",
@@ -206,6 +198,20 @@ namespace tl
                 });
             addItem(item);
 
+            p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+                app->getFilesModel()->observeFiles(),
+                [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
+                {
+                    _currentUpdate(value);
+                });
+
+            p.filesAObserver = observer::ValueObserver<int>::create(
+                app->getFilesModel()->observeAIndex(),
+                [this](int value)
+                {
+                    _currentCheckedUpdate(value);
+                });
+
             p.playerObserver = observer::ListObserver<std::shared_ptr<timeline::Player> >::create(
                 app->observeActivePlayers(),
                 [this](const std::vector<std::shared_ptr<timeline::Player> >& value)
@@ -236,6 +242,38 @@ namespace tl
             TLRENDER_P();
             p.recentMenu->close();
             p.currentMenu->close();
+        }
+
+        void FileMenu::_currentUpdate(
+            const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
+        {
+            TLRENDER_P();
+            p.currentMenu->clear();
+            p.currentItems.clear();
+            for (size_t i = 0; i < value.size(); ++i)
+            {
+                auto item = std::make_shared<ui::MenuItem>(
+                    value[i]->path.get(-1, false),
+                    [this, i]
+                    {
+                        close();
+                        if (auto app = _p->app.lock())
+                        {
+                            app->getFilesModel()->setA(i);
+                        }
+                    });
+                p.currentMenu->addItem(item);
+                p.currentItems.push_back(item);
+            }
+        }
+
+        void FileMenu::_currentCheckedUpdate(int value)
+        {
+            TLRENDER_P();
+            for (int i = 0; i < p.currentItems.size(); ++i)
+            {
+                p.currentMenu->setItemChecked(p.currentItems[i], i == value);
+            }
         }
     }
 }

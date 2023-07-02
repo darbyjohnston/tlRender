@@ -48,10 +48,11 @@ namespace tl
     {
         struct MainWindow::Private
         {
-            std::shared_ptr<timeline::Player> player;
+            std::weak_ptr<App> app;
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             std::shared_ptr<ui::DoubleModel> speedModel;
             timelineui::ItemOptions itemOptions;
+            std::vector<std::shared_ptr<timeline::Player> > players;
 
             std::shared_ptr<timelineui::TimelineViewport> timelineViewport;
             std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
@@ -83,11 +84,12 @@ namespace tl
             std::shared_ptr<ui::Splitter> splitter;
             std::shared_ptr<ui::RowLayout> layout;
 
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playerObserver;
+            std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playersObserver;
             std::shared_ptr<observer::ValueObserver<double> > speedObserver;
             std::shared_ptr<observer::ValueObserver<double> > speedObserver2;
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
         };
 
         void MainWindow::_init(
@@ -99,6 +101,7 @@ namespace tl
 
             setBackgroundRole(ui::ColorRole::Window);
 
+            p.app = app;
             p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
             p.speedModel = ui::DoubleModel::create(context);
             p.speedModel->setRange(math::DoubleRange(0.0, 1000000.0));
@@ -250,31 +253,32 @@ namespace tl
             p.statusLabel->setParent(hLayout);
             p.infoLabel->setParent(hLayout);
 
+            _viewportUpdate();
             _infoUpdate();
 
             p.currentTimeEdit->setCallback(
                 [this](const otime::RationalTime& value)
                 {
-                    if (_p->player)
+                    if (!_p->players.empty() && _p->players[0])
                     {
-                        _p->player->seek(value);
+                        _p->players[0]->seek(value);
                     }
                 });
 
             currentTimeIncButtons->setIncCallback(
                 [this]
                 {
-                    if (_p->player)
+                    if (!_p->players.empty() && _p->players[0])
                     {
-                        _p->player->frameNext();
+                        _p->players[0]->frameNext();
                     }
                 });
             currentTimeIncButtons->setDecCallback(
                 [this]
                 {
-                    if (_p->player)
+                    if (!_p->players.empty() && _p->players[0])
                     {
-                        _p->player->framePrev();
+                        _p->players[0]->framePrev();
                     }
                 });
 
@@ -288,50 +292,57 @@ namespace tl
             p.playbackButtonGroup->setCheckedCallback(
                 [this](int index, bool value)
                 {
-                    if (_p->player)
+                    if (!_p->players.empty() && _p->players[0])
                     {
-                        _p->player->setPlayback(static_cast<timeline::Playback>(index));
+                        _p->players[0]->setPlayback(static_cast<timeline::Playback>(index));
                     }
                 });
 
             p.frameButtonGroup->setClickedCallback(
                 [this](int index)
                 {
-                    if (_p->player)
+                    if (!_p->players.empty() && _p->players[0])
                     {
                         switch (index)
                         {
                         case 0:
-                            _p->player->timeAction(timeline::TimeAction::Start);
+                            _p->players[0]->timeAction(timeline::TimeAction::Start);
                             break;
                         case 1:
-                            _p->player->timeAction(timeline::TimeAction::FramePrev);
+                            _p->players[0]->timeAction(timeline::TimeAction::FramePrev);
                             break;
                         case 2:
-                            _p->player->timeAction(timeline::TimeAction::FrameNext);
+                            _p->players[0]->timeAction(timeline::TimeAction::FrameNext);
                             break;
                         case 3:
-                            _p->player->timeAction(timeline::TimeAction::End);
+                            _p->players[0]->timeAction(timeline::TimeAction::End);
                             break;
                         }
                     }
                 });
 
-            p.playerObserver = observer::ListObserver<std::shared_ptr<timeline::Player> >::create(
+            p.playersObserver = observer::ListObserver<std::shared_ptr<timeline::Player> >::create(
                 app->observeActivePlayers(),
                 [this](const std::vector<std::shared_ptr<timeline::Player> >& value)
                 {
-                    _setPlayer(!value.empty() ? value[0] : nullptr);
+                    _setPlayers(value);
                 });
 
             p.speedObserver2 = observer::ValueObserver<double>::create(
                 p.speedModel->observeValue(),
                 [this](double value)
                 {
-                    if (_p->player)
+                    if (!_p->players.empty() && _p->players[0])
                     {
-                        _p->player->setSpeed(value);
+                        _p->players[0]->setSpeed(value);
                     }
+                });
+
+            p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
+                app->getFilesModel()->observeCompareOptions(),
+                [this](const timeline::CompareOptions& value)
+                {
+                    _viewportUpdate();
                 });
         }
 
@@ -383,7 +394,7 @@ namespace tl
             event.accept = true;
         }
 
-        void MainWindow::_setPlayer(const std::shared_ptr<timeline::Player>& value)
+        void MainWindow::_setPlayers(const std::vector<std::shared_ptr<timeline::Player> >& value)
         {
             TLRENDER_P();
 
@@ -391,40 +402,37 @@ namespace tl
             p.playbackObserver.reset();
             p.currentTimeObserver.reset();
 
-            p.player = value;
+            p.players = value;
 
-            if (p.player)
-            {
-                p.timelineViewport->setPlayers({ p.player });
-            }
-            else
-            {
-                p.timelineViewport->setPlayers({});
-            }
-            p.timelineWidget->setPlayer(p.player);
-            p.durationLabel->setValue(p.player ?
-                p.player->getTimeRange().duration() :
+            p.timelineViewport->setPlayers(p.players);
+            p.timelineWidget->setPlayer(
+                !p.players.empty() ?
+                p.players[0] :
+                nullptr);
+            p.durationLabel->setValue(
+                (!p.players.empty() && p.players[0]) ?
+                p.players[0]->getTimeRange().duration() :
                 time::invalidTime);
             _infoUpdate();
 
-            if (p.player)
+            if (!p.players.empty() && p.players[0])
             {
                 p.speedObserver = observer::ValueObserver<double>::create(
-                    p.player->observeSpeed(),
+                    p.players[0]->observeSpeed(),
                     [this](double value)
                     {
                         _p->speedModel->setValue(value);
                     });
 
                 p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
-                    p.player->observePlayback(),
+                    p.players[0]->observePlayback(),
                     [this](timeline::Playback value)
                     {
                         _p->playbackButtonGroup->setChecked(static_cast<int>(value), true);
                     });
 
                 p.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
-                    p.player->observeCurrentTime(),
+                    p.players[0]->observeCurrentTime(),
                     [this](const otime::RationalTime& value)
                     {
                         _p->currentTimeEdit->setValue(value);
@@ -438,14 +446,24 @@ namespace tl
             }
         }
 
+        void MainWindow::_viewportUpdate()
+        {
+            TLRENDER_P();
+            if (auto app = p.app.lock())
+            {
+                p.timelineViewport->setCompareOptions(
+                    app->getFilesModel()->getCompareOptions());
+            }
+        }
+
         void MainWindow::_infoUpdate()
         {
             TLRENDER_P();
             std::string text;
-            if (p.player)
+            if (!p.players.empty() && p.players[0])
             {
-                const file::Path& path = p.player->getPath();
-                const io::Info& info = p.player->getIOInfo();
+                const file::Path& path = p.players[0]->getPath();
+                const io::Info& info = p.players[0]->getIOInfo();
                 text = string::Format("{0}").arg(path.get(-1, false));
             }
             p.infoLabel->setText(text);

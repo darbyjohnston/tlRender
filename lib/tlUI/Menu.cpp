@@ -697,11 +697,11 @@ namespace tl
         void Menu::clear()
         {
             TLRENDER_P();
-            for (auto child : _children)
-            {
-                child->setParent(nullptr);
-            }
             p.items.clear();
+            for (auto button : p.buttons)
+            {
+                button.second->setParent(nullptr);
+            }
             p.buttons.clear();
         }
 

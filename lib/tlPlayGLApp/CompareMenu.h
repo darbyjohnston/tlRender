@@ -4,6 +4,8 @@
 
 #include <tlUI/Menu.h>
 
+#include <tlPlay/FilesModel.h>
+
 namespace tl
 {
     namespace play_gl
@@ -29,7 +31,14 @@ namespace tl
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&);
 
+            void close() override;
+
         private:
+            void _currentUpdate(
+                const std::vector<std::shared_ptr<play::FilesModelItem> >&);
+            void _currentCheckedUpdate(const std::vector<int>&);
+            void _compareUpdate(const timeline::CompareOptions&);
+
             TLRENDER_PRIVATE();
         };
     }

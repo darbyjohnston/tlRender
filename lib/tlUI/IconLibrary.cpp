@@ -145,6 +145,7 @@ namespace tl
                 std::string name;
                 float displayScale = 1.F;
                 std::promise<std::shared_ptr<imaging::Image> > promise;
+                std::future<io::VideoData> future;
             };
             const size_t requestTimeout = 5;
 
@@ -313,7 +314,6 @@ namespace tl
                             }
                         }
                         
-                        std::vector<std::future<io::VideoData> > futures;
                         for (const auto& request : requests)
                         {
                             int dpi = 96;
@@ -338,7 +338,7 @@ namespace tl
                                         if (reader)
                                         {
                                             const auto ioInfo = reader->getInfo().get();
-                                            futures.push_back(reader->readVideo(ioInfo.videoTime.start_time()));
+                                            request->future = reader->readVideo(ioInfo.videoTime.start_time());
                                         }
                                     }
                                 }
@@ -347,10 +347,13 @@ namespace tl
                                 }
                             }
                         }
-                        size_t i = 0;
                         for (const auto& request : requests)
                         {
-                            auto image = futures[i].get().image;
+                            std::shared_ptr<imaging::Image> image;
+                            if (request->future.valid())
+                            {
+                                image = request->future.get().image;
+                            }
                             request->promise.set_value(image);
                             {
                                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -358,7 +361,6 @@ namespace tl
                                     std::make_pair(request->name, request->displayScale),
                                     image);
                             }
-                            ++i;
                         }
                     }
                     {

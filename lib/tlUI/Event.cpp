@@ -148,12 +148,15 @@ namespace tl
         std::string getLabel(Key key, int modifiers)
         {
             std::stringstream ss;
-            if (modifiers)
+            if (key != Key::Unknown)
             {
-                ss << getKeyModifierLabel(modifiers);
-                ss << "+";
+                if (modifiers)
+                {
+                    ss << getKeyModifierLabel(modifiers);
+                    ss << "+";
+                }
+                ss << key;
             }
-            ss << key;
             return ss.str();
         }
     }

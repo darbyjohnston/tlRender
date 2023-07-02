@@ -4,7 +4,7 @@
 
 #include <tlUI/Menu.h>
 
-#include <tlTimeline/Player.h>
+#include <tlPlay/FilesModel.h>
 
 namespace tl
 {
@@ -34,6 +34,10 @@ namespace tl
             void close() override;
 
         private:
+            void _currentUpdate(
+                const std::vector<std::shared_ptr<play::FilesModelItem> >&);
+            void _currentCheckedUpdate(int);
+
             TLRENDER_PRIVATE();
         };
     }

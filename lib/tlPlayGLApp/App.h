@@ -82,7 +82,7 @@ namespace tl
 
             //! Observe the active timeline players.
             std::shared_ptr<observer::IList<std::shared_ptr<timeline::Player> > > observeActivePlayers() const;
-
+                
             //! Get the main window.
             const std::shared_ptr<MainWindow>& getMainWindow() const;
 

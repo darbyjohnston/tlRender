@@ -45,20 +45,39 @@ namespace tl
             //! Create a new files model.
             static std::shared_ptr<FilesModel> create(const std::shared_ptr<system::Context>&);
 
+            //! Get the files.
+            const std::vector<std::shared_ptr<FilesModelItem> >& getFiles() const;
+
             //! Observe the files.
             std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > observeFiles() const;
+
+            //! Get the "A" file.
+            const std::shared_ptr<FilesModelItem>& getA() const;
 
             //! Observe the "A" file.
             std::shared_ptr<observer::IValue<std::shared_ptr<FilesModelItem> > > observeA() const;
 
+            //! Get the "A" file index.
+            int getAIndex() const;
+
             //! Observe the "A" file index.
             std::shared_ptr<observer::IValue<int> > observeAIndex() const;
+
+            //! Get the "B" files.
+            const std::vector<std::shared_ptr<FilesModelItem> >& getB() const;
 
             //! Observe the "B" files.
             std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > observeB() const;
 
+            //! Get the "B" file indexes.
+            const std::vector<int>& getBIndexes() const;
+
             //! Observe the "B" file indexes.
             std::shared_ptr<observer::IList<int> > observeBIndexes() const;
+
+            //! Get the active files. The active files are the "A" file and
+            //! "B" files.
+            const std::vector<std::shared_ptr<FilesModelItem> >& getActive() const;
 
             //! Observe the active files. The active files are the "A" file
             //! and "B" files.
@@ -123,6 +142,9 @@ namespace tl
 
             //! Set the "A" file to the previous layer.
             void prevLayer();
+
+            //! Get the compare options.
+            const timeline::CompareOptions& getCompareOptions() const;
 
             //! Observe the compare options.
             std::shared_ptr<observer::IValue<timeline::CompareOptions> > observeCompareOptions() const;

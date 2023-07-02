@@ -52,7 +52,8 @@ namespace tl
             void keyReleaseEvent(ui::KeyEvent&) override;
 
         private:
-            void _setPlayer(const std::shared_ptr<timeline::Player>&);
+            void _setPlayers(const std::vector<std::shared_ptr<timeline::Player> >&);
+            void _viewportUpdate();
             void _infoUpdate();
 
             TLRENDER_PRIVATE();
