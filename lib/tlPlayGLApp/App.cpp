@@ -387,7 +387,10 @@ namespace tl
             TLRENDER_P();
             for (const auto& player : p.players)
             {
-                player->tick();
+                if (player)
+                {
+                    player->tick();
+                }
             }
         }
 
@@ -584,7 +587,10 @@ namespace tl
             cacheOptions.readBehind = _getCacheReadBehind();
             for (const auto& player : activePlayers)
             {
-                player->setCacheOptions(cacheOptions);
+                if (player)
+                {
+                    player->setCacheOptions(cacheOptions);
+                }
             }
         }
 

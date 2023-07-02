@@ -445,7 +445,7 @@ namespace tl
 
             p.timelinePlayers = timelinePlayers;
 
-            if (!p.timelinePlayers.empty())
+            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
             {
                 connect(
                     p.timelinePlayers[0],
@@ -523,7 +523,7 @@ namespace tl
                 p.actions[i]->setEnabled(count > 0);
             }
 
-            if (!p.timelinePlayers.empty())
+            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
             {
                 {
                     QSignalBlocker blocker(p.actionGroups["Playback"]);

@@ -843,7 +843,10 @@ namespace tl
             cacheOptions.readBehind = _cacheReadBehind();
             for (const auto& player : activePlayers)
             {
-                player->setCacheOptions(cacheOptions);
+                if (player)
+                {
+                    player->setCacheOptions(cacheOptions);
+                }
             }
         }
 

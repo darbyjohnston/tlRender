@@ -786,7 +786,7 @@ namespace tl
 
             p.timelinePlayers = timelinePlayers;
 
-            if (!p.timelinePlayers.empty())
+            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
             {
                 connect(
                     p.timelinePlayers[0],
@@ -899,7 +899,7 @@ namespace tl
                         mouseEvent->y() * devicePixelRatio;
                     if (p.mousePressed)
                     {
-                        if (!p.timelinePlayers.empty())
+                        if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
                         {
                             const auto& ioInfo = p.timelinePlayers[0]->ioInfo();
                             if (!ioInfo.video.empty())

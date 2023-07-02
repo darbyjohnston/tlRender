@@ -491,7 +491,7 @@ namespace tl
         void TimelineViewport::wheelEvent(QWheelEvent* event)
         {
             TLRENDER_P();
-            if (!p.timelinePlayers.empty())
+            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
             {
                 const auto t = p.timelinePlayers[0]->currentTime();
                 const float delta = event->angleDelta().y() / 8.F / 15.F;
