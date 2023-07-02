@@ -107,33 +107,33 @@ namespace tl
                 case MenuPopupStyle::Menu:
                     bboxes.push_back(math::BBox2i(
                         p.buttonGeometry.min.x,
-                        p.buttonGeometry.max.y,
+                        p.buttonGeometry.max.y + 1,
                         sizeHint.x,
                         sizeHint.y));
                     bboxes.push_back(math::BBox2i(
-                        p.buttonGeometry.max.x - sizeHint.x + 1,
-                        p.buttonGeometry.max.y,
+                        p.buttonGeometry.max.x + 1 - sizeHint.x,
+                        p.buttonGeometry.max.y + 1,
                         sizeHint.x,
                         sizeHint.y));
                     bboxes.push_back(math::BBox2i(
                         p.buttonGeometry.min.x,
-                        p.buttonGeometry.min.y - sizeHint.y + 1,
+                        p.buttonGeometry.min.y - sizeHint.y,
                         sizeHint.x,
                         sizeHint.y));
                     bboxes.push_back(math::BBox2i(
-                        p.buttonGeometry.max.x - sizeHint.x + 1,
-                        p.buttonGeometry.min.y - sizeHint.y + 1,
+                        p.buttonGeometry.max.x + 1 - sizeHint.x,
+                        p.buttonGeometry.min.y - sizeHint.y,
                         sizeHint.x,
                         sizeHint.y));
                     break;
                 case MenuPopupStyle::SubMenu:
                     bboxes.push_back(math::BBox2i(
-                        p.buttonGeometry.max.x + 1,
+                        p.buttonGeometry.max.x,
                         p.buttonGeometry.min.y,
                         sizeHint.x,
                         sizeHint.y));
                     bboxes.push_back(math::BBox2i(
-                        p.buttonGeometry.min.x - sizeHint.x + 1,
+                        p.buttonGeometry.min.x - sizeHint.x,
                         p.buttonGeometry.min.y,
                         sizeHint.x,
                         sizeHint.y));
