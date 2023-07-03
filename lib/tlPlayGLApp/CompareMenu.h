@@ -34,9 +34,9 @@ namespace tl
             void close() override;
 
         private:
-            void _currentUpdate(
+            void _filesUpdate(
                 const std::vector<std::shared_ptr<play::FilesModelItem> >&);
-            void _currentCheckedUpdate(const std::vector<int>&);
+            void _currentUpdate(const std::vector<int>&);
             void _compareUpdate(const timeline::CompareOptions&);
 
             TLRENDER_PRIVATE();

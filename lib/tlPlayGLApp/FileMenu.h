@@ -34,9 +34,12 @@ namespace tl
             void close() override;
 
         private:
-            void _currentUpdate(
+            void _filesUpdate(
                 const std::vector<std::shared_ptr<play::FilesModelItem> >&);
-            void _currentCheckedUpdate(int);
+            void _aUpdate(const std::shared_ptr<play::FilesModelItem>&);
+            void _aIndexUpdate(int);
+            void _recentUpdate(
+                const std::vector<std::shared_ptr<play::FilesModelItem> >&);
 
             TLRENDER_PRIVATE();
         };

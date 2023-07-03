@@ -311,7 +311,8 @@ namespace tl
             p.mouseWheelTimer = now;
             p.eventLoop->scroll(
                 event->angleDelta().x() / 8.F / 15.F,
-                event->angleDelta().y() / 8.F / 15.F);
+                event->angleDelta().y() / 8.F / 15.F,
+                fromQtModifiers(event->modifiers()));
         }
 
         namespace

@@ -58,17 +58,12 @@ namespace tl
                 filesModel->observeLayers(),
                 [this](const std::vector<int>& value)
                 {
-                    for (size_t i = 0; i < value.size() && i < _p->active.size(); ++i)
+                    for (size_t i = 0; i < value.size(); ++i)
                     {
-                        const auto j = std::find(_files.begin(), _files.end(), _p->active[i]);
-                        if (j != _files.end())
-                        {
-                            const int index = j - _files.begin();
-                            Q_EMIT dataChanged(
-                                this->index(index, 1),
-                                this->index(index, 1),
-                                { Qt::DisplayRole, Qt::EditRole });
-                        }
+                        Q_EMIT dataChanged(
+                            this->index(value[i], 1),
+                            this->index(value[i], 1),
+                            { Qt::DisplayRole, Qt::EditRole });
                     }
                 });
         }

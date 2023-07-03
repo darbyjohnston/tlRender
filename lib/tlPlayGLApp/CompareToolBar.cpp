@@ -6,6 +6,7 @@
 
 #include <tlPlayGLApp/App.h>
 
+#include <tlUI/ButtonGroup.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/ToolButton.h>
 
@@ -15,13 +16,11 @@ namespace tl
     {
         struct CompareToolBar::Private
         {
-            std::weak_ptr<App> app;
-            std::shared_ptr<timeline::Player> player;
-
-            std::map<std::string, std::shared_ptr<ui::ToolButton> > buttons;
+            std::shared_ptr<ui::ButtonGroup> buttonGroup;
+            std::map<timeline::CompareMode, std::shared_ptr<ui::ToolButton> > buttons;
             std::shared_ptr<ui::HorizontalLayout> layout;
 
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playerObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
         };
 
         void CompareToolBar::_init(
@@ -31,58 +30,55 @@ namespace tl
             IWidget::_init("tl::examples::play_gl::CompareToolBar", context);
             TLRENDER_P();
 
-            p.app = app;
-
-            p.buttons["A"] = ui::ToolButton::create(context);
-            p.buttons["A"]->setIcon("CompareA");
-            p.buttons["A"]->setEnabled(false);
-
-            p.buttons["B"] = ui::ToolButton::create(context);
-            p.buttons["B"]->setIcon("CompareB");
-            p.buttons["B"]->setEnabled(false);
-
-            p.buttons["Wipe"] = ui::ToolButton::create(context);
-            p.buttons["Wipe"]->setIcon("CompareWipe");
-            p.buttons["Wipe"]->setEnabled(false);
-
-            p.buttons["Overlay"] = ui::ToolButton::create(context);
-            p.buttons["Overlay"]->setIcon("CompareOverlay");
-            p.buttons["Overlay"]->setEnabled(false);
-
-            p.buttons["Difference"] = ui::ToolButton::create(context);
-            p.buttons["Difference"]->setIcon("CompareDifference");
-            p.buttons["Difference"]->setEnabled(false);
-
-            p.buttons["Horizontal"] = ui::ToolButton::create(context);
-            p.buttons["Horizontal"]->setIcon("CompareHorizontal");
-            p.buttons["Horizontal"]->setEnabled(false);
-
-            p.buttons["Vertical"] = ui::ToolButton::create(context);
-            p.buttons["Vertical"]->setIcon("CompareVertical");
-            p.buttons["Vertical"]->setEnabled(false);
-
-            p.buttons["Tile"] = ui::ToolButton::create(context);
-            p.buttons["Tile"]->setIcon("CompareTile");
-            p.buttons["Tile"]->setEnabled(false);
+            p.buttonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Radio, context);
+            const std::array<std::string, static_cast<size_t>(timeline::CompareMode::Count)> icons =
+            {
+                "CompareA",
+                "CompareB",
+                "CompareWipe",
+                "CompareOverlay",
+                "CompareDifference",
+                "CompareHorizontal",
+                "CompareVertical",
+                "CompareTile"
+            };
+            const auto enums = timeline::getCompareModeEnums();
+            for (size_t i = 0; i < enums.size(); ++i)
+            {
+                const auto mode = enums[i];
+                p.buttons[mode] = ui::ToolButton::create(context);
+                p.buttons[mode]->setCheckable(true);
+                p.buttons[mode]->setIcon(icons[i]);
+                p.buttonGroup->addButton(p.buttons[mode]);
+            }
 
             p.layout = ui::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ui::SizeRole::None);
-            p.buttons["A"]->setParent(p.layout);
-            p.buttons["B"]->setParent(p.layout);
-            p.buttons["Wipe"]->setParent(p.layout);
-            p.buttons["Overlay"]->setParent(p.layout);
-            p.buttons["Difference"]->setParent(p.layout);
-            p.buttons["Horizontal"]->setParent(p.layout);
-            p.buttons["Vertical"]->setParent(p.layout);
-            p.buttons["Tile"]->setParent(p.layout);
+            for (size_t i = 0; i < enums.size(); ++i)
+            {
+                p.buttons[enums[i]]->setParent(p.layout);
+            }
 
             auto appWeak = std::weak_ptr<App>(app);
-
-            p.playerObserver = observer::ListObserver<std::shared_ptr<timeline::Player> >::create(
-                app->observeActivePlayers(),
-                [this](const std::vector<std::shared_ptr<timeline::Player> >& value)
+            p.buttonGroup->setCheckedCallback(
+                [appWeak](int index, bool value)
                 {
-                    _p->player = !value.empty() ? value[0] : nullptr;
+                    if (auto app = appWeak.lock())
+                    {
+                        if (value)
+                        {
+                            auto options = app->getFilesModel()->getCompareOptions();
+                            options.mode = static_cast<timeline::CompareMode>(index);
+                            app->getFilesModel()->setCompareOptions(options);
+                        }
+                    }
+                });
+
+            p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
+                app->getFilesModel()->observeCompareOptions(),
+                [this](const timeline::CompareOptions& value)
+                {
+                    _compareUpdate(value);
                 });
         }
 
@@ -112,6 +108,12 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             _sizeHint = _p->layout->getSizeHint();
+        }
+
+        void CompareToolBar::_compareUpdate(const timeline::CompareOptions& value)
+        {
+            TLRENDER_P();
+            p.buttonGroup->setChecked(static_cast<int>(value.mode), true);
         }
     }
 }

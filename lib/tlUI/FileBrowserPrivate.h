@@ -7,6 +7,7 @@
 #include <tlUI/FileBrowser.h>
 
 #include <tlUI/ButtonGroup.h>
+#include <tlUI/ComboBox.h>
 #include <tlUI/DrivesModel.h>
 #include <tlUI/ListButton.h>
 #include <tlUI/LineEdit.h>
@@ -76,7 +77,9 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            void setPath(const std::string&);
+            void setPath(
+                const std::string&,
+                const file::ListOptions&);
 
             void setFileCallback(const std::function<void(const std::string&)>&);
 
@@ -89,6 +92,7 @@ namespace tl
             void _directoryUpdate();
 
             std::string _path;
+            file::ListOptions _listOptions;
             std::vector<file::FileInfo> _fileInfos;
             std::vector<std::shared_ptr<ListButton> > _buttons;
             std::shared_ptr<ButtonGroup> _buttonGroup;
@@ -117,7 +121,7 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            void setFileCallback(const std::function<void(const std::string&)>&);
+            void setFileCallback(const std::function<void(const file::Path&)>&);
 
             void setCancelCallback(const std::function<void(void)>&);
 
@@ -130,6 +134,7 @@ namespace tl
             void _pathUpdate();
 
             file::Path _path;
+            file::ListOptions _listOptions;
             std::shared_ptr<ToolButton> _upButton;
             std::shared_ptr<ToolButton> _cwdButton;
             std::shared_ptr<LineEdit> _pathEdit;
@@ -138,10 +143,11 @@ namespace tl
             std::shared_ptr<DirectoryWidget> _directoryWidget;
             std::shared_ptr<ScrollWidget> _directoryScrollWidget;
             std::shared_ptr<Splitter> _splitter;
+            std::shared_ptr<ComboBox> _sortComboBox;
             std::shared_ptr<PushButton> _okButton;
             std::shared_ptr<PushButton> _cancelButton;
             std::shared_ptr<VerticalLayout> _layout;
-            std::function<void(const std::string&)> _fileCallback;
+            std::function<void(const file::Path&)> _fileCallback;
             std::function<void(void)> _cancelCallback;
         };
     }

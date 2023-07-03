@@ -28,12 +28,14 @@ namespace tl
         {
             App* app = nullptr;
             FilesBModel* filesBModel = nullptr;
-            timeline::CompareOptions compareOptions;
+
             QTreeView* treeView = nullptr;
             qtwidget::FloatSlider* wipeXSlider = nullptr;
             qtwidget::FloatSlider* wipeYSlider = nullptr;
             qtwidget::FloatSlider* wipeRotationSlider = nullptr;
             qtwidget::FloatSlider* overlaySlider = nullptr;
+
+            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
         };
 
         CompareTool::CompareTool(
@@ -128,41 +130,48 @@ namespace tl
             connect(
                 p.wipeXSlider,
                 &qtwidget::FloatSlider::valueChanged,
-                [this](double value)
+                [this, app](double value)
                 {
-                    timeline::CompareOptions compareOptions = _p->compareOptions;
-                    compareOptions.wipeCenter.x = value;
-                    Q_EMIT compareOptionsChanged(compareOptions);
+                    auto options = app->filesModel()->getCompareOptions();
+                    options.wipeCenter.x = value;
+                    app->filesModel()->setCompareOptions(options);
                 });
 
             connect(
                 p.wipeYSlider,
                 &qtwidget::FloatSlider::valueChanged,
-                [this](double value)
+                [this, app](double value)
                 {
-                    timeline::CompareOptions compareOptions = _p->compareOptions;
-                    compareOptions.wipeCenter.y = value;
-                    Q_EMIT compareOptionsChanged(compareOptions);
+                    auto options = app->filesModel()->getCompareOptions();
+                    options.wipeCenter.y = value;
+                    app->filesModel()->setCompareOptions(options);
                 });
 
             connect(
                 p.wipeRotationSlider,
                 &qtwidget::FloatSlider::valueChanged,
-                [this](double value)
+                [this, app](double value)
                 {
-                    timeline::CompareOptions compareOptions = _p->compareOptions;
-                    compareOptions.wipeRotation = value;
-                    Q_EMIT compareOptionsChanged(compareOptions);
+                    auto options = app->filesModel()->getCompareOptions();
+                    options.wipeRotation = value;
+                    app->filesModel()->setCompareOptions(options);
                 });
 
             connect(
                 p.overlaySlider,
                 &qtwidget::FloatSlider::valueChanged,
-                [this](double value)
+                [this, app](double value)
                 {
-                    timeline::CompareOptions compareOptions = _p->compareOptions;
-                    compareOptions.overlay = value;
-                    Q_EMIT compareOptionsChanged(compareOptions);
+                    auto options = app->filesModel()->getCompareOptions();
+                    options.overlay = value;
+                    app->filesModel()->setCompareOptions(options);
+                });
+
+            p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
+                app->filesModel()->observeCompareOptions(),
+                [this](const timeline::CompareOptions& value)
+                {
+                    _widgetUpdate();
                 });
         }
 
@@ -174,15 +183,6 @@ namespace tl
                 p.treeView->header()->saveState());
         }
 
-        void CompareTool::setCompareOptions(const timeline::CompareOptions& value)
-        {
-            TLRENDER_P();
-            if (value == p.compareOptions)
-                return;
-            p.compareOptions = value;
-            _widgetUpdate();
-        }
-
         void CompareTool::_activatedCallback(const QModelIndex& index)
         {
             TLRENDER_P();
@@ -192,21 +192,22 @@ namespace tl
         void CompareTool::_widgetUpdate()
         {
             TLRENDER_P();
+            const auto options = p.app->filesModel()->getCompareOptions();
             {
                 QSignalBlocker signalBlocker(p.wipeXSlider);
-                p.wipeXSlider->setValue(p.compareOptions.wipeCenter.x);
+                p.wipeXSlider->setValue(options.wipeCenter.x);
             }
             {
                 QSignalBlocker signalBlocker(p.wipeYSlider);
-                p.wipeYSlider->setValue(p.compareOptions.wipeCenter.y);
+                p.wipeYSlider->setValue(options.wipeCenter.y);
             }
             {
                 QSignalBlocker signalBlocker(p.wipeYSlider);
-                p.wipeRotationSlider->setValue(p.compareOptions.wipeRotation);
+                p.wipeRotationSlider->setValue(options.wipeRotation);
             }
             {
                 QSignalBlocker signalBlocker(p.overlaySlider);
-                p.overlaySlider->setValue(p.compareOptions.overlay);
+                p.overlaySlider->setValue(options.overlay);
             }
         }
 

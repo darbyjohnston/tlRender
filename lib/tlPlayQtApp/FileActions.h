@@ -6,11 +6,11 @@
 
 #include <tlQt/TimelinePlayer.h>
 
+#include <tlPlay/FilesModel.h>
+
 #include <QAction>
 #include <QObject>
 #include <QMenu>
-
-#include <memory>
 
 namespace tl
 {
@@ -34,11 +34,9 @@ namespace tl
             //! Get the menu.
             QMenu* menu() const;
 
-        private Q_SLOTS:
-            void _recentFilesCallback();
-
         private:
-            void _recentFilesUpdate();
+            void _recentUpdate(
+                const std::vector<std::shared_ptr<play::FilesModelItem> >&);
             void _actionsUpdate();
 
             TLRENDER_PRIVATE();

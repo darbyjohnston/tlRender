@@ -26,19 +26,19 @@ namespace tl
         //! Tick event.
         struct TickEvent
         {
-            std::shared_ptr<Style> style;
-            std::shared_ptr<IconLibrary> iconLibrary;
+            std::shared_ptr<Style>               style;
+            std::shared_ptr<IconLibrary>         iconLibrary;
             std::shared_ptr<imaging::FontSystem> fontSystem;
-            float displayScale = 1.F;
+            float                                displayScale = 1.F;
         };
 
         //! Size hint event.
         struct SizeHintEvent
         {
-            std::shared_ptr<Style> style;
-            std::shared_ptr<IconLibrary> iconLibrary;
-            std::shared_ptr<imaging::FontSystem> fontSystem;
-            float displayScale = 1.F;
+            std::shared_ptr<Style>                   style;
+            std::shared_ptr<IconLibrary>             iconLibrary;
+            std::shared_ptr<imaging::FontSystem>     fontSystem;
+            float                                    displayScale = 1.F;
             std::map<FontRole, imaging::FontMetrics> fontMetrics;
 
             imaging::FontMetrics getFontMetrics(FontRole) const;
@@ -47,10 +47,10 @@ namespace tl
         //! Clip event.
         struct ClipEvent
         {
-            std::shared_ptr<Style> style;
-            std::shared_ptr<IconLibrary> iconLibrary;
-            std::shared_ptr<imaging::FontSystem> fontSystem;
-            float displayScale = 1.F;
+            std::shared_ptr<Style>                   style;
+            std::shared_ptr<IconLibrary>             iconLibrary;
+            std::shared_ptr<imaging::FontSystem>     fontSystem;
+            float                                    displayScale = 1.F;
             std::map<FontRole, imaging::FontMetrics> fontMetrics;
 
             imaging::FontMetrics getFontMetrics(FontRole) const;
@@ -59,11 +59,11 @@ namespace tl
         //! Draw event.
         struct DrawEvent
         {
-            std::shared_ptr<Style> style;
-            std::shared_ptr<IconLibrary> iconLibrary;
-            std::shared_ptr<timeline::IRender> render;
-            std::shared_ptr<imaging::FontSystem> fontSystem;
-            float displayScale = 1.F;
+            std::shared_ptr<Style>                   style;
+            std::shared_ptr<IconLibrary>             iconLibrary;
+            std::shared_ptr<timeline::IRender>       render;
+            std::shared_ptr<imaging::FontSystem>     fontSystem;
+            float                                    displayScale = 1.F;
             std::map<FontRole, imaging::FontMetrics> fontMetrics;
 
             imaging::FontMetrics getFontMetrics(FontRole) const;
@@ -74,16 +74,7 @@ namespace tl
         {
             math::Vector2i pos;
             math::Vector2i prev;
-            bool accept = false;
-        };
-
-        //! Scroll event (mouse wheel or touch pad).
-        struct ScrollEvent
-        {
-            math::Vector2i pos;
-            float dx = 0.F;
-            float dy = 0.F;
-            bool accept = false;
+            bool           accept = false;
         };
 
         //! Keyboard modifiers.
@@ -92,8 +83,16 @@ namespace tl
             None    = 0,
             Shift   = 1,
             Control = 2,
-            Alt     = 4
+            Alt     = 4,
+            Super   = 8
         };
+
+        //! OS specific command key modifier.
+#if defined(__APPLE__)
+        const KeyModifier commandKeyModifier = KeyModifier::Super;
+#else // __APPLE__
+        const KeyModifier commandKeyModifier = KeyModifier::Control;
+#endif // __APPLE__
 
         //! Get a keyboard modifer label.
         std::string getKeyModifierLabel(int);
@@ -101,10 +100,20 @@ namespace tl
         //! Mouse click event.
         struct MouseClickEvent
         {
-            int button = 0;
-            int modifiers = 0;
+            int            button    = 0;
+            int            modifiers = 0;
             math::Vector2i pos;
-            bool accept = false;
+            bool           accept    = false;
+        };
+
+        //! Scroll event (mouse wheel or touch pad).
+        struct ScrollEvent
+        {
+            int            modifiers = 0;
+            math::Vector2i pos;
+            float          dx        = 0.F;
+            float          dy        = 0.F;
+            bool           accept    = false;
         };
 
         //! Keys.
@@ -211,17 +220,17 @@ namespace tl
         //! Key event.
         struct KeyEvent
         {
-            Key key = Key::Unknown;
-            int modifiers = 0;
+            Key            key       = Key::Unknown;
+            int            modifiers = 0;
             math::Vector2i pos;
-            bool accept = false;
+            bool           accept    = false;
         };
 
         //! Text event.
         struct TextEvent
         {
             std::string text;
-            bool accept = false;
+            bool        accept = false;
         };
     }
 }

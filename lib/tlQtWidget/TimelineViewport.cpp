@@ -491,11 +491,26 @@ namespace tl
         void TimelineViewport::wheelEvent(QWheelEvent* event)
         {
             TLRENDER_P();
-            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
+            if (Qt::NoModifier == event->modifiers())
             {
-                const auto t = p.timelinePlayers[0]->currentTime();
+                event->accept();
                 const float delta = event->angleDelta().y() / 8.F / 15.F;
-                p.timelinePlayers[0]->seek(t + otime::RationalTime(delta, t.rate()));
+                const double mult = 1.1;
+                const double zoom =
+                    delta < 0 ?
+                    p.viewZoom / (-delta * mult) :
+                    p.viewZoom * (delta * mult);
+                setViewZoom(zoom, p.mousePos);
+            }
+            else if (event->modifiers() & Qt::ControlModifier)
+            {
+                event->accept();
+                if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
+                {
+                    const auto t = p.timelinePlayers[0]->currentTime();
+                    const float delta = event->angleDelta().y() / 8.F / 15.F;
+                    p.timelinePlayers[0]->seek(t + otime::RationalTime(delta, t.rate()));
+                }
             }
         }
 

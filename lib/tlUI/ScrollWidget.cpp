@@ -223,7 +223,7 @@ namespace tl
             {
                 event.accept = true;
                 math::Vector2i scrollPos = getScrollPos();
-                scrollPos.y += event.dy * getLineStep();
+                scrollPos.y -= event.dy * getLineStep();
                 setScrollPos(scrollPos);
             }
         }
@@ -232,25 +232,28 @@ namespace tl
         {
             IWidget::keyPressEvent(event);
             TLRENDER_P();
-            switch (event.key)
+            if (0 == event.modifiers)
             {
-            case Key::PageUp:
-            {
-                event.accept = true;
-                math::Vector2i scrollPos = getScrollPos();
-                scrollPos.y -= getPageStep();
-                setScrollPos(scrollPos);
-                break;
-            }
-            case Key::PageDown:
-            {
-                event.accept = true;
-                math::Vector2i scrollPos = getScrollPos();
-                scrollPos.y += getPageStep();
-                setScrollPos(scrollPos);
-                break;
-            }
-            default: break;
+                switch (event.key)
+                {
+                case Key::PageUp:
+                {
+                    event.accept = true;
+                    math::Vector2i scrollPos = getScrollPos();
+                    scrollPos.y -= getPageStep();
+                    setScrollPos(scrollPos);
+                    break;
+                }
+                case Key::PageDown:
+                {
+                    event.accept = true;
+                    math::Vector2i scrollPos = getScrollPos();
+                    scrollPos.y += getPageStep();
+                    setScrollPos(scrollPos);
+                    break;
+                }
+                default: break;
+                }
             }
         }
 

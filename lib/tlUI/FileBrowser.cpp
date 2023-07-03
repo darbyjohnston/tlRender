@@ -4,6 +4,7 @@
 
 #include <tlUI/FileBrowserPrivate.h>
 
+#include <tlUI/Label.h>
 #include <tlUI/Spacer.h>
 
 #include <tlCore/File.h>
@@ -126,6 +127,8 @@ namespace tl
         {
             IWidget::_init("tl::ui::DirectoryWidget", context, parent);
 
+            _listOptions.sequence = false;
+
             _buttonGroup = ButtonGroup::create(ButtonGroupType::Click, context);
 
             _layout = VerticalLayout::create(context, shared_from_this());
@@ -177,11 +180,14 @@ namespace tl
             return out;
         }
 
-        void DirectoryWidget::setPath(const std::string& value)
+        void DirectoryWidget::setPath(
+            const std::string& value,
+            const file::ListOptions& listOptions)
         {
-            if (value == _path)
+            if (value == _path && listOptions == _listOptions)
                 return;
             _path = value;
+            _listOptions = listOptions;
             _directoryUpdate();
         }
 
@@ -215,9 +221,7 @@ namespace tl
             }
             _buttons.clear();
             _buttonGroup->clearButtons();
-            file::ListOptions listOptions;
-            listOptions.sequence = false;
-            _fileInfos = file::list(_path, listOptions);
+            _fileInfos = file::list(_path, _listOptions);
             if (auto context = _context.lock())
             {
                 for (auto i : _fileInfos)
@@ -265,6 +269,9 @@ namespace tl
             _directoryScrollWidget->setWidget(_directoryWidget);
             _directoryScrollWidget->setVStretch(Stretch::Expanding);
 
+            _sortComboBox = ComboBox::create(context);
+            _sortComboBox->setItems(file::getListSortLabels());
+
             _okButton = PushButton::create(context);
             _okButton->setText("Ok");
 
@@ -284,6 +291,10 @@ namespace tl
             _splitter->setSplit(0.2);
             hLayout = HorizontalLayout::create(context, _layout);
             hLayout->setSpacingRole(SizeRole::SpacingSmall);
+            auto label = Label::create(context);
+            label->setText("Sort:");
+            label->setParent(hLayout);
+            _sortComboBox->setParent(hLayout);
             auto spacer = Spacer::create(context, hLayout);
             spacer->setHStretch(Stretch::Expanding);
             _okButton->setParent(hLayout);
@@ -344,7 +355,7 @@ namespace tl
                     _pathUpdate();
                     if (_fileCallback)
                     {
-                        _fileCallback(_path.get());
+                        _fileCallback(_path);
                     }
                 });
             _directoryWidget->setPathCallback(
@@ -354,12 +365,19 @@ namespace tl
                     _pathUpdate();
                 });
 
+            _sortComboBox->setIndexCallback(
+                [this](int value)
+                {
+                    _listOptions.sort = static_cast<file::ListSort>(value);
+                    _pathUpdate();
+                });
+
             _okButton->setClickedCallback(
                 [this]
                 {
                     if (_fileCallback)
                     {
-                        _fileCallback(_path.get());
+                        _fileCallback(_path);
                     }
                 });
 
@@ -389,7 +407,7 @@ namespace tl
             return out;
         }
 
-        void FileBrowserWidget::setFileCallback(const std::function<void(const std::string&)>& value)
+        void FileBrowserWidget::setFileCallback(const std::function<void(const file::Path&)>& value)
         {
             _fileCallback = value;
         }
@@ -423,7 +441,7 @@ namespace tl
         void FileBrowserWidget::_pathUpdate()
         {
             _pathEdit->setText(_path.get());
-            _directoryWidget->setPath(_path.getDirectory());
+            _directoryWidget->setPath(_path.getDirectory(), _listOptions);
             _directoryScrollWidget->setScrollPos(math::Vector2i(0, 0));
         }
 
@@ -466,7 +484,7 @@ namespace tl
             return out;
         }
 
-        void FileBrowser::setFileCallback(const std::function<void(const std::string&)>& value)
+        void FileBrowser::setFileCallback(const std::function<void(const file::Path&)>& value)
         {
             _p->widget->setFileCallback(value);
         }

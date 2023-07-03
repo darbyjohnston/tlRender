@@ -4,7 +4,7 @@
 
 #include <tlUI/IWidget.h>
 
-#include <tlTimeline/Player.h>
+#include <tlPlay/FilesModel.h>
 
 namespace tl
 {
@@ -35,6 +35,9 @@ namespace tl
             void sizeHintEvent(const ui::SizeHintEvent&) override;
 
         private:
+            void _filesUpdate(
+                const std::vector<std::shared_ptr<play::FilesModelItem> >&);
+
             TLRENDER_PRIVATE();
         };
     }

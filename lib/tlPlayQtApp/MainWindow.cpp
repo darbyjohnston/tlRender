@@ -621,14 +621,6 @@ namespace tl
                 SLOT(_volumeCallback(int)));
 
             connect(
-                p.compareTool,
-                &CompareTool::compareOptionsChanged,
-                [app](const timeline::CompareOptions& value)
-                {
-                    app->filesModel()->setCompareOptions(value);
-                });
-
-            connect(
                 p.colorTool,
                 &ColorTool::lutOptionsChanged,
                 [app](const timeline::LUTOptions& value)
@@ -1072,8 +1064,6 @@ namespace tl
                 }
             }
 
-            p.compareActions->setCompareOptions(p.compareOptions);
-
             p.viewActions->actions()["Frame"]->setChecked(p.timelineViewport->hasFrameView());
 
             p.renderActions->setImageOptions(p.imageOptions);
@@ -1104,8 +1094,6 @@ namespace tl
                 const QSignalBlocker blocker(p.volumeSlider);
                 p.volumeSlider->setValue(p.volume * sliderSteps);
             }
-
-            p.compareTool->setCompareOptions(p.compareOptions);
 
             p.colorTool->setLUTOptions(p.lutOptions);
             p.colorTool->setDisplayOptions(p.displayOptions);

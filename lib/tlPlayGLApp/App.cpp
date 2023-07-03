@@ -40,6 +40,7 @@ namespace tl
 
             std::shared_ptr<MainWindow> mainWindow;
             std::shared_ptr<ui::FileBrowser> fileBrowser;
+            std::string fileBrowserPath;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
@@ -229,7 +230,7 @@ namespace tl
             auto ioSystem = context->getSystem<io::System>();
             ioSystem->setOptions(ioOptions);
 
-            // Create objects.
+            // Initialization.
             p.filesModel = play::FilesModel::create(context);
             p.activePlayers = observer::List<std::shared_ptr<timeline::Player> >::create();
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
@@ -256,6 +257,8 @@ namespace tl
                         }
                     }
                 });
+
+            p.fileBrowserPath = file::getCWD();
 
             // Open the input files.
             if (!p.input.empty())
@@ -320,20 +323,13 @@ namespace tl
                 NFD::FreePath(outPath);
             }
 #else  // TLRENDER_NFD
-            std::string path = file::getCWD();
-            if (!p.players.empty())
-            {
-                if (auto player = p.players[0])
-                {
-                    path = player->getPath().get();
-                }
-            }
-            p.fileBrowser = ui::FileBrowser::create(path, _context);
+            p.fileBrowser = ui::FileBrowser::create(p.fileBrowserPath, _context);
             p.fileBrowser->open(getEventLoop());
             p.fileBrowser->setFileCallback(
-                [this](const std::string& value)
+                [this](const file::Path& value)
                 {
-                    open(value);
+                    open(value.get());
+                    _p->fileBrowserPath = value.getDirectory();
                     _p->fileBrowser->close();
                 });
             p.fileBrowser->setCloseCallback(

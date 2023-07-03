@@ -20,7 +20,6 @@ namespace tl
         namespace
         {
             const size_t settingsVersion = 3;
-            const int recentFilesMax = 10;
 
             QString version(const QString& value)
             {
@@ -80,7 +79,7 @@ namespace tl
             for (int i = 0; i < size; ++i)
             {
                 p.settings.setArrayIndex(i);
-                p.recentFiles.push_back(p.settings.value("File").toString().toUtf8().data());
+                p.recentFiles.push_back(p.settings.value("File").toString());
             }
             p.settings.endArray();
 
@@ -166,15 +165,12 @@ namespace tl
             _toolTipsUpdate();
         }
 
-        void SettingsObject::addRecentFile(const QString& fileName)
+        void SettingsObject::setRecentFiles(const QList<QString>& value)
         {
             TLRENDER_P();
-            p.recentFiles.removeAll(fileName);
-            p.recentFiles.insert(p.recentFiles.begin(), fileName);
-            while (p.recentFiles.size() > recentFilesMax)
-            {
-                p.recentFiles.pop_back();
-            }
+            if (value == p.recentFiles)
+                return;
+            p.recentFiles = value;
             Q_EMIT recentFilesChanged(p.recentFiles);
         }
 

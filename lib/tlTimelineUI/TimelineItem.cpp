@@ -289,7 +289,7 @@ namespace tl
         /*void TimelineItem::keyPressEvent(ui::KeyEvent& event)
         {
             TLRENDER_P();
-            if (isEnabled())
+            if (isEnabled() && 0 == event.modifiers)
             {
                 switch (event.key)
                 {

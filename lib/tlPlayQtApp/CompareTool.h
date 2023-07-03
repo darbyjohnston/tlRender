@@ -29,14 +29,8 @@ namespace tl
 
             ~CompareTool() override;
 
-        public Q_SLOTS:
-            void setCompareOptions(const tl::timeline::CompareOptions&);
-
         private Q_SLOTS:
             void _activatedCallback(const QModelIndex&);
-
-        Q_SIGNALS:
-            void compareOptionsChanged(const tl::timeline::CompareOptions&);
 
         private:
             void _widgetUpdate();

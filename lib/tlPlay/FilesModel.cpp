@@ -19,6 +19,8 @@ namespace tl
             std::shared_ptr<observer::List<std::shared_ptr<FilesModelItem> > > b;
             std::shared_ptr<observer::List<int> > bIndexes;
             std::shared_ptr<observer::List<std::shared_ptr<FilesModelItem> > > active;
+            std::shared_ptr<observer::List<std::shared_ptr<FilesModelItem>> > recent;
+            size_t recentMax = 10;
             std::shared_ptr<observer::List<int> > layers;
             std::shared_ptr<observer::Value<timeline::CompareOptions> > compareOptions;
         };
@@ -35,6 +37,7 @@ namespace tl
             p.b = observer::List<std::shared_ptr<FilesModelItem> >::create();
             p.bIndexes = observer::List<int>::create();
             p.active = observer::List<std::shared_ptr<FilesModelItem> >::create();
+            p.recent = observer::List<std::shared_ptr<FilesModelItem> >::create();
             p.layers = observer::List<int>::create();
             p.compareOptions = observer::Value<timeline::CompareOptions>::create();
         }
@@ -124,6 +127,26 @@ namespace tl
 
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
+
+            auto recent = p.recent->get();
+            auto i = recent.begin();
+            while (i != recent.end())
+            {
+                if ((*i)->path == item->path)
+                {
+                    i = recent.erase(i);
+                }
+                else
+                {
+                    ++i;
+                }
+            }
+            recent.insert(recent.begin(), item);
+            while (recent.size() > p.recentMax)
+            {
+                recent.pop_back();
+            }
+            p.recent->setIfChanged(recent);
         }
 
         void FilesModel::close()
@@ -425,6 +448,43 @@ namespace tl
             p.layers->setIfChanged(_getLayers());
         }
 
+        const std::vector<std::shared_ptr<FilesModelItem> >& FilesModel::getRecent() const
+        {
+            return _p->recent->get();
+        }
+
+        std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > FilesModel::observeRecent() const
+        {
+            return _p->recent;
+        }
+
+        void FilesModel::setRecent(const std::vector<std::shared_ptr<FilesModelItem> >& value)
+        {
+            _p->recent->setIfChanged(value);
+        }
+
+        size_t FilesModel::getRecentMax() const
+        {
+            return _p->recentMax;
+        }
+
+        void FilesModel::setRecentMax(size_t value)
+        {
+            TLRENDER_P();
+            if (value = p.recentMax)
+                return;
+            p.recentMax = value;
+            if (p.recentMax < p.recent->getSize())
+            {
+                auto recent = p.recent->get();
+                while (recent.size() > p.recentMax)
+                {
+                    recent.pop_back();
+                }
+                p.recent->setIfChanged(recent);
+            }
+        }
+
         std::shared_ptr<observer::IList<int> > FilesModel::observeLayers() const
         {
             return _p->layers;
@@ -576,25 +636,9 @@ namespace tl
         {
             TLRENDER_P();
             std::vector<int> out;
-            if (p.a->get())
+            for (const auto& f : p.files->get())
             {
-                out.push_back(p.a->get()->videoLayer);
-            }
-            switch (p.compareOptions->get().mode)
-            {
-            case timeline::CompareMode::B:
-            case timeline::CompareMode::Wipe:
-            case timeline::CompareMode::Overlay:
-            case timeline::CompareMode::Difference:
-            case timeline::CompareMode::Horizontal:
-            case timeline::CompareMode::Vertical:
-            case timeline::CompareMode::Tile:
-                for (const auto& b : p.b->get())
-                {
-                    out.push_back(b->videoLayer);
-                }
-                break;
-            default: break;
+                out.push_back(f->videoLayer);
             }
             return out;
         }

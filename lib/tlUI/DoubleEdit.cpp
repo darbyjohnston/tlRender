@@ -140,7 +140,7 @@ namespace tl
         void DoubleEdit::keyPressEvent(KeyEvent& event)
         {
             TLRENDER_P();
-            if (isEnabled() && p.model)
+            if (isEnabled() && p.model && 0 == event.modifiers)
             {
                 switch (event.key)
                 {

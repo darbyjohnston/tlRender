@@ -307,6 +307,14 @@ namespace tl
             p.thumbnailObject = new qt::TimelineThumbnailObject(context, this);
 
             p.filesModel = play::FilesModel::create(context);
+            std::vector<std::shared_ptr<play::FilesModelItem> > recent;
+            for (const auto& i : p.settingsObject->recentFiles())
+            {
+                auto item = std::make_shared<play::FilesModelItem>();
+                item->path = file::Path(i.toUtf8().data());
+                recent.push_back(item);
+            }
+            p.filesModel->setRecent(recent);
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 p.filesModel->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
@@ -446,17 +454,27 @@ namespace tl
             delete p.outputDevice;
             p.outputDevice = nullptr;
 
-            if (p.settingsObject && p.devicesModel)
+            if (p.settingsObject)
             {
-                const auto& deviceData = p.devicesModel->observeData()->get();
-                p.settingsObject->setValue("Devices/DeviceIndex", deviceData.deviceIndex);
-                p.settingsObject->setValue("Devices/DisplayModeIndex", deviceData.displayModeIndex);
-                p.settingsObject->setValue("Devices/PixelTypeIndex", deviceData.pixelTypeIndex);
-                p.settingsObject->setValue("Devices/DeviceEnabled", deviceData.deviceEnabled);
-                p.settingsObject->setValue("Devices/HDRMode", static_cast<int>(deviceData.hdrMode));
-                nlohmann::json json;
-                to_json(json, deviceData.hdrData);
-                p.settingsObject->setValue("Devices/HDRData", QString::fromUtf8(json.dump().c_str()));
+                QList<QString> recentFiles;
+                for (const auto& recent : p.filesModel->getRecent())
+                {
+                    recentFiles.push_back(QString::fromUtf8(recent->path.get().c_str()));
+                }
+                p.settingsObject->setRecentFiles(recentFiles);
+
+                if (p.devicesModel)
+                {
+                    const auto& deviceData = p.devicesModel->observeData()->get();
+                    p.settingsObject->setValue("Devices/DeviceIndex", deviceData.deviceIndex);
+                    p.settingsObject->setValue("Devices/DisplayModeIndex", deviceData.displayModeIndex);
+                    p.settingsObject->setValue("Devices/PixelTypeIndex", deviceData.pixelTypeIndex);
+                    p.settingsObject->setValue("Devices/DeviceEnabled", deviceData.deviceEnabled);
+                    p.settingsObject->setValue("Devices/HDRMode", static_cast<int>(deviceData.hdrMode));
+                    nlohmann::json json;
+                    to_json(json, deviceData.hdrData);
+                    p.settingsObject->setValue("Devices/HDRData", QString::fromUtf8(json.dump().c_str()));
+                }
             }
 
             //! \bug Why is it necessary to manually delete this to get the settings to save?
@@ -540,7 +558,6 @@ namespace tl
                 item->path = path;
                 item->audioPath = file::Path(audioFileName.toUtf8().data());
                 p.filesModel->add(item);
-                p.settingsObject->addRecentFile(QString::fromUtf8(path.get().c_str()));
             }
         }
 

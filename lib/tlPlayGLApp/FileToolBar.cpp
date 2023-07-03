@@ -16,12 +16,11 @@ namespace tl
         struct FileToolBar::Private
         {
             std::weak_ptr<App> app;
-            std::shared_ptr<timeline::Player> player;
 
             std::map<std::string, std::shared_ptr<ui::ToolButton> > buttons;
             std::shared_ptr<ui::HorizontalLayout> layout;
 
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playerObserver;
+            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
         };
 
         void FileToolBar::_init(
@@ -83,11 +82,11 @@ namespace tl
                     }
                 });
 
-            p.playerObserver = observer::ListObserver<std::shared_ptr<timeline::Player> >::create(
-                app->observeActivePlayers(),
-                [this](const std::vector<std::shared_ptr<timeline::Player> >& value)
+            p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+                app->getFilesModel()->observeFiles(),
+                [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
                 {
-                    _p->player = !value.empty() ? value[0] : nullptr;
+                    _filesUpdate(value);
                 });
         }
 
@@ -117,6 +116,14 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             _sizeHint = _p->layout->getSizeHint();
+        }
+
+        void FileToolBar::_filesUpdate(
+            const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
+        {
+            TLRENDER_P();
+            p.buttons["Close"]->setEnabled(!value.empty());
+            p.buttons["CloseAll"]->setEnabled(!value.empty());
         }
     }
 }

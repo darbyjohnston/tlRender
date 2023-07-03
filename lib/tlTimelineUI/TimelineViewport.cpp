@@ -229,13 +229,13 @@ namespace tl
         void TimelineViewport::viewZoomIn()
         {
             TLRENDER_P();
-            setViewZoom(p.viewZoom * 2.F, _viewportCenter());
+            setViewZoom(p.viewZoom * 2.0, _viewportCenter());
         }
 
         void TimelineViewport::viewZoomOut()
         {
             TLRENDER_P();
-            setViewZoom(p.viewZoom / 2.F, _viewportCenter());
+            setViewZoom(p.viewZoom / 2.0, _viewportCenter());
         }
 
         void TimelineViewport::setVisible(bool value)
@@ -398,27 +398,54 @@ namespace tl
             p.mouse.pressed = false;
         }
 
+        void TimelineViewport::scrollEvent(ui::ScrollEvent& event)
+        {
+            TLRENDER_P();
+            if (static_cast<int>(ui::KeyModifier::None) == event.modifiers)
+            {
+                event.accept = true;
+                const double mult = 1.1;
+                const double zoom =
+                    event.dy < 0 ?
+                    p.viewZoom / (-event.dy * mult) :
+                    p.viewZoom * (event.dy * mult);
+                setViewZoom(zoom, event.pos - _geometry.min);
+            }
+            else if (event.modifiers & static_cast<int>(ui::KeyModifier::Control))
+            {
+                event.accept = true;
+                if (!p.players.empty() && p.players[0])
+                {
+                    const otime::RationalTime t = p.players[0]->getCurrentTime();
+                    p.players[0]->seek(t + otime::RationalTime(event.dy, t.rate()));
+                }
+            }
+        }
+
         void TimelineViewport::keyPressEvent(ui::KeyEvent& event)
         {
             TLRENDER_P();
-            switch (event.key)
+            if (0 == event.modifiers)
             {
-            case ui::Key::_0:
-                event.accept = true;
-                setViewZoom(1.F, event.pos);
-                break;
-            case ui::Key::Equal:
-                event.accept = true;
-                setViewZoom(p.viewZoom * 2.F, event.pos);
-                break;
-            case ui::Key::Minus:
-                event.accept = true;
-                setViewZoom(p.viewZoom / 2.F, event.pos);
-                break;
-            case ui::Key::Backspace:
-                event.accept = true;
-                setFrameView(true);
-            default: break;
+                switch (event.key)
+                {
+                case ui::Key::_0:
+                    event.accept = true;
+                    setViewZoom(1.0, event.pos - _geometry.min);
+                    break;
+                case ui::Key::Equal:
+                    event.accept = true;
+                    setViewZoom(p.viewZoom * 2.0, event.pos - _geometry.min);
+                    break;
+                case ui::Key::Minus:
+                    event.accept = true;
+                    setViewZoom(p.viewZoom / 2.0, event.pos - _geometry.min);
+                    break;
+                case ui::Key::Backspace:
+                    event.accept = true;
+                    setFrameView(true);
+                default: break;
+                }
             }
         }
 

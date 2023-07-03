@@ -228,21 +228,24 @@ namespace tl
         void ToolButton::keyPressEvent(KeyEvent& event)
         {
             TLRENDER_P();
-            switch (event.key)
+            if (0 == event.modifiers)
             {
-            case Key::Space:
-            case Key::Enter:
-                event.accept = true;
-                _click();
-                break;
-            case Key::Escape:
-                if (hasKeyFocus())
+                switch (event.key)
                 {
+                case Key::Space:
+                case Key::Enter:
                     event.accept = true;
-                    releaseKeyFocus();
+                    _click();
+                    break;
+                case Key::Escape:
+                    if (hasKeyFocus())
+                    {
+                        event.accept = true;
+                        releaseKeyFocus();
+                    }
+                    break;
+                default: break;
                 }
-                break;
-            default: break;
             }
         }
 

@@ -528,29 +528,32 @@ namespace tl
         void ComboBox::keyPressEvent(KeyEvent& event)
         {
             TLRENDER_P();
-            switch (event.key)
+            if (0 == event.modifiers)
             {
-            case Key::Up:
-                event.accept = true;
-                _commitIndex(p.currentIndex - 1);
-                break;
-            case Key::Down:
-                event.accept = true;
-                _commitIndex(p.currentIndex + 1);
-                break;
-            case Key::Space:
-            case Key::Enter:
-                event.accept = true;
-                _click();
-                break;
-            case Key::Escape:
-                if (hasKeyFocus())
+                switch (event.key)
                 {
+                case Key::Up:
                     event.accept = true;
-                    releaseKeyFocus();
+                    _commitIndex(p.currentIndex - 1);
+                    break;
+                case Key::Down:
+                    event.accept = true;
+                    _commitIndex(p.currentIndex + 1);
+                    break;
+                case Key::Space:
+                case Key::Enter:
+                    event.accept = true;
+                    _click();
+                    break;
+                case Key::Escape:
+                    if (hasKeyFocus())
+                    {
+                        event.accept = true;
+                        releaseKeyFocus();
+                    }
+                    break;
+                default: break;
                 }
-                break;
-            default: break;
             }
         }
 
