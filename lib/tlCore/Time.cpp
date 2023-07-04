@@ -248,7 +248,7 @@ namespace opentime
                 throw tl::error::ParseError();
             }
             std::string saved_locale = std::setlocale(LC_NUMERIC, NULL);
-            setlocale(LC_NUMERIC, "C");
+            std::setlocale(LC_NUMERIC, "C");
             out = RationalTime(std::stof(split[0]), std::stof(split[1]));
             std::setlocale(LC_NUMERIC, saved_locale.c_str());
             return is;
