@@ -105,9 +105,9 @@ namespace tl
 
         std::string IItem::_durationLabel(const otime::RationalTime& value)
         {
-            return string::Format("{0} {1}").
-                arg(_data.timeUnitsModel->getLabel(value)).
-                arg(value.rate());
+            const otime::RationalTime rescaled = value.rescaled_to(_data.speed);
+            return string::Format("{0}").
+                arg(_data.timeUnitsModel->getLabel(rescaled));
         }
 
         void IItem::_timeUnitsUpdate()

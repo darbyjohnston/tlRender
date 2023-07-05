@@ -184,7 +184,7 @@ namespace tl
         void IBasicItem::_textUpdate()
         {
             TLRENDER_P();
-            p.durationLabel = IItem::_durationLabel(p.timeRange.duration());
+            p.durationLabel = _durationLabel(p.timeRange.duration());
             p.size.textUpdate = true;
             p.draw.durationGlyphs.clear();
             _updates |= ui::Update::Size;

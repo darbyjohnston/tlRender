@@ -96,6 +96,7 @@ namespace tl
                 if (auto context = _context.lock())
                 {
                     ItemData itemData;
+                    itemData.speed = p.player->getDefaultSpeed();
                     itemData.directory = p.player->getPath().getDirectory();
                     itemData.options = p.player->getOptions();
                     itemData.ioManager = IOManager::create(

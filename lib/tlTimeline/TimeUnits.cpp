@@ -36,10 +36,14 @@ namespace tl
                 break;
             case timeline::TimeUnits::Timecode:
             {
-                otime::ErrorStatus errorStatus;
-                out = time::isValid(time) ?
-                    time.to_timecode(&errorStatus) :
-                    "00:00:00:00";
+                if (time::isValid(time))
+                {
+                    out = time.to_timecode();
+                }
+                if (out.empty())
+                {
+                    out = "--:--:--:--";
+                }
                 break;
             }
             default: break;

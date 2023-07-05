@@ -316,7 +316,16 @@ namespace tl
         void TrackItem::_textUpdate()
         {
             TLRENDER_P();
-            p.durationLabel = IItem::_durationLabel(p.timeRange.duration());
+            const otime::RationalTime duration = p.timeRange.duration();
+            const bool khz =
+                TrackType::Audio == p.trackType ?
+                (duration.rate() >= 1000.0) :
+                false;
+            const otime::RationalTime rescaled = duration.rescaled_to(_data.speed);
+            p.durationLabel = string::Format("{0}, {1}{2}").
+                arg(_data.timeUnitsModel->getLabel(rescaled)).
+                arg(khz ? (duration.rate() / 1000.0) : duration.rate()).
+                arg(khz ? "kHz" : "FPS");
             p.size.textUpdate = true;
             p.draw.durationGlyphs.clear();
             _updates |= ui::Update::Size;
