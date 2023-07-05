@@ -128,12 +128,15 @@ namespace tl
             p.players = value;
 
             p.timelineSizes.clear();
-            for (const auto& i : p.players)
+            for (const auto& player : p.players)
             {
-                const auto& ioInfo = i->getIOInfo();
-                if (!ioInfo.video.empty())
+                if (player)
                 {
-                    p.timelineSizes.push_back(ioInfo.video[0].size);
+                    const auto& ioInfo = player->getIOInfo();
+                    if (!ioInfo.video.empty())
+                    {
+                        p.timelineSizes.push_back(ioInfo.video[0].size);
+                    }
                 }
             }
 
@@ -142,26 +145,16 @@ namespace tl
             _updates |= ui::Update::Draw;
             for (size_t i = 0; i < p.players.size(); ++i)
             {
-                p.videoDataObservers.push_back(
-                    observer::ValueObserver<timeline::VideoData>::create(
-                        p.players[i]->observeCurrentVideo(),
-                        [this, i](const timeline::VideoData& value)
-                        {
-                            if (_p->videoData.size() != _p->players.size())
+                if (p.players[i])
+                {
+                    p.videoDataObservers.push_back(
+                        observer::ValueObserver<timeline::VideoData>::create(
+                            p.players[i]->observeCurrentVideo(),
+                            [this, i](const timeline::VideoData& value)
                             {
-                                _p->videoData = std::vector<timeline::VideoData>(_p->players.size());
-                            }
-                            for (size_t i = 0; i < _p->videoData.size(); ++i)
-                            {
-                                if (!_p->players[i]->getTimeRange().contains(_p->videoData[i].time))
-                                {
-                                    _p->videoData[i] = timeline::VideoData();
-                                }
-                            }
-                            _p->videoData[i] = value;
-                            _p->renderBuffer = true;
-                            _updates |= ui::Update::Draw;
-                        }));
+                                _videoDataCallback(value, i);
+                            }));
+                }
             }
         }
 
@@ -494,6 +487,25 @@ namespace tl
         {
             TLRENDER_P();
             p.mouse.pressed = false;
+        }
+
+        void TimelineViewport::_videoDataCallback(const timeline::VideoData& value, size_t index)
+        {
+            TLRENDER_P();
+            if (p.videoData.size() != p.players.size())
+            {
+                p.videoData = std::vector<timeline::VideoData>(p.players.size());
+            }
+            for (size_t i = 0; i < p.videoData.size(); ++i)
+            {
+                if (!p.players[i]->getTimeRange().contains(p.videoData[i].time))
+                {
+                    p.videoData[i] = timeline::VideoData();
+                }
+            }
+            p.videoData[index] = value;
+            p.renderBuffer = true;
+            _updates |= ui::Update::Draw;
         }
     }
 }

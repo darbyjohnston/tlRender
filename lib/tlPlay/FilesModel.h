@@ -131,21 +131,6 @@ namespace tl
             //! Set the "B" file to the previous file.
             void prevB();
 
-            //! Get the recent files.
-            const std::vector<std::shared_ptr<FilesModelItem> >& getRecent() const;
-
-            //! Observe the recent files.
-            std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > observeRecent() const;
-
-            //! Set the recent files.
-            void setRecent(const std::vector<std::shared_ptr<FilesModelItem> >&);
-
-            //! Get the maximum number of recent files.
-            size_t getRecentMax() const;
-
-            //! Set the maximum number of recent files.
-            void setRecentMax(size_t);
-
             //! Observe the layers.
             std::shared_ptr<observer::IList<int> > observeLayers() const;
 

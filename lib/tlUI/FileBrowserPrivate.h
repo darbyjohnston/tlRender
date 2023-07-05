@@ -6,16 +6,8 @@
 
 #include <tlUI/FileBrowser.h>
 
-#include <tlUI/ButtonGroup.h>
-#include <tlUI/ComboBox.h>
-#include <tlUI/DrivesModel.h>
-#include <tlUI/ListButton.h>
-#include <tlUI/LineEdit.h>
-#include <tlUI/PushButton.h>
-#include <tlUI/RowLayout.h>
-#include <tlUI/Splitter.h>
-#include <tlUI/ScrollWidget.h>
-#include <tlUI/ToolButton.h>
+#include <tlUI/IButton.h>
+#include <tlUI/RecentFilesModel.h>
 
 #include <tlCore/FileInfo.h>
 
@@ -29,6 +21,7 @@ namespace tl
 
         protected:
             void _init(
+                const std::shared_ptr<RecentFilesModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -38,6 +31,7 @@ namespace tl
             ~PathsWidget() override;
 
             static std::shared_ptr<PathsWidget> create(
+                const std::shared_ptr<RecentFilesModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -47,16 +41,56 @@ namespace tl
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:
+            void _createLabel(
+                const std::string&,
+                const std::shared_ptr<system::Context>&);
+            void _createButton(
+                const std::string&,
+                const std::shared_ptr<system::Context>&);
+
             void _pathsUpdate();
 
-            std::vector<std::pair<std::string, std::string> > _paths;
-            std::shared_ptr<DrivesModel> _drivesModel;
-            std::vector<std::string> _drives;
-            std::vector<std::shared_ptr<ListButton> > _buttons;
-            std::shared_ptr<ButtonGroup> _buttonGroup;
-            std::shared_ptr<VerticalLayout> _layout;
-            std::function<void(const std::string&)> _callback;
-            std::shared_ptr<observer::ListObserver<std::string> > _drivesObserver;
+            TLRENDER_PRIVATE();
+        };
+
+        class Button : public IButton
+        {
+            TLRENDER_NON_COPYABLE(Button);
+
+        protected:
+            void _init(
+                const file::FileInfo&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            Button();
+
+        public:
+            ~Button() override;
+
+            static std::shared_ptr<Button> create(
+                const file::FileInfo&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            const std::vector<int>& getTextWidths() const;
+
+            void setColumns(const std::vector<int>&);
+
+            bool acceptsKeyFocus() const override;
+            void sizeHintEvent(const SizeHintEvent&) override;
+            void clipEvent(
+                const math::BBox2i&,
+                bool,
+                const ClipEvent&) override;
+            void drawEvent(
+                const math::BBox2i&,
+                const DrawEvent&) override;
+            void keyPressEvent(KeyEvent&) override;
+            void keyReleaseEvent(KeyEvent&) override;
+
+        private:
+            TLRENDER_PRIVATE();
         };
 
         class DirectoryWidget : public IWidget
@@ -91,14 +125,7 @@ namespace tl
         private:
             void _directoryUpdate();
 
-            std::string _path;
-            file::ListOptions _listOptions;
-            std::vector<file::FileInfo> _fileInfos;
-            std::vector<std::shared_ptr<ListButton> > _buttons;
-            std::shared_ptr<ButtonGroup> _buttonGroup;
-            std::shared_ptr<VerticalLayout> _layout;
-            std::function<void(const std::string&)> _fileCallback;
-            std::function<void(const std::string&)> _pathCallback;
+            TLRENDER_PRIVATE();
         };
 
         class FileBrowserWidget : public IWidget
@@ -133,22 +160,7 @@ namespace tl
         private:
             void _pathUpdate();
 
-            file::Path _path;
-            file::ListOptions _listOptions;
-            std::shared_ptr<ToolButton> _upButton;
-            std::shared_ptr<ToolButton> _cwdButton;
-            std::shared_ptr<LineEdit> _pathEdit;
-            std::shared_ptr<PathsWidget> _pathsWidget;
-            std::shared_ptr<ScrollWidget> _pathsScrollWidget;
-            std::shared_ptr<DirectoryWidget> _directoryWidget;
-            std::shared_ptr<ScrollWidget> _directoryScrollWidget;
-            std::shared_ptr<Splitter> _splitter;
-            std::shared_ptr<ComboBox> _sortComboBox;
-            std::shared_ptr<PushButton> _okButton;
-            std::shared_ptr<PushButton> _cancelButton;
-            std::shared_ptr<VerticalLayout> _layout;
-            std::function<void(const file::Path&)> _fileCallback;
-            std::function<void(void)> _cancelCallback;
+            TLRENDER_PRIVATE();
         };
     }
 }

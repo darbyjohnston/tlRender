@@ -23,7 +23,7 @@ namespace tl
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ValueObserver<std::shared_ptr<play::FilesModelItem> > > aObserver;
             std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > recentObserver;
+            std::shared_ptr<observer::ListObserver<file::Path> > recentObserver;
         };
 
         void FileMenu::_init(
@@ -211,9 +211,9 @@ namespace tl
                     _aIndexUpdate(value);
                 });
 
-            p.recentObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
-                app->getFilesModel()->observeRecent(),
-                [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
+            p.recentObserver = observer::ListObserver<file::Path>::create(
+                app->getRecentFilesModel()->observeRecent(),
+                [this](const std::vector<file::Path>& value)
                 {
                     _recentUpdate(value);
                 });
@@ -289,8 +289,7 @@ namespace tl
             }
         }
 
-        void FileMenu::_recentUpdate(
-            const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
+        void FileMenu::_recentUpdate(const std::vector<file::Path>& value)
         {
             TLRENDER_P();
 
@@ -298,7 +297,7 @@ namespace tl
             p.recentItems.clear();
             for (size_t i = 0; i < value.size(); ++i)
             {
-                const auto path = value[i]->path;
+                const auto path = value[i];
                 auto item = std::make_shared<ui::MenuItem>(
                     path.get(-1, false),
                     [this, path]

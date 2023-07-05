@@ -30,6 +30,7 @@ namespace tl
             ScrollArea,
             Handle,
             HandleSmall,
+            Shadow,
 
             Count,
             First = None

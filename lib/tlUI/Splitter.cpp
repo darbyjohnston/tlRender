@@ -14,9 +14,11 @@ namespace tl
         {
             Orientation orientation = Orientation::Horizontal;
             float split = .5F;
+            SizeRole spacingRole = SizeRole::None;
 
             struct SizeData
             {
+                int spacing = 0;
                 int handle = 0;
                 std::vector<math::BBox2i> handleGeometry;
             };
@@ -69,6 +71,16 @@ namespace tl
             _updates |= Update::Draw;
         }
 
+        void Splitter::setSpacingRole(SizeRole value)
+        {
+            TLRENDER_P();
+            if (value == p.spacingRole)
+                return;
+            p.spacingRole = value;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
+        }
+
         void Splitter::setGeometry(const math::BBox2i& value)
         {
             IWidget::setGeometry(value);
@@ -89,9 +101,11 @@ namespace tl
                 h = g.h();
                 childGeometry.push_back(math::BBox2i(x, y, w, h));
                 x += w;
+                x += p.size.spacing;
                 w = p.size.handle;
                 p.size.handleGeometry.push_back(math::BBox2i(x, y, w, h));
                 x += w;
+                x += p.size.spacing;
                 w = g.x() + g.w() - x;
                 childGeometry.push_back(math::BBox2i(x, y, w, h));
                 break;
@@ -100,9 +114,11 @@ namespace tl
                 h = g.h() * p.split - p.size.handle / 2;
                 childGeometry.push_back(math::BBox2i(x, y, w, h));
                 y += h;
+                y += p.size.spacing;
                 h = p.size.handle;
                 p.size.handleGeometry.push_back(math::BBox2i(x, y, w, h));
                 y += h;
+                y += p.size.spacing;
                 h = g.y() + g.h() - y;
                 childGeometry.push_back(math::BBox2i(x, y, w, h));
                 break;
@@ -144,6 +160,7 @@ namespace tl
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
+            p.size.spacing = event.style->getSizeRole(p.spacingRole, event.displayScale);
             p.size.handle = event.style->getSizeRole(SizeRole::HandleSmall, event.displayScale);
             const int sa = event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
 

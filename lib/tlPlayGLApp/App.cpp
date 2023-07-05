@@ -35,6 +35,7 @@ namespace tl
             std::shared_ptr<play::FilesModel> filesModel;
             std::vector<std::shared_ptr<play::FilesModelItem> > files;
             std::vector<std::shared_ptr<play::FilesModelItem> > activeFiles;
+            std::shared_ptr<ui::RecentFilesModel> recentFilesModel;
             std::vector<std::shared_ptr<timeline::Player> > players;
             std::shared_ptr<observer::List<std::shared_ptr<timeline::Player> > > activePlayers;
 
@@ -232,7 +233,11 @@ namespace tl
 
             // Initialization.
             p.filesModel = play::FilesModel::create(context);
+
+            p.recentFilesModel = ui::RecentFilesModel::create(context);
+
             p.activePlayers = observer::List<std::shared_ptr<timeline::Player> >::create();
+
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 p.filesModel->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
@@ -351,13 +356,18 @@ namespace tl
                 item->path = path;
                 item->audioPath = file::Path(audioFileName);
                 p.filesModel->add(item);
-                //p.settingsObject->addRecentFile(QString::fromUtf8(path.get().c_str()));
+                p.recentFilesModel->addRecent(item->path);
             }
         }
 
         const std::shared_ptr<play::FilesModel>& App::getFilesModel() const
         {
             return _p->filesModel;
+        }
+
+        const std::shared_ptr<ui::RecentFilesModel>& App::getRecentFilesModel() const
+        {
+            return _p->recentFilesModel;
         }
 
         std::shared_ptr<observer::IList<std::shared_ptr<timeline::Player> > > App::observeActivePlayers() const

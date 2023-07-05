@@ -109,6 +109,8 @@ namespace tl
 
             void _resetMouse();
 
+            void _videoDataCallback(const timeline::VideoData&, size_t);
+
             TLRENDER_PRIVATE();
         };
     }

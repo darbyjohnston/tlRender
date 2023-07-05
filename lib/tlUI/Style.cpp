@@ -27,7 +27,8 @@ namespace tl
             "SpacingTool",
             "Border",
             "ScrollArea",
-            "Handle");
+            "Handle",
+            "Shadow");
         TLRENDER_ENUM_SERIALIZE_IMPL(SizeRole);
 
         TLRENDER_ENUM_IMPL(
@@ -86,6 +87,7 @@ namespace tl
             _sizeRoles[static_cast<size_t>(SizeRole::ScrollArea)] = 200;
             _sizeRoles[static_cast<size_t>(SizeRole::Handle)] = 10;
             _sizeRoles[static_cast<size_t>(SizeRole::HandleSmall)] = 6;
+            _sizeRoles[static_cast<size_t>(SizeRole::Shadow)] = 15;
 
             _colorRoles.resize(static_cast<size_t>(ColorRole::Count));
             _colorRoles[static_cast<size_t>(ColorRole::Window)] = imaging::Color4f(.2F, .2F, .2F);

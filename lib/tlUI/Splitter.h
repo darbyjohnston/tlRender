@@ -35,6 +35,9 @@ namespace tl
             //! Set the split amount.
             void setSplit(float);
 
+            //! Set the spacing role.
+            void setSpacingRole(SizeRole);
+
             void setGeometry(const math::BBox2i&) override;
             void setVisible(bool) override;
             void setEnabled(bool) override;
