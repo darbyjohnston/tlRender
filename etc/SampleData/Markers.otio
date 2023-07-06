@@ -37,25 +37,6 @@
                                 "value": 0.0
                             }
                         }
-                    },
-                    {
-                        "OTIO_SCHEMA": "Marker.2",
-                        "metadata": {},
-                        "name": "Marker 7",
-                        "color": "MAGENTA",
-                        "marked_range": {
-                            "OTIO_SCHEMA": "TimeRange.1",
-                            "duration": {
-                                "OTIO_SCHEMA": "RationalTime.1",
-                                "rate": 30.0,
-                                "value": 90.0
-                            },
-                            "start_time": {
-                                "OTIO_SCHEMA": "RationalTime.1",
-                                "rate": 30.0,
-                                "value": 0.0
-                            }
-                        }
                     }
                 ],
                 "enabled": true,
@@ -89,12 +70,12 @@
                                     "duration": {
                                         "OTIO_SCHEMA": "RationalTime.1",
                                         "rate": 30.0,
-                                        "value": 30.0
+                                        "value": 10.0
                                     },
                                     "start_time": {
                                         "OTIO_SCHEMA": "RationalTime.1",
                                         "rate": 30.0,
-                                        "value": 0.0
+                                        "value": 10.0
                                     }
                                 }
                             },
@@ -199,25 +180,6 @@
                                         "value": 0.0
                                     }
                                 }
-                            },
-                            {
-                                "OTIO_SCHEMA": "Marker.2",
-                                "metadata": {},
-                                "name": "Marker 5",
-                                "color": "CYAN",
-                                "marked_range": {
-                                    "OTIO_SCHEMA": "TimeRange.1",
-                                    "duration": {
-                                        "OTIO_SCHEMA": "RationalTime.1",
-                                        "rate": 30.0,
-                                        "value": 30.0
-                                    },
-                                    "start_time": {
-                                        "OTIO_SCHEMA": "RationalTime.1",
-                                        "rate": 30.0,
-                                        "value": 0.0
-                                    }
-                                }
                             }
                         ],
                         "enabled": true
@@ -240,27 +202,7 @@
                             }
                         },
                         "effects": [],
-                        "markers": [
-                            {
-                                "OTIO_SCHEMA": "Marker.2",
-                                "metadata": {},
-                                "name": "Marker 6",
-                                "color": "PURPLE",
-                                "marked_range": {
-                                    "OTIO_SCHEMA": "TimeRange.1",
-                                    "duration": {
-                                        "OTIO_SCHEMA": "RationalTime.1",
-                                        "rate": 30.0,
-                                        "value": 30.0
-                                    },
-                                    "start_time": {
-                                        "OTIO_SCHEMA": "RationalTime.1",
-                                        "rate": 30.0,
-                                        "value": 0.0
-                                    }
-                                }
-                            }
-                        ],
+                        "markers": [],
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
@@ -295,7 +237,27 @@
                 "name": "Audio",
                 "source_range": null,
                 "effects": [],
-                "markers": [],
+                "markers": [
+                    {
+                        "OTIO_SCHEMA": "Marker.2",
+                        "metadata": {},
+                        "name": "Marker 7",
+                        "color": "MAGENTA",
+                        "marked_range": {
+                            "OTIO_SCHEMA": "TimeRange.1",
+                            "duration": {
+                                "OTIO_SCHEMA": "RationalTime.1",
+                                "rate": 44100.0,
+                                "value": 132300.0
+                            },
+                            "start_time": {
+                                "OTIO_SCHEMA": "RationalTime.1",
+                                "rate": 44100.0,
+                                "value": 0.0
+                            }
+                        }
+                    }
+                ],
                 "enabled": true,
                 "children": [
                     {
@@ -360,7 +322,27 @@
                             }
                         },
                         "effects": [],
-                        "markers": [],
+                        "markers": [
+                            {
+                                "OTIO_SCHEMA": "Marker.2",
+                                "metadata": {},
+                                "name": "Marker 5",
+                                "color": "CYAN",
+                                "marked_range": {
+                                    "OTIO_SCHEMA": "TimeRange.1",
+                                    "duration": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 44100.0,
+                                        "value": 44100.0
+                                    },
+                                    "start_time": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 44100.0,
+                                        "value": 0.0
+                                    }
+                                }
+                            }
+                        ],
                         "enabled": true
                     },
                     {
@@ -381,7 +363,27 @@
                             }
                         },
                         "effects": [],
-                        "markers": [],
+                        "markers": [
+                            {
+                                "OTIO_SCHEMA": "Marker.2",
+                                "metadata": {},
+                                "name": "Marker 6",
+                                "color": "PURPLE",
+                                "marked_range": {
+                                    "OTIO_SCHEMA": "TimeRange.1",
+                                    "duration": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 44100.0,
+                                        "value": 44100.0
+                                    },
+                                    "start_time": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 44100.0,
+                                        "value": 0.0
+                                    }
+                                }
+                            }
+                        ],
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
