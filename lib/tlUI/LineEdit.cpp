@@ -460,11 +460,14 @@ namespace tl
             TLRENDER_P();
             switch (event.key)
             {
+            case Key::Tab: break;
+            default: event.accept = true; break;
+            }
+            switch (event.key)
+            {
             case Key::A:
                 if (event.modifiers & static_cast<int>(ui::KeyModifier::Control))
                 {
-                    event.accept = true;
-
                     p.selection.clear();
                     p.selection.select(0, p.text.size());
 
@@ -476,7 +479,6 @@ namespace tl
                 {
                     if (p.selection.isValid())
                     {
-                        event.accept = true;
                         if (auto eventLoop = getEventLoop().lock())
                         {
                             const auto selection = p.selection.getSorted();
@@ -491,7 +493,6 @@ namespace tl
             case Key::V:
                 if (event.modifiers & static_cast<int>(ui::KeyModifier::Control))
                 {
-                    event.accept = true;
                     if (auto eventLoop = getEventLoop().lock())
                     {
                         const std::string text = eventLoop->getClipboard()->getText();
@@ -519,7 +520,6 @@ namespace tl
                 {
                     if (p.selection.isValid())
                     {
-                        event.accept = true;
                         if (auto eventLoop = getEventLoop().lock())
                         {
                             const auto selection = p.selection.getSorted();
@@ -541,8 +541,6 @@ namespace tl
             case Key::Left:
                 if (p.cursorPos > 0)
                 {
-                    event.accept = true;
-
                     if (event.modifiers & static_cast<int>(ui::KeyModifier::Shift))
                     {
                         p.selection.select(p.cursorPos, p.cursorPos - 1);
@@ -562,8 +560,6 @@ namespace tl
             case Key::Right:
                 if (p.cursorPos < p.text.size())
                 {
-                    event.accept = true;
-
                     if (event.modifiers & static_cast<int>(ui::KeyModifier::Shift))
                     {
                         p.selection.select(p.cursorPos, p.cursorPos + 1);
@@ -583,8 +579,6 @@ namespace tl
             case Key::Home:
                 if (p.cursorPos > 0)
                 {
-                    event.accept = true;
-
                     if (event.modifiers & static_cast<int>(ui::KeyModifier::Shift))
                     {
                         p.selection.select(p.cursorPos, 0);
@@ -604,8 +598,6 @@ namespace tl
             case Key::End:
                 if (p.cursorPos < p.text.size())
                 {
-                    event.accept = true;
-
                     if (event.modifiers & static_cast<int>(ui::KeyModifier::Shift))
                     {
                         p.selection.select(p.cursorPos, p.text.size());
@@ -625,7 +617,6 @@ namespace tl
             case Key::Backspace:
                 if (p.selection.isValid())
                 {
-                    event.accept = true;
                     const auto selection = p.selection.getSorted();
                     p.text.erase(
                         selection.first,
@@ -636,7 +627,6 @@ namespace tl
                 }
                 else if (p.cursorPos > 0)
                 {
-                    event.accept = true;
                     const auto i = p.text.begin() + p.cursorPos - 1;
                     p.text.erase(i);
                     p.cursorPos--;
@@ -646,7 +636,6 @@ namespace tl
             case Key::Delete:
                 if (p.selection.isValid())
                 {
-                    event.accept = true;
                     const auto selection = p.selection.getSorted();
                     p.text.erase(
                         selection.first,
@@ -657,7 +646,6 @@ namespace tl
                 }
                 else if (p.cursorPos < p.text.size())
                 {
-                    event.accept = true;
                     const auto i = p.text.begin() + p.cursorPos;
                     p.text.erase(i);
                     _textUpdate();
@@ -672,7 +660,6 @@ namespace tl
             case Key::Escape:
                 if (hasKeyFocus())
                 {
-                    event.accept = true;
                     releaseKeyFocus();
                 }
                 break;

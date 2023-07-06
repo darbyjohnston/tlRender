@@ -5,9 +5,6 @@
 #include <tlPlayQtApp/FileActions.h>
 
 #include <tlPlayQtApp/App.h>
-#include <tlPlayQtApp/SettingsObject.h>
-
-#include <tlPlay/FilesModel.h>
 
 #include <QActionGroup>
 
@@ -28,6 +25,7 @@ namespace tl
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
+            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > recentObserver;
         };
 
         FileActions::FileActions(App* app, QObject* parent) :
@@ -118,7 +116,6 @@ namespace tl
             p.menu->addSeparator();
             p.menu->addAction(p.actions["Exit"]);
 
-            _recentFilesUpdate();
             _actionsUpdate();
 
             connect(
@@ -203,22 +200,25 @@ namespace tl
                     app->filesModel()->setA(index);
                 });
 
-            connect(
-                app->settingsObject(),
-                SIGNAL(recentFilesChanged(const QList<QString>&)),
-                SLOT(_recentFilesCallback()));
-
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 app->filesModel()->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >&)
                 {
                     _actionsUpdate();
                 });
+
             p.aIndexObserver = observer::ValueObserver<int>::create(
                 app->filesModel()->observeAIndex(),
                 [this](int)
                 {
                     _actionsUpdate();
+                });
+
+            p.recentObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+                app->filesModel()->observeRecent(),
+                [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
+                {
+                    _recentUpdate(value);
                 });
         }
 
@@ -235,12 +235,8 @@ namespace tl
             return _p->menu;
         }
 
-        void FileActions::_recentFilesCallback()
-        {
-            _recentFilesUpdate();
-        }
-
-        void FileActions::_recentFilesUpdate()
+        void FileActions::_recentUpdate(
+            const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
         {
             TLRENDER_P();
             for (const auto& i : p.actionGroups["Recent"]->actions())
@@ -250,13 +246,13 @@ namespace tl
                 delete i;
             }
             p.recentMenu->clear();
-            const auto& recentFiles = p.app->settingsObject()->recentFiles();
-            for (size_t i = 0; i < recentFiles.size(); ++i)
+            for (size_t i = 0; i < value.size(); ++i)
             {
                 auto action = new QAction;
-                const auto& file = recentFiles[i];
-                action->setText(QString("%1 %2").arg(i + 1).arg(file));
-                action->setData(file);
+                const QString label = QString::fromUtf8(value[i]->path.get(-1, false).c_str());
+                action->setText(QString("%1 %2").arg(i + 1).arg(label));
+                const QString fileName = QString::fromUtf8(value[i]->path.get().c_str());
+                action->setData(fileName);
                 p.actionGroups["Recent"]->addAction(action);
                 p.recentMenu->addAction(action);
             }

@@ -21,8 +21,6 @@ namespace tl
         {
             App* app = nullptr;
 
-            timeline::CompareOptions compareOptions;
-
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
 
@@ -31,6 +29,7 @@ namespace tl
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
         };
 
         CompareActions::CompareActions(App* app, QObject* parent) :
@@ -177,11 +176,11 @@ namespace tl
             connect(
                 p.actionGroups["Compare"],
                 &QActionGroup::triggered,
-                [this](QAction* action)
+                [this, app](QAction* action)
                 {
-                    auto compareOptions = _p->compareOptions;
-                    compareOptions.mode = action->data().value<timeline::CompareMode>();
-                    _p->app->filesModel()->setCompareOptions(compareOptions);
+                    auto options = app->filesModel()->getCompareOptions();
+                    options.mode = action->data().value<timeline::CompareMode>();
+                    app->filesModel()->setCompareOptions(options);
                 });
 
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
@@ -190,9 +189,17 @@ namespace tl
                 {
                     _actionsUpdate();
                 });
+
             p.bIndexesObserver = observer::ListObserver<int>::create(
                 app->filesModel()->observeBIndexes(),
                 [this](const std::vector<int>&)
+                {
+                    _actionsUpdate();
+                });
+
+            p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
+                app->filesModel()->observeCompareOptions(),
+                [this](const timeline::CompareOptions&)
                 {
                     _actionsUpdate();
                 });
@@ -211,32 +218,18 @@ namespace tl
             return _p->menu;
         }
 
-        void CompareActions::setCompareOptions(const timeline::CompareOptions& value)
-        {
-            TLRENDER_P();
-            if (value == p.compareOptions)
-                return;
-            p.compareOptions = value;
-            _actionsUpdate();
-        }
-
         void CompareActions::_actionsUpdate()
         {
             TLRENDER_P();
-
-            const auto& files = p.app->filesModel()->observeFiles()->get();
-            const size_t count = files.size();
-            for (auto i : p.actions)
-            {
-                i->setEnabled(count > 0);
-            }
 
             for (auto i : p.actionGroups["Current"]->actions())
             {
                 p.actionGroups["Current"]->removeAction(i);
             }
             p.currentMenu->clear();
+            const auto& files = p.app->filesModel()->observeFiles()->get();
             const auto bIndexes = p.app->filesModel()->observeBIndexes()->get();
+            const size_t count = files.size();
             for (size_t i = 0; i < count; ++i)
             {
                 auto action = new QAction;
@@ -247,22 +240,15 @@ namespace tl
                 p.currentMenu->addAction(action);
             }
 
-            if (count > 0)
+            const auto options = p.app->filesModel()->getCompareOptions();
+            QSignalBlocker blocker(p.actionGroups["Compare"]);
+            for (auto action : p.actionGroups["Compare"]->actions())
             {
-                QSignalBlocker blocker(p.actionGroups["Compare"]);
-                for (auto action : p.actionGroups["Compare"]->actions())
+                if (action->data().value<timeline::CompareMode>() == options.mode)
                 {
-                    if (action->data().value<timeline::CompareMode>() == p.compareOptions.mode)
-                    {
-                        action->setChecked(true);
-                        break;
-                    }
+                    action->setChecked(true);
+                    break;
                 }
-            }
-            else
-            {
-                QSignalBlocker blocker(p.actionGroups["Compare"]);
-                p.actions["A"]->setChecked(true);
             }
         }
     }

@@ -19,8 +19,8 @@ namespace tl
             struct SizeData
             {
                 int margin = 0;
-                int margin2 = 0;
                 int border = 0;
+                int shadow = 0;
             };
             SizeData size;
         };
@@ -84,8 +84,8 @@ namespace tl
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
             p.size.margin = event.style->getSizeRole(SizeRole::MarginDialog, event.displayScale);
-            p.size.margin2 = event.style->getSizeRole(SizeRole::Margin, event.displayScale);
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
+            p.size.shadow = event.style->getSizeRole(SizeRole::Shadow, event.displayScale);
         }
 
         void IDialog::drawEvent(
@@ -102,12 +102,12 @@ namespace tl
             {
                 const math::BBox2i g = children.front()->getGeometry();
                 const math::BBox2i g2(
-                    g.min.x - p.size.margin2,
+                    g.min.x - p.size.shadow,
                     g.min.y,
-                    g.w() + p.size.margin2 * 2,
-                    g.h() + p.size.margin2);
+                    g.w() + p.size.shadow * 2,
+                    g.h() + p.size.shadow);
                 event.render->drawColorMesh(
-                    shadow(g2, p.size.margin2),
+                    shadow(g2, p.size.shadow),
                     math::Vector2i(),
                     imaging::Color4f(1.F, 1.F, 1.F));
 

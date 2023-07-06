@@ -6,6 +6,8 @@
 
 #include <tlUI/IDialog.h>
 
+#include <tlCore/Path.h>
+
 namespace tl
 {
     namespace ui
@@ -33,7 +35,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the file callback.
-            void setFileCallback(const std::function<void(const std::string&)>&);
+            void setFileCallback(const std::function<void(const file::Path&)>&);
 
         private:
             TLRENDER_PRIVATE();

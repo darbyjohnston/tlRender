@@ -98,6 +98,7 @@ namespace tl
             void mouseMoveEvent(ui::MouseMoveEvent&) override;
             void mousePressEvent(ui::MouseClickEvent&) override;
             void mouseReleaseEvent(ui::MouseClickEvent&) override;
+            void scrollEvent(ui::ScrollEvent&) override;
             void keyPressEvent(ui::KeyEvent&) override;
             void keyReleaseEvent(ui::KeyEvent&) override;
 
@@ -107,6 +108,8 @@ namespace tl
             void _frameView();
 
             void _resetMouse();
+
+            void _videoDataCallback(const timeline::VideoData&, size_t);
 
             TLRENDER_PRIVATE();
         };

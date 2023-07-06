@@ -47,8 +47,8 @@ namespace tl
             //! Reset the settings to defaults.
             void reset();
 
-            //! Add a recent file.
-            void addRecentFile(const QString&);
+            //! Set the recent files.
+            void setRecentFiles(const QList<QString>&);
 
             //! Set whether tooltips are enabled.
             void setToolTipsEnabled(bool);

@@ -30,7 +30,7 @@ namespace tl
         public:
             ~DrivesModel();
 
-            //! Create a new drives model.
+            //! Create a new model.
             static std::shared_ptr<DrivesModel> create(
                 const std::shared_ptr<system::Context>&);
 

@@ -289,7 +289,7 @@ namespace tl
         /*void TimelineItem::keyPressEvent(ui::KeyEvent& event)
         {
             TLRENDER_P();
-            if (isEnabled())
+            if (isEnabled() && 0 == event.modifiers)
             {
                 switch (event.key)
                 {
@@ -371,7 +371,7 @@ namespace tl
                 case InOutDisplay::InsideRange:
                 {
                     const int x0 = _timeToPos(_p->inOutRange.start_time());
-                    const int x1 = _timeToPos(_p->inOutRange.end_time_inclusive());
+                    const int x1 = _timeToPos(_p->inOutRange.end_time_exclusive());
                     const math::BBox2i bbox(
                         x0,
                         p.size.scrollPos.y +
@@ -400,8 +400,8 @@ namespace tl
                     event.render->drawRect(
                         bbox,
                         _options.colors[ColorRole::InOut]);
-                    x0 = _timeToPos(_p->inOutRange.end_time_inclusive());
-                    x1 = _timeToPos(_p->timeRange.end_time_inclusive());
+                    x0 = _timeToPos(_p->inOutRange.end_time_exclusive());
+                    x1 = _timeToPos(_p->timeRange.end_time_exclusive());
                     bbox = math::BBox2i(
                         x0,
                         p.size.scrollPos.y +
@@ -573,7 +573,7 @@ namespace tl
                 for (const auto& t : p.cacheInfo.videoFrames)
                 {
                     const int x0 = _timeToPos(t.start_time());
-                    const int x1 = _timeToPos(t.end_time_inclusive());
+                    const int x1 = _timeToPos(t.end_time_exclusive());
                     const int h = CacheDisplay::VideoAndAudio == _options.cacheDisplay ?
                         p.size.border * 2 :
                         p.size.border * 4;
@@ -613,7 +613,7 @@ namespace tl
                 for (const auto& t : p.cacheInfo.audioFrames)
                 {
                     const int x0 = _timeToPos(t.start_time());
-                    const int x1 = _timeToPos(t.end_time_inclusive());
+                    const int x1 = _timeToPos(t.end_time_exclusive());
                     const math::BBox2i bbox(
                         x0,
                         p.size.scrollPos.y +

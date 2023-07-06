@@ -35,6 +35,8 @@ namespace tl
             void sizeHintEvent(const ui::SizeHintEvent&) override;
 
         private:
+            void _compareUpdate(const timeline::CompareOptions&);
+
             TLRENDER_PRIVATE();
         };
     }

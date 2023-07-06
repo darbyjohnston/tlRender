@@ -376,10 +376,11 @@ namespace tl
             }
         }
 
-        void EventLoop::scroll(float dx, float dy)
+        void EventLoop::scroll(float dx, float dy, int modifiers)
         {
             TLRENDER_P();
             ScrollEvent event;
+            event.modifiers = modifiers;
             event.pos = p.cursorPos;
             event.dx = dx;
             event.dy = dy;

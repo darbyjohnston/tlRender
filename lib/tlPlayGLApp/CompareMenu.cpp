@@ -14,14 +14,13 @@ namespace tl
         {
             std::weak_ptr<App> app;
 
-            timeline::CompareOptions compareOptions;
-
+            std::map<std::string, std::shared_ptr<ui::MenuItem> > items;
             std::map<timeline::CompareMode, std::shared_ptr<ui::MenuItem> > compareItems;
             std::shared_ptr<Menu> currentMenu;
             std::vector<std::shared_ptr<ui::MenuItem> > currentItems;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
-            std::shared_ptr<observer::ListObserver<int> > filesBObserver;
+            std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
         };
 
@@ -33,6 +32,40 @@ namespace tl
             TLRENDER_P();
 
             p.app = app;
+
+            p.currentMenu = addSubMenu("Current");
+
+            p.items["Next"] = std::make_shared<ui::MenuItem>(
+                "Next",
+                "Next",
+                ui::Key::PageDown,
+                static_cast<int>(ui::KeyModifier::Shift),
+                [this]
+                {
+                    close();
+                if (auto app = _p->app.lock())
+                {
+                    app->getFilesModel()->nextB();
+                }
+                });
+            addItem(p.items["Next"]);
+
+            p.items["Prev"] = std::make_shared<ui::MenuItem>(
+                "Previous",
+                "Prev",
+                ui::Key::PageUp,
+                static_cast<int>(ui::KeyModifier::Shift),
+                [this]
+                {
+                    close();
+                if (auto app = _p->app.lock())
+                {
+                    app->getFilesModel()->prevB();
+                }
+                });
+            addItem(p.items["Prev"]);
+
+            addDivider();
 
             const std::array<std::string, static_cast<size_t>(timeline::CompareMode::Count)> icons =
             {
@@ -70,62 +103,26 @@ namespace tl
                         close();
                         if (auto app = _p->app.lock())
                         {
-                            auto tmp = _p->compareOptions;
-                            tmp.mode = mode;
-                            app->getFilesModel()->setCompareOptions(tmp);
+                            auto options = app->getFilesModel()->getCompareOptions();
+                            options.mode = mode;
+                            app->getFilesModel()->setCompareOptions(options);
                         }
                     });
                 addItem(p.compareItems[mode]);
             }
 
-            addDivider();
-
-            p.currentMenu = addSubMenu("Current");
-
-            auto item = std::make_shared<ui::MenuItem>(
-                "Next",
-                "Next",
-                ui::Key::PageDown,
-                static_cast<int>(ui::KeyModifier::Shift),
-                [this]
-                {
-                    close();
-                    if (auto app = _p->app.lock())
-                    {
-                        app->getFilesModel()->nextB();
-                    }
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Previous",
-                "Prev",
-                ui::Key::PageUp,
-                static_cast<int>(ui::KeyModifier::Shift),
-                [this]
-                {
-                    close();
-                    if (auto app = _p->app.lock())
-                    {
-                        app->getFilesModel()->prevB();
-                    }
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 app->getFilesModel()->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
                 {
-                    _currentUpdate(value);
+                    _filesUpdate(value);
                 });
 
-            p.filesBObserver = observer::ListObserver<int>::create(
+            p.bIndexesObserver = observer::ListObserver<int>::create(
                 app->getFilesModel()->observeBIndexes(),
                 [this](const std::vector<int>& value)
                 {
-                    _currentCheckedUpdate(value);
+                    _currentUpdate(value);
                 });
 
             p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
@@ -159,10 +156,14 @@ namespace tl
             p.currentMenu->close();
         }
 
-        void CompareMenu::_currentUpdate(
+        void CompareMenu::_filesUpdate(
             const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
         {
             TLRENDER_P();
+
+            setItemEnabled(p.items["Next"], value.size() > 1);
+            setItemEnabled(p.items["Prev"], value.size() > 1);
+
             p.currentMenu->clear();
             p.currentItems.clear();
             if (auto app = p.app.lock())
@@ -188,7 +189,7 @@ namespace tl
             }
         }
 
-        void CompareMenu::_currentCheckedUpdate(const std::vector<int>& value)
+        void CompareMenu::_currentUpdate(const std::vector<int>& value)
         {
             TLRENDER_P();
             for (int i = 0; i < p.currentItems.size(); ++i)
@@ -203,7 +204,6 @@ namespace tl
         void CompareMenu::_compareUpdate(const timeline::CompareOptions& value)
         {
             TLRENDER_P();
-            p.compareOptions = value;
             for (const auto& item : p.compareItems)
             {
                 setItemChecked(item.second, item.first == value.mode);

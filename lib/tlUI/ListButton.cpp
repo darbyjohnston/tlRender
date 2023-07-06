@@ -224,26 +224,29 @@ namespace tl
 
         void ListButton::keyPressEvent(KeyEvent& event)
         {
-            switch (event.key)
+            if (0 == event.modifiers)
             {
-            case Key::Space:
-            case Key::Enter:
-                event.accept = true;
-                takeKeyFocus();
-                if (_pressedCallback)
+                switch (event.key)
                 {
-                    _pressedCallback();
-                }
-                _click();
-                break;
-            case Key::Escape:
-                if (hasKeyFocus())
-                {
+                case Key::Space:
+                case Key::Enter:
                     event.accept = true;
-                    releaseKeyFocus();
+                    takeKeyFocus();
+                    if (_pressedCallback)
+                    {
+                        _pressedCallback();
+                    }
+                    _click();
+                    break;
+                case Key::Escape:
+                    if (hasKeyFocus())
+                    {
+                        event.accept = true;
+                        releaseKeyFocus();
+                    }
+                    break;
+                default: break;
                 }
-                break;
-            default: break;
             }
         }
 

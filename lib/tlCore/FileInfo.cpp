@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <array>
+#include <functional>
 
 namespace tl
 {
@@ -32,9 +33,18 @@ namespace tl
             _stat(&error);
         }
 
+        TLRENDER_ENUM_IMPL(
+            ListSort,
+            "Name",
+            "Size",
+            "Time");
+        TLRENDER_ENUM_SERIALIZE_IMPL(ListSort);
+
         bool ListOptions::operator == (const ListOptions& other) const
         {
             return
+                sort == other.sort &&
+                sortDirectoriesFirst == other.sortDirectoriesFirst &&
                 dotAndDotDotDirs == other.dotAndDotDotDirs &&
                 dotFiles == other.dotFiles &&
                 sequence == other.sequence &&
@@ -50,6 +60,7 @@ namespace tl
         std::vector<FileInfo> list(const std::string& path, const ListOptions& options)
         {
             std::vector<FileInfo> out;
+
             FSeqDirOptions dirOptions;
             fseqDirOptionsInit(&dirOptions);
             dirOptions.dotAndDotDotDirs = options.dotAndDotDotDirs;
@@ -57,6 +68,7 @@ namespace tl
             dirOptions.sequence = options.sequence;
             dirOptions.fileNameOptions.negativeNumbers = options.negativeNumbers;
             dirOptions.fileNameOptions.maxNumberDigits = options.maxNumberDigits;
+
             FSeqBool error = FSEQ_FALSE;
             auto dirList = fseqDirList(path.c_str(), &dirOptions, &error);
             if (FSEQ_FALSE == error)
@@ -73,6 +85,53 @@ namespace tl
                 }
             }
             fseqDirListDel(dirList);
+
+            std::function<int(const FileInfo& a, const FileInfo& b)> sort;
+            switch (options.sort)
+            {
+            case ListSort::Name:
+                sort = [](const FileInfo& a, const FileInfo& b)
+                {
+                    return a.getPath().get() < b.getPath().get();
+                };
+                break;
+            case ListSort::Size:
+                sort = [](const FileInfo& a, const FileInfo& b)
+                {
+                    return a.getSize() < b.getSize();
+                };
+                break;
+            case ListSort::Time:
+                sort = [](const FileInfo& a, const FileInfo& b)
+                {
+                    return a.getTime() < b.getTime();
+                };
+                break;
+            }
+            if (sort)
+            {
+                if (options.reverseSort)
+                {
+                    std::sort(out.rbegin(), out.rend(), sort);
+                }
+                else
+                {
+                    std::sort(out.begin(), out.end(), sort);
+                }
+            }
+            if (options.sortDirectoriesFirst)
+            {
+                std::stable_sort(
+                    out.begin(),
+                    out.end(),
+                    [](const FileInfo& a, const FileInfo& b)
+                    {
+                        return
+                            static_cast<size_t>(a.getType()) >
+                            static_cast<size_t>(b.getType());
+                    });
+            }
+
             return out;
         }
     }

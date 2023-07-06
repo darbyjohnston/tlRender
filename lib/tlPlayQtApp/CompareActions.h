@@ -36,9 +36,6 @@ namespace tl
             //! Get the menu.
             QMenu* menu() const;
 
-            //! Set the comparison options.
-            void setCompareOptions(const timeline::CompareOptions&);
-
         private:
             void _actionsUpdate();
 

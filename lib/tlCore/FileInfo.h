@@ -65,14 +65,30 @@ namespace tl
             time_t _time = 0;
         };
 
+        //! Directory sorting.
+        enum class ListSort
+        {
+            Name,
+            Size,
+            Time,
+
+            Count,
+            First = Name
+        };
+        TLRENDER_ENUM(ListSort);
+        TLRENDER_ENUM_SERIALIZE(ListSort);
+
         //! Directory list options.
         struct ListOptions
         {
-            bool   dotAndDotDotDirs = false;
-            bool   dotFiles = false;
-            bool   sequence = true;
-            bool   negativeNumbers = false;
-            size_t maxNumberDigits = 9;
+            ListSort sort                 = ListSort::Name;
+            bool     reverseSort          = false;
+            bool     sortDirectoriesFirst = true;
+            bool     dotAndDotDotDirs     = false;
+            bool     dotFiles             = false;
+            bool     sequence             = true;
+            bool     negativeNumbers      = false;
+            size_t   maxNumberDigits      = 9;
 
             bool operator == (const ListOptions&) const;
             bool operator != (const ListOptions&) const;

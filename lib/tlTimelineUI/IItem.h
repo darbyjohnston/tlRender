@@ -18,6 +18,7 @@ namespace tl
         //! Item data.
         struct ItemData
         {
+            float speed = 0.0;
             std::string directory;
             timeline::Options options;
             std::shared_ptr<IOManager> ioManager;

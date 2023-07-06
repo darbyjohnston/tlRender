@@ -109,6 +109,7 @@ namespace tl
             std::shared_ptr<ui::IconLibrary> iconLibrary;
             std::shared_ptr<imaging::FontSystem> fontSystem;
             std::shared_ptr<Clipboard> clipboard;
+            int modifiers = 0;
             std::shared_ptr<ui::EventLoop> eventLoop;
             std::shared_ptr<timeline::IRender> render;
             std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
@@ -418,29 +419,42 @@ namespace tl
             app->_p->eventLoop->cursorPos(pos);
         }
 
-        void IApp::_mouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods)
+        namespace
+        {
+            int fromGLFWModifiers(int value)
+            {
+                int out = 0;
+                if (value & GLFW_MOD_SHIFT)
+                {
+                    out |= static_cast<int>(ui::KeyModifier::Shift);
+                }
+                if (value & GLFW_MOD_CONTROL)
+                {
+                    out |= static_cast<int>(ui::KeyModifier::Control);
+                }
+                if (value & GLFW_MOD_ALT)
+                {
+                    out |= static_cast<int>(ui::KeyModifier::Alt);
+                }
+                if (value & GLFW_MOD_SUPER)
+                {
+                    out |= static_cast<int>(ui::KeyModifier::Super);
+                }
+                return out;
+            }
+        }
+
+        void IApp::_mouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int modifiers)
         {
             IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
-            int modifiers = static_cast<int>(ui::KeyModifier::None);
-            if (mods & GLFW_MOD_SHIFT)
-            {
-                modifiers |= static_cast<int>(ui::KeyModifier::Shift);
-            }
-            if (mods & GLFW_MOD_CONTROL)
-            {
-                modifiers |= static_cast<int>(ui::KeyModifier::Control);
-            }
-            if (mods & GLFW_MOD_ALT)
-            {
-                modifiers |= static_cast<int>(ui::KeyModifier::Alt);
-            }
-            app->_p->eventLoop->mouseButton(button, GLFW_PRESS == action, modifiers);
+            app->_p->modifiers = modifiers;
+            app->_p->eventLoop->mouseButton(button, GLFW_PRESS == action, fromGLFWModifiers(modifiers));
         }
 
         void IApp::_scrollCallback(GLFWwindow* glfwWindow, double dx, double dy)
         {
             IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
-            app->_p->eventLoop->scroll(dx, dy);
+            app->_p->eventLoop->scroll(dx, dy, fromGLFWModifiers(app->_p->modifiers));
         }
 
         namespace
@@ -540,29 +554,12 @@ namespace tl
                 }
                 return out;
             }
-
-            int fromGLFWModifiers(int value)
-            {
-                int out = 0;
-                if (value & GLFW_MOD_SHIFT)
-                {
-                    out |= static_cast<int>(ui::KeyModifier::Shift);
-                }
-                if (value & GLFW_MOD_CONTROL)
-                {
-                    out |= static_cast<int>(ui::KeyModifier::Control);
-                }
-                if (value & GLFW_MOD_ALT)
-                {
-                    out |= static_cast<int>(ui::KeyModifier::Alt);
-                }
-                return out;
-            }
         }
 
         void IApp::_keyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int modifiers)
         {
             IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
+            app->_p->modifiers = modifiers;
             switch (action)
             {
             case GLFW_PRESS:

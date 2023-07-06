@@ -96,6 +96,7 @@ namespace tl
                 if (auto context = _context.lock())
                 {
                     ItemData itemData;
+                    itemData.speed = p.player->getDefaultSpeed();
                     itemData.directory = p.player->getPath().getDirectory();
                     itemData.options = p.player->getOptions();
                     itemData.ioManager = IOManager::create(
@@ -366,25 +367,28 @@ namespace tl
         void TimelineWidget::keyPressEvent(ui::KeyEvent& event)
         {
             TLRENDER_P();
-            switch (event.key)
+            if (0 == event.modifiers)
             {
-            case ui::Key::_0:
-                event.accept = true;
-                setViewZoom(1.F, event.pos);
-                break;
-            case ui::Key::Equal:
-                event.accept = true;
-                setViewZoom(p.scale * 2.F, event.pos);
-                break;
-            case ui::Key::Minus:
-                event.accept = true;
-                setViewZoom(p.scale / 2.F, event.pos);
-                break;
-            case ui::Key::Backspace:
-                event.accept = true;
-                setFrameView(true);
-                break;
-            default: break;
+                switch (event.key)
+                {
+                case ui::Key::_0:
+                    event.accept = true;
+                    setViewZoom(1.F, event.pos);
+                    break;
+                case ui::Key::Equal:
+                    event.accept = true;
+                    setViewZoom(p.scale * 2.F, event.pos);
+                    break;
+                case ui::Key::Minus:
+                    event.accept = true;
+                    setViewZoom(p.scale / 2.F, event.pos);
+                    break;
+                case ui::Key::Backspace:
+                    event.accept = true;
+                    setFrameView(true);
+                    break;
+                default: break;
+                }
             }
         }
 

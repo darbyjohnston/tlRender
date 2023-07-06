@@ -137,7 +137,7 @@ namespace tl
         void TimeEdit::keyPressEvent(KeyEvent& event)
         {
             TLRENDER_P();
-            if (isEnabled())
+            if (isEnabled() && 0 == event.modifiers)
             {
                 switch (event.key)
                 {

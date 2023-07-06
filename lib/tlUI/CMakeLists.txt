@@ -38,6 +38,7 @@ set(HEADERS
     MenuBar.h
     PieChart.h
     PushButton.h
+    RecentFilesModel.h
     RowLayout.h
     ScrollArea.h
     ScrollWidget.h
@@ -64,6 +65,10 @@ set(SOURCE
     Event.cpp
     EventLoop.cpp
     FileBrowser.cpp
+    FileBrowserButton.cpp
+    FileBrowserDirectoryWidget.cpp
+    FileBrowserPathsWidget.cpp
+    FileBrowserWidget.cpp
     FloatEdit.cpp
     FloatEditSlider.cpp
     FloatModel.cpp
@@ -92,6 +97,7 @@ set(SOURCE
     MenuBar.cpp
     PieChart.cpp
     PushButton.cpp
+    RecentFilesModel.cpp
     RowLayout.cpp
     ScrollArea.cpp
     ScrollWidget.cpp
