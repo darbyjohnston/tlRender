@@ -937,6 +937,8 @@ namespace tl
                         chromaticities[2],
                         chromaticities[3]));
             }
+            std::string savedLocale = std::setlocale(LC_NUMERIC, NULL);
+            std::setlocale(LC_NUMERIC, "C");
             i = tags.find("White Luminance");
             if (i != tags.end())
             {
@@ -1002,6 +1004,7 @@ namespace tl
             {
                 addIsoSpeed(header, std::stof(i->second));
             }
+            std::setlocale(LC_NUMERIC, savedLocale.c_str());
             i = tags.find("Keycode");
             if (i != tags.end())
             {

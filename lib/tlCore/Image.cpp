@@ -348,7 +348,10 @@ namespace tl
             }
             if (2 == split.size())
             {
+                std::string savedLocale = std::setlocale(LC_NUMERIC, NULL);
+                std::setlocale(LC_NUMERIC, "C");
                 out.pixelAspectRatio = std::stof(split[1]);
+                std::setlocale(LC_NUMERIC, savedLocale.c_str());
             }
             split = string::split(split[0], 'x');
             if (split.size() != 2)

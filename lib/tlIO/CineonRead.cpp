@@ -63,7 +63,10 @@ namespace tl
             const auto i = out.tags.find("Film Frame Rate");
             if (i != out.tags.end())
             {
+                std::string savedLocale = std::setlocale(LC_NUMERIC, NULL);
+                std::setlocale(LC_NUMERIC, "C");
                 speed = std::stof(i->second);
+                std::setlocale(LC_NUMERIC, savedLocale.c_str());
             }
             out.videoTime = otime::TimeRange::range_from_start_end_time_inclusive(
                 otime::RationalTime(_startFrame, speed),

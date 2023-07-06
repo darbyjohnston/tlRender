@@ -61,6 +61,8 @@ namespace tl
             Transfer transfer = Transfer::User;
             const auto header = read(io, out, transfer);
             float speed = _defaultSpeed;
+            std::string savedLocale = std::setlocale(LC_NUMERIC, NULL);
+            std::setlocale(LC_NUMERIC, "C");
             auto i = out.tags.find("Film Frame Rate");
             if (i != out.tags.end())
             {
@@ -74,6 +76,7 @@ namespace tl
                     speed = std::stof(i->second);
                 }
             }
+            std::setlocale(LC_NUMERIC, savedLocale.c_str());
             out.videoTime = otime::TimeRange::range_from_start_end_time_inclusive(
                 otime::RationalTime(_startFrame, speed),
                 otime::RationalTime(_endFrame, speed));
