@@ -105,7 +105,7 @@ namespace tl
             {
                 out &= _parentsEnabled;
             }
-            return _enabled;
+            return out;
         }
 
         inline bool IWidget::acceptsKeyFocus() const

@@ -244,7 +244,7 @@ namespace tl
             p.currentTimeSpinBox->setTimeObject(app->timeObject());
             p.currentTimeSpinBox->setToolTip(tr("Current time"));
             p.speedSpinBox = new QDoubleSpinBox;
-            p.speedSpinBox->setRange(0.0, 120.0);
+            p.speedSpinBox->setRange(0.0, 1000000.0);
             p.speedSpinBox->setSingleStep(1.0);
             const QFont fixedFont("Noto Mono");
             p.speedSpinBox->setFont(fixedFont);

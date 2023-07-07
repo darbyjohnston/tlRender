@@ -34,7 +34,7 @@ namespace tl
         geom::TriangleMesh2 shadow(
             const math::BBox2i&,
             int cornerRadius,
-            const float alpha = .3F,
+            const float alpha = .2F,
             size_t resolution = 8);
     }
 }
