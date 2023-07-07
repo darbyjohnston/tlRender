@@ -63,7 +63,9 @@ namespace tl
         {
             const std::map<std::string, imaging::Color4f> colors =
             {
-                { otio::Marker::Color::pink, imaging::Color4f(1.F, .752F, .796F) },
+                //! \bug The OTIO marker variables are causing undefined
+                //! symbol errors on Linux and macOS.
+                /*{otio::Marker::Color::pink, imaging::Color4f(1.F, .752F, .796F)},
                 { otio::Marker::Color::red, imaging::Color4f(1.F, 0.F, 0.F) },
                 { otio::Marker::Color::orange, imaging::Color4f(1.F, .75F, 0.F) },
                 { otio::Marker::Color::yellow, imaging::Color4f(1.F, 1.F, 0.F) },
@@ -73,7 +75,18 @@ namespace tl
                 { otio::Marker::Color::purple, imaging::Color4f(0.5F, 0.F, .5F) },
                 { otio::Marker::Color::magenta, imaging::Color4f(1.F, 0.F, 1.F) },
                 { otio::Marker::Color::black, imaging::Color4f(0.F, 0.F, 0.F) },
-                { otio::Marker::Color::white, imaging::Color4f(1.F, 1.F, 1.F) }
+                { otio::Marker::Color::white, imaging::Color4f(1.F, 1.F, 1.F) }*/
+                { "PINK", imaging::Color4f(1.F, .752F, .796F)},
+                { "RED", imaging::Color4f(1.F, 0.F, 0.F)},
+                { "ORANGE", imaging::Color4f(1.F, .75F, 0.F) },
+                { "YELLOW", imaging::Color4f(1.F, 1.F, 0.F)},
+                { "GREEN", imaging::Color4f(0.F, 1.F, 0.F) },
+                { "CYAN", imaging::Color4f(0.F, 1.F, 1.F)},
+                { "BLUE", imaging::Color4f(0.F, 0.F, 1.F)},
+                { "PURPLE", imaging::Color4f(0.5F, 0.F, .5F)},
+                { "MAGENTA", imaging::Color4f(1.F, 0.F, 1.F)},
+                { "BLACK", imaging::Color4f(0.F, 0.F, 0.F)},
+                { "WHITE", imaging::Color4f(1.F, 1.F, 1.F)}
             };
             const auto i = colors.find(value);
             return i != colors.end() ? i->second : imaging::Color4f();
