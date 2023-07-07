@@ -6,8 +6,6 @@
 
 #include <tlQt/TimelinePlayer.h>
 
-#include <tlPlay/FilesModel.h>
-
 #include <QAction>
 #include <QObject>
 #include <QMenu>
@@ -35,8 +33,7 @@ namespace tl
             QMenu* menu() const;
 
         private:
-            void _recentUpdate(
-                const std::vector<std::shared_ptr<play::FilesModelItem> >&);
+            void _recentUpdate(const std::vector<file::Path>&);
             void _actionsUpdate();
 
             TLRENDER_PRIVATE();

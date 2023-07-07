@@ -21,6 +21,8 @@
 #include <tlQt/TimelineThumbnailObject.h>
 #include <tlQt/TimelinePlayer.h>
 
+#include <tlUI/RecentFilesModel.h>
+
 #include <tlPlay/FilesModel.h>
 
 #include <tlTimeline/Util.h>
@@ -83,6 +85,7 @@ namespace tl
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
             std::shared_ptr<observer::ListObserver<int> > layersObserver;
+            std::shared_ptr<ui::RecentFilesModel> recentFilesModel;
             std::shared_ptr<ColorModel> colorModel;
             timeline::LUTOptions lutOptions;
             timeline::ImageOptions imageOptions;
@@ -307,14 +310,6 @@ namespace tl
             p.thumbnailObject = new qt::TimelineThumbnailObject(context, this);
 
             p.filesModel = play::FilesModel::create(context);
-            std::vector<std::shared_ptr<play::FilesModelItem> > recent;
-            for (const auto& i : p.settingsObject->recentFiles())
-            {
-                auto item = std::make_shared<play::FilesModelItem>();
-                item->path = file::Path(i.toUtf8().data());
-                recent.push_back(item);
-            }
-            p.filesModel->setRecent(recent);
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 p.filesModel->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
@@ -339,6 +334,14 @@ namespace tl
                         }
                     }
                 });
+
+            p.recentFilesModel = ui::RecentFilesModel::create(context);
+            std::vector<file::Path> recent;
+            for (const auto& i : p.settingsObject->recentFiles())
+            {
+                recent.push_back(file::Path(i.toUtf8().data()));
+            }
+            p.recentFilesModel->setRecent(recent);
 
             p.colorModel = ColorModel::create(context);
             if (!p.options.colorConfigOptions.fileName.empty())
@@ -456,12 +459,12 @@ namespace tl
 
             if (p.settingsObject)
             {
-                QList<QString> recentFiles;
-                for (const auto& recent : p.filesModel->getRecent())
+                QList<QString> recent;
+                for (const auto& i : p.recentFilesModel->getRecent())
                 {
-                    recentFiles.push_back(QString::fromUtf8(recent->path.get().c_str()));
+                    recent.push_back(QString::fromUtf8(i.get().c_str()));
                 }
-                p.settingsObject->setRecentFiles(recentFiles);
+                p.settingsObject->setRecentFiles(recent);
 
                 if (p.devicesModel)
                 {
@@ -505,6 +508,11 @@ namespace tl
         const std::shared_ptr<play::FilesModel>& App::filesModel() const
         {
             return _p->filesModel;
+        }
+
+        const std::shared_ptr<ui::RecentFilesModel>& App::recentFilesModel() const
+        {
+            return _p->recentFilesModel;
         }
 
         const std::shared_ptr<ColorModel>& App::colorModel() const
@@ -558,6 +566,7 @@ namespace tl
                 item->path = path;
                 item->audioPath = file::Path(audioFileName.toUtf8().data());
                 p.filesModel->add(item);
+                p.recentFilesModel->addRecent(path);
             }
         }
 

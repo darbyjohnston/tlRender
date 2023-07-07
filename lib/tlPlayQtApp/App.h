@@ -30,6 +30,11 @@ namespace tl
         class TimelineThumbnailObject;
     }
 
+    namespace ui
+    {
+        class RecentFilesModel;
+    }
+
     //! Qt playback application.
     namespace play_qt
     {
@@ -66,6 +71,9 @@ namespace tl
 
             //! Get the files model.
             const std::shared_ptr<play::FilesModel>& filesModel() const;
+
+            //! Get the recent files model.
+            const std::shared_ptr<ui::RecentFilesModel>& recentFilesModel() const;
 
             //! Get the color model.
             const std::shared_ptr<ColorModel>& colorModel() const;
