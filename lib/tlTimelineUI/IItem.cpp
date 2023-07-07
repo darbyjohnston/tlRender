@@ -8,6 +8,8 @@
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
+#include <opentimelineio/marker.h>
+
 namespace tl
 {
     namespace timelineui
@@ -27,18 +29,54 @@ namespace tl
         bool ItemOptions::operator == (const ItemOptions& other) const
         {
             return
+                inOutDisplay == other.inOutDisplay &&
                 cacheDisplay == other.cacheDisplay &&
                 colors == other.colors &&
                 clipRectScale == other.clipRectScale &&
                 thumbnails == other.thumbnails &&
                 thumbnailHeight == other.thumbnailHeight &&
                 waveformHeight == other.waveformHeight &&
-                thumbnailFade == other.thumbnailFade;
+                thumbnailFade == other.thumbnailFade &&
+                showTransitions == other.showTransitions &&
+                showMarkers == other.showMarkers;
         }
 
         bool ItemOptions::operator != (const ItemOptions& other) const
         {
             return !(*this == other);
+        }
+
+        std::vector<Marker> getMarkers(const otio::Item* item)
+        {
+            std::vector<Marker> out;
+            for (const auto& marker : item->markers())
+            {
+                out.push_back({
+                    marker->name(),
+                    getMarkerColor(marker->color()),
+                    marker->marked_range() });
+            }
+            return out;
+        }
+
+        imaging::Color4f getMarkerColor(const std::string& value)
+        {
+            const std::map<std::string, imaging::Color4f> colors =
+            {
+                { otio::Marker::Color::pink, imaging::Color4f(1.F, .752F, .796F) },
+                { otio::Marker::Color::red, imaging::Color4f(1.F, 0.F, 0.F) },
+                { otio::Marker::Color::orange, imaging::Color4f(1.F, .75F, 0.F) },
+                { otio::Marker::Color::yellow, imaging::Color4f(1.F, 1.F, 0.F) },
+                { otio::Marker::Color::green, imaging::Color4f(0.F, 1.F, 0.F) },
+                { otio::Marker::Color::cyan, imaging::Color4f(0.F, 1.F, 1.F) },
+                { otio::Marker::Color::blue, imaging::Color4f(0.F, 0.F, 1.F) },
+                { otio::Marker::Color::purple, imaging::Color4f(0.5F, 0.F, .5F) },
+                { otio::Marker::Color::magenta, imaging::Color4f(1.F, 0.F, 1.F) },
+                { otio::Marker::Color::black, imaging::Color4f(0.F, 0.F, 0.F) },
+                { otio::Marker::Color::white, imaging::Color4f(1.F, 1.F, 1.F) }
+            };
+            const auto i = colors.find(value);
+            return i != colors.end() ? i->second : imaging::Color4f();
         }
 
         struct IItem::Private
@@ -103,7 +141,7 @@ namespace tl
             return out;
         }
 
-        std::string IItem::_durationLabel(const otime::RationalTime& value)
+        std::string IItem::_getDurationLabel(const otime::RationalTime& value)
         {
             const otime::RationalTime rescaled = value.rescaled_to(_data.speed);
             return string::Format("{0}").

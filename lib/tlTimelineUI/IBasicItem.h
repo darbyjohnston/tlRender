@@ -20,6 +20,7 @@ namespace tl
                 const otime::TimeRange&,
                 const std::string& label,
                 const imaging::Color4f&,
+                const std::vector<Marker>&,
                 const std::string& name,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,

@@ -155,7 +155,7 @@ namespace tl
             {
                 const auto& sizeHint = child->getSizeHint();
                 child->setGeometry(math::BBox2i(
-                    _geometry.min.x + p.size.margin,
+                    _geometry.min.x,
                     _geometry.min.y + y,
                     sizeHint.x,
                     sizeHint.y));
@@ -664,7 +664,7 @@ namespace tl
 
                 event.render->drawRect(
                     math::BBox2i(
-                        pos.x - p.size.border,
+                        pos.x,
                         pos.y,
                         p.size.border * 2,
                         g.h()),
@@ -674,7 +674,7 @@ namespace tl
                 event.render->drawText(
                     event.fontSystem->getGlyphs(label, fontInfo),
                     math::Vector2i(
-                        pos.x + p.size.spacing,
+                        pos.x + p.size.border * 2 + p.size.spacing,
                         pos.y +
                         p.size.margin +
                         p.size.fontMetrics.ascender),
@@ -706,16 +706,8 @@ namespace tl
         int TimelineItem::_timeToPos(const otime::RationalTime& value) const
         {
             TLRENDER_P();
-            int out = 0;
-            if (!time::compareExact(value, time::invalidTime) &&
-                p.timeRange.duration().value() > 0.0)
-            {
-                const float normalized =
-                    (value.value() - p.timeRange.start_time().value()) /
-                    p.timeRange.duration().value();
-                out = _geometry.min.x + normalized * _geometry.w();
-            }
-            return out;
+            const otime::RationalTime t = value - p.timeRange.start_time();
+            return _geometry.min.x + t.rescaled_to(1.0).value() * _scale;
         }
 
         void TimelineItem::_resetMouse()

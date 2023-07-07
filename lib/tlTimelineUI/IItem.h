@@ -11,6 +11,8 @@
 #include <tlTimeline/TimeUnits.h>
 #include <tlTimeline/Timeline.h>
 
+#include <opentimelineio/item.h>
+
 namespace tl
 {
     namespace timelineui
@@ -65,10 +67,26 @@ namespace tl
             int thumbnailHeight = 100;
             int waveformHeight = 50;
             float thumbnailFade = .5F;
+            bool showTransitions = true;
+            bool showMarkers = false;
 
             bool operator == (const ItemOptions&) const;
             bool operator != (const ItemOptions&) const;
         };
+
+        //! Marker.
+        struct Marker
+        {
+            std::string name;
+            imaging::Color4f color;
+            otime::TimeRange range;
+        };
+
+        //! Get the markers from an item.
+        std::vector<Marker> getMarkers(const otio::Item*);
+
+        //! Convert a named marker color.
+        imaging::Color4f getMarkerColor(const std::string&);
 
         //! Base class for items.
         class IItem : public ui::IWidget
@@ -93,7 +111,7 @@ namespace tl
                 const math::BBox2i&,
                 double scale);
 
-            std::string _durationLabel(const otime::RationalTime&);
+            std::string _getDurationLabel(const otime::RationalTime&);
 
             virtual void _timeUnitsUpdate();
 

@@ -19,6 +19,7 @@ namespace tl
                 rangeOpt.has_value() ? rangeOpt.value() : time::invalidTimeRange,
                 !gap->name().empty() ? gap->name() : "Gap",
                 _options.colors[ColorRole::AudioGap],
+                getMarkers(gap),
                 "tl::timelineui::AudioGapItem",
                 itemData,
                 context,
