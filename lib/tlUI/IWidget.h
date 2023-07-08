@@ -146,11 +146,25 @@ namespace tl
 
             ///@}
 
+            //! Mouse
+            ///@{
+
+            //! Does the widget support mouse enter and leave events?
+            bool hasMouseHover();
+
+            //! Set whether the widget supports mouse enter and leave events.
+            void setMouseHover(bool);
+
+            ///@}
+
             //! Key Focus
             ///@{
 
             //! Does this widget accept key focus?
-            virtual bool acceptsKeyFocus() const;
+            bool acceptsKeyFocus() const;
+
+            //! Set whether the widget acceps key focus.
+            void setAcceptsKeyFocus(bool);
 
             //! Does this widget have key focus?
             bool hasKeyFocus() const;
@@ -197,11 +211,11 @@ namespace tl
                 const math::BBox2i&,
                 const DrawEvent&);
 
-            //! Enter event.
-            virtual void enterEvent();
+            //! Mouse enter event.
+            virtual void mouseEnterEvent();
 
-            //! Leave event.
-            virtual void leaveEvent();
+            //! Mouse leave event.
+            virtual void mouseLeaveEvent();
 
             //! Mouse move event.
             virtual void mouseMoveEvent(MouseMoveEvent&);
@@ -227,11 +241,25 @@ namespace tl
             //! Text event.
             virtual void textEvent(TextEvent&);
 
+            //! Drag enter event.
+            virtual void dragEnterEvent(DragAndDropEvent&);
+
+            //! Drag leave event.
+            virtual void dragLeaveEvent(DragAndDropEvent&);
+
+            //! Drag move event.
+            virtual void dragMoveEvent(DragAndDropEvent&);
+
+            //! Drop event.
+            virtual void dropEvent(DragAndDropEvent&);
+
             ///@}
 
         protected:
             std::weak_ptr<system::Context> _context;
             std::string _name;
+            ColorRole _backgroundRole = ColorRole::None;
+            int _updates = 0;
             std::weak_ptr<IWidget> _parent;
             std::weak_ptr<EventLoop> _eventLoop;
             std::list<std::shared_ptr<IWidget> > _children;
@@ -246,8 +274,8 @@ namespace tl
             bool _clipped = false;
             bool _enabled = true;
             bool _parentsEnabled = true;
-            ColorRole _backgroundRole = ColorRole::None;
-            int _updates = 0;
+            bool _mouseHover = false;
+            bool _acceptsKeyFocus = false;
             bool _keyFocus = false;
         };
     }

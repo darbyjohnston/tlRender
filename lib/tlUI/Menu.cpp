@@ -127,7 +127,6 @@ namespace tl
                 void setText(const std::string&) override;
                 void setFontRole(FontRole) override;
 
-                bool acceptsKeyFocus() const override;
                 void tickEvent(
                     bool,
                     bool,
@@ -187,6 +186,7 @@ namespace tl
                 IButton::_init("tl::ui::MenuButton", context, parent);
                 
                 setButtonRole(ColorRole::None);
+                setAcceptsKeyFocus(true);
                 
                 _checkedIcon.name = "MenuChecked";
                 _uncheckedIcon.name = "MenuUnchecked";
@@ -245,11 +245,6 @@ namespace tl
                     _draw.textGlyphs.clear();
                     _draw.shortcutGlyphs.clear();
                 }
-            }
-
-            bool MenuButton::acceptsKeyFocus() const
-            {
-                return true;
             }
 
             void MenuButton::tickEvent(

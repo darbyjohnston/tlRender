@@ -37,6 +37,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IButton::_init("tl::ui::PushButton", context, parent);
+            setAcceptsKeyFocus(true);
         }
 
         PushButton::PushButton() :
@@ -77,11 +78,6 @@ namespace tl
                 p.size.textInit = true;
                 p.draw.glyphs.clear();
             }
-        }
-
-        bool PushButton::acceptsKeyFocus() const
-        {
-            return true;
         }
 
         void PushButton::sizeHintEvent(const SizeHintEvent& event)

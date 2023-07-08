@@ -48,8 +48,8 @@ namespace tl
             void drawOverlayEvent(
                 const math::BBox2i&,
                 const ui::DrawEvent&) override;
-            void enterEvent() override;
-            void leaveEvent() override;
+            void mouseEnterEvent() override;
+            void mouseLeaveEvent() override;
             void mouseMoveEvent(ui::MouseMoveEvent&) override;
             void mousePressEvent(ui::MouseClickEvent&) override;
             void mouseReleaseEvent(ui::MouseClickEvent&) override;

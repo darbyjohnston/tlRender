@@ -93,11 +93,6 @@ namespace tl
             return _clipped;
         }
 
-        inline math::BBox2i IWidget::getChildrenClipRect() const
-        {
-            return _geometry;
-        }
-
         inline bool IWidget::isEnabled(bool andParentsEnabled) const
         {
             bool out = _enabled;
@@ -108,9 +103,14 @@ namespace tl
             return out;
         }
 
+        inline bool IWidget::hasMouseHover()
+        {
+            return _mouseHover;
+        }
+
         inline bool IWidget::acceptsKeyFocus() const
         {
-            return false;
+            return _acceptsKeyFocus;
         }
         
         inline bool IWidget::hasKeyFocus() const

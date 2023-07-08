@@ -42,6 +42,7 @@ namespace tl
         {
             IWidget::_init("tl::ui::ScrollBar", context, parent);
             TLRENDER_P();
+            setMouseHover(true);
             p.orientation = orientation;
         }
 
@@ -177,14 +178,14 @@ namespace tl
             }
         }
 
-        void ScrollBar::enterEvent()
+        void ScrollBar::mouseEnterEvent()
         {
             TLRENDER_P();
             p.mouse.inside = true;
             _updates |= Update::Draw;
         }
 
-        void ScrollBar::leaveEvent()
+        void ScrollBar::mouseLeaveEvent()
         {
             TLRENDER_P();
             p.mouse.inside = false;

@@ -53,7 +53,6 @@ namespace tl
 
             void setVisible(bool) override;
             void setEnabled(bool) override;
-            bool acceptsKeyFocus() const override;
             void tickEvent(
                 bool,
                 bool,
@@ -66,8 +65,8 @@ namespace tl
             void drawEvent(
                 const math::BBox2i&,
                 const DrawEvent&) override;
-            void enterEvent() override;
-            void leaveEvent() override;
+            void mouseEnterEvent() override;
+            void mouseLeaveEvent() override;
             void mouseMoveEvent(MouseMoveEvent&) override;
             void mousePressEvent(MouseClickEvent&) override;
             void mouseReleaseEvent(MouseClickEvent&) override;

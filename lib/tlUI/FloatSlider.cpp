@@ -43,6 +43,9 @@ namespace tl
             IWidget::_init("tl::ui::FloatSlider", context, parent);
             TLRENDER_P();
 
+            setMouseHover(true);
+            setAcceptsKeyFocus(true);
+
             p.model = model;
             if (!p.model)
             {
@@ -106,11 +109,6 @@ namespace tl
             {
                 _resetMouse();
             }
-        }
-
-        bool FloatSlider::acceptsKeyFocus() const
-        {
-            return true;
         }
 
         void FloatSlider::sizeHintEvent(const SizeHintEvent& event)
@@ -205,14 +203,14 @@ namespace tl
             }
         }
 
-        void FloatSlider::enterEvent()
+        void FloatSlider::mouseEnterEvent()
         {
             TLRENDER_P();
             p.mouse.inside = true;
             _updates |= Update::Draw;
         }
 
-        void FloatSlider::leaveEvent()
+        void FloatSlider::mouseLeaveEvent()
         {
             TLRENDER_P();
             p.mouse.inside = false;

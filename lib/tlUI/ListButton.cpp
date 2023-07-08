@@ -37,6 +37,7 @@ namespace tl
         {
             IButton::_init("tl::ui::ListButton", context, parent);
             setButtonRole(ColorRole::None);
+            setAcceptsKeyFocus(true);
         }
 
         ListButton::ListButton() :
@@ -77,11 +78,6 @@ namespace tl
                 p.size.textInit = true;
                 p.draw.glyphs.clear();
             }
-        }
-
-        bool ListButton::acceptsKeyFocus() const
-        {
-            return true;
         }
 
         void ListButton::sizeHintEvent(const SizeHintEvent& event)

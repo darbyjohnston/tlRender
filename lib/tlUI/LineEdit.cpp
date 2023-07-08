@@ -133,6 +133,8 @@ namespace tl
         {
             IWidget::_init("tl::ui::LineEdit", context, parent);
             TLRENDER_P();
+            setMouseHover(true);
+            setAcceptsKeyFocus(true);
             _textUpdate();
         }
 
@@ -224,11 +226,6 @@ namespace tl
                     _updates |= Update::Draw;
                 }
             }
-        }
-
-        bool LineEdit::acceptsKeyFocus() const
-        {
-            return true;
         }
 
         void LineEdit::tickEvent(
@@ -383,10 +380,10 @@ namespace tl
             }
         }
 
-        void LineEdit::enterEvent()
+        void LineEdit::mouseEnterEvent()
         {}
 
-        void LineEdit::leaveEvent()
+        void LineEdit::mouseLeaveEvent()
         {}
 
         void LineEdit::mouseMoveEvent(MouseMoveEvent& event)

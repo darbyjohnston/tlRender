@@ -36,7 +36,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IButton::_init("tl::ui::ToolButton", context, parent);
-
+            setAcceptsKeyFocus(true);
             _buttonRole = ColorRole::None;
         }
 
@@ -78,11 +78,6 @@ namespace tl
                 p.size.textInit = true;
                 p.draw.glyphs.clear();
             }
-        }
-
-        bool ToolButton::acceptsKeyFocus() const
-        {
-            return true;
         }
 
         void ToolButton::sizeHintEvent(const SizeHintEvent& event)

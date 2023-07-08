@@ -76,6 +76,12 @@ namespace tl
             //! Handle scrolling (mouse wheel or touch pad).
             void scroll(float dx, float dy, int modifiers);
 
+            //! Get the clipboard.
+            const std::shared_ptr<IClipboard>& getClipboard() const;
+
+            //! Start a drag and drop.
+            void startDragAndDrop(const std::shared_ptr<DragAndDropData>&);
+
             //! Tick the event loop.
             void tick();
 
@@ -84,9 +90,6 @@ namespace tl
 
             //! Draw the user interface.
             void draw(const std::shared_ptr<timeline::IRender>&);
-
-            //! Get the clipboard.
-            const std::shared_ptr<IClipboard>& getClipboard() const;
 
         protected:
             void _tickEvent();

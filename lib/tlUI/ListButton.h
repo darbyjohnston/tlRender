@@ -33,7 +33,6 @@ namespace tl
             void setText(const std::string&) override;
             void setFontRole(FontRole) override;
 
-            bool acceptsKeyFocus() const override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void clipEvent(
                 const math::BBox2i&,

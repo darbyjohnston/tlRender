@@ -46,6 +46,8 @@ namespace tl
             IButton::_init("tl::ui::ListButton", context, parent);
             TLRENDER_P();
 
+            setAcceptsKeyFocus(true);
+
             p.labels.push_back(fileInfo.getPath().get(-1, false));
 
             std::string label;
@@ -111,11 +113,6 @@ namespace tl
         void Button::setColumns(const std::vector<int>& value)
         {
             _p->columns = value;
-        }
-
-        bool Button::acceptsKeyFocus() const
-        {
-            return true;
         }
 
         void Button::sizeHintEvent(const SizeHintEvent& event)

@@ -69,8 +69,8 @@ namespace tl
                 const math::BBox2i&,
                 bool,
                 const ClipEvent&) override;
-            void enterEvent() override;
-            void leaveEvent() override;
+            void mouseEnterEvent() override;
+            void mouseLeaveEvent() override;
             void mouseMoveEvent(MouseMoveEvent&) override;
             void mousePressEvent(MouseClickEvent&) override;
             void mouseReleaseEvent(MouseClickEvent&) override;

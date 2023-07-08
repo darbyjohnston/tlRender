@@ -77,7 +77,6 @@ namespace tl
 
             void setColumns(const std::vector<int>&);
 
-            bool acceptsKeyFocus() const override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void clipEvent(
                 const math::BBox2i&,

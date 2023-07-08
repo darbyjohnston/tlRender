@@ -28,6 +28,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(name, context, parent);
+            setMouseHover(true);
         }
 
         IButton::IButton() :
@@ -192,7 +193,7 @@ namespace tl
             }
         }
 
-        void IButton::enterEvent()
+        void IButton::mouseEnterEvent()
         {
             _inside = true;
             _updates |= Update::Draw;
@@ -202,7 +203,7 @@ namespace tl
             }
         }
 
-        void IButton::leaveEvent()
+        void IButton::mouseLeaveEvent()
         {
             _inside = false;
             _updates |= Update::Draw;

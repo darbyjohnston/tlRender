@@ -165,6 +165,11 @@ namespace tl
             _updates |= Update::Draw;
         }
 
+        math::BBox2i IWidget::getChildrenClipRect() const
+        {
+            return _geometry;
+        }
+
         void IWidget::setEnabled(bool value)
         {
             if (value == _enabled)
@@ -176,6 +181,16 @@ namespace tl
             }
             _updates |= Update::Size;
             _updates |= Update::Draw;
+        }
+
+        void IWidget::setMouseHover(bool value)
+        {
+            _mouseHover = value;
+        }
+
+        void IWidget::setAcceptsKeyFocus(bool value)
+        {
+            _acceptsKeyFocus = value;
         }
 
         void IWidget::takeKeyFocus()
@@ -249,10 +264,10 @@ namespace tl
             _updates &= ~static_cast<int>(Update::Draw);
         }
 
-        void IWidget::enterEvent()
+        void IWidget::mouseEnterEvent()
         {}
 
-        void IWidget::leaveEvent()
+        void IWidget::mouseLeaveEvent()
         {}
 
         void IWidget::mouseMoveEvent(MouseMoveEvent& event)
@@ -279,6 +294,18 @@ namespace tl
         {}
 
         void IWidget::textEvent(TextEvent&)
+        {}
+
+        void IWidget::dragEnterEvent(DragAndDropEvent&)
+        {}
+
+        void IWidget::dragLeaveEvent(DragAndDropEvent&)
+        {}
+
+        void IWidget::dragMoveEvent(DragAndDropEvent&)
+        {}
+
+        void IWidget::dropEvent(DragAndDropEvent&)
         {}
     }
 }

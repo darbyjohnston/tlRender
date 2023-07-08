@@ -167,6 +167,8 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::ComboBox", context, parent);
+            setMouseHover(true);
+            setAcceptsKeyFocus(true);
         }
 
         ComboBox::ComboBox() :
@@ -277,11 +279,6 @@ namespace tl
             {
                 _resetMouse();
             }
-        }
-
-        bool ComboBox::acceptsKeyFocus() const
-        {
-            return true;
         }
 
         void ComboBox::tickEvent(
@@ -487,14 +484,14 @@ namespace tl
             }
         }
 
-        void ComboBox::enterEvent()
+        void ComboBox::mouseEnterEvent()
         {
             TLRENDER_P();
             p.mouse.inside = true;
             _updates |= Update::Draw;
         }
 
-        void ComboBox::leaveEvent()
+        void ComboBox::mouseLeaveEvent()
         {
             TLRENDER_P();
             p.mouse.inside = false;

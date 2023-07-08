@@ -39,6 +39,7 @@ namespace tl
         {
             IWidget::_init("tl::ui::Splitter", context, parent);
             TLRENDER_P();
+            setMouseHover(true);
             _hStretch = Stretch::Expanding;
             _vStretch = Stretch::Expanding;
             p.orientation = orientation;
@@ -210,10 +211,10 @@ namespace tl
             }
         }
 
-        void Splitter::enterEvent()
+        void Splitter::mouseEnterEvent()
         {}
 
-        void Splitter::leaveEvent()
+        void Splitter::mouseLeaveEvent()
         {
             TLRENDER_P();
             if (p.mouse.hoverHandle != -1)

@@ -13,6 +13,47 @@ namespace tl
 {
     namespace ui
     {
+        ChildEvent::ChildEvent()
+        {}
+
+        ChildEvent::ChildEvent(const std::shared_ptr<IWidget>& child) :
+            child(child)
+        {}
+
+        TickEvent::TickEvent()
+        {}
+
+        TickEvent::TickEvent(
+            const std::shared_ptr<Style>&               style,
+            const std::shared_ptr<IconLibrary>&         iconLibrary,
+            const std::shared_ptr<imaging::FontSystem>& fontSystem,
+            float                                       displayScale) :
+            style(style),
+            iconLibrary(iconLibrary),
+            fontSystem(fontSystem),
+            displayScale(displayScale)
+        {}
+
+        SizeHintEvent::SizeHintEvent()
+        {}
+
+        SizeHintEvent::SizeHintEvent(
+            const std::shared_ptr<Style>&                   style,
+            const std::shared_ptr<IconLibrary>&             iconLibrary,
+            const std::shared_ptr<imaging::FontSystem>&     fontSystem,
+            float                                           displayScale) :
+            style(style),
+            iconLibrary(iconLibrary),
+            fontSystem(fontSystem),
+            displayScale(displayScale)
+        {
+            for (auto i : getFontRoleEnums())
+            {
+                fontMetrics[i] = fontSystem->getMetrics(
+                    style->getFontRole(i, displayScale));
+            }
+        }
+
         imaging::FontMetrics SizeHintEvent::getFontMetrics(FontRole role) const
         {
             imaging::FontMetrics out;
@@ -22,6 +63,48 @@ namespace tl
                 out = i->second;
             }
             return out;
+        }
+
+        ClipEvent::ClipEvent()
+        {}
+
+        ClipEvent::ClipEvent(
+            const std::shared_ptr<Style>&               style,
+            const std::shared_ptr<IconLibrary>&         iconLibrary,
+            const std::shared_ptr<imaging::FontSystem>& fontSystem,
+            float                                       displayScale) :
+            style(style),
+            iconLibrary(iconLibrary),
+            fontSystem(fontSystem),
+            displayScale(displayScale)
+        {
+            for (auto i : getFontRoleEnums())
+            {
+                fontMetrics[i] = fontSystem->getMetrics(
+                    style->getFontRole(i, displayScale));
+            }
+        }
+
+        DrawEvent::DrawEvent()
+        {}
+
+        DrawEvent::DrawEvent(
+            const std::shared_ptr<Style>&                   style,
+            const std::shared_ptr<IconLibrary>&             iconLibrary,
+            const std::shared_ptr<timeline::IRender>&       render,
+            const std::shared_ptr<imaging::FontSystem>&     fontSystem,
+            float                                           displayScale) :
+            style(style),
+            iconLibrary(iconLibrary),
+            render(render),
+            fontSystem(fontSystem),
+            displayScale(displayScale)
+        {
+            for (auto i : getFontRoleEnums())
+            {
+                fontMetrics[i] = fontSystem->getMetrics(
+                    style->getFontRole(i, displayScale));
+            }
         }
 
         imaging::FontMetrics DrawEvent::getFontMetrics(FontRole role) const
@@ -34,6 +117,42 @@ namespace tl
             }
             return out;
         }
+
+        MouseMoveEvent::MouseMoveEvent()
+        {}
+
+        MouseMoveEvent::MouseMoveEvent(
+            const math::Vector2i& pos,
+            const math::Vector2i& prev) :
+            pos(pos),
+            prev(prev)
+        {}
+
+        MouseClickEvent::MouseClickEvent()
+        {}
+
+        MouseClickEvent::MouseClickEvent(
+            int                   button,
+            int                   modifiers,
+            const math::Vector2i& pos) :
+            button(button),
+            modifiers(modifiers),
+            pos(pos)
+        {}
+
+        ScrollEvent::ScrollEvent()
+        {}
+
+        ScrollEvent::ScrollEvent(
+            int                   modifiers,
+            const math::Vector2i& pos,
+            float                 dx,
+            float                 dy) :
+            modifiers(modifiers),
+            pos(pos),
+            dx(dx),
+            dy(dy)
+        {}
 
         std::string getKeyModifierLabel(int value)
         {
@@ -159,5 +278,60 @@ namespace tl
             }
             return ss.str();
         }
+
+        KeyEvent::KeyEvent()
+        {}
+
+        KeyEvent::KeyEvent(
+            Key                   key,
+            int                   modifiers,
+            const math::Vector2i& pos) :
+            key(key),
+            modifiers(modifiers),
+            pos(pos)
+        {}
+
+        TextEvent::TextEvent()
+        {}
+
+        TextEvent::TextEvent(const std::string& text) :
+            text(text)
+        {}
+
+        DragAndDropData::DragAndDropData()
+        {}
+
+        DragAndDropData::~DragAndDropData()
+        {}
+
+        TextDragAndDropData::TextDragAndDropData()
+        {}
+
+        TextDragAndDropData::~TextDragAndDropData()
+        {}
+
+        std::shared_ptr<TextDragAndDropData> TextDragAndDropData::create(const std::string& text)
+        {
+            auto out = std::shared_ptr<TextDragAndDropData>(new TextDragAndDropData);
+            out->_text = text;
+            return out;
+        }
+
+        const std::string& TextDragAndDropData::getText() const
+        {
+            return _text;
+        }
+
+        DragAndDropEvent::DragAndDropEvent()
+        {}
+
+        DragAndDropEvent::DragAndDropEvent(
+            const math::Vector2i& pos,
+            const math::Vector2i& prev,
+            const std::shared_ptr<DragAndDropData>& data) :
+            pos(pos),
+            prev(prev),
+            data(data)
+        {}
     }
 }

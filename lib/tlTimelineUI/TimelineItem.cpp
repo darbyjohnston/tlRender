@@ -56,6 +56,8 @@ namespace tl
             IItem::_init("tl::timelineui::TimelineItem", itemData, context, parent);
             TLRENDER_P();
 
+            setMouseHover(true);
+
             p.player = player;
             p.timeRange = player->getTimeRange();
 
@@ -241,10 +243,10 @@ namespace tl
             _drawCurrentTime(drawRect, event);
         }
 
-        void TimelineItem::enterEvent()
+        void TimelineItem::mouseEnterEvent()
         {}
 
-        void TimelineItem::leaveEvent()
+        void TimelineItem::mouseLeaveEvent()
         {}
 
         void TimelineItem::mouseMoveEvent(ui::MouseMoveEvent& event)
