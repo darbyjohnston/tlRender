@@ -95,7 +95,7 @@ namespace tl
         template<typename T>
         inline float length(const Vector2<T>& value)
         {
-            return std::sqrtf(
+            return std::sqrt(
                 value.x * value.x +
                 value.y * value.y);
         }
@@ -103,7 +103,7 @@ namespace tl
         template<typename T>
         inline float length(const Vector3<T>& value)
         {
-            return std::sqrtf(
+            return std::sqrt(
                 value.x * value.x +
                 value.y * value.y +
                 value.z * value.z);
