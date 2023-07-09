@@ -188,10 +188,11 @@ namespace tl
             if (auto dragAndDrop = p.dragAndDropHover.lock())
             {
                 p.dragAndDropHover.reset();
-                dragAndDrop->dragLeaveEvent(DragAndDropEvent(
+                DragAndDropEvent event(
                     p.cursorPos,
                     p.cursorPosPrev,
-                    p.dndData));
+                    p.dndData);
+                dragAndDrop->dragLeaveEvent(event);
             }
             p.dndData.reset();
 
@@ -380,10 +381,11 @@ namespace tl
                     hover = p.dragAndDropHover.lock();
                     if (hover)
                     {
-                        hover->dragMoveEvent(DragAndDropEvent(
+                        DragAndDropEvent event(
                             p.cursorPos,
                             p.cursorPosPrev,
-                            p.dndData));
+                            p.dndData);
+                        hover->dragMoveEvent(event);
                     }
                 }
                 else
@@ -453,14 +455,12 @@ namespace tl
                     {
                         // Finish a drag and drop.
                         p.dragAndDropHover.reset();
-                        hover->dragLeaveEvent(DragAndDropEvent(
+                        DragAndDropEvent event(
                             p.cursorPos,
                             p.cursorPosPrev,
-                            p.dndData));
-                        hover->dropEvent(DragAndDropEvent(
-                            p.cursorPos,
-                            p.cursorPosPrev,
-                            p.dndData));
+                            p.dndData);
+                        hover->dragLeaveEvent(event);
+                        hover->dropEvent(event);
                     }
                     else
                     {
@@ -476,9 +476,10 @@ namespace tl
                     }
                 }
 
-                _hoverUpdate(MouseMoveEvent(
+                MouseMoveEvent event(
                     p.cursorPos,
-                    p.cursorPosPrev));
+                    p.cursorPosPrev);
+                _hoverUpdate(event);
             }
         }
 
@@ -924,9 +925,10 @@ namespace tl
 
             if (auto widget = p.hover.lock())
             {
-                widget->mouseMoveEvent(MouseMoveEvent(
+                MouseMoveEvent event(
                     p.cursorPos,
-                    p.cursorPosPrev));
+                    p.cursorPosPrev);
+                widget->mouseMoveEvent(event);
             }
         }
 
