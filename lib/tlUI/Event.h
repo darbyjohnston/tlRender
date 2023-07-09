@@ -118,8 +118,10 @@ namespace tl
 
             math::Vector2i                   pos;
             math::Vector2i                   prev;
-            bool                             accept          = false;
-            std::shared_ptr<DragAndDropData> dragAndDropData;
+            bool                             accept = false;
+            std::shared_ptr<DragAndDropData> dndData;
+            std::shared_ptr<imaging::Image>  dndCursor;
+            math::Vector2i                   dndCursorHotspot;
         };
 
         //! Keyboard modifiers.

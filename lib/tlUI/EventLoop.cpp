@@ -7,6 +7,7 @@
 #include <tlUI/DrawUtil.h>
 #include <tlUI/IPopup.h>
 #include <tlUI/IWidget.h>
+#include <tlUI/Screenshot.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -33,8 +34,12 @@ namespace tl
             std::weak_ptr<IWidget> keyPress;
             KeyEvent keyEvent;
             std::function<void(StandardCursor)> cursor;
-            std::shared_ptr<DragAndDropData> dragAndDropData;
+            std::function<void(
+                const std::shared_ptr<imaging::Image>&,
+                const math::Vector2i&)> customCursor;
+            std::shared_ptr<DragAndDropData> dndData;
             std::weak_ptr<IWidget> dragAndDropHover;
+            std::function<std::shared_ptr<imaging::Image>(const math::BBox2i&)> capture;
             int updates = 0;
             size_t widgetCount = 0;
             std::list<int> tickTimes;
@@ -186,9 +191,9 @@ namespace tl
                 dragAndDrop->dragLeaveEvent(DragAndDropEvent(
                     p.cursorPos,
                     p.cursorPosPrev,
-                    p.dragAndDropData));
+                    p.dndData));
             }
-            p.dragAndDropData.reset();
+            p.dndData.reset();
 
             widget->setEventLoop(nullptr);
             auto i = std::find_if(
@@ -335,13 +340,13 @@ namespace tl
             MouseMoveEvent event(p.cursorPos, p.cursorPosPrev);
             if (auto widget = p.mousePress.lock())
             {
-                if (p.dragAndDropData)
+                if (p.dndData)
                 {
                     // Find the drag and drop hover widget.
                     DragAndDropEvent event(
                         p.cursorPos,
                         p.cursorPosPrev,
-                        p.dragAndDropData);
+                        p.dndData);
                     auto hover = p.dragAndDropHover.lock();
                     auto widgets = _getUnderCursor(p.cursorPos);
                     std::shared_ptr<IWidget> widget;
@@ -378,20 +383,24 @@ namespace tl
                         hover->dragMoveEvent(DragAndDropEvent(
                             p.cursorPos,
                             p.cursorPosPrev,
-                            p.dragAndDropData));
+                            p.dndData));
                     }
                 }
                 else
                 {
                     widget->mouseMoveEvent(event);
 
-                    p.dragAndDropData = event.dragAndDropData;
-                    if (p.dragAndDropData)
+                    p.dndData = event.dndData;
+                    if (p.dndData)
                     {
                         // Start a drag and drop.
                         widget->mouseReleaseEvent(p.mouseClickEvent);
                         widget->mouseLeaveEvent();
-                        if (p.cursor)
+                        if (event.dndCursor && p.customCursor)
+                        {
+                            p.customCursor(event.dndCursor, event.dndCursorHotspot);
+                        }
+                        else if (p.cursor)
                         {
                             p.cursor(StandardCursor::Crosshair);
                         }
@@ -447,19 +456,19 @@ namespace tl
                         hover->dragLeaveEvent(DragAndDropEvent(
                             p.cursorPos,
                             p.cursorPosPrev,
-                            p.dragAndDropData));
+                            p.dndData));
                         hover->dropEvent(DragAndDropEvent(
                             p.cursorPos,
                             p.cursorPosPrev,
-                            p.dragAndDropData));
+                            p.dndData));
                     }
                     else
                     {
                         widget->mouseReleaseEvent(p.mouseClickEvent);
                     }
-                    if (p.dragAndDropData)
+                    if (p.dndData)
                     {
-                        p.dragAndDropData.reset();
+                        p.dndData.reset();
                         if (p.cursor)
                         {
                             p.cursor(StandardCursor::Arrow);
@@ -476,6 +485,13 @@ namespace tl
         void EventLoop::setCursor(const std::function<void(StandardCursor)>& value)
         {
             _p->cursor = value;
+        }
+
+        void EventLoop::setCursor(const std::function<void(
+            const std::shared_ptr<imaging::Image>&,
+            const math::Vector2i&)>& value)
+        {
+            _p->customCursor = value;
         }
 
         void EventLoop::scroll(float dx, float dy, int modifiers)
@@ -579,6 +595,27 @@ namespace tl
         {
             _drawEvent(render);
             _p->updates &= ~static_cast<int>(Update::Draw);
+        }
+
+        std::shared_ptr<imaging::Image> EventLoop::screenshot(
+            const std::shared_ptr<IWidget>& widget)
+        {
+            TLRENDER_P();
+            /*return ui::screenshot(
+                widget,
+                p.displaySize,
+                p.style,
+                p.iconLibrary,
+                p.render,
+                p.fontSystem,
+                p.displayScale);*/
+            return p.capture ? p.capture(widget->getGeometry()) : nullptr;
+        }
+
+        void EventLoop::setCapture(const std::function<std::shared_ptr<imaging::Image>(
+            const math::BBox2i&)>& value)
+        {
+            _p->capture = value;
         }
 
         void EventLoop::_tickEvent()

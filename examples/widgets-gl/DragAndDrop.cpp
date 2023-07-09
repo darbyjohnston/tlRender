@@ -5,6 +5,7 @@
 #include "DragAndDrop.h"
 
 #include <tlUI/DrawUtil.h>
+#include <tlUI/EventLoop.h>
 #include <tlUI/Label.h>
 #include <tlUI/RowLayout.h>
 
@@ -94,6 +95,7 @@ namespace tl
                     _label->setText(text);
                     _label->setHAlign(ui::HAlign::Center);
                     _label->setVAlign(ui::VAlign::Center);
+                    _label->setMarginRole(ui::SizeRole::Margin);
                 }
 
                 MovableWidget::MovableWidget()
@@ -174,8 +176,13 @@ namespace tl
                         const float length = math::length(event.pos - _pressedPos);
                         if (length > _dragLength)
                         {
-                            event.dragAndDropData = std::make_shared<DragAndDropData>(
-                                std::dynamic_pointer_cast<MovableWidget>(shared_from_this()));
+                            if (auto eventLoop = getEventLoop().lock())
+                            {
+                                event.dndData = std::make_shared<DragAndDropData>(
+                                    std::dynamic_pointer_cast<MovableWidget>(shared_from_this()));
+                                event.dndCursor = eventLoop->screenshot(shared_from_this());
+                                event.dndCursorHotspot = _cursorPos - _geometry.min;
+                            }
                         }
                     }
                 }
@@ -233,7 +240,7 @@ namespace tl
                 {
                     IWidget::_init("tl::examples::widgets_gl::ContainerWidget", context, parent);
 
-                    setVStretch(ui::Stretch::Expanding);
+                    //setVStretch(ui::Stretch::Expanding);
                     setBackgroundRole(ui::ColorRole::Base);
 
                     MovableWidget::create("One", context, shared_from_this());
@@ -286,8 +293,8 @@ namespace tl
                 {
                     IWidget::sizeHintEvent(event);
 
-                    _margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
-                    _spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
+                    //_margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
+                    //_spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
 
                     _sizeHint = math::Vector2i();
                     for (const auto& child : _children)

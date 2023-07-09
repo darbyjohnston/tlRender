@@ -66,6 +66,11 @@ namespace tl
 
         protected:
             void _setCursor(ui::StandardCursor value);
+            void _setCursor(
+                const std::shared_ptr<imaging::Image>&,
+                const math::Vector2i&);
+
+            std::shared_ptr<imaging::Image> _capture(const math::BBox2i&);
 
             virtual void _drop(const std::vector<std::string>&);
 

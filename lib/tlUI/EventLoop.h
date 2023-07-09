@@ -84,8 +84,13 @@ namespace tl
             //! Handle mouse button presses.
             void mouseButton(int button, bool press, int modifiers);
 
-            //! Set the cursor function.
+            //! Set the standard cursor function.
             void setCursor(const std::function<void(StandardCursor)>&);
+
+            //! Set the custom cursor function.
+            void setCursor(const std::function<void(
+                const std::shared_ptr<imaging::Image>&,
+                const math::Vector2i&)>&);
 
             //! Handle scrolling (mouse wheel or touch pad).
             void scroll(float dx, float dy, int modifiers);
@@ -101,6 +106,14 @@ namespace tl
 
             //! Draw the user interface.
             void draw(const std::shared_ptr<timeline::IRender>&);
+
+            //! Take a screenshot of a widget.
+            std::shared_ptr<imaging::Image> screenshot(
+                const std::shared_ptr<IWidget>&);
+
+            //! Set the screenshot capture function.
+            void setCapture(const std::function<std::shared_ptr<imaging::Image>(
+                const math::BBox2i&)>&);
 
         protected:
             void _tickEvent();
