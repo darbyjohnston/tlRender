@@ -32,7 +32,9 @@ namespace tl
             std::weak_ptr<IWidget> keyFocus;
             std::weak_ptr<IWidget> keyPress;
             KeyEvent keyEvent;
+            std::function<void(StandardCursor)> cursor;
             std::shared_ptr<DragAndDropData> dragAndDropData;
+            std::weak_ptr<IWidget> dragAndDropHover;
             int updates = 0;
             size_t widgetCount = 0;
             std::list<int> tickTimes;
@@ -148,13 +150,6 @@ namespace tl
                 {
                     p.hover.reset();
                     hover->mouseLeaveEvent();
-                    if (p.dragAndDropData)
-                    {
-                        hover->dragLeaveEvent(DragAndDropEvent(
-                            p.cursorPos,
-                            p.cursorPosPrev,
-                            p.dragAndDropData));
-                    }
                 }
             }
             if (auto pressed = p.mousePress.lock())
@@ -185,6 +180,15 @@ namespace tl
                     keyPress->keyReleaseEvent(p.keyEvent);
                 }
             }
+            if (auto dragAndDrop = p.dragAndDropHover.lock())
+            {
+                p.dragAndDropHover.reset();
+                dragAndDrop->dragLeaveEvent(DragAndDropEvent(
+                    p.cursorPos,
+                    p.cursorPosPrev,
+                    p.dragAndDropData));
+            }
+            p.dragAndDropData.reset();
 
             widget->setEventLoop(nullptr);
             auto i = std::find_if(
@@ -331,13 +335,67 @@ namespace tl
             MouseMoveEvent event(p.cursorPos, p.cursorPosPrev);
             if (auto widget = p.mousePress.lock())
             {
-                widget->mouseMoveEvent(event);
                 if (p.dragAndDropData)
                 {
-                    widget->dragMoveEvent(DragAndDropEvent(
+                    // Find the drag and drop hover widget.
+                    DragAndDropEvent event(
                         p.cursorPos,
                         p.cursorPosPrev,
-                        p.dragAndDropData));
+                        p.dragAndDropData);
+                    auto hover = p.dragAndDropHover.lock();
+                    auto widgets = _getUnderCursor(p.cursorPos);
+                    std::shared_ptr<IWidget> widget;
+                    while (!widgets.empty())
+                    {
+                        if (hover == widgets.back())
+                        {
+                            break;
+                        }
+                        widgets.back()->dragEnterEvent(event);
+                        if (event.accept)
+                        {
+                            widget = widgets.back();
+                            break;
+                        }
+                        widgets.pop_back();
+                    }
+                    if (widget)
+                    {
+                        if (hover)
+                        {
+                            hover->dragLeaveEvent(event);
+                        }
+                        p.dragAndDropHover = widget;
+                    }
+                    else if (widgets.empty() && hover)
+                    {
+                        p.dragAndDropHover.reset();
+                        hover->dragLeaveEvent(event);
+                    }
+                    hover = p.dragAndDropHover.lock();
+                    if (hover)
+                    {
+                        hover->dragMoveEvent(DragAndDropEvent(
+                            p.cursorPos,
+                            p.cursorPosPrev,
+                            p.dragAndDropData));
+                    }
+                }
+                else
+                {
+                    widget->mouseMoveEvent(event);
+
+                    p.dragAndDropData = event.dragAndDropData;
+                    if (p.dragAndDropData)
+                    {
+                        // Start a drag and drop.
+                        widget->mouseReleaseEvent(p.mouseClickEvent);
+                        widget->mouseLeaveEvent();
+                        if (p.cursor)
+                        {
+                            p.cursor(StandardCursor::Crosshair);
+                        }
+                    }
                 }
             }
             else
@@ -382,13 +440,42 @@ namespace tl
                 if (auto widget = p.mousePress.lock())
                 {
                     p.mousePress.reset();
-                    widget->mouseReleaseEvent(p.mouseClickEvent);
+                    if (auto hover = p.dragAndDropHover.lock())
+                    {
+                        // Finish a drag and drop.
+                        p.dragAndDropHover.reset();
+                        hover->dragLeaveEvent(DragAndDropEvent(
+                            p.cursorPos,
+                            p.cursorPosPrev,
+                            p.dragAndDropData));
+                        hover->dropEvent(DragAndDropEvent(
+                            p.cursorPos,
+                            p.cursorPosPrev,
+                            p.dragAndDropData));
+                    }
+                    else
+                    {
+                        widget->mouseReleaseEvent(p.mouseClickEvent);
+                    }
+                    if (p.dragAndDropData)
+                    {
+                        p.dragAndDropData.reset();
+                        if (p.cursor)
+                        {
+                            p.cursor(StandardCursor::Arrow);
+                        }
+                    }
                 }
 
                 _hoverUpdate(MouseMoveEvent(
                     p.cursorPos,
                     p.cursorPosPrev));
             }
+        }
+
+        void EventLoop::setCursor(const std::function<void(StandardCursor)>& value)
+        {
+            _p->cursor = value;
         }
 
         void EventLoop::scroll(float dx, float dy, int modifiers)
@@ -409,11 +496,6 @@ namespace tl
         const std::shared_ptr<IClipboard>& EventLoop::getClipboard() const
         {
             return _p->clipboard;
-        }
-
-        void EventLoop::startDragAndDrop(const std::shared_ptr<DragAndDropData>& value)
-        {
-
         }
 
         void EventLoop::tick()
@@ -787,25 +869,11 @@ namespace tl
                 if (hover != widget)
                 {
                     //std::cout << "leave: " << widget->getName() << std::endl;
-                    widget->mouseLeaveEvent();                    if (p.dragAndDropData)
-                    {
-                        widget->dragLeaveEvent(DragAndDropEvent(
-                            p.cursorPos,
-                            p.cursorPosPrev,
-                            p.dragAndDropData));
-                    }
-
+                    widget->mouseLeaveEvent();
                     if (hover)
                     {
                         //std::cout << "enter: " << hover->getName() << std::endl;
                         hover->mouseEnterEvent();
-                        if (p.dragAndDropData)
-                        {
-                            hover->dragEnterEvent(DragAndDropEvent(
-                                p.cursorPos,
-                                p.cursorPosPrev,
-                                p.dragAndDropData));
-                        }
                     }
                 }
             }
@@ -813,13 +881,6 @@ namespace tl
             {
                 //std::cout << "enter: " << hover->getName() << std::endl;
                 hover->mouseEnterEvent();
-                if (p.dragAndDropData)
-                {
-                    hover->dragEnterEvent(DragAndDropEvent(
-                        p.cursorPos,
-                        p.cursorPosPrev,
-                        p.dragAndDropData));
-                }
             }
 
             p.hover = hover;
@@ -829,13 +890,6 @@ namespace tl
                 widget->mouseMoveEvent(MouseMoveEvent(
                     p.cursorPos,
                     p.cursorPosPrev));
-                if (p.dragAndDropData)
-                {
-                    widget->dragMoveEvent(DragAndDropEvent(
-                        p.cursorPos,
-                        p.cursorPosPrev,
-                        p.dragAndDropData));
-                }
             }
         }
 

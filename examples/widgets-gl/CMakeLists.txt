@@ -2,6 +2,7 @@ set(HEADERS
     App.h
     BasicWidgets.h
     Charts.h
+    DragAndDrop.h
     GridLayouts.h
     MainWindow.h
     NumericWidgets.h
@@ -12,6 +13,7 @@ set(SOURCE
     App.cpp
     Charts.cpp
     BasicWidgets.cpp
+    DragAndDrop.cpp
     GridLayouts.cpp
     MainWindow.cpp
     NumericWidgets.cpp

@@ -101,6 +101,13 @@ namespace tl
             imaging::FontMetrics getFontMetrics(FontRole) const;
         };
 
+        //! Drag and drop data.
+        class DragAndDropData : public std::enable_shared_from_this<DragAndDropData>
+        {
+        public:
+            virtual ~DragAndDropData() = 0;
+        };
+
         //! Mouse move event.
         struct MouseMoveEvent
         {
@@ -109,9 +116,10 @@ namespace tl
                 const math::Vector2i& pos,
                 const math::Vector2i& prev);
 
-            math::Vector2i pos;
-            math::Vector2i prev;
-            bool           accept = false;
+            math::Vector2i                   pos;
+            math::Vector2i                   prev;
+            bool                             accept          = false;
+            std::shared_ptr<DragAndDropData> dragAndDropData;
         };
 
         //! Keyboard modifiers.
@@ -292,30 +300,13 @@ namespace tl
             bool        accept = false;
         };
 
-        //! Drag and drop data.
-        class DragAndDropData : public std::enable_shared_from_this<DragAndDropData>
-        {
-            TLRENDER_NON_COPYABLE(DragAndDropData);
-
-        protected:
-            DragAndDropData();
-
-        public:
-            virtual ~DragAndDropData() = 0;
-        };
-
         //! Drag and drop text data.
         class TextDragAndDropData : public DragAndDropData
         {
-            TLRENDER_NON_COPYABLE(TextDragAndDropData);
-
-        protected:
-            TextDragAndDropData();
-
         public:
-            ~TextDragAndDropData() override;
+            TextDragAndDropData(const std::string& text);
 
-            static std::shared_ptr<TextDragAndDropData> create(const std::string& text);
+            ~TextDragAndDropData() override;
 
             const std::string& getText() const;
 

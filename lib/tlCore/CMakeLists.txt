@@ -44,6 +44,8 @@ set(HEADERS
     Observer.h
     Path.h
     PathInline.h
+    Random.h
+    RandomInline.h
     Range.h
     RangeInline.h
     String.h
@@ -80,6 +82,7 @@ set(SOURCE
     Mesh.cpp
     OS.cpp
     Path.cpp
+    Random.cpp
     Range.cpp
     String.cpp
     StringFormat.cpp

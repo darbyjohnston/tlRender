@@ -2,6 +2,8 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
+#include <cmath>
+
 namespace tl
 {
     namespace math
@@ -88,6 +90,23 @@ namespace tl
         inline bool Vector4<T>::operator != (const Vector4<T>& other) const
         {
             return !(*this == other);
+        }
+
+        template<typename T>
+        inline float length(const Vector2<T>& value)
+        {
+            return std::sqrtf(
+                value.x * value.x +
+                value.y * value.y);
+        }
+
+        template<typename T>
+        inline float length(const Vector3<T>& value)
+        {
+            return std::sqrtf(
+                value.x * value.x +
+                value.y * value.y +
+                value.z * value.z);
         }
 
         template<typename T>

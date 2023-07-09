@@ -31,6 +31,7 @@ namespace tl
             Handle,
             HandleSmall,
             Shadow,
+            DragLength,
 
             Count,
             First = None

@@ -92,6 +92,31 @@ namespace tl
             private:
                 GLFWwindow* _glfwWindow = nullptr;
             };
+
+            class Cursor
+            {
+            public:
+                Cursor(GLFWwindow*, GLFWcursor*);
+
+                ~Cursor();
+
+            private:
+                GLFWwindow* _window = nullptr;
+                GLFWcursor* _cursor = nullptr;
+            };
+
+            Cursor::Cursor(GLFWwindow* window, GLFWcursor* cursor) :
+                _window(window),
+                _cursor(cursor)
+            {
+                glfwSetCursor(window, cursor);
+            }
+
+            Cursor::~Cursor()
+            {
+                glfwSetCursor(_window, nullptr);
+                glfwDestroyCursor(_cursor);
+            }
         }
 
         struct IApp::Private
@@ -226,6 +251,11 @@ namespace tl
                 p.fontSystem,
                 p.clipboard,
                 _context);
+            p.eventLoop->setCursor(
+                [this](ui::StandardCursor value)
+                {
+                    _setCursor(value);
+                });
 
             // Create the renderer.
             p.render = timeline::GLRender::create(_context);
@@ -376,6 +406,33 @@ namespace tl
                         0);
                 }
             }
+        }
+
+        void IApp::_setCursor(ui::StandardCursor value)
+        {
+            TLRENDER_P();
+            GLFWcursor* cursor = nullptr;
+            switch (value)
+            {
+            case ui::StandardCursor::Arrow:
+                break;
+            case ui::StandardCursor::IBeam:
+                cursor = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
+                break;
+            case ui::StandardCursor::Crosshair:
+                cursor = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
+                break;
+            case ui::StandardCursor::Hand:
+                cursor = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
+                break;
+            case ui::StandardCursor::HResize:
+                cursor = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
+                break;
+            case ui::StandardCursor::VResize:
+                cursor = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
+                break;
+            }
+            glfwSetCursor(p.glfwWindow, cursor);
         }
 
         void IApp::_drop(const std::vector<std::string>&)

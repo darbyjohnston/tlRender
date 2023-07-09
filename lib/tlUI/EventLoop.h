@@ -15,6 +15,17 @@ namespace tl
     {
         class IClipboard;
 
+        //! Cursors.
+        enum class StandardCursor
+        {
+            Arrow,
+            IBeam,
+            Crosshair,
+            Hand,
+            HResize,
+            VResize
+        };
+
         //! Event loop.
         class EventLoop : public std::enable_shared_from_this<EventLoop>
         {
@@ -73,14 +84,14 @@ namespace tl
             //! Handle mouse button presses.
             void mouseButton(int button, bool press, int modifiers);
 
+            //! Set the cursor function.
+            void setCursor(const std::function<void(StandardCursor)>&);
+
             //! Handle scrolling (mouse wheel or touch pad).
             void scroll(float dx, float dy, int modifiers);
 
             //! Get the clipboard.
             const std::shared_ptr<IClipboard>& getClipboard() const;
-
-            //! Start a drag and drop.
-            void startDragAndDrop(const std::shared_ptr<DragAndDropData>&);
 
             //! Tick the event loop.
             void tick();

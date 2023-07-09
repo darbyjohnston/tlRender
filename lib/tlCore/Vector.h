@@ -72,6 +72,14 @@ namespace tl
         //! Four-dimensional floating point vector.
         typedef Vector4<float> Vector4f;
 
+        //! Get the length of a vector.
+        template<typename T>
+        inline float length(const Vector2<T>&);
+
+        //! Get the length of a vector.
+        template<typename T>
+        inline float length(const Vector3<T>&);
+
         //! \name Operators
         ///@{
 

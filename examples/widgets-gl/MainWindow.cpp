@@ -6,6 +6,7 @@
 
 #include "BasicWidgets.h"
 #include "Charts.h"
+#include "DragAndDrop.h"
 #include "GridLayouts.h"
 #include "NumericWidgets.h"
 #include "RowLayouts.h"
@@ -45,6 +46,7 @@ namespace tl
                     "Basic Widgets",
                     "Numeric Widgets",
                     "Charts",
+                    "Drag and Drop",
                     "Row Layouts",
                     "Grid Layouts",
                     "Scroll Areas"
@@ -68,6 +70,7 @@ namespace tl
                 auto basicWidgets = BasicWidgets::create(context);
                 auto numericWidgets = NumericWidgets::create(context);
                 auto charts = Charts::create(context);
+                auto dragAndDrop = DragAndDrop::create(context);
                 auto rowLayouts = RowLayouts::create(context);
                 auto gridLayouts = GridLayouts::create(context);
                 auto scrollAreas = ScrollAreas::create(context);
@@ -92,11 +95,12 @@ namespace tl
                 basicWidgets->setParent(p.stackLayout);
                 numericWidgets->setParent(p.stackLayout);
                 charts->setParent(p.stackLayout);
+                dragAndDrop->setParent(p.stackLayout);
                 rowLayouts->setParent(p.stackLayout);
                 gridLayouts->setParent(p.stackLayout);
                 scrollAreas->setParent(p.stackLayout);
 
-                //p.stackLayout->setCurrentWidget(numericWidgets);
+                p.stackLayout->setCurrentWidget(dragAndDrop);
             }
 
             MainWindow::MainWindow() :

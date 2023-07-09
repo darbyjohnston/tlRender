@@ -118,6 +118,9 @@ namespace tl
             return out;
         }
 
+        DragAndDropData::~DragAndDropData()
+        {}
+
         MouseMoveEvent::MouseMoveEvent()
         {}
 
@@ -298,24 +301,12 @@ namespace tl
             text(text)
         {}
 
-        DragAndDropData::DragAndDropData()
-        {}
-
-        DragAndDropData::~DragAndDropData()
-        {}
-
-        TextDragAndDropData::TextDragAndDropData()
+        TextDragAndDropData::TextDragAndDropData(const std::string& text) :
+            _text(text)
         {}
 
         TextDragAndDropData::~TextDragAndDropData()
         {}
-
-        std::shared_ptr<TextDragAndDropData> TextDragAndDropData::create(const std::string& text)
-        {
-            auto out = std::shared_ptr<TextDragAndDropData>(new TextDragAndDropData);
-            out->_text = text;
-            return out;
-        }
 
         const std::string& TextDragAndDropData::getText() const
         {
