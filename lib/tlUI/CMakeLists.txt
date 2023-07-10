@@ -40,7 +40,6 @@ set(HEADERS
     PushButton.h
     RecentFilesModel.h
     RowLayout.h
-    Screenshot.h
     ScrollArea.h
     ScrollWidget.h
     Spacer.h
@@ -100,7 +99,6 @@ set(SOURCE
     PushButton.cpp
     RecentFilesModel.cpp
     RowLayout.cpp
-    Screenshot.cpp
     ScrollArea.cpp
     ScrollWidget.cpp
     Spacer.cpp

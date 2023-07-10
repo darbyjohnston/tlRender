@@ -7,7 +7,6 @@
 #include <tlUI/DrawUtil.h>
 #include <tlUI/IPopup.h>
 #include <tlUI/IWidget.h>
-#include <tlUI/Screenshot.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -602,14 +601,6 @@ namespace tl
             const std::shared_ptr<IWidget>& widget)
         {
             TLRENDER_P();
-            /*return ui::screenshot(
-                widget,
-                p.displaySize,
-                p.style,
-                p.iconLibrary,
-                p.render,
-                p.fontSystem,
-                p.displayScale);*/
             return p.capture ? p.capture(widget->getGeometry()) : nullptr;
         }
 

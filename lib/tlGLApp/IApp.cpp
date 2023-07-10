@@ -482,10 +482,15 @@ namespace tl
             auto flipped = imaging::Image::create(info);
             for (size_t y = 0; y < size.h; ++y)
             {
+                uint8_t* p = flipped->getData() + y * size.w * 4;
                 memcpy(
-                    flipped->getData() + y * size.w * 4,
+                    p,
                     out->getData() + (size.h - 1 - y) * size.w * 4,
                     size.w * 4);
+                //for (size_t x = 0; x < size.w; ++x, p += 4)
+                //{
+                //    p[3] /= 2;
+                //}
             }
             return flipped;
         }
