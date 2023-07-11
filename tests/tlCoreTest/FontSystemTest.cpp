@@ -68,7 +68,7 @@ namespace tl
                 TLRENDER_ASSERT(a < b);
             }
             {
-                auto fontSystem = FontSystem::create(_context);
+                auto fontSystem = _context->getSystem<imaging::FontSystem>();
                 FontInfo fi("NotoMono-Regular", 14);
                 auto fm = fontSystem->getMetrics(fi);
                 std::vector<std::string> text =

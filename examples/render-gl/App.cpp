@@ -234,7 +234,6 @@ namespace tl
                 glfwShowWindow(_glfwWindow);
 
                 // Create the renderer.
-                _fontSystem = imaging::FontSystem::create(_context);
                 _render = timeline::GLRender::create(_context);
 
                 // Print the shortcuts help.
@@ -596,14 +595,15 @@ namespace tl
 
                     imaging::FontInfo fontInfo;
                     fontInfo.size = fontSize;
-                    auto fontMetrics = _fontSystem->getMetrics(fontInfo);
+                    auto fontSystem = _context->getSystem<imaging::FontSystem>();
+                    auto fontMetrics = fontSystem->getMetrics(fontInfo);
                     std::string text = timeline::getLabel(compareOptions.mode);
-                    math::Vector2i textSize = _fontSystem->getSize(text, fontInfo);
+                    math::Vector2i textSize = fontSystem->getSize(text, fontInfo);
                     _render->drawRect(
                         math::BBox2i(0, 0, viewportSize.x, fontMetrics.lineHeight),
                         imaging::Color4f(0.F, 0.F, 0.F, .7F));
                     _render->drawText(
-                        _fontSystem->getGlyphs(text, fontInfo),
+                        fontSystem->getGlyphs(text, fontInfo),
                         math::Vector2i(fontSize / 5, fontMetrics.ascender),
                         imaging::Color4f(1.F, 1.F, 1.F));
                 }

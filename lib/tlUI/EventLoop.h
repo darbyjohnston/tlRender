@@ -35,7 +35,6 @@ namespace tl
             void _init(
                 const std::shared_ptr<Style>&,
                 const std::shared_ptr<IconLibrary>&,
-                const std::shared_ptr<imaging::FontSystem>&,
                 const std::shared_ptr<IClipboard>&,
                 const std::shared_ptr<system::Context>&);
 
@@ -48,7 +47,6 @@ namespace tl
             static std::shared_ptr<EventLoop> create(
                 const std::shared_ptr<Style>&,
                 const std::shared_ptr<IconLibrary>&,
-                const std::shared_ptr<imaging::FontSystem>&,
                 const std::shared_ptr<IClipboard>&,
                 const std::shared_ptr<system::Context>&);
 

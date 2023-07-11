@@ -118,7 +118,6 @@ namespace tl
 
         protected:
             std::weak_ptr<system::Context> _context;
-            std::shared_ptr<imaging::FontSystem> _fontSystem;
         };
     }
 }

@@ -42,7 +42,6 @@ namespace tl
         void System::_init(const std::shared_ptr<system::Context>& context)
         {
             ISystem::_init("tl::audio::System", context);
-
             TLRENDER_P();
 
 #if defined(TLRENDER_AUDIO)
@@ -287,15 +286,15 @@ namespace tl
             }
         }
 
-        Info System::getDefaultOutputInfo() const
+        Info System::getDefaultInputInfo() const
         {
             TLRENDER_P();
             Info out;
-            const size_t deviceIndex = getDefaultOutputDevice();
+            const size_t deviceIndex = getDefaultInputDevice();
             if (deviceIndex < p.devices.size())
             {
                 const auto& device = p.devices[deviceIndex];
-                out.channelCount = device.outputChannels;
+                out.channelCount = device.inputChannels;
                 switch (getBestFormat(device.nativeFormats))
                 {
                 case DeviceFormat::S8: out.dataType = DataType::S8; break;
@@ -311,15 +310,15 @@ namespace tl
             return out;
         }
 
-        Info System::getDefaultInputInfo() const
+        Info System::getDefaultOutputInfo() const
         {
             TLRENDER_P();
             Info out;
-            const size_t deviceIndex = getDefaultInputDevice();
+            const size_t deviceIndex = getDefaultOutputDevice();
             if (deviceIndex < p.devices.size())
             {
                 const auto& device = p.devices[deviceIndex];
-                out.channelCount = device.inputChannels;
+                out.channelCount = device.outputChannels;
                 switch (getBestFormat(device.nativeFormats))
                 {
                 case DeviceFormat::S8: out.dataType = DataType::S8; break;

@@ -4,7 +4,6 @@
 
 #include <tlTimeline/IRender.h>
 
-#include <tlCore/FontSystem.h>
 #include <tlCore/Time.h>
 
 namespace tl
@@ -61,7 +60,6 @@ namespace tl
                     const otime::RationalTime&) override;
 
             private:
-                std::shared_ptr<imaging::FontSystem> _fontSystem;
                 imaging::FontInfo _secondsFontInfo;
                 imaging::FontMetrics _secondsFontMetrics;
                 imaging::FontInfo _framesFontInfo;

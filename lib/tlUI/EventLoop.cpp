@@ -50,7 +50,6 @@ namespace tl
         void EventLoop::_init(
             const std::shared_ptr<Style>& style,
             const std::shared_ptr<IconLibrary>& iconLibrary,
-            const std::shared_ptr<imaging::FontSystem>& fontSystem,
             const std::shared_ptr<IClipboard>& clipboard,
             const std::shared_ptr<system::Context>& context)
         {
@@ -58,7 +57,7 @@ namespace tl
             p.context = context;
             p.style = style;
             p.iconLibrary = iconLibrary;
-            p.fontSystem = fontSystem;
+            p.fontSystem = context->getSystem<imaging::FontSystem>();
             p.clipboard = clipboard;
             p.logTimer = std::chrono::steady_clock::now();
 
@@ -81,12 +80,11 @@ namespace tl
         std::shared_ptr<EventLoop> EventLoop::create(
             const std::shared_ptr<Style>& style,
             const std::shared_ptr<IconLibrary>& iconLibrary,
-            const std::shared_ptr<imaging::FontSystem>& fontSystem,
             const std::shared_ptr<IClipboard>& clipboard,
             const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<EventLoop>(new EventLoop);
-            out->_init(style, iconLibrary, fontSystem, clipboard, context);
+            out->_init(style, iconLibrary, clipboard, context);
             return out;
         }
 

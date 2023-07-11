@@ -75,6 +75,7 @@ namespace tl
 
         void FontSystem::_init(const std::shared_ptr<system::Context>& context)
         {
+            ISystem::_init("tl::imaging::FontSystem", context);
             TLRENDER_P();
 
             p.context = context;

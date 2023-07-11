@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlCore/ISystem.h>
 #include <tlCore/Image.h>
 
 namespace tl
@@ -70,18 +71,19 @@ namespace tl
         //! \todo Add text elide functionality.
         //! \todo Add support for gamma correction?
         //! - https://www.freetype.org/freetype2/docs/text-rendering-general.html
-        class FontSystem : public std::enable_shared_from_this<FontSystem>
+        class FontSystem : public system::ISystem
         {
             TLRENDER_NON_COPYABLE(FontSystem);
 
         protected:
             void _init(const std::shared_ptr<system::Context>&);
+
             FontSystem();
 
         public:
-            ~FontSystem();
+            ~FontSystem()override;
 
-            //! Create a new font system.
+            //! Create a new system.
             static std::shared_ptr<FontSystem> create(const std::shared_ptr<system::Context>&);
 
             //! Add a font.

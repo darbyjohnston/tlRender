@@ -7,8 +7,6 @@
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/Player.h>
 
-#include <tlCore/FontSystem.h>
-
 struct GLFWwindow;
 
 namespace tl
@@ -97,7 +95,6 @@ namespace tl
                 timeline::CompareOptions _compareOptions;
                 float _rotation = 0.F;
                 bool _hud = false;
-                std::shared_ptr<imaging::FontSystem> _fontSystem;
                 std::shared_ptr<timeline::IRender> _render;
                 bool _renderDirty = true;
                 std::vector<timeline::VideoData> _videoData;

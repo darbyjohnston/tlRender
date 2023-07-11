@@ -14,7 +14,6 @@
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Util.h>
 
-#include <tlCore/FontSystem.h>
 #include <tlCore/LogSystem.h>
 #include <tlCore/StringFormat.h>
 
@@ -131,7 +130,6 @@ namespace tl
 
             std::shared_ptr<ui::Style> style;
             std::shared_ptr<ui::IconLibrary> iconLibrary;
-            std::shared_ptr<imaging::FontSystem> fontSystem;
             std::shared_ptr<Clipboard> clipboard;
             int modifiers = 0;
             std::shared_ptr<ui::EventLoop> eventLoop;
@@ -242,12 +240,10 @@ namespace tl
             // Initialize the user interface.
             p.style = ui::Style::create(_context);
             p.iconLibrary = ui::IconLibrary::create(_context);
-            p.fontSystem = imaging::FontSystem::create(_context);
             p.clipboard = Clipboard::create(p.glfwWindow, _context);
             p.eventLoop = ui::EventLoop::create(
                 p.style,
                 p.iconLibrary,
-                p.fontSystem,
                 p.clipboard,
                 _context);
             p.eventLoop->setCursor(

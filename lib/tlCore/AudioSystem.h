@@ -46,21 +46,32 @@ namespace tl
 
         protected:
             void _init(const std::shared_ptr<system::Context>&);
+
             System();
 
         public:
             ~System() override;
 
+            //! Create a new system.
             static std::shared_ptr<System> create(const std::shared_ptr<system::Context>&);
 
+            //! Get the list of APIs.
             const std::vector<std::string>& getAPIs() const;
+
+            //! Get the devices.
             const std::vector<Device>& getDevices() const;
 
+            //! Get the default input device.
             size_t getDefaultInputDevice() const;
+
+            //! Get the default output device.
             size_t getDefaultOutputDevice() const;
 
-            Info getDefaultOutputInfo() const;
+            //! Get the default input device information.
             Info getDefaultInputInfo() const;
+
+            //! Get the default output device information.
+            Info getDefaultOutputInfo() const;
 
         private:
             TLRENDER_PRIVATE();

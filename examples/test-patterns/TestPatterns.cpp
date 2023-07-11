@@ -42,17 +42,16 @@ namespace tl
             {
                 ITestPattern::_init(getClassName(), size, context);
 
-                _fontSystem = imaging::FontSystem::create(context);
-
+                auto fontSystem = context->getSystem<imaging::FontSystem>();
                 _secondsFontInfo = imaging::FontInfo(
                     "NotoMono-Regular",
                     _size.h / 2.F);
-                _secondsFontMetrics = _fontSystem->getMetrics(_secondsFontInfo);
+                _secondsFontMetrics = fontSystem->getMetrics(_secondsFontInfo);
 
                 _framesFontInfo = imaging::FontInfo(
                     "NotoMono-Regular",
                     _secondsFontInfo.size / 4.F);
-                _framesFontMetrics = _fontSystem->getMetrics(_framesFontInfo);
+                _framesFontMetrics = fontSystem->getMetrics(_framesFontInfo);
             }
 
             CountTestPattern::~CountTestPattern()
@@ -76,99 +75,103 @@ namespace tl
                 const std::shared_ptr<timeline::IRender>& render,
                 const otime::RationalTime& time)
             {
-                const otime::RationalTime seconds = time.rescaled_to(1.0);
-                const int wholeSeconds = static_cast<int>(seconds.value());
-                const int frames = static_cast<int>(time.value()) % static_cast<int>(time.rate());
-
-                const std::string secondsString = string::Format("{0}").arg(wholeSeconds);
-                const math::Vector2i secondsSize = _fontSystem->getSize(secondsString, _secondsFontInfo);
-                const math::Vector2i secondsPos(
-                    _size.w / 2.F - secondsSize.x / 2.F,
-                    _size.h / 2.F - secondsSize.y / 2.F);
-
-                const std::string framesString = string::Format("{0}").arg(frames);
-                const math::Vector2i framesSize = _fontSystem->getSize(framesString, _framesFontInfo);
-                const math::Vector2i framesPos(
-                    _size.w / 2.F - framesSize.x / 2.F,
-                    secondsPos.y + secondsSize.y);
-
-                render->drawRect(
-                    math::BBox2i(0, 0, _size.w, _size.h),
-                    imaging::Color4f(.1F, .1F, .1F));
-
-                /*render->drawRect(
-                    math::BBox2i(secondsPos.x, secondsPos.y, secondsSize.x, secondsSize.y),
-                    imaging::Color4f(.5F, 0.F, 0.F));
-                render->drawRect(
-                    math::BBox2i(framesPos.x, framesPos.y, framesSize.x, framesSize.y),
-                    imaging::Color4f(0.F, .5F, 0.F));*/
-
-                const size_t resolution = 100;
-                geom::TriangleMesh2 mesh;
-                mesh.v.push_back(math::Vector2f(
-                    _size.w / 2.F,
-                    _size.h / 2.F));
-                for (int i = 0; i < resolution; ++i)
+                if (auto context = _context.lock())
                 {
-                    const float f = i / static_cast<float>(resolution - 1);
-                    const float a = f * math::pi2;
-                    const float r = secondsSize.y / 2.F + framesSize.y + 10.F;
+                    const otime::RationalTime seconds = time.rescaled_to(1.0);
+                    const int wholeSeconds = static_cast<int>(seconds.value());
+                    const int frames = static_cast<int>(time.value()) % static_cast<int>(time.rate());
+
+                    const std::string secondsString = string::Format("{0}").arg(wholeSeconds);
+                    auto fontSystem = context->getSystem<imaging::FontSystem>();
+                    const math::Vector2i secondsSize = fontSystem->getSize(secondsString, _secondsFontInfo);
+                    const math::Vector2i secondsPos(
+                        _size.w / 2.F - secondsSize.x / 2.F,
+                        _size.h / 2.F - secondsSize.y / 2.F);
+
+                    const std::string framesString = string::Format("{0}").arg(frames);
+                    const math::Vector2i framesSize = fontSystem->getSize(framesString, _framesFontInfo);
+                    const math::Vector2i framesPos(
+                        _size.w / 2.F - framesSize.x / 2.F,
+                        secondsPos.y + secondsSize.y);
+
+                    render->drawRect(
+                        math::BBox2i(0, 0, _size.w, _size.h),
+                        imaging::Color4f(.1F, .1F, .1F));
+
+                    /*render->drawRect(
+                        math::BBox2i(secondsPos.x, secondsPos.y, secondsSize.x, secondsSize.y),
+                        imaging::Color4f(.5F, 0.F, 0.F));
+                    render->drawRect(
+                        math::BBox2i(framesPos.x, framesPos.y, framesSize.x, framesSize.y),
+                        imaging::Color4f(0.F, .5F, 0.F));*/
+
+                    const size_t resolution = 100;
+                    geom::TriangleMesh2 mesh;
                     mesh.v.push_back(math::Vector2f(
-                        _size.w / 2.F + std::cos(a) * r,
-                        _size.h / 2.F + std::sin(a) * r));
-                }
-                for (int i = 1; i < resolution; ++i)
-                {
+                        _size.w / 2.F,
+                        _size.h / 2.F));
+                    for (int i = 0; i < resolution; ++i)
+                    {
+                        const float f = i / static_cast<float>(resolution - 1);
+                        const float a = f * math::pi2;
+                        const float r = secondsSize.y / 2.F + framesSize.y + 10.F;
+                        mesh.v.push_back(math::Vector2f(
+                            _size.w / 2.F + std::cos(a) * r,
+                            _size.h / 2.F + std::sin(a) * r));
+                    }
+                    for (int i = 1; i < resolution; ++i)
+                    {
+                        mesh.triangles.push_back(geom::Triangle2({
+                            geom::Vertex2(1),
+                            geom::Vertex2(i + 1),
+                            geom::Vertex2(i - 1 + 1) }));
+                    }
                     mesh.triangles.push_back(geom::Triangle2({
                         geom::Vertex2(1),
-                        geom::Vertex2(i + 1),
-                        geom::Vertex2(i - 1 + 1) }));
-                }
-                mesh.triangles.push_back(geom::Triangle2({
-                    geom::Vertex2(1),
-                    geom::Vertex2(1 + resolution - 1),
-                    geom::Vertex2(1 + 1) }));
-                render->drawMesh(
-                    mesh,
-                    math::Vector2i(),
-                    imaging::Color4f(.2F, .2F, .2F));
+                        geom::Vertex2(1 + resolution - 1),
+                        geom::Vertex2(1 + 1) }));
+                    render->drawMesh(
+                        mesh,
+                        math::Vector2i(),
+                        imaging::Color4f(.2F, .2F, .2F));
 
-                mesh.v.clear();
-                mesh.triangles.clear();
-                mesh.v.push_back(math::Vector2f(
-                    _size.w / 2.F,
-                    _size.h / 2.F));
-                for (int i = 0; i < resolution; ++i)
-                {
-                    const float v = frames / time.rate();
-                    const float f = i / static_cast<float>(resolution - 1);
-                    const float a = v * f * math::pi2 - math::pi / 2.F;
-                    const float r = secondsSize.y / 2.F + framesSize.y + 10.F;
+                    mesh.v.clear();
+                    mesh.triangles.clear();
                     mesh.v.push_back(math::Vector2f(
-                        _size.w / 2.F + std::cos(a) * r,
-                        _size.h / 2.F + std::sin(a) * r));
-                }
-                for (int i = 1; i < resolution; ++i)
-                {
-                    mesh.triangles.push_back(geom::Triangle2({
-                        geom::Vertex2(1),
-                        geom::Vertex2(i + 1),
-                        geom::Vertex2((i - 1) + 1) }));
-                }
-                render->drawMesh(
-                    mesh,
-                    math::Vector2i(),
-                    imaging::Color4f(.3F, .3F, .3F));
+                        _size.w / 2.F,
+                        _size.h / 2.F));
+                    for (int i = 0; i < resolution; ++i)
+                    {
+                        const float v = frames / time.rate();
+                        const float f = i / static_cast<float>(resolution - 1);
+                        const float a = v * f * math::pi2 - math::pi / 2.F;
+                        const float r = secondsSize.y / 2.F + framesSize.y + 10.F;
+                        mesh.v.push_back(math::Vector2f(
+                            _size.w / 2.F + std::cos(a) * r,
+                            _size.h / 2.F + std::sin(a) * r));
+                    }
+                    for (int i = 1; i < resolution; ++i)
+                    {
+                        mesh.triangles.push_back(geom::Triangle2({
+                            geom::Vertex2(1),
+                            geom::Vertex2(i + 1),
+                            geom::Vertex2((i - 1) + 1) }));
+                    }
+                    render->drawMesh(
+                        mesh,
+                        math::Vector2i(),
+                        imaging::Color4f(.3F, .3F, .3F));
 
-                render->drawText(
-                    _fontSystem->getGlyphs(secondsString, _secondsFontInfo),
-                    math::Vector2i(secondsPos.x, secondsPos.y + _secondsFontMetrics.ascender),
-                    imaging::Color4f(1.F, 1.F, 1.F));
+                    render->drawText(
+                        fontSystem->getGlyphs(secondsString, _secondsFontInfo),
+                        math::Vector2i(secondsPos.x, secondsPos.y + _secondsFontMetrics.ascender),
+                        imaging::Color4f(1.F, 1.F, 1.F));
 
-                render->drawText(
-                    _fontSystem->getGlyphs(framesString, _framesFontInfo),
-                    math::Vector2i(framesPos.x, framesPos.y + _framesFontMetrics.ascender),
-                    imaging::Color4f(1.F, 1.F, 1.F));
+                    render->drawText(
+                        fontSystem->getGlyphs(framesString, _framesFontInfo),
+                        math::Vector2i(framesPos.x, framesPos.y + _framesFontMetrics.ascender),
+                        imaging::Color4f(1.F, 1.F, 1.F));
+                }
             }
 
             void SwatchesTestPattern::_init(

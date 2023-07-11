@@ -76,7 +76,6 @@ namespace tl
 
             std::shared_ptr<ui::Style> style;
             std::shared_ptr<ui::IconLibrary> iconLibrary;
-            std::shared_ptr<imaging::FontSystem> fontSystem;
             std::shared_ptr<Clipboard> clipboard;
             std::shared_ptr<timeline::IRender> render;
             std::shared_ptr<ui::EventLoop> eventLoop;
@@ -114,12 +113,10 @@ namespace tl
 
             p.style = style;
             p.iconLibrary = ui::IconLibrary::create(context);
-            p.fontSystem = imaging::FontSystem::create(context);
             p.clipboard = Clipboard::create(context);
             p.eventLoop = ui::EventLoop::create(
                 p.style,
                 p.iconLibrary,
-                p.fontSystem,
                 p.clipboard,
                 context);
             p.timelineWidget = timelineui::TimelineWidget::create(timeUnitsModel, context);
