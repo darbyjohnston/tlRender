@@ -383,7 +383,7 @@ namespace tl
                     event.accept = true;
                     setFrameView(true);
                     break;
-                case ui::Key::E:
+                /*case ui::Key::E:
                 {
                     event.accept = true;
                     if (p.player)
@@ -413,7 +413,7 @@ namespace tl
                         p.player->getTimeline()->setTimeline(otioTimeline);
                     }
                     break;
-                }
+                }*/
                 default: break;
                 }
             }
