@@ -69,6 +69,9 @@ namespace tl
             float thumbnailFade = .5F;
             bool showTransitions = true;
             bool showMarkers = false;
+            std::string regularFont = "NotoSans-Regular";
+            std::string monoFont = "NotoMono-Regular";
+            int fontSize = 12;
 
             bool operator == (const ItemOptions&) const;
             bool operator != (const ItemOptions&) const;

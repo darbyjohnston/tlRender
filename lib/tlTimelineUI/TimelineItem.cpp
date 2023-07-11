@@ -22,13 +22,13 @@ namespace tl
             otime::TimeRange inOutRange = time::invalidTimeRange;
             timeline::PlayerCacheInfo cacheInfo;
             bool stopOnScrub = true;
-            ui::FontRole fontRole = ui::FontRole::Mono;
 
             struct SizeData
             {
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
+                imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i scrollPos;
             };
@@ -179,7 +179,10 @@ namespace tl
             p.size.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
             p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
 
-            p.size.fontMetrics = event.getFontMetrics(p.fontRole);
+            p.size.fontInfo = imaging::FontInfo(
+                _options.monoFont,
+                _options.fontSize * event.displayScale);
+            p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
 
             int childrenHeight = 0;
             for (const auto& child : _children)
@@ -431,9 +434,8 @@ namespace tl
             const int handle = event.style->getSizeRole(ui::SizeRole::Handle, event.displayScale);
             const math::BBox2i& g = _geometry;
 
-            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const std::string labelMax = _data.timeUnitsModel->getLabel(p.timeRange.duration());
-            const math::Vector2i labelMaxSize = event.fontSystem->getSize(labelMax, fontInfo);
+            const math::Vector2i labelMaxSize = event.fontSystem->getSize(labelMax, p.size.fontInfo);
             const int distanceMin = p.size.border + p.size.spacing + labelMaxSize.x;
 
             const int w = _sizeHint.x;
@@ -548,7 +550,7 @@ namespace tl
                             p.timeRange.start_time() +
                             otime::RationalTime(t, 1.0).rescaled_to(p.timeRange.duration().rate()));
                         event.render->drawText(
-                            event.fontSystem->getGlyphs(label, fontInfo),
+                            event.fontSystem->getGlyphs(label, p.size.fontInfo),
                             math::Vector2i(
                                 bbox.min.x,
                                 bbox.min.y +
@@ -653,7 +655,6 @@ namespace tl
         {
             TLRENDER_P();
 
-            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             const math::BBox2i& g = _geometry;
 
             const otime::RationalTime& currentTime = p.player->observeCurrentTime()->get();
@@ -674,7 +675,7 @@ namespace tl
 
                 const std::string label = _data.timeUnitsModel->getLabel(currentTime);
                 event.render->drawText(
-                    event.fontSystem->getGlyphs(label, fontInfo),
+                    event.fontSystem->getGlyphs(label, p.size.fontInfo),
                     math::Vector2i(
                         pos.x + p.size.border * 2 + p.size.spacing,
                         pos.y +

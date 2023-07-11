@@ -15,7 +15,6 @@ namespace tl
             otime::TimeRange timeRange = time::invalidTimeRange;
             std::string label;
             std::string durationLabel;
-            ui::FontRole fontRole = ui::FontRole::Label;
             imaging::Color4f color;
             std::vector<Marker> markers;
 
@@ -24,7 +23,7 @@ namespace tl
                 int margin = 0;
                 int border = 0;
                 imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
-                int lineHeight = 0;
+                imaging::FontMetrics fontMetrics;
                 bool textUpdate = true;
                 math::Vector2i labelSize;
                 math::Vector2i durationSize;
@@ -77,12 +76,13 @@ namespace tl
             p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, event.displayScale);
             p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
 
-            auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+            auto fontInfo = imaging::FontInfo(
+                _options.regularFont,
+                _options.fontSize * event.displayScale);
             if (fontInfo != p.size.fontInfo || p.size.textUpdate)
             {
                 p.size.fontInfo = fontInfo;
-                auto fontMetrics = event.getFontMetrics(p.fontRole);
-                p.size.lineHeight = fontMetrics.lineHeight;
+                p.size.fontMetrics = event.fontSystem->getMetrics(fontInfo);
                 p.size.labelSize = event.fontSystem->getSize(p.label, fontInfo);
                 p.size.durationSize = event.fontSystem->getSize(p.durationLabel, fontInfo);
                 p.size.markerSizes.clear();
@@ -99,11 +99,12 @@ namespace tl
 
             _sizeHint = math::Vector2i(
                 p.timeRange.duration().rescaled_to(1.0).value() * _scale,
-                p.size.lineHeight +
+                p.size.fontMetrics.lineHeight +
                 p.size.border * 2);
             if (_options.showMarkers)
             {
-                _sizeHint.y += p.markers.size() * (p.size.lineHeight + p.size.border * 2);
+                _sizeHint.y += p.markers.size() *
+                    (p.size.fontMetrics.lineHeight + p.size.border * 2);
             }
         }
 
@@ -130,7 +131,6 @@ namespace tl
             TLRENDER_P();
 
             const math::BBox2i g = _geometry.margin(-p.size.border);
-            const auto fontMetrics = event.getFontMetrics(p.fontRole);
 
             event.render->drawRect(g, p.color);
 
@@ -139,7 +139,7 @@ namespace tl
                 p.size.margin,
                 g.min.y,
                 p.size.labelSize.x,
-                p.size.lineHeight);
+                p.size.fontMetrics.lineHeight);
             if (drawRect.intersects(labelGeometry))
             {
                 if (!p.label.empty() && p.draw.labelGlyphs.empty())
@@ -151,7 +151,7 @@ namespace tl
                     math::Vector2i(
                         labelGeometry.min.x,
                         labelGeometry.min.y +
-                        fontMetrics.ascender),
+                        p.size.fontMetrics.ascender),
                     event.style->getColorRole(ui::ColorRole::Text));
             }
 
@@ -161,7 +161,7 @@ namespace tl
                 p.size.durationSize.x,
                 g.min.y,
                 p.size.durationSize.x,
-                p.size.lineHeight);
+                p.size.fontMetrics.lineHeight);
             if (drawRect.intersects(durationGeometry) &&
                 !durationGeometry.intersects(labelGeometry))
             {
@@ -174,7 +174,7 @@ namespace tl
                     math::Vector2i(
                         durationGeometry.min.x,
                         durationGeometry.min.y +
-                        fontMetrics.ascender),
+                        p.size.fontMetrics.ascender),
                     event.style->getColorRole(ui::ColorRole::Text));
             }
 
@@ -184,7 +184,8 @@ namespace tl
                 {
                     p.draw.markerGlyphs.resize(p.markers.size());
                 }
-                float y = g.max.y + 1 - (p.size.lineHeight + p.size.border * 2) * p.markers.size();
+                float y = g.max.y + 1 -
+                    (p.size.fontMetrics.lineHeight + p.size.border * 2) * p.markers.size();
                 for (size_t i = 0; i < p.markers.size(); ++i)
                 {
                     const int x0 =
@@ -207,7 +208,7 @@ namespace tl
                         p.size.margin,
                         y,
                         p.size.markerSizes[i].x,
-                        p.size.lineHeight);
+                        p.size.fontMetrics.lineHeight);
                     if (drawRect.intersects(labelGeometry))
                     {
                         if (!p.markers[i].name.empty() && p.draw.markerGlyphs[i].empty())
@@ -219,11 +220,11 @@ namespace tl
                             math::Vector2i(
                                 labelGeometry.min.x,
                                 labelGeometry.min.y +
-                                fontMetrics.ascender),
+                                p.size.fontMetrics.ascender),
                             event.style->getColorRole(ui::ColorRole::Text));
                     }
 
-                    y += p.size.lineHeight;
+                    y += p.size.fontMetrics.lineHeight;
                 }
             }
         }
@@ -235,7 +236,7 @@ namespace tl
 
         int IBasicItem::_getLineHeight() const
         {
-            return _p->size.lineHeight;
+            return _p->size.fontMetrics.lineHeight;
         }
 
         void IBasicItem::_timeUnitsUpdate()
