@@ -101,6 +101,12 @@ namespace tl
             p.currentAudioData = observer::List<AudioData>::create();
             p.cacheOptions = observer::Value<PlayerCacheOptions>::create(playerOptions.cache);
             p.cacheInfo = observer::Value<PlayerCacheInfo>::create();
+            p.timelineObserver = observer::ValueObserver<bool>::create(
+                p.timeline->observeTimelineChanges(),
+                [this](bool)
+                {
+                    clearCache();
+                });
 
             // Create a new thread.
             p.mutex.currentTime = p.currentTime->get();
@@ -730,6 +736,11 @@ namespace tl
             return _p->currentVideoData;
         }
 
+        float Player::getVolume() const
+        {
+            return _p->volume->get();
+        }
+
         std::shared_ptr<observer::IValue<float> > Player::observeVolume() const
         {
             return _p->volume;
@@ -743,6 +754,11 @@ namespace tl
                 std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                 p.audioMutex.volume = value;
             }
+        }
+
+        bool Player::isMuted() const
+        {
+            return _p->mute->get();
         }
 
         std::shared_ptr<observer::IValue<bool> > Player::observeMute() const
@@ -785,6 +801,11 @@ namespace tl
             return _p->currentAudioData;
         }
 
+        const PlayerCacheOptions& Player::getCacheOptions() const
+        {
+            return _p->cacheOptions->get();
+        }
+
         std::shared_ptr<observer::IValue<PlayerCacheOptions> > Player::observeCacheOptions() const
         {
             return _p->cacheOptions;
@@ -805,9 +826,20 @@ namespace tl
             return _p->cacheInfo;
         }
 
+        void Player::clearCache()
+        {
+            TLRENDER_P();
+            std::unique_lock<std::mutex> lock(p.mutex.mutex);
+            p.mutex.clearRequests = true;
+            p.mutex.clearCache = true;
+        }
+
         void Player::tick()
         {
             TLRENDER_P();
+
+            // Tick the timeline.
+            p.timeline->tick();
 
             // Calculate the current time.
             const auto& timeRange = p.timeline->getTimeRange();

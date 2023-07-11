@@ -17,137 +17,120 @@ namespace tl
     {
         namespace widgets_gl
         {
-            namespace
+            struct ScrollAreasWidget::Private
             {
-                class ScrollAreasWidget : public ui::IWidget
+                math::Vector2i cellCount;
+                int cellSize = 0;
+                int margin = 0;
+                std::vector<math::Vector2i> textSize;
+                std::vector<std::vector<std::shared_ptr<imaging::Glyph> > > glyphs;
+            };
+
+            void ScrollAreasWidget::_init(
+                const math::Vector2i& cellCount,
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
+            {
+                IWidget::_init(
+                    "tl::examples::widgets_gl::ScrollAreasWidget", 
+                    context,
+                    parent);
+                TLRENDER_P();
+                p.cellCount = cellCount;
+                p.textSize.resize(p.cellCount.x * p.cellCount.y);
+                p.glyphs.resize(p.cellCount.x * p.cellCount.y);
+            }
+
+            ScrollAreasWidget::ScrollAreasWidget() :
+                _p(new Private)
+            {}
+
+            ScrollAreasWidget::~ScrollAreasWidget()
+            {}
+
+            std::shared_ptr<ScrollAreasWidget> ScrollAreasWidget::create(
+                const math::Vector2i& cellCount,
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
+            {
+                auto out = std::shared_ptr<ScrollAreasWidget>(new ScrollAreasWidget);
+                out->_init(cellCount, context, parent);
+                return out;
+            }
+
+            void ScrollAreasWidget::sizeHintEvent(const ui::SizeHintEvent& event)
+            {
+                IWidget::sizeHintEvent(event);
+                TLRENDER_P();
+                p.margin = event.style->getSizeRole(ui::SizeRole::MarginLarge, event.displayScale);
+                const std::string format = string::Format("{0}, {1}").
+                    arg(ui::format(p.cellCount.x)).
+                    arg(ui::format(p.cellCount.y));
+                const auto fontInfo = event.style->getFontRole(ui::FontRole::Label, event.displayScale);
+                const math::Vector2i textSize = event.fontSystem->getSize(format, fontInfo);
+                p.cellSize = textSize.x + p.margin * 2;
+                _sizeHint.x = p.cellCount.x * p.cellSize;
+                _sizeHint.y = p.cellCount.y * p.cellSize;
+            }
+
+            void ScrollAreasWidget::clipEvent(
+                const math::BBox2i& clipRect,
+                bool clipped,
+                const ui::ClipEvent& event)
+            {
+                IWidget::clipEvent(clipRect, clipped, event);
+                TLRENDER_P();
+                if (clipped)
                 {
-                protected:
-                    void _init(
-                        const math::Vector2i& cellCount,
-                        const std::shared_ptr<system::Context>&);
-
-                    ScrollAreasWidget();
-
-                public:
-                    ~ScrollAreasWidget();
-
-                    static std::shared_ptr<ScrollAreasWidget> create(
-                        const math::Vector2i& cellCount,
-                        const std::shared_ptr<system::Context>&);
-
-                    void sizeHintEvent(const ui::SizeHintEvent&) override;
-                    void clipEvent(
-                        const math::BBox2i&,
-                        bool,
-                        const ui::ClipEvent&) override;
-                    void drawEvent(
-                        const math::BBox2i&,
-                        const ui::DrawEvent&) override;
-
-                private:
-                    math::Vector2i _cellCount;
-                    int _cellSize = 0;
-                    int _margin = 0;
-                    std::vector<math::Vector2i> _textSize;
-                    std::vector<std::vector<std::shared_ptr<imaging::Glyph> > > _glyphs;
-                };
-
-                void ScrollAreasWidget::_init(
-                    const math::Vector2i& cellCount,
-                    const std::shared_ptr<system::Context>& context)
-                {
-                    IWidget::_init("ScrollAreasWidget", context);
-                    _cellCount = cellCount;
-                    _textSize.resize(_cellCount.x * _cellCount.y);
-                    _glyphs.resize(_cellCount.x * _cellCount.y);
-                }
-
-                ScrollAreasWidget::ScrollAreasWidget()
-                {}
-
-                ScrollAreasWidget::~ScrollAreasWidget()
-                {}
-
-                std::shared_ptr<ScrollAreasWidget> ScrollAreasWidget::create(
-                    const math::Vector2i& cellCount,
-                    const std::shared_ptr<system::Context>& context)
-                {
-                    auto out = std::shared_ptr<ScrollAreasWidget>(new ScrollAreasWidget);
-                    out->_init(cellCount, context);
-                    return out;
-                }
-
-                void ScrollAreasWidget::sizeHintEvent(const ui::SizeHintEvent& event)
-                {
-                    IWidget::sizeHintEvent(event);
-                    _margin = event.style->getSizeRole(ui::SizeRole::MarginLarge, event.displayScale);
-                    const std::string format = string::Format("{0}, {1}").
-                        arg(ui::format(_cellCount.x)).
-                        arg(ui::format(_cellCount.y));
-                    const auto fontInfo = event.style->getFontRole(ui::FontRole::Label, event.displayScale);
-                    const math::Vector2i textSize = event.fontSystem->getSize(format, fontInfo);
-                    _cellSize = textSize.x + _margin * 2;
-                    _sizeHint.x = _cellCount.x * _cellSize;
-                    _sizeHint.y = _cellCount.y * _cellSize;
-                }
-
-                void ScrollAreasWidget::clipEvent(
-                    const math::BBox2i& clipRect,
-                    bool clipped,
-                    const ui::ClipEvent& event)
-                {
-                    IWidget::clipEvent(clipRect, clipped, event);
-                    if (clipped)
+                    for (auto& i : p.glyphs)
                     {
-                        for (auto& i : _glyphs)
-                        {
-                            i.clear();
-                        }
+                        i.clear();
                     }
                 }
+            }
 
-                void ScrollAreasWidget::drawEvent(
-                    const math::BBox2i& drawRect,
-                    const ui::DrawEvent& event)
+            void ScrollAreasWidget::drawEvent(
+                const math::BBox2i& drawRect,
+                const ui::DrawEvent& event)
+            {
+                IWidget::drawEvent(drawRect, event);
+                TLRENDER_P();
+
+                const math::BBox2i& g = _geometry;
+
+                const auto fontInfo = event.style->getFontRole(ui::FontRole::Label, event.displayScale);
+                const auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
+                for (int y = 0; y < p.cellCount.y; ++y)
                 {
-                    IWidget::drawEvent(drawRect, event);
-
-                    const math::BBox2i& g = _geometry;
-
-                    const auto fontInfo = event.style->getFontRole(ui::FontRole::Label, event.displayScale);
-                    const auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
-                    for (int y = 0; y < _cellCount.y; ++y)
+                    for (int x = 0; x < p.cellCount.x; ++x)
                     {
-                        for (int x = 0; x < _cellCount.x; ++x)
+                        const bool even = ((x + y) % 2 == 0);
+
+                        const math::BBox2i g2(
+                            g.x() + x * p.cellSize,
+                            g.y() + y * p.cellSize,
+                            p.cellSize,
+                            p.cellSize);
+                        event.render->drawRect(
+                            g2,
+                            event.style->getColorRole(
+                                even ?
+                                ui::ColorRole::Window :
+                                ui::ColorRole::Button));
+
+                        const size_t i = y * p.cellCount.x + x;
+                        if (p.glyphs[i].empty())
                         {
-                            const bool even = ((x + y) % 2 == 0);
-
-                            const math::BBox2i g2(
-                                g.x() + x * _cellSize,
-                                g.y() + y * _cellSize,
-                                _cellSize,
-                                _cellSize);
-                            event.render->drawRect(
-                                g2,
-                                event.style->getColorRole(
-                                    even ?
-                                    ui::ColorRole::Window :
-                                    ui::ColorRole::Button));
-
-                            const size_t i = y * _cellCount.x + x;
-                            if (_glyphs[i].empty())
-                            {
-                                const std::string text = string::Format("{0}, {1}").
-                                    arg(y).
-                                    arg(x);
-                                _textSize[i] = event.fontSystem->getSize(text, fontInfo);
-                                _glyphs[i] = event.fontSystem->getGlyphs(text, fontInfo);
-                            }
-                            event.render->drawText(
-                                _glyphs[i],
-                                g2.getCenter() - _textSize[i] / 2 + math::Vector2i(0, fontMetrics.ascender),
-                                event.style->getColorRole(ui::ColorRole::Text));
+                            const std::string text = string::Format("{0}, {1}").
+                                arg(y).
+                                arg(x);
+                            p.textSize[i] = event.fontSystem->getSize(text, fontInfo);
+                            p.glyphs[i] = event.fontSystem->getGlyphs(text, fontInfo);
                         }
+                        event.render->drawText(
+                            p.glyphs[i],
+                            g2.getCenter() - p.textSize[i] / 2 + math::Vector2i(0, fontMetrics.ascender),
+                            event.style->getColorRole(ui::ColorRole::Text));
                     }
                 }
             }
@@ -158,9 +141,14 @@ namespace tl
             };
 
             void ScrollAreas::_init(
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
             {
-                IWidget::_init("ScrollAreas", context);
+                IExampleWidget::_init(
+                    "Scroll Areas",
+                    "tl::examples::widgets_gl::ScrollAreas",
+                    context,
+                    parent);
                 TLRENDER_P();
 
                 auto widget0 = ScrollAreasWidget::create(math::Vector2i(10, 1), context);
@@ -177,6 +165,7 @@ namespace tl
                 scrollWidget2->setHStretch(ui::Stretch::Expanding);
 
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
+                p.layout->setMarginRole(ui::SizeRole::Margin);
                 scrollWidget0->setParent(p.layout);
                 auto hLayout = ui::HorizontalLayout::create(context, p.layout);
                 hLayout->setVStretch(ui::Stretch::Expanding);
@@ -192,17 +181,24 @@ namespace tl
             {}
 
             std::shared_ptr<ScrollAreas> ScrollAreas::create(
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<ScrollAreas>(new ScrollAreas);
-                out->_init(context);
+                out->_init(context, parent);
                 return out;
             }
 
             void ScrollAreas::setGeometry(const math::BBox2i& value)
             {
-                IWidget::setGeometry(value);
+                IExampleWidget::setGeometry(value);
                 _p->layout->setGeometry(value);
+            }
+
+            void ScrollAreas::sizeHintEvent(const ui::SizeHintEvent& event)
+            {
+                IExampleWidget::sizeHintEvent(event);
+                _sizeHint = _p->layout->getSizeHint();
             }
         }
     }

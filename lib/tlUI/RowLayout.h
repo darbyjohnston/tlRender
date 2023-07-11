@@ -42,6 +42,7 @@ namespace tl
             void setSpacingRole(SizeRole);
 
             void setGeometry(const math::BBox2i&) override;
+            math::BBox2i getChildrenClipRect() const override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void childAddedEvent(const ChildEvent&) override;
             void childRemovedEvent(const ChildEvent&) override;

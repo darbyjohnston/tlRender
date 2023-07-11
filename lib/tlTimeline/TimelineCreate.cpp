@@ -528,8 +528,8 @@ namespace tl
             }
 
             otio::AnyDictionary dict;
-            dict["path"] = path;
-            dict["audioPath"] = audioPath;
+            dict["path"] = path.get();
+            dict["audioPath"] = audioPath.get();
             out->metadata()["tl::timeline"] = dict;
 
             return out;
@@ -684,8 +684,8 @@ namespace tl
             }
 
             otio::AnyDictionary dict;
-            dict["path"] = path;
-            dict["audioPath"] = audioPath;
+            dict["path"] = path.get();
+            dict["audioPath"] = audioPath.get();
             out->metadata()["tl::timeline"] = dict;
 
             return out;

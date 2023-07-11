@@ -28,9 +28,14 @@ namespace tl
             };
 
             void NumericWidgets::_init(
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
             {
-                IWidget::_init("NumericWidgets", context);
+                IExampleWidget::_init(
+                    "Numeric Widgets",
+                    "tl::examples::widgets_gl::NumericWidgets",
+                    context,
+                    parent);
                 TLRENDER_P();
 
                 const std::vector<math::IntRange> intRanges =
@@ -95,6 +100,7 @@ namespace tl
                 }
                 
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
+                p.layout->setMarginRole(ui::SizeRole::Margin);
                 auto groupBox = ui::GroupBox::create(context, p.layout);
                 groupBox->setText("Integer Values");
                 auto gridLayout = ui::GridLayout::create(context, groupBox);
@@ -127,17 +133,24 @@ namespace tl
             {}
 
             std::shared_ptr<NumericWidgets> NumericWidgets::create(
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<NumericWidgets>(new NumericWidgets);
-                out->_init(context);
+                out->_init(context, parent);
                 return out;
             }
 
             void NumericWidgets::setGeometry(const math::BBox2i& value)
             {
-                IWidget::setGeometry(value);
+                IExampleWidget::setGeometry(value);
                 _p->layout->setGeometry(value);
+            }
+
+            void NumericWidgets::sizeHintEvent(const ui::SizeHintEvent& event)
+            {
+                IExampleWidget::sizeHintEvent(event);
+                _sizeHint = _p->layout->getSizeHint();
             }
         }
     }

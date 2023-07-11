@@ -126,6 +126,8 @@ namespace tl
 
             void _resetMouse();
 
+            void _timelineUpdate();
+
             TLRENDER_PRIVATE();
         };
     }

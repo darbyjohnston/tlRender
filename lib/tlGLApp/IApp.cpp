@@ -305,9 +305,9 @@ namespace tl
 
                 _tick();
 
-                p.eventLoop->tick();
                 p.eventLoop->setDisplaySize(p.frameBufferSize);
                 p.eventLoop->setDisplayScale(p.contentScale.x);
+                p.eventLoop->tick();
 
                 gl::OffscreenBufferOptions offscreenBufferOptions;
                 offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;

@@ -26,9 +26,13 @@ namespace tl
 
         void ToolsToolBar::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::examples::play_gl::ToolsToolBar", context);
+            IWidget::_init(
+                "tl::play_gl::ToolsToolBar",
+                context,
+                parent);
             TLRENDER_P();
 
             p.app = app;
@@ -102,10 +106,11 @@ namespace tl
 
         std::shared_ptr<ToolsToolBar> ToolsToolBar::create(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ToolsToolBar>(new ToolsToolBar);
-            out->_init(app, context);
+            out->_init(app, context, parent);
             return out;
         }
 

@@ -9,7 +9,7 @@ namespace tl
     namespace timelineui
     {
         void AudioGapItem::_init(
-            const otio::Gap* gap,
+            const otio::SerializableObject::Retainer<otio::Gap>& gap,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -33,7 +33,7 @@ namespace tl
         {}
 
         std::shared_ptr<AudioGapItem> AudioGapItem::create(
-            const otio::Gap* gap,
+            const otio::SerializableObject::Retainer<otio::Gap>& gap,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)

@@ -20,9 +20,14 @@ namespace tl
             };
 
             void Charts::_init(
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
             {
-                IWidget::_init("Charts", context);
+                IExampleWidget::_init(
+                    "Charts",
+                    "tl::examples::widgets_gl::Charts",
+                    context,
+                    parent);
                 TLRENDER_P();
 
                 auto pieChart0 = ui::PieChart::create(context);
@@ -45,6 +50,7 @@ namespace tl
                 pieChart1->setSizeMult(10);
 
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
+                p.layout->setMarginRole(ui::SizeRole::Margin);
                 auto groupBox = ui::GroupBox::create(context, p.layout);
                 groupBox->setText("Pie Charts");
                 auto hLayout = ui::HorizontalLayout::create(context, groupBox);
@@ -60,17 +66,24 @@ namespace tl
             {}
 
             std::shared_ptr<Charts> Charts::create(
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<Charts>(new Charts);
-                out->_init(context);
+                out->_init(context, parent);
                 return out;
             }
 
             void Charts::setGeometry(const math::BBox2i& value)
             {
-                IWidget::setGeometry(value);
+                IExampleWidget::setGeometry(value);
                 _p->layout->setGeometry(value);
+            }
+
+            void Charts::sizeHintEvent(const ui::SizeHintEvent& event)
+            {
+                IExampleWidget::sizeHintEvent(event);
+                _sizeHint = _p->layout->getSizeHint();
             }
         }
     }

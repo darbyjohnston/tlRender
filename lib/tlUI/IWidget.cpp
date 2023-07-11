@@ -17,12 +17,16 @@ namespace tl
         {
             _context = context;
             _name = name;
+            _parent = parent;
             if (parent)
             {
                 parent->_children.push_back(
                     std::static_pointer_cast<IWidget>(shared_from_this()));
+
+                ChildEvent event;
+                event.child = shared_from_this();
+                parent->childAddedEvent(event);
             }
-            _parent = parent;
         }
 
         IWidget::IWidget()

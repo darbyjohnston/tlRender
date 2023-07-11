@@ -29,9 +29,14 @@ namespace tl
             };
 
             void BasicWidgets::_init(
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
             {
-                IWidget::_init("BasicWidgets", context);
+                IExampleWidget::_init(
+                    "Basic Widgets",
+                    "tl::examples::widgets_gl::BasicWidgets",
+                    context,
+                    parent);
                 TLRENDER_P();
 
                 auto pushButton0 = ui::PushButton::create(context);
@@ -149,6 +154,7 @@ namespace tl
                     });
 
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
+                p.layout->setMarginRole(ui::SizeRole::Margin);
                 auto groupBox = ui::GroupBox::create(context, p.layout);
                 groupBox->setText("Push Buttons");
                 auto hLayout = ui::HorizontalLayout::create(context, groupBox);
@@ -194,17 +200,24 @@ namespace tl
             {}
 
             std::shared_ptr<BasicWidgets> BasicWidgets::create(
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<BasicWidgets>(new BasicWidgets);
-                out->_init(context);
+                out->_init(context, parent);
                 return out;
             }
 
             void BasicWidgets::setGeometry(const math::BBox2i& value)
             {
-                IWidget::setGeometry(value);
+                IExampleWidget::setGeometry(value);
                 _p->layout->setGeometry(value);
+            }
+
+            void BasicWidgets::sizeHintEvent(const ui::SizeHintEvent& event)
+            {
+                IExampleWidget::sizeHintEvent(event);
+                _sizeHint = _p->layout->getSizeHint();
             }
         }
     }

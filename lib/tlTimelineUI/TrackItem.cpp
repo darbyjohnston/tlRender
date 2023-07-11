@@ -47,7 +47,7 @@ namespace tl
         };
 
         void TrackItem::_init(
-            const otio::Track* track,
+            const otio::SerializableObject::Retainer<otio::Track>& track,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -78,7 +78,7 @@ namespace tl
 
             for (const auto& child : track->children())
             {
-                if (auto clip = dynamic_cast<otio::Clip*>(child.value))
+                if (auto clip = otio::dynamic_retainer_cast<otio::Clip>(child))
                 {
                     std::shared_ptr<IItem> item;
                     switch (p.trackType)
@@ -106,7 +106,7 @@ namespace tl
                     }
                     p.clipsAndGaps.push_back(item);
                 }
-                else if (auto gap = dynamic_cast<otio::Gap*>(child.value))
+                else if (auto gap = otio::dynamic_retainer_cast<otio::Gap>(child))
                 {
                     std::shared_ptr<IItem> item;
                     switch (p.trackType)
@@ -134,7 +134,7 @@ namespace tl
                     }
                     p.clipsAndGaps.push_back(item);
                 }
-                else if (auto transition = dynamic_cast<otio::Transition*>(child.value))
+                else if (auto transition = otio::dynamic_retainer_cast<otio::Transition>(child))
                 {
                     auto item = TransitionItem::create(
                         transition,
@@ -160,7 +160,7 @@ namespace tl
         {}
 
         std::shared_ptr<TrackItem> TrackItem::create(
-            const otio::Track* track,
+            const otio::SerializableObject::Retainer<otio::Track>& track,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)

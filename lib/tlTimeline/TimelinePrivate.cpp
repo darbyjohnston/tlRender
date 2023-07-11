@@ -136,11 +136,19 @@ namespace tl
                     options.requestTimeout,
                     [this]
                     {
-                        return !mutex.videoRequests.empty() ||
+                        return
+                            mutex.otioTimeline.value ||
+                            !mutex.videoRequests.empty() ||
                             !thread.videoRequestsInProgress.empty() ||
                             !mutex.audioRequests.empty() ||
                             !thread.audioRequestsInProgress.empty();
                     });
+                if (mutex.otioTimeline.value)
+                {
+                    thread.otioTimeline = mutex.otioTimeline;
+                    mutex.otioTimeline = nullptr;
+                    mutex.otioTimelineChanged = true;
+                }
                 while (!mutex.videoRequests.empty() &&
                     (thread.videoRequestsInProgress.size() + newVideoRequests.size()) < options.videoRequestCount)
                 {
@@ -160,7 +168,7 @@ namespace tl
             {
                 try
                 {
-                    for (const auto& otioTrack : otioTimeline->video_tracks())
+                    for (const auto& otioTrack : thread.otioTimeline->video_tracks())
                     {
                         for (const auto& otioChild : otioTrack->children())
                         {
@@ -229,7 +237,7 @@ namespace tl
             {
                 try
                 {
-                    for (const auto& otioTrack : otioTimeline->audio_tracks())
+                    for (const auto& otioTrack : thread.otioTimeline->audio_tracks())
                     {
                         for (const auto& otioChild : otioTrack->children())
                         {

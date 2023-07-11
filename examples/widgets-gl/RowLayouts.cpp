@@ -21,9 +21,14 @@ namespace tl
             };
 
             void RowLayouts::_init(
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
             {
-                IWidget::_init("RowLayouts", context);
+                IExampleWidget::_init(
+                    "Row Layouts",
+                    "tl::examples::widgets_gl::RowLayouts",
+                    context,
+                    parent);
                 TLRENDER_P();
 
                 std::vector<std::shared_ptr<ui::Label> > labels;
@@ -40,6 +45,7 @@ namespace tl
                 labels[5]->setHStretch(ui::Stretch::Expanding);
 
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
+                p.layout->setMarginRole(ui::SizeRole::Margin);
                 auto hLayout = ui::HorizontalLayout::create(context, p.layout);
                 labels[0]->setParent(hLayout);
                 labels[1]->setParent(hLayout);
@@ -60,17 +66,24 @@ namespace tl
             {}
 
             std::shared_ptr<RowLayouts> RowLayouts::create(
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<RowLayouts>(new RowLayouts);
-                out->_init(context);
+                out->_init(context, parent);
                 return out;
             }
 
             void RowLayouts::setGeometry(const math::BBox2i& value)
             {
-                IWidget::setGeometry(value);
+                IExampleWidget::setGeometry(value);
                 _p->layout->setGeometry(value);
+            }
+
+            void RowLayouts::sizeHintEvent(const ui::SizeHintEvent& event)
+            {
+                IExampleWidget::sizeHintEvent(event);
+                _sizeHint = _p->layout->getSizeHint();
             }
         }
     }

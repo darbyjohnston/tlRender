@@ -48,11 +48,22 @@ namespace tl
         {}
 
         std::shared_ptr<ListButton> ListButton::create(
+            const std::shared_ptr<system::Context>&context,
+            const std::shared_ptr<IWidget>&parent)
+        {
+            auto out = std::shared_ptr<ListButton>(new ListButton);
+            out->_init(context, parent);
+            return out;
+        }
+
+        std::shared_ptr<ListButton> ListButton::create(
+            const std::string& text,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ListButton>(new ListButton);
             out->_init(context, parent);
+            out->setText(text);
             return out;
         }
 

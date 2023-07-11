@@ -9,6 +9,7 @@
 #include <tlTimeline/Video.h>
 
 #include <tlCore/Context.h>
+#include <tlCore/ValueObserver.h>
 
 #include <opentimelineio/timeline.h>
 
@@ -119,6 +120,12 @@ namespace tl
             //! Get the timeline.
             const otio::SerializableObject::Retainer<otio::Timeline>& getTimeline() const;
 
+            //! Observe timeline changes.
+            std::shared_ptr<observer::IValue<bool> > observeTimelineChanges() const;
+
+            //! Set the timeline.
+            void setTimeline(const otio::SerializableObject::Retainer<otio::Timeline>&);
+
             //! Get the file path.
             const file::Path& getPath() const;
 
@@ -153,6 +160,9 @@ namespace tl
             void cancelRequests();
 
             ///@}
+
+            //! Tick the timeline.
+            void tick();
 
         private:
             TLRENDER_PRIVATE();

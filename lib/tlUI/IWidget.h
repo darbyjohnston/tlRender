@@ -24,7 +24,7 @@ namespace tl
             void _init(
                 const std::string& name,
                 const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<IWidget>& parent);
 
             IWidget();
 

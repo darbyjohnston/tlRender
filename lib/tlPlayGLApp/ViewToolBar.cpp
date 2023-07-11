@@ -31,9 +31,13 @@ namespace tl
         void ViewToolBar::_init(
             const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::examples::play_gl::ViewToolBar", context);
+            IWidget::_init(
+                "tl::play_gl::ViewToolBar",
+                context,
+                parent);
             TLRENDER_P();
 
             p.app = app;
@@ -94,10 +98,11 @@ namespace tl
         std::shared_ptr<ViewToolBar> ViewToolBar::create(
             const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ViewToolBar>(new ViewToolBar);
-            out->_init(mainWindow, app, context);
+            out->_init(mainWindow, app, context, parent);
             return out;
         }
 

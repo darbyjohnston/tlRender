@@ -64,7 +64,7 @@ namespace tl
             const auto otioTimeline = p.player->getTimeline()->getTimeline();
             for (const auto& child : otioTimeline->tracks()->children())
             {
-                if (const auto* track = dynamic_cast<otio::Track*>(child.value))
+                if (auto track = otio::dynamic_retainer_cast<otio::Track>(child))
                 {
                     auto trackItem = TrackItem::create(
                         track,

@@ -17,7 +17,7 @@ namespace tl
         {
         protected:
             void _init(
-                const otio::Clip*,
+                const otio::SerializableObject::Retainer<otio::Clip>&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
@@ -29,7 +29,7 @@ namespace tl
 
             //! Create a new item.
             static std::shared_ptr<VideoClipItem> create(
-                const otio::Clip*,
+                const otio::SerializableObject::Retainer<otio::Clip>&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

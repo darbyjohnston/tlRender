@@ -54,12 +54,22 @@ namespace tl
 
         void RowLayout::setMarginRole(SizeRole value)
         {
-            _p->marginRole = value;
+            TLRENDER_P();
+            if (value == p.marginRole)
+                return;
+            p.marginRole = value;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
         }
 
         void RowLayout::setSpacingRole(SizeRole value)
         {
-            _p->spacingRole = value;
+            TLRENDER_P();
+            if (value == p.spacingRole)
+                return;
+            p.spacingRole = value;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
         }
 
         void RowLayout::setGeometry(const math::BBox2i& value)
@@ -130,6 +140,11 @@ namespace tl
                     break;
                 }
             }
+        }
+
+        math::BBox2i RowLayout::getChildrenClipRect() const
+        {
+            return _geometry.margin(-_p->size.margin);
         }
 
         void RowLayout::sizeHintEvent(const SizeHintEvent& event)

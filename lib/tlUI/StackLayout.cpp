@@ -11,6 +11,13 @@ namespace tl
         struct StackLayout::Private
         {
             int currentIndex = 0;
+            SizeRole marginRole = SizeRole::None;
+
+            struct SizeData
+            {
+                int margin = 0;
+            };
+            SizeData size;
         };
 
         void StackLayout::_init(
@@ -63,13 +70,30 @@ namespace tl
             }
         }
 
+        void StackLayout::setMarginRole(SizeRole value)
+        {
+            TLRENDER_P();
+            if (value == p.marginRole)
+                return;
+            p.marginRole = value;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
+        }
+
         void StackLayout::setGeometry(const math::BBox2i& value)
         {
             IWidget::setGeometry(value);
+            TLRENDER_P();
+            const math::BBox2i g = _geometry.margin(-p.size.margin);
             for (const auto& child : _children)
             {
-                child->setGeometry(value);
+                child->setGeometry(g);
             }
+        }
+
+        math::BBox2i StackLayout::getChildrenClipRect() const
+        {
+            return _geometry.margin(-_p->size.margin);
         }
 
         void StackLayout::childAddedEvent(const ChildEvent& event)
@@ -85,12 +109,19 @@ namespace tl
         void StackLayout::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
+            TLRENDER_P();
+
+            p.size.margin = event.style->getSizeRole(p.marginRole, event.displayScale);
+
+            _sizeHint = math::Vector2i();
             for (const auto& child : _children)
             {
                 const math::Vector2i& sizeHint = child->getSizeHint();
                 _sizeHint.x = std::max(_sizeHint.x, sizeHint.x);
                 _sizeHint.y = std::max(_sizeHint.y, sizeHint.y);
             }
+            _sizeHint.x += p.size.margin * 2;
+            _sizeHint.y += p.size.margin * 2;
         }
 
         std::shared_ptr<IWidget> StackLayout::_getCurrentWidget() const

@@ -9,8 +9,6 @@
 #include <tlUI/GridLayout.h>
 #include <tlUI/Label.h>
 
-#include <tlCore/Random.h>
-
 #include <sstream>
 
 namespace tl
@@ -45,13 +43,17 @@ namespace tl
             };
 
             void DragAndDropWidget::_init(
+                int number,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                IWidget::_init("tl::examples::widgets_gl::DragAndDropWidget", context, parent);
+                IWidget::_init(
+                    "tl::examples::widgets_gl::DragAndDropWidget",
+                    context,
+                    parent);
                 TLRENDER_P();
 
-                p.number = math::Random().get(100);
+                p.number = number;
 
                 p.label = ui::Label::create(context, shared_from_this());
                 p.label->setHAlign(ui::HAlign::Center);
@@ -69,11 +71,12 @@ namespace tl
             {}
 
             std::shared_ptr<DragAndDropWidget> DragAndDropWidget::create(
+                int number,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<DragAndDropWidget>(new DragAndDropWidget);
-                out->_init(context, parent);
+                out->_init(number, context, parent);
                 return out;
             }
 
@@ -217,19 +220,27 @@ namespace tl
             };
 
             void DragAndDrop::_init(
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
             {
-                IWidget::_init("DragAndDrop", context);
+                IExampleWidget::_init(
+                    "Drag and Drop",
+                    "tl::examples::widgets_gl::DragAndDrop",
+                    context);
                 TLRENDER_P();
 
                 p.layout = ui::GridLayout::create(context, shared_from_this());
+                p.layout->setMarginRole(ui::SizeRole::Margin);
                 p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
 
                 for (size_t i = 0; i < 10; ++i)
                 {
                     for (size_t j = 0; j < 10; ++j)
                     {
-                        auto widget = DragAndDropWidget::create(context, p.layout);
+                        auto widget = DragAndDropWidget::create(
+                            i * 10 + j,
+                            context,
+                            p.layout);
                         p.layout->setGridPos(widget, i, j);
                     }
                 }
@@ -243,17 +254,24 @@ namespace tl
             {}
 
             std::shared_ptr<DragAndDrop> DragAndDrop::create(
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<DragAndDrop>(new DragAndDrop);
-                out->_init(context);
+                out->_init(context, parent);
                 return out;
             }
 
             void DragAndDrop::setGeometry(const math::BBox2i& value)
             {
-                IWidget::setGeometry(value);
+                IExampleWidget::setGeometry(value);
                 _p->layout->setGeometry(value);
+            }
+
+            void DragAndDrop::sizeHintEvent(const ui::SizeHintEvent& event)
+            {
+                IExampleWidget::sizeHintEvent(event);
+                _sizeHint = _p->layout->getSizeHint();
             }
         }
     }

@@ -21,8 +21,8 @@ namespace tl
     {
         struct VideoClipItem::Private
         {
-            const otio::Clip* clip = nullptr;
-            const otio::Track* track = nullptr;
+            otio::SerializableObject::Retainer<otio::Clip> clip;
+            otio::SerializableObject::Retainer<otio::Track> track;
             file::Path path;
             std::vector<file::MemoryRead> memoryRead;
             otime::TimeRange timeRange = time::invalidTimeRange;
@@ -50,7 +50,7 @@ namespace tl
         };
 
         void VideoClipItem::_init(
-            const otio::Clip* clip,
+            const otio::SerializableObject::Retainer<otio::Clip>& clip,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -75,7 +75,7 @@ namespace tl
             p.track = dynamic_cast<otio::Track*>(clip->parent());
 
             p.path = path;
-            p.memoryRead = timeline::getMemoryRead(p.clip->media_reference());
+            p.memoryRead = timeline::getMemoryRead(clip->media_reference());
 
             if (rangeOpt.has_value())
             {
@@ -108,7 +108,7 @@ namespace tl
         {}
 
         std::shared_ptr<VideoClipItem> VideoClipItem::create(
-            const otio::Clip* clip,
+            const otio::SerializableObject::Retainer<otio::Clip>& clip,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -174,9 +174,11 @@ namespace tl
                     p.videoData[i->first] = videoData;
                     i = p.videoDataFutures.erase(i);
                     _updates |= ui::Update::Draw;
-                    continue;
                 }
-                ++i;
+                else
+                {
+                    ++i;
+                }
             }
 
             // Check if any thumbnails need to be redrawn.
@@ -184,7 +186,7 @@ namespace tl
             for (const auto& thumbnail : p.thumbnails)
             {
                 const std::chrono::duration<float> diff = now - thumbnail.second.time;
-                if (diff.count() < _options.thumbnailFade)
+                if (diff.count() <= _options.thumbnailFade)
                 {
                     _updates |= ui::Update::Draw;
                 }
@@ -292,6 +294,7 @@ namespace tl
 
             if (p.size.thumbnailWidth > 0)
             {
+                if (!p.videoData.empty())
                 {
                     const timeline::ViewportState viewportState(event.render);
                     const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
@@ -365,7 +368,11 @@ namespace tl
                         {
                             const unsigned int id = i->second.buffer->getColorID();
                             const std::chrono::duration<float> diff = now - i->second.time;
-                            const float a = std::min(diff.count() / _options.thumbnailFade, 1.F);
+                            float a = 1.F;
+                            if (_options.thumbnailFade > 0.F)
+                            {
+                                a = std::min(diff.count() / _options.thumbnailFade, 1.F);
+                            }
                             event.render->drawTexture(
                                 id,
                                 bbox,

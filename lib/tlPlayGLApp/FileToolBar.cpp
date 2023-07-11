@@ -25,9 +25,13 @@ namespace tl
 
         void FileToolBar::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::examples::play_gl::FileToolBar", context);
+            IWidget::_init(
+                "tl::play_gl::FileToolBar",
+                context,
+                parent);
             TLRENDER_P();
 
             p.app = app;
@@ -99,10 +103,11 @@ namespace tl
 
         std::shared_ptr<FileToolBar> FileToolBar::create(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FileToolBar>(new FileToolBar);
-            out->_init(app, context);
+            out->_init(app, context, parent);
             return out;
         }
 

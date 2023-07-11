@@ -323,7 +323,7 @@ namespace tl
             const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
             const timeline::ClipRectState clipRectState(event.render);
             event.render->setClipRectEnabled(true);
-            event.render->setClipRect(g.margin(-p.size.border * 2));
+            event.render->setClipRect(g.margin(-p.size.border * 2).intersect(drawRect));
 
             const math::BBox2i g2 = g.margin(-(p.size.border * 2 + p.size.margin));
             if (p.selection.isValid())

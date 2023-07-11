@@ -8,7 +8,6 @@
 #include <tlTimeline/Timeline.h>
 
 #include <tlCore/ListObserver.h>
-#include <tlCore/ValueObserver.h>
 
 namespace tl
 {
@@ -239,11 +238,17 @@ namespace tl
             //! \name Audio
             ///@{
 
+            //! Get the volume.
+            float getVolume() const;
+
             //! Observe the audio volume.
             std::shared_ptr<observer::IValue<float> > observeVolume() const;
 
             //! Set the audio volume.
             void setVolume(float);
+
+            //! Get the audio mute.
+            bool isMuted() const;
 
             //! Observe the audio mute.
             std::shared_ptr<observer::IValue<bool> > observeMute() const;
@@ -268,6 +273,9 @@ namespace tl
             //! \name Cache
             ///@{
 
+            //! Get the cache options.
+            const PlayerCacheOptions& getCacheOptions() const;
+
             //! Observe the cache options.
             std::shared_ptr<observer::IValue<PlayerCacheOptions> > observeCacheOptions() const;
 
@@ -277,9 +285,12 @@ namespace tl
             //! Observe the cache information.
             std::shared_ptr<observer::IValue<PlayerCacheInfo> > observeCacheInfo() const;
 
+            //! Clear the cache.
+            void clearCache();
+
             ///@}
 
-            //! Tick the timeline.
+            //! Tick the timeline player.
             void tick();
 
         private:

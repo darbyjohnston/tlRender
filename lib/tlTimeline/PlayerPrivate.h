@@ -72,6 +72,7 @@ namespace tl
             std::shared_ptr<observer::List<AudioData> > currentAudioData;
             std::shared_ptr<observer::Value<PlayerCacheOptions> > cacheOptions;
             std::shared_ptr<observer::Value<PlayerCacheInfo> > cacheInfo;
+            std::shared_ptr<observer::ValueObserver<bool> > timelineObserver;
 
             struct ExternalTime
             {

@@ -14,6 +14,7 @@ namespace tl
         {
             std::shared_ptr<timeline::ITimeUnitsModel> timeUnitsModel;
             std::shared_ptr<timeline::Player> player;
+            std::shared_ptr<observer::ValueObserver<bool> > timelineObserver;
             std::shared_ptr<observer::Value<bool> > frameView;
             std::function<void(bool)> frameViewCallback;
             ui::KeyModifier scrollKeyModifier = ui::KeyModifier::Control;
@@ -85,33 +86,28 @@ namespace tl
             TLRENDER_P();
             if (player == p.player)
                 return;
+            p.timelineObserver.reset();
             if (p.timelineItem)
             {
                 p.timelineItem->setParent(nullptr);
                 p.timelineItem.reset();
             }
             p.player = player;
+            _timelineUpdate();
+            if (p.timelineItem)
+            {
+                p.scale = _getTimelineScale();
+                _setItemScale(p.timelineItem, p.scale);
+            }
             if (p.player)
             {
-                if (auto context = _context.lock())
-                {
-                    ItemData itemData;
-                    itemData.speed = p.player->getDefaultSpeed();
-                    itemData.directory = p.player->getPath().getDirectory();
-                    itemData.options = p.player->getOptions();
-                    itemData.ioManager = IOManager::create(
-                        p.player->getOptions().ioOptions,
-                        context);
-                    itemData.timeUnitsModel = p.timeUnitsModel;
-
-                    p.timelineItem = TimelineItem::create(p.player, itemData, context);
-                    p.timelineItem->setStopOnScrub(p.stopOnScrub->get());
-                    p.scrollWidget->setScrollPos(math::Vector2i());
-                    p.scale = _getTimelineScale();
-                    _setItemScale(p.timelineItem, p.scale);
-                    _setItemOptions(p.timelineItem, p.itemOptions->get());
-                    p.scrollWidget->setWidget(p.timelineItem);
-                }
+                p.timelineObserver = observer::ValueObserver<bool>::create(
+                    p.player->getTimeline()->observeTimelineChanges(),
+                    [this](bool)
+                    {
+                        _timelineUpdate();
+                        _setItemScale(_p->timelineItem, _p->scale);
+                    });
             }
         }
 
@@ -387,6 +383,37 @@ namespace tl
                     event.accept = true;
                     setFrameView(true);
                     break;
+                case ui::Key::E:
+                {
+                    event.accept = true;
+                    if (p.player)
+                    {
+                        otio::ErrorStatus error;
+                        auto json = p.player->getTimeline()->getTimeline()->to_json_string(&error);
+                        otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(
+                            dynamic_cast<otio::Timeline*>(otio::Timeline::from_json_string(json)));
+                        auto videoTracks = otioTimeline->video_tracks();
+                        if (!videoTracks.empty())
+                        {
+                            const auto children = videoTracks[0]->children();
+                            std::vector<otio::Composable*> childrenTmp;
+                            for (const auto& child : children)
+                            {
+                                childrenTmp.push_back(child.value);
+                            }
+                            videoTracks[0]->clear_children();
+                            if (children.size() > 1)
+                            {
+                                auto child = childrenTmp[1];
+                                childrenTmp[1] = childrenTmp[0];
+                                childrenTmp[0] = child;
+                                videoTracks[0]->set_children(childrenTmp, &error);
+                            }
+                        }
+                        p.player->getTimeline()->setTimeline(otioTimeline);
+                    }
+                    break;
+                }
                 default: break;
                 }
             }
@@ -475,6 +502,36 @@ namespace tl
         {
             TLRENDER_P();
             p.mouse.mode = Private::MouseMode::None;
+        }
+
+        void TimelineWidget::_timelineUpdate()
+        {
+            TLRENDER_P();
+            if (p.timelineItem)
+            {
+                p.timelineItem->setParent(nullptr);
+                p.timelineItem.reset();
+            }
+            if (p.player)
+            {
+                if (auto context = _context.lock())
+                {
+                    ItemData itemData;
+                    itemData.speed = p.player->getDefaultSpeed();
+                    itemData.directory = p.player->getPath().getDirectory();
+                    itemData.options = p.player->getOptions();
+                    itemData.ioManager = IOManager::create(
+                        p.player->getOptions().ioOptions,
+                        context);
+                    itemData.timeUnitsModel = p.timeUnitsModel;
+
+                    p.timelineItem = TimelineItem::create(p.player, itemData, context);
+                    p.timelineItem->setStopOnScrub(p.stopOnScrub->get());
+                    p.scrollWidget->setScrollPos(math::Vector2i());
+                    _setItemOptions(p.timelineItem, p.itemOptions->get());
+                    p.scrollWidget->setWidget(p.timelineItem);
+                }
+            }
         }
     }
 }

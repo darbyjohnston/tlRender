@@ -113,17 +113,18 @@ namespace tl
                     auto j = dict.find("path");
                     if (j != dict.end())
                     {
-                        p.path = otio::any_cast<file::Path>(j->second);
+                        p.path = file::Path(otio::any_cast<std::string>(j->second));
                     }
                     j = dict.find("audioPath");
                     if (j != dict.end())
                     {
-                        p.audioPath = otio::any_cast<file::Path>(j->second);
+                        p.audioPath = file::Path(otio::any_cast<std::string>(j->second));
                     }
                 }
                 catch (const std::exception&)
                 {}
             }
+            p.timelineChanges = observer::Value<bool>::create(false);
             p.readCache = readCache ? readCache : ReadCache::create();
             p.readCache->setMax(16);
 
@@ -174,6 +175,7 @@ namespace tl
                 arg(p.ioInfo.audio.sampleRate));
 
             // Create a new thread.
+            p.mutex.otioTimeline = p.otioTimeline;
             p.thread.running = true;
             p.thread.thread = std::thread(
                 [this]
@@ -210,6 +212,22 @@ namespace tl
         const otio::SerializableObject::Retainer<otio::Timeline>& Timeline::getTimeline() const
         {
             return _p->otioTimeline;
+        }
+
+        std::shared_ptr<observer::IValue<bool> > Timeline::observeTimelineChanges() const
+        {
+            return _p->timelineChanges;
+        }
+
+        void Timeline::setTimeline(const otio::SerializableObject::Retainer<otio::Timeline>& value)
+        {
+            TLRENDER_P();
+            p.otioTimeline = value;
+            std::unique_lock<std::mutex> lock(p.mutex.mutex);
+            if (!p.mutex.stopped)
+            {
+                p.mutex.otioTimeline = value;
+            }
         }
 
         const file::Path& Timeline::getPath() const
@@ -309,6 +327,22 @@ namespace tl
                 request->promise.set_value(AudioData());
             }
             p.readCache->cancelRequests();
+        }
+
+        void Timeline::tick()
+        {
+            TLRENDER_P();
+            bool otioTimelineChanged = false;
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                otioTimelineChanged = p.mutex.otioTimelineChanged;
+                p.mutex.otioTimelineChanged = false;
+            }
+            if (otioTimelineChanged)
+            {
+                cancelRequests();
+                p.timelineChanges->setAlways(true);
+            }
         }
     }
 }

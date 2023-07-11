@@ -21,9 +21,14 @@ namespace tl
             };
 
             void GridLayouts::_init(
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
             {
-                IWidget::_init("GridLayouts", context);
+                IExampleWidget::_init(
+                    "Grid Layouts",
+                    "tl::examples::widgets_gl::GridLayouts",
+                    context,
+                    parent);
                 TLRENDER_P();
 
                 std::vector<std::shared_ptr<ui::Label> > labels;
@@ -44,6 +49,7 @@ namespace tl
                 labels[5]->setHStretch(ui::Stretch::Expanding);
 
                 p.layout = ui::GridLayout::create(context, shared_from_this());
+                p.layout->setMarginRole(ui::SizeRole::Margin);
                 labels[0]->setParent(p.layout);
                 labels[1]->setParent(p.layout);
                 labels[2]->setParent(p.layout);
@@ -66,17 +72,24 @@ namespace tl
             {}
 
             std::shared_ptr<GridLayouts> GridLayouts::create(
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<GridLayouts>(new GridLayouts);
-                out->_init(context);
+                out->_init(context, parent);
                 return out;
             }
 
             void GridLayouts::setGeometry(const math::BBox2i& value)
             {
-                IWidget::setGeometry(value);
+                IExampleWidget::setGeometry(value);
                 _p->layout->setGeometry(value);
+            }
+
+            void GridLayouts::sizeHintEvent(const ui::SizeHintEvent& event)
+            {
+                IExampleWidget::sizeHintEvent(event);
+                _sizeHint = _p->layout->getSizeHint();
             }
         }
     }

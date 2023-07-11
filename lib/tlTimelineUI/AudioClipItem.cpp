@@ -22,8 +22,8 @@ namespace tl
     {
         struct AudioClipItem::Private
         {
-            const otio::Clip* clip = nullptr;
-            const otio::Track* track = nullptr;
+            otio::SerializableObject::Retainer<otio::Clip> clip;
+            otio::SerializableObject::Retainer<otio::Track> track;
             file::Path path;
             std::vector<file::MemoryRead> memoryRead;
             otime::TimeRange timeRange = time::invalidTimeRange;
@@ -57,7 +57,7 @@ namespace tl
         };
 
         void AudioClipItem::_init(
-            const otio::Clip* clip,
+            const otio::SerializableObject::Retainer<otio::Clip>& clip,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -82,7 +82,7 @@ namespace tl
             p.track = dynamic_cast<otio::Track*>(clip->parent());
 
             p.path = path;
-            p.memoryRead = timeline::getMemoryRead(p.clip->media_reference());
+            p.memoryRead = timeline::getMemoryRead(clip->media_reference());
 
             if (rangeOpt.has_value())
             {
@@ -115,7 +115,7 @@ namespace tl
         {}
 
         std::shared_ptr<AudioClipItem> AudioClipItem::create(
-            const otio::Clip* clip,
+            const otio::SerializableObject::Retainer<otio::Clip>& clip,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -253,9 +253,11 @@ namespace tl
                     }
                     p.audioData[i->first] = std::move(audioData);
                     i = p.audioDataFutures.erase(i);
-                    continue;
                 }
-                ++i;
+                else
+                {
+                    ++i;
+                }
             }
 
             const auto now = std::chrono::steady_clock::now();

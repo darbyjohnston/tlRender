@@ -94,9 +94,10 @@ namespace tl
 
         void MainWindow::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("MainWindow", context);
+            IWidget::_init("tl::play_gl::MainWindow", context, parent);
             TLRENDER_P();
 
             setBackgroundRole(ui::ColorRole::Window);
@@ -355,10 +356,11 @@ namespace tl
 
         std::shared_ptr<MainWindow> MainWindow::create(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<MainWindow>(new MainWindow);
-            out->_init(app, context);
+            out->_init(app, context, parent);
             return out;
         }
 

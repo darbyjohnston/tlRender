@@ -2,7 +2,9 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/IWidget.h>
+#pragma once
+
+#include "IExampleWidget.h"
 
 namespace tl
 {
@@ -29,8 +31,9 @@ namespace tl
 
             protected:
                 void _init(
+                    int number,
                     const std::shared_ptr<system::Context>&,
-                    const std::shared_ptr<IWidget>& parent = nullptr);
+                    const std::shared_ptr<IWidget>& parent);
 
                 DragAndDropWidget();
 
@@ -38,6 +41,7 @@ namespace tl
                 ~DragAndDropWidget() override;
 
                 static std::shared_ptr<DragAndDropWidget> create(
+                    int number,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -60,12 +64,14 @@ namespace tl
             };
 
             //! Drag and drop.
-            class DragAndDrop : public ui::IWidget
+            class DragAndDrop : public IExampleWidget
             {
                 TLRENDER_NON_COPYABLE(DragAndDrop);
 
             protected:
-                void _init(const std::shared_ptr<system::Context>&);
+                void _init(
+                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<IWidget>& parent);
 
                 DragAndDrop();
 
@@ -73,9 +79,11 @@ namespace tl
                 ~DragAndDrop();
 
                 static std::shared_ptr<DragAndDrop> create(
-                    const std::shared_ptr<system::Context>&);
+                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<IWidget>& parent = nullptr);
 
                 void setGeometry(const math::BBox2i&) override;
+                void sizeHintEvent(const ui::SizeHintEvent&) override;
 
             private:
                 TLRENDER_PRIVATE();

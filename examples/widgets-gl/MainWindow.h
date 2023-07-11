@@ -2,6 +2,8 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
+#pragma once
+
 #include <tlUI/IWidget.h>
 
 namespace tl
@@ -17,7 +19,8 @@ namespace tl
 
             protected:
                 void _init(
-                    const std::shared_ptr<system::Context>&);
+                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<IWidget>& parent);
 
                 MainWindow();
 
@@ -25,7 +28,8 @@ namespace tl
                 ~MainWindow();
 
                 static std::shared_ptr<MainWindow> create(
-                    const std::shared_ptr<system::Context>&);
+                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<IWidget>& parent = nullptr);
 
                 void setGeometry(const math::BBox2i&) override;
 

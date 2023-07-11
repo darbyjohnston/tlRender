@@ -2,7 +2,9 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/IWidget.h>
+#pragma once
+
+#include "IExampleWidget.h"
 
 namespace tl
 {
@@ -11,12 +13,14 @@ namespace tl
         namespace widgets_gl
         {
             //! Grid layouts.
-            class GridLayouts : public ui::IWidget
+            class GridLayouts : public IExampleWidget
             {
                 TLRENDER_NON_COPYABLE(GridLayouts);
 
             protected:
-                void _init(const std::shared_ptr<system::Context>&);
+                void _init(
+                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<IWidget>& parent);
 
                 GridLayouts();
 
@@ -24,9 +28,11 @@ namespace tl
                 ~GridLayouts();
 
                 static std::shared_ptr<GridLayouts> create(
-                    const std::shared_ptr<system::Context>&);
+                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<IWidget>& parent = nullptr);
 
                 void setGeometry(const math::BBox2i&) override;
+                void sizeHintEvent(const ui::SizeHintEvent&) override;
 
             private:
                 TLRENDER_PRIVATE();

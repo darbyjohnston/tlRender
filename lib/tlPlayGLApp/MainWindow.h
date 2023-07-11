@@ -26,7 +26,8 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent);
 
             MainWindow();
 
@@ -36,7 +37,8 @@ namespace tl
             //! Create a new main window.
             static std::shared_ptr<MainWindow> create(
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the timeline viewport.
             const std::shared_ptr<timelineui::TimelineViewport>& getTimelineViewport() const;
