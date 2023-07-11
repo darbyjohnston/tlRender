@@ -84,6 +84,9 @@ namespace tl
             //! Create a new font system.
             static std::shared_ptr<FontSystem> create(const std::shared_ptr<system::Context>&);
 
+            //! Add a font.
+            void addFont(const std::string& name, const uint8_t*, size_t);
+
             //! \name Information
             ///@{
 

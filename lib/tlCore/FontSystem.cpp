@@ -126,6 +126,16 @@ namespace tl
             return out;
         }
 
+        void FontSystem::addFont(const std::string& name, const uint8_t* data, size_t size)
+        {
+            TLRENDER_P();
+            FT_Error ftError = FT_New_Memory_Face(p.ftLibrary, data, size, 0, &p.ftFaces[name]);
+            if (ftError)
+            {
+                throw std::runtime_error("Cannot create font");
+            }
+        }
+
         size_t FontSystem::getGlyphCacheSize() const
         {
             return _p->glyphCache.getSize();
