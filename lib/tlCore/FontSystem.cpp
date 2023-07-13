@@ -66,7 +66,7 @@ namespace tl
                 math::Vector2i&,
                 std::vector<math::BBox2i>* = nullptr);
 
-            std::weak_ptr<system::Context> context;
+            std::map<std::string, std::vector<uint8_t> > fontData;
             FT_Library ftLibrary = nullptr;
             std::map<std::string, FT_Face> ftFaces;
             std::wstring_convert<std::codecvt_utf8<tl_char_t>, tl_char_t> utf32Convert;
@@ -78,28 +78,33 @@ namespace tl
             ISystem::_init("tl::imaging::FontSystem", context);
             TLRENDER_P();
 
-            p.context = context;
+            try
+            {
+                FT_Error ftError = FT_Init_FreeType(&p.ftLibrary);
+                if (ftError)
+                {
+                    throw std::runtime_error("FreeType cannot be initialized");
+                }
 
-            FT_Error ftError = FT_Init_FreeType(&p.ftLibrary);
-            if (ftError)
-            {
-                throw std::runtime_error("FreeType cannot be initialized");
+                ftError = FT_New_Memory_Face(p.ftLibrary, NotoSans_Regular_ttf, NotoSans_Regular_ttf_len, 0, &p.ftFaces["NotoSans-Regular"]);
+                if (ftError)
+                {
+                    throw std::runtime_error("Cannot create font");
+                }
+                ftError = FT_New_Memory_Face(p.ftLibrary, NotoSans_Bold_ttf, NotoSans_Bold_ttf_len, 0, &p.ftFaces["NotoSans-Bold"]);
+                if (ftError)
+                {
+                    throw std::runtime_error("Cannot create font");
+                }
+                ftError = FT_New_Memory_Face(p.ftLibrary, NotoMono_Regular_ttf, NotoMono_Regular_ttf_len, 0, &p.ftFaces["NotoMono-Regular"]);
+                if (ftError)
+                {
+                    throw std::runtime_error("Cannot create font");
+                }
             }
-
-            ftError = FT_New_Memory_Face(p.ftLibrary, NotoSans_Regular_ttf, NotoSans_Regular_ttf_len, 0, &p.ftFaces["NotoSans-Regular"]);
-            if (ftError)
+            catch (const std::exception& e)
             {
-                throw std::runtime_error("Cannot create font");
-            }
-            ftError = FT_New_Memory_Face(p.ftLibrary, NotoSans_Bold_ttf, NotoSans_Bold_ttf_len, 0, &p.ftFaces["NotoSans-Bold"]);
-            if (ftError)
-            {
-                throw std::runtime_error("Cannot create font");
-            }
-            ftError = FT_New_Memory_Face(p.ftLibrary, NotoMono_Regular_ttf, NotoMono_Regular_ttf_len, 0, &p.ftFaces["NotoMono-Regular"]);
-            if (ftError)
-            {
-                throw std::runtime_error("Cannot create font");
+                _log(e.what(), log::Type::Error);
             }
         }
 
@@ -130,10 +135,17 @@ namespace tl
         void FontSystem::addFont(const std::string& name, const uint8_t* data, size_t size)
         {
             TLRENDER_P();
-            FT_Error ftError = FT_New_Memory_Face(p.ftLibrary, data, size, 0, &p.ftFaces[name]);
+            p.fontData[name] = std::vector<uint8_t>(size);
+            memcpy(p.fontData[name].data(), data, size);
+            FT_Error ftError = FT_New_Memory_Face(
+                p.ftLibrary,
+                p.fontData[name].data(),
+                size,
+                0,
+                &p.ftFaces[name]);
             if (ftError)
             {
-                throw std::runtime_error("Cannot create font");
+                _log("Cannot create font", log::Type::Error);
             }
         }
 
@@ -157,7 +169,7 @@ namespace tl
                 FT_Error ftError = FT_Set_Pixel_Sizes(i->second, 0, info.size);
                 if (ftError)
                 {
-                    throw std::runtime_error("Cannot set pixel sizes");
+                    _log("Cannot set pixel sizes", log::Type::Error);
                 }
                 out.ascender = i->second->size->metrics.ascender / 64;
                 out.descender = i->second->size->metrics.descender / 64;
@@ -173,8 +185,15 @@ namespace tl
         {
             TLRENDER_P();
             math::Vector2i out;
-            const auto utf32 = p.utf32Convert.from_bytes(text);
-            p.measure(utf32, fontInfo, maxLineWidth, out);
+            try
+            {
+                const auto utf32 = p.utf32Convert.from_bytes(text);
+                p.measure(utf32, fontInfo, maxLineWidth, out);
+            }
+            catch (const std::exception& e)
+            {
+                _log(e.what(), log::Type::Error);
+            }
             return out;
         }
 
@@ -185,9 +204,16 @@ namespace tl
         {
             TLRENDER_P();
             std::vector<math::BBox2i> out;
-            const auto utf32 = p.utf32Convert.from_bytes(text);
-            math::Vector2i size;
-            p.measure(utf32, fontInfo, maxLineWidth, size, &out);
+            try
+            {
+                const auto utf32 = p.utf32Convert.from_bytes(text);
+                math::Vector2i size;
+                p.measure(utf32, fontInfo, maxLineWidth, size, &out);
+            }
+            catch (const std::exception& e)
+            {
+                _log(e.what(), log::Type::Error);
+            }
             return out;
         }
 
@@ -197,10 +223,17 @@ namespace tl
         {
             TLRENDER_P();
             std::vector<std::shared_ptr<Glyph> > out;
-            const auto utf32 = p.utf32Convert.from_bytes(text);
-            for (const auto& i : utf32)
+            try
             {
-                out.push_back(p.getGlyph(i, fontInfo));
+                const auto utf32 = p.utf32Convert.from_bytes(text);
+                for (const auto& i : utf32)
+                {
+                    out.push_back(p.getGlyph(i, fontInfo));
+                }
+            }
+            catch (const std::exception& e)
+            {
+                _log(e.what(), log::Type::Error);
             }
             return out;
         }
@@ -213,17 +246,16 @@ namespace tl
                 const auto i = ftFaces.find(fontInfo.family);
                 if (i != ftFaces.end())
                 {
+                    FT_Error ftError = FT_Set_Pixel_Sizes(
+                        i->second,
+                        0,
+                        static_cast<int>(fontInfo.size));
+                    if (ftError)
+                    {
+                        throw std::runtime_error("Cannot set pixel sizes");
+                    }
                     if (auto ftGlyphIndex = FT_Get_Char_Index(i->second, code))
                     {
-                        FT_Error ftError = FT_Set_Pixel_Sizes(
-                            i->second,
-                            0,
-                            static_cast<int>(fontInfo.size));
-                        if (ftError)
-                        {
-                            throw std::runtime_error("Cannot set pixel sizes");
-                        }
-
                         ftError = FT_Load_Glyph(i->second, ftGlyphIndex, FT_LOAD_FORCE_AUTOHINT);
                         if (ftError)
                         {
