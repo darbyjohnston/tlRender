@@ -147,6 +147,36 @@ namespace tl
             p.timelineWidget->setPlayer(p.player);
         }
 
+        bool TimelineWidget::hasFrameView() const
+        {
+            return _p->timelineWidget->hasFrameView();
+        }
+
+        bool TimelineWidget::areScrollBarsVisible() const
+        {
+            return _p->timelineWidget->areScrollBarsVisible();
+        }
+
+        ui::KeyModifier TimelineWidget::scrollKeyModifier() const
+        {
+            return _p->timelineWidget->getScrollKeyModifier();
+        }
+
+        bool TimelineWidget::hasStopOnScrub() const
+        {
+            return _p->timelineWidget->hasStopOnScrub();
+        }
+
+        float TimelineWidget::mouseWheelScale() const
+        {
+            return _p->timelineWidget->getMouseWheelScale();
+        }
+
+        const timelineui::ItemOptions& TimelineWidget::itemOptions() const
+        {
+            return _p->timelineWidget->getItemOptions();
+        }
+
         void TimelineWidget::setFrameView(bool value)
         {
             _p->timelineWidget->setFrameView(value);
@@ -165,13 +195,6 @@ namespace tl
         void TimelineWidget::setStopOnScrub(bool value)
         {
             _p->timelineWidget->setStopOnScrub(value);
-        }
-
-        void TimelineWidget::setThumbnails(bool value)
-        {
-            TLRENDER_P();
-            p.itemOptions.thumbnails = value;
-            _p->timelineWidget->setItemOptions(p.itemOptions);
         }
 
         void TimelineWidget::setMouseWheelScale(float value)

@@ -144,6 +144,22 @@ namespace tl
             p.actions["Timeline/Thumbnails"] = new QAction(parent);
             p.actions["Timeline/Thumbnails"]->setCheckable(true);
             p.actions["Timeline/Thumbnails"]->setText(tr("Timeline Thumbnails"));
+            p.actions["Timeline/ThumbnailsSize/Small"] = new QAction(this);
+            p.actions["Timeline/ThumbnailsSize/Small"]->setData(100);
+            p.actions["Timeline/ThumbnailsSize/Small"]->setCheckable(true);
+            p.actions["Timeline/ThumbnailsSize/Small"]->setText(tr("Small"));
+            p.actions["Timeline/ThumbnailsSize/Medium"] = new QAction(this);
+            p.actions["Timeline/ThumbnailsSize/Medium"]->setData(200);
+            p.actions["Timeline/ThumbnailsSize/Medium"]->setCheckable(true);
+            p.actions["Timeline/ThumbnailsSize/Medium"]->setText(tr("Medium"));
+            p.actions["Timeline/ThumbnailsSize/Large"] = new QAction(this);
+            p.actions["Timeline/ThumbnailsSize/Large"]->setData(300);
+            p.actions["Timeline/ThumbnailsSize/Large"]->setCheckable(true);
+            p.actions["Timeline/ThumbnailsSize/Large"]->setText(tr("Large"));
+            p.actionGroups["Timeline/ThumbnailsSize"] = new QActionGroup(this);
+            p.actionGroups["Timeline/ThumbnailsSize"]->addAction(p.actions["Timeline/ThumbnailsSize/Small"]);
+            p.actionGroups["Timeline/ThumbnailsSize"]->addAction(p.actions["Timeline/ThumbnailsSize/Medium"]);
+            p.actionGroups["Timeline/ThumbnailsSize"]->addAction(p.actions["Timeline/ThumbnailsSize/Large"]);
 
             p.actions["TimeUnits/Frames"] = new QAction(parent);
             p.actions["TimeUnits/Frames"]->setData(static_cast<int>(timeline::TimeUnits::Frames));
@@ -218,6 +234,10 @@ namespace tl
             p.menu->addAction(p.actions["Timeline/FrameView"]);
             p.menu->addAction(p.actions["Timeline/StopOnScrub"]);
             p.menu->addAction(p.actions["Timeline/Thumbnails"]);
+            auto thumbnailsSizeMenu = p.menu->addMenu(tr("Thumbnails Size"));
+            thumbnailsSizeMenu->addAction(p.actions["Timeline/ThumbnailsSize/Small"]);
+            thumbnailsSizeMenu->addAction(p.actions["Timeline/ThumbnailsSize/Medium"]);
+            thumbnailsSizeMenu->addAction(p.actions["Timeline/ThumbnailsSize/Large"]);
 
             p.speedMenu = new QMenu;
             for (auto i : speeds)
@@ -341,6 +361,14 @@ namespace tl
                 [app](bool value)
                 {
                     app->settingsObject()->setValue("Timeline/Thumbnails", value);
+                });
+            connect(
+                p.actionGroups["Timeline/ThumbnailsSize"],
+                &QActionGroup::triggered,
+                [app](QAction* action)
+                {
+                    const int value = action->data().toInt();
+                    app->settingsObject()->setValue("Timeline/ThumbnailsSize", value);
                 });
 
             connect(
@@ -518,6 +546,9 @@ namespace tl
             keys.removeAll("Timeline/FrameView");
             keys.removeAll("Timeline/StopOnScrub");
             keys.removeAll("Timeline/Thumbnails");
+            keys.removeAll("Timeline/ThumbnailsSize/Small");
+            keys.removeAll("Timeline/ThumbnailsSize/Medium");
+            keys.removeAll("Timeline/ThumbnailsSize/Large");
             for (auto i : keys)
             {
                 p.actions[i]->setEnabled(count > 0);
@@ -587,6 +618,21 @@ namespace tl
                 QSignalBlocker blocker(p.actions["Timeline/Thumbnails"]);
                 p.actions["Timeline/Thumbnails"]->setChecked(
                     p.app->settingsObject()->value("Timeline/Thumbnails").toBool());
+            }
+            {
+                QSignalBlocker blocker(p.actionGroups["Timeline/ThumbnailsSize"]);
+                p.actions["Timeline/ThumbnailsSize/Small"]->setChecked(false);
+                p.actions["Timeline/ThumbnailsSize/Medium"]->setChecked(false);
+                p.actions["Timeline/ThumbnailsSize/Large"]->setChecked(false);
+                for (auto action : p.actionGroups["Timeline/ThumbnailsSize"]->actions())
+                {
+                    if (action->data().toInt() ==
+                        p.app->settingsObject()->value("Timeline/ThumbnailsSize").toInt())
+                    {
+                        action->setChecked(true);
+                        break;
+                    }
+                }
             }
         }
     }

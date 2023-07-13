@@ -37,7 +37,26 @@ namespace tl
             //! Set the timeline player.
             void setPlayer(const std::shared_ptr<timeline::Player>&);
 
+            //! Get whether the to frame the view.
+            bool hasFrameView() const;
+
+            //! Get whether the scroll bars are visible.
+            bool areScrollBarsVisible() const;
+
+            //! Get the mouse scroll key modifier.
+            ui::KeyModifier scrollKeyModifier() const;
+
+            //! Get whether to stop playback when scrubbing.
+            bool hasStopOnScrub() const;
+
+            //! Get the mouse wheel scale.
+            float mouseWheelScale() const;
+
+            //! Get the item options.
+            const timelineui::ItemOptions& itemOptions() const;
+
         public Q_SLOTS:
+
             //! Set whether the to frame the view.
             void setFrameView(bool);
 
@@ -49,9 +68,6 @@ namespace tl
 
             //! Set whether to stop playback when scrubbing.
             void setStopOnScrub(bool);
-
-            //! Set whether thumbnails are enabled.
-            void setThumbnails(bool);
 
             //! Set the mouse wheel scale.
             void setMouseWheelScale(float);

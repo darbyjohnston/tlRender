@@ -15,6 +15,7 @@ namespace tl
     {
         struct PlaybackMenu::Private
         {
+            std::weak_ptr<MainWindow> mainWindow;
             std::shared_ptr<timeline::Player> player;
 
             std::map<timeline::Playback, std::shared_ptr<ui::MenuItem> > playbackItems;
@@ -23,6 +24,8 @@ namespace tl
             std::shared_ptr<ui::MenuItem> frameViewItem;
             std::shared_ptr<ui::MenuItem> stopOnScrubItem;
             std::shared_ptr<ui::MenuItem> thumbnailsItem;
+            std::shared_ptr<Menu> thumbnailsSizeMenu;
+            std::map<int, std::shared_ptr<ui::MenuItem> > thumbnailsSizeItems;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playerObserver;
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
@@ -39,6 +42,8 @@ namespace tl
         {
             Menu::_init(context);
             TLRENDER_P();
+
+            p.mainWindow = mainWindow;
 
             p.playbackItems[timeline::Playback::Stop] = std::make_shared<ui::MenuItem>(
                 "Stop",
@@ -205,13 +210,12 @@ namespace tl
 
             addDivider();
 
-            auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
             p.frameViewItem = std::make_shared<ui::MenuItem>(
                 "Frame Timeline View",
-                [this, mainWindowWeak](bool value)
+                [this](bool value)
                 {
                     close();
-                    if (auto mainWindow = mainWindowWeak.lock())
+                    if (auto mainWindow = _p->mainWindow.lock())
                     {
                         mainWindow->getTimelineWidget()->setFrameView(value);
                     }
@@ -220,10 +224,10 @@ namespace tl
 
             p.stopOnScrubItem = std::make_shared<ui::MenuItem>(
                 "Stop When Scrubbing",
-                [this, mainWindowWeak](bool value)
+                [this](bool value)
                 {
                     close();
-                    if (auto mainWindow = mainWindowWeak.lock())
+                    if (auto mainWindow = _p->mainWindow.lock())
                     {
                         mainWindow->getTimelineWidget()->setStopOnScrub(value);
                     }
@@ -232,10 +236,10 @@ namespace tl
 
             p.thumbnailsItem = std::make_shared<ui::MenuItem>(
                 "Timeline Thumbnails",
-                [this, mainWindowWeak](bool value)
+                [this](bool value)
                 {
                     close();
-                    if (auto mainWindow = mainWindowWeak.lock())
+                    if (auto mainWindow = _p->mainWindow.lock())
                     {
                         auto options = mainWindow->getTimelineWidget()->getItemOptions();
                         options.thumbnails = value;
@@ -244,8 +248,56 @@ namespace tl
                 });
             addItem(p.thumbnailsItem);
 
+            p.thumbnailsSizeMenu = addSubMenu("Thumbnails Size");
+
+            p.thumbnailsSizeItems[100] = std::make_shared<ui::MenuItem>(
+                "Small",
+                [this]
+                {
+                    close();
+                    if (auto mainWindow = _p->mainWindow.lock())
+                    {
+                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        options.thumbnailHeight = 100;
+                        options.waveformHeight = options.thumbnailHeight / 2;
+                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                    }
+                });
+            p.thumbnailsSizeMenu->addItem(p.thumbnailsSizeItems[100]);
+
+            p.thumbnailsSizeItems[200] = std::make_shared<ui::MenuItem>(
+                "Medium",
+                [this]
+                {
+                    close();
+                    if (auto mainWindow = _p->mainWindow.lock())
+                    {
+                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        options.thumbnailHeight = 200;
+                        options.waveformHeight = options.thumbnailHeight / 2;
+                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                    }
+                });
+            p.thumbnailsSizeMenu->addItem(p.thumbnailsSizeItems[200]);
+
+            p.thumbnailsSizeItems[300] = std::make_shared<ui::MenuItem>(
+                "Large",
+                [this]
+                {
+                    close();
+                    if (auto mainWindow = _p->mainWindow.lock())
+                    {
+                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        options.thumbnailHeight = 300;
+                        options.waveformHeight = options.thumbnailHeight / 2;
+                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                    }
+                });
+            p.thumbnailsSizeMenu->addItem(p.thumbnailsSizeItems[300]);
+
             _playbackUpdate();
             _loopUpdate();
+            _thumbnailsSizeUpdate();
 
             p.playerObserver = observer::ListObserver<std::shared_ptr<timeline::Player> >::create(
                 app->observeActivePlayers(),
@@ -273,6 +325,7 @@ namespace tl
                 [this](const timelineui::ItemOptions& value)
                 {
                     setItemChecked(_p->thumbnailsItem, value.thumbnails);
+                    _thumbnailsSizeUpdate();
                 });
         }
 
@@ -291,6 +344,13 @@ namespace tl
             auto out = std::shared_ptr<PlaybackMenu>(new PlaybackMenu);
             out->_init(mainWindow, app, context);
             return out;
+        }
+
+        void PlaybackMenu::close()
+        {
+            Menu::close();
+            TLRENDER_P();
+            p.thumbnailsSizeMenu->close();
         }
 
         void PlaybackMenu::_setPlayer(const std::shared_ptr<timeline::Player>& value)
@@ -347,6 +407,25 @@ namespace tl
             for (auto i : values)
             {
                 setItemChecked(p.loopItems[i.first], i.second);
+            }
+        }
+
+        void PlaybackMenu::_thumbnailsSizeUpdate()
+        {
+            TLRENDER_P();
+            if (auto mainWindow = p.mainWindow.lock())
+            {
+                const auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                auto i = p.thumbnailsSizeItems.find(options.thumbnailHeight);
+                if (i == p.thumbnailsSizeItems.end())
+                {
+                    i = p.thumbnailsSizeItems.begin();
+                }
+                for (auto item : p.thumbnailsSizeItems)
+                {
+                    const bool checked = item == *i;
+                    p.thumbnailsSizeMenu->setItemChecked(item.second, checked);
+                }
             }
         }
     }

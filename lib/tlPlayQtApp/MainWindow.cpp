@@ -693,7 +693,16 @@ namespace tl
                     }
                     else if ("Timeline/Thumbnails" == name)
                     {
-                        _p->timelineWidget->setThumbnails(value.toBool());
+                        auto itemOptions = _p->timelineWidget->itemOptions();
+                        itemOptions.thumbnails = value.toBool();
+                        _p->timelineWidget->setItemOptions(itemOptions);
+                    }
+                    else if ("Timeline/ThumbnailsSize" == name)
+                    {
+                        auto itemOptions = _p->timelineWidget->itemOptions();
+                        itemOptions.thumbnailHeight = value.toInt();
+                        itemOptions.waveformHeight = itemOptions.thumbnailHeight / 2;
+                        _p->timelineWidget->setItemOptions(itemOptions);
                     }
                 });
 
@@ -1088,7 +1097,11 @@ namespace tl
                 nullptr);
             p.timelineWidget->setFrameView(p.app->settingsObject()->value("Timeline/FrameView").toBool());
             p.timelineWidget->setStopOnScrub(p.app->settingsObject()->value("Timeline/StopOnScrub").toBool());
-            p.timelineWidget->setThumbnails(p.app->settingsObject()->value("Timeline/Thumbnails").toBool());
+            auto itemOptions = p.timelineWidget->itemOptions();
+            itemOptions.thumbnails = p.app->settingsObject()->value("Timeline/Thumbnails").toBool();
+            itemOptions.thumbnailHeight = p.app->settingsObject()->value("Timeline/ThumbnailsSize").toInt();
+            itemOptions.waveformHeight = itemOptions.thumbnailHeight / 2;
+            p.timelineWidget->setItemOptions(itemOptions);
 
             {
                 const QSignalBlocker blocker(p.volumeSlider);
