@@ -63,7 +63,7 @@ namespace tl
             IBasicItem::_init(
                 rangeOpt.has_value() ? rangeOpt.value() : time::invalidTimeRange,
                 !clip->name().empty() ? clip->name() : path.get(-1, false),
-                _options.colors[ColorRole::VideoClip],
+                ColorRole::VideoClip,
                 getMarkers(clip),
                 "tl::timelineui::VideoClipItem",
                 itemData,
