@@ -19,6 +19,7 @@ namespace tl
         struct TrackItem::Private
         {
             TrackType trackType = TrackType::None;
+            int trackNumber = 0;
             otime::TimeRange timeRange = time::invalidTimeRange;
             std::string label;
             std::string durationLabel;
@@ -47,6 +48,7 @@ namespace tl
 
         void TrackItem::_init(
             const otio::SerializableObject::Retainer<otio::Track>& track,
+            int trackNumber,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -54,6 +56,7 @@ namespace tl
             IItem::_init("tl::timelineui::TrackItem", itemData, context, parent);
             TLRENDER_P();
 
+            p.trackNumber = trackNumber;
             p.label = track->name();
             if (otio::Track::Kind::video == track->kind())
             {
@@ -160,12 +163,13 @@ namespace tl
 
         std::shared_ptr<TrackItem> TrackItem::create(
             const otio::SerializableObject::Retainer<otio::Track>& track,
+            int trackNumber,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TrackItem>(new TrackItem);
-            out->_init(track, itemData, context, parent);
+            out->_init(track, trackNumber, itemData, context, parent);
             return out;
         }
 
@@ -174,7 +178,8 @@ namespace tl
             IItem::setGeometry(value);
             TLRENDER_P();
             int y = _geometry.min.y +
-                p.size.fontMetrics.lineHeight;
+                p.size.fontMetrics.lineHeight +
+                p.size.margin * 2;
             int h = 0;
             for (auto item : p.clipsAndGaps)
             {
@@ -243,6 +248,7 @@ namespace tl
             _sizeHint = math::Vector2i(
                 p.timeRange.duration().rescaled_to(1.0).value() * _scale,
                 p.size.fontMetrics.lineHeight +
+                p.size.margin * 2 +
                 clipsAndGapsHeight +
                 transitionsHeight);
         }
@@ -255,18 +261,19 @@ namespace tl
             TLRENDER_P();
 
             const math::BBox2i& g = _geometry;
-
             const math::BBox2i labelGeometry(
                 g.min.x +
                 p.size.margin,
-                g.min.y,
+                g.min.y +
+                p.size.margin,
                 p.size.labelSize.x,
                 p.size.fontMetrics.lineHeight);
             const math::BBox2i durationGeometry(
                 g.max.x -
-                p.size.margin -
-                p.size.durationSize.x,
-                g.min.y,
+                p.size.durationSize.x -
+                p.size.margin,
+                g.min.y +
+                p.size.margin,
                 p.size.durationSize.x,
                 p.size.fontMetrics.lineHeight);
             const bool labelVisible = drawRect.intersects(labelGeometry);

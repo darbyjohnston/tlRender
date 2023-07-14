@@ -26,7 +26,6 @@ namespace tl
             struct SizeData
             {
                 int margin = 0;
-                int spacing = 0;
                 int border = 0;
                 imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
                 imaging::FontMetrics fontMetrics;
@@ -62,15 +61,18 @@ namespace tl
             p.timeRange = player->getTimeRange();
 
             const auto otioTimeline = p.player->getTimeline()->getTimeline();
+            int trackNumber = 0;
             for (const auto& child : otioTimeline->tracks()->children())
             {
                 if (auto track = otio::dynamic_retainer_cast<otio::Track>(child))
                 {
                     auto trackItem = TrackItem::create(
                         track,
+                        trackNumber,
                         itemData,
                         context,
                         shared_from_this());
+                    ++trackNumber;
                 }
             }
 
@@ -176,7 +178,6 @@ namespace tl
             TLRENDER_P();
 
             p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, event.displayScale);
-            p.size.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, event.displayScale);
             p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
 
             p.size.fontInfo = imaging::FontInfo(
@@ -436,7 +437,7 @@ namespace tl
 
             const std::string labelMax = _data.timeUnitsModel->getLabel(p.timeRange.duration());
             const math::Vector2i labelMaxSize = event.fontSystem->getSize(labelMax, p.size.fontInfo);
-            const int distanceMin = p.size.border + p.size.spacing + labelMaxSize.x;
+            const int distanceMin = p.size.border + p.size.margin + labelMaxSize.x;
 
             const int w = _sizeHint.x;
             const float duration = p.timeRange.duration().rescaled_to(1.0).value();
@@ -538,7 +539,7 @@ namespace tl
                         g.min.x +
                         t / duration * w +
                         p.size.border +
-                        p.size.spacing,
+                        p.size.margin,
                         p.size.scrollPos.y +
                         g.min.y +
                         p.size.margin,
@@ -677,7 +678,7 @@ namespace tl
                 event.render->drawText(
                     event.fontSystem->getGlyphs(label, p.size.fontInfo),
                     math::Vector2i(
-                        pos.x + p.size.border * 2 + p.size.spacing,
+                        pos.x + p.size.border * 2 + p.size.margin,
                         pos.y +
                         p.size.margin +
                         p.size.fontMetrics.ascender),

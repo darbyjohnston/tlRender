@@ -26,6 +26,7 @@ namespace tl
         protected:
             void _init(
                 const otio::SerializableObject::Retainer<otio::Track>&,
+                int,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
@@ -38,6 +39,7 @@ namespace tl
             //! Create a new item.
             static std::shared_ptr<TrackItem> create(
                 const otio::SerializableObject::Retainer<otio::Track>&,
+                int,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
