@@ -83,6 +83,7 @@ namespace tl
             case file::Type::Directory:
                 setIcon("Directory");
                 break;
+            default: break;
             }
 
             setButtonRole(ColorRole::None);
