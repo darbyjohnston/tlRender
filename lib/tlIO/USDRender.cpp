@@ -41,7 +41,6 @@ namespace tl
             std::weak_ptr<log::System> logSystem;
             GLFWwindow* glfwWindow = nullptr;
             
-            io::Info info;
             struct InfoRequest
             {
                 int64_t id = -1;
@@ -781,7 +780,7 @@ namespace tl
                                 arg(p.thread.diskCache.getMax() / memory::gigabyte));
                         }
                     }
-            }
+                }
             }
         }
     }
