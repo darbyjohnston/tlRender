@@ -67,7 +67,7 @@ namespace tl
             int thumbnailHeight = 100;
             int waveformHeight = 50;
             float thumbnailFade = .5F;
-            bool showTransitions = true;
+            bool showTransitions = false;
             bool showMarkers = false;
             std::string regularFont = "NotoSans-Regular";
             std::string monoFont = "NotoMono-Regular";
