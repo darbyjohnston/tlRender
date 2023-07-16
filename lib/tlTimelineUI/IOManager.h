@@ -43,6 +43,7 @@ namespace tl
             std::future<io::VideoData> readVideo(
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
+                const otime::RationalTime& startTime,
                 const otime::RationalTime&,
                 uint16_t layer = 0);
 
@@ -50,6 +51,7 @@ namespace tl
             std::future<io::AudioData> readAudio(
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
+                const otime::RationalTime& startTime,
                 const otime::TimeRange&);
 
             //! Cancel pending requests.

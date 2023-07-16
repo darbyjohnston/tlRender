@@ -25,12 +25,15 @@ namespace tl
             {
                 file::Path path;
                 std::vector<file::MemoryRead> memoryRead;
+                otime::RationalTime startTime = time::invalidTime;
                 std::promise<io::Info> promise;
             };
 
             struct VideoRequest
             {
                 file::Path path;
+                std::vector<file::MemoryRead> memoryRead;
+                otime::RationalTime startTime = time::invalidTime;
                 otime::RationalTime time = time::invalidTime;
                 std::promise<io::VideoData> promise;
             };
@@ -38,6 +41,8 @@ namespace tl
             struct AudioRequest
             {
                 file::Path path;
+                std::vector<file::MemoryRead> memoryRead;
+                otime::RationalTime startTime = time::invalidTime;
                 otime::TimeRange range = time::invalidTimeRange;
                 std::promise<io::AudioData> promise;
             };
@@ -125,36 +130,11 @@ namespace tl
             const std::vector<file::MemoryRead>& memoryRead,
             const otime::RationalTime& startTime)
         {
-            /*TLRENDER_P();
-            std::future<io::Info> out;
-            std::shared_ptr<io::IRead> read;
-            const std::string fileName = path.get();
-            if (!p.cache.get(fileName, read))
-            {
-                if (auto context = p.context.lock())
-                {
-                    auto ioSystem = context->getSystem<io::System>();
-                    io::Options options = p.ioOptions;
-                    options["FFmpeg/StartTime"] = string::Format("{0}").arg(startTime);
-                    read = ioSystem->read(path, memoryRead, options);
-                    p.cache.add(fileName, read);
-                }
-            }
-            if (read)
-            {
-                out = read->getInfo();
-            }
-            else
-            {
-                std::promise<io::Info> promise;
-                out = promise.get_future();
-                promise.set_value(io::Info());
-            }
-            return out;*/
             TLRENDER_P();
             auto request = std::make_shared<Private::InfoRequest>();
             request->path = path;
             request->memoryRead = memoryRead;
+            request->startTime = startTime;
             auto future = request->promise.get_future();
             bool valid = false;
             {
@@ -179,36 +159,15 @@ namespace tl
         std::future<io::VideoData> IOManager::readVideo(
             const file::Path& path,
             const std::vector<file::MemoryRead>& memoryRead,
+            const otime::RationalTime& startTime,
             const otime::RationalTime& time,
             uint16_t layer)
         {
-            /*TLRENDER_P();
-            std::future<io::VideoData> out;
-            std::shared_ptr<io::IRead> read;
-            const std::string fileName = path.get();
-            if (!p.cache.get(fileName, read))
-            {
-                if (auto context = p.context.lock())
-                {
-                    auto ioSystem = context->getSystem<io::System>();
-                    read = ioSystem->read(path, memoryRead, p.ioOptions);
-                    p.cache.add(fileName, read);
-                }
-            }
-            if (read)
-            {
-                out = read->readVideo(time, layer);
-            }
-            else
-            {
-                std::promise<io::VideoData> promise;
-                out = promise.get_future();
-                promise.set_value(io::VideoData());
-            }
-            return out;*/
             TLRENDER_P();
             auto request = std::make_shared<Private::VideoRequest>();
             request->path = path;
+            request->memoryRead = memoryRead;
+            request->startTime = startTime;
             request->time = time;
             auto future = request->promise.get_future();
             bool valid = false;
@@ -234,35 +193,14 @@ namespace tl
         std::future<io::AudioData> IOManager::readAudio(
             const file::Path& path,
             const std::vector<file::MemoryRead>& memoryRead,
+            const otime::RationalTime& startTime,
             const otime::TimeRange& range)
         {
-            /*TLRENDER_P();
-            std::future<io::AudioData> out;
-            std::shared_ptr<io::IRead> read;
-            const std::string fileName = path.get();
-            if (!p.cache.get(fileName, read))
-            {
-                if (auto context = p.context.lock())
-                {
-                    auto ioSystem = context->getSystem<io::System>();
-                    read = ioSystem->read(path, memoryRead, p.ioOptions);
-                    p.cache.add(fileName, read);
-                }
-            }
-            if (read)
-            {
-                out = read->readAudio(range);
-            }
-            else
-            {
-                std::promise<io::AudioData> promise;
-                out = promise.get_future();
-                promise.set_value(io::AudioData());
-            }
-            return out;*/
             TLRENDER_P();
             auto request = std::make_shared<Private::AudioRequest>();
             request->path = path;
+            request->memoryRead = memoryRead;
+            request->startTime = startTime;
             request->range = range;
             auto future = request->promise.get_future();
             bool valid = false;
@@ -369,10 +307,12 @@ namespace tl
                         if (auto context = p.context.lock())
                         {
                             auto ioSystem = context->getSystem<io::System>();
+                            io::Options options = p.ioOptions;
+                            options["FFmpeg/StartTime"] = string::Format("{0}").arg(infoRequest->startTime);
                             read = ioSystem->read(
                                 infoRequest->path,
                                 infoRequest->memoryRead,
-                                p.ioOptions);
+                                options);
                             p.thread.cache.add(fileName, read);
                         }
                     }
@@ -394,10 +334,12 @@ namespace tl
                         if (auto context = p.context.lock())
                         {
                             auto ioSystem = context->getSystem<io::System>();
+                            io::Options options = p.ioOptions;
+                            options["FFmpeg/StartTime"] = string::Format("{0}").arg(videoRequest->startTime);
                             read = ioSystem->read(
-                                infoRequest->path,
-                                infoRequest->memoryRead,
-                                p.ioOptions);
+                                videoRequest->path,
+                                videoRequest->memoryRead,
+                                options);
                             p.thread.cache.add(fileName, read);
                         }
                     }
@@ -419,10 +361,12 @@ namespace tl
                         if (auto context = p.context.lock())
                         {
                             auto ioSystem = context->getSystem<io::System>();
+                            io::Options options = p.ioOptions;
+                            options["FFmpeg/StartTime"] = string::Format("{0}").arg(audioRequest->startTime);
                             read = ioSystem->read(
-                                infoRequest->path,
-                                infoRequest->memoryRead,
-                                p.ioOptions);
+                                audioRequest->path,
+                                audioRequest->memoryRead,
+                                options);
                             p.thread.cache.add(fileName, read);
                         }
                     }
@@ -445,6 +389,7 @@ namespace tl
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                 infoRequests = std::move(p.mutex.infoRequests);
                 videoRequests = std::move(p.mutex.videoRequests);
+                audioRequests = std::move(p.mutex.audioRequests);
             }
             for (auto& request : infoRequests)
             {
