@@ -59,6 +59,9 @@ namespace tl
             std::shared_ptr<observer::IValue<bool> > observeCancelRequests() const;
 
         private:
+            void _run();
+            void _cancelRequests();
+            
             TLRENDER_PRIVATE();
         };
     }
