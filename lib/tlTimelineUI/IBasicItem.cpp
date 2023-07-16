@@ -6,6 +6,8 @@
 
 #include <tlUI/DrawUtil.h>
 
+#include <tlTimeline/RenderUtil.h>
+
 namespace tl
 {
     namespace timelineui
@@ -137,6 +139,11 @@ namespace tl
             event.render->drawRect(
                 g,
                 _options.colors.find(p.colorRole)->second);
+
+            const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
+            const timeline::ClipRectState clipRectState(event.render);
+            event.render->setClipRectEnabled(true);
+            event.render->setClipRect(g);
 
             math::BBox2i labelGeometry(
                 g.min.x + p.size.margin,
