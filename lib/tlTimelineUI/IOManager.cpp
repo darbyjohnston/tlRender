@@ -102,7 +102,14 @@ namespace tl
         {}
 
         IOManager::~IOManager()
-        {}
+        {
+            TLRENDER_P();
+            p.thread.running = false;
+            if (p.thread.thread.joinable())
+            {
+                p.thread.thread.join();
+            }
+        }
 
         std::shared_ptr<IOManager> IOManager::create(
             const io::Options& options,
@@ -381,7 +388,7 @@ namespace tl
                 {
                     io::VideoData videoData;
                     std::shared_ptr<io::IRead> read;
-                    const std::string& fileName = infoRequest->path.get();
+                    const std::string& fileName = videoRequest->path.get();
                     if (!p.thread.cache.get(fileName, read))
                     {
                         if (auto context = p.context.lock())
@@ -406,7 +413,7 @@ namespace tl
                 {
                     io::AudioData audioData;
                     std::shared_ptr<io::IRead> read;
-                    const std::string& fileName = infoRequest->path.get();
+                    const std::string& fileName = audioRequest->path.get();
                     if (!p.thread.cache.get(fileName, read))
                     {
                         if (auto context = p.context.lock())
