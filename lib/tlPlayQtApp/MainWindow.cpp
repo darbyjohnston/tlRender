@@ -704,6 +704,18 @@ namespace tl
                         itemOptions.waveformHeight = itemOptions.thumbnailHeight / 2;
                         _p->timelineWidget->setItemOptions(itemOptions);
                     }
+                    else if ("Timeline/Transitions" == name)
+                    {
+                        auto itemOptions = _p->timelineWidget->itemOptions();
+                        itemOptions.showTransitions = value.toBool();
+                        _p->timelineWidget->setItemOptions(itemOptions);
+                    }
+                    else if ("Timeline/Markers" == name)
+                    {
+                        auto itemOptions = _p->timelineWidget->itemOptions();
+                        itemOptions.showMarkers = value.toBool();
+                        _p->timelineWidget->setItemOptions(itemOptions);
+                    }
                 });
 
             app->settingsObject()->setDefaultValue("MainWindow/geometry", QByteArray());
@@ -1101,6 +1113,8 @@ namespace tl
             itemOptions.thumbnails = p.app->settingsObject()->value("Timeline/Thumbnails").toBool();
             itemOptions.thumbnailHeight = p.app->settingsObject()->value("Timeline/ThumbnailsSize").toInt();
             itemOptions.waveformHeight = itemOptions.thumbnailHeight / 2;
+            itemOptions.showTransitions = p.app->settingsObject()->value("Timeline/Transitions").toBool();
+            itemOptions.showMarkers = p.app->settingsObject()->value("Timeline/Markers").toBool();
             p.timelineWidget->setItemOptions(itemOptions);
 
             {

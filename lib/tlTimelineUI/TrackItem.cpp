@@ -76,8 +76,6 @@ namespace tl
             }
             p.timeRange = track->trimmed_range();
 
-            _textUpdate();
-
             for (const auto& child : track->children())
             {
                 if (auto clip = otio::dynamic_retainer_cast<otio::Clip>(child))
@@ -152,6 +150,9 @@ namespace tl
                     p.transitions.push_back(item);
                 }
             }
+
+            _textUpdate();
+            _transitionsUpdate();
         }
 
         TrackItem::TrackItem() :
@@ -171,6 +172,16 @@ namespace tl
             auto out = std::shared_ptr<TrackItem>(new TrackItem);
             out->_init(track, trackNumber, itemData, context, parent);
             return out;
+        }
+
+        void TrackItem::setOptions(const ItemOptions& value)
+        {
+            const bool changed = value != _options;
+            IItem::setOptions(value);
+            if (changed)
+            {
+                _transitionsUpdate();
+            }
         }
 
         void TrackItem::setGeometry(const math::BBox2i& value)
@@ -240,9 +251,12 @@ namespace tl
                 clipsAndGapsHeight = std::max(clipsAndGapsHeight, item->getSizeHint().y);
             }
             int transitionsHeight = 0;
-            for (const auto& item : p.transitions)
+            if (_options.showTransitions)
             {
-                transitionsHeight = std::max(transitionsHeight, item->getSizeHint().y);
+                for (const auto& item : p.transitions)
+                {
+                    transitionsHeight = std::max(transitionsHeight, item->getSizeHint().y);
+                }
             }
 
             _sizeHint = math::Vector2i(
@@ -335,6 +349,15 @@ namespace tl
             p.draw.durationGlyphs.clear();
             _updates |= ui::Update::Size;
             _updates |= ui::Update::Draw;
+        }
+
+        void TrackItem::_transitionsUpdate()
+        {
+            TLRENDER_P();
+            for (const auto& transition : p.transitions)
+            {
+                transition->setVisible(_options.showTransitions);
+            }
         }
     }
 }

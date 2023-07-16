@@ -26,6 +26,8 @@ namespace tl
             std::shared_ptr<ui::MenuItem> thumbnailsItem;
             std::shared_ptr<Menu> thumbnailsSizeMenu;
             std::map<int, std::shared_ptr<ui::MenuItem> > thumbnailsSizeItems;
+            std::shared_ptr<ui::MenuItem> transitionsItem;
+            std::shared_ptr<ui::MenuItem> markersItem;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playerObserver;
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
@@ -295,6 +297,34 @@ namespace tl
                 });
             p.thumbnailsSizeMenu->addItem(p.thumbnailsSizeItems[300]);
 
+            p.transitionsItem = std::make_shared<ui::MenuItem>(
+                "Timeline Transitions",
+                [this](bool value)
+                {
+                    close();
+                    if (auto mainWindow = _p->mainWindow.lock())
+                    {
+                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        options.showTransitions = value;
+                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                    }
+                });
+            addItem(p.transitionsItem);
+
+            p.markersItem = std::make_shared<ui::MenuItem>(
+                "Timeline Markers",
+                [this](bool value)
+                {
+                    close();
+                    if (auto mainWindow = _p->mainWindow.lock())
+                    {
+                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        options.showMarkers = value;
+                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                    }
+                });
+            addItem(p.markersItem);
+
             _playbackUpdate();
             _loopUpdate();
             _thumbnailsSizeUpdate();
@@ -326,6 +356,8 @@ namespace tl
                 {
                     setItemChecked(_p->thumbnailsItem, value.thumbnails);
                     _thumbnailsSizeUpdate();
+                    setItemChecked(_p->transitionsItem, value.showTransitions);
+                    setItemChecked(_p->markersItem, value.showMarkers);
                 });
         }
 

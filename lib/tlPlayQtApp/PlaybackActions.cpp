@@ -160,6 +160,12 @@ namespace tl
             p.actionGroups["Timeline/ThumbnailsSize"]->addAction(p.actions["Timeline/ThumbnailsSize/Small"]);
             p.actionGroups["Timeline/ThumbnailsSize"]->addAction(p.actions["Timeline/ThumbnailsSize/Medium"]);
             p.actionGroups["Timeline/ThumbnailsSize"]->addAction(p.actions["Timeline/ThumbnailsSize/Large"]);
+            p.actions["Timeline/Transitions"] = new QAction(parent);
+            p.actions["Timeline/Transitions"]->setCheckable(true);
+            p.actions["Timeline/Transitions"]->setText(tr("Timeline Transitions"));
+            p.actions["Timeline/Markers"] = new QAction(parent);
+            p.actions["Timeline/Markers"]->setCheckable(true);
+            p.actions["Timeline/Markers"]->setText(tr("Timeline Markers"));
 
             p.actions["TimeUnits/Frames"] = new QAction(parent);
             p.actions["TimeUnits/Frames"]->setData(static_cast<int>(timeline::TimeUnits::Frames));
@@ -238,6 +244,8 @@ namespace tl
             thumbnailsSizeMenu->addAction(p.actions["Timeline/ThumbnailsSize/Small"]);
             thumbnailsSizeMenu->addAction(p.actions["Timeline/ThumbnailsSize/Medium"]);
             thumbnailsSizeMenu->addAction(p.actions["Timeline/ThumbnailsSize/Large"]);
+            p.menu->addAction(p.actions["Timeline/Transitions"]);
+            p.menu->addAction(p.actions["Timeline/Markers"]);
 
             p.speedMenu = new QMenu;
             for (auto i : speeds)
@@ -369,6 +377,20 @@ namespace tl
                 {
                     const int value = action->data().toInt();
                     app->settingsObject()->setValue("Timeline/ThumbnailsSize", value);
+                });
+            connect(
+                p.actions["Timeline/Transitions"],
+                &QAction::toggled,
+                [app](bool value)
+                {
+                    app->settingsObject()->setValue("Timeline/Transitions", value);
+                });
+            connect(
+                p.actions["Timeline/Markers"],
+                &QAction::toggled,
+                [app](bool value)
+                {
+                    app->settingsObject()->setValue("Timeline/Markers", value);
                 });
 
             connect(
@@ -549,6 +571,8 @@ namespace tl
             keys.removeAll("Timeline/ThumbnailsSize/Small");
             keys.removeAll("Timeline/ThumbnailsSize/Medium");
             keys.removeAll("Timeline/ThumbnailsSize/Large");
+            keys.removeAll("Timeline/Transitions");
+            keys.removeAll("Timeline/Markers");
             for (auto i : keys)
             {
                 p.actions[i]->setEnabled(count > 0);
@@ -633,6 +657,16 @@ namespace tl
                         break;
                     }
                 }
+            }
+            {
+                QSignalBlocker blocker(p.actions["Timeline/Transitions"]);
+                p.actions["Timeline/Transitions"]->setChecked(
+                    p.app->settingsObject()->value("Timeline/Transitions").toBool());
+            }
+            {
+                QSignalBlocker blocker(p.actions["Timeline/Markers"]);
+                p.actions["Timeline/Markers"]->setChecked(
+                    p.app->settingsObject()->value("Timeline/Markers").toBool());
             }
         }
     }

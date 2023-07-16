@@ -58,6 +58,8 @@ namespace tl
             p.defaultValues["Timeline/StopOnScrub"] = false;
             p.defaultValues["Timeline/Thumbnails"] = true;
             p.defaultValues["Timeline/ThumbnailsSize"] = 100;
+            p.defaultValues["Timeline/Transitions"] = false;
+            p.defaultValues["Timeline/Markers"] = false;
             const timeline::PlayerCacheOptions playerCacheOptions;
             p.defaultValues["Cache/ReadAhead"] = playerCacheOptions.readAhead.value();
             p.defaultValues["Cache/ReadBehind"] = playerCacheOptions.readBehind.value();

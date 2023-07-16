@@ -44,6 +44,8 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            void setOptions(const ItemOptions&) override;
+
             void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
             void drawEvent(
@@ -55,6 +57,7 @@ namespace tl
 
         private:
             void _textUpdate();
+            void _transitionsUpdate();
 
             TLRENDER_PRIVATE();
         };
