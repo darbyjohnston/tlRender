@@ -1,5 +1,6 @@
 set(HEADERS
     ButtonGroup.h
+    Bellows.h
     ComboBox.h
     Divider.h
     DoubleEdit.h
@@ -56,6 +57,7 @@ set(HEADERS_PRIVATE
 
 set(SOURCE
     ButtonGroup.cpp
+    Bellows.cpp
     ComboBox.cpp
     Divider.cpp
     DoubleEdit.cpp

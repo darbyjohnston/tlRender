@@ -15,6 +15,7 @@
 #include <tlPlayGLApp/RenderMenu.h>
 #include <tlPlayGLApp/ToolsMenu.h>
 #include <tlPlayGLApp/ToolsToolBar.h>
+#include <tlPlayGLApp/ToolsWidget.h>
 #include <tlPlayGLApp/ViewMenu.h>
 #include <tlPlayGLApp/ViewToolBar.h>
 #include <tlPlayGLApp/WindowMenu.h>
@@ -81,7 +82,7 @@ namespace tl
             std::shared_ptr<ui::ToolButton> audioButton;
             std::shared_ptr<ui::Label> statusLabel;
             std::shared_ptr<ui::Label> infoLabel;
-            std::shared_ptr<ui::Splitter> splitter;
+            std::shared_ptr<ToolsWidget> toolsWidget;
             std::shared_ptr<ui::RowLayout> layout;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playersObserver;
@@ -203,6 +204,9 @@ namespace tl
             p.infoLabel = ui::Label::create(context);
             p.infoLabel->setTextWidth(40);
 
+            p.toolsWidget = ToolsWidget::create(app, context);
+            p.toolsWidget->setVisible(false);
+
             p.layout = ui::VerticalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ui::SizeRole::None);
             p.menuBar->setParent(p.layout);
@@ -218,10 +222,13 @@ namespace tl
             p.viewToolBar->setParent(hLayout);
             ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
             p.toolsToolBar->setParent(hLayout);
-            p.splitter = ui::Splitter::create(ui::Orientation::Vertical, context, p.layout);
-            p.splitter->setSplit(.7F);
-            p.timelineViewport->setParent(p.splitter);
-            p.timelineWidget->setParent(p.splitter);
+            auto splitter = ui::Splitter::create(ui::Orientation::Vertical, context, p.layout);
+            splitter->setSplit(.7F);
+            auto splitter2 = ui::Splitter::create(ui::Orientation::Horizontal, context, splitter);
+            splitter2->setSplit(.8F);
+            p.timelineViewport->setParent(splitter2);
+            p.toolsWidget->setParent(splitter2);
+            p.timelineWidget->setParent(splitter);
             ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
             hLayout = ui::HorizontalLayout::create(context, p.layout);
             hLayout->setMarginRole(ui::SizeRole::MarginInside);

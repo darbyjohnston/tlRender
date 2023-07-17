@@ -14,6 +14,7 @@ namespace tl
         enum class ButtonGroupType
         {
             Click,
+            Check,
             Radio,
             Toggle
         };

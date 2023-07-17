@@ -54,6 +54,9 @@ namespace tl
             case ButtonGroupType::Click:
                 button->setCheckable(false);
                 break;
+            case ButtonGroupType::Check:
+                button->setCheckable(true);
+                break;
             case ButtonGroupType::Radio:
                 button->setCheckable(true);
                 break;
@@ -77,6 +80,12 @@ namespace tl
                 {
                     switch (_p->type)
                     {
+                    case ButtonGroupType::Check:
+                        if (_p->checkedCallback)
+                        {
+                            _p->checkedCallback(index, value);
+                        }
+                        break;
                     case ButtonGroupType::Radio:
                         for (size_t i = 0; i < _p->buttons.size(); ++i)
                         {
@@ -117,6 +126,12 @@ namespace tl
             TLRENDER_P();
             switch (p.type)
             {
+            case ButtonGroupType::Check:
+                if (index >= 0 && index < p.buttons.size())
+                {
+                    p.buttons[index]->setChecked(value);
+                }
+                break;
             case ButtonGroupType::Radio:
                 for (size_t i = 0; i < p.buttons.size(); ++i)
                 {

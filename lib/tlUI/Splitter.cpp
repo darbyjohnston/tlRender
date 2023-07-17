@@ -89,6 +89,11 @@ namespace tl
 
             const math::BBox2i& g = _geometry;
 
+            std::vector<bool> childVisible;
+            for (const auto& child : _children)
+            {
+                childVisible.push_back(child->isVisible(false));
+            }
             p.size.handleGeometry.clear();
             std::vector<math::BBox2i> childGeometry;
             int x = g.x();
@@ -98,41 +103,65 @@ namespace tl
             switch (p.orientation)
             {
             case Orientation::Horizontal:
-                w = g.w() * p.split - p.size.handle / 2;
-                h = g.h();
-                childGeometry.push_back(math::BBox2i(x, y, w, h));
-                x += w;
-                x += p.size.spacing;
-                w = p.size.handle;
-                p.size.handleGeometry.push_back(math::BBox2i(x, y, w, h));
-                x += w;
-                x += p.size.spacing;
-                w = g.x() + g.w() - x;
-                childGeometry.push_back(math::BBox2i(x, y, w, h));
+                if (_children.size() > 1 &&
+                    childVisible[0] &&
+                    childVisible[1])
+                {
+                    w = g.w() * p.split - p.size.handle / 2;
+                    h = g.h();
+                    childGeometry.push_back(math::BBox2i(x, y, w, h));
+                    x += w;
+                    x += p.size.spacing;
+                    w = p.size.handle;
+                    p.size.handleGeometry.push_back(math::BBox2i(x, y, w, h));
+                    x += w;
+                    x += p.size.spacing;
+                    w = g.x() + g.w() - x;
+                    childGeometry.push_back(math::BBox2i(x, y, w, h));
+                }
+                else
+                {
+                    for (size_t i = 0; i < _children.size(); ++i)
+                    {
+                        childGeometry.push_back(math::BBox2i(x, y, g.w(), g.h()));
+                    }
+                }
                 break;
             case Orientation::Vertical:
-                w = g.w();
-                h = g.h() * p.split - p.size.handle / 2;
-                childGeometry.push_back(math::BBox2i(x, y, w, h));
-                y += h;
-                y += p.size.spacing;
-                h = p.size.handle;
-                p.size.handleGeometry.push_back(math::BBox2i(x, y, w, h));
-                y += h;
-                y += p.size.spacing;
-                h = g.y() + g.h() - y;
-                childGeometry.push_back(math::BBox2i(x, y, w, h));
+                if (_children.size() > 1 &&
+                    childVisible[0] &&
+                    childVisible[1])
+                {
+                    w = g.w();
+                    h = g.h() * p.split - p.size.handle / 2;
+                    childGeometry.push_back(math::BBox2i(x, y, w, h));
+                    y += h;
+                    y += p.size.spacing;
+                    h = p.size.handle;
+                    p.size.handleGeometry.push_back(math::BBox2i(x, y, w, h));
+                    y += h;
+                    y += p.size.spacing;
+                    h = g.y() + g.h() - y;
+                    childGeometry.push_back(math::BBox2i(x, y, w, h));
+                }
+                else
+                {
+                    for (size_t i = 0; i < _children.size(); ++i)
+                    {
+                        childGeometry.push_back(math::BBox2i(x, y, g.w(), g.h()));
+                    }
+                }
                 break;
             }
 
             size_t i = 0;
             for (auto child : _children)
             {
-                child->setGeometry(childGeometry[i]);
-                if (i < childGeometry.size() - 1)
-                {
-                    ++i;
-                }
+                child->setGeometry(
+                    i < childGeometry.size() ?
+                    childGeometry[i] :
+                    g);
+                ++i;
             }
         }
 
@@ -197,13 +226,15 @@ namespace tl
                     handle,
                     event.style->getColorRole(ColorRole::Button));
             }
-            if (p.mouse.pressedHandle != -1)
+            if (p.mouse.pressedHandle >= 0 &&
+                p.mouse.pressedHandle < p.size.handleGeometry.size())
             {
                 event.render->drawRect(
                     p.size.handleGeometry[p.mouse.pressedHandle],
                     event.style->getColorRole(ColorRole::Pressed));
             }
-            else if (p.mouse.hoverHandle != -1)
+            else if (p.mouse.hoverHandle >= 0 &&
+                p.mouse.hoverHandle < p.size.handleGeometry.size())
             {
                 event.render->drawRect(
                     p.size.handleGeometry[p.mouse.hoverHandle],

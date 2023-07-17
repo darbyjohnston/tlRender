@@ -4,42 +4,34 @@
 
 #pragma once
 
-#include <tlUI/IWidget.h>
-
-#include <tlTimeline/Player.h>
+#include <tlPlayGLApp/IToolWidget.h>
 
 namespace tl
 {
     namespace play_gl
     {
         class App;
-        class MainWindow;
 
-        //! View tool bar.
-        class ViewToolBar : public ui::IWidget
+        //! Files tool widget.
+        class FilesToolWidget : public IToolWidget
         {
-            TLRENDER_NON_COPYABLE(ViewToolBar);
+            TLRENDER_NON_COPYABLE(FilesToolWidget);
 
         protected:
             void _init(
-                const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            ViewToolBar();
+            FilesToolWidget();
 
         public:
-            ~ViewToolBar();
+            virtual ~FilesToolWidget();
 
-            static std::shared_ptr<ViewToolBar> create(
-                const std::shared_ptr<MainWindow>&,
+            static std::shared_ptr<FilesToolWidget> create(
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
-
-            void setGeometry(const math::BBox2i&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
 
         private:
             TLRENDER_PRIVATE();

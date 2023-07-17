@@ -10,29 +10,37 @@ namespace tl
 {
     namespace ui
     {
-        //! Divider widget.
-        class Divider : public IWidget
+        //! Bellows widget.
+        class Bellows : public IWidget
         {
-            TLRENDER_NON_COPYABLE(Divider);
+            TLRENDER_NON_COPYABLE(Bellows);
 
         protected:
             void _init(
-                Orientation,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            Divider();
+            Bellows();
 
         public:
-            ~Divider() override;
+            ~Bellows() override;
 
             //! Create a new widget.
-            static std::shared_ptr<Divider> create(
-                Orientation,
+            static std::shared_ptr<Bellows> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            //! Set the text.
+            void setText(const std::string&);
+
+            //! Set the widget.
+            void setWidget(const std::shared_ptr<IWidget>&);
+
+            void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
+
+        private:
+            TLRENDER_PRIVATE();
         };
     }
 }

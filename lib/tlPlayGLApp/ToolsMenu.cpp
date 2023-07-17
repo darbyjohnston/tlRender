@@ -5,6 +5,7 @@
 #include <tlPlayGLApp/ToolsMenu.h>
 
 #include <tlPlayGLApp/App.h>
+#include <tlPlayGLApp/Tools.h>
 
 namespace tl
 {
@@ -12,6 +13,8 @@ namespace tl
     {
         struct ToolsMenu::Private
         {
+            std::map<Tool, std::shared_ptr<ui::MenuItem> > items;
+            std::shared_ptr<observer::MapObserver<Tool, bool> > visibleObserver;
         };
 
         void ToolsMenu::_init(
@@ -21,112 +24,34 @@ namespace tl
             Menu::_init(context);
             TLRENDER_P();
 
-            auto item = std::make_shared<ui::MenuItem>(
-                "Files",
-                "Files",
-                ui::Key::F1,
-                0,
-                [this](bool value)
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
+            auto appWeak = std::weak_ptr<App>(app);
+            for (const auto tool : getToolEnums())
+            {
+                p.items[tool] = std::make_shared<ui::MenuItem>(
+                    getText(tool),
+                    getIcon(tool),
+                    getShortcut(tool),
+                    0,
+                    [this, appWeak, tool](bool value)
+                    {
+                        close();
+                        if (auto app = appWeak.lock())
+                        {
+                            app->getToolsModel()->setToolVisible(tool, value);
+                        }
+                    });
+                addItem(p.items[tool]);
+            }
 
-            item = std::make_shared<ui::MenuItem>(
-                "Compare",
-                "Compare",
-                ui::Key::F2,
-                0,
-                [this](bool value)
+            p.visibleObserver = observer::MapObserver<Tool, bool>::create(
+                app->getToolsModel()->observeToolsVisible(),
+                [this](const std::map<Tool, bool>& value)
                 {
-                    close();
+                    for (const auto i : value)
+                    {
+                        setItemChecked(_p->items[i.first], i.second);
+                    }
                 });
-            addItem(item);
-            setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Color",
-                "Color",
-                ui::Key::F3,
-                0,
-                [this](bool value)
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Information",
-                "Info",
-                ui::Key::F4,
-                0,
-                [this](bool value)
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Audio",
-                "Audio",
-                ui::Key::F5,
-                0,
-                [this](bool value)
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Devices",
-                "Devices",
-                ui::Key::F6,
-                0,
-                [this](bool value)
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Settings",
-                "Settings",
-                ui::Key::F9,
-                0,
-                [this](bool value)
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Messages",
-                "Messages",
-                ui::Key::F10,
-                0,
-                [this](bool value)
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "System Log",
-                ui::Key::F11,
-                0,
-                [this](bool value)
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
         }
 
         ToolsMenu::ToolsMenu() :

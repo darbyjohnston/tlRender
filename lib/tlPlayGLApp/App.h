@@ -2,6 +2,8 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
+#pragma once
+
 #include <tlGLApp/IApp.h>
 
 #include <tlUI/RecentFilesModel.h>
@@ -23,6 +25,7 @@ namespace tl
     namespace play_gl
     {
         class MainWindow;
+        class ToolsModel;
 
         //! Application options.
         struct Options
@@ -87,6 +90,9 @@ namespace tl
 
             //! Observe the active timeline players.
             std::shared_ptr<observer::IList<std::shared_ptr<timeline::Player> > > observeActivePlayers() const;
+
+            //! Get the tools model.
+            const std::shared_ptr<ToolsModel>& getToolsModel() const;
 
             //! Get the main window.
             const std::shared_ptr<MainWindow>& getMainWindow() const;

@@ -38,6 +38,11 @@ namespace tl
         IButton::~IButton()
         {}
 
+        bool IButton::isCheckable() const
+        {
+            return _p->checkable;
+        }
+
         void IButton::setCheckable(bool value)
         {
             TLRENDER_P();
@@ -49,6 +54,11 @@ namespace tl
                 _checked = false;
                 _updates |= Update::Draw;
             }
+        }
+
+        bool IButton::isChecked() const
+        {
+            return _checked;
         }
 
         void IButton::setChecked(bool value)

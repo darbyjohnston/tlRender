@@ -1,16 +1,28 @@
 set(HEADERS
     App.h
     AudioMenu.h
+    AudioToolWidget.h
+    ColorToolWidget.h
     CompareMenu.h
     CompareToolBar.h
+    CompareToolWidget.h
+    DevicesToolWidget.h
     FileMenu.h
     FileToolBar.h
+    FilesToolWidget.h
     FrameMenu.h
+    IToolWidget.h
+    InfoToolWidget.h
     MainWindow.h
+    MessagesToolWidget.h
     PlaybackMenu.h
     RenderMenu.h
+    SettingsToolWidget.h
+    SystemLogToolWidget.h
+    Tools.h
     ToolsMenu.h
     ToolsToolBar.h
+    ToolsWidget.h
     ViewMenu.h
     ViewToolBar.h
     WindowMenu.h
@@ -19,18 +31,30 @@ set(HEADERS
 set(SOURCE
     App.cpp
     AudioMenu.cpp
+    AudioToolWidget.cpp
+    ColorToolWidget.cpp
     CompareMenu.cpp
     CompareToolBar.cpp
+    CompareToolWidget.cpp
+    DevicesToolWidget.cpp
     FileMenu.cpp
     FileToolBar.cpp
+    FilesToolWidget.cpp
     FrameMenu.cpp
+    IToolWidget.cpp
+    InfoToolWidget.cpp
     MainWindow.cpp
+    MessagesToolWidget.cpp
     PlaybackMenu.cpp
     RenderMenu.cpp
+    SettingsToolWidget.cpp
+    SystemLogToolWidget.cpp
     ViewMenu.cpp
     ViewToolBar.cpp
+    Tools.cpp
     ToolsMenu.cpp
     ToolsToolBar.cpp
+    ToolsWidget.cpp
     WindowMenu.cpp
     WindowToolBar.cpp)
 

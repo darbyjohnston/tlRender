@@ -26,8 +26,14 @@ namespace tl
         public:
             ~IButton() override;
 
+            //! Get whether the button is checkable.
+            bool isCheckable() const;
+
             //! Set whether the button is checkable.
             void setCheckable(bool);
+
+            //! Get whether the button is checked.
+            bool isChecked() const;
 
             //! Set whether the button is checked.
             void setChecked(bool);

@@ -78,22 +78,27 @@ namespace tl
             TLRENDER_P();
             const math::BBox2i g = _geometry.margin(-p.size.margin);
             size_t expanding = 0;
+            std::shared_ptr<IWidget> lastVisibleChild;
             for (const auto& child : _children)
             {
-                switch (p.orientation)
+                if (child->isVisible(false))
                 {
-                case Orientation::Horizontal:
-                    if (Stretch::Expanding == child->getHStretch())
+                    switch (p.orientation)
                     {
-                        ++expanding;
+                    case Orientation::Horizontal:
+                        if (Stretch::Expanding == child->getHStretch())
+                        {
+                            ++expanding;
+                        }
+                        break;
+                    case Orientation::Vertical:
+                        if (Stretch::Expanding == child->getVStretch())
+                        {
+                            ++expanding;
+                        }
+                        break;
                     }
-                    break;
-                case Orientation::Vertical:
-                    if (Stretch::Expanding == child->getVStretch())
-                    {
-                        ++expanding;
-                    }
-                    break;
+                    lastVisibleChild = child;
                 }
             }
             const std::pair<int, int> extra(
@@ -102,42 +107,44 @@ namespace tl
             math::Vector2i pos = g.min;
             for (const auto& child : _children)
             {
-                math::Vector2i size = child->getSizeHint();
-                const bool last = child == _children.back();
-                switch (p.orientation)
+                if (child->isVisible(false))
                 {
-                case Orientation::Horizontal:
-                    size.y = g.h();
-                    if (Stretch::Expanding == child->getHStretch())
+                    math::Vector2i size = child->getSizeHint();
+                    switch (p.orientation)
                     {
-                        size.x += extra.first / expanding;
-                        if (last)
+                    case Orientation::Horizontal:
+                        size.y = g.h();
+                        if (Stretch::Expanding == child->getHStretch())
                         {
-                            size.x += extra.first - (extra.first / expanding * expanding);
+                            size.x += extra.first / expanding;
+                            if (child == lastVisibleChild)
+                            {
+                                size.x += extra.first - (extra.first / expanding * expanding);
+                            }
                         }
+                        break;
+                    case Orientation::Vertical:
+                        size.x = g.w();
+                        if (Stretch::Expanding == child->getVStretch())
+                        {
+                            size.y += extra.second / expanding;
+                            if (child == lastVisibleChild)
+                            {
+                                size.y += extra.second - (extra.second / expanding * expanding);
+                            }
+                        }
+                        break;
                     }
-                    break;
-                case Orientation::Vertical:
-                    size.x = g.w();
-                    if (Stretch::Expanding == child->getVStretch())
+                    child->setGeometry(math::BBox2i(pos.x, pos.y, size.x, size.y));
+                    switch (p.orientation)
                     {
-                        size.y += extra.second / expanding;
-                        if (last)
-                        {
-                            size.y += extra.second - (extra.second / expanding * expanding);
-                        }
+                    case Orientation::Horizontal:
+                        pos.x += size.x + p.size.spacing;
+                        break;
+                    case Orientation::Vertical:
+                        pos.y += size.y + p.size.spacing;
+                        break;
                     }
-                    break;
-                }
-                child->setGeometry(math::BBox2i(pos.x, pos.y, size.x, size.y));
-                switch (p.orientation)
-                {
-                case Orientation::Horizontal:
-                    pos.x += size.x + p.size.spacing;
-                    break;
-                case Orientation::Vertical:
-                    pos.y += size.y + p.size.spacing;
-                    break;
                 }
             }
         }
@@ -156,24 +163,28 @@ namespace tl
             p.size.spacing = event.style->getSizeRole(p.spacingRole, event.displayScale);
 
             _sizeHint = math::Vector2i();
+            size_t count = 0;
             for (const auto& child : _children)
             {
-                const math::Vector2i& sizeHint = child->getSizeHint();
-                switch (p.orientation)
+                if (child->isVisible(false))
                 {
-                case Orientation::Horizontal:
-                    _sizeHint.x += sizeHint.x;
-                    _sizeHint.y = std::max(_sizeHint.y, sizeHint.y);
-                    break;
-                case Orientation::Vertical:
-                    _sizeHint.x = std::max(_sizeHint.x, sizeHint.x);
-                    _sizeHint.y += sizeHint.y;
-                    break;
+                    const math::Vector2i& sizeHint = child->getSizeHint();
+                    switch (p.orientation)
+                    {
+                    case Orientation::Horizontal:
+                        _sizeHint.x += sizeHint.x;
+                        _sizeHint.y = std::max(_sizeHint.y, sizeHint.y);
+                        break;
+                    case Orientation::Vertical:
+                        _sizeHint.x = std::max(_sizeHint.x, sizeHint.x);
+                        _sizeHint.y += sizeHint.y;
+                        break;
+                    }
+                    ++count;
                 }
             }
             if (!_children.empty())
             {
-                const size_t count = _children.size();
                 switch (p.orientation)
                 {
                 case Orientation::Horizontal:
