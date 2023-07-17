@@ -272,7 +272,15 @@ namespace tl
             // Open the input files.
             if (!p.input.empty())
             {
+                if (!p.options.compareFileName.empty())
+                {
+                    open(p.options.compareFileName);
+                    p.filesModel->setCompareOptions(p.options.compareOptions);
+                    p.filesModel->setB(0, true);
+                }
+
                 open(p.input);
+                
                 if (!p.players.empty())
                 {
                     if (auto player = p.players[0])

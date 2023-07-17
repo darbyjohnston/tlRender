@@ -4,7 +4,6 @@
 
 #include <tlUI/IntEdit.h>
 
-#include <tlUI/IntModel.h>
 #include <tlUI/LineEdit.h>
 
 #include <tlCore/StringFormat.h>
@@ -30,8 +29,8 @@ namespace tl
         };
 
         void IntEdit::_init(
-            const std::shared_ptr<IntModel>& model,
             const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IntModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::IntEdit", context, parent);
@@ -86,12 +85,12 @@ namespace tl
         {}
 
         std::shared_ptr<IntEdit> IntEdit::create(
-            const std::shared_ptr<IntModel>& model,
             const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IntModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<IntEdit>(new IntEdit);
-            out->_init(model, context, parent);
+            out->_init(context, model, parent);
             return out;
         }
 

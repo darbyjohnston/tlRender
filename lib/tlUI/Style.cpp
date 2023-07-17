@@ -27,6 +27,7 @@ namespace tl
             "SpacingTool",
             "Border",
             "ScrollArea",
+            "Slider",
             "Handle",
             "Shadow",
             "DragLength");
@@ -86,6 +87,7 @@ namespace tl
             _sizeRoles[static_cast<size_t>(SizeRole::SpacingTool)] = 2;
             _sizeRoles[static_cast<size_t>(SizeRole::Border)] = 1;
             _sizeRoles[static_cast<size_t>(SizeRole::ScrollArea)] = 200;
+            _sizeRoles[static_cast<size_t>(SizeRole::Slider)] = 100;
             _sizeRoles[static_cast<size_t>(SizeRole::Handle)] = 10;
             _sizeRoles[static_cast<size_t>(SizeRole::HandleSmall)] = 6;
             _sizeRoles[static_cast<size_t>(SizeRole::Shadow)] = 15;

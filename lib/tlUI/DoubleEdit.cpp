@@ -4,7 +4,6 @@
 
 #include <tlUI/DoubleEdit.h>
 
-#include <tlUI/DoubleModel.h>
 #include <tlUI/LayoutUtil.h>
 #include <tlUI/LineEdit.h>
 
@@ -32,8 +31,8 @@ namespace tl
         };
 
         void DoubleEdit::_init(
-            const std::shared_ptr<DoubleModel>& model,
             const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<DoubleModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::DoubleEdit", context, parent);
@@ -88,12 +87,12 @@ namespace tl
         {}
 
         std::shared_ptr<DoubleEdit> DoubleEdit::create(
-            const std::shared_ptr<DoubleModel>& model,
             const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<DoubleModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<DoubleEdit>(new DoubleEdit);
-            out->_init(model, context, parent);
+            out->_init(context, model, parent);
             return out;
         }
 

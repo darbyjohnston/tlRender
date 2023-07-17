@@ -27,7 +27,10 @@ namespace tl
 
             p.button = ui::ListButton::create(context);
             p.button->setCheckable(true);
+            p.button->setIcon("BellowsClosed");
+            p.button->setCheckedIcon("BellowsOpen");
             p.button->setButtonRole(ColorRole::Button);
+            p.button->setCheckedRole(ColorRole::Button);
 
             p.layout = ui::VerticalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ui::SizeRole::None);

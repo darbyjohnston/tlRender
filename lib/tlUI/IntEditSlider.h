@@ -5,13 +5,12 @@
 #pragma once
 
 #include <tlUI/IWidget.h>
+#include <tlUI/IntModel.h>
 
 namespace tl
 {
     namespace ui
     {
-        class IntModel;
-
         //! Integer value editor and slider.
         class IntEditSlider : public IWidget
         {
@@ -19,9 +18,9 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<IntModel>&,
                 const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<IntModel>&,
+                const std::shared_ptr<IWidget>& parent);
 
             IntEditSlider();
 
@@ -30,9 +29,12 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<IntEditSlider> create(
-                const std::shared_ptr<IntModel>&,
                 const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IntModel>& = nullptr,
                 const std::shared_ptr<IWidget>& parent = nullptr);
+
+            //! Get the model.
+            const std::shared_ptr<IntModel>& getModel() const;
 
             //! Set the number of digits to display.
             void setDigits(int);

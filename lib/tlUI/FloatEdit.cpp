@@ -4,7 +4,6 @@
 
 #include <tlUI/FloatEdit.h>
 
-#include <tlUI/FloatModel.h>
 #include <tlUI/LayoutUtil.h>
 #include <tlUI/LineEdit.h>
 
@@ -32,8 +31,8 @@ namespace tl
         };
 
         void FloatEdit::_init(
-            const std::shared_ptr<FloatModel>& model,
             const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<FloatModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::FloatEdit", context, parent);
@@ -88,12 +87,12 @@ namespace tl
         {}
 
         std::shared_ptr<FloatEdit> FloatEdit::create(
-            const std::shared_ptr<FloatModel>& model,
             const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<FloatModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FloatEdit>(new FloatEdit);
-            out->_init(model, context, parent);
+            out->_init(context, model, parent);
             return out;
         }
 

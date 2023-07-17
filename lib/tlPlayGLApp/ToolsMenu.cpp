@@ -14,7 +14,7 @@ namespace tl
         struct ToolsMenu::Private
         {
             std::map<Tool, std::shared_ptr<ui::MenuItem> > items;
-            std::shared_ptr<observer::MapObserver<Tool, bool> > visibleObserver;
+            std::shared_ptr<observer::ValueObserver<int> > activeObserver;
         };
 
         void ToolsMenu::_init(
@@ -37,19 +37,26 @@ namespace tl
                         close();
                         if (auto app = appWeak.lock())
                         {
-                            app->getToolsModel()->setToolVisible(tool, value);
+                            auto toolsModel = app->getToolsModel();
+                            const int active = toolsModel->getActiveTool();
+                            toolsModel->setActiveTool(
+                                static_cast<int>(tool) != active ?
+                                static_cast<int>(tool) :
+                                -1);
                         }
                     });
                 addItem(p.items[tool]);
             }
 
-            p.visibleObserver = observer::MapObserver<Tool, bool>::create(
-                app->getToolsModel()->observeToolsVisible(),
-                [this](const std::map<Tool, bool>& value)
+            p.activeObserver = observer::ValueObserver<int>::create(
+                app->getToolsModel()->observeActiveTool(),
+                [this](int value)
                 {
-                    for (const auto i : value)
+                    for (const auto& item : _p->items)
                     {
-                        setItemChecked(_p->items[i.first], i.second);
+                        setItemChecked(
+                            item.second,
+                            static_cast<int>(item.first) == value);
                     }
                 });
         }

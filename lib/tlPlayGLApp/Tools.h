@@ -6,7 +6,7 @@
 
 #include <tlUI/Event.h>
 
-#include <tlCore/MapObserver.h>
+#include <tlCore/ValueObserver.h>
 
 namespace tl
 {
@@ -56,14 +56,14 @@ namespace tl
             //! Create a new model.
             static std::shared_ptr<ToolsModel> create();
 
-            //! Get tool visibility.
-            const std::map<Tool, bool>& getToolsVisible() const;
+            //! Get the active tool.
+            int getActiveTool() const;
 
-            //! Observe tool visibility.
-            std::shared_ptr<observer::IMap<Tool, bool> > observeToolsVisible() const;
+            //! Observe the active tool.
+            std::shared_ptr<observer::Value<int> > observeActiveTool() const;
 
-            //! Set tool visibility.
-            void setToolVisible(Tool, bool);
+            //! Set the active tool.
+            void setActiveTool(int);
 
         private:
             TLRENDER_PRIVATE();

@@ -47,8 +47,14 @@ namespace tl
             //! Set the icon.
             void setIcon(const std::string&);
 
-            //! Set the button role.
+            //! Set the checked icon.
+            void setCheckedIcon(const std::string&);
+
+            //! Set the button color role.
             void setButtonRole(ColorRole);
+
+            //! Set the checked color role.
+            void setCheckedRole(ColorRole);
 
             //! Set the hovered callback.
             void setHoveredCallback(const std::function<void(bool)>&);
@@ -87,8 +93,12 @@ namespace tl
 
             std::string _text;
             FontRole _fontRole = FontRole::Label;
+            std::string _icon;
             std::shared_ptr<imaging::Image> _iconImage;
+            std::string _checkedIcon;
+            std::shared_ptr<imaging::Image> _checkedIconImage;
             ColorRole _buttonRole = ColorRole::Button;
+            ColorRole _checkedRole = ColorRole::Checked;
             bool _inside = false;
             math::Vector2i _cursorPos;
             bool _pressed = false;

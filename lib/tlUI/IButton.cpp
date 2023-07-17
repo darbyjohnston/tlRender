@@ -13,10 +13,11 @@ namespace tl
         struct IButton::Private
         {
             bool checkable = false;
-            std::string icon;
             float iconScale = 1.F;
             bool iconInit = false;
             std::future<std::shared_ptr<imaging::Image> > iconFuture;
+            bool checkedIconInit = false;
+            std::future<std::shared_ptr<imaging::Image> > checkedIconFuture;
             bool repeatClick = false;
             bool repeatClickInit = false;
             std::chrono::steady_clock::time_point repeatClickTimer;
@@ -87,13 +88,21 @@ namespace tl
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
-        
+
         void IButton::setIcon(const std::string& icon)
         {
             TLRENDER_P();
-            p.icon = icon;
+            _icon = icon;
             p.iconInit = true;
             _iconImage.reset();
+        }
+
+        void IButton::setCheckedIcon(const std::string& icon)
+        {
+            TLRENDER_P();
+            _checkedIcon = icon;
+            p.checkedIconInit = true;
+            _checkedIconImage.reset();
         }
 
         void IButton::setButtonRole(ColorRole value)
@@ -101,6 +110,14 @@ namespace tl
             if (value == _buttonRole)
                 return;
             _buttonRole = value;
+            _updates |= Update::Draw;
+        }
+
+        void IButton::setCheckedRole(ColorRole value)
+        {
+            if (value == _checkedRole)
+                return;
+            _checkedRole = value;
             _updates |= Update::Draw;
         }
 
@@ -163,16 +180,31 @@ namespace tl
                 p.iconInit = true;
                 p.iconFuture = std::future<std::shared_ptr<imaging::Image> >();
                 _iconImage.reset();
+                p.checkedIconInit = true;
+                p.checkedIconFuture = std::future<std::shared_ptr<imaging::Image> >();
+                _checkedIconImage.reset();
             }
-            if (!p.icon.empty() && p.iconInit)
+            if (!_icon.empty() && p.iconInit)
             {
                 p.iconInit = false;
-                p.iconFuture = event.iconLibrary->request(p.icon, event.displayScale);
+                p.iconFuture = event.iconLibrary->request(_icon, event.displayScale);
             }
             if (p.iconFuture.valid() &&
                 p.iconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
                 _iconImage = p.iconFuture.get();
+                _updates |= Update::Size;
+                _updates |= Update::Draw;
+            }
+            if (!_checkedIcon.empty() && p.checkedIconInit)
+            {
+                p.checkedIconInit = false;
+                p.checkedIconFuture = event.iconLibrary->request(_checkedIcon, event.displayScale);
+            }
+            if (p.checkedIconFuture.valid() &&
+                p.checkedIconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+            {
+                _checkedIconImage = p.checkedIconFuture.get();
                 _updates |= Update::Size;
                 _updates |= Update::Draw;
             }

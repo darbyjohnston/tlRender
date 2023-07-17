@@ -5,7 +5,6 @@
 #include <tlUI/IntSlider.h>
 
 #include <tlUI/DrawUtil.h>
-#include <tlUI/IntModel.h>
 
 namespace tl
 {
@@ -36,8 +35,8 @@ namespace tl
         };
 
         void IntSlider::_init(
-            const std::shared_ptr<IntModel>& model,
             const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IntModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::IntSlider", context, parent);
@@ -45,6 +44,7 @@ namespace tl
 
             setMouseHover(true);
             setAcceptsKeyFocus(true);
+            setHStretch(Stretch::Expanding);
 
             p.model = model;
             if (!p.model)
@@ -77,12 +77,12 @@ namespace tl
         {}
 
         std::shared_ptr<IntSlider> IntSlider::create(
-            const std::shared_ptr<IntModel>& model,
             const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IntModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<IntSlider>(new IntSlider);
-            out->_init(model, context, parent);
+            out->_init(context, model, parent);
             return out;
         }
 
@@ -124,7 +124,7 @@ namespace tl
             p.size.fontMetrics = event.fontSystem->getMetrics(fontInfo);
 
             _sizeHint.x =
-                event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale) +
+                event.style->getSizeRole(SizeRole::Slider, event.displayScale) +
                 p.size.border * 6;
             _sizeHint.y =
                 p.size.fontMetrics.lineHeight +

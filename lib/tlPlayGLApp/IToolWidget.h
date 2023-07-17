@@ -35,9 +35,12 @@ namespace tl
             void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
 
-        private:
+        protected:
+            void _setWidget(const std::shared_ptr<ui::IWidget>&);
+
             std::weak_ptr<App> _app;
 
+        private:
             TLRENDER_PRIVATE();
         };
     }

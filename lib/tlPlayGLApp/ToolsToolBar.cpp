@@ -20,7 +20,7 @@ namespace tl
             std::shared_ptr<ui::ButtonGroup> buttonGroup;
             std::map<Tool, std::shared_ptr<ui::ToolButton> > buttons;
             std::shared_ptr<ui::HorizontalLayout> layout;
-            std::shared_ptr<observer::MapObserver<Tool, bool> > visibleObserver;
+            std::shared_ptr<observer::ValueObserver<int> > activeObserver;
         };
 
         void ToolsToolBar::_init(
@@ -34,7 +34,7 @@ namespace tl
                 parent);
             TLRENDER_P();
 
-            p.buttonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Check, context);
+            p.buttonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Toggle, context);
             for (const auto tool : getToolEnums())
             {
                 auto button = ui::ToolButton::create(context);
@@ -57,19 +57,17 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getToolsModel()->setToolVisible(
-                            static_cast<Tool>(index),
-                            value);
+                        app->getToolsModel()->setActiveTool(value ? index : -1);
                     }
                 });
 
-            p.visibleObserver = observer::MapObserver<Tool, bool>::create(
-                app->getToolsModel()->observeToolsVisible(),
-                [this](const std::map<Tool, bool>& value)
+            p.activeObserver = observer::ValueObserver<int>::create(
+                app->getToolsModel()->observeActiveTool(),
+                [this](int value)
                 {
-                    for (const auto i : value)
+                    for (const auto& button : _p->buttons)
                     {
-                        _p->buttons[i.first]->setChecked(i.second);
+                        button.second->setChecked(static_cast<int>(button.first) == value);
                     }
                 });
         }

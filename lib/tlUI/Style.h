@@ -28,6 +28,7 @@ namespace tl
             SpacingTool,
             Border,
             ScrollArea,
+            Slider,
             Handle,
             HandleSmall,
             Shadow,

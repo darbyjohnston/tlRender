@@ -102,6 +102,12 @@ namespace tl
                 }
                 _sizeHint.x = p.size.textSize.x + p.size.margin * 2;
                 _sizeHint.y = p.size.fontMetrics.lineHeight;
+                if (_icon.empty())
+                {
+                    const int max = std::max(_sizeHint.x, _sizeHint.y);
+                    _sizeHint.x = max;
+                    _sizeHint.y = max;
+                }
             }
             if (_iconImage)
             {
@@ -161,9 +167,7 @@ namespace tl
             //}
 
             const math::BBox2i g2 = g.margin(-p.size.border * 2);
-            const ColorRole colorRole = _checked ?
-                ColorRole::Checked :
-                _buttonRole;
+            const ColorRole colorRole = _checked ? _checkedRole : _buttonRole;
             if (colorRole != ColorRole::None)
             {
                 event.render->drawRect(
@@ -207,8 +211,11 @@ namespace tl
                 {
                     p.draw.glyphs = event.fontSystem->getGlyphs(_text, p.size.fontInfo);
                 }
+                const int x2 = !_icon.empty() ?
+                    (x + p.size.margin) :
+                    (g2.x() + g2.w() / 2 - p.size.textSize.x / 2);
                 const math::Vector2i pos(
-                    x + p.size.margin,
+                    x2,
                     g2.y() + g2.h() / 2 - p.size.textSize.y / 2 +
                     p.size.fontMetrics.ascender);
                 event.render->drawText(

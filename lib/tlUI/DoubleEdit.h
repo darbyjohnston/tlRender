@@ -4,14 +4,13 @@
 
 #pragma once
 
+#include <tlUI/DoubleModel.h>
 #include <tlUI/IWidget.h>
 
 namespace tl
 {
     namespace ui
     {
-        class DoubleModel;
-
         //! Double precision floating point number editor.
         class DoubleEdit : public IWidget
         {
@@ -19,9 +18,9 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<DoubleModel>&,
                 const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<DoubleModel>&,
+                const std::shared_ptr<IWidget>& parent);
 
             DoubleEdit();
 
@@ -30,8 +29,8 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<DoubleEdit> create(
-                const std::shared_ptr<DoubleModel>&,
                 const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<DoubleModel>& = nullptr,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the model.

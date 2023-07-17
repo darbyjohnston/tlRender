@@ -6,6 +6,8 @@
 
 #include <tlPlayGLApp/IToolWidget.h>
 
+#include <tlPlay/FilesModel.h>
+
 namespace tl
 {
     namespace play_gl
@@ -34,6 +36,12 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:
+            void _filesUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
+            void _aUpdate(const std::shared_ptr<play::FilesModelItem>&);
+            void _bUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
+            void _layersUpdate(const std::vector<int>&);
+            void _compareUpdate(const timeline::CompareOptions&);
+
             TLRENDER_PRIVATE();
         };
     }

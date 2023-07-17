@@ -62,9 +62,8 @@ namespace tl
                     intLabels.push_back(label);
                     auto model = ui::IntModel::create(context);
                     model->setRange(i);
-                    auto edit = ui::IntEditSlider::create(model, context);
+                    auto edit = ui::IntEditSlider::create(context, model);
                     edit->setDigits(digits);
-                    edit->setHStretch(ui::Stretch::Expanding);
                     intEdits.push_back(edit);
                 }
 
@@ -93,9 +92,8 @@ namespace tl
                     floatLabels.push_back(label);
                     auto model = ui::FloatModel::create(context);
                     model->setRange(i);
-                    auto edit = ui::FloatEditSlider::create(model, context);
+                    auto edit = ui::FloatEditSlider::create(context, model);
                     edit->setDigits(digits);
-                    edit->setHStretch(ui::Stretch::Expanding);
                     floatEdits.push_back(edit);
                 }
                 

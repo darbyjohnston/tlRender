@@ -166,9 +166,7 @@ namespace tl
             // Draw the background and checked state.
             const math::BBox2i g2 = g.margin(-p.size.border * 2);
             const auto mesh = rect(g2);
-            const ColorRole colorRole = _checked ?
-                ColorRole::Checked :
-                _buttonRole;
+            const ColorRole colorRole = _checked ? _checkedRole : _buttonRole;
             if (colorRole != ColorRole::None)
             {
                 event.render->drawMesh(

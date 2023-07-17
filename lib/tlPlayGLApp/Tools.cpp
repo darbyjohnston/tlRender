@@ -80,13 +80,13 @@ namespace tl
 
         struct ToolsModel::Private
         {
-            std::shared_ptr<observer::Map<Tool, bool> > toolsVisible;
+            std::shared_ptr<observer::Value<int> > activeTool;
         };
 
         void ToolsModel::_init()
         {
             TLRENDER_P();
-            p.toolsVisible = observer::Map<Tool, bool>::create();
+            p.activeTool = observer::Value<int>::create(-1);
         }
 
         ToolsModel::ToolsModel() :
@@ -103,22 +103,19 @@ namespace tl
             return out;
         }
 
-        const std::map<Tool, bool>& ToolsModel::getToolsVisible() const
+        int ToolsModel::getActiveTool() const
         {
-            return _p->toolsVisible->get();
+            return _p->activeTool->get();
         }
 
-        std::shared_ptr<observer::IMap<Tool, bool> > ToolsModel::observeToolsVisible() const
+        std::shared_ptr<observer::Value<int> > ToolsModel::observeActiveTool() const
         {
-            return _p->toolsVisible;
+            return _p->activeTool;
         }
 
-        void ToolsModel::setToolVisible(Tool tool, bool value)
+        void ToolsModel::setActiveTool(int value)
         {
-            TLRENDER_P();
-            auto visible = p.toolsVisible->get();
-            visible[tool] = value;
-            p.toolsVisible->setIfChanged(visible);
+            _p->activeTool->setIfChanged(value);
         }
     }
 }

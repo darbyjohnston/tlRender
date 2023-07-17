@@ -114,16 +114,25 @@ namespace tl
                 _sizeHint.x = p.size.textSize.x + p.size.margin * 2;
                 _sizeHint.y = p.size.fontMetrics.lineHeight;
             }
-            if (_iconImage)
+            if (_iconImage || _checkedIconImage)
             {
-                _sizeHint.x += _iconImage->getWidth();
                 if (!_text.empty())
                 {
                     _sizeHint.x += p.size.spacing;
                 }
-                _sizeHint.y = std::max(
-                    _sizeHint.y,
-                    static_cast<int>(_iconImage->getHeight()));
+                math::Vector2i size;
+                if (_iconImage)
+                {
+                    size.x = std::max(size.x, static_cast<int>(_iconImage->getWidth()));
+                    size.y = std::max(size.y, static_cast<int>(_iconImage->getHeight()));
+                }
+                if (_checkedIconImage)
+                {
+                    size.x = std::max(size.x, static_cast<int>(_checkedIconImage->getWidth()));
+                    size.y = std::max(size.y, static_cast<int>(_checkedIconImage->getHeight()));
+                }
+                _sizeHint.x += size.x;
+                _sizeHint.y = std::max(_sizeHint.y, size.y);
             }
             _sizeHint.x +=
                 p.size.margin * 2 +
@@ -166,9 +175,7 @@ namespace tl
             }
 
             // Draw the background and checked state.
-            const ColorRole colorRole = _checked ?
-                ColorRole::Checked :
-                _buttonRole;
+            const ColorRole colorRole = _checked ? _checkedRole : _buttonRole;
             if (colorRole != ColorRole::None)
             {
                 event.render->drawRect(
@@ -193,7 +200,22 @@ namespace tl
             // Draw the icon.
             const math::BBox2i g2 = g.margin(-p.size.border * 2);
             int x = g2.x() + p.size.margin;
-            if (_iconImage)
+            if (_checked && _checkedIconImage)
+            {
+                const imaging::Size& iconSize = _checkedIconImage->getSize();
+                event.render->drawImage(
+                    _checkedIconImage,
+                    math::BBox2i(
+                        x,
+                        g2.y() + g2.h() / 2 - iconSize.h / 2,
+                        iconSize.w,
+                        iconSize.h),
+                    event.style->getColorRole(enabled ?
+                        ColorRole::Text :
+                        ColorRole::TextDisabled));
+                x += iconSize.w + p.size.spacing;
+            }
+            else if (_iconImage)
             {
                 const imaging::Size& iconSize = _iconImage->getSize();
                 event.render->drawImage(

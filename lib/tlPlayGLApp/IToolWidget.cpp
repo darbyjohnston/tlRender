@@ -19,6 +19,7 @@ namespace tl
             Tool tool;
             std::shared_ptr<ui::Label> label;
             std::shared_ptr<ui::ToolButton> closeButton;
+            std::shared_ptr<ui::VerticalLayout> toolLayout;
             std::shared_ptr<ui::VerticalLayout> layout;
         };
 
@@ -44,9 +45,16 @@ namespace tl
             p.closeButton->setIcon("Close");
 
             p.layout = ui::VerticalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(ui::SizeRole::None);
             auto hLayout = ui::HorizontalLayout::create(context, p.layout);
+            hLayout->setBackgroundRole(ui::ColorRole::Button);
             p.label->setParent(hLayout);
             p.closeButton->setParent(hLayout);
+            p.toolLayout = ui::VerticalLayout::create(context, p.layout);
+            p.toolLayout->setMarginRole(ui::SizeRole::MarginSmall);
+            p.toolLayout->setSpacingRole(ui::SizeRole::None);
+            p.toolLayout->setHStretch(ui::Stretch::Expanding);
+            p.toolLayout->setVStretch(ui::Stretch::Expanding);
 
             auto appWeak = std::weak_ptr<App>(app);
             p.closeButton->setClickedCallback(
@@ -54,7 +62,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getToolsModel()->setToolVisible(tool, false);
+                        app->getToolsModel()->setActiveTool(-1);
                     }
                 });
         }
@@ -76,6 +84,13 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             _sizeHint = _p->layout->getSizeHint();
+        }
+
+        void IToolWidget::_setWidget(const std::shared_ptr<ui::IWidget>& value)
+        {
+            value->setHStretch(ui::Stretch::Expanding);
+            value->setVStretch(ui::Stretch::Expanding);
+            value->setParent(_p->toolLayout);
         }
     }
 }

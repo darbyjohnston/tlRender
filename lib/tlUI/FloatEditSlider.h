@@ -4,14 +4,13 @@
 
 #pragma once
 
+#include <tlUI/FloatModel.h>
 #include <tlUI/IWidget.h>
 
 namespace tl
 {
     namespace ui
     {
-        class FloatModel;
-
         //! Floating point value editor and slider.
         class FloatEditSlider : public IWidget
         {
@@ -19,9 +18,9 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<FloatModel>&,
                 const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<FloatModel>&,
+                const std::shared_ptr<IWidget>& parent);
 
             FloatEditSlider();
 
@@ -30,9 +29,12 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<FloatEditSlider> create(
-                const std::shared_ptr<FloatModel>&,
                 const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<FloatModel>& = nullptr,
                 const std::shared_ptr<IWidget>& parent = nullptr);
+
+            //! Get the model.
+            const std::shared_ptr<FloatModel>& getModel() const;
 
             //! Set the number of digits to display.
             void setDigits(int);

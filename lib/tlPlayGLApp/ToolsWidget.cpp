@@ -16,7 +16,7 @@
 #include <tlPlayGLApp/SystemLogToolWidget.h>
 
 #include <tlUI/RowLayout.h>
-#include <tlUI/ScrollWidget.h>
+#include <tlUI/StackLayout.h>
 
 namespace tl
 {
@@ -25,8 +25,8 @@ namespace tl
         struct ToolsWidget::Private
         {
             std::map<Tool, std::shared_ptr<IToolWidget> > toolWidgets;
-            std::shared_ptr<ui::ScrollWidget> scrollWidget;
-            std::shared_ptr<observer::MapObserver<Tool, bool> > visibleObserver;
+            std::shared_ptr<ui::StackLayout> layout;
+            std::shared_ptr<observer::ValueObserver<int> > activeObserver;
         };
 
         void ToolsWidget::_init(
@@ -50,34 +50,18 @@ namespace tl
             p.toolWidgets[Tool::Settings] = SettingsToolWidget::create(app, context);
             p.toolWidgets[Tool::SystemLog] = SystemLogToolWidget::create(app, context);
 
+            p.layout = ui::StackLayout::create(context, shared_from_this());
             for (const auto& widget : p.toolWidgets)
             {
-                widget.second->setVisible(false);
+                widget.second->setParent(p.layout);
             }
 
-            p.scrollWidget = ui::ScrollWidget::create(
-                context,
-                ui::ScrollType::Vertical,
-                shared_from_this());
-            auto layout = ui::VerticalLayout::create(context);
-            layout->setSpacingRole(ui::SizeRole::None);
-            p.scrollWidget->setWidget(layout);
-            for (const auto& widget : p.toolWidgets)
-            {
-                widget.second->setParent(layout);
-            }
-
-            p.visibleObserver = observer::MapObserver<Tool, bool>::create(
-                app->getToolsModel()->observeToolsVisible(),
-                [this](const std::map<Tool, bool>& value)
+            p.activeObserver = observer::ValueObserver<int>::create(
+                app->getToolsModel()->observeActiveTool(),
+                [this](int value)
                 {
-                    bool visible = false;
-                    for (const auto& i : value)
-                    {
-                        _p->toolWidgets[i.first]->setVisible(i.second);
-                        visible |= i.second;
-                    }
-                    setVisible(visible);
+                    _p->layout->setCurrentIndex(value);
+                    setVisible(value != -1);
                 });
         }
 
@@ -101,13 +85,13 @@ namespace tl
         void ToolsWidget::setGeometry(const math::BBox2i & value)
         {
             IWidget::setGeometry(value);
-            _p->scrollWidget->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
 
         void ToolsWidget::sizeHintEvent(const ui::SizeHintEvent & event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->scrollWidget->getSizeHint();
+            _sizeHint = _p->layout->getSizeHint();
         }
 
         std::map<Tool, bool> ToolsWidget::_getToolsVisible() const
