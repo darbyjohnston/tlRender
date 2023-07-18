@@ -7,5 +7,8 @@ ExternalProject_Add(
     PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${CMAKE_CURRENT_SOURCE_DIR}/NASM-patch/configure
         ${CMAKE_CURRENT_BINARY_DIR}/NASM/src/NASM/configure
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_CURRENT_SOURCE_DIR}/NASM-patch/config/config.h.in
+        ${CMAKE_CURRENT_BINARY_DIR}/NASM/src/NASM/config/config.h.in
     CONFIGURE_COMMAND sh configure --prefix=${CMAKE_INSTALL_PREFIX}
     BUILD_IN_SOURCE 1)
