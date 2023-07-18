@@ -28,12 +28,11 @@ namespace tl
             std::map<std::shared_ptr<play::FilesModelItem>, std::shared_ptr<ui::ToolButton> > aButtons;
             std::map<std::shared_ptr<play::FilesModelItem>, std::shared_ptr<ui::ToolButton> > bButtons;
             std::vector<std::shared_ptr<ui::ComboBox> > layerComboBoxes;
-            std::vector<std::shared_ptr<ui::IWidget> > widgets;
             std::shared_ptr<ui::FloatEditSlider> wipeXSlider;
             std::shared_ptr<ui::FloatEditSlider> wipeYSlider;
             std::shared_ptr<ui::FloatEditSlider> wipeRotationSlider;
             std::shared_ptr<ui::FloatEditSlider> overlaySlider;
-            std::shared_ptr<ui::VerticalLayout> widgetLayout;
+            std::shared_ptr<ui::GridLayout> widgetLayout;
             std::shared_ptr<ui::VerticalLayout> layout;
             std::shared_ptr<ui::ScrollWidget> scrollWidget;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
@@ -74,7 +73,7 @@ namespace tl
 
             p.layout = ui::VerticalLayout::create(context);
             p.layout->setSpacingRole(ui::SizeRole::None);
-            p.widgetLayout = ui::VerticalLayout::create(context, p.layout);
+            p.widgetLayout = ui::GridLayout::create(context, p.layout);
             p.widgetLayout->setMarginRole(ui::SizeRole::MarginSmall);
             p.widgetLayout->setSpacingRole(ui::SizeRole::None);
 
@@ -244,11 +243,12 @@ namespace tl
             p.aButtonGroup->clearButtons();
             p.bButtonGroup->clearButtons();
             p.layerComboBoxes.clear();
-            for (const auto& widget : p.widgets)
+            auto children = p.widgetLayout->getChildren();
+            for (const auto& widget : children)
             {
                 widget->setParent(nullptr);
             }
-            p.widgets.clear();
+            children.clear();
             auto appWeak = _app;
             if (auto app = appWeak.lock())
             {
@@ -256,18 +256,23 @@ namespace tl
                 const auto& b = app->getFilesModel()->getB();
                 if (auto context = _context.lock())
                 {
+                    size_t row = 0;
                     for (const auto& item : value)
                     {
                         auto label = ui::Label::create(context);
                         label->setText(item->path.get(-1, false));
                         label->setTextWidth(32);
                         label->setHStretch(ui::Stretch::Expanding);
+                        label->setParent(p.widgetLayout);
+                        p.widgetLayout->setGridPos(label, row, 0);
 
                         auto aButton = ui::ToolButton::create(context);
                         aButton->setText("A");
                         aButton->setChecked(item == a);
                         p.aButtons[item] = aButton;
                         p.aButtonGroup->addButton(aButton);
+                        aButton->setParent(p.widgetLayout);
+                        p.widgetLayout->setGridPos(aButton, row, 1);
 
                         auto bButton = ui::ToolButton::create(context);
                         bButton->setText("B");
@@ -275,22 +280,15 @@ namespace tl
                         bButton->setChecked(i != b.end());
                         p.bButtons[item] = bButton;
                         p.bButtonGroup->addButton(bButton);
+                        bButton->setParent(p.widgetLayout);
+                        p.widgetLayout->setGridPos(bButton, row, 2);
 
                         auto layerComboBox = ui::ComboBox::create(context);
                         layerComboBox->setItems(item->videoLayers);
                         layerComboBox->setCurrentIndex(item->videoLayer);
                         p.layerComboBoxes.push_back(layerComboBox);
-
-                        auto layout = ui::HorizontalLayout::create(context);
-                        layout->setSpacingRole(ui::SizeRole::SpacingSmall);
-                        label->setParent(layout);
-                        auto hLayout = ui::HorizontalLayout::create(context, layout);
-                        hLayout->setSpacingRole(ui::SizeRole::None);
-                        aButton->setParent(hLayout);
-                        bButton->setParent(hLayout);
-                        layerComboBox->setParent(layout);
-                        p.widgets.push_back(layout);
-                        layout->setParent(p.widgetLayout);
+                        layerComboBox->setParent(p.widgetLayout);
+                        p.widgetLayout->setGridPos(layerComboBox, row, 3);
 
                         layerComboBox->setIndexCallback(
                             [appWeak, item](int value)
@@ -300,6 +298,8 @@ namespace tl
                                     app->getFilesModel()->setLayer(item, value);
                                 }
                             });
+
+                        ++row;
                     }
                 }
             }

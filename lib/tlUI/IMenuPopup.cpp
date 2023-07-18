@@ -181,22 +181,25 @@ namespace tl
             if (!children.empty())
             {
                 const math::BBox2i g = children.front()->getGeometry();
-                const math::BBox2i g2(
-                    g.min.x - p.size.shadow,
-                    g.min.y,
-                    g.w() + p.size.shadow * 2,
-                    g.h() + p.size.shadow);
-                event.render->drawColorMesh(
-                    shadow(g2, p.size.shadow),
-                    math::Vector2i(),
-                    imaging::Color4f(1.F, 1.F, 1.F));
+                if (g.isValid())
+                {
+                    const math::BBox2i g2(
+                        g.min.x - p.size.shadow,
+                        g.min.y,
+                        g.w() + p.size.shadow * 2,
+                        g.h() + p.size.shadow);
+                    event.render->drawColorMesh(
+                        shadow(g2, p.size.shadow),
+                        math::Vector2i(),
+                        imaging::Color4f(1.F, 1.F, 1.F));
 
-                event.render->drawMesh(
-                    border(g.margin(p.size.border), p.size.border),
-                    math::Vector2i(),
-                    event.style->getColorRole(ColorRole::Border));
+                    event.render->drawMesh(
+                        border(g.margin(p.size.border), p.size.border),
+                        math::Vector2i(),
+                        event.style->getColorRole(ColorRole::Border));
 
-                event.render->drawRect(g, event.style->getColorRole(p.popupRole));
+                    event.render->drawRect(g, event.style->getColorRole(p.popupRole));
+                }
             }
         }
     }

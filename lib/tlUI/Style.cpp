@@ -115,7 +115,7 @@ namespace tl
             _fontRoles.resize(static_cast<size_t>(FontRole::Count));
             _fontRoles[static_cast<size_t>(FontRole::Label)] = imaging::FontInfo("NotoSans-Regular", 12 * 1);
             _fontRoles[static_cast<size_t>(FontRole::Mono)] = imaging::FontInfo("NotoMono-Regular", 12 * 1);
-            _fontRoles[static_cast<size_t>(FontRole::Title)] = imaging::FontInfo("NotoSans-Regular", 18 * 1);
+            _fontRoles[static_cast<size_t>(FontRole::Title)] = imaging::FontInfo("NotoSans-Bold", 12 * 1);
 
             p.changed = observer::Value<bool>::create();
         }
