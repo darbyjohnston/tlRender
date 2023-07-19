@@ -7,7 +7,7 @@
 #include <tlPlayGLApp/App.h>
 #include <tlPlayGLApp/Settings.h>
 
-#include <tlUI/DoubleEditSlider.h>
+#include <tlUI/IntEditSlider.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/ToolButton.h>
 
@@ -19,10 +19,10 @@ namespace tl
     {
         struct AudioPopup::Private
         {
-            std::shared_ptr<ui::DoubleEditSlider> volumeSlider;
+            std::shared_ptr<ui::IntEditSlider> volumeSlider;
             std::shared_ptr<ui::ToolButton> muteButton;
             std::shared_ptr<ui::HorizontalLayout> layout;
-            std::shared_ptr<observer::ValueObserver<double> > volumeObserver;
+            std::shared_ptr<observer::ValueObserver<int> > volumeObserver;
             std::shared_ptr<observer::MapObserver<std::string, std::string> > settingsObserver;
         };
 
@@ -37,10 +37,10 @@ namespace tl
                 parent);
             TLRENDER_P();
 
-            p.volumeSlider = ui::DoubleEditSlider::create(context);
-            p.volumeSlider->getModel()->setRange(math::DoubleRange(0.0, 100.0));
-            p.volumeSlider->getModel()->setStep(1.0);
-            p.volumeSlider->getModel()->setLargeStep(10.0);
+            p.volumeSlider = ui::IntEditSlider::create(context);
+            p.volumeSlider->getModel()->setRange(math::IntRange(0, 100));
+            p.volumeSlider->getModel()->setStep(1);
+            p.volumeSlider->getModel()->setLargeStep(10);
 
             p.muteButton = ui::ToolButton::create(context);
             p.muteButton->setCheckable(true);
@@ -53,9 +53,9 @@ namespace tl
             p.muteButton->setParent(p.layout);
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.volumeObserver = observer::ValueObserver<double>::create(
+            p.volumeObserver = observer::ValueObserver<int>::create(
                 p.volumeSlider->getModel()->observeValue(),
-                [appWeak](double value)
+                [appWeak](int value)
                 {
                     if (auto app = appWeak.lock())
                     {
