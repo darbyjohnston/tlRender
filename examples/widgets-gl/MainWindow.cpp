@@ -101,7 +101,7 @@ namespace tl
                     scrollWidget->setWidget(widget.second);
                 }
 
-                //p.stackLayout->setCurrentWidget(p.widgets["Grid Layouts"]);
+                //p.stackLayout->setCurrentIndex(4);
             }
 
             MainWindow::MainWindow() :
