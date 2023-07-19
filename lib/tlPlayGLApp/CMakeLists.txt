@@ -1,24 +1,28 @@
 set(HEADERS
     App.h
     AudioMenu.h
-    AudioToolWidget.h
-    ColorToolWidget.h
+    AudioPopup.h
+    AudioTool.h
+    ColorTool.h
     CompareMenu.h
     CompareToolBar.h
-    CompareToolWidget.h
-    DevicesToolWidget.h
+    DevicesTool.h
     FileMenu.h
     FileToolBar.h
-    FilesToolWidget.h
+    FilesTool.h
     FrameMenu.h
     IToolWidget.h
-    InfoToolWidget.h
+    InfoTool.h
     MainWindow.h
-    MessagesToolWidget.h
+    MessagesTool.h
     PlaybackMenu.h
     RenderMenu.h
-    SettingsToolWidget.h
-    SystemLogToolWidget.h
+    SeparateAudioDialog.h
+    SeparateAudioPrivate.h
+    SpeedPopup.h
+    Settings.h
+    SettingsTool.h
+    SystemLogTool.h
     Tools.h
     ToolsMenu.h
     ToolsToolBar.h
@@ -31,24 +35,28 @@ set(HEADERS
 set(SOURCE
     App.cpp
     AudioMenu.cpp
-    AudioToolWidget.cpp
-    ColorToolWidget.cpp
+    AudioPopup.cpp
+    AudioTool.cpp
+    ColorTool.cpp
     CompareMenu.cpp
     CompareToolBar.cpp
-    CompareToolWidget.cpp
-    DevicesToolWidget.cpp
+    DevicesTool.cpp
     FileMenu.cpp
     FileToolBar.cpp
-    FilesToolWidget.cpp
+    FilesTool.cpp
     FrameMenu.cpp
     IToolWidget.cpp
-    InfoToolWidget.cpp
+    InfoTool.cpp
     MainWindow.cpp
-    MessagesToolWidget.cpp
+    MessagesTool.cpp
     PlaybackMenu.cpp
     RenderMenu.cpp
-    SettingsToolWidget.cpp
-    SystemLogToolWidget.cpp
+    SeparateAudioDialog.cpp
+    SeparateAudioWidget.cpp
+    SpeedPopup.cpp
+    Settings.cpp
+    SettingsTool.cpp
+    SystemLogTool.cpp
     ViewMenu.cpp
     ViewToolBar.cpp
     Tools.cpp

@@ -5,6 +5,8 @@
 #include <tlPlayGLApp/App.h>
 
 #include <tlPlayGLApp/MainWindow.h>
+#include <tlPlayGLApp/SeparateAudioDialog.h>
+#include <tlPlayGLApp/Settings.h>
 #include <tlPlayGLApp/Tools.h>
 
 #include <tlUI/EventLoop.h>
@@ -33,6 +35,7 @@ namespace tl
             float volume = 1.F;
             bool mute = false;
             bool deviceActive = false;
+            std::shared_ptr<Settings> settings;
             std::shared_ptr<play::FilesModel> filesModel;
             std::vector<std::shared_ptr<play::FilesModelItem> > files;
             std::vector<std::shared_ptr<play::FilesModelItem> > activeFiles;
@@ -44,10 +47,12 @@ namespace tl
             std::shared_ptr<MainWindow> mainWindow;
             std::shared_ptr<ui::FileBrowser> fileBrowser;
             std::string fileBrowserPath;
+            std::shared_ptr<SeparateAudioDialog> separateAudioDialog;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
             std::shared_ptr<observer::ListObserver<int> > layersObserver;
+            std::shared_ptr<observer::MapObserver<std::string, std::string> > settingsObserver;
         };
 
         void App::_init(
@@ -234,11 +239,19 @@ namespace tl
             ioSystem->setOptions(ioOptions);
 
             // Initialization.
+            p.settings = Settings::create(context);
+            p.settings->setData("Volume", "1.0");
+            p.settings->setData("Mute", "0");
+
             p.filesModel = play::FilesModel::create(context);
 
             p.recentFilesModel = ui::RecentFilesModel::create(context);
 
             p.activePlayers = observer::List<std::shared_ptr<timeline::Player> >::create();
+
+            p.toolsModel = ToolsModel::create();
+
+            p.fileBrowserPath = file::getCWD();
 
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 p.filesModel->observeFiles(),
@@ -265,9 +278,24 @@ namespace tl
                     }
                 });
 
-            p.toolsModel = ToolsModel::create();
-
-            p.fileBrowserPath = file::getCWD();
+            p.settingsObserver = observer::MapObserver<std::string, std::string>::create(
+                p.settings->observeData(),
+                [this](const std::map<std::string, std::string>& value)
+                {
+                    TLRENDER_P();
+                    auto i = value.find("Volume");
+                    if (i != value.end())
+                    {
+                        p.volume = std::atof(i->second.c_str());
+                        _audioUpdate();
+                    }
+                    i = value.find("Mute");
+                    if (i != value.end())
+                    {
+                        p.mute = std::atoi(i->second.c_str());
+                        _audioUpdate();
+                    }
+                });
 
             // Open the input files.
             if (!p.input.empty())
@@ -357,6 +385,25 @@ namespace tl
 #endif // TLRENDER_NFD
         }
 
+        void App::openSeparateAudioDialog()
+        {
+            TLRENDER_P();
+            p.separateAudioDialog = SeparateAudioDialog::create(p.fileBrowserPath, _context);
+            p.separateAudioDialog->open(getEventLoop());
+            p.separateAudioDialog->setFileCallback(
+                [this](const file::Path& value, const file::Path& audio)
+                {
+                    open(value.get(), audio.get());
+                    _p->fileBrowserPath = value.getDirectory();
+                    _p->separateAudioDialog->close();
+                });
+            p.separateAudioDialog->setCloseCallback(
+                [this]
+                {
+                    _p->separateAudioDialog.reset();
+                });
+        }
+
         void App::open(const std::string& fileName, const std::string& audioFileName)
         {
             TLRENDER_P();
@@ -370,6 +417,11 @@ namespace tl
                 p.filesModel->add(item);
                 p.recentFilesModel->addRecent(item->path);
             }
+        }
+
+        const std::shared_ptr<Settings>& App::getSettings() const
+        {
+            return _p->settings;
         }
 
         const std::shared_ptr<play::FilesModel>& App::getFilesModel() const

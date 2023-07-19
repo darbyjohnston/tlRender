@@ -6,6 +6,7 @@
 
 #include <tlPlayGLApp/App.h>
 #include <tlPlayGLApp/AudioMenu.h>
+#include <tlPlayGLApp/AudioPopup.h>
 #include <tlPlayGLApp/CompareMenu.h>
 #include <tlPlayGLApp/CompareToolBar.h>
 #include <tlPlayGLApp/FileMenu.h>
@@ -13,6 +14,7 @@
 #include <tlPlayGLApp/FrameMenu.h>
 #include <tlPlayGLApp/PlaybackMenu.h>
 #include <tlPlayGLApp/RenderMenu.h>
+#include <tlPlayGLApp/SpeedPopup.h>
 #include <tlPlayGLApp/ToolsMenu.h>
 #include <tlPlayGLApp/ToolsToolBar.h>
 #include <tlPlayGLApp/ToolsWidget.h>
@@ -77,9 +79,11 @@ namespace tl
             std::shared_ptr<ui::TimeEdit> currentTimeEdit;
             std::shared_ptr<ui::DoubleEdit> speedEdit;
             std::shared_ptr<ui::ToolButton> speedButton;
+            std::shared_ptr<SpeedPopup> speedPopup;
             std::shared_ptr<ui::TimeLabel> durationLabel;
             std::shared_ptr<ui::ComboBox> timeUnitsComboBox;
             std::shared_ptr<ui::ToolButton> audioButton;
+            std::shared_ptr<AudioPopup> audioPopup;
             std::shared_ptr<ui::Label> statusLabel;
             std::shared_ptr<ui::Label> infoLabel;
             std::shared_ptr<ToolsWidget> toolsWidget;
@@ -329,6 +333,18 @@ namespace tl
                     }
                 });
 
+            p.speedButton->setPressedCallback(
+                [this]
+                {
+                    _showSpeedPopup();
+                });
+
+            p.audioButton->setPressedCallback(
+                [this]
+                {
+                    _showAudioPopup();
+                });
+
             p.playersObserver = observer::ListObserver<std::shared_ptr<timeline::Player> >::create(
                 app->observeActivePlayers(),
                 [this](const std::vector<std::shared_ptr<timeline::Player> >& value)
@@ -452,6 +468,89 @@ namespace tl
                 p.speedModel->setValue(0.0);
                 p.playbackButtonGroup->setChecked(0, true);
                 p.currentTimeEdit->setValue(time::invalidTime);
+            }
+        }
+
+        void MainWindow::_showSpeedPopup()
+        {
+            TLRENDER_P();
+            if (auto context = _context.lock())
+            {
+                if (auto app = p.app.lock())
+                {
+                    if (auto eventLoop = getEventLoop().lock())
+                    {
+                        if (!p.speedPopup)
+                        {
+                            const double defaultSpeed =
+                                !p.players.empty() && p.players[0] ?
+                                p.players[0]->getDefaultSpeed() :
+                                0.0;
+                            p.speedPopup = SpeedPopup::create(defaultSpeed, context);
+                            p.speedPopup->open(eventLoop, p.speedButton->getGeometry());
+                            auto weak = std::weak_ptr<MainWindow>(std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
+                            p.speedPopup->setCallback(
+                                [weak](double value)
+                                {
+                                    if (auto widget = weak.lock())
+                                    {
+                                        if (!widget->_p->players.empty() &&
+                                            widget->_p->players[0])
+                                        {
+                                            widget->_p->players[0]->setSpeed(value);
+                                        }
+                                        widget->_p->speedPopup->close();
+                                    }
+                                });
+                            p.speedPopup->setCloseCallback(
+                                [weak]
+                                {
+                                    if (auto widget = weak.lock())
+                                    {
+                                        widget->_p->speedPopup.reset();
+                                    }
+                                });
+                        }
+                        else
+                        {
+                            p.speedPopup->close();
+                            p.speedPopup.reset();
+                        }
+                    }
+                }
+            }
+        }
+
+        void MainWindow::_showAudioPopup()
+        {
+            TLRENDER_P();
+            if (auto context = _context.lock())
+            {
+                if (auto app = p.app.lock())
+                {
+                    if (auto eventLoop = getEventLoop().lock())
+                    {
+                        if (!p.audioPopup)
+                        {
+                            p.audioPopup = AudioPopup::create(app, context);
+                            p.audioPopup->open(eventLoop, p.audioButton->getGeometry());
+                            auto weak = std::weak_ptr<MainWindow>(std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
+                            p.audioPopup->setCloseCallback(
+                                [weak]
+                                {
+                                    if (auto widget = weak.lock())
+                                    {
+                                        widget->_p->audioPopup.reset();
+                                    }
+                                });
+                        }
+                        else
+                        {
+                            p.audioPopup->close();
+                            p.audioPopup.reset();
+                        }
+                    }
+                }
             }
         }
 

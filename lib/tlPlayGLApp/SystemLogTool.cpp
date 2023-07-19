@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayGLApp/MessagesToolWidget.h>
+#include <tlPlayGLApp/SystemLogTool.h>
 
 #include <tlPlayGLApp/App.h>
 
@@ -10,35 +10,35 @@ namespace tl
 {
     namespace play_gl
     {
-        struct MessagesToolWidget::Private
+        struct SystemLogTool::Private
         {};
 
-        void MessagesToolWidget::_init(
+        void SystemLogTool::_init(
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IToolWidget::_init(
-                Tool::Messages,
-                "tl::play_gl::MessagesToolWidget",
+                Tool::SystemLog,
+                "tl::play_gl::SystemLogTool",
                 app,
                 context,
                 parent);
         }
 
-        MessagesToolWidget::MessagesToolWidget() :
+        SystemLogTool::SystemLogTool() :
             _p(new Private)
         {}
 
-        MessagesToolWidget::~MessagesToolWidget()
+        SystemLogTool::~SystemLogTool()
         {}
 
-        std::shared_ptr<MessagesToolWidget> MessagesToolWidget::create(
+        std::shared_ptr<SystemLogTool> SystemLogTool::create(
             const std::shared_ptr<App>&app,
             const std::shared_ptr<system::Context>&context,
             const std::shared_ptr<IWidget>&parent)
         {
-            auto out = std::shared_ptr<MessagesToolWidget>(new MessagesToolWidget);
+            auto out = std::shared_ptr<SystemLogTool>(new SystemLogTool);
             out->_init(app, context, parent);
             return out;
         }

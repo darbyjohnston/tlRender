@@ -432,7 +432,8 @@ namespace tl
                     event.style->getColorRole(ColorRole::Hover));
             }
 
-            int x = g2.x() + p.size.margin;
+            const math::BBox2i g3 = g2.margin(-p.size.margin);
+            int x = g3.x();
             if (p.iconImage)
             {
                 const imaging::Size& iconSize = p.iconImage->getSize();
@@ -440,7 +441,7 @@ namespace tl
                     p.iconImage,
                     math::BBox2i(
                         x,
-                        g2.y() + g2.h() / 2 - iconSize.h / 2,
+                        g3.y() + g3.h() / 2 - iconSize.h / 2,
                         iconSize.w,
                         iconSize.h),
                     event.style->getColorRole(enabled ?
@@ -457,7 +458,7 @@ namespace tl
                 }
                 const math::Vector2i pos(
                     x + p.size.margin,
-                    g2.y() + g2.h() / 2 - p.size.textSize.y / 2 +
+                    g3.y() + g3.h() / 2 - p.size.textSize.y / 2 +
                     p.size.fontMetrics.ascender);
                 event.render->drawText(
                     p.draw.glyphs,
@@ -475,7 +476,7 @@ namespace tl
                     p.arrowIconImage,
                     math::BBox2i(
                         x,
-                        g2.y() + g2.h() / 2 - iconSize.h / 2,
+                        g3.y() + g3.h() / 2 - iconSize.h / 2,
                         iconSize.w,
                         iconSize.h),
                     event.style->getColorRole(enabled ?

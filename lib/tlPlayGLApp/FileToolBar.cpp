@@ -40,7 +40,6 @@ namespace tl
             p.buttons["Open"]->setIcon("FileOpen");
             p.buttons["OpenSeparateAudio"] = ui::ToolButton::create(context);
             p.buttons["OpenSeparateAudio"]->setIcon("FileOpenSeparateAudio");
-            p.buttons["OpenSeparateAudio"]->setEnabled(false);
             p.buttons["Close"] = ui::ToolButton::create(context);
             p.buttons["Close"]->setIcon("FileClose");
             p.buttons["CloseAll"] = ui::ToolButton::create(context);
@@ -67,6 +66,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
+                        app->openSeparateAudioDialog();
                     }
                 });
             p.buttons["Close"]->setClickedCallback(

@@ -30,6 +30,12 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            //! Create a new widget.
+            static std::shared_ptr<GroupBox> create(
+                const std::string& text,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
             //! Set the text.
             void setText(const std::string&);
 

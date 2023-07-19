@@ -10,14 +10,18 @@ namespace tl
     {
         struct Spacer::Private
         {
+            Orientation orientation = Orientation::Horizontal;
             SizeRole spacingRole = SizeRole::Spacing;
         };
 
         void Spacer::_init(
+            Orientation orientation,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::Spacer", context, parent);
+            TLRENDER_P();
+            p.orientation = orientation;
         }
 
         Spacer::Spacer() :
@@ -28,11 +32,12 @@ namespace tl
         {}
 
         std::shared_ptr<Spacer> Spacer::create(
+            Orientation orientation,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<Spacer>(new Spacer);
-            out->_init(context, parent);
+            out->_init(orientation, context, parent);
             return out;
         }
 
@@ -45,8 +50,17 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
-            _sizeHint.x = _sizeHint.y =
-                event.style->getSizeRole(p.spacingRole, event.displayScale);
+            _sizeHint = math::Vector2i();
+            switch (p.orientation)
+            {
+            case Orientation::Horizontal:
+                _sizeHint.x = event.style->getSizeRole(p.spacingRole, event.displayScale);
+                break;
+            case Orientation::Vertical:
+                _sizeHint.y = event.style->getSizeRole(p.spacingRole, event.displayScale);
+                break;
+            default: break;
+            }
         }
     }
 }

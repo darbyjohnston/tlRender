@@ -25,7 +25,7 @@ namespace tl
             QMap<QString, QActionGroup*> actionGroups;
 
             QMenu* menu = nullptr;
-            QMenu* currentMenu = nullptr;
+            QMenu* bMenu = nullptr;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
@@ -114,7 +114,7 @@ namespace tl
             p.actions["Prev"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_PageUp));
             p.actions["Prev"]->setToolTip(tr("Change to the previous file"));
 
-            p.actionGroups["Current"] = new QActionGroup(this);
+            p.actionGroups["B"] = new QActionGroup(this);
 
             p.actionGroups["Compare"] = new QActionGroup(this);
             p.actionGroups["Compare"]->setExclusive(true);
@@ -129,9 +129,9 @@ namespace tl
 
             p.menu = new QMenu;
             p.menu->setTitle(tr("&Compare"));
-            p.currentMenu = new QMenu;
-            p.currentMenu->setTitle(tr("&Current"));
-            p.menu->addMenu(p.currentMenu);
+            p.bMenu = new QMenu;
+            p.bMenu->setTitle(tr("&B"));
+            p.menu->addMenu(p.bMenu);
             p.menu->addSeparator();
             p.menu->addAction(p.actions["A"]);
             p.menu->addAction(p.actions["B"]);
@@ -163,11 +163,11 @@ namespace tl
                 });
 
             connect(
-                p.actionGroups["Current"],
+                p.actionGroups["B"],
                 &QActionGroup::triggered,
                 [this, app](QAction* action)
                 {
-                    const int index = _p->actionGroups["Current"]->actions().indexOf(action);
+                    const int index = _p->actionGroups["B"]->actions().indexOf(action);
                     const auto bIndexes = app->filesModel()->observeBIndexes()->get();
                     const auto i = std::find(bIndexes.begin(), bIndexes.end(), index);
                     app->filesModel()->setB(index, i == bIndexes.end());
@@ -222,11 +222,11 @@ namespace tl
         {
             TLRENDER_P();
 
-            for (auto i : p.actionGroups["Current"]->actions())
+            for (auto i : p.actionGroups["B"]->actions())
             {
-                p.actionGroups["Current"]->removeAction(i);
+                p.actionGroups["B"]->removeAction(i);
             }
-            p.currentMenu->clear();
+            p.bMenu->clear();
             const auto& files = p.app->filesModel()->observeFiles()->get();
             const auto bIndexes = p.app->filesModel()->observeBIndexes()->get();
             const size_t count = files.size();
@@ -236,8 +236,8 @@ namespace tl
                 action->setCheckable(true);
                 action->setChecked(std::find(bIndexes.begin(), bIndexes.end(), i) != bIndexes.end());
                 action->setText(QString::fromUtf8(files[i]->path.get(-1, false).c_str()));
-                p.actionGroups["Current"]->addAction(action);
-                p.currentMenu->addAction(action);
+                p.actionGroups["B"]->addAction(action);
+                p.bMenu->addAction(action);
             }
 
             const auto options = p.app->filesModel()->getCompareOptions();

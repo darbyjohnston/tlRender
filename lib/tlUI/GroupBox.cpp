@@ -48,11 +48,22 @@ namespace tl
         {}
 
         std::shared_ptr<GroupBox> GroupBox::create(
+            const std::shared_ptr<system::Context>&context,
+            const std::shared_ptr<IWidget>&parent)
+        {
+            auto out = std::shared_ptr<GroupBox>(new GroupBox);
+            out->_init(context, parent);
+            return out;
+        }
+
+        std::shared_ptr<GroupBox> GroupBox::create(
+            const std::string& text,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<GroupBox>(new GroupBox);
             out->_init(context, parent);
+            out->setText(text);
             return out;
         }
 
@@ -96,7 +107,7 @@ namespace tl
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::Margin, event.displayScale);
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, event.displayScale);
             p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
 

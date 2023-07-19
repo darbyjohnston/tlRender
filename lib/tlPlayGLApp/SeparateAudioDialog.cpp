@@ -2,26 +2,29 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/FileBrowserPrivate.h>
+#include <tlPlayGLApp/SeparateAudioPrivate.h>
 
 namespace tl
 {
-    namespace ui
+    namespace play_gl
     {
-        struct FileBrowser::Private
+        struct SeparateAudioDialog::Private
         {
-            std::shared_ptr<FileBrowserWidget> widget;
+            std::shared_ptr<SeparateAudioWidget> widget;
         };
 
-        void FileBrowser::_init(
+        void SeparateAudioDialog::_init(
             const std::string& path,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IDialog::_init("tl::ui::FileBrowser", context, parent);
+            IDialog::_init(
+                "tl::play_gl::SeparateAudioDialog",
+                context,
+                parent);
             TLRENDER_P();
 
-            p.widget = FileBrowserWidget::create(
+            p.widget = SeparateAudioWidget::create(
                 path,
                 context,
                 shared_from_this());
@@ -33,24 +36,26 @@ namespace tl
                 });
         }
 
-        FileBrowser::FileBrowser() :
+        SeparateAudioDialog::SeparateAudioDialog() :
             _p(new Private)
         {}
 
-        FileBrowser::~FileBrowser()
+        SeparateAudioDialog::~SeparateAudioDialog()
         {}
 
-        std::shared_ptr<FileBrowser> FileBrowser::create(
+        std::shared_ptr<SeparateAudioDialog> SeparateAudioDialog::create(
             const std::string& path,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            auto out = std::shared_ptr<FileBrowser>(new FileBrowser);
+            auto out = std::shared_ptr<SeparateAudioDialog>(new SeparateAudioDialog);
             out->_init(path, context, parent);
             return out;
         }
 
-        void FileBrowser::setFileCallback(const std::function<void(const file::Path&)>& value)
+        void SeparateAudioDialog::setFileCallback(const std::function<void(
+            const file::Path&,
+            const file::Path&)>& value)
         {
             _p->widget->setFileCallback(value);
         }

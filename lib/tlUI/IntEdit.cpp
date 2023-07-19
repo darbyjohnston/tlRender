@@ -18,12 +18,6 @@ namespace tl
             std::shared_ptr<LineEdit> lineEdit;
             int digits = 3;
 
-            struct SizeData
-            {
-                int margin = 0;
-            };
-            SizeData size;
-
             std::shared_ptr<observer::ValueObserver<int> > valueObserver;
             std::shared_ptr<observer::ValueObserver<math::IntRange> > rangeObserver;
         };

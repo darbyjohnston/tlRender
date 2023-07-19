@@ -19,10 +19,13 @@ namespace tl
             std::vector<std::shared_ptr<ui::MenuItem> > recentItems;
             std::shared_ptr<Menu> currentMenu;
             std::vector<std::shared_ptr<ui::MenuItem> > currentItems;
+            std::shared_ptr<Menu> layersMenu;
+            std::vector<std::shared_ptr<ui::MenuItem> > layersItems;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ValueObserver<std::shared_ptr<play::FilesModelItem> > > aObserver;
             std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
+            std::shared_ptr<observer::ListObserver<int> > layersObserver;
             std::shared_ptr<observer::ListObserver<file::Path> > recentObserver;
         };
 
@@ -57,12 +60,15 @@ namespace tl
                 ui::Key::O,
                 static_cast<int>(ui::KeyModifier::Shift) |
                 static_cast<int>(ui::commandKeyModifier),
-                [this]
+                [this, appWeak]
                 {
                     close();
+                    if (auto app = appWeak.lock())
+                    {
+                        app->openSeparateAudioDialog();
+                    }
                 });
             addItem(p.items["OpenSeparateAudio"]);
-            setItemEnabled(p.items["OpenSeparateAudio"], false);
 
             p.items["Close"] = std::make_shared<ui::MenuItem>(
                 "Close",
@@ -145,6 +151,8 @@ namespace tl
 
             addDivider();
 
+            p.layersMenu = addSubMenu("Layers");
+
             p.items["NextLayer"] = std::make_shared<ui::MenuItem>(
                 "Next Layer",
                 "Next",
@@ -211,6 +219,13 @@ namespace tl
                     _aIndexUpdate(value);
                 });
 
+            p.layersObserver = observer::ListObserver<int>::create(
+                app->getFilesModel()->observeLayers(),
+                [this](const std::vector<int>& value)
+                {
+                    _layersUpdate(value);
+                });
+
             p.recentObserver = observer::ListObserver<file::Path>::create(
                 app->getRecentFilesModel()->observeRecent(),
                 [this](const std::vector<file::Path>& value)
@@ -241,6 +256,7 @@ namespace tl
             TLRENDER_P();
             p.recentMenu->close();
             p.currentMenu->close();
+            p.layersMenu->close();
         }
 
         void FileMenu::_filesUpdate(
@@ -276,6 +292,29 @@ namespace tl
         void FileMenu::_aUpdate(const std::shared_ptr<play::FilesModelItem>& value)
         {
             TLRENDER_P();
+
+            p.layersMenu->clear();
+            p.layersItems.clear();
+            if (value)
+            {
+                for (size_t i = 0; i < value->videoLayers.size(); ++i)
+                {
+                    auto item = std::make_shared<ui::MenuItem>(
+                        value->videoLayers[i],
+                        [this, value, i]
+                        {
+                            close();
+                        if (auto app = _p->app.lock())
+                        {
+                            app->getFilesModel()->setLayer(value, i);
+                        }
+                        });
+                    item->checked = i == value->videoLayer;
+                    p.layersMenu->addItem(item);
+                    p.layersItems.push_back(item);
+                }
+            }
+
             setItemEnabled(p.items["NextLayer"], value ? value->videoLayers.size() > 1 : false);
             setItemEnabled(p.items["PrevLayer"], value ? value->videoLayers.size() > 1 : false);
         }
@@ -286,6 +325,19 @@ namespace tl
             for (int i = 0; i < p.currentItems.size(); ++i)
             {
                 p.currentMenu->setItemChecked(p.currentItems[i], i == value);
+            }
+        }
+
+        void FileMenu::_layersUpdate(const std::vector<int>& value)
+        {
+            TLRENDER_P();
+            if (auto app = p.app.lock())
+            {
+                auto a = app->getFilesModel()->getA();
+                for (size_t i = 0; i < p.layersItems.size(); ++i)
+                {
+                    p.layersMenu->setItemChecked(p.layersItems[i], i == a->videoLayer);
+                }
             }
         }
 

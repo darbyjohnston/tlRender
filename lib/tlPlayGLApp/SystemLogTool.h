@@ -12,10 +12,10 @@ namespace tl
     {
         class App;
 
-        //! Information tool widget.
-        class InfoToolWidget : public IToolWidget
+        //! System log tool.
+        class SystemLogTool : public IToolWidget
         {
-            TLRENDER_NON_COPYABLE(InfoToolWidget);
+            TLRENDER_NON_COPYABLE(SystemLogTool);
 
         protected:
             void _init(
@@ -23,12 +23,12 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            InfoToolWidget();
+            SystemLogTool();
 
         public:
-            virtual ~InfoToolWidget();
+            virtual ~SystemLogTool();
 
-            static std::shared_ptr<InfoToolWidget> create(
+            static std::shared_ptr<SystemLogTool> create(
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

@@ -119,8 +119,7 @@ namespace tl
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
             p.size.handle = event.style->getSizeRole(SizeRole::Handle, event.displayScale);
 
-            auto fontInfo = imaging::FontInfo();
-            fontInfo.size *= event.displayScale;
+            auto fontInfo = event.style->getFontRole(FontRole::Label, event.displayScale);
             p.size.fontMetrics = event.fontSystem->getMetrics(fontInfo);
 
             _sizeHint.x =

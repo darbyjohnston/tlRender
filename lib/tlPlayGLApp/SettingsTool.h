@@ -12,10 +12,10 @@ namespace tl
     {
         class App;
 
-        //! Audio tool widget.
-        class AudioToolWidget : public IToolWidget
+        //! Settings tool.
+        class SettingsTool : public IToolWidget
         {
-            TLRENDER_NON_COPYABLE(AudioToolWidget);
+            TLRENDER_NON_COPYABLE(SettingsTool);
 
         protected:
             void _init(
@@ -23,12 +23,12 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            AudioToolWidget();
+            SettingsTool();
 
         public:
-            virtual ~AudioToolWidget();
+            virtual ~SettingsTool();
 
-            static std::shared_ptr<AudioToolWidget> create(
+            static std::shared_ptr<SettingsTool> create(
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

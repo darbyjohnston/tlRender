@@ -126,17 +126,12 @@ namespace tl
             {
                 totalSize.x += i;
             }
-            int rowsVisible = 0;
-            int columnsVisible = 0;
+            std::vector<bool> rowsVisible;
+            std::vector<bool> columnsVisible;
             p.getVisible(rowsVisible, columnsVisible);
-            if (rowsVisible > 0)
-            {
-                totalSize.y += (rowsVisible - 1) * p.size.spacing;
-            }
-            if (columnsVisible > 0)
-            {
-                totalSize.x += (columnsVisible - 1) * p.size.spacing;
-            }
+            int rowsVisibleCount = 0;
+            int columnsVisibleCount = 0;
+            p.getVisible(rowsVisibleCount, columnsVisibleCount);
 
             // Get the layout stretch.
             std::vector<bool> rowStretch;
@@ -146,14 +141,14 @@ namespace tl
             // Get the layout stretch size.
             size_t rowStretchCount = 0;
             size_t columnStretchCount = 0;
-            for (int i : rowStretch)
+            for (bool i : rowStretch)
             {
                 if (i)
                 {
                     ++rowStretchCount;
                 }
             }
-            for (int i : columnStretch)
+            for (bool i : columnStretch)
             {
                 if (i)
                 {
@@ -163,11 +158,15 @@ namespace tl
             math::Vector2i stretchSize;
             if (rowStretchCount > 0)
             {
-                stretchSize.y = (g.h() - totalSize.y) / rowStretchCount;
+                stretchSize.y = (g.h() -
+                    (rowsVisibleCount - 1) * p.size.spacing -
+                    totalSize.y) / rowStretchCount;
             }
             if (columnStretchCount > 0)
             {
-                stretchSize.x = (g.w() - totalSize.x) / columnStretchCount;
+                stretchSize.x = (g.w() -
+                    (columnsVisibleCount - 1) * p.size.spacing -
+                    totalSize.x) / columnStretchCount;
             }
 
             // Get the sizes.
@@ -199,11 +198,17 @@ namespace tl
                 math::Vector2i pos = g.min;
                 for (int j = 0; j < i.second.row; ++j)
                 {
-                    pos.y += rowSizes[j] + (visible ? p.size.spacing : 0);
+                    if (rowsVisible[j])
+                    {
+                        pos.y += rowSizes[j] + (visible ? p.size.spacing : 0);
+                    }
                 }
                 for (int j = 0; j < i.second.column; ++j)
                 {
-                    pos.x += columnSizes[j] + (visible ? p.size.spacing : 0);
+                    if (columnsVisible[j])
+                    {
+                        pos.x += columnSizes[j] + (visible ? p.size.spacing : 0);
+                    }
                 }
                 const math::Vector2i size(
                     columnSizes[i.second.column],
@@ -293,8 +298,12 @@ namespace tl
                 if (visible)
                 {
                     const math::Vector2i& sizeHint = i.first->getSizeHint();
-                    rows[i.second.row] = std::max(rows[i.second.row], sizeHint.y);
-                    columns[i.second.column] = std::max(columns[i.second.column], sizeHint.x);
+                    rows[i.second.row] = std::max(
+                        rows[i.second.row],
+                        sizeHint.y);
+                    columns[i.second.column] = std::max(
+                        columns[i.second.column],
+                        sizeHint.x);
                 }
             }
         }
@@ -332,14 +341,14 @@ namespace tl
             std::vector<bool> rowsVisible;
             std::vector<bool> columnsVisible;
             getVisible(rowsVisible, columnsVisible);
-            for (auto i : rowsVisible)
+            for (bool i : rowsVisible)
             {
                 if (i)
                 {
                     ++rows;
                 }
             }
-            for (auto i : columnsVisible)
+            for (bool i : columnsVisible)
             {
                 if (i)
                 {

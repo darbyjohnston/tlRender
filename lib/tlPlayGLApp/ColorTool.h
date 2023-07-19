@@ -6,18 +6,16 @@
 
 #include <tlPlayGLApp/IToolWidget.h>
 
-#include <tlPlay/FilesModel.h>
-
 namespace tl
 {
     namespace play_gl
     {
         class App;
 
-        //! Files tool widget.
-        class FilesToolWidget : public IToolWidget
+        //! Color tool.
+        class ColorTool : public IToolWidget
         {
-            TLRENDER_NON_COPYABLE(FilesToolWidget);
+            TLRENDER_NON_COPYABLE(ColorTool);
 
         protected:
             void _init(
@@ -25,23 +23,17 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            FilesToolWidget();
+            ColorTool();
 
         public:
-            virtual ~FilesToolWidget();
+            virtual ~ColorTool();
 
-            static std::shared_ptr<FilesToolWidget> create(
+            static std::shared_ptr<ColorTool> create(
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:
-            void _filesUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
-            void _aUpdate(const std::shared_ptr<play::FilesModelItem>&);
-            void _bUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
-            void _layersUpdate(const std::vector<int>&);
-            void _compareUpdate(const timeline::CompareOptions&);
-
             TLRENDER_PRIVATE();
         };
     }

@@ -5,15 +5,14 @@
 #include <tlPlayGLApp/ToolsWidget.h>
 
 #include <tlPlayGLApp/App.h>
-#include <tlPlayGLApp/AudioToolWidget.h>
-#include <tlPlayGLApp/ColorToolWidget.h>
-#include <tlPlayGLApp/CompareToolWidget.h>
-#include <tlPlayGLApp/DevicesToolWidget.h>
-#include <tlPlayGLApp/FilesToolWidget.h>
-#include <tlPlayGLApp/InfoToolWidget.h>
-#include <tlPlayGLApp/MessagesToolWidget.h>
-#include <tlPlayGLApp/SettingsToolWidget.h>
-#include <tlPlayGLApp/SystemLogToolWidget.h>
+#include <tlPlayGLApp/AudioTool.h>
+#include <tlPlayGLApp/ColorTool.h>
+#include <tlPlayGLApp/DevicesTool.h>
+#include <tlPlayGLApp/FilesTool.h>
+#include <tlPlayGLApp/InfoTool.h>
+#include <tlPlayGLApp/MessagesTool.h>
+#include <tlPlayGLApp/SettingsTool.h>
+#include <tlPlayGLApp/SystemLogTool.h>
 
 #include <tlUI/RowLayout.h>
 #include <tlUI/StackLayout.h>
@@ -40,15 +39,14 @@ namespace tl
                 parent);
             TLRENDER_P();
 
-            p.toolWidgets[Tool::Audio] = AudioToolWidget::create(app, context);
-            p.toolWidgets[Tool::Color] = ColorToolWidget::create(app, context);
-            p.toolWidgets[Tool::Compare] = CompareToolWidget::create(app, context);
-            p.toolWidgets[Tool::Devices] = DevicesToolWidget::create(app, context);
-            p.toolWidgets[Tool::Files] = FilesToolWidget::create(app, context);
-            p.toolWidgets[Tool::Info] = InfoToolWidget::create(app, context);
-            p.toolWidgets[Tool::Messages] = MessagesToolWidget::create(app, context);
-            p.toolWidgets[Tool::Settings] = SettingsToolWidget::create(app, context);
-            p.toolWidgets[Tool::SystemLog] = SystemLogToolWidget::create(app, context);
+            p.toolWidgets[Tool::Audio] = AudioTool::create(app, context);
+            p.toolWidgets[Tool::Color] = ColorTool::create(app, context);
+            p.toolWidgets[Tool::Devices] = DevicesTool::create(app, context);
+            p.toolWidgets[Tool::Files] = FilesTool::create(app, context);
+            p.toolWidgets[Tool::Info] = InfoTool::create(app, context);
+            p.toolWidgets[Tool::Messages] = MessagesTool::create(app, context);
+            p.toolWidgets[Tool::Settings] = SettingsTool::create(app, context);
+            p.toolWidgets[Tool::SystemLog] = SystemLogTool::create(app, context);
 
             p.layout = ui::StackLayout::create(context, shared_from_this());
             for (const auto& widget : p.toolWidgets)

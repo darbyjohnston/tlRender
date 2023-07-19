@@ -41,7 +41,7 @@ namespace tl
                     labels.push_back(label);
                 }
                 labels[1]->setFontRole(ui::FontRole::Title);
-                labels[2]->setHStretch(ui::Stretch::Expanding);
+                //labels[2]->setHStretch(ui::Stretch::Expanding);
                 labels[3]->setHStretch(ui::Stretch::Expanding);
                 labels[4]->setHStretch(ui::Stretch::Expanding);
                 labels[4]->setVStretch(ui::Stretch::Expanding);
@@ -50,6 +50,7 @@ namespace tl
 
                 p.layout = ui::GridLayout::create(context, shared_from_this());
                 p.layout->setMarginRole(ui::SizeRole::Margin);
+                //p.layout->setSpacingRole(ui::SizeRole::None);
                 labels[0]->setParent(p.layout);
                 labels[1]->setParent(p.layout);
                 labels[2]->setParent(p.layout);
@@ -61,7 +62,7 @@ namespace tl
                 p.layout->setGridPos(labels[2], 0, 2);
                 p.layout->setGridPos(labels[3], 1, 0);
                 p.layout->setGridPos(labels[4], 1, 1);
-                p.layout->setGridPos(labels[5], 3, 3);
+                p.layout->setGridPos(labels[5], 3, 4);
             }
 
             GridLayouts::GridLayouts() :

@@ -12,10 +12,10 @@ namespace tl
     {
         class App;
 
-        //! Color tool widget.
-        class ColorToolWidget : public IToolWidget
+        //! Messages tool.
+        class MessagesTool : public IToolWidget
         {
-            TLRENDER_NON_COPYABLE(ColorToolWidget);
+            TLRENDER_NON_COPYABLE(MessagesTool);
 
         protected:
             void _init(
@@ -23,12 +23,12 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            ColorToolWidget();
+            MessagesTool();
 
         public:
-            virtual ~ColorToolWidget();
+            virtual ~MessagesTool();
 
-            static std::shared_ptr<ColorToolWidget> create(
+            static std::shared_ptr<MessagesTool> create(
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

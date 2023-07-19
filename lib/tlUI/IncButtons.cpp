@@ -51,7 +51,7 @@ namespace tl
             IButton::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);
+            //p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);
 
             _sizeHint = math::Vector2i();
             if (_iconImage)

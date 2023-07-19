@@ -16,8 +16,8 @@ namespace tl
 
             std::map<std::string, std::shared_ptr<ui::MenuItem> > items;
             std::map<timeline::CompareMode, std::shared_ptr<ui::MenuItem> > compareItems;
-            std::shared_ptr<Menu> currentMenu;
-            std::vector<std::shared_ptr<ui::MenuItem> > currentItems;
+            std::shared_ptr<Menu> bMenu;
+            std::vector<std::shared_ptr<ui::MenuItem> > bItems;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
@@ -33,7 +33,7 @@ namespace tl
 
             p.app = app;
 
-            p.currentMenu = addSubMenu("Current");
+            p.bMenu = addSubMenu("B");
 
             p.items["Next"] = std::make_shared<ui::MenuItem>(
                 "Next",
@@ -122,7 +122,7 @@ namespace tl
                 app->getFilesModel()->observeBIndexes(),
                 [this](const std::vector<int>& value)
                 {
-                    _currentUpdate(value);
+                    _bUpdate(value);
                 });
 
             p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
@@ -153,7 +153,7 @@ namespace tl
         {
             Menu::close();
             TLRENDER_P();
-            p.currentMenu->close();
+            p.bMenu->close();
         }
 
         void CompareMenu::_filesUpdate(
@@ -164,8 +164,8 @@ namespace tl
             setItemEnabled(p.items["Next"], value.size() > 1);
             setItemEnabled(p.items["Prev"], value.size() > 1);
 
-            p.currentMenu->clear();
-            p.currentItems.clear();
+            p.bMenu->clear();
+            p.bItems.clear();
             if (auto app = p.app.lock())
             {
                 const auto bIndexes = app->getFilesModel()->getBIndexes();
@@ -183,20 +183,20 @@ namespace tl
                         });
                     const auto j = std::find(bIndexes.begin(), bIndexes.end(), i);
                     item->checked = j != bIndexes.end();
-                    p.currentMenu->addItem(item);
-                    p.currentItems.push_back(item);
+                    p.bMenu->addItem(item);
+                    p.bItems.push_back(item);
                 }
             }
         }
 
-        void CompareMenu::_currentUpdate(const std::vector<int>& value)
+        void CompareMenu::_bUpdate(const std::vector<int>& value)
         {
             TLRENDER_P();
-            for (int i = 0; i < p.currentItems.size(); ++i)
+            for (int i = 0; i < p.bItems.size(); ++i)
             {
                 const auto j = std::find(value.begin(), value.end(), i);
-                p.currentMenu->setItemChecked(
-                    p.currentItems[i],
+                p.bMenu->setItemChecked(
+                    p.bItems[i],
                     j != value.end());
             }
         }

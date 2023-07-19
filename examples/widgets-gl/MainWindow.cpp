@@ -43,7 +43,8 @@ namespace tl
 
                 setBackgroundRole(ui::ColorRole::Window);
 
-                std::shared_ptr<IExampleWidget> widget = BasicWidgets::create(context);
+                std::shared_ptr<IExampleWidget> widget = nullptr;
+                widget = BasicWidgets::create(context);
                 p.widgets[widget->getExampleName()] = widget;
                 widget = Charts::create(context);
                 p.widgets[widget->getExampleName()] = widget;
@@ -100,7 +101,7 @@ namespace tl
                     scrollWidget->setWidget(widget.second);
                 }
 
-                //p.stackLayout->setCurrentWidget(widgets["DragAndDrop"]);
+                //p.stackLayout->setCurrentWidget(p.widgets["Grid Layouts"]);
             }
 
             MainWindow::MainWindow() :

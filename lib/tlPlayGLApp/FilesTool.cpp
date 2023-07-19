@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayGLApp/FilesToolWidget.h>
+#include <tlPlayGLApp/FilesTool.h>
 
 #include <tlPlayGLApp/App.h>
 
@@ -21,7 +21,7 @@ namespace tl
 {
     namespace play_gl
     {
-        struct FilesToolWidget::Private
+        struct FilesTool::Private
         {
             std::shared_ptr<ui::ButtonGroup> aButtonGroup;
             std::shared_ptr<ui::ButtonGroup> bButtonGroup;
@@ -46,14 +46,14 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareObserver;
         };
 
-        void FilesToolWidget::_init(
+        void FilesTool::_init(
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IToolWidget::_init(
                 Tool::Files,
-                "tl::play_gl::FilesToolWidget",
+                "tl::play_gl::FilesTool",
                 app,
                 context,
                 parent);
@@ -75,7 +75,7 @@ namespace tl
             p.layout->setSpacingRole(ui::SizeRole::None);
             p.widgetLayout = ui::GridLayout::create(context, p.layout);
             p.widgetLayout->setMarginRole(ui::SizeRole::MarginSmall);
-            p.widgetLayout->setSpacingRole(ui::SizeRole::None);
+            p.widgetLayout->setSpacingRole(ui::SizeRole::SpacingTool);
 
             auto vLayout = ui::VerticalLayout::create(context, p.layout);
             vLayout->setSpacingRole(ui::SizeRole::None);
@@ -220,24 +220,24 @@ namespace tl
                 });
         }
 
-        FilesToolWidget::FilesToolWidget() :
+        FilesTool::FilesTool() :
             _p(new Private)
         {}
 
-        FilesToolWidget::~FilesToolWidget()
+        FilesTool::~FilesTool()
         {}
 
-        std::shared_ptr<FilesToolWidget> FilesToolWidget::create(
+        std::shared_ptr<FilesTool> FilesTool::create(
             const std::shared_ptr<App>&app,
             const std::shared_ptr<system::Context>&context,
             const std::shared_ptr<IWidget>&parent)
         {
-            auto out = std::shared_ptr<FilesToolWidget>(new FilesToolWidget);
+            auto out = std::shared_ptr<FilesTool>(new FilesTool);
             out->_init(app, context, parent);
             return out;
         }
 
-        void FilesToolWidget::_filesUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
+        void FilesTool::_filesUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
         {
             TLRENDER_P();
             p.aButtonGroup->clearButtons();
@@ -301,11 +301,16 @@ namespace tl
 
                         ++row;
                     }
+                    if (value.empty())
+                    {
+                        auto label = ui::Label::create("No files open", context, p.widgetLayout);
+                        p.widgetLayout->setGridPos(label, 0, 0);
+                    }
                 }
             }
         }
 
-        void FilesToolWidget::_aUpdate(const std::shared_ptr<play::FilesModelItem>& value)
+        void FilesTool::_aUpdate(const std::shared_ptr<play::FilesModelItem>& value)
         {
             TLRENDER_P();
             for (const auto& button : p.aButtons)
@@ -314,7 +319,7 @@ namespace tl
             }
         }
 
-        void FilesToolWidget::_bUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
+        void FilesTool::_bUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
         {
             TLRENDER_P();
             for (const auto& button : p.bButtons)
@@ -324,7 +329,7 @@ namespace tl
             }
         }
 
-        void FilesToolWidget::_layersUpdate(const std::vector<int>& value)
+        void FilesTool::_layersUpdate(const std::vector<int>& value)
         {
             TLRENDER_P();
             for (size_t i = 0; i < value.size() && i < p.layerComboBoxes.size(); ++i)
@@ -333,7 +338,7 @@ namespace tl
             }
         }
 
-        void FilesToolWidget::_compareUpdate(const timeline::CompareOptions& value)
+        void FilesTool::_compareUpdate(const timeline::CompareOptions& value)
         {
             TLRENDER_P();
             p.wipeXSlider->getModel()->setValue(value.wipeCenter.x);

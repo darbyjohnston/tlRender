@@ -4,12 +4,15 @@ set(HEADERS
     ComboBox.h
     Divider.h
     DoubleEdit.h
+    DoubleEditSlider.h
     DoubleModel.h
+    DoubleSlider.h
     DrawUtil.h
     DrivesModel.h
     Event.h
     EventLoop.h
     FileBrowser.h
+    FileEdit.h
     FloatEdit.h
     FloatEditSlider.h
     FloatModel.h
@@ -61,12 +64,15 @@ set(SOURCE
     ComboBox.cpp
     Divider.cpp
     DoubleEdit.cpp
+    DoubleEditSlider.cpp
     DoubleModel.cpp
+    DoubleSlider.cpp
     DrawUtil.cpp
     DrivesModel.cpp
     Event.cpp
     EventLoop.cpp
     FileBrowser.cpp
+    FileEdit.cpp
     FileBrowserButton.cpp
     FileBrowserDirectoryWidget.cpp
     FileBrowserPathsWidget.cpp

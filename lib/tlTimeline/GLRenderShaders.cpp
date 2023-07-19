@@ -275,6 +275,7 @@ namespace tl
                 "        textureSampler1,\n"
                 "        textureSampler2) *\n"
                 "        color;\n"
+                //"    fColor.a = 1.0;\n"
                 "}\n").
                 arg(pixelType).
                 arg(videoLevels).

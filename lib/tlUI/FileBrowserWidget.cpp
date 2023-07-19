@@ -53,6 +53,9 @@ namespace tl
             IWidget::_init("tl::ui::FileBrowserWidget", context, parent);
             TLRENDER_P();
 
+            setHStretch(Stretch::Expanding);
+            setVStretch(Stretch::Expanding);
+
             p.path = file::Path(path);
 
             p.recentModel = RecentFilesModel::create(context);
@@ -104,7 +107,8 @@ namespace tl
             hLayout->setSpacingRole(SizeRole::SpacingSmall);
             label = Label::create("Sort:", context, hLayout);
             p.sortComboBox->setParent(hLayout);
-            auto spacer = Spacer::create(context, hLayout);
+            auto spacer = Spacer::create(Orientation::Horizontal, context, hLayout);
+            spacer->setSpacingRole(SizeRole::None);
             spacer->setHStretch(Stretch::Expanding);
             p.okButton->setParent(hLayout);
             p.cancelButton->setParent(hLayout);
@@ -236,6 +240,12 @@ namespace tl
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
+        }
+
+        void FileBrowserWidget::sizeHintEvent(const SizeHintEvent& value)
+        {
+            IWidget::sizeHintEvent(value);
+            _sizeHint = _p->layout->getSizeHint();
         }
 
         void FileBrowserWidget::mouseMoveEvent(MouseMoveEvent& event)

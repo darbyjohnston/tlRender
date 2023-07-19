@@ -25,6 +25,7 @@ namespace tl
     namespace play_gl
     {
         class MainWindow;
+        class Settings;
         class ToolsModel;
 
         //! Application options.
@@ -81,6 +82,12 @@ namespace tl
 
             //! Open a file dialog.
             void openDialog();
+
+            //! Open a file and separate audio dialog.
+            void openSeparateAudioDialog();
+
+            //! Get the settings.
+            const std::shared_ptr<Settings>& getSettings() const;
 
             //! Get the files model.
             const std::shared_ptr<play::FilesModel>& getFilesModel() const;

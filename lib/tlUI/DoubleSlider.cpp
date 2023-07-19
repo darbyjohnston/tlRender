@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/FloatSlider.h>
+#include <tlUI/DoubleSlider.h>
 
 #include <tlUI/DrawUtil.h>
 
@@ -10,9 +10,9 @@ namespace tl
 {
     namespace ui
     {
-        struct FloatSlider::Private
+        struct DoubleSlider::Private
         {
-            std::shared_ptr<FloatModel> model;
+            std::shared_ptr<DoubleModel> model;
 
             struct SizeData
             {
@@ -30,16 +30,16 @@ namespace tl
             };
             MouseData mouse;
 
-            std::shared_ptr<observer::ValueObserver<float> > valueObserver;
-            std::shared_ptr<observer::ValueObserver<math::FloatRange> > rangeObserver;
+            std::shared_ptr<observer::ValueObserver<double> > valueObserver;
+            std::shared_ptr<observer::ValueObserver<math::DoubleRange> > rangeObserver;
         };
 
-        void FloatSlider::_init(
+        void DoubleSlider::_init(
             const std::shared_ptr<system::Context>& context,
-            const std::shared_ptr<FloatModel>& model,
+            const std::shared_ptr<DoubleModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::ui::FloatSlider", context, parent);
+            IWidget::_init("tl::ui::DoubleSlider", context, parent);
             TLRENDER_P();
 
             setMouseHover(true);
@@ -49,49 +49,49 @@ namespace tl
             p.model = model;
             if (!p.model)
             {
-                p.model = FloatModel::create(context);
+                p.model = DoubleModel::create(context);
             }
 
-            p.valueObserver = observer::ValueObserver<float>::create(
+            p.valueObserver = observer::ValueObserver<double>::create(
                 p.model->observeValue(),
-                [this](float)
+                [this](double)
                 {
                     _updates |= Update::Size;
                     _updates |= Update::Draw;
                 });
 
-            p.rangeObserver = observer::ValueObserver<math::FloatRange>::create(
+            p.rangeObserver = observer::ValueObserver<math::DoubleRange>::create(
                 p.model->observeRange(),
-                [this](const math::FloatRange&)
+                [this](const math::DoubleRange&)
                 {
                     _updates |= Update::Size;
                     _updates |= Update::Draw;
                 });
         }
 
-        FloatSlider::FloatSlider() :
+        DoubleSlider::DoubleSlider() :
             _p(new Private)
         {}
 
-        FloatSlider::~FloatSlider()
+        DoubleSlider::~DoubleSlider()
         {}
 
-        std::shared_ptr<FloatSlider> FloatSlider::create(
+        std::shared_ptr<DoubleSlider> DoubleSlider::create(
             const std::shared_ptr<system::Context>& context,
-            const std::shared_ptr<FloatModel>& model,
+            const std::shared_ptr<DoubleModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {
-            auto out = std::shared_ptr<FloatSlider>(new FloatSlider);
+            auto out = std::shared_ptr<DoubleSlider>(new DoubleSlider);
             out->_init(context, model, parent);
             return out;
         }
 
-        const std::shared_ptr<FloatModel>& FloatSlider::getModel() const
+        const std::shared_ptr<DoubleModel>& DoubleSlider::getModel() const
         {
             return _p->model;
         }
 
-        void FloatSlider::setVisible(bool value)
+        void DoubleSlider::setVisible(bool value)
         {
             const bool changed = value != _visible;
             IWidget::setVisible(value);
@@ -101,7 +101,7 @@ namespace tl
             }
         }
 
-        void FloatSlider::setEnabled(bool value)
+        void DoubleSlider::setEnabled(bool value)
         {
             const bool changed = value != _enabled;
             IWidget::setEnabled(value);
@@ -111,7 +111,7 @@ namespace tl
             }
         }
 
-        void FloatSlider::sizeHintEvent(const SizeHintEvent& event)
+        void DoubleSlider::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
@@ -130,7 +130,7 @@ namespace tl
                 p.size.border * 6;
         }
 
-        void FloatSlider::clipEvent(
+        void DoubleSlider::clipEvent(
             const math::BBox2i& clipRect,
             bool clipped,
             const ClipEvent& event)
@@ -143,7 +143,7 @@ namespace tl
             }
         }
 
-        void FloatSlider::drawEvent(
+        void DoubleSlider::drawEvent(
             const math::BBox2i& drawRect,
             const DrawEvent& event)
         {
@@ -202,21 +202,21 @@ namespace tl
             }
         }
 
-        void FloatSlider::mouseEnterEvent()
+        void DoubleSlider::mouseEnterEvent()
         {
             TLRENDER_P();
             p.mouse.inside = true;
             _updates |= Update::Draw;
         }
 
-        void FloatSlider::mouseLeaveEvent()
+        void DoubleSlider::mouseLeaveEvent()
         {
             TLRENDER_P();
             p.mouse.inside = false;
             _updates |= Update::Draw;
         }
 
-        void FloatSlider::mouseMoveEvent(MouseMoveEvent& event)
+        void DoubleSlider::mouseMoveEvent(MouseMoveEvent& event)
         {
             TLRENDER_P();
             event.accept = true;
@@ -227,7 +227,7 @@ namespace tl
             }
         }
 
-        void FloatSlider::mousePressEvent(MouseClickEvent& event)
+        void DoubleSlider::mousePressEvent(MouseClickEvent& event)
         {
             TLRENDER_P();
             event.accept = true;
@@ -240,7 +240,7 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void FloatSlider::mouseReleaseEvent(MouseClickEvent& event)
+        void DoubleSlider::mouseReleaseEvent(MouseClickEvent& event)
         {
             TLRENDER_P();
             event.accept = true;
@@ -248,7 +248,7 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void FloatSlider::keyPressEvent(KeyEvent& event)
+        void DoubleSlider::keyPressEvent(KeyEvent& event)
         {
             TLRENDER_P();
             if (isEnabled() && p.model && 0 == event.modifiers)
@@ -293,12 +293,12 @@ namespace tl
             }
         }
 
-        void FloatSlider::keyReleaseEvent(KeyEvent& event)
+        void DoubleSlider::keyReleaseEvent(KeyEvent& event)
         {
             event.accept = true;
         }
 
-        math::BBox2i FloatSlider::_getSliderGeometry() const
+        math::BBox2i DoubleSlider::_getSliderGeometry() const
         {
             TLRENDER_P();
             return _geometry.margin(
@@ -308,38 +308,38 @@ namespace tl
                 -(p.size.border * 3));
         }
 
-        float FloatSlider::_posToValue(int pos) const
+        double DoubleSlider::_posToValue(int pos) const
         {
             TLRENDER_P();
             const math::BBox2i g = _getSliderGeometry();
-            const float v = (pos - g.x()) / static_cast<float>(g.w());
-            float out = 0.F;
+            const double v = (pos - g.x()) / static_cast<double>(g.w());
+            double out = 0.0;
             if (p.model)
             {
-                const math::FloatRange& range = p.model->getRange();
+                const math::DoubleRange& range = p.model->getRange();
                 out = range.getMin() + (range.getMax() - range.getMin()) * v;
             }
             return out;
         }
 
-        int FloatSlider::_valueToPos(float value) const
+        int DoubleSlider::_valueToPos(double value) const
         {
             TLRENDER_P();
             const math::BBox2i g = _getSliderGeometry();
-            float v = 0.F;
+            double v = 0.0;
             if (p.model)
             {
-                const math::FloatRange& range = p.model->getRange();
+                const math::DoubleRange& range = p.model->getRange();
                 if (range.getMin() != range.getMax())
                 {
                     v = (value - range.getMin()) /
-                        static_cast<float>(range.getMax() - range.getMin());
+                        static_cast<double>(range.getMax() - range.getMin());
                 }
             }
             return g.x() + g.w() * v;
         }
 
-        void FloatSlider::_resetMouse()
+        void DoubleSlider::_resetMouse()
         {
             TLRENDER_P();
             if (p.mouse.pressed || p.mouse.inside)

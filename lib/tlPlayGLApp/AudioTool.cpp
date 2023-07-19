@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayGLApp/ColorToolWidget.h>
+#include <tlPlayGLApp/AudioTool.h>
 
 #include <tlPlayGLApp/App.h>
 
@@ -10,35 +10,35 @@ namespace tl
 {
     namespace play_gl
     {
-        struct ColorToolWidget::Private
+        struct AudioTool::Private
         {};
 
-        void ColorToolWidget::_init(
+        void AudioTool::_init(
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IToolWidget::_init(
-                Tool::Color,
-                "tl::play_gl::ColorToolWidget",
+                Tool::Audio,
+                "tl::play_gl::AudioTool",
                 app,
                 context,
                 parent);
         }
 
-        ColorToolWidget::ColorToolWidget() :
+        AudioTool::AudioTool() :
             _p(new Private)
         {}
 
-        ColorToolWidget::~ColorToolWidget()
+        AudioTool::~AudioTool()
         {}
 
-        std::shared_ptr<ColorToolWidget> ColorToolWidget::create(
-            const std::shared_ptr<App>&app,
-            const std::shared_ptr<system::Context>&context,
-            const std::shared_ptr<IWidget>&parent)
+        std::shared_ptr<AudioTool> AudioTool::create(
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
-            auto out = std::shared_ptr<ColorToolWidget>(new ColorToolWidget);
+            auto out = std::shared_ptr<AudioTool>(new AudioTool);
             out->_init(app, context, parent);
             return out;
         }

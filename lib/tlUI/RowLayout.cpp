@@ -77,12 +77,14 @@ namespace tl
             IWidget::setGeometry(value);
             TLRENDER_P();
             const math::BBox2i g = _geometry.margin(-p.size.margin);
+            std::vector<math::Vector2i> sizeHints;
             size_t expanding = 0;
             std::shared_ptr<IWidget> lastVisibleChild;
             for (const auto& child : _children)
             {
                 if (child->isVisible(false))
                 {
+                    sizeHints.push_back(child->getSizeHint());
                     switch (p.orientation)
                     {
                     case Orientation::Horizontal:
@@ -105,11 +107,12 @@ namespace tl
                 _geometry.w() - _sizeHint.x,
                 _geometry.h() - _sizeHint.y);
             math::Vector2i pos = g.min;
+            size_t count = 0;
             for (const auto& child : _children)
             {
                 if (child->isVisible(false))
                 {
-                    math::Vector2i size = child->getSizeHint();
+                    math::Vector2i size = sizeHints[count];
                     switch (p.orientation)
                     {
                     case Orientation::Horizontal:
@@ -139,12 +142,35 @@ namespace tl
                     switch (p.orientation)
                     {
                     case Orientation::Horizontal:
-                        pos.x += size.x + p.size.spacing;
+                        pos.x += size.x;
+                        if (sizeHints[count].x > 0)
+                        {
+                            for (size_t i = count + 1; i < sizeHints.size(); ++i)
+                            {
+                                if (sizeHints[i].x > 0)
+                                {
+                                    pos.x += p.size.spacing;
+                                    break;
+                                }
+                            }
+                        }
                         break;
                     case Orientation::Vertical:
-                        pos.y += size.y + p.size.spacing;
+                        pos.y += size.y;
+                        if (sizeHints[count].y > 0)
+                        {
+                            for (size_t i = count + 1; i < sizeHints.size(); ++i)
+                            {
+                                if (sizeHints[i].y > 0)
+                                {
+                                    pos.y += p.size.spacing;
+                                    break;
+                                }
+                            }
+                        }
                         break;
                     }
+                    ++count;
                 }
             }
         }
@@ -163,36 +189,46 @@ namespace tl
             p.size.spacing = event.style->getSizeRole(p.spacingRole, event.displayScale);
 
             _sizeHint = math::Vector2i();
-            size_t count = 0;
+            std::vector<math::Vector2i> sizeHints;
+            size_t visible = 0;
             for (const auto& child : _children)
             {
                 if (child->isVisible(false))
                 {
                     const math::Vector2i& sizeHint = child->getSizeHint();
+                    sizeHints.push_back(sizeHint);
                     switch (p.orientation)
                     {
                     case Orientation::Horizontal:
                         _sizeHint.x += sizeHint.x;
                         _sizeHint.y = std::max(_sizeHint.y, sizeHint.y);
+                        if (sizeHint.x > 0)
+                        {
+                            ++visible;
+                        }
                         break;
                     case Orientation::Vertical:
                         _sizeHint.x = std::max(_sizeHint.x, sizeHint.x);
                         _sizeHint.y += sizeHint.y;
+                        if (sizeHint.y > 0)
+                        {
+                            ++visible;
+                        }
                         break;
                     }
-                    ++count;
                 }
             }
-            if (!_children.empty())
+            if (visible > 0)
             {
                 switch (p.orientation)
                 {
                 case Orientation::Horizontal:
-                    _sizeHint.x += p.size.spacing * (count - 1);
+                    _sizeHint.x += p.size.spacing * (visible - 1);
                     break;
                 case Orientation::Vertical:
-                    _sizeHint.y += p.size.spacing * (count - 1);
+                    _sizeHint.y += p.size.spacing * (visible - 1);
                     break;
+                default: break;
                 }
             }
             _sizeHint.x += p.size.margin * 2;

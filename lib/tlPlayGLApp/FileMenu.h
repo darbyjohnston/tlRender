@@ -40,6 +40,7 @@ namespace tl
                 const std::vector<std::shared_ptr<play::FilesModelItem> >&);
             void _aUpdate(const std::shared_ptr<play::FilesModelItem>&);
             void _aIndexUpdate(int);
+            void _layersUpdate(const std::vector<int>&);
             void _recentUpdate(const std::vector<file::Path>&);
 
             TLRENDER_PRIVATE();

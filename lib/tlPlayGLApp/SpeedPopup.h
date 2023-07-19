@@ -4,36 +4,38 @@
 
 #pragma once
 
-#include <tlPlayGLApp/IToolWidget.h>
+#include <tlUI/IMenuPopup.h>
 
 namespace tl
 {
     namespace play_gl
     {
-        class App;
-
-        //! System log tool widget.
-        class SystemLogToolWidget : public IToolWidget
+        //! Speed popup.
+        class SpeedPopup : public ui::IMenuPopup
         {
-            TLRENDER_NON_COPYABLE(SystemLogToolWidget);
+            TLRENDER_NON_COPYABLE(SpeedPopup);
 
         protected:
             void _init(
-                const std::shared_ptr<App>&,
+                double defaultSpeed,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            SystemLogToolWidget();
+            SpeedPopup();
 
         public:
-            virtual ~SystemLogToolWidget();
+            virtual ~SpeedPopup();
 
-            static std::shared_ptr<SystemLogToolWidget> create(
-                const std::shared_ptr<App>&,
+            static std::shared_ptr<SpeedPopup> create(
+                double defaultSpeed,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            void setCallback(const std::function<void(double)>&);
+
         private:
+            void _menuUpdate();
+
             TLRENDER_PRIVATE();
         };
     }

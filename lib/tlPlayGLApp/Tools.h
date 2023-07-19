@@ -16,7 +16,6 @@ namespace tl
         enum class Tool
         {
             Files,
-            Compare,
             Color,
             Info,
             Audio,

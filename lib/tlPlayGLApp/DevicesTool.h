@@ -12,10 +12,10 @@ namespace tl
     {
         class App;
 
-        //! Compare tool widget.
-        class CompareToolWidget : public IToolWidget
+        //! Devices tool.
+        class DevicesTool : public IToolWidget
         {
-            TLRENDER_NON_COPYABLE(CompareToolWidget);
+            TLRENDER_NON_COPYABLE(DevicesTool);
 
         protected:
             void _init(
@@ -23,12 +23,12 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            CompareToolWidget();
+            DevicesTool();
 
         public:
-            virtual ~CompareToolWidget();
+            virtual ~DevicesTool();
 
-            static std::shared_ptr<CompareToolWidget> create(
+            static std::shared_ptr<DevicesTool> create(
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

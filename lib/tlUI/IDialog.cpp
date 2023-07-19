@@ -75,8 +75,25 @@ namespace tl
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
+            const math::BBox2i g = value.margin(-p.size.margin);
             const auto& children = getChildren();
-            children.front()->setGeometry(value.margin(-p.size.margin));
+            const math::Vector2i& sizeHint = children.front()->getSizeHint();
+            math::Vector2i size;
+            size.x = std::min(sizeHint.x, g.w());
+            size.y = std::min(sizeHint.y, g.h());
+            if (Stretch::Expanding == children.front()->getHStretch())
+            {
+                size.x = g.w();
+            }
+            if (Stretch::Expanding == children.front()->getVStretch())
+            {
+                size.y = g.h();
+            }
+            children.front()->setGeometry(math::BBox2i(
+                g.x() + g.w() / 2 - size.x / 2,
+                g.y() + g.h() / 2 - size.y / 2,
+                size.x,
+                size.y));
         }
 
         void IDialog::sizeHintEvent(const SizeHintEvent& event)
