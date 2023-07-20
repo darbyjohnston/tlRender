@@ -33,7 +33,7 @@ namespace tl
 
             struct SizeData
             {
-                int waveformWidth = 0;
+                int waveformWidth = 100;
                 math::BBox2i clipRect;
             };
             SizeData size;
@@ -50,6 +50,8 @@ namespace tl
                 math::Vector2i size;
                 std::future<std::shared_ptr<geom::TriangleMesh2> > meshFuture;
                 std::shared_ptr<geom::TriangleMesh2> mesh;
+                //std::future<std::shared_ptr<imaging::Image> > imageFuture;
+                //std::shared_ptr<imaging::Image> image;
                 std::chrono::steady_clock::time_point time;
             };
             std::map<otime::RationalTime, AudioData> audioData;
@@ -218,6 +220,59 @@ namespace tl
                 }
                 return out;
             }
+
+            /*std::shared_ptr<imaging::Image> audioImage(
+                const std::shared_ptr<audio::Audio>& audio,
+                const math::Vector2i& size)
+            {
+                auto out = imaging::Image::create(size.x, size.y, imaging::PixelType::L_U8);
+                const auto& info = audio->getInfo();
+                const size_t sampleCount = audio->getSampleCount();
+                if (sampleCount > 0)
+                {
+                    switch (info.dataType)
+                    {
+                    case audio::DataType::F32:
+                    {
+                        const audio::F32_T* data = reinterpret_cast<const audio::F32_T*>(
+                            audio->getData());
+                        for (int x = 0; x < size.x; ++x)
+                        {
+                            const int x0 = std::min(
+                                static_cast<size_t>((x + 0) / static_cast<double>(size.x - 1) * (sampleCount - 1)),
+                                sampleCount - 1);
+                            const int x1 = std::min(
+                                static_cast<size_t>((x + 1) / static_cast<double>(size.x - 1) * (sampleCount - 1)),
+                                sampleCount - 1);
+                            //std::cout << x << ": " << x0 << " " << x1 << std::endl;
+                            audio::F32_T min = 0.F;
+                            audio::F32_T max = 0.F;
+                            if (x0 < x1)
+                            {
+                                min = audio::F32Range.getMax();
+                                max = audio::F32Range.getMin();
+                                for (int i = x0; i < x1; ++i)
+                                {
+                                    const audio::F32_T v = *(data + i * info.channelCount);
+                                    min = std::min(min, v);
+                                    max = std::max(max, v);
+                                }
+                            }
+                            uint8_t* p = out->getData() + x;
+                            for (int y = 0; y < size.y; ++y)
+                            {
+                                const float v = y / static_cast<float>(size.y - 1);
+                                *p = (v > min && v < max) ? 255 : 0;
+                                p += size.x;
+                            }
+                        }
+                        break;
+                    }
+                    default: break;
+                    }
+                }
+                return out;
+            }*/
         }
 
         void AudioClipItem::tickEvent(
@@ -250,6 +305,16 @@ namespace tl
                                 const auto convertedAudio = convert->convert(audio.audio);
                                 return audioMesh(convertedAudio, size);
                             });
+                            /*audioData.imageFuture = std::async(
+                                std::launch::async,
+                                [audio, size]
+                                {
+                                    auto convert = audio::AudioConvert::create(
+                                        audio.audio->getInfo(),
+                                        audio::Info(1, audio::DataType::F32, audio.audio->getSampleRate()));
+                                    const auto convertedAudio = convert->convert(audio.audio);
+                                    return audioImage(convertedAudio, size);
+                                });*/
                     }
                     p.audioData[i->first] = std::move(audioData);
                     i = p.audioDataFutures.erase(i);
@@ -271,6 +336,14 @@ namespace tl
                     audioData.second.time = now;
                     _updates |= ui::Update::Draw;
                 }
+                /*if (audioData.second.imageFuture.valid() &&
+                    audioData.second.imageFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                {
+                    const auto image = audioData.second.imageFuture.get();
+                    audioData.second.image = image;
+                    audioData.second.time = now;
+                    _updates |= ui::Update::Draw;
+                }*/
                 const std::chrono::duration<float> diff = now - audioData.second.time;
                 if (diff.count() < _options.thumbnailFade)
                 {
@@ -283,16 +356,6 @@ namespace tl
         {
             IBasicItem::sizeHintEvent(event);
             TLRENDER_P();
-            const int waveformWidth = _options.thumbnails ?
-                (otime::RationalTime(1.0, 1.0).value() * _scale) :
-                0;
-            if (waveformWidth != p.size.waveformWidth)
-            {
-                p.size.waveformWidth = waveformWidth;
-                _data.ioManager->cancelRequests();
-                p.audioData.clear();
-                _updates |= ui::Update::Draw;
-            }
             if (_options.thumbnails)
             {
                 _sizeHint.y += _options.waveformHeight;
@@ -402,6 +465,15 @@ namespace tl
                                     bbox.min,
                                     imaging::Color4f(1.F, 1.F, 1.F, a));
                             }
+                            /*if (i->second.image)
+                            {
+                                const std::chrono::duration<float> diff = now - i->second.time;
+                                const float a = std::min(diff.count() / _options.thumbnailFade, 1.F);
+                                event.render->drawImage(
+                                    (i->second).image,
+                                    bbox,
+                                    imaging::Color4f(1.F, 1.F, 1.F, a));
+                            }*/
                             audioDataDelete.erase(time);
                         }
                         else if (p.ioInfo.audio.isValid())
@@ -409,8 +481,13 @@ namespace tl
                             const auto j = p.audioDataFutures.find(time);
                             if (j == p.audioDataFutures.end())
                             {
+                                const otime::RationalTime time2 = time::round(otime::RationalTime(
+                                    p.timeRange.start_time().value() +
+                                    (w > 0 ? ((x + p.size.waveformWidth) / static_cast<double>(w)) : 0) *
+                                    p.timeRange.duration().value(),
+                                    p.timeRange.duration().rate()));
                                 const otime::TimeRange mediaRange = timeline::toAudioMediaTime(
-                                    otime::TimeRange(time, otime::RationalTime(time.rate(), time.rate())),
+                                    otime::TimeRange::range_from_start_end_time(time, time2),
                                     p.track,
                                     p.clip,
                                     p.ioInfo);

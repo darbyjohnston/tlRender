@@ -378,11 +378,12 @@ namespace tl
             _eof = false;
         }
 
-        void ReadAudio::process(const otime::RationalTime& currentTime)
+        void ReadAudio::process(
+            const otime::RationalTime& currentTime,
+            size_t sampleCount)
         {
-            if (_avStream != -1 &&
-                audio::getSampleCount(_buffer) <
-                _options.audioBufferSize.rescaled_to(_info.sampleRate).value())
+            const size_t bufferSampleCount = audio::getSampleCount(_buffer);
+            if (_avStream != -1 && bufferSampleCount < sampleCount)
             {
                 Packet packet;
                 int decoding = 0;

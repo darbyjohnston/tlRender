@@ -470,6 +470,8 @@ namespace tl
                         {
                             p.audioMutex.currentRequest = p.audioMutex.requests.front();
                             p.audioMutex.requests.pop_front();
+                            p.audioThread.requestSampleCount =
+                                p.audioMutex.currentRequest->timeRange.duration().value();
                         }
                         if (p.audioMutex.currentRequest)
                         {
@@ -492,7 +494,11 @@ namespace tl
                 }
 
                 // Process.
-                _p->readAudio->process(p.audioThread.currentTime);
+                p.readAudio->process(
+                    p.audioThread.currentTime,
+                    p.audioThread.requestSampleCount ?
+                    p.audioThread.requestSampleCount :
+                    p.options.audioBufferSize.rescaled_to(p.info.audio.sampleRate).value());
 
                 // Handle requests.
                 {
@@ -534,6 +540,7 @@ namespace tl
                         request->promise.set_value(data);
 
                         p.audioThread.currentTime += request->timeRange.duration();
+                        p.audioThread.requestSampleCount = 0;
                     }
                 }
 

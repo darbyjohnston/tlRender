@@ -117,7 +117,9 @@ namespace tl
 
             void start();
             void seek(const otime::RationalTime&);
-            void process(const otime::RationalTime& currentTime);
+            void process(
+                const otime::RationalTime& currentTime,
+                size_t sampleCount);
 
             size_t getBufferSize() const;
             void bufferCopy(uint8_t*, size_t sampleCount);
@@ -199,6 +201,7 @@ namespace tl
             struct AudioThread
             {
                 otime::RationalTime currentTime = time::invalidTime;
+                size_t requestSampleCount = 0;
                 std::chrono::steady_clock::time_point logTimer;
                 std::condition_variable cv;
                 std::thread thread;
