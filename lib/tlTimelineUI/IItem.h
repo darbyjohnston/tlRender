@@ -54,6 +54,13 @@ namespace tl
             Transition
         };
 
+        //! Waveform primitive type.
+        enum class WaveformPrim
+        {
+            Mesh,
+            Image
+        };
+
         //! Item options.
         struct ItemOptions
         {
@@ -65,7 +72,9 @@ namespace tl
             float clipRectScale = 2.F;
             bool thumbnails = true;
             int thumbnailHeight = 100;
+            int waveformWidth = 100;
             int waveformHeight = 50;
+            WaveformPrim waveformPrim = WaveformPrim::Image;
             float thumbnailFade = .5F;
             bool showTransitions = false;
             bool showMarkers = false;

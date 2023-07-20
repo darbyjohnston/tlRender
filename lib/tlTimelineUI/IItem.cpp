@@ -36,6 +36,7 @@ namespace tl
                 thumbnails == other.thumbnails &&
                 thumbnailHeight == other.thumbnailHeight &&
                 waveformHeight == other.waveformHeight &&
+                waveformPrim == other.waveformPrim &&
                 thumbnailFade == other.thumbnailFade &&
                 showTransitions == other.showTransitions &&
                 showMarkers == other.showMarkers;
