@@ -72,9 +72,9 @@ namespace tl
             float clipRectScale = 2.F;
             bool thumbnails = true;
             int thumbnailHeight = 100;
-            int waveformWidth = 100;
+            int waveformWidth = 200;
             int waveformHeight = 50;
-            WaveformPrim waveformPrim = WaveformPrim::Image;
+            WaveformPrim waveformPrim = WaveformPrim::Mesh;
             float thumbnailFade = .5F;
             bool showTransitions = false;
             bool showMarkers = false;
