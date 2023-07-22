@@ -48,11 +48,17 @@ namespace tl
                 switch (severity)
                 {
                 case GL_DEBUG_SEVERITY_HIGH:
-                case GL_DEBUG_SEVERITY_MEDIUM:
-                case GL_DEBUG_SEVERITY_LOW:
-                case GL_DEBUG_SEVERITY_NOTIFICATION:
-                    std::cerr << "DEBUG: " << message << std::endl;
+                    std::cerr << "HIGH: " << message << std::endl;
                     break;
+                case GL_DEBUG_SEVERITY_MEDIUM:
+                    std::cerr << "MEDIUM: " << message << std::endl;
+                    break;
+                case GL_DEBUG_SEVERITY_LOW:
+                    std::cerr << "LOW: " << message << std::endl;
+                    break;
+                //case GL_DEBUG_SEVERITY_NOTIFICATION:
+                //    std::cerr << "NOTIFICATION: " << message << std::endl;
+                //    break;
                 default: break;
                 }
             }

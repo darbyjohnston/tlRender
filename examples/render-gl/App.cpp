@@ -28,28 +28,6 @@ namespace tl
     {
         namespace render_gl
         {
-            namespace
-            {
-                /*void APIENTRY glDebugOutput(
-                    GLenum         source,
-                    GLenum         type,
-                    GLuint         id,
-                    GLenum         severity,
-                    GLsizei        length,
-                    const GLchar * message,
-                    const void *   userParam)
-                {
-                    switch (severity)
-                    {
-                    case GL_DEBUG_SEVERITY_HIGH_KHR:
-                    case GL_DEBUG_SEVERITY_MEDIUM_KHR:
-                        std::cerr << "DEBUG: " << message << std::endl;
-                        break;
-                    default: break;
-                    }
-                }*/
-            }
-
             void App::_init(
                 int argc,
                 char* argv[],
@@ -189,7 +167,6 @@ namespace tl
                 glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
                 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
                 glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-                //glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
                 _glfwWindow = glfwCreateWindow(
                     _options.windowSize.w,
                     _options.windowSize.h,
@@ -212,21 +189,6 @@ namespace tl
                 {
                     throw std::runtime_error("Cannot initialize GLAD");
                 }
-                /*GLint flags = 0;
-                glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-                if (flags & static_cast<GLint>(GL_CONTEXT_FLAG_DEBUG_BIT))
-                {
-                    glEnable(GL_DEBUG_OUTPUT);
-                    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-                    glDebugMessageCallback(glDebugOutput, context.get());
-                    glDebugMessageControl(
-                        static_cast<GLenum>(GL_DONT_CARE),
-                        static_cast<GLenum>(GL_DONT_CARE),
-                        static_cast<GLenum>(GL_DONT_CARE),
-                        0,
-                        nullptr,
-                        GLFW_TRUE);
-                }*/
                 const int glMajor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MAJOR);
                 const int glMinor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MINOR);
                 const int glRevision = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_REVISION);
