@@ -17,7 +17,11 @@
 #include <tlCore/LogSystem.h>
 #include <tlCore/StringFormat.h>
 
+#if defined(TLRENDER_GL_DEBUG)
+#include <tlGladDebug/gl.h>
+#else // TLRENDER_GL_DEBUG
 #include <tlGlad/gl.h>
+#endif // TLRENDER_GL_DEBUG
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -31,7 +35,8 @@ namespace tl
     {
         namespace
         {
-            /*void APIENTRY glDebugOutput(
+#if defined(TLRENDER_GL_DEBUG)
+            void APIENTRY glDebugOutput(
                 GLenum         source,
                 GLenum         type,
                 GLuint         id,
@@ -42,13 +47,16 @@ namespace tl
             {
                 switch (severity)
                 {
-                case GL_DEBUG_SEVERITY_HIGH_KHR:
-                case GL_DEBUG_SEVERITY_MEDIUM_KHR:
+                case GL_DEBUG_SEVERITY_HIGH:
+                case GL_DEBUG_SEVERITY_MEDIUM:
+                case GL_DEBUG_SEVERITY_LOW:
+                case GL_DEBUG_SEVERITY_NOTIFICATION:
                     std::cerr << "DEBUG: " << message << std::endl;
                     break;
                 default: break;
                 }
-            }*/
+            }
+#endif // TLRENDER_GL_DEBUG
 
             class Clipboard : public ui::IClipboard
             {
@@ -182,7 +190,9 @@ namespace tl
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
             glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-            //glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#if defined(TLRENDER_GL_DEBUG)
+            glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif // TLRENDER_GL_DEBUG
             p.glfwWindow = glfwCreateWindow(
                 p.options.windowSize.w,
                 p.options.windowSize.h,
@@ -206,7 +216,8 @@ namespace tl
             {
                 throw std::runtime_error("Cannot initialize GLAD");
             }
-            /*GLint flags = 0;
+#if defined(TLRENDER_GL_DEBUG)
+            GLint flags = 0;
             glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
             if (flags & static_cast<GLint>(GL_CONTEXT_FLAG_DEBUG_BIT))
             {
@@ -220,7 +231,8 @@ namespace tl
                     0,
                     nullptr,
                     GLFW_TRUE);
-            }*/
+            }
+#endif // TLRENDER_GL_DEBUG
             const int glMajor = glfwGetWindowAttrib(p.glfwWindow, GLFW_CONTEXT_VERSION_MAJOR);
             const int glMinor = glfwGetWindowAttrib(p.glfwWindow, GLFW_CONTEXT_VERSION_MINOR);
             const int glRevision = glfwGetWindowAttrib(p.glfwWindow, GLFW_CONTEXT_REVISION);

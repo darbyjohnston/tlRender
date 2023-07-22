@@ -46,6 +46,7 @@ set(TLRENDER_EXAMPLES TRUE CACHE BOOL "Build examples")
 set(TLRENDER_TESTS TRUE CACHE BOOL "Build tests")
 set(TLRENDER_GCOV FALSE CACHE BOOL "Enable gcov code coverage")
 set(TLRENDER_GPROF FALSE CACHE BOOL "Enable gprof code profiling")
+set(TLRENDER_GL_DEBUG FALSE CACHE BOOL "Enable OpenGL debugging")
 
 #-------------------------------------------------------------------------------
 # Internal configuration
@@ -207,7 +208,12 @@ endif()
 add_subdirectory(deps/FSeq)
 set_target_properties(fseq PROPERTIES FOLDER deps)
 
-add_subdirectory(deps/tlGlad)
+if(TLRENDER_GL_DEBUG)
+    add_definitions(-DTLRENDER_GL_DEBUG)
+    add_subdirectory(deps/tlGladDebug)
+else()
+    add_subdirectory(deps/tlGlad)
+endif()
 
 add_subdirectory(lib)
 if(TLRENDER_PROGRAMS)

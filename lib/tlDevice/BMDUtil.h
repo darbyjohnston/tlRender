@@ -8,7 +8,11 @@
 
 #include <tlCore/Image.h>
 
+#if defined(TLRENDER_GL_DEBUG)
+#include <tlGladDebug/gl.h>
+#else // TLRENDER_GL_DEBUG
 #include <tlGlad/gl.h>
+#endif // TLRENDER_GL_DEBUG
 
 #ifndef NOMINMAX
 #define NOMINMAX
