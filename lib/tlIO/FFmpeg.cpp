@@ -179,6 +179,7 @@ namespace tl
                     { ".mkv", io::FileType::Movie },
                     { ".mxf", io::FileType::Movie },
                     { ".wmv", io::FileType::Movie },
+                    { ".avi", io::FileType::Movie },
                     { ".wav", io::FileType::Audio },
                     { ".mp3", io::FileType::Audio },
                     { ".aiff", io::FileType::Audio }
