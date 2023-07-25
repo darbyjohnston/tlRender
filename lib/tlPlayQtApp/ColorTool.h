@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlPlayQtApp/ToolWidget.h>
+#include <tlPlayQtApp/IToolWidget.h>
 
 #include <tlQt/MetaTypes.h>
 
@@ -155,7 +155,7 @@ namespace tl
         };
 
         //! Color tool.
-        class ColorTool : public ToolWidget
+        class ColorTool : public IToolWidget
         {
             Q_OBJECT
 

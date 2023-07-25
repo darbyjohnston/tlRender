@@ -19,7 +19,7 @@ namespace tl
     {
         namespace
         {
-            const int messagesMax = 100;
+            const int messagesMax = 20;
         }
 
         struct MessagesTool::Private
@@ -33,7 +33,7 @@ namespace tl
         MessagesTool::MessagesTool(
             const std::shared_ptr<system::Context>& context,
             QWidget* parent) :
-            ToolWidget(parent),
+            IToolWidget(parent),
             _p(new Private)
         {
             TLRENDER_P();
@@ -43,12 +43,12 @@ namespace tl
             p.listWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
             p.copyButton = new QToolButton;
-            p.copyButton->setIcon(QIcon(":/Icons/Copy.svg"));
+            p.copyButton->setText("Copy");
             p.copyButton->setAutoRaise(true);
             p.copyButton->setToolTip(tr("Copy the contents to the clipboard"));
 
             p.clearButton = new QToolButton;
-            p.clearButton->setIcon(QIcon(":/Icons/Clear.svg"));
+            p.clearButton->setText("Clear");
             p.clearButton->setAutoRaise(true);
             p.clearButton->setToolTip(tr("Clear the contents"));
 
@@ -58,9 +58,9 @@ namespace tl
             layout->addWidget(p.listWidget);
             auto hLayout = new QHBoxLayout;
             hLayout->setSpacing(1);
-            hLayout->addStretch();
             hLayout->addWidget(p.copyButton);
             hLayout->addWidget(p.clearButton);
+            hLayout->addStretch();
             layout->addLayout(hLayout);
             auto widget = new QWidget;
             widget->setLayout(layout);
@@ -75,10 +75,8 @@ namespace tl
                         switch (i.type)
                         {
                         case log::Type::Warning:
-                            _p->listWidget->addItem(QString("Warning: %1").arg(QString::fromUtf8(i.message.c_str())));
-                            break;
                         case log::Type::Error:
-                            _p->listWidget->addItem(QString("ERROR: %1").arg(QString::fromUtf8(i.message.c_str())));
+                            _p->listWidget->addItem(QString::fromUtf8(log::toString(i).c_str()));
                             break;
                         default: break;
                         }
@@ -122,7 +120,7 @@ namespace tl
             setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
             auto dockTitleBar = new DockTitleBar;
-            dockTitleBar->setText(tr("MESSAGES"));
+            dockTitleBar->setText(tr("Messages"));
             dockTitleBar->setIcon(QIcon(":/Icons/Messages.svg"));
             auto dockWidget = new QDockWidget;
             setTitleBarWidget(dockTitleBar);

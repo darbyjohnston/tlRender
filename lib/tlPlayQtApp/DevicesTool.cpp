@@ -66,7 +66,7 @@ namespace tl
         DevicesTool::DevicesTool(
             App* app,
             QWidget* parent) :
-            ToolWidget(parent),
+            IToolWidget(parent),
             _p(new Private)
         {
             TLRENDER_P();
@@ -444,7 +444,7 @@ namespace tl
             setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
             auto dockTitleBar = new DockTitleBar;
-            dockTitleBar->setText(tr("DEVICES"));
+            dockTitleBar->setText(tr("Devices"));
             dockTitleBar->setIcon(QIcon(":/Icons/Devices.svg"));
             auto dockWidget = new QDockWidget;
             setTitleBarWidget(dockTitleBar);

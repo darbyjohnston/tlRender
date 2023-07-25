@@ -74,6 +74,21 @@ namespace tl
             return data[static_cast<size_t>(value)];
         }
 
+        std::vector<Tool> toolsInToolbar()
+        {
+            const std::vector<Tool> out
+            {
+                Tool::Files,
+                Tool::Color,
+                Tool::Info,
+                Tool::Audio,
+                Tool::Devices,
+                Tool::Settings,
+                Tool::Messages
+            };
+            return out;
+        }
+
         struct ToolsModel::Private
         {
             std::shared_ptr<observer::Value<int> > activeTool;

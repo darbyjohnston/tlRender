@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayQtApp/ToolWidget.h>
+#include <tlPlayQtApp/IToolWidget.h>
 
 #include <tlQtWidget/BellowsWidget.h>
 #include <tlQtWidget/Separator.h>
@@ -14,7 +14,7 @@ namespace tl
 {
     namespace play_qt
     {
-        ToolWidget::ToolWidget(QWidget* parent) :
+        IToolWidget::IToolWidget(QWidget* parent) :
             QWidget(parent)
         {
             _layout = new QVBoxLayout;
@@ -31,7 +31,7 @@ namespace tl
             setLayout(scrollLayout);
         }
 
-        void ToolWidget::addWidget(QWidget* widget, int stretch)
+        void IToolWidget::addWidget(QWidget* widget, int stretch)
         {
             if (_layout->count() > 0)
             {
@@ -40,7 +40,7 @@ namespace tl
             _layout->addWidget(widget, stretch);
         }
 
-        void ToolWidget::addBellows(const QString& title, QWidget* widget)
+        void IToolWidget::addBellows(const QString& title, QWidget* widget)
         {
             if (_layout->count() > 0)
             {
@@ -52,7 +52,7 @@ namespace tl
             _layout->addWidget(bellowsWidget);
         }
 
-        void ToolWidget::addStretch(int stretch)
+        void IToolWidget::addStretch(int stretch)
         {
             _layout->addStretch(stretch);
         }

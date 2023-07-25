@@ -457,7 +457,12 @@ namespace tl
             TLRENDER_P();
             switch (event.key)
             {
-            case Key::Tab: break;
+            case Key::Up:
+            case Key::Down:
+            case Key::PageUp:
+            case Key::PageDown:
+            case Key::Tab:
+                break;
             default: event.accept = true; break;
             }
             switch (event.key)

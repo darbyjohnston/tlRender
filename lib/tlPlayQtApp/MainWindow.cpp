@@ -433,8 +433,7 @@ namespace tl
                         {
                         case log::Type::Error:
                             _p->statusBar->showMessage(
-                                QString(tr("ERROR: %1")).
-                                arg(QString::fromUtf8(i.message.c_str())),
+                                QString::fromUtf8(log::toString(i).c_str()),
                                 errorTimeout);
                             break;
                         default: break;

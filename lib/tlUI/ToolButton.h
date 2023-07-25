@@ -30,6 +30,12 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            //! Create a new widget.
+            static std::shared_ptr<ToolButton> create(
+                const std::string& text,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
             void setText(const std::string&) override;
             void setFontRole(FontRole) override;
 

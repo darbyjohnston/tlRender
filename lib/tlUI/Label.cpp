@@ -6,6 +6,8 @@
 
 #include <tlUI/LayoutUtil.h>
 
+#include <tlCore/String.h>
+
 namespace tl
 {
     namespace ui
@@ -14,6 +16,8 @@ namespace tl
         {
             std::string text;
             size_t textWidth = 0;
+            std::string textTmp;
+            std::vector<std::string> lines;
             SizeRole marginRole = SizeRole::None;
             FontRole fontRole = FontRole::Label;
 
@@ -29,7 +33,7 @@ namespace tl
 
             struct DrawData
             {
-                std::vector<std::shared_ptr<imaging::Glyph> > glyphs;
+                std::vector<std::vector<std::shared_ptr<imaging::Glyph> > > glyphs;
             };
             DrawData draw;
         };
@@ -77,6 +81,7 @@ namespace tl
             p.text = value;
             p.size.textInit = true;
             p.draw.glyphs.clear();
+            _textUpdate();
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
@@ -89,6 +94,7 @@ namespace tl
             p.textWidth = value;
             p.size.textInit = true;
             p.draw.glyphs.clear();
+            _textUpdate();
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
@@ -128,14 +134,14 @@ namespace tl
             {
                 p.size.fontInfo = fontInfo;
                 p.size.textInit = false;
-                p.size.textSize = event.fontSystem->getSize(_getText(), fontInfo);
+                p.size.textSize = event.fontSystem->getSize(p.textTmp, fontInfo);
             }
 
             _sizeHint.x =
                 p.size.textSize.x +
                 p.size.margin * 2;
             _sizeHint.y =
-                p.size.fontMetrics.lineHeight +
+                p.size.textSize.y +
                 p.size.margin * 2;
         }
 
@@ -169,33 +175,41 @@ namespace tl
                 _hAlign,
                 _vAlign).margin(-p.size.margin);
 
-            const std::string text = _getText();
-            if (!text.empty() && p.draw.glyphs.empty())
+            if (!p.textTmp.empty() && p.draw.glyphs.empty())
             {
-                p.draw.glyphs = event.fontSystem->getGlyphs(text, p.size.fontInfo);
+                for (const auto& line : p.lines)
+                {
+                    p.draw.glyphs.push_back(event.fontSystem->getGlyphs(line, p.size.fontInfo));
+                }
             }
-            const math::Vector2i pos(
-                g.x(),
-                g.y() + p.size.fontMetrics.ascender);
-            event.render->drawText(
-                p.draw.glyphs,
-                pos,
-                event.style->getColorRole(ColorRole::Text));
+            math::Vector2i pos = g.min;
+            for (const auto& glyphs : p.draw.glyphs)
+            {
+                event.render->drawText(
+                    glyphs,
+                    math::Vector2i(pos.x, pos.y + p.size.fontMetrics.ascender),
+                    event.style->getColorRole(ColorRole::Text));
+                pos.y += p.size.fontMetrics.lineHeight;
+            }
         }
         
-        std::string Label::_getText() const
+        void Label::_textUpdate()
         {
             TLRENDER_P();
-            std::string out;
             if (!p.text.empty() && p.textWidth > 0)
             {
-                out = p.text.substr(0, std::min(p.textWidth, p.text.size()));
+                p.textTmp = p.text.substr(0, std::min(p.textWidth, p.text.size()));
             }
             else
             {
-                out = p.text;
+                p.textTmp = p.text;
             }
-            return out;
+            const auto lines = string::split(p.textTmp, { '\n', '\r' });
+            p.lines.clear();
+            for (const auto& line : lines)
+            {
+                p.lines.push_back(line);
+            }
         }
     }
 }

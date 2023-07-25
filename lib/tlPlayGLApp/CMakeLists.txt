@@ -21,6 +21,7 @@ set(HEADERS
     SeparateAudioPrivate.h
     SpeedPopup.h
     Settings.h
+    SettingsInline.h
     SettingsTool.h
     SystemLogTool.h
     Tools.h

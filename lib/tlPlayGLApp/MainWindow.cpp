@@ -44,6 +44,7 @@
 #include <tlTimeline/TimeUnits.h>
 
 #include <tlCore/StringFormat.h>
+#include <tlCore/Timer.h>
 
 namespace tl
 {
@@ -85,6 +86,7 @@ namespace tl
             std::shared_ptr<ui::ToolButton> audioButton;
             std::shared_ptr<AudioPopup> audioPopup;
             std::shared_ptr<ui::Label> statusLabel;
+            std::shared_ptr<time::Timer> statusTimer;
             std::shared_ptr<ui::Label> infoLabel;
             std::shared_ptr<ToolsWidget> toolsWidget;
             std::shared_ptr<ui::RowLayout> layout;
@@ -95,6 +97,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
+            std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
         };
 
         void MainWindow::_init(
@@ -203,8 +206,10 @@ namespace tl
             p.audioButton->setIcon("Volume");
 
             p.statusLabel = ui::Label::create(context);
-            p.statusLabel->setTextWidth(80);
+            p.statusLabel->setTextWidth(120);
             p.statusLabel->setHStretch(ui::Stretch::Expanding);
+            p.statusTimer = time::Timer::create(context);
+
             p.infoLabel = ui::Label::create(context);
             p.infoLabel->setTextWidth(40);
 
@@ -226,6 +231,7 @@ namespace tl
             p.viewToolBar->setParent(hLayout);
             ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
             p.toolsToolBar->setParent(hLayout);
+            ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
             auto splitter = ui::Splitter::create(ui::Orientation::Vertical, context, p.layout);
             splitter->setSplit(.7F);
             auto splitter2 = ui::Splitter::create(ui::Orientation::Horizontal, context, splitter);
@@ -367,6 +373,13 @@ namespace tl
                 [this](const timeline::CompareOptions& value)
                 {
                     _viewportUpdate();
+                });
+
+            p.logObserver = observer::ListObserver<log::Item>::create(
+                context->getLogSystem()->observeLog(),
+                [this](const std::vector<log::Item>& value)
+                {
+                    _statusUpdate(value);
                 });
         }
 
@@ -561,6 +574,27 @@ namespace tl
             {
                 p.timelineViewport->setCompareOptions(
                     app->getFilesModel()->getCompareOptions());
+            }
+        }
+
+        void MainWindow::_statusUpdate(const std::vector<log::Item>& value)
+        {
+            TLRENDER_P();
+            for (const auto& i : value)
+            {
+                switch (i.type)
+                {
+                case log::Type::Error:
+                    p.statusLabel->setText(log::toString(i));
+                    p.statusTimer->start(
+                        std::chrono::seconds(5),
+                        [this]
+                        {
+                            _p->statusLabel->setText(std::string());
+                        });
+                        break;
+                default: break;
+                }
             }
         }
 

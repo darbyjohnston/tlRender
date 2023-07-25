@@ -17,7 +17,6 @@ namespace tl
         {
             std::shared_ptr<DoubleModel> model;
             std::shared_ptr<DoubleEdit> edit;
-            std::shared_ptr<DoubleIncButtons> incButtons;
             std::shared_ptr<DoubleSlider> slider;
             std::shared_ptr<HorizontalLayout> layout;
         };
@@ -40,14 +39,11 @@ namespace tl
 
             p.edit = DoubleEdit::create(context, p.model);
 
-            p.incButtons = DoubleIncButtons::create(p.model, context);
-
             p.slider = DoubleSlider::create(context, p.model);
 
             p.layout = HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(SizeRole::SpacingTool);
             p.edit->setParent(p.layout);
-            p.incButtons->setParent(p.layout);
             p.slider->setParent(p.layout);
             p.slider->setHStretch(ui::Stretch::Expanding);
         }

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlPlayQtApp/ToolWidget.h>
+#include <tlPlayQtApp/IToolWidget.h>
 
 #include <tlQt/MetaTypes.h>
 
@@ -17,7 +17,7 @@ namespace tl
         class App;
 
         //! Compare tool.
-        class CompareTool : public ToolWidget
+        class CompareTool : public IToolWidget
         {
             Q_OBJECT
 

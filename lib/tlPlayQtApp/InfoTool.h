@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlPlayQtApp/ToolWidget.h>
+#include <tlPlayQtApp/IToolWidget.h>
 
 #include <QDockWidget>
 
@@ -20,7 +20,7 @@ namespace tl
         class App;
 
         //! Information tool.
-        class InfoTool : public ToolWidget
+        class InfoTool : public IToolWidget
         {
             Q_OBJECT
 

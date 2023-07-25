@@ -4,7 +4,9 @@
 
 #include <tlUI/IntEdit.h>
 
+#include <tlUI/IncButtons.h>
 #include <tlUI/LineEdit.h>
+#include <tlUI/RowLayout.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -15,8 +17,10 @@ namespace tl
         struct IntEdit::Private
         {
             std::shared_ptr<IntModel> model;
-            std::shared_ptr<LineEdit> lineEdit;
             int digits = 3;
+            std::shared_ptr<LineEdit> lineEdit;
+            std::shared_ptr<IntIncButtons> incButtons;
+            std::shared_ptr<HorizontalLayout> layout;
 
             std::shared_ptr<observer::ValueObserver<int> > valueObserver;
             std::shared_ptr<observer::ValueObserver<math::IntRange> > rangeObserver;
@@ -30,14 +34,21 @@ namespace tl
             IWidget::_init("tl::ui::IntEdit", context, parent);
             TLRENDER_P();
 
-            p.lineEdit = LineEdit::create(context, shared_from_this());
-            p.lineEdit->setFontRole(FontRole::Mono);
-
             p.model = model;
             if (!p.model)
             {
                 p.model = IntModel::create(context);
             }
+
+            p.lineEdit = LineEdit::create(context, shared_from_this());
+            p.lineEdit->setFontRole(FontRole::Mono);
+
+            p.incButtons = IntIncButtons::create(p.model, context);
+
+            p.layout = HorizontalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(SizeRole::SpacingTool);
+            p.lineEdit->setParent(p.layout);
+            p.incButtons->setParent(p.layout);
 
             p.lineEdit->setTextCallback(
                 [this](const std::string& value)
@@ -110,13 +121,13 @@ namespace tl
         void IntEdit::setGeometry(const math::BBox2i& value)
         {
             IWidget::setGeometry(value);
-            _p->lineEdit->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
 
         void IntEdit::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->lineEdit->getSizeHint();
+            _sizeHint = _p->layout->getSizeHint();
         }
 
         void IntEdit::keyPressEvent(KeyEvent& event)

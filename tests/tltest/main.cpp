@@ -96,9 +96,12 @@ int main(int argc, char* argv[])
         context->getSystem<log::System>()->observeLog(),
         [](const std::vector<log::Item>& value)
         {
+            const size_t options =
+                static_cast<size_t>(log::StringConvert::Time) |
+                static_cast<size_t>(log::StringConvert::Prefix);
             for (const auto& i : value)
             {
-                std::cout << "[LOG] " << toString(i) << std::endl;
+                std::cout << "[LOG] " << toString(i, options) << std::endl;
             }
         },
         observer::CallbackAction::Suppress);

@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include <tlPlayQtApp/FilesTableModel.h>
+#include <tlPlayQtApp/IFilesTableModel.h>
 
 namespace tl
 {
     namespace play_qt
     {
         //! Files "A" model.
-        class FilesAModel : public FilesTableModel
+        class FilesAModel : public IFilesTableModel
         {
             Q_OBJECT
 

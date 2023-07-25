@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlPlayQtApp/ToolWidget.h>
+#include <tlPlayQtApp/IToolWidget.h>
 
 #include <tlQt/MetaTypes.h>
 
@@ -17,7 +17,7 @@ namespace tl
         class App;
 
         //! Devices tool.
-        class DevicesTool : public ToolWidget
+        class DevicesTool : public IToolWidget
         {
             Q_OBJECT
 

@@ -9,7 +9,6 @@
 #include <tlUI/Bellows.h>
 #include <tlUI/ButtonGroup.h>
 #include <tlUI/ComboBox.h>
-#include <tlUI/Divider.h>
 #include <tlUI/FloatEditSlider.h>
 #include <tlUI/GridLayout.h>
 #include <tlUI/Label.h>
@@ -74,14 +73,12 @@ namespace tl
             p.layout = ui::VerticalLayout::create(context);
             p.layout->setSpacingRole(ui::SizeRole::None);
             p.widgetLayout = ui::GridLayout::create(context, p.layout);
-            p.widgetLayout->setMarginRole(ui::SizeRole::MarginSmall);
+            p.widgetLayout->setMarginRole(ui::SizeRole::MarginInside);
             p.widgetLayout->setSpacingRole(ui::SizeRole::SpacingTool);
 
             auto vLayout = ui::VerticalLayout::create(context, p.layout);
             vLayout->setSpacingRole(ui::SizeRole::None);
-            ui::Divider::create(ui::Orientation::Horizontal, context, vLayout);
-            auto bellows = ui::Bellows::create(context, vLayout);
-            bellows->setText("Wipe");
+            auto bellows = ui::Bellows::create("Wipe", context, vLayout);
             auto gridLayout = ui::GridLayout::create(context);
             gridLayout->setMarginRole(ui::SizeRole::MarginSmall);
             auto label = ui::Label::create("X:", context, gridLayout);
@@ -97,17 +94,13 @@ namespace tl
             p.wipeRotationSlider->setParent(gridLayout);
             gridLayout->setGridPos(p.wipeRotationSlider, 2, 1);
             bellows->setWidget(gridLayout);
-
-            ui::Divider::create(ui::Orientation::Horizontal, context, vLayout);
             
-            bellows = ui::Bellows::create(context, vLayout);
-            bellows->setText("Overlay");
+            bellows = ui::Bellows::create("Overlay", context, vLayout);
             gridLayout = ui::GridLayout::create(context);
             gridLayout->setMarginRole(ui::SizeRole::MarginSmall);
             p.overlaySlider->setParent(gridLayout);
             gridLayout->setGridPos(p.overlaySlider, 0, 0);
             bellows->setWidget(gridLayout);
-            ui::Divider::create(ui::Orientation::Horizontal, context, vLayout);
 
             p.scrollWidget = ui::ScrollWidget::create(context, ui::ScrollType::Both);
             p.scrollWidget->setWidget(p.layout);
@@ -262,6 +255,7 @@ namespace tl
                         auto label = ui::Label::create(context);
                         label->setText(item->path.get(-1, false));
                         label->setTextWidth(32);
+                        label->setMarginRole(ui::SizeRole::MarginSmall);
                         label->setHStretch(ui::Stretch::Expanding);
                         label->setParent(p.widgetLayout);
                         p.widgetLayout->setGridPos(label, row, 0);

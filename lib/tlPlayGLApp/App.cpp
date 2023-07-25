@@ -35,6 +35,7 @@ namespace tl
             float volume = 1.F;
             bool mute = false;
             bool deviceActive = false;
+            timeline::PlayerCacheOptions playerCacheOptions;
             std::shared_ptr<Settings> settings;
             std::shared_ptr<play::FilesModel> filesModel;
             std::vector<std::shared_ptr<play::FilesModelItem> > files;
@@ -240,8 +241,32 @@ namespace tl
 
             // Initialization.
             p.settings = Settings::create(context);
-            p.settings->setData("Volume", "1.0");
-            p.settings->setData("Mute", "0");
+            p.settings->setData("Timeline/FrameView", true);
+            p.settings->setData("Timeline/StopOnScrub", false);
+            p.settings->setData("Timeline/Thumbnails", true);
+            p.settings->setData("Timeline/ThumbnailsSize", 100);
+            p.settings->setData("Timeline/Transitions", false);
+            p.settings->setData("Timeline/Markers", false);
+            p.settings->setData("Audio/Volume", p.volume);
+            p.settings->setData("Audio/Mute", p.mute);
+            p.settings->setData("Cache/ReadAhead",
+                p.playerCacheOptions.readAhead.value());
+            p.settings->setData("Cache/ReadBehind",
+                p.playerCacheOptions.readBehind.value());
+            p.settings->setData("FileSequence/Audio",
+                timeline::FileSequenceAudio::BaseName);
+            p.settings->setData("FileSequence/AudioFileName", std::string());
+            p.settings->setData("FileSequence/AudioDirectory", std::string());
+            p.settings->setData("FileSequence/MaxDigits", 9);
+            const timeline::PlayerOptions playerOptions;
+            p.settings->setData("Performance/TimerMode",
+                playerOptions.timerMode);
+            p.settings->setData("Performance/AudioBufferFrameCount",
+                playerOptions.audioBufferFrameCount);
+            p.settings->setData("Performance/VideoRequestCount", 16);
+            p.settings->setData("Performance/AudioRequestCount", 16);
+            p.settings->setData("Performance/SequenceThreadCount", 16);
+            p.settings->setData("Performance/FFmpegThreadCount", 0);
 
             p.filesModel = play::FilesModel::create(context);
 
@@ -283,17 +308,45 @@ namespace tl
                 [this](const std::map<std::string, std::string>& value)
                 {
                     TLRENDER_P();
-                    auto i = value.find("Volume");
+                    auto i = value.find("Audio/Volume");
                     if (i != value.end())
                     {
-                        p.volume = std::atof(i->second.c_str());
-                        _audioUpdate();
+                        const float volume = std::atof(i->second.c_str());
+                        if (volume != p.volume)
+                        {
+                            p.volume = volume;
+                            _audioUpdate();
+                        }
                     }
-                    i = value.find("Mute");
+                    i = value.find("Audio/Mute");
                     if (i != value.end())
                     {
-                        p.mute = std::atoi(i->second.c_str());
-                        _audioUpdate();
+                        const bool mute = std::atoi(i->second.c_str());
+                        if (mute != p.mute)
+                        {
+                            p.mute = mute;
+                            _audioUpdate();
+                        }
+                    }
+                    i = value.find("Cache/ReadAhead");
+                    if (i != value.end())
+                    {
+                        const double value = std::atof(i->second.c_str());
+                        if (value != p.playerCacheOptions.readAhead.value())
+                        {
+                            p.playerCacheOptions.readAhead = otime::RationalTime(value, 1.0);
+                            _cacheUpdate();
+                        }
+                    }
+                    i = value.find("Cache/ReadBehind");
+                    if (i != value.end())
+                    {
+                        const double value = std::atof(i->second.c_str());
+                        if (value != p.playerCacheOptions.readBehind.value())
+                        {
+                            p.playerCacheOptions.readBehind = otime::RationalTime(value, 1.0);
+                            _cacheUpdate();
+                        }
                     }
                 });
 
@@ -408,7 +461,7 @@ namespace tl
         {
             TLRENDER_P();
             file::PathOptions pathOptions;
-            //pathOptions.maxNumberDigits = p.settingsObject->value("Misc/MaxFileSequenceDigits").toInt();
+            pathOptions.maxNumberDigits = p.settings->getData<int>("FileSequence/MaxDigits");
             for (const auto& path : timeline::getPaths(fileName, pathOptions, _context))
             {
                 auto item = std::make_shared<play::FilesModelItem>();
@@ -505,23 +558,25 @@ namespace tl
                     try
                     {
                         timeline::Options options;
-                        /*options.fileSequenceAudio = p.settingsObject->value("FileSequence/Audio").
-                            value<timeline::FileSequenceAudio>();
-                        options.fileSequenceAudioFileName = p.settingsObject->value("FileSequence/AudioFileName").
-                            toString().toUtf8().data();
-                        options.fileSequenceAudioDirectory = p.settingsObject->value("FileSequence/AudioDirectory").
-                            toString().toUtf8().data();
-                        options.videoRequestCount = p.settingsObject->value("Performance/VideoRequestCount").toInt();
-                        options.audioRequestCount = p.settingsObject->value("Performance/AudioRequestCount").toInt();
-                        options.ioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").
-                            arg(p.settingsObject->value("Performance/SequenceThreadCount").toInt());
-                        options.ioOptions["FFmpeg/YUVToRGBConversion"] = string::Format("{0}").
-                            arg(p.settingsObject->value("Performance/FFmpegYUVToRGBConversion").toBool());
-                        options.ioOptions["FFmpeg/ThreadCount"] = string::Format("{0}").
-                            arg(p.settingsObject->value("Performance/FFmpegThreadCount").toInt());
+                        options.fileSequenceAudio =
+                            p.settings->getData<timeline::FileSequenceAudio>("FileSequence/Audio");
+                        options.fileSequenceAudioFileName =
+                            p.settings->getData<std::string>("FileSequence/AudioFileName");
+                        options.fileSequenceAudioDirectory =
+                            p.settings->getData<std::string>("FileSequence/AudioDirectory");
+                        options.videoRequestCount = 
+                           p.settings->getData<int>("Performance/VideoRequestCount");
+                        options.audioRequestCount =
+                            p.settings->getData<int>("Performance/AudioRequestCount");
+                        options.ioOptions["SequenceIO/ThreadCount"] =
+                            p.settings->getData("Performance/SequenceThreadCount");
+                        options.ioOptions["FFmpeg/YUVToRGBConversion"] =
+                            p.settings->getData("Performance/FFmpegYUVToRGBConversion");
+                        options.ioOptions["FFmpeg/ThreadCount"] =
+                            p.settings->getData("Performance/FFmpegThreadCount");
                         options.pathOptions.maxNumberDigits = std::min(
-                            p.settingsObject->value("Misc/MaxFileSequenceDigits").toInt(),
-                            255);*/
+                            p.settings->getData<int>("FileSequence/MaxDigits"),
+                            255);
                         auto otioTimeline = items[i]->audioPath.isEmpty() ?
                             timeline::create(items[i]->path.get(), _context, options) :
                             timeline::create(items[i]->path.get(), items[i]->audioPath.get(), _context, options);
@@ -530,10 +585,10 @@ namespace tl
                         timeline::PlayerOptions playerOptions;
                         playerOptions.cache.readAhead = time::invalidTime;
                         playerOptions.cache.readBehind = time::invalidTime;
-                        //playerOptions.timerMode = p.settingsObject->value("Performance/TimerMode").
-                        //    value<timeline::TimerMode>();
-                        //playerOptions.audioBufferFrameCount =
-                        //    p.settingsObject->value("Performance/AudioBufferFrameCount").toInt();
+                        playerOptions.timerMode =
+                            p.settings->getData<timeline::TimerMode>("Performance/TimerMode");
+                        playerOptions.audioBufferFrameCount =
+                            p.settings->getData<int>("Performance/AudioBufferFrameCount");
                         players[i] = timeline::Player::create(
                             timeline,
                             _context,
@@ -615,20 +670,18 @@ namespace tl
         otime::RationalTime App::_getCacheReadAhead() const
         {
             TLRENDER_P();
-            const double readAhead = 4.0; //p.settingsObject->value("Cache/ReadAhead").toDouble();
             const size_t activeCount = p.activeFiles.size();
             return otime::RationalTime(
-                readAhead / static_cast<double>(activeCount),
+                p.playerCacheOptions.readAhead.value() / static_cast<double>(activeCount),
                 1.0);
         }
 
         otime::RationalTime App::_getCacheReadBehind() const
         {
             TLRENDER_P();
-            const double readBehind = 0.25; //p.settingsObject->value("Cache/ReadBehind").toDouble();
             const size_t activeCount = p.activeFiles.size();
             return otime::RationalTime(
-                readBehind / static_cast<double>(activeCount),
+                p.playerCacheOptions.readBehind.value() / static_cast<double>(activeCount),
                 1.0);
         }
 

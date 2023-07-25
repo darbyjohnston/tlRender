@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlPlayQtApp/ToolWidget.h>
+#include <tlPlayQtApp/IToolWidget.h>
 
 #include <QDockWidget>
 
@@ -15,7 +15,7 @@ namespace tl
         class App;
 
         //! Files tool.
-        class FilesTool : public ToolWidget
+        class FilesTool : public IToolWidget
         {
             Q_OBJECT
 

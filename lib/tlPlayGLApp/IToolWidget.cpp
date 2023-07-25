@@ -6,6 +6,7 @@
 
 #include <tlPlayGLApp/App.h>
 
+#include <tlUI/Icon.h>
 #include <tlUI/Label.h>
 #include <tlUI/ToolButton.h>
 #include <tlUI/RowLayout.h>
@@ -17,6 +18,7 @@ namespace tl
         struct IToolWidget::Private
         {
             Tool tool;
+            std::shared_ptr<ui::Icon> icon;
             std::shared_ptr<ui::Label> label;
             std::shared_ptr<ui::ToolButton> closeButton;
             std::shared_ptr<ui::VerticalLayout> toolLayout;
@@ -36,8 +38,10 @@ namespace tl
             _app = app;
             p.tool = tool;
 
-            p.label = ui::Label::create(context);
-            p.label->setText(getText(tool));
+            p.icon = ui::Icon::create(getIcon(tool), context);
+            p.icon->setMarginRole(ui::SizeRole::MarginSmall);
+
+            p.label = ui::Label::create(getText(tool), context);
             p.label->setMarginRole(ui::SizeRole::MarginSmall);
             p.label->setHStretch(ui::Stretch::Expanding);
 
@@ -47,11 +51,12 @@ namespace tl
             p.layout = ui::VerticalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ui::SizeRole::None);
             auto hLayout = ui::HorizontalLayout::create(context, p.layout);
-            hLayout->setBackgroundRole(ui::ColorRole::Button);
+            hLayout->setSpacingRole(ui::SizeRole::None);
+            //hLayout->setBackgroundRole(ui::ColorRole::Button);
+            p.icon->setParent(hLayout);
             p.label->setParent(hLayout);
             p.closeButton->setParent(hLayout);
             p.toolLayout = ui::VerticalLayout::create(context, p.layout);
-            p.toolLayout->setMarginRole(ui::SizeRole::MarginSmall);
             p.toolLayout->setSpacingRole(ui::SizeRole::None);
             p.toolLayout->setHStretch(ui::Stretch::Expanding);
             p.toolLayout->setVStretch(ui::Stretch::Expanding);

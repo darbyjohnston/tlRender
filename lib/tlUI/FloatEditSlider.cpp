@@ -4,7 +4,6 @@
 
 #include <tlUI/FloatEditSlider.h>
 
-#include <tlUI/IncButtons.h>
 #include <tlUI/FloatEdit.h>
 #include <tlUI/FloatSlider.h>
 #include <tlUI/RowLayout.h>
@@ -17,7 +16,6 @@ namespace tl
         {
             std::shared_ptr<FloatModel> model;
             std::shared_ptr<FloatEdit> edit;
-            std::shared_ptr<FloatIncButtons> incButtons;
             std::shared_ptr<FloatSlider> slider;
             std::shared_ptr<HorizontalLayout> layout;
         };
@@ -40,14 +38,11 @@ namespace tl
 
             p.edit = FloatEdit::create(context, p.model);
 
-            p.incButtons = FloatIncButtons::create(p.model, context);
-
             p.slider = FloatSlider::create(context, p.model);
 
             p.layout = HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(SizeRole::SpacingTool);
             p.edit->setParent(p.layout);
-            p.incButtons->setParent(p.layout);
             p.slider->setParent(p.layout);
             p.slider->setHStretch(ui::Stretch::Expanding);
         }

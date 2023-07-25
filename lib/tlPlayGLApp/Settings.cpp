@@ -40,6 +40,17 @@ namespace tl
             return _p->data->get();
         }
 
+        std::string Settings::getData(const std::string& value) const
+        {
+            TLRENDER_P();
+            std::string out;
+            if (p.data->hasKey(value))
+            {
+                out = p.data->getItem(value);
+            }
+            return out;
+        }
+
         std::shared_ptr<observer::IMap<std::string, std::string> > Settings::observeData() const
         {
             return _p->data;

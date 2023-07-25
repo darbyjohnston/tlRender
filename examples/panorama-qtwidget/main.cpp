@@ -44,21 +44,7 @@ int main(int argc, char* argv[])
         auto timeline = tl::timeline::Timeline::create(argv[1], context);
         auto timelinePlayer = new tl::qt::TimelinePlayer(tl::timeline::Player::create(timeline, context), context);
 
-        // Hook up logging.
-        /*std::shared_ptr<tl::observer::ValueObserver<tl::log::Item> > logObserver;
-        for (const auto& i : context->getLogInit())
-        {
-            std::cout << "[LOG] " << tl::toString(i) << std::endl;
-        }
-        logObserver = tl::observer::ValueObserver<tl::log::Item>::create(
-            context->getSystem<tl::log::System>()->observeLog(),
-            [](const tl::log::Item & value)
-            {
-                std::cout << "[LOG] " << tl::toString(value) << std::endl;
-            },
-            tl::observer::CallbackAction::Suppress);*/
-
-            // Create the panorama timeline viewport.
+        // Create the panorama timeline viewport.
         auto timelineViewport = new tl::examples::panorama_qtwidget::PanoramaTimelineViewport(context);
         timelineViewport->setTimelinePlayer(timelinePlayer);
         timelineViewport->show();

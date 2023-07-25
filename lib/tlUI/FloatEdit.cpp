@@ -4,8 +4,10 @@
 
 #include <tlUI/FloatEdit.h>
 
+#include <tlUI/IncButtons.h>
 #include <tlUI/LayoutUtil.h>
 #include <tlUI/LineEdit.h>
+#include <tlUI/RowLayout.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -16,9 +18,11 @@ namespace tl
         struct FloatEdit::Private
         {
             std::shared_ptr<FloatModel> model;
-            std::shared_ptr<LineEdit> lineEdit;
             int digits = 3;
             int precision = 2;
+            std::shared_ptr<LineEdit> lineEdit;
+            std::shared_ptr<FloatIncButtons> incButtons;
+            std::shared_ptr<HorizontalLayout> layout;
             
             std::shared_ptr<observer::ValueObserver<float> > valueObserver;
             std::shared_ptr<observer::ValueObserver<math::FloatRange> > rangeObserver;
@@ -32,14 +36,21 @@ namespace tl
             IWidget::_init("tl::ui::FloatEdit", context, parent);
             TLRENDER_P();
 
-            p.lineEdit = LineEdit::create(context, shared_from_this());
-            p.lineEdit->setFontRole(FontRole::Mono);
-
             p.model = model;
             if (!p.model)
             {
                 p.model = FloatModel::create(context);
             }
+
+            p.lineEdit = LineEdit::create(context, shared_from_this());
+            p.lineEdit->setFontRole(FontRole::Mono);
+
+            p.incButtons = FloatIncButtons::create(p.model, context);
+
+            p.layout = HorizontalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(SizeRole::SpacingTool);
+            p.lineEdit->setParent(p.layout);
+            p.incButtons->setParent(p.layout);
 
             p.lineEdit->setTextCallback(
                 [this](const std::string& value)
@@ -121,13 +132,13 @@ namespace tl
         void FloatEdit::setGeometry(const math::BBox2i& value)
         {
             IWidget::setGeometry(value);
-            _p->lineEdit->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
 
         void FloatEdit::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->lineEdit->getSizeHint();
+            _sizeHint = _p->layout->getSizeHint();
         }
 
         void FloatEdit::keyPressEvent(KeyEvent& event)

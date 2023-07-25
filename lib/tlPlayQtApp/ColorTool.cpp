@@ -867,7 +867,7 @@ namespace tl
         ColorTool::ColorTool(
             const std::shared_ptr<ColorModel>& colorModel,
             QWidget* parent) :
-            ToolWidget(parent),
+            IToolWidget(parent),
             _p(new Private)
         {
             TLRENDER_P();
@@ -1031,7 +1031,7 @@ namespace tl
             setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
             auto dockTitleBar = new DockTitleBar;
-            dockTitleBar->setText(tr("COLOR"));
+            dockTitleBar->setText(tr("Color"));
             dockTitleBar->setIcon(QIcon(":/Icons/Color.svg"));
             auto dockWidget = new QDockWidget;
             setTitleBarWidget(dockTitleBar);

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlPlayQtApp/ToolWidget.h>
+#include <tlPlayQtApp/IToolWidget.h>
 
 #include <tlQt/TimeObject.h>
 
@@ -73,7 +73,7 @@ namespace tl
         };
 
         //! Settings tool.
-        class SettingsTool : public ToolWidget
+        class SettingsTool : public IToolWidget
         {
             Q_OBJECT
 

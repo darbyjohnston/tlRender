@@ -48,11 +48,22 @@ namespace tl
         {}
 
         std::shared_ptr<ToolButton> ToolButton::create(
+            const std::shared_ptr<system::Context>&context,
+            const std::shared_ptr<IWidget>&parent)
+        {
+            auto out = std::shared_ptr<ToolButton>(new ToolButton);
+            out->_init(context, parent);
+            return out;
+        }
+
+        std::shared_ptr<ToolButton> ToolButton::create(
+            const std::string& text,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ToolButton>(new ToolButton);
             out->_init(context, parent);
+            out->setText(text);
             return out;
         }
 
@@ -106,7 +117,7 @@ namespace tl
                 {
                     const int max = std::max(_sizeHint.x, _sizeHint.y);
                     _sizeHint.x = max;
-                    _sizeHint.y = max;
+                    _sizeHint.y = _sizeHint.y;
                 }
             }
             if (_iconImage)

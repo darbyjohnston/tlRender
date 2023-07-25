@@ -475,7 +475,7 @@ namespace tl
                 event.render->drawImage(
                     p.arrowIconImage,
                     math::BBox2i(
-                        x,
+                        g3.x() + g3.w() - iconSize.w,
                         g3.y() + g3.h() / 2 - iconSize.h / 2,
                         iconSize.w,
                         iconSize.h),

@@ -4,7 +4,7 @@
 
 #include <tlPlayQtApp/FilesView.h>
 
-#include <tlPlayQtApp/FilesTableModel.h>
+#include <tlPlayQtApp/IFilesTableModel.h>
 
 #include <QComboBox>
 
@@ -19,7 +19,7 @@ namespace tl
         QWidget* FilesLayersItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& options, const QModelIndex& index) const
         {
             QComboBox* out = new QComboBox(parent);
-            if (auto model = qobject_cast<const FilesTableModel*>(index.model()))
+            if (auto model = qobject_cast<const IFilesTableModel*>(index.model()))
             {
                 const auto& files = model->files();
                 if (index.isValid() &&

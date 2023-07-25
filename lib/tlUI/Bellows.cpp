@@ -4,6 +4,7 @@
 
 #include <tlUI/Bellows.h>
 
+#include <tlUI/Divider.h>
 #include <tlUI/ListButton.h>
 #include <tlUI/RowLayout.h>
 
@@ -13,9 +14,9 @@ namespace tl
     {
         struct Bellows::Private
         {
-            std::shared_ptr<ui::ListButton> button;
-            std::shared_ptr<ui::IWidget> widget;
-            std::shared_ptr<ui::VerticalLayout> layout;
+            std::shared_ptr<ListButton> button;
+            std::shared_ptr<IWidget> widget;
+            std::shared_ptr<VerticalLayout> layout;
         };
 
         void Bellows::_init(
@@ -25,16 +26,17 @@ namespace tl
             IWidget::_init("tl::ui::Bellows", context, parent);
             TLRENDER_P();
 
-            p.button = ui::ListButton::create(context);
+            p.button = ListButton::create(context);
             p.button->setCheckable(true);
             p.button->setIcon("BellowsClosed");
             p.button->setCheckedIcon("BellowsOpen");
             p.button->setButtonRole(ColorRole::Button);
             p.button->setCheckedRole(ColorRole::Button);
 
-            p.layout = ui::VerticalLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(ui::SizeRole::None);
+            p.layout = VerticalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(SizeRole::None);
             p.button->setParent(p.layout);
+            Divider::create(Orientation::Horizontal, context, p.layout);
 
             p.button->setCheckedCallback(
                 [this](bool value)
@@ -54,11 +56,22 @@ namespace tl
         {}
 
         std::shared_ptr<Bellows> Bellows::create(
+            const std::shared_ptr<system::Context>&context,
+            const std::shared_ptr<IWidget>&parent)
+        {
+            auto out = std::shared_ptr<Bellows>(new Bellows);
+            out->_init(context, parent);
+            return out;
+        }
+
+        std::shared_ptr<Bellows> Bellows::create(
+            const std::string& text,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<Bellows>(new Bellows);
             out->_init(context, parent);
+            out->setText(text);
             return out;
         }
 
@@ -92,7 +105,7 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void Bellows::sizeHintEvent(const ui::SizeHintEvent& event)
+        void Bellows::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             _sizeHint = _p->layout->getSizeHint();

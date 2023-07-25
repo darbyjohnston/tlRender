@@ -10,45 +10,42 @@ namespace tl
 {
     namespace ui
     {
-        //! Text label.
-        class Label : public IWidget
+        //! Icon widget.
+        class Icon : public IWidget
         {
-            TLRENDER_NON_COPYABLE(Label);
+            TLRENDER_NON_COPYABLE(Icon);
 
         protected:
             void _init(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            Label();
+            Icon();
 
         public:
-            ~Label() override;
+            ~Icon() override;
 
             //! Create a new widget.
-            static std::shared_ptr<Label> create(
+            static std::shared_ptr<Icon> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Create a new widget.
-            static std::shared_ptr<Label> create(
-                const std::string& text,
+            static std::shared_ptr<Icon> create(
+                const std::string& icon,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Set the text.
-            void setText(const std::string&);
-
-            //! Set the number of characters to show. A value of
-            //! zero (the default) shows the entire text.
-            void setTextWidth(size_t);
+            //! Set the icon.
+            void setIcon(const std::string&);
 
             //! Set the margin role.
             void setMarginRole(SizeRole);
 
-            //! Set the font role.
-            void setFontRole(FontRole);
-
+            void tickEvent(
+                bool,
+                bool,
+                const TickEvent&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void clipEvent(
                 const math::BBox2i&,
@@ -59,7 +56,6 @@ namespace tl
                 const DrawEvent&) override;
 
         private:
-            void _textUpdate();
             TLRENDER_PRIVATE();
         };
     }

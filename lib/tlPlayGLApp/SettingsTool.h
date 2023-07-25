@@ -12,6 +12,118 @@ namespace tl
     {
         class App;
 
+        //! Cache settings widget.
+        class CacheSettingsWidget : public ui::IWidget
+        {
+            TLRENDER_NON_COPYABLE(CacheSettingsWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent);
+
+            CacheSettingsWidget();
+
+        public:
+            virtual ~CacheSettingsWidget();
+
+            static std::shared_ptr<CacheSettingsWidget> create(
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            void setGeometry(const math::BBox2i&) override;
+            void sizeHintEvent(const ui::SizeHintEvent&) override;
+
+        private:
+            TLRENDER_PRIVATE();
+        };
+
+        //! Files sequences settings widget.
+        class FileSequenceSettingsWidget : public ui::IWidget
+        {
+            TLRENDER_NON_COPYABLE(FileSequenceSettingsWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent);
+
+            FileSequenceSettingsWidget();
+
+        public:
+            virtual ~FileSequenceSettingsWidget();
+
+            static std::shared_ptr<FileSequenceSettingsWidget> create(
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            void setGeometry(const math::BBox2i&) override;
+            void sizeHintEvent(const ui::SizeHintEvent&) override;
+
+        private:
+            TLRENDER_PRIVATE();
+        };
+
+        //! Performance settings widget.
+        class PerformanceSettingsWidget : public ui::IWidget
+        {
+            TLRENDER_NON_COPYABLE(PerformanceSettingsWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent);
+
+            PerformanceSettingsWidget();
+
+        public:
+            virtual ~PerformanceSettingsWidget();
+
+            static std::shared_ptr<PerformanceSettingsWidget> create(
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            void setGeometry(const math::BBox2i&) override;
+            void sizeHintEvent(const ui::SizeHintEvent&) override;
+
+        private:
+            TLRENDER_PRIVATE();
+        };
+
+        //! Miscellaneous settings widget.
+        class MiscSettingsWidget : public ui::IWidget
+        {
+            TLRENDER_NON_COPYABLE(MiscSettingsWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent);
+
+            MiscSettingsWidget();
+
+        public:
+            virtual ~MiscSettingsWidget();
+
+            static std::shared_ptr<MiscSettingsWidget> create(
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            void setGeometry(const math::BBox2i&) override;
+            void sizeHintEvent(const ui::SizeHintEvent&) override;
+
+        private:
+            TLRENDER_PRIVATE();
+        };
+
         //! Settings tool.
         class SettingsTool : public IToolWidget
         {

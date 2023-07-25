@@ -559,7 +559,7 @@ namespace tl
         {
             TLRENDER_P();
             file::PathOptions pathOptions;
-            pathOptions.maxNumberDigits = p.settingsObject->value("Misc/MaxFileSequenceDigits").toInt();
+            pathOptions.maxNumberDigits = p.settingsObject->value("FileSequence/MaxDigits").toInt();
             for (const auto& path : timeline::getPaths(fileName.toUtf8().data(), pathOptions, _context))
             {
                 auto item = std::make_shared<play::FilesModelItem>();
@@ -708,7 +708,7 @@ namespace tl
                         options.ioOptions["FFmpeg/ThreadCount"] = string::Format("{0}").
                             arg(p.settingsObject->value("Performance/FFmpegThreadCount").toInt());
                         options.pathOptions.maxNumberDigits = std::min(
-                            p.settingsObject->value("Misc/MaxFileSequenceDigits").toInt(),
+                            p.settingsObject->value("FileSequence/MaxDigits").toInt(),
                             255);
                         auto otioTimeline = items[i]->audioPath.isEmpty() ?
                             timeline::create(items[i]->path.get(), _context, options) :

@@ -62,9 +62,12 @@ namespace tl
                     context->getSystem<log::System>()->observeLog(),
                     [this](const std::vector<log::Item>& value)
                     {
+                        const size_t options =
+                            static_cast<size_t>(log::StringConvert::Time) |
+                            static_cast<size_t>(log::StringConvert::Prefix);
                         for (const auto& i : value)
                         {
-                            _print("[LOG] " + toString(i));
+                            _print("[LOG] " + toString(i, options));
                         }
                     },
                     observer::CallbackAction::Suppress);

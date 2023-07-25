@@ -67,6 +67,7 @@ namespace tl
                 static_cast<int>(timeline::FileSequenceAudio::BaseName);
             p.defaultValues["FileSequence/AudioFileName"] = "";
             p.defaultValues["FileSequence/AudioDirectory"] = "";
+            p.defaultValues["FileSequence/MaxDigits"] = 9;
             const timeline::PlayerOptions playerOptions;
             p.defaultValues["Performance/TimerMode"] =
                 static_cast<int>(playerOptions.timerMode);
@@ -76,7 +77,6 @@ namespace tl
             p.defaultValues["Performance/AudioRequestCount"] = 16;
             p.defaultValues["Performance/SequenceThreadCount"] = 16;
             p.defaultValues["Performance/FFmpegThreadCount"] = 0;
-            p.defaultValues["Misc/MaxFileSequenceDigits"] = 9;
 
             int size = p.settings.beginReadArray(version("RecentFiles"));
             for (int i = 0; i < size; ++i)

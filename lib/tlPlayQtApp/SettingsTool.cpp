@@ -17,8 +17,8 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QPushButton>
 #include <QSpinBox>
+#include <QToolButton>
 
 namespace tl
 {
@@ -128,7 +128,7 @@ namespace tl
             p.audioDirectory->setText(
                 settingsObject->value("FileSequence/AudioDirectory").toString());
             p.maxDigitsSpinBox->setValue(
-                settingsObject->value("Misc/MaxFileSequenceDigits").toInt());
+                settingsObject->value("FileSequence/MaxDigits").toInt());
 
             connect(
                 p.audioComboBox,
@@ -159,7 +159,7 @@ namespace tl
                 QOverload<int>::of(&QSpinBox::valueChanged),
                 [settingsObject](int value)
                 {
-                    settingsObject->setValue("Misc/MaxFileSequenceDigits", value);
+                    settingsObject->setValue("FileSequence/MaxDigits", value);
                 });
 
             connect(
@@ -182,7 +182,7 @@ namespace tl
                         QSignalBlocker signalBlocker(_p->audioDirectory);
                         _p->audioDirectory->setText(value.toString());
                     }
-                    else if (name == "Misc/MaxFileSequenceDigits")
+                    else if (name == "FileSequence/MaxDigits")
                     {
                         QSignalBlocker signalBlocker(_p->maxDigitsSpinBox);
                         _p->maxDigitsSpinBox->setValue(value.toInt());
@@ -408,19 +408,28 @@ namespace tl
             SettingsObject* settingsObject,
             qt::TimeObject* timeObject,
             QWidget* parent) :
-            ToolWidget(parent)
+            IToolWidget(parent)
         {
             addBellows(tr("Cache"), new CacheSettingsWidget(settingsObject));
             addBellows(tr("File Sequences"), new FileSequenceSettingsWidget(settingsObject));
             addBellows(tr("Performance"), new PerformanceSettingsWidget(settingsObject));
             addBellows(tr("Miscellaneous"), new MiscSettingsWidget(settingsObject));
-            auto resetButton = new QPushButton(tr("Default Settings"));
-            addWidget(resetButton);
+            auto resetButton = new QToolButton;
+            resetButton->setText(tr("Default Settings"));
+            resetButton->setAutoRaise(true);
+            auto layout = new QHBoxLayout;
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(1);
+            layout->addWidget(resetButton);
+            layout->addStretch();
+            auto widget = new QWidget;
+            widget->setLayout(layout);
+            addWidget(widget);
             addStretch();
 
             connect(
                 resetButton,
-                &QPushButton::clicked,
+                &QToolButton::clicked,
                 [settingsObject]
                 {
                     settingsObject->reset();
@@ -436,7 +445,7 @@ namespace tl
             setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
             auto dockTitleBar = new DockTitleBar;
-            dockTitleBar->setText(tr("SETTINGS"));
+            dockTitleBar->setText(tr("Settings"));
             dockTitleBar->setIcon(QIcon(":/Icons/Settings.svg"));
             auto dockWidget = new QDockWidget;
             setTitleBarWidget(dockTitleBar);

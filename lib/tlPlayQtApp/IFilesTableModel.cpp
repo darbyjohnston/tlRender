@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayQtApp/FilesTableModel.h>
+#include <tlPlayQtApp/IFilesTableModel.h>
 
 #include <tlQt/TimelineThumbnailObject.h>
 
@@ -10,7 +10,7 @@ namespace tl
 {
     namespace play_qt
     {
-        struct FilesTableModel::Private
+        struct IFilesTableModel::Private
         {
             std::weak_ptr<system::Context> context;
             qt::TimelineThumbnailObject* thumbnailObject = nullptr;
@@ -19,7 +19,7 @@ namespace tl
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
         };
 
-        FilesTableModel::FilesTableModel(
+        IFilesTableModel::IFilesTableModel(
             const std::shared_ptr<play::FilesModel>& filesModel,
             qt::TimelineThumbnailObject* thumbnailObject,
             const std::shared_ptr<system::Context>& context,
@@ -75,20 +75,20 @@ namespace tl
             }
         }
 
-        FilesTableModel::~FilesTableModel()
+        IFilesTableModel::~IFilesTableModel()
         {}
 
-        const std::vector<std::shared_ptr<play::FilesModelItem> >& FilesTableModel::files() const
+        const std::vector<std::shared_ptr<play::FilesModelItem> >& IFilesTableModel::files() const
         {
             return _files;
         }
 
-        int FilesTableModel::rowCount(const QModelIndex&) const
+        int IFilesTableModel::rowCount(const QModelIndex&) const
         {
             return _files.size();
         }
 
-        Qt::ItemFlags FilesTableModel::flags(const QModelIndex& index) const
+        Qt::ItemFlags IFilesTableModel::flags(const QModelIndex& index) const
         {
             TLRENDER_P();
             Qt::ItemFlags out = Qt::NoItemFlags;
@@ -102,7 +102,7 @@ namespace tl
             return out;
         }
 
-        QVariant FilesTableModel::data(const QModelIndex& index, int role) const
+        QVariant IFilesTableModel::data(const QModelIndex& index, int role) const
         {
             TLRENDER_P();
             QVariant out;
@@ -149,7 +149,7 @@ namespace tl
             return out;
         }
 
-        void FilesTableModel::_thumbnailsCallback(qint64 id, const QList<QPair<otime::RationalTime, QImage> >& value)
+        void IFilesTableModel::_thumbnailsCallback(qint64 id, const QList<QPair<otime::RationalTime, QImage> >& value)
         {
             TLRENDER_P();
             if (!value.isEmpty())
@@ -172,7 +172,7 @@ namespace tl
             }
         }
 
-        int FilesTableModel::_index(const std::shared_ptr<play::FilesModelItem>& item) const
+        int IFilesTableModel::_index(const std::shared_ptr<play::FilesModelItem>& item) const
         {
             TLRENDER_P();
             int out = -1;

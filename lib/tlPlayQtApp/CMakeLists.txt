@@ -12,9 +12,10 @@ set(HEADERS
     FileActions.h
     FilesAModel.h
     FilesBModel.h
-    FilesTableModel.h
     FilesTool.h
     FilesView.h
+    IFilesTableModel.h
+    IToolWidget.h
     InfoTool.h
     InfoModel.h
     MainWindow.h
@@ -28,7 +29,6 @@ set(HEADERS
     SettingsTool.h
     SystemLogTool.h
     ToolActions.h
-    ToolWidget.h
     ViewActions.h
     WindowActions.h)
 
@@ -46,9 +46,10 @@ set(SOURCE
     FileActions.cpp
     FilesAModel.cpp
     FilesBModel.cpp
-    FilesTableModel.cpp
     FilesTool.cpp
     FilesView.cpp
+    IFilesTableModel.cpp
+    IToolWidget.cpp
     InfoTool.cpp
     InfoModel.cpp
     MainWindow.cpp
@@ -62,7 +63,6 @@ set(SOURCE
     SettingsTool.cpp
     SystemLogTool.cpp
     ToolActions.cpp
-    ToolWidget.cpp
     ViewActions.cpp
     WindowActions.cpp)
 

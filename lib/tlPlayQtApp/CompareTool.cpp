@@ -42,7 +42,7 @@ namespace tl
             const QMap<QString, QAction*>& actions,
             App* app,
             QWidget* parent) :
-            ToolWidget(parent),
+            IToolWidget(parent),
             _p(new Private)
         {
             TLRENDER_P();
@@ -220,7 +220,7 @@ namespace tl
             setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
             auto dockTitleBar = new DockTitleBar;
-            dockTitleBar->setText(tr("COMPARE"));
+            dockTitleBar->setText(tr("Compare"));
             dockTitleBar->setIcon(QIcon(":/Icons/Compare.svg"));
             auto dockWidget = new QDockWidget;
             setTitleBarWidget(dockTitleBar);

@@ -35,7 +35,7 @@ namespace tl
             TLRENDER_P();
 
             p.buttonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Toggle, context);
-            for (const auto tool : getToolEnums())
+            for (const auto tool : toolsInToolbar())
             {
                 auto button = ui::ToolButton::create(context);
                 button->setIcon(getIcon(tool));

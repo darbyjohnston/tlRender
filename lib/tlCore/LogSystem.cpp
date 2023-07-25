@@ -22,20 +22,28 @@ namespace tl
                 type == other.type;
         }
 
-        std::string toString(const Item& item)
+        std::string toString(const Item& item, size_t options)
         {
             std::stringstream ss;
-            ss.precision(2);
+            if (options & static_cast<size_t>(StringConvert::Time))
+            {
+                ss.precision(2);
+                ss << std::fixed << item.time << " ";
+            }
+            if (options & static_cast<size_t>(StringConvert::Prefix))
+            {
+                ss << item.prefix << ": ";
+            }
             switch (item.type)
             {
             case Type::Message:
-                ss << std::fixed << item.time << " " << item.prefix << ": " << item.message;
+                 ss << item.message;
                 break;
             case Type::Warning:
-                ss << std::fixed << item.time << " " << item.prefix << ": Warning: " << item.message;
+                ss << "Warning: " << item.message;
                 break;
             case Type::Error:
-                ss << std::fixed << item.time << " " << item.prefix << ": ERROR: " << item.message;
+                ss << "ERROR: " << item.message;
                 break;
             default: break;
             }

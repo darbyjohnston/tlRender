@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlPlayQtApp/ToolWidget.h>
+#include <tlPlayQtApp/IToolWidget.h>
 
 #include <QDockWidget>
 
@@ -35,7 +35,7 @@ namespace tl
         };
 
         //! Audio tool.
-        class AudioTool : public ToolWidget
+        class AudioTool : public IToolWidget
         {
             Q_OBJECT
 

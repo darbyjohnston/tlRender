@@ -32,7 +32,7 @@ namespace tl
             const QMap<QString, QAction*>& actions,
             App* app,
             QWidget* parent) :
-            ToolWidget(parent),
+            IToolWidget(parent),
             _p(new Private)
         {
             TLRENDER_P();
@@ -111,7 +111,7 @@ namespace tl
             setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
             auto dockTitleBar = new DockTitleBar;
-            dockTitleBar->setText(tr("FILES"));
+            dockTitleBar->setText(tr("Files"));
             dockTitleBar->setIcon(QIcon(":/Icons/Files.svg"));
             auto dockWidget = new QDockWidget;
             setTitleBarWidget(dockTitleBar);

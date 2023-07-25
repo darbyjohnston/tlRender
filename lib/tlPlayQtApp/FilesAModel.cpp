@@ -25,7 +25,7 @@ namespace tl
             qt::TimelineThumbnailObject* thumbnailObject,
             const std::shared_ptr<system::Context>& context,
             QObject* parent) :
-            FilesTableModel(filesModel, thumbnailObject, context, parent),
+            IFilesTableModel(filesModel, thumbnailObject, context, parent),
             _p(new Private)
         {
             TLRENDER_P();
@@ -79,7 +79,7 @@ namespace tl
         Qt::ItemFlags FilesAModel::flags(const QModelIndex& index) const
         {
             TLRENDER_P();
-            Qt::ItemFlags out = FilesTableModel::flags(index);
+            Qt::ItemFlags out = IFilesTableModel::flags(index);
             if (index.isValid() &&
                 index.row() >= 0 &&
                 index.row() < _files.size() &&
@@ -97,7 +97,7 @@ namespace tl
         QVariant FilesAModel::data(const QModelIndex& index, int role) const
         {
             TLRENDER_P();
-            QVariant out = FilesTableModel::data(index, role);
+            QVariant out = IFilesTableModel::data(index, role);
             if (index.isValid() &&
                 index.row() >= 0 &&
                 index.row() < _files.size() &&

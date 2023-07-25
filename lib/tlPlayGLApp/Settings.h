@@ -39,14 +39,27 @@ namespace tl
             //! Get the settings data.
             const std::map<std::string, std::string>& getData() const;
 
+            //! Get the settings data.
+            std::string getData(const std::string&) const;
+
+            //! Get the settings data.
+            template<typename T>
+            T getData(const std::string&) const;
+
             //! Observe the settings data.
             std::shared_ptr<observer::IMap<std::string, std::string> > observeData() const;
 
-            //! Set settings data.
+            //! Set the settings data.
             void setData(const std::string&, const std::string&);
+
+            //! Set the settings data.
+            template<typename T>
+            void setData(const std::string&, T);
 
         private:
             TLRENDER_PRIVATE();
         };
     }
 }
+
+#include <tlPlayGLApp/SettingsInline.h>

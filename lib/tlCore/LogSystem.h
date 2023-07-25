@@ -33,8 +33,16 @@ namespace tl
             bool operator == (const Item&) const;
         };
 
+        //! String conversion options.
+        enum class StringConvert
+        {
+            None = 0,
+            Time = 1,
+            Prefix = 2
+        };
+
         //! Convert a log item to a string.
-        std::string toString(const Item&);
+        std::string toString(const Item&, size_t options = 0);
 
         //! Log system.
         class System : public system::ICoreSystem

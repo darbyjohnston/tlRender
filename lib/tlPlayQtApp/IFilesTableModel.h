@@ -19,19 +19,19 @@ namespace tl
 
     namespace play_qt
     {
-        //! Base class for files table models.
-        class FilesTableModel : public QAbstractTableModel
+        //! Base class for table models.
+        class IFilesTableModel : public QAbstractTableModel
         {
             Q_OBJECT
 
         public:
-            FilesTableModel(
+            IFilesTableModel(
                 const std::shared_ptr<play::FilesModel>&,
                 qt::TimelineThumbnailObject*,
                 const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
 
-            virtual ~FilesTableModel() = 0;
+            virtual ~IFilesTableModel() = 0;
 
             //! Get the files.
             const std::vector<std::shared_ptr<play::FilesModelItem> >& files() const;

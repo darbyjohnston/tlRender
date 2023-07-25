@@ -39,6 +39,9 @@ namespace tl
         //! Get the tool keyboard shortcut.
         ui::Key getShortcut(Tool);
 
+        //! Get the tools in the toolbar.
+        std::vector<Tool> toolsInToolbar();
+
         //! Tools model.
         class ToolsModel : public std::enable_shared_from_this<ToolsModel>
         {

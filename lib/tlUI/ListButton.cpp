@@ -161,15 +161,6 @@ namespace tl
             const math::BBox2i& g = _geometry;
             const bool enabled = isEnabled();
 
-            // Draw the key focus.
-            if (_keyFocus)
-            {
-                event.render->drawMesh(
-                    border(g, p.size.border * 2),
-                    math::Vector2i(),
-                    event.style->getColorRole(ColorRole::KeyFocus));
-            }
-
             // Draw the background and checked state.
             const ColorRole colorRole = _checked ? _checkedRole : _buttonRole;
             if (colorRole != ColorRole::None)
@@ -191,6 +182,15 @@ namespace tl
                 event.render->drawRect(
                     g,
                     event.style->getColorRole(ColorRole::Hover));
+            }
+
+            // Draw the key focus.
+            if (_keyFocus)
+            {
+                event.render->drawMesh(
+                    border(g, p.size.border * 2),
+                    math::Vector2i(),
+                    event.style->getColorRole(ColorRole::KeyFocus));
             }
 
             // Draw the icon.
