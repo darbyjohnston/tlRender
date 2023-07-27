@@ -4,9 +4,7 @@
 
 #pragma once
 
-#include <tlUI/IWidget.h>
-
-#include <tlCore/Path.h>
+#include <tlUI/FileBrowser.h>
 
 namespace tl
 {
@@ -34,6 +32,12 @@ namespace tl
 
             //! Set the path.
             void setPath(const std::string&);
+
+            //! Get the options.
+            const FileBrowserOptions& getOptions() const;
+
+            //! Set the options.
+            void setOptions(const FileBrowserOptions&);
 
             //! Get the file.
             const std::string& getFile() const;

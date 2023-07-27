@@ -7,20 +7,20 @@ namespace tl
     namespace play_gl
     {
         template<typename T>
-        T Settings::getData(const std::string& key) const
+        T Settings::getValue(const std::string& key) const
         {
             T out;
-            std::stringstream ss(getData(key));
+            std::stringstream ss(getValue(key));
             ss >> out;
             return out;
         }
 
         template<typename T>
-        void Settings::setData(const std::string& key, T value)
+        void Settings::setValue(const std::string& key, T value)
         {
             std::stringstream ss;
             ss << value;
-            setData(key, ss.str());
+            setValue(key, ss.str());
         }
     }
 }

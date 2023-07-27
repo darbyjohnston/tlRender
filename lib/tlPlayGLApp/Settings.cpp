@@ -10,14 +10,15 @@ namespace tl
     {
         struct Settings::Private
         {
-            std::shared_ptr<observer::Map<std::string, std::string> > data;
+            std::map<std::string, std::string> defaultValues;
+            std::shared_ptr<observer::Map<std::string, std::string> > values;
         };
 
         void Settings::_init(
             const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
-            p.data = observer::Map<std::string, std::string>::create();
+            p.values = observer::Map<std::string, std::string>::create();
         }
 
         Settings::Settings() :
@@ -35,30 +36,35 @@ namespace tl
             return out;
         }
 
-        const std::map<std::string, std::string>& Settings::getData() const
+        const std::map<std::string, std::string>& Settings::getValues() const
         {
-            return _p->data->get();
+            return _p->values->get();
         }
 
-        std::string Settings::getData(const std::string& value) const
+        std::string Settings::getValue(const std::string& value) const
         {
             TLRENDER_P();
             std::string out;
-            if (p.data->hasKey(value))
+            if (p.values->hasKey(value))
             {
-                out = p.data->getItem(value);
+                out = p.values->getItem(value);
             }
             return out;
         }
 
-        std::shared_ptr<observer::IMap<std::string, std::string> > Settings::observeData() const
+        std::shared_ptr<observer::IMap<std::string, std::string> > Settings::observeValues() const
         {
-            return _p->data;
+            return _p->values;
         }
 
-        void Settings::setData(const std::string& key, const std::string& value)
+        void Settings::setValue(const std::string& key, const std::string& value)
         {
-            _p->data->setItemOnlyIfChanged(key, value);
+            TLRENDER_P();
+            if (!p.values->hasKey(key))
+            {
+                p.defaultValues[key] = value;
+            }
+            p.values->setItemOnlyIfChanged(key, value);
         }
     }
 }

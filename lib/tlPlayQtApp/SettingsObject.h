@@ -34,9 +34,6 @@ namespace tl
             //! Get the list of recent files.
             const QList<QString>& recentFiles() const;
 
-            //! Get whether tooltips are enabled.
-            bool hasToolTipsEnabled() const;
-
         public Q_SLOTS:
             //! Set a settings value.
             void setValue(const QString&, const QVariant&);
@@ -50,18 +47,12 @@ namespace tl
             //! Set the recent files.
             void setRecentFiles(const QList<QString>&);
 
-            //! Set whether tooltips are enabled.
-            void setToolTipsEnabled(bool);
-
         Q_SIGNALS:
             //! This signal is emitted when a settings value is changed.
             void valueChanged(const QString&, const QVariant&);
 
             //! This signal is emitted when the recent files list is changed.
             void recentFilesChanged(const QList<QString>&);
-
-            //! This signal is emitted when the tooltips enabled state is changed.
-            void toolTipsEnabledChanged(bool);
 
         private:
             void _toolTipsUpdate();

@@ -182,11 +182,17 @@ namespace tl
                     const std::string key(tag->key);
                     const std::string value(tag->value);
                     tags[key] = value;
-                    if (string::compareNoCase(key, "timecode"))
+                    if (string::compare(
+                        key,
+                        "timecode",
+                        string::Compare::CaseInsensitive))
                     {
                         timecode = value;
                     }
-                    else if (string::compareNoCase(key, "time_reference"))
+                    else if (string::compare(
+                        key,
+                        "time_reference",
+                        string::Compare::CaseInsensitive))
                     {
                         timeReference = otime::RationalTime(std::atoi(value.c_str()), sampleRate);
                     }

@@ -8,6 +8,7 @@
 #include <tlPlayGLApp/Settings.h>
 
 #include <tlUI/Bellows.h>
+#include <tlUI/CheckBox.h>
 #include <tlUI/ComboBox.h>
 #include <tlUI/DoubleEdit.h>
 #include <tlUI/GridLayout.h>
@@ -65,31 +66,29 @@ namespace tl
             p.readBehind->setParent(p.layout);
             p.layout->setGridPos(p.readBehind, 1, 1);
 
+            auto appWeak = std::weak_ptr<App>(app);
             p.settingsObserver = observer::MapObserver<std::string, std::string>::create(
-                app->getSettings()->observeData(),
-                [this](const std::map<std::string, std::string>& value)
+                app->getSettings()->observeValues(),
+                [this, appWeak](const std::map<std::string, std::string>& value)
                 {
                     TLRENDER_P();
-                    auto i = value.find("Cache/ReadAhead");
-                    if (i != value.end())
+                    if (auto app = appWeak.lock())
                     {
-                        p.readAhead->getModel()->setValue(std::atof(i->second.c_str()));
-                    }
-                    i = value.find("Cache/ReadBehind");
-                    if (i != value.end())
-                    {
-                        p.readBehind->getModel()->setValue(std::atof(i->second.c_str()));
+                        auto settings = app->getSettings();
+                        p.readAhead->getModel()->setValue(
+                            settings->getValue<double>("Cache/ReadAhead"));
+                        p.readBehind->getModel()->setValue(
+                            settings->getValue<double>("Cache/ReadBehind"));
                     }
                 });
 
-            auto appWeak = std::weak_ptr<App>(app);
             p.readAheadObserver = observer::ValueObserver<double>::create(
                 p.readAhead->getModel()->observeValue(),
                 [appWeak](double value)
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getSettings()->setData("Cache/ReadAhead", value);
+                        app->getSettings()->setValue("Cache/ReadAhead", value);
                     }
                 });
 
@@ -99,7 +98,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getSettings()->setData("Cache/ReadBehind", value);
+                        app->getSettings()->setValue("Cache/ReadBehind", value);
                     }
                 });
         }
@@ -152,8 +151,9 @@ namespace tl
             IWidget::_init("tl::play_gl::FileSequenceSettingsWidget", context, parent);
             TLRENDER_P();
 
-            p.audioComboBox = ui::ComboBox::create(context);
-            p.audioComboBox->setItems(timeline::getFileSequenceAudioLabels());
+            p.audioComboBox = ui::ComboBox::create(
+                timeline::getFileSequenceAudioLabels(),
+                context);
 
             p.audioFileNameEdit = ui::LineEdit::create(context);
 
@@ -181,43 +181,32 @@ namespace tl
             p.maxDigitsEdit->setParent(p.layout);
             p.layout->setGridPos(p.maxDigitsEdit, 3, 1);
 
+            auto appWeak = std::weak_ptr<App>(app);
             p.settingsObserver = observer::MapObserver<std::string, std::string>::create(
-                app->getSettings()->observeData(),
-                [this](const std::map<std::string, std::string>& value)
+                app->getSettings()->observeValues(),
+                [this, appWeak](const std::map<std::string, std::string>& value)
                 {
                     TLRENDER_P();
-                    auto i = value.find("FileSequence/Audio");
-                    if (i != value.end())
+                    if (auto app = appWeak.lock())
                     {
-                        timeline::FileSequenceAudio value = timeline::FileSequenceAudio::None;
-                        std::stringstream ss(i->second);
-                        ss >> value;
-                        p.audioComboBox->setCurrentIndex(static_cast<int>(value));
-                    }
-                    i = value.find("FileSequence/AudioFileName");
-                    if (i != value.end())
-                    {
-                        p.audioFileNameEdit->setText(i->second);
-                    }
-                    i = value.find("FileSequence/AudioDirectory");
-                    if (i != value.end())
-                    {
-                        p.audioDirectoryEdit->setText(i->second);
-                    }
-                    i = value.find("FileSequence/MaxDigits");
-                    if (i != value.end())
-                    {
-                        p.maxDigitsEdit->getModel()->setValue(std::atoi(i->second.c_str()));
+                        auto settings = app->getSettings();
+                        p.audioComboBox->setCurrentIndex(static_cast<int>(
+                            settings->getValue<timeline::FileSequenceAudio>("FileSequence/Audio")));
+                        p.audioFileNameEdit->setText(
+                            settings->getValue("FileSequence/AudioFileName"));
+                        p.audioDirectoryEdit->setText(
+                            settings->getValue("FileSequence/AudioDirectory"));
+                        p.maxDigitsEdit->getModel()->setValue(
+                            settings->getValue<int>("FileSequence/MaxDigits"));
                     }
                 });
 
-            auto appWeak = std::weak_ptr<App>(app);
             p.audioComboBox->setIndexCallback(
                 [appWeak](int value)
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getSettings()->setData("FileSequence/Audio", value);
+                        app->getSettings()->setValue("FileSequence/Audio", value);
                     }
                 });
         }
@@ -253,22 +242,196 @@ namespace tl
 
         struct PerformanceSettingsWidget::Private
         {
-            std::shared_ptr<ui::GridLayout> layout;
+            std::shared_ptr<ui::ComboBox> timerComboBox;
+            std::shared_ptr<ui::IntEdit> audioBufferFramesEdit;
+            std::shared_ptr<ui::IntEdit> videoRequestsEdit;
+            std::shared_ptr<ui::IntEdit> audioRequestsEdit;
+            std::shared_ptr<ui::IntEdit> sequenceThreadsEdit;
+            std::shared_ptr<ui::CheckBox> ffmpegYUVtoRGBCheckBox;
+            std::shared_ptr<ui::IntEdit> ffmpegThreadsEdit;
+            std::shared_ptr<ui::VerticalLayout> layout;
 
             std::shared_ptr<observer::MapObserver<std::string, std::string> > settingsObserver;
+            std::shared_ptr<observer::ValueObserver<int> > audioBufferFramesObserver;
+            std::shared_ptr<observer::ValueObserver<int> > videoRequestObserver;
+            std::shared_ptr<observer::ValueObserver<int> > audioRequestObserver;
+            std::shared_ptr<observer::ValueObserver<int> > sequenceThreadsObserver;
+            std::shared_ptr<observer::ValueObserver<int> > ffmpegThreadsObserver;
         };
 
         void PerformanceSettingsWidget::_init(
-            const std::shared_ptr<App>&,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_gl::PerformanceSettingsWidget", context, parent);
             TLRENDER_P();
 
-            p.layout = ui::GridLayout::create(context, shared_from_this());
+            p.timerComboBox = ui::ComboBox::create(
+                timeline::getTimerModeLabels(), context);
+
+            p.audioBufferFramesEdit = ui::IntEdit::create(context);
+            p.audioBufferFramesEdit->setDigits(4);
+            p.audioBufferFramesEdit->getModel()->setRange(math::IntRange(1024, 4096));
+            p.audioBufferFramesEdit->getModel()->setStep(256);
+            p.audioBufferFramesEdit->getModel()->setLargeStep(1024);
+
+            p.videoRequestsEdit = ui::IntEdit::create(context);
+            p.videoRequestsEdit->getModel()->setRange(math::IntRange(1, 64));
+
+            p.audioRequestsEdit = ui::IntEdit::create(context);
+            p.audioRequestsEdit->getModel()->setRange(math::IntRange(1, 64));
+
+            p.sequenceThreadsEdit = ui::IntEdit::create(context);
+            p.sequenceThreadsEdit->getModel()->setRange(math::IntRange(1, 64));
+
+            p.ffmpegYUVtoRGBCheckBox = ui::CheckBox::create(context);
+
+            p.ffmpegThreadsEdit = ui::IntEdit::create(context);
+            p.ffmpegThreadsEdit->getModel()->setRange(math::IntRange(0, 64));
+
+            p.layout = ui::VerticalLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
             p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            auto label = ui::Label::create("Changes are applied to new files.", context, p.layout);
+            auto griLayout = ui::GridLayout::create(context, p.layout);
+            griLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            label = ui::Label::create("Timer mode:", context, griLayout);
+            griLayout->setGridPos(label, 0, 0);
+            p.timerComboBox->setParent(griLayout);
+            griLayout->setGridPos(p.timerComboBox, 0, 1);
+            label = ui::Label::create("Audio buffer frames:", context, griLayout);
+            griLayout->setGridPos(label, 1, 0);
+            p.audioBufferFramesEdit->setParent(griLayout);
+            griLayout->setGridPos(p.audioBufferFramesEdit, 1, 1);
+            label = ui::Label::create("Video requests:", context, griLayout);
+            griLayout->setGridPos(label, 2, 0);
+            p.videoRequestsEdit->setParent(griLayout);
+            griLayout->setGridPos(p.videoRequestsEdit, 2, 1);
+            label = ui::Label::create("Audio requests:", context, griLayout);
+            griLayout->setGridPos(label, 3, 0);
+            p.audioRequestsEdit->setParent(griLayout);
+            griLayout->setGridPos(p.audioRequestsEdit, 3, 1);
+            label = ui::Label::create("Sequence I/O threads:", context, griLayout);
+            griLayout->setGridPos(label, 4, 0);
+            p.sequenceThreadsEdit->setParent(griLayout);
+            griLayout->setGridPos(p.sequenceThreadsEdit, 4, 1);
+            label = ui::Label::create("FFmpeg YUV to RGB conversion:", context, griLayout);
+            griLayout->setGridPos(label, 5, 0);
+            p.ffmpegYUVtoRGBCheckBox->setParent(griLayout);
+            griLayout->setGridPos(p.ffmpegYUVtoRGBCheckBox, 5, 1);
+            label = ui::Label::create("FFmpeg I/O threads:", context, griLayout);
+            griLayout->setGridPos(label, 6, 0);
+            p.ffmpegThreadsEdit->setParent(griLayout);
+            griLayout->setGridPos(p.ffmpegThreadsEdit, 6, 1);
+
+            auto appWeak = std::weak_ptr<App>(app);
+            p.settingsObserver = observer::MapObserver<std::string, std::string>::create(
+                app->getSettings()->observeValues(),
+                [this, appWeak](const std::map<std::string, std::string>& value)
+                {
+                    TLRENDER_P();
+                    if (auto app = appWeak.lock())
+                    {
+                        auto settings = app->getSettings();
+                        p.timerComboBox->setCurrentIndex(static_cast<int>(
+                            settings->getValue<timeline::TimerMode>("Performance/TimerMode")));
+                        p.audioBufferFramesEdit->getModel()->setValue(
+                            settings->getValue<int>("Performance/AudioBufferFrameCount"));
+                        p.videoRequestsEdit->getModel()->setValue(
+                            settings->getValue<int>("Performance/VideoRequestCount"));
+                        p.audioRequestsEdit->getModel()->setValue(
+                            settings->getValue<int>("Performance/AudioRequestCount"));
+                        p.sequenceThreadsEdit->getModel()->setValue(
+                            settings->getValue<int>("Performance/SequenceThreadCount"));
+                        p.ffmpegYUVtoRGBCheckBox->setChecked(
+                            settings->getValue<bool>("Performance/FFmpegYUVToRGBConversion"));
+                        p.ffmpegThreadsEdit->getModel()->setValue(
+                            settings->getValue<int>("Performance/FFmpegThreadCount"));
+                    }
+                });
+
+            p.timerComboBox->setIndexCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue(
+                            "Performance/TimerMode",
+                            static_cast<timeline::TimerMode>(value));
+                    }
+                });
+
+            p.audioBufferFramesObserver = observer::ValueObserver<int>::create(
+                p.audioBufferFramesEdit->getModel()->observeValue(),
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue(
+                            "Performance/AudioBufferFrameCount",
+                            value);
+                    }
+                });
+
+            p.videoRequestObserver = observer::ValueObserver<int>::create(
+                p.videoRequestsEdit->getModel()->observeValue(),
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue(
+                            "Performance/VideoRequestCount",
+                            value);
+                    }
+                });
+
+            p.audioRequestObserver = observer::ValueObserver<int>::create(
+                p.audioRequestsEdit->getModel()->observeValue(),
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue(
+                            "Performance/AudioRequestCount",
+                            value);
+                    }
+                });
+
+            p.sequenceThreadsObserver = observer::ValueObserver<int>::create(
+                p.sequenceThreadsEdit->getModel()->observeValue(),
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue(
+                            "Performance/SequenceThreadCount",
+                            value);
+                    }
+                });
+
+            p.ffmpegYUVtoRGBCheckBox->setCheckedCallback(
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue(
+                            "Performance/FFmpegYUVToRGBConversion",
+                            value);
+                    }
+                });
+
+            p.ffmpegThreadsObserver = observer::ValueObserver<int>::create(
+                p.ffmpegThreadsEdit->getModel()->observeValue(),
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue(
+                            "Performance/FFmpegThreadCount",
+                            value);
+                    }
+                });
         }
 
         PerformanceSettingsWidget::PerformanceSettingsWidget() :
@@ -302,22 +465,52 @@ namespace tl
 
         struct MiscSettingsWidget::Private
         {
+            std::shared_ptr<ui::CheckBox> toolTipsEnabledCheckBox;
             std::shared_ptr<ui::GridLayout> layout;
 
             std::shared_ptr<observer::MapObserver<std::string, std::string> > settingsObserver;
         };
 
         void MiscSettingsWidget::_init(
-            const std::shared_ptr<App>&,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_gl::MiscSettingsWidget", context, parent);
             TLRENDER_P();
 
+            p.toolTipsEnabledCheckBox = ui::CheckBox::create(context);
+
             p.layout = ui::GridLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
             p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            auto label = ui::Label::create("Enable tool tips:", context, p.layout);
+            p.layout->setGridPos(label, 0, 0);
+            p.toolTipsEnabledCheckBox->setParent(p.layout);
+            p.layout->setGridPos(p.toolTipsEnabledCheckBox, 0, 1);
+
+            auto appWeak = std::weak_ptr<App>(app);
+            p.settingsObserver = observer::MapObserver<std::string, std::string>::create(
+                app->getSettings()->observeValues(),
+                [this, appWeak](const std::map<std::string, std::string>& value)
+                {
+                    TLRENDER_P();
+                    if (auto app = appWeak.lock())
+                    {
+                        auto settings = app->getSettings();
+                        p.toolTipsEnabledCheckBox->setChecked(
+                            settings->getValue<bool>("Misc/ToolTipsEnabled"));
+                    }
+                });
+
+            p.toolTipsEnabledCheckBox->setCheckedCallback(
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue("Misc/ToolTipsEnabled", value);
+                    }
+                });
         }
 
         MiscSettingsWidget::MiscSettingsWidget() :
@@ -385,6 +578,7 @@ namespace tl
             bellows->setWidget(miscWidget);
             p.scrollWidget = ui::ScrollWidget::create(context);
             p.scrollWidget->setWidget(vLayout);
+            p.scrollWidget->setVStretch(ui::Stretch::Expanding);
 
             p.resetButton = ui::ToolButton::create("Default Settings", context);
 

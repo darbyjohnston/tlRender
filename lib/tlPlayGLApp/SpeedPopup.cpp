@@ -37,7 +37,6 @@ namespace tl
 
             p.speeds =
             {
-                defaultSpeed,
                 1.0,
                 3.0,
                 6.0,
@@ -52,7 +51,8 @@ namespace tl
                 60000.0 / 1001.0,
                 60.0,
                 96.0,
-                120.0
+                120.0,
+                defaultSpeed
             };
 
             p.buttonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Click, context);
@@ -112,14 +112,18 @@ namespace tl
             {
                 for (size_t i = 0; i < p.speeds.size(); ++i)
                 {
+                    const bool last = (p.speeds.size() - 1) == i;
+                    const bool secondToLast =
+                        p.speeds.size() > 1 &&
+                        (p.speeds.size() - 2) == i;
                     auto button = ui::ListButton::create(context, shared_from_this());
-                    button->setText(0 == i ?
+                    button->setText(last ?
                         string::Format("Default: {0}").arg(p.speeds[i], 2) :
                         string::Format("{0}").arg(p.speeds[i], 2));
                     button->setParent(p.layout);
                     p.buttons.push_back(button);
                     p.buttonGroup->addButton(button);
-                    if (0 == i && p.speeds.size() > 1)
+                    if (secondToLast)
                     {
                         ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
                     }

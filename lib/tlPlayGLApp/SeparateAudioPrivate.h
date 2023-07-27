@@ -35,6 +35,10 @@ namespace tl
                 const file::Path&,
                 const file::Path&)>&);
 
+            const ui::FileBrowserOptions& getOptions() const;
+
+            void setOptions(const ui::FileBrowserOptions&);
+
             void setCancelCallback(const std::function<void(void)>&);
 
             void setGeometry(const math::BBox2i&) override;

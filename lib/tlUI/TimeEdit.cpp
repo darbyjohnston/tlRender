@@ -5,6 +5,8 @@
 #include <tlUI/TimeEdit.h>
 
 #include <tlUI/LineEdit.h>
+#include <tlUI/IncButtons.h>
+#include <tlUI/RowLayout.h>
 
 #include <tlTimeline/TimeUnits.h>
 
@@ -20,6 +22,8 @@ namespace tl
             otime::RationalTime value = time::invalidTime;
             std::function<void(const otime::RationalTime&)> callback;
             std::shared_ptr<LineEdit> lineEdit;
+            std::shared_ptr<IncButtons> incButtons;
+            std::shared_ptr<HorizontalLayout> layout;
 
             struct SizeData
             {
@@ -38,14 +42,22 @@ namespace tl
             IWidget::_init("tl::ui::TimeEdit", context, parent);
             TLRENDER_P();
 
-            p.lineEdit = LineEdit::create(context, shared_from_this());
-            p.lineEdit->setFontRole(FontRole::Mono);
-
             p.timeUnitsModel = timeUnitsModel;
             if (!p.timeUnitsModel)
             {
                 p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
             }
+
+            p.lineEdit = LineEdit::create(context, shared_from_this());
+            p.lineEdit->setFontRole(FontRole::Mono);
+            p.lineEdit->setHStretch(Stretch::Expanding);
+
+            p.incButtons = IncButtons::create(context);
+
+            p.layout = ui::HorizontalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(SizeRole::SpacingTool);
+            p.lineEdit->setParent(p.layout);
+            p.incButtons->setParent(p.layout);
 
             _textUpdate();
 
@@ -61,6 +73,17 @@ namespace tl
                     {
                         _textUpdate();
                     }
+                });
+
+            p.incButtons->setIncCallback(
+                [this]
+                {
+                    _commitValue(_p->value + otime::RationalTime(1.0, _p->value.rate()));
+                });
+            p.incButtons->setDecCallback(
+                [this]
+                {
+                    _commitValue(_p->value + otime::RationalTime(-1.0, _p->value.rate()));
                 });
 
             p.timeUnitsObserver = observer::ValueObserver<timeline::TimeUnits>::create(
@@ -120,7 +143,7 @@ namespace tl
         void TimeEdit::setGeometry(const math::BBox2i& value)
         {
             IWidget::setGeometry(value);
-            _p->lineEdit->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
 
         void TimeEdit::takeKeyFocus()
@@ -131,7 +154,7 @@ namespace tl
         void TimeEdit::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->lineEdit->getSizeHint();
+            _sizeHint = _p->layout->getSizeHint();
         }
 
         void TimeEdit::keyPressEvent(KeyEvent& event)

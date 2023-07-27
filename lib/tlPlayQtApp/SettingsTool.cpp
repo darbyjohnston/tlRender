@@ -234,7 +234,7 @@ namespace tl
             p.ffmpegThreadCountSpinBox->setRange(0, 64);
 
             auto layout = new QFormLayout;
-            auto label = new QLabel(tr("Changes are applied to newly opened files."));
+            auto label = new QLabel(tr("Changes are applied to new files."));
             label->setWordWrap(true);
             layout->addRow(label);
             layout->addRow(tr("Timer mode:"), p.timerModeComboBox);
@@ -381,23 +381,27 @@ namespace tl
             layout->addRow(p.toolTipsCheckBox);
             setLayout(layout);
 
-            p.toolTipsCheckBox->setChecked(settingsObject->hasToolTipsEnabled());
+            p.toolTipsCheckBox->setChecked(
+                settingsObject->value("Misc/ToolTipsEnabled").toBool());
 
             connect(
                 p.toolTipsCheckBox,
                 &QCheckBox::stateChanged,
                 [settingsObject](int value)
                 {
-                    settingsObject->setToolTipsEnabled(Qt::Checked == value);
+                    settingsObject->setValue("Misc/ToolTipsEnabled", Qt::Checked == value);
                 });
 
             connect(
                 settingsObject,
-                &SettingsObject::toolTipsEnabledChanged,
-                [this](bool value)
+                &SettingsObject::valueChanged,
+                [this](const QString& key, const QVariant& value)
                 {
-                    QSignalBlocker signalBlocker(_p->toolTipsCheckBox);
-                    _p->toolTipsCheckBox->setChecked(value);
+                    if ("Misc/ToolTipsEnabled" == key)
+                    {
+                        QSignalBlocker signalBlocker(_p->toolTipsCheckBox);
+                        _p->toolTipsCheckBox->setChecked(value.toBool());
+                    }
                 });
         }
 

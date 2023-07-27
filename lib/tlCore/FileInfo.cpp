@@ -44,6 +44,7 @@ namespace tl
         {
             return
                 sort == other.sort &&
+                reverseSort == other.reverseSort &&
                 sortDirectoriesFirst == other.sortDirectoriesFirst &&
                 dotAndDotDotDirs == other.dotAndDotDotDirs &&
                 dotFiles == other.dotFiles &&

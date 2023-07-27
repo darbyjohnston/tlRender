@@ -138,7 +138,10 @@ namespace tl
                     tag,
                     AV_DICT_IGNORE_SUFFIX)))
                 {
-                    if (string::compareNoCase(tag->key, "timecode"))
+                    if (string::compare(
+                        tag->key,
+                        "timecode",
+                        string::Compare::CaseInsensitive))
                     {
                         timecode = tag->value;
                         break;

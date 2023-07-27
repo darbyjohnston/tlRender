@@ -18,6 +18,7 @@ namespace tl
         struct FileEdit::Private
         {
             std::string path;
+            FileBrowserOptions options;
             std::shared_ptr<LineEdit> lineEdit;
             std::shared_ptr<PushButton> button;
             std::shared_ptr<HorizontalLayout> layout;
@@ -78,6 +79,16 @@ namespace tl
             p.lineEdit->setText(value);
         }
 
+        const FileBrowserOptions& FileEdit::getOptions() const
+        {
+            return _p->options;
+        }
+
+        void FileEdit::setOptions(const FileBrowserOptions& value)
+        {
+            _p->options = value;
+        }
+
         const std::string& FileEdit::getFile() const
         {
             return _p->lineEdit->getText();
@@ -120,6 +131,7 @@ namespace tl
                 if (auto eventLoop = getEventLoop().lock())
                 {
                     p.fileBrowser = ui::FileBrowser::create(p.path, context);
+                    p.fileBrowser->setOptions(p.options);
                     p.fileBrowser->open(eventLoop);
                     p.fileBrowser->setFileCallback(
                         [this](const file::Path& value)
@@ -135,6 +147,7 @@ namespace tl
                     p.fileBrowser->setCloseCallback(
                         [this]
                         {
+                            _p->options = _p->fileBrowser->getOptions();
                             _p->fileBrowser.reset();
                         });
                 }

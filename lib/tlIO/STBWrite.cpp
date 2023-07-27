@@ -37,18 +37,30 @@ namespace tl
                     file::Path path(fileName);
                     std::string ext = path.getExtension();
                     int res = 0;
-                    if (string::compareNoCase(ext, ".tga"))
+                    if (string::compare(
+                        ext,
+                        ".tga",
+                        string::Compare::CaseInsensitive))
+                    {
                         res = stbi_write_tga(
                             fileName.c_str(), info.size.w, info.size.h, comp,
                             image->getData());
-                    else if (string::compareNoCase(ext, ".bmp"))
+                    }
+                    else if (string::compare(
+                        ext,
+                        ".bmp",
+                        string::Compare::CaseInsensitive))
+                    {
                         res = stbi_write_bmp(
                             fileName.c_str(), info.size.w, info.size.h, comp,
                             image->getData());
+                    }
                     else
+                    {
                         throw std::runtime_error(string::Format("{0}: {1}").
                             arg(fileName).
                             arg("Unsupported image format"));
+                    }
                     
                     if (res == 0)
                         throw std::runtime_error(string::Format("{0}: {1}").

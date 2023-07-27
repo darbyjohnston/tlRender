@@ -179,11 +179,22 @@ namespace tl
         {}
 
         std::shared_ptr<ComboBox> ComboBox::create(
+            const std::shared_ptr<system::Context>&context,
+            const std::shared_ptr<IWidget>&parent)
+        {
+            auto out = std::shared_ptr<ComboBox>(new ComboBox);
+            out->_init(context, parent);
+            return out;
+        }
+
+        std::shared_ptr<ComboBox> ComboBox::create(
+            const std::vector<std::string>& items,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ComboBox>(new ComboBox);
             out->_init(context, parent);
+            out->setItems(items);
             return out;
         }
 

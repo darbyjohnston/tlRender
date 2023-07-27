@@ -5,6 +5,7 @@
 #include "BasicWidgets.h"
 
 #include <tlUI/ButtonGroup.h>
+#include <tlUI/CheckBox.h>
 #include <tlUI/ComboBox.h>
 #include <tlUI/FileEdit.h>
 #include <tlUI/GroupBox.h>
@@ -81,6 +82,25 @@ namespace tl
                 auto toolButton3 = ui::ToolButton::create(context);
                 toolButton3->setIcon("Audio");
                 toolButton3->setEnabled(false);
+
+                auto checkBox0 = ui::CheckBox::create(context);
+                checkBox0->setText("CheckBox 1");
+                checkBox0->setCheckedCallback(
+                    [](bool value)
+                    {
+                        std::cout << "CheckBox 1: " << value << std::endl;
+                    });
+                auto checkBox1 = ui::CheckBox::create(context);
+                checkBox1->setChecked(true);
+                checkBox1->setText("CheckBox 2");
+                checkBox1->setCheckedCallback(
+                    [](bool value)
+                    {
+                        std::cout << "CheckBox 2: " << value << std::endl;
+                    });
+                auto checkBox2 = ui::CheckBox::create(context);
+                checkBox2->setText("CheckBox 3");
+                checkBox2->setEnabled(false);
 
                 auto lineEdit0 = ui::LineEdit::create(context);
                 auto lineEdit1 = ui::LineEdit::create(context);
@@ -175,6 +195,11 @@ namespace tl
                 toolButton0->setParent(hLayout);
                 toolButton1->setParent(hLayout);
                 toolButton3->setParent(hLayout);
+                groupBox = ui::GroupBox::create("Check Boxes", context, p.layout);
+                hLayout = ui::HorizontalLayout::create(context, groupBox);
+                checkBox0->setParent(hLayout);
+                checkBox1->setParent(hLayout);
+                checkBox2->setParent(hLayout);
                 groupBox = ui::GroupBox::create("Line Edits", context, p.layout);
                 hLayout = ui::HorizontalLayout::create(context, groupBox);
                 lineEdit0->setParent(hLayout);

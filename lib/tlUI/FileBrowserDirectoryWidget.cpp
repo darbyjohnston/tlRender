@@ -7,6 +7,8 @@
 #include <tlUI/ButtonGroup.h>
 #include <tlUI/RowLayout.h>
 
+#include <tlCore/String.h>
+
 namespace tl
 {
     namespace ui
@@ -14,9 +16,10 @@ namespace tl
         struct DirectoryWidget::Private
         {
             std::string path;
-            file::ListOptions listOptions;
+            FileBrowserOptions options;
             std::vector<file::FileInfo> fileInfos;
             std::vector<std::shared_ptr<Button> > buttons;
+            std::map<std::shared_ptr<Button>, size_t> buttonToIndex;
             std::shared_ptr<ButtonGroup> buttonGroup;
             std::shared_ptr<VerticalLayout> layout;
             std::function<void(const std::string&)> fileCallback;
@@ -36,6 +39,8 @@ namespace tl
             IWidget::_init("tl::ui::DirectoryWidget", context, parent);
             TLRENDER_P();
 
+            p.options.listOptions.sequence = false;
+
             p.buttonGroup = ButtonGroup::create(ButtonGroupType::Click, context);
 
             p.layout = VerticalLayout::create(context, shared_from_this());
@@ -46,28 +51,32 @@ namespace tl
                 {
                     TLRENDER_P();
                     if (value >= 0 &&
-                        value < p.fileInfos.size())
+                        value < p.buttons.size())
                     {
-                        const file::FileInfo& fileInfo = p.fileInfos[value];
-                        switch (fileInfo.getType())
+                        const auto i = p.buttonToIndex.find(p.buttons[value]);
+                        if (i != p.buttonToIndex.end())
                         {
-                        case file::Type::File:
-                            if (p.fileCallback)
+                            const file::FileInfo& fileInfo = p.fileInfos[i->second];
+                            switch (fileInfo.getType())
                             {
-                                p.fileCallback(fileInfo.getPath().get(-1, false));
-                            }
-                            break;
-                        case file::Type::Directory:
-                        {
-                            p.path = file::Path(p.path, fileInfo.getPath().get(-1, false)).get();
-                            _directoryUpdate();
-                            if (p.pathCallback)
+                            case file::Type::File:
+                                if (p.fileCallback)
+                                {
+                                    p.fileCallback(fileInfo.getPath().get(-1, false));
+                                }
+                                break;
+                            case file::Type::Directory:
                             {
-                                p.pathCallback(p.path);
+                                p.path = file::Path(p.path, fileInfo.getPath().get(-1, false)).get();
+                                _directoryUpdate();
+                                if (p.pathCallback)
+                                {
+                                    p.pathCallback(p.path);
+                                }
+                                break;
                             }
-                            break;
-                        }
-                        default: break;
+                            default: break;
+                            }
                         }
                     }
                 });
@@ -89,15 +98,12 @@ namespace tl
             return out;
         }
 
-        void DirectoryWidget::setPath(
-            const std::string& value,
-            const file::ListOptions& listOptions)
+        void DirectoryWidget::setPath(const std::string& value)
         {
             TLRENDER_P();
-            if (value == p.path && listOptions == p.listOptions)
+            if (value == p.path)
                 return;
             p.path = value;
-            p.listOptions = listOptions;
             _directoryUpdate();
         }
 
@@ -109,6 +115,20 @@ namespace tl
         void DirectoryWidget::setPathCallback(const std::function<void(const std::string&)>& value)
         {
             _p->pathCallback = value;
+        }
+
+        void DirectoryWidget::setOptions(const FileBrowserOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.options)
+                return;
+            p.options = value;
+            _directoryUpdate();
+        }
+
+        const FileBrowserOptions& DirectoryWidget::getOptions() const
+        {
+            return _p->options;
         }
 
         void DirectoryWidget::setGeometry(const math::BBox2i& value)
@@ -195,18 +215,36 @@ namespace tl
                 button->setParent(nullptr);
             }
             p.buttons.clear();
+            p.buttonToIndex.clear();
             p.buttonGroup->clearButtons();
-            auto listOptions = p.listOptions;
-            listOptions.sequence = false;
-            p.fileInfos = file::list(p.path, listOptions);
+            p.fileInfos = file::list(p.path, p.options.listOptions);
             if (auto context = _context.lock())
             {
-                for (auto fileInfo : p.fileInfos)
+                for (size_t i = 0; i < p.fileInfos.size(); ++i)
                 {
-                    auto button = Button::create(fileInfo, context);
-                    button->setParent(p.layout);
-                    p.buttons.push_back(button);
-                    p.buttonGroup->addButton(button);
+                    const file::FileInfo& fileInfo = p.fileInfos[i];
+                    bool keep = true;
+                    if (!p.options.filter.empty())
+                    {
+                        const std::string fileName = fileInfo.getPath().get(-1, false);
+                        keep = string::contains(
+                            fileName,
+                            p.options.filter,
+                            string::Compare::CaseInsensitive);
+                    }
+                    if (file::Type::File == fileInfo.getType() &&
+                        !p.options.extension.empty())
+                    {
+                        keep = fileInfo.getPath().getExtension() == p.options.extension;
+                    }
+                    if (keep)
+                    {
+                        auto button = Button::create(fileInfo, context);
+                        button->setParent(p.layout);
+                        p.buttons.push_back(button);
+                        p.buttonToIndex[button] = i;
+                        p.buttonGroup->addButton(button);
+                    }
                 }
             }
         }

@@ -4,9 +4,7 @@
 
 #pragma once
 
-#include <tlUI/IDialog.h>
-
-#include <tlCore/Path.h>
+#include <tlUI/FileBrowser.h>
 
 namespace tl
 {
@@ -39,6 +37,12 @@ namespace tl
             void setFileCallback(const std::function<void(
                 const file::Path&,
                 const file::Path&)>&);
+
+            //! Get the options.
+            const ui::FileBrowserOptions& getOptions() const;
+
+            //! Set the options.
+            void setOptions(const ui::FileBrowserOptions&);
 
         private:
             TLRENDER_PRIVATE();

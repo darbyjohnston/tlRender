@@ -39,8 +39,14 @@ namespace tl
             //! Set the text.
             void setText(const std::string&);
 
+            //! Clear the text.
+            void clearText();
+
             //! Set the text callback.
             void setTextCallback(const std::function<void(const std::string&)>&);
+
+            //! Set the text changed callback.
+            void setTextChangedCallback(const std::function<void(const std::string&)>&);
 
             //! Set the formatting text.
             void setFormat(const std::string&);

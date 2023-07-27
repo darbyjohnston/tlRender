@@ -7,7 +7,7 @@
    viewBox="0 0 5.2916665 5.2916666"
    version="1.1"
    id="svg8"
-   inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
    sodipodi:docname="Clear.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -68,8 +68,8 @@
        inkscape:export-ydpi="96">
       <path
          id="rect831"
-         style="opacity:1;fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.748355;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 1.468627,295.60895 0.1869263,0.18721 1.1226726,-1.12236 1.1225528,1.12248 0.1869273,-0.18721 -1.1225529,-1.12248 1.1225529,-1.12259 -0.1869333,-0.18721 -1.122555,1.12257 -1.1226691,-1.12245 -0.1869378,0.18721 1.1226796,1.12245 z"
+         style="fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.748355;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 1.6557098,295.42186 0.1869324,0.18721 0.9355635,-0.93532 0.9354798,0.93544 0.1869273,-0.18721 -0.9354798,-0.93544 0.9354845,-0.93545 -0.1869324,-0.18721 -0.9354845,0.93544 -0.9355584,-0.93532 -0.1869344,0.18721 0.9355654,0.93532 z"
          sodipodi:nodetypes="ccccccccccccc" />
     </g>
   </g>

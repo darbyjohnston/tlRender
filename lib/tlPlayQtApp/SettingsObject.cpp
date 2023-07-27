@@ -35,7 +35,6 @@ namespace tl
             QMap<QString, QVariant> defaultValues;
             QSettings settings;
             QList<QString> recentFiles;
-            bool toolTipsEnabled = true;
             qt::TimeObject* timeObject = nullptr;
             qt::ToolTipsFilter* toolTipsFilter = nullptr;
         };
@@ -76,7 +75,9 @@ namespace tl
             p.defaultValues["Performance/VideoRequestCount"] = 16;
             p.defaultValues["Performance/AudioRequestCount"] = 16;
             p.defaultValues["Performance/SequenceThreadCount"] = 16;
+            p.defaultValues["Performance/FFmpegYUVToRGBConversion"] = false;
             p.defaultValues["Performance/FFmpegThreadCount"] = 0;
+            p.defaultValues["Misc/ToolTipsEnabled"] = true;
 
             int size = p.settings.beginReadArray(version("RecentFiles"));
             for (int i = 0; i < size; ++i)
@@ -85,9 +86,6 @@ namespace tl
                 p.recentFiles.push_back(p.settings.value("File").toString());
             }
             p.settings.endArray();
-
-            p.toolTipsEnabled = p.settings.value(
-                version("Misc/ToolTipsEnabled"), true).toBool();
 
             p.timeObject = timeObject;
             p.timeObject->setTimeUnits(static_cast<timeline::TimeUnits>(p.settings.value(
@@ -112,10 +110,6 @@ namespace tl
             p.settings.endArray();
 
             p.settings.setValue(
-                version("Misc/ToolTipsEnabled"),
-                p.toolTipsEnabled);
-
-            p.settings.setValue(
                 version("TimeUnits2"),
                 static_cast<int>(p.timeObject->timeUnits()));
         }
@@ -137,14 +131,13 @@ namespace tl
             return _p->recentFiles;
         }
 
-        bool SettingsObject::hasToolTipsEnabled() const
-        {
-            return _p->toolTipsEnabled;
-        }
-
         void SettingsObject::setValue(const QString& name, const QVariant& value)
         {
             _p->settings.setValue(version(name), value);
+            if (name == "Misc/ToolTipsEnabled")
+            {
+                _toolTipsUpdate();
+            }
             Q_EMIT valueChanged(name, value);
         }
 
@@ -163,8 +156,6 @@ namespace tl
             }
             p.recentFiles.clear();
             Q_EMIT recentFilesChanged(p.recentFiles);
-            p.toolTipsEnabled = true;
-            Q_EMIT toolTipsEnabledChanged(p.toolTipsEnabled);
             _toolTipsUpdate();
         }
 
@@ -177,20 +168,10 @@ namespace tl
             Q_EMIT recentFilesChanged(p.recentFiles);
         }
 
-        void SettingsObject::setToolTipsEnabled(bool value)
-        {
-            TLRENDER_P();
-            if (value == p.toolTipsEnabled)
-                return;
-            p.toolTipsEnabled = value;
-            _toolTipsUpdate();
-            Q_EMIT toolTipsEnabledChanged(p.toolTipsEnabled);
-        }
-
         void SettingsObject::_toolTipsUpdate()
         {
             TLRENDER_P();
-            if (p.toolTipsEnabled)
+            if (value("Misc/ToolTipsEnabled").toBool())
             {
                 qApp->removeEventFilter(p.toolTipsFilter);
             }

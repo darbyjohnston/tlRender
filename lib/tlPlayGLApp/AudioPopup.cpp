@@ -58,9 +58,22 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        std::stringstream ss;
-                        ss << value;
-                        app->getSettings()->setData("Audio/Mute", ss.str());
+                        app->getSettings()->setValue("Audio/Mute", value);
+                    }
+                });
+
+            p.settingsObserver = observer::MapObserver<std::string, std::string>::create(
+                app->getSettings()->observeValues(),
+                [this, appWeak](const std::map<std::string, std::string>& value)
+                {
+                    TLRENDER_P();
+                    if (auto app = appWeak.lock())
+                    {
+                        auto settings = app->getSettings();
+                        p.volumeSlider->getModel()->setValue(
+                            settings->getValue<float>("Audio/Volume") * 100.0);
+                        p.muteButton->setChecked(
+                            settings->getValue<bool>("Audio/Mute"));
                     }
                 });
 
@@ -70,29 +83,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        std::stringstream ss;
-                        ss << value / 100.0;
-                        app->getSettings()->setData("Audio/Volume", ss.str());
-                    }
-                },
-                observer::CallbackAction::Suppress);
-
-            p.settingsObserver = observer::MapObserver<std::string, std::string>::create(
-                app->getSettings()->observeData(),
-                [this](const std::map<std::string, std::string>& value)
-                {
-                    TLRENDER_P();
-                    auto i = value.find("Audio/Volume");
-                    if (i != value.end())
-                    {
-                        const double volume = std::atof(i->second.c_str());
-                        p.volumeSlider->getModel()->setValue(volume * 100.0);
-                    }
-                    i = value.find("Audio/Mute");
-                    if (i != value.end())
-                    {
-                        const bool mute = std::atoi(i->second.c_str());
-                        p.muteButton->setChecked(mute);
+                        app->getSettings()->setValue("Audio/Volume", value);
                     }
                 });
         }

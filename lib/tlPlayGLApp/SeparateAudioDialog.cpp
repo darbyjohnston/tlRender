@@ -59,5 +59,15 @@ namespace tl
         {
             _p->widget->setFileCallback(value);
         }
+
+        const ui::FileBrowserOptions& SeparateAudioDialog::getOptions() const
+        {
+            return _p->widget->getOptions();
+        }
+
+        void SeparateAudioDialog::setOptions(const ui::FileBrowserOptions& value)
+        {
+            _p->widget->setOptions(value);
+        }
     }
 }

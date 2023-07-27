@@ -151,9 +151,42 @@ namespace tl
             return out;
         }
 
-        bool compareNoCase(const std::string& a, const std::string& b)
+        bool compare(
+            const std::string& a,
+            const std::string& b,
+            Compare compare)
         {
-            return toLower(a) == toLower(b);
+            bool out = false;
+            switch (compare)
+            {
+            case Compare::CaseSensitive:
+                out = a == b;
+                break;
+            case Compare::CaseInsensitive:
+                out = toLower(a) == toLower(b);
+                break;
+            default: break;
+            }
+            return out;
+        }
+
+        bool contains(
+            const std::string& input,
+            const std::string& substr,
+            Compare compare)
+        {
+            size_t i = std::string::npos;
+            switch (compare)
+            {
+            case Compare::CaseSensitive:
+                i = input.find(substr);
+                break;
+            case Compare::CaseInsensitive:
+                i = toLower(input).find(toLower(substr));
+                break;
+            default: break;
+            }
+            return i != std::string::npos;
         }
 
         std::string getLabel(bool value)

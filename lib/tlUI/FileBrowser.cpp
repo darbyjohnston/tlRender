@@ -8,6 +8,18 @@ namespace tl
 {
     namespace ui
     {
+        bool FileBrowserOptions::operator == (const FileBrowserOptions& other) const
+        {
+            return filter == other.filter &&
+                extension == other.extension &&
+                listOptions == other.listOptions;
+        }
+
+        bool FileBrowserOptions::operator != (const FileBrowserOptions& other) const
+        {
+            return !(*this == other);
+        }
+
         struct FileBrowser::Private
         {
             std::shared_ptr<FileBrowserWidget> widget;
@@ -53,6 +65,16 @@ namespace tl
         void FileBrowser::setFileCallback(const std::function<void(const file::Path&)>& value)
         {
             _p->widget->setFileCallback(value);
+        }
+
+        const FileBrowserOptions& FileBrowser::getOptions() const
+        {
+            return _p->widget->getOptions();
+        }
+
+        void FileBrowser::setOptions(const FileBrowserOptions& value)
+        {
+            _p->widget->setOptions(value);
         }
     }
 }

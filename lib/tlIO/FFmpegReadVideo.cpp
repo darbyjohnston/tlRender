@@ -310,7 +310,10 @@ namespace tl
                     const std::string key(tag->key);
                     const std::string value(tag->value);
                     tags[key] = value;
-                    if (string::compareNoCase(key, "timecode"))
+                    if (string::compare(
+                        key,
+                        "timecode",
+                        string::Compare::CaseInsensitive))
                     {
                         timecode = value;
                     }

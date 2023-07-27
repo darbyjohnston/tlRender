@@ -114,7 +114,10 @@ namespace tl
                 TLRENDER_ASSERT("abc" == toLower("ABC"));
             }
             {
-                TLRENDER_ASSERT(compareNoCase("abc", "ABC"));
+                TLRENDER_ASSERT(compare("abc", "ABC", Compare::CaseInsensitive));
+            }
+            {
+                TLRENDER_ASSERT(contains("abc", "C", Compare::CaseInsensitive));
             }
         }
 

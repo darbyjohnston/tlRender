@@ -36,25 +36,25 @@ namespace tl
             static std::shared_ptr<Settings> create(
                 const std::shared_ptr<system::Context>&);
 
-            //! Get the settings data.
-            const std::map<std::string, std::string>& getData() const;
+            //! Get the values.
+            const std::map<std::string, std::string>& getValues() const;
 
-            //! Get the settings data.
-            std::string getData(const std::string&) const;
+            //! Get a value.
+            std::string getValue(const std::string&) const;
 
-            //! Get the settings data.
+            //! Get a value.
             template<typename T>
-            T getData(const std::string&) const;
+            T getValue(const std::string&) const;
 
-            //! Observe the settings data.
-            std::shared_ptr<observer::IMap<std::string, std::string> > observeData() const;
+            //! Observe the values.
+            std::shared_ptr<observer::IMap<std::string, std::string> > observeValues() const;
 
-            //! Set the settings data.
-            void setData(const std::string&, const std::string&);
+            //! Set a value.
+            void setValue(const std::string&, const std::string&);
 
-            //! Set the settings data.
+            //! Set a value.
             template<typename T>
-            void setData(const std::string&, T);
+            void setValue(const std::string&, T);
 
         private:
             TLRENDER_PRIVATE();

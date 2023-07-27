@@ -31,7 +31,6 @@
 #include <tlUI/Divider.h>
 #include <tlUI/DoubleEdit.h>
 #include <tlUI/DoubleModel.h>
-#include <tlUI/IncButtons.h>
 #include <tlUI/Label.h>
 #include <tlUI/Menu.h>
 #include <tlUI/MenuBar.h>
@@ -188,14 +187,13 @@ namespace tl
             p.frameButtonGroup->addButton(timeEndButton);
 
             p.currentTimeEdit = ui::TimeEdit::create(p.timeUnitsModel, context);
-            auto currentTimeIncButtons = ui::IncButtons::create(context);
 
             p.speedEdit = ui::DoubleEdit::create(context, p.speedModel);
-            auto speedIncButtons = ui::DoubleIncButtons::create(p.speedModel, context);
             p.speedButton = ui::ToolButton::create(context);
             p.speedButton->setIcon("MenuArrow");
 
             p.durationLabel = ui::TimeLabel::create(p.timeUnitsModel, context);
+            p.durationLabel->setMarginRole(ui::SizeRole::MarginInside);
 
             p.timeUnitsComboBox = ui::ComboBox::create(context);
             p.timeUnitsComboBox->setItems(timeline::getTimeUnitsLabels());
@@ -206,12 +204,13 @@ namespace tl
             p.audioButton->setIcon("Volume");
 
             p.statusLabel = ui::Label::create(context);
-            p.statusLabel->setTextWidth(120);
             p.statusLabel->setHStretch(ui::Stretch::Expanding);
+            p.statusLabel->setMarginRole(ui::SizeRole::MarginInside);
             p.statusTimer = time::Timer::create(context);
 
             p.infoLabel = ui::Label::create(context);
-            p.infoLabel->setTextWidth(40);
+            p.infoLabel->setHAlign(ui::HAlign::Right);
+            p.infoLabel->setMarginRole(ui::SizeRole::MarginInside);
 
             p.toolsWidget = ToolsWidget::create(app, context);
             p.toolsWidget->setVisible(false);
@@ -252,23 +251,19 @@ namespace tl
             framePrevButton->setParent(hLayout2);
             frameNextButton->setParent(hLayout2);
             timeEndButton->setParent(hLayout2);
-            hLayout2 = ui::HorizontalLayout::create(context, hLayout);
-            hLayout2->setSpacingRole(ui::SizeRole::SpacingTool);
-            p.currentTimeEdit->setParent(hLayout2);
-            currentTimeIncButtons->setParent(hLayout2);
+            p.currentTimeEdit->setParent(hLayout);
             hLayout2 = ui::HorizontalLayout::create(context, hLayout);
             hLayout2->setSpacingRole(ui::SizeRole::SpacingTool);
             p.speedEdit->setParent(hLayout2);
-            speedIncButtons->setParent(hLayout2);
             p.speedButton->setParent(hLayout2);
             p.durationLabel->setParent(hLayout);
             p.timeUnitsComboBox->setParent(hLayout);
             p.audioButton->setParent(hLayout);
             ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
             hLayout = ui::HorizontalLayout::create(context, p.layout);
-            hLayout->setMarginRole(ui::SizeRole::MarginInside);
-            hLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            hLayout->setSpacingRole(ui::SizeRole::None);
             p.statusLabel->setParent(hLayout);
+            ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
             p.infoLabel->setParent(hLayout);
 
             _viewportUpdate();
@@ -280,23 +275,6 @@ namespace tl
                     if (!_p->players.empty() && _p->players[0])
                     {
                         _p->players[0]->seek(value);
-                    }
-                });
-
-            currentTimeIncButtons->setIncCallback(
-                [this]
-                {
-                    if (!_p->players.empty() && _p->players[0])
-                    {
-                        _p->players[0]->frameNext();
-                    }
-                });
-            currentTimeIncButtons->setDecCallback(
-                [this]
-                {
-                    if (!_p->players.empty() && _p->players[0])
-                    {
-                        _p->players[0]->framePrev();
                     }
                 });
 
@@ -606,7 +584,24 @@ namespace tl
             {
                 const file::Path& path = p.players[0]->getPath();
                 const io::Info& info = p.players[0]->getIOInfo();
-                text = string::Format("{0}").arg(path.get(-1, false));
+                std::vector<std::string> s;
+                s.push_back(path.get(-1, false));
+                if (!info.video.empty())
+                {
+                    s.push_back(std::string(
+                        string::Format("V: {0} {1}").
+                        arg(info.video[0].size).
+                        arg(info.video[0].pixelType)));
+                }
+                if (info.audio.isValid())
+                {
+                    s.push_back(std::string(
+                        string::Format("A: {0} {1} {2}").
+                        arg(info.audio.channelCount).
+                        arg(info.audio.dataType).
+                        arg(info.audio.sampleRate / 1000)));
+                }
+                text = string::join(s, ", ");
             }
             p.infoLabel->setText(text);
         }

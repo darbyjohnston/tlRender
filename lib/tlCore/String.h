@@ -52,8 +52,23 @@ namespace tl
         //! \name Comparison
         ///@{
 
-        //! Compare case insensitive.
-        bool compareNoCase(const std::string&, const std::string&);
+        enum class Compare
+        {
+            CaseSensitive,
+            CaseInsensitive
+        };
+
+        //! Compare strings.
+        bool compare(
+            const std::string&,
+            const std::string&,
+            Compare = Compare::CaseSensitive);
+
+        //! Does a string contain the sub string?
+        bool contains(
+            const std::string&,
+            const std::string& substr,
+            Compare = Compare::CaseSensitive);
 
         ///@}
 

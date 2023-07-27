@@ -90,7 +90,7 @@
             labels.end(), \
             [s](const std::string& value) \
             { \
-                return string::compareNoCase(s, value); \
+                return string::compare(s, value, string::Compare::CaseInsensitive); \
             }); \
         if (i == labels.end()) \
         { \

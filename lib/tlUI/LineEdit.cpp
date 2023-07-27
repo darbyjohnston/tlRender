@@ -94,6 +94,7 @@ namespace tl
         {
             std::string text;
             std::function<void(const std::string&)> textCallback;
+            std::function<void(const std::string&)> textChangedCallback;
             std::string format = "                    ";
             std::function<void(bool)> focusCallback;
             FontRole fontRole = FontRole::Mono;
@@ -169,9 +170,19 @@ namespace tl
             _textUpdate();
         }
 
+        void LineEdit::clearText()
+        {
+            setText(std::string());
+        }
+
         void LineEdit::setTextCallback(const std::function<void(const std::string&)>& value)
         {
             _p->textCallback = value;
+        }
+
+        void LineEdit::setTextChangedCallback(const std::function<void(const std::string&)>& value)
+        {
+            _p->textChangedCallback = value;
         }
 
         void LineEdit::setFormat(const std::string& value)
@@ -513,6 +524,10 @@ namespace tl
                             p.text.insert(p.cursorPos, text);
                             p.cursorPos += text.size();
                         }
+                        if (p.textChangedCallback)
+                        {
+                            p.textChangedCallback(p.text);
+                        }
                         _textUpdate();
                     }
                 }
@@ -535,6 +550,10 @@ namespace tl
                                 "");
                             p.selection.clear();
                             p.cursorPos = selection.first;
+                            if (p.textChangedCallback)
+                            {
+                                p.textChangedCallback(p.text);
+                            }
                             _textUpdate();
                         }
                     }
@@ -625,6 +644,10 @@ namespace tl
                         selection.second - selection.first);
                     p.selection.clear();
                     p.cursorPos = selection.first;
+                    if (p.textChangedCallback)
+                    {
+                        p.textChangedCallback(p.text);
+                    }
                     _textUpdate();
                 }
                 else if (p.cursorPos > 0)
@@ -632,6 +655,10 @@ namespace tl
                     const auto i = p.text.begin() + p.cursorPos - 1;
                     p.text.erase(i);
                     p.cursorPos--;
+                    if (p.textChangedCallback)
+                    {
+                        p.textChangedCallback(p.text);
+                    }
                     _textUpdate();
                 }
                 break;
@@ -644,12 +671,20 @@ namespace tl
                         selection.second - selection.first);
                     p.selection.clear();
                     p.cursorPos = selection.first;
+                    if (p.textChangedCallback)
+                    {
+                        p.textChangedCallback(p.text);
+                    }
                     _textUpdate();
                 }
                 else if (p.cursorPos < p.text.size())
                 {
                     const auto i = p.text.begin() + p.cursorPos;
                     p.text.erase(i);
+                    if (p.textChangedCallback)
+                    {
+                        p.textChangedCallback(p.text);
+                    }
                     _textUpdate();
                 }
                 break;
@@ -692,6 +727,10 @@ namespace tl
             {
                 p.text.insert(p.cursorPos, event.text);
                 p.cursorPos += event.text.size();
+            }
+            if (p.textChangedCallback)
+            {
+                p.textChangedCallback(p.text);
             }
             _textUpdate();
         }
