@@ -19,6 +19,7 @@
 #include <tlUI/ScrollWidget.h>
 #include <tlUI/ToolButton.h>
 
+#include <tlCore/JSON.h>
 #include <tlCore/StringFormat.h>
 
 namespace tl
@@ -31,7 +32,7 @@ namespace tl
             std::shared_ptr<ui::DoubleEdit> readBehind;
             std::shared_ptr<ui::GridLayout> layout;
 
-            std::shared_ptr<observer::MapObserver<std::string, std::string> > settingsObserver;
+            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
             std::shared_ptr<observer::ValueObserver<double> > readAheadObserver;
             std::shared_ptr<observer::ValueObserver<double> > readBehindObserver;
         };
@@ -67,18 +68,24 @@ namespace tl
             p.layout->setGridPos(p.readBehind, 1, 1);
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.settingsObserver = observer::MapObserver<std::string, std::string>::create(
+            p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
-                [this, appWeak](const std::map<std::string, std::string>& value)
+                [this, appWeak](const std::string& value)
                 {
                     TLRENDER_P();
                     if (auto app = appWeak.lock())
                     {
                         auto settings = app->getSettings();
-                        p.readAhead->getModel()->setValue(
-                            settings->getValue<double>("Cache/ReadAhead"));
-                        p.readBehind->getModel()->setValue(
-                            settings->getValue<double>("Cache/ReadBehind"));
+                        if ("Cache/ReadAhead" == value)
+                        {
+                            p.readAhead->getModel()->setValue(
+                                settings->getValue<double>("Cache/ReadAhead"));
+                        }
+                        else if ("Cache/ReadBehind" == value)
+                        {
+                            p.readBehind->getModel()->setValue(
+                                settings->getValue<double>("Cache/ReadBehind"));
+                        }
                     }
                 });
 
@@ -88,7 +95,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getSettings()->setValue("Cache/ReadAhead", value);
+                        //app->getSettings()->setValue("Cache/ReadAhead", value);
                     }
                 });
 
@@ -140,7 +147,7 @@ namespace tl
             std::shared_ptr<ui::IntEdit> maxDigitsEdit;
             std::shared_ptr<ui::GridLayout> layout;
 
-            std::shared_ptr<observer::MapObserver<std::string, std::string> > settingsObserver;
+            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
         };
 
         void FileSequenceSettingsWidget::_init(
@@ -182,22 +189,34 @@ namespace tl
             p.layout->setGridPos(p.maxDigitsEdit, 3, 1);
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.settingsObserver = observer::MapObserver<std::string, std::string>::create(
+            p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
-                [this, appWeak](const std::map<std::string, std::string>& value)
+                [this, appWeak](const std::string& value)
                 {
                     TLRENDER_P();
                     if (auto app = appWeak.lock())
                     {
                         auto settings = app->getSettings();
-                        p.audioComboBox->setCurrentIndex(static_cast<int>(
-                            settings->getValue<timeline::FileSequenceAudio>("FileSequence/Audio")));
-                        p.audioFileNameEdit->setText(
-                            settings->getValue("FileSequence/AudioFileName"));
-                        p.audioDirectoryEdit->setText(
-                            settings->getValue("FileSequence/AudioDirectory"));
-                        p.maxDigitsEdit->getModel()->setValue(
-                            settings->getValue<int>("FileSequence/MaxDigits"));
+                        if ("FileSequence/Audio" == value)
+                        {
+                            //p.audioComboBox->setCurrentIndex(static_cast<int>(
+                            //    settings->getValue<timeline::FileSequenceAudio>("FileSequence/Audio")));
+                        }
+                        else if ("FileSequence/AudioFileName" == value)
+                        {
+                            p.audioFileNameEdit->setText(
+                                settings->getValue<std::string>("FileSequence/AudioFileName"));
+                        }
+                        else if ("FileSequence/AudioDirectory" == value)
+                        {
+                            p.audioDirectoryEdit->setText(
+                                settings->getValue<std::string>("FileSequence/AudioDirectory"));
+                        }
+                        else if ("FileSequence/MaxDigits" == value)
+                        {
+                            p.maxDigitsEdit->getModel()->setValue(
+                                settings->getValue<int>("FileSequence/MaxDigits"));
+                        }
                     }
                 });
 
@@ -251,7 +270,7 @@ namespace tl
             std::shared_ptr<ui::IntEdit> ffmpegThreadsEdit;
             std::shared_ptr<ui::VerticalLayout> layout;
 
-            std::shared_ptr<observer::MapObserver<std::string, std::string> > settingsObserver;
+            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
             std::shared_ptr<observer::ValueObserver<int> > audioBufferFramesObserver;
             std::shared_ptr<observer::ValueObserver<int> > videoRequestObserver;
             std::shared_ptr<observer::ValueObserver<int> > audioRequestObserver;
@@ -326,28 +345,49 @@ namespace tl
             griLayout->setGridPos(p.ffmpegThreadsEdit, 6, 1);
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.settingsObserver = observer::MapObserver<std::string, std::string>::create(
+            p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
-                [this, appWeak](const std::map<std::string, std::string>& value)
+                [this, appWeak](const std::string& value)
                 {
                     TLRENDER_P();
                     if (auto app = appWeak.lock())
                     {
                         auto settings = app->getSettings();
-                        p.timerComboBox->setCurrentIndex(static_cast<int>(
-                            settings->getValue<timeline::TimerMode>("Performance/TimerMode")));
-                        p.audioBufferFramesEdit->getModel()->setValue(
-                            settings->getValue<int>("Performance/AudioBufferFrameCount"));
-                        p.videoRequestsEdit->getModel()->setValue(
-                            settings->getValue<int>("Performance/VideoRequestCount"));
-                        p.audioRequestsEdit->getModel()->setValue(
-                            settings->getValue<int>("Performance/AudioRequestCount"));
-                        p.sequenceThreadsEdit->getModel()->setValue(
-                            settings->getValue<int>("Performance/SequenceThreadCount"));
-                        p.ffmpegYUVtoRGBCheckBox->setChecked(
-                            settings->getValue<bool>("Performance/FFmpegYUVToRGBConversion"));
-                        p.ffmpegThreadsEdit->getModel()->setValue(
-                            settings->getValue<int>("Performance/FFmpegThreadCount"));
+                        if ("Performance/TimerMode" == value)
+                        {
+                            //p.timerComboBox->setCurrentIndex(static_cast<int>(
+                            //    settings->getValue<timeline::TimerMode>("Performance/TimerMode")));
+                        }
+                        else if ("Performance/AudioBufferFrameCount" == value)
+                        {
+                            p.audioBufferFramesEdit->getModel()->setValue(
+                                settings->getValue<int>("Performance/AudioBufferFrameCount"));
+                        }
+                        else if ("Performance/VideoRequestCount" == value)
+                        {
+                            p.videoRequestsEdit->getModel()->setValue(
+                                settings->getValue<int>("Performance/VideoRequestCount"));
+                        }
+                        else if ("Performance/AudioRequestCount" == value)
+                        {
+                            p.audioRequestsEdit->getModel()->setValue(
+                                settings->getValue<int>("Performance/AudioRequestCount"));
+                        }
+                        else if ("Performance/SequenceThreadCount" == value)
+                        {
+                            p.sequenceThreadsEdit->getModel()->setValue(
+                                settings->getValue<int>("Performance/SequenceThreadCount"));
+                        }
+                        else if ("Performance/FFmpegYUVToRGBConversion" == value)
+                        {
+                            p.ffmpegYUVtoRGBCheckBox->setChecked(
+                                settings->getValue<bool>("Performance/FFmpegYUVToRGBConversion"));
+                        }
+                        else if ("Performance/FFmpegThreadCount" == value)
+                        {
+                            p.ffmpegThreadsEdit->getModel()->setValue(
+                                settings->getValue<int>("Performance/FFmpegThreadCount"));
+                        }
                     }
                 });
 
@@ -356,9 +396,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getSettings()->setValue(
-                            "Performance/TimerMode",
-                            static_cast<timeline::TimerMode>(value));
+                        //app->getSettings()->setValue(
+                        //    "Performance/TimerMode",
+                        //    static_cast<timeline::TimerMode>(value));
                     }
                 });
 
@@ -468,7 +508,7 @@ namespace tl
             std::shared_ptr<ui::CheckBox> toolTipsEnabledCheckBox;
             std::shared_ptr<ui::GridLayout> layout;
 
-            std::shared_ptr<observer::MapObserver<std::string, std::string> > settingsObserver;
+            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
         };
 
         void MiscSettingsWidget::_init(
@@ -490,16 +530,19 @@ namespace tl
             p.layout->setGridPos(p.toolTipsEnabledCheckBox, 0, 1);
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.settingsObserver = observer::MapObserver<std::string, std::string>::create(
+            p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
-                [this, appWeak](const std::map<std::string, std::string>& value)
+                [this, appWeak](const std::string& value)
                 {
                     TLRENDER_P();
                     if (auto app = appWeak.lock())
                     {
                         auto settings = app->getSettings();
-                        p.toolTipsEnabledCheckBox->setChecked(
-                            settings->getValue<bool>("Misc/ToolTipsEnabled"));
+                        if ("Misc/ToolTipsEnabled" == value)
+                        {
+                            p.toolTipsEnabledCheckBox->setChecked(
+                                settings->getValue<bool>("Misc/ToolTipsEnabled"));
+                        }
                     }
                 });
 

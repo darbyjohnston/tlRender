@@ -79,6 +79,7 @@ set(SOURCE
     FileBrowserButton.cpp
     FileBrowserDirectoryWidget.cpp
     FileBrowserPathsWidget.cpp
+    FileBrowserSystem.cpp
     FileBrowserWidget.cpp
     FloatEdit.cpp
     FloatEditSlider.cpp

@@ -14,7 +14,6 @@ namespace tl
         };
 
         void SeparateAudioDialog::_init(
-            const std::string& path,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -25,7 +24,6 @@ namespace tl
             TLRENDER_P();
 
             p.widget = SeparateAudioWidget::create(
-                path,
                 context,
                 shared_from_this());
 
@@ -44,12 +42,11 @@ namespace tl
         {}
 
         std::shared_ptr<SeparateAudioDialog> SeparateAudioDialog::create(
-            const std::string& path,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<SeparateAudioDialog>(new SeparateAudioDialog);
-            out->_init(path, context, parent);
+            out->_init(context, parent);
             return out;
         }
 
@@ -58,16 +55,6 @@ namespace tl
             const file::Path&)>& value)
         {
             _p->widget->setFileCallback(value);
-        }
-
-        const ui::FileBrowserOptions& SeparateAudioDialog::getOptions() const
-        {
-            return _p->widget->getOptions();
-        }
-
-        void SeparateAudioDialog::setOptions(const ui::FileBrowserOptions& value)
-        {
-            _p->widget->setOptions(value);
         }
     }
 }

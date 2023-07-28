@@ -18,7 +18,6 @@ namespace tl
     {
         struct SeparateAudioWidget::Private
         {
-            ui::FileBrowserOptions options;
             std::shared_ptr<ui::FileEdit> videoFileEdit;
             std::shared_ptr<ui::FileEdit> audioFileEdit;
             std::shared_ptr<ui::PushButton> okButton;
@@ -29,7 +28,6 @@ namespace tl
         };
 
         void SeparateAudioWidget::_init(
-            const std::string& path,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -42,10 +40,8 @@ namespace tl
             setHStretch(ui::Stretch::Expanding);
 
             p.videoFileEdit = ui::FileEdit::create(context);
-            p.videoFileEdit->setPath(path);
 
             p.audioFileEdit = ui::FileEdit::create(context);
-            p.audioFileEdit->setPath(path);
 
             p.okButton = ui::PushButton::create("OK", context);
             p.cancelButton = ui::PushButton::create("Cancel", context);
@@ -76,18 +72,6 @@ namespace tl
             p.okButton->setParent(hLayout);
             p.cancelButton->setParent(hLayout);
 
-            p.videoFileEdit->setFileCallback(
-                [this](const file::Path&)
-                {
-                    _p->options = _p->videoFileEdit->getOptions();
-                });
-
-            p.audioFileEdit->setFileCallback(
-                [this](const file::Path&)
-                {
-                    _p->options = _p->videoFileEdit->getOptions();
-                });
-
             p.okButton->setClickedCallback(
                 [this]
                 {
@@ -117,12 +101,11 @@ namespace tl
         {}
 
         std::shared_ptr<SeparateAudioWidget> SeparateAudioWidget::create(
-            const std::string& path,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<SeparateAudioWidget>(new SeparateAudioWidget);
-            out->_init(path, context, parent);
+            out->_init(context, parent);
             return out;
         }
 
@@ -131,21 +114,6 @@ namespace tl
             const file::Path&)>& value)
         {
             _p->fileCallback = value;
-        }
-
-        const ui::FileBrowserOptions& SeparateAudioWidget::getOptions() const
-        {
-            return _p->options;
-        }
-
-        void SeparateAudioWidget::setOptions(const ui::FileBrowserOptions& value)
-        {
-            TLRENDER_P();
-            if (value == p.options)
-                return;
-            p.options = value;
-            p.videoFileEdit->setOptions(value);
-            p.audioFileEdit->setOptions(value);
         }
 
         void SeparateAudioWidget::setCancelCallback(const std::function<void(void)>& value)

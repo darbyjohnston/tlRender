@@ -4,13 +4,11 @@
 
 #include <tlUI/Init.h>
 
+#include <tlUI/FileBrowser.h>
+
 #include <tlIO/Init.h>
 
 #include <tlCore/Context.h>
-
-#if defined(TLRENDER_NFD)
-#include <nfd.hpp>
-#endif // TLRENDER_NFD
 
 namespace tl
 {
@@ -19,36 +17,10 @@ namespace tl
         void init(const std::shared_ptr<system::Context>& context)
         {
             tl::io::init(context);
-            if (!context->getSystem<System>())
+            if (!context->getSystem<FileBrowserSystem>())
             {
-                context->addSystem(System::create(context));
+                context->addSystem(FileBrowserSystem::create(context));
             }
-        }
-
-        void System::_init(const std::shared_ptr<system::Context>& context)
-        {
-            ISystem::_init("tl::ui::System", context);
-
-#if defined(TLRENDER_NFD)
-            NFD::Init();
-#endif // TLRENDER_NFD
-        }
-
-        System::System()
-        {}
-
-        System::~System()
-        {
-#if defined(TLRENDER_NFD)
-            NFD::Quit();
-#endif // TLRENDER_NFD
-        }
-
-        std::shared_ptr<System> System::create(const std::shared_ptr<system::Context>& context)
-        {
-            auto out = std::shared_ptr<System>(new System);
-            out->_init(context);
-            return out;
         }
     }
 }

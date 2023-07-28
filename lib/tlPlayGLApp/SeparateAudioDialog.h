@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include <tlUI/FileBrowser.h>
+#include <tlUI/IDialog.h>
+
+#include <tlCore/Path.h>
 
 namespace tl
 {
@@ -19,7 +21,6 @@ namespace tl
 
         protected:
             void _init(
-                const std::string&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -29,7 +30,6 @@ namespace tl
             virtual ~SeparateAudioDialog();
 
             static std::shared_ptr<SeparateAudioDialog> create(
-                const std::string&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -37,12 +37,6 @@ namespace tl
             void setFileCallback(const std::function<void(
                 const file::Path&,
                 const file::Path&)>&);
-
-            //! Get the options.
-            const ui::FileBrowserOptions& getOptions() const;
-
-            //! Set the options.
-            void setOptions(const ui::FileBrowserOptions&);
 
         private:
             TLRENDER_PRIVATE();

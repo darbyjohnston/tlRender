@@ -4,25 +4,24 @@
 
 #include <tlPlayGLApp/Settings.h>
 
+#include <tlCore/Context.h>
+#include <tlCore/File.h>
+#include <tlCore/FileIO.h>
+#include <tlCore/LogSystem.h>
+#include <tlCore/StringFormat.h>
+
 namespace tl
 {
     namespace play_gl
     {
-        struct Settings::Private
-        {
-            std::map<std::string, std::string> defaultValues;
-            std::shared_ptr<observer::Map<std::string, std::string> > values;
-        };
-
         void Settings::_init(
             const std::shared_ptr<system::Context>& context)
         {
-            TLRENDER_P();
-            p.values = observer::Map<std::string, std::string>::create();
+            _context = context;
+            _observer = observer::Value<std::string>::create();
         }
 
-        Settings::Settings() :
-            _p(new Private)
+        Settings::Settings() 
         {}
 
         Settings::~Settings()
@@ -36,35 +35,56 @@ namespace tl
             return out;
         }
 
-        const std::map<std::string, std::string>& Settings::getValues() const
+        std::shared_ptr<observer::IValue<std::string> > Settings::observeValues() const
         {
-            return _p->values->get();
+            return _observer;
         }
 
-        std::string Settings::getValue(const std::string& value) const
+        void Settings::read(const std::string& fileName)
         {
-            TLRENDER_P();
-            std::string out;
-            if (p.values->hasKey(value))
+            if (file::exists(fileName))
             {
-                out = p.values->getItem(value);
+                try
+                {
+                    auto io = file::FileIO::create(fileName, file::Mode::Read);
+                    const std::string contents = file::readContents(io);
+                    _values = nlohmann::json::parse(contents);
+                }
+                catch (const std::exception& e)
+                {
+                    if (auto context = _context.lock())
+                    {
+                        context->log(
+                            "tl::play_gl::Settings",
+                            string::Format("Cannot read settings file: {0}: {1}").
+                            arg(fileName).
+                            arg(e.what()),
+                            log::Type::Error);
+                    }
+                }
             }
-            return out;
         }
 
-        std::shared_ptr<observer::IMap<std::string, std::string> > Settings::observeValues() const
+        void Settings::write(const std::string& fileName)
         {
-            return _p->values;
-        }
-
-        void Settings::setValue(const std::string& key, const std::string& value)
-        {
-            TLRENDER_P();
-            if (!p.values->hasKey(key))
+            try
             {
-                p.defaultValues[key] = value;
+                auto io = file::FileIO::create(fileName, file::Mode::Write);
+                const std::string contents = _values.dump(4);
+                io->write(contents.c_str(), contents.size());
             }
-            p.values->setItemOnlyIfChanged(key, value);
+            catch (const std::exception& e)
+            {
+                if (auto context = _context.lock())
+                {
+                    context->log(
+                        "tl::play_gl::Settings",
+                        string::Format("Cannot write settings file: {0}: {1}").
+                            arg(fileName).
+                            arg(e.what()),
+                        log::Type::Error);
+                }
+            }
         }
     }
 }

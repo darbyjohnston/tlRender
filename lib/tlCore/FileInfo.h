@@ -6,6 +6,8 @@
 
 #include <tlCore/Path.h>
 
+#include <nlohmann/json.hpp>
+
 #include <iostream>
 
 namespace tl
@@ -98,6 +100,15 @@ namespace tl
         std::vector<FileInfo> list(
             const std::string&,
             const ListOptions & = ListOptions());
+
+        //! \name Serialize
+        ///@{
+
+        void to_json(nlohmann::json&, const ListOptions&);
+
+        void from_json(const nlohmann::json&, ListOptions&);
+
+        ///@}
     }
 }
 

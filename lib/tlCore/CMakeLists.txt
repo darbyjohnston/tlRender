@@ -25,6 +25,7 @@ set(HEADERS
     ISystem.h
     Image.h
     ImageInline.h
+    JSON.h
     LRUCache.h
     LRUCacheInline.h
     ListObserver.h
@@ -76,6 +77,7 @@ set(SOURCE
     ICoreSystem.cpp
     ISystem.cpp
     Image.cpp
+    JSON.cpp
     LogSystem.cpp
     Matrix.cpp
     Memory.cpp

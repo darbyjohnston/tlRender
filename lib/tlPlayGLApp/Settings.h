@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include <tlCore/MapObserver.h>
+#include <tlCore/ValueObserver.h>
+
+#include <nlohmann/json.hpp>
 
 #include <string>
 
@@ -36,28 +38,28 @@ namespace tl
             static std::shared_ptr<Settings> create(
                 const std::shared_ptr<system::Context>&);
 
-            //! Get the values.
-            const std::map<std::string, std::string>& getValues() const;
-
-            //! Get a value.
-            std::string getValue(const std::string&) const;
-
             //! Get a value.
             template<typename T>
             T getValue(const std::string&) const;
 
-            //! Observe the values.
-            std::shared_ptr<observer::IMap<std::string, std::string> > observeValues() const;
-
-            //! Set a value.
-            void setValue(const std::string&, const std::string&);
+            //! Observe value changes.
+            std::shared_ptr<observer::IValue<std::string> > observeValues() const;
 
             //! Set a value.
             template<typename T>
             void setValue(const std::string&, T);
 
+            //! Read the values from a file.
+            void read(const std::string&);
+
+            //! Write the value to a file.
+            void write(const std::string&);
+
         private:
-            TLRENDER_PRIVATE();
+            std::weak_ptr<system::Context> _context;
+            nlohmann::json _defaultValues;
+            nlohmann::json _values;
+            std::shared_ptr<observer::Value<std::string> > _observer;
         };
     }
 }

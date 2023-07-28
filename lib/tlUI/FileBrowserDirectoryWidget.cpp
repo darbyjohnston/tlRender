@@ -39,7 +39,7 @@ namespace tl
             IWidget::_init("tl::ui::DirectoryWidget", context, parent);
             TLRENDER_P();
 
-            p.options.listOptions.sequence = false;
+            p.options.list.sequence = false;
 
             p.buttonGroup = ButtonGroup::create(ButtonGroupType::Click, context);
 
@@ -217,7 +217,7 @@ namespace tl
             p.buttons.clear();
             p.buttonToIndex.clear();
             p.buttonGroup->clearButtons();
-            p.fileInfos = file::list(p.path, p.options.listOptions);
+            p.fileInfos = file::list(p.path, p.options.list);
             if (auto context = _context.lock())
             {
                 for (size_t i = 0; i < p.fileInfos.size(); ++i)

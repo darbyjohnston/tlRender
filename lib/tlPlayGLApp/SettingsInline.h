@@ -9,18 +9,28 @@ namespace tl
         template<typename T>
         T Settings::getValue(const std::string& key) const
         {
-            T out;
-            std::stringstream ss(getValue(key));
-            ss >> out;
+            T out = T();
+            if (_values.contains(key))
+            {
+                from_json(_values.at(key), out);
+            }
             return out;
         }
 
         template<typename T>
         void Settings::setValue(const std::string& key, T value)
         {
-            std::stringstream ss;
-            ss << value;
-            setValue(key, ss.str());
+            nlohmann::json json;
+            to_json(json, value);
+            if (!_values.contains(key))
+            {
+                _defaultValues[key] = json;
+            }
+            if (json != _values[key])
+            {
+                _values[key] = json;
+                _observer->setAlways(key);
+            }
         }
     }
 }

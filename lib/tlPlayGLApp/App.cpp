@@ -18,11 +18,8 @@
 
 #include <tlCore/AudioSystem.h>
 #include <tlCore/File.h>
+#include <tlCore/JSON.h>
 #include <tlCore/StringFormat.h>
-
-#if defined(TLRENDER_NFD)
-#include <nfd.hpp>
-#endif // TLRENDER_NFD
 
 namespace tl
 {
@@ -31,34 +28,28 @@ namespace tl
         struct App::Private
         {
             std::string input;
+            std::string settingsFile;
+            std::shared_ptr<Settings> settings;
             Options options;
             float volume = 1.F;
             bool mute = false;
             bool deviceActive = false;
             timeline::PlayerCacheOptions playerCacheOptions;
-            std::shared_ptr<Settings> settings;
             std::shared_ptr<play::FilesModel> filesModel;
             std::vector<std::shared_ptr<play::FilesModelItem> > files;
             std::vector<std::shared_ptr<play::FilesModelItem> > activeFiles;
             std::shared_ptr<ui::RecentFilesModel> recentFilesModel;
+            std::shared_ptr<ToolsModel> toolsModel;
             std::vector<std::shared_ptr<timeline::Player> > players;
             std::shared_ptr<observer::List<std::shared_ptr<timeline::Player> > > activePlayers;
-            std::shared_ptr<ToolsModel> toolsModel;
 
             std::shared_ptr<MainWindow> mainWindow;
-            std::shared_ptr<ui::FileBrowser> fileBrowser;
-            struct FileBrowserState
-            {
-                std::string path;
-                ui::FileBrowserOptions options;
-            };
-            FileBrowserState fileBrowserState;
             std::shared_ptr<SeparateAudioDialog> separateAudioDialog;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
             std::shared_ptr<observer::ListObserver<int> > layersObserver;
-            std::shared_ptr<observer::MapObserver<std::string, std::string> > settingsObserver;
+            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
         };
 
         void App::_init(
@@ -244,7 +235,20 @@ namespace tl
             auto ioSystem = context->getSystem<io::System>();
             ioSystem->setOptions(ioOptions);
 
-            // Initialization.
+            // Initialize the settings.
+            const std::string documentsPath =
+                file::getUserPath(file::UserPath::Documents);
+            if (!file::exists(documentsPath))
+            {
+                file::mkdir(documentsPath);
+            }
+            const std::string settingsPath =
+                file::Path(documentsPath, "tlplay-gl").get();
+            if (!file::exists(settingsPath))
+            {
+                file::mkdir(settingsPath);
+            }
+            p.settingsFile = file::Path(settingsPath, "Settings.json").get();
             p.settings = Settings::create(context);
             p.settings->setValue("Timeline/FrameView", true);
             p.settings->setValue("Timeline/StopOnScrub", false);
@@ -258,33 +262,43 @@ namespace tl
                 p.playerCacheOptions.readAhead.value());
             p.settings->setValue("Cache/ReadBehind",
                 p.playerCacheOptions.readBehind.value());
-            p.settings->setValue("FileSequence/Audio",
-                timeline::FileSequenceAudio::BaseName);
+            //p.settings->setValue("FileSequence/Audio",
+            //    timeline::FileSequenceAudio::BaseName);
             p.settings->setValue("FileSequence/AudioFileName", std::string());
             p.settings->setValue("FileSequence/AudioDirectory", std::string());
             p.settings->setValue("FileSequence/MaxDigits", 9);
             const timeline::PlayerOptions playerOptions;
-            p.settings->setValue("Performance/TimerMode",
-                playerOptions.timerMode);
-            p.settings->setValue("Performance/AudioBufferFrameCount",
-                playerOptions.audioBufferFrameCount);
+            //p.settings->setValue("Performance/TimerMode",
+            //    playerOptions.timerMode);
+            //p.settings->setValue("Performance/AudioBufferFrameCount",
+            //    playerOptions.audioBufferFrameCount);
             p.settings->setValue("Performance/VideoRequestCount", 16);
             p.settings->setValue("Performance/AudioRequestCount", 16);
             p.settings->setValue("Performance/SequenceThreadCount", 16);
             p.settings->setValue("Performance/FFmpegYUVToRGBConversion", false);
             p.settings->setValue("Performance/FFmpegThreadCount", 0);
+            p.settings->setValue("FileBrowser/Path", file::getCWD());
+            nlohmann::json json;
+            to_json(json, ui::FileBrowserOptions());
+            p.settings->setValue("FileBrowser/Options", json.dump());
+            p.settings->setValue("Misc/NativeFileDialog", true);
             p.settings->setValue("Misc/ToolTipsEnabled", true);
+            p.settings->read(p.settingsFile);
 
+            // Initialize the models.
             p.filesModel = play::FilesModel::create(context);
-
             p.recentFilesModel = ui::RecentFilesModel::create(context);
-
-            p.activePlayers = observer::List<std::shared_ptr<timeline::Player> >::create();
-
             p.toolsModel = ToolsModel::create();
 
-            p.fileBrowserState.path = file::getCWD();
+            // Initialize the file browser.
+            if (auto fileBrowserSystem = context->getSystem<ui::FileBrowserSystem>())
+            {
+                fileBrowserSystem->setPath(p.settings->getValue<std::string>("FileBrowser/Path"));
+                //fileBrowserSystem->setOptions(p.settings->getValue<ui::FileBrowserOptions>("FileBrowser/Options"));
+            }
 
+            // Create observers.
+            p.activePlayers = observer::List<std::shared_ptr<timeline::Player> >::create();
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 p.filesModel->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
@@ -309,34 +323,31 @@ namespace tl
                         }
                     }
                 });
-
-            p.settingsObserver = observer::MapObserver<std::string, std::string>::create(
+            p.settingsObserver = observer::ValueObserver<std::string>::create(
                 p.settings->observeValues(),
-                [this](const std::map<std::string, std::string>& value)
+                [this](const std::string& value)
                 {
                     TLRENDER_P();
-                    const float volume = p.settings->getValue<float>("Audio/Volume");
-                    if (volume != p.volume)
+                    if ("Audio/Volume" == value)
                     {
-                        p.volume = volume;
+                        p.volume = p.settings->getValue<float>("Audio/Volume");
                         _audioUpdate();
                     }
-                    const bool mute = p.settings->getValue<float>("Audio/Mute");
-                    if (mute != p.mute)
+                    else if ("Audio/Mute" == value)
                     {
-                        p.mute = mute;
+                        p.mute = p.settings->getValue<float>("Audio/Mute");
                         _audioUpdate();
                     }
-                    const double readAhead = p.settings->getValue<double>("Cache/ReadAhead");
-                    if (readAhead != p.playerCacheOptions.readAhead.value())
+                    else if ("Cache/ReadAhead" == value)
                     {
-                        p.playerCacheOptions.readAhead = otime::RationalTime(readAhead, 1.0);
+                        p.playerCacheOptions.readAhead = otime::RationalTime(
+                            p.settings->getValue<double>("Cache/ReadAhead"), 1.0);
                         _cacheUpdate();
                     }
-                    const double readBehind = p.settings->getValue<double>("Cache/ReadBehind");
-                    if (readBehind != p.playerCacheOptions.readBehind.value())
+                    else if ("Cache/ReadBehind" == value)
                     {
-                        p.playerCacheOptions.readBehind = otime::RationalTime(readBehind, 1.0);
+                        p.playerCacheOptions.readBehind = otime::RationalTime(
+                            p.settings->getValue<double>("Cache/ReadBehind"), 1.0);
                         _cacheUpdate();
                     }
                 });
@@ -388,7 +399,21 @@ namespace tl
         {}
 
         App::~App()
-        {}
+        {
+            TLRENDER_P();
+
+            // Save the file browser settings.
+            if (auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>())
+            {
+                p.settings->setValue("FileBrowser/Path", fileBrowserSystem->getPath());
+                nlohmann::json json;
+                to_json(json, fileBrowserSystem->getOptions());
+                p.settings->setValue("FileBrowser/Options", json.dump());
+            }
+
+            // Save the settings.
+            p.settings->write(p.settingsFile);
+        }
 
         std::shared_ptr<App> App::create(
             int argc,
@@ -403,55 +428,31 @@ namespace tl
         void App::openDialog()
         {
             TLRENDER_P();
-#if defined(TLRENDER_NFD)
-            nfdu8char_t* outPath = nullptr;
-            NFD::OpenDialog(outPath);
-            if (outPath)
+            if (auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>())
             {
-                open(outPath);
-                NFD::FreePath(outPath);
+                fileBrowserSystem->open(
+                    getEventLoop(),
+                    [this](const file::Path& value)
+                    {
+                        open(value.get());
+                    });
             }
-#else  // TLRENDER_NFD
-            p.fileBrowser = ui::FileBrowser::create(
-                p.fileBrowserState.path,
-                _context);
-            p.fileBrowser->setOptions(p.fileBrowserState.options);
-            p.fileBrowser->open(getEventLoop());
-            p.fileBrowser->setFileCallback(
-                [this](const file::Path& value)
-                {
-                    open(value.get());
-                    _p->fileBrowserState.path = value.getDirectory();
-                    _p->fileBrowser->close();
-                });
-            p.fileBrowser->setCloseCallback(
-                [this]
-                {
-                    _p->fileBrowserState.options = _p->fileBrowser->getOptions();
-                    _p->fileBrowser.reset();
-                });
-#endif // TLRENDER_NFD
         }
 
         void App::openSeparateAudioDialog()
         {
             TLRENDER_P();
-            p.separateAudioDialog = SeparateAudioDialog::create(
-                p.fileBrowserState.path,
-                _context);
+            p.separateAudioDialog = SeparateAudioDialog::create(_context);
             p.separateAudioDialog->open(getEventLoop());
-            p.separateAudioDialog->setOptions(p.fileBrowserState.options);
             p.separateAudioDialog->setFileCallback(
                 [this](const file::Path& value, const file::Path& audio)
                 {
                     open(value.get(), audio.get());
-                    _p->fileBrowserState.path = value.getDirectory();
                     _p->separateAudioDialog->close();
                 });
             p.separateAudioDialog->setCloseCallback(
                 [this]
                 {
-                    _p->fileBrowserState.options = _p->separateAudioDialog->getOptions();
                     _p->separateAudioDialog.reset();
                 });
         }
@@ -557,8 +558,8 @@ namespace tl
                     try
                     {
                         timeline::Options options;
-                        options.fileSequenceAudio =
-                            p.settings->getValue<timeline::FileSequenceAudio>("FileSequence/Audio");
+                        //options.fileSequenceAudio =
+                        //    p.settings->getValue<timeline::FileSequenceAudio>("FileSequence/Audio");
                         options.fileSequenceAudioFileName =
                             p.settings->getValue<std::string>("FileSequence/AudioFileName");
                         options.fileSequenceAudioDirectory =
@@ -568,11 +569,11 @@ namespace tl
                         options.audioRequestCount =
                             p.settings->getValue<int>("Performance/AudioRequestCount");
                         options.ioOptions["SequenceIO/ThreadCount"] =
-                            p.settings->getValue("Performance/SequenceThreadCount");
+                            p.settings->getValue<int>("Performance/SequenceThreadCount");
                         options.ioOptions["FFmpeg/YUVToRGBConversion"] =
-                            p.settings->getValue("Performance/FFmpegYUVToRGBConversion");
+                            p.settings->getValue<bool>("Performance/FFmpegYUVToRGBConversion");
                         options.ioOptions["FFmpeg/ThreadCount"] =
-                            p.settings->getValue("Performance/FFmpegThreadCount");
+                            p.settings->getValue<int>("Performance/FFmpegThreadCount");
                         options.pathOptions.maxNumberDigits = std::min(
                             p.settings->getValue<int>("FileSequence/MaxDigits"),
                             255);
@@ -584,8 +585,8 @@ namespace tl
                         timeline::PlayerOptions playerOptions;
                         playerOptions.cache.readAhead = time::invalidTime;
                         playerOptions.cache.readBehind = time::invalidTime;
-                        playerOptions.timerMode =
-                            p.settings->getValue<timeline::TimerMode>("Performance/TimerMode");
+                        //playerOptions.timerMode =
+                        //    p.settings->getValue<timeline::TimerMode>("Performance/TimerMode");
                         playerOptions.audioBufferFrameCount =
                             p.settings->getValue<int>("Performance/AudioBufferFrameCount");
                         players[i] = timeline::Player::create(

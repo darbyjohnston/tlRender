@@ -257,7 +257,7 @@ namespace tl
                 [this](int value)
                 {
                     FileBrowserOptions options = _p->directoryWidget->getOptions();
-                    options.listOptions.sort = static_cast<file::ListSort>(value);
+                    options.list.sort = static_cast<file::ListSort>(value);
                     _p->directoryWidget->setOptions(options);
                 });
 
@@ -265,7 +265,7 @@ namespace tl
                 [this](bool value)
                 {
                     FileBrowserOptions options = _p->directoryWidget->getOptions();
-                    options.listOptions.reverseSort = value;
+                    options.list.reverseSort = value;
                     _p->directoryWidget->setOptions(options);
                 });
 
@@ -332,8 +332,8 @@ namespace tl
             {
                 p.extensionsComboBox->setCurrentIndex(i - p.extensions.begin());
             }
-            p.sortComboBox->setCurrentIndex(static_cast<int>(value.listOptions.sort));
-            p.reverseSortCheckBox->setChecked(value.listOptions.reverseSort);
+            p.sortComboBox->setCurrentIndex(static_cast<int>(value.list.sort));
+            p.reverseSortCheckBox->setChecked(value.list.reverseSort);
         }
 
         void FileBrowserWidget::setGeometry(const math::BBox2i& value)

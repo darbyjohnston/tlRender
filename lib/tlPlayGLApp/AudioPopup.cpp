@@ -11,6 +11,7 @@
 #include <tlUI/RowLayout.h>
 #include <tlUI/ToolButton.h>
 
+#include <tlCore/JSON.h>
 #include <tlCore/StringFormat.h>
 
 namespace tl
@@ -23,7 +24,7 @@ namespace tl
             std::shared_ptr<ui::IntEditSlider> volumeSlider;
             std::shared_ptr<ui::HorizontalLayout> layout;
             std::shared_ptr<observer::ValueObserver<int> > volumeObserver;
-            std::shared_ptr<observer::MapObserver<std::string, std::string> > settingsObserver;
+            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
         };
 
         void AudioPopup::_init(
@@ -58,22 +59,30 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getSettings()->setValue("Audio/Mute", value);
+                        app->getSettings()->setValue(
+                            "Audio/Mute",
+                            static_cast<int>(value));
                     }
                 });
 
-            p.settingsObserver = observer::MapObserver<std::string, std::string>::create(
+            p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
-                [this, appWeak](const std::map<std::string, std::string>& value)
+                [this, appWeak](const std::string& value)
                 {
                     TLRENDER_P();
                     if (auto app = appWeak.lock())
                     {
                         auto settings = app->getSettings();
-                        p.volumeSlider->getModel()->setValue(
-                            settings->getValue<float>("Audio/Volume") * 100.0);
-                        p.muteButton->setChecked(
-                            settings->getValue<bool>("Audio/Mute"));
+                        if ("Audio/Volume" == value)
+                        {
+                            p.volumeSlider->getModel()->setValue(
+                                settings->getValue<float>("Audio/Volume") * 100.0);
+                        }
+                        else if ("Audio/Mute" == value)
+                        {
+                            p.muteButton->setChecked(
+                                settings->getValue<bool>("Audio/Mute"));
+                        }
                     }
                 });
 

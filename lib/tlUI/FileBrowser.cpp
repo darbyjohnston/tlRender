@@ -12,7 +12,7 @@ namespace tl
         {
             return filter == other.filter &&
                 extension == other.extension &&
-                listOptions == other.listOptions;
+                list == other.list;
         }
 
         bool FileBrowserOptions::operator != (const FileBrowserOptions& other) const
@@ -75,6 +75,25 @@ namespace tl
         void FileBrowser::setOptions(const FileBrowserOptions& value)
         {
             _p->widget->setOptions(value);
+        }
+
+        void to_json(nlohmann::json& json, const FileBrowserOptions& value)
+        {
+            nlohmann::json list;
+            to_json(list, value.list);
+            json = nlohmann::json
+            {
+                { "filter", value.filter },
+                { "extension", value.extension },
+                { "list", list }
+            };
+        }
+
+        void from_json(const nlohmann::json& json, FileBrowserOptions& value)
+        {
+            json.at("filter").get_to(value.filter);
+            json.at("extension").get_to(value.extension);
+            from_json(json, value.list);
         }
     }
 }

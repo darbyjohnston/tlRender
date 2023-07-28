@@ -17,7 +17,6 @@ namespace tl
 
         protected:
             void _init(
-                const std::string&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -27,17 +26,12 @@ namespace tl
             virtual ~SeparateAudioWidget();
 
             static std::shared_ptr<SeparateAudioWidget> create(
-                const std::string&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setFileCallback(const std::function<void(
                 const file::Path&,
                 const file::Path&)>&);
-
-            const ui::FileBrowserOptions& getOptions() const;
-
-            void setOptions(const ui::FileBrowserOptions&);
 
             void setCancelCallback(const std::function<void(void)>&);
 
