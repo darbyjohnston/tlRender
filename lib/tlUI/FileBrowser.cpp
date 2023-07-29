@@ -93,7 +93,7 @@ namespace tl
         {
             json.at("filter").get_to(value.filter);
             json.at("extension").get_to(value.extension);
-            from_json(json, value.list);
+            from_json(json.at("list"), value.list);
         }
     }
 }

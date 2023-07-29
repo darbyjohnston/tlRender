@@ -647,15 +647,24 @@ namespace tl
                         p.settings->getValue(
                             "Performance/AudioRequestCount",
                             options.audioRequestCount);
+                        int sequenceThreadCount = 0;
                         p.settings->getValue(
                             "Performance/SequenceThreadCount",
-                            options.ioOptions["SequenceIO/ThreadCount"]);
+                            sequenceThreadCount);
+                        options.ioOptions["SequenceIO/ThreadCount"] =
+                            string::Format("{0}").arg(sequenceThreadCount);
+                        bool ffmpegYUVToRGBConversion = false;
                         p.settings->getValue(
                             "Performance/FFmpegYUVToRGBConversion",
-                            options.ioOptions["FFmpeg/YUVToRGBConversion"]);
+                            ffmpegYUVToRGBConversion);
+                        options.ioOptions["FFmpeg/YUVToRGBConversion"] =
+                            string::Format("{0}").arg(ffmpegYUVToRGBConversion);
+                        int ffmpegThreadCount = 0;
                         p.settings->getValue(
                             "Performance/FFmpegThreadCount",
-                            options.ioOptions["FFmpeg/ThreadCount"]);
+                            ffmpegThreadCount);
+                        options.ioOptions["FFmpeg/ThreadCount"] =
+                            string::Format("{0}").arg(ffmpegThreadCount);
                         p.settings->getValue(
                             "FileSequence/MaxDigits",
                             options.pathOptions.maxNumberDigits);

@@ -10,6 +10,8 @@
 #include <tlCore/LogSystem.h>
 #include <tlCore/StringFormat.h>
 
+#include <iostream>
+
 namespace tl
 {
     namespace play_gl
