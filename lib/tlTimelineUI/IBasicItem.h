@@ -19,7 +19,7 @@ namespace tl
             void _init(
                 const otime::TimeRange&,
                 const std::string& label,
-                ColorRole,
+                ui::ColorRole,
                 const std::vector<Marker>&,
                 const std::string& name,
                 const ItemData&,

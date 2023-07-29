@@ -18,7 +18,7 @@ namespace tl
             IBasicItem::_init(
                 rangeOpt.has_value() ? rangeOpt.value() : time::invalidTimeRange,
                 !transition->name().empty() ? transition->name() : "Transition",
-                ColorRole::Transition,
+                ui::ColorRole::Transition,
                 {},
                 "tl::timelineui::TransitionItem",
                 itemData,

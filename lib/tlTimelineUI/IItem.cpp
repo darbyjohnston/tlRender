@@ -14,24 +14,11 @@ namespace tl
 {
     namespace timelineui
     {
-        ItemOptions::ItemOptions()
-        {
-            colors[ColorRole::InOut] = imaging::Color4f(1.F, .7F, .2F, .1F);
-            colors[ColorRole::VideoCache] = imaging::Color4f(.2F, .4F, .4F);
-            colors[ColorRole::AudioCache] = imaging::Color4f(.3F, .25F, .4F);
-            colors[ColorRole::VideoClip] = imaging::Color4f(.2F, .4F, .4F);
-            colors[ColorRole::VideoGap] = imaging::Color4f(.25F, .31F, .31F);
-            colors[ColorRole::AudioClip] = imaging::Color4f(.3F, .25F, .4F);
-            colors[ColorRole::AudioGap] = imaging::Color4f(.25F, .24F, .3F);
-            colors[ColorRole::Transition] = imaging::Color4f(.4F, .3F, .3F);
-        }
-
         bool ItemOptions::operator == (const ItemOptions& other) const
         {
             return
                 inOutDisplay == other.inOutDisplay &&
                 cacheDisplay == other.cacheDisplay &&
-                colors == other.colors &&
                 clipRectScale == other.clipRectScale &&
                 thumbnails == other.thumbnails &&
                 thumbnailHeight == other.thumbnailHeight &&

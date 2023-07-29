@@ -5,6 +5,7 @@
 #include <tlApp/IApp.h>
 
 #include <tlUI/EventLoop.h>
+#include <tlUI/Style.h>
 
 #include <tlCore/Image.h>
 #include <tlCore/ValueObserver.h>
@@ -51,6 +52,9 @@ namespace tl
 
             //! Get the event loop.
             const std::shared_ptr<ui::EventLoop> getEventLoop() const;
+
+            //! Get the style.
+            const std::shared_ptr<ui::Style> getStyle() const;
 
             //! Set the window size.
             void setWindowSize(const imaging::Size&);

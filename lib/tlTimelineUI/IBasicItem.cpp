@@ -17,7 +17,7 @@ namespace tl
             otime::TimeRange timeRange = time::invalidTimeRange;
             std::string label;
             std::string durationLabel;
-            ColorRole colorRole = ColorRole::VideoClip;
+            ui::ColorRole colorRole = ui::ColorRole::VideoClip;
             std::vector<Marker> markers;
 
             struct SizeData
@@ -45,7 +45,7 @@ namespace tl
         void IBasicItem::_init(
             const otime::TimeRange& timeRange,
             const std::string& label,
-            ColorRole colorRole,
+            ui::ColorRole colorRole,
             const std::vector<Marker>& markers,
             const std::string& name,
             const ItemData& itemData,
@@ -135,7 +135,7 @@ namespace tl
             const math::BBox2i g = _geometry.margin(-(p.size.border * 2));
             event.render->drawRect(
                 g,
-                _options.colors.find(p.colorRole)->second);
+                event.style->getColorRole(p.colorRole));
 
             const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
             const timeline::ClipRectState clipRectState(event.render);

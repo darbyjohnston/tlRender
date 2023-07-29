@@ -378,6 +378,11 @@ namespace tl
             return _p->eventLoop;
         }
 
+        const std::shared_ptr<ui::Style> IApp::getStyle() const
+        {
+            return _p->style;
+        }
+
         void IApp::setWindowSize(const imaging::Size& value)
         {
             glfwSetWindowSize(_p->glfwWindow, value.w, value.h);

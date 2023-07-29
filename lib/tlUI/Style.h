@@ -40,10 +40,14 @@ namespace tl
         TLRENDER_ENUM(SizeRole);
         TLRENDER_ENUM_SERIALIZE(SizeRole);
 
+        //! Get the default size roles.
+        std::map<SizeRole, int> defaultSizeRoles();
+
         //! Color roles.
         enum class ColorRole
         {
             None,
+
             Window,
             Base,
             Button,
@@ -55,6 +59,16 @@ namespace tl
             Checked,
             KeyFocus,
             Overlay,
+
+            InOut,
+            VideoCache,
+            AudioCache,
+            VideoClip,
+            VideoGap,
+            AudioClip,
+            AudioGap,
+            Transition,
+            
             Red,
             Green,
             Blue,
@@ -67,6 +81,9 @@ namespace tl
         };
         TLRENDER_ENUM(ColorRole);
         TLRENDER_ENUM_SERIALIZE(ColorRole);
+
+        //! Get default color roles.
+        std::map<ColorRole, imaging::Color4f> defaultColorRoles();
 
         //! Font roles.
         enum class FontRole
@@ -81,6 +98,9 @@ namespace tl
         };
         TLRENDER_ENUM(FontRole);
         TLRENDER_ENUM_SERIALIZE(FontRole);
+
+        //! Get default font roles.
+        std::map<FontRole, imaging::FontInfo> defaultFontRoles();
 
         //! Style.
         class Style : public std::enable_shared_from_this<Style>
@@ -106,11 +126,17 @@ namespace tl
             //! Set a size role.
             void setSizeRole(SizeRole, int);
 
+            //! Set the size roles.
+            void setSizeRoles(const std::map<SizeRole, int>&);
+
             //! Get a color role.
             imaging::Color4f getColorRole(ColorRole) const;
 
             //! Set a color role.
             void setColorRole(ColorRole, const imaging::Color4f&);
+
+            //! Set the color roles.
+            void setColorRoles(const std::map<ColorRole, imaging::Color4f>&);
 
             //! Get a font role.
             imaging::FontInfo getFontRole(FontRole, float scale) const;
@@ -118,16 +144,28 @@ namespace tl
             //! Set a font role.
             void setFontRole(FontRole, const imaging::FontInfo&);
 
+            //! Set the font roles.
+            void setFontRoles(const std::map<FontRole, imaging::FontInfo>&);
+
             //! Observe style changes.
             std::shared_ptr<observer::IValue<bool> > observeChanged() const;
 
         private:
-            std::vector<int> _sizeRoles;
-            std::vector<imaging::Color4f> _colorRoles;
-            std::vector<imaging::FontInfo> _fontRoles;
+            std::map<SizeRole, int> _sizeRoles;
+            std::map<ColorRole, imaging::Color4f> _colorRoles;
+            std::map<FontRole, imaging::FontInfo> _fontRoles;
 
             TLRENDER_PRIVATE();
         };
+
+        //! \name Serialize
+        ///@{
+
+        void to_json(nlohmann::json&, const std::map<ColorRole, imaging::Color4f>&);
+
+        void from_json(const nlohmann::json&, std::map<ColorRole, imaging::Color4f>&);
+
+        ///@}
     }
 }
 

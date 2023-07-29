@@ -161,7 +161,8 @@ namespace tl
                         g.x() + g.w() / 2 - iconSize.w / 2,
                         g.y() + g.h() / 2 - iconSize.h / 2,
                         iconSize.w,
-                        iconSize.h));
+                        iconSize.h),
+                    event.style->getColorRole(ColorRole::Text));
             }
         }
     }

@@ -388,7 +388,7 @@ namespace tl
                         p.size.margin);
                     event.render->drawRect(
                         bbox,
-                        _options.colors[ColorRole::InOut]);
+                        event.style->getColorRole(ui::ColorRole::InOut));
                     break;
                 }
                 case InOutDisplay::OutsideRange:
@@ -405,7 +405,7 @@ namespace tl
                         p.size.margin);
                     event.render->drawRect(
                         bbox,
-                        _options.colors[ColorRole::InOut]);
+                        event.style->getColorRole(ui::ColorRole::InOut));
                     x0 = _timeToPos(_p->inOutRange.end_time_exclusive());
                     x1 = _timeToPos(_p->timeRange.end_time_exclusive());
                     bbox = math::BBox2i(
@@ -418,7 +418,7 @@ namespace tl
                         p.size.margin);
                     event.render->drawRect(
                         bbox,
-                        _options.colors[ColorRole::InOut]);
+                        event.style->getColorRole(ui::ColorRole::InOut));
                     break;
                 }
                 default: break;
@@ -607,7 +607,7 @@ namespace tl
                     event.render->drawMesh(
                         mesh,
                         math::Vector2i(),
-                        _options.colors[ColorRole::VideoCache]);
+                        event.style->getColorRole(ui::ColorRole::VideoCache));
                 }
             }
 
@@ -645,7 +645,7 @@ namespace tl
                     event.render->drawMesh(
                         mesh,
                         math::Vector2i(),
-                        _options.colors[ColorRole::AudioCache]);
+                        event.style->getColorRole(ui::ColorRole::AudioCache));
                 }
             }
         }

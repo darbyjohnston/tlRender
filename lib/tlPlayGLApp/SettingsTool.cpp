@@ -6,6 +6,7 @@
 
 #include <tlPlayGLApp/App.h>
 #include <tlPlayGLApp/Settings.h>
+#include <tlPlayGLApp/Style.h>
 
 #include <tlUI/Bellows.h>
 #include <tlUI/CheckBox.h>
@@ -586,6 +587,90 @@ namespace tl
             _sizeHint = _p->layout->getSizeHint();
         }
 
+        struct StyleSettingsWidget::Private
+        {
+            std::shared_ptr<ui::ComboBox> paletteComboBox;
+            std::shared_ptr<ui::GridLayout> layout;
+
+            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+        };
+
+        void StyleSettingsWidget::_init(
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            IWidget::_init("tl::play_gl::StyleSettingsWidget", context, parent);
+            TLRENDER_P();
+
+            p.paletteComboBox = ui::ComboBox::create(getStylePaletteLabels(), context);
+
+            p.layout = ui::GridLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            auto label = ui::Label::create("Palette:", context, p.layout);
+            p.layout->setGridPos(label, 0, 0);
+            p.paletteComboBox->setParent(p.layout);
+            p.layout->setGridPos(p.paletteComboBox, 0, 1);
+
+            auto appWeak = std::weak_ptr<App>(app);
+            p.settingsObserver = observer::ValueObserver<std::string>::create(
+                app->getSettings()->observeValues(),
+                [this, appWeak](const std::string&)
+                {
+                    TLRENDER_P();
+                    if (auto app = appWeak.lock())
+                    {
+                        auto settings = app->getSettings();
+                        {
+                            StylePalette value = StylePalette::First;
+                            settings->getValue("Style/Palette", value);
+                            p.paletteComboBox->setCurrentIndex(static_cast<int>(value));
+                        }
+                    }
+                });
+
+            p.paletteComboBox->setIndexCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        StylePalette stylePalette = static_cast<StylePalette>(value);
+                        app->getStyle()->setColorRoles(getStylePalette(stylePalette));
+                        app->getSettings()->setValue("Style/Palette", stylePalette);
+                    }
+                });
+        }
+
+        StyleSettingsWidget::StyleSettingsWidget() :
+            _p(new Private)
+        {}
+
+        StyleSettingsWidget::~StyleSettingsWidget()
+        {}
+
+        std::shared_ptr<StyleSettingsWidget> StyleSettingsWidget::create(
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            auto out = std::shared_ptr<StyleSettingsWidget>(new StyleSettingsWidget);
+            out->_init(app, context, parent);
+            return out;
+        }
+
+        void StyleSettingsWidget::setGeometry(const math::BBox2i& value)
+        {
+            IWidget::setGeometry(value);
+            _p->layout->setGeometry(value);
+        }
+
+        void StyleSettingsWidget::sizeHintEvent(const ui::SizeHintEvent& event)
+        {
+            IWidget::sizeHintEvent(event);
+            _sizeHint = _p->layout->getSizeHint();
+        }
+
         struct MiscSettingsWidget::Private
         {
             std::shared_ptr<ui::CheckBox> toolTipsEnabledCheckBox;
@@ -618,15 +703,15 @@ namespace tl
                 [this, appWeak](const std::string&)
                 {
                     TLRENDER_P();
-                    if (auto app = appWeak.lock())
-                    {
-                        auto settings = app->getSettings();
-                        {
-                            bool value = false;
-                            settings->getValue("Misc/ToolTipsEnabled", value);
-                            p.toolTipsEnabledCheckBox->setChecked(value);
-                        }
-                    }
+            if (auto app = appWeak.lock())
+            {
+                auto settings = app->getSettings();
+                {
+                    bool value = false;
+                    settings->getValue("Misc/ToolTipsEnabled", value);
+                    p.toolTipsEnabledCheckBox->setChecked(value);
+                }
+            }
                 });
 
             p.toolTipsEnabledCheckBox->setCheckedCallback(
@@ -692,6 +777,7 @@ namespace tl
             auto fileSequenceWidget = FileSequenceSettingsWidget::create(app, context);
             auto fileBrowserWidget = FileBrowserSettingsWidget::create(app, context);
             auto performanceWidget = PerformanceSettingsWidget::create(app, context);
+            auto styleWidget = StyleSettingsWidget::create(app, context);
             auto miscWidget = MiscSettingsWidget::create(app, context);
             auto vLayout = ui::VerticalLayout::create(context);
             vLayout->setSpacingRole(ui::SizeRole::None);
@@ -703,6 +789,8 @@ namespace tl
             bellows->setWidget(fileBrowserWidget);
             bellows = ui::Bellows::create("Performance", context, vLayout);
             bellows->setWidget(performanceWidget);
+            bellows = ui::Bellows::create("Style", context, vLayout);
+            bellows->setWidget(styleWidget);
             bellows = ui::Bellows::create("Miscellaneous", context, vLayout);
             bellows->setWidget(miscWidget);
             p.scrollWidget = ui::ScrollWidget::create(context);

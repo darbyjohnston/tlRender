@@ -18,7 +18,7 @@ namespace tl
             IBasicItem::_init(
                 rangeOpt.has_value() ? rangeOpt.value() : time::invalidTimeRange,
                 !gap->name().empty() ? gap->name() : "Gap",
-                ColorRole::AudioGap,
+                ui::ColorRole::AudioGap,
                 getMarkers(gap),
                 "tl::timelineui::AudioGapItem",
                 itemData,

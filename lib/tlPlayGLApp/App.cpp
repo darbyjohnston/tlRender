@@ -7,6 +7,7 @@
 #include <tlPlayGLApp/MainWindow.h>
 #include <tlPlayGLApp/SeparateAudioDialog.h>
 #include <tlPlayGLApp/Settings.h>
+#include <tlPlayGLApp/Style.h>
 #include <tlPlayGLApp/Tools.h>
 
 #include <tlUI/EventLoop.h>
@@ -308,6 +309,7 @@ namespace tl
             p.settings->setValue("Performance/SequenceThreadCount", 16);
             p.settings->setValue("Performance/FFmpegYUVToRGBConversion", false);
             p.settings->setValue("Performance/FFmpegThreadCount", 0);
+            p.settings->setValue("Style/Palette", StylePalette::First);
             p.settings->setValue("Misc/ToolTipsEnabled", true);
             if (!p.options.settingsFileName.empty())
             {
@@ -347,6 +349,12 @@ namespace tl
                 p.recentFilesModel->addRecent(file::Path(recentFile));
             }
             p.toolsModel = ToolsModel::create();
+
+            // Initialize the style.
+            auto style = getStyle();
+            StylePalette stylePalette = StylePalette::First;
+            p.settings->getValue("Style/Palette", stylePalette);
+            style->setColorRoles(getStylePalette(stylePalette));
 
             // Initialize the file browser.
             if (auto fileBrowserSystem = context->getSystem<ui::FileBrowserSystem>())
@@ -431,6 +439,11 @@ namespace tl
                         bool value = false;
                         p.settings->getValue("FileBrowser/NativeFileDialog", value);
                         fileBrowserSystem->setNativeFileDialog(value);
+                    }
+                    {
+                        StylePalette value = StylePalette::First;
+                        p.settings->getValue("Style/Palette", value);
+                        getStyle()->setColorRoles(getStylePalette(value));
                     }
                 });
 

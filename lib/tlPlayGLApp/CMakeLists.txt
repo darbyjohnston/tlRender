@@ -23,6 +23,7 @@ set(HEADERS
     Settings.h
     SettingsInline.h
     SettingsTool.h
+    Style.h
     SystemLogTool.h
     Tools.h
     ToolsMenu.h
@@ -57,6 +58,7 @@ set(SOURCE
     SpeedPopup.cpp
     Settings.cpp
     SettingsTool.cpp
+    Style.cpp
     SystemLogTool.cpp
     ViewMenu.cpp
     ViewToolBar.cpp
