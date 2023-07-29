@@ -448,6 +448,18 @@ namespace tl
             return _tags;
         }
 
+        namespace
+        {
+            bool canCopy(AVPixelFormat in, AVPixelFormat out)
+            {
+                return in == out &&
+                    (AV_PIX_FMT_RGB24   == in ||
+                     AV_PIX_FMT_GRAY8   == in ||
+                     AV_PIX_FMT_RGBA    == in ||
+                     AV_PIX_FMT_YUV420P == in);
+            }
+        }
+
         void ReadVideo::start()
         {
             if (_avStream != -1)
@@ -458,14 +470,7 @@ namespace tl
                     throw std::runtime_error(string::Format("{0}: Cannot allocate frame").arg(_fileName));
                 }
 
-                switch (_avInputPixelFormat)
-                {
-                case AV_PIX_FMT_RGB24:
-                case AV_PIX_FMT_GRAY8:
-                case AV_PIX_FMT_RGBA:
-                case AV_PIX_FMT_YUV420P:
-                    break;
-                default:
+                if (!canCopy(_avInputPixelFormat, _avOutputPixelFormat))
                 {
                     _avFrame2 = av_frame_alloc();
                     if (!_avFrame2)
@@ -507,8 +512,6 @@ namespace tl
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot initialize sws context").arg(_fileName));
                     }
-                    break;
-                }
                 }
             }
         }
@@ -680,68 +683,72 @@ namespace tl
             const auto& info = image->getInfo();
             const std::size_t w = info.size.w;
             const std::size_t h = info.size.h;
-            const AVPixelFormat avPixelFormat = static_cast<AVPixelFormat>(_avCodecParameters[_avStream]->format);
             uint8_t* const data = image->getData();
-            const uint8_t* const data0 = _avFrame->data[0];
-            const int linesize0 = _avFrame->linesize[0];
-            switch (avPixelFormat)
+            if (canCopy(_avInputPixelFormat, _avOutputPixelFormat))
             {
-            case AV_PIX_FMT_RGB24:
-                for (std::size_t i = 0; i < h; ++i)
+                const uint8_t* const data0 = _avFrame->data[0];
+                const int linesize0 = _avFrame->linesize[0];
+                switch (_avInputPixelFormat)
                 {
-                    std::memcpy(
-                        data + w * 3 * i,
-                        data0 + linesize0 * 3 * i,
-                        w * 3);
-                }
-                break;
-            case AV_PIX_FMT_GRAY8:
-                for (std::size_t i = 0; i < h; ++i)
+                case AV_PIX_FMT_RGB24:
+                    for (std::size_t i = 0; i < h; ++i)
+                    {
+                        std::memcpy(
+                            data + w * 3 * i,
+                            data0 + linesize0 * 3 * i,
+                            w * 3);
+                    }
+                    break;
+                case AV_PIX_FMT_GRAY8:
+                    for (std::size_t i = 0; i < h; ++i)
+                    {
+                        std::memcpy(
+                            data + w * i,
+                            data0 + linesize0 * i,
+                            w);
+                    }
+                    break;
+                case AV_PIX_FMT_RGBA:
+                    for (std::size_t i = 0; i < h; ++i)
+                    {
+                        std::memcpy(
+                            data + w * 4 * i,
+                            data0 + linesize0 * 4 * i,
+                            w * 4);
+                    }
+                    break;
+                case AV_PIX_FMT_YUV420P:
                 {
-                    std::memcpy(
-                        data + w * i,
-                        data0 + linesize0 * i,
-                        w);
+                    const std::size_t w2 = w / 2;
+                    const std::size_t h2 = h / 2;
+                    const uint8_t* const data1 = _avFrame->data[1];
+                    const uint8_t* const data2 = _avFrame->data[2];
+                    const int linesize1 = _avFrame->linesize[1];
+                    const int linesize2 = _avFrame->linesize[2];
+                    for (std::size_t i = 0; i < h; ++i)
+                    {
+                        std::memcpy(
+                            data + w * i,
+                            data0 + linesize0 * i,
+                            w);
+                    }
+                    for (std::size_t i = 0; i < h2; ++i)
+                    {
+                        std::memcpy(
+                            data + (w * h) + w2 * i,
+                            data1 + linesize1 * i,
+                            w2);
+                        std::memcpy(
+                            data + (w * h) + (w2 * h2) + w2 * i,
+                            data2 + linesize2 * i,
+                            w2);
+                    }
+                    break;
                 }
-                break;
-            case AV_PIX_FMT_RGBA:
-                for (std::size_t i = 0; i < h; ++i)
-                {
-                    std::memcpy(
-                        data + w * 4 * i,
-                        data0 + linesize0 * 4 * i,
-                        w * 4);
+                default: break;
                 }
-                break;
-            case AV_PIX_FMT_YUV420P:
-            {
-                const std::size_t w2 = w / 2;
-                const std::size_t h2 = h / 2;
-                const uint8_t* const data1 = _avFrame->data[1];
-                const uint8_t* const data2 = _avFrame->data[2];
-                const int linesize1 = _avFrame->linesize[1];
-                const int linesize2 = _avFrame->linesize[2];
-                for (std::size_t i = 0; i < h; ++i)
-                {
-                    std::memcpy(
-                        data + w * i,
-                        data0 + linesize0 * i,
-                        w);
-                }
-                for (std::size_t i = 0; i < h2; ++i)
-                {
-                    std::memcpy(
-                        data + (w * h) + w2 * i,
-                        data1 + linesize1 * i,
-                        w2);
-                    std::memcpy(
-                        data + (w * h) + (w2 * h2) + w2 * i,
-                        data2 + linesize2 * i,
-                        w2);
-                }
-                break;
             }
-            default:
+            else
             {
                 av_image_fill_arrays(
                     _avFrame2->data,
@@ -759,8 +766,6 @@ namespace tl
                     _avCodecParameters[_avStream]->height,
                     _avFrame2->data,
                     _avFrame2->linesize);
-                break;
-            }
             }
         }
     }
