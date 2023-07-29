@@ -7,21 +7,198 @@ namespace tl
     namespace play_gl
     {
         template<typename T>
-        T Settings::getValue(const std::string& key) const
+        inline void Settings::getValue(const std::string& key, T& out) const
         {
-            T out = T();
             if (_values.contains(key))
             {
-                from_json(_values.at(key), out);
+                try
+                {
+                    from_json(_values.at(key), out);
+                }
+                catch (const std::exception&)
+                {}
             }
-            return out;
+        }
+
+        template<>
+        inline void Settings::getValue(const std::string& key, bool& out) const
+        {
+            if (_values.contains(key))
+            {
+                try
+                {
+                    out = _values.at(key);
+                }
+                catch (const std::exception&)
+                {}
+            }
+        }
+
+        template<>
+        inline void Settings::getValue(const std::string& key, int& out) const
+        {
+            if (_values.contains(key))
+            {
+                try
+                {
+                    out = _values.at(key);
+                }
+                catch (const std::exception&)
+                {}
+            }
+        }
+
+        template<>
+        inline void Settings::getValue(const std::string& key, float& out) const
+        {
+            if (_values.contains(key))
+            {
+                try
+                {
+                    out = _values.at(key);
+                }
+                catch (const std::exception&)
+                {}
+            }
+        }
+
+        template<>
+        inline void Settings::getValue(const std::string& key, double& out) const
+        {
+            if (_values.contains(key))
+            {
+                try
+                {
+                    out = _values.at(key);
+                }
+                catch (const std::exception&)
+                {}
+            }
+        }
+
+        template<>
+        inline void Settings::getValue(const std::string& key, size_t& out) const
+        {
+            if (_values.contains(key))
+            {
+                try
+                {
+                    out = _values.at(key);
+                }
+                catch (const std::exception&)
+                {}
+            }
+        }
+
+        template<>
+        inline void Settings::getValue(const std::string& key, std::string& out) const
+        {
+            if (_values.contains(key))
+            {
+                try
+                {
+                    out = _values.at(key);
+                }
+                catch (const std::exception&)
+                {}
+            }
         }
 
         template<typename T>
-        void Settings::setValue(const std::string& key, T value)
+        inline void Settings::setValue(const std::string& key, T in)
         {
             nlohmann::json json;
-            to_json(json, value);
+            to_json(json, in);
+            if (!_values.contains(key))
+            {
+                _defaultValues[key] = json;
+            }
+            if (json != _values[key])
+            {
+                _values[key] = json;
+                _observer->setAlways(key);
+            }
+        }
+
+        template<>
+        inline void Settings::setValue(const std::string& key, bool in)
+        {
+            nlohmann::json json = in;
+            if (!_values.contains(key))
+            {
+                _defaultValues[key] = json;
+            }
+            if (json != _values[key])
+            {
+                _values[key] = json;
+                _observer->setAlways(key);
+            }
+        }
+
+        template<>
+        inline void Settings::setValue(const std::string& key, int in)
+        {
+            nlohmann::json json = in;
+            if (!_values.contains(key))
+            {
+                _defaultValues[key] = json;
+            }
+            if (json != _values[key])
+            {
+                _values[key] = json;
+                _observer->setAlways(key);
+            }
+        }
+
+        template<>
+        inline void Settings::setValue(const std::string& key, float in)
+        {
+            nlohmann::json json = in;
+            if (!_values.contains(key))
+            {
+                _defaultValues[key] = json;
+            }
+            if (json != _values[key])
+            {
+                _values[key] = json;
+                _observer->setAlways(key);
+            }
+        }
+
+        template<>
+        inline void Settings::setValue(const std::string& key, double in)
+        {
+            nlohmann::json json = in;
+            if (!_values.contains(key))
+            {
+                _defaultValues[key] = json;
+            }
+            if (json != _values[key])
+            {
+                _values[key] = json;
+                _observer->setAlways(key);
+            }
+        }
+
+        template<>
+        inline void Settings::setValue(const std::string& key, size_t in)
+        {
+            nlohmann::json json = in;
+            if (!_values.contains(key))
+            {
+                _defaultValues[key] = json;
+            }
+            if (json != _values[key])
+            {
+                _values[key] = json;
+                _observer->setAlways(key);
+            }
+        }
+
+        template<>
+        inline void Settings::setValue(const std::string& key, std::string in)
+        {
+            nlohmann::json json = in;
             if (!_values.contains(key))
             {
                 _defaultValues[key] = json;

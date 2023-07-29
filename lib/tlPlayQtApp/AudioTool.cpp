@@ -70,8 +70,8 @@ namespace tl
             AudioOffsetWidget* offsetWidget = nullptr;
         };
 
-        AudioTool::AudioTool(QWidget* parent) :
-            IToolWidget(parent),
+        AudioTool::AudioTool(App* app, QWidget* parent) :
+            IToolWidget(app, parent),
             _p(new Private)
         {
             TLRENDER_P();

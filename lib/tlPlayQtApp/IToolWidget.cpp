@@ -14,7 +14,7 @@ namespace tl
 {
     namespace play_qt
     {
-        IToolWidget::IToolWidget(QWidget* parent) :
+        IToolWidget::IToolWidget(App* app, QWidget* parent) :
             QWidget(parent)
         {
             _layout = new QVBoxLayout;

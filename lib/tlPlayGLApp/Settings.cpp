@@ -48,7 +48,11 @@ namespace tl
                 {
                     auto io = file::FileIO::create(fileName, file::Mode::Read);
                     const std::string contents = file::readContents(io);
-                    _values = nlohmann::json::parse(contents);
+                    const auto values = nlohmann::json::parse(contents);
+                    for (auto i = values.begin(); i != values.end(); ++i)
+                    {
+                        _values[i.key()] = i.value();
+                    }
                 }
                 catch (const std::exception& e)
                 {
@@ -84,6 +88,15 @@ namespace tl
                             arg(e.what()),
                         log::Type::Error);
                 }
+            }
+        }
+
+        void Settings::reset()
+        {
+            for (auto i = _defaultValues.begin(); i != _defaultValues.end(); ++i)
+            {
+                _values[i.key()] = i.value();
+                _observer->setAlways(i.key());
             }
         }
     }

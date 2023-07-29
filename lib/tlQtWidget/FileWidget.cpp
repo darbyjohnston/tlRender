@@ -4,10 +4,11 @@
 
 #include <tlQtWidget/FileWidget.h>
 
-#include <tlCore/Path.h>
+#include <tlQtWidget/FileBrowserSystem.h>
+
+#include <tlCore/Context.h>
 
 #include <QBoxLayout>
-#include <QFileDialog>
 #include <QLineEdit>
 #include <QToolButton>
 
@@ -17,21 +18,20 @@ namespace tl
     {
         struct FileWidget::Private
         {
-            QStringList extensions;
-            std::string fileName;
-
+            std::weak_ptr<system::Context> context;
+            QString fileName;
             QLineEdit* lineEdit = nullptr;
         };
 
         FileWidget::FileWidget(
-            const QStringList& extensions,
+            const std::shared_ptr<system::Context>& context,
             QWidget* parent) :
             QWidget(parent),
             _p(new Private)
         {
             TLRENDER_P();
 
-            p.extensions = extensions;
+            p.context = context;
 
             p.lineEdit = new QLineEdit;
             p.lineEdit->setToolTip(tr("File"));
@@ -69,31 +69,18 @@ namespace tl
                 &QToolButton::clicked,
                 [this]
                 {
-                    QString dir;
-                    if (!_p->fileName.empty())
+                    if (auto context = _p->context.lock())
                     {
-                        dir = QString::fromUtf8(file::Path(_p->fileName).get().c_str());
-                    }
-
-                    QString filter;
-                    if (!_p->extensions.isEmpty())
-                    {
-                        filter.append(tr("Files"));
-                        filter.append(" (");
-                        QStringList extensions;
-                        Q_FOREACH(QString i, _p->extensions)
+                        if (auto fileBrowserSystem = context->getSystem<FileBrowserSystem>())
                         {
-                            extensions.push_back(QString("*%1").arg(i));
+                            fileBrowserSystem->open(
+                                window(),
+                                [this](const file::Path& value)
+                                {
+                                    setFile(QString::fromUtf8(value.get().c_str()));
+                                });
                         }
-                        filter.append(extensions.join(' '));
-                        filter.append(")");
                     }
-                    const auto fileName = QFileDialog::getOpenFileName(
-                        window(),
-                        tr("Open"),
-                        dir,
-                        filter);
-                    setFile(fileName);
                 });
 
             connect(
@@ -111,12 +98,11 @@ namespace tl
         void FileWidget::setFile(const QString& value)
         {
             TLRENDER_P();
-            const std::string tmp = value.toUtf8().data();
-            if (tmp == p.fileName)
+            if (value == p.fileName)
                 return;
-            p.fileName = tmp;
+            p.fileName = value;
             _widgetUpdate();
-            Q_EMIT fileChanged(QString::fromUtf8(_p->fileName.c_str()));
+            Q_EMIT fileChanged(_p->fileName);
         }
 
         void FileWidget::clear()
@@ -129,7 +115,7 @@ namespace tl
             TLRENDER_P();
             {
                 QSignalBlocker signalBlocker(p.lineEdit);
-                p.lineEdit->setText(QString::fromUtf8(p.fileName.c_str()));
+                p.lineEdit->setText(p.fileName);
             }
         }
     }

@@ -4,6 +4,8 @@
 
 #include <tlQtWidget/Init.h>
 
+#include <tlQtWidget/FileBrowserSystem.h>
+
 #include <tlQt/Init.h>
 
 #include <tlTimelineUI/Init.h>
@@ -37,6 +39,10 @@ namespace tl
             if (!context->getSystem<System>())
             {
                 context->addSystem(System::create(context));
+            }
+            if (!context->getSystem<FileBrowserSystem>())
+            {
+                context->addSystem(FileBrowserSystem::create(context));
             }
         }
 

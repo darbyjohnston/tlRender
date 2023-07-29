@@ -35,9 +35,12 @@
 //! 
 //! Required includes:
 //! * iostream
+//! * nlohmann/json.hpp
 #define TLRENDER_ENUM_SERIALIZE(ENUM) \
     std::ostream& operator << (std::ostream&, ENUM); \
-    std::istream& operator >> (std::istream&, ENUM&)
+    std::istream& operator >> (std::istream&, ENUM&); \
+    void to_json(nlohmann::json&, ENUM); \
+    void from_json(const nlohmann::json&, ENUM&)
 
 //! Implementation macro for enum utilities.
 //! 
@@ -98,4 +101,28 @@
         } \
         out = static_cast<ENUM>(i - labels.begin()); \
         return is; \
+    } \
+    \
+    void to_json(nlohmann::json& json, ENUM in) \
+    { \
+        json = get##ENUM##Labels()[static_cast<std::size_t>(in)]; \
+    } \
+    \
+    void from_json(const nlohmann::json& json, ENUM& out) \
+    { \
+        std::string s; \
+        json.get_to(s); \
+        const auto labels = get##ENUM##Labels(); \
+        const auto i = std::find_if( \
+            labels.begin(), \
+            labels.end(), \
+            [s](const std::string& value) \
+            { \
+                return string::compare(s, value, string::Compare::CaseInsensitive); \
+            }); \
+        if (i == labels.end()) \
+        { \
+            throw tl::error::ParseError(); \
+        } \
+        out = static_cast<ENUM>(i - labels.begin()); \
     }

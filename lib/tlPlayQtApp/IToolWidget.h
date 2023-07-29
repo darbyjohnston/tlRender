@@ -15,13 +15,15 @@ namespace tl
 {
     namespace play_qt
     {
+        class App;
+
         //! Base class for tool widgets.
         class IToolWidget : public QWidget
         {
             Q_OBJECT
 
         public:
-            IToolWidget(QWidget* parent = nullptr);
+            IToolWidget(App*, QWidget* parent = nullptr);
 
             void addWidget(QWidget*, int stretch = 0);
             void addBellows(const QString&, QWidget*);

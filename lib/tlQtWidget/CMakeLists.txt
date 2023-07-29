@@ -1,5 +1,6 @@
 set(HEADERS
     BellowsWidget.h
+    FileBrowserSystem.h
     FileWidget.h
     FilmstripWidget.h
     FloatSlider.h
@@ -22,6 +23,7 @@ set(PRIVATE_HEADERS
 set(SOURCE
     BellowsPrivate.cpp
     BellowsWidget.cpp
+    FileBrowserSystem.cpp
     FileWidget.cpp
     FilmstripWidget.cpp
     FloatSlider.cpp

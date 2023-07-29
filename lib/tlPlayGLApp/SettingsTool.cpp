@@ -19,7 +19,6 @@
 #include <tlUI/ScrollWidget.h>
 #include <tlUI/ToolButton.h>
 
-#include <tlCore/JSON.h>
 #include <tlCore/StringFormat.h>
 
 namespace tl
@@ -70,21 +69,21 @@ namespace tl
             auto appWeak = std::weak_ptr<App>(app);
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
-                [this, appWeak](const std::string& value)
+                [this, appWeak](const std::string&)
                 {
                     TLRENDER_P();
                     if (auto app = appWeak.lock())
                     {
                         auto settings = app->getSettings();
-                        if ("Cache/ReadAhead" == value)
                         {
-                            p.readAhead->getModel()->setValue(
-                                settings->getValue<double>("Cache/ReadAhead"));
+                            double value = 0.0;
+                            settings->getValue<double>("Cache/ReadAhead", value);
+                            p.readAhead->getModel()->setValue(value);
                         }
-                        else if ("Cache/ReadBehind" == value)
                         {
-                            p.readBehind->getModel()->setValue(
-                                settings->getValue<double>("Cache/ReadBehind"));
+                            double value = 0.0;
+                            settings->getValue<double>("Cache/ReadBehind", value);
+                            p.readBehind->getModel()->setValue(value);
                         }
                     }
                 });
@@ -95,7 +94,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        //app->getSettings()->setValue("Cache/ReadAhead", value);
+                        app->getSettings()->setValue("Cache/ReadAhead", value);
                     }
                 });
 
@@ -191,31 +190,31 @@ namespace tl
             auto appWeak = std::weak_ptr<App>(app);
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
-                [this, appWeak](const std::string& value)
+                [this, appWeak](const std::string&)
                 {
                     TLRENDER_P();
                     if (auto app = appWeak.lock())
                     {
                         auto settings = app->getSettings();
-                        if ("FileSequence/Audio" == value)
                         {
-                            //p.audioComboBox->setCurrentIndex(static_cast<int>(
-                            //    settings->getValue<timeline::FileSequenceAudio>("FileSequence/Audio")));
+                            timeline::FileSequenceAudio value = timeline::FileSequenceAudio::First;
+                            settings->getValue("FileSequence/Audio", value);
+                            p.audioComboBox->setCurrentIndex(static_cast<int>(value));
                         }
-                        else if ("FileSequence/AudioFileName" == value)
                         {
-                            p.audioFileNameEdit->setText(
-                                settings->getValue<std::string>("FileSequence/AudioFileName"));
+                            std::string value;
+                            settings->getValue("FileSequence/AudioFileName", value);
+                            p.audioFileNameEdit->setText(value);
                         }
-                        else if ("FileSequence/AudioDirectory" == value)
                         {
-                            p.audioDirectoryEdit->setText(
-                                settings->getValue<std::string>("FileSequence/AudioDirectory"));
+                            std::string value;
+                            settings->getValue("FileSequence/AudioDirectory", value);
+                            p.audioDirectoryEdit->setText(value);
                         }
-                        else if ("FileSequence/MaxDigits" == value)
                         {
-                            p.maxDigitsEdit->getModel()->setValue(
-                                settings->getValue<int>("FileSequence/MaxDigits"));
+                            int value = 0;
+                            settings->getValue("FileSequence/MaxDigits", value);
+                            p.maxDigitsEdit->getModel()->setValue(value);
                         }
                     }
                 });
@@ -225,7 +224,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getSettings()->setValue("FileSequence/Audio", value);
+                        app->getSettings()->setValue(
+                            "FileSequence/Audio",
+                            static_cast<timeline::FileSequenceAudio>(value));
                     }
                 });
         }
@@ -254,6 +255,88 @@ namespace tl
         }
 
         void FileSequenceSettingsWidget::sizeHintEvent(const ui::SizeHintEvent& event)
+        {
+            IWidget::sizeHintEvent(event);
+            _sizeHint = _p->layout->getSizeHint();
+        }
+
+        struct FileBrowserSettingsWidget::Private
+        {
+            std::shared_ptr<ui::CheckBox> nativeFileDialogCheckBox;
+            std::shared_ptr<ui::GridLayout> layout;
+
+            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+        };
+
+        void FileBrowserSettingsWidget::_init(
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            IWidget::_init("tl::play_gl::FileBrowserSettingsWidget", context, parent);
+            TLRENDER_P();
+
+            p.nativeFileDialogCheckBox = ui::CheckBox::create(context);
+
+            p.layout = ui::GridLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            auto label = ui::Label::create("Native file dialog:", context, p.layout);
+            p.layout->setGridPos(label, 0, 0);
+            p.nativeFileDialogCheckBox->setParent(p.layout);
+            p.layout->setGridPos(p.nativeFileDialogCheckBox, 0, 1);
+
+            auto appWeak = std::weak_ptr<App>(app);
+            p.settingsObserver = observer::ValueObserver<std::string>::create(
+                app->getSettings()->observeValues(),
+                [this, appWeak](const std::string&)
+                {
+                    TLRENDER_P();
+                    if (auto app = appWeak.lock())
+                    {
+                        auto settings = app->getSettings();
+                        {
+                            bool value = false;
+                            settings->getValue("FileBrowser/NativeFileDialog", value);
+                            p.nativeFileDialogCheckBox->setChecked(value);
+                        }
+                    }
+                });
+
+            p.nativeFileDialogCheckBox->setCheckedCallback(
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue("FileBrowser/NativeFileDialog", value);
+                    }
+                });
+        }
+
+        FileBrowserSettingsWidget::FileBrowserSettingsWidget() :
+            _p(new Private)
+        {}
+
+        FileBrowserSettingsWidget::~FileBrowserSettingsWidget()
+        {}
+
+        std::shared_ptr<FileBrowserSettingsWidget> FileBrowserSettingsWidget::create(
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            auto out = std::shared_ptr<FileBrowserSettingsWidget>(new FileBrowserSettingsWidget);
+            out->_init(app, context, parent);
+            return out;
+        }
+
+        void FileBrowserSettingsWidget::setGeometry(const math::BBox2i& value)
+        {
+            IWidget::setGeometry(value);
+            _p->layout->setGeometry(value);
+        }
+
+        void FileBrowserSettingsWidget::sizeHintEvent(const ui::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             _sizeHint = _p->layout->getSizeHint();
@@ -347,46 +430,46 @@ namespace tl
             auto appWeak = std::weak_ptr<App>(app);
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
-                [this, appWeak](const std::string& value)
+                [this, appWeak](const std::string&)
                 {
                     TLRENDER_P();
                     if (auto app = appWeak.lock())
                     {
                         auto settings = app->getSettings();
-                        if ("Performance/TimerMode" == value)
                         {
-                            //p.timerComboBox->setCurrentIndex(static_cast<int>(
-                            //    settings->getValue<timeline::TimerMode>("Performance/TimerMode")));
+                            timeline::TimerMode value = timeline::TimerMode::First;
+                            settings->getValue("Performance/TimerMode", value);
+                            p.timerComboBox->setCurrentIndex(static_cast<int>(value));
                         }
-                        else if ("Performance/AudioBufferFrameCount" == value)
                         {
-                            p.audioBufferFramesEdit->getModel()->setValue(
-                                settings->getValue<int>("Performance/AudioBufferFrameCount"));
+                            int value = 0;
+                            settings->getValue("Performance/AudioBufferFrameCount", value);
+                            p.audioBufferFramesEdit->getModel()->setValue(value);
                         }
-                        else if ("Performance/VideoRequestCount" == value)
                         {
-                            p.videoRequestsEdit->getModel()->setValue(
-                                settings->getValue<int>("Performance/VideoRequestCount"));
+                            int value = 0;
+                            settings->getValue("Performance/VideoRequestCount", value);
+                            p.videoRequestsEdit->getModel()->setValue(value);
                         }
-                        else if ("Performance/AudioRequestCount" == value)
                         {
-                            p.audioRequestsEdit->getModel()->setValue(
-                                settings->getValue<int>("Performance/AudioRequestCount"));
+                            int value = 0;
+                            settings->getValue("Performance/AudioRequestCount", value);
+                            p.audioRequestsEdit->getModel()->setValue(value);
                         }
-                        else if ("Performance/SequenceThreadCount" == value)
                         {
-                            p.sequenceThreadsEdit->getModel()->setValue(
-                                settings->getValue<int>("Performance/SequenceThreadCount"));
+                            int value = 0;
+                            settings->getValue("Performance/SequenceThreadCount", value);
+                            p.sequenceThreadsEdit->getModel()->setValue(value);
                         }
-                        else if ("Performance/FFmpegYUVToRGBConversion" == value)
                         {
-                            p.ffmpegYUVtoRGBCheckBox->setChecked(
-                                settings->getValue<bool>("Performance/FFmpegYUVToRGBConversion"));
+                            bool value = false;
+                            settings->getValue("Performance/FFmpegYUVToRGBConversion", value);
+                            p.ffmpegYUVtoRGBCheckBox->setChecked(value);
                         }
-                        else if ("Performance/FFmpegThreadCount" == value)
                         {
-                            p.ffmpegThreadsEdit->getModel()->setValue(
-                                settings->getValue<int>("Performance/FFmpegThreadCount"));
+                            int value = 0;
+                            settings->getValue("Performance/FFmpegThreadCount", value);
+                            p.ffmpegThreadsEdit->getModel()->setValue(value);
                         }
                     }
                 });
@@ -396,9 +479,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        //app->getSettings()->setValue(
-                        //    "Performance/TimerMode",
-                        //    static_cast<timeline::TimerMode>(value));
+                        app->getSettings()->setValue(
+                            "Performance/TimerMode",
+                            static_cast<timeline::TimerMode>(value));
                     }
                 });
 
@@ -525,23 +608,23 @@ namespace tl
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
             p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
             auto label = ui::Label::create("Enable tool tips:", context, p.layout);
-            p.layout->setGridPos(label, 0, 0);
+            p.layout->setGridPos(label, 1, 0);
             p.toolTipsEnabledCheckBox->setParent(p.layout);
-            p.layout->setGridPos(p.toolTipsEnabledCheckBox, 0, 1);
+            p.layout->setGridPos(p.toolTipsEnabledCheckBox, 1, 1);
 
             auto appWeak = std::weak_ptr<App>(app);
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
-                [this, appWeak](const std::string& value)
+                [this, appWeak](const std::string&)
                 {
                     TLRENDER_P();
                     if (auto app = appWeak.lock())
                     {
                         auto settings = app->getSettings();
-                        if ("Misc/ToolTipsEnabled" == value)
                         {
-                            p.toolTipsEnabledCheckBox->setChecked(
-                                settings->getValue<bool>("Misc/ToolTipsEnabled"));
+                            bool value = false;
+                            settings->getValue("Misc/ToolTipsEnabled", value);
+                            p.toolTipsEnabledCheckBox->setChecked(value);
                         }
                     }
                 });
@@ -607,6 +690,7 @@ namespace tl
 
             auto cacheWidget = CacheSettingsWidget::create(app, context);
             auto fileSequenceWidget = FileSequenceSettingsWidget::create(app, context);
+            auto fileBrowserWidget = FileBrowserSettingsWidget::create(app, context);
             auto performanceWidget = PerformanceSettingsWidget::create(app, context);
             auto miscWidget = MiscSettingsWidget::create(app, context);
             auto vLayout = ui::VerticalLayout::create(context);
@@ -615,6 +699,8 @@ namespace tl
             bellows->setWidget(cacheWidget);
             bellows = ui::Bellows::create("File Sequences", context, vLayout);
             bellows->setWidget(fileSequenceWidget);
+            bellows = ui::Bellows::create("File Browser", context, vLayout);
+            bellows->setWidget(fileBrowserWidget);
             bellows = ui::Bellows::create("Performance", context, vLayout);
             bellows->setWidget(performanceWidget);
             bellows = ui::Bellows::create("Miscellaneous", context, vLayout);
@@ -633,6 +719,16 @@ namespace tl
             hLayout->setSpacingRole(ui::SizeRole::SpacingTool);
             p.resetButton->setParent(hLayout);
             _setWidget(p.layout);
+
+            std::weak_ptr<App> appWeak(app);
+            p.resetButton->setClickedCallback(
+                [appWeak]
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->reset();
+                    }
+                });
         }
 
         SettingsTool::SettingsTool() :

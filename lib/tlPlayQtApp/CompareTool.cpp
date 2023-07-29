@@ -42,7 +42,7 @@ namespace tl
             const QMap<QString, QAction*>& actions,
             App* app,
             QWidget* parent) :
-            IToolWidget(parent),
+            IToolWidget(app, parent),
             _p(new Private)
         {
             TLRENDER_P();
@@ -115,8 +115,9 @@ namespace tl
 
             _widgetUpdate();
 
-            app->settingsObject()->setDefaultValue("CompareTool/Header", QByteArray());
-            auto ba = app->settingsObject()->value("CompareTool/Header").toByteArray();
+            auto settingsObject = app->settingsObject();
+            settingsObject->setDefaultValue("CompareTool/Header", QByteArray());
+            auto ba = settingsObject->value("CompareTool/Header").toByteArray();
             if (!ba.isEmpty())
             {
                 p.treeView->header()->restoreState(ba);

@@ -12,6 +12,11 @@
 
 namespace tl
 {
+    namespace system
+    {
+        class Context;
+    }
+
     namespace qtwidget
     {
         //! File widget.
@@ -21,7 +26,7 @@ namespace tl
 
         public:
             FileWidget(
-                const QStringList& extensions = QStringList(),
+                const std::shared_ptr<system::Context>&,
                 QWidget* parent = nullptr);
 
             ~FileWidget() override;

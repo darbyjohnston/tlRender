@@ -22,9 +22,7 @@ namespace tl
             Q_OBJECT
 
         public:
-            DevicesTool(
-                App*,
-                QWidget* parent = nullptr);
+            DevicesTool(App*, QWidget* parent = nullptr);
 
             ~DevicesTool() override;
 

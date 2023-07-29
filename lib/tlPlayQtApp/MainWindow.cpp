@@ -315,7 +315,7 @@ namespace tl
             toolsToolBar->addAction(compareDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, compareDockWidget);
 
-            p.colorTool = new ColorTool(app->colorModel());
+            p.colorTool = new ColorTool(app);
             auto colorDockWidget = new ColorDockWidget(p.colorTool);
             colorDockWidget->hide();
             p.toolActions->menu()->addAction(colorDockWidget->toggleViewAction());
@@ -329,7 +329,7 @@ namespace tl
             toolsToolBar->addAction(infoDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, infoDockWidget);
 
-            p.audioTool = new AudioTool();
+            p.audioTool = new AudioTool(app);
             auto audioDockWidget = new AudioDockWidget(p.audioTool);
             audioDockWidget->hide();
             p.toolActions->menu()->addAction(audioDockWidget->toggleViewAction());
@@ -343,21 +343,21 @@ namespace tl
             toolsToolBar->addAction(deviceDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, deviceDockWidget);
 
-            p.settingsTool = new SettingsTool(app->settingsObject(), app->timeObject());
+            p.settingsTool = new SettingsTool(app);
             auto settingsDockWidget = new SettingsDockWidget(p.settingsTool);
             settingsDockWidget->hide();
             p.toolActions->menu()->addAction(settingsDockWidget->toggleViewAction());
             toolsToolBar->addAction(settingsDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, settingsDockWidget);
 
-            p.messagesTool = new MessagesTool(context);
+            p.messagesTool = new MessagesTool(app);
             auto messagesDockWidget = new MessagesDockWidget(p.messagesTool);
             messagesDockWidget->hide();
             p.toolActions->menu()->addAction(messagesDockWidget->toggleViewAction());
             toolsToolBar->addAction(messagesDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, messagesDockWidget);
 
-            p.systemLogTool = new SystemLogTool(context);
+            p.systemLogTool = new SystemLogTool(app);
             auto systemLogDockWidget = new SystemLogDockWidget(p.systemLogTool);
             systemLogDockWidget->hide();
             systemLogDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F11));
@@ -717,8 +717,9 @@ namespace tl
                     }
                 });
 
-            app->settingsObject()->setDefaultValue("MainWindow/geometry", QByteArray());
-            auto ba = app->settingsObject()->value("MainWindow/geometry").toByteArray();
+            auto settingsObject = app->settingsObject();
+            settingsObject->setDefaultValue("MainWindow/geometry", QByteArray());
+            auto ba = settingsObject->value("MainWindow/geometry").toByteArray();
             if (!ba.isEmpty())
             {
                 restoreGeometry(ba);
@@ -727,14 +728,14 @@ namespace tl
             {
                 resize(1280, 720);
             }
-            app->settingsObject()->setDefaultValue("MainWindow/windowState", QByteArray());
-            ba = app->settingsObject()->value("MainWindow/windowState").toByteArray();
+            settingsObject->setDefaultValue("MainWindow/windowState", QByteArray());
+            ba = settingsObject->value("MainWindow/windowState").toByteArray();
             if (!ba.isEmpty())
             {
                 restoreState(ba);
             }
-            app->settingsObject()->setDefaultValue("MainWindow/FloatOnTop", false);
-            p.floatOnTop = app->settingsObject()->value("MainWindow/FloatOnTop").toBool();
+            settingsObject->setDefaultValue("MainWindow/FloatOnTop", false);
+            p.floatOnTop = settingsObject->value("MainWindow/FloatOnTop").toBool();
             if (p.floatOnTop)
             {
                 setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
@@ -747,8 +748,8 @@ namespace tl
                 QSignalBlocker blocker(p.windowActions->actions()["FloatOnTop"]);
                 p.windowActions->actions()["FloatOnTop"]->setChecked(p.floatOnTop);
             }
-            app->settingsObject()->setDefaultValue("MainWindow/SecondaryFloatOnTop", false);
-            p.secondaryFloatOnTop = app->settingsObject()->value("MainWindow/SecondaryFloatOnTop").toBool();
+            settingsObject->setDefaultValue("MainWindow/SecondaryFloatOnTop", false);
+            p.secondaryFloatOnTop = settingsObject->value("MainWindow/SecondaryFloatOnTop").toBool();
             {
                 QSignalBlocker blocker(p.windowActions->actions()["SecondaryFloatOnTop"]);
                 p.windowActions->actions()["SecondaryFloatOnTop"]->setChecked(p.secondaryFloatOnTop);
@@ -758,10 +759,11 @@ namespace tl
         MainWindow::~MainWindow()
         {
             TLRENDER_P();
-            p.app->settingsObject()->setValue("MainWindow/geometry", saveGeometry());
-            p.app->settingsObject()->setValue("MainWindow/windowState", saveState());
-            p.app->settingsObject()->setValue("MainWindow/FloatOnTop", p.floatOnTop);
-            p.app->settingsObject()->setValue("MainWindow/SecondaryFloatOnTop", p.secondaryFloatOnTop);
+            auto settingsObject = p.app->settingsObject();
+            settingsObject->setValue("MainWindow/geometry", saveGeometry());
+            settingsObject->setValue("MainWindow/windowState", saveState());
+            settingsObject->setValue("MainWindow/FloatOnTop", p.floatOnTop);
+            settingsObject->setValue("MainWindow/SecondaryFloatOnTop", p.secondaryFloatOnTop);
             if (p.secondaryWindow)
             {
                 delete p.secondaryWindow;
@@ -1106,14 +1108,15 @@ namespace tl
                 (!p.timelinePlayers.empty() && p.timelinePlayers[0]) ?
                 p.timelinePlayers[0]->player() :
                 nullptr);
-            p.timelineWidget->setFrameView(p.app->settingsObject()->value("Timeline/FrameView").toBool());
-            p.timelineWidget->setStopOnScrub(p.app->settingsObject()->value("Timeline/StopOnScrub").toBool());
+            auto settingsObject = p.app->settingsObject();
+            p.timelineWidget->setFrameView(settingsObject->value("Timeline/FrameView").toBool());
+            p.timelineWidget->setStopOnScrub(settingsObject->value("Timeline/StopOnScrub").toBool());
             auto itemOptions = p.timelineWidget->itemOptions();
-            itemOptions.thumbnails = p.app->settingsObject()->value("Timeline/Thumbnails").toBool();
-            itemOptions.thumbnailHeight = p.app->settingsObject()->value("Timeline/ThumbnailsSize").toInt();
+            itemOptions.thumbnails = settingsObject->value("Timeline/Thumbnails").toBool();
+            itemOptions.thumbnailHeight = settingsObject->value("Timeline/ThumbnailsSize").toInt();
             itemOptions.waveformHeight = itemOptions.thumbnailHeight / 2;
-            itemOptions.showTransitions = p.app->settingsObject()->value("Timeline/Transitions").toBool();
-            itemOptions.showMarkers = p.app->settingsObject()->value("Timeline/Markers").toBool();
+            itemOptions.showTransitions = settingsObject->value("Timeline/Transitions").toBool();
+            itemOptions.showMarkers = settingsObject->value("Timeline/Markers").toBool();
             p.timelineWidget->setItemOptions(itemOptions);
 
             {

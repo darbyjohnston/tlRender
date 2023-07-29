@@ -7,6 +7,8 @@
 #include <tlCore/String.h>
 #include <tlCore/Util.h>
 
+#include <nlohmann/json.hpp>
+
 #include <memory>
 
 namespace tl

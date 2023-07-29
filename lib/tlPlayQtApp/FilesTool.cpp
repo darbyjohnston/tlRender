@@ -32,7 +32,7 @@ namespace tl
             const QMap<QString, QAction*>& actions,
             App* app,
             QWidget* parent) :
-            IToolWidget(parent),
+            IToolWidget(app, parent),
             _p(new Private)
         {
             TLRENDER_P();
@@ -75,8 +75,9 @@ namespace tl
             widget->setLayout(layout);
             addWidget(widget, 1);
 
-            app->settingsObject()->setDefaultValue("FilesTool/Header", QByteArray());
-            auto ba = app->settingsObject()->value("FilesTool/Header").toByteArray();
+            auto settingsObject = app->settingsObject();
+            settingsObject->setDefaultValue("FilesTool/Header", QByteArray());
+            auto ba = settingsObject->value("FilesTool/Header").toByteArray();
             if (!ba.isEmpty())
             {
                 p.treeView->header()->restoreState(ba);

@@ -4,6 +4,7 @@
 
 #include <tlPlayQtApp/SettingsTool.h>
 
+#include <tlPlayQtApp/App.h>
 #include <tlPlayQtApp/DockTitleBar.h>
 #include <tlPlayQtApp/SettingsObject.h>
 
@@ -191,6 +192,51 @@ namespace tl
         }
 
         FileSequenceSettingsWidget::~FileSequenceSettingsWidget()
+        {}
+
+        struct FileBrowserSettingsWidget::Private
+        {
+            QCheckBox* nativeFileDialogCheckBox = nullptr;
+        };
+
+        FileBrowserSettingsWidget::FileBrowserSettingsWidget(SettingsObject * settingsObject, QWidget * parent) :
+            QWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
+
+            p.nativeFileDialogCheckBox = new QCheckBox;
+            p.nativeFileDialogCheckBox->setText(tr("Native file dialog"));
+
+            auto layout = new QFormLayout;
+            layout->addRow(p.nativeFileDialogCheckBox);
+            setLayout(layout);
+
+            p.nativeFileDialogCheckBox->setChecked(
+                settingsObject->value("FileBrowser/NativeFileDialog").toBool());
+
+            connect(
+                p.nativeFileDialogCheckBox,
+                &QCheckBox::stateChanged,
+                [settingsObject](int value)
+                {
+                    settingsObject->setValue("FileBrowser/NativeFileDialog", Qt::Checked == value);
+                });
+
+            connect(
+                settingsObject,
+                &SettingsObject::valueChanged,
+                [this](const QString& key, const QVariant& value)
+                {
+                    if ("FileBrowser/NativeFileDialog" == key)
+                    {
+                        QSignalBlocker signalBlocker(_p->nativeFileDialogCheckBox);
+                        _p->nativeFileDialogCheckBox->setChecked(value.toBool());
+                    }
+                });
+        }
+
+        FileBrowserSettingsWidget::~FileBrowserSettingsWidget()
         {}
 
         struct PerformanceSettingsWidget::Private
@@ -408,14 +454,13 @@ namespace tl
         MiscSettingsWidget::~MiscSettingsWidget()
         {}
 
-        SettingsTool::SettingsTool(
-            SettingsObject* settingsObject,
-            qt::TimeObject* timeObject,
-            QWidget* parent) :
-            IToolWidget(parent)
+        SettingsTool::SettingsTool(App* app, QWidget* parent) :
+            IToolWidget(app, parent)
         {
+            auto settingsObject = app->settingsObject();
             addBellows(tr("Cache"), new CacheSettingsWidget(settingsObject));
             addBellows(tr("File Sequences"), new FileSequenceSettingsWidget(settingsObject));
+            addBellows(tr("File Browser"), new FileBrowserSettingsWidget(settingsObject));
             addBellows(tr("Performance"), new PerformanceSettingsWidget(settingsObject));
             addBellows(tr("Miscellaneous"), new MiscSettingsWidget(settingsObject));
             auto resetButton = new QToolButton;

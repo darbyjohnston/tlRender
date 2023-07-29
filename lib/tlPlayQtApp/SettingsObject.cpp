@@ -53,32 +53,6 @@ namespace tl
                 p.settings.clear();
             }
 
-            p.defaultValues["Timeline/FrameView"] = true;
-            p.defaultValues["Timeline/StopOnScrub"] = false;
-            p.defaultValues["Timeline/Thumbnails"] = true;
-            p.defaultValues["Timeline/ThumbnailsSize"] = 100;
-            p.defaultValues["Timeline/Transitions"] = false;
-            p.defaultValues["Timeline/Markers"] = false;
-            const timeline::PlayerCacheOptions playerCacheOptions;
-            p.defaultValues["Cache/ReadAhead"] = playerCacheOptions.readAhead.value();
-            p.defaultValues["Cache/ReadBehind"] = playerCacheOptions.readBehind.value();
-            p.defaultValues["FileSequence/Audio"] =
-                static_cast<int>(timeline::FileSequenceAudio::BaseName);
-            p.defaultValues["FileSequence/AudioFileName"] = "";
-            p.defaultValues["FileSequence/AudioDirectory"] = "";
-            p.defaultValues["FileSequence/MaxDigits"] = 9;
-            const timeline::PlayerOptions playerOptions;
-            p.defaultValues["Performance/TimerMode"] =
-                static_cast<int>(playerOptions.timerMode);
-            p.defaultValues["Performance/AudioBufferFrameCount"] =
-                static_cast<int>(playerOptions.audioBufferFrameCount);
-            p.defaultValues["Performance/VideoRequestCount"] = 16;
-            p.defaultValues["Performance/AudioRequestCount"] = 16;
-            p.defaultValues["Performance/SequenceThreadCount"] = 16;
-            p.defaultValues["Performance/FFmpegYUVToRGBConversion"] = false;
-            p.defaultValues["Performance/FFmpegThreadCount"] = 0;
-            p.defaultValues["Misc/ToolTipsEnabled"] = true;
-
             int size = p.settings.beginReadArray(version("RecentFiles"));
             for (int i = 0; i < size; ++i)
             {
@@ -114,16 +88,19 @@ namespace tl
                 static_cast<int>(p.timeObject->timeUnits()));
         }
 
-        QVariant SettingsObject::value(const QString& name)
+        QVariant SettingsObject::value(const QString& name) const
+        {
+            return _p->settings.value(version(name));
+        }
+
+        void SettingsObject::setDefaultValue(const QString& name, const QVariant& value)
         {
             TLRENDER_P();
-            QVariant defaultValue;
-            const auto i = p.defaultValues.find(name);
-            if (i != p.defaultValues.end())
+            if (!p.settings.contains(name))
             {
-                defaultValue = *i;
+                p.settings.setValue(name, value);
             }
-            return _p->settings.value(version(name), defaultValue);
+            p.defaultValues[name] = value;
         }
 
         const QList<QString>& SettingsObject::recentFiles() const
@@ -133,17 +110,17 @@ namespace tl
 
         void SettingsObject::setValue(const QString& name, const QVariant& value)
         {
-            _p->settings.setValue(version(name), value);
+            TLRENDER_P();
+            if (!p.settings.contains(name))
+            {
+                p.defaultValues[name] = value;
+            }
+            p.settings.setValue(version(name), value);
             if (name == "Misc/ToolTipsEnabled")
             {
                 _toolTipsUpdate();
             }
             Q_EMIT valueChanged(name, value);
-        }
-
-        void SettingsObject::setDefaultValue(const QString& name, const QVariant& value)
-        {
-            _p->defaultValues[name] = value;
         }
 
         void SettingsObject::reset()

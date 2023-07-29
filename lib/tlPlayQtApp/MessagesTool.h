@@ -23,9 +23,7 @@ namespace tl
             Q_OBJECT
 
         public:
-            MessagesTool(
-                const std::shared_ptr<system::Context>&,
-                QWidget* parent = nullptr);
+            MessagesTool(App*, QWidget* parent = nullptr);
 
             ~MessagesTool() override;
 

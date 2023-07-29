@@ -6,6 +6,8 @@
 
 #include <tlCore/Util.h>
 
+#include <nlohmann/json.hpp>
+
 #include <iostream>
 #include <string>
 #include <vector>

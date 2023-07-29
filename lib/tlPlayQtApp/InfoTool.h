@@ -25,9 +25,7 @@ namespace tl
             Q_OBJECT
 
         public:
-            InfoTool(
-                App*,
-                QWidget* parent = nullptr);
+            InfoTool(App*, QWidget* parent = nullptr);
 
             ~InfoTool() override;
 

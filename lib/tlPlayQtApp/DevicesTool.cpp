@@ -63,10 +63,8 @@ namespace tl
             qtwidget::FloatSlider* maxFALLSlider = nullptr;
         };
 
-        DevicesTool::DevicesTool(
-            App* app,
-            QWidget* parent) :
-            IToolWidget(parent),
+        DevicesTool::DevicesTool(App* app, QWidget* parent) :
+            IToolWidget(app, parent),
             _p(new Private)
         {
             TLRENDER_P();

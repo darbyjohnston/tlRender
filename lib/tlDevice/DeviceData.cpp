@@ -153,8 +153,13 @@ namespace tl
                     if (k != tags.end())
                     {
                         out = std::shared_ptr<imaging::HDRData>(new imaging::HDRData);
-                        auto json = nlohmann::json::parse(k->second);
-                        from_json(json, *out);
+                        try
+                        {
+                            auto json = nlohmann::json::parse(k->second);
+                            from_json(json, *out);
+                        }
+                        catch (const std::exception&)
+                        {}
                         break;
                     }
                 }

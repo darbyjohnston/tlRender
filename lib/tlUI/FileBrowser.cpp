@@ -81,7 +81,7 @@ namespace tl
         {
             nlohmann::json list;
             to_json(list, value.list);
-            json = nlohmann::json
+            json =
             {
                 { "filter", value.filter },
                 { "extension", value.extension },

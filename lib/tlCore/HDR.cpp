@@ -13,10 +13,10 @@ namespace tl
             json = nlohmann::json
             {
                 { "eotf", value.eotf },
-                { "redPrimaries", { value.redPrimaries.x, value.redPrimaries.y } },
-                { "greenPrimaries", { value.greenPrimaries.x, value.greenPrimaries.y } },
-                { "bluePrimaries", { value.bluePrimaries.x, value.bluePrimaries.y } },
-                { "whitePrimaries", { value.whitePrimaries.x, value.whitePrimaries.y } },
+                { "redPrimaries", value.redPrimaries },
+                { "greenPrimaries", value.greenPrimaries },
+                { "bluePrimaries", value.bluePrimaries },
+                { "whitePrimaries", value.whitePrimaries },
                 { "displayMasteringLuminance", value.displayMasteringLuminance },
                 { "maxCLL", value.maxCLL },
                 { "maxFALL", value.maxFALL }
@@ -26,14 +26,10 @@ namespace tl
         void from_json(const nlohmann::json& json, HDRData& value)
         {
             json.at("eotf").get_to(value.eotf);
-            json.at("redPrimaries").at(0).get_to(value.redPrimaries.x);
-            json.at("redPrimaries").at(1).get_to(value.redPrimaries.y);
-            json.at("greenPrimaries").at(0).get_to(value.greenPrimaries.x);
-            json.at("greenPrimaries").at(1).get_to(value.greenPrimaries.y);
-            json.at("bluePrimaries").at(0).get_to(value.bluePrimaries.x);
-            json.at("bluePrimaries").at(1).get_to(value.bluePrimaries.y);
-            json.at("whitePrimaries").at(0).get_to(value.whitePrimaries.x);
-            json.at("whitePrimaries").at(1).get_to(value.whitePrimaries.y);
+            json.at("redPrimaries").get_to(value.redPrimaries);
+            json.at("greenPrimaries").get_to(value.greenPrimaries);
+            json.at("bluePrimaries").get_to(value.bluePrimaries);
+            json.at("whitePrimaries").get_to(value.whitePrimaries);
             json.at("displayMasteringLuminance").get_to(value.displayMasteringLuminance);
             json.at("maxCLL").get_to(value.maxCLL);
             json.at("maxFALL").get_to(value.maxFALL);

@@ -4,13 +4,14 @@
 
 #include <tlPlayQtApp/OpenSeparateAudioDialog.h>
 
+#include <tlQtWidget/FileBrowserSystem.h>
+
 #include <tlTimeline/Timeline.h>
 
 #include <tlCore/String.h>
 
 #include <QBoxLayout>
 #include <QDialogButtonBox>
-#include <QFileDialog>
 #include <QGroupBox>
 #include <QLineEdit>
 #include <QPushButton>
@@ -121,24 +122,19 @@ namespace tl
             TLRENDER_P();
             if (auto context = p.context.lock())
             {
-                std::vector<std::string> extensions;
-                for (const auto& i : timeline::getExtensions(
-                    static_cast<int>(io::FileType::Movie) |
-                    static_cast<int>(io::FileType::Sequence),
-                    context))
+                if (auto fileBrowserSystem = context->getSystem<qtwidget::FileBrowserSystem>())
                 {
-                    extensions.push_back("*" + i);
-                }
-
-                const auto fileName = QFileDialog::getOpenFileName(
-                    this,
-                    tr("Open Video"),
-                    p.videoFileName,
-                    tr("Files") + " (" + QString::fromUtf8(string::join(extensions, " ").c_str()) + ")");
-                if (!fileName.isEmpty())
-                {
-                    p.videoFileName = fileName;
-                    p.videoLineEdit->setText(p.videoFileName);
+                    fileBrowserSystem->open(
+                        this,
+                        [this](const file::Path& value)
+                        {
+                            if (!value.isEmpty())
+                            {
+                                const QString fileName = QString::fromUtf8(value.get().c_str());
+                                _p->videoFileName = fileName;
+                                _p->videoLineEdit->setText(fileName);
+                            }
+                        });
                 }
             }
         }
@@ -154,23 +150,19 @@ namespace tl
             TLRENDER_P();
             if (auto context = p.context.lock())
             {
-                std::vector<std::string> extensions;
-                for (const auto& i : timeline::getExtensions(
-                    static_cast<int>(io::FileType::Audio),
-                    context))
+                if (auto fileBrowserSystem = context->getSystem<qtwidget::FileBrowserSystem>())
                 {
-                    extensions.push_back("*" + i);
-                }
-
-                const auto fileName = QFileDialog::getOpenFileName(
-                    this,
-                    tr("Open Audio"),
-                    p.audioFileName,
-                    tr("Files") + " (" + QString::fromUtf8(string::join(extensions, " ").c_str()) + ")");
-                if (!fileName.isEmpty())
-                {
-                    p.audioFileName = fileName;
-                    p.audioLineEdit->setText(p.audioFileName);
+                    fileBrowserSystem->open(
+                        this,
+                        [this](const file::Path& value)
+                        {
+                            if (!value.isEmpty())
+                            {
+                                const QString fileName = QString::fromUtf8(value.get().c_str());
+                                _p->audioFileName = fileName;
+                                _p->audioLineEdit->setText(fileName);
+                            }
+                        });
                 }
             }
         }

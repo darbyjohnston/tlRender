@@ -40,7 +40,7 @@ namespace tl
             Q_OBJECT
 
         public:
-            AudioTool(QWidget* parent = nullptr);
+            AudioTool(App*, QWidget* parent = nullptr);
 
             ~AudioTool() override;
 

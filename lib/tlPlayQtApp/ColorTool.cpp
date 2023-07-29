@@ -4,6 +4,7 @@
 
 #include <tlPlayQtApp/ColorTool.h>
 
+#include <tlPlayQtApp/App.h>
 #include <tlPlayQtApp/ColorModel.h>
 #include <tlPlayQtApp/DockTitleBar.h>
 
@@ -38,35 +39,33 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<ColorModelData> > dataObserver;
         };
 
-        ConfigWidget::ConfigWidget(
-            const std::shared_ptr<ColorModel>& colorModel,
-            QWidget* parent) :
+        ConfigWidget::ConfigWidget(App* app, QWidget* parent) :
             QWidget(parent),
             _p(new Private)
         {
             TLRENDER_P();
 
-            p.colorModel = colorModel;
+            p.colorModel = app->colorModel();
 
-            auto inputListModel = new ColorInputListModel(colorModel, this);
+            auto inputListModel = new ColorInputListModel(p.colorModel, this);
             auto inputListProxyModel = new QSortFilterProxyModel(this);
             inputListProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
             inputListProxyModel->setFilterKeyColumn(-1);
             inputListProxyModel->setSourceModel(inputListModel);
 
-            auto displayListModel = new ColorDisplayListModel(colorModel, this);
+            auto displayListModel = new ColorDisplayListModel(p.colorModel, this);
             auto displayListProxyModel = new QSortFilterProxyModel(this);
             displayListProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
             displayListProxyModel->setFilterKeyColumn(-1);
             displayListProxyModel->setSourceModel(displayListModel);
 
-            auto viewListModel = new ColorViewListModel(colorModel, this);
+            auto viewListModel = new ColorViewListModel(p.colorModel, this);
             auto viewListProxyModel = new QSortFilterProxyModel(this);
             viewListProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
             viewListProxyModel->setFilterKeyColumn(-1);
             viewListProxyModel->setSourceModel(viewListModel);
 
-            p.fileWidget = new qtwidget::FileWidget({ ".ocio" });
+            p.fileWidget = new qtwidget::FileWidget(app->getContext());
 
             auto inputListView = new QListView;
             inputListView->setAlternatingRowColors(true);
@@ -180,7 +179,7 @@ namespace tl
                 SLOT(setFilterFixedString(const QString&)));
 
             p.dataObserver = observer::ValueObserver<ColorModelData>::create(
-                colorModel->observeData(),
+                p.colorModel->observeData(),
                 [this](const ColorModelData& value)
                 {
                     _p->data = value;
@@ -208,7 +207,7 @@ namespace tl
             QComboBox* orderComboBox = nullptr;
         };
 
-        LUTWidget::LUTWidget(QWidget* parent) :
+        LUTWidget::LUTWidget(App* app, QWidget* parent) :
             QWidget(parent),
             _p(new Private)
         {
@@ -219,7 +218,7 @@ namespace tl
             {
                 extensions.push_back(QString::fromUtf8(i.c_str()));
             }
-            p.fileWidget = new qtwidget::FileWidget(extensions);
+            p.fileWidget = new qtwidget::FileWidget(app->getContext());
 
             p.orderComboBox = new QComboBox;
 
@@ -864,16 +863,14 @@ namespace tl
             SoftClipWidget* softClipWidget = nullptr;
         };
 
-        ColorTool::ColorTool(
-            const std::shared_ptr<ColorModel>& colorModel,
-            QWidget* parent) :
-            IToolWidget(parent),
+        ColorTool::ColorTool(App* app, QWidget* parent) :
+            IToolWidget(app, parent),
             _p(new Private)
         {
             TLRENDER_P();
 
-            p.configWidget = new ConfigWidget(colorModel);
-            p.lutWidget = new LUTWidget;
+            p.configWidget = new ConfigWidget(app);
+            p.lutWidget = new LUTWidget(app);
             p.colorControlsWidget = new ColorControlsWidget;
             p.levelsWidget = new LevelsWidget;
             p.exrDisplayWidget = new EXRDisplayWidget;

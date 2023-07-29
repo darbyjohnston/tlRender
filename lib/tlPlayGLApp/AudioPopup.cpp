@@ -11,7 +11,6 @@
 #include <tlUI/RowLayout.h>
 #include <tlUI/ToolButton.h>
 
-#include <tlCore/JSON.h>
 #include <tlCore/StringFormat.h>
 
 namespace tl
@@ -59,29 +58,27 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getSettings()->setValue(
-                            "Audio/Mute",
-                            static_cast<int>(value));
+                        app->getSettings()->setValue("Audio/Mute", value);
                     }
                 });
 
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
-                [this, appWeak](const std::string& value)
+                [this, appWeak](const std::string&)
                 {
                     TLRENDER_P();
                     if (auto app = appWeak.lock())
                     {
                         auto settings = app->getSettings();
-                        if ("Audio/Volume" == value)
                         {
-                            p.volumeSlider->getModel()->setValue(
-                                settings->getValue<float>("Audio/Volume") * 100.0);
+                            float value = 0.F;
+                            settings->getValue("Audio/Volume", value);
+                            p.volumeSlider->getModel()->setValue(value * 100.F);
                         }
-                        else if ("Audio/Mute" == value)
                         {
-                            p.muteButton->setChecked(
-                                settings->getValue<bool>("Audio/Mute"));
+                            bool value = false;
+                            settings->getValue("Audio/Mute", value);
+                            p.muteButton->setChecked(value);
                         }
                     }
                 });
@@ -92,7 +89,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getSettings()->setValue("Audio/Volume", value);
+                        app->getSettings()->setValue("Audio/Volume", value / 100.F);
                     }
                 });
         }

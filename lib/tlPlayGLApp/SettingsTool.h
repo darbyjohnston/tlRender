@@ -68,6 +68,34 @@ namespace tl
             TLRENDER_PRIVATE();
         };
 
+        //! FileBrowser settings widget.
+        class FileBrowserSettingsWidget : public ui::IWidget
+        {
+            TLRENDER_NON_COPYABLE(FileBrowserSettingsWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent);
+
+            FileBrowserSettingsWidget();
+
+        public:
+            virtual ~FileBrowserSettingsWidget();
+
+            static std::shared_ptr<FileBrowserSettingsWidget> create(
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            void setGeometry(const math::BBox2i&) override;
+            void sizeHintEvent(const ui::SizeHintEvent&) override;
+
+        private:
+            TLRENDER_PRIVATE();
+        };
+
         //! Performance settings widget.
         class PerformanceSettingsWidget : public ui::IWidget
         {

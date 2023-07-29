@@ -18,17 +18,46 @@
 
 #include <tlCore/AudioSystem.h>
 #include <tlCore/File.h>
-#include <tlCore/JSON.h>
 #include <tlCore/StringFormat.h>
 
 namespace tl
 {
     namespace play_gl
     {
+        namespace
+        {
+            struct Options
+            {
+                std::string fileName;
+                std::string audioFileName;
+                std::string compareFileName;
+                timeline::CompareOptions compareOptions;
+                imaging::Size windowSize = imaging::Size(1280, 720);
+                bool fullscreen = false;
+                bool hud = true;
+                double speed = 0.0;
+                timeline::Playback playback = timeline::Playback::Stop;
+                timeline::Loop loop = timeline::Loop::Loop;
+                otime::RationalTime seek = time::invalidTime;
+                otime::TimeRange inOutRange = time::invalidTimeRange;
+                timeline::ColorConfigOptions colorConfigOptions;
+                timeline::LUTOptions lutOptions;
+#if defined(TLRENDER_USD)
+                size_t usdRenderWidth = usd::RenderOptions().renderWidth;
+                float usdComplexity = usd::RenderOptions().complexity;
+                usd::DrawMode usdDrawMode = usd::RenderOptions().drawMode;
+                bool usdEnableLighting = usd::RenderOptions().enableLighting;
+                size_t usdStageCache = usd::RenderOptions().stageCacheCount;
+                size_t usdDiskCache = usd::RenderOptions().diskCacheByteCount / memory::gigabyte;
+#endif // TLRENDER_USD
+                bool resetSettings = false;
+                std::string settingsFileName;
+            };
+        }
+
         struct App::Private
         {
-            std::string input;
-            std::string settingsFile;
+            std::string settingsFileName;
             std::shared_ptr<Settings> settings;
             Options options;
             float volume = 1.F;
@@ -66,12 +95,16 @@ namespace tl
                 "Example GLFW playback application.",
                 {
                     app::CmdLineValueArg<std::string>::create(
-                        p.input,
+                        p.options.fileName,
                         "input",
                         "The input timeline, movie, or image sequence.",
                         true)
                 },
             {
+                app::CmdLineValueOption<std::string>::create(
+                    p.options.audioFileName,
+                    { "-audio", "-a" },
+                    "Audio file name."),
                 app::CmdLineValueOption<std::string>::create(
                     p.options.compareFileName,
                     { "-compare", "-b" },
@@ -190,6 +223,14 @@ namespace tl
                     "USD disk cache size in gigabytes. A size of zero disables the disk cache.",
                     string::Format("{0}").arg(p.options.usdDiskCache)),
 #endif // TLRENDER_USD
+                app::CmdLineFlagOption::create(
+                    p.options.resetSettings,
+                    { "-resetSettings" },
+                    "Reset settings to defaults."),
+                app::CmdLineValueOption<std::string>::create(
+                    p.options.settingsFileName,
+                    { "-settings" },
+                    "Settings file name."),
             });
             const int exitCode = getExit();
             if (exitCode != 0)
@@ -236,19 +277,6 @@ namespace tl
             ioSystem->setOptions(ioOptions);
 
             // Initialize the settings.
-            const std::string documentsPath =
-                file::getUserPath(file::UserPath::Documents);
-            if (!file::exists(documentsPath))
-            {
-                file::mkdir(documentsPath);
-            }
-            const std::string settingsPath =
-                file::Path(documentsPath, "tlplay-gl").get();
-            if (!file::exists(settingsPath))
-            {
-                file::mkdir(settingsPath);
-            }
-            p.settingsFile = file::Path(settingsPath, "Settings.json").get();
             p.settings = Settings::create(context);
             p.settings->setValue("Timeline/FrameView", true);
             p.settings->setValue("Timeline/StopOnScrub", false);
@@ -262,28 +290,48 @@ namespace tl
                 p.playerCacheOptions.readAhead.value());
             p.settings->setValue("Cache/ReadBehind",
                 p.playerCacheOptions.readBehind.value());
-            //p.settings->setValue("FileSequence/Audio",
-            //    timeline::FileSequenceAudio::BaseName);
+            p.settings->setValue("FileSequence/Audio",
+                timeline::FileSequenceAudio::BaseName);
             p.settings->setValue("FileSequence/AudioFileName", std::string());
             p.settings->setValue("FileSequence/AudioDirectory", std::string());
             p.settings->setValue("FileSequence/MaxDigits", 9);
-            const timeline::PlayerOptions playerOptions;
-            //p.settings->setValue("Performance/TimerMode",
-            //    playerOptions.timerMode);
-            //p.settings->setValue("Performance/AudioBufferFrameCount",
-            //    playerOptions.audioBufferFrameCount);
+            p.settings->setValue("FileBrowser/NativeFileDialog", true);
+            p.settings->setValue("FileBrowser/Path", file::getCWD());
+            p.settings->setValue("FileBrowser/Options", ui::FileBrowserOptions());
+            p.settings->setValue("Performance/TimerMode",
+                timeline::PlayerOptions().timerMode);
+            p.settings->setValue("Performance/AudioBufferFrameCount",
+                timeline::PlayerOptions().audioBufferFrameCount);
             p.settings->setValue("Performance/VideoRequestCount", 16);
             p.settings->setValue("Performance/AudioRequestCount", 16);
             p.settings->setValue("Performance/SequenceThreadCount", 16);
             p.settings->setValue("Performance/FFmpegYUVToRGBConversion", false);
             p.settings->setValue("Performance/FFmpegThreadCount", 0);
-            p.settings->setValue("FileBrowser/Path", file::getCWD());
-            nlohmann::json json;
-            to_json(json, ui::FileBrowserOptions());
-            p.settings->setValue("FileBrowser/Options", json.dump());
-            p.settings->setValue("Misc/NativeFileDialog", true);
             p.settings->setValue("Misc/ToolTipsEnabled", true);
-            p.settings->read(p.settingsFile);
+            if (!p.options.settingsFileName.empty())
+            {
+                p.settingsFileName = p.options.settingsFileName;
+            }
+            else
+            {
+                const std::string documentsPath =
+                    file::getUserPath(file::UserPath::Documents);
+                if (!file::exists(documentsPath))
+                {
+                    file::mkdir(documentsPath);
+                }
+                const std::string settingsPath =
+                    file::Path(documentsPath, "tlplay-gl").get();
+                if (!file::exists(settingsPath))
+                {
+                    file::mkdir(settingsPath);
+                }
+                p.settingsFileName = file::Path(settingsPath, "Settings.json").get();
+            }
+            if (!p.options.resetSettings)
+            {
+                p.settings->read(p.settingsFileName);
+            }
 
             // Initialize the models.
             p.filesModel = play::FilesModel::create(context);
@@ -293,8 +341,12 @@ namespace tl
             // Initialize the file browser.
             if (auto fileBrowserSystem = context->getSystem<ui::FileBrowserSystem>())
             {
-                fileBrowserSystem->setPath(p.settings->getValue<std::string>("FileBrowser/Path"));
-                //fileBrowserSystem->setOptions(p.settings->getValue<ui::FileBrowserOptions>("FileBrowser/Options"));
+                std::string path;
+                p.settings->getValue("FileBrowser/Path", path);
+                fileBrowserSystem->setPath(path);
+                ui::FileBrowserOptions options;
+                p.settings->getValue("FileBrowser/Options", options);
+                fileBrowserSystem->setOptions(options);
             }
 
             // Create observers.
@@ -325,35 +377,55 @@ namespace tl
                 });
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 p.settings->observeValues(),
-                [this](const std::string& value)
+                [this](const std::string&)
                 {
                     TLRENDER_P();
-                    if ("Audio/Volume" == value)
                     {
-                        p.volume = p.settings->getValue<float>("Audio/Volume");
-                        _audioUpdate();
+                        float volume = 1.F;
+                        p.settings->getValue("Audio/Volume", volume);
+                        if (volume != p.volume)
+                        {
+                            p.volume = volume;
+                            _audioUpdate();
+                        }
                     }
-                    else if ("Audio/Mute" == value)
                     {
-                        p.mute = p.settings->getValue<float>("Audio/Mute");
-                        _audioUpdate();
+                        bool mute = false;
+                        p.settings->getValue("Audio/Mute", mute);
+                        if (mute != p.mute)
+                        {
+                            p.mute = mute;
+                            _audioUpdate();
+                        }
                     }
-                    else if ("Cache/ReadAhead" == value)
                     {
-                        p.playerCacheOptions.readAhead = otime::RationalTime(
-                            p.settings->getValue<double>("Cache/ReadAhead"), 1.0);
-                        _cacheUpdate();
+                        double value = 0.0;
+                        p.settings->getValue("Cache/ReadAhead", value);
+                        if (value != p.playerCacheOptions.readAhead.value())
+                        {
+                            p.playerCacheOptions.readAhead = otime::RationalTime(value, 1.0);
+                            _cacheUpdate();
+                        }
                     }
-                    else if ("Cache/ReadBehind" == value)
                     {
-                        p.playerCacheOptions.readBehind = otime::RationalTime(
-                            p.settings->getValue<double>("Cache/ReadBehind"), 1.0);
-                        _cacheUpdate();
+                        double value = 0.0;
+                        p.settings->getValue("Cache/ReadBehind", value);
+                        if (value != p.playerCacheOptions.readBehind.value())
+                        {
+                            p.playerCacheOptions.readBehind = otime::RationalTime(value, 1.0);
+                            _cacheUpdate();
+                        }
+                    }
+                    if (auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>())
+                    {
+                        bool value = false;
+                        p.settings->getValue("FileBrowser/NativeFileDialog", value);
+                        fileBrowserSystem->setNativeFileDialog(value);
                     }
                 });
 
             // Open the input files.
-            if (!p.input.empty())
+            if (!p.options.fileName.empty())
             {
                 if (!p.options.compareFileName.empty())
                 {
@@ -362,7 +434,7 @@ namespace tl
                     p.filesModel->setB(0, true);
                 }
 
-                open(p.input);
+                open(p.options.fileName, p.options.audioFileName);
                 
                 if (!p.players.empty())
                 {
@@ -405,14 +477,16 @@ namespace tl
             // Save the file browser settings.
             if (auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>())
             {
-                p.settings->setValue("FileBrowser/Path", fileBrowserSystem->getPath());
-                nlohmann::json json;
-                to_json(json, fileBrowserSystem->getOptions());
-                p.settings->setValue("FileBrowser/Options", json.dump());
+                p.settings->setValue(
+                    "FileBrowser/Path",
+                    fileBrowserSystem->getPath());
+                p.settings->setValue(
+                    "FileBrowser/Options",
+                    fileBrowserSystem->getOptions());
             }
 
             // Save the settings.
-            p.settings->write(p.settingsFile);
+            p.settings->write(p.settingsFileName);
         }
 
         std::shared_ptr<App> App::create(
@@ -461,7 +535,7 @@ namespace tl
         {
             TLRENDER_P();
             file::PathOptions pathOptions;
-            pathOptions.maxNumberDigits = p.settings->getValue<int>("FileSequence/MaxDigits");
+            p.settings->getValue("FileSequence/MaxDigits", pathOptions.maxNumberDigits);
             for (const auto& path : timeline::getPaths(fileName, pathOptions, _context))
             {
                 auto item = std::make_shared<play::FilesModelItem>();
@@ -558,25 +632,33 @@ namespace tl
                     try
                     {
                         timeline::Options options;
-                        //options.fileSequenceAudio =
-                        //    p.settings->getValue<timeline::FileSequenceAudio>("FileSequence/Audio");
-                        options.fileSequenceAudioFileName =
-                            p.settings->getValue<std::string>("FileSequence/AudioFileName");
-                        options.fileSequenceAudioDirectory =
-                            p.settings->getValue<std::string>("FileSequence/AudioDirectory");
-                        options.videoRequestCount = 
-                           p.settings->getValue<int>("Performance/VideoRequestCount");
-                        options.audioRequestCount =
-                            p.settings->getValue<int>("Performance/AudioRequestCount");
-                        options.ioOptions["SequenceIO/ThreadCount"] =
-                            p.settings->getValue<int>("Performance/SequenceThreadCount");
-                        options.ioOptions["FFmpeg/YUVToRGBConversion"] =
-                            p.settings->getValue<bool>("Performance/FFmpegYUVToRGBConversion");
-                        options.ioOptions["FFmpeg/ThreadCount"] =
-                            p.settings->getValue<int>("Performance/FFmpegThreadCount");
-                        options.pathOptions.maxNumberDigits = std::min(
-                            p.settings->getValue<int>("FileSequence/MaxDigits"),
-                            255);
+                        p.settings->getValue(
+                            "FileSequence/Audio",
+                            options.fileSequenceAudio);
+                        p.settings->getValue(
+                            "FileSequence/AudioFileName",
+                            options.fileSequenceAudioFileName);
+                        p.settings->getValue(
+                            "FileSequence/AudioDirectory",
+                            options.fileSequenceAudioDirectory);
+                        p.settings->getValue(
+                            "Performance/VideoRequestCount",
+                            options.videoRequestCount);
+                        p.settings->getValue(
+                            "Performance/AudioRequestCount",
+                            options.audioRequestCount);
+                        p.settings->getValue(
+                            "Performance/SequenceThreadCount",
+                            options.ioOptions["SequenceIO/ThreadCount"]);
+                        p.settings->getValue(
+                            "Performance/FFmpegYUVToRGBConversion",
+                            options.ioOptions["FFmpeg/YUVToRGBConversion"]);
+                        p.settings->getValue(
+                            "Performance/FFmpegThreadCount",
+                            options.ioOptions["FFmpeg/ThreadCount"]);
+                        p.settings->getValue(
+                            "FileSequence/MaxDigits",
+                            options.pathOptions.maxNumberDigits);
                         auto otioTimeline = items[i]->audioPath.isEmpty() ?
                             timeline::create(items[i]->path.get(), _context, options) :
                             timeline::create(items[i]->path.get(), items[i]->audioPath.get(), _context, options);
@@ -585,10 +667,12 @@ namespace tl
                         timeline::PlayerOptions playerOptions;
                         playerOptions.cache.readAhead = time::invalidTime;
                         playerOptions.cache.readBehind = time::invalidTime;
-                        //playerOptions.timerMode =
-                        //    p.settings->getValue<timeline::TimerMode>("Performance/TimerMode");
-                        playerOptions.audioBufferFrameCount =
-                            p.settings->getValue<int>("Performance/AudioBufferFrameCount");
+                        p.settings->getValue(
+                            "Performance/TimerMode",
+                            playerOptions.timerMode);
+                        p.settings->getValue(
+                            "Performance/AudioBufferFrameCount",
+                            playerOptions.audioBufferFrameCount);
                         players[i] = timeline::Player::create(
                             timeline,
                             _context,

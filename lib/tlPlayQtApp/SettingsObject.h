@@ -29,7 +29,10 @@ namespace tl
             ~SettingsObject() override;
 
             //! Get a settings value.
-            QVariant value(const QString&);
+            QVariant value(const QString&) const;
+
+            //! Set a default value.
+            void setDefaultValue(const QString&, const QVariant&);
 
             //! Get the list of recent files.
             const QList<QString>& recentFiles() const;
@@ -37,9 +40,6 @@ namespace tl
         public Q_SLOTS:
             //! Set a settings value.
             void setValue(const QString&, const QVariant&);
-
-            //! Set a default settings value.
-            void setDefaultValue(const QString&, const QVariant&);
 
             //! Reset the settings to defaults.
             void reset();

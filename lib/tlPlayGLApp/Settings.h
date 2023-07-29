@@ -40,7 +40,7 @@ namespace tl
 
             //! Get a value.
             template<typename T>
-            T getValue(const std::string&) const;
+            void getValue(const std::string&, T&) const;
 
             //! Observe value changes.
             std::shared_ptr<observer::IValue<std::string> > observeValues() const;
@@ -48,6 +48,9 @@ namespace tl
             //! Set a value.
             template<typename T>
             void setValue(const std::string&, T);
+
+            //! Reset the settings to defaults.
+            void reset();
 
             //! Read the values from a file.
             void read(const std::string&);

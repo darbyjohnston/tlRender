@@ -30,10 +30,8 @@ namespace tl
             std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
         };
 
-        MessagesTool::MessagesTool(
-            const std::shared_ptr<system::Context>& context,
-            QWidget* parent) :
-            IToolWidget(parent),
+        MessagesTool::MessagesTool(App* app, QWidget* parent) :
+            IToolWidget(app, parent),
             _p(new Private)
         {
             TLRENDER_P();
@@ -67,7 +65,7 @@ namespace tl
             addWidget(widget);
 
             p.logObserver = observer::ListObserver<log::Item>::create(
-                context->getLogSystem()->observeLog(),
+                app->getContext()->getLogSystem()->observeLog(),
                 [this](const std::vector<log::Item>& value)
                 {
                     for (const auto& i : value)
