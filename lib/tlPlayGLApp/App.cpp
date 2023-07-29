@@ -494,6 +494,7 @@ namespace tl
                     "FileBrowser/Options",
                     fileBrowserSystem->getOptions());
             }
+            p.settings->setValue("Files/RecentMax", p.recentFilesModel->getRecentMax());
             std::vector<std::string> recentFiles;
             for (const auto& recentFile : p.recentFilesModel->getRecent())
             {
