@@ -278,6 +278,7 @@ namespace tl
 
             // Initialize the settings.
             p.settings = Settings::create(context);
+            p.settings->setValue("Files/RecentMax", 10);
             p.settings->setValue("Timeline/FrameView", true);
             p.settings->setValue("Timeline/StopOnScrub", false);
             p.settings->setValue("Timeline/Thumbnails", true);
@@ -336,6 +337,15 @@ namespace tl
             // Initialize the models.
             p.filesModel = play::FilesModel::create(context);
             p.recentFilesModel = ui::RecentFilesModel::create(context);
+            int recentFilesMax = 0;
+            p.settings->getValue("Files/RecentMax", recentFilesMax);
+            p.recentFilesModel->setRecentMax(recentFilesMax);
+            std::vector<std::string> recentFiles;
+            p.settings->getValue("Files/Recent", recentFiles);
+            for (const auto& recentFile : recentFiles)
+            {
+                p.recentFilesModel->addRecent(file::Path(recentFile));
+            }
             p.toolsModel = ToolsModel::create();
 
             // Initialize the file browser.
@@ -474,7 +484,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            // Save the file browser settings.
+            // Save the settings.
             if (auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>())
             {
                 p.settings->setValue(
@@ -484,8 +494,12 @@ namespace tl
                     "FileBrowser/Options",
                     fileBrowserSystem->getOptions());
             }
-
-            // Save the settings.
+            std::vector<std::string> recentFiles;
+            for (const auto& recentFile : p.recentFilesModel->getRecent())
+            {
+                recentFiles.push_back(recentFile.get());
+            }
+            p.settings->setValue("Files/Recent", recentFiles);
             p.settings->write(p.settingsFileName);
         }
 

@@ -100,7 +100,23 @@ namespace tl
                     out = _values.at(key);
                 }
                 catch (const std::exception&)
-                {}
+                {
+                }
+            }
+        }
+
+        template<>
+        inline void Settings::getValue(const std::string& key, std::vector<std::string>& out) const
+        {
+            if (_values.contains(key))
+            {
+                try
+                {
+                    out = _values.at(key);
+                }
+                catch (const std::exception&)
+                {
+                }
             }
         }
 
@@ -197,6 +213,21 @@ namespace tl
 
         template<>
         inline void Settings::setValue(const std::string& key, std::string in)
+        {
+            nlohmann::json json = in;
+            if (!_values.contains(key))
+            {
+                _defaultValues[key] = json;
+            }
+            if (json != _values[key])
+            {
+                _values[key] = json;
+                _observer->setAlways(key);
+            }
+        }
+
+        template<>
+        inline void Settings::setValue(const std::string& key, std::vector<std::string> in)
         {
             nlohmann::json json = in;
             if (!_values.contains(key))
