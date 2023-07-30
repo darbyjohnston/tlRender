@@ -28,7 +28,7 @@ namespace tl
             p.button = new BellowsButton;
 
             auto layout = new QVBoxLayout;
-            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setContentsMargins(0, 0, 0, 1);
             layout->setSpacing(0);
             layout->addWidget(p.button);
             p.layout = new QVBoxLayout;

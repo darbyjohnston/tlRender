@@ -5,7 +5,6 @@
 #include <tlPlayQtApp/IToolWidget.h>
 
 #include <tlQtWidget/BellowsWidget.h>
-#include <tlQtWidget/Separator.h>
 
 #include <QBoxLayout>
 #include <QScrollArea>
@@ -33,19 +32,11 @@ namespace tl
 
         void IToolWidget::addWidget(QWidget* widget, int stretch)
         {
-            if (_layout->count() > 0)
-            {
-                _layout->addWidget(new qtwidget::Separator(Qt::Horizontal));
-            }
             _layout->addWidget(widget, stretch);
         }
 
         void IToolWidget::addBellows(const QString& title, QWidget* widget)
         {
-            if (_layout->count() > 0)
-            {
-                _layout->addWidget(new qtwidget::Separator(Qt::Horizontal));
-            }
             auto bellowsWidget = new qtwidget::BellowsWidget;
             bellowsWidget->setTitle(title);
             bellowsWidget->setWidget(widget);
