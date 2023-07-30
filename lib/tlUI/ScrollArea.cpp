@@ -127,6 +127,7 @@ namespace tl
                     sizeHint.y = std::max(sizeHint.y, g.h());
                     break;
                 case ScrollType::Vertical:
+                case ScrollType::Menu:
                     sizeHint.x = std::max(sizeHint.x, g.w());
                     break;
                 case ScrollType::Both:
@@ -178,32 +179,28 @@ namespace tl
             p.size.border = p.border ?
                 event.style->getSizeRole(SizeRole::Border, event.displayScale) :
                 0;
+            const int sa = event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
 
             _sizeHint = math::Vector2i();
+            for (const auto& child : _children)
+            {
+                const math::Vector2i& sizeHint = child->getSizeHint();
+                _sizeHint.x = std::max(_sizeHint.x, sizeHint.x);
+                _sizeHint.y = std::max(_sizeHint.y, sizeHint.y);
+            }
             switch (p.scrollType)
             {
                 case ScrollType::Horizontal:
-                    _sizeHint.x =
-                        event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
-                    for (const auto& child : _children)
-                    {
-                        const math::Vector2i& sizeHint = child->getSizeHint();
-                        _sizeHint.y = std::max(_sizeHint.y, sizeHint.y);
-                    }
+                    _sizeHint.x = std::min(_sizeHint.x, sa);
                     break;
                 case ScrollType::Vertical:
-                    _sizeHint.y =
-                        event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
-                    for (const auto& child : _children)
-                    {
-                        const math::Vector2i& sizeHint = child->getSizeHint();
-                        _sizeHint.x = std::max(_sizeHint.x, sizeHint.x);
-                    }
+                    _sizeHint.y = std::min(_sizeHint.y, sa);
                     break;
                 case ScrollType::Both:
-                    _sizeHint.x = _sizeHint.y =
-                        event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
+                    _sizeHint.x = std::min(_sizeHint.x, sa);
+                    _sizeHint.y = std::min(_sizeHint.y, sa);
                     break;
+                default: break;
             }
             _sizeHint.x += p.size.border * 2;
             _sizeHint.y += p.size.border * 2;

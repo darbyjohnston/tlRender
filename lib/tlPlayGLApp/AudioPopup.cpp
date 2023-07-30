@@ -46,11 +46,12 @@ namespace tl
             p.volumeSlider->getModel()->setStep(1);
             p.volumeSlider->getModel()->setLargeStep(10);
 
-            p.layout = ui::HorizontalLayout::create(context, shared_from_this());
+            p.layout = ui::HorizontalLayout::create(context);
             p.layout->setMarginRole(ui::SizeRole::MarginInside);
             p.layout->setSpacingRole(ui::SizeRole::SpacingTool);
             p.muteButton->setParent(p.layout);
             p.volumeSlider->setParent(p.layout);
+            setWidget(p.layout);
 
             auto appWeak = std::weak_ptr<App>(app);
             p.muteButton->setCheckedCallback(

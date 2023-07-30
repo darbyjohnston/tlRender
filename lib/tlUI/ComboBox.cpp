@@ -50,7 +50,7 @@ namespace tl
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                IPopup::_init("tl::ui::ComboBoxMenu", context, parent);
+                IMenuPopup::_init("tl::ui::ComboBoxMenu", context, parent);
 
                 std::vector<std::shared_ptr<ListButton> > buttons;
                 _buttonGroup = ButtonGroup::create(ButtonGroupType::Click, context);
@@ -63,12 +63,13 @@ namespace tl
                     _buttonGroup->addButton(button);
                 }
 
-                _layout = VerticalLayout::create(context, shared_from_this());
+                _layout = VerticalLayout::create(context);
                 _layout->setSpacingRole(SizeRole::None);
                 for (const auto& button : buttons)
                 {
                     button->setParent(_layout);
                 }
+                setWidget(_layout);
                 
                 auto weak = std::weak_ptr<ComboBoxMenu>(std::dynamic_pointer_cast<ComboBoxMenu>(shared_from_this()));
                 _buttonGroup->setClickedCallback(

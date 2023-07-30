@@ -117,23 +117,10 @@ namespace tl
             TLRENDER_P();
 
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
-            const int h = event.style->getSizeRole(SizeRole::Handle, event.displayScale);
-            const int sa = event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
 
-            switch (p.orientation)
-            {
-            case Orientation::Horizontal:
-                _sizeHint.x = sa;
-                _sizeHint.y = h;
-                break;
-            case Orientation::Vertical:
-                _sizeHint.x = h;
-                _sizeHint.y = sa;
-                break;
-            default: break;
-            }
-            _sizeHint.x += p.size.border * 2;
-            _sizeHint.y += p.size.border * 2;
+            const int h = event.style->getSizeRole(SizeRole::Handle, event.displayScale);
+            _sizeHint.x = h + p.size.border * 2;
+            _sizeHint.y = h + p.size.border * 2;
         }
 
         void ScrollBar::drawEvent(

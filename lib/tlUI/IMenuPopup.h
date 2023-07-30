@@ -53,6 +53,9 @@ namespace tl
             //! Set the menu popup color role.
             void setPopupRole(ColorRole);
 
+            //! Set the widget.
+            void setWidget(const std::shared_ptr<IWidget>&);
+
             void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void drawEvent(

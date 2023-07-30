@@ -586,8 +586,9 @@ namespace tl
         {
             IMenuPopup::_init("tl::ui::Menu", context, parent);
             TLRENDER_P();
-            p.layout = VerticalLayout::create(context, shared_from_this());
+            p.layout = VerticalLayout::create(context);
             p.layout->setSpacingRole(SizeRole::None);
+            setWidget(p.layout);
         }
 
         Menu::Menu() :

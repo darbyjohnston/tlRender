@@ -17,7 +17,8 @@ namespace tl
         {
             Horizontal,
             Vertical,
-            Both
+            Both,
+            Menu
         };
 
         //! Scroll area.

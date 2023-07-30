@@ -16,7 +16,9 @@ namespace tl
         struct ScrollWidget::Private
         {
             ScrollType scrollType = ScrollType::Both;
+            bool scrollBarsVisible = true;
             bool scrollEventsEnabled = true;
+            std::shared_ptr<IWidget> widget;
             std::shared_ptr<ScrollArea> scrollArea;
             std::shared_ptr<ScrollBar> horizontalScrollBar;
             std::shared_ptr<ScrollBar> verticalScrollBar;
@@ -43,6 +45,7 @@ namespace tl
                 p.horizontalScrollBar = ScrollBar::create(Orientation::Horizontal, context);
                 break;
             case ScrollType::Vertical:
+            case ScrollType::Menu:
                 p.verticalScrollBar = ScrollBar::create(Orientation::Vertical, context);
                 break;
             case ScrollType::Both:
@@ -103,10 +106,16 @@ namespace tl
                     if (_p->horizontalScrollBar)
                     {
                         _p->horizontalScrollBar->setScrollSize(value.x);
+                        //_p->horizontalScrollBar->setVisible(
+                        //    _p->scrollBarsVisible &&
+                        //    value.x > _p->scrollArea->getGeometry().w());
                     }
                     if (_p->verticalScrollBar)
                     {
                         _p->verticalScrollBar->setScrollSize(value.y);
+                        //_p->verticalScrollBar->setVisible(
+                        //    _p->scrollBarsVisible &&
+                        //    value.y > _p->scrollArea->getGeometry().h());
                     }
                 });
 
@@ -147,7 +156,16 @@ namespace tl
 
         void ScrollWidget::setWidget(const std::shared_ptr<IWidget>& value)
         {
-            value->setParent(_p->scrollArea);
+            TLRENDER_P();
+            if (p.widget)
+            {
+                p.widget->setParent(nullptr);
+            }
+            p.widget = value;
+            if (p.widget)
+            {
+                p.widget->setParent(_p->scrollArea);
+            }
         }
 
         math::BBox2i ScrollWidget::getViewport() const
@@ -184,8 +202,12 @@ namespace tl
 
         void ScrollWidget::setScrollBarsVisible(bool value)
         {
-            _p->horizontalScrollBar->setVisible(value);
-            _p->verticalScrollBar->setVisible(value);
+            TLRENDER_P();
+            if (value == p.scrollBarsVisible)
+                return;
+            p.scrollBarsVisible = value;
+            p.horizontalScrollBar->setVisible(value);
+            p.verticalScrollBar->setVisible(value);
         }
 
         void ScrollWidget::setScrollEventsEnabled(bool value)
@@ -206,13 +228,28 @@ namespace tl
         void ScrollWidget::setGeometry(const math::BBox2i& value)
         {
             IWidget::setGeometry(value);
-            _p->layout->setGeometry(value);
+            TLRENDER_P();
+            const math::Vector2i& scrollSize = p.scrollArea->getScrollSize();
+            /*if (p.horizontalScrollBar)
+            {
+                p.horizontalScrollBar->setVisible(
+                    p.scrollBarsVisible &&
+                    scrollSize.x > p.scrollArea->getGeometry().w());
+            }
+            if (p.verticalScrollBar)
+            {
+                p.verticalScrollBar->setVisible(
+                    p.scrollBarsVisible &&
+                    scrollSize.y > p.scrollArea->getGeometry().h());
+            }*/
+            p.layout->setGeometry(value);
         }
 
         void ScrollWidget::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            TLRENDER_P();
+            _sizeHint = p.layout->getSizeHint();
         }
 
         void ScrollWidget::scrollEvent(ScrollEvent& event)
