@@ -67,6 +67,11 @@ namespace tl
             _p->widget->setFileCallback(value);
         }
 
+        const file::Path& FileBrowser::getPath() const
+        {
+            return _p->widget->getPath();
+        }
+
         const FileBrowserOptions& FileBrowser::getOptions() const
         {
             return _p->widget->getOptions();

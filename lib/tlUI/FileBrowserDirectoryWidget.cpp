@@ -39,6 +39,8 @@ namespace tl
             IWidget::_init("tl::ui::DirectoryWidget", context, parent);
             TLRENDER_P();
 
+            setBackgroundRole(ColorRole::Base);
+
             p.options.list.sequence = false;
 
             p.buttonGroup = ButtonGroup::create(ButtonGroupType::Click, context);

@@ -60,9 +60,10 @@ namespace tl
             void mouseReleaseEvent(MouseClickEvent&) override;
 
         private:
+            math::BBox2i _getBorderGeometry() const;
+            math::BBox2i _getHandleGeometry() const;
             int _getScrollPosMax() const;
             float _getScrollScale() const;
-            math::BBox2i _getHandleGeometry() const;
 
             void _resetMouse();
 

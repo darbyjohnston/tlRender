@@ -233,8 +233,10 @@ namespace tl
             ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
             auto splitter = ui::Splitter::create(ui::Orientation::Vertical, context, p.layout);
             splitter->setSplit(.7F);
+            splitter->setSpacingRole(ui::SizeRole::None);
             auto splitter2 = ui::Splitter::create(ui::Orientation::Horizontal, context, splitter);
             splitter2->setSplit(.8F);
+            splitter2->setSpacingRole(ui::SizeRole::None);
             p.timelineViewport->setParent(splitter2);
             p.toolsWidget->setParent(splitter2);
             p.timelineWidget->setParent(splitter);

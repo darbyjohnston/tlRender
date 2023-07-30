@@ -41,12 +41,10 @@ namespace tl
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:
-            void _createLabel(
-                const std::string&,
-                const std::shared_ptr<system::Context>&);
             void _createButton(
                 const std::string&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent);
 
             void _pathsUpdate();
 
@@ -153,9 +151,11 @@ namespace tl
 
             void setCancelCallback(const std::function<void(void)>&);
 
-            void setOptions(const FileBrowserOptions&);
+            const file::Path& getPath() const;
 
             const FileBrowserOptions& getOptions() const;
+
+            void setOptions(const FileBrowserOptions&);
 
             void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;

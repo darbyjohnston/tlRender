@@ -4,10 +4,9 @@
 
 #include <tlUI/FileBrowserPrivate.h>
 
+#include <tlUI/Bellows.h>
 #include <tlUI/ButtonGroup.h>
-#include <tlUI/Divider.h>
 #include <tlUI/DrivesModel.h>
-#include <tlUI/Label.h>
 #include <tlUI/ListButton.h>
 #include <tlUI/RowLayout.h>
 
@@ -26,6 +25,8 @@ namespace tl
             std::vector<std::string> paths;
             std::vector<std::shared_ptr<ListButton> > buttons;
             std::shared_ptr<ButtonGroup> buttonGroup;
+            std::map<std::string, std::shared_ptr<Bellows> > bellows;
+            std::map<std::string, std::shared_ptr<VerticalLayout> > layouts;
             std::shared_ptr<VerticalLayout> layout;
             std::function<void(const std::string&)> callback;
             std::shared_ptr<observer::ListObserver<std::string> > drivesObserver;
@@ -40,6 +41,8 @@ namespace tl
             IWidget::_init("tl::ui::PathsWidget", context, parent);
             TLRENDER_P();
 
+            setBackgroundRole(ColorRole::Base);
+
             p.drivesModel = DrivesModel::create(context);
 
             p.recentModel = recentModel;
@@ -48,6 +51,24 @@ namespace tl
 
             p.layout = VerticalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(SizeRole::None);
+
+            p.bellows["Drives"] = Bellows::create("Drives", context, p.layout);
+            p.bellows["Drives"]->setOpen(true);
+            p.layouts["Drives"] = VerticalLayout::create(context);
+            p.layouts["Drives"]->setSpacingRole(SizeRole::None);
+            p.bellows["Drives"]->setWidget(p.layouts["Drives"]);
+
+            p.bellows["Shortcuts"] = Bellows::create("Shortcuts", context, p.layout);
+            p.bellows["Shortcuts"]->setOpen(true);
+            p.layouts["Shortcuts"] = VerticalLayout::create(context);
+            p.layouts["Shortcuts"]->setSpacingRole(SizeRole::None);
+            p.bellows["Shortcuts"]->setWidget(p.layouts["Shortcuts"]);
+
+            p.bellows["Recent"] = Bellows::create("Recent", context, p.layout);
+            p.bellows["Recent"]->setOpen(true);
+            p.layouts["Recent"] = VerticalLayout::create(context);
+            p.layouts["Recent"]->setSpacingRole(SizeRole::None);
+            p.bellows["Recent"]->setWidget(p.layouts["Recent"]);
 
             _pathsUpdate();
 
@@ -116,25 +137,15 @@ namespace tl
             _sizeHint = _p->layout->getSizeHint();
         }
 
-        void PathsWidget::_createLabel(
-            const std::string& text,
-            const std::shared_ptr<system::Context>& context)
-        {
-            TLRENDER_P();
-            auto label = Label::create(context);
-            label->setText(text);
-            label->setMarginRole(SizeRole::MarginSmall);
-            label->setParent(p.layout);
-        }
-
         void PathsWidget::_createButton(
             const std::string& text,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
             TLRENDER_P();
             auto button = ListButton::create(context);
             button->setText(text);
-            button->setParent(p.layout);
+            button->setParent(parent);
             p.buttons.push_back(button);
             p.buttonGroup->addButton(button);
         }
@@ -144,44 +155,40 @@ namespace tl
             TLRENDER_P();
             
             p.paths.clear();
-            auto children = p.layout->getChildren();
-            for (auto i : children)
+            for (auto layout : p.layouts)
             {
-                i->setParent(nullptr);
+                auto children = layout.second->getChildren();
+                for (auto i : children)
+                {
+                    i->setParent(nullptr);
+                }
             }
             p.buttons.clear();
             p.buttonGroup->clearButtons();
 
             if (auto context = _context.lock())
             {
-                _createLabel("Drives:", context);
                 for (const auto& i : p.drives)
                 {
-                    _createButton(i, context);
+                    _createButton(i, context, p.layouts["Drives"]);
                     p.paths.push_back(i);
                 }
 
-                auto divider = Divider::create(Orientation::Vertical, context, p.layout);
-
-                _createLabel("Shortcuts:", context);
-                _createButton("Current", context);
+                _createButton("Current", context, p.layouts["Shortcuts"]);
                 p.paths.push_back(file::getCWD());
                 for (auto userPath : file::getUserPathEnums())
                 {
                     const std::string path = file::getUserPath(userPath);
-                    _createButton(file::Path(path).getBaseName(), context);
+                    _createButton(file::Path(path).getBaseName(), context, p.layouts["Shortcuts"]);
                     p.paths.push_back(path);
                 }
 
-                divider = Divider::create(Orientation::Vertical, context, p.layout);
-
-                _createLabel("Recent:", context);
                 for (auto recent : p.recent)
                 {
                     const std::string label = file::Path(
                         file::removeEndSeparator(recent.getDirectory())).
                         getBaseName();
-                    _createButton(label, context);
+                    _createButton(label, context, p.layouts["Recent"]);
                     p.paths.push_back(recent.getDirectory());
                 }
             }

@@ -55,7 +55,7 @@ namespace tl
             }
 
             p.layout = GridLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(SizeRole::MarginInside);
+            p.layout->setSpacingRole(SizeRole::None);
             p.layout->setStretch(Stretch::Expanding);
             p.scrollArea->setParent(p.layout);
             p.layout->setGridPos(p.scrollArea, 0, 0);
@@ -106,16 +106,10 @@ namespace tl
                     if (_p->horizontalScrollBar)
                     {
                         _p->horizontalScrollBar->setScrollSize(value.x);
-                        //_p->horizontalScrollBar->setVisible(
-                        //    _p->scrollBarsVisible &&
-                        //    value.x > _p->scrollArea->getGeometry().w());
                     }
                     if (_p->verticalScrollBar)
                     {
                         _p->verticalScrollBar->setScrollSize(value.y);
-                        //_p->verticalScrollBar->setVisible(
-                        //    _p->scrollBarsVisible &&
-                        //    value.y > _p->scrollArea->getGeometry().h());
                     }
                 });
 
@@ -228,28 +222,13 @@ namespace tl
         void ScrollWidget::setGeometry(const math::BBox2i& value)
         {
             IWidget::setGeometry(value);
-            TLRENDER_P();
-            const math::Vector2i& scrollSize = p.scrollArea->getScrollSize();
-            /*if (p.horizontalScrollBar)
-            {
-                p.horizontalScrollBar->setVisible(
-                    p.scrollBarsVisible &&
-                    scrollSize.x > p.scrollArea->getGeometry().w());
-            }
-            if (p.verticalScrollBar)
-            {
-                p.verticalScrollBar->setVisible(
-                    p.scrollBarsVisible &&
-                    scrollSize.y > p.scrollArea->getGeometry().h());
-            }*/
-            p.layout->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
 
         void ScrollWidget::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
-            _sizeHint = p.layout->getSizeHint();
+            _sizeHint = _p->layout->getSizeHint();
         }
 
         void ScrollWidget::scrollEvent(ScrollEvent& event)

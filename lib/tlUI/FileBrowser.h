@@ -49,6 +49,9 @@ namespace tl
             //! Set the file callback.
             void setFileCallback(const std::function<void(const file::Path&)>&);
 
+            //! Get the path.
+            const file::Path& getPath() const;
+
             //! Get the options.
             const FileBrowserOptions& getOptions() const;
 

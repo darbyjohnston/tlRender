@@ -27,12 +27,12 @@ namespace tl
                 out[ui::ColorRole::Base] = imaging::Color4f(1.F, 1.F, 1.F);
                 out[ui::ColorRole::Button] = imaging::Color4f(.8F, .8F, .8F);
                 out[ui::ColorRole::Text] = imaging::Color4f(0.F, 0.F, 0.F);
-                out[ui::ColorRole::TextDisabled] = imaging::Color4f(.3F, .3F, .3F);
-                out[ui::ColorRole::Border] = imaging::Color4f(.5F, .5F, .5F);
-                out[ui::ColorRole::Hover] = imaging::Color4f(1.F, 1.F, 1.F, .5F);
-                out[ui::ColorRole::Pressed] = imaging::Color4f(1.F, 1.F, 1.F, .9F);
+                out[ui::ColorRole::TextDisabled] = imaging::Color4f(.5F, .5F, .5F);
+                out[ui::ColorRole::Border] = imaging::Color4f(.6F, .6F, .6F);
+                out[ui::ColorRole::Hover] = imaging::Color4f(0.F, 0.F, 0.F, .1F);
+                out[ui::ColorRole::Pressed] = imaging::Color4f(0.F, 0.F, 0.F, .2F);
                 out[ui::ColorRole::Checked] = imaging::Color4f(.6F, .7F, 1.F);
-                out[ui::ColorRole::KeyFocus] = imaging::Color4f(.1F, .2F, 1.F);
+                out[ui::ColorRole::KeyFocus] = imaging::Color4f(.3F, .4F, 1.F);
 
                 out[ui::ColorRole::InOut] = imaging::Color4f(.4F, .5F, .9F);
                 out[ui::ColorRole::VideoCache] = imaging::Color4f(.3F, .7F, .7F);

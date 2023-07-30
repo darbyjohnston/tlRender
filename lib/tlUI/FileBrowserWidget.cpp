@@ -6,6 +6,7 @@
 
 #include <tlUI/CheckBox.h>
 #include <tlUI/ComboBox.h>
+#include <tlUI/Divider.h>
 #include <tlUI/Label.h>
 #include <tlUI/LineEdit.h>
 #include <tlUI/PushButton.h>
@@ -63,6 +64,7 @@ namespace tl
 
             setHStretch(Stretch::Expanding);
             setVStretch(Stretch::Expanding);
+            setMouseHover(true);
 
             p.path = file::Path(path);
 
@@ -123,6 +125,7 @@ namespace tl
             auto label = Label::create("File Browser", context, p.layout);
             label->setBackgroundRole(ColorRole::Button);
             label->setMarginRole(SizeRole::MarginSmall);
+            Divider::create(Orientation::Vertical, context, p.layout);
             auto vLayout = VerticalLayout::create(context, p.layout);
             vLayout->setSpacingRole(SizeRole::SpacingSmall);
             vLayout->setMarginRole(SizeRole::MarginSmall);
@@ -133,7 +136,6 @@ namespace tl
             p.pathEdit->setParent(hLayout);
             p.splitter = Splitter::create(Orientation::Horizontal, context, vLayout);
             p.splitter->setSplit(0.2);
-            p.splitter->setSpacingRole(SizeRole::SpacingSmall);
             p.pathsScrollWidget->setParent(p.splitter);
             p.directoryScrollWidget->setParent(p.splitter);
             hLayout = HorizontalLayout::create(context, vLayout);
@@ -315,6 +317,11 @@ namespace tl
         void FileBrowserWidget::setCancelCallback(const std::function<void(void)>& value)
         {
             _p->cancelCallback = value;
+        }
+
+        const file::Path& FileBrowserWidget::getPath() const
+        {
+            return _p->path;
         }
         
         const FileBrowserOptions& FileBrowserWidget::getOptions() const

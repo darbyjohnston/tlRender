@@ -233,7 +233,7 @@ namespace tl
                 p.size.border * 4;
             event.render->drawRect(
                 math::BBox2i(g.min.x, y, g.w(), h),
-                event.style->getColorRole(ui::ColorRole::Base));
+                event.style->getColorRole(ui::ColorRole::Window));
 
             y = y + h;
             h = p.size.border;
@@ -533,8 +533,11 @@ namespace tl
                         event.style->getColorRole(ui::ColorRole::Button));
                 }
 
+                const otime::RationalTime& currentTime = p.player->observeCurrentTime()->get();
                 for (double t = 0.0; t < duration; t += seconds)
                 {
+                    const otime::RationalTime time = p.timeRange.start_time() +
+                        otime::RationalTime(t, 1.0).rescaled_to(p.timeRange.duration().rate());
                     const math::BBox2i bbox(
                         g.min.x +
                         t / duration * w +
@@ -545,18 +548,16 @@ namespace tl
                         p.size.margin,
                         labelMaxSize.x,
                         p.size.fontMetrics.lineHeight);
-                    if (bbox.intersects(drawRect))
+                    if (time != currentTime && bbox.intersects(drawRect))
                     {
-                        const std::string label = _data.timeUnitsModel->getLabel(
-                            p.timeRange.start_time() +
-                            otime::RationalTime(t, 1.0).rescaled_to(p.timeRange.duration().rate()));
+                        const std::string label = _data.timeUnitsModel->getLabel(time);
                         event.render->drawText(
                             event.fontSystem->getGlyphs(label, p.size.fontInfo),
                             math::Vector2i(
                                 bbox.min.x,
                                 bbox.min.y +
                                 p.size.fontMetrics.ascender),
-                            event.style->getColorRole(ui::ColorRole::Button));
+                            event.style->getColorRole(ui::ColorRole::TextDisabled));
                     }
                 }
             }

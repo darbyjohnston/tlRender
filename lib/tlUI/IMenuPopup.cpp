@@ -185,7 +185,7 @@ namespace tl
             //event.render->drawRect(
             //    _geometry,
             //    imaging::Color4f(0.F, 0.F, 0.F, .2F));
-            const math::BBox2i g = p.scrollWidget->getGeometry();
+            const math::BBox2i& g = p.scrollWidget->getGeometry();
             if (g.isValid())
             {
                 const math::BBox2i g2(

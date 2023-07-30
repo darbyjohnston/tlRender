@@ -41,10 +41,7 @@ namespace tl
             p.button->setCheckedCallback(
                 [this](bool value)
                 {
-                    if (_p->widget)
-                    {
-                        _p->widget->setVisible(value);
-                    }
+                    setOpen(value);
                 });
         }
 
@@ -97,6 +94,21 @@ namespace tl
             }
             _updates |= Update::Size;
             _updates |= Update::Draw;
+        }
+
+        bool Bellows::isOpen() const
+        {
+            return _p->button->isChecked();
+        }
+
+        void Bellows::setOpen(bool value)
+        {
+            TLRENDER_P();
+            p.button->setChecked(value);
+            if (p.widget)
+            {
+                p.widget->setVisible(value);
+            }
         }
 
         void Bellows::setGeometry(const math::BBox2i& value)

@@ -117,10 +117,22 @@ namespace tl
             TLRENDER_P();
 
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
+            p.size.handle = event.style->getSizeRole(SizeRole::Handle, event.displayScale);
 
-            const int h = event.style->getSizeRole(SizeRole::Handle, event.displayScale);
-            _sizeHint.x = h + p.size.border * 2;
-            _sizeHint.y = h + p.size.border * 2;
+            _sizeHint.x = p.size.handle;
+            _sizeHint.y = p.size.handle;
+            switch (p.orientation)
+            {
+            case Orientation::Horizontal:
+                _sizeHint.x += p.size.handle + p.size.border * 2;
+                _sizeHint.y += p.size.border;
+                break;
+            case Orientation::Vertical:
+                _sizeHint.x += p.size.border;
+                _sizeHint.y += p.size.handle + p.size.border * 2;
+                break;
+            default: break;
+            }
         }
 
         void ScrollBar::drawEvent(
@@ -130,36 +142,31 @@ namespace tl
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::BBox2i& g = _geometry;
+            const math::BBox2i g = _getBorderGeometry();
 
             event.render->drawMesh(
                 border(g, p.size.border),
                 math::Vector2i(),
                 event.style->getColorRole(ColorRole::Border));
 
-            const math::BBox2i g2 = g.margin(-p.size.border);
-            event.render->drawRect(
-                g2,
-                event.style->getColorRole(ColorRole::Base));
-
             const int scrollPosMax = _getScrollPosMax();
             if (scrollPosMax > 0)
             {
-                const math::BBox2i g3 = _getHandleGeometry();
+                const math::BBox2i g2 = _getHandleGeometry();
                 event.render->drawRect(
-                    g3,
+                    g2,
                     event.style->getColorRole(ColorRole::Button));
 
                 if (p.mouse.pressed)
                 {
                     event.render->drawRect(
-                        g3,
+                        g2,
                         event.style->getColorRole(ColorRole::Pressed));
                 }
                 else if (p.mouse.inside)
                 {
                     event.render->drawRect(
-                        g3,
+                        g2,
                         event.style->getColorRole(ColorRole::Hover));
                 }
             }
@@ -222,6 +229,34 @@ namespace tl
             p.mouse.pos = event.pos;
             p.mouse.pressed = true;
             p.mouse.pressedPos = event.pos;
+            const math::BBox2i g = _getHandleGeometry();
+            if (!g.contains(event.pos))
+            {
+                int scrollPos = 0;
+                const float s = _getScrollScale();
+                switch (p.orientation)
+                {
+                case Orientation::Horizontal:
+                    scrollPos = (event.pos.x - g.w() / 2 - _geometry.min.x) * s;
+                    break;
+                case Orientation::Vertical:
+                    scrollPos = (event.pos.y - g.h() / 2 - _geometry.min.y) * s;
+                    break;
+                default: break;
+                }
+                const int scrollPosMax = _getScrollPosMax();
+                const int scrollPosClamped = math::clamp(scrollPos, 0, scrollPosMax);
+                if (scrollPosClamped != p.scrollPos)
+                {
+                    p.scrollPos = scrollPosClamped;
+                    _updates |= Update::Size;
+                    _updates |= Update::Draw;
+                    if (p.scrollPosCallback)
+                    {
+                        p.scrollPosCallback(p.scrollPos);
+                    }
+                }
+            }
             p.mouse.pressedScrollPos = p.scrollPos;
             _updates |= Update::Draw;
         }
@@ -234,11 +269,69 @@ namespace tl
             _updates |= Update::Draw;
         }
 
+        math::BBox2i ScrollBar::_getBorderGeometry() const
+        {
+            TLRENDER_P();
+            math::BBox2i out;
+            const math::BBox2i& g = _geometry;
+            switch (p.orientation)
+            {
+            case Orientation::Horizontal:
+                out = g.margin(0, p.size.border, 0, 0);
+                break;
+            case Orientation::Vertical:
+                out = g.margin(p.size.border, 0, 0, 0);
+                break;
+            default: break;
+            }
+            return out;
+        }
+
+        math::BBox2i ScrollBar::_getHandleGeometry() const
+        {
+            TLRENDER_P();
+            math::BBox2i out;
+            const math::BBox2i g = _getBorderGeometry().margin(-p.size.border);
+            switch (p.orientation)
+            {
+            case Orientation::Horizontal:
+            {
+                const int w = p.scrollSize - g.w();
+                const int w2 = std::max(
+                    static_cast<int>(g.w() / static_cast<float>(p.scrollSize) * g.w()),
+                    p.size.handle * 2);
+                const int x = p.scrollPos / static_cast<float>(w) * (g.w() - w2);
+                out = math::BBox2i(
+                    g.x() + x,
+                    g.y(),
+                    w2,
+                    g.h());
+                break;
+            }
+            case Orientation::Vertical:
+            {
+                const int h = p.scrollSize - g.h();
+                const int h2 = std::max(
+                    static_cast<int>(g.h() / static_cast<float>(p.scrollSize) * g.h()),
+                    p.size.handle * 2);
+                const int y = p.scrollPos / static_cast<float>(h) * (g.h() - h2);
+                out = math::BBox2i(
+                    g.x(),
+                    g.y() + y,
+                    g.w(),
+                    h2);
+                break;
+            }
+            default: break;
+            }
+            return out;
+        }
+
         int ScrollBar::_getScrollPosMax() const
         {
             TLRENDER_P();
             int out = 0;
-            const math::BBox2i g = _geometry.margin(-p.size.border);
+            const math::BBox2i g = _getBorderGeometry().margin(-p.size.border);
             switch (p.orientation)
             {
             case Orientation::Horizontal:
@@ -256,7 +349,7 @@ namespace tl
         {
             TLRENDER_P();
             float out = 0.F;
-            const math::BBox2i& g = _geometry.margin(-p.size.border);
+            const math::BBox2i g = _getBorderGeometry().margin(-p.size.border);
             switch (p.orientation)
             {
             case Orientation::Horizontal:
@@ -265,42 +358,6 @@ namespace tl
             case Orientation::Vertical:
                 out = g.h() > 0 ? (p.scrollSize / static_cast<float>(g.h())) : 0.F;
                 break;
-            default: break;
-            }
-            return out;
-        }
-
-        math::BBox2i ScrollBar::_getHandleGeometry() const
-        {
-            TLRENDER_P();
-            math::BBox2i out;
-            const math::BBox2i& g = _geometry.margin(-p.size.border);
-            switch (p.orientation)
-            {
-            case Orientation::Horizontal:
-            {
-                const int w = p.scrollSize - g.w();
-                const int w2 = g.w() / static_cast<float>(p.scrollSize) * g.w();
-                const int x = p.scrollPos / static_cast<float>(w) * (g.w() - w2);
-                out = math::BBox2i(
-                    g.x() + x,
-                    g.y(),
-                    w2,
-                    g.h());
-                break;
-            }
-            case Orientation::Vertical:
-            {
-                const int h = p.scrollSize - g.h();
-                const int h2 = g.h() / static_cast<float>(p.scrollSize) * g.h();
-                const int y = p.scrollPos / static_cast<float>(h) * (g.h() - h2);
-                out = math::BBox2i(
-                    g.x(),
-                    g.y() + y,
-                    g.w(),
-                    h2);
-                break;
-            }
             default: break;
             }
             return out;

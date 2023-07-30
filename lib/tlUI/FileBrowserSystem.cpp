@@ -90,14 +90,14 @@ namespace tl
                             {
                                 callback(value);
                             }
-                    _p->path = value.getDirectory();
-                    _p->fileBrowser->close();
+                            _p->fileBrowser->close();
                         });
                     p.fileBrowser->setCloseCallback(
                         [this]
                         {
+                            _p->path = _p->fileBrowser->getPath().get();
                             _p->options = _p->fileBrowser->getOptions();
-                        _p->fileBrowser.reset();
+                            _p->fileBrowser.reset();
                         });
                 }
             }

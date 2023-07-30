@@ -14,7 +14,7 @@ namespace tl
         {
             Orientation orientation = Orientation::Horizontal;
             float split = .5F;
-            SizeRole spacingRole = SizeRole::None;
+            SizeRole spacingRole = SizeRole::SpacingSmall;
 
             struct SizeData
             {
