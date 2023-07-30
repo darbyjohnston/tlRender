@@ -4,7 +4,7 @@
 
 #include <tlPlayGLApp/MessagesTool.h>
 
-#include <tlUI/IClipBoard.h>
+#include <tlUI/IClipboard.h>
 #include <tlUI/EventLoop.h>
 #include <tlUI/Label.h>
 #include <tlUI/RowLayout.h>

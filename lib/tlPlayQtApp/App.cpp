@@ -317,7 +317,7 @@ namespace tl
                 static_cast<int>(timeline::PlayerOptions().timerMode));
             p.settingsObject->setDefaultValue(
                 "Performance/AudioBufferFrameCount",
-                timeline::PlayerOptions().audioBufferFrameCount);
+                static_cast<int>(timeline::PlayerOptions().audioBufferFrameCount));
             p.settingsObject->setDefaultValue("Performance/VideoRequestCount", 16);
             p.settingsObject->setDefaultValue("Performance/AudioRequestCount", 16);
             p.settingsObject->setDefaultValue("Performance/SequenceThreadCount", 16);
