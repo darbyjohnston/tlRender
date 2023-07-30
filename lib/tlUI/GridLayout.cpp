@@ -367,8 +367,8 @@ namespace tl
             for (const auto& i : gridPos)
             {
                 const bool visible = i.first->isVisible(false);
-                rows[i.second.row] = visible;
-                columns[i.second.column] = visible;
+                rows[i.second.row] = rows[i.second.row] || visible;
+                columns[i.second.column] = columns[i.second.column] || visible;
             }
         }
     }
