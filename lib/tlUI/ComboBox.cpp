@@ -550,7 +550,6 @@ namespace tl
                     event.accept = true;
                     _commitIndex(p.currentIndex + 1);
                     break;
-                case Key::Space:
                 case Key::Enter:
                     event.accept = true;
                     _click();

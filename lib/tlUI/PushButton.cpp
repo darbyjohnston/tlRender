@@ -251,7 +251,6 @@ namespace tl
             {
                 switch (event.key)
                 {
-                case Key::Space:
                 case Key::Enter:
                     event.accept = true;
                     _click();
