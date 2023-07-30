@@ -116,6 +116,64 @@ namespace tl
 
             addDivider();
 
+            item = std::make_shared<ui::MenuItem>(
+                "Jump Back 1s",
+                ui::Key::J,
+                static_cast<int>(ui::KeyModifier::Shift),
+                [this]
+                {
+                    close();
+                if (_p->player)
+                {
+                    _p->player->timeAction(timeline::TimeAction::JumpBack1s);
+                }
+                });
+            addItem(item);
+
+            item = std::make_shared<ui::MenuItem>(
+                "Jump Back 10s",
+                ui::Key::J,
+                static_cast<int>(ui::KeyModifier::Control),
+                [this]
+                {
+                    close();
+                    if (_p->player)
+                    {
+                        _p->player->timeAction(timeline::TimeAction::JumpBack10s);
+                    }
+                });
+            addItem(item);
+
+            item = std::make_shared<ui::MenuItem>(
+                "Jump Forward 1s",
+                ui::Key::L,
+                static_cast<int>(ui::KeyModifier::Shift),
+                [this]
+                {
+                    close();
+                    if (_p->player)
+                    {
+                        _p->player->timeAction(timeline::TimeAction::JumpForward1s);
+                    }
+                });
+            addItem(item);
+
+            item = std::make_shared<ui::MenuItem>(
+                "Jump Forward 10s",
+                ui::Key::L,
+                static_cast<int>(ui::KeyModifier::Control),
+                [this]
+                {
+                    close();
+                    if (_p->player)
+                    {
+                        _p->player->timeAction(timeline::TimeAction::JumpForward10s);
+                    }
+                });
+            addItem(item);
+
+            addDivider();
+
             p.loopItems[timeline::Loop::Loop] = std::make_shared<ui::MenuItem>(
                 "Loop Playback",
                 [this]

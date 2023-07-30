@@ -66,6 +66,10 @@ namespace tl
             FrameNext,
             FrameNextX10,
             FrameNextX100,
+            JumpBack1s,
+            JumpBack10s,
+            JumpForward1s,
+            JumpForward10s,
 
             Count,
             First = Start

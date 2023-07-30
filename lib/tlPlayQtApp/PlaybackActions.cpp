@@ -67,6 +67,23 @@ namespace tl
             p.actions["Toggle"]->setText(tr("Toggle Playback"));
             p.actions["Toggle"]->setShortcut(QKeySequence(Qt::Key_Space));
 
+            p.actions["JumpBack1s"] = new QAction(parent);
+            p.actions["JumpBack1s"]->setText(tr("Jump Back 1s"));
+            p.actions["JumpBack1s"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_J));
+            p.actions["JumpBack1s"]->setToolTip(tr("Jump back 1 second"));
+            p.actions["JumpBack10s"] = new QAction(parent);
+            p.actions["JumpBack10s"]->setText(tr("Jump Back 10s"));
+            p.actions["JumpBack10s"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_J));
+            p.actions["JumpBack10s"]->setToolTip(tr("Jump back 10 seconds"));
+            p.actions["JumpForward1s"] = new QAction(parent);
+            p.actions["JumpForward1s"]->setText(tr("Jump Forward 1s"));
+            p.actions["JumpForward1s"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_L));
+            p.actions["JumpForward1s"]->setToolTip(tr("Jump forward 1 second"));
+            p.actions["JumpForward10s"] = new QAction(parent);
+            p.actions["JumpForward10s"]->setText(tr("Jump Forward 10s"));
+            p.actions["JumpForward10s"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_L));
+            p.actions["JumpForward10s"]->setToolTip(tr("Jump forward 10 seconds"));
+
             p.actions["Loop"] = new QAction(parent);
             p.actions["Loop"]->setData(QVariant::fromValue<timeline::Loop>(timeline::Loop::Loop));
             p.actions["Loop"]->setCheckable(true);
@@ -216,6 +233,11 @@ namespace tl
             p.menu->addAction(p.actions["Reverse"]);
             p.menu->addAction(p.actions["Toggle"]);
             p.menu->addSeparator();
+            p.menu->addAction(p.actions["JumpBack1s"]);
+            p.menu->addAction(p.actions["JumpBack10s"]);
+            p.menu->addAction(p.actions["JumpForward1s"]);
+            p.menu->addAction(p.actions["JumpForward10s"]);
+            p.menu->addSeparator();
             p.menu->addAction(p.actions["Loop"]);
             p.menu->addAction(p.actions["Once"]);
             p.menu->addAction(p.actions["PingPong"]);
@@ -268,6 +290,48 @@ namespace tl
                         _p->timelinePlayers[0]->togglePlayback();
                     }
                 });
+
+            connect(
+                p.actions["JumpBack1s"],
+                &QAction::triggered,
+                [this]
+                {
+                    if (!_p->timelinePlayers.empty())
+                    {
+                        _p->timelinePlayers[0]->timeAction(timeline::TimeAction::JumpBack1s);
+                    }
+                });
+            connect(
+                p.actions["JumpBack10s"],
+                &QAction::triggered,
+                [this]
+                {
+                    if (!_p->timelinePlayers.empty())
+                    {
+                        _p->timelinePlayers[0]->timeAction(timeline::TimeAction::JumpBack10s);
+                    }
+                });
+            connect(
+                p.actions["JumpForward1s"],
+                &QAction::triggered,
+                [this]
+                {
+                    if (!_p->timelinePlayers.empty())
+                    {
+                        _p->timelinePlayers[0]->timeAction(timeline::TimeAction::JumpForward1s);
+                    }
+                });
+            connect(
+                p.actions["JumpForward10s"],
+                &QAction::triggered,
+                [this]
+                {
+                    if (!_p->timelinePlayers.empty())
+                    {
+                        _p->timelinePlayers[0]->timeAction(timeline::TimeAction::JumpForward10s);
+                    }
+                });
+
             connect(
                 p.actions["Start"],
                 &QAction::triggered,
