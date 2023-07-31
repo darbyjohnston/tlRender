@@ -105,11 +105,15 @@ namespace tl
             p.currentAudioData = observer::List<AudioData>::create();
             p.cacheOptions = observer::Value<PlayerCacheOptions>::create(playerOptions.cache);
             p.cacheInfo = observer::Value<PlayerCacheInfo>::create();
+            auto weak = std::weak_ptr<Player>(shared_from_this());
             p.timelineObserver = observer::ValueObserver<bool>::create(
                 p.timeline->observeTimelineChanges(),
-                [this](bool)
+                [weak](bool)
                 {
-                    clearCache();
+                    if (auto player = weak.lock())
+                    {
+                        player->clearCache();
+                    }
                 });
 
             // Create a new thread.

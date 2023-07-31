@@ -86,13 +86,13 @@ namespace tl
             TLRENDER_P();
             if (player == p.player)
                 return;
+
             p.timelineObserver.reset();
-            if (p.timelineItem)
-            {
-                p.timelineItem->setParent(nullptr);
-                p.timelineItem.reset();
-            }
+            p.scrollWidget->setWidget(nullptr);
+            p.timelineItem.reset();
+
             p.player = player;
+
             _timelineUpdate();
             if (p.timelineItem)
             {
@@ -507,11 +507,10 @@ namespace tl
         void TimelineWidget::_timelineUpdate()
         {
             TLRENDER_P();
-            if (p.timelineItem)
-            {
-                p.timelineItem->setParent(nullptr);
-                p.timelineItem.reset();
-            }
+
+            p.scrollWidget->setWidget(nullptr);
+            p.timelineItem.reset();
+
             if (p.player)
             {
                 if (auto context = _context.lock())
