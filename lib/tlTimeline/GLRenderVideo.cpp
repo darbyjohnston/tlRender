@@ -61,12 +61,24 @@ namespace tl
                     compareOptions);
                 break;
             case CompareMode::Difference:
-                _drawVideoDifference(
-                    videoData,
-                    bbox,
-                    imageOptions,
-                    displayOptions,
-                    compareOptions);
+                if (videoData.size() > 1)
+                {
+                    _drawVideoDifference(
+                        videoData,
+                        bbox,
+                        imageOptions,
+                        displayOptions,
+                        compareOptions);
+                }
+                else
+                {
+                    _drawVideoA(
+                        videoData,
+                        bbox,
+                        imageOptions,
+                        displayOptions,
+                        compareOptions);
+                }
                 break;
             case CompareMode::Horizontal:
             case CompareMode::Vertical:
