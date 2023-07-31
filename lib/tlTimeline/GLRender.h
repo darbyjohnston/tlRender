@@ -20,7 +20,7 @@ namespace tl
             GLRender();
 
         public:
-            ~GLRender() override;
+            virtual ~GLRender();
 
             //! Create a new renderer.
             static std::shared_ptr<GLRender> create(const std::shared_ptr<system::Context>&);

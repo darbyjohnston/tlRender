@@ -25,7 +25,7 @@ namespace tl
             MenuBar();
 
         public:
-            ~MenuBar() override;
+            virtual ~MenuBar();
 
             //! Create a new widget.
             static std::shared_ptr<MenuBar> create(

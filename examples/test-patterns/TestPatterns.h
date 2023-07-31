@@ -47,7 +47,7 @@ namespace tl
                     const std::shared_ptr<system::Context>&);
 
             public:
-                ~CountTestPattern() override;
+                virtual ~CountTestPattern();
 
                 static std::string getClassName();
 
@@ -74,7 +74,7 @@ namespace tl
                     const std::shared_ptr<system::Context>&);
 
             public:
-                ~SwatchesTestPattern() override;
+                virtual ~SwatchesTestPattern();
 
                 static std::string getClassName();
 
@@ -93,7 +93,7 @@ namespace tl
             class GridTestPattern : public ITestPattern
             {
             public:
-                ~GridTestPattern() override;
+                virtual ~GridTestPattern();
 
                 static std::string getClassName();
 

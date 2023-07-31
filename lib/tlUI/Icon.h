@@ -23,7 +23,7 @@ namespace tl
             Icon();
 
         public:
-            ~Icon() override;
+            virtual ~Icon();
 
             //! Create a new widget.
             static std::shared_ptr<Icon> create(

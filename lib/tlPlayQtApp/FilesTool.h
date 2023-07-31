@@ -25,7 +25,7 @@ namespace tl
                 App*,
                 QWidget* parent = nullptr);
 
-            ~FilesTool() override;
+            virtual ~FilesTool();
 
         private Q_SLOTS:
             void _activatedCallback(const QModelIndex&);

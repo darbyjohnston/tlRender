@@ -23,7 +23,7 @@ namespace tl
             CheckBox();
 
         public:
-            ~CheckBox() override;
+            virtual ~CheckBox();
 
             //! Create a new widget.
             static std::shared_ptr<CheckBox> create(

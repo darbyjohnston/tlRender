@@ -25,7 +25,7 @@ namespace tl
             TransitionItem();
 
         public:
-            ~TransitionItem() override;
+            virtual ~TransitionItem();
 
             //! Create a new item.
             static std::shared_ptr<TransitionItem> create(

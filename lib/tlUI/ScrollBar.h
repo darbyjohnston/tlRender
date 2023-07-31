@@ -27,7 +27,7 @@ namespace tl
             ScrollBar();
 
         public:
-            ~ScrollBar() override;
+            virtual ~ScrollBar();
 
             //! Create a new widget.
             static std::shared_ptr<ScrollBar> create(

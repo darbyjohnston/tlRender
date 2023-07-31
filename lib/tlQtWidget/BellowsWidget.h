@@ -31,7 +31,7 @@ namespace tl
         public:
             BellowsWidget(QWidget* parent = nullptr);
 
-            ~BellowsWidget() override;
+            virtual ~BellowsWidget();
 
             //! Set the widget.
             void setWidget(QWidget*);

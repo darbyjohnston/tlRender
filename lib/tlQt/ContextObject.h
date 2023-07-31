@@ -29,7 +29,7 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
 
-            ~ContextObject() override;
+            virtual ~ContextObject();
 
             //! Get the context.
             const std::shared_ptr<system::Context>& context() const;

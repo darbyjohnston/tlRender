@@ -81,7 +81,7 @@ namespace tl
                 const std::shared_ptr<ColorModel>&,
                 QObject* parent = nullptr);
 
-            ~ColorInputListModel() override;
+            virtual ~ColorInputListModel();
 
             int rowCount(const QModelIndex& parent = QModelIndex()) const override;
             QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
@@ -100,7 +100,7 @@ namespace tl
                 const std::shared_ptr<ColorModel>&,
                 QObject* parent = nullptr);
 
-            ~ColorDisplayListModel() override;
+            virtual ~ColorDisplayListModel();
 
             int rowCount(const QModelIndex& parent = QModelIndex()) const override;
             QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
@@ -119,7 +119,7 @@ namespace tl
                 const std::shared_ptr<ColorModel>&,
                 QObject* parent = nullptr);
 
-            ~ColorViewListModel() override;
+            virtual ~ColorViewListModel();
 
             int rowCount(const QModelIndex& parent = QModelIndex()) const override;
             QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;

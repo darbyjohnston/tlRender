@@ -25,7 +25,7 @@ namespace tl
             FileEdit();
 
         public:
-            ~FileEdit() override;
+            virtual ~FileEdit();
 
             //! Create a new widget.
             static std::shared_ptr<FileEdit> create(

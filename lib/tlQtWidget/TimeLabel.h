@@ -30,7 +30,7 @@ namespace tl
         public:
             TimeLabel(QWidget* parent = nullptr);
 
-            ~TimeLabel() override;
+            virtual ~TimeLabel();
 
             //! Set the time object.
             void setTimeObject(qt::TimeObject*);

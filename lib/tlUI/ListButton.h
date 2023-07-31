@@ -23,7 +23,7 @@ namespace tl
             ListButton();
 
         public:
-            ~ListButton() override;
+            virtual ~ListButton();
 
             //! Create a new widget.
             static std::shared_ptr<ListButton> create(

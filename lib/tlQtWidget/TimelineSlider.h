@@ -43,7 +43,7 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 QWidget* parent = nullptr);
 
-            ~TimelineSlider() override;
+            virtual ~TimelineSlider();
 
             //! Set the time object.
             void setTimeObject(qt::TimeObject*);

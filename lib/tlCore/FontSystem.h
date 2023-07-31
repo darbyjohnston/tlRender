@@ -81,7 +81,7 @@ namespace tl
             FontSystem();
 
         public:
-            ~FontSystem()override;
+            virtual ~FontSystem();
 
             //! Create a new system.
             static std::shared_ptr<FontSystem> create(const std::shared_ptr<system::Context>&);

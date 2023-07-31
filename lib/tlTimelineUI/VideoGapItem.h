@@ -25,7 +25,7 @@ namespace tl
             VideoGapItem();
 
         public:
-            ~VideoGapItem() override;
+            virtual ~VideoGapItem();
 
             //! Create a new item.
             static std::shared_ptr<VideoGapItem> create(

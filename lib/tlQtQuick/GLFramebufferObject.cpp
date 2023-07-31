@@ -30,7 +30,7 @@ namespace tl
                     _framebufferObject(framebufferObject)
                 {}
 
-                ~Renderer() override
+                virtual ~Renderer()
                 {}
 
                 QOpenGLFramebufferObject* createFramebufferObject(const QSize& size) override

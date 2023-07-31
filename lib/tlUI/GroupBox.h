@@ -23,7 +23,7 @@ namespace tl
             GroupBox();
 
         public:
-            ~GroupBox() override;
+            virtual ~GroupBox();
 
             //! Create a new widget.
             static std::shared_ptr<GroupBox> create(

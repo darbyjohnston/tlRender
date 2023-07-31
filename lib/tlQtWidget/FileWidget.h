@@ -29,7 +29,7 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 QWidget* parent = nullptr);
 
-            ~FileWidget() override;
+            virtual ~FileWidget();
 
         public Q_SLOTS:
             //! Set the file.

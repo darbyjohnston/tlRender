@@ -32,7 +32,7 @@ namespace tl
             ISequenceRead();
 
         public:
-            ~ISequenceRead() override;
+            virtual ~ISequenceRead();
 
             std::future<Info> getInfo() override;
             std::future<VideoData> readVideo(const otime::RationalTime&, uint16_t layer = 0) override;
@@ -76,7 +76,7 @@ namespace tl
             ISequenceWrite();
 
         public:
-            ~ISequenceWrite() override;
+            virtual ~ISequenceWrite();
 
             void writeVideo(
                 const otime::RationalTime&,

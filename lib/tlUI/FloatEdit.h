@@ -25,7 +25,7 @@ namespace tl
             FloatEdit();
 
         public:
-            ~FloatEdit() override;
+            virtual ~FloatEdit();
 
             //! Create a new widget.
             static std::shared_ptr<FloatEdit> create(

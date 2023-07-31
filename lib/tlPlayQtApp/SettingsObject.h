@@ -26,7 +26,7 @@ namespace tl
                 qt::TimeObject*,
                 QObject* parent = nullptr);
 
-            ~SettingsObject() override;
+            virtual ~SettingsObject();
 
             //! Get a settings value.
             QVariant value(const QString&) const;

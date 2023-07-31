@@ -26,7 +26,7 @@ namespace tl
         public:
             SpeedLabel(QWidget* parent = nullptr);
 
-            ~SpeedLabel() override;
+            virtual ~SpeedLabel();
 
             //! Get the speed value.
             const otime::RationalTime& value() const;

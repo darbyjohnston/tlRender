@@ -31,7 +31,7 @@ namespace tl
             IMenuPopup();
 
         public:
-            ~IMenuPopup() override = 0;
+            virtual ~IMenuPopup() = 0;
 
             //! Open the menu popup.
             void open(

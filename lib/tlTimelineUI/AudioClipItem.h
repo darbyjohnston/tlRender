@@ -25,7 +25,7 @@ namespace tl
             AudioClipItem();
 
         public:
-            ~AudioClipItem() override;
+            virtual ~AudioClipItem();
 
             //! Create a new item.
             static std::shared_ptr<AudioClipItem> create(

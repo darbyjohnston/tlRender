@@ -24,7 +24,7 @@ namespace tl
         public:
             ConfigWidget(App*, QWidget* parent = nullptr);
 
-            ~ConfigWidget() override;
+            virtual ~ConfigWidget();
 
         private:
             void _widgetUpdate();
@@ -40,7 +40,7 @@ namespace tl
         public:
             LUTWidget(App*, QWidget* parent = nullptr);
 
-            ~LUTWidget() override;
+            virtual ~LUTWidget();
 
         public Q_SLOTS:
             void setLUTOptions(const tl::timeline::LUTOptions&);
@@ -62,7 +62,7 @@ namespace tl
         public:
             ColorControlsWidget(QWidget* parent = nullptr);
 
-            ~ColorControlsWidget() override;
+            virtual ~ColorControlsWidget();
 
         public Q_SLOTS:
             void setColorEnabled(bool);
@@ -86,7 +86,7 @@ namespace tl
         public:
             LevelsWidget(QWidget* parent = nullptr);
 
-            ~LevelsWidget() override;
+            virtual ~LevelsWidget();
 
         public Q_SLOTS:
             void setLevelsEnabled(bool);
@@ -110,7 +110,7 @@ namespace tl
         public:
             EXRDisplayWidget(QWidget* parent = nullptr);
 
-            ~EXRDisplayWidget() override;
+            virtual ~EXRDisplayWidget();
 
         public Q_SLOTS:
             void setEXRDisplayEnabled(bool);
@@ -134,7 +134,7 @@ namespace tl
         public:
             SoftClipWidget(QWidget* parent = nullptr);
 
-            ~SoftClipWidget() override;
+            virtual ~SoftClipWidget();
 
         public Q_SLOTS:
             void setSoftClipEnabled(bool);
@@ -158,7 +158,7 @@ namespace tl
         public:
             ColorTool(App*, QWidget* parent = nullptr);
 
-            ~ColorTool() override;
+            virtual ~ColorTool();
 
         public Q_SLOTS:
             void setLUTOptions(const tl::timeline::LUTOptions&);

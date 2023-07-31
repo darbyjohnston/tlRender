@@ -23,7 +23,7 @@ namespace tl
             GridLayout();
 
         public:
-            ~GridLayout() override;
+            virtual ~GridLayout();
 
             //! Create a new layout.
             static std::shared_ptr<GridLayout> create(

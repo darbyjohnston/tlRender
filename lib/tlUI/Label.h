@@ -25,7 +25,7 @@ namespace tl
             Label();
 
         public:
-            ~Label() override;
+            virtual ~Label();
 
             //! Create a new widget.
             static std::shared_ptr<Label> create(

@@ -29,7 +29,7 @@ namespace tl
             TimeEdit();
 
         public:
-            ~TimeEdit() override;
+            virtual ~TimeEdit();
 
             //! Create a new widget.
             static std::shared_ptr<TimeEdit> create(

@@ -21,7 +21,7 @@ namespace tl
             GLFWSystem();
 
         public:
-            ~GLFWSystem() override;
+            virtual ~GLFWSystem();
 
             //! Create a new system.
             static std::shared_ptr<GLFWSystem> create(const std::shared_ptr<system::Context>&);

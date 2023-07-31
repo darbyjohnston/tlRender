@@ -24,7 +24,7 @@ namespace tl
         public:
             CacheSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
 
-            ~CacheSettingsWidget() override;
+            virtual ~CacheSettingsWidget();
 
         private:
             TLRENDER_PRIVATE();
@@ -38,7 +38,7 @@ namespace tl
         public:
             FileSequenceSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
 
-            ~FileSequenceSettingsWidget() override;
+            virtual ~FileSequenceSettingsWidget();
 
         private:
             TLRENDER_PRIVATE();
@@ -52,7 +52,7 @@ namespace tl
         public:
             FileBrowserSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
 
-            ~FileBrowserSettingsWidget() override;
+            virtual ~FileBrowserSettingsWidget();
 
         private:
             TLRENDER_PRIVATE();
@@ -66,7 +66,7 @@ namespace tl
         public:
             PerformanceSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
 
-            ~PerformanceSettingsWidget() override;
+            virtual ~PerformanceSettingsWidget();
 
         private:
             TLRENDER_PRIVATE();
@@ -80,7 +80,7 @@ namespace tl
         public:
             MiscSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
 
-            ~MiscSettingsWidget() override;
+            virtual ~MiscSettingsWidget();
 
         private:
             TLRENDER_PRIVATE();

@@ -29,7 +29,7 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 QWidget* parent = nullptr);
 
-            ~OpenSeparateAudioDialog() override;
+            virtual ~OpenSeparateAudioDialog();
 
             const QString& videoFileName() const;
             const QString& audioFileName() const;

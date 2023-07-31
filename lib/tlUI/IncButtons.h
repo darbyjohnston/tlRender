@@ -27,7 +27,7 @@ namespace tl
             IncButton();
 
         public:
-            ~IncButton() override;
+            virtual ~IncButton();
 
             //! Create a new widget.
             static std::shared_ptr<IncButton> create(
@@ -56,7 +56,7 @@ namespace tl
             IncButtons();
 
         public:
-            ~IncButtons() override;
+            virtual ~IncButtons();
 
             //! Create a new widget.
             static std::shared_ptr<IncButtons> create(
@@ -91,7 +91,7 @@ namespace tl
             IntIncButtons();
 
         public:
-            ~IntIncButtons() override;
+            virtual ~IntIncButtons();
 
             //! Create a new widget.
             static std::shared_ptr<IntIncButtons> create(
@@ -122,7 +122,7 @@ namespace tl
             FloatIncButtons();
 
         public:
-            ~FloatIncButtons() override;
+            virtual ~FloatIncButtons();
 
             //! Create a new widget.
             static std::shared_ptr<FloatIncButtons> create(
@@ -154,7 +154,7 @@ namespace tl
             DoubleIncButtons();
 
         public:
-            ~DoubleIncButtons() override;
+            virtual ~DoubleIncButtons();
 
             //! Create a new widget.
             static std::shared_ptr<DoubleIncButtons> create(

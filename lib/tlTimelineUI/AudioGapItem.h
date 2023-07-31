@@ -25,7 +25,7 @@ namespace tl
             AudioGapItem();
 
         public:
-            ~AudioGapItem() override;
+            virtual ~AudioGapItem();
 
             //! Create a new item.
             static std::shared_ptr<AudioGapItem> create(

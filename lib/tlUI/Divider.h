@@ -24,7 +24,7 @@ namespace tl
             Divider();
 
         public:
-            ~Divider() override;
+            virtual ~Divider();
 
             //! Create a new widget.
             static std::shared_ptr<Divider> create(

@@ -51,7 +51,7 @@ namespace tl
                 Qt::Orientation = Qt::Horizontal,
                 QWidget* parent = nullptr);
 
-            ~FloatSlider() override;
+            virtual ~FloatSlider();
 
             //! Get the range.
             const math::FloatRange& range() const;

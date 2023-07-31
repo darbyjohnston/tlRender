@@ -23,7 +23,7 @@ namespace tl
             PushButton();
 
         public:
-            ~PushButton() override;
+            virtual ~PushButton();
 
             //! Create a new widget.
             static std::shared_ptr<PushButton> create(

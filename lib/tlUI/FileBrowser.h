@@ -38,7 +38,7 @@ namespace tl
             FileBrowser();
 
         public:
-            ~FileBrowser() override;
+            virtual ~FileBrowser();
 
             //! Create a new widget.
             static std::shared_ptr<FileBrowser> create(

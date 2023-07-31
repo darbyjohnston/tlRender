@@ -24,7 +24,7 @@ namespace tl
         public:
             FileActions(App*, QObject* parent = nullptr);
 
-            ~FileActions() override;
+            virtual ~FileActions();
 
             //! Get the actions.
             const QMap<QString, QAction*>& actions() const;

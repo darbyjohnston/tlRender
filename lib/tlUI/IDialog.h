@@ -24,7 +24,7 @@ namespace tl
             IDialog();
 
         public:
-            ~IDialog() override = 0;
+            virtual ~IDialog() = 0;
 
             //! Open the dialog.
             void open(const std::shared_ptr<EventLoop>&);

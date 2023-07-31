@@ -17,7 +17,7 @@ namespace tl
             public:
                 DragAndDropData(int);
 
-                ~DragAndDropData() override;
+                virtual ~DragAndDropData();
 
                 int getNumber() const;
 
@@ -38,7 +38,7 @@ namespace tl
                 DragAndDropWidget();
 
             public:
-                ~DragAndDropWidget() override;
+                virtual ~DragAndDropWidget();
 
                 static std::shared_ptr<DragAndDropWidget> create(
                     int number,

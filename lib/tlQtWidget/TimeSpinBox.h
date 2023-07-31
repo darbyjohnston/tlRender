@@ -32,7 +32,7 @@ namespace tl
         public:
             TimeSpinBox(QWidget* parent = nullptr);
 
-            ~TimeSpinBox() override;
+            virtual ~TimeSpinBox();
 
             //! Set the time object.
             void setTimeObject(qt::TimeObject*);

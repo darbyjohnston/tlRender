@@ -74,7 +74,7 @@ namespace tl
             Menu();
 
         public:
-            ~Menu() override;
+            virtual ~Menu();
 
             //! Create a new widget.
             static std::shared_ptr<Menu> create(

@@ -27,7 +27,7 @@ namespace tl
         public:
             InfoTool(App*, QWidget* parent = nullptr);
 
-            ~InfoTool() override;
+            virtual ~InfoTool();
 
             void setInfo(const io::Info&);
 

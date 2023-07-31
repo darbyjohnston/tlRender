@@ -28,7 +28,7 @@ namespace tl
             IDeviceSystem();
 
         public:
-            ~IDeviceSystem() override = 0;
+            virtual ~IDeviceSystem() = 0;
 
             //! Observe the device information.
             std::shared_ptr<observer::IList<DeviceInfo> > observeDeviceInfo() const;

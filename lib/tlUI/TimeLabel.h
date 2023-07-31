@@ -29,7 +29,7 @@ namespace tl
             TimeLabel();
 
         public:
-            ~TimeLabel() override;
+            virtual ~TimeLabel();
 
             //! Create a new widget.
             static std::shared_ptr<TimeLabel> create(

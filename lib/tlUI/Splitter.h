@@ -24,7 +24,7 @@ namespace tl
             Splitter();
 
         public:
-            ~Splitter() override;
+            virtual ~Splitter();
 
             //! Create a new widget.
             static std::shared_ptr<Splitter> create(

@@ -33,7 +33,7 @@ namespace tl
             ComboBox();
 
         public:
-            ~ComboBox() override;
+            virtual ~ComboBox();
 
             //! Create a new widget.
             static std::shared_ptr<ComboBox> create(

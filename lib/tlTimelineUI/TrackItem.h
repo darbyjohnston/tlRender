@@ -34,7 +34,7 @@ namespace tl
             TrackItem();
 
         public:
-            ~TrackItem() override;
+            virtual ~TrackItem();
 
             //! Create a new item.
             static std::shared_ptr<TrackItem> create(

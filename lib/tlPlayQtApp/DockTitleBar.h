@@ -22,7 +22,7 @@ namespace tl
         public:
             DockTitleBar(QWidget* parent = nullptr);
 
-            ~DockTitleBar() override;
+            virtual ~DockTitleBar();
 
         public Q_SLOTS:
             //! Set the title bar text.

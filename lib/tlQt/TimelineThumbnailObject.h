@@ -23,7 +23,8 @@ namespace tl
             TimelineThumbnailObject(
                 const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
-            ~TimelineThumbnailObject() override;
+
+            virtual ~TimelineThumbnailObject();
 
             //! Request a thumbnail. The request ID is returned.
             qint64 request(

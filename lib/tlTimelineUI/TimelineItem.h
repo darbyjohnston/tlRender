@@ -25,7 +25,7 @@ namespace tl
             TimelineItem();
 
         public:
-            ~TimelineItem() override;
+            virtual ~TimelineItem();
 
             //! Create a new item.
             static std::shared_ptr<TimelineItem> create(

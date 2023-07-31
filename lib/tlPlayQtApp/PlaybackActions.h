@@ -26,7 +26,7 @@ namespace tl
         public:
             PlaybackActions(App*, QObject* parent = nullptr);
 
-            ~PlaybackActions() override;
+            virtual ~PlaybackActions();
 
             //! Get the actions.
             const QMap<QString, QAction*>& actions() const;

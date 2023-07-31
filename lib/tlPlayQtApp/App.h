@@ -55,7 +55,7 @@ namespace tl
                 char** argv,
                 const std::shared_ptr<system::Context>&);
 
-            ~App() override;
+            virtual ~App();
 
             //! Get the time units model.
             const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel() const;

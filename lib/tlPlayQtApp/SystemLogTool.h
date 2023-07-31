@@ -25,7 +25,7 @@ namespace tl
         public:
             SystemLogTool(App*, QWidget* parent = nullptr);
 
-            ~SystemLogTool() override;
+            virtual ~SystemLogTool();
 
         private:
             TLRENDER_PRIVATE();

@@ -25,7 +25,7 @@ namespace tl
             VideoClipItem();
 
         public:
-            ~VideoClipItem() override;
+            virtual ~VideoClipItem();
 
             //! Create a new item.
             static std::shared_ptr<VideoClipItem> create(

@@ -29,7 +29,7 @@ namespace tl
         public:
             FilmstripWidget(qt::TimelineThumbnailObject*, QWidget* parent = nullptr);
 
-            ~FilmstripWidget() override;
+            virtual ~FilmstripWidget();
 
             //! Set the timeline.
             void setTimeline(const std::shared_ptr<timeline::Timeline>&);

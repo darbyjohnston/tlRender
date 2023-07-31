@@ -26,7 +26,7 @@ namespace tl
         public:
             ViewActions(App*, QObject* parent = nullptr);
 
-            ~ViewActions() override;
+            virtual ~ViewActions();
 
             //! Get the actions.
             const QMap<QString, QAction*>& actions() const;

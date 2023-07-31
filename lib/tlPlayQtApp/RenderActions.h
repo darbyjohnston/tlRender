@@ -28,7 +28,7 @@ namespace tl
         public:
             RenderActions(App*, QObject* parent = nullptr);
 
-            ~RenderActions() override;
+            virtual ~RenderActions();
 
             //! Get the actions.
             const QMap<QString, QAction*>& actions() const;

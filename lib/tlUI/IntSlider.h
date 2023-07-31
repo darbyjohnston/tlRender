@@ -25,7 +25,7 @@ namespace tl
             IntSlider();
 
         public:
-            ~IntSlider() override;
+            virtual ~IntSlider();
 
             //! Create a new widget.
             static std::shared_ptr<IntSlider> create(

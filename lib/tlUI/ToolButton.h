@@ -23,7 +23,7 @@ namespace tl
             ToolButton();
 
         public:
-            ~ToolButton() override;
+            virtual ~ToolButton();
 
             //! Create a new widget.
             static std::shared_ptr<ToolButton> create(

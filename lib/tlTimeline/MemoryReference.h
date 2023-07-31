@@ -46,7 +46,7 @@ namespace tl
             void set_memory(const uint8_t* memory, size_t memory_size);
 
         protected:
-            virtual ~RawMemoryReference() override;
+            virtual ~RawMemoryReference();
 
             std::string _target_url;
             const uint8_t* _memory = nullptr;
@@ -78,7 +78,7 @@ namespace tl
             void set_memory(const std::shared_ptr<MemoryReferenceData>&);
 
         protected:
-            virtual ~SharedMemoryReference() override;
+            virtual ~SharedMemoryReference();
 
             std::string _target_url;
             std::shared_ptr<MemoryReferenceData> _memory;
@@ -114,7 +114,7 @@ namespace tl
                 const std::vector<size_t>& memory_sizes);
 
         protected:
-            virtual ~RawMemorySequenceReference() override;
+            virtual ~RawMemorySequenceReference();
 
             std::string _target_url;
             std::vector<const uint8_t*> _memory;
@@ -147,7 +147,7 @@ namespace tl
                 const std::vector<std::shared_ptr<MemoryReferenceData> >&);
 
         protected:
-            virtual ~SharedMemorySequenceReference() override;
+            virtual ~SharedMemorySequenceReference();
 
             std::string _target_url;
             std::vector<std::shared_ptr<MemoryReferenceData> > _memory;
@@ -172,7 +172,7 @@ namespace tl
                 const otio::AnyDictionary& metadata = otio::AnyDictionary());
 
         protected:
-            ~ZipMemoryReference() override;
+            virtual ~ZipMemoryReference();
 
             std::shared_ptr<file::FileIO> _fileIO;
         };
@@ -196,7 +196,7 @@ namespace tl
                 const otio::AnyDictionary& metadata = otio::AnyDictionary());
 
         protected:
-            ~ZipMemorySequenceReference() override;
+            virtual ~ZipMemorySequenceReference();
 
             std::shared_ptr<file::FileIO> _fileIO;
         };

@@ -32,7 +32,7 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 QWidget* parent = nullptr);
 
-            ~TimelineWidget() override;
+            virtual ~TimelineWidget();
 
             //! Set the timeline player.
             void setPlayer(const std::shared_ptr<timeline::Player>&);

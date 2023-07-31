@@ -21,7 +21,7 @@ namespace tl
         public:
             BellowsButton(QWidget* parent = nullptr);
 
-            ~BellowsButton() override;
+            virtual ~BellowsButton();
 
             QString text() const;
 

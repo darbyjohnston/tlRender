@@ -20,7 +20,7 @@ namespace tl
         public:
             AudioOffsetWidget(QWidget* parent = nullptr);
 
-            ~AudioOffsetWidget() override;
+            virtual ~AudioOffsetWidget();
 
         public Q_SLOTS:
             void setAudioOffset(double);
@@ -42,7 +42,7 @@ namespace tl
         public:
             AudioTool(App*, QWidget* parent = nullptr);
 
-            ~AudioTool() override;
+            virtual ~AudioTool();
 
         public Q_SLOTS:
             void setAudioOffset(double);

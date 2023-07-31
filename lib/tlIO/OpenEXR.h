@@ -115,7 +115,7 @@ namespace tl
             IStream(const std::string& fileName);
             IStream(const std::string& fileName, const uint8_t*, size_t);
 
-            ~IStream() override;
+            virtual ~IStream();
 
             bool isMemoryMapped() const override;
             char* readMemoryMapped(int n) override;
@@ -140,7 +140,7 @@ namespace tl
             Read();
 
         public:
-            ~Read() override;
+            virtual ~Read();
 
             //! Create a new reader.
             static std::shared_ptr<Read> create(
@@ -182,7 +182,7 @@ namespace tl
             Write();
 
         public:
-            ~Write() override;
+            virtual ~Write();
 
             //! Create a new writer.
             static std::shared_ptr<Write> create(

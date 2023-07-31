@@ -81,7 +81,7 @@ namespace tl
                 {}
 
             public:
-                ~Clipboard() override
+                virtual ~Clipboard()
                 {}
 
                 static std::shared_ptr<Clipboard> create(

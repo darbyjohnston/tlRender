@@ -22,7 +22,7 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
 
-            ~FilesBModel() override;
+            virtual ~FilesBModel();
 
             int columnCount(const QModelIndex& parent = QModelIndex()) const override;
             Qt::ItemFlags flags(const QModelIndex&) const override;

@@ -24,7 +24,7 @@ namespace tl
             IButton();
 
         public:
-            ~IButton() override;
+            virtual ~IButton();
 
             //! Get whether the button is checkable.
             bool isCheckable() const;

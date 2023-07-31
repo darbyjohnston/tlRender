@@ -26,7 +26,7 @@ namespace tl
         public:
             AudioActions(App*, QObject* parent = nullptr);
 
-            ~AudioActions() override;
+            virtual ~AudioActions();
 
             //! Get the actions.
             const QMap<QString, QAction*>& actions() const;

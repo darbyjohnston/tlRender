@@ -37,7 +37,7 @@ namespace tl
             System();
 
         public:
-            ~System() override;
+            virtual ~System();
 
             //! Create a new system.
             static std::shared_ptr<System> create(

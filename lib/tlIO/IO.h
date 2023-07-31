@@ -137,7 +137,7 @@ namespace tl
             IRead();
 
         public:
-            ~IRead() override;
+            virtual ~IRead();
 
             //! Get the information.
             virtual std::future<Info> getInfo() = 0;
@@ -168,7 +168,7 @@ namespace tl
             IWrite();
 
         public:
-            ~IWrite() override;
+            virtual ~IWrite();
 
             //! Write video data.
             virtual void writeVideo(

@@ -26,7 +26,7 @@ namespace tl
             LineEdit();
 
         public:
-            ~LineEdit() override;
+            virtual ~LineEdit();
 
             //! Create a new widget
             static std::shared_ptr<LineEdit> create(

@@ -27,7 +27,7 @@ namespace tl
             RowLayout();
 
         public:
-            ~RowLayout() override;
+            virtual ~RowLayout();
 
             //! Create a new layout.
             static std::shared_ptr<RowLayout> create(
@@ -64,7 +64,7 @@ namespace tl
             HorizontalLayout();
 
         public:
-            ~HorizontalLayout() override;
+            virtual ~HorizontalLayout();
 
             //! Create a new layout.
             static std::shared_ptr<HorizontalLayout> create(
@@ -85,7 +85,7 @@ namespace tl
             VerticalLayout();
 
         public:
-            ~VerticalLayout() override;
+            virtual ~VerticalLayout();
 
             //! Create a new layout.
             static std::shared_ptr<VerticalLayout> create(

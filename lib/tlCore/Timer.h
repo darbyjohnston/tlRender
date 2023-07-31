@@ -71,7 +71,7 @@ namespace tl
             TimerSystem();
 
         public:
-            ~TimerSystem() override;
+            virtual ~TimerSystem();
 
             static std::shared_ptr<TimerSystem> create(
                 const std::shared_ptr<system::Context>&);

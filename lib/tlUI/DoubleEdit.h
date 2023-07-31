@@ -25,7 +25,7 @@ namespace tl
             DoubleEdit();
 
         public:
-            ~DoubleEdit() override;
+            virtual ~DoubleEdit();
 
             //! Create a new widget.
             static std::shared_ptr<DoubleEdit> create(

@@ -31,7 +31,7 @@ namespace tl
                 App();
 
             public:
-                ~App() override;
+                virtual ~App();
 
                 //! Create a new application.
                 static std::shared_ptr<App> create(

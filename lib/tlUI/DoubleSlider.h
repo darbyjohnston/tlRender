@@ -25,7 +25,7 @@ namespace tl
             DoubleSlider();
 
         public:
-            ~DoubleSlider() override;
+            virtual ~DoubleSlider();
 
             //! Create a new widget.
             static std::shared_ptr<DoubleSlider> create(

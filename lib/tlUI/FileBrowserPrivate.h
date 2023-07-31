@@ -28,7 +28,7 @@ namespace tl
             PathsWidget();
 
         public:
-            ~PathsWidget() override;
+            virtual ~PathsWidget();
 
             static std::shared_ptr<PathsWidget> create(
                 const std::shared_ptr<RecentFilesModel>&,
@@ -64,7 +64,7 @@ namespace tl
             Button();
 
         public:
-            ~Button() override;
+            virtual ~Button();
 
             static std::shared_ptr<Button> create(
                 const file::FileInfo&,
@@ -102,7 +102,7 @@ namespace tl
             DirectoryWidget();
 
         public:
-            ~DirectoryWidget() override;
+            virtual ~DirectoryWidget();
 
             static std::shared_ptr<DirectoryWidget> create(
                 const std::shared_ptr<system::Context>&,
@@ -140,7 +140,7 @@ namespace tl
             FileBrowserWidget();
 
         public:
-            ~FileBrowserWidget() override;
+            virtual ~FileBrowserWidget();
 
             static std::shared_ptr<FileBrowserWidget> create(
                 const std::string&,

@@ -29,7 +29,7 @@ namespace tl
             IBasicItem();
 
         public:
-            ~IBasicItem() override = 0;
+            virtual ~IBasicItem() = 0;
 
             void sizeHintEvent(const ui::SizeHintEvent&) override;
             void clipEvent(

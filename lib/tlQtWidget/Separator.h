@@ -18,7 +18,7 @@ namespace tl
         public:
             Separator(Qt::Orientation, QWidget* parent = nullptr);
 
-            ~Separator() override;
+            virtual ~Separator();
 
             //! Set the orientation.
             void setOrientation(Qt::Orientation);

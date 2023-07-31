@@ -24,7 +24,7 @@ namespace tl
         public:
             DevicesTool(App*, QWidget* parent = nullptr);
 
-            ~DevicesTool() override;
+            virtual ~DevicesTool();
 
         private:
             TLRENDER_PRIVATE();

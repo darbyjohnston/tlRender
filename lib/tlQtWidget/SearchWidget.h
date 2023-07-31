@@ -22,7 +22,7 @@ namespace tl
         public:
             SearchWidget(QWidget* parent = nullptr);
 
-            ~SearchWidget() override;
+            virtual ~SearchWidget();
 
         public Q_SLOTS:
             //! Clear the search.

@@ -35,7 +35,7 @@ namespace tl
             ScrollArea();
 
         public:
-            ~ScrollArea() override;
+            virtual ~ScrollArea();
 
             //! Create a new widget.
             static std::shared_ptr<ScrollArea> create(

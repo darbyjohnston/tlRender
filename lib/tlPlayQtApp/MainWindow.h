@@ -22,7 +22,7 @@ namespace tl
         public:
             MainWindow(App*, QWidget* parent = nullptr);
 
-            ~MainWindow() override;
+            virtual ~MainWindow();
 
             //! Set the timeline players.
             void setTimelinePlayers(const QVector<QPointer<qt::TimelinePlayer> >&);

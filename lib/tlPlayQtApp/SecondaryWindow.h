@@ -29,7 +29,7 @@ namespace tl
                 App*,
                 QWidget* parent = nullptr);
 
-            ~SecondaryWindow() override;
+            virtual ~SecondaryWindow();
 
             //! Get the viewport.
             qtwidget::TimelineViewport* viewport() const;

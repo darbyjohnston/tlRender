@@ -114,7 +114,7 @@ namespace tl
                 MenuButton();
 
             public:
-                ~MenuButton() override;
+                virtual ~MenuButton();
 
                 static std::shared_ptr<MenuButton> create(
                     const std::shared_ptr<system::Context>&,

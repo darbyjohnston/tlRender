@@ -97,7 +97,7 @@ namespace tl
             IItem();
 
         public:
-            ~IItem() override;
+            virtual ~IItem();
 
             virtual void setScale(double);
             virtual void setOptions(const ItemOptions&);

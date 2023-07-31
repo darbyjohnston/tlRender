@@ -25,7 +25,7 @@ namespace tl
             ISystem();
 
         public:
-            ~ISystem() override;
+            virtual ~ISystem();
 
         protected:
             void _log(const std::string&, log::Type = log::Type::Message);

@@ -23,7 +23,7 @@ namespace tl
             Bellows();
 
         public:
-            ~Bellows() override;
+            virtual ~Bellows();
 
             //! Create a new widget.
             static std::shared_ptr<Bellows> create(

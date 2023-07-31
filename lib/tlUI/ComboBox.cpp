@@ -30,7 +30,7 @@ namespace tl
                 ComboBoxMenu();
 
             public:
-                ~ComboBoxMenu() override;
+                virtual ~ComboBoxMenu();
 
                 static std::shared_ptr<ComboBoxMenu> create(
                     const std::vector<ComboBoxItem>&,

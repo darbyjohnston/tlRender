@@ -30,7 +30,7 @@ namespace tl
             Read();
 
         public:
-            ~Read() override;
+            virtual ~Read();
 
             //! Create a new reader.
             static std::shared_ptr<Read> create(
@@ -69,7 +69,7 @@ namespace tl
             Write();
 
         public:
-            ~Write() override;
+            virtual ~Write();
 
             //! Create a new writer.
             static std::shared_ptr<Write> create(

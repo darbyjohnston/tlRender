@@ -25,7 +25,7 @@ namespace tl
             IntEdit();
 
         public:
-            ~IntEdit() override;
+            virtual ~IntEdit();
 
             //! Create a new widget.
             static std::shared_ptr<IntEdit> create(

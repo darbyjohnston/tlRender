@@ -27,7 +27,7 @@ namespace tl
         public:
             TagsModel(QObject* parent = nullptr);
 
-            ~TagsModel() override;
+            virtual ~TagsModel();
 
             //! Set the tags.
             void setTags(const imaging::Tags&);

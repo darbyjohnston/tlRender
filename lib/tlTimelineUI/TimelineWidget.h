@@ -26,7 +26,7 @@ namespace tl
             TimelineWidget();
 
         public:
-            ~TimelineWidget() override;
+            virtual ~TimelineWidget();
 
             //! Create a new widget.
             static std::shared_ptr<TimelineWidget> create(

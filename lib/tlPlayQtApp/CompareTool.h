@@ -27,7 +27,7 @@ namespace tl
                 App*,
                 QWidget* parent = nullptr);
 
-            ~CompareTool() override;
+            virtual ~CompareTool();
 
         private Q_SLOTS:
             void _activatedCallback(const QModelIndex&);

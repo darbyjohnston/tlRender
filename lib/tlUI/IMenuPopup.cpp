@@ -26,7 +26,7 @@ namespace tl
                 MenuWidget();
 
             public:
-                ~MenuWidget() override;
+                virtual ~MenuWidget();
 
                 static std::shared_ptr<MenuWidget> create(
                     const std::shared_ptr<system::Context>&,

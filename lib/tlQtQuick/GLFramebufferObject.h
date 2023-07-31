@@ -24,7 +24,7 @@ namespace tl
         public:
             GLFramebufferObject(QQuickItem* parent = nullptr);
 
-            ~GLFramebufferObject() override;
+            virtual ~GLFramebufferObject();
 
             //! Get the video data.
             const timeline::VideoData& video() const;

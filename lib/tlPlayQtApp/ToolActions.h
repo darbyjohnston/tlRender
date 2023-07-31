@@ -26,7 +26,7 @@ namespace tl
         public:
             ToolActions(App*, QObject* parent = nullptr);
 
-            ~ToolActions() override;
+            virtual ~ToolActions();
 
             //! Get the actions.
             const QMap<QString, QAction*>& actions() const;

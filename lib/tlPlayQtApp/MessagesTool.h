@@ -25,7 +25,7 @@ namespace tl
         public:
             MessagesTool(App*, QWidget* parent = nullptr);
 
-            ~MessagesTool() override;
+            virtual ~MessagesTool();
 
         private:
             TLRENDER_PRIVATE();

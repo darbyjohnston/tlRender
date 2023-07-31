@@ -29,7 +29,7 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 QWidget* parent = nullptr);
 
-            ~TimelineViewport() override;
+            virtual ~TimelineViewport();
 
             //! Set the color configuration options.
             void setColorConfigOptions(const timeline::ColorConfigOptions&);

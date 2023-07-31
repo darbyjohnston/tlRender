@@ -75,7 +75,7 @@ namespace tl
             TimeUnitsModel();
 
         public:
-            ~TimeUnitsModel() override;
+            virtual ~TimeUnitsModel();
 
             //! Create a new model.
             static std::shared_ptr<TimeUnitsModel> create(

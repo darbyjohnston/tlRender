@@ -24,7 +24,7 @@ namespace tl
             IPopup();
 
         public:
-            ~IPopup() override = 0;
+            virtual ~IPopup() = 0;
 
             //! Close the popup.
             virtual void close() = 0;

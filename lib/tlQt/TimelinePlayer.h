@@ -96,7 +96,7 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
 
-            ~TimelinePlayer() override;
+            virtual ~TimelinePlayer();
             
             //! Get the context.
             const std::weak_ptr<system::Context>& context() const;

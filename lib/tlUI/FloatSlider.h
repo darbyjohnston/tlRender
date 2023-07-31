@@ -25,7 +25,7 @@ namespace tl
             FloatSlider();
 
         public:
-            ~FloatSlider() override;
+            virtual ~FloatSlider();
 
             //! Create a new widget.
             static std::shared_ptr<FloatSlider> create(

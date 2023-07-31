@@ -308,7 +308,7 @@ namespace tl
         public:
             TextDragAndDropData(const std::string& text);
 
-            ~TextDragAndDropData() override;
+            virtual ~TextDragAndDropData();
 
             const std::string& getText() const;
 

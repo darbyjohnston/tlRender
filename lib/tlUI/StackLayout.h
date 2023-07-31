@@ -23,7 +23,7 @@ namespace tl
             StackLayout();
 
         public:
-            ~StackLayout() override;
+            virtual ~StackLayout();
 
             //! Create a new layout.
             static std::shared_ptr<StackLayout> create(

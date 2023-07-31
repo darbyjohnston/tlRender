@@ -31,7 +31,8 @@ namespace tl
                     int& argc,
                     char** argv,
                     const std::shared_ptr<system::Context>&);
-                ~App() override;
+                
+                virtual ~App();
 
             private:
                 std::string _input;

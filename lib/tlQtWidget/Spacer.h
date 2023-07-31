@@ -18,7 +18,7 @@ namespace tl
         public:
             Spacer(Qt::Orientation, QWidget* parent = nullptr);
 
-            ~Spacer() override;
+            virtual ~Spacer();
 
             //! Set the orientation.
             void setOrientation(Qt::Orientation);

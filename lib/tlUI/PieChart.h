@@ -40,7 +40,7 @@ namespace tl
             PieChart();
 
         public:
-            ~PieChart() override;
+            virtual ~PieChart();
 
             //! Create a new widget.
             static std::shared_ptr<PieChart> create(

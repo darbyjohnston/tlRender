@@ -24,7 +24,7 @@ namespace tl
             Spacer();
 
         public:
-            ~Spacer() override;
+            virtual ~Spacer();
 
             //! Create a new widget.
             static std::shared_ptr<Spacer> create(
