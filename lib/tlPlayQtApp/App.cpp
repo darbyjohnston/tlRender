@@ -25,6 +25,7 @@
 #include <tlUI/RecentFilesModel.h>
 
 #include <tlPlay/FilesModel.h>
+#include <tlPlay/Util.h>
 
 #include <tlTimeline/Util.h>
 
@@ -34,6 +35,7 @@
 #endif // TLRENDER_USD
 
 #include <tlCore/AudioSystem.h>
+#include <tlCore/FileLogSystem.h>
 #include <tlCore/Math.h>
 #include <tlCore/StringFormat.h>
 #include <tlCore/Time.h>
@@ -65,6 +67,7 @@ namespace tl
                 size_t usdStageCache = usd::RenderOptions().stageCacheCount;
                 size_t usdDiskCache = usd::RenderOptions().diskCacheByteCount / memory::gigabyte;
 #endif // TLRENDER_USD
+                std::string logFileName;
                 bool resetSettings = false;
             };
         }
@@ -74,6 +77,7 @@ namespace tl
             Options options;
 
             qt::ContextObject* contextObject = nullptr;
+            std::shared_ptr<file::FileLogSystem> fileLogSystem;
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             qt::TimeObject* timeObject = nullptr;
             SettingsObject* settingsObject = nullptr;
@@ -109,7 +113,9 @@ namespace tl
             _p(new Private)
         {
             TLRENDER_P();
-
+            const std::string appDirPath = play::appDirPath("tlplay-qt");
+            std::string logFileName = play::logFileName(appDirPath);
+            const std::string settingsFileName = play::settingsName(appDirPath);
             IApp::_init(
                 argc,
                 argv,
@@ -231,6 +237,11 @@ namespace tl
                         "USD disk cache size in gigabytes. A size of zero disables the cache.",
                         string::Format("{0}").arg(p.options.usdDiskCache)),
 #endif // TLRENDER_USD
+                    app::CmdLineValueOption<std::string>::create(
+                        p.options.logFileName,
+                        { "-logFile" },
+                        "Log file name.",
+                        string::Format("{0}").arg(logFileName)),
                     app::CmdLineFlagOption::create(
                         p.options.resetSettings,
                         { "-resetSettings" },
@@ -242,6 +253,13 @@ namespace tl
                 exit(exitCode);
                 return;
             }
+
+            // Initialize the file log.
+            if (!p.options.logFileName.empty())
+            {
+                logFileName = p.options.logFileName;
+            }
+            p.fileLogSystem = file::FileLogSystem::create(logFileName, context);
 
             // Initialize Qt.
             setOrganizationName("tlRender");

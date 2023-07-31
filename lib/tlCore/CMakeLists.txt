@@ -16,6 +16,7 @@ set(HEADERS
     FileIOInline.h
     FileInfo.h
     FileInfoInline.h
+    FileLogSystem.h
     FontSystem.h
     FontSystemInline.h
     HDR.h
@@ -71,6 +72,7 @@ set(SOURCE
     Error.cpp
     FileIO.cpp
     FileInfo.cpp
+    FileLogSystem.cpp
     FontSystem.cpp
     HDR.cpp
     ICoreSystem.cpp

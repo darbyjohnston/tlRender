@@ -13,6 +13,9 @@ namespace tl
         class App;
 
         //! System log tool.
+        //! 
+        //! \todo Add an option to automatically scroll to the bottom when
+        //! new log items are received.
         class SystemLogTool : public IToolWidget
         {
             TLRENDER_NON_COPYABLE(SystemLogTool);

@@ -10,6 +10,8 @@
 #include <tlPlayGLApp/Style.h>
 #include <tlPlayGLApp/Tools.h>
 
+#include <tlPlay/Util.h>
+
 #include <tlUI/EventLoop.h>
 #include <tlUI/FileBrowser.h>
 
@@ -19,6 +21,7 @@
 
 #include <tlCore/AudioSystem.h>
 #include <tlCore/File.h>
+#include <tlCore/FileLogSystem.h>
 #include <tlCore/StringFormat.h>
 
 namespace tl
@@ -51,6 +54,7 @@ namespace tl
                 size_t usdStageCache = usd::RenderOptions().stageCacheCount;
                 size_t usdDiskCache = usd::RenderOptions().diskCacheByteCount / memory::gigabyte;
 #endif // TLRENDER_USD
+                std::string logFileName;
                 bool resetSettings = false;
                 std::string settingsFileName;
             };
@@ -58,6 +62,7 @@ namespace tl
 
         struct App::Private
         {
+            std::shared_ptr<file::FileLogSystem> fileLogSystem;
             std::string settingsFileName;
             std::shared_ptr<Settings> settings;
             Options options;
@@ -88,11 +93,14 @@ namespace tl
             const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
+            const std::string appDirPath = play::appDirPath("tlplay-gl");
+            std::string logFileName = play::logFileName(appDirPath);
+            const std::string settingsFileName = play::settingsName(appDirPath);
             IApp::_init(
                 argc,
                 argv,
                 context,
-                "play-gl",
+                "tlplay-gl",
                 "Example GLFW playback application.",
                 {
                     app::CmdLineValueArg<std::string>::create(
@@ -224,6 +232,11 @@ namespace tl
                     "USD disk cache size in gigabytes. A size of zero disables the disk cache.",
                     string::Format("{0}").arg(p.options.usdDiskCache)),
 #endif // TLRENDER_USD
+                app::CmdLineValueOption<std::string>::create(
+                    p.options.logFileName,
+                    { "-logFile" },
+                    "Log file name.",
+                    string::Format("{0}").arg(logFileName)),
                 app::CmdLineFlagOption::create(
                     p.options.resetSettings,
                     { "-resetSettings" },
@@ -231,7 +244,8 @@ namespace tl
                 app::CmdLineValueOption<std::string>::create(
                     p.options.settingsFileName,
                     { "-settings" },
-                    "Settings file name."),
+                    "Settings file name.",
+                    string::Format("{0}").arg(settingsFileName)),
             });
             const int exitCode = getExit();
             if (exitCode != 0)
@@ -239,6 +253,13 @@ namespace tl
                 exit(exitCode);
                 return;
             }
+
+            // Initialize the file log.
+            if (!p.options.logFileName.empty())
+            {
+                logFileName = p.options.logFileName;
+            }
+            p.fileLogSystem = file::FileLogSystem::create(logFileName, context);
 
             // Set I/O options.
             io::Options ioOptions;
@@ -285,19 +306,7 @@ namespace tl
             }
             else
             {
-                const std::string documentsPath =
-                    file::getUserPath(file::UserPath::Documents);
-                if (!file::exists(documentsPath))
-                {
-                    file::mkdir(documentsPath);
-                }
-                const std::string settingsPath =
-                    file::Path(documentsPath, "tlplay-gl").get();
-                if (!file::exists(settingsPath))
-                {
-                    file::mkdir(settingsPath);
-                }
-                p.settingsFileName = file::Path(settingsPath, "Settings.json").get();
+                p.settingsFileName = settingsFileName;
             }
             if (!p.options.resetSettings)
             {
@@ -498,24 +507,30 @@ namespace tl
             p.mainWindow.reset();
 
             // Save the settings.
-            p.settings->setValue("Files/RecentMax", p.recentFilesModel->getRecentMax());
-            std::vector<std::string> recentFiles;
-            for (const auto& recentFile : p.recentFilesModel->getRecent())
+            if (p.settings)
             {
-                recentFiles.push_back(recentFile.get());
+                if (p.recentFilesModel)
+                {
+                    p.settings->setValue("Files/RecentMax", p.recentFilesModel->getRecentMax());
+                    std::vector<std::string> recentFiles;
+                    for (const auto& recentFile : p.recentFilesModel->getRecent())
+                    {
+                        recentFiles.push_back(recentFile.get());
+                    }
+                    p.settings->setValue("Files/Recent", recentFiles);
+                }
+                p.settings->setValue("Window/Size", getWindowSize());
+                if (auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>())
+                {
+                    p.settings->setValue(
+                        "FileBrowser/Path",
+                        fileBrowserSystem->getPath());
+                    p.settings->setValue(
+                        "FileBrowser/Options",
+                        fileBrowserSystem->getOptions());
+                }
+                p.settings->write(p.settingsFileName);
             }
-            p.settings->setValue("Files/Recent", recentFiles);
-            p.settings->setValue("Window/Size", getWindowSize());
-            if (auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>())
-            {
-                p.settings->setValue(
-                    "FileBrowser/Path",
-                    fileBrowserSystem->getPath());
-                p.settings->setValue(
-                    "FileBrowser/Options",
-                    fileBrowserSystem->getOptions());
-            }
-            p.settings->write(p.settingsFileName);
         }
 
         std::shared_ptr<App> App::create(

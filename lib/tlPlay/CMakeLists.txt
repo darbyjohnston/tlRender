@@ -1,8 +1,10 @@
 set(HEADERS
-    FilesModel.h)
+    FilesModel.h
+    Util.h)
 
 set(SOURCE
-    FilesModel.cpp)
+    FilesModel.cpp
+    Util.cpp)
 
 add_library(tlPlay ${HEADERS} ${SOURCE})
 target_link_libraries(tlPlay tlTimeline)

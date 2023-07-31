@@ -51,12 +51,13 @@ namespace tl
 
         protected:
             void _init(const std::shared_ptr<system::Context>&);
+
             System();
 
         public:
             ~System() override;
 
-            //! Create a new log system.
+            //! Create a new system.
             static std::shared_ptr<System> create(const std::shared_ptr<system::Context>&);
 
             //! Print to the log.
