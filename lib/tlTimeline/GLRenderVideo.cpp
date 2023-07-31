@@ -344,8 +344,8 @@ namespace tl
             if (!videoData.empty() && !bbox.empty())
             {
                 const imaging::Size offscreenBufferSize(
-                    p.viewport.w(),
-                    p.viewport.h());
+                    bbox[0].w(),
+                    bbox[0].h());
                 gl::OffscreenBufferOptions offscreenBufferOptions;
                 offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
                 if (!imageOptions.empty())
