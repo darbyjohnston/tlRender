@@ -445,6 +445,10 @@ namespace tl
                             displayOptions.size() > 1 ? displayOptions[1] : DisplayOptions());
                     }
                 }
+                else
+                {
+                    p.buffers["difference1"].reset();
+                }
 
                 if (p.buffers["difference0"] && p.buffers["difference1"])
                 {
