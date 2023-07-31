@@ -39,7 +39,7 @@ namespace tl
                 qt::ContextObject* _contextObject = nullptr;
                 std::shared_ptr<timeline::TimeUnitsModel> _timeUnitsModel;
                 qt::TimeObject* _timeObject = nullptr;
-                qt::TimelinePlayer* _timelinePlayer = nullptr;
+                QScopedPointer<qt::TimelinePlayer> _timelinePlayer;
 
                 QQmlApplicationEngine* _qmlEngine = nullptr;
                 QObject* _qmlObject = nullptr;

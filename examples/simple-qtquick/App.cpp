@@ -55,11 +55,12 @@ namespace tl
 
                 // Open the input file.
                 auto timeline = timeline::Timeline::create(_input, context);
-                _timelinePlayer = new qt::TimelinePlayer(timeline::Player::create(timeline, context), context);
+                auto player = timeline::Player::create(timeline, context);
+                _timelinePlayer.reset(new qt::TimelinePlayer(player, context));
 
                 // Load the QML.
                 _qmlEngine = new QQmlApplicationEngine;
-                _qmlEngine->rootContext()->setContextProperty("timelinePlayer", _timelinePlayer);
+                _qmlEngine->rootContext()->setContextProperty("timelinePlayer", _timelinePlayer.get());
                 QQmlComponent component(_qmlEngine, QUrl(QStringLiteral("qrc:/simple-qtquick.qml")));
                 if (component.status() != QQmlComponent::Status::Ready)
                 {

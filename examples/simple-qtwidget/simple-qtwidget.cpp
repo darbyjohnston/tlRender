@@ -41,12 +41,13 @@ int main(int argc, char* argv[])
 
         // Create the timeline player.
         auto timeline = tl::timeline::Timeline::create(argv[1], context);
-        auto timelinePlayer = new tl::qt::TimelinePlayer(
-            tl::timeline::Player::create(timeline, context), context);
+        auto player = tl::timeline::Player::create(timeline, context);
+        QScopedPointer<tl::qt::TimelinePlayer> timelinePlayer(
+            new tl::qt::TimelinePlayer(player, context));
 
         // Create the timeline viewport.
         auto timelineViewport = new tl::qtwidget::TimelineViewport(context);
-        timelineViewport->setTimelinePlayers({ timelinePlayer });
+        timelineViewport->setTimelinePlayers({ timelinePlayer.get()});
         timelineViewport->show();
 
         // Start playback.
