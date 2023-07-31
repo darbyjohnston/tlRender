@@ -249,7 +249,7 @@ namespace tl
                 p.sizeInit = false;
                 frameView();
             }
-            else if (changed && p.frameView)
+            else if (changed && p.frameView->get())
             {
                 frameView();
             }
