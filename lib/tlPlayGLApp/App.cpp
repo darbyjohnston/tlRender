@@ -33,7 +33,7 @@ namespace tl
                 std::string audioFileName;
                 std::string compareFileName;
                 timeline::CompareOptions compareOptions;
-                imaging::Size windowSize = imaging::Size(1280, 720);
+                imaging::Size windowSize = imaging::Size(1920, 1080);
                 bool fullscreen = false;
                 bool hud = true;
                 double speed = 0.0;
@@ -279,38 +279,6 @@ namespace tl
 
             // Initialize the settings.
             p.settings = Settings::create(context);
-            p.settings->setValue("Files/RecentMax", 10);
-            p.settings->setValue("Timeline/FrameView", true);
-            p.settings->setValue("Timeline/StopOnScrub", false);
-            p.settings->setValue("Timeline/Thumbnails", true);
-            p.settings->setValue("Timeline/ThumbnailsSize", 100);
-            p.settings->setValue("Timeline/Transitions", false);
-            p.settings->setValue("Timeline/Markers", false);
-            p.settings->setValue("Audio/Volume", p.volume);
-            p.settings->setValue("Audio/Mute", p.mute);
-            p.settings->setValue("Cache/ReadAhead",
-                p.playerCacheOptions.readAhead.value());
-            p.settings->setValue("Cache/ReadBehind",
-                p.playerCacheOptions.readBehind.value());
-            p.settings->setValue("FileSequence/Audio",
-                timeline::FileSequenceAudio::BaseName);
-            p.settings->setValue("FileSequence/AudioFileName", std::string());
-            p.settings->setValue("FileSequence/AudioDirectory", std::string());
-            p.settings->setValue("FileSequence/MaxDigits", 9);
-            p.settings->setValue("FileBrowser/NativeFileDialog", true);
-            p.settings->setValue("FileBrowser/Path", file::getCWD());
-            p.settings->setValue("FileBrowser/Options", ui::FileBrowserOptions());
-            p.settings->setValue("Performance/TimerMode",
-                timeline::PlayerOptions().timerMode);
-            p.settings->setValue("Performance/AudioBufferFrameCount",
-                timeline::PlayerOptions().audioBufferFrameCount);
-            p.settings->setValue("Performance/VideoRequestCount", 16);
-            p.settings->setValue("Performance/AudioRequestCount", 16);
-            p.settings->setValue("Performance/SequenceThreadCount", 16);
-            p.settings->setValue("Performance/FFmpegYUVToRGBConversion", false);
-            p.settings->setValue("Performance/FFmpegThreadCount", 0);
-            p.settings->setValue("Style/Palette", StylePalette::First);
-            p.settings->setValue("Misc/ToolTipsEnabled", true);
             if (!p.options.settingsFileName.empty())
             {
                 p.settingsFileName = p.options.settingsFileName;
@@ -335,6 +303,34 @@ namespace tl
             {
                 p.settings->read(p.settingsFileName);
             }
+            p.settings->setDefaultValue("Files/RecentMax", 10);
+            imaging::Size windowSize = p.options.windowSize;
+            p.settings->setDefaultValue("Window/Size", windowSize);
+            p.settings->setDefaultValue("Audio/Volume", p.volume);
+            p.settings->setDefaultValue("Audio/Mute", p.mute);
+            p.settings->setDefaultValue("Cache/ReadAhead",
+                p.playerCacheOptions.readAhead.value());
+            p.settings->setDefaultValue("Cache/ReadBehind",
+                p.playerCacheOptions.readBehind.value());
+            p.settings->setDefaultValue("FileSequence/Audio",
+                timeline::FileSequenceAudio::BaseName);
+            p.settings->setDefaultValue("FileSequence/AudioFileName", std::string());
+            p.settings->setDefaultValue("FileSequence/AudioDirectory", std::string());
+            p.settings->setDefaultValue("FileSequence/MaxDigits", 9);
+            p.settings->setDefaultValue("FileBrowser/NativeFileDialog", true);
+            p.settings->setDefaultValue("FileBrowser/Path", file::getCWD());
+            p.settings->setDefaultValue("FileBrowser/Options", ui::FileBrowserOptions());
+            p.settings->setDefaultValue("Performance/TimerMode",
+                timeline::PlayerOptions().timerMode);
+            p.settings->setDefaultValue("Performance/AudioBufferFrameCount",
+                timeline::PlayerOptions().audioBufferFrameCount);
+            p.settings->setDefaultValue("Performance/VideoRequestCount", 16);
+            p.settings->setDefaultValue("Performance/AudioRequestCount", 16);
+            p.settings->setDefaultValue("Performance/SequenceThreadCount", 16);
+            p.settings->setDefaultValue("Performance/FFmpegYUVToRGBConversion", false);
+            p.settings->setDefaultValue("Performance/FFmpegThreadCount", 0);
+            p.settings->setDefaultValue("Style/Palette", StylePalette::First);
+            p.settings->setDefaultValue("Misc/ToolTipsEnabled", true);
 
             // Initialize the models.
             p.filesModel = play::FilesModel::create(context);
@@ -483,6 +479,8 @@ namespace tl
             }
 
             // Create the main window.
+            p.settings->getValue("Window/Size", windowSize);
+            setWindowSize(windowSize);
             p.mainWindow = MainWindow::create(
                 std::dynamic_pointer_cast<App>(shared_from_this()),
                 _context);
@@ -497,7 +495,17 @@ namespace tl
         {
             TLRENDER_P();
 
+            p.mainWindow.reset();
+
             // Save the settings.
+            p.settings->setValue("Files/RecentMax", p.recentFilesModel->getRecentMax());
+            std::vector<std::string> recentFiles;
+            for (const auto& recentFile : p.recentFilesModel->getRecent())
+            {
+                recentFiles.push_back(recentFile.get());
+            }
+            p.settings->setValue("Files/Recent", recentFiles);
+            p.settings->setValue("Window/Size", getWindowSize());
             if (auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>())
             {
                 p.settings->setValue(
@@ -507,13 +515,6 @@ namespace tl
                     "FileBrowser/Options",
                     fileBrowserSystem->getOptions());
             }
-            p.settings->setValue("Files/RecentMax", p.recentFilesModel->getRecentMax());
-            std::vector<std::string> recentFiles;
-            for (const auto& recentFile : p.recentFilesModel->getRecent())
-            {
-                recentFiles.push_back(recentFile.get());
-            }
-            p.settings->setValue("Files/Recent", recentFiles);
             p.settings->write(p.settingsFileName);
         }
 

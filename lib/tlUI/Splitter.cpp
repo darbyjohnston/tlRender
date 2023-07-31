@@ -62,6 +62,11 @@ namespace tl
             return out;
         }
 
+        float Splitter::getSplit() const
+        {
+            return _p->split;
+        }
+
         void Splitter::setSplit(float value)
         {
             TLRENDER_P();

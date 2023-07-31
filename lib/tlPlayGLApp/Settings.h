@@ -45,6 +45,10 @@ namespace tl
             //! Observe value changes.
             std::shared_ptr<observer::IValue<std::string> > observeValues() const;
 
+            //! Set a default value.
+            template<typename T>
+            void setDefaultValue(const std::string&, T);
+
             //! Set a value.
             template<typename T>
             void setValue(const std::string&, T);

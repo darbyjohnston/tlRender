@@ -32,6 +32,9 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            //! Get the split amount.
+            float getSplit() const;
+
             //! Set the split amount.
             void setSplit(float);
 

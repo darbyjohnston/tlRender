@@ -14,6 +14,7 @@
 #include <tlPlayGLApp/FrameMenu.h>
 #include <tlPlayGLApp/PlaybackMenu.h>
 #include <tlPlayGLApp/RenderMenu.h>
+#include <tlPlayGLApp/Settings.h>
 #include <tlPlayGLApp/SpeedPopup.h>
 #include <tlPlayGLApp/ToolsMenu.h>
 #include <tlPlayGLApp/ToolsToolBar.h>
@@ -52,6 +53,7 @@ namespace tl
         struct MainWindow::Private
         {
             std::weak_ptr<App> app;
+            std::weak_ptr<Settings> settings;
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             std::shared_ptr<ui::DoubleModel> speedModel;
             timelineui::ItemOptions itemOptions;
@@ -88,6 +90,8 @@ namespace tl
             std::shared_ptr<time::Timer> statusTimer;
             std::shared_ptr<ui::Label> infoLabel;
             std::shared_ptr<ToolsWidget> toolsWidget;
+            std::shared_ptr<ui::Splitter> splitter;
+            std::shared_ptr<ui::Splitter> splitter2;
             std::shared_ptr<ui::RowLayout> layout;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playersObserver;
@@ -109,6 +113,26 @@ namespace tl
 
             setBackgroundRole(ui::ColorRole::Window);
 
+            auto settings = app->getSettings();
+            float splitter = .7F;
+            settings->setDefaultValue("Window/Splitter", splitter);
+            float splitter2 = .8F;
+            settings->setDefaultValue("Window/Splitter2", splitter2);
+            bool frameView = true;
+            settings->setDefaultValue("Timeline/FrameView", frameView);
+            bool stopOnScrub = true;
+            settings->setDefaultValue("Timeline/StopOnScrub", stopOnScrub);
+            timelineui::ItemOptions itemOptions;
+            settings->setDefaultValue("Timeline/Thumbnails",
+                itemOptions.thumbnails);
+            settings->setDefaultValue("Timeline/ThumbnailsSize",
+                itemOptions.thumbnailHeight);
+            settings->setDefaultValue("Timeline/Transitions",
+                itemOptions.showTransitions);
+            settings->setDefaultValue("Timeline/Markers",
+                itemOptions.showMarkers);
+            p.settings = settings;
+
             p.app = app;
             p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
             p.speedModel = ui::DoubleModel::create(context);
@@ -120,6 +144,15 @@ namespace tl
 
             p.timelineWidget = timelineui::TimelineWidget::create(p.timeUnitsModel, context);
             p.timelineWidget->setScrollBarsVisible(false);
+            settings->getValue("Timeline/FrameView", frameView);
+            p.timelineWidget->setFrameView(frameView);
+            settings->getValue("Timeline/FrameView", stopOnScrub);
+            p.timelineWidget->setStopOnScrub(stopOnScrub);
+            settings->getValue("Timeline/Thumbnails", itemOptions.thumbnails);
+            settings->getValue("Timeline/ThumbnailsSize", itemOptions.thumbnailHeight);
+            settings->getValue("Timeline/Transitions", itemOptions.showTransitions);
+            settings->getValue("Timeline/Markers", itemOptions.showMarkers);
+            p.timelineWidget->setItemOptions(itemOptions);
 
             p.fileMenu = FileMenu::create(app, context);
             p.compareMenu = CompareMenu::create(app, context);
@@ -231,15 +264,17 @@ namespace tl
             ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
             p.toolsToolBar->setParent(hLayout);
             ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
-            auto splitter = ui::Splitter::create(ui::Orientation::Vertical, context, p.layout);
-            splitter->setSplit(.7F);
-            splitter->setSpacingRole(ui::SizeRole::None);
-            auto splitter2 = ui::Splitter::create(ui::Orientation::Horizontal, context, splitter);
-            splitter2->setSplit(.8F);
-            splitter2->setSpacingRole(ui::SizeRole::None);
-            p.timelineViewport->setParent(splitter2);
-            p.toolsWidget->setParent(splitter2);
-            p.timelineWidget->setParent(splitter);
+            p.splitter = ui::Splitter::create(ui::Orientation::Vertical, context, p.layout);
+            settings->getValue("Window/Splitter", splitter);
+            p.splitter->setSplit(splitter);
+            p.splitter->setSpacingRole(ui::SizeRole::None);
+            p.splitter2 = ui::Splitter::create(ui::Orientation::Horizontal, context, p.splitter);
+            settings->getValue("Window/Splitter2", splitter2);
+            p.splitter2->setSplit(splitter2);
+            p.splitter2->setSpacingRole(ui::SizeRole::None);
+            p.timelineViewport->setParent(p.splitter2);
+            p.toolsWidget->setParent(p.splitter2);
+            p.timelineWidget->setParent(p.splitter);
             ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
             hLayout = ui::HorizontalLayout::create(context, p.layout);
             hLayout->setMarginRole(ui::SizeRole::MarginInside);
@@ -368,7 +403,28 @@ namespace tl
         {}
 
         MainWindow::~MainWindow()
-        {}
+        {
+            TLRENDER_P();
+            if (auto settings = p.settings.lock())
+            {
+                float splitter = p.splitter->getSplit();
+                settings->setValue("Window/Splitter", splitter);
+                settings->setValue("Window/Splitter2", p.splitter2->getSplit());
+                settings->setValue("Timeline/FrameView",
+                    p.timelineWidget->hasFrameView());
+                settings->setValue("Timeline/StopOnScrub",
+                    p.timelineWidget->hasStopOnScrub());
+                const auto& timelineItemOptions = p.timelineWidget->getItemOptions();
+                settings->setValue("Timeline/Thumbnails",
+                    timelineItemOptions.thumbnails);
+                settings->setValue("Timeline/ThumbnailsSize",
+                    timelineItemOptions.thumbnailHeight);
+                settings->setValue("Timeline/Transitions",
+                    timelineItemOptions.showTransitions);
+                settings->setValue("Timeline/Markers",
+                    timelineItemOptions.showMarkers);
+            }
+        }
 
         std::shared_ptr<MainWindow> MainWindow::create(
             const std::shared_ptr<App>& app,
@@ -469,46 +525,43 @@ namespace tl
             TLRENDER_P();
             if (auto context = _context.lock())
             {
-                if (auto app = p.app.lock())
+                if (auto eventLoop = getEventLoop().lock())
                 {
-                    if (auto eventLoop = getEventLoop().lock())
+                    if (!p.speedPopup)
                     {
-                        if (!p.speedPopup)
-                        {
-                            const double defaultSpeed =
-                                !p.players.empty() && p.players[0] ?
-                                p.players[0]->getDefaultSpeed() :
-                                0.0;
-                            p.speedPopup = SpeedPopup::create(defaultSpeed, context);
-                            p.speedPopup->open(eventLoop, p.speedButton->getGeometry());
-                            auto weak = std::weak_ptr<MainWindow>(std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
-                            p.speedPopup->setCallback(
-                                [weak](double value)
+                        const double defaultSpeed =
+                            !p.players.empty() && p.players[0] ?
+                            p.players[0]->getDefaultSpeed() :
+                            0.0;
+                        p.speedPopup = SpeedPopup::create(defaultSpeed, context);
+                        p.speedPopup->open(eventLoop, p.speedButton->getGeometry());
+                        auto weak = std::weak_ptr<MainWindow>(std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
+                        p.speedPopup->setCallback(
+                            [weak](double value)
+                            {
+                                if (auto widget = weak.lock())
                                 {
-                                    if (auto widget = weak.lock())
+                                    if (!widget->_p->players.empty() &&
+                                        widget->_p->players[0])
                                     {
-                                        if (!widget->_p->players.empty() &&
-                                            widget->_p->players[0])
-                                        {
-                                            widget->_p->players[0]->setSpeed(value);
-                                        }
-                                        widget->_p->speedPopup->close();
+                                        widget->_p->players[0]->setSpeed(value);
                                     }
-                                });
-                            p.speedPopup->setCloseCallback(
-                                [weak]
+                                    widget->_p->speedPopup->close();
+                                }
+                            });
+                        p.speedPopup->setCloseCallback(
+                            [weak]
+                            {
+                                if (auto widget = weak.lock())
                                 {
-                                    if (auto widget = weak.lock())
-                                    {
-                                        widget->_p->speedPopup.reset();
-                                    }
-                                });
-                        }
-                        else
-                        {
-                            p.speedPopup->close();
-                            p.speedPopup.reset();
-                        }
+                                    widget->_p->speedPopup.reset();
+                                }
+                            });
+                    }
+                    else
+                    {
+                        p.speedPopup->close();
+                        p.speedPopup.reset();
                     }
                 }
             }

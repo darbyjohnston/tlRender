@@ -79,7 +79,7 @@ namespace tl
             p.recent->setIfChanged(recent);
         }
 
-        void RecentFilesModel::addRecent(const file::Path   & value)
+        void RecentFilesModel::addRecent(const file::Path& value)
         {
             TLRENDER_P();
             auto recent = p.recent->get();
@@ -96,6 +96,10 @@ namespace tl
                 }
             }
             recent.insert(recent.begin(), value);
+            while (recent.size() > p.recentMax)
+            {
+                recent.pop_back();
+            }
             p.recent->setIfChanged(recent);
         }
     }

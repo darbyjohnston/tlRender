@@ -56,6 +56,9 @@ namespace tl
             //! Get the style.
             const std::shared_ptr<ui::Style> getStyle() const;
 
+            //! Get the window size.
+            imaging::Size getWindowSize() const;
+
             //! Set the window size.
             void setWindowSize(const imaging::Size&);
 

@@ -383,6 +383,14 @@ namespace tl
             return _p->style;
         }
 
+        imaging::Size IApp::getWindowSize() const
+        {
+            int width = 0;
+            int height = 0;
+            glfwGetWindowSize(_p->glfwWindow, &width, &height);
+            return imaging::Size(width, height);
+        }
+
         void IApp::setWindowSize(const imaging::Size& value)
         {
             glfwSetWindowSize(_p->glfwWindow, value.w, value.h);
