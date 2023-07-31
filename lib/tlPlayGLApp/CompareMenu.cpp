@@ -26,9 +26,10 @@ namespace tl
 
         void CompareMenu::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
-            Menu::_init(context);
+            Menu::_init(context, parent);
             TLRENDER_P();
 
             p.app = app;
@@ -142,10 +143,11 @@ namespace tl
 
         std::shared_ptr<CompareMenu> CompareMenu::create(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<CompareMenu>(new CompareMenu);
-            out->_init(app, context);
+            out->_init(app, context, parent);
             return out;
         }
 

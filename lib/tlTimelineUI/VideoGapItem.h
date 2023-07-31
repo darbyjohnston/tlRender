@@ -20,7 +20,7 @@ namespace tl
                 const otio::SerializableObject::Retainer<otio::Gap>&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<IWidget>& parent);
 
             VideoGapItem();
 

@@ -40,9 +40,10 @@ namespace tl
         void PlaybackMenu::_init(
             const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
-            Menu::_init(context);
+            Menu::_init(context, parent);
             TLRENDER_P();
 
             p.mainWindow = mainWindow;
@@ -429,10 +430,11 @@ namespace tl
         std::shared_ptr<PlaybackMenu> PlaybackMenu::create(
             const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<PlaybackMenu>(new PlaybackMenu);
-            out->_init(mainWindow, app, context);
+            out->_init(mainWindow, app, context, parent);
             return out;
         }
 

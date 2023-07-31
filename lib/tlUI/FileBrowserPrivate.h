@@ -23,7 +23,7 @@ namespace tl
             void _init(
                 const std::shared_ptr<RecentFilesModel>&,
                 const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<IWidget>& parent);
 
             PathsWidget();
 
@@ -59,7 +59,7 @@ namespace tl
             void _init(
                 const file::FileInfo&,
                 const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<IWidget>& parent);
 
             Button();
 
@@ -97,7 +97,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<IWidget>& parent);
 
             DirectoryWidget();
 
@@ -135,7 +135,7 @@ namespace tl
             void _init(
                 const std::string&,
                 const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<IWidget>& parent);
 
             FileBrowserWidget();
 

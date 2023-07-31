@@ -16,9 +16,10 @@ namespace tl
 
         void AudioMenu::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
-            Menu::_init(context);
+            Menu::_init(context, parent);
             TLRENDER_P();
 
             auto item = std::make_shared<ui::MenuItem>(
@@ -65,10 +66,11 @@ namespace tl
 
         std::shared_ptr<AudioMenu> AudioMenu::create(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<AudioMenu>(new AudioMenu);
-            out->_init(app, context);
+            out->_init(app, context, parent);
             return out;
         }
     }

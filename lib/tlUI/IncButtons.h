@@ -22,7 +22,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<IWidget>& parent);
 
             IncButton();
 
@@ -51,7 +51,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<IWidget>& parent);
 
             IncButtons();
 
@@ -86,7 +86,7 @@ namespace tl
             void _init(
                 const std::shared_ptr<IntModel>&,
                 const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<IWidget>& parent);
 
             IntIncButtons();
 
@@ -117,7 +117,7 @@ namespace tl
             void _init(
                 const std::shared_ptr<FloatModel>&,
                 const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<IWidget>& parent);
 
             FloatIncButtons();
 
@@ -149,7 +149,7 @@ namespace tl
             void _init(
                 const std::shared_ptr<DoubleModel>&,
                 const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<IWidget>& parent);
 
             DoubleIncButtons();
 

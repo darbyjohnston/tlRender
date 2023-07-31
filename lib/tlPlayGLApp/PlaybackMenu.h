@@ -24,7 +24,8 @@ namespace tl
             void _init(
                 const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent);
 
             PlaybackMenu();
 
@@ -34,7 +35,8 @@ namespace tl
             static std::shared_ptr<PlaybackMenu> create(
                 const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
 
             void close() override;
 

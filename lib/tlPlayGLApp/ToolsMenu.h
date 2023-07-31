@@ -20,7 +20,8 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent);
 
             ToolsMenu();
 
@@ -29,7 +30,8 @@ namespace tl
 
             static std::shared_ptr<ToolsMenu> create(
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:
             TLRENDER_PRIVATE();

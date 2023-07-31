@@ -23,9 +23,10 @@ namespace tl
         void ViewMenu::_init(
             const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
-            Menu::_init(context);
+            Menu::_init(context, parent);
             TLRENDER_P();
 
             auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
@@ -92,10 +93,11 @@ namespace tl
         std::shared_ptr<ViewMenu> ViewMenu::create(
             const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ViewMenu>(new ViewMenu);
-            out->_init(mainWindow, app, context);
+            out->_init(mainWindow, app, context, parent);
             return out;
         }
     }

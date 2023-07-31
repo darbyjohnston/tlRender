@@ -226,7 +226,8 @@ namespace tl
                 IExampleWidget::_init(
                     "Drag and Drop",
                     "tl::examples::widgets_gl::DragAndDrop",
-                    context);
+                    context,
+                    parent);
                 TLRENDER_P();
 
                 p.layout = ui::GridLayout::create(context, shared_from_this());

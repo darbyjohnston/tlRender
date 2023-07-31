@@ -21,9 +21,10 @@ namespace tl
         void FrameMenu::_init(
             const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
-            Menu::_init(context);
+            Menu::_init(context, parent);
             TLRENDER_P();
 
             auto item = std::make_shared<ui::MenuItem>(
@@ -181,10 +182,11 @@ namespace tl
         std::shared_ptr<FrameMenu> FrameMenu::create(
             const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FrameMenu>(new FrameMenu);
-            out->_init(mainWindow, app, context);
+            out->_init(mainWindow, app, context, parent);
             return out;
         }
 

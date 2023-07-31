@@ -21,7 +21,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<IWidget>& parent);
 
             LineEdit();
 
