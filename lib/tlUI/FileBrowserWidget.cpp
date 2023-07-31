@@ -210,20 +210,18 @@ namespace tl
                 });
 
             p.directoryWidget->setFileCallback(
-                [this](const std::string& value)
+                [this](const file::Path& value)
                 {
                     TLRENDER_P();
-                    p.path = file::Path(p.path.getDirectory(), value);
-                    _pathUpdate();
                     if (p.fileCallback)
                     {
-                        p.fileCallback(p.path);
+                        p.fileCallback(value);
                     }
                 });
             p.directoryWidget->setPathCallback(
-                [this](const std::string& value)
+                [this](const file::Path& value)
                 {
-                    _p->path = file::Path(value, "");
+                    _p->path = value;
                     _pathUpdate();
                 });
 
@@ -374,7 +372,7 @@ namespace tl
         {
             TLRENDER_P();
             p.pathEdit->setText(p.path.get());
-            p.directoryWidget->setPath(p.path.getDirectory());
+            p.directoryWidget->setPath(p.path);
             p.directoryScrollWidget->setScrollPos(math::Vector2i(0, 0));
         }
     }

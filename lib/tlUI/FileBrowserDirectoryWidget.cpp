@@ -15,15 +15,15 @@ namespace tl
     {
         struct DirectoryWidget::Private
         {
-            std::string path;
+            file::Path path;
             FileBrowserOptions options;
             std::vector<file::FileInfo> fileInfos;
             std::vector<std::shared_ptr<Button> > buttons;
             std::map<std::shared_ptr<Button>, size_t> buttonToIndex;
             std::shared_ptr<ButtonGroup> buttonGroup;
             std::shared_ptr<VerticalLayout> layout;
-            std::function<void(const std::string&)> fileCallback;
-            std::function<void(const std::string&)> pathCallback;
+            std::function<void(const file::Path&)> fileCallback;
+            std::function<void(const file::Path&)> pathCallback;
 
             struct SizeData
             {
@@ -64,12 +64,12 @@ namespace tl
                             case file::Type::File:
                                 if (p.fileCallback)
                                 {
-                                    p.fileCallback(fileInfo.getPath().get(-1, false));
+                                    p.fileCallback(fileInfo.getPath());
                                 }
                                 break;
                             case file::Type::Directory:
                             {
-                                p.path = file::Path(p.path, fileInfo.getPath().get(-1, false)).get();
+                                p.path = fileInfo.getPath();
                                 _directoryUpdate();
                                 if (p.pathCallback)
                                 {
@@ -100,7 +100,7 @@ namespace tl
             return out;
         }
 
-        void DirectoryWidget::setPath(const std::string& value)
+        void DirectoryWidget::setPath(const file::Path& value)
         {
             TLRENDER_P();
             if (value == p.path)
@@ -109,12 +109,12 @@ namespace tl
             _directoryUpdate();
         }
 
-        void DirectoryWidget::setFileCallback(const std::function<void(const std::string&)>& value)
+        void DirectoryWidget::setFileCallback(const std::function<void(const file::Path&)>& value)
         {
             _p->fileCallback = value;
         }
 
-        void DirectoryWidget::setPathCallback(const std::function<void(const std::string&)>& value)
+        void DirectoryWidget::setPathCallback(const std::function<void(const file::Path&)>& value)
         {
             _p->pathCallback = value;
         }
@@ -219,7 +219,7 @@ namespace tl
             p.buttons.clear();
             p.buttonToIndex.clear();
             p.buttonGroup->clearButtons();
-            p.fileInfos = file::list(p.path, p.options.list);
+            p.fileInfos = file::list(p.path.get(), p.options.list);
             if (auto context = _context.lock())
             {
                 for (size_t i = 0; i < p.fileInfos.size(); ++i)
