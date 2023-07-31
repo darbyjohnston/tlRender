@@ -11,6 +11,8 @@ namespace tl
     namespace ui
     {
         //! Text label.
+        //! 
+        //! \todo Add text wrapping.
         class Label : public IWidget
         {
             TLRENDER_NON_COPYABLE(Label);
