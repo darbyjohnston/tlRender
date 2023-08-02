@@ -358,9 +358,9 @@ namespace tl
                         _options.thumbnailHeight);
                     if (bbox.intersects(clipRect))
                     {
-                        const otime::RationalTime time = time::round(otime::RationalTime(
+                        const otime::RationalTime time = time::floor(otime::RationalTime(
                             p.timeRange.start_time().value() +
-                            (w > 0 ? (x / static_cast<double>(w)) : 0) *
+                            (w > 0 ? (x / static_cast<double>(w - 1)) : 0) *
                             p.timeRange.duration().value(),
                             p.timeRange.duration().rate()));
 
