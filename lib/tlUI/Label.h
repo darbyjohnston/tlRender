@@ -45,6 +45,9 @@ namespace tl
             //! zero (the default) shows the entire text.
             void setTextWidth(size_t);
 
+            //! Set the text color role.
+            void setTextRole(ColorRole);
+
             //! Set the margin role.
             void setMarginRole(SizeRole);
 

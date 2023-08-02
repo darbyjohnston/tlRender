@@ -59,6 +59,8 @@ namespace tl
             Checked,
             KeyFocus,
             Overlay,
+            ToolTipWindow,
+            ToolTipText,
 
             InOut,
             VideoCache,

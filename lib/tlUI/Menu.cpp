@@ -13,93 +13,6 @@ namespace tl
 {
     namespace ui
     {
-        MenuItem::MenuItem()
-        {}
-
-        MenuItem::MenuItem(
-            const std::string&               text,
-            const std::function<void(void)>& callback) :
-            text(text),
-            callback(callback)
-        {}
-
-        MenuItem::MenuItem(
-            const std::string&               text,
-            const std::string&               icon,
-            const std::function<void(void)>& callback) :
-            text(text),
-            icon(icon),
-            callback(callback)
-        {}
-
-        MenuItem::MenuItem(
-            const std::string& text,
-            Key                              shortcut,
-            int                              shortcutModifiers,
-            const std::function<void(void)>& callback) :
-            text(text),
-            shortcut(shortcut),
-            shortcutModifiers(shortcutModifiers),
-            callback(callback)
-        {}
-
-        MenuItem::MenuItem(
-            const std::string& text,
-            const std::string& icon,
-            Key                              shortcut,
-            int                              shortcutModifiers,
-            const std::function<void(void)>& callback) :
-            text(text),
-            icon(icon),
-            shortcut(shortcut),
-            shortcutModifiers(shortcutModifiers),
-            callback(callback)
-        {}
-
-        MenuItem::MenuItem(
-            const std::string&               text,
-            const std::function<void(bool)>& checkedCallback) :
-            text(text),
-            checkable(true),
-            checkedCallback(checkedCallback)
-        {}
-
-        MenuItem::MenuItem(
-            const std::string&               text,
-            const std::string&               icon,
-            const std::function<void(bool)>& checkedCallback) :
-            text(text),
-            icon(icon),
-            checkable(true),
-            checkedCallback(checkedCallback)
-        {}
-
-        MenuItem::MenuItem(
-            const std::string&               text,
-            Key                              shortcut,
-            int                              shortcutModifiers,
-            const std::function<void(bool)>& checkedCallback) :
-            text(text),
-            shortcut(shortcut),
-            shortcutModifiers(shortcutModifiers),
-            checkable(true),
-            checkedCallback(checkedCallback)
-        {}
-
-        MenuItem::MenuItem(
-            const std::string&               text,
-            const std::string&               icon,
-            Key                              shortcut,
-            int                              shortcutModifiers,
-            const std::function<void(bool)>& checkedCallback) :
-            text(text),
-            icon(icon),
-            shortcut(shortcut),
-            shortcutModifiers(shortcutModifiers),
-            checkable(true),
-            checkedCallback(checkedCallback)
-        {}
-
         namespace
         {
             class MenuButton : public IButton
@@ -574,8 +487,8 @@ namespace tl
 
         struct Menu::Private
         {
-            std::list<std::shared_ptr<MenuItem> > items;
-            std::map<std::shared_ptr<MenuItem>, std::shared_ptr<MenuButton> > buttons;
+            std::list<std::shared_ptr<Action> > items;
+            std::map<std::shared_ptr<Action>, std::shared_ptr<MenuButton> > buttons;
             std::shared_ptr<VerticalLayout> layout;
         };
 
@@ -606,7 +519,7 @@ namespace tl
             return out;
         }
 
-        void Menu::addItem(const std::shared_ptr<MenuItem>& item)
+        void Menu::addItem(const std::shared_ptr<Action>& item)
         {
             TLRENDER_P();
             p.items.push_back(item);
@@ -616,16 +529,32 @@ namespace tl
                 button->setText(item->text);
                 button->setIcon(item->icon);
                 button->setShortcut(item->shortcut, item->shortcutModifiers);
-                button->setClickedCallback(item->callback);
+                button->setClickedCallback(
+                    [this, item]
+                    {
+                        if (item->callback)
+                        {
+                            item->callback();
+                        }
+                        close();
+                    });
                 button->setCheckable(item->checkable);
                 button->setChecked(item->checked);
-                button->setCheckedCallback(item->checkedCallback);
+                button->setCheckedCallback(
+                    [this, item](bool value)
+                    {
+                        if (item->checkedCallback)
+                        {
+                            item->checkedCallback(value);
+                        }
+                        close();
+                    });
                 button->setParent(p.layout);
                 p.buttons[item] = button;
             }
         }
 
-        void Menu::setItemChecked(const std::shared_ptr<MenuItem>& item, bool value)
+        void Menu::setItemChecked(const std::shared_ptr<Action>& item, bool value)
         {
             TLRENDER_P();
             const auto i = std::find(p.items.begin(), p.items.end(), item);
@@ -640,7 +569,7 @@ namespace tl
             }
         }
 
-        void Menu::setItemEnabled(const std::shared_ptr<MenuItem>& item, bool value)
+        void Menu::setItemEnabled(const std::shared_ptr<Action>& item, bool value)
         {
             TLRENDER_P();
             const auto i = p.buttons.find(item);

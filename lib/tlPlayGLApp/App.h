@@ -6,21 +6,23 @@
 
 #include <tlGLApp/IApp.h>
 
-#include <tlUI/RecentFilesModel.h>
-
 #include <tlPlay/FilesModel.h>
 
-#include <tlTimeline/IRender.h>
 #include <tlTimeline/Player.h>
-
-#if defined(TLRENDER_USD)
-#include <tlIO/USD.h>
-#endif // TLRENDER_USD
-
-struct GLFWwindow;
 
 namespace tl
 {
+    namespace ui
+    {
+        class RecentFilesModel;
+    }
+
+    namespace play
+    {
+        class AudioModel;
+        class ColorModel;
+    }
+
     //! OpenGL playback application.
     namespace play_gl
     {
@@ -72,6 +74,12 @@ namespace tl
 
             //! Observe the active timeline players.
             std::shared_ptr<observer::IList<std::shared_ptr<timeline::Player> > > observeActivePlayers() const;
+
+            //! Get the color model.
+            const std::shared_ptr<play::ColorModel>& getColorModel() const;
+
+            //! Get the audio model.
+            const std::shared_ptr<play::AudioModel>& getAudioModel() const;
 
             //! Get the tools model.
             const std::shared_ptr<ToolsModel>& getToolsModel() const;

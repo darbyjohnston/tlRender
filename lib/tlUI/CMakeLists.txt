@@ -1,4 +1,5 @@
 set(HEADERS
+    Action.h
     ButtonGroup.h
     Bellows.h
     CheckBox.h
@@ -56,11 +57,13 @@ set(HEADERS
     StyleInline.h
     TimeEdit.h
     TimeLabel.h
-    ToolButton.h)
+    ToolButton.h
+    ToolTip.h)
 set(HEADERS_PRIVATE
     FileBrowserPrivate.h)
 
 set(SOURCE
+    Action.cpp
     ButtonGroup.cpp
     Bellows.cpp
     CheckBox.cpp
@@ -121,7 +124,8 @@ set(SOURCE
     Style.cpp
     TimeEdit.cpp
     TimeLabel.cpp
-    ToolButton.cpp)
+    ToolButton.cpp
+    ToolTip.cpp)
 
 set(LIBRARIES_PRIVATE)
 if(TLRENDER_NFD)

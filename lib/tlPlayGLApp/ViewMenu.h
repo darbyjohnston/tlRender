@@ -20,6 +20,7 @@ namespace tl
 
         protected:
             void _init(
+                const std::map<std::string, std::shared_ptr<ui::Action> >&,
                 const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
@@ -31,6 +32,7 @@ namespace tl
             ~ViewMenu();
 
             static std::shared_ptr<ViewMenu> create(
+                const std::map<std::string, std::shared_ptr<ui::Action> >&,
                 const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,

@@ -1,8 +1,12 @@
 set(HEADERS
+    AudioModel.h
+    ColorModel.h
     FilesModel.h
     Util.h)
 
 set(SOURCE
+    AudioModel.cpp
+    ColorModel.cpp
     FilesModel.cpp
     Util.cpp)
 

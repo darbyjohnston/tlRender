@@ -16,6 +16,7 @@ namespace tl
     {
         struct CompareToolBar::Private
         {
+            std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::shared_ptr<ui::ButtonGroup> buttonGroup;
             std::map<timeline::CompareMode, std::shared_ptr<ui::ToolButton> > buttons;
             std::shared_ptr<ui::HorizontalLayout> layout;
@@ -24,6 +25,7 @@ namespace tl
         };
 
         void CompareToolBar::_init(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -34,25 +36,18 @@ namespace tl
                 parent);
             TLRENDER_P();
 
+            p.actions = actions;
+
             p.buttonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Radio, context);
-            const std::array<std::string, static_cast<size_t>(timeline::CompareMode::Count)> icons =
-            {
-                "CompareA",
-                "CompareB",
-                "CompareWipe",
-                "CompareOverlay",
-                "CompareDifference",
-                "CompareHorizontal",
-                "CompareVertical",
-                "CompareTile"
-            };
             const auto enums = timeline::getCompareModeEnums();
+            const auto labels = timeline::getCompareModeLabels();
             for (size_t i = 0; i < enums.size(); ++i)
             {
                 const auto mode = enums[i];
                 p.buttons[mode] = ui::ToolButton::create(context);
                 p.buttons[mode]->setCheckable(true);
-                p.buttons[mode]->setIcon(icons[i]);
+                p.buttons[mode]->setIcon(p.actions[labels[i]]->icon);
+                p.buttons[mode]->setToolTip(p.actions[labels[i]]->toolTip);
                 p.buttonGroup->addButton(p.buttons[mode]);
             }
 
@@ -94,12 +89,13 @@ namespace tl
         {}
 
         std::shared_ptr<CompareToolBar> CompareToolBar::create(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<CompareToolBar>(new CompareToolBar);
-            out->_init(app, context, parent);
+            out->_init(actions, app, context, parent);
             return out;
         }
 

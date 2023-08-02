@@ -71,6 +71,8 @@ namespace tl
             "Checked",
             "KeyFocus",
             "Overlay",
+            "ToolTipWindow",
+            "ToolTipText",
 
             "InOut",
             "VideoCache",
@@ -105,6 +107,8 @@ namespace tl
             out[ColorRole::Checked] = imaging::Color4f(.6F, .4F, .2F);
             out[ColorRole::KeyFocus] = imaging::Color4f(.6F, .6F, .4F);
             out[ColorRole::Overlay] = imaging::Color4f(0.F, 0.F, 0.F, .5F);
+            out[ColorRole::ToolTipWindow] = imaging::Color4f(1.F, .95F, .7F);
+            out[ColorRole::ToolTipText] = imaging::Color4f(0.F, 0.F, 0.F);
 
             out[ColorRole::InOut] = imaging::Color4f(1.F, .7F, .2F, .1F);
             out[ColorRole::VideoCache] = imaging::Color4f(.2F, .4F, .4F);

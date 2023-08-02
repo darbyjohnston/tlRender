@@ -17,6 +17,7 @@ namespace tl
     {
         struct ToolsToolBar::Private
         {
+            std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::shared_ptr<ui::ButtonGroup> buttonGroup;
             std::map<Tool, std::shared_ptr<ui::ToolButton> > buttons;
             std::shared_ptr<ui::HorizontalLayout> layout;
@@ -24,6 +25,7 @@ namespace tl
         };
 
         void ToolsToolBar::_init(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -34,12 +36,16 @@ namespace tl
                 parent);
             TLRENDER_P();
 
+            p.actions = actions;
+
             p.buttonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Toggle, context);
             for (const auto tool : toolsInToolbar())
             {
                 auto button = ui::ToolButton::create(context);
-                button->setIcon(getIcon(tool));
-                button->setCheckable(true);
+                auto action = p.actions[getLabel(tool)];
+                button->setIcon(action->icon);
+                button->setCheckable(action->checkable);
+                button->setToolTip(action->toolTip);
                 p.buttonGroup->addButton(button);
                 p.buttons[tool] = button;
             }
@@ -80,12 +86,13 @@ namespace tl
         {}
 
         std::shared_ptr<ToolsToolBar> ToolsToolBar::create(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ToolsToolBar>(new ToolsToolBar);
-            out->_init(app, context, parent);
+            out->_init(actions, app, context, parent);
             return out;
         }
 

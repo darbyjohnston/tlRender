@@ -71,14 +71,14 @@ namespace tl
             p.actions["Overlay"]->setCheckable(true);
             p.actions["Overlay"]->setText(tr("Overlay"));
             p.actions["Overlay"]->setIcon(QIcon(":/Icons/CompareOverlay.svg"));
-            p.actions["Overlay"]->setToolTip(tr("Overlay the A and B files with transparency"));
+            p.actions["Overlay"]->setToolTip(tr("Show the A file over the B file with transparency"));
 
             p.actions["Difference"] = new QAction(this);
             p.actions["Difference"]->setData(QVariant::fromValue<timeline::CompareMode>(timeline::CompareMode::Difference));
             p.actions["Difference"]->setCheckable(true);
             p.actions["Difference"]->setText(tr("Difference"));
             p.actions["Difference"]->setIcon(QIcon(":/Icons/CompareDifference.svg"));
-            p.actions["Difference"]->setToolTip(tr("Difference the A and B files"));
+            p.actions["Difference"]->setToolTip(tr("Show the difference between the A and B files"));
 
             p.actions["Horizontal"] = new QAction(this);
             p.actions["Horizontal"]->setData(QVariant::fromValue<timeline::CompareMode>(timeline::CompareMode::Horizontal));

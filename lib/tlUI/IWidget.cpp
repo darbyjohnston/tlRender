@@ -216,6 +216,12 @@ namespace tl
             }
         }
 
+        void IWidget::setToolTip(const std::string& value)
+        {
+            _toolTip = value;
+            setMouseHover(!_toolTip.empty());
+        }
+
         void IWidget::childAddedEvent(const ChildEvent&)
         {}
 

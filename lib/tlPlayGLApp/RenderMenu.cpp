@@ -6,19 +6,26 @@
 
 #include <tlPlayGLApp/App.h>
 
+#include <tlPlay/ColorModel.h>
+
 namespace tl
 {
     namespace play_gl
     {
         struct RenderMenu::Private
         {
+            std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::shared_ptr<Menu> videoLevelsMenu;
             std::shared_ptr<Menu> alphaBlendMenu;
             std::shared_ptr<Menu> minifyFilterMenu;
             std::shared_ptr<Menu> magnifyFilterMenu;
+
+            std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
         };
 
         void RenderMenu::_init(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -26,164 +33,98 @@ namespace tl
             Menu::_init(context, parent);
             TLRENDER_P();
 
-            auto item = std::make_shared<ui::MenuItem>(
-                "Red Channel",
-                ui::Key::R,
-                0,
-                [this]
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
+            p.actions = actions;
 
-            item = std::make_shared<ui::MenuItem>(
-                "Green Channel",
-                ui::Key::G,
-                0,
-                [this]
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Blue Channel",
-                ui::Key::B,
-                0,
-                [this]
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Alpha Channel",
-                ui::Key::A,
-                0,
-                [this]
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
+            addItem(p.actions["Red"]);
+            addItem(p.actions["Green"]);
+            addItem(p.actions["Blue"]);
+            addItem(p.actions["Alpha"]);
             addDivider();
-
-            item = std::make_shared<ui::MenuItem>(
-                "Mirror Horizontal",
-                ui::Key::H,
-                0,
-                [this]
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Mirror Vertical",
-                ui::Key::V,
-                0,
-                [this]
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
+            addItem(p.actions["MirrorHorizontal"]);
+            addItem(p.actions["MirrorVertical"]);
             addDivider();
 
             p.videoLevelsMenu = addSubMenu("Video Levels");
-
-            item = std::make_shared<ui::MenuItem>(
-                "Full Range",
-                [this](bool value)
-                {
-                    close();
-                });
-            p.videoLevelsMenu->addItem(item);
-            p.videoLevelsMenu->setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Legal Range",
-                [this](bool value)
-                {
-                    close();
-                });
-            p.videoLevelsMenu->addItem(item);
-            p.videoLevelsMenu->setItemEnabled(item, false);
+            p.videoLevelsMenu->addItem(p.actions["FromFile"]);
+            p.videoLevelsMenu->addItem(p.actions["FullRange"]);
+            p.videoLevelsMenu->addItem(p.actions["LegalRange"]);
 
             p.alphaBlendMenu = addSubMenu("Alpha Blend");
-
-            item = std::make_shared<ui::MenuItem>(
-                "None",
-                [this](bool value)
-                {
-                    close();
-                });
-            p.alphaBlendMenu->addItem(item);
-            p.alphaBlendMenu->setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Straight",
-                [this](bool value)
-                {
-                    close();
-                });
-            p.alphaBlendMenu->addItem(item);
-            p.alphaBlendMenu->setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Premultiplied",
-                [this](bool value)
-                {
-                    close();
-                });
-            p.alphaBlendMenu->addItem(item);
-            p.alphaBlendMenu->setItemEnabled(item, false);
+            p.alphaBlendMenu->addItem(p.actions["AlphaBlendNone"]);
+            p.alphaBlendMenu->addItem(p.actions["AlphaBlendStraight"]);
+            p.alphaBlendMenu->addItem(p.actions["AlphaBlendPremultiplied"]);
 
             p.minifyFilterMenu = addSubMenu("Minify Filter");
-
-            item = std::make_shared<ui::MenuItem>(
-                "Nearest",
-                [this](bool value)
-                {
-                    close();
-                });
-            p.minifyFilterMenu->addItem(item);
-            p.minifyFilterMenu->setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Linear",
-                [this](bool value)
-                {
-                    close();
-                });
-            p.minifyFilterMenu->addItem(item);
-            p.minifyFilterMenu->setItemEnabled(item, false);
+            p.minifyFilterMenu->addItem(p.actions["MinifyNearest"]);
+            p.minifyFilterMenu->addItem(p.actions["MinifyLinear"]);
 
             p.magnifyFilterMenu = addSubMenu("Magnify Filter");
+            p.magnifyFilterMenu->addItem(p.actions["MagnifyNearest"]);
+            p.magnifyFilterMenu->addItem(p.actions["MagnifyLinear"]);
 
-            item = std::make_shared<ui::MenuItem>(
-                "Nearest",
-                [this](bool value)
+            p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
+                app->getColorModel()->observeImageOptions(),
+                [this](const timeline::ImageOptions& value)
                 {
-                    close();
-                });
-            p.magnifyFilterMenu->addItem(item);
-            p.magnifyFilterMenu->setItemEnabled(item, false);
+                    _p->videoLevelsMenu->setItemChecked(
+                        _p->actions["FromFile"],
+                        timeline::InputVideoLevels::FromFile == value.videoLevels);
+                    _p->videoLevelsMenu->setItemChecked(
+                        _p->actions["FullRange"],
+                        timeline::InputVideoLevels::FullRange == value.videoLevels);
+                    _p->videoLevelsMenu->setItemChecked(
+                        _p->actions["LegalRange"],
+                        timeline::InputVideoLevels::LegalRange == value.videoLevels);
 
-            item = std::make_shared<ui::MenuItem>(
-                "Linear",
-                [this](bool value)
-                {
-                    close();
+                    _p->alphaBlendMenu->setItemChecked(
+                        _p->actions["AlphaBlendNone"],
+                        timeline::AlphaBlend::None == value.alphaBlend);
+                    _p->alphaBlendMenu->setItemChecked(
+                        _p->actions["AlphaBlendStraight"],
+                        timeline::AlphaBlend::Straight == value.alphaBlend);
+                    _p->alphaBlendMenu->setItemChecked(
+                        _p->actions["AlphaBlendPremultiplied"],
+                        timeline::AlphaBlend::Premultiplied == value.alphaBlend);
                 });
-            p.magnifyFilterMenu->addItem(item);
-            p.magnifyFilterMenu->setItemEnabled(item, false);
+
+            p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+                app->getColorModel()->observeDisplayOptions(),
+                [this](const timeline::DisplayOptions& value)
+                {
+                    setItemChecked(
+                        _p->actions["Red"],
+                        timeline::Channels::Red == value.channels);
+                    setItemChecked(
+                        _p->actions["Green"],
+                        timeline::Channels::Green == value.channels);
+                    setItemChecked(
+                        _p->actions["Blue"],
+                        timeline::Channels::Blue == value.channels);
+                    setItemChecked(
+                        _p->actions["Alpha"],
+                        timeline::Channels::Alpha == value.channels);
+
+                    setItemChecked(
+                        _p->actions["MirrorHorizontal"],
+                        value.mirror.x);
+                    setItemChecked(
+                        _p->actions["MirrorVertical"],
+                        value.mirror.y);
+
+                    _p->minifyFilterMenu->setItemChecked(
+                        _p->actions["MinifyNearest"],
+                        timeline::ImageFilter::Nearest == value.imageFilters.minify);
+                    _p->minifyFilterMenu->setItemChecked(
+                        _p->actions["MinifyLinear"],
+                        timeline::ImageFilter::Linear == value.imageFilters.minify);
+
+                    _p->magnifyFilterMenu->setItemChecked(
+                        _p->actions["MagnifyNearest"],
+                        timeline::ImageFilter::Nearest == value.imageFilters.magnify);
+                    _p->magnifyFilterMenu->setItemChecked(
+                        _p->actions["MagnifyLinear"],
+                        timeline::ImageFilter::Linear == value.imageFilters.magnify);
+                });
         }
 
         RenderMenu::RenderMenu() :
@@ -194,12 +135,13 @@ namespace tl
         {}
 
         std::shared_ptr<RenderMenu> RenderMenu::create(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<RenderMenu>(new RenderMenu);
-            out->_init(app, context, parent);
+            out->_init(actions, app, context, parent);
             return out;
         }
 

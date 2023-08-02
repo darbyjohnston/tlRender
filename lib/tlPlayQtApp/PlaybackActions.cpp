@@ -106,12 +106,12 @@ namespace tl
             p.actions["Start"]->setText(tr("Go To Start"));
             p.actions["Start"]->setIcon(QIcon(":/Icons/TimeStart.svg"));
             p.actions["Start"]->setShortcut(QKeySequence(Qt::Key_Home));
-            p.actions["Start"]->setToolTip(tr("Go to the start"));
+            p.actions["Start"]->setToolTip(tr("Go to the start frame"));
             p.actions["End"] = new QAction(parent);
             p.actions["End"]->setText(tr("Go To End"));
             p.actions["End"]->setIcon(QIcon(":/Icons/TimeEnd.svg"));
             p.actions["End"]->setShortcut(QKeySequence(Qt::Key_End));
-            p.actions["End"]->setToolTip(tr("Go to the end"));
+            p.actions["End"]->setToolTip(tr("Go to the end frame"));
             p.actions["FramePrev"] = new QAction(parent);
             p.actions["FramePrev"]->setText(tr("Previous Frame"));
             p.actions["FramePrev"]->setIcon(QIcon(":/Icons/FramePrev.svg"));

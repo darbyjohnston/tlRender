@@ -4,9 +4,7 @@
 
 #include <tlUI/EventLoop.h>
 
-#include <tlUI/DrawUtil.h>
-#include <tlUI/IPopup.h>
-#include <tlUI/IWidget.h>
+#include <tlUI/ToolTip.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -14,6 +12,12 @@ namespace tl
 {
     namespace ui
     {
+        namespace
+        {
+            std::chrono::milliseconds toolTipTimeout(1000);
+            float toolTipDistance = 10.F;
+        }
+
         struct EventLoop::Private
         {
             std::weak_ptr<system::Context> context;
@@ -39,6 +43,9 @@ namespace tl
             std::shared_ptr<DragAndDropData> dndData;
             std::weak_ptr<IWidget> dragAndDropHover;
             std::function<std::shared_ptr<imaging::Image>(const math::BBox2i&)> capture;
+            std::shared_ptr<ToolTip> toolTip;
+            math::Vector2i toolTipPos;
+            std::chrono::steady_clock::time_point toolTipTimer;
             int updates = 0;
             size_t widgetCount = 0;
             std::list<int> tickTimes;
@@ -410,6 +417,17 @@ namespace tl
             {
                 _hoverUpdate(event);
             }
+
+            if (math::length(p.cursorPos - p.toolTipPos) > toolTipDistance)
+            {
+                if (p.toolTip)
+                {
+                    p.toolTip->close();
+                    p.toolTip.reset();
+                }
+                p.toolTipTimer = std::chrono::steady_clock::now();
+                p.toolTipPos = p.cursorPos;
+            }
         }
 
         void EventLoop::mouseButton(int button, bool press, int modifiers)
@@ -541,6 +559,35 @@ namespace tl
             if (_getDrawUpdate())
             {
                 p.updates |= Update::Draw;
+            }
+
+            const auto toolTipTime = std::chrono::steady_clock::now();
+            const auto toolTipDiff = std::chrono::duration_cast<std::chrono::milliseconds>(toolTipTime - p.toolTipTimer);
+            if (toolTipDiff > toolTipTimeout && !p.toolTip)
+            {
+                if (auto context = p.context.lock())
+                {
+                    std::string text;
+                    auto widgets = _getUnderCursor(p.cursorPos);
+                    while (!widgets.empty())
+                    {
+                        text = widgets.front()->getToolTip();
+                        if (!text.empty())
+                        {
+                            break;
+                        }
+                        widgets.pop_front();
+                    }
+                    if (!text.empty())
+                    {
+                        p.toolTip = ToolTip::create(
+                            text,
+                            p.cursorPos,
+                            shared_from_this(),
+                            context);
+                        p.toolTipPos = p.cursorPos;
+                    }
+                }
             }
 
             _purgeTopLevelWidgets();

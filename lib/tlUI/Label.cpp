@@ -18,6 +18,7 @@ namespace tl
             size_t textWidth = 0;
             std::string textTmp;
             std::vector<std::string> lines;
+            ColorRole textRole = ColorRole::Text;
             SizeRole marginRole = SizeRole::None;
             FontRole fontRole = FontRole::Label;
 
@@ -96,6 +97,15 @@ namespace tl
             p.draw.glyphs.clear();
             _textUpdate();
             _updates |= Update::Size;
+            _updates |= Update::Draw;
+        }
+
+        void Label::setTextRole(ColorRole value)
+        {
+            TLRENDER_P();
+            if (value == p.textRole)
+                return;
+            p.textRole = value;
             _updates |= Update::Draw;
         }
 
@@ -188,7 +198,7 @@ namespace tl
                 event.render->drawText(
                     glyphs,
                     math::Vector2i(pos.x, pos.y + p.size.fontMetrics.ascender),
-                    event.style->getColorRole(ColorRole::Text));
+                    event.style->getColorRole(p.textRole));
                 pos.y += p.size.fontMetrics.lineHeight;
             }
         }
@@ -204,7 +214,10 @@ namespace tl
             {
                 p.textTmp = p.text;
             }
-            const auto lines = string::split(p.textTmp, { '\n', '\r' });
+            const auto lines = string::split(
+                p.textTmp,
+                { '\n', '\r' },
+                string::SplitOptions::KeepEmpty);
             p.lines.clear();
             for (const auto& line : lines)
             {

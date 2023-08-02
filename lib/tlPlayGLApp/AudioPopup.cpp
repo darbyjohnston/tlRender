@@ -7,6 +7,8 @@
 #include <tlPlayGLApp/App.h>
 #include <tlPlayGLApp/Settings.h>
 
+#include <tlPlay/AudioModel.h>
+
 #include <tlUI/IntEditSlider.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/ToolButton.h>
@@ -22,8 +24,10 @@ namespace tl
             std::shared_ptr<ui::ToolButton> muteButton;
             std::shared_ptr<ui::IntEditSlider> volumeSlider;
             std::shared_ptr<ui::HorizontalLayout> layout;
-            std::shared_ptr<observer::ValueObserver<int> > volumeObserver;
-            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+
+            std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
+            std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
+            std::shared_ptr<observer::ValueObserver<int> > volumeObserver2;
         };
 
         void AudioPopup::_init(
@@ -59,38 +63,31 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getSettings()->setValue("Audio/Mute", value);
+                        app->getAudioModel()->setMute(value);
                     }
                 });
 
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
-                app->getSettings()->observeValues(),
-                [this, appWeak](const std::string&)
+            p.muteObserver = observer::ValueObserver<bool>::create(
+                app->getAudioModel()->observeMute(),
+                [this](bool value)
                 {
-                    TLRENDER_P();
-                    if (auto app = appWeak.lock())
-                    {
-                        auto settings = app->getSettings();
-                        {
-                            float value = 0.F;
-                            settings->getValue("Audio/Volume", value);
-                            p.volumeSlider->getModel()->setValue(value * 100.F);
-                        }
-                        {
-                            bool value = false;
-                            settings->getValue("Audio/Mute", value);
-                            p.muteButton->setChecked(value);
-                        }
-                    }
+                    _p->muteButton->setChecked(value);
                 });
 
-            p.volumeObserver = observer::ValueObserver<int>::create(
+            p.volumeObserver = observer::ValueObserver<float>::create(
+                app->getAudioModel()->observeVolume(),
+                [this](float value)
+                {
+                    _p->volumeSlider->getModel()->setValue(value * 100.F);
+                });
+
+            p.volumeObserver2 = observer::ValueObserver<int>::create(
                 p.volumeSlider->getModel()->observeValue(),
                 [appWeak](int value)
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getSettings()->setValue("Audio/Volume", value / 100.F);
+                        app->getAudioModel()->setVolume(value / 100.F);
                     }
                 });
         }

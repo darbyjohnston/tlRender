@@ -18,11 +18,24 @@ namespace tl
         //! \name Splitting and Joining
         ///@{
 
-        // Split a string.
-        std::vector<std::string> split(const std::string&, char delimeter, bool keepEmpty = false);
+        //! String split options.
+        enum class SplitOptions
+        {
+            DiscardEmpty,
+            KeepEmpty
+        };
 
-        // Split a string.
-        std::vector<std::string> split(const std::string&, const std::vector<char>& delimeters, bool keepEmpty = false);
+        //! Split a string.
+        std::vector<std::string> split(
+            const std::string&,
+            char delimeter,
+            SplitOptions = SplitOptions::DiscardEmpty);
+
+        //! Split a string.
+        std::vector<std::string> split(
+            const std::string&,
+            const std::vector<char>& delimeters,
+            SplitOptions = SplitOptions::DiscardEmpty);
 
         //! Join a list of strings.
         std::string join(const std::vector<std::string>&, char delimeter);

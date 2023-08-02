@@ -67,7 +67,7 @@ namespace tl
                 TLRENDER_ASSERT("c" == pieces[2]);
             }
             {
-                const auto pieces = split("a/b/c//", '/', true);
+                const auto pieces = split("a/b/c//", '/', SplitOptions::KeepEmpty);
                 TLRENDER_ASSERT(4 == pieces.size());
                 TLRENDER_ASSERT("a" == pieces[0]);
                 TLRENDER_ASSERT("b" == pieces[1]);
@@ -95,7 +95,7 @@ namespace tl
                 TLRENDER_ASSERT("c" == pieces[2]);
             }
             {
-                const auto pieces = split("a/b|c||", { '/', '|' }, true);
+                const auto pieces = split("a/b|c||", { '/', '|' }, SplitOptions::KeepEmpty);
                 TLRENDER_ASSERT(4 == pieces.size());
                 TLRENDER_ASSERT("a" == pieces[0]);
                 TLRENDER_ASSERT("b" == pieces[1]);

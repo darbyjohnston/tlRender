@@ -138,6 +138,7 @@ namespace tl
             imaging::Size windowSize;
             math::Vector2i windowPos;
             std::shared_ptr<observer::Value<bool> > fullscreen;
+            std::shared_ptr<observer::Value<bool> > floatOnTop;
             imaging::Size frameBufferSize;
             math::Vector2f contentScale = math::Vector2f(1.F, 1.F);
             std::unique_ptr<Cursor> cursor;
@@ -188,7 +189,9 @@ namespace tl
                 return;
             }
 
+            // Create observers.
             p.fullscreen = observer::Value<bool>::create(false);
+            p.floatOnTop = observer::Value<bool>::create(false);
 
             // Create the window.
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -443,6 +446,28 @@ namespace tl
                         p.windowSize.h,
                         0);
                 }
+            }
+        }
+
+        bool IApp::isFloatOnTop() const
+        {
+            return _p->floatOnTop->get();
+        }
+
+        std::shared_ptr<observer::IValue<bool> > IApp::observeFloatOnTop() const
+        {
+            return _p->floatOnTop;
+        }
+
+        void IApp::setFloatOnTop(bool value)
+        {
+            TLRENDER_P();
+            if (p.floatOnTop->setIfChanged(value))
+            {
+                glfwSetWindowAttrib(
+                    p.glfwWindow,
+                    GLFW_FLOATING,
+                    value ? GLFW_TRUE : GLFW_FALSE);
             }
         }
 

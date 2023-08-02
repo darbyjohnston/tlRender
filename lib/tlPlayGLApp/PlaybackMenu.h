@@ -22,6 +22,7 @@ namespace tl
 
         protected:
             void _init(
+                const std::map<std::string, std::shared_ptr<ui::Action> >&,
                 const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
@@ -33,6 +34,7 @@ namespace tl
             ~PlaybackMenu();
 
             static std::shared_ptr<PlaybackMenu> create(
+                const std::map<std::string, std::shared_ptr<ui::Action> >&,
                 const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,

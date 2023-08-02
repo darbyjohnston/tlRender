@@ -4,63 +4,13 @@
 
 #pragma once
 
+#include <tlUI/Action.h>
 #include <tlUI/IMenuPopup.h>
 
 namespace tl
 {
     namespace ui
     {
-        // Menu item.
-        struct MenuItem
-        {
-            MenuItem();
-            MenuItem(
-                const std::string&               text,
-                const std::function<void(void)>& callback);
-            MenuItem(
-                const std::string&               text,
-                const std::string&               icon,
-                const std::function<void(void)>& callback);
-            MenuItem(
-                const std::string&               text,
-                Key                              shortcut,
-                int                              shortcutModifiers,
-                const std::function<void(void)>& callback);
-            MenuItem(
-                const std::string&               text,
-                const std::string&               icon,
-                Key                              shortcut,
-                int                              shortcutModifiers,
-                const std::function<void(void)>& callback);
-            MenuItem(
-                const std::string&               text,
-                const std::function<void(bool)>& checkedCallback);
-            MenuItem(
-                const std::string&               text,
-                const std::string&               icon,
-                const std::function<void(bool)>& checkedCallback);
-            MenuItem(
-                const std::string&               text,
-                Key                              shortcut,
-                int                              shortcutModifiers,
-                const std::function<void(bool)>& checkedCallback);
-            MenuItem(
-                const std::string&               text,
-                const std::string&               icon,
-                Key                              shortcut,
-                int                              shortcutModifiers,
-                const std::function<void(bool)>& checkedCallback);
-
-            std::string               text;
-            std::string               icon;
-            Key                       shortcut          = Key::Unknown;
-            int                       shortcutModifiers = 0;
-            std::function<void(void)> callback;
-            bool                      checkable         = false;
-            bool                      checked           = false;
-            std::function<void(bool)> checkedCallback;
-        };
-
         //! Menu.
         class Menu : public IMenuPopup
         {
@@ -82,13 +32,13 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Add a menu item.
-            void addItem(const std::shared_ptr<MenuItem>&);
+            void addItem(const std::shared_ptr<Action>&);
 
             //! Set whether a menu item is checked.
-            void setItemChecked(const std::shared_ptr<MenuItem>&, bool);
+            void setItemChecked(const std::shared_ptr<Action>&, bool);
 
             //! Set whether a menu item is enabled.
-            void setItemEnabled(const std::shared_ptr<MenuItem>&, bool);
+            void setItemEnabled(const std::shared_ptr<Action>&, bool);
 
             //! Add a sub menu.
             std::shared_ptr<Menu> addSubMenu(const std::string&);

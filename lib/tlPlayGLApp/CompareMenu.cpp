@@ -14,10 +14,9 @@ namespace tl
         {
             std::weak_ptr<App> app;
 
-            std::map<std::string, std::shared_ptr<ui::MenuItem> > items;
-            std::map<timeline::CompareMode, std::shared_ptr<ui::MenuItem> > compareItems;
+            std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::shared_ptr<Menu> bMenu;
-            std::vector<std::shared_ptr<ui::MenuItem> > bItems;
+            std::vector<std::shared_ptr<ui::Action> > bActions;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
@@ -25,6 +24,7 @@ namespace tl
         };
 
         void CompareMenu::_init(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -33,83 +33,16 @@ namespace tl
             TLRENDER_P();
 
             p.app = app;
+            p.actions = actions;
 
             p.bMenu = addSubMenu("B");
-
-            p.items["Next"] = std::make_shared<ui::MenuItem>(
-                "Next",
-                "Next",
-                ui::Key::PageDown,
-                static_cast<int>(ui::KeyModifier::Shift),
-                [this]
-                {
-                    close();
-                if (auto app = _p->app.lock())
-                {
-                    app->getFilesModel()->nextB();
-                }
-                });
-            addItem(p.items["Next"]);
-
-            p.items["Prev"] = std::make_shared<ui::MenuItem>(
-                "Previous",
-                "Prev",
-                ui::Key::PageUp,
-                static_cast<int>(ui::KeyModifier::Shift),
-                [this]
-                {
-                    close();
-                if (auto app = _p->app.lock())
-                {
-                    app->getFilesModel()->prevB();
-                }
-                });
-            addItem(p.items["Prev"]);
-
+            addItem(p.actions["Next"]);
+            addItem(p.actions["Prev"]);
             addDivider();
-
-            const std::array<std::string, static_cast<size_t>(timeline::CompareMode::Count)> icons =
+            const auto labels = timeline::getCompareModeLabels();
+            for (const auto& label : labels)
             {
-                "CompareA",
-                "CompareB",
-                "CompareWipe",
-                "CompareOverlay",
-                "CompareDifference",
-                "CompareHorizontal",
-                "CompareVertical",
-                "CompareTile"
-            };
-            const std::array<ui::Key, static_cast<size_t>(timeline::CompareMode::Count)> shortcuts =
-            {
-                ui::Key::A,
-                ui::Key::B,
-                ui::Key::W,
-                ui::Key::Unknown,
-                ui::Key::Unknown,
-                ui::Key::Unknown,
-                ui::Key::Unknown,
-                ui::Key::T
-            };
-            const auto enums = timeline::getCompareModeEnums();
-            for (size_t i = 0; i < enums.size(); ++i)
-            {
-                const auto mode = enums[i];
-                p.compareItems[mode] = std::make_shared<ui::MenuItem>(
-                    timeline::getLabel(mode),
-                    icons[i],
-                    shortcuts[i],
-                    static_cast<int>(ui::KeyModifier::Control),
-                    [this, mode]
-                    {
-                        close();
-                        if (auto app = _p->app.lock())
-                        {
-                            auto options = app->getFilesModel()->getCompareOptions();
-                            options.mode = mode;
-                            app->getFilesModel()->setCompareOptions(options);
-                        }
-                    });
-                addItem(p.compareItems[mode]);
+                addItem(p.actions[label]);
             }
 
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
@@ -142,12 +75,13 @@ namespace tl
         {}
 
         std::shared_ptr<CompareMenu> CompareMenu::create(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<CompareMenu>(new CompareMenu);
-            out->_init(app, context, parent);
+            out->_init(actions, app, context, parent);
             return out;
         }
 
@@ -163,30 +97,30 @@ namespace tl
         {
             TLRENDER_P();
 
-            setItemEnabled(p.items["Next"], value.size() > 1);
-            setItemEnabled(p.items["Prev"], value.size() > 1);
+            setItemEnabled(p.actions["Next"], value.size() > 1);
+            setItemEnabled(p.actions["Prev"], value.size() > 1);
 
             p.bMenu->clear();
-            p.bItems.clear();
+            p.bActions.clear();
             if (auto app = p.app.lock())
             {
                 const auto bIndexes = app->getFilesModel()->getBIndexes();
                 for (size_t i = 0; i < value.size(); ++i)
                 {
-                    auto item = std::make_shared<ui::MenuItem>(
+                    auto action = std::make_shared<ui::Action>(
                         value[i]->path.get(-1, false),
                         [this, i]
                         {
                             close();
-                        if (auto app = _p->app.lock())
-                        {
-                            app->getFilesModel()->toggleB(i);
-                        }
+                            if (auto app = _p->app.lock())
+                            {
+                                app->getFilesModel()->toggleB(i);
+                            }
                         });
                     const auto j = std::find(bIndexes.begin(), bIndexes.end(), i);
-                    item->checked = j != bIndexes.end();
-                    p.bMenu->addItem(item);
-                    p.bItems.push_back(item);
+                    action->checked = j != bIndexes.end();
+                    p.bMenu->addItem(action);
+                    p.bActions.push_back(action);
                 }
             }
         }
@@ -194,11 +128,11 @@ namespace tl
         void CompareMenu::_bUpdate(const std::vector<int>& value)
         {
             TLRENDER_P();
-            for (int i = 0; i < p.bItems.size(); ++i)
+            for (int i = 0; i < p.bActions.size(); ++i)
             {
                 const auto j = std::find(value.begin(), value.end(), i);
                 p.bMenu->setItemChecked(
-                    p.bItems[i],
+                    p.bActions[i],
                     j != value.end());
             }
         }
@@ -206,9 +140,11 @@ namespace tl
         void CompareMenu::_compareUpdate(const timeline::CompareOptions& value)
         {
             TLRENDER_P();
-            for (const auto& item : p.compareItems)
+            const auto enums = timeline::getCompareModeEnums();
+            const auto labels = timeline::getCompareModeLabels();
+            for (size_t i = 0; i < enums.size(); ++i)
             {
-                setItemChecked(item.second, item.first == value.mode);
+                setItemChecked(p.actions[labels[i]], enums[i] == value.mode);
             }
         }
     }

@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlUI/Action.h>
 #include <tlUI/IWidget.h>
 
 #include <tlTimeline/Player.h>
@@ -22,6 +23,7 @@ namespace tl
 
         protected:
             void _init(
+                const std::map<std::string, std::shared_ptr<ui::Action> >&,
                 const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
@@ -33,6 +35,7 @@ namespace tl
             ~ViewToolBar();
 
             static std::shared_ptr<ViewToolBar> create(
+                const std::map<std::string, std::shared_ptr<ui::Action> >&,
                 const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,

@@ -13,11 +13,13 @@ namespace tl
     {
         struct ToolsMenu::Private
         {
-            std::map<Tool, std::shared_ptr<ui::MenuItem> > items;
+            std::map<std::string, std::shared_ptr<ui::Action> > actions;
+
             std::shared_ptr<observer::ValueObserver<int> > activeObserver;
         };
 
         void ToolsMenu::_init(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -25,39 +27,24 @@ namespace tl
             Menu::_init(context, parent);
             TLRENDER_P();
 
-            auto appWeak = std::weak_ptr<App>(app);
-            for (const auto tool : getToolEnums())
+            p.actions = actions;
+
+            for (const auto tool : getToolLabels())
             {
-                p.items[tool] = std::make_shared<ui::MenuItem>(
-                    getText(tool),
-                    getIcon(tool),
-                    getShortcut(tool),
-                    0,
-                    [this, appWeak, tool](bool value)
-                    {
-                        close();
-                        if (auto app = appWeak.lock())
-                        {
-                            auto toolsModel = app->getToolsModel();
-                            const int active = toolsModel->getActiveTool();
-                            toolsModel->setActiveTool(
-                                static_cast<int>(tool) != active ?
-                                static_cast<int>(tool) :
-                                -1);
-                        }
-                    });
-                addItem(p.items[tool]);
+                addItem(p.actions[tool]);
             }
 
             p.activeObserver = observer::ValueObserver<int>::create(
                 app->getToolsModel()->observeActiveTool(),
                 [this](int value)
                 {
-                    for (const auto& item : _p->items)
+                    const auto enums = getToolEnums();
+                    const auto labels = getToolLabels();
+                    for (size_t i = 0; i < enums.size(); ++i)
                     {
                         setItemChecked(
-                            item.second,
-                            static_cast<int>(item.first) == value);
+                            _p->actions[labels[i]],
+                            static_cast<int>(enums[i]) == value);
                     }
                 });
         }
@@ -70,12 +57,13 @@ namespace tl
         {}
 
         std::shared_ptr<ToolsMenu> ToolsMenu::create(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ToolsMenu>(new ToolsMenu);
-            out->_init(app, context, parent);
+            out->_init(actions, app, context, parent);
             return out;
         }
     }

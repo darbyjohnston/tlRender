@@ -10,10 +10,13 @@
 #include <tlPlayGLApp/Style.h>
 #include <tlPlayGLApp/Tools.h>
 
+#include <tlPlay/AudioModel.h>
+#include <tlPlay/ColorModel.h>
 #include <tlPlay/Util.h>
 
 #include <tlUI/EventLoop.h>
 #include <tlUI/FileBrowser.h>
+#include <tlUI/RecentFilesModel.h>
 
 #include <tlTimeline/Util.h>
 
@@ -23,6 +26,10 @@
 #include <tlCore/File.h>
 #include <tlCore/FileLogSystem.h>
 #include <tlCore/StringFormat.h>
+
+#if defined(TLRENDER_USD)
+#include <tlIO/USD.h>
+#endif // TLRENDER_USD
 
 namespace tl
 {
@@ -62,21 +69,21 @@ namespace tl
 
         struct App::Private
         {
+            Options options;
             std::shared_ptr<file::FileLogSystem> fileLogSystem;
             std::string settingsFileName;
             std::shared_ptr<Settings> settings;
-            Options options;
-            float volume = 1.F;
-            bool mute = false;
-            bool deviceActive = false;
             timeline::PlayerCacheOptions playerCacheOptions;
             std::shared_ptr<play::FilesModel> filesModel;
             std::vector<std::shared_ptr<play::FilesModelItem> > files;
             std::vector<std::shared_ptr<play::FilesModelItem> > activeFiles;
-            std::shared_ptr<ui::RecentFilesModel> recentFilesModel;
-            std::shared_ptr<ToolsModel> toolsModel;
             std::vector<std::shared_ptr<timeline::Player> > players;
             std::shared_ptr<observer::List<std::shared_ptr<timeline::Player> > > activePlayers;
+            std::shared_ptr<ui::RecentFilesModel> recentFilesModel;
+            std::shared_ptr<play::ColorModel> colorModel;
+            bool deviceActive = false;
+            std::shared_ptr<play::AudioModel> audioModel;
+            std::shared_ptr<ToolsModel> toolsModel;
 
             std::shared_ptr<MainWindow> mainWindow;
             std::shared_ptr<SeparateAudioDialog> separateAudioDialog;
@@ -84,6 +91,8 @@ namespace tl
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
             std::shared_ptr<observer::ListObserver<int> > layersObserver;
+            std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
+            std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
         };
 
@@ -315,8 +324,8 @@ namespace tl
             p.settings->setDefaultValue("Files/RecentMax", 10);
             imaging::Size windowSize = p.options.windowSize;
             p.settings->setDefaultValue("Window/Size", windowSize);
-            p.settings->setDefaultValue("Audio/Volume", p.volume);
-            p.settings->setDefaultValue("Audio/Mute", p.mute);
+            p.settings->setDefaultValue("Audio/Volume", 1.F);
+            p.settings->setDefaultValue("Audio/Mute", false);
             p.settings->setDefaultValue("Cache/ReadAhead",
                 p.playerCacheOptions.readAhead.value());
             p.settings->setDefaultValue("Cache/ReadBehind",
@@ -353,6 +362,16 @@ namespace tl
             {
                 p.recentFilesModel->addRecent(file::Path(recentFile));
             }
+            p.colorModel = play::ColorModel::create(context);
+            p.colorModel->setColorConfigOptions(p.options.colorConfigOptions);
+            p.colorModel->setLUTOptions(p.options.lutOptions);
+            p.audioModel = play::AudioModel::create(context);
+            float volume = 1.F;
+            p.settings->getValue("Audio/Volume", volume);
+            p.audioModel->setVolume(volume);
+            bool mute = false;
+            p.settings->getValue("Audio/Mute", mute);
+            p.audioModel->setMute(mute);
             p.toolsModel = ToolsModel::create();
 
             // Initialize the style.
@@ -374,6 +393,7 @@ namespace tl
 
             // Create observers.
             p.activePlayers = observer::List<std::shared_ptr<timeline::Player> >::create();
+
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 p.filesModel->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
@@ -398,29 +418,25 @@ namespace tl
                         }
                     }
                 });
+
+            p.volumeObserver = observer::ValueObserver<float>::create(
+                p.audioModel->observeVolume(),
+                [this](float)
+                {
+                    _audioUpdate();
+                });
+            p.muteObserver = observer::ValueObserver<bool>::create(
+                p.audioModel->observeMute(),
+                [this](bool)
+                {
+                    _audioUpdate();
+                });
+
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 p.settings->observeValues(),
                 [this](const std::string&)
                 {
                     TLRENDER_P();
-                    {
-                        float volume = 1.F;
-                        p.settings->getValue("Audio/Volume", volume);
-                        if (volume != p.volume)
-                        {
-                            p.volume = volume;
-                            _audioUpdate();
-                        }
-                    }
-                    {
-                        bool mute = false;
-                        p.settings->getValue("Audio/Mute", mute);
-                        if (mute != p.mute)
-                        {
-                            p.mute = mute;
-                            _audioUpdate();
-                        }
-                    }
                     {
                         double value = 0.0;
                         p.settings->getValue("Cache/ReadAhead", value);
@@ -520,6 +536,8 @@ namespace tl
                     p.settings->setValue("Files/Recent", recentFiles);
                 }
                 p.settings->setValue("Window/Size", getWindowSize());
+                p.settings->setValue("Audio/Volume", p.audioModel->getVolume());
+                p.settings->setValue("Audio/Mute", p.audioModel->isMuted());
                 if (auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>())
                 {
                     p.settings->setValue(
@@ -608,6 +626,16 @@ namespace tl
         std::shared_ptr<observer::IList<std::shared_ptr<timeline::Player> > > App::observeActivePlayers() const
         {
             return _p->activePlayers;
+        }
+
+        const std::shared_ptr<play::ColorModel>& App::getColorModel() const
+        {
+            return _p->colorModel;
+        }
+
+        const std::shared_ptr<play::AudioModel>& App::getAudioModel() const
+        {
+            return _p->audioModel;
         }
 
         const std::shared_ptr<ToolsModel>& App::getToolsModel() const
@@ -866,8 +894,8 @@ namespace tl
             {
                 if (player)
                 {
-                    player->setVolume(p.volume);
-                    player->setMute(p.mute || p.deviceActive);
+                    player->setVolume(p.audioModel->getVolume());
+                    player->setMute(p.audioModel->isMuted() || p.deviceActive);
                 }
             }
         }

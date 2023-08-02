@@ -5,24 +5,35 @@
 #include <tlPlayGLApp/MainWindow.h>
 
 #include <tlPlayGLApp/App.h>
+#include <tlPlayGLApp/AudioActions.h>
 #include <tlPlayGLApp/AudioMenu.h>
 #include <tlPlayGLApp/AudioPopup.h>
+#include <tlPlayGLApp/CompareActions.h>
 #include <tlPlayGLApp/CompareMenu.h>
 #include <tlPlayGLApp/CompareToolBar.h>
+#include <tlPlayGLApp/FileActions.h>
 #include <tlPlayGLApp/FileMenu.h>
 #include <tlPlayGLApp/FileToolBar.h>
+#include <tlPlayGLApp/FrameActions.h>
 #include <tlPlayGLApp/FrameMenu.h>
+#include <tlPlayGLApp/PlaybackActions.h>
 #include <tlPlayGLApp/PlaybackMenu.h>
+#include <tlPlayGLApp/RenderActions.h>
 #include <tlPlayGLApp/RenderMenu.h>
 #include <tlPlayGLApp/Settings.h>
 #include <tlPlayGLApp/SpeedPopup.h>
+#include <tlPlayGLApp/ToolsActions.h>
 #include <tlPlayGLApp/ToolsMenu.h>
 #include <tlPlayGLApp/ToolsToolBar.h>
 #include <tlPlayGLApp/ToolsWidget.h>
+#include <tlPlayGLApp/ViewActions.h>
 #include <tlPlayGLApp/ViewMenu.h>
 #include <tlPlayGLApp/ViewToolBar.h>
+#include <tlPlayGLApp/WindowActions.h>
 #include <tlPlayGLApp/WindowMenu.h>
 #include <tlPlayGLApp/WindowToolBar.h>
+
+#include <tlPlay/ColorModel.h>
 
 #include <tlTimelineUI/TimelineViewport.h>
 #include <tlTimelineUI/TimelineWidget.h>
@@ -50,10 +61,31 @@ namespace tl
 {
     namespace play_gl
     {
+        bool WindowOptions::operator == (const WindowOptions& other) const
+        {
+            return
+                fileToolBar == other.fileToolBar &&
+                compareToolBar == other.compareToolBar &&
+                windowToolBar == other.windowToolBar &&
+                viewToolBar == other.viewToolBar &&
+                toolsToolBar == other.toolsToolBar &&
+                timeline == other.timeline &&
+                bottomToolBar == other.bottomToolBar &&
+                statusToolBar == other.statusToolBar &&
+                splitter == other.splitter &&
+                splitter2 == other.splitter2;
+        }
+
+        bool WindowOptions::operator != (const WindowOptions& other) const
+        {
+            return !(*this == other);
+        }
+
         struct MainWindow::Private
         {
             std::weak_ptr<App> app;
             std::weak_ptr<Settings> settings;
+            std::shared_ptr<observer::Value<WindowOptions> > windowOptions;
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             std::shared_ptr<ui::DoubleModel> speedModel;
             timelineui::ItemOptions itemOptions;
@@ -61,6 +93,15 @@ namespace tl
 
             std::shared_ptr<timelineui::TimelineViewport> timelineViewport;
             std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
+            std::shared_ptr<FileActions> fileActions;
+            std::shared_ptr<CompareActions> compareActions;
+            std::shared_ptr<WindowActions> windowActions;
+            std::shared_ptr<ViewActions> viewActions;
+            std::shared_ptr<RenderActions> renderActions;
+            std::shared_ptr<PlaybackActions> playbackActions;
+            std::shared_ptr<FrameActions> frameActions;
+            std::shared_ptr<AudioActions> audioActions;
+            std::shared_ptr<ToolsActions> toolsActions;
             std::shared_ptr<FileMenu> fileMenu;
             std::shared_ptr<CompareMenu> compareMenu;
             std::shared_ptr<WindowMenu> windowMenu;
@@ -90,9 +131,12 @@ namespace tl
             std::shared_ptr<time::Timer> statusTimer;
             std::shared_ptr<ui::Label> infoLabel;
             std::shared_ptr<ToolsWidget> toolsWidget;
+            std::map<std::string, std::shared_ptr<ui::Divider> > dividers;
             std::shared_ptr<ui::Splitter> splitter;
             std::shared_ptr<ui::Splitter> splitter2;
-            std::shared_ptr<ui::RowLayout> layout;
+            std::shared_ptr<ui::HorizontalLayout> bottomLayout;
+            std::shared_ptr<ui::HorizontalLayout> statusLayout;
+            std::shared_ptr<ui::VerticalLayout> layout;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playersObserver;
             std::shared_ptr<observer::ValueObserver<double> > speedObserver;
@@ -100,6 +144,10 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > colorConfigOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
         };
 
@@ -113,28 +161,37 @@ namespace tl
 
             setBackgroundRole(ui::ColorRole::Window);
 
+            p.app = app;
+                
             auto settings = app->getSettings();
-            float splitter = .7F;
-            settings->setDefaultValue("Window/Splitter", splitter);
-            float splitter2 = .8F;
-            settings->setDefaultValue("Window/Splitter2", splitter2);
+            WindowOptions windowOptions;
+            settings->setDefaultValue("Window/Options", windowOptions);
+            settings->getValue("Window/Options", windowOptions);
             bool frameView = true;
             settings->setDefaultValue("Timeline/FrameView", frameView);
+            settings->getValue("Timeline/FrameView", frameView);
             bool stopOnScrub = true;
             settings->setDefaultValue("Timeline/StopOnScrub", stopOnScrub);
+            settings->getValue("Timeline/FrameView", stopOnScrub);
             timelineui::ItemOptions itemOptions;
             settings->setDefaultValue("Timeline/Thumbnails",
                 itemOptions.thumbnails);
+            settings->getValue("Timeline/Thumbnails", itemOptions.thumbnails);
             settings->setDefaultValue("Timeline/ThumbnailsSize",
                 itemOptions.thumbnailHeight);
+            settings->getValue("Timeline/ThumbnailsSize", itemOptions.thumbnailHeight);
             settings->setDefaultValue("Timeline/Transitions",
                 itemOptions.showTransitions);
+            settings->getValue("Timeline/Transitions", itemOptions.showTransitions);
             settings->setDefaultValue("Timeline/Markers",
                 itemOptions.showMarkers);
+            settings->getValue("Timeline/Markers", itemOptions.showMarkers);
             p.settings = settings;
 
-            p.app = app;
+            p.windowOptions = observer::Value<WindowOptions>::create(windowOptions);
+
             p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
+
             p.speedModel = ui::DoubleModel::create(context);
             p.speedModel->setRange(math::DoubleRange(0.0, 1000000.0));
             p.speedModel->setStep(1.F);
@@ -144,34 +201,71 @@ namespace tl
 
             p.timelineWidget = timelineui::TimelineWidget::create(p.timeUnitsModel, context);
             p.timelineWidget->setScrollBarsVisible(false);
-            settings->getValue("Timeline/FrameView", frameView);
             p.timelineWidget->setFrameView(frameView);
-            settings->getValue("Timeline/FrameView", stopOnScrub);
             p.timelineWidget->setStopOnScrub(stopOnScrub);
-            settings->getValue("Timeline/Thumbnails", itemOptions.thumbnails);
-            settings->getValue("Timeline/ThumbnailsSize", itemOptions.thumbnailHeight);
-            settings->getValue("Timeline/Transitions", itemOptions.showTransitions);
-            settings->getValue("Timeline/Markers", itemOptions.showMarkers);
             p.timelineWidget->setItemOptions(itemOptions);
 
-            p.fileMenu = FileMenu::create(app, context);
-            p.compareMenu = CompareMenu::create(app, context);
-            p.windowMenu = WindowMenu::create(app, context);
-            p.viewMenu = ViewMenu::create(
+            p.fileActions = FileActions::create(app, context);
+            p.compareActions = CompareActions::create(app, context);
+            p.windowActions = WindowActions::create(
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
                 app,
                 context);
-            p.renderMenu = RenderMenu::create(app, context);
+            p.viewActions = ViewActions::create(
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                app,
+                context);
+            p.renderActions = RenderActions::create(app, context);
+            p.playbackActions = PlaybackActions::create(
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                app,
+                context);
+            p.frameActions = FrameActions::create(
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                app,
+                context);
+            p.audioActions = AudioActions::create(app, context);
+            p.toolsActions = ToolsActions::create(app, context);
+
+            p.fileMenu = FileMenu::create(
+                p.fileActions->getActions(),
+                app,
+                context);
+            p.compareMenu = CompareMenu::create(
+                p.compareActions->getActions(),
+                app,
+                context);
+            p.windowMenu = WindowMenu::create(
+                p.windowActions->getActions(),
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                app,
+                context);
+            p.viewMenu = ViewMenu::create(
+                p.viewActions->getActions(),
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                app,
+                context);
+            p.renderMenu = RenderMenu::create(
+                p.renderActions->getActions(),
+                app,
+                context);
             p.playbackMenu = PlaybackMenu::create(
+                p.playbackActions->getActions(),
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
                 app,
                 context);
             p.frameMenu = FrameMenu::create(
-                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                p.frameActions->getActions(),
                 app,
                 context);
-            p.audioMenu = AudioMenu::create(app, context);
-            p.toolsMenu = ToolsMenu::create(app, context);
+            p.audioMenu = AudioMenu::create(
+                p.audioActions->getActions(),
+                app,
+                context);
+            p.toolsMenu = ToolsMenu::create(
+                p.toolsActions->getActions(),
+                app,
+                context);
             p.menuBar = ui::MenuBar::create(context);
             p.menuBar->addMenu("File", p.fileMenu);
             p.menuBar->addMenu("Compare", p.compareMenu);
@@ -183,35 +277,57 @@ namespace tl
             p.menuBar->addMenu("Audio", p.audioMenu);
             p.menuBar->addMenu("Tools", p.toolsMenu);
 
-            p.fileToolBar = FileToolBar::create(app, context);
-            p.compareToolBar = CompareToolBar::create(app, context);
-            p.windowToolBar = WindowToolBar::create(app, context);
+            p.fileToolBar = FileToolBar::create(
+                p.fileActions->getActions(),
+                app,
+                context);
+            p.compareToolBar = CompareToolBar::create(
+                p.compareActions->getActions(),
+                app,
+                context);
+            p.windowToolBar = WindowToolBar::create(
+                p.windowActions->getActions(),
+                app,
+                context);
             p.viewToolBar = ViewToolBar::create(
+                p.viewActions->getActions(),
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
                 app,
                 context);
-            p.toolsToolBar = ToolsToolBar::create(app, context);
+            p.toolsToolBar = ToolsToolBar::create(
+                p.toolsActions->getActions(),
+                app,
+                context);
 
+            auto playbackActions = p.playbackActions->getActions();
             auto stopButton = ui::ToolButton::create(context);
-            stopButton->setIcon("PlaybackStop");
+            stopButton->setIcon(playbackActions["Stop"]->icon);
+            stopButton->setToolTip(playbackActions["Stop"]->toolTip);
             auto forwardButton = ui::ToolButton::create(context);
-            forwardButton->setIcon("PlaybackForward");
+            forwardButton->setIcon(playbackActions["Forward"]->icon);
+            forwardButton->setToolTip(playbackActions["Forward"]->toolTip);
             auto reverseButton = ui::ToolButton::create(context);
-            reverseButton->setIcon("PlaybackReverse");
+            reverseButton->setIcon(playbackActions["Reverse"]->icon);
+            reverseButton->setToolTip(playbackActions["Reverse"]->toolTip);
             p.playbackButtonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Radio, context);
             p.playbackButtonGroup->addButton(stopButton);
             p.playbackButtonGroup->addButton(forwardButton);
             p.playbackButtonGroup->addButton(reverseButton);
 
+            auto frameActions = p.frameActions->getActions();
             auto timeStartButton = ui::ToolButton::create(context);
-            timeStartButton->setIcon("TimeStart");
+            timeStartButton->setIcon(frameActions["Start"]->icon);
+            timeStartButton->setToolTip(frameActions["Start"]->toolTip);
             auto timeEndButton = ui::ToolButton::create(context);
-            timeEndButton->setIcon("TimeEnd");
+            timeEndButton->setIcon(frameActions["End"]->icon);
+            timeEndButton->setToolTip(frameActions["End"]->toolTip);
             auto framePrevButton = ui::ToolButton::create(context);
-            framePrevButton->setIcon("FramePrev");
+            framePrevButton->setIcon(frameActions["Prev"]->icon);
+            framePrevButton->setToolTip(frameActions["Prev"]->toolTip);
             framePrevButton->setRepeatClick(true);
             auto frameNextButton = ui::ToolButton::create(context);
-            frameNextButton->setIcon("FrameNext");
+            frameNextButton->setIcon(frameActions["Next"]->icon);
+            frameNextButton->setToolTip(frameActions["Next"]->toolTip);
             frameNextButton->setRepeatClick(true);
             p.frameButtonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Click, context);
             p.frameButtonGroup->addButton(timeStartButton);
@@ -220,21 +336,27 @@ namespace tl
             p.frameButtonGroup->addButton(timeEndButton);
 
             p.currentTimeEdit = ui::TimeEdit::create(p.timeUnitsModel, context);
+            p.currentTimeEdit->setToolTip("Current time");
 
             p.speedEdit = ui::DoubleEdit::create(context, p.speedModel);
+            p.speedEdit->setToolTip("Current speed");
             p.speedButton = ui::ToolButton::create(context);
             p.speedButton->setIcon("MenuArrow");
+            p.speedButton->setToolTip("Speed menu");
 
             p.durationLabel = ui::TimeLabel::create(p.timeUnitsModel, context);
             p.durationLabel->setMarginRole(ui::SizeRole::MarginInside);
+            p.durationLabel->setToolTip("Duration");
 
             p.timeUnitsComboBox = ui::ComboBox::create(context);
             p.timeUnitsComboBox->setItems(timeline::getTimeUnitsLabels());
             p.timeUnitsComboBox->setCurrentIndex(
                 static_cast<int>(p.timeUnitsModel->getTimeUnits()));
+            p.timeUnitsComboBox->setToolTip("Time units");
 
             p.audioButton = ui::ToolButton::create(context);
             p.audioButton->setIcon("Volume");
+            p.audioButton->setToolTip("Audio settings");
 
             p.statusLabel = ui::Label::create(context);
             p.statusLabel->setHStretch(ui::Stretch::Expanding);
@@ -251,58 +373,55 @@ namespace tl
             p.layout = ui::VerticalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ui::SizeRole::None);
             p.menuBar->setParent(p.layout);
-            ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
+            p.dividers["MenuBar"] = ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
             auto hLayout = ui::HorizontalLayout::create(context, p.layout);
             hLayout->setSpacingRole(ui::SizeRole::None);
             p.fileToolBar->setParent(hLayout);
-            ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
+            p.dividers["File"] = ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
             p.compareToolBar->setParent(hLayout);
-            ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
+            p.dividers["Compare"] = ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
             p.windowToolBar->setParent(hLayout);
-            ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
+            p.dividers["Window"] = ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
             p.viewToolBar->setParent(hLayout);
-            ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
+            p.dividers["View"] = ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
             p.toolsToolBar->setParent(hLayout);
-            ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
+            p.dividers["ToolBar"] = ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
             p.splitter = ui::Splitter::create(ui::Orientation::Vertical, context, p.layout);
-            settings->getValue("Window/Splitter", splitter);
-            p.splitter->setSplit(splitter);
             p.splitter->setSpacingRole(ui::SizeRole::None);
             p.splitter2 = ui::Splitter::create(ui::Orientation::Horizontal, context, p.splitter);
-            settings->getValue("Window/Splitter2", splitter2);
-            p.splitter2->setSplit(splitter2);
             p.splitter2->setSpacingRole(ui::SizeRole::None);
             p.timelineViewport->setParent(p.splitter2);
             p.toolsWidget->setParent(p.splitter2);
             p.timelineWidget->setParent(p.splitter);
-            ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
-            hLayout = ui::HorizontalLayout::create(context, p.layout);
-            hLayout->setMarginRole(ui::SizeRole::MarginInside);
-            hLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            auto hLayout2 = ui::HorizontalLayout::create(context, hLayout);
-            hLayout2->setSpacingRole(ui::SizeRole::None);
-            reverseButton->setParent(hLayout2);
-            stopButton->setParent(hLayout2);
-            forwardButton->setParent(hLayout2);
-            timeStartButton->setParent(hLayout2);
-            framePrevButton->setParent(hLayout2);
-            frameNextButton->setParent(hLayout2);
-            timeEndButton->setParent(hLayout2);
-            p.currentTimeEdit->setParent(hLayout);
-            hLayout2 = ui::HorizontalLayout::create(context, hLayout);
-            hLayout2->setSpacingRole(ui::SizeRole::SpacingTool);
-            p.speedEdit->setParent(hLayout2);
-            p.speedButton->setParent(hLayout2);
-            p.durationLabel->setParent(hLayout);
-            p.timeUnitsComboBox->setParent(hLayout);
-            p.audioButton->setParent(hLayout);
-            ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
-            hLayout = ui::HorizontalLayout::create(context, p.layout);
+            p.dividers["Bottom"] = ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
+            p.bottomLayout = ui::HorizontalLayout::create(context, p.layout);
+            p.bottomLayout->setMarginRole(ui::SizeRole::MarginInside);
+            p.bottomLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            hLayout = ui::HorizontalLayout::create(context, p.bottomLayout);
             hLayout->setSpacingRole(ui::SizeRole::None);
-            p.statusLabel->setParent(hLayout);
-            ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
-            p.infoLabel->setParent(hLayout);
+            reverseButton->setParent(hLayout);
+            stopButton->setParent(hLayout);
+            forwardButton->setParent(hLayout);
+            timeStartButton->setParent(hLayout);
+            framePrevButton->setParent(hLayout);
+            frameNextButton->setParent(hLayout);
+            timeEndButton->setParent(hLayout);
+            p.currentTimeEdit->setParent(p.bottomLayout);
+            hLayout = ui::HorizontalLayout::create(context, p.bottomLayout);
+            hLayout->setSpacingRole(ui::SizeRole::SpacingTool);
+            p.speedEdit->setParent(hLayout);
+            p.speedButton->setParent(hLayout);
+            p.durationLabel->setParent(p.bottomLayout);
+            p.timeUnitsComboBox->setParent(p.bottomLayout);
+            p.audioButton->setParent(p.bottomLayout);
+            p.dividers["Status"] = ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
+            p.statusLayout = ui::HorizontalLayout::create(context, p.layout);
+            p.statusLayout->setSpacingRole(ui::SizeRole::None);
+            p.statusLabel->setParent(p.statusLayout);
+            ui::Divider::create(ui::Orientation::Horizontal, context, p.statusLayout);
+            p.infoLabel->setParent(p.statusLayout);
 
+            _windowOptionsUpdate();
             _viewportUpdate();
             _infoUpdate();
 
@@ -385,7 +504,35 @@ namespace tl
 
             p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
                 app->getFilesModel()->observeCompareOptions(),
-                [this](const timeline::CompareOptions& value)
+                [this](const timeline::CompareOptions&)
+                {
+                    _viewportUpdate();
+                });
+
+            p.colorConfigOptionsObserver = observer::ValueObserver<timeline::ColorConfigOptions>::create(
+                app->getColorModel()->observeColorConfigOptions(),
+                [this](const timeline::ColorConfigOptions&)
+                {
+                    _viewportUpdate();
+                });
+
+            p.lutOptionsObserver = observer::ValueObserver<timeline::LUTOptions>::create(
+                app->getColorModel()->observeLUTOptions(),
+                [this](const timeline::LUTOptions&)
+                {
+                    _viewportUpdate();
+                });
+
+            p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
+                app->getColorModel()->observeImageOptions(),
+                [this](const timeline::ImageOptions&)
+                {
+                    _viewportUpdate();
+                });
+
+            p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+                app->getColorModel()->observeDisplayOptions(),
+                [this](const timeline::DisplayOptions&)
                 {
                     _viewportUpdate();
                 });
@@ -407,9 +554,7 @@ namespace tl
             TLRENDER_P();
             if (auto settings = p.settings.lock())
             {
-                float splitter = p.splitter->getSplit();
-                settings->setValue("Window/Splitter", splitter);
-                settings->setValue("Window/Splitter2", p.splitter2->getSplit());
+                settings->setValue("Window/Options", p.windowOptions->get());
                 settings->setValue("Timeline/FrameView",
                     p.timelineWidget->hasFrameView());
                 settings->setValue("Timeline/StopOnScrub",
@@ -449,6 +594,24 @@ namespace tl
         void MainWindow::focusCurrentFrame()
         {
             _p->currentTimeEdit->takeKeyFocus();
+        }
+
+        const WindowOptions& MainWindow::getWindowOptions() const
+        {
+            return _p->windowOptions->get();
+        }
+
+        std::shared_ptr<observer::IValue<WindowOptions> > MainWindow::observeWindowOptions() const
+        {
+            return _p->windowOptions;
+        }
+
+        void MainWindow::setWindowOptions(const WindowOptions& value)
+        {
+            if (_p->windowOptions->setIfChanged(value))
+            {
+                _windowOptionsUpdate();
+            }
         }
 
         void MainWindow::setGeometry(const math::BBox2i& value)
@@ -600,11 +763,58 @@ namespace tl
             }
         }
 
+        void MainWindow::_windowOptionsUpdate()
+        {
+            TLRENDER_P();
+            const auto& windowOptions = p.windowOptions->get();
+
+            p.fileToolBar->setVisible(windowOptions.fileToolBar);
+            p.dividers["File"]->setVisible(windowOptions.fileToolBar);
+
+            p.compareToolBar->setVisible(windowOptions.compareToolBar);
+            p.dividers["Compare"]->setVisible(windowOptions.compareToolBar);
+
+            p.windowToolBar->setVisible(windowOptions.windowToolBar);
+            p.dividers["Window"]->setVisible(windowOptions.windowToolBar);
+
+            p.viewToolBar->setVisible(windowOptions.viewToolBar);
+            p.dividers["View"]->setVisible(windowOptions.viewToolBar);
+
+            p.toolsToolBar->setVisible(windowOptions.toolsToolBar);
+
+            p.dividers["ToolBar"]->setVisible(
+                windowOptions.fileToolBar ||
+                windowOptions.compareToolBar ||
+                windowOptions.windowToolBar ||
+                windowOptions.viewToolBar ||
+                windowOptions.toolsToolBar);
+
+            p.timelineWidget->setVisible(windowOptions.timeline);
+
+            p.bottomLayout->setVisible(windowOptions.bottomToolBar);
+            p.dividers["Bottom"]->setVisible(windowOptions.bottomToolBar);
+
+            p.statusLayout->setVisible(windowOptions.statusToolBar);
+            p.dividers["Status"]->setVisible(windowOptions.statusToolBar);
+
+            p.splitter->setSplit(windowOptions.splitter);
+            p.splitter2->setSplit(windowOptions.splitter2);
+        }
+
         void MainWindow::_viewportUpdate()
         {
             TLRENDER_P();
             if (auto app = p.app.lock())
             {
+                p.timelineViewport->setColorConfigOptions(
+                    { app->getColorModel()->getColorConfigOptions() });
+                p.timelineViewport->setLUTOptions(
+                    { app->getColorModel()->getLUTOptions() });
+                const auto& imageOptions = app->getColorModel()->getImageOptions();
+                p.timelineViewport->setImageOptions(
+                    { imageOptions });
+                p.timelineViewport->setDisplayOptions(
+                    { app->getColorModel()->getDisplayOptions() });
                 p.timelineViewport->setCompareOptions(
                     app->getFilesModel()->getCompareOptions());
             }
@@ -635,30 +845,76 @@ namespace tl
         {
             TLRENDER_P();
             std::string text;
+            std::string toolTip;
             if (!p.players.empty() && p.players[0])
             {
                 const file::Path& path = p.players[0]->getPath();
                 const io::Info& info = p.players[0]->getIOInfo();
                 std::vector<std::string> s;
+                std::vector<std::string> t;
                 s.push_back(path.get(-1, false));
+                t.push_back(path.get(-1, false));
                 if (!info.video.empty())
                 {
                     s.push_back(std::string(
-                        string::Format("V: {0} {1}").
+                        string::Format("V: {0}, {1}").
+                        arg(info.video[0].size).
+                        arg(info.video[0].pixelType)));
+                    t.push_back(std::string(
+                        string::Format("Video: {0}, {1}").
                         arg(info.video[0].size).
                         arg(info.video[0].pixelType)));
                 }
                 if (info.audio.isValid())
                 {
                     s.push_back(std::string(
-                        string::Format("A: {0} {1} {2}").
+                        string::Format("A: {0}, {1}, {2}").
                         arg(info.audio.channelCount).
+                        arg(info.audio.dataType).
+                        arg(info.audio.sampleRate / 1000)));
+                    t.push_back(std::string(
+                        string::Format("Audio: {0} {1}, {2}, {3}kHz").
+                        arg(info.audio.channelCount).
+                        arg(1 == info.audio.channelCount ? "channel" : "channels").
                         arg(info.audio.dataType).
                         arg(info.audio.sampleRate / 1000)));
                 }
                 text = string::join(s, ", ");
+                toolTip = string::join(t, "\n");
             }
             p.infoLabel->setText(text);
+            p.infoLabel->setToolTip(toolTip);
+        }
+
+        void to_json(nlohmann::json& json, const WindowOptions& in)
+        {
+            json = nlohmann::json
+            {
+                { "fileToolBar", in.fileToolBar },
+                { "compareToolBar", in.compareToolBar },
+                { "windowToolBar", in.windowToolBar },
+                { "viewToolBar", in.viewToolBar },
+                { "toolsToolBar", in.toolsToolBar },
+                { "timeline", in.timeline },
+                { "bottomToolBar", in.bottomToolBar },
+                { "statusToolBar", in.statusToolBar },
+                { "splitter", in.splitter },
+                { "splitter2", in.splitter2 }
+            };
+        }
+
+        void from_json(const nlohmann::json& json, WindowOptions& out)
+        {
+            json.at("fileToolBar").get_to(out.fileToolBar);
+            json.at("compareToolBar").get_to(out.compareToolBar);
+            json.at("windowToolBar").get_to(out.windowToolBar);
+            json.at("viewToolBar").get_to(out.viewToolBar);
+            json.at("toolsToolBar").get_to(out.toolsToolBar);
+            json.at("timeline").get_to(out.timeline);
+            json.at("bottomToolBar").get_to(out.bottomToolBar);
+            json.at("statusToolBar").get_to(out.statusToolBar);
+            json.at("splitter").get_to(out.splitter);
+            json.at("splitter2").get_to(out.splitter2);
         }
     }
 }

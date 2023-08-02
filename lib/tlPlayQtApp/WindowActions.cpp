@@ -56,7 +56,7 @@ namespace tl
             p.actions["FullScreen"]->setText(tr("Full Screen"));
             p.actions["FullScreen"]->setIcon(QIcon(":/Icons/WindowFullScreen.svg"));
             p.actions["FullScreen"]->setShortcut(QKeySequence(Qt::Key_U));
-            p.actions["FullScreen"]->setToolTip(tr("Toggle full screen"));
+            p.actions["FullScreen"]->setToolTip(tr("Toggle the window full screen"));
 
             p.actions["FloatOnTop"] = new QAction(this);
             p.actions["FloatOnTop"]->setCheckable(true);
@@ -67,7 +67,7 @@ namespace tl
             p.actions["Secondary"]->setText(tr("Secondary"));
             p.actions["Secondary"]->setIcon(QIcon(":/Icons/WindowSecondary.svg"));
             p.actions["Secondary"]->setShortcut(QKeySequence(Qt::Key_Y));
-            p.actions["Secondary"]->setToolTip(tr("Toggle secondary window"));
+            p.actions["Secondary"]->setToolTip(tr("Toggle the secondary window"));
 
             p.actions["SecondaryFloatOnTop"] = new QAction(this);
             p.actions["SecondaryFloatOnTop"]->setCheckable(true);

@@ -177,6 +177,17 @@ namespace tl
 
             ///@}
 
+            //! Tool tips.
+            ///@{
+
+            //! Get the tool tip.
+            const std::string& getToolTip() const;
+
+            //! Set the tool tip.
+            void setToolTip(const std::string&);
+
+            ///@}
+
             //! Events
             ///@{
 
@@ -277,6 +288,7 @@ namespace tl
             bool _mouseHover = false;
             bool _acceptsKeyFocus = false;
             bool _keyFocus = false;
+            std::string _toolTip;
         };
     }
 }

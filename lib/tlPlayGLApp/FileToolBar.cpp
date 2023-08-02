@@ -15,8 +15,7 @@ namespace tl
     {
         struct FileToolBar::Private
         {
-            std::weak_ptr<App> app;
-
+            std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::map<std::string, std::shared_ptr<ui::ToolButton> > buttons;
             std::shared_ptr<ui::HorizontalLayout> layout;
 
@@ -24,6 +23,7 @@ namespace tl
         };
 
         void FileToolBar::_init(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -34,16 +34,23 @@ namespace tl
                 parent);
             TLRENDER_P();
 
-            p.app = app;
+            p.actions = actions;
 
             p.buttons["Open"] = ui::ToolButton::create(context);
-            p.buttons["Open"]->setIcon("FileOpen");
+            p.buttons["Open"]->setIcon(p.actions["Open"]->icon);
+            p.buttons["Open"]->setToolTip(p.actions["Open"]->toolTip);
+
             p.buttons["OpenSeparateAudio"] = ui::ToolButton::create(context);
-            p.buttons["OpenSeparateAudio"]->setIcon("FileOpenSeparateAudio");
+            p.buttons["OpenSeparateAudio"]->setIcon(p.actions["OpenSeparateAudio"]->icon);
+            p.buttons["OpenSeparateAudio"]->setToolTip(p.actions["OpenSeparateAudio"]->toolTip);
+
             p.buttons["Close"] = ui::ToolButton::create(context);
-            p.buttons["Close"]->setIcon("FileClose");
+            p.buttons["Close"]->setIcon(p.actions["Close"]->icon);
+            p.buttons["Close"]->setToolTip(p.actions["Close"]->toolTip);
+
             p.buttons["CloseAll"] = ui::ToolButton::create(context);
-            p.buttons["CloseAll"]->setIcon("FileCloseAll");
+            p.buttons["CloseAll"]->setIcon(p.actions["CloseAll"]->icon);
+            p.buttons["CloseAll"]->setToolTip(p.actions["CloseAll"]->toolTip);
 
             p.layout = ui::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ui::SizeRole::None);
@@ -52,38 +59,25 @@ namespace tl
             p.buttons["Close"]->setParent(p.layout);
             p.buttons["CloseAll"]->setParent(p.layout);
 
-            auto appWeak = std::weak_ptr<App>(app);
             p.buttons["Open"]->setClickedCallback(
-                [appWeak]
+                [this]
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->openDialog();
-                    }
+                    _p->actions["Open"]->callback();
                 });
             p.buttons["OpenSeparateAudio"]->setClickedCallback(
-                [appWeak]
+                [this]
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->openSeparateAudioDialog();
-                    }
+                    _p->actions["OpenSeparateAudio"]->callback();
                 });
             p.buttons["Close"]->setClickedCallback(
-                [appWeak]
+                [this]
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getFilesModel()->close();
-                    }
+                    _p->actions["Close"]->callback();
                 });
             p.buttons["CloseAll"]->setClickedCallback(
-                [appWeak]
+                [this]
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getFilesModel()->closeAll();
-                    }
+                    _p->actions["CloseAll"]->callback();
                 });
 
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
@@ -102,12 +96,13 @@ namespace tl
         {}
 
         std::shared_ptr<FileToolBar> FileToolBar::create(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FileToolBar>(new FileToolBar);
-            out->_init(app, context, parent);
+            out->_init(actions, app, context, parent);
             return out;
         }
 

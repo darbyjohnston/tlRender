@@ -71,6 +71,15 @@ namespace tl
             //! Set whether the window is in full screen mode.
             void setFullScreen(bool);
 
+            //! Get whether the window is floating on top.
+            bool isFloatOnTop() const;
+
+            //! Observe whether the window is floating on top.
+            std::shared_ptr<observer::IValue<bool> > observeFloatOnTop() const;
+
+            //! Set whether the window is floating on top.
+            void setFloatOnTop(bool);
+
         protected:
             void _setCursor(ui::StandardCursor value);
             void _setCursor(

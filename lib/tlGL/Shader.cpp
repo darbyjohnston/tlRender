@@ -47,7 +47,10 @@ namespace tl
             {
                 char infoLog[string::cBufferSize];
                 glGetShaderInfoLog(p.vertex, string::cBufferSize, NULL, infoLog);
-                auto lines = string::split(p.vertexSource, { '\n', '\r' }, true);
+                auto lines = string::split(
+                    p.vertexSource,
+                    { '\n', '\r' },
+                    string::SplitOptions::KeepEmpty);
                 for (size_t i = 0; i < lines.size(); ++i)
                 {
                     lines[i].insert(0, string::Format("{0}: ").arg(i));
@@ -69,7 +72,10 @@ namespace tl
             {
                 char infoLog[string::cBufferSize];
                 glGetShaderInfoLog(p.fragment, string::cBufferSize, NULL, infoLog);
-                auto lines = string::split(p.fragmentSource, { '\n', '\r' }, true);
+                auto lines = string::split(
+                    p.fragmentSource,
+                    { '\n', '\r' },
+                    string::SplitOptions::KeepEmpty);
                 for (size_t i = 0; i < lines.size(); ++i)
                 {
                     lines[i].insert(0, string::Format("{0}: ").arg(i));

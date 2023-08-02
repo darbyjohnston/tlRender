@@ -117,5 +117,10 @@ namespace tl
         {
             return _keyFocus;
         }
+
+        inline const std::string& IWidget::getToolTip() const
+        {
+            return _toolTip;
+        }
     }
 }

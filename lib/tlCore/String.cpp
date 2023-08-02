@@ -12,7 +12,10 @@ namespace tl
 {
     namespace string
     {
-        std::vector<std::string> split(const std::string& s, char delimeter, bool keepEmpty)
+        std::vector<std::string> split(
+            const std::string& s,
+            char delimeter,
+            SplitOptions options)
         {
             std::vector<std::string> out;
             bool word = false;
@@ -35,7 +38,9 @@ namespace tl
                         word = false;
                         out.push_back(s.substr(wordStart, i - wordStart));
                     }
-                    if (keepEmpty && i > 0 && s[i - 1] == delimeter)
+                    if (SplitOptions::KeepEmpty == options &&
+                        i > 0 &&
+                        s[i - 1] == delimeter)
                     {
                         out.push_back(std::string());
                     }
@@ -48,7 +53,10 @@ namespace tl
             return out;
         }
 
-        std::vector<std::string> split(const std::string& s, const std::vector<char>& delimeters, bool keepEmpty)
+        std::vector<std::string> split(
+            const std::string& s,
+            const std::vector<char>& delimeters,
+            SplitOptions options)
         {
             std::vector<std::string> out;
             bool word = false;
@@ -71,7 +79,9 @@ namespace tl
                         word = false;
                         out.push_back(s.substr(wordStart, i - wordStart));
                     }
-                    if (keepEmpty && i > 0 && std::find(delimeters.begin(), delimeters.end(), s[i - 1]) != delimeters.end())
+                    if (SplitOptions::KeepEmpty == options &&
+                        i > 0 &&
+                        std::find(delimeters.begin(), delimeters.end(), s[i - 1]) != delimeters.end())
                     {
                         out.push_back(std::string());
                     }

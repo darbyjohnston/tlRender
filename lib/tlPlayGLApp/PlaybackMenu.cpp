@@ -18,17 +18,12 @@ namespace tl
             std::weak_ptr<MainWindow> mainWindow;
             std::shared_ptr<timeline::Player> player;
 
-            std::map<timeline::Playback, std::shared_ptr<ui::MenuItem> > playbackItems;
-            timeline::Playback playbackPrev = timeline::Playback::Forward;
-            std::map<timeline::Loop, std::shared_ptr<ui::MenuItem> > loopItems;
-            std::shared_ptr<ui::MenuItem> frameViewItem;
-            std::shared_ptr<ui::MenuItem> stopOnScrubItem;
-            std::shared_ptr<ui::MenuItem> thumbnailsItem;
+            std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::shared_ptr<Menu> thumbnailsSizeMenu;
-            std::map<int, std::shared_ptr<ui::MenuItem> > thumbnailsSizeItems;
-            std::shared_ptr<ui::MenuItem> transitionsItem;
-            std::shared_ptr<ui::MenuItem> markersItem;
 
+            std::map<timeline::Playback, std::shared_ptr<ui::Action> > playbackItems;
+            std::map<timeline::Loop, std::shared_ptr<ui::Action> > loopItems;
+            std::map<int, std::shared_ptr<ui::Action> > thumbnailsSizeItems;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playerObserver;
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
             std::shared_ptr<observer::ValueObserver<timeline::Loop> > loopObserver;
@@ -38,6 +33,7 @@ namespace tl
         };
 
         void PlaybackMenu::_init(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
@@ -48,341 +44,47 @@ namespace tl
 
             p.mainWindow = mainWindow;
 
-            p.playbackItems[timeline::Playback::Stop] = std::make_shared<ui::MenuItem>(
-                "Stop",
-                "PlaybackStop",
-                ui::Key::K,
-                0,
-                [this](bool value)
-                {
-                    close();
-                    if (_p->player)
-                    {
-                        _p->player->setPlayback(timeline::Playback::Stop);
-                    }
-                });
-            addItem(p.playbackItems[timeline::Playback::Stop]);
-
-            p.playbackItems[timeline::Playback::Forward] = std::make_shared<ui::MenuItem>(
-                "Forward",
-                "PlaybackForward",
-                ui::Key::L,
-                0,
-                [this](bool value)
-                {
-                    close();
-                    if (_p->player)
-                    {
-                        _p->player->setPlayback(timeline::Playback::Forward);
-                    }
-                });
-            addItem(p.playbackItems[timeline::Playback::Forward]);
-
-            p.playbackItems[timeline::Playback::Reverse] = std::make_shared<ui::MenuItem>(
-                "Reverse",
-                "PlaybackReverse",
-                ui::Key::J,
-                0,
-                [this](bool value)
-                {
-                    close();
-                    if (_p->player)
-                    {
-                        _p->player->setPlayback(timeline::Playback::Reverse);
-                    }
-                });
-            addItem(p.playbackItems[timeline::Playback::Reverse]);
-
-            auto item = std::make_shared<ui::MenuItem>(
-                "Toggle Playback",
-                ui::Key::Space,
-                0,
-                [this]
-                {
-                    close();
-                    if (_p->player)
-                    {
-                        const timeline::Playback playback = _p->player->observePlayback()->get();
-                        _p->player->setPlayback(
-                            timeline::Playback::Stop == playback ?
-                            _p->playbackPrev :
-                            timeline::Playback::Stop);
-                        if (playback != timeline::Playback::Stop)
-                        {
-                            _p->playbackPrev = playback;
-                        }
-                    }
-                });
-            addItem(item);
-
+            p.actions = actions;
+            addItem(p.actions["Stop"]);
+            addItem(p.actions["Forward"]);
+            addItem(p.actions["Reverse"]);
+            addItem(p.actions["Toggle"]);
             addDivider();
-
-            item = std::make_shared<ui::MenuItem>(
-                "Jump Back 1s",
-                ui::Key::J,
-                static_cast<int>(ui::KeyModifier::Shift),
-                [this]
-                {
-                    close();
-                if (_p->player)
-                {
-                    _p->player->timeAction(timeline::TimeAction::JumpBack1s);
-                }
-                });
-            addItem(item);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Jump Back 10s",
-                ui::Key::J,
-                static_cast<int>(ui::KeyModifier::Control),
-                [this]
-                {
-                    close();
-                    if (_p->player)
-                    {
-                        _p->player->timeAction(timeline::TimeAction::JumpBack10s);
-                    }
-                });
-            addItem(item);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Jump Forward 1s",
-                ui::Key::L,
-                static_cast<int>(ui::KeyModifier::Shift),
-                [this]
-                {
-                    close();
-                    if (_p->player)
-                    {
-                        _p->player->timeAction(timeline::TimeAction::JumpForward1s);
-                    }
-                });
-            addItem(item);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Jump Forward 10s",
-                ui::Key::L,
-                static_cast<int>(ui::KeyModifier::Control),
-                [this]
-                {
-                    close();
-                    if (_p->player)
-                    {
-                        _p->player->timeAction(timeline::TimeAction::JumpForward10s);
-                    }
-                });
-            addItem(item);
-
+            addItem(p.actions["JumpBack1s"]);
+            addItem(p.actions["JumpBack10s"]);
+            addItem(p.actions["JumpForward1s"]);
+            addItem(p.actions["JumpForward10s"]);
             addDivider();
-
-            p.loopItems[timeline::Loop::Loop] = std::make_shared<ui::MenuItem>(
-                "Loop Playback",
-                [this]
-                {
-                    close();
-                    if (_p->player)
-                    {
-                        _p->player->setLoop(timeline::Loop::Loop);
-                    }
-                });
-            addItem(p.loopItems[timeline::Loop::Loop]);
-
-            p.loopItems[timeline::Loop::Once] = std::make_shared<ui::MenuItem>(
-                "Playback Once",
-                [this]
-                {
-                    close();
-                    if (_p->player)
-                    {
-                        _p->player->setLoop(timeline::Loop::Once);
-                    }
-                });
-            addItem(p.loopItems[timeline::Loop::Once]);
-
-            p.loopItems[timeline::Loop::PingPong] = std::make_shared<ui::MenuItem>(
-                "Ping-Pong Playback",
-                [this]
-                {
-                    close();
-                    if (_p->player)
-                    {
-                        _p->player->setLoop(timeline::Loop::PingPong);
-                    }
-                });
-            addItem(p.loopItems[timeline::Loop::PingPong]);
-
+            addItem(p.actions["Loop"]);
+            addItem(p.actions["Once"]);
+            addItem(p.actions["PingPong"]);
             addDivider();
-
-            item = std::make_shared<ui::MenuItem>(
-                "Set In Point",
-                ui::Key::I,
-                0,
-                [this]
-                {
-                    close();
-                    if (_p->player)
-                    {
-                        _p->player->setInPoint();
-                    }
-                });
-            addItem(item);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Reset In Point",
-                ui::Key::I,
-                static_cast<int>(ui::KeyModifier::Shift),
-                [this]
-                {
-                    close();
-                    if (_p->player)
-                    {
-                        _p->player->resetInPoint();
-                    }
-                });
-            addItem(item);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Set Out Point",
-                ui::Key::O,
-                0,
-                [this]
-                {
-                    close();
-                    if (_p->player)
-                    {
-                        _p->player->setOutPoint();
-                    }
-                });
-            addItem(item);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Reset Out Point",
-                ui::Key::O,
-                static_cast<int>(ui::KeyModifier::Shift),
-                [this]
-                {
-                    close();
-                    if (_p->player)
-                    {
-                        _p->player->resetOutPoint();
-                    }
-                });
-            addItem(item);
-
+            addItem(p.actions["SetInPoint"]);
+            addItem(p.actions["ResetInPoint"]);
+            addItem(p.actions["SetOutPoint"]);
+            addItem(p.actions["ResetOutPoint"]);
             addDivider();
-
-            p.frameViewItem = std::make_shared<ui::MenuItem>(
-                "Frame Timeline View",
-                [this](bool value)
-                {
-                    close();
-                    if (auto mainWindow = _p->mainWindow.lock())
-                    {
-                        mainWindow->getTimelineWidget()->setFrameView(value);
-                    }
-                });
-            addItem(p.frameViewItem);
-
-            p.stopOnScrubItem = std::make_shared<ui::MenuItem>(
-                "Stop When Scrubbing",
-                [this](bool value)
-                {
-                    close();
-                    if (auto mainWindow = _p->mainWindow.lock())
-                    {
-                        mainWindow->getTimelineWidget()->setStopOnScrub(value);
-                    }
-                });
-            addItem(p.stopOnScrubItem);
-
-            p.thumbnailsItem = std::make_shared<ui::MenuItem>(
-                "Timeline Thumbnails",
-                [this](bool value)
-                {
-                    close();
-                    if (auto mainWindow = _p->mainWindow.lock())
-                    {
-                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
-                        options.thumbnails = value;
-                        mainWindow->getTimelineWidget()->setItemOptions(options);
-                    }
-                });
-            addItem(p.thumbnailsItem);
-
+            addItem(p.actions["FrameView"]);
+            addItem(p.actions["StopOnScrub"]);
+            addItem(p.actions["Thumbnails"]);
             p.thumbnailsSizeMenu = addSubMenu("Thumbnails Size");
+            p.thumbnailsSizeMenu->addItem(p.actions["Thumbnails100"]);
+            p.thumbnailsSizeMenu->addItem(p.actions["Thumbnails200"]);
+            p.thumbnailsSizeMenu->addItem(p.actions["Thumbnails300"]);
+            addItem(p.actions["Transitions"]);
+            addItem(p.actions["Markers"]);
 
-            p.thumbnailsSizeItems[100] = std::make_shared<ui::MenuItem>(
-                "Small",
-                [this]
-                {
-                    close();
-                    if (auto mainWindow = _p->mainWindow.lock())
-                    {
-                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
-                        options.thumbnailHeight = 100;
-                        options.waveformHeight = options.thumbnailHeight / 2;
-                        mainWindow->getTimelineWidget()->setItemOptions(options);
-                    }
-                });
-            p.thumbnailsSizeMenu->addItem(p.thumbnailsSizeItems[100]);
+            p.playbackItems[timeline::Playback::Stop] = p.actions["Stop"];
+            p.playbackItems[timeline::Playback::Forward] = p.actions["Forward"];
+            p.playbackItems[timeline::Playback::Reverse] = p.actions["Reverse"];
 
-            p.thumbnailsSizeItems[200] = std::make_shared<ui::MenuItem>(
-                "Medium",
-                [this]
-                {
-                    close();
-                    if (auto mainWindow = _p->mainWindow.lock())
-                    {
-                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
-                        options.thumbnailHeight = 200;
-                        options.waveformHeight = options.thumbnailHeight / 2;
-                        mainWindow->getTimelineWidget()->setItemOptions(options);
-                    }
-                });
-            p.thumbnailsSizeMenu->addItem(p.thumbnailsSizeItems[200]);
+            p.loopItems[timeline::Loop::Loop] = p.actions["Loop"];
+            p.loopItems[timeline::Loop::Once] = p.actions["Once"];
+            p.loopItems[timeline::Loop::PingPong] = p.actions["PingPong"];
 
-            p.thumbnailsSizeItems[300] = std::make_shared<ui::MenuItem>(
-                "Large",
-                [this]
-                {
-                    close();
-                    if (auto mainWindow = _p->mainWindow.lock())
-                    {
-                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
-                        options.thumbnailHeight = 300;
-                        options.waveformHeight = options.thumbnailHeight / 2;
-                        mainWindow->getTimelineWidget()->setItemOptions(options);
-                    }
-                });
-            p.thumbnailsSizeMenu->addItem(p.thumbnailsSizeItems[300]);
-
-            p.transitionsItem = std::make_shared<ui::MenuItem>(
-                "Timeline Transitions",
-                [this](bool value)
-                {
-                    close();
-                    if (auto mainWindow = _p->mainWindow.lock())
-                    {
-                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
-                        options.showTransitions = value;
-                        mainWindow->getTimelineWidget()->setItemOptions(options);
-                    }
-                });
-            addItem(p.transitionsItem);
-
-            p.markersItem = std::make_shared<ui::MenuItem>(
-                "Timeline Markers",
-                [this](bool value)
-                {
-                    close();
-                    if (auto mainWindow = _p->mainWindow.lock())
-                    {
-                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
-                        options.showMarkers = value;
-                        mainWindow->getTimelineWidget()->setItemOptions(options);
-                    }
-                });
-            addItem(p.markersItem);
+            p.thumbnailsSizeItems[100] = p.actions["Thumbnails100"];
+            p.thumbnailsSizeItems[200] = p.actions["Thumbnails200"];
+            p.thumbnailsSizeItems[300] = p.actions["Thumbnails300"];
 
             _playbackUpdate();
             _loopUpdate();
@@ -399,24 +101,24 @@ namespace tl
                 mainWindow->getTimelineWidget()->observeFrameView(),
                 [this](bool value)
                 {
-                    setItemChecked(_p->frameViewItem, value);
+                    setItemChecked(_p->actions["FrameView"], value);
                 });
 
             p.stopOnScrubObserver = observer::ValueObserver<bool>::create(
                 mainWindow->getTimelineWidget()->observeStopOnScrub(),
                 [this](bool value)
                 {
-                    setItemChecked(_p->stopOnScrubItem, value);
+                    setItemChecked(_p->actions["StopOnScrub"], value);
                 });
 
             p.itemOptionsObserver = observer::ValueObserver<timelineui::ItemOptions>::create(
                 mainWindow->getTimelineWidget()->observeItemOptions(),
                 [this](const timelineui::ItemOptions& value)
                 {
-                    setItemChecked(_p->thumbnailsItem, value.thumbnails);
+                    setItemChecked(_p->actions["Thumbnails"], value.thumbnails);
                     _thumbnailsSizeUpdate();
-                    setItemChecked(_p->transitionsItem, value.showTransitions);
-                    setItemChecked(_p->markersItem, value.showMarkers);
+                    setItemChecked(_p->actions["Transiitons"], value.showTransitions);
+                    setItemChecked(_p->actions["Markers"], value.showMarkers);
                 });
         }
 
@@ -428,13 +130,14 @@ namespace tl
         {}
 
         std::shared_ptr<PlaybackMenu> PlaybackMenu::create(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<PlaybackMenu>(new PlaybackMenu);
-            out->_init(mainWindow, app, context, parent);
+            out->_init(actions, mainWindow, app, context, parent);
             return out;
         }
 

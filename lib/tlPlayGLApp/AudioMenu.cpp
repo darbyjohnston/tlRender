@@ -6,15 +6,22 @@
 
 #include <tlPlayGLApp/App.h>
 
+#include <tlPlay/AudioModel.h>
+
 namespace tl
 {
     namespace play_gl
     {
         struct AudioMenu::Private
         {
+            std::map<std::string, std::shared_ptr<ui::Action> > actions;
+
+            std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
+            std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
         };
 
         void AudioMenu::_init(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -22,39 +29,26 @@ namespace tl
             Menu::_init(context, parent);
             TLRENDER_P();
 
-            auto item = std::make_shared<ui::MenuItem>(
-                "Increase Volume",
-                ui::Key::Period,
-                0,
-                [this]
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
+            p.actions = actions;
 
-            item = std::make_shared<ui::MenuItem>(
-                "Decrease Volume",
-                ui::Key::Comma,
-                0,
-                [this]
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
+            addItem(p.actions["VolumeUp"]);
+            addItem(p.actions["VolumeDown"]);
+            addItem(p.actions["Mute"]);
 
-            item = std::make_shared<ui::MenuItem>(
-                "Mute",
-                "Mute",
-                ui::Key::M,
-                0,
+            p.volumeObserver = observer::ValueObserver<float>::create(
+                app->getAudioModel()->observeVolume(),
+                [this](float value)
+                {
+                    setItemEnabled(_p->actions["VolumeUp"], value < 1.F);
+                    setItemEnabled(_p->actions["VolumeDown"], value > 0.F);
+                });
+
+            p.muteObserver = observer::ValueObserver<bool>::create(
+                app->getAudioModel()->observeMute(),
                 [this](bool value)
                 {
-                    close();
+                    setItemChecked(_p->actions["Mute"], value);
                 });
-            addItem(item);
-            setItemEnabled(item, false);
         }
 
         AudioMenu::AudioMenu() :
@@ -65,12 +59,13 @@ namespace tl
         {}
 
         std::shared_ptr<AudioMenu> AudioMenu::create(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<AudioMenu>(new AudioMenu);
-            out->_init(app, context, parent);
+            out->_init(actions, app, context, parent);
             return out;
         }
     }

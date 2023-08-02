@@ -5,6 +5,7 @@
 #include <tlPlayGLApp/WindowMenu.h>
 
 #include <tlPlayGLApp/App.h>
+#include <tlPlayGLApp/MainWindow.h>
 
 namespace tl
 {
@@ -12,13 +13,17 @@ namespace tl
     {
         struct WindowMenu::Private
         {
+            std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::shared_ptr<Menu> resizeMenu;
-            std::shared_ptr<ui::MenuItem> fullScreenItem;
 
             std::shared_ptr<observer::ValueObserver<bool> > fullScreenObserver;
+            std::shared_ptr<observer::ValueObserver<bool> > floatOnTopObserver;
+            std::shared_ptr<observer::ValueObserver<WindowOptions> > optionsObserver;
         };
 
         void WindowMenu::_init(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -26,141 +31,75 @@ namespace tl
             Menu::_init(context, parent);
             TLRENDER_P();
 
-            p.resizeMenu = addSubMenu("Resize");
+            p.actions = actions;
 
+            p.resizeMenu = addSubMenu("Resize");
             auto appWeak = std::weak_ptr<App>(app);
-            auto item = std::make_shared<ui::MenuItem>(
+            auto action = std::make_shared<ui::Action>(
                 "1280x720",
                 [this, appWeak]
                 {
-                    close();
                     if (auto app = appWeak.lock())
                     {
                         app->setWindowSize(imaging::Size(1280, 720));
                     }
                 });
-            p.resizeMenu->addItem(item);
-
-            item = std::make_shared<ui::MenuItem>(
+            p.resizeMenu->addItem(action);
+            action = std::make_shared<ui::Action>(
                 "1920x1080",
                 [this, appWeak]
                 {
-                    close();
                     if (auto app = appWeak.lock())
                     {
                         app->setWindowSize(imaging::Size(1920, 1080));
                     }
                 });
-            p.resizeMenu->addItem(item);
+            p.resizeMenu->addItem(action);
 
             addDivider();
-
-            p.fullScreenItem = std::make_shared<ui::MenuItem>(
-                "Full Screen",
-                "WindowFullScreen",
-                ui::Key::U,
-                0,
-                [this, appWeak](bool value)
-                {
-                    close();
-                    if (auto app = appWeak.lock())
-                    {
-                        app->setFullScreen(value);
-                    }
-                });
-            addItem(p.fullScreenItem);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Float On Top",
-                [this](bool value)
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
+            addItem(p.actions["FullScreen"]);
+            addItem(p.actions["FloatOnTop"]);
             addDivider();
-
-            item = std::make_shared<ui::MenuItem>(
-                "Secondary",
-                "WindowSecondary",
-                [this](bool value)
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Secondary Float On Top",
-                [this](bool value)
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
+            addItem(p.actions["Secondary"]);
+            setItemEnabled(p.actions["Secondary"], false);
+            addItem(p.actions["SecondaryFloatOnTop"]);
+            setItemEnabled(p.actions["SecondaryFloatOnTop"], false);
             addDivider();
-
-            item = std::make_shared<ui::MenuItem>(
-                "File Tool Bar",
-                [this](bool value)
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Compare Tool Bar",
-                [this](bool value)
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Window Tool Bar",
-                [this](bool value)
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "View Tool Bar",
-                [this](bool value)
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Timeline",
-                [this](bool value)
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
-
-            item = std::make_shared<ui::MenuItem>(
-                "Bottom Tool Bar",
-                [this](bool value)
-                {
-                    close();
-                });
-            addItem(item);
-            setItemEnabled(item, false);
+            addItem(p.actions["FileToolBar"]);
+            addItem(p.actions["CompareToolBar"]);
+            addItem(p.actions["WindowToolBar"]);
+            addItem(p.actions["ViewToolBar"]);
+            addItem(p.actions["ToolsToolBar"]);
+            addItem(p.actions["Timeline"]);
+            addItem(p.actions["BottomToolBar"]);
+            addItem(p.actions["StatusToolBar"]);
 
             p.fullScreenObserver = observer::ValueObserver<bool>::create(
                 app->observeFullScreen(),
                 [this](bool value)
                 {
-                    setItemChecked(_p->fullScreenItem, value);
+                    setItemChecked(_p->actions["FullScreen"], value);
+                });
+
+            p.floatOnTopObserver = observer::ValueObserver<bool>::create(
+                app->observeFloatOnTop(),
+                [this](bool value)
+                {
+                    setItemChecked(_p->actions["FloatOnTop"], value);
+                });
+
+            p.optionsObserver = observer::ValueObserver<WindowOptions>::create(
+                mainWindow->observeWindowOptions(),
+                [this](const WindowOptions& value)
+                {
+                    setItemChecked(_p->actions["FileToolBar"], value.fileToolBar);
+                    setItemChecked(_p->actions["CompareToolBar"], value.compareToolBar);
+                    setItemChecked(_p->actions["WindowToolBar"], value.windowToolBar);
+                    setItemChecked(_p->actions["ViewToolBar"], value.viewToolBar);
+                    setItemChecked(_p->actions["ToolsToolBar"], value.toolsToolBar);
+                    setItemChecked(_p->actions["Timeline"], value.timeline);
+                    setItemChecked(_p->actions["BottomToolBar"], value.bottomToolBar);
+                    setItemChecked(_p->actions["StatusToolBar"], value.statusToolBar);
                 });
         }
 
@@ -172,12 +111,14 @@ namespace tl
         {}
 
         std::shared_ptr<WindowMenu> WindowMenu::create(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<WindowMenu>(new WindowMenu);
-            out->_init(app, context, parent);
+            out->_init(actions, mainWindow, app, context, parent);
             return out;
         }
 

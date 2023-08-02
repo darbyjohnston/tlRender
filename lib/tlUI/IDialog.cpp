@@ -30,7 +30,7 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init(name, context, parent);
+            IPopup::_init(name, context, parent);
         }
 
         IDialog::IDialog() :
@@ -73,32 +73,34 @@ namespace tl
 
         void IDialog::setGeometry(const math::BBox2i& value)
         {
-            IWidget::setGeometry(value);
+            IPopup::setGeometry(value);
             TLRENDER_P();
-            const math::BBox2i g = value.margin(-p.size.margin);
-            const auto& children = getChildren();
-            const math::Vector2i& sizeHint = children.front()->getSizeHint();
-            math::Vector2i size;
-            size.x = std::min(sizeHint.x, g.w());
-            size.y = std::min(sizeHint.y, g.h());
-            if (Stretch::Expanding == children.front()->getHStretch())
+            if (!_children.empty())
             {
-                size.x = g.w();
+                const math::BBox2i g = value.margin(-p.size.margin);
+                const math::Vector2i& sizeHint = _children.front()->getSizeHint();
+                math::Vector2i size;
+                size.x = std::min(sizeHint.x, g.w());
+                size.y = std::min(sizeHint.y, g.h());
+                if (Stretch::Expanding == _children.front()->getHStretch())
+                {
+                    size.x = g.w();
+                }
+                if (Stretch::Expanding == _children.front()->getVStretch())
+                {
+                    size.y = g.h();
+                }
+                _children.front()->setGeometry(math::BBox2i(
+                    g.x() + g.w() / 2 - size.x / 2,
+                    g.y() + g.h() / 2 - size.y / 2,
+                    size.x,
+                    size.y));
             }
-            if (Stretch::Expanding == children.front()->getVStretch())
-            {
-                size.y = g.h();
-            }
-            children.front()->setGeometry(math::BBox2i(
-                g.x() + g.w() / 2 - size.x / 2,
-                g.y() + g.h() / 2 - size.y / 2,
-                size.x,
-                size.y));
         }
 
         void IDialog::sizeHintEvent(const SizeHintEvent& event)
         {
-            IWidget::sizeHintEvent(event);
+            IPopup::sizeHintEvent(event);
             TLRENDER_P();
             p.size.margin = event.style->getSizeRole(SizeRole::MarginDialog, event.displayScale);
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
@@ -109,15 +111,14 @@ namespace tl
             const math::BBox2i& drawRect,
             const DrawEvent& event)
         {
-            IWidget::drawEvent(drawRect, event);
+            IPopup::drawEvent(drawRect, event);
             TLRENDER_P();
             //event.render->drawRect(
             //    _geometry,
             //    imaging::Color4f(0.F, 0.F, 0.F, .2F));
-            const auto& children = getChildren();
-            if (!children.empty())
+            if (!_children.empty())
             {
-                const math::BBox2i g = children.front()->getGeometry();
+                const math::BBox2i g = _children.front()->getGeometry();
                 const math::BBox2i g2(
                     g.min.x - p.size.shadow,
                     g.min.y,

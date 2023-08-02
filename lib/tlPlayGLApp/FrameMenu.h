@@ -22,7 +22,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<MainWindow>&,
+                const std::map<std::string, std::shared_ptr<ui::Action> >&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
@@ -33,14 +33,12 @@ namespace tl
             ~FrameMenu();
 
             static std::shared_ptr<FrameMenu> create(
-                const std::shared_ptr<MainWindow>&,
+                const std::map<std::string, std::shared_ptr<ui::Action> >&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:
-            void _setPlayer(const std::shared_ptr<timeline::Player>&);
-
             TLRENDER_PRIVATE();
         };
     }

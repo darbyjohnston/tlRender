@@ -6,6 +6,8 @@
 
 #include <tlPlayGLApp/App.h>
 
+#include <tlUI/RecentFilesModel.h>
+
 namespace tl
 {
     namespace play_gl
@@ -14,13 +16,13 @@ namespace tl
         {
             std::weak_ptr<App> app;
 
-            std::map<std::string, std::shared_ptr<ui::MenuItem> > items;
+            std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::shared_ptr<Menu> recentMenu;
-            std::vector<std::shared_ptr<ui::MenuItem> > recentItems;
+            std::vector<std::shared_ptr<ui::Action> > recentItems;
             std::shared_ptr<Menu> currentMenu;
-            std::vector<std::shared_ptr<ui::MenuItem> > currentItems;
+            std::vector<std::shared_ptr<ui::Action> > currentItems;
             std::shared_ptr<Menu> layersMenu;
-            std::vector<std::shared_ptr<ui::MenuItem> > layersItems;
+            std::vector<std::shared_ptr<ui::Action> > layersItems;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ValueObserver<std::shared_ptr<play::FilesModelItem> > > aObserver;
@@ -30,6 +32,7 @@ namespace tl
         };
 
         void FileMenu::_init(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -39,165 +42,23 @@ namespace tl
 
             p.app = app;
 
-            auto appWeak = std::weak_ptr<App>(app);
-            p.items["Open"] = std::make_shared<ui::MenuItem>(
-                "Open",
-                "FileOpen",
-                ui::Key::O,
-                static_cast<int>(ui::commandKeyModifier),
-                [this, appWeak]
-                {
-                    close();
-                    if (auto app = appWeak.lock())
-                    {
-                        app->openDialog();
-                    }
-                });
-            addItem(p.items["Open"]);
-
-            p.items["OpenSeparateAudio"] = std::make_shared<ui::MenuItem>(
-                "Open With Separate Audio",
-                "FileOpenSeparateAudio",
-                ui::Key::O,
-                static_cast<int>(ui::KeyModifier::Shift) |
-                static_cast<int>(ui::commandKeyModifier),
-                [this, appWeak]
-                {
-                    close();
-                    if (auto app = appWeak.lock())
-                    {
-                        app->openSeparateAudioDialog();
-                    }
-                });
-            addItem(p.items["OpenSeparateAudio"]);
-
-            p.items["Close"] = std::make_shared<ui::MenuItem>(
-                "Close",
-                "FileClose",
-                ui::Key::E,
-                static_cast<int>(ui::commandKeyModifier),
-                [this, appWeak]
-                {
-                    close();
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getFilesModel()->close();
-                    }
-                });
-            addItem(p.items["Close"]);
-
-            p.items["CloseAll"] = std::make_shared<ui::MenuItem>(
-                "Close All",
-                "FileCloseAll",
-                ui::Key::E,
-                static_cast<int>(ui::KeyModifier::Shift) |
-                static_cast<int>(ui::commandKeyModifier),
-                [this, appWeak]
-                {
-                    close();
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getFilesModel()->closeAll();
-                    }
-                });
-            addItem(p.items["CloseAll"]);
-
-            p.items["Reload"] = std::make_shared<ui::MenuItem>(
-                "Reload",
-                [this, appWeak]
-                {
-                    close();
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getFilesModel()->reload();
-                    }
-                });
-            addItem(p.items["Reload"]);
-
+            p.actions = actions;
+            addItem(p.actions["Open"]);
+            addItem(p.actions["OpenSeparateAudio"]);
+            addItem(p.actions["Close"]);
+            addItem(p.actions["CloseAll"]);
+            addItem(p.actions["Reload"]);
             p.recentMenu = addSubMenu("Recent");
-
             addDivider();
-
             p.currentMenu = addSubMenu("Current");
-
-            p.items["Next"] = std::make_shared<ui::MenuItem>(
-                "Next",
-                "Next",
-                ui::Key::PageDown,
-                static_cast<int>(ui::KeyModifier::Control),
-                [this, appWeak]
-                {
-                    close();
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getFilesModel()->next();
-                    }
-                });
-            addItem(p.items["Next"]);
-
-            p.items["Prev"] = std::make_shared<ui::MenuItem>(
-                "Previous",
-                "Prev",
-                ui::Key::PageUp,
-                static_cast<int>(ui::KeyModifier::Control),
-                [this, appWeak]
-                {
-                    close();
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getFilesModel()->prev();
-                    }
-                });
-            addItem(p.items["Prev"]);
-
+            addItem(p.actions["Next"]);
+            addItem(p.actions["Prev"]);
             addDivider();
-
             p.layersMenu = addSubMenu("Layers");
-
-            p.items["NextLayer"] = std::make_shared<ui::MenuItem>(
-                "Next Layer",
-                "Next",
-                ui::Key::Equal,
-                static_cast<int>(ui::KeyModifier::Control),
-                [this, appWeak]
-                {
-                    close();
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getFilesModel()->nextLayer();
-                    }
-                });
-            addItem(p.items["NextLayer"]);
-
-            p.items["PrevLayer"] = std::make_shared<ui::MenuItem>(
-                "Previous Layer",
-                "Prev",
-                ui::Key::Minus,
-                static_cast<int>(ui::KeyModifier::Control),
-                [this, appWeak]
-                {
-                    close();
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getFilesModel()->prevLayer();
-                    }
-                });
-            addItem(p.items["PrevLayer"]);
-
+            addItem(p.actions["NextLayer"]);
+            addItem(p.actions["PrevLayer"]);
             addDivider();
-
-            p.items["Exit"] = std::make_shared<ui::MenuItem>(
-                "Exit",
-                ui::Key::Q,
-                static_cast<int>(ui::commandKeyModifier),
-                [appWeak]
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->exit();
-                    }
-                });
-            addItem(p.items["Exit"]);
+            addItem(p.actions["Exit"]);
 
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 app->getFilesModel()->observeFiles(),
@@ -243,12 +104,13 @@ namespace tl
         {}
 
         std::shared_ptr<FileMenu> FileMenu::create(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FileMenu>(new FileMenu);
-            out->_init(app, context, parent);
+            out->_init(actions, app, context, parent);
             return out;
         }
 
@@ -266,17 +128,17 @@ namespace tl
         {
             TLRENDER_P();
 
-            setItemEnabled(p.items["Close"], !value.empty());
-            setItemEnabled(p.items["CloseAll"], !value.empty());
-            setItemEnabled(p.items["Reload"], !value.empty());
-            setItemEnabled(p.items["Next"], value.size() > 1);
-            setItemEnabled(p.items["Prev"], value.size() > 1);
+            setItemEnabled(p.actions["Close"], !value.empty());
+            setItemEnabled(p.actions["CloseAll"], !value.empty());
+            setItemEnabled(p.actions["Reload"], !value.empty());
+            setItemEnabled(p.actions["Next"], value.size() > 1);
+            setItemEnabled(p.actions["Prev"], value.size() > 1);
 
             p.currentMenu->clear();
             p.currentItems.clear();
             for (size_t i = 0; i < value.size(); ++i)
             {
-                auto item = std::make_shared<ui::MenuItem>(
+                auto item = std::make_shared<ui::Action>(
                     value[i]->path.get(-1, false),
                     [this, i]
                     {
@@ -301,7 +163,7 @@ namespace tl
             {
                 for (size_t i = 0; i < value->videoLayers.size(); ++i)
                 {
-                    auto item = std::make_shared<ui::MenuItem>(
+                    auto item = std::make_shared<ui::Action>(
                         value->videoLayers[i],
                         [this, value, i]
                         {
@@ -317,8 +179,8 @@ namespace tl
                 }
             }
 
-            setItemEnabled(p.items["NextLayer"], value ? value->videoLayers.size() > 1 : false);
-            setItemEnabled(p.items["PrevLayer"], value ? value->videoLayers.size() > 1 : false);
+            setItemEnabled(p.actions["NextLayer"], value ? value->videoLayers.size() > 1 : false);
+            setItemEnabled(p.actions["PrevLayer"], value ? value->videoLayers.size() > 1 : false);
         }
 
         void FileMenu::_aIndexUpdate(int value)
@@ -352,7 +214,7 @@ namespace tl
             for (size_t i = 0; i < value.size(); ++i)
             {
                 const auto path = value[i];
-                auto item = std::make_shared<ui::MenuItem>(
+                auto item = std::make_shared<ui::Action>(
                     path.get(-1, false),
                     [this, path]
                     {

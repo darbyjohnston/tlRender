@@ -1,21 +1,27 @@
 set(HEADERS
     App.h
+    AudioActions.h
     AudioMenu.h
     AudioPopup.h
     AudioTool.h
     ColorTool.h
+    CompareActions.h
     CompareMenu.h
     CompareToolBar.h
     DevicesTool.h
+    FileActions.h
     FileMenu.h
     FileToolBar.h
     FilesTool.h
+    FrameActions.h
     FrameMenu.h
     IToolWidget.h
     InfoTool.h
     MainWindow.h
     MessagesTool.h
+    PlaybackActions.h
     PlaybackMenu.h
+    RenderActions.h
     RenderMenu.h
     SeparateAudioDialog.h
     SeparateAudioPrivate.h
@@ -26,32 +32,41 @@ set(HEADERS
     Style.h
     SystemLogTool.h
     Tools.h
+    ToolsActions.h
     ToolsMenu.h
     ToolsToolBar.h
     ToolsWidget.h
+    ViewActions.h
     ViewMenu.h
     ViewToolBar.h
+    WindowActions.h
     WindowMenu.h
     WindowToolBar.h)
 
 set(SOURCE
     App.cpp
+    AudioActions.cpp
     AudioMenu.cpp
     AudioPopup.cpp
     AudioTool.cpp
     ColorTool.cpp
+    CompareActions.cpp
     CompareMenu.cpp
     CompareToolBar.cpp
     DevicesTool.cpp
+    FileActions.cpp
     FileMenu.cpp
     FileToolBar.cpp
     FilesTool.cpp
+    FrameActions.cpp
     FrameMenu.cpp
     IToolWidget.cpp
     InfoTool.cpp
     MainWindow.cpp
     MessagesTool.cpp
+    PlaybackActions.cpp
     PlaybackMenu.cpp
+    RenderActions.cpp
     RenderMenu.cpp
     SeparateAudioDialog.cpp
     SeparateAudioWidget.cpp
@@ -60,12 +75,15 @@ set(SOURCE
     SettingsTool.cpp
     Style.cpp
     SystemLogTool.cpp
-    ViewMenu.cpp
-    ViewToolBar.cpp
     Tools.cpp
+    ToolsActions.cpp
     ToolsMenu.cpp
     ToolsToolBar.cpp
     ToolsWidget.cpp
+    ViewActions.cpp
+    ViewMenu.cpp
+    ViewToolBar.cpp
+    WindowActions.cpp
     WindowMenu.cpp
     WindowToolBar.cpp)
 

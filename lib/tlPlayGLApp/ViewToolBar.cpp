@@ -21,6 +21,7 @@ namespace tl
             std::weak_ptr<App> app;
             std::shared_ptr<timeline::Player> player;
 
+            std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::map<std::string, std::shared_ptr<ui::ToolButton> > buttons;
             std::shared_ptr<ui::HorizontalLayout> layout;
 
@@ -29,6 +30,7 @@ namespace tl
         };
 
         void ViewToolBar::_init(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
@@ -41,13 +43,16 @@ namespace tl
             TLRENDER_P();
 
             p.app = app;
+            p.actions = actions;
 
             p.buttons["Frame"] = ui::ToolButton::create(context);
-            p.buttons["Frame"]->setIcon("ViewFrame");
-            p.buttons["Frame"]->setCheckable(true);
+            p.buttons["Frame"]->setIcon(p.actions["Frame"]->icon);
+            p.buttons["Frame"]->setCheckable(p.actions["Frame"]->checkable);
+            p.buttons["Frame"]->setToolTip(p.actions["Frame"]->toolTip);
 
             p.buttons["Zoom1To1"] = ui::ToolButton::create(context);
-            p.buttons["Zoom1To1"]->setIcon("ViewZoom1To1");
+            p.buttons["Zoom1To1"]->setIcon(p.actions["Zoom1To1"]->icon);
+            p.buttons["Zoom1To1"]->setToolTip(p.actions["Zoom1To1"]->toolTip);
 
             p.layout = ui::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ui::SizeRole::None);
@@ -96,13 +101,14 @@ namespace tl
         {}
 
         std::shared_ptr<ViewToolBar> ViewToolBar::create(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ViewToolBar>(new ViewToolBar);
-            out->_init(mainWindow, app, context, parent);
+            out->_init(actions, mainWindow, app, context, parent);
             return out;
         }
 

@@ -42,7 +42,7 @@ namespace tl
         public:
             ~FilesModel();
 
-            //! Create a new files model.
+            //! Create a new model.
             static std::shared_ptr<FilesModel> create(const std::shared_ptr<system::Context>&);
 
             //! Get the files.

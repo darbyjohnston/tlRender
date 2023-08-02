@@ -18,6 +18,7 @@ namespace tl
             std::weak_ptr<App> app;
             std::shared_ptr<timeline::Player> player;
 
+            std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::map<std::string, std::shared_ptr<ui::ToolButton> > buttons;
             std::shared_ptr<ui::HorizontalLayout> layout;
 
@@ -26,6 +27,7 @@ namespace tl
         };
 
         void WindowToolBar::_init(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -37,13 +39,17 @@ namespace tl
             TLRENDER_P();
 
             p.app = app;
+            p.actions = actions;
 
             p.buttons["FullScreen"] = ui::ToolButton::create(context);
-            p.buttons["FullScreen"]->setIcon("WindowFullScreen");
-            p.buttons["FullScreen"]->setCheckable(true);
+            p.buttons["FullScreen"]->setIcon(p.actions["FullScreen"]->icon);
+            p.buttons["FullScreen"]->setCheckable(p.actions["FullScreen"]->checkable);
+            p.buttons["FullScreen"]->setToolTip(p.actions["FullScreen"]->toolTip);
 
             p.buttons["Secondary"] = ui::ToolButton::create(context);
-            p.buttons["Secondary"]->setIcon("WindowSecondary");
+            p.buttons["Secondary"]->setIcon(p.actions["Secondary"]->icon);
+            p.buttons["Secondary"]->setCheckable(p.actions["Secondary"]->checkable);
+            p.buttons["Secondary"]->setToolTip(p.actions["Secondary"]->toolTip);
             p.buttons["Secondary"]->setEnabled(false);
 
             p.layout = ui::HorizontalLayout::create(context, shared_from_this());
@@ -84,12 +90,13 @@ namespace tl
         {}
 
         std::shared_ptr<WindowToolBar> WindowToolBar::create(
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<WindowToolBar>(new WindowToolBar);
-            out->_init(app, context, parent);
+            out->_init(actions, app, context, parent);
             return out;
         }
 

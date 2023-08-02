@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlUI/Action.h>
 #include <tlUI/IWidget.h>
 
 #include <tlTimeline/Player.h>
@@ -21,6 +22,7 @@ namespace tl
 
         protected:
             void _init(
+                const std::map<std::string, std::shared_ptr<ui::Action> >&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
@@ -31,6 +33,7 @@ namespace tl
             ~CompareToolBar();
 
             static std::shared_ptr<CompareToolBar> create(
+                const std::map<std::string, std::shared_ptr<ui::Action> >&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

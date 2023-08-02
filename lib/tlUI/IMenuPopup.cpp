@@ -119,7 +119,7 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init(name, context, parent);
+            IPopup::_init(name, context, parent);
             TLRENDER_P();
 
             p.scrollWidget = ScrollWidget::create(
@@ -195,7 +195,7 @@ namespace tl
 
         void IMenuPopup::setGeometry(const math::BBox2i& value)
         {
-            IWidget::setGeometry(value);
+            IPopup::setGeometry(value);
             TLRENDER_P();
             math::Vector2i sizeHint = p.menuWidget->getSizeHint();
             std::list<math::BBox2i> bboxes;
@@ -259,7 +259,7 @@ namespace tl
 
         void IMenuPopup::sizeHintEvent(const SizeHintEvent& event)
         {
-            IWidget::sizeHintEvent(event);
+            IPopup::sizeHintEvent(event);
             TLRENDER_P();
             p.size.shadow = event.style->getSizeRole(SizeRole::Shadow, event.displayScale);
         }
@@ -268,7 +268,7 @@ namespace tl
             const math::BBox2i& drawRect,
             const DrawEvent& event)
         {
-            IWidget::drawEvent(drawRect, event);
+            IPopup::drawEvent(drawRect, event);
             TLRENDER_P();
             //event.render->drawRect(
             //    _geometry,
