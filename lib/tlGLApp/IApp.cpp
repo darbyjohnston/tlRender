@@ -141,6 +141,7 @@ namespace tl
             std::shared_ptr<observer::Value<bool> > floatOnTop;
             imaging::Size frameBufferSize;
             math::Vector2f contentScale = math::Vector2f(1.F, 1.F);
+            bool refresh = false;
             std::unique_ptr<Cursor> cursor;
 
             std::shared_ptr<ui::Style> style;
@@ -248,6 +249,7 @@ namespace tl
             _log(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
             glfwSetFramebufferSizeCallback(p.glfwWindow, _frameBufferSizeCallback);
             glfwSetWindowContentScaleCallback(p.glfwWindow, _windowContentScaleCallback);
+            glfwSetWindowRefreshCallback(p.glfwWindow, _windowRefreshCallback);
             setFullScreen(p.options.fullscreen);
             glfwSetCursorEnterCallback(p.glfwWindow, _cursorEnterCallback);
             glfwSetCursorPosCallback(p.glfwWindow, _cursorPosCallback);
@@ -334,8 +336,10 @@ namespace tl
                         p.frameBufferSize,
                         offscreenBufferOptions);
                 }
-                if (p.eventLoop->hasDrawUpdate() && p.offscreenBuffer)
+                if ((p.eventLoop->hasDrawUpdate() || p.refresh) &&
+                    p.offscreenBuffer)
                 {
+                    p.refresh = false;
                     {
                         gl::OffscreenBufferBinding binding(p.offscreenBuffer);
                         p.render->begin(p.frameBufferSize);
@@ -565,6 +569,12 @@ namespace tl
             IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
             app->_p->contentScale.x = x;
             app->_p->contentScale.y = y;
+        }
+
+        void IApp::_windowRefreshCallback(GLFWwindow* glfwWindow)
+        {
+            IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
+            app->_p->refresh = true;
         }
 
         void IApp::_cursorEnterCallback(GLFWwindow* glfwWindow, int value)

@@ -95,6 +95,7 @@ namespace tl
         private:
             static void _frameBufferSizeCallback(GLFWwindow*, int, int);
             static void _windowContentScaleCallback(GLFWwindow*, float, float);
+            static void _windowRefreshCallback(GLFWwindow*);
             static void _cursorEnterCallback(GLFWwindow*, int);
             static void _cursorPosCallback(GLFWwindow*, double, double);
             static void _mouseButtonCallback(GLFWwindow*, int, int, int);
