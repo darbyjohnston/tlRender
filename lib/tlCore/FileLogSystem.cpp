@@ -8,6 +8,7 @@
 #include <tlCore/FileIO.h>
 #include <tlCore/Time.h>
 
+#include <atomic>
 #include <mutex>
 #include <thread>
 
