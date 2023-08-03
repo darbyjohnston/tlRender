@@ -16,6 +16,8 @@ namespace tl
             std::shared_ptr<observer::Value<math::IntRange> > range;
             int step = 1;
             int largeStep = 10;
+            std::shared_ptr<observer::Value<bool> > hasDefaultValue;
+            int defaultValue = 0;
         };
 
         void IntModel::_init(const std::shared_ptr<system::Context>&)
@@ -23,6 +25,7 @@ namespace tl
             TLRENDER_P();
             p.value = observer::Value<int>::create(0);
             p.range = observer::Value<math::IntRange>::create(math::IntRange(0, 100));
+            p.hasDefaultValue = observer::Value<bool>::create(false);
         }
 
         IntModel::IntModel() :
@@ -119,6 +122,37 @@ namespace tl
         {
             TLRENDER_P();
             setValue(p.value->get() - p.largeStep);
+        }
+
+        bool IntModel::hasDefaultValue() const
+        {
+            return _p->hasDefaultValue->get();
+        }
+
+        std::shared_ptr<observer::IValue<bool> > IntModel::observeHasDefaultValue() const
+        {
+            return _p->hasDefaultValue;
+        }
+
+        int IntModel::getDefaultValue() const
+        {
+            return _p->defaultValue;
+        }
+
+        void IntModel::setDefaultValue(int value)
+        {
+            _p->hasDefaultValue->setIfChanged(true);
+            _p->defaultValue = value;
+        }
+
+        void IntModel::setDefaultValue()
+        {
+            setValue(_p->defaultValue);
+        }
+
+        void IntModel::clearDefaultValue()
+        {
+            _p->hasDefaultValue = false;
         }
     }
 }

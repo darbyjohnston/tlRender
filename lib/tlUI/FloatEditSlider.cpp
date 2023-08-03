@@ -7,6 +7,7 @@
 #include <tlUI/FloatEdit.h>
 #include <tlUI/FloatSlider.h>
 #include <tlUI/RowLayout.h>
+#include <tlUI/ToolButton.h>
 
 namespace tl
 {
@@ -15,9 +16,14 @@ namespace tl
         struct FloatEditSlider::Private
         {
             std::shared_ptr<FloatModel> model;
+
             std::shared_ptr<FloatEdit> edit;
             std::shared_ptr<FloatSlider> slider;
+            std::shared_ptr<ToolButton> resetButton;
             std::shared_ptr<HorizontalLayout> layout;
+
+            std::shared_ptr<observer::ValueObserver<float> > valueObserver;
+            std::shared_ptr<observer::ValueObserver<bool> > hasDefaultObserver;
         };
 
         void FloatEditSlider::_init(
@@ -40,11 +46,36 @@ namespace tl
 
             p.slider = FloatSlider::create(context, p.model);
 
+            p.resetButton = ToolButton::create(context);
+            p.resetButton->setIcon("Reset");
+            p.resetButton->setToolTip("Reset to the default value");
+
             p.layout = HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(SizeRole::SpacingTool);
             p.edit->setParent(p.layout);
             p.slider->setParent(p.layout);
             p.slider->setHStretch(ui::Stretch::Expanding);
+            p.resetButton->setParent(p.layout);
+
+            p.resetButton->setClickedCallback(
+                [this]
+                {
+                    _p->model->setDefaultValue();
+                });
+
+            p.valueObserver = observer::ValueObserver<float>::create(
+                p.model->observeValue(),
+                [this](float value)
+                {
+                    _p->resetButton->setEnabled(value != _p->model->getDefaultValue());
+                });
+
+            p.hasDefaultObserver = observer::ValueObserver<bool>::create(
+                p.model->observeHasDefaultValue(),
+                [this](bool value)
+                {
+                    _p->resetButton->setVisible(value);
+                });
         }
 
         FloatEditSlider::FloatEditSlider() :

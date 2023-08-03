@@ -93,6 +93,7 @@ namespace tl
             std::shared_ptr<observer::ListObserver<int> > layersObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
+            std::shared_ptr<observer::ValueObserver<double> > syncOffsetObserver;
             std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
         };
 
@@ -428,6 +429,12 @@ namespace tl
             p.muteObserver = observer::ValueObserver<bool>::create(
                 p.audioModel->observeMute(),
                 [this](bool)
+                {
+                    _audioUpdate();
+                });
+            p.syncOffsetObserver = observer::ValueObserver<double>::create(
+                p.audioModel->observeSyncOffset(),
+                [this](double)
                 {
                     _audioUpdate();
                 });
@@ -896,6 +903,7 @@ namespace tl
                 {
                     player->setVolume(p.audioModel->getVolume());
                     player->setMute(p.audioModel->isMuted() || p.deviceActive);
+                    player->setAudioOffset(p.audioModel->getSyncOffset());
                 }
             }
         }

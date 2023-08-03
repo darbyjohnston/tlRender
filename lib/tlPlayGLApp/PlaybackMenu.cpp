@@ -20,10 +20,10 @@ namespace tl
 
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::shared_ptr<Menu> thumbnailsSizeMenu;
-
             std::map<timeline::Playback, std::shared_ptr<ui::Action> > playbackItems;
             std::map<timeline::Loop, std::shared_ptr<ui::Action> > loopItems;
             std::map<int, std::shared_ptr<ui::Action> > thumbnailsSizeItems;
+
             std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playerObserver;
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
             std::shared_ptr<observer::ValueObserver<timeline::Loop> > loopObserver;

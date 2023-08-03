@@ -70,6 +70,23 @@ namespace tl
 
             ///@}
 
+            //! \name Default Value
+            ///@{
+
+            bool hasDefaultValue() const;
+
+            std::shared_ptr<observer::IValue<bool> > observeHasDefaultValue() const;
+
+            float getDefaultValue() const;
+
+            void setDefaultValue(float);
+
+            void setDefaultValue();
+
+            void clearDefaultValue();
+
+            ///@}
+
         private:
             TLRENDER_PRIVATE();
         };

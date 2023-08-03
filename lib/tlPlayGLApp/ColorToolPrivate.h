@@ -4,20 +4,15 @@
 
 #pragma once
 
-#include <tlPlayGLApp/IToolWidget.h>
-
-#include <tlTimeline/Player.h>
+#include <tlPlayGLApp/ColorTool.h>
 
 namespace tl
 {
     namespace play_gl
     {
-        class App;
-
-        //! Information tool.
-        class InfoTool : public IToolWidget
+        class LevelsWidget : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(InfoTool);
+            TLRENDER_NON_COPYABLE(LevelsWidget);
 
         protected:
             void _init(
@@ -25,19 +20,20 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            InfoTool();
+            LevelsWidget();
 
         public:
-            virtual ~InfoTool();
+            virtual ~LevelsWidget();
 
-            static std::shared_ptr<InfoTool> create(
+            static std::shared_ptr<LevelsWidget> create(
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-        private:
-            void _widgetUpdate();
+            void setGeometry(const math::BBox2i&) override;
+            void sizeHintEvent(const ui::SizeHintEvent&) override;
 
+        private:
             TLRENDER_PRIVATE();
         };
     }

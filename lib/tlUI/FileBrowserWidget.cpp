@@ -85,9 +85,11 @@ namespace tl
 
             p.upButton = ToolButton::create(context);
             p.upButton->setIcon("DirectoryUp");
+            p.upButton->setToolTip("Go up a directory");
 
             p.pathEdit = LineEdit::create(context);
             p.pathEdit->setHStretch(Stretch::Expanding);
+            p.pathEdit->setToolTip("The current directory");
 
             p.pathsWidget = PathsWidget::create(p.recentModel, context);
             p.pathsScrollWidget = ScrollWidget::create(context);
@@ -100,19 +102,25 @@ namespace tl
             p.directoryScrollWidget->setVStretch(Stretch::Expanding);
 
             p.filterEdit = LineEdit::create(context);
+            p.filterEdit->setToolTip("Filter the contents of the directory");
             
             p.filterClearButton = ToolButton::create(context);
             p.filterClearButton->setIcon("Clear");
+            p.filterClearButton->setToolTip("Clear the filter");
 
             p.extensionsComboBox = ComboBox::create(extensionsLabels, context);
             if (!extensionsLabels.empty())
             {
                 p.extensionsComboBox->setCurrentIndex(extensionsLabels.size() - 1);
             }
+            p.extensionsComboBox->setToolTip(
+                "Filter the contents of the directory by file extension");
 
             p.sortComboBox = ComboBox::create(file::getListSortLabels(), context);
+            p.sortComboBox->setToolTip("Set the sort mode");
 
             p.reverseSortCheckBox = CheckBox::create("Reverse sort", context);
+            p.reverseSortCheckBox->setToolTip("Reverse the sort");
 
             p.okButton = PushButton::create(context);
             p.okButton->setText("Ok");

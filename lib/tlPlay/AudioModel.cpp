@@ -14,6 +14,7 @@ namespace tl
         {
             std::shared_ptr<observer::Value<float> > volume;
             std::shared_ptr<observer::Value<bool> > mute;
+            std::shared_ptr<observer::Value<double> > syncOffset;
         };
 
         void AudioModel::_init(const std::shared_ptr<system::Context>& context)
@@ -22,6 +23,7 @@ namespace tl
 
             p.volume = observer::Value<float>::create(1.F);
             p.mute = observer::Value<bool>::create(false);
+            p.syncOffset = observer::Value<double>::create(0.0);
         }
 
         AudioModel::AudioModel() :
@@ -77,6 +79,21 @@ namespace tl
         void AudioModel::setMute(bool value)
         {
             _p->mute->setIfChanged(value);
+        }
+
+        double AudioModel::getSyncOffset() const
+        {
+            return _p->syncOffset->get();
+        }
+
+        std::shared_ptr<observer::IValue<double> > AudioModel::observeSyncOffset() const
+        {
+            return _p->syncOffset;
+        }
+
+        void AudioModel::setSyncOffset(double value)
+        {
+            _p->syncOffset->setIfChanged(value);
         }
     }
 }

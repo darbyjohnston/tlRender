@@ -208,24 +208,26 @@ namespace tl
         void FileMenu::_recentUpdate(const std::vector<file::Path>& value)
         {
             TLRENDER_P();
-
             p.recentMenu->clear();
             p.recentItems.clear();
-            for (size_t i = 0; i < value.size(); ++i)
+            if (!value.empty())
             {
-                const auto path = value[i];
-                auto item = std::make_shared<ui::Action>(
-                    path.get(-1, false),
-                    [this, path]
-                    {
-                        close();
+                for (auto i = value.rbegin(); i != value.rend(); ++i)
+                {
+                    const auto path = *i;
+                    auto item = std::make_shared<ui::Action>(
+                        path.get(-1, false),
+                        [this, path]
+                        {
+                            close();
                         if (auto app = _p->app.lock())
                         {
                             app->open(path.get());
                         }
-                    });
-                p.recentMenu->addItem(item);
-                p.recentItems.push_back(item);
+                        });
+                    p.recentMenu->addItem(item);
+                    p.recentItems.push_back(item);
+                }
             }
         }
     }

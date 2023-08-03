@@ -143,7 +143,6 @@ namespace tl
         private Q_SLOTS:
             void _filesCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
             void _activeCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
-            void _audioOffsetCallback(double);
 
         private:
             QVector<QPointer<qt::TimelinePlayer> > _activePlayers() const;

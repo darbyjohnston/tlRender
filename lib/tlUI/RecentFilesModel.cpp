@@ -52,7 +52,7 @@ namespace tl
                 auto recent = p.recent->get();
                 while (recent.size() > p.recentMax)
                 {
-                    recent.pop_back();
+                    recent.erase(recent.begin());
                 }
                 p.recent->setIfChanged(recent);
             }
@@ -74,7 +74,7 @@ namespace tl
             auto recent = value;
             while (recent.size() > p.recentMax)
             {
-                recent.pop_back();
+                recent.erase(recent.begin());
             }
             p.recent->setIfChanged(recent);
         }
@@ -95,10 +95,10 @@ namespace tl
                     ++i;
                 }
             }
-            recent.insert(recent.begin(), value);
+            recent.push_back(value);
             while (recent.size() > p.recentMax)
             {
-                recent.pop_back();
+                recent.erase(recent.begin());
             }
             p.recent->setIfChanged(recent);
         }

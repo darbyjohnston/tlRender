@@ -16,6 +16,8 @@ namespace tl
             std::shared_ptr<observer::Value<math::DoubleRange> > range;
             double step = 0.1;
             double largeStep = 1.0;
+            std::shared_ptr<observer::Value<bool> > hasDefaultValue;
+            double defaultValue = 0.0;
         };
 
         void DoubleModel::_init(const std::shared_ptr<system::Context>&)
@@ -23,6 +25,7 @@ namespace tl
             TLRENDER_P();
             p.value = observer::Value<double>::create(0.0);
             p.range = observer::Value<math::DoubleRange>::create(math::DoubleRange(0.0, 1.0));
+            p.hasDefaultValue = observer::Value<bool>::create(false);
         }
 
         DoubleModel::DoubleModel() :
@@ -119,6 +122,37 @@ namespace tl
         {
             TLRENDER_P();
             setValue(p.value->get() - p.largeStep);
+        }
+
+        bool DoubleModel::hasDefaultValue() const
+        {
+            return _p->hasDefaultValue->get();
+        }
+
+        std::shared_ptr<observer::IValue<bool> > DoubleModel::observeHasDefaultValue() const
+        {
+            return _p->hasDefaultValue;
+        }
+
+        double DoubleModel::getDefaultValue() const
+        {
+            return _p->defaultValue;
+        }
+
+        void DoubleModel::setDefaultValue(double value)
+        {
+            _p->hasDefaultValue->setIfChanged(true);
+            _p->defaultValue = value;
+        }
+
+        void DoubleModel::setDefaultValue()
+        {
+            setValue(_p->defaultValue);
+        }
+
+        void DoubleModel::clearDefaultValue()
+        {
+            _p->hasDefaultValue = false;
         }
     }
 }

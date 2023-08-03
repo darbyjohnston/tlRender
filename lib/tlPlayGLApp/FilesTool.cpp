@@ -34,6 +34,7 @@ namespace tl
             std::shared_ptr<ui::GridLayout> widgetLayout;
             std::shared_ptr<ui::VerticalLayout> layout;
             std::shared_ptr<ui::ScrollWidget> scrollWidget;
+
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ValueObserver<std::shared_ptr<play::FilesModelItem> > > aObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > bObserver;

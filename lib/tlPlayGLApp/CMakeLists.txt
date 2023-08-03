@@ -24,7 +24,6 @@ set(HEADERS
     RenderActions.h
     RenderMenu.h
     SeparateAudioDialog.h
-    SeparateAudioPrivate.h
     SpeedPopup.h
     Settings.h
     SettingsInline.h
@@ -42,6 +41,9 @@ set(HEADERS
     WindowActions.h
     WindowMenu.h
     WindowToolBar.h)
+set(HEADERS_PRIVATE
+    ColorToolPrivate.h
+    SeparateAudioPrivate.h)
 
 set(SOURCE
     App.cpp
@@ -87,7 +89,7 @@ set(SOURCE
     WindowMenu.cpp
     WindowToolBar.cpp)
 
-add_library(tlPlayGLApp ${HEADERS} ${SOURCE})
+add_library(tlPlayGLApp ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
 target_link_libraries(tlPlayGLApp tlPlay tlTimelineUI tlGLApp)
 set_target_properties(tlPlayGLApp PROPERTIES FOLDER lib)
 set_target_properties(tlPlayGLApp PROPERTIES PUBLIC_HEADER "${HEADERS}")

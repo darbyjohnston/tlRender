@@ -59,6 +59,15 @@ namespace tl
             //! Set whether the audio is muted.
             void setMute(bool);
 
+            //! Get the audio sync offset.
+            double getSyncOffset() const;
+
+            //! Set the audio sync offset.
+            std::shared_ptr<observer::IValue<double> > observeSyncOffset() const;
+
+            //! Set the audio sync offset.
+            void setSyncOffset(double);
+
         private:
             TLRENDER_PRIVATE();
         };

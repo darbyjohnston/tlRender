@@ -841,12 +841,6 @@ namespace tl
             if (!activePlayers.empty() && activePlayers[0])
             {
                 activePlayers[0]->setPlayback(timeline::Playback::Stop);
-
-                disconnect(
-                    activePlayers[0],
-                    SIGNAL(audioOffsetChanged(double)),
-                    this,
-                    SLOT(_audioOffsetCallback(double)));
             }
 
             p.activeFiles = items;
@@ -877,11 +871,6 @@ namespace tl
             }
 
             _cacheUpdate();
-            _audioUpdate();
-        }
-
-        void App::_audioOffsetCallback(double)
-        {
             _audioUpdate();
         }
 

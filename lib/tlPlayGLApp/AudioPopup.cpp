@@ -44,11 +44,13 @@ namespace tl
             p.muteButton = ui::ToolButton::create(context);
             p.muteButton->setCheckable(true);
             p.muteButton->setIcon("Mute");
+            p.muteButton->setToolTip("Mute the audio");
 
             p.volumeSlider = ui::IntEditSlider::create(context);
             p.volumeSlider->getModel()->setRange(math::IntRange(0, 100));
             p.volumeSlider->getModel()->setStep(1);
             p.volumeSlider->getModel()->setLargeStep(10);
+            p.volumeSlider->setToolTip("Audio volume");
 
             p.layout = ui::HorizontalLayout::create(context);
             p.layout->setMarginRole(ui::SizeRole::MarginInside);
