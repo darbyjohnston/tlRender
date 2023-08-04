@@ -152,7 +152,7 @@ namespace tl
 
         void IntModel::clearDefaultValue()
         {
-            _p->hasDefaultValue = false;
+            _p->hasDefaultValue->setIfChanged(false);
         }
     }
 }

@@ -152,7 +152,7 @@ namespace tl
 
         void DoubleModel::clearDefaultValue()
         {
-            _p->hasDefaultValue = false;
+            _p->hasDefaultValue->setIfChanged(false);
         }
     }
 }
