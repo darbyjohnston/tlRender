@@ -33,6 +33,27 @@ namespace tl
                 const std::shared_ptr<IntModel>& = nullptr,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            //! Get the value.
+            int getValue() const;
+
+            //! Set the value.
+            void setValue(int);
+
+            //! Set the callback.
+            void setCallback(const std::function<void(int)>&);
+
+            //! Get the range.
+            const math::IntRange& getRange() const;
+
+            //! Set the range.
+            void setRange(const math::IntRange&);
+
+            //! Set the step.
+            void setStep(int);
+
+            //! Set the large step.
+            void setLargeStep(int);
+
             //! Get the model.
             const std::shared_ptr<IntModel>& getModel() const;
 

@@ -50,6 +50,19 @@ namespace tl
 
             p.labels.push_back(fileInfo.getPath().get(-1, false));
 
+            switch (fileInfo.getType())
+            {
+            case file::Type::File:
+                setIcon("File");
+                p.labels.push_back(fileInfo.getPath().getExtension());
+                break;
+            case file::Type::Directory:
+                setIcon("Directory");
+                p.labels.push_back(std::string());
+                break;
+            default: break;
+            }
+
             std::string label;
             const uint64_t size = fileInfo.getSize();
             if (size < memory::megabyte)
@@ -74,17 +87,6 @@ namespace tl
             char buffer[32];
             std::strftime(buffer, 32, "%a %d/%m/%Y %H:%M:%S", localtime);
             p.labels.push_back(buffer);
-
-            switch (fileInfo.getType())
-            {
-            case file::Type::File:
-                setIcon("File");
-                break;
-            case file::Type::Directory:
-                setIcon("Directory");
-                break;
-            default: break;
-            }
 
             setButtonRole(ColorRole::None);
         }

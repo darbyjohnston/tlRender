@@ -39,10 +39,6 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<std::shared_ptr<play::FilesModelItem> > > aObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > bObserver;
             std::shared_ptr<observer::ListObserver<int> > layersObserver;
-            std::shared_ptr<observer::ValueObserver<float> > wipeXObserver;
-            std::shared_ptr<observer::ValueObserver<float> > wipeYObserver;
-            std::shared_ptr<observer::ValueObserver<float> > wipeRotationObserver;
-            std::shared_ptr<observer::ValueObserver<float> > overlayObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareObserver;
         };
 
@@ -63,13 +59,17 @@ namespace tl
             p.bButtonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Check, context);
 
             p.wipeXSlider = ui::FloatEditSlider::create(context);
+            p.wipeXSlider->setDefaultValue(.5F);
             p.wipeYSlider = ui::FloatEditSlider::create(context);
+            p.wipeYSlider->setDefaultValue(.5F);
             p.wipeRotationSlider = ui::FloatEditSlider::create(context);
-            p.wipeRotationSlider->getModel()->setRange(math::FloatRange(0.F, 360.F));
-            p.wipeRotationSlider->getModel()->setStep(1.F);
-            p.wipeRotationSlider->getModel()->setLargeStep(10.F);
+            p.wipeRotationSlider->setRange(math::FloatRange(0.F, 360.F));
+            p.wipeRotationSlider->setStep(1.F);
+            p.wipeRotationSlider->setLargeStep(10.F);
+            p.wipeRotationSlider->setDefaultValue(0.F);
 
             p.overlaySlider = ui::FloatEditSlider::create(context);
+            p.overlaySlider->setDefaultValue(.5F);
 
             p.layout = ui::VerticalLayout::create(context);
             p.layout->setSpacingRole(ui::SizeRole::None);
@@ -126,6 +126,50 @@ namespace tl
                     }
                 });
 
+            p.wipeXSlider->setCallback(
+                [appWeak](float value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getFilesModel()->getCompareOptions();
+                        options.wipeCenter.x = value;
+                        app->getFilesModel()->setCompareOptions(options);
+                    }
+                });
+
+            p.wipeYSlider->setCallback(
+                [appWeak](float value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getFilesModel()->getCompareOptions();
+                        options.wipeCenter.y = value;
+                        app->getFilesModel()->setCompareOptions(options);
+                    }
+                });
+
+            p.wipeRotationSlider->setCallback(
+                [appWeak](float value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getFilesModel()->getCompareOptions();
+                        options.wipeRotation = value;
+                        app->getFilesModel()->setCompareOptions(options);
+                    }
+                });
+
+            p.overlaySlider->setCallback(
+                [appWeak](float value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getFilesModel()->getCompareOptions();
+                        options.overlay = value;
+                        app->getFilesModel()->setCompareOptions(options);
+                    }
+                });
+
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 app->getFilesModel()->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
@@ -153,58 +197,6 @@ namespace tl
                 {
                     _layersUpdate(value);
                 });
-
-            p.wipeXObserver = observer::ValueObserver<float>::create(
-                p.wipeXSlider->getModel()->observeValue(),
-                [appWeak](float value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        auto options = app->getFilesModel()->getCompareOptions();
-                        options.wipeCenter.x = value;
-                        app->getFilesModel()->setCompareOptions(options);
-                    }
-                },
-                observer::CallbackAction::Suppress);
-
-            p.wipeYObserver = observer::ValueObserver<float>::create(
-                p.wipeYSlider->getModel()->observeValue(),
-                [appWeak](float value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        auto options = app->getFilesModel()->getCompareOptions();
-                        options.wipeCenter.y = value;
-                        app->getFilesModel()->setCompareOptions(options);
-                    }
-                },
-                observer::CallbackAction::Suppress);
-
-            p.wipeRotationObserver = observer::ValueObserver<float>::create(
-                p.wipeRotationSlider->getModel()->observeValue(),
-                [appWeak](float value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        auto options = app->getFilesModel()->getCompareOptions();
-                        options.wipeRotation = value;
-                        app->getFilesModel()->setCompareOptions(options);
-                    }
-                },
-                observer::CallbackAction::Suppress);
-
-            p.overlayObserver = observer::ValueObserver<float>::create(
-                p.overlaySlider->getModel()->observeValue(),
-                [appWeak](float value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        auto options = app->getFilesModel()->getCompareOptions();
-                        options.overlay = value;
-                        app->getFilesModel()->setCompareOptions(options);
-                    }
-                },
-                observer::CallbackAction::Suppress);
 
             p.compareObserver = observer::ValueObserver<timeline::CompareOptions>::create(
                 app->getFilesModel()->observeCompareOptions(),
@@ -336,10 +328,10 @@ namespace tl
         void FilesTool::_compareUpdate(const timeline::CompareOptions& value)
         {
             TLRENDER_P();
-            p.wipeXSlider->getModel()->setValue(value.wipeCenter.x);
-            p.wipeYSlider->getModel()->setValue(value.wipeCenter.y);
-            p.wipeRotationSlider->getModel()->setValue(value.wipeRotation);
-            p.overlaySlider->getModel()->setValue(value.overlay);
+            p.wipeXSlider->setValue(value.wipeCenter.x);
+            p.wipeYSlider->setValue(value.wipeCenter.y);
+            p.wipeRotationSlider->setValue(value.wipeRotation);
+            p.overlaySlider->setValue(value.overlay);
         }
     }
 }

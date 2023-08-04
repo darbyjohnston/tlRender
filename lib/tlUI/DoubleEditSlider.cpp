@@ -22,6 +22,8 @@ namespace tl
             std::shared_ptr<ToolButton> resetButton;
             std::shared_ptr<HorizontalLayout> layout;
 
+            std::function<void(double)> callback;
+
             std::shared_ptr<observer::ValueObserver<double> > valueObserver;
             std::shared_ptr<observer::ValueObserver<bool> > hasDefaultObserver;
         };
@@ -68,6 +70,10 @@ namespace tl
                 [this](double value)
                 {
                     _p->resetButton->setEnabled(value != _p->model->getDefaultValue());
+                    if (_p->callback)
+                    {
+                        _p->callback(value);
+                    }
                 });
 
             p.hasDefaultObserver = observer::ValueObserver<bool>::create(
@@ -93,6 +99,46 @@ namespace tl
             auto out = std::shared_ptr<DoubleEditSlider>(new DoubleEditSlider);
             out->_init(context, model, parent);
             return out;
+        }
+
+        double DoubleEditSlider::getValue() const
+        {
+            return _p->model->getValue();
+        }
+
+        void DoubleEditSlider::setValue(double value)
+        {
+            _p->model->setValue(value);
+        }
+
+        void DoubleEditSlider::setCallback(const std::function<void(double)>& value)
+        {
+            _p->callback = value;
+        }
+
+        const math::DoubleRange& DoubleEditSlider::getRange() const
+        {
+            return _p->model->getRange();
+        }
+
+        void DoubleEditSlider::setRange(const math::DoubleRange& value)
+        {
+            _p->model->setRange(value);
+        }
+
+        void DoubleEditSlider::setStep(double value)
+        {
+            _p->model->setStep(value);
+        }
+
+        void DoubleEditSlider::setLargeStep(double value)
+        {
+            _p->model->setLargeStep(value);
+        }
+
+        void DoubleEditSlider::setDefaultValue(double value)
+        {
+            _p->model->setDefaultValue(value);
         }
 
         const std::shared_ptr<DoubleModel>& DoubleEditSlider::getModel() const

@@ -22,7 +22,6 @@ namespace tl
             std::shared_ptr<ui::DoubleEditSlider> syncOffsetSlider;
 
             std::shared_ptr<observer::ValueObserver<double> > syncOffsetObserver;
-            std::shared_ptr<observer::ValueObserver<double> > syncOffsetObserver2;
         };
 
         void AudioTool::_init(
@@ -39,8 +38,8 @@ namespace tl
             TLRENDER_P();
 
             p.syncOffsetSlider = ui::DoubleEditSlider::create(context);
-            p.syncOffsetSlider->getModel()->setRange(math::DoubleRange(-1.0, 1.0));
-            p.syncOffsetSlider->getModel()->setDefaultValue(0.0);
+            p.syncOffsetSlider->setRange(math::DoubleRange(-1.0, 1.0));
+            p.syncOffsetSlider->setDefaultValue(0.0);
 
             auto layout = ui::VerticalLayout::create(context);
             auto vLayout = ui::VerticalLayout::create(context);
@@ -54,8 +53,7 @@ namespace tl
             _setWidget(scrollWidget);
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.syncOffsetObserver = observer::ValueObserver<double>::create(
-                p.syncOffsetSlider->getModel()->observeValue(),
+            p.syncOffsetSlider->setCallback(
                 [appWeak](double value)
                 {
                     if (auto app = appWeak.lock())
@@ -64,11 +62,11 @@ namespace tl
                     }
                 });
 
-            p.syncOffsetObserver2 = observer::ValueObserver<double>::create(
+            p.syncOffsetObserver = observer::ValueObserver<double>::create(
                 app->getAudioModel()->observeSyncOffset(),
                 [this](double value)
                 {
-                    _p->syncOffsetSlider->getModel()->setValue(value);
+                    _p->syncOffsetSlider->setValue(value);
                 });
         }
 

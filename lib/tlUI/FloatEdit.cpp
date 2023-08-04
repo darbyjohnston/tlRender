@@ -23,6 +23,8 @@ namespace tl
             std::shared_ptr<LineEdit> lineEdit;
             std::shared_ptr<FloatIncButtons> incButtons;
             std::shared_ptr<HorizontalLayout> layout;
+
+            std::function<void(float)> callback;
             
             std::shared_ptr<observer::ValueObserver<float> > valueObserver;
             std::shared_ptr<observer::ValueObserver<math::FloatRange> > rangeObserver;
@@ -69,9 +71,13 @@ namespace tl
 
             p.valueObserver = observer::ValueObserver<float>::create(
                 p.model->observeValue(),
-                [this](float)
+                [this](float value)
                 {
                     _textUpdate();
+                    if (_p->callback)
+                    {
+                        _p->callback(value);
+                    }
                 });
 
             p.rangeObserver = observer::ValueObserver<math::FloatRange>::create(
@@ -99,6 +105,41 @@ namespace tl
             auto out = std::shared_ptr<FloatEdit>(new FloatEdit);
             out->_init(context, model, parent);
             return out;
+        }
+
+        float FloatEdit::getValue() const
+        {
+            return _p->model->getValue();
+        }
+
+        void FloatEdit::setValue(float value)
+        {
+            _p->model->setValue(value);
+        }
+
+        void FloatEdit::setCallback(const std::function<void(float)>& value)
+        {
+            _p->callback = value;
+        }
+
+        const math::FloatRange& FloatEdit::getRange() const
+        {
+            return _p->model->getRange();
+        }
+
+        void FloatEdit::setRange(const math::FloatRange& value)
+        {
+            _p->model->setRange(value);
+        }
+
+        void FloatEdit::setStep(float value)
+        {
+            _p->model->setStep(value);
+        }
+
+        void FloatEdit::setLargeStep(float value)
+        {
+            _p->model->setLargeStep(value);
         }
 
         const std::shared_ptr<FloatModel>& FloatEdit::getModel() const

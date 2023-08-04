@@ -30,6 +30,8 @@ namespace tl
             };
             MouseData mouse;
 
+            std::function<void(int)> callback;
+
             std::shared_ptr<observer::ValueObserver<int> > valueObserver;
             std::shared_ptr<observer::ValueObserver<math::IntRange> > rangeObserver;
         };
@@ -54,10 +56,14 @@ namespace tl
 
             p.valueObserver = observer::ValueObserver<int>::create(
                 p.model->observeValue(),
-                [this](int)
+                [this](int value)
                 {
                     _updates |= Update::Size;
                     _updates |= Update::Draw;
+                    if (_p->callback)
+                    {
+                        _p->callback(value);
+                    }
                 });
 
             p.rangeObserver = observer::ValueObserver<math::IntRange>::create(
@@ -84,6 +90,46 @@ namespace tl
             auto out = std::shared_ptr<IntSlider>(new IntSlider);
             out->_init(context, model, parent);
             return out;
+        }
+
+        int IntSlider::getValue() const
+        {
+            return _p->model->getValue();
+        }
+
+        void IntSlider::setValue(int value)
+        {
+            _p->model->setValue(value);
+        }
+
+        void IntSlider::setCallback(const std::function<void(int)>& value)
+        {
+            _p->callback = value;
+        }
+
+        const math::IntRange& IntSlider::getRange() const
+        {
+            return _p->model->getRange();
+        }
+
+        void IntSlider::setRange(const math::IntRange& value)
+        {
+            _p->model->setRange(value);
+        }
+
+        void IntSlider::setStep(int value)
+        {
+            _p->model->setStep(value);
+        }
+
+        void IntSlider::setLargeStep(int value)
+        {
+            _p->model->setLargeStep(value);
+        }
+
+        void IntSlider::setDefaultValue(int value)
+        {
+            _p->model->setDefaultValue(value);
         }
 
         const std::shared_ptr<IntModel>& IntSlider::getModel() const

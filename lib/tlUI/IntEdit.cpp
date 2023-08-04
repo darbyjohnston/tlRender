@@ -22,6 +22,8 @@ namespace tl
             std::shared_ptr<IntIncButtons> incButtons;
             std::shared_ptr<HorizontalLayout> layout;
 
+            std::function<void(int)> callback;
+
             std::shared_ptr<observer::ValueObserver<int> > valueObserver;
             std::shared_ptr<observer::ValueObserver<math::IntRange> > rangeObserver;
         };
@@ -67,9 +69,13 @@ namespace tl
 
             p.valueObserver = observer::ValueObserver<int>::create(
                 p.model->observeValue(),
-                [this](int)
+                [this](int value)
                 {
                     _textUpdate();
+                    if (_p->callback)
+                    {
+                        _p->callback(value);
+                    }
                 });
 
             p.rangeObserver = observer::ValueObserver<math::IntRange>::create(
@@ -97,6 +103,41 @@ namespace tl
             auto out = std::shared_ptr<IntEdit>(new IntEdit);
             out->_init(context, model, parent);
             return out;
+        }
+
+        int IntEdit::getValue() const
+        {
+            return _p->model->getValue();
+        }
+
+        void IntEdit::setValue(int value)
+        {
+            _p->model->setValue(value);
+        }
+
+        void IntEdit::setCallback(const std::function<void(int)>& value)
+        {
+            _p->callback = value;
+        }
+
+        const math::IntRange& IntEdit::getRange() const
+        {
+            return _p->model->getRange();
+        }
+
+        void IntEdit::setRange(const math::IntRange& value)
+        {
+            _p->model->setRange(value);
+        }
+
+        void IntEdit::setStep(int value)
+        {
+            _p->model->setStep(value);
+        }
+
+        void IntEdit::setLargeStep(int value)
+        {
+            _p->model->setLargeStep(value);
         }
 
         const std::shared_ptr<IntModel>& IntEdit::getModel() const

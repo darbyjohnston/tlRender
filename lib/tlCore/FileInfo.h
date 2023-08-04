@@ -71,6 +71,7 @@ namespace tl
         enum class ListSort
         {
             Name,
+            Extension,
             Size,
             Time,
 

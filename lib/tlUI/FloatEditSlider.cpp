@@ -22,6 +22,8 @@ namespace tl
             std::shared_ptr<ToolButton> resetButton;
             std::shared_ptr<HorizontalLayout> layout;
 
+            std::function<void(float)> callback;
+
             std::shared_ptr<observer::ValueObserver<float> > valueObserver;
             std::shared_ptr<observer::ValueObserver<bool> > hasDefaultObserver;
         };
@@ -68,6 +70,10 @@ namespace tl
                 [this](float value)
                 {
                     _p->resetButton->setEnabled(value != _p->model->getDefaultValue());
+                    if (_p->callback)
+                    {
+                        _p->callback(value);
+                    }
                 });
 
             p.hasDefaultObserver = observer::ValueObserver<bool>::create(
@@ -93,6 +99,46 @@ namespace tl
             auto out = std::shared_ptr<FloatEditSlider>(new FloatEditSlider);
             out->_init(context, model, parent);
             return out;
+        }
+
+        float FloatEditSlider::getValue() const
+        {
+            return _p->model->getValue();
+        }
+
+        void FloatEditSlider::setValue(float value)
+        {
+            _p->model->setValue(value);
+        }
+
+        void FloatEditSlider::setCallback(const std::function<void(float)>& value)
+        {
+            _p->callback = value;
+        }
+
+        const math::FloatRange& FloatEditSlider::getRange() const
+        {
+            return _p->model->getRange();
+        }
+
+        void FloatEditSlider::setRange(const math::FloatRange& value)
+        {
+            _p->model->setRange(value);
+        }
+
+        void FloatEditSlider::setStep(float value)
+        {
+            _p->model->setStep(value);
+        }
+
+        void FloatEditSlider::setLargeStep(float value)
+        {
+            _p->model->setLargeStep(value);
+        }
+
+        void FloatEditSlider::setDefaultValue(float value)
+        {
+            _p->model->setDefaultValue(value);
         }
 
         const std::shared_ptr<FloatModel>& FloatEditSlider::getModel() const

@@ -30,6 +30,8 @@ namespace tl
             };
             MouseData mouse;
 
+            std::function<void(double)> callback;
+
             std::shared_ptr<observer::ValueObserver<double> > valueObserver;
             std::shared_ptr<observer::ValueObserver<math::DoubleRange> > rangeObserver;
         };
@@ -54,10 +56,14 @@ namespace tl
 
             p.valueObserver = observer::ValueObserver<double>::create(
                 p.model->observeValue(),
-                [this](double)
+                [this](double value)
                 {
                     _updates |= Update::Size;
                     _updates |= Update::Draw;
+                    if (_p->callback)
+                    {
+                        _p->callback(value);
+                    }
                 });
 
             p.rangeObserver = observer::ValueObserver<math::DoubleRange>::create(
@@ -84,6 +90,46 @@ namespace tl
             auto out = std::shared_ptr<DoubleSlider>(new DoubleSlider);
             out->_init(context, model, parent);
             return out;
+        }
+
+        double DoubleSlider::getValue() const
+        {
+            return _p->model->getValue();
+        }
+
+        void DoubleSlider::setValue(double value)
+        {
+            _p->model->setValue(value);
+        }
+
+        void DoubleSlider::setCallback(const std::function<void(double)>& value)
+        {
+            _p->callback = value;
+        }
+
+        const math::DoubleRange& DoubleSlider::getRange() const
+        {
+            return _p->model->getRange();
+        }
+
+        void DoubleSlider::setRange(const math::DoubleRange& value)
+        {
+            _p->model->setRange(value);
+        }
+
+        void DoubleSlider::setStep(double value)
+        {
+            _p->model->setStep(value);
+        }
+
+        void DoubleSlider::setLargeStep(double value)
+        {
+            _p->model->setLargeStep(value);
+        }
+
+        void DoubleSlider::setDefaultValue(double value)
+        {
+            _p->model->setDefaultValue(value);
         }
 
         const std::shared_ptr<DoubleModel>& DoubleSlider::getModel() const

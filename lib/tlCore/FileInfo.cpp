@@ -36,6 +36,7 @@ namespace tl
         TLRENDER_ENUM_IMPL(
             ListSort,
             "Name",
+            "Extension",
             "Size",
             "Time");
         TLRENDER_ENUM_SERIALIZE_IMPL(ListSort);
@@ -94,6 +95,12 @@ namespace tl
                 sort = [](const FileInfo& a, const FileInfo& b)
                 {
                     return a.getPath().get() < b.getPath().get();
+                };
+                break;
+            case ListSort::Extension:
+                sort = [](const FileInfo& a, const FileInfo& b)
+                {
+                    return a.getPath().getExtension() < b.getPath().getExtension();
                 };
                 break;
             case ListSort::Size:

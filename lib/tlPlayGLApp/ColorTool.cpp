@@ -124,7 +124,6 @@ namespace tl
             std::shared_ptr<ui::CheckBox> invertCheckBox;
             std::shared_ptr<ui::GridLayout> layout;
 
-            std::map<std::string, std::shared_ptr<observer::ValueObserver<float> > > sliderObservers;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > optionsObservers;
         };
 
@@ -139,19 +138,19 @@ namespace tl
             p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
 
             p.sliders["Add"] = ui::FloatEditSlider::create(context);
-            p.sliders["Add"]->getModel()->setRange(math::FloatRange(-1.F, 1.F));
-            p.sliders["Add"]->getModel()->setDefaultValue(0.F);
+            p.sliders["Add"]->setRange(math::FloatRange(-1.F, 1.F));
+            p.sliders["Add"]->setDefaultValue(0.F);
             p.sliders["Brightness"] = ui::FloatEditSlider::create(context);
-            p.sliders["Brightness"]->getModel()->setRange(math::FloatRange(0.F, 4.F));
-            p.sliders["Brightness"]->getModel()->setDefaultValue(1.F);
+            p.sliders["Brightness"]->setRange(math::FloatRange(0.F, 4.F));
+            p.sliders["Brightness"]->setDefaultValue(1.F);
             p.sliders["Contrast"] = ui::FloatEditSlider::create(context);
-            p.sliders["Contrast"]->getModel()->setRange(math::FloatRange(0.F, 4.F));
-            p.sliders["Contrast"]->getModel()->setDefaultValue(1.F);
+            p.sliders["Contrast"]->setRange(math::FloatRange(0.F, 4.F));
+            p.sliders["Contrast"]->setDefaultValue(1.F);
             p.sliders["Saturation"] = ui::FloatEditSlider::create(context);
-            p.sliders["Saturation"]->getModel()->setRange(math::FloatRange(0.F, 4.F));
-            p.sliders["Saturation"]->getModel()->setDefaultValue(1.F);
+            p.sliders["Saturation"]->setRange(math::FloatRange(0.F, 4.F));
+            p.sliders["Saturation"]->setDefaultValue(1.F);
             p.sliders["Tint"] = ui::FloatEditSlider::create(context);
-            p.sliders["Tint"]->getModel()->setDefaultValue(1.F);
+            p.sliders["Tint"]->setDefaultValue(1.F);
 
             p.invertCheckBox = ui::CheckBox::create("Invert", context);
 
@@ -188,12 +187,12 @@ namespace tl
                 [this](const timeline::DisplayOptions& value)
                 {
                     _p->enabledCheckBox->setChecked(value.colorEnabled);
-            _p->sliders["Add"]->getModel()->setValue(value.color.add.x);
-            _p->sliders["Brightness"]->getModel()->setValue(value.color.brightness.x);
-            _p->sliders["Contrast"]->getModel()->setValue(value.color.contrast.x);
-            _p->sliders["Saturation"]->getModel()->setValue(value.color.saturation.x);
-            _p->sliders["Tint"]->getModel()->setValue(value.color.tint);
-            _p->invertCheckBox->setChecked(value.color.invert);
+                    _p->sliders["Add"]->setValue(value.color.add.x);
+                    _p->sliders["Brightness"]->setValue(value.color.brightness.x);
+                    _p->sliders["Contrast"]->setValue(value.color.contrast.x);
+                    _p->sliders["Saturation"]->setValue(value.color.saturation.x);
+                    _p->sliders["Tint"]->setValue(value.color.tint);
+                    _p->invertCheckBox->setChecked(value.color.invert);
                 });
 
             auto appWeak = std::weak_ptr<App>(app);
@@ -208,8 +207,7 @@ namespace tl
                     }
                 });
 
-            p.sliderObservers["Add"] = observer::ValueObserver<float>::create(
-                p.sliders["Add"]->getModel()->observeValue(),
+            p.sliders["Add"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
@@ -221,10 +219,8 @@ namespace tl
                         options.color.add.z = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
-                },
-                observer::CallbackAction::Suppress);
-            p.sliderObservers["Brightness"] = observer::ValueObserver<float>::create(
-                p.sliders["Brightness"]->getModel()->observeValue(),
+                });
+            p.sliders["Brightness"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
@@ -236,10 +232,8 @@ namespace tl
                         options.color.brightness.z = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
-                },
-                observer::CallbackAction::Suppress);
-            p.sliderObservers["Contrast"] = observer::ValueObserver<float>::create(
-                p.sliders["Contrast"]->getModel()->observeValue(),
+                });
+            p.sliders["Contrast"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
@@ -251,10 +245,8 @@ namespace tl
                         options.color.contrast.z = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
-                },
-                observer::CallbackAction::Suppress);
-            p.sliderObservers["Saturation"] = observer::ValueObserver<float>::create(
-                p.sliders["Saturation"]->getModel()->observeValue(),
+                });
+            p.sliders["Saturation"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
@@ -266,10 +258,8 @@ namespace tl
                         options.color.saturation.z = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
-                },
-                observer::CallbackAction::Suppress);
-            p.sliderObservers["Tint"] = observer::ValueObserver<float>::create(
-                p.sliders["Tint"]->getModel()->observeValue(),
+                });
+            p.sliders["Tint"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
@@ -279,8 +269,7 @@ namespace tl
                         options.color.tint = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
-                },
-                observer::CallbackAction::Suppress);
+                });
 
             p.invertCheckBox->setCheckedCallback(
                 [appWeak](bool value)
@@ -330,7 +319,6 @@ namespace tl
             std::map<std::string, std::shared_ptr<ui::FloatEditSlider> > sliders;
             std::shared_ptr<ui::GridLayout> layout;
 
-            std::map<std::string, std::shared_ptr<observer::ValueObserver<float> > > sliderObservers;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > optionsObservers;
         };
 
@@ -345,16 +333,16 @@ namespace tl
             p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
 
             p.sliders["InLow"] = ui::FloatEditSlider::create(context);
-            p.sliders["InLow"]->getModel()->setDefaultValue(0.F);
+            p.sliders["InLow"]->setDefaultValue(0.F);
             p.sliders["InHigh"] = ui::FloatEditSlider::create(context);
-            p.sliders["InHigh"]->getModel()->setDefaultValue(1.F);
+            p.sliders["InHigh"]->setDefaultValue(1.F);
             p.sliders["Gamma"] = ui::FloatEditSlider::create(context);
-            p.sliders["Gamma"]->getModel()->setRange(math::FloatRange(.1F, 4.F));
-            p.sliders["Gamma"]->getModel()->setDefaultValue(1.F);
+            p.sliders["Gamma"]->setRange(math::FloatRange(.1F, 4.F));
+            p.sliders["Gamma"]->setDefaultValue(1.F);
             p.sliders["OutLow"] = ui::FloatEditSlider::create(context);
-            p.sliders["OutLow"]->getModel()->setDefaultValue(0.F);
+            p.sliders["OutLow"]->setDefaultValue(0.F);
             p.sliders["OutHigh"] = ui::FloatEditSlider::create(context);
-            p.sliders["OutHigh"]->getModel()->setDefaultValue(1.F);
+            p.sliders["OutHigh"]->setDefaultValue(1.F);
 
             p.layout = ui::GridLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
@@ -387,11 +375,11 @@ namespace tl
                 [this](const timeline::DisplayOptions& value)
                 {
                     _p->enabledCheckBox->setChecked(value.levelsEnabled);
-                    _p->sliders["InLow"]->getModel()->setValue(value.levels.inLow);
-                    _p->sliders["InHigh"]->getModel()->setValue(value.levels.inHigh);
-                    _p->sliders["Gamma"]->getModel()->setValue(value.levels.gamma);
-                    _p->sliders["OutLow"]->getModel()->setValue(value.levels.outLow);
-                    _p->sliders["OutHigh"]->getModel()->setValue(value.levels.outHigh);
+                    _p->sliders["InLow"]->setValue(value.levels.inLow);
+                    _p->sliders["InHigh"]->setValue(value.levels.inHigh);
+                    _p->sliders["Gamma"]->setValue(value.levels.gamma);
+                    _p->sliders["OutLow"]->setValue(value.levels.outLow);
+                    _p->sliders["OutHigh"]->setValue(value.levels.outHigh);
                 });
 
             auto appWeak = std::weak_ptr<App>(app);
@@ -406,8 +394,7 @@ namespace tl
                     }
                 });
 
-            p.sliderObservers["InLow"] = observer::ValueObserver<float>::create(
-                p.sliders["InLow"]->getModel()->observeValue(),
+            p.sliders["InLow"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
@@ -417,10 +404,8 @@ namespace tl
                         options.levels.inLow = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
-                },
-                observer::CallbackAction::Suppress);
-            p.sliderObservers["InHigh"] = observer::ValueObserver<float>::create(
-                p.sliders["InHigh"]->getModel()->observeValue(),
+                });
+            p.sliders["InHigh"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
@@ -430,10 +415,8 @@ namespace tl
                         options.levels.inHigh = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
-                },
-                observer::CallbackAction::Suppress);
-            p.sliderObservers["Gamma"] = observer::ValueObserver<float>::create(
-                p.sliders["Gamma"]->getModel()->observeValue(),
+                });
+            p.sliders["Gamma"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
@@ -443,10 +426,8 @@ namespace tl
                         options.levels.gamma = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
-                },
-                observer::CallbackAction::Suppress);
-            p.sliderObservers["OutLow"] = observer::ValueObserver<float>::create(
-                p.sliders["OutLow"]->getModel()->observeValue(),
+                });
+            p.sliders["OutLow"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
@@ -456,10 +437,8 @@ namespace tl
                         options.levels.outLow = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
-                },
-                observer::CallbackAction::Suppress);
-            p.sliderObservers["OutHigh"] = observer::ValueObserver<float>::create(
-                p.sliders["OutHigh"]->getModel()->observeValue(),
+                });
+            p.sliders["OutHigh"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
@@ -469,8 +448,7 @@ namespace tl
                         options.levels.outHigh = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
-                },
-                observer::CallbackAction::Suppress);
+                });
         }
 
         LevelsWidget::LevelsWidget() :
@@ -508,7 +486,6 @@ namespace tl
             std::map<std::string, std::shared_ptr<ui::FloatEditSlider> > sliders;
             std::shared_ptr<ui::GridLayout> layout;
 
-            std::map<std::string, std::shared_ptr<observer::ValueObserver<float> > > sliderObservers;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > optionsObservers;
         };
 
@@ -523,16 +500,16 @@ namespace tl
             p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
 
             p.sliders["Exposure"] = ui::FloatEditSlider::create(context);
-            p.sliders["Exposure"]->getModel()->setRange(math::FloatRange(-10.F, 10.F));
-            p.sliders["Exposure"]->getModel()->setDefaultValue(0.F);
+            p.sliders["Exposure"]->setRange(math::FloatRange(-10.F, 10.F));
+            p.sliders["Exposure"]->setDefaultValue(0.F);
             p.sliders["Defog"] = ui::FloatEditSlider::create(context);
-            p.sliders["Defog"]->getModel()->setDefaultValue(0.F);
+            p.sliders["Defog"]->setDefaultValue(0.F);
             p.sliders["KneeLow"] = ui::FloatEditSlider::create(context);
-            p.sliders["KneeLow"]->getModel()->setRange(math::FloatRange(-3.F, 3.F));
-            p.sliders["KneeLow"]->getModel()->setDefaultValue(0.F);
+            p.sliders["KneeLow"]->setRange(math::FloatRange(-3.F, 3.F));
+            p.sliders["KneeLow"]->setDefaultValue(0.F);
             p.sliders["KneeHigh"] = ui::FloatEditSlider::create(context);
-            p.sliders["KneeHigh"]->getModel()->setRange(math::FloatRange(3.5F, 7.5F));
-            p.sliders["KneeHigh"]->getModel()->setDefaultValue(5.F);
+            p.sliders["KneeHigh"]->setRange(math::FloatRange(3.5F, 7.5F));
+            p.sliders["KneeHigh"]->setDefaultValue(5.F);
 
             p.layout = ui::GridLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
@@ -561,10 +538,10 @@ namespace tl
                 [this](const timeline::DisplayOptions& value)
                 {
                     _p->enabledCheckBox->setChecked(value.exrDisplayEnabled);
-                    _p->sliders["Exposure"]->getModel()->setValue(value.exrDisplay.exposure);
-                    _p->sliders["Defog"]->getModel()->setValue(value.exrDisplay.defog);
-                    _p->sliders["KneeLow"]->getModel()->setValue(value.exrDisplay.kneeLow);
-                    _p->sliders["KneeHigh"]->getModel()->setValue(value.exrDisplay.kneeHigh);
+                    _p->sliders["Exposure"]->setValue(value.exrDisplay.exposure);
+                    _p->sliders["Defog"]->setValue(value.exrDisplay.defog);
+                    _p->sliders["KneeLow"]->setValue(value.exrDisplay.kneeLow);
+                    _p->sliders["KneeHigh"]->setValue(value.exrDisplay.kneeHigh);
                 });
 
             auto appWeak = std::weak_ptr<App>(app);
@@ -579,8 +556,7 @@ namespace tl
                     }
                 });
 
-            p.sliderObservers["Exposure"] = observer::ValueObserver<float>::create(
-                p.sliders["Exposure"]->getModel()->observeValue(),
+            p.sliders["Exposure"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
@@ -590,10 +566,8 @@ namespace tl
                         options.exrDisplay.exposure = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
-                },
-                observer::CallbackAction::Suppress);
-            p.sliderObservers["Defog"] = observer::ValueObserver<float>::create(
-                p.sliders["Defog"]->getModel()->observeValue(),
+                });
+            p.sliders["Defog"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
@@ -603,10 +577,8 @@ namespace tl
                         options.exrDisplay.defog = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
-                },
-                observer::CallbackAction::Suppress);
-            p.sliderObservers["KneeLow"] = observer::ValueObserver<float>::create(
-                p.sliders["KneeLow"]->getModel()->observeValue(),
+                });
+            p.sliders["KneeLow"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
@@ -616,10 +588,8 @@ namespace tl
                         options.exrDisplay.kneeLow = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
-                },
-                observer::CallbackAction::Suppress);
-            p.sliderObservers["KneeHigh"] = observer::ValueObserver<float>::create(
-                p.sliders["KneeHigh"]->getModel()->observeValue(),
+                });
+            p.sliders["KneeHigh"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
@@ -629,8 +599,7 @@ namespace tl
                         options.exrDisplay.kneeHigh = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
-                },
-                observer::CallbackAction::Suppress);
+                });
         }
 
         EXRDisplayWidget::EXRDisplayWidget() :
@@ -668,7 +637,6 @@ namespace tl
             std::map<std::string, std::shared_ptr<ui::FloatEditSlider> > sliders;
             std::shared_ptr<ui::VerticalLayout> layout;
 
-            std::map<std::string, std::shared_ptr<observer::ValueObserver<float> > > sliderObservers;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > optionsObservers;
         };
 
@@ -683,7 +651,7 @@ namespace tl
             p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
 
             p.sliders["SoftClip"] = ui::FloatEditSlider::create(context);
-            p.sliders["SoftClip"]->getModel()->setDefaultValue(0.F);
+            p.sliders["SoftClip"]->setDefaultValue(0.F);
 
             p.layout = ui::VerticalLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
@@ -696,7 +664,7 @@ namespace tl
                 [this](const timeline::DisplayOptions& value)
                 {
                     _p->enabledCheckBox->setChecked(value.softClipEnabled);
-                    _p->sliders["SoftClip"]->getModel()->setValue(value.softClip);
+                    _p->sliders["SoftClip"]->setValue(value.softClip);
                 });
 
             auto appWeak = std::weak_ptr<App>(app);
@@ -711,8 +679,7 @@ namespace tl
                     }
                 });
 
-            p.sliderObservers["SoftClip"] = observer::ValueObserver<float>::create(
-                p.sliders["SoftClip"]->getModel()->observeValue(),
+            p.sliders["SoftClip"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
@@ -722,8 +689,7 @@ namespace tl
                         options.softClip = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
-                },
-                observer::CallbackAction::Suppress);
+                });
         }
 
         SoftClipWidget::SoftClipWidget() :

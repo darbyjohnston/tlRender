@@ -27,7 +27,6 @@ namespace tl
 
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
-            std::shared_ptr<observer::ValueObserver<int> > volumeObserver2;
         };
 
         void AudioPopup::_init(
@@ -47,9 +46,9 @@ namespace tl
             p.muteButton->setToolTip("Mute the audio");
 
             p.volumeSlider = ui::IntEditSlider::create(context);
-            p.volumeSlider->getModel()->setRange(math::IntRange(0, 100));
-            p.volumeSlider->getModel()->setStep(1);
-            p.volumeSlider->getModel()->setLargeStep(10);
+            p.volumeSlider->setRange(math::IntRange(0, 100));
+            p.volumeSlider->setStep(1);
+            p.volumeSlider->setLargeStep(10);
             p.volumeSlider->setToolTip("Audio volume");
 
             p.layout = ui::HorizontalLayout::create(context);
@@ -69,6 +68,15 @@ namespace tl
                     }
                 });
 
+            p.volumeSlider->setCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getAudioModel()->setVolume(value / 100.F);
+                    }
+                });
+
             p.muteObserver = observer::ValueObserver<bool>::create(
                 app->getAudioModel()->observeMute(),
                 [this](bool value)
@@ -80,17 +88,7 @@ namespace tl
                 app->getAudioModel()->observeVolume(),
                 [this](float value)
                 {
-                    _p->volumeSlider->getModel()->setValue(value * 100.F);
-                });
-
-            p.volumeObserver2 = observer::ValueObserver<int>::create(
-                p.volumeSlider->getModel()->observeValue(),
-                [appWeak](int value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getAudioModel()->setVolume(value / 100.F);
-                    }
+                    _p->volumeSlider->setValue(value * 100.F);
                 });
         }
 

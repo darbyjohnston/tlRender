@@ -22,6 +22,8 @@ namespace tl
             std::shared_ptr<ToolButton> resetButton;
             std::shared_ptr<HorizontalLayout> layout;
 
+            std::function<void(int)> callback;
+
             std::shared_ptr<observer::ValueObserver<int> > valueObserver;
             std::shared_ptr<observer::ValueObserver<bool> > hasDefaultObserver;
         };
@@ -68,6 +70,10 @@ namespace tl
                 [this](int value)
                 {
                     _p->resetButton->setEnabled(value != _p->model->getDefaultValue());
+                    if (_p->callback)
+                    {
+                        _p->callback(value);
+                    }
                 });
 
             p.hasDefaultObserver = observer::ValueObserver<bool>::create(
@@ -93,6 +99,46 @@ namespace tl
             auto out = std::shared_ptr<IntEditSlider>(new IntEditSlider);
             out->_init(context, model, parent);
             return out;
+        }
+
+        int IntEditSlider::getValue() const
+        {
+            return _p->model->getValue();
+        }
+
+        void IntEditSlider::setValue(int value)
+        {
+            _p->model->setValue(value);
+        }
+
+        void IntEditSlider::setCallback(const std::function<void(int)>& value)
+        {
+            _p->callback = value;
+        }
+
+        const math::IntRange& IntEditSlider::getRange() const
+        {
+            return _p->model->getRange();
+        }
+
+        void IntEditSlider::setRange(const math::IntRange& value)
+        {
+            _p->model->setRange(value);
+        }
+
+        void IntEditSlider::setStep(int value)
+        {
+            _p->model->setStep(value);
+        }
+
+        void IntEditSlider::setLargeStep(int value)
+        {
+            _p->model->setLargeStep(value);
+        }
+
+        void IntEditSlider::setDefaultValue(int value)
+        {
+            _p->model->setDefaultValue(value);
         }
 
         const std::shared_ptr<IntModel>& IntEditSlider::getModel() const

@@ -59,7 +59,7 @@ namespace tl
                     label->setText(string::Format("{0} - {1}:").arg(i.getMin()).arg(i.getMax()));
                     intLabels.push_back(label);
                     auto edit = ui::IntEditSlider::create(context);
-                    edit->getModel()->setRange(i);
+                    edit->setRange(i);
                     edit->setDigits(digits);
                     intEdits.push_back(edit);
                 }
@@ -89,7 +89,7 @@ namespace tl
                     floatLabels.push_back(label);
                     auto edit = ui::FloatEditSlider::create(context);
                     edit->setDigits(digits);
-                    edit->getModel()->setRange(i);
+                    edit->setRange(i);
                     floatEdits.push_back(edit);
                 }
 
@@ -118,7 +118,7 @@ namespace tl
                     doubleLabels.push_back(label);
                     auto edit = ui::DoubleEditSlider::create(context);
                     edit->setDigits(digits);
-                    edit->getModel()->setRange(i);
+                    edit->setRange(i);
                     doubleEdits.push_back(edit);
                 }
                 

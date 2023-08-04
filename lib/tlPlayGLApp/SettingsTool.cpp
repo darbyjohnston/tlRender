@@ -33,8 +33,6 @@ namespace tl
             std::shared_ptr<ui::GridLayout> layout;
 
             std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
-            std::shared_ptr<observer::ValueObserver<double> > readAheadObserver;
-            std::shared_ptr<observer::ValueObserver<double> > readBehindObserver;
         };
 
         void CacheSettingsWidget::_init(
@@ -46,14 +44,14 @@ namespace tl
             TLRENDER_P();
 
             p.readAhead = ui::DoubleEdit::create(context);
-            p.readAhead->getModel()->setRange(math::DoubleRange(0.0, 60.0));
-            p.readAhead->getModel()->setStep(1.0);
-            p.readAhead->getModel()->setLargeStep(10.0);
+            p.readAhead->setRange(math::DoubleRange(0.0, 60.0));
+            p.readAhead->setStep(1.0);
+            p.readAhead->setLargeStep(10.0);
 
             p.readBehind = ui::DoubleEdit::create(context);
-            p.readBehind->getModel()->setRange(math::DoubleRange(0.0, 60.0));
-            p.readBehind->getModel()->setStep(1.0);
-            p.readBehind->getModel()->setLargeStep(10.0);
+            p.readBehind->setRange(math::DoubleRange(0.0, 60.0));
+            p.readBehind->setStep(1.0);
+            p.readBehind->setLargeStep(10.0);
 
             p.layout = ui::GridLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
@@ -68,6 +66,24 @@ namespace tl
             p.layout->setGridPos(p.readBehind, 1, 1);
 
             auto appWeak = std::weak_ptr<App>(app);
+            p.readAhead->setCallback(
+                [appWeak](double value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue("Cache/ReadAhead", value);
+                    }
+                });
+
+            p.readBehind->setCallback(
+                [appWeak](double value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue("Cache/ReadBehind", value);
+                    }
+                });
+
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
                 [this, appWeak](const std::string&)
@@ -79,33 +95,13 @@ namespace tl
                         {
                             double value = 0.0;
                             settings->getValue<double>("Cache/ReadAhead", value);
-                            p.readAhead->getModel()->setValue(value);
+                            p.readAhead->setValue(value);
                         }
                         {
                             double value = 0.0;
                             settings->getValue<double>("Cache/ReadBehind", value);
-                            p.readBehind->getModel()->setValue(value);
+                            p.readBehind->setValue(value);
                         }
-                    }
-                });
-
-            p.readAheadObserver = observer::ValueObserver<double>::create(
-                p.readAhead->getModel()->observeValue(),
-                [appWeak](double value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue("Cache/ReadAhead", value);
-                    }
-                });
-
-            p.readBehindObserver = observer::ValueObserver<double>::create(
-                p.readBehind->getModel()->observeValue(),
-                [appWeak](double value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue("Cache/ReadBehind", value);
                     }
                 });
         }
@@ -215,7 +211,7 @@ namespace tl
                         {
                             int value = 0;
                             settings->getValue("FileSequence/MaxDigits", value);
-                            p.maxDigitsEdit->getModel()->setValue(value);
+                            p.maxDigitsEdit->setValue(value);
                         }
                     }
                 });
@@ -355,11 +351,6 @@ namespace tl
             std::shared_ptr<ui::VerticalLayout> layout;
 
             std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
-            std::shared_ptr<observer::ValueObserver<int> > audioBufferFramesObserver;
-            std::shared_ptr<observer::ValueObserver<int> > videoRequestObserver;
-            std::shared_ptr<observer::ValueObserver<int> > audioRequestObserver;
-            std::shared_ptr<observer::ValueObserver<int> > sequenceThreadsObserver;
-            std::shared_ptr<observer::ValueObserver<int> > ffmpegThreadsObserver;
         };
 
         void PerformanceSettingsWidget::_init(
@@ -375,23 +366,23 @@ namespace tl
 
             p.audioBufferFramesEdit = ui::IntEdit::create(context);
             p.audioBufferFramesEdit->setDigits(4);
-            p.audioBufferFramesEdit->getModel()->setRange(math::IntRange(1024, 4096));
-            p.audioBufferFramesEdit->getModel()->setStep(256);
-            p.audioBufferFramesEdit->getModel()->setLargeStep(1024);
+            p.audioBufferFramesEdit->setRange(math::IntRange(1024, 4096));
+            p.audioBufferFramesEdit->setStep(256);
+            p.audioBufferFramesEdit->setLargeStep(1024);
 
             p.videoRequestsEdit = ui::IntEdit::create(context);
-            p.videoRequestsEdit->getModel()->setRange(math::IntRange(1, 64));
+            p.videoRequestsEdit->setRange(math::IntRange(1, 64));
 
             p.audioRequestsEdit = ui::IntEdit::create(context);
-            p.audioRequestsEdit->getModel()->setRange(math::IntRange(1, 64));
+            p.audioRequestsEdit->setRange(math::IntRange(1, 64));
 
             p.sequenceThreadsEdit = ui::IntEdit::create(context);
-            p.sequenceThreadsEdit->getModel()->setRange(math::IntRange(1, 64));
+            p.sequenceThreadsEdit->setRange(math::IntRange(1, 64));
 
             p.ffmpegYUVtoRGBCheckBox = ui::CheckBox::create(context);
 
             p.ffmpegThreadsEdit = ui::IntEdit::create(context);
-            p.ffmpegThreadsEdit->getModel()->setRange(math::IntRange(0, 64));
+            p.ffmpegThreadsEdit->setRange(math::IntRange(0, 64));
 
             p.layout = ui::VerticalLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
@@ -429,52 +420,6 @@ namespace tl
             griLayout->setGridPos(p.ffmpegThreadsEdit, 6, 1);
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
-                app->getSettings()->observeValues(),
-                [this, appWeak](const std::string&)
-                {
-                    TLRENDER_P();
-                    if (auto app = appWeak.lock())
-                    {
-                        auto settings = app->getSettings();
-                        {
-                            timeline::TimerMode value = timeline::TimerMode::First;
-                            settings->getValue("Performance/TimerMode", value);
-                            p.timerComboBox->setCurrentIndex(static_cast<int>(value));
-                        }
-                        {
-                            int value = 0;
-                            settings->getValue("Performance/AudioBufferFrameCount", value);
-                            p.audioBufferFramesEdit->getModel()->setValue(value);
-                        }
-                        {
-                            int value = 0;
-                            settings->getValue("Performance/VideoRequestCount", value);
-                            p.videoRequestsEdit->getModel()->setValue(value);
-                        }
-                        {
-                            int value = 0;
-                            settings->getValue("Performance/AudioRequestCount", value);
-                            p.audioRequestsEdit->getModel()->setValue(value);
-                        }
-                        {
-                            int value = 0;
-                            settings->getValue("Performance/SequenceThreadCount", value);
-                            p.sequenceThreadsEdit->getModel()->setValue(value);
-                        }
-                        {
-                            bool value = false;
-                            settings->getValue("Performance/FFmpegYUVToRGBConversion", value);
-                            p.ffmpegYUVtoRGBCheckBox->setChecked(value);
-                        }
-                        {
-                            int value = 0;
-                            settings->getValue("Performance/FFmpegThreadCount", value);
-                            p.ffmpegThreadsEdit->getModel()->setValue(value);
-                        }
-                    }
-                });
-
             p.timerComboBox->setIndexCallback(
                 [appWeak](int value)
                 {
@@ -486,8 +431,7 @@ namespace tl
                     }
                 });
 
-            p.audioBufferFramesObserver = observer::ValueObserver<int>::create(
-                p.audioBufferFramesEdit->getModel()->observeValue(),
+            p.audioBufferFramesEdit->setCallback(
                 [appWeak](int value)
                 {
                     if (auto app = appWeak.lock())
@@ -498,8 +442,7 @@ namespace tl
                     }
                 });
 
-            p.videoRequestObserver = observer::ValueObserver<int>::create(
-                p.videoRequestsEdit->getModel()->observeValue(),
+            p.videoRequestsEdit->setCallback(
                 [appWeak](int value)
                 {
                     if (auto app = appWeak.lock())
@@ -510,8 +453,7 @@ namespace tl
                     }
                 });
 
-            p.audioRequestObserver = observer::ValueObserver<int>::create(
-                p.audioRequestsEdit->getModel()->observeValue(),
+            p.audioRequestsEdit->setCallback(
                 [appWeak](int value)
                 {
                     if (auto app = appWeak.lock())
@@ -522,8 +464,7 @@ namespace tl
                     }
                 });
 
-            p.sequenceThreadsObserver = observer::ValueObserver<int>::create(
-                p.sequenceThreadsEdit->getModel()->observeValue(),
+            p.sequenceThreadsEdit->setCallback(
                 [appWeak](int value)
                 {
                     if (auto app = appWeak.lock())
@@ -545,8 +486,7 @@ namespace tl
                     }
                 });
 
-            p.ffmpegThreadsObserver = observer::ValueObserver<int>::create(
-                p.ffmpegThreadsEdit->getModel()->observeValue(),
+            p.ffmpegThreadsEdit->setCallback(
                 [appWeak](int value)
                 {
                     if (auto app = appWeak.lock())
@@ -554,6 +494,52 @@ namespace tl
                         app->getSettings()->setValue(
                             "Performance/FFmpegThreadCount",
                             value);
+                    }
+                });
+
+            p.settingsObserver = observer::ValueObserver<std::string>::create(
+                app->getSettings()->observeValues(),
+                [this, appWeak](const std::string&)
+                {
+                    TLRENDER_P();
+                    if (auto app = appWeak.lock())
+                    {
+                        auto settings = app->getSettings();
+                        {
+                            timeline::TimerMode value = timeline::TimerMode::First;
+                            settings->getValue("Performance/TimerMode", value);
+                            p.timerComboBox->setCurrentIndex(static_cast<int>(value));
+                        }
+                        {
+                            int value = 0;
+                            settings->getValue("Performance/AudioBufferFrameCount", value);
+                            p.audioBufferFramesEdit->setValue(value);
+                        }
+                        {
+                            int value = 0;
+                            settings->getValue("Performance/VideoRequestCount", value);
+                            p.videoRequestsEdit->setValue(value);
+                        }
+                        {
+                            int value = 0;
+                            settings->getValue("Performance/AudioRequestCount", value);
+                            p.audioRequestsEdit->setValue(value);
+                        }
+                        {
+                            int value = 0;
+                            settings->getValue("Performance/SequenceThreadCount", value);
+                            p.sequenceThreadsEdit->setValue(value);
+                        }
+                        {
+                            bool value = false;
+                            settings->getValue("Performance/FFmpegYUVToRGBConversion", value);
+                            p.ffmpegYUVtoRGBCheckBox->setChecked(value);
+                        }
+                        {
+                            int value = 0;
+                            settings->getValue("Performance/FFmpegThreadCount", value);
+                            p.ffmpegThreadsEdit->setValue(value);
+                        }
                     }
                 });
         }

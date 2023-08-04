@@ -32,10 +32,13 @@ namespace tl
             //! \name Value
             ///@{
 
+            //! Get the value.
             float getValue() const;
 
+            //! Set the value.
             void setValue(float);
 
+            //! Observe the value.
             std::shared_ptr<observer::IValue<float> > observeValue() const;
 
             ///@}
@@ -43,10 +46,13 @@ namespace tl
             //! \name Range
             ///@{
 
+            //! Get the range.
             const math::FloatRange& getRange() const;
 
+            //! Set the range.
             void setRange(const math::FloatRange&);
 
+            //! Observe the range.
             std::shared_ptr<observer::IValue<math::FloatRange> > observeRange() const;
 
             ///@}
@@ -54,18 +60,28 @@ namespace tl
             //! \name Increment
             ///@{
 
+            //! Get the increment step.
             float getStep() const;
 
+            //! Set the increment step.
             void setStep(float);
 
+            //! Increment the value by a step.
             void incrementStep();
+
+            //! Decrement the value by a step.
             void decrementStep();
 
+            //! Get the increment large step.
             float getLargeStep() const;
 
+            //! Set the increment large step.
             void setLargeStep(float);
 
+            //! Increment the value by a large step.
             void incrementLargeStep();
+
+            //! Decrement the value by a large step.
             void decrementLargeStep();
 
             ///@}
@@ -73,16 +89,22 @@ namespace tl
             //! \name Default Value
             ///@{
 
+            //! Get whether there is a default value.
             bool hasDefaultValue() const;
 
+            //! Observe the default value.
             std::shared_ptr<observer::IValue<bool> > observeHasDefaultValue() const;
 
+            //! Get the default value.
             float getDefaultValue() const;
 
+            //! Set the default value.
             void setDefaultValue(float);
 
+            //! Set the value to the default value.
             void setDefaultValue();
 
+            //! Clear the default value.
             void clearDefaultValue();
 
             ///@}

@@ -33,6 +33,30 @@ namespace tl
                 const std::shared_ptr<FloatModel>& = nullptr,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            //! Get the value.
+            float getValue() const;
+
+            //! Set the value.
+            void setValue(float);
+
+            //! Set the callback.
+            void setCallback(const std::function<void(float)>&);
+
+            //! Get the range.
+            const math::FloatRange& getRange() const;
+
+            //! Set the range.
+            void setRange(const math::FloatRange&);
+
+            //! Set the step.
+            void setStep(float);
+
+            //! Set the large step.
+            void setLargeStep(float);
+
+            //! Set the default value.
+            void setDefaultValue(float);
+
             //! Get the model.
             const std::shared_ptr<FloatModel>& getModel() const;
 

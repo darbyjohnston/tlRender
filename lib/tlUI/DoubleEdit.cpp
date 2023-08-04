@@ -28,6 +28,8 @@ namespace tl
                 int margin = 0;
             };
             SizeData size;
+
+            std::function<void(double)> callback;
             
             std::shared_ptr<observer::ValueObserver<double> > valueObserver;
             std::shared_ptr<observer::ValueObserver<math::DoubleRange> > rangeObserver;
@@ -74,9 +76,13 @@ namespace tl
 
             p.valueObserver = observer::ValueObserver<double>::create(
                 p.model->observeValue(),
-                [this](double)
+                [this](double value)
                 {
                     _textUpdate();
+                    if (_p->callback)
+                    {
+                        _p->callback(value);
+                    }
                 });
 
             p.rangeObserver = observer::ValueObserver<math::DoubleRange>::create(
@@ -104,6 +110,41 @@ namespace tl
             auto out = std::shared_ptr<DoubleEdit>(new DoubleEdit);
             out->_init(context, model, parent);
             return out;
+        }
+
+        double DoubleEdit::getValue() const
+        {
+            return _p->model->getValue();
+        }
+
+        void DoubleEdit::setValue(double value)
+        {
+            _p->model->setValue(value);
+        }
+
+        void DoubleEdit::setCallback(const std::function<void(double)>& value)
+        {
+            _p->callback = value;
+        }
+
+        const math::DoubleRange& DoubleEdit::getRange() const
+        {
+            return _p->model->getRange();
+        }
+
+        void DoubleEdit::setRange(const math::DoubleRange& value)
+        {
+            _p->model->setRange(value);
+        }
+
+        void DoubleEdit::setStep(double value)
+        {
+            _p->model->setStep(value);
+        }
+
+        void DoubleEdit::setLargeStep(double value)
+        {
+            _p->model->setLargeStep(value);
         }
 
         const std::shared_ptr<DoubleModel>& DoubleEdit::getModel() const
