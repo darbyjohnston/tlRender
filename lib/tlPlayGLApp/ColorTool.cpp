@@ -51,7 +51,7 @@ namespace tl
             p.layout->setGridPos(label, 1, 0);
             p.fileEdit->setParent(p.layout);
             p.layout->setGridPos(p.fileEdit, 1, 1);
-            label = ui::Label::create("Brightness:", context, p.layout);
+            label = ui::Label::create("Order:", context, p.layout);
             p.layout->setGridPos(label, 2, 0);
             p.orderComboBox->setParent(p.layout);
             p.layout->setGridPos(p.orderComboBox, 2, 1);
