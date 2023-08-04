@@ -9,7 +9,7 @@ namespace tl
 {
     namespace string
     {
-        //! Format
+        //! String formatting.
         //!
         //! Example:
         //! std::string result = Format("Testing {2} {1} {0}").arg("one").arg("two").arg("three");

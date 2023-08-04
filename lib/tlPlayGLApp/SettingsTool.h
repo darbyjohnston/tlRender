@@ -40,7 +40,7 @@ namespace tl
             TLRENDER_PRIVATE();
         };
 
-        //! Files sequences settings widget.
+        //! File sequences settings widget.
         class FileSequenceSettingsWidget : public ui::IWidget
         {
             TLRENDER_NON_COPYABLE(FileSequenceSettingsWidget);
@@ -68,7 +68,7 @@ namespace tl
             TLRENDER_PRIVATE();
         };
 
-        //! FileBrowser settings widget.
+        //! File browser settings widget.
         class FileBrowserSettingsWidget : public ui::IWidget
         {
             TLRENDER_NON_COPYABLE(FileBrowserSettingsWidget);

@@ -44,9 +44,7 @@ PROJECT_NUMBER         = 0.1.0
 # for a project that appears at the top of each page and should give viewer a
 # quick idea about the purpose of the project. Keep the description short.
 
-PROJECT_BRIEF          = "tlRender is an open source library for building \
-						  playback and review applications for visual effects, \
-						  film, and animation"
+PROJECT_BRIEF          = "Library for building playback and review applications"
 
 # With the PROJECT_LOGO tag one can specify a logo or an icon that is included
 # in the documentation. The maximum height of the logo should not exceed 55
@@ -983,7 +981,8 @@ EXCLUDE_SYMLINKS       = NO
 # exclude all test directories for example use the pattern */test/*
 
 EXCLUDE_PATTERNS       = *Private.h \
-                         *Private.cpp
+                         *Private.cpp \
+                         *Inline.h
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
@@ -994,7 +993,11 @@ EXCLUDE_PATTERNS       = *Private.h \
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories use the pattern */test/*
 
-EXCLUDE_SYMBOLS        = Private
+EXCLUDE_SYMBOLS        = Private \
+                         TLRENDER_ENUM \
+                         TLRENDER_ENUM_IMPL \
+                         TLRENDER_ENUM_SERIALIZE \
+                         TLRENDER_ENUM_SERIALIZE_IMPL
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or directories
 # that contain example code fragments that are included (see the \include

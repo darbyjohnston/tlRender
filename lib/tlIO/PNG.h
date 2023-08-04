@@ -10,7 +10,7 @@
 
 namespace tl
 {
-    //! PNG I/O.
+    //! PNG image I/O.
     namespace png
     {
         //! PNG error.

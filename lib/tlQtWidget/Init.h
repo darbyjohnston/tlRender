@@ -8,7 +8,7 @@
 
 namespace tl
 {
-    //! Qt QWidget support library.
+    //! Qt QWidget support.
     namespace qtwidget
     {
         //! Initialize the library. This needs to be called before the Qt
@@ -21,7 +21,7 @@ namespace tl
         //! application is created.
         void initFonts(const std::shared_ptr<system::Context>& context);
 
-        //! Qt QWidget support system.
+        //! Qt QWidget system.
         class System : public system::ISystem
         {
             TLRENDER_NON_COPYABLE(System);

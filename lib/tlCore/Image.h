@@ -332,6 +332,9 @@ namespace tl
             uint8_t* _data = nullptr;
         };
 
+        //! \name Serialize
+        ///@{
+
         void to_json(nlohmann::json&, const Size&);
 
         void from_json(const nlohmann::json&, Size&);
@@ -339,6 +342,8 @@ namespace tl
         std::ostream& operator << (std::ostream&, const Size&);
 
         std::istream& operator >> (std::istream&, Size&);
+
+        ///@}
     }
 }
 

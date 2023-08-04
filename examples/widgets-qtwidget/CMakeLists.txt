@@ -1,13 +1,13 @@
 set(HEADERS
     App.h
-    FloatSlider.h
-    IntSlider.h
+    FloatEditSlider.h
+    IntEditSlider.h
     MainWindow.h)
 
 set(SOURCE
     App.cpp
-    FloatSlider.cpp
-    IntSlider.cpp
+    FloatEditSlider.cpp
+    IntEditSlider.cpp
     MainWindow.cpp
     main.cpp)
 

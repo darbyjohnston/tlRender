@@ -10,7 +10,7 @@
 
 namespace tl
 {
-    //! Cineon I/O.
+    //! Cineon image I/O.
     //!
     //! References:
     //! - Kodak, "4.5 DRAFT - Image File Format Proposal for Digital Pictures"

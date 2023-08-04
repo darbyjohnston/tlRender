@@ -111,7 +111,10 @@ namespace tl
             DataType    dataType = DataType::None;
             size_t      sampleRate = 0;
 
+            //! Is the audio valid?
             bool isValid() const;
+
+            //! Get the byte count.
             size_t getByteCount() const;
 
             bool operator == (const Info&) const;

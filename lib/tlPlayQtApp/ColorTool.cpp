@@ -9,7 +9,7 @@
 #include <tlPlayQtApp/DockTitleBar.h>
 
 #include <tlQtWidget/FileWidget.h>
-#include <tlQtWidget/FloatSlider.h>
+#include <tlQtWidget/FloatEditSlider.h>
 #include <tlQtWidget/SearchWidget.h>
 
 #include <tlCore/Path.h>
@@ -288,11 +288,11 @@ namespace tl
             timeline::Color color;
 
             QCheckBox* enabledCheckBox = nullptr;
-            qtwidget::FloatSlider* addSlider = nullptr;
-            qtwidget::FloatSlider* brightnessSlider = nullptr;
-            qtwidget::FloatSlider* contrastSlider = nullptr;
-            qtwidget::FloatSlider* saturationSlider = nullptr;
-            qtwidget::FloatSlider* tintSlider = nullptr;
+            qtwidget::FloatEditSlider* addSlider = nullptr;
+            qtwidget::FloatEditSlider* brightnessSlider = nullptr;
+            qtwidget::FloatEditSlider* contrastSlider = nullptr;
+            qtwidget::FloatEditSlider* saturationSlider = nullptr;
+            qtwidget::FloatEditSlider* tintSlider = nullptr;
             QCheckBox* invertCheckBox = nullptr;
         };
 
@@ -304,23 +304,23 @@ namespace tl
 
             p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
-            p.addSlider = new qtwidget::FloatSlider;
+            p.addSlider = new qtwidget::FloatEditSlider;
             p.addSlider->setRange(math::FloatRange(-1.F, 1.F));
             p.addSlider->setDefaultValue(0.F);
 
-            p.brightnessSlider = new qtwidget::FloatSlider;
+            p.brightnessSlider = new qtwidget::FloatEditSlider;
             p.brightnessSlider->setRange(math::FloatRange(0.F, 4.F));
             p.brightnessSlider->setDefaultValue(1.F);
 
-            p.contrastSlider = new qtwidget::FloatSlider;
+            p.contrastSlider = new qtwidget::FloatEditSlider;
             p.contrastSlider->setRange(math::FloatRange(0.F, 4.F));
             p.contrastSlider->setDefaultValue(1.F);
 
-            p.saturationSlider = new qtwidget::FloatSlider;
+            p.saturationSlider = new qtwidget::FloatEditSlider;
             p.saturationSlider->setRange(math::FloatRange(0.F, 4.F));
             p.saturationSlider->setDefaultValue(1.F);
 
-            p.tintSlider = new qtwidget::FloatSlider;
+            p.tintSlider = new qtwidget::FloatEditSlider;
             p.tintSlider->setDefaultValue(0.F);
 
             p.invertCheckBox = new QCheckBox(tr("Invert"));
@@ -347,7 +347,7 @@ namespace tl
 
             connect(
                 p.addSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this](const float value)
                 {
                     timeline::Color color = _p->color;
@@ -358,7 +358,7 @@ namespace tl
 
             connect(
                 p.brightnessSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
                     timeline::Color color = _p->color;
@@ -369,7 +369,7 @@ namespace tl
 
             connect(
                 p.contrastSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
                     timeline::Color color = _p->color;
@@ -380,7 +380,7 @@ namespace tl
 
             connect(
                 p.saturationSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
                     timeline::Color color = _p->color;
@@ -391,7 +391,7 @@ namespace tl
 
             connect(
                 p.tintSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
                     timeline::Color color = _p->color;
@@ -472,11 +472,11 @@ namespace tl
             timeline::Levels levels;
 
             QCheckBox* enabledCheckBox = nullptr;
-            qtwidget::FloatSlider* inLowSlider = nullptr;
-            qtwidget::FloatSlider* inHighSlider = nullptr;
-            qtwidget::FloatSlider* gammaSlider = nullptr;
-            qtwidget::FloatSlider* outLowSlider = nullptr;
-            qtwidget::FloatSlider* outHighSlider = nullptr;
+            qtwidget::FloatEditSlider* inLowSlider = nullptr;
+            qtwidget::FloatEditSlider* inHighSlider = nullptr;
+            qtwidget::FloatEditSlider* gammaSlider = nullptr;
+            qtwidget::FloatEditSlider* outLowSlider = nullptr;
+            qtwidget::FloatEditSlider* outHighSlider = nullptr;
         };
 
         LevelsWidget::LevelsWidget(QWidget* parent) :
@@ -487,20 +487,20 @@ namespace tl
 
             p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
-            p.inLowSlider = new qtwidget::FloatSlider;
+            p.inLowSlider = new qtwidget::FloatEditSlider;
             p.inLowSlider->setDefaultValue(0.F);
 
-            p.inHighSlider = new qtwidget::FloatSlider;
+            p.inHighSlider = new qtwidget::FloatEditSlider;
             p.inHighSlider->setDefaultValue(1.F);
 
-            p.gammaSlider = new qtwidget::FloatSlider;
+            p.gammaSlider = new qtwidget::FloatEditSlider;
             p.gammaSlider->setRange(math::FloatRange(.1F, 4.F));
             p.gammaSlider->setDefaultValue(1.F);
 
-            p.outLowSlider = new qtwidget::FloatSlider;
+            p.outLowSlider = new qtwidget::FloatEditSlider;
             p.outLowSlider->setDefaultValue(0.F);
 
-            p.outHighSlider = new qtwidget::FloatSlider;
+            p.outHighSlider = new qtwidget::FloatEditSlider;
             p.outHighSlider->setDefaultValue(1.F);
 
             auto layout = new QFormLayout;
@@ -524,7 +524,7 @@ namespace tl
 
             connect(
                 p.inLowSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
                     timeline::Levels levels = _p->levels;
@@ -534,7 +534,7 @@ namespace tl
                 });
             connect(
                 p.inHighSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
                     timeline::Levels levels = _p->levels;
@@ -545,7 +545,7 @@ namespace tl
 
             connect(
                 p.gammaSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
                     timeline::Levels levels = _p->levels;
@@ -556,7 +556,7 @@ namespace tl
 
             connect(
                 p.outLowSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
                     timeline::Levels levels = _p->levels;
@@ -566,7 +566,7 @@ namespace tl
                 });
             connect(
                 p.outHighSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
                     timeline::Levels levels = _p->levels;
@@ -632,10 +632,10 @@ namespace tl
             timeline::EXRDisplay exrDisplay;
 
             QCheckBox* enabledCheckBox = nullptr;
-            qtwidget::FloatSlider* exposureSlider = nullptr;
-            qtwidget::FloatSlider* defogSlider = nullptr;
-            qtwidget::FloatSlider* kneeLowSlider = nullptr;
-            qtwidget::FloatSlider* kneeHighSlider = nullptr;
+            qtwidget::FloatEditSlider* exposureSlider = nullptr;
+            qtwidget::FloatEditSlider* defogSlider = nullptr;
+            qtwidget::FloatEditSlider* kneeLowSlider = nullptr;
+            qtwidget::FloatEditSlider* kneeHighSlider = nullptr;
         };
 
         EXRDisplayWidget::EXRDisplayWidget(QWidget* parent) :
@@ -646,19 +646,19 @@ namespace tl
 
             p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
-            p.exposureSlider = new qtwidget::FloatSlider;
+            p.exposureSlider = new qtwidget::FloatEditSlider;
             p.exposureSlider->setRange(math::FloatRange(-10.F, 10.F));
             p.exposureSlider->setDefaultValue(0.F);
 
-            p.defogSlider = new qtwidget::FloatSlider;
+            p.defogSlider = new qtwidget::FloatEditSlider;
             p.defogSlider->setRange(math::FloatRange(0.F, .1F));
             p.defogSlider->setDefaultValue(0.F);
 
-            p.kneeLowSlider = new qtwidget::FloatSlider;
+            p.kneeLowSlider = new qtwidget::FloatEditSlider;
             p.kneeLowSlider->setRange(math::FloatRange(-3.F, 3.F));
             p.kneeLowSlider->setDefaultValue(0.F);
 
-            p.kneeHighSlider = new qtwidget::FloatSlider;
+            p.kneeHighSlider = new qtwidget::FloatEditSlider;
             p.kneeHighSlider->setRange(math::FloatRange(3.5F, 7.5F));
             p.kneeHighSlider->setDefaultValue(5.F);
 
@@ -682,7 +682,7 @@ namespace tl
 
             connect(
                 p.exposureSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
                     timeline::EXRDisplay exrDisplay = _p->exrDisplay;
@@ -693,7 +693,7 @@ namespace tl
 
             connect(
                 p.defogSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
                     timeline::EXRDisplay exrDisplay = _p->exrDisplay;
@@ -704,7 +704,7 @@ namespace tl
 
             connect(
                 p.kneeLowSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
                     timeline::EXRDisplay exrDisplay = _p->exrDisplay;
@@ -714,7 +714,7 @@ namespace tl
                 });
             connect(
                 p.kneeHighSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
                     timeline::EXRDisplay exrDisplay = _p->exrDisplay;
@@ -777,7 +777,7 @@ namespace tl
             float softClip = 0.F;
 
             QCheckBox* enabledCheckBox = nullptr;
-            qtwidget::FloatSlider* softClipSlider = nullptr;
+            qtwidget::FloatEditSlider* softClipSlider = nullptr;
         };
 
         SoftClipWidget::SoftClipWidget(QWidget* parent) :
@@ -788,7 +788,7 @@ namespace tl
 
             p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
-            p.softClipSlider = new qtwidget::FloatSlider;
+            p.softClipSlider = new qtwidget::FloatEditSlider;
             p.softClipSlider->setDefaultValue(0.F);
 
             auto layout = new QFormLayout;
@@ -808,7 +808,7 @@ namespace tl
 
             connect(
                 p.softClipSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
                     Q_EMIT softClipChanged(value);

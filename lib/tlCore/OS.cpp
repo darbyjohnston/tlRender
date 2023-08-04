@@ -10,11 +10,6 @@ namespace tl
 {
     namespace os
     {
-        char getEnvListSeparator(EnvListSeparator value)
-        {
-            return EnvListSeparator::UNIX == value ? ':' : ';';
-        }
-
         bool getEnv(const std::string& name, int& out)
         {
             std::string value;
@@ -31,7 +26,7 @@ namespace tl
             std::string value;
             if (getEnv(name, value))
             {
-                out = string::split(value, getEnvListSeparator());
+                out = string::split(value, envListSeparator);
                 return true;
             }
             return false;

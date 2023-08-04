@@ -14,7 +14,7 @@ namespace tl
 {
     namespace examples
     {
-        //! Example showing various widgets.
+        //! Example Qt widgets application.
         namespace widgets_qtwidget
         {
             class App : public QApplication

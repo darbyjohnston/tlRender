@@ -10,7 +10,7 @@
 #include <tlPlayQtApp/FilesView.h>
 #include <tlPlayQtApp/SettingsObject.h>
 
-#include <tlQtWidget/FloatSlider.h>
+#include <tlQtWidget/FloatEditSlider.h>
 
 #include <QBoxLayout>
 #include <QFormLayout>
@@ -30,10 +30,10 @@ namespace tl
             FilesBModel* filesBModel = nullptr;
 
             QTreeView* treeView = nullptr;
-            qtwidget::FloatSlider* wipeXSlider = nullptr;
-            qtwidget::FloatSlider* wipeYSlider = nullptr;
-            qtwidget::FloatSlider* wipeRotationSlider = nullptr;
-            qtwidget::FloatSlider* overlaySlider = nullptr;
+            qtwidget::FloatEditSlider* wipeXSlider = nullptr;
+            qtwidget::FloatEditSlider* wipeYSlider = nullptr;
+            qtwidget::FloatEditSlider* wipeRotationSlider = nullptr;
+            qtwidget::FloatEditSlider* overlaySlider = nullptr;
 
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
         };
@@ -81,14 +81,14 @@ namespace tl
             toolBar->addAction(actions["Prev"]);
             toolBar->addAction(actions["Next"]);
 
-            p.wipeXSlider = new qtwidget::FloatSlider;
+            p.wipeXSlider = new qtwidget::FloatEditSlider;
 
-            p.wipeYSlider = new qtwidget::FloatSlider;
+            p.wipeYSlider = new qtwidget::FloatEditSlider;
 
-            p.wipeRotationSlider = new qtwidget::FloatSlider;
+            p.wipeRotationSlider = new qtwidget::FloatEditSlider;
             p.wipeRotationSlider->setRange(math::FloatRange(0.F, 360.F));
 
-            p.overlaySlider = new qtwidget::FloatSlider;
+            p.overlaySlider = new qtwidget::FloatEditSlider;
 
             auto layout = new QVBoxLayout;
             layout->setContentsMargins(0, 0, 0, 0);
@@ -130,7 +130,7 @@ namespace tl
 
             connect(
                 p.wipeXSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this, app](double value)
                 {
                     auto options = app->filesModel()->getCompareOptions();
@@ -140,7 +140,7 @@ namespace tl
 
             connect(
                 p.wipeYSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this, app](double value)
                 {
                     auto options = app->filesModel()->getCompareOptions();
@@ -150,7 +150,7 @@ namespace tl
 
             connect(
                 p.wipeRotationSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this, app](double value)
                 {
                     auto options = app->filesModel()->getCompareOptions();
@@ -160,7 +160,7 @@ namespace tl
 
             connect(
                 p.overlaySlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this, app](double value)
                 {
                     auto options = app->filesModel()->getCompareOptions();

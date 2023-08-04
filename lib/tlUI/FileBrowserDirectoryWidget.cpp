@@ -221,7 +221,10 @@ namespace tl
                     if (file::Type::File == fileInfo.getType() &&
                         !p.options.extension.empty())
                     {
-                        keep = fileInfo.getPath().getExtension() == p.options.extension;
+                        keep = string::compare(
+                            fileInfo.getPath().getExtension(),
+                            p.options.extension,
+                            string::Compare::CaseInsensitive);
                     }
                     if (keep)
                     {

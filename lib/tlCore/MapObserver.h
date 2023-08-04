@@ -49,7 +49,7 @@ namespace tl
             std::weak_ptr<IMap<T, U> > _value;
         };
 
-        //! Base class for a map.
+        //! Base class for an observable map.
         template<typename T, typename U>
         class IMap
         {
@@ -83,7 +83,7 @@ namespace tl
             friend MapObserver<T, U>;
         };
 
-        //! Map.
+        //! Observable map.
         template<typename T, typename U>
         class Map : public IMap<T, U>
         {

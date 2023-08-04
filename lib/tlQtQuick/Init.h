@@ -13,7 +13,7 @@ namespace tl
         class Context;
     }
 
-    //! Qt Quick support library.
+    //! Qt Quick support.
     namespace qtquick
     {
         //! Initialize the library. This needs to be called before the Qt
@@ -22,7 +22,7 @@ namespace tl
             qt::DefaultSurfaceFormat,
             const std::shared_ptr<system::Context>&);
 
-        //! Qt Quick support system.
+        //! Qt Quick system.
         class System : public system::ISystem
         {
             TLRENDER_NON_COPYABLE(System);

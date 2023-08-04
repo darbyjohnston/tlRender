@@ -10,7 +10,7 @@ namespace tl
 {
     namespace ui
     {
-        // Action.
+        //! Action.
         struct Action
         {
             Action();

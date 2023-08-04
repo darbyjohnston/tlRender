@@ -11,9 +11,6 @@ namespace tl
     namespace ui
     {
         //! Scroll bar.
-        //! 
-        //! \todo Handle clicks not on the scroll bar handle.
-        //! \todo Set a minimum scroll bar handle size.
         class ScrollBar : public IWidget
         {
             TLRENDER_NON_COPYABLE(ScrollBar);

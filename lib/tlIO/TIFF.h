@@ -8,7 +8,7 @@
 
 namespace tl
 {
-    //! TIFF I/O.
+    //! TIFF image I/O.
     namespace tiff
     {
         //! TIFF reader.

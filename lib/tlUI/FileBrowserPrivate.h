@@ -7,7 +7,6 @@
 #include <tlUI/FileBrowser.h>
 
 #include <tlUI/IButton.h>
-#include <tlUI/RecentFilesModel.h>
 
 #include <tlCore/FileInfo.h>
 
@@ -21,7 +20,6 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<RecentFilesModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -31,11 +29,12 @@ namespace tl
             virtual ~PathsWidget();
 
             static std::shared_ptr<PathsWidget> create(
-                const std::shared_ptr<RecentFilesModel>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setCallback(const std::function<void(const std::string&)>&);
+
+            void setRecentFilesModel(const std::shared_ptr<RecentFilesModel>&);
 
             void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
@@ -154,6 +153,8 @@ namespace tl
             const FileBrowserOptions& getOptions() const;
 
             void setOptions(const FileBrowserOptions&);
+
+            void setRecentFilesModel(const std::shared_ptr<RecentFilesModel>&);
 
             void setGeometry(const math::BBox2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;

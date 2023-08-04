@@ -83,6 +83,9 @@ namespace tl
         template<typename T>
         Matrix4x4<T> perspective(T fov, T aspect, T nearClip, T farClip);
 
+        //! \name Serialize
+        ///@{
+
         void to_json(nlohmann::json&, const Matrix3x3f&);
         void to_json(nlohmann::json&, const Matrix4x4f&);
 
@@ -94,6 +97,8 @@ namespace tl
 
         std::istream& operator >> (std::istream&, Matrix3x3f&);
         std::istream& operator >> (std::istream&, Matrix4x4f&);
+
+        ///@}
     }
 }
 

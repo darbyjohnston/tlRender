@@ -10,9 +10,10 @@ struct GLFWwindow;
 
 namespace tl
 {
+    //! Examples
     namespace examples
     {
-        //! Example GL widgtes application.
+        //! Example GL widgets application.
         namespace widgets_gl
         {
             class MainWindow;

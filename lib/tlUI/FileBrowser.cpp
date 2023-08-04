@@ -82,6 +82,11 @@ namespace tl
             _p->widget->setOptions(value);
         }
 
+        void FileBrowser::setRecentFilesModel(const std::shared_ptr<RecentFilesModel>& value)
+        {
+            _p->widget->setRecentFilesModel(value);
+        }
+
         void to_json(nlohmann::json& json, const FileBrowserOptions& value)
         {
             nlohmann::json list;

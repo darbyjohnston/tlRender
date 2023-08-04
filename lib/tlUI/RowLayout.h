@@ -11,8 +11,6 @@ namespace tl
     namespace ui
     {
         //! Row layout.
-        //!
-        //! \todo Handle child widget visibility.
         class RowLayout : public IWidget
         {
             TLRENDER_NON_COPYABLE(RowLayout);

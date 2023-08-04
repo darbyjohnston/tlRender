@@ -214,7 +214,7 @@ namespace tl
                         out.push_back(path);
                         break;
                     default:
-                        //! \todo Get extensions for the Python adapters.
+                        //! \todo Get extensions for the Python adapters?
                         if (".otio" == extension ||
                             ".otioz" == extension)
                         {

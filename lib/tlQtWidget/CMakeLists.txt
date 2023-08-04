@@ -3,9 +3,9 @@ set(HEADERS
     FileBrowserSystem.h
     FileWidget.h
     FilmstripWidget.h
-    FloatSlider.h
+    FloatEditSlider.h
     Init.h
-    IntSlider.h
+    IntEditSlider.h
     SearchWidget.h
     Separator.h
     Spacer.h
@@ -26,9 +26,9 @@ set(SOURCE
     FileBrowserSystem.cpp
     FileWidget.cpp
     FilmstripWidget.cpp
-    FloatSlider.cpp
+    FloatEditSlider.cpp
     Init.cpp
-    IntSlider.cpp
+    IntEditSlider.cpp
     SearchWidget.cpp
     Separator.cpp
     Spacer.cpp

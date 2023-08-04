@@ -10,7 +10,7 @@ namespace tl
 {
     namespace file
     {
-        //! File log system.
+        //! File logging system.
         class FileLogSystem : public system::ICoreSystem
         {
             TLRENDER_NON_COPYABLE(FileLogSystem);

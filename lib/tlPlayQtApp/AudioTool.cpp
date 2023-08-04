@@ -6,7 +6,7 @@
 
 #include <tlPlayQtApp/DockTitleBar.h>
 
-#include <tlQtWidget/FloatSlider.h>
+#include <tlQtWidget/FloatEditSlider.h>
 
 #include <QAction>
 #include <QBoxLayout>
@@ -18,7 +18,7 @@ namespace tl
         struct AudioOffsetWidget::Private
         {
             double offset = 0.0;
-            qtwidget::FloatSlider* slider = nullptr;
+            qtwidget::FloatEditSlider* slider = nullptr;
         };
 
         AudioOffsetWidget::AudioOffsetWidget(QWidget* parent) :
@@ -27,7 +27,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.slider = new qtwidget::FloatSlider;
+            p.slider = new qtwidget::FloatEditSlider;
             p.slider->setRange(math::FloatRange(-1.F, 1.F));
             p.slider->setDefaultValue(0.F);
 
@@ -38,7 +38,7 @@ namespace tl
 
             connect(
                 p.slider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
                     _p->offset = value;

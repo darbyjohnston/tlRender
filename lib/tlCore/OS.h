@@ -19,9 +19,9 @@ namespace tl
         struct SystemInfo
         {
             std::string name;
-            size_t cores = 0;
-            size_t ram = 0;
-            size_t ramGB = 0;
+            size_t      cores = 0;
+            size_t      ram   = 0;
+            size_t      ramGB = 0;
         };
 
         //! Get operating system information.
@@ -33,17 +33,14 @@ namespace tl
         ///@{
 
         //! Environment variable list separators.
-        enum class EnvListSeparator
-        {
-            UNIX,
-            Windows
-        };
+        const std::vector<char> envListSeparators = { ':', ';' };
 
-        //! Get an environment variable list separator.
-        char getEnvListSeparator(EnvListSeparator);
-
-        //! Get the current environment variable list separator.
-        char getEnvListSeparator();
+        //! Environment variable list separator.
+#if defined(_WINDOWS)
+        const char envListSeparator = ';';
+#else // _WINDOWS
+        const char envListSeparator = ':';
+#endif // _WINDOWS
 
         //! Get an environment variable.
         //! 

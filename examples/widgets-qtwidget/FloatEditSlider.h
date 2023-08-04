@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlQtWidget/IntSlider.h>
+#include <tlQtWidget/FloatEditSlider.h>
 
 namespace tl
 {
@@ -12,15 +12,15 @@ namespace tl
     {
         namespace widgets_qtwidget
         {
-            class IntSlider : public QWidget
+            class FloatEditSlider : public QWidget
             {
                 Q_OBJECT
 
             public:
-                IntSlider(QWidget* parent = nullptr);
+                FloatEditSlider(QWidget* parent = nullptr);
 
             private:
-                std::vector<qtwidget::IntSlider*> _sliders;
+                std::vector<qtwidget::FloatEditSlider*> _sliders;
             };
         }
     }

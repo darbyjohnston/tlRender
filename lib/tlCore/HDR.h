@@ -31,9 +31,14 @@ namespace tl
             bool operator != (const HDRData&) const noexcept;
         };
 
+        //! \name Serialize
+        ///@{
+
         void to_json(nlohmann::json&, const HDRData&);
 
         void from_json(const nlohmann::json&, HDRData&);
+
+        ///@}
     }
 }
 

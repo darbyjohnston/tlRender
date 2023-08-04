@@ -53,6 +53,7 @@ namespace tl
                 const std::string& help);
 
         public:
+            //! Create a new command line flag option.
             static std::shared_ptr<CmdLineFlagOption> create(
                 bool& value,
                 const std::vector<std::string>& names,
@@ -78,6 +79,7 @@ namespace tl
                 const std::string& possibleValues);
 
         public:
+            //! Create a new command line value option.
             static std::shared_ptr<CmdLineValueOption<T> > create(
                 T& value,
                 const std::vector<std::string>& names,
@@ -136,6 +138,7 @@ namespace tl
                 bool optional);
 
         public:
+            //! Create a new command line argument.
             static std::shared_ptr<CmdLineValueArg<T> > create(
                 T& value,
                 const std::string& name,

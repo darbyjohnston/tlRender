@@ -10,7 +10,7 @@
 
 namespace tl
 {
-    //! STB image Input.
+    //! STB image I/O.
     //!
     //! References:
     //! https://github.com/nothings/stb.git

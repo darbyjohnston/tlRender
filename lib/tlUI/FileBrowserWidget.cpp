@@ -10,6 +10,7 @@
 #include <tlUI/Label.h>
 #include <tlUI/LineEdit.h>
 #include <tlUI/PushButton.h>
+#include <tlUI/RecentFilesModel.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/ScrollWidget.h>
 #include <tlUI/Spacer.h>
@@ -30,8 +31,8 @@ namespace tl
         struct FileBrowserWidget::Private
         {
             std::string path;
-            std::shared_ptr<RecentFilesModel> recentModel;
             std::vector<std::string> extensions;
+            std::shared_ptr<RecentFilesModel> recentFilesModel;
 
             std::shared_ptr<ToolButton> upButton;
             std::shared_ptr<ToolButton> cwdButton;
@@ -68,8 +69,6 @@ namespace tl
 
             p.path = path;
 
-            p.recentModel = RecentFilesModel::create(context);
-
             std::vector<std::string> extensionsLabels;
             if (auto context = _context.lock())
             {
@@ -91,7 +90,7 @@ namespace tl
             p.pathEdit->setHStretch(Stretch::Expanding);
             p.pathEdit->setToolTip("The current directory");
 
-            p.pathsWidget = PathsWidget::create(p.recentModel, context);
+            p.pathsWidget = PathsWidget::create(context);
             p.pathsScrollWidget = ScrollWidget::create(context);
             p.pathsScrollWidget->setWidget(p.pathsWidget);
             p.pathsScrollWidget->setVStretch(Stretch::Expanding);
@@ -196,6 +195,10 @@ namespace tl
                     switch (value.getType())
                     {
                     case file::Type::File:
+                        if (_p->recentFilesModel)
+                        {
+                            _p->recentFilesModel->addRecent(value.getPath());
+                        }
                         if (_p->callback)
                         {
                             _p->callback(value);
@@ -257,9 +260,14 @@ namespace tl
                 [this]
                 {
                     TLRENDER_P();
+                    const file::Path path(p.path);
+                    if (p.recentFilesModel)
+                    {
+                        p.recentFilesModel->addRecent(path);
+                    }
                     if (p.callback)
                     {
-                        p.callback(file::FileInfo(file::Path(p.path)));
+                        p.callback(file::FileInfo(path));
                     }
                 });
 
@@ -323,6 +331,11 @@ namespace tl
             }
             p.sortComboBox->setCurrentIndex(static_cast<int>(value.list.sort));
             p.reverseSortCheckBox->setChecked(value.list.reverseSort);
+        }
+
+        void FileBrowserWidget::setRecentFilesModel(const std::shared_ptr<RecentFilesModel>& value)
+        {
+            _p->pathsWidget->setRecentFilesModel(value);
         }
 
         void FileBrowserWidget::setGeometry(const math::BBox2i& value)

@@ -4,7 +4,7 @@
 
 #pragma once
 
-//! tlRender.
+//! Project namespace.
 namespace tl
 {
     namespace error

@@ -15,7 +15,7 @@ extern "C"
 
 namespace tl
 {
-    //! JPEG I/O.
+    //! JPEG image I/O.
     namespace jpeg
     {
         //! JPEG error.

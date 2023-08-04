@@ -33,6 +33,9 @@ namespace tl
         //! Get a darker color.
         imaging::Color4f darker(const imaging::Color4f&, float);
 
+        //! \name Serialize
+        ///@{
+
         void to_json(nlohmann::json&, const Color4f&);
 
         void from_json(const nlohmann::json&, Color4f&);
@@ -40,6 +43,8 @@ namespace tl
         std::ostream& operator << (std::ostream&, const Color4f&);
 
         std::istream& operator >> (std::istream&, Color4f&);
+
+        ///@}
     }
 }
 

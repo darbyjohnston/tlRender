@@ -52,7 +52,7 @@ namespace tl
             std::weak_ptr<IList<T> > _value;
         };
 
-        //! Base class for a list.
+        //! Base class for an observable list.
         template<typename T>
         class IList
         {
@@ -89,7 +89,7 @@ namespace tl
             friend ListObserver<T>;
         };
 
-        //! List.
+        //! Observable list.
         template<typename T>
         class List : public IList<T>
         {

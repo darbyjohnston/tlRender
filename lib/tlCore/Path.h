@@ -18,7 +18,7 @@ namespace tl
         //! Path separators.
         const std::vector<char> pathSeparators = { '/', '\\' };
 
-        //! Current path separator.
+        //! Path separator.
 #if defined(_WINDOWS)
         const char pathSeparator = '\\';
 #else // _WINDOWS

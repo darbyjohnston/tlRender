@@ -16,7 +16,7 @@ extern "C"
 
 namespace tl
 {
-    //! FFmpeg I/O
+    //! FFmpeg video and audio I/O
     namespace ffmpeg
     {
         //! Profiles.

@@ -8,7 +8,7 @@
 #include <tlPlayQtApp/DockTitleBar.h>
 #include <tlPlayQtApp/DevicesModel.h>
 
-#include <tlQtWidget/FloatSlider.h>
+#include <tlQtWidget/FloatEditSlider.h>
 #include <tlQtWidget/Spacer.h>
 
 #include <tlQt/OutputDevice.h>
@@ -59,8 +59,8 @@ namespace tl
                 std::make_pair(nullptr, nullptr);
             std::pair<QDoubleSpinBox*, QDoubleSpinBox*> masteringLuminanceSpinBoxes =
                 std::make_pair(nullptr, nullptr);
-            qtwidget::FloatSlider* maxCLLSlider = nullptr;
-            qtwidget::FloatSlider* maxFALLSlider = nullptr;
+            qtwidget::FloatEditSlider* maxCLLSlider = nullptr;
+            qtwidget::FloatEditSlider* maxFALLSlider = nullptr;
         };
 
         DevicesTool::DevicesTool(App* app, QWidget* parent) :
@@ -100,10 +100,10 @@ namespace tl
             p.masteringLuminanceSpinBoxes.second = new QDoubleSpinBox;
             p.masteringLuminanceSpinBoxes.second->setRange(0.0, 10000.0);
 
-            p.maxCLLSlider = new qtwidget::FloatSlider;
+            p.maxCLLSlider = new qtwidget::FloatEditSlider;
             p.maxCLLSlider->setRange(math::FloatRange(0.F, 10000.F));
 
-            p.maxFALLSlider = new qtwidget::FloatSlider;
+            p.maxFALLSlider = new qtwidget::FloatEditSlider;
             p.maxFALLSlider->setRange(math::FloatRange(0.F, 10000.F));
 
             auto layout = new QFormLayout;
@@ -293,7 +293,7 @@ namespace tl
 
             connect(
                 p.maxCLLSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
                     auto hdrData = _p->app->devicesModel()->observeData()->get().hdrData;
@@ -302,7 +302,7 @@ namespace tl
                 });
             connect(
                 p.maxFALLSlider,
-                &qtwidget::FloatSlider::valueChanged,
+                &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
                     auto hdrData = _p->app->devicesModel()->observeData()->get().hdrData;

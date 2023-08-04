@@ -15,30 +15,30 @@ namespace tl
 {
     namespace qtwidget
     {
-        //! Integer slider and input.
-        class IntSlider : public QWidget
+        //! Floating point value editor and slider.
+        class FloatEditSlider : public QWidget
         {
             Q_OBJECT
             Q_PROPERTY(
-                tl::math::IntRange range
+                tl::math::FloatRange range
                 READ range
                 WRITE setRange
                 NOTIFY rangeChanged)
             Q_PROPERTY(
-                int value
+                float value
                 READ value
                 WRITE setValue
                 NOTIFY valueChanged)
             Q_PROPERTY(
-                int defaultValue
+                float defaultValue
                 READ defaultValue
                 WRITE setDefaultValue)
             Q_PROPERTY(
-                int singleStep
+                float singleStep
                 READ singleStep
                 WRITE setSingleStep)
             Q_PROPERTY(
-                int pageStep
+                float pageStep
                 READ pageStep
                 WRITE setPageStep)
             Q_PROPERTY(
@@ -47,55 +47,55 @@ namespace tl
                 WRITE setOrientation)
 
         public:
-            IntSlider(
+            FloatEditSlider(
                 Qt::Orientation = Qt::Horizontal,
                 QWidget* parent = nullptr);
 
-            virtual ~IntSlider();
+            virtual ~FloatEditSlider();
 
             //! Get the range.
-            const math::IntRange& range() const;
+            const math::FloatRange& range() const;
 
             //! Get the value.
-            int value() const;
+            float value() const;
 
             //! Get the default value.
-            int defaultValue() const;
+            float defaultValue() const;
 
             //! Get the single step.
-            int singleStep() const;
+            float singleStep() const;
 
             //! Get the path step.
-            int pageStep() const;
+            float pageStep() const;
 
             //! Get the orientation.
             Qt::Orientation orientation() const;
 
         public slots:
             //! Set the range.
-            void setRange(const tl::math::IntRange&);
+            void setRange(const tl::math::FloatRange&);
 
             //! Set the value.
-            void setValue(int);
+            void setValue(float);
 
             //! Set the default value.
-            void setDefaultValue(int);
+            void setDefaultValue(float);
 
             //! Set the single step.
-            void setSingleStep(int);
+            void setSingleStep(float);
 
             //! Set the page step.
-            void setPageStep(int);
+            void setPageStep(float);
 
             //! Set the orientation.
             void setOrientation(Qt::Orientation);
 
         Q_SIGNALS:
             //! This signal is emitted when the range is changed.
-            void rangeChanged(const tl::math::IntRange&);
+            void rangeChanged(const tl::math::FloatRange&);
 
             //! This signal is emitted when the value is changed.
-            void valueChanged(int);
+            void valueChanged(float);
 
         private:
             void _layoutUpdate();

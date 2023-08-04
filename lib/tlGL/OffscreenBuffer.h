@@ -110,7 +110,7 @@ namespace tl
             const imaging::Size&,
             const OffscreenBufferOptions&);
 
-        //! Offscreen Buffer Binding
+        //! Offscreen buffer binding.
         class OffscreenBufferBinding
         {
         public:

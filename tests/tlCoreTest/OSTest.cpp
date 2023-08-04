@@ -35,17 +35,7 @@ namespace tl
             }
             {
                 std::stringstream ss;
-                ss << "UNIX env list separator: " << getEnvListSeparator(EnvListSeparator::UNIX);
-                _print(ss.str());
-            }
-            {
-                std::stringstream ss;
-                ss << "Windows env list separator: " << getEnvListSeparator(EnvListSeparator::Windows);
-                _print(ss.str());
-            }
-            {
-                std::stringstream ss;
-                ss << "Current env list separator: " << getEnvListSeparator();
+                ss << "Environment variable list separator: " << envListSeparator;
                 _print(ss.str());
             }
             {

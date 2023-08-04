@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include "IntSlider.h"
+#include "IntEditSlider.h"
 
 #include <QBoxLayout>
 
@@ -12,12 +12,12 @@ namespace tl
     {
         namespace widgets_qtwidget
         {
-            IntSlider::IntSlider(QWidget* parent) :
+            IntEditSlider::IntEditSlider(QWidget* parent) :
                 QWidget(parent)
             {
                 for (size_t i = 0; i < 4; ++i)
                 {
-                    _sliders.push_back(new qtwidget::IntSlider);
+                    _sliders.push_back(new qtwidget::IntEditSlider);
                 }
                 _sliders[1]->setRange(math::IntRange(0, 10));
                 _sliders[1]->setValue(5);

@@ -6,7 +6,10 @@
 
 #include <tlPlayGLApp/App.h>
 
+#include <tlUI/FileBrowser.h>
 #include <tlUI/RecentFilesModel.h>
+
+#include <tlIO/IOSystem.h>
 
 namespace tl
 {
@@ -15,10 +18,10 @@ namespace tl
         struct FileMenu::Private
         {
             std::weak_ptr<App> app;
+            std::vector<std::string> extensions;
 
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::shared_ptr<Menu> recentMenu;
-            std::vector<std::shared_ptr<ui::Action> > recentItems;
             std::shared_ptr<Menu> currentMenu;
             std::vector<std::shared_ptr<ui::Action> > currentItems;
             std::shared_ptr<Menu> layersMenu;
@@ -41,6 +44,15 @@ namespace tl
             TLRENDER_P();
 
             p.app = app;
+
+            if (auto context = _context.lock())
+            {
+                auto ioSystem = context->getSystem<io::System>();
+                for (const auto& extension : ioSystem->getExtensions())
+                {
+                    p.extensions.push_back(extension);
+                }
+            }
 
             p.actions = actions;
             addItem(p.actions["Open"]);
@@ -88,12 +100,15 @@ namespace tl
                     _layersUpdate(value);
                 });
 
-            p.recentObserver = observer::ListObserver<file::Path>::create(
-                app->getRecentFilesModel()->observeRecent(),
-                [this](const std::vector<file::Path>& value)
-                {
-                    _recentUpdate(value);
-                });
+            if (auto fileBrowserSystem = context->getSystem<ui::FileBrowserSystem>())
+            {
+                p.recentObserver = observer::ListObserver<file::Path>::create(
+                    fileBrowserSystem->getRecentFilesModel()->observeRecent(),
+                    [this](const std::vector<file::Path>& value)
+                    {
+                        _recentUpdate(value);
+                    });
+            }
         }
 
         FileMenu::FileMenu() :
@@ -209,24 +224,35 @@ namespace tl
         {
             TLRENDER_P();
             p.recentMenu->clear();
-            p.recentItems.clear();
             if (!value.empty())
             {
                 for (auto i = value.rbegin(); i != value.rend(); ++i)
                 {
                     const auto path = *i;
-                    auto item = std::make_shared<ui::Action>(
-                        path.get(-1, false),
-                        [this, path]
+                    const auto j = std::find_if(
+                        p.extensions.begin(),
+                        p.extensions.end(),
+                        [path](const std::string& value)
                         {
-                            close();
-                        if (auto app = _p->app.lock())
-                        {
-                            app->open(path.get());
-                        }
+                            return string::compare(
+                                value,
+                                path.getExtension(),
+                                string::Compare::CaseInsensitive);
                         });
-                    p.recentMenu->addItem(item);
-                    p.recentItems.push_back(item);
+                    if (j != p.extensions.end())
+                    {
+                        auto item = std::make_shared<ui::Action>(
+                            path.get(-1, false),
+                            [this, path]
+                            {
+                                close();
+                            if (auto app = _p->app.lock())
+                            {
+                                app->open(path.get());
+                            }
+                            });
+                        p.recentMenu->addItem(item);
+                    }
                 }
             }
         }

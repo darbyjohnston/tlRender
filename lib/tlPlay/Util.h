@@ -8,6 +8,7 @@
 
 namespace tl
 {
+    //! Common functionality for the "tlplay-gl" and "tlplay-qt" applications.
     namespace play
     {
         //! Get the path to the application directory. The directory is

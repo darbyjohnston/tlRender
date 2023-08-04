@@ -77,12 +77,7 @@ namespace tl
 			out.ramGB = d.quot + (d.rem ? 1 : 0);
 			return out;
 		}
-		
-		char getEnvListSeparator()
-		{
-			return getEnvListSeparator(EnvListSeparator::UNIX);
-		}
-		
+				
 		bool getEnv(const std::string& name, std::string& out)
 		{
 			if (const char* p = ::getenv(name.c_str()))

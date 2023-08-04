@@ -24,7 +24,7 @@ struct GLFWwindow;
 
 namespace tl
 {
-    //! Bake application.
+    //! "tlbake" application.
     namespace bake
     {
         //! Application options.

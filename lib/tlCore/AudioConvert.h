@@ -30,10 +30,10 @@ namespace tl
                 const audio::Info& input,
                 const audio::Info& ouput);
 
-            //! Get input audio information.
+            //! Get the input audio information.
             const audio::Info& getInputInfo() const;
 
-            //! Get output audio information.
+            //! Get the output audio information.
             const audio::Info& getOutputInfo() const;
 
             //! Convert audio data.

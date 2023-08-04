@@ -40,7 +40,7 @@ namespace tl
         
         bool rm(const std::string& fileName)
         {
-            //! \todo Implement
+            //! \todo Implement me.
             return false;
         }
 

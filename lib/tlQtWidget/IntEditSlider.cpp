@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlQtWidget/IntSlider.h>
+#include <tlQtWidget/IntEditSlider.h>
 
 #include <tlQtWidget/Util.h>
 
@@ -15,7 +15,7 @@ namespace tl
 {
     namespace qtwidget
     {
-        struct IntSlider::Private
+        struct IntEditSlider::Private
         {
             math::IntRange range = math::IntRange(0, 100);
             int value = 0;
@@ -29,7 +29,7 @@ namespace tl
             QBoxLayout* layout = nullptr;
         };
 
-        IntSlider::IntSlider(Qt::Orientation orientation, QWidget* parent) :
+        IntEditSlider::IntEditSlider(Qt::Orientation orientation, QWidget* parent) :
             QWidget(parent),
             _p(new Private)
         {
@@ -65,40 +65,40 @@ namespace tl
                 });
         }
 
-        IntSlider::~IntSlider()
+        IntEditSlider::~IntEditSlider()
         {}
 
-        const math::IntRange& IntSlider::range() const
+        const math::IntRange& IntEditSlider::range() const
         {
             return _p->range;
         }
 
-        int IntSlider::value() const
+        int IntEditSlider::value() const
         {
             return _p->value;
         }
 
-        int IntSlider::defaultValue() const
+        int IntEditSlider::defaultValue() const
         {
             return _p->defaultValue;
         }
 
-        int IntSlider::singleStep() const
+        int IntEditSlider::singleStep() const
         {
             return _p->singleStep;
         }
 
-        int IntSlider::pageStep() const
+        int IntEditSlider::pageStep() const
         {
             return _p->pageStep;
         }
 
-        Qt::Orientation IntSlider::orientation() const
+        Qt::Orientation IntEditSlider::orientation() const
         {
             return _p->orientation;
         }
 
-        void IntSlider::setRange(const math::IntRange& value)
+        void IntEditSlider::setRange(const math::IntRange& value)
         {
             TLRENDER_P();
             if (value == p.range)
@@ -108,7 +108,7 @@ namespace tl
             Q_EMIT rangeChanged(p.range);
         }
 
-        void IntSlider::setValue(int value)
+        void IntEditSlider::setValue(int value)
         {
             TLRENDER_P();
             if (value == p.value)
@@ -118,7 +118,7 @@ namespace tl
             Q_EMIT valueChanged(p.value);
         }
 
-        void IntSlider::setDefaultValue(int value)
+        void IntEditSlider::setDefaultValue(int value)
         {
             TLRENDER_P();
             if (value == p.defaultValue)
@@ -127,7 +127,7 @@ namespace tl
             _widgetUpdate();
         }
 
-        void IntSlider::setSingleStep(int value)
+        void IntEditSlider::setSingleStep(int value)
         {
             TLRENDER_P();
             if (value == p.singleStep)
@@ -136,7 +136,7 @@ namespace tl
             _widgetUpdate();
         }
 
-        void IntSlider::setPageStep(int value)
+        void IntEditSlider::setPageStep(int value)
         {
             TLRENDER_P();
             if (value == p.pageStep)
@@ -145,7 +145,7 @@ namespace tl
             _widgetUpdate();
         }
 
-        void IntSlider::setOrientation(Qt::Orientation value)
+        void IntEditSlider::setOrientation(Qt::Orientation value)
         {
             TLRENDER_P();
             if (value == p.orientation)
@@ -154,7 +154,7 @@ namespace tl
             _layoutUpdate();
         }
 
-        void IntSlider::_layoutUpdate()
+        void IntEditSlider::_layoutUpdate()
         {
             TLRENDER_P();
 
@@ -196,7 +196,7 @@ namespace tl
                 });
         }
 
-        void IntSlider::_widgetUpdate()
+        void IntEditSlider::_widgetUpdate()
         {
             TLRENDER_P();
             {

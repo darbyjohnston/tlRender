@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include "FloatSlider.h"
+#include "FloatEditSlider.h"
 
 #include <QBoxLayout>
 
@@ -12,12 +12,12 @@ namespace tl
     {
         namespace widgets_qtwidget
         {
-            FloatSlider::FloatSlider(QWidget* parent) :
+            FloatEditSlider::FloatEditSlider(QWidget* parent) :
                 QWidget(parent)
             {
                 for (size_t i = 0; i < 4; ++i)
                 {
-                    _sliders.push_back(new qtwidget::FloatSlider);
+                    _sliders.push_back(new qtwidget::FloatEditSlider);
                 }
                 _sliders[1]->setRange(math::FloatRange(0.F, 10.F));
                 _sliders[1]->setValue(5.F);

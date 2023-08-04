@@ -86,11 +86,7 @@ namespace tl
 
             qRegisterMetaType<observer::CallbackAction>("tl::observer::CallbackAction");
 
-            qRegisterMetaType<os::EnvListSeparator>("tl::os::EnvListSeparator");
             qRegisterMetaType<os::SystemInfo>("tl::os::SystemInfo");
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-            QMetaType::registerComparators<os::EnvListSeparator>();
-#endif // QT_VERSION
 
             qRegisterMetaType<io::FileType>("tl::io::FileType");
             qRegisterMetaType<io::Info>("tl::io::Info");

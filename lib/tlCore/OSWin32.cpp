@@ -27,10 +27,6 @@ namespace tl
 {
     namespace os
     {
-        char getEnvListSeparator()
-        {
-            return getEnvListSeparator(EnvListSeparator::Windows);
-        }
         namespace
         {
             enum class Windows

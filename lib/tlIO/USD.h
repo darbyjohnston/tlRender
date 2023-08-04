@@ -8,6 +8,7 @@
 
 namespace tl
 {
+    //! USD image I/O.
     namespace usd
     {
         class Render;

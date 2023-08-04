@@ -13,6 +13,8 @@ namespace tl
 {
     namespace ui
     {
+        class RecentFilesModel;
+
         //! File browser options.
         struct FileBrowserOptions
         {
@@ -31,7 +33,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::string&,
+                const std::string& path,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -40,9 +42,9 @@ namespace tl
         public:
             virtual ~FileBrowser();
 
-            //! Create a new widget.
+            //! Create a new dialog.
             static std::shared_ptr<FileBrowser> create(
-                const std::string&,
+                const std::string& path,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -57,6 +59,9 @@ namespace tl
 
             //! Set the options.
             void setOptions(const FileBrowserOptions&);
+
+            //! Set the recent files model.
+            void setRecentFilesModel(const std::shared_ptr<RecentFilesModel>&);
 
         private:
             TLRENDER_PRIVATE();
@@ -100,6 +105,9 @@ namespace tl
 
             //! Set the options.
             void setOptions(const FileBrowserOptions&);
+
+            //! Get the recent files model.
+            const std::shared_ptr<RecentFilesModel>& getRecentFilesModel() const;
 
         private:
             TLRENDER_PRIVATE();

@@ -10,7 +10,7 @@
 
 namespace tl
 {
-    //! DPX I/O.
+    //! DPX image I/O.
     //!
     //! References:
     //! - SMPTE, "SMPTE 268M-2003"

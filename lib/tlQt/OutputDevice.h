@@ -86,7 +86,6 @@ namespace tl
             //! the given QImage. The QImage format must be:
             //! * QImage::Format_RGBA8888
             //! * QImage::Format_ARGB4444_Premultiplied
-            //! \todo Temporary
             void setOverlay(QImage*);
 
         public Q_SLOTS:

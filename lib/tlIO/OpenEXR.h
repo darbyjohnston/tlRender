@@ -15,7 +15,7 @@
 
 namespace tl
 {
-    //! OpenEXR I/O.
+    //! OpenEXR image I/O.
     namespace exr
     {
         //! Channel grouping.

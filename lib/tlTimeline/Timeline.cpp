@@ -22,7 +22,7 @@ namespace tl
             const std::shared_ptr<system::Context>& context)
         {
             std::vector<std::string> out;
-            //! \todo Get extensions for the Python adapters.
+            //! \todo Get extensions for the Python adapters?
             if (types & static_cast<int>(io::FileType::Movie))
             {
                 out.push_back(".otio");

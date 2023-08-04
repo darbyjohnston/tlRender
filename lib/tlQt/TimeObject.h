@@ -45,7 +45,13 @@ namespace tl
             std::shared_ptr<timeline::TimeUnitsModel> _model;
         };
 
+        //! \name Serialize
+        ///@{
+
         QDataStream& operator << (QDataStream&, const timeline::TimeUnits&);
+
         QDataStream& operator >> (QDataStream&, timeline::TimeUnits&);
+
+        ///@}
     }
 }

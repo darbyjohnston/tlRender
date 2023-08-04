@@ -64,6 +64,9 @@ namespace tl
         //! This typedef provides a double precision floating point range.
         typedef Range<double> DoubleRange;
 
+        //! \name Serialize
+        ///@{
+
         void to_json(nlohmann::json&, const IntRange&);
         void to_json(nlohmann::json&, const SizeTRange&);
         void to_json(nlohmann::json&, const FloatRange&);
@@ -83,6 +86,8 @@ namespace tl
         std::istream& operator >> (std::istream&, SizeTRange&);
         std::istream& operator >> (std::istream&, FloatRange&);
         std::istream& operator >> (std::istream&, DoubleRange&);
+
+        ///@}
     }
 }
 

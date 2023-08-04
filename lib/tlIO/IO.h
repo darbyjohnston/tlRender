@@ -99,7 +99,7 @@ namespace tl
         //! Merge options.
         Options merge(const Options&, const Options&);
 
-        //! Base class for readers/writers.
+        //! Base class for readers and writers.
         class IIO : public std::enable_shared_from_this<IIO>
         {
             TLRENDER_NON_COPYABLE(IIO);

@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlQtWidget/FloatSlider.h>
+#include <tlQtWidget/FloatEditSlider.h>
 
 #include <tlQtWidget/Util.h>
 
@@ -20,7 +20,7 @@ namespace tl
             const size_t steps = 10000;
         }
 
-        struct FloatSlider::Private
+        struct FloatEditSlider::Private
         {
             math::FloatRange range = math::FloatRange(0.F, 1.F);
             float value = 0.F;
@@ -34,7 +34,7 @@ namespace tl
             QBoxLayout* layout = nullptr;
         };
 
-        FloatSlider::FloatSlider(Qt::Orientation orientation, QWidget* parent) :
+        FloatEditSlider::FloatEditSlider(Qt::Orientation orientation, QWidget* parent) :
             QWidget(parent),
             _p(new Private)
         {
@@ -70,40 +70,40 @@ namespace tl
                 });
         }
 
-        FloatSlider::~FloatSlider()
+        FloatEditSlider::~FloatEditSlider()
         {}
 
-        const math::FloatRange& FloatSlider::range() const
+        const math::FloatRange& FloatEditSlider::range() const
         {
             return _p->range;
         }
 
-        float FloatSlider::value() const
+        float FloatEditSlider::value() const
         {
             return _p->value;
         }
 
-        float FloatSlider::defaultValue() const
+        float FloatEditSlider::defaultValue() const
         {
             return _p->defaultValue;
         }
 
-        float FloatSlider::singleStep() const
+        float FloatEditSlider::singleStep() const
         {
             return _p->singleStep;
         }
 
-        float FloatSlider::pageStep() const
+        float FloatEditSlider::pageStep() const
         {
             return _p->pageStep;
         }
 
-        Qt::Orientation FloatSlider::orientation() const
+        Qt::Orientation FloatEditSlider::orientation() const
         {
             return _p->orientation;
         }
 
-        void FloatSlider::setRange(const math::FloatRange& value)
+        void FloatEditSlider::setRange(const math::FloatRange& value)
         {
             TLRENDER_P();
             if (value == p.range)
@@ -113,7 +113,7 @@ namespace tl
             Q_EMIT rangeChanged(p.range);
         }
 
-        void FloatSlider::setValue(float value)
+        void FloatEditSlider::setValue(float value)
         {
             TLRENDER_P();
             if (value == p.value)
@@ -123,7 +123,7 @@ namespace tl
             Q_EMIT valueChanged(p.value);
         }
 
-        void FloatSlider::setDefaultValue(float value)
+        void FloatEditSlider::setDefaultValue(float value)
         {
             TLRENDER_P();
             if (value == p.defaultValue)
@@ -132,7 +132,7 @@ namespace tl
             _widgetUpdate();
         }
 
-        void FloatSlider::setSingleStep(float value)
+        void FloatEditSlider::setSingleStep(float value)
         {
             TLRENDER_P();
             if (value == p.singleStep)
@@ -141,7 +141,7 @@ namespace tl
             _widgetUpdate();
         }
 
-        void FloatSlider::setPageStep(float value)
+        void FloatEditSlider::setPageStep(float value)
         {
             TLRENDER_P();
             if (value == p.pageStep)
@@ -150,7 +150,7 @@ namespace tl
             _widgetUpdate();
         }
 
-        void FloatSlider::setOrientation(Qt::Orientation value)
+        void FloatEditSlider::setOrientation(Qt::Orientation value)
         {
             TLRENDER_P();
             if (value == p.orientation)
@@ -159,7 +159,7 @@ namespace tl
             _layoutUpdate();
         }
 
-        void FloatSlider::_layoutUpdate()
+        void FloatEditSlider::_layoutUpdate()
         {
             TLRENDER_P();
 
@@ -202,7 +202,7 @@ namespace tl
                 });
         }
 
-        void FloatSlider::_widgetUpdate()
+        void FloatEditSlider::_widgetUpdate()
         {
             TLRENDER_P();
             {

@@ -11,25 +11,25 @@ namespace tl
     //! File system.
     namespace file
     {
-        // Does a file exist?
+        //! Does a file exist?
         bool exists(const std::string&);
 
-        // Create a directory.
+        //! Create a directory.
         bool mkdir(const std::string&);
 
-        // Remove a directory.
+        //! Remove a directory.
         bool rmdir(const std::string&);
         
-        // Remove a file.
+        //! Remove a file.
         bool rm(const std::string&);
 
-        // Get the current working directory.
+        //! Get the current working directory.
         std::string getCWD();
 
-        // Get the temporary directory.
+        //! Get the temporary directory.
         std::string getTemp();
 
-        // Create a temporary directory.
+        //! Create a temporary directory.
         std::string createTempDir();
     }
 }

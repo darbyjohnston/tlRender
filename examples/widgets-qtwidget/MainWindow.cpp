@@ -4,8 +4,8 @@
 
 #include "MainWindow.h"
 
-#include "FloatSlider.h"
-#include "IntSlider.h"
+#include "FloatEditSlider.h"
+#include "IntEditSlider.h"
 
 #include <QTabWidget>
 
@@ -18,8 +18,8 @@ namespace tl
             MainWindow::MainWindow(const std::shared_ptr<system::Context>& context)
             {
                 auto tabWidget = new QTabWidget;
-                tabWidget->addTab(new FloatSlider, "FloatSlider");
-                tabWidget->addTab(new IntSlider, "IntSlider");
+                tabWidget->addTab(new FloatEditSlider, "FloatEditSlider");
+                tabWidget->addTab(new IntEditSlider, "IntEditSlider");
                 setCentralWidget(tabWidget);
             }
         }

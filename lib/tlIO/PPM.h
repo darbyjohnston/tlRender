@@ -10,7 +10,7 @@
 
 namespace tl
 {
-    //! NetPBM I/O.
+    //! NetPBM image I/O.
     //!
     //! References:
     //! - Netpbm, "PPM Format Specification"

@@ -31,9 +31,9 @@ namespace tl
         struct Device
         {
             std::string               name;
-            size_t                    outputChannels = 0;
-            size_t                    inputChannels = 0;
-            size_t                    duplexChannels = 0;
+            size_t                    outputChannels      = 0;
+            size_t                    inputChannels       = 0;
+            size_t                    duplexChannels      = 0;
             std::vector<size_t>       sampleRates;
             size_t                    preferredSampleRate = 0;
             std::vector<DeviceFormat> nativeFormats;
@@ -55,22 +55,22 @@ namespace tl
             //! Create a new system.
             static std::shared_ptr<System> create(const std::shared_ptr<system::Context>&);
 
-            //! Get the list of APIs.
+            //! Get the list of audio APIs.
             const std::vector<std::string>& getAPIs() const;
 
-            //! Get the devices.
+            //! Get the audio devices.
             const std::vector<Device>& getDevices() const;
 
-            //! Get the default input device.
+            //! Get the default audio input device.
             size_t getDefaultInputDevice() const;
 
-            //! Get the default output device.
+            //! Get the default audio output device.
             size_t getDefaultOutputDevice() const;
 
-            //! Get the default input device information.
+            //! Get the default audio input device information.
             Info getDefaultInputInfo() const;
 
-            //! Get the default output device information.
+            //! Get the default audio output device information.
             Info getDefaultOutputInfo() const;
 
         private:

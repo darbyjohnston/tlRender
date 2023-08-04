@@ -127,7 +127,6 @@ namespace tl
         QSize TimeSpinBox::minimumSizeHint() const
         {
             TLRENDER_P();
-            //! \todo Cache the size hint.
             ensurePolished();
             int h = lineEdit()->minimumSizeHint().height();
             const QFontMetrics fm(fontMetrics());

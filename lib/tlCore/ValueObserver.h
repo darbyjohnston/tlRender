@@ -49,7 +49,7 @@ namespace tl
             std::weak_ptr<IValue<T> > _value;
         };
 
-        //! Base class for a value.
+        //! Base class for an observable value.
         template<typename T>
         class IValue
         {
@@ -71,7 +71,7 @@ namespace tl
             friend class ValueObserver<T>;
         };
 
-        //! Value.
+        //! Observable value.
         template<typename T>
         class Value : public IValue<T>
         {

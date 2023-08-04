@@ -24,6 +24,7 @@ namespace tl
         //! Example panorama timeline rendering.
         namespace panorama_qtwidget
         {
+            //! Panorama timeline viewport.
             class PanoramaTimelineViewport :
                 public QOpenGLWidget,
                 protected QOpenGLFunctions_4_1_Core

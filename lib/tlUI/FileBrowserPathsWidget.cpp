@@ -8,6 +8,7 @@
 #include <tlUI/ButtonGroup.h>
 #include <tlUI/DrivesModel.h>
 #include <tlUI/ListButton.h>
+#include <tlUI/RecentFilesModel.h>
 #include <tlUI/RowLayout.h>
 
 #include <tlCore/File.h>
@@ -20,7 +21,7 @@ namespace tl
         {
             std::shared_ptr<DrivesModel> drivesModel;
             std::vector<std::string> drives;
-            std::shared_ptr<RecentFilesModel> recentModel;
+            std::shared_ptr<RecentFilesModel> recentFilesModel;
             std::vector<file::Path> recent;
             std::vector<std::string> paths;
             std::vector<std::shared_ptr<ListButton> > buttons;
@@ -34,7 +35,6 @@ namespace tl
         };
 
         void PathsWidget::_init(
-            const std::shared_ptr<RecentFilesModel>& recentModel,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -44,8 +44,6 @@ namespace tl
             setBackgroundRole(ColorRole::Base);
 
             p.drivesModel = DrivesModel::create(context);
-
-            p.recentModel = recentModel;
 
             p.buttonGroup = ButtonGroup::create(ButtonGroupType::Click, context);
 
@@ -93,14 +91,6 @@ namespace tl
                     _p->drives = value;
                     _pathsUpdate();
                 });
-
-            p.recentObserver = observer::ListObserver<file::Path>::create(
-                p.recentModel->observeRecent(),
-                [this](const std::vector<file::Path>& value)
-                {
-                    _p->recent = value;
-                    _pathsUpdate();
-                });
         }
 
         PathsWidget::PathsWidget() :
@@ -111,18 +101,34 @@ namespace tl
         {}
 
         std::shared_ptr<PathsWidget> PathsWidget::create(
-            const std::shared_ptr<RecentFilesModel>& recentFilesModel,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<PathsWidget>(new PathsWidget);
-            out->_init(recentFilesModel, context, parent);
+            out->_init(context, parent);
             return out;
         }
 
         void PathsWidget::setCallback(const std::function<void(const std::string&)>& value)
         {
             _p->callback = value;
+        }
+
+        void PathsWidget::setRecentFilesModel(const std::shared_ptr<RecentFilesModel>& value)
+        {
+            TLRENDER_P();
+            p.recentObserver.reset();
+            p.recentFilesModel = value;
+            if (p.recentFilesModel)
+            {
+                p.recentObserver = observer::ListObserver<file::Path>::create(
+                    p.recentFilesModel->observeRecent(),
+                    [this](const std::vector<file::Path>& value)
+                    {
+                        _p->recent = value;
+                        _pathsUpdate();
+                    });
+            }
         }
 
         void PathsWidget::setGeometry(const math::BBox2i& value)
@@ -185,7 +191,7 @@ namespace tl
 
                 for (auto recent : p.recent)
                 {
-                    const std::string label = recent.getBaseName();
+                    const std::string label = recent.get(-1, false);
                     _createButton(label, context, p.layouts["Recent"]);
                     p.paths.push_back(recent.getDirectory());
                 }

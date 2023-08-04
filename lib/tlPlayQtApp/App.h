@@ -35,7 +35,7 @@ namespace tl
         class RecentFilesModel;
     }
 
-    //! Qt playback application.
+    //! "tlplay-qt" application.
     namespace play_qt
     {
         class ColorModel;

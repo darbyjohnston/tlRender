@@ -13,6 +13,7 @@ namespace tl
 {
     namespace ui
     {
+        //! Icon library.
         class IconLibrary : public std::enable_shared_from_this<IconLibrary>
         {
             TLRENDER_NON_COPYABLE(IconLibrary);

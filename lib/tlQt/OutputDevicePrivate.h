@@ -76,7 +76,6 @@ namespace tl
             float viewZoom = 1.F;
             bool frameView = true;
             std::vector<timeline::VideoData> videoData;
-            //! \todo Temporary
             std::shared_ptr<QImage> overlay;
             float volume = 1.F;
             bool mute = false;

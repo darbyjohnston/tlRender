@@ -8,7 +8,7 @@
 
 namespace tl
 {
-    //! Timeline library.
+    //! Timelines.
     namespace timeline
     {
         //! Initialize the library.
