@@ -25,21 +25,12 @@ namespace tl
             const std::string& value,
             const PathOptions& options)
         {
-            std::string tmp(value);
-            for (auto i = tmp.begin(); i != tmp.end(); ++i)
-            {
-                if ('\\' == *i)
-                {
-                    *i = '/';
-                }
-            }
-
             FSeqFileNameOptions fseqOptions;
             fseqFileNameOptionsInit(&fseqOptions);
             fseqOptions.maxNumberDigits = options.maxNumberDigits;
             FSeqFileName f;
             fseqFileNameInit(&f);
-            fseqFileNameSplit(tmp.c_str(), &f, string::cBufferSize, &fseqOptions);
+            fseqFileNameSplit(value.c_str(), &f, string::cBufferSize, &fseqOptions);
             _directory = f.path;
             _baseName = f.base;
             if (_directory.empty() &&
@@ -107,7 +98,7 @@ namespace tl
         bool Path::isAbsolute() const
         {
             const std::size_t size = _directory.size();
-            if (size > 0 && '/' == _directory[0])
+            if (size > 0 && ('/' == _directory[0] || '\\' == _directory[0]))
             {
                 return true;
             }
@@ -132,36 +123,35 @@ namespace tl
             return !(*this == other);
         }
 
-        bool hasEndSeparator(const std::string& value)
-        {
-            bool out = false;
-            const size_t size = value.size();
-            if (size > 0 && ('/' == value[size - 1] || '\\' == value[size - 1]))
-            {
-                out = true;
-            }
-            return out;
-        }
-
-        std::string removeEndSeparator(const std::string& value)
-        {
-            std::string out = value;
-            const size_t size = out.size();
-            if (size > 0 && ('/' == out[size - 1] || '\\' == out[size - 1]))
-            {
-                out.pop_back();
-            }
-            return out;
-        }
-
         std::string appendSeparator(const std::string& value)
         {
             std::string out = value;
             const size_t size = out.size();
             if (size > 0 && !('/' == out[size - 1] || '\\' == out[size - 1]))
             {
-                out += '/';
+                out += pathSeparator;
             }
+            return out;
+        }
+
+        std::string getParent(const std::string& value)
+        {
+            char startSeparator = 0;
+            if (!value.empty() && ('/' == value[0] || '\\' == value[0]))
+            {
+                startSeparator = value[0];
+            }
+            auto v = string::split(value, pathSeparators);
+            if (v.size() > 1)
+            {
+                v.pop_back();
+            }
+            std::string out;
+            if (startSeparator)
+            {
+                out += startSeparator;
+            }
+            out += string::join(v, pathSeparator);
             return out;
         }
 

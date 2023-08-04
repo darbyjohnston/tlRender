@@ -50,11 +50,11 @@ namespace tl
             return out;
         }
 
-        void SeparateAudioDialog::setFileCallback(const std::function<void(
-            const file::Path&,
-            const file::Path&)>& value)
+        void SeparateAudioDialog::setCallback(const std::function<void(
+            const std::string&,
+            const std::string&)>& value)
         {
-            _p->widget->setFileCallback(value);
+            _p->widget->setCallback(value);
         }
     }
 }

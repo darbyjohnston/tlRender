@@ -108,11 +108,9 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            void setPath(const file::Path&);
+            void setPath(const std::string&);
 
-            void setFileCallback(const std::function<void(const file::Path&)>&);
-
-            void setPathCallback(const std::function<void(const file::Path&)>&);
+            void setCallback(const std::function<void(const file::FileInfo&)>&);
 
             void setOptions(const FileBrowserOptions&);
 
@@ -147,11 +145,11 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            void setFileCallback(const std::function<void(const file::Path&)>&);
+            void setCallback(const std::function<void(const file::FileInfo&)>&);
 
             void setCancelCallback(const std::function<void(void)>&);
 
-            const file::Path& getPath() const;
+            const std::string& getPath() const;
 
             const FileBrowserOptions& getOptions() const;
 

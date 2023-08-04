@@ -43,7 +43,7 @@ namespace tl
                 out = utf16.to_bytes(path);
             }
             CoTaskMemFree(path);
-            return removeEndSeparator(out);
+            return out;
         }
 
         std::vector<std::string> getDrives()

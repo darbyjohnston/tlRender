@@ -575,9 +575,9 @@ namespace tl
             {
                 fileBrowserSystem->open(
                     getEventLoop(),
-                    [this](const file::Path& value)
+                    [this](const file::FileInfo& value)
                     {
-                        open(value.get());
+                        open(value.getPath().get());
                     });
             }
         }
@@ -587,10 +587,10 @@ namespace tl
             TLRENDER_P();
             p.separateAudioDialog = SeparateAudioDialog::create(_context);
             p.separateAudioDialog->open(getEventLoop());
-            p.separateAudioDialog->setFileCallback(
-                [this](const file::Path& value, const file::Path& audio)
+            p.separateAudioDialog->setCallback(
+                [this](const std::string& value, const std::string& audio)
                 {
-                    open(value.get(), audio.get());
+                    open(value, audio);
                     _p->separateAudioDialog->close();
                 });
             p.separateAudioDialog->setCloseCallback(

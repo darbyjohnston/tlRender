@@ -6,8 +6,8 @@
 
 #include <tlUI/LineEdit.h>
 #include <tlUI/FileBrowser.h>
-#include <tlUI/PushButton.h>
 #include <tlUI/RowLayout.h>
+#include <tlUI/ToolButton.h>
 
 #include <tlCore/File.h>
 
@@ -19,9 +19,10 @@ namespace tl
         {
             std::string path;
             std::shared_ptr<LineEdit> lineEdit;
-            std::shared_ptr<PushButton> button;
+            std::shared_ptr<ToolButton> browseButton;
+            std::shared_ptr<ToolButton> clearButton;
             std::shared_ptr<HorizontalLayout> layout;
-            std::function<void(const file::Path&)> fileCallback;
+            std::function<void(const std::string&)> callback;
         };
 
         void FileEdit::_init(
@@ -33,22 +34,43 @@ namespace tl
 
             setHStretch(Stretch::Expanding);
 
-            p.path = file::getCWD();
-
             p.lineEdit = LineEdit::create(context);
             p.lineEdit->setHStretch(Stretch::Expanding);
 
-            p.button = PushButton::create("Browse", context);
+            p.browseButton = ToolButton::create(context);
+            p.browseButton->setIcon("FileBrowser");
+            p.browseButton->setToolTip("Show the file browser");
+
+            p.clearButton = ToolButton::create(context);
+            p.clearButton->setIcon("Reset");
+            p.clearButton->setToolTip("Reset the file name");
 
             p.layout = HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(SizeRole::SpacingTool);
             p.lineEdit->setParent(p.layout);
-            p.button->setParent(p.layout);
+            p.browseButton->setParent(p.layout);
+            p.clearButton->setParent(p.layout);
 
-            p.button->setClickedCallback(
+            p.lineEdit->setTextCallback(
+                [this](const std::string& value)
+                {
+                    _p->path = value;
+                    if (_p->callback)
+                    {
+                        _p->callback(_p->path);
+                    }
+                });
+
+            p.browseButton->setClickedCallback(
                 [this]
                 {
                     _openDialog();
+                });
+
+            p.clearButton->setClickedCallback(
+                [this]
+                {
+                    _p->lineEdit->clearText();
                 });
         }
 
@@ -77,14 +99,14 @@ namespace tl
             p.lineEdit->setText(value);
         }
 
-        const std::string& FileEdit::getFile() const
+        const std::string& FileEdit::getPath() const
         {
-            return _p->lineEdit->getText();
+            return _p->path;
         }
 
-        void FileEdit::setFileCallback(const std::function<void(const file::Path&)>& value)
+        void FileEdit::setCallback(const std::function<void(const std::string&)>& value)
         {
-            _p->fileCallback = value;
+            _p->callback = value;
         }
 
         void FileEdit::setGeometry(const math::BBox2i& value)
@@ -110,13 +132,13 @@ namespace tl
                     {
                         fileBrowserSystem->open(
                             eventLoop,
-                            [this](const file::Path& value)
+                            [this](const file::FileInfo& value)
                             {
-                                _p->path = value.getDirectory();
-                                _p->lineEdit->setText(value.get());
-                                if (_p->fileCallback)
+                                _p->path = value.getPath().get();
+                                _p->lineEdit->setText(_p->path);
+                                if (_p->callback)
                                 {
-                                    _p->fileCallback(value);
+                                    _p->callback(_p->path);
                                 }
                             });
                     }

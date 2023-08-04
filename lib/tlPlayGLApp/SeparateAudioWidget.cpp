@@ -23,7 +23,7 @@ namespace tl
             std::shared_ptr<ui::PushButton> okButton;
             std::shared_ptr<ui::PushButton> cancelButton;
             std::shared_ptr<ui::VerticalLayout> layout;
-            std::function<void(const file::Path&, const file::Path&)> fileCallback;
+            std::function<void(const std::string&, const std::string&)> callback;
             std::function<void(void)> cancelCallback;
         };
 
@@ -76,11 +76,11 @@ namespace tl
             p.okButton->setClickedCallback(
                 [this]
                 {
-                    if (_p->fileCallback)
+                    if (_p->callback)
                     {
-                        _p->fileCallback(
-                            file::Path(_p->videoFileEdit->getFile()),
-                            file::Path(_p->audioFileEdit->getFile()));
+                        _p->callback(
+                            _p->videoFileEdit->getPath(),
+                            _p->audioFileEdit->getPath());
                     }
                 });
 
@@ -110,11 +110,11 @@ namespace tl
             return out;
         }
 
-        void SeparateAudioWidget::setFileCallback(const std::function<void(
-            const file::Path&,
-            const file::Path&)>& value)
+        void SeparateAudioWidget::setCallback(const std::function<void(
+            const std::string&,
+            const std::string&)>& value)
         {
-            _p->fileCallback = value;
+            _p->callback = value;
         }
 
         void SeparateAudioWidget::setCancelCallback(const std::function<void(void)>& value)

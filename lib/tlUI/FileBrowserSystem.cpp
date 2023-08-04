@@ -55,7 +55,7 @@ namespace tl
 
         void FileBrowserSystem::open(
             const std::shared_ptr<EventLoop>& eventLoop,
-            const std::function<void(const file::Path&)>& callback)
+            const std::function<void(const file::FileInfo&)>& callback)
         {
             TLRENDER_P();
             bool native = p.native;
@@ -68,7 +68,7 @@ namespace tl
                 {
                     if (callback)
                     {
-                        callback(file::Path(outPath));
+                        callback(file::FileInfo(file::Path(outPath)));
                     }
                     NFD::FreePath(outPath);
                 }
@@ -83,8 +83,8 @@ namespace tl
                     p.fileBrowser = ui::FileBrowser::create(p.path, context);
                     p.fileBrowser->setOptions(p.options);
                     p.fileBrowser->open(eventLoop);
-                    p.fileBrowser->setFileCallback(
-                        [this, callback](const file::Path& value)
+                    p.fileBrowser->setCallback(
+                        [this, callback](const file::FileInfo& value)
                         {
                             if (callback)
                             {
@@ -95,7 +95,7 @@ namespace tl
                     p.fileBrowser->setCloseCallback(
                         [this]
                         {
-                            _p->path = _p->fileBrowser->getPath().get();
+                            _p->path = _p->fileBrowser->getPath();
                             _p->options = _p->fileBrowser->getOptions();
                             _p->fileBrowser.reset();
                         });

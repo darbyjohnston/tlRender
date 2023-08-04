@@ -29,7 +29,7 @@ namespace tl
     {
         struct FileBrowserWidget::Private
         {
-            file::Path path;
+            std::string path;
             std::shared_ptr<RecentFilesModel> recentModel;
             std::vector<std::string> extensions;
 
@@ -50,7 +50,7 @@ namespace tl
             std::shared_ptr<Splitter> splitter;
             std::shared_ptr<VerticalLayout> layout;
 
-            std::function<void(const file::Path&)> fileCallback;
+            std::function<void(const file::FileInfo&)> callback;
             std::function<void(void)> cancelCallback;
         };
 
@@ -66,7 +66,7 @@ namespace tl
             setVStretch(Stretch::Expanding);
             setMouseHover(true);
 
-            p.path = file::Path(path);
+            p.path = path;
 
             p.recentModel = RecentFilesModel::create(context);
 
@@ -172,65 +172,41 @@ namespace tl
             p.upButton->setClickedCallback(
                 [this]
                 {
-                    TLRENDER_P();
-                    std::string path = p.path.get();
-                    if (file::hasEndSeparator(path))
-                    {
-                        path.pop_back();
-                    }
-                    else
-                    {
-                        path = p.path.getDirectory();
-                        if (file::hasEndSeparator(path))
-                        {
-                            path.pop_back();
-                        }
-                    }
-                    p.path = file::Path(file::Path(path).getDirectory(), "");
+                    _p->path = file::getParent(_p->path);
                     _pathUpdate();
                 });
 
             p.pathEdit->setTextCallback(
                 [this](const std::string& value)
                 {
-                    TLRENDER_P();
-                    if (file::exists(value))
-                    {
-                        p.path = file::Path(value, p.path.get(-1, false));
-                    }
-                    else
-                    {
-                        std::string path = value;
-                        if (file::hasEndSeparator(path))
-                        {
-                            path.pop_back();
-                        }
-                        p.path = file::Path(file::Path(path).getDirectory(), "");
-                    }
+                    _p->path = value;
                     _pathUpdate();
                 });
 
             p.pathsWidget->setCallback(
                 [this](const std::string& value)
                 {
-                    _p->path = file::Path(value, "");
+                    _p->path = value;
                     _pathUpdate();
                 });
 
-            p.directoryWidget->setFileCallback(
-                [this](const file::Path& value)
+            p.directoryWidget->setCallback(
+                [this](const file::FileInfo& value)
                 {
-                    TLRENDER_P();
-                    if (p.fileCallback)
+                    switch (value.getType())
                     {
-                        p.fileCallback(value);
+                    case file::Type::File:
+                        if (_p->callback)
+                        {
+                            _p->callback(value);
+                        }
+                        break;
+                    case file::Type::Directory:
+                        _p->path = value.getPath().get();
+                        _pathUpdate();
+                        break;
+                    default: break;
                     }
-                });
-            p.directoryWidget->setPathCallback(
-                [this](const file::Path& value)
-                {
-                    _p->path = value;
-                    _pathUpdate();
                 });
 
             p.filterEdit->setTextChangedCallback(
@@ -281,9 +257,9 @@ namespace tl
                 [this]
                 {
                     TLRENDER_P();
-                    if (p.fileCallback)
+                    if (p.callback)
                     {
-                        p.fileCallback(p.path);
+                        p.callback(file::FileInfo(file::Path(p.path)));
                     }
                 });
 
@@ -315,9 +291,9 @@ namespace tl
             return out;
         }
 
-        void FileBrowserWidget::setFileCallback(const std::function<void(const file::Path&)>& value)
+        void FileBrowserWidget::setCallback(const std::function<void(const file::FileInfo&)>& value)
         {
-            _p->fileCallback = value;
+            _p->callback = value;
         }
 
         void FileBrowserWidget::setCancelCallback(const std::function<void(void)>& value)
@@ -325,7 +301,7 @@ namespace tl
             _p->cancelCallback = value;
         }
 
-        const file::Path& FileBrowserWidget::getPath() const
+        const std::string& FileBrowserWidget::getPath() const
         {
             return _p->path;
         }
@@ -379,7 +355,7 @@ namespace tl
         void FileBrowserWidget::_pathUpdate()
         {
             TLRENDER_P();
-            p.pathEdit->setText(p.path.get());
+            p.pathEdit->setText(p.path);
             p.directoryWidget->setPath(p.path);
             p.directoryScrollWidget->setScrollPos(math::Vector2i(0, 0));
         }

@@ -15,15 +15,14 @@ namespace tl
     {
         struct DirectoryWidget::Private
         {
-            file::Path path;
+            std::string path;
             FileBrowserOptions options;
             std::vector<file::FileInfo> fileInfos;
             std::vector<std::shared_ptr<Button> > buttons;
             std::map<std::shared_ptr<Button>, size_t> buttonToIndex;
             std::shared_ptr<ButtonGroup> buttonGroup;
             std::shared_ptr<VerticalLayout> layout;
-            std::function<void(const file::Path&)> fileCallback;
-            std::function<void(const file::Path&)> pathCallback;
+            std::function<void(const file::FileInfo&)> callback;
 
             struct SizeData
             {
@@ -58,26 +57,15 @@ namespace tl
                         const auto i = p.buttonToIndex.find(p.buttons[value]);
                         if (i != p.buttonToIndex.end())
                         {
-                            const file::FileInfo& fileInfo = p.fileInfos[i->second];
-                            switch (fileInfo.getType())
+                            const file::FileInfo fileInfo = p.fileInfos[i->second];
+                            if (p.callback)
                             {
-                            case file::Type::File:
-                                if (p.fileCallback)
-                                {
-                                    p.fileCallback(fileInfo.getPath());
-                                }
-                                break;
-                            case file::Type::Directory:
-                            {
-                                p.path = fileInfo.getPath();
-                                _directoryUpdate();
-                                if (p.pathCallback)
-                                {
-                                    p.pathCallback(p.path);
-                                }
-                                break;
+                                p.callback(fileInfo);
                             }
-                            default: break;
+                            if (file::Type::Directory == fileInfo.getType())
+                            {
+                                p.path = fileInfo.getPath().get();
+                                _directoryUpdate();
                             }
                         }
                     }
@@ -100,7 +88,7 @@ namespace tl
             return out;
         }
 
-        void DirectoryWidget::setPath(const file::Path& value)
+        void DirectoryWidget::setPath(const std::string& value)
         {
             TLRENDER_P();
             if (value == p.path)
@@ -109,14 +97,9 @@ namespace tl
             _directoryUpdate();
         }
 
-        void DirectoryWidget::setFileCallback(const std::function<void(const file::Path&)>& value)
+        void DirectoryWidget::setCallback(const std::function<void(const file::FileInfo&)>& value)
         {
-            _p->fileCallback = value;
-        }
-
-        void DirectoryWidget::setPathCallback(const std::function<void(const file::Path&)>& value)
-        {
-            _p->pathCallback = value;
+            _p->callback = value;
         }
 
         void DirectoryWidget::setOptions(const FileBrowserOptions& value)
@@ -125,6 +108,7 @@ namespace tl
             if (value == p.options)
                 return;
             p.options = value;
+            p.options.list.sequence = false;
             _directoryUpdate();
         }
 
@@ -219,7 +203,7 @@ namespace tl
             p.buttons.clear();
             p.buttonToIndex.clear();
             p.buttonGroup->clearButtons();
-            p.fileInfos = file::list(p.path.get(), p.options.list);
+            p.fileInfos = file::list(p.path, p.options.list);
             if (auto context = _context.lock())
             {
                 for (size_t i = 0; i < p.fileInfos.size(); ++i)

@@ -46,11 +46,11 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Set the file callback.
-            void setFileCallback(const std::function<void(const file::Path&)>&);
+            //! Set the callback.
+            void setCallback(const std::function<void(const file::FileInfo&)>&);
 
             //! Get the path.
-            const file::Path& getPath() const;
+            const std::string& getPath() const;
 
             //! Get the options.
             const FileBrowserOptions& getOptions() const;
@@ -81,7 +81,7 @@ namespace tl
             //! Open the file browser.
             void open(
                 const std::shared_ptr<EventLoop>&,
-                const std::function<void(const file::Path&)>&);
+                const std::function<void(const file::FileInfo&)>&);
 
             //! Get whether the native file dialog is used.
             bool isNativeFileDialog() const;

@@ -62,12 +62,12 @@ namespace tl
             return out;
         }
 
-        void FileBrowser::setFileCallback(const std::function<void(const file::Path&)>& value)
+        void FileBrowser::setCallback(const std::function<void(const file::FileInfo&)>& value)
         {
-            _p->widget->setFileCallback(value);
+            _p->widget->setCallback(value);
         }
 
-        const file::Path& FileBrowser::getPath() const
+        const std::string& FileBrowser::getPath() const
         {
             return _p->widget->getPath();
         }

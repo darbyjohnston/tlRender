@@ -29,9 +29,9 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            void setFileCallback(const std::function<void(
-                const file::Path&,
-                const file::Path&)>&);
+            void setCallback(const std::function<void(
+                const std::string&,
+                const std::string&)>&);
 
             void setCancelCallback(const std::function<void(void)>&);
 

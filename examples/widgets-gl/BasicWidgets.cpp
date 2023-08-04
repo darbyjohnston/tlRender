@@ -175,10 +175,10 @@ namespace tl
                     });
 
                 auto fileEdit = ui::FileEdit::create(context);
-                fileEdit->setFileCallback(
-                    [](const file::Path& value)
+                fileEdit->setCallback(
+                    [](const std::string& value)
                     {
-                        std::cout << value.get() << std::endl;
+                        std::cout << value << std::endl;
                     });
 
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());

@@ -6,8 +6,6 @@
 
 #include <tlUI/IDialog.h>
 
-#include <tlCore/Path.h>
-
 namespace tl
 {
     namespace play_gl
@@ -33,10 +31,10 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Set the file callback.
-            void setFileCallback(const std::function<void(
-                const file::Path&,
-                const file::Path&)>&);
+            //! Set the callback.
+            void setCallback(const std::function<void(
+                const std::string&,
+                const std::string&)>&);
 
         private:
             TLRENDER_PRIVATE();

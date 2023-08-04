@@ -15,6 +15,16 @@ namespace tl
 {
     namespace file
     {
+        //! Path separators.
+        const std::vector<char> pathSeparators = { '/', '\\' };
+
+        //! Current path separator.
+#if defined(_WINDOWS)
+        const char pathSeparator = '\\';
+#else // _WINDOWS
+        const char pathSeparator = '/';
+#endif // _WINDOWS
+
         //! File system path options.
         struct PathOptions
         {
@@ -78,14 +88,11 @@ namespace tl
             std::string _extension;
         };
 
-        //! Does the given path end with a separator?
-        bool hasEndSeparator(const std::string&);
-
-        //! Remove an ending path separator.
-        std::string removeEndSeparator(const std::string&);
-
-        //! Add a path separator to the end if necessary.
+        //! Append a path separator to the end.
         std::string appendSeparator(const std::string&);
+
+        //! Get the parent directory.
+        std::string getParent(const std::string&);
 
         //! Get the list of file system drives.
         std::vector<std::string> getDrives();
