@@ -65,7 +65,7 @@ namespace tl
                 }
             }
 #endif // __APPLE__
-            return removeEndSeparator(out);
+            return out;
         }
 
         std::vector<std::string> getDrives()
