@@ -34,13 +34,6 @@ namespace tl
             //! Get the menu.
             QMenu* menu() const;
 
-            //! Set the timeline players.
-            void setTimelinePlayers(const QVector<QPointer<qt::TimelinePlayer> >&);
-
-        private Q_SLOTS:
-            void _increaseVolumeCallback();
-            void _decreaseVolumeCallback();
-
         private:
             void _actionsUpdate();
 

@@ -26,9 +26,11 @@ namespace tl
             QMenu* menu = nullptr;
             QMenu* recentMenu = nullptr;
             QMenu* currentMenu = nullptr;
+            QMenu* layerMenu = nullptr;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
+            std::shared_ptr<observer::ListObserver<int> > layersObserver;
             std::shared_ptr<observer::ListObserver<file::Path> > recentObserver;
         };
 
@@ -98,6 +100,9 @@ namespace tl
             p.actionGroups["Current"] = new QActionGroup(this);
             p.actionGroups["Current"]->setExclusive(true);
 
+            p.actionGroups["Layer"] = new QActionGroup(this);
+            p.actionGroups["Layer"]->setExclusive(true);
+
             p.menu = new QMenu;
             p.menu->setTitle(tr("&File"));
             p.menu->addAction(p.actions["Open"]);
@@ -115,6 +120,9 @@ namespace tl
             p.menu->addAction(p.actions["Next"]);
             p.menu->addAction(p.actions["Prev"]);
             p.menu->addSeparator();
+            p.layerMenu = new QMenu;
+            p.layerMenu->setTitle(tr("&Layer"));
+            p.menu->addMenu(p.layerMenu);
             p.menu->addAction(p.actions["NextLayer"]);
             p.menu->addAction(p.actions["PrevLayer"]);
             p.menu->addSeparator();
@@ -204,6 +212,16 @@ namespace tl
                     app->filesModel()->setA(index);
                 });
 
+            connect(
+                p.actionGroups["Layer"],
+                &QActionGroup::triggered,
+                [this, app](QAction* action)
+                {
+                    const int index = _p->actionGroups["Layer"]->actions().indexOf(action);
+                    const auto& a = app->filesModel()->getA();
+                    app->filesModel()->setLayer(a, index);
+                });
+
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 app->filesModel()->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >&)
@@ -214,6 +232,13 @@ namespace tl
             p.aIndexObserver = observer::ValueObserver<int>::create(
                 app->filesModel()->observeAIndex(),
                 [this](int)
+                {
+                    _actionsUpdate();
+                });
+
+            p.layersObserver = observer::ListObserver<int>::create(
+                app->filesModel()->observeLayers(),
+                [this](const std::vector<int>&)
                 {
                     _actionsUpdate();
                 });
@@ -289,6 +314,24 @@ namespace tl
                 action->setText(QString::fromUtf8(files[i]->path.get(-1, false).c_str()));
                 p.actionGroups["Current"]->addAction(action);
                 p.currentMenu->addAction(action);
+            }
+
+            for (auto i : p.actionGroups["Layer"]->actions())
+            {
+                p.actionGroups["Layer"]->removeAction(i);
+            }
+            p.layerMenu->clear();
+            if (const auto& a = p.app->filesModel()->getA())
+            {
+                for (size_t i = 0; i < a->videoLayers.size(); ++i)
+                {
+                    auto action = new QAction;
+                    action->setCheckable(true);
+                    action->setChecked(i == a->videoLayer);
+                    action->setText(QString::fromUtf8(a->videoLayers[i].c_str()));
+                    p.actionGroups["Layer"]->addAction(action);
+                    p.layerMenu->addAction(action);
+                }
             }
         }
     }

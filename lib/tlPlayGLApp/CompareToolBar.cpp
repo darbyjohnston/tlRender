@@ -6,6 +6,8 @@
 
 #include <tlPlayGLApp/App.h>
 
+#include <tlPlay/FilesModel.h>
+
 #include <tlUI/ButtonGroup.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/ToolButton.h>

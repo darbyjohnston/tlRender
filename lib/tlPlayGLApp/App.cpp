@@ -12,6 +12,7 @@
 
 #include <tlPlay/AudioModel.h>
 #include <tlPlay/ColorModel.h>
+#include <tlPlay/FilesModel.h>
 #include <tlPlay/Util.h>
 
 #include <tlUI/EventLoop.h>

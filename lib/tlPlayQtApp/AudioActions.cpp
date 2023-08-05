@@ -6,6 +6,8 @@
 
 #include <tlPlayQtApp/App.h>
 
+#include <tlPlay/AudioModel.h>
+
 namespace tl
 {
     namespace play_qt
@@ -14,11 +16,10 @@ namespace tl
         {
             App* app = nullptr;
 
-            QVector<QPointer<qt::TimelinePlayer> > timelinePlayers;
-
             QMap<QString, QAction*> actions;
-
             QMenu* menu = nullptr;
+
+            std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
         };
 
         AudioActions::AudioActions(App* app, QObject* parent) :
@@ -29,12 +30,13 @@ namespace tl
 
             p.app = app;
 
-            p.actions["IncreaseVolume"] = new QAction(this);
-            p.actions["IncreaseVolume"]->setText(tr("Increase Volume"));
-            p.actions["IncreaseVolume"]->setShortcut(QKeySequence(Qt::Key_Period));
-            p.actions["DecreaseVolume"] = new QAction(this);
-            p.actions["DecreaseVolume"]->setText(tr("Decrease Volume"));
-            p.actions["DecreaseVolume"]->setShortcut(QKeySequence(Qt::Key_Comma));
+            p.actions["VolumeUp"] = new QAction(this);
+            p.actions["VolumeUp"]->setText(tr("Volume Up"));
+            p.actions["VolumeUp"]->setShortcut(QKeySequence(Qt::Key_Period));
+
+            p.actions["VolumeDown"] = new QAction(this);
+            p.actions["VolumeDown"]->setText(tr("Volume Down"));
+            p.actions["VolumeDown"]->setShortcut(QKeySequence(Qt::Key_Comma));
 
             p.actions["Mute"] = new QAction(this);
             p.actions["Mute"]->setCheckable(true);
@@ -48,21 +50,38 @@ namespace tl
 
             p.menu = new QMenu;
             p.menu->setTitle(tr("&Audio"));
-            p.menu->addAction(p.actions["IncreaseVolume"]);
-            p.menu->addAction(p.actions["DecreaseVolume"]);
+            p.menu->addAction(p.actions["VolumeUp"]);
+            p.menu->addAction(p.actions["VolumeDown"]);
             p.menu->addAction(p.actions["Mute"]);
 
             _actionsUpdate();
 
             connect(
-                p.actions["Mute"],
-                &QAction::toggled,
-                app,
-                &App::setMute);
+                p.actions["VolumeUp"],
+                &QAction::triggered,
+                [app]
+                {
+                    app->audioModel()->volumeUp();
+                });
 
             connect(
-                app,
-                &App::muteChanged,
+                p.actions["VolumeDown"],
+                &QAction::triggered,
+                [app]
+                {
+                    app->audioModel()->volumeDown();
+                });
+
+            connect(
+                p.actions["Mute"],
+                &QAction::toggled,
+                [app](bool value)
+                {
+                    app->audioModel()->setMute(value);
+                });
+
+            p.muteObserver = observer::ValueObserver<bool>::create(
+                app->audioModel()->observeMute(),
                 [this](bool)
                 {
                     _actionsUpdate();
@@ -82,65 +101,12 @@ namespace tl
             return _p->menu;
         }
 
-        void AudioActions::setTimelinePlayers(const QVector<QPointer<qt::TimelinePlayer> >& timelinePlayers)
-        {
-            TLRENDER_P();
-            if (!p.timelinePlayers.empty())
-            {
-                disconnect(
-                    p.actions["IncreaseVolume"],
-                    SIGNAL(triggered()),
-                    this,
-                    SLOT(_increaseVolumeCallback()));
-                disconnect(
-                    p.actions["DecreaseVolume"],
-                    SIGNAL(triggered()),
-                    this,
-                    SLOT(_decreaseVolumeCallback()));
-            }
-
-            p.timelinePlayers = timelinePlayers;
-
-            if (!p.timelinePlayers.empty())
-            {
-                connect(
-                    p.actions["IncreaseVolume"],
-                    SIGNAL(triggered()),
-                    SLOT(_increaseVolumeCallback()));
-                connect(
-                    p.actions["DecreaseVolume"],
-                    SIGNAL(triggered()),
-                    SLOT(_decreaseVolumeCallback()));
-            }
-
-            _actionsUpdate();
-        }
-
-        void AudioActions::_increaseVolumeCallback()
-        {
-            TLRENDER_P();
-            p.app->setVolume(p.app->volume() + .1F);
-        }
-
-        void AudioActions::_decreaseVolumeCallback()
-        {
-            TLRENDER_P();
-            p.app->setVolume(p.app->volume() - .1F);
-        }
-
         void AudioActions::_actionsUpdate()
         {
             TLRENDER_P();
-
-            const size_t count = p.timelinePlayers.size();
-            for (auto i : p.actions)
-            {
-                i->setEnabled(count > 0);
-            }
-
             {
                 QSignalBlocker blocker(p.actions["Mute"]);
-                p.actions["Mute"]->setChecked(p.app->isMuted());
+                p.actions["Mute"]->setChecked(p.app->audioModel()->isMuted());
             }
         }
     }

@@ -10,7 +10,7 @@
 #include <tlTimeline/TimeUnits.h>
 
 #include <QApplication>
-#include <QPointer>
+#include <QSharedPointer>
 #include <QVector>
 
 namespace tl
@@ -19,6 +19,8 @@ namespace tl
     {
         struct FilesModelItem;
 
+        class AudioModel;
+        class ColorModel;
         class FilesModel;
     }
 
@@ -38,7 +40,6 @@ namespace tl
     //! "tlplay-qt" application.
     namespace play_qt
     {
-        class ColorModel;
         class DevicesModel;
         class FilesAModel;
         class FilesBModel;
@@ -76,28 +77,16 @@ namespace tl
             const std::shared_ptr<ui::RecentFilesModel>& recentFilesModel() const;
 
             //! Get the color model.
-            const std::shared_ptr<ColorModel>& colorModel() const;
-
-            //! Get the LUT options.
-            const timeline::LUTOptions& lutOptions() const;
-
-            //! Get the image options.
-            const timeline::ImageOptions& imageOptions() const;
-
-            //! Get the display options.
-            const timeline::DisplayOptions& displayOptions() const;
-
-            //! Get the audio volume.
-            float volume() const;
-
-            //! Get the audio mute.
-            bool isMuted() const;
+            const std::shared_ptr<play::ColorModel>& colorModel() const;
 
             //! Get the output device.
             qt::OutputDevice* outputDevice() const;
 
             //! Get the devices model.
             const std::shared_ptr<DevicesModel>& devicesModel() const;
+
+            //! Get the audio model.
+            const std::shared_ptr<play::AudioModel>& audioModel() const;
 
         public Q_SLOTS:
             //! Open a file.
@@ -109,43 +98,12 @@ namespace tl
             //! Open a file with separate audio dialog.
             void openSeparateAudioDialog();
 
-            //! Set the LUT options.
-            void setLUTOptions(const tl::timeline::LUTOptions&);
-
-            //! Set the image options.
-            void setImageOptions(const tl::timeline::ImageOptions&);
-
-            //! Set the display options.
-            void setDisplayOptions(const tl::timeline::DisplayOptions&);
-
-            //! Set the audio volume.
-            void setVolume(float);
-
-            //! Set the audio mute.
-            void setMute(bool);
-
-        Q_SIGNALS:
-            //! This signal is emitted when the LUT options are changed.
-            void lutOptionsChanged(const tl::timeline::LUTOptions&);
-
-            //! This signal is emitted when the image options are changed.
-            void imageOptionsChanged(const tl::timeline::ImageOptions&);
-
-            //! This signal is emitted when the display options are changed.
-            void displayOptionsChanged(const tl::timeline::DisplayOptions&);
-
-            //! This signal is emitted when the audio volume is changed.
-            void volumeChanged(float);
-
-            //! This signal is emitted when the audio mute is changed.
-            void muteChanged(bool);
-
         private Q_SLOTS:
             void _filesCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
             void _activeCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
 
         private:
-            QVector<QPointer<qt::TimelinePlayer> > _activePlayers() const;
+            QVector<QSharedPointer<qt::TimelinePlayer> > _activePlayers() const;
             otime::RationalTime _cacheReadAhead() const;
             otime::RationalTime _cacheReadBehind() const;
 

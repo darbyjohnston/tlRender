@@ -8,6 +8,7 @@
 
 #include <tlQt/MetaTypes.h>
 
+#include <tlPlay/ColorModel.h>
 #include <tlPlay/FilesModel.h>
 
 #include <QActionGroup>
@@ -20,15 +21,12 @@ namespace tl
         {
             App* app = nullptr;
 
-            timeline::ImageOptions imageOptions;
-            timeline::DisplayOptions displayOptions;
-
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
-
             QMenu* menu = nullptr;
 
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
         };
 
         RenderActions::RenderActions(App* app, QObject* parent) :
@@ -165,84 +163,83 @@ namespace tl
             connect(
                 p.actions["MirrorX"],
                 &QAction::toggled,
-                [this](bool value)
+                [app](bool value)
                 {
-                    timeline::DisplayOptions displayOptions = _p->displayOptions;
-                    displayOptions.mirror.x = value;
-                    _p->app->setDisplayOptions(displayOptions);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.mirror.x = value;
+                    app->colorModel()->setDisplayOptions(options);
                 });
             connect(
                 p.actions["MirrorY"],
                 &QAction::toggled,
-                [this](bool value)
+                [app](bool value)
                 {
-                    timeline::DisplayOptions displayOptions = _p->displayOptions;
-                    displayOptions.mirror.y = value;
-                    _p->app->setDisplayOptions(displayOptions);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.mirror.y = value;
+                    app->colorModel()->setDisplayOptions(options);
                 });
 
             connect(
                 p.actionGroups["Channels"],
                 &QActionGroup::triggered,
-                [this](QAction* action)
+                [app](QAction* action)
                 {
-                    auto displayOptions = _p->displayOptions;
-                    displayOptions.channels = action->data().value<timeline::Channels>() != displayOptions.channels ?
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.channels = action->data().value<timeline::Channels>() != options.channels ?
                         action->data().value<timeline::Channels>() :
                         timeline::Channels::Color;
-                    _p->app->setDisplayOptions(displayOptions);
+                    app->colorModel()->setDisplayOptions(options);
                 });
 
             connect(
                 p.actionGroups["VideoLevels"],
                 &QActionGroup::triggered,
-                [this](QAction* action)
+                [app](QAction* action)
                 {
-                    auto imageOptions = _p->imageOptions;
-                    imageOptions.videoLevels = action->data().value<timeline::InputVideoLevels>();
-                    _p->app->setImageOptions(imageOptions);
+                    auto options = app->colorModel()->getImageOptions();
+                    options.videoLevels = action->data().value<timeline::InputVideoLevels>();
+                    app->colorModel()->setImageOptions(options);
                 });
 
             connect(
                 _p->actionGroups["AlphaBlend"],
                 &QActionGroup::triggered,
-                [this](QAction* action)
+                [app](QAction* action)
                 {
-                    auto imageOptions = _p->imageOptions;
-                    imageOptions.alphaBlend = action->data().value<timeline::AlphaBlend>();
-                    _p->app->setImageOptions(imageOptions);
+                    auto options = app->colorModel()->getImageOptions();
+                    options.alphaBlend = action->data().value<timeline::AlphaBlend>();
+                    app->colorModel()->setImageOptions(options);
                 });
 
             connect(
                 _p->actionGroups["MinifyFilter"],
                 &QActionGroup::triggered,
-                [this](QAction* action)
+                [app](QAction* action)
                 {
-                    auto imageOptions = _p->imageOptions;
-                    const auto imageFilter = action->data().value<timeline::ImageFilter>();
-                    imageOptions.imageFilters.minify = imageFilter;
-                    auto displayOptions = _p->displayOptions;
-                    displayOptions.imageFilters.minify = imageFilter;
-                    _p->app->setImageOptions(imageOptions);
-                    _p->app->setDisplayOptions(displayOptions);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.imageFilters.minify = action->data().value<timeline::ImageFilter>();
+                    app->colorModel()->setDisplayOptions(options);
                 });
             connect(
                 _p->actionGroups["MagnifyFilter"],
                 &QActionGroup::triggered,
-                [this](QAction* action)
+                [app](QAction* action)
                 {
-                    auto imageOptions = _p->imageOptions;
-                    const auto imageFilter = action->data().value<timeline::ImageFilter>();
-                    imageOptions.imageFilters.magnify = imageFilter;
-                    auto displayOptions = _p->displayOptions;
-                    displayOptions.imageFilters.magnify = imageFilter;
-                    _p->app->setImageOptions(imageOptions);
-                    _p->app->setDisplayOptions(displayOptions);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.imageFilters.magnify = action->data().value<timeline::ImageFilter>();
+                    app->colorModel()->setDisplayOptions(options);
                 });
 
-            p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
-                app->filesModel()->observeFiles(),
-                [this](const std::vector<std::shared_ptr<play::FilesModelItem> >&)
+            p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
+                app->colorModel()->observeImageOptions(),
+                [this](const timeline::ImageOptions&)
+                {
+                    _actionsUpdate();
+                });
+
+            p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+                app->colorModel()->observeDisplayOptions(),
+                [this](const timeline::DisplayOptions&)
                 {
                     _actionsUpdate();
                 });
@@ -261,136 +258,78 @@ namespace tl
             return _p->menu;
         }
 
-        void RenderActions::setImageOptions(const timeline::ImageOptions& value)
-        {
-            TLRENDER_P();
-            if (value == p.imageOptions)
-                return;
-            p.imageOptions = value;
-            _actionsUpdate();
-        }
-
-        void RenderActions::setDisplayOptions(const timeline::DisplayOptions& value)
-        {
-            TLRENDER_P();
-            if (value == p.displayOptions)
-                return;
-            p.displayOptions = value;
-            _actionsUpdate();
-        }
-
         void RenderActions::_actionsUpdate()
         {
             TLRENDER_P();
 
-            const size_t count = p.app->filesModel()->observeFiles()->getSize();
-            for (auto i : p.actions)
+            auto colorModel = p.app->colorModel();
+            const auto& displayOptions = colorModel->getDisplayOptions();
             {
-                i->setEnabled(count > 0);
+                QSignalBlocker blocker(p.actions["MirrorX"]);
+                p.actions["MirrorX"]->setChecked(displayOptions.mirror.x);
             }
-
-            if (count > 0)
             {
+                QSignalBlocker blocker(p.actions["MirrorY"]);
+                p.actions["MirrorY"]->setChecked(displayOptions.mirror.y);
+            }
+            {
+                QSignalBlocker blocker(p.actionGroups["Channels"]);
+                p.actions["Channels/Red"]->setChecked(false);
+                p.actions["Channels/Green"]->setChecked(false);
+                p.actions["Channels/Blue"]->setChecked(false);
+                p.actions["Channels/Alpha"]->setChecked(false);
+                for (auto action : p.actionGroups["Channels"]->actions())
                 {
-                    QSignalBlocker blocker(p.actions["MirrorX"]);
-                    p.actions["MirrorX"]->setChecked(p.displayOptions.mirror.x);
-                }
-                {
-                    QSignalBlocker blocker(p.actions["MirrorY"]);
-                    p.actions["MirrorY"]->setChecked(p.displayOptions.mirror.y);
-                }
-                {
-                    QSignalBlocker blocker(p.actionGroups["Channels"]);
-                    p.actions["Channels/Red"]->setChecked(false);
-                    p.actions["Channels/Green"]->setChecked(false);
-                    p.actions["Channels/Blue"]->setChecked(false);
-                    p.actions["Channels/Alpha"]->setChecked(false);
-                    for (auto action : p.actionGroups["Channels"]->actions())
+                    if (action->data().value<timeline::Channels>() == displayOptions.channels)
                     {
-                        if (action->data().value<timeline::Channels>() == p.displayOptions.channels)
-                        {
-                            action->setChecked(true);
-                            break;
-                        }
-                    }
-                }
-                {
-                    QSignalBlocker blocker(p.actionGroups["VideoLevels"]);
-                    for (auto action : p.actionGroups["VideoLevels"]->actions())
-                    {
-                        if (action->data().value<timeline::InputVideoLevels>() == p.imageOptions.videoLevels)
-                        {
-                            action->setChecked(true);
-                            break;
-                        }
-                    }
-                }
-                {
-                    QSignalBlocker blocker(p.actionGroups["AlphaBlend"]);
-                    for (auto action : p.actionGroups["AlphaBlend"]->actions())
-                    {
-                        if (action->data().value<timeline::AlphaBlend>() == p.imageOptions.alphaBlend)
-                        {
-                            action->setChecked(true);
-                            break;
-                        }
-                    }
-                }
-                {
-                    QSignalBlocker blocker(p.actionGroups["MinifyFilter"]);
-                    for (auto action : p.actionGroups["MinifyFilter"]->actions())
-                    {
-                        if (action->data().value<timeline::ImageFilter>() == p.imageOptions.imageFilters.minify)
-                        {
-                            action->setChecked(true);
-                            break;
-                        }
-                    }
-                }
-                {
-                    QSignalBlocker blocker(p.actionGroups["MagnifyFilter"]);
-                    for (auto action : p.actionGroups["MagnifyFilter"]->actions())
-                    {
-                        if (action->data().value<timeline::ImageFilter>() == p.imageOptions.imageFilters.magnify)
-                        {
-                            action->setChecked(true);
-                            break;
-                        }
+                        action->setChecked(true);
+                        break;
                     }
                 }
             }
-            else
+            const auto& imageOptions = colorModel->getImageOptions();
             {
+                QSignalBlocker blocker(p.actionGroups["VideoLevels"]);
+                for (auto action : p.actionGroups["VideoLevels"]->actions())
                 {
-                    QSignalBlocker blocker(p.actions["MirrorX"]);
-                    p.actions["MirrorX"]->setChecked(false);
+                    if (action->data().value<timeline::InputVideoLevels>() == imageOptions.videoLevels)
+                    {
+                        action->setChecked(true);
+                        break;
+                    }
                 }
+            }
+            {
+                QSignalBlocker blocker(p.actionGroups["AlphaBlend"]);
+                for (auto action : p.actionGroups["AlphaBlend"]->actions())
                 {
-                    QSignalBlocker blocker(p.actions["MirrorY"]);
-                    p.actions["MirrorY"]->setChecked(false);
+                    if (action->data().value<timeline::AlphaBlend>() == imageOptions.alphaBlend)
+                    {
+                        action->setChecked(true);
+                        break;
+                    }
                 }
+            }
+            {
+                QSignalBlocker blocker(p.actionGroups["MinifyFilter"]);
+                for (auto action : p.actionGroups["MinifyFilter"]->actions())
                 {
-                    QSignalBlocker blocker(p.actionGroups["Channels"]);
-                    p.actions["Channels/Red"]->setChecked(false);
-                    p.actions["Channels/Green"]->setChecked(false);
-                    p.actions["Channels/Blue"]->setChecked(false);
-                    p.actions["Channels/Alpha"]->setChecked(false);
+                    if (action->data().value<timeline::ImageFilter>() == displayOptions.imageFilters.minify)
+                    {
+                        action->setChecked(true);
+                        break;
+                    }
                 }
+            }
+            {
+                QSignalBlocker blocker(p.actionGroups["MagnifyFilter"]);
+                for (auto action : p.actionGroups["MagnifyFilter"]->actions())
                 {
-                    QSignalBlocker blocker(p.actionGroups["VideoLevels"]);
-                    p.actions["VideoLevels/FromFile"]->setChecked(true);
-                }
-                {
-                    QSignalBlocker blocker(p.actionGroups["AlphaBlend"]);
-                    p.actions["AlphaBlend/None"]->setChecked(true);
-                }
-                {
-                    QSignalBlocker blocker(p.actionGroups["MinifyFilter"]);
-                    p.actions["MinifyFilter/Nearest"]->setChecked(true);
-                }
-                {
-                    QSignalBlocker blocker(p.actionGroups["MagnifyFilter"]);
-                    p.actions["MagnifyFilter/Nearest"]->setChecked(true);
+                    if (action->data().value<timeline::ImageFilter>() == displayOptions.imageFilters.magnify)
+                    {
+                        action->setChecked(true);
+                        break;
+                    }
                 }
             }
         }

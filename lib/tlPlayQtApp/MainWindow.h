@@ -25,7 +25,7 @@ namespace tl
             virtual ~MainWindow();
 
             //! Set the timeline players.
-            void setTimelinePlayers(const QVector<QPointer<qt::TimelinePlayer> >&);
+            void setTimelinePlayers(const QVector<QSharedPointer<qt::TimelinePlayer> >&);
 
         protected:
             void closeEvent(QCloseEvent*) override;

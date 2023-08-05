@@ -7,7 +7,7 @@
 #include <tlPlayQtApp/App.h>
 #include <tlPlayQtApp/AudioActions.h>
 #include <tlPlayQtApp/AudioTool.h>
-#include <tlPlayQtApp/ColorModel.h>
+#include <tlPlayQtApp/ColorConfigModel.h>
 #include <tlPlayQtApp/ColorTool.h>
 #include <tlPlayQtApp/CompareActions.h>
 #include <tlPlayQtApp/CompareTool.h>
@@ -36,6 +36,8 @@
 
 #include <tlQt/OutputDevice.h>
 
+#include <tlPlay/AudioModel.h>
+#include <tlPlay/ColorModel.h>
 #include <tlPlay/FilesModel.h>
 
 #include <tlCore/File.h>
@@ -51,7 +53,7 @@
 #include <QMenuBar>
 #include <QMimeData>
 #include <QMouseEvent>
-#include <QPointer>
+#include <QSharedPointer>
 #include <QSlider>
 #include <QStatusBar>
 #include <QStyle>
@@ -75,17 +77,10 @@ namespace tl
         {
             App* app = nullptr;
 
-            QVector<QPointer<qt::TimelinePlayer> > timelinePlayers;
+            QVector<QSharedPointer<qt::TimelinePlayer> > timelinePlayers;
             bool floatOnTop = false;
             bool secondaryFloatOnTop = false;
-            timeline::ColorConfigOptions colorConfigOptions;
-            timeline::LUTOptions lutOptions;
-            timeline::ImageOptions imageOptions;
-            timeline::DisplayOptions displayOptions;
-            timeline::CompareOptions compareOptions;
             imaging::VideoLevels outputVideoLevels;
-            float volume = 1.F;
-            bool mute = false;
 
             FileActions* fileActions = nullptr;
             CompareActions* compareActions = nullptr;
@@ -123,7 +118,12 @@ namespace tl
             std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > colorConfigOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<observer::ValueObserver<DevicesModelData> > devicesModelObserver;
+            std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
+            std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
 
             bool mousePressed = false;
@@ -137,11 +137,6 @@ namespace tl
             TLRENDER_P();
 
             p.app = app;
-            p.lutOptions = app->lutOptions();
-            p.imageOptions = app->imageOptions();
-            p.displayOptions = app->displayOptions();
-            p.volume = app->volume();
-            p.mute = app->isMuted();
 
             setFocusPolicy(Qt::StrongFocus);
             setAcceptDrops(true);
@@ -360,7 +355,6 @@ namespace tl
             p.systemLogTool = new SystemLogTool(app);
             auto systemLogDockWidget = new SystemLogDockWidget(p.systemLogTool);
             systemLogDockWidget->hide();
-            systemLogDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F11));
             p.toolActions->menu()->addAction(systemLogDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, systemLogDockWidget);
 
@@ -401,17 +395,33 @@ namespace tl
                 });
             p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
                 app->filesModel()->observeCompareOptions(),
-                [this](const timeline::CompareOptions& value)
+                [this](const timeline::CompareOptions&)
                 {
-                    _p->compareOptions = value;
                     _widgetUpdate();
                 });
 
             p.colorConfigOptionsObserver = observer::ValueObserver<timeline::ColorConfigOptions>::create(
-                app->colorModel()->observeConfigOptions(),
-                [this](const timeline::ColorConfigOptions& value)
+                app->colorModel()->observeColorConfigOptions(),
+                [this](const timeline::ColorConfigOptions&)
                 {
-                    _p->colorConfigOptions = value;
+                    _widgetUpdate();
+                });
+            p.lutOptionsObserver = observer::ValueObserver<timeline::LUTOptions>::create(
+                app->colorModel()->observeLUTOptions(),
+                [this](const timeline::LUTOptions&)
+                {
+                    _widgetUpdate();
+                });
+            p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+                app->colorModel()->observeDisplayOptions(),
+                [this](const timeline::DisplayOptions&)
+                {
+                    _widgetUpdate();
+                });
+            p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
+                app->colorModel()->observeImageOptions(),
+                [this](const timeline::ImageOptions&)
+                {
                     _widgetUpdate();
                 });
 
@@ -420,6 +430,19 @@ namespace tl
                 [this](const DevicesModelData& value)
                 {
                     _p->outputVideoLevels = value.videoLevels;
+                    _widgetUpdate();
+                });
+
+            p.volumeObserver = observer::ValueObserver<float>::create(
+                app->audioModel()->observeVolume(),
+                [this](float)
+                {
+                    _widgetUpdate();
+                });
+            p.muteObserver = observer::ValueObserver<bool>::create(
+                app->audioModel()->observeMute(),
+                [this](bool)
+                {
                     _widgetUpdate();
                 });
 
@@ -439,47 +462,6 @@ namespace tl
                         default: break;
                         }
                     }
-                });
-
-            connect(
-                app,
-                &App::lutOptionsChanged,
-                [this](const timeline::LUTOptions& value)
-                {
-                    _p->lutOptions = value;
-                    _widgetUpdate();
-                });
-            connect(
-                app,
-                &App::imageOptionsChanged,
-                [this](const timeline::ImageOptions& value)
-                {
-                    _p->imageOptions = value;
-                    _widgetUpdate();
-                });
-            connect(
-                app,
-                &App::displayOptionsChanged,
-                [this](const timeline::DisplayOptions& value)
-                {
-                    _p->displayOptions = value;
-                    _widgetUpdate();
-                });
-            connect(
-                app,
-                &App::volumeChanged,
-                [this](float value)
-                {
-                    _p->volume = value;
-                    _widgetUpdate();
-                });
-            connect(
-                app,
-                &App::muteChanged,
-                [this](bool value)
-                {
-                    _p->mute = value;
-                    _widgetUpdate();
                 });
 
             connect(
@@ -620,21 +602,6 @@ namespace tl
                 SLOT(_volumeCallback(int)));
 
             connect(
-                p.colorTool,
-                &ColorTool::lutOptionsChanged,
-                [app](const timeline::LUTOptions& value)
-                {
-                    app->setLUTOptions(value);
-                });
-            connect(
-                p.colorTool,
-                &ColorTool::displayOptionsChanged,
-                [app](const timeline::DisplayOptions& value)
-                {
-                    app->setDisplayOptions(value);
-                });
-
-            connect(
                 p.audioTool,
                 &AudioTool::audioOffsetChanged,
                 [this](double value)
@@ -771,28 +738,28 @@ namespace tl
             }
         }
 
-        void MainWindow::setTimelinePlayers(const QVector<QPointer<qt::TimelinePlayer> >& timelinePlayers)
+        void MainWindow::setTimelinePlayers(const QVector<QSharedPointer<qt::TimelinePlayer> >& timelinePlayers)
         {
             TLRENDER_P();
             if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
             {
                 disconnect(
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SIGNAL(speedChanged(double)),
                     this,
                     SLOT(_speedCallback(double)));
                 disconnect(
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SIGNAL(playbackChanged(tl::timeline::Playback)),
                     this,
                     SLOT(_playbackCallback(tl::timeline::Playback)));
                 disconnect(
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
                     this,
                     SLOT(_currentTimeCallback(const otime::RationalTime&)));
                 disconnect(
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SIGNAL(audioOffsetChanged(double)),
                     p.audioTool,
                     SLOT(setAudioOffset(double)));
@@ -803,19 +770,19 @@ namespace tl
             if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
             {
                 connect(
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SIGNAL(speedChanged(double)),
                     SLOT(_speedCallback(double)));
                 connect(
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SIGNAL(playbackChanged(tl::timeline::Playback)),
                     SLOT(_playbackCallback(tl::timeline::Playback)));
                 connect(
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
                     SLOT(_currentTimeCallback(const otime::RationalTime&)));
                 connect(
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SIGNAL(audioOffsetChanged(double)),
                     p.audioTool,
                     SLOT(setAudioOffset(double)));
@@ -921,7 +888,7 @@ namespace tl
                                 const auto& imageInfo = ioInfo.video[0];
                                 const math::Vector2i& viewPos = p.timelineViewport->viewPos();
                                 const float viewZoom = p.timelineViewport->viewZoom();
-                                auto compareOptions = p.compareOptions;
+                                auto compareOptions = p.app->filesModel()->getCompareOptions();
                                 compareOptions.wipeCenter.x = (p.mousePos.x - viewPos.x) / viewZoom /
                                     static_cast<float>(imageInfo.size.w * imageInfo.size.pixelAspectRatio);
                                 compareOptions.wipeCenter.y = 1.F - (p.mousePos.y - viewPos.y) / viewZoom /
@@ -942,18 +909,19 @@ namespace tl
             if (value && !p.secondaryWindow)
             {
                 p.secondaryWindow = new SecondaryWindow(p.app);
-                p.secondaryWindow->viewport()->setColorConfigOptions(p.colorConfigOptions);
-                p.secondaryWindow->viewport()->setLUTOptions(p.lutOptions);
+                auto colorModel = p.app->colorModel();
+                p.secondaryWindow->viewport()->setColorConfigOptions(colorModel->getColorConfigOptions());
+                p.secondaryWindow->viewport()->setLUTOptions(colorModel->getLUTOptions());
                 std::vector<timeline::ImageOptions> imageOptions;
                 std::vector<timeline::DisplayOptions> displayOptions;
                 for (const auto& i : p.timelinePlayers)
                 {
-                    imageOptions.push_back(p.imageOptions);
-                    displayOptions.push_back(p.displayOptions);
+                    imageOptions.push_back(colorModel->getImageOptions());
+                    displayOptions.push_back(colorModel->getDisplayOptions());
                 }
                 p.secondaryWindow->viewport()->setImageOptions(imageOptions);
                 p.secondaryWindow->viewport()->setDisplayOptions(displayOptions);
-                p.secondaryWindow->viewport()->setCompareOptions(p.compareOptions);
+                p.secondaryWindow->viewport()->setCompareOptions(p.app->filesModel()->getCompareOptions());
                 p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
 
                 connect(
@@ -1019,14 +987,13 @@ namespace tl
         void MainWindow::_volumeCallback(int value)
         {
             TLRENDER_P();
-            p.app->setVolume(value / static_cast<float>(sliderSteps));
+            p.app->audioModel()->setVolume(value / static_cast<float>(sliderSteps));
         }
 
         void MainWindow::_timelinePlayersUpdate()
         {
             TLRENDER_P();
             p.playbackActions->setTimelinePlayers(p.timelinePlayers);
-            p.audioActions->setTimelinePlayers(p.timelinePlayers);
             p.timelineViewport->setTimelinePlayers(p.timelinePlayers);
             if (p.secondaryWindow)
             {
@@ -1088,21 +1055,19 @@ namespace tl
 
             p.viewActions->actions()["Frame"]->setChecked(p.timelineViewport->hasFrameView());
 
-            p.renderActions->setImageOptions(p.imageOptions);
-            p.renderActions->setDisplayOptions(p.displayOptions);
-
-            p.timelineViewport->setColorConfigOptions(p.colorConfigOptions);
-            p.timelineViewport->setLUTOptions(p.lutOptions);
+            auto colorModel = p.app->colorModel();
+            p.timelineViewport->setColorConfigOptions(colorModel->getColorConfigOptions());
+            p.timelineViewport->setLUTOptions(colorModel->getLUTOptions());
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
             for (const auto& i : p.timelinePlayers)
             {
-                imageOptions.push_back(p.imageOptions);
-                displayOptions.push_back(p.displayOptions);
+                imageOptions.push_back(colorModel->getImageOptions());
+                displayOptions.push_back(colorModel->getDisplayOptions());
             }
             p.timelineViewport->setImageOptions(imageOptions);
             p.timelineViewport->setDisplayOptions(displayOptions);
-            p.timelineViewport->setCompareOptions(p.compareOptions);
+            p.timelineViewport->setCompareOptions(p.app->filesModel()->getCompareOptions());
 
             p.timelineWidget->setPlayer(
                 (!p.timelinePlayers.empty() && p.timelinePlayers[0]) ?
@@ -1121,11 +1086,9 @@ namespace tl
 
             {
                 const QSignalBlocker blocker(p.volumeSlider);
-                p.volumeSlider->setValue(p.volume * sliderSteps);
+                const float volume = p.app->audioModel()->getVolume();
+                p.volumeSlider->setValue(volume * sliderSteps);
             }
-
-            p.colorTool->setLUTOptions(p.lutOptions);
-            p.colorTool->setDisplayOptions(p.displayOptions);
 
             p.infoTool->setInfo(
                 (!p.timelinePlayers.empty() && p.timelinePlayers[0]) ?
@@ -1199,22 +1162,22 @@ namespace tl
 
             if (p.secondaryWindow)
             {
-                p.secondaryWindow->viewport()->setColorConfigOptions(p.colorConfigOptions);
-                p.secondaryWindow->viewport()->setLUTOptions(p.lutOptions);
+                p.secondaryWindow->viewport()->setColorConfigOptions(colorModel->getColorConfigOptions());
+                p.secondaryWindow->viewport()->setLUTOptions(colorModel->getLUTOptions());
                 p.secondaryWindow->viewport()->setImageOptions(imageOptions);
                 p.secondaryWindow->viewport()->setDisplayOptions(displayOptions);
-                p.secondaryWindow->viewport()->setCompareOptions(p.compareOptions);
+                p.secondaryWindow->viewport()->setCompareOptions(p.app->filesModel()->getCompareOptions());
             }
 
-            p.app->outputDevice()->setColorConfigOptions(p.colorConfigOptions);
-            p.app->outputDevice()->setLUTOptions(p.lutOptions);
+            p.app->outputDevice()->setColorConfigOptions(colorModel->getColorConfigOptions());
+            p.app->outputDevice()->setLUTOptions(colorModel->getLUTOptions());
             p.app->outputDevice()->setImageOptions(imageOptions);
             for (auto& i : displayOptions)
             {
                 i.videoLevels = p.outputVideoLevels;
             }
             p.app->outputDevice()->setDisplayOptions(displayOptions);
-            p.app->outputDevice()->setCompareOptions(p.compareOptions);
+            p.app->outputDevice()->setCompareOptions(p.app->filesModel()->getCompareOptions());
         }
     }
 }

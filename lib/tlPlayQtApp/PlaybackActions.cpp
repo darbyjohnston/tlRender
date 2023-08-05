@@ -20,7 +20,7 @@ namespace tl
         {
             App* app = nullptr;
 
-            QVector<QPointer<qt::TimelinePlayer> > timelinePlayers;
+            QVector<QSharedPointer<qt::TimelinePlayer> > timelinePlayers;
 
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
@@ -519,18 +519,18 @@ namespace tl
             return _p->speedMenu;
         }
 
-        void PlaybackActions::setTimelinePlayers(const QVector<QPointer<qt::TimelinePlayer> >& timelinePlayers)
+        void PlaybackActions::setTimelinePlayers(const QVector<QSharedPointer<qt::TimelinePlayer> >& timelinePlayers)
         {
             TLRENDER_P();
             if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
             {
                 disconnect(
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SIGNAL(playbackChanged(tl::timeline::Playback)),
                     this,
                     SLOT(_playbackCallback(tl::timeline::Playback)));
                 disconnect(
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SIGNAL(loopChanged(tl::timeline::Loop)),
                     this,
                     SLOT(_loopCallback(tl::timeline::Loop)));
@@ -538,22 +538,22 @@ namespace tl
                 disconnect(
                     p.actions["SetInPoint"],
                     SIGNAL(triggered()),
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SLOT(setInPoint()));
                 disconnect(
                     p.actions["ResetInPoint"],
                     SIGNAL(triggered()),
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SLOT(resetInPoint()));
                 disconnect(
                     p.actions["SetOutPoint"],
                     SIGNAL(triggered()),
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SLOT(setOutPoint()));
                 disconnect(
                     p.actions["ResetOutPoint"],
                     SIGNAL(triggered()),
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SLOT(resetOutPoint()));
             }
 
@@ -562,33 +562,33 @@ namespace tl
             if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
             {
                 connect(
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SIGNAL(playbackChanged(tl::timeline::Playback)),
                     SLOT(_playbackCallback(tl::timeline::Playback)));
                 connect(
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SIGNAL(loopChanged(tl::timeline::Loop)),
                     SLOT(_loopCallback(tl::timeline::Loop)));
 
                 connect(
                     p.actions["SetInPoint"],
                     SIGNAL(triggered()),
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SLOT(setInPoint()));
                 connect(
                     p.actions["ResetInPoint"],
                     SIGNAL(triggered()),
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SLOT(resetInPoint()));
                 connect(
                     p.actions["SetOutPoint"],
                     SIGNAL(triggered()),
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SLOT(setOutPoint()));
                 connect(
                     p.actions["ResetOutPoint"],
                     SIGNAL(triggered()),
-                    p.timelinePlayers[0],
+                    p.timelinePlayers[0].get(),
                     SLOT(resetOutPoint()));
             }
 

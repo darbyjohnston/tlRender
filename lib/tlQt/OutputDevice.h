@@ -11,7 +11,7 @@
 #include <tlDevice/DeviceData.h>
 
 #include <QImage>
-#include <QPointer>
+#include <QSharedPointer>
 #include <QThread>
 #include <QVector>
 
@@ -80,7 +80,7 @@ namespace tl
             void setCompareOptions(const timeline::CompareOptions&);
 
             //! Set the timeline players.
-            void setTimelinePlayers(const QVector<QPointer<qt::TimelinePlayer> >&);
+            void setTimelinePlayers(QVector<QSharedPointer<qt::TimelinePlayer> >);
 
             //! Set a QImage overlay. The output device takes ownership of
             //! the given QImage. The QImage format must be:

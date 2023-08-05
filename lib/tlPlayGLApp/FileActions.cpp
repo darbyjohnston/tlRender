@@ -6,6 +6,8 @@
 
 #include <tlPlayGLApp/App.h>
 
+#include <tlPlay/FilesModel.h>
+
 #include <tlCore/StringFormat.h>
 
 namespace tl

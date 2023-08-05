@@ -5,10 +5,9 @@
 #pragma once
 
 #include <tlPlayQtApp/IToolWidget.h>
+#include <tlPlayQtApp/ColorConfigModel.h>
 
 #include <tlQt/MetaTypes.h>
-
-#include <tlTimeline/IRender.h>
 
 #include <QDockWidget>
 
@@ -27,7 +26,7 @@ namespace tl
             virtual ~ConfigWidget();
 
         private:
-            void _widgetUpdate();
+            void _widgetUpdate(const ColorConfigModelData&);
 
             TLRENDER_PRIVATE();
         };
@@ -42,14 +41,8 @@ namespace tl
 
             virtual ~LUTWidget();
 
-        public Q_SLOTS:
-            void setLUTOptions(const tl::timeline::LUTOptions&);
-
-        Q_SIGNALS:
-            void lutOptionsChanged(const tl::timeline::LUTOptions&);
-
         private:
-            void _widgetUpdate();
+            void _widgetUpdate(const tl::timeline::LUTOptions&);
 
             TLRENDER_PRIVATE();
         };
@@ -60,20 +53,12 @@ namespace tl
             Q_OBJECT
 
         public:
-            ColorControlsWidget(QWidget* parent = nullptr);
+            ColorControlsWidget(App*, QWidget* parent = nullptr);
 
             virtual ~ColorControlsWidget();
 
-        public Q_SLOTS:
-            void setColorEnabled(bool);
-            void setColor(const tl::timeline::Color&);
-
-        Q_SIGNALS:
-            void colorEnabledChanged(bool);
-            void colorChanged(const tl::timeline::Color&);
-
         private:
-            void _widgetUpdate();
+            void _widgetUpdate(const timeline::DisplayOptions&);
 
             TLRENDER_PRIVATE();
         };
@@ -84,20 +69,12 @@ namespace tl
             Q_OBJECT
 
         public:
-            LevelsWidget(QWidget* parent = nullptr);
+            LevelsWidget(App*, QWidget* parent = nullptr);
 
             virtual ~LevelsWidget();
 
-        public Q_SLOTS:
-            void setLevelsEnabled(bool);
-            void setLevels(const tl::timeline::Levels&);
-
-        Q_SIGNALS:
-            void levelsEnabledChanged(bool);
-            void levelsChanged(const tl::timeline::Levels&);
-
         private:
-            void _widgetUpdate();
+            void _widgetUpdate(const timeline::DisplayOptions&);
 
             TLRENDER_PRIVATE();
         };
@@ -108,20 +85,12 @@ namespace tl
             Q_OBJECT
 
         public:
-            EXRDisplayWidget(QWidget* parent = nullptr);
+            EXRDisplayWidget(App*, QWidget* parent = nullptr);
 
             virtual ~EXRDisplayWidget();
 
-        public Q_SLOTS:
-            void setEXRDisplayEnabled(bool);
-            void setEXRDisplay(const tl::timeline::EXRDisplay&);
-
-        Q_SIGNALS:
-            void exrDisplayEnabledChanged(bool);
-            void exrDisplayChanged(const tl::timeline::EXRDisplay&);
-
         private:
-            void _widgetUpdate();
+            void _widgetUpdate(const timeline::DisplayOptions&);
 
             TLRENDER_PRIVATE();
         };
@@ -132,20 +101,12 @@ namespace tl
             Q_OBJECT
 
         public:
-            SoftClipWidget(QWidget* parent = nullptr);
+            SoftClipWidget(App*, QWidget* parent = nullptr);
 
             virtual ~SoftClipWidget();
 
-        public Q_SLOTS:
-            void setSoftClipEnabled(bool);
-            void setSoftClip(float);
-
-        Q_SIGNALS:
-            void softClipEnabledChanged(bool);
-            void softClipChanged(float);
-
         private:
-            void _widgetUpdate();
+            void _widgetUpdate(const timeline::DisplayOptions&);
 
             TLRENDER_PRIVATE();
         };
@@ -160,17 +121,7 @@ namespace tl
 
             virtual ~ColorTool();
 
-        public Q_SLOTS:
-            void setLUTOptions(const tl::timeline::LUTOptions&);
-            void setDisplayOptions(const tl::timeline::DisplayOptions&);
-
-        Q_SIGNALS:
-            void lutOptionsChanged(const tl::timeline::LUTOptions&);
-            void displayOptionsChanged(const tl::timeline::DisplayOptions&);
-
         private:
-            void _widgetUpdate();
-
             TLRENDER_PRIVATE();
         };
 

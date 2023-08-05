@@ -30,7 +30,7 @@ namespace tl
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
-            QVector<QPointer<qt::TimelinePlayer> > timelinePlayers;
+            QVector<QSharedPointer<qt::TimelinePlayer> > timelinePlayers;
             std::vector<imaging::Size> timelineSizes;
             math::Vector2i viewPos;
             float viewZoom = 1.F;
@@ -116,7 +116,7 @@ namespace tl
             update();
         }
 
-        void TimelineViewport::setTimelinePlayers(const QVector<QPointer<qt::TimelinePlayer> >& value)
+        void TimelineViewport::setTimelinePlayers(const QVector<QSharedPointer<qt::TimelinePlayer> >& value)
         {
             TLRENDER_P();
 
@@ -125,7 +125,7 @@ namespace tl
                 if (player)
                 {
                     disconnect(
-                        player,
+                        player.get(),
                         SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
                         this,
                         SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
@@ -163,7 +163,7 @@ namespace tl
                 if (player)
                 {
                     connect(
-                        player,
+                        player.get(),
                         SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
                         SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
                 }

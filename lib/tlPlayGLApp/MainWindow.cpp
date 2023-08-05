@@ -340,7 +340,7 @@ namespace tl
 
             p.speedEdit = ui::DoubleEdit::create(context, p.speedModel);
             p.speedEdit->setToolTip("Current speed");
-            p.speedButton = ui::ToolButton::create(context);
+            p.speedButton = ui::ToolButton::create("FPS", context);
             p.speedButton->setIcon("MenuArrow");
             p.speedButton->setToolTip("Speed menu");
 

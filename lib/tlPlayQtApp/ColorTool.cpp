@@ -5,12 +5,14 @@
 #include <tlPlayQtApp/ColorTool.h>
 
 #include <tlPlayQtApp/App.h>
-#include <tlPlayQtApp/ColorModel.h>
+#include <tlPlayQtApp/ColorConfigModel.h>
 #include <tlPlayQtApp/DockTitleBar.h>
 
 #include <tlQtWidget/FileWidget.h>
 #include <tlQtWidget/FloatEditSlider.h>
 #include <tlQtWidget/SearchWidget.h>
+
+#include <tlPlay/ColorModel.h>
 
 #include <tlCore/Path.h>
 
@@ -25,18 +27,18 @@
 #include <QTabWidget>
 #include <QToolButton>
 
-#include <sstream>
-
 namespace tl
 {
     namespace play_qt
     {
         struct ConfigWidget::Private
         {
-            std::shared_ptr<ColorModel> colorModel;
-            ColorModelData data;
+            std::shared_ptr<ColorConfigModel> colorConfigModel;
             qtwidget::FileWidget* fileWidget = nullptr;
-            std::shared_ptr<observer::ValueObserver<ColorModelData> > dataObserver;
+
+            std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > configOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > configOptionsObserver2;
+            std::shared_ptr<observer::ValueObserver<ColorConfigModelData> > dataObserver;
         };
 
         ConfigWidget::ConfigWidget(App* app, QWidget* parent) :
@@ -45,21 +47,21 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.colorModel = app->colorModel();
+            p.colorConfigModel = ColorConfigModel::create(app->getContext());
 
-            auto inputListModel = new ColorInputListModel(p.colorModel, this);
+            auto inputListModel = new ColorInputListModel(p.colorConfigModel, this);
             auto inputListProxyModel = new QSortFilterProxyModel(this);
             inputListProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
             inputListProxyModel->setFilterKeyColumn(-1);
             inputListProxyModel->setSourceModel(inputListModel);
 
-            auto displayListModel = new ColorDisplayListModel(p.colorModel, this);
+            auto displayListModel = new ColorDisplayListModel(p.colorConfigModel, this);
             auto displayListProxyModel = new QSortFilterProxyModel(this);
             displayListProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
             displayListProxyModel->setFilterKeyColumn(-1);
             displayListProxyModel->setSourceModel(displayListModel);
 
-            auto viewListModel = new ColorViewListModel(p.colorModel, this);
+            auto viewListModel = new ColorViewListModel(p.colorConfigModel, this);
             auto viewListProxyModel = new QSortFilterProxyModel(this);
             viewListProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
             viewListProxyModel->setFilterKeyColumn(-1);
@@ -130,7 +132,7 @@ namespace tl
                 &qtwidget::FileWidget::fileChanged,
                 [this](const QString& value)
                 {
-                    _p->colorModel->setConfig(value.toUtf8().data());
+                    _p->colorConfigModel->setConfig(value.toUtf8().data());
                 });
 
             connect(
@@ -139,7 +141,7 @@ namespace tl
                 [this, inputListProxyModel](const QModelIndex& index)
                 {
                     auto sourceIndex = inputListProxyModel->mapToSource(index);
-                    _p->colorModel->setInputIndex(sourceIndex.row());
+                    _p->colorConfigModel->setInputIndex(sourceIndex.row());
                 });
 
             connect(
@@ -154,7 +156,7 @@ namespace tl
                 [this, displayListProxyModel](const QModelIndex& index)
                 {
                     auto sourceIndex = displayListProxyModel->mapToSource(index);
-                    _p->colorModel->setDisplayIndex(sourceIndex.row());
+                    _p->colorConfigModel->setDisplayIndex(sourceIndex.row());
                 });
 
             connect(
@@ -169,7 +171,7 @@ namespace tl
                 [this, viewListProxyModel](const QModelIndex& index)
                 {
                     auto sourceIndex = viewListProxyModel->mapToSource(index);
-                    _p->colorModel->setViewIndex(sourceIndex.row());
+                    _p->colorConfigModel->setViewIndex(sourceIndex.row());
                 });
 
             connect(
@@ -178,33 +180,46 @@ namespace tl
                 viewListProxyModel,
                 SLOT(setFilterFixedString(const QString&)));
 
-            p.dataObserver = observer::ValueObserver<ColorModelData>::create(
-                p.colorModel->observeData(),
-                [this](const ColorModelData& value)
+            p.configOptionsObserver = observer::ValueObserver<timeline::ColorConfigOptions>::create(
+                p.colorConfigModel->observeConfigOptions(),
+                [app](const timeline::ColorConfigOptions& value)
                 {
-                    _p->data = value;
-                    _widgetUpdate();
+                    app->colorModel()->setColorConfigOptions(value);
+                });
+
+            p.configOptionsObserver2 = observer::ValueObserver<timeline::ColorConfigOptions>::create(
+                app->colorModel()->observeColorConfigOptions(),
+                [this](const timeline::ColorConfigOptions& value)
+                {
+                    _p->colorConfigModel->setConfigOptions(value);
+                });
+
+            p.dataObserver = observer::ValueObserver<ColorConfigModelData>::create(
+                p.colorConfigModel->observeData(),
+                [this](const ColorConfigModelData& value)
+                {
+                    _widgetUpdate(value);
                 });
         }
 
         ConfigWidget::~ConfigWidget()
         {}
 
-        void ConfigWidget::_widgetUpdate()
+        void ConfigWidget::_widgetUpdate(const ColorConfigModelData& value)
         {
             TLRENDER_P();
             {
                 QSignalBlocker blocker(p.fileWidget);
-                p.fileWidget->setFile(QString::fromUtf8(p.data.fileName.c_str()));
+                p.fileWidget->setFile(QString::fromUtf8(value.fileName.c_str()));
             }
         }
 
         struct LUTWidget::Private
         {
-            timeline::LUTOptions lutOptions;
-
             qtwidget::FileWidget* fileWidget = nullptr;
             QComboBox* orderComboBox = nullptr;
+
+            std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutObserver;
         };
 
         LUTWidget::LUTWidget(App* app, QWidget* parent) :
@@ -227,66 +242,57 @@ namespace tl
             layout->addRow(tr("Order:"), p.orderComboBox);
             setLayout(layout);
 
-            _widgetUpdate();
-
             connect(
                 p.fileWidget,
                 &qtwidget::FileWidget::fileChanged,
-                [this](const QString& value)
+                [app](const QString& value)
                 {
-                    timeline::LUTOptions options = _p->lutOptions;
+                    auto options = app->colorModel()->getLUTOptions();
                     options.fileName = value.toUtf8().data();
-                    Q_EMIT lutOptionsChanged(options);
+                    app->colorModel()->setLUTOptions(options);
                 });
 
             connect(
                 p.orderComboBox,
                 QOverload<int>::of(&QComboBox::activated),
-                [this](int value)
+                [app](int value)
                 {
-                    timeline::LUTOptions options = _p->lutOptions;
+                    auto options = app->colorModel()->getLUTOptions();
                     options.order = static_cast<timeline::LUTOrder>(value);
-                    Q_EMIT lutOptionsChanged(options);
+                    app->colorModel()->setLUTOptions(options);
+                });
+
+            p.lutObserver = observer::ValueObserver<timeline::LUTOptions>::create(
+                app->colorModel()->observeLUTOptions(),
+                [this](const timeline::LUTOptions& value)
+                {
+                    _widgetUpdate(value);
                 });
         }
 
         LUTWidget::~LUTWidget()
         {}
 
-        void LUTWidget::setLUTOptions(const timeline::LUTOptions& value)
-        {
-            TLRENDER_P();
-            if (value == p.lutOptions)
-                return;
-            p.lutOptions = value;
-            _widgetUpdate();
-        }
-
-        void LUTWidget::_widgetUpdate()
+        void LUTWidget::_widgetUpdate(const tl::timeline::LUTOptions& value)
         {
             TLRENDER_P();
             {
                 QSignalBlocker blocker(p.fileWidget);
-                p.fileWidget->setFile(QString::fromUtf8(p.lutOptions.fileName.c_str()));
+                p.fileWidget->setFile(QString::fromUtf8(value.fileName.c_str()));
             }
             {
                 QSignalBlocker blocker(_p->orderComboBox);
                 _p->orderComboBox->clear();
-                for (const auto& i : timeline::getLUTOrderEnums())
+                for (const auto& label : timeline::getLUTOrderLabels())
                 {
-                    std::stringstream ss;
-                    ss << i;
-                    _p->orderComboBox->addItem(QString::fromUtf8(ss.str().c_str()));
+                    _p->orderComboBox->addItem(QString::fromUtf8(label.c_str()));
                 }
-                _p->orderComboBox->setCurrentIndex(static_cast<int>(p.lutOptions.order));
+                _p->orderComboBox->setCurrentIndex(static_cast<int>(value.order));
             }
         }
 
         struct ColorControlsWidget::Private
         {
-            bool enabled = false;
-            timeline::Color color;
-
             QCheckBox* enabledCheckBox = nullptr;
             qtwidget::FloatEditSlider* addSlider = nullptr;
             qtwidget::FloatEditSlider* brightnessSlider = nullptr;
@@ -294,9 +300,11 @@ namespace tl
             qtwidget::FloatEditSlider* saturationSlider = nullptr;
             qtwidget::FloatEditSlider* tintSlider = nullptr;
             QCheckBox* invertCheckBox = nullptr;
+
+            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayObserver;
         };
 
-        ColorControlsWidget::ColorControlsWidget(QWidget* parent) :
+        ColorControlsWidget::ColorControlsWidget(App* app, QWidget* parent) :
             QWidget(parent),
             _p(new Private)
         {
@@ -335,151 +343,147 @@ namespace tl
             layout->addRow(p.invertCheckBox);
             setLayout(layout);
 
-            _widgetUpdate();
-
             connect(
                 p.enabledCheckBox,
                 &QCheckBox::toggled,
-                [this](bool value)
+                [app](bool value)
                 {
-                    Q_EMIT colorEnabledChanged(value);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.colorEnabled = value;
+                    app->colorModel()->setDisplayOptions(options);
                 });
 
             connect(
                 p.addSlider,
                 &qtwidget::FloatEditSlider::valueChanged,
-                [this](const float value)
+                [app](float value)
                 {
-                    timeline::Color color = _p->color;
-                    color.add.x = color.add.y = color.add.z = value;
-                    Q_EMIT colorEnabledChanged(true);
-                    Q_EMIT colorChanged(color);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.colorEnabled = true;
+                    options.color.add.x = value;
+                    options.color.add.y = value;
+                    options.color.add.z = value;
+                    app->colorModel()->setDisplayOptions(options);
                 });
 
             connect(
                 p.brightnessSlider,
                 &qtwidget::FloatEditSlider::valueChanged,
-                [this](float value)
+                [app](float value)
                 {
-                    timeline::Color color = _p->color;
-                    color.brightness.x = color.brightness.y = color.brightness.z = value;
-                    Q_EMIT colorEnabledChanged(true);
-                    Q_EMIT colorChanged(color);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.colorEnabled = true;
+                    options.color.brightness.x = value;
+                    options.color.brightness.y = value;
+                    options.color.brightness.z = value;
+                    app->colorModel()->setDisplayOptions(options);
                 });
 
             connect(
                 p.contrastSlider,
                 &qtwidget::FloatEditSlider::valueChanged,
-                [this](float value)
+                [app](float value)
                 {
-                    timeline::Color color = _p->color;
-                    color.contrast.x = color.contrast.y = color.contrast.z = value;
-                    Q_EMIT colorEnabledChanged(true);
-                    Q_EMIT colorChanged(color);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.colorEnabled = true;
+                    options.color.contrast.x = value;
+                    options.color.contrast.y = value;
+                    options.color.contrast.z = value;
+                    app->colorModel()->setDisplayOptions(options);
                 });
 
             connect(
                 p.saturationSlider,
                 &qtwidget::FloatEditSlider::valueChanged,
-                [this](float value)
+                [app](float value)
                 {
-                    timeline::Color color = _p->color;
-                    color.saturation.x = color.saturation.y = color.saturation.z = value;
-                    Q_EMIT colorEnabledChanged(true);
-                    Q_EMIT colorChanged(color);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.colorEnabled = true;
+                    options.color.saturation.x = value;
+                    options.color.saturation.y = value;
+                    options.color.saturation.z = value;
+                    app->colorModel()->setDisplayOptions(options);
                 });
 
             connect(
                 p.tintSlider,
                 &qtwidget::FloatEditSlider::valueChanged,
-                [this](float value)
+                [app](float value)
                 {
-                    timeline::Color color = _p->color;
-                    color.tint = value;
-                    Q_EMIT colorEnabledChanged(true);
-                    Q_EMIT colorChanged(color);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.colorEnabled = true;
+                    options.color.tint = value;
+                    app->colorModel()->setDisplayOptions(options);
                 });
 
             connect(
                 p.invertCheckBox,
                 &QCheckBox::toggled,
-                [this](bool value)
+                [app](bool value)
                 {
-                    timeline::Color color = _p->color;
-                    color.invert = value;
-                    Q_EMIT colorEnabledChanged(true);
-                    Q_EMIT colorChanged(color);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.colorEnabled = true;
+                    options.color.invert = value;
+                    app->colorModel()->setDisplayOptions(options);
+                });
+
+            p.displayObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+                app->colorModel()->observeDisplayOptions(),
+                [this](const timeline::DisplayOptions& value)
+                {
+                    _widgetUpdate(value);
                 });
         }
 
         ColorControlsWidget::~ColorControlsWidget()
         {}
 
-        void ColorControlsWidget::setColorEnabled(bool value)
-        {
-            TLRENDER_P();
-            if (value == p.enabled)
-                return;
-            p.enabled = value;
-            _widgetUpdate();
-        }
-
-        void ColorControlsWidget::setColor(const timeline::Color& value)
-        {
-            TLRENDER_P();
-            if (value == p.color)
-                return;
-            p.color = value;
-            _widgetUpdate();
-        }
-
-        void ColorControlsWidget::_widgetUpdate()
+        void ColorControlsWidget::_widgetUpdate(const timeline::DisplayOptions& value)
         {
             TLRENDER_P();
             {
                 QSignalBlocker signalBlocker(p.enabledCheckBox);
-                p.enabledCheckBox->setChecked(p.enabled);
+                p.enabledCheckBox->setChecked(value.colorEnabled);
             }
             {
                 QSignalBlocker signalBlocker(p.addSlider);
-                p.addSlider->setValue(p.color.add.x);
+                p.addSlider->setValue(value.color.add.x);
             }
             {
                 QSignalBlocker signalBlocker(p.brightnessSlider);
-                p.brightnessSlider->setValue(p.color.brightness.x);
+                p.brightnessSlider->setValue(value.color.brightness.x);
             }
             {
                 QSignalBlocker signalBlocker(p.contrastSlider);
-                p.contrastSlider->setValue(p.color.contrast.x);
+                p.contrastSlider->setValue(value.color.contrast.x);
             }
             {
                 QSignalBlocker signalBlocker(p.saturationSlider);
-                p.saturationSlider->setValue(p.color.saturation.x);
+                p.saturationSlider->setValue(value.color.saturation.x);
             }
             {
                 QSignalBlocker signalBlocker(p.tintSlider);
-                p.tintSlider->setValue(p.color.tint);
+                p.tintSlider->setValue(value.color.tint);
             }
             {
                 QSignalBlocker signalBlocker(p.invertCheckBox);
-                p.invertCheckBox->setChecked(p.color.invert);
+                p.invertCheckBox->setChecked(value.color.invert);
             }
         }
 
         struct LevelsWidget::Private
         {
-            bool enabled = false;
-            timeline::Levels levels;
-
             QCheckBox* enabledCheckBox = nullptr;
             qtwidget::FloatEditSlider* inLowSlider = nullptr;
             qtwidget::FloatEditSlider* inHighSlider = nullptr;
             qtwidget::FloatEditSlider* gammaSlider = nullptr;
             qtwidget::FloatEditSlider* outLowSlider = nullptr;
             qtwidget::FloatEditSlider* outHighSlider = nullptr;
+
+            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayObserver;
         };
 
-        LevelsWidget::LevelsWidget(QWidget* parent) :
+        LevelsWidget::LevelsWidget(App* app, QWidget* parent) :
             QWidget(parent),
             _p(new Private)
         {
@@ -512,133 +516,123 @@ namespace tl
             layout->addRow(tr("Out high:"), p.outHighSlider);
             setLayout(layout);
 
-            _widgetUpdate();
-
             connect(
                 p.enabledCheckBox,
                 &QCheckBox::toggled,
-                [this](bool value)
+                [app](bool value)
                 {
-                    Q_EMIT levelsEnabledChanged(value);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.levelsEnabled = value;
+                    app->colorModel()->setDisplayOptions(options);
                 });
 
             connect(
                 p.inLowSlider,
                 &qtwidget::FloatEditSlider::valueChanged,
-                [this](float value)
+                [app](float value)
                 {
-                    timeline::Levels levels = _p->levels;
-                    levels.inLow = value;
-                    Q_EMIT levelsChanged(levels);
-                    Q_EMIT levelsEnabledChanged(true);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.levelsEnabled = true;
+                    options.levels.inLow = value;
+                    app->colorModel()->setDisplayOptions(options);
                 });
+
             connect(
                 p.inHighSlider,
                 &qtwidget::FloatEditSlider::valueChanged,
-                [this](float value)
+                [app](float value)
                 {
-                    timeline::Levels levels = _p->levels;
-                    levels.inHigh = value;
-                    Q_EMIT levelsChanged(levels);
-                    Q_EMIT levelsEnabledChanged(true);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.levelsEnabled = true;
+                    options.levels.inHigh = value;
+                    app->colorModel()->setDisplayOptions(options);
                 });
 
             connect(
                 p.gammaSlider,
                 &qtwidget::FloatEditSlider::valueChanged,
-                [this](float value)
+                [app](float value)
                 {
-                    timeline::Levels levels = _p->levels;
-                    levels.gamma = value;
-                    Q_EMIT levelsChanged(levels);
-                    Q_EMIT levelsEnabledChanged(true);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.levelsEnabled = true;
+                    options.levels.gamma = value;
+                    app->colorModel()->setDisplayOptions(options);
                 });
 
             connect(
                 p.outLowSlider,
                 &qtwidget::FloatEditSlider::valueChanged,
-                [this](float value)
+                [app](float value)
                 {
-                    timeline::Levels levels = _p->levels;
-                    levels.outLow = value;
-                    Q_EMIT levelsChanged(levels);
-                    Q_EMIT levelsEnabledChanged(true);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.levelsEnabled = true;
+                    options.levels.outLow = value;
+                    app->colorModel()->setDisplayOptions(options);
                 });
+
             connect(
                 p.outHighSlider,
                 &qtwidget::FloatEditSlider::valueChanged,
-                [this](float value)
+                [app](float value)
                 {
-                    timeline::Levels levels = _p->levels;
-                    levels.outHigh = value;
-                    Q_EMIT levelsChanged(levels);
-                    Q_EMIT levelsEnabledChanged(true);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.levelsEnabled = true;
+                    options.levels.outHigh = value;
+                    app->colorModel()->setDisplayOptions(options);
+                });
+
+            p.displayObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+                app->colorModel()->observeDisplayOptions(),
+                [this](const timeline::DisplayOptions& value)
+                {
+                    _widgetUpdate(value);
                 });
         }
 
         LevelsWidget::~LevelsWidget()
         {}
 
-        void LevelsWidget::setLevelsEnabled(bool value)
-        {
-            TLRENDER_P();
-            if (value == p.enabled)
-                return;
-            p.enabled = value;
-            _widgetUpdate();
-        }
-
-        void LevelsWidget::setLevels(const timeline::Levels& value)
-        {
-            TLRENDER_P();
-            if (value == p.levels)
-                return;
-            p.levels = value;
-            _widgetUpdate();
-        }
-
-        void LevelsWidget::_widgetUpdate()
+        void LevelsWidget::_widgetUpdate(const timeline::DisplayOptions& value)
         {
             TLRENDER_P();
             {
                 QSignalBlocker signalBlocker(p.enabledCheckBox);
-                p.enabledCheckBox->setChecked(p.enabled);
+                p.enabledCheckBox->setChecked(value.levelsEnabled);
             }
             {
                 QSignalBlocker signalBlocker(p.inLowSlider);
-                p.inLowSlider->setValue(p.levels.inLow);
+                p.inLowSlider->setValue(value.levels.inLow);
             }
             {
                 QSignalBlocker signalBlocker(p.inHighSlider);
-                p.inHighSlider->setValue(p.levels.inHigh);
+                p.inHighSlider->setValue(value.levels.inHigh);
             }
             {
                 QSignalBlocker signalBlocker(p.gammaSlider);
-                p.gammaSlider->setValue(p.levels.gamma);
+                p.gammaSlider->setValue(value.levels.gamma);
             }
             {
                 QSignalBlocker signalBlocker(p.outLowSlider);
-                p.outLowSlider->setValue(p.levels.outLow);
+                p.outLowSlider->setValue(value.levels.outLow);
             }
             {
                 QSignalBlocker signalBlocker(p.outHighSlider);
-                p.outHighSlider->setValue(p.levels.outHigh);
+                p.outHighSlider->setValue(value.levels.outHigh);
             }
         }
 
         struct EXRDisplayWidget::Private
         {
-            bool enabled = false;
-            timeline::EXRDisplay exrDisplay;
-
             QCheckBox* enabledCheckBox = nullptr;
             qtwidget::FloatEditSlider* exposureSlider = nullptr;
             qtwidget::FloatEditSlider* defogSlider = nullptr;
             qtwidget::FloatEditSlider* kneeLowSlider = nullptr;
             qtwidget::FloatEditSlider* kneeHighSlider = nullptr;
+
+            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayObserver;
         };
 
-        EXRDisplayWidget::EXRDisplayWidget(QWidget* parent) :
+        EXRDisplayWidget::EXRDisplayWidget(App* app, QWidget* parent) :
             QWidget(parent),
             _p(new Private)
         {
@@ -670,117 +664,105 @@ namespace tl
             layout->addRow(tr("Knee high:"), p.kneeHighSlider);
             setLayout(layout);
 
-            _widgetUpdate();
-
             connect(
                 p.enabledCheckBox,
                 &QCheckBox::toggled,
-                [this](bool value)
+                [app](bool value)
                 {
-                    Q_EMIT exrDisplayEnabledChanged(value);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.exrDisplayEnabled = value;
+                    app->colorModel()->setDisplayOptions(options);
                 });
 
             connect(
                 p.exposureSlider,
                 &qtwidget::FloatEditSlider::valueChanged,
-                [this](float value)
+                [app](float value)
                 {
-                    timeline::EXRDisplay exrDisplay = _p->exrDisplay;
-                    exrDisplay.exposure = value;
-                    Q_EMIT exrDisplayChanged(exrDisplay);
-                    Q_EMIT exrDisplayEnabledChanged(true);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.exrDisplayEnabled = true;
+                    options.exrDisplay.exposure = value;
+                    app->colorModel()->setDisplayOptions(options);
                 });
 
             connect(
                 p.defogSlider,
                 &qtwidget::FloatEditSlider::valueChanged,
-                [this](float value)
+                [app](float value)
                 {
-                    timeline::EXRDisplay exrDisplay = _p->exrDisplay;
-                    exrDisplay.defog = value;
-                    Q_EMIT exrDisplayChanged(exrDisplay);
-                    Q_EMIT exrDisplayEnabledChanged(true);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.exrDisplayEnabled = true;
+                    options.exrDisplay.defog = value;
+                    app->colorModel()->setDisplayOptions(options);
                 });
 
             connect(
                 p.kneeLowSlider,
                 &qtwidget::FloatEditSlider::valueChanged,
-                [this](float value)
+                [app](float value)
                 {
-                    timeline::EXRDisplay exrDisplay = _p->exrDisplay;
-                    exrDisplay.kneeLow = value;
-                    Q_EMIT exrDisplayChanged(exrDisplay);
-                    Q_EMIT exrDisplayEnabledChanged(true);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.exrDisplayEnabled = true;
+                    options.exrDisplay.kneeLow = value;
+                    app->colorModel()->setDisplayOptions(options);
                 });
+
             connect(
                 p.kneeHighSlider,
                 &qtwidget::FloatEditSlider::valueChanged,
-                [this](float value)
+                [app](float value)
                 {
-                    timeline::EXRDisplay exrDisplay = _p->exrDisplay;
-                    exrDisplay.kneeHigh = value;
-                    Q_EMIT exrDisplayChanged(exrDisplay);
-                    Q_EMIT exrDisplayEnabledChanged(true);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.exrDisplayEnabled = true;
+                    options.exrDisplay.kneeHigh = value;
+                    app->colorModel()->setDisplayOptions(options);
                 });
 
+            p.displayObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+                app->colorModel()->observeDisplayOptions(),
+                [this](const timeline::DisplayOptions& value)
+                {
+                    _widgetUpdate(value);
+                });
         }
 
         EXRDisplayWidget::~EXRDisplayWidget()
         {}
 
-        void EXRDisplayWidget::setEXRDisplayEnabled(bool value)
-        {
-            TLRENDER_P();
-            if (value == p.enabled)
-                return;
-            p.enabled = value;
-            _widgetUpdate();
-        }
-
-        void EXRDisplayWidget::setEXRDisplay(const timeline::EXRDisplay& value)
-        {
-            TLRENDER_P();
-            if (value == p.exrDisplay)
-                return;
-            p.exrDisplay = value;
-            _widgetUpdate();
-        }
-
-        void EXRDisplayWidget::_widgetUpdate()
+        void EXRDisplayWidget::_widgetUpdate(const timeline::DisplayOptions& value)
         {
             TLRENDER_P();
             {
                 QSignalBlocker signalBlocker(p.enabledCheckBox);
-                p.enabledCheckBox->setChecked(p.enabled);
+                p.enabledCheckBox->setChecked(value.exrDisplayEnabled);
             }
             {
                 QSignalBlocker signalBlocker(p.exposureSlider);
-                p.exposureSlider->setValue(p.exrDisplay.exposure);
+                p.exposureSlider->setValue(value.exrDisplay.exposure);
             }
             {
                 QSignalBlocker signalBlocker(p.defogSlider);
-                p.defogSlider->setValue(p.exrDisplay.defog);
+                p.defogSlider->setValue(value.exrDisplay.defog);
             }
             {
                 QSignalBlocker signalBlocker(p.kneeLowSlider);
-                p.kneeLowSlider->setValue(p.exrDisplay.kneeLow);
+                p.kneeLowSlider->setValue(value.exrDisplay.kneeLow);
             }
             {
                 QSignalBlocker signalBlocker(p.kneeHighSlider);
-                p.kneeHighSlider->setValue(p.exrDisplay.kneeHigh);
+                p.kneeHighSlider->setValue(value.exrDisplay.kneeHigh);
             }
         }
 
         struct SoftClipWidget::Private
         {
-            bool enabled = false;
-            float softClip = 0.F;
-
             QCheckBox* enabledCheckBox = nullptr;
             qtwidget::FloatEditSlider* softClipSlider = nullptr;
+
+            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayObserver;
         };
 
-        SoftClipWidget::SoftClipWidget(QWidget* parent) :
+        SoftClipWidget::SoftClipWidget(App* app, QWidget* parent) :
             QWidget(parent),
             _p(new Private)
         {
@@ -796,65 +778,53 @@ namespace tl
             layout->addRow(tr("Soft clip:"), p.softClipSlider);
             setLayout(layout);
 
-            _widgetUpdate();
-
             connect(
                 p.enabledCheckBox,
                 &QCheckBox::toggled,
-                [this](bool value)
+                [app](bool value)
                 {
-                    Q_EMIT softClipEnabledChanged(value);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.softClipEnabled = value;
+                    app->colorModel()->setDisplayOptions(options);
                 });
 
             connect(
                 p.softClipSlider,
                 &qtwidget::FloatEditSlider::valueChanged,
-                [this](float value)
+                [app](float value)
                 {
-                    Q_EMIT softClipChanged(value);
-                    Q_EMIT softClipEnabledChanged(true);
+                    auto options = app->colorModel()->getDisplayOptions();
+                    options.softClipEnabled = true;
+                    options.softClip = value;
+                    app->colorModel()->setDisplayOptions(options);
+                });
+
+            p.displayObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+                app->colorModel()->observeDisplayOptions(),
+                [this](const timeline::DisplayOptions& value)
+                {
+                    _widgetUpdate(value);
                 });
         }
 
         SoftClipWidget::~SoftClipWidget()
         {}
 
-        void SoftClipWidget::setSoftClipEnabled(bool value)
-        {
-            TLRENDER_P();
-            if (value == p.enabled)
-                return;
-            p.enabled = value;
-            _widgetUpdate();
-        }
-
-        void SoftClipWidget::setSoftClip(float value)
-        {
-            TLRENDER_P();
-            if (value == p.softClip)
-                return;
-            p.softClip = value;
-            _widgetUpdate();
-        }
-
-        void SoftClipWidget::_widgetUpdate()
+        void SoftClipWidget::_widgetUpdate(const timeline::DisplayOptions& value)
         {
             TLRENDER_P();
             {
                 QSignalBlocker signalBlocker(p.enabledCheckBox);
-                p.enabledCheckBox->setChecked(p.enabled);
+                p.enabledCheckBox->setChecked(value.softClipEnabled);
             }
             {
                 QSignalBlocker signalBlocker(p.softClipSlider);
-                p.softClipSlider->setValue(p.softClip);
+                p.softClipSlider->setValue(value.softClip);
             }
         }
 
         struct ColorTool::Private
         {
-            timeline::LUTOptions lutOptions;
-            timeline::DisplayOptions displayOptions;
-
             ConfigWidget* configWidget = nullptr;
             LUTWidget* lutWidget = nullptr;
             ColorControlsWidget* colorControlsWidget = nullptr;
@@ -871,10 +841,10 @@ namespace tl
 
             p.configWidget = new ConfigWidget(app);
             p.lutWidget = new LUTWidget(app);
-            p.colorControlsWidget = new ColorControlsWidget;
-            p.levelsWidget = new LevelsWidget;
-            p.exrDisplayWidget = new EXRDisplayWidget;
-            p.softClipWidget = new SoftClipWidget;
+            p.colorControlsWidget = new ColorControlsWidget(app);
+            p.levelsWidget = new LevelsWidget(app);
+            p.exrDisplayWidget = new EXRDisplayWidget(app);
+            p.softClipWidget = new SoftClipWidget(app);
 
             addBellows(tr("Configuration"), p.configWidget);
             addBellows(tr("LUT"), p.lutWidget);
@@ -883,141 +853,10 @@ namespace tl
             addBellows(tr("EXR Display"), p.exrDisplayWidget);
             addBellows(tr("Soft Clip"), p.softClipWidget);
             addStretch();
-
-            connect(
-                p.lutWidget,
-                &LUTWidget::lutOptionsChanged,
-                [this](const timeline::LUTOptions& value)
-                {
-                    Q_EMIT lutOptionsChanged(value);
-                });
-
-            connect(
-                p.colorControlsWidget,
-                &ColorControlsWidget::colorEnabledChanged,
-                [this](bool value)
-                {
-                    timeline::DisplayOptions displayOptions = _p->displayOptions;
-                    displayOptions.colorEnabled = value;
-                    Q_EMIT displayOptionsChanged(displayOptions);
-                });
-            connect(
-                p.colorControlsWidget,
-                &ColorControlsWidget::colorChanged,
-                [this](const timeline::Color& value)
-                {
-                    timeline::DisplayOptions displayOptions = _p->displayOptions;
-                    displayOptions.color = value;
-                    Q_EMIT displayOptionsChanged(displayOptions);
-                });
-
-            connect(
-                p.levelsWidget,
-                &LevelsWidget::levelsEnabledChanged,
-                [this](bool value)
-                {
-                    timeline::DisplayOptions displayOptions = _p->displayOptions;
-                    displayOptions.levelsEnabled = value;
-                    Q_EMIT displayOptionsChanged(displayOptions);
-                });
-            connect(
-                p.levelsWidget,
-                &LevelsWidget::levelsChanged,
-                [this](const timeline::Levels& value)
-                {
-                    timeline::DisplayOptions displayOptions = _p->displayOptions;
-                    displayOptions.levels = value;
-                    Q_EMIT displayOptionsChanged(displayOptions);
-                });
-
-            connect(
-                p.exrDisplayWidget,
-                &EXRDisplayWidget::exrDisplayEnabledChanged,
-                [this](bool value)
-                {
-                    timeline::DisplayOptions displayOptions = _p->displayOptions;
-                    displayOptions.exrDisplayEnabled = value;
-                    Q_EMIT displayOptionsChanged(displayOptions);
-                });
-            connect(
-                p.exrDisplayWidget,
-                &EXRDisplayWidget::exrDisplayChanged,
-                [this](const timeline::EXRDisplay& value)
-                {
-                    timeline::DisplayOptions displayOptions = _p->displayOptions;
-                    displayOptions.exrDisplay = value;
-                    Q_EMIT displayOptionsChanged(displayOptions);
-                });
-
-            connect(
-                p.softClipWidget,
-                &SoftClipWidget::softClipEnabledChanged,
-                [this](bool value)
-                {
-                    timeline::DisplayOptions displayOptions = _p->displayOptions;
-                    displayOptions.softClipEnabled = value;
-                    Q_EMIT displayOptionsChanged(displayOptions);
-                });
-            connect(
-                p.softClipWidget,
-                &SoftClipWidget::softClipChanged,
-                [this](float value)
-                {
-                    timeline::DisplayOptions displayOptions = _p->displayOptions;
-                    displayOptions.softClip = value;
-                    Q_EMIT displayOptionsChanged(displayOptions);
-                });
         }
 
         ColorTool::~ColorTool()
         {}
-
-        void ColorTool::setLUTOptions(const timeline::LUTOptions & lutOptions)
-        {
-            TLRENDER_P();
-            if (lutOptions == p.lutOptions)
-                return;
-            p.lutOptions = lutOptions;
-            _widgetUpdate();
-        }
-
-        void ColorTool::setDisplayOptions(const timeline::DisplayOptions& displayOptions)
-        {
-            TLRENDER_P();
-            if (displayOptions == p.displayOptions)
-                return;
-            p.displayOptions = displayOptions;
-            _widgetUpdate();
-        }
-
-        void ColorTool::_widgetUpdate()
-        {
-            TLRENDER_P();
-            {
-                QSignalBlocker blocker(p.lutWidget);
-                p.lutWidget->setLUTOptions(p.lutOptions);
-            }
-            {
-                QSignalBlocker blocker(p.colorControlsWidget);
-                p.colorControlsWidget->setColorEnabled(p.displayOptions.colorEnabled);
-                p.colorControlsWidget->setColor(p.displayOptions.color);
-            }
-            {
-                QSignalBlocker blocker(p.levelsWidget);
-                p.levelsWidget->setLevelsEnabled(p.displayOptions.levelsEnabled);
-                p.levelsWidget->setLevels(p.displayOptions.levels);
-            }
-            {
-                QSignalBlocker blocker(p.exrDisplayWidget);
-                p.exrDisplayWidget->setEXRDisplayEnabled(p.displayOptions.exrDisplayEnabled);
-                p.exrDisplayWidget->setEXRDisplay(p.displayOptions.exrDisplay);
-            }
-            {
-                QSignalBlocker blocker(p.softClipWidget);
-                p.softClipWidget->setSoftClipEnabled(p.displayOptions.softClipEnabled);
-                p.softClipWidget->setSoftClip(p.displayOptions.softClip);
-            }
-        }
 
         ColorDockWidget::ColorDockWidget(
             ColorTool* colorTool,

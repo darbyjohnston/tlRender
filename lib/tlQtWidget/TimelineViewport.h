@@ -10,7 +10,7 @@
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_1_Core>
-#include <QPointer>
+#include <QSharedPointer>
 #include <QVector>
 
 namespace tl
@@ -47,7 +47,7 @@ namespace tl
             void setCompareOptions(const timeline::CompareOptions&);
 
             //! Set the timeline players.
-            void setTimelinePlayers(const QVector<QPointer<qt::TimelinePlayer> >&);
+            void setTimelinePlayers(const QVector<QSharedPointer<qt::TimelinePlayer> >&);
 
             //! Get the view position.
             const math::Vector2i& viewPos() const;

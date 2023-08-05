@@ -174,7 +174,7 @@ namespace tl
             p.cv.notify_one();
         }
 
-        void OutputDevice::setTimelinePlayers(const QVector<QPointer<qt::TimelinePlayer> >& value)
+        void OutputDevice::setTimelinePlayers(QVector<QSharedPointer<qt::TimelinePlayer> > value)
         {
             TLRENDER_P();
             if (value == p.timelinePlayers)
@@ -184,22 +184,22 @@ namespace tl
                 if (player)
                 {
                     disconnect(
-                        player,
+                        player.get(),
                         SIGNAL(playbackChanged(tl::timeline::Playback)),
                         this,
                         SLOT(_playbackCallback(tl::timeline::Playback)));
                     disconnect(
-                        player,
+                        player.get(),
                         SIGNAL(currentTimeChanged(const otime::RationalTime&)),
                         this,
                         SLOT(_currentTimeCallback(const otime::RationalTime&)));
                     disconnect(
-                        player,
+                        player.get(),
                         SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
                         this,
                         SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
                     disconnect(
-                        player,
+                        player.get(),
                         SIGNAL(currentAudioChanged(const std::vector<tl::timeline::AudioData>&)),
                         this,
                         SLOT(_currentAudioCallback(const std::vector<tl::timeline::AudioData>&)));
@@ -211,19 +211,19 @@ namespace tl
                 if (player)
                 {
                     connect(
-                        player,
+                        player.get(),
                         SIGNAL(playbackChanged(tl::timeline::Playback)),
                         SLOT(_playbackCallback(tl::timeline::Playback)));
                     connect(
-                        player,
+                        player.get(),
                         SIGNAL(currentTimeChanged(const otime::RationalTime&)),
                         SLOT(_currentTimeCallback(const otime::RationalTime&)));
                     connect(
-                        player,
+                        player.get(),
                         SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
                         SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
                     connect(
-                        player,
+                        player.get(),
                         SIGNAL(currentAudioChanged(const std::vector<tl::timeline::AudioData>&)),
                         SLOT(_currentAudioCallback(const std::vector<tl::timeline::AudioData>&)));
                 }

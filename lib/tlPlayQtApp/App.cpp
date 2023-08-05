@@ -4,7 +4,6 @@
 
 #include <tlPlayQtApp/App.h>
 
-#include <tlPlayQtApp/ColorModel.h>
 #include <tlPlayQtApp/DevicesModel.h>
 #include <tlPlayQtApp/MainWindow.h>
 #include <tlPlayQtApp/MemoryTimeline.h>
@@ -24,6 +23,8 @@
 
 #include <tlUI/RecentFilesModel.h>
 
+#include <tlPlay/AudioModel.h>
+#include <tlPlay/ColorModel.h>
 #include <tlPlay/FilesModel.h>
 #include <tlPlay/Util.h>
 
@@ -85,24 +86,23 @@ namespace tl
             std::shared_ptr<play::FilesModel> filesModel;
             std::vector<std::shared_ptr<play::FilesModelItem> > files;
             std::vector<std::shared_ptr<play::FilesModelItem> > activeFiles;
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
-            std::shared_ptr<observer::ListObserver<int> > layersObserver;
+            QVector<QSharedPointer<qt::TimelinePlayer> > players;
             std::shared_ptr<ui::RecentFilesModel> recentFilesModel;
-            std::shared_ptr<ColorModel> colorModel;
-            timeline::LUTOptions lutOptions;
-            timeline::ImageOptions imageOptions;
-            timeline::DisplayOptions displayOptions;
-            float volume = 1.F;
-            bool mute = false;
+            std::shared_ptr<play::ColorModel> colorModel;
             qt::OutputDevice* outputDevice = nullptr;
             bool deviceActive = false;
             std::shared_ptr<DevicesModel> devicesModel;
-            std::shared_ptr<observer::ValueObserver<DevicesModelData> > devicesObserver;
-
-            QVector<QPointer<qt::TimelinePlayer> > players;
+            std::shared_ptr<play::AudioModel> audioModel;
 
             MainWindow* mainWindow = nullptr;
+
+            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
+            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
+            std::shared_ptr<observer::ListObserver<int> > layersObserver;
+            std::shared_ptr<observer::ValueObserver<DevicesModelData> > devicesObserver;
+            std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
+            std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
+            std::shared_ptr<observer::ValueObserver<double> > syncOffsetObserver;
         };
 
         App::App(
@@ -364,30 +364,6 @@ namespace tl
             p.thumbnailObject = new qt::TimelineThumbnailObject(context, this);
 
             p.filesModel = play::FilesModel::create(context);
-            p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
-                p.filesModel->observeFiles(),
-                [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
-                {
-                    _filesCallback(value);
-                });
-            p.activeObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
-                p.filesModel->observeActive(),
-                [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
-                {
-                    _activeCallback(value);
-                });
-            p.layersObserver = observer::ListObserver<int>::create(
-                p.filesModel->observeLayers(),
-                [this](const std::vector<int>& value)
-                {
-                    for (size_t i = 0; i < value.size() && i < _p->players.size(); ++i)
-                    {
-                        if (_p->players[i])
-                        {
-                            _p->players[i]->setVideoLayer(value[i]);
-                        }
-                    }
-                });
 
             p.recentFilesModel = ui::RecentFilesModel::create(context);
             std::vector<file::Path> recent;
@@ -397,13 +373,9 @@ namespace tl
             }
             p.recentFilesModel->setRecent(recent);
 
-            p.colorModel = ColorModel::create(context);
-            if (!p.options.colorConfigOptions.fileName.empty())
-            {
-                p.colorModel->setConfigOptions(p.options.colorConfigOptions);
-            }
-
-            p.lutOptions = p.options.lutOptions;
+            p.colorModel = play::ColorModel::create(context);
+            p.colorModel->setColorConfigOptions(p.options.colorConfigOptions);
+            p.colorModel->setLUTOptions(p.options.lutOptions);
 
             p.outputDevice = new qt::OutputDevice(context);
             connect(
@@ -455,6 +427,44 @@ namespace tl
                 {}
                 p.devicesModel->setHDRData(hdrData);
             }
+
+            p.settingsObject->setDefaultValue("FileBrowser/NativeFileDialog", true);
+            if (auto fileBrowserSystem = _context->getSystem<qtwidget::FileBrowserSystem>())
+            {
+                fileBrowserSystem->setNativeFileDialog(
+                    p.settingsObject->value("FileBrowser/NativeFileDialog").toBool());
+                fileBrowserSystem->setPath(
+                    p.settingsObject->value("FileBrowser/Path").toString().toUtf8().data());
+            }
+
+            p.audioModel = play::AudioModel::create(context);
+
+            // Create observers.
+            p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+                p.filesModel->observeFiles(),
+                [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
+                {
+                    _filesCallback(value);
+                });
+            p.activeObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+                p.filesModel->observeActive(),
+                [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
+                {
+                    _activeCallback(value);
+                });
+            p.layersObserver = observer::ListObserver<int>::create(
+                p.filesModel->observeLayers(),
+                [this](const std::vector<int>& value)
+                {
+                    for (size_t i = 0; i < value.size() && i < _p->players.size(); ++i)
+                    {
+                        if (_p->players[i])
+                        {
+                            _p->players[i]->setVideoLayer(value[i]);
+                        }
+                    }
+                });
+
             p.devicesObserver = observer::ValueObserver<DevicesModelData>::create(
                 p.devicesModel->observeData(),
                 [this](const DevicesModelData& value)
@@ -471,14 +481,24 @@ namespace tl
                     _p->outputDevice->setHDR(value.hdrMode, value.hdrData);
                 });
 
-            p.settingsObject->setDefaultValue("FileBrowser/NativeFileDialog", true);
-            if (auto fileBrowserSystem = _context->getSystem<qtwidget::FileBrowserSystem>())
-            {
-                fileBrowserSystem->setNativeFileDialog(
-                    p.settingsObject->value("FileBrowser/NativeFileDialog").toBool());
-                fileBrowserSystem->setPath(
-                    p.settingsObject->value("FileBrowser/Path").toString().toUtf8().data());
-            }
+            p.volumeObserver = observer::ValueObserver<float>::create(
+                p.audioModel->observeVolume(),
+                [this](float)
+                {
+                    _audioUpdate();
+                });
+            p.muteObserver = observer::ValueObserver<bool>::create(
+                p.audioModel->observeMute(),
+                [this](bool)
+                {
+                    _audioUpdate();
+                });
+            p.syncOffsetObserver = observer::ValueObserver<double>::create(
+                p.audioModel->observeSyncOffset(),
+                [this](double)
+                {
+                    _audioUpdate();
+                });
 
             // Create the main window.
             p.mainWindow = new MainWindow(this);
@@ -607,34 +627,9 @@ namespace tl
             return _p->recentFilesModel;
         }
 
-        const std::shared_ptr<ColorModel>& App::colorModel() const
+        const std::shared_ptr<play::ColorModel>& App::colorModel() const
         {
             return _p->colorModel;
-        }
-
-        const timeline::LUTOptions& App::lutOptions() const
-        {
-            return _p->lutOptions;
-        }
-
-        const timeline::ImageOptions& App::imageOptions() const
-        {
-            return _p->imageOptions;
-        }
-
-        const timeline::DisplayOptions& App::displayOptions() const
-        {
-            return _p->displayOptions;
-        }
-
-        float App::volume() const
-        {
-            return _p->volume;
-        }
-
-        bool App::isMuted() const
-        {
-            return _p->mute;
         }
 
         qt::OutputDevice* App::outputDevice() const
@@ -645,6 +640,11 @@ namespace tl
         const std::shared_ptr<DevicesModel>& App::devicesModel() const
         {
             return _p->devicesModel;
+        }
+
+        const std::shared_ptr<play::AudioModel>& App::audioModel() const
+        {
+            return _p->audioModel;
         }
 
         void App::open(const QString& fileName, const QString& audioFileName)
@@ -689,59 +689,12 @@ namespace tl
             }
         }
 
-        void App::setLUTOptions(const timeline::LUTOptions& value)
-        {
-            TLRENDER_P();
-            if (value == p.lutOptions)
-                return;
-            p.lutOptions = value;
-            Q_EMIT lutOptionsChanged(p.lutOptions);
-        }
-
-        void App::setImageOptions(const timeline::ImageOptions& value)
-        {
-            TLRENDER_P();
-            if (value == p.imageOptions)
-                return;
-            p.imageOptions = value;
-            Q_EMIT imageOptionsChanged(p.imageOptions);
-        }
-
-        void App::setDisplayOptions(const timeline::DisplayOptions& value)
-        {
-            TLRENDER_P();
-            if (value == p.displayOptions)
-                return;
-            p.displayOptions = value;
-            Q_EMIT displayOptionsChanged(p.displayOptions);
-        }
-
-        void App::setVolume(float value)
-        {
-            TLRENDER_P();
-            if (value == p.volume)
-                return;
-            p.volume = value;
-            _audioUpdate();
-            Q_EMIT volumeChanged(p.volume);
-        }
-
-        void App::setMute(bool value)
-        {
-            TLRENDER_P();
-            if (value == p.mute)
-                return;
-            p.mute = value;
-            _audioUpdate();
-            Q_EMIT muteChanged(p.mute);
-        }
-
         void App::_filesCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >& items)
         {
             TLRENDER_P();
 
             // Create the new list of players.
-            QVector<QPointer<qt::TimelinePlayer> > players(items.size(), nullptr);
+            QVector<QSharedPointer<qt::TimelinePlayer> > players(items.size(), nullptr);
             for (size_t i = 0; i < items.size(); ++i)
             {
                 const auto j = std::find(p.files.begin(), p.files.end(), items[i]);
@@ -753,7 +706,7 @@ namespace tl
             }
 
             // Find players to destroy.
-            QVector<QPointer<qt::TimelinePlayer> > destroy;
+            QVector<QSharedPointer<qt::TimelinePlayer> > destroy;
             for (size_t i = 0; i < p.files.size(); ++i)
             {
                 const auto j = std::find(items.begin(), items.end(), p.files[i]);
@@ -811,7 +764,7 @@ namespace tl
                         playerOptions.audioBufferFrameCount = p.settingsObject->value(
                             "Performance/AudioBufferFrameCount").toInt();
                         auto player = timeline::Player::create(timeline, _context, playerOptions);
-                        players[i] = new qt::TimelinePlayer(player, _context, this);
+                        players[i].reset(new qt::TimelinePlayer(player, _context, this));
 
                         for (const auto& video : player->getIOInfo().video)
                         {
@@ -827,10 +780,6 @@ namespace tl
 
             p.files = items;
             p.players = players;
-            for (auto i :destroy)
-            {
-                delete i;
-            }
         }
 
         void App::_activeCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >& items)
@@ -850,7 +799,7 @@ namespace tl
             {
                 p.mainWindow->setTimelinePlayers(activePlayers);
             }
-            qt::TimelinePlayer* first = nullptr;
+            QSharedPointer<qt::TimelinePlayer> first;
             if (!activePlayers.empty())
             {
                 first = activePlayers[0];
@@ -874,10 +823,10 @@ namespace tl
             _audioUpdate();
         }
 
-        QVector<QPointer<qt::TimelinePlayer> > App::_activePlayers() const
+        QVector<QSharedPointer<qt::TimelinePlayer> > App::_activePlayers() const
         {
             TLRENDER_P();
-            QVector<QPointer<qt::TimelinePlayer> > out;
+            QVector<QSharedPointer<qt::TimelinePlayer> > out;
             for (size_t i = 0; i < p.activeFiles.size(); ++i)
             {
                 const auto j = std::find(
@@ -951,18 +900,20 @@ namespace tl
         void App::_audioUpdate()
         {
             TLRENDER_P();
+            const float volume = p.audioModel->getVolume();
+            const bool mute = p.audioModel->isMuted();
             for (auto player : p.players)
             {
                 if (player)
                 {
-                    player->setVolume(p.volume);
-                    player->setMute(p.mute || p.deviceActive);
+                    player->setVolume(volume);
+                    player->setMute(mute || p.deviceActive);
                 }
             }
             if (p.outputDevice)
             {
-                p.outputDevice->setVolume(p.volume);
-                p.outputDevice->setMute(p.mute);
+                p.outputDevice->setVolume(volume);
+                p.outputDevice->setMute(mute);
                 const auto activePlayers = _activePlayers();
                 p.outputDevice->setAudioOffset(
                     (!activePlayers.empty() && activePlayers[0]) ?

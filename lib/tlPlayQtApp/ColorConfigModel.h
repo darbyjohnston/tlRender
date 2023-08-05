@@ -15,8 +15,8 @@ namespace tl
 {
     namespace play_qt
     {
-        //! Color model data.
-        struct ColorModelData
+        //! Color configuration model data.
+        struct ColorConfigModelData
         {
             std::string fileName;
             std::vector<std::string> inputs;
@@ -26,23 +26,24 @@ namespace tl
             std::vector<std::string> views;
             size_t viewIndex = 0;
 
-            bool operator == (const ColorModelData&) const;
+            bool operator == (const ColorConfigModelData&) const;
         };
 
-        //! Color model.
-        class ColorModel : public std::enable_shared_from_this<ColorModel>
+        //! Color configuration model.
+        class ColorConfigModel : public std::enable_shared_from_this<ColorConfigModel>
         {
-            TLRENDER_NON_COPYABLE(ColorModel);
+            TLRENDER_NON_COPYABLE(ColorConfigModel);
 
         protected:
             void _init(const std::shared_ptr<system::Context>&);
-            ColorModel();
+
+            ColorConfigModel();
 
         public:
-            ~ColorModel();
+            ~ColorConfigModel();
 
-            //! Create a new color model.
-            static std::shared_ptr<ColorModel> create(const std::shared_ptr<system::Context>&);
+            //! Create a new model.
+            static std::shared_ptr<ColorConfigModel> create(const std::shared_ptr<system::Context>&);
 
             //! Observe the color configuration options.
             std::shared_ptr<observer::IValue<timeline::ColorConfigOptions> > observeConfigOptions() const;
@@ -54,7 +55,7 @@ namespace tl
             void setConfig(const std::string& fileName);
 
             //! Observe the model data.
-            std::shared_ptr<observer::IValue<ColorModelData> > observeData() const;
+            std::shared_ptr<observer::IValue<ColorConfigModelData> > observeData() const;
 
             //! Set the input index.
             void setInputIndex(size_t);
@@ -78,7 +79,7 @@ namespace tl
 
         public:
             ColorInputListModel(
-                const std::shared_ptr<ColorModel>&,
+                const std::shared_ptr<ColorConfigModel>&,
                 QObject* parent = nullptr);
 
             virtual ~ColorInputListModel();
@@ -97,7 +98,7 @@ namespace tl
 
         public:
             ColorDisplayListModel(
-                const std::shared_ptr<ColorModel>&,
+                const std::shared_ptr<ColorConfigModel>&,
                 QObject* parent = nullptr);
 
             virtual ~ColorDisplayListModel();
@@ -116,7 +117,7 @@ namespace tl
 
         public:
             ColorViewListModel(
-                const std::shared_ptr<ColorModel>&,
+                const std::shared_ptr<ColorConfigModel>&,
                 QObject* parent = nullptr);
 
             virtual ~ColorViewListModel();

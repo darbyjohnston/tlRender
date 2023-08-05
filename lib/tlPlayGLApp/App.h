@@ -6,8 +6,6 @@
 
 #include <tlGLApp/IApp.h>
 
-#include <tlPlay/FilesModel.h>
-
 #include <tlTimeline/Player.h>
 
 namespace tl
@@ -19,8 +17,11 @@ namespace tl
 
     namespace play
     {
+        struct FilesModelItem;
+
         class AudioModel;
         class ColorModel;
+        class FilesModel;
     }
 
     //! "tlplay-gl" application.

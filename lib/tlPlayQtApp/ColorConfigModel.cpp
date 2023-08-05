@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayQtApp/ColorModel.h>
+#include <tlPlayQtApp/ColorConfigModel.h>
 
 #include <tlCore/OS.h>
 
@@ -21,7 +21,7 @@ namespace tl
 {
     namespace play_qt
     {
-        bool ColorModelData::operator == (const ColorModelData& other) const
+        bool ColorConfigModelData::operator == (const ColorConfigModelData& other) const
         {
             return
                 fileName == other.fileName &&
@@ -33,24 +33,24 @@ namespace tl
                 viewIndex == other.viewIndex;
         }
 
-        struct ColorModel::Private
+        struct ColorConfigModel::Private
         {
             std::weak_ptr<system::Context> context;
 #if defined(TLRENDER_OCIO)
             OCIO_NAMESPACE::ConstConfigRcPtr ocioConfig;
 #endif // TLRENDER_OCIO
             std::shared_ptr<observer::Value<timeline::ColorConfigOptions> > configOptions;
-            std::shared_ptr<observer::Value<ColorModelData> > data;
+            std::shared_ptr<observer::Value<ColorConfigModelData> > data;
         };
 
-        void ColorModel::_init(const std::shared_ptr<system::Context>& context)
+        void ColorConfigModel::_init(const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
 
             p.context = context;
 
             p.configOptions = observer::Value<timeline::ColorConfigOptions>::create();
-            p.data = observer::Value<ColorModelData>::create();
+            p.data = observer::Value<ColorConfigModelData>::create();
 
 #if defined(TLRENDER_OCIO)
             std::string env;
@@ -82,26 +82,26 @@ namespace tl
 #endif // TLRENDER_OCIO
         }
 
-        ColorModel::ColorModel() :
+        ColorConfigModel::ColorConfigModel() :
             _p(new Private)
         {}
 
-        ColorModel::~ColorModel()
+        ColorConfigModel::~ColorConfigModel()
         {}
 
-        std::shared_ptr<ColorModel> ColorModel::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<ColorConfigModel> ColorConfigModel::create(const std::shared_ptr<system::Context>& context)
         {
-            auto out = std::shared_ptr<ColorModel>(new ColorModel);
+            auto out = std::shared_ptr<ColorConfigModel>(new ColorConfigModel);
             out->_init(context);
             return out;
         }
 
-        std::shared_ptr<observer::IValue<timeline::ColorConfigOptions> > ColorModel::observeConfigOptions() const
+        std::shared_ptr<observer::IValue<timeline::ColorConfigOptions> > ColorConfigModel::observeConfigOptions() const
         {
             return _p->configOptions;
         }
 
-        void ColorModel::setConfigOptions(const timeline::ColorConfigOptions& value)
+        void ColorConfigModel::setConfigOptions(const timeline::ColorConfigOptions& value)
         {
             TLRENDER_P();
 #if defined(TLRENDER_OCIO)
@@ -117,7 +117,7 @@ namespace tl
             _configUpdate();
         }
 
-        void ColorModel::setConfig(const std::string& fileName)
+        void ColorConfigModel::setConfig(const std::string& fileName)
         {
             TLRENDER_P();
 #if defined(TLRENDER_OCIO)
@@ -143,12 +143,12 @@ namespace tl
             _configUpdate();
         }
 
-        std::shared_ptr<observer::IValue<ColorModelData> > ColorModel::observeData() const
+        std::shared_ptr<observer::IValue<ColorConfigModelData> > ColorConfigModel::observeData() const
         {
             return _p->data;
         }
 
-        void ColorModel::setInputIndex(size_t value)
+        void ColorConfigModel::setInputIndex(size_t value)
         {
             TLRENDER_P();
             const auto& inputs = p.data->get().inputs;
@@ -161,7 +161,7 @@ namespace tl
             }
         }
 
-        void ColorModel::setDisplayIndex(size_t value)
+        void ColorConfigModel::setDisplayIndex(size_t value)
         {
             TLRENDER_P();
             const auto& displays = p.data->get().displays;
@@ -174,7 +174,7 @@ namespace tl
             }
         }
 
-        void ColorModel::setViewIndex(size_t value)
+        void ColorConfigModel::setViewIndex(size_t value)
         {
             TLRENDER_P();
             const auto& views = p.data->get().views;
@@ -187,10 +187,10 @@ namespace tl
             }
         }
 
-        void ColorModel::_configUpdate()
+        void ColorConfigModel::_configUpdate()
         {
             TLRENDER_P();
-            ColorModelData data;
+            ColorConfigModelData data;
             const auto& configOptions = p.configOptions->get();
             data.fileName = configOptions.fileName;
 #if defined(TLRENDER_OCIO)
@@ -238,20 +238,20 @@ namespace tl
         {
             std::vector<std::string> inputs;
             size_t inputIndex = 0;
-            std::shared_ptr<observer::ValueObserver<ColorModelData> > dataObserver;
+            std::shared_ptr<observer::ValueObserver<ColorConfigModelData> > dataObserver;
         };
 
         ColorInputListModel::ColorInputListModel(
-            const std::shared_ptr<ColorModel>& colorModel,
+            const std::shared_ptr<ColorConfigModel>& colorConfigModel,
             QObject* parent) :
             QAbstractListModel(parent),
             _p(new Private)
         {
             TLRENDER_P();
 
-            p.dataObserver = observer::ValueObserver<ColorModelData>::create(
-                colorModel->observeData(),
-                [this](const ColorModelData& value)
+            p.dataObserver = observer::ValueObserver<ColorConfigModelData>::create(
+                colorConfigModel->observeData(),
+                [this](const ColorConfigModelData& value)
                 {
                     beginResetModel();
                     _p->inputs = value.inputs;
@@ -307,20 +307,20 @@ namespace tl
         {
             std::vector<std::string> displays;
             size_t displayIndex = 0;
-            std::shared_ptr<observer::ValueObserver<ColorModelData> > dataObserver;
+            std::shared_ptr<observer::ValueObserver<ColorConfigModelData> > dataObserver;
         };
 
         ColorDisplayListModel::ColorDisplayListModel(
-            const std::shared_ptr<ColorModel>& colorModel,
+            const std::shared_ptr<ColorConfigModel>& colorConfigModel,
             QObject* parent) :
             QAbstractListModel(parent),
             _p(new Private)
         {
             TLRENDER_P();
 
-            p.dataObserver = observer::ValueObserver<ColorModelData>::create(
-                colorModel->observeData(),
-                [this](const ColorModelData& value)
+            p.dataObserver = observer::ValueObserver<ColorConfigModelData>::create(
+                colorConfigModel->observeData(),
+                [this](const ColorConfigModelData& value)
                 {
                     beginResetModel();
                     _p->displays = value.displays;
@@ -376,20 +376,20 @@ namespace tl
         {
             std::vector<std::string> views;
             size_t viewIndex = 0;
-            std::shared_ptr<observer::ValueObserver<ColorModelData> > dataObserver;
+            std::shared_ptr<observer::ValueObserver<ColorConfigModelData> > dataObserver;
         };
 
         ColorViewListModel::ColorViewListModel(
-            const std::shared_ptr<ColorModel>& colorModel,
+            const std::shared_ptr<ColorConfigModel>& colorConfigModel,
             QObject* parent) :
             QAbstractListModel(parent),
             _p(new Private)
         {
             TLRENDER_P();
 
-            p.dataObserver = observer::ValueObserver<ColorModelData>::create(
-                colorModel->observeData(),
-                [this](const ColorModelData& value)
+            p.dataObserver = observer::ValueObserver<ColorConfigModelData>::create(
+                colorConfigModel->observeData(),
+                [this](const ColorConfigModelData& value)
                 {
                     beginResetModel();
                     _p->views = value.views;

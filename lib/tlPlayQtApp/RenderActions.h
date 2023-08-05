@@ -36,12 +36,6 @@ namespace tl
             //! Get the menu.
             QMenu* menu() const;
 
-            //! Set the image options.
-            void setImageOptions(const timeline::ImageOptions&);
-
-            //! Set the display options.
-            void setDisplayOptions(const timeline::DisplayOptions&);
-
         private Q_SLOTS:
 
         private:

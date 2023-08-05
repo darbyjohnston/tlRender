@@ -68,7 +68,7 @@ namespace tl
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
-            QVector<QPointer<qt::TimelinePlayer> > timelinePlayers;
+            QVector<QSharedPointer<qt::TimelinePlayer> > timelinePlayers;
             timeline::Playback playback = timeline::Playback::Stop;
             otime::RationalTime currentTime = time::invalidTime;
             std::vector<imaging::Size> sizes;

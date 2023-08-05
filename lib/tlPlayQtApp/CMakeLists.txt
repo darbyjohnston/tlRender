@@ -2,7 +2,7 @@ set(HEADERS
     App.h
     AudioActions.h
     AudioTool.h
-    ColorModel.h
+    ColorConfigModel.h
     ColorTool.h
     CompareActions.h
     CompareTool.h
@@ -36,7 +36,7 @@ set(SOURCE
     App.cpp
     AudioActions.cpp
     AudioTool.cpp
-    ColorModel.cpp
+    ColorConfigModel.cpp
     ColorTool.cpp
     CompareActions.cpp
     CompareTool.cpp

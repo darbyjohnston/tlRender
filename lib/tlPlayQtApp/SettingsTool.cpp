@@ -502,7 +502,7 @@ namespace tl
             setWidget(settingsTool);
 
             toggleViewAction()->setIcon(QIcon(":/Icons/Settings.svg"));
-            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F9));
+            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F7));
             toggleViewAction()->setToolTip(tr("Show settings"));
         }
     }
