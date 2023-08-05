@@ -36,7 +36,7 @@ namespace tl
             void setWidget(const std::shared_ptr<IWidget>&);
 
             //! Get the viewport geometry.
-            math::BBox2i getViewport() const;
+            math::Box2i getViewport() const;
 
             //! Get the scroll size.
             const math::Vector2i& getScrollSize() const;
@@ -65,7 +65,7 @@ namespace tl
             //! Set the margin role.
             void setMarginRole(SizeRole);
 
-            void setGeometry(const math::BBox2i&) override;
+            void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void scrollEvent(ScrollEvent&) override;
             void keyPressEvent(KeyEvent&) override;

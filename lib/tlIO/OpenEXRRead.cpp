@@ -310,9 +310,9 @@ namespace tl
                 ChannelGrouping                 _channelGrouping = ChannelGrouping::Known;
                 std::unique_ptr<Imf::IStream>   _s;
                 std::unique_ptr<Imf::InputFile> _f;
-                math::BBox2i                    _displayWindow;
-                math::BBox2i                    _dataWindow;
-                math::BBox2i                    _intersectedWindow;
+                math::Box2i                    _displayWindow;
+                math::Box2i                    _dataWindow;
+                math::Box2i                    _intersectedWindow;
                 std::vector<Layer>              _layers;
                 bool                            _fast = false;
                 io::Info                        _info;

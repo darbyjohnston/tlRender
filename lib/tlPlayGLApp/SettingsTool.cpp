@@ -123,7 +123,7 @@ namespace tl
             return out;
         }
 
-        void CacheSettingsWidget::setGeometry(const math::BBox2i& value)
+        void CacheSettingsWidget::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -245,7 +245,7 @@ namespace tl
             return out;
         }
 
-        void FileSequenceSettingsWidget::setGeometry(const math::BBox2i& value)
+        void FileSequenceSettingsWidget::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -327,7 +327,7 @@ namespace tl
             return out;
         }
 
-        void FileBrowserSettingsWidget::setGeometry(const math::BBox2i& value)
+        void FileBrowserSettingsWidget::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -561,7 +561,7 @@ namespace tl
             return out;
         }
 
-        void PerformanceSettingsWidget::setGeometry(const math::BBox2i& value)
+        void PerformanceSettingsWidget::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -645,7 +645,7 @@ namespace tl
             return out;
         }
 
-        void StyleSettingsWidget::setGeometry(const math::BBox2i& value)
+        void StyleSettingsWidget::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -727,7 +727,7 @@ namespace tl
             return out;
         }
 
-        void MiscSettingsWidget::setGeometry(const math::BBox2i& value)
+        void MiscSettingsWidget::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

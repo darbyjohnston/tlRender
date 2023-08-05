@@ -17,26 +17,26 @@ namespace tl
 {
     namespace image
     {
-        math::BBox2i getBBox(float aspect, const math::BBox2i& bbox) noexcept
+        math::Box2i getBox(float aspect, const math::Box2i& box) noexcept
         {
-            math::BBox2i out;
-            const math::Vector2i bboxSize = bbox.getSize();
-            const float bboxAspect = bbox.getAspect();
-            if (bboxAspect > aspect)
+            math::Box2i out;
+            const math::Vector2i boxSize = box.getSize();
+            const float boxAspect = box.getAspect();
+            if (boxAspect > aspect)
             {
-                out = math::BBox2i(
-                    bbox.min.x + bboxSize.x / 2.F - (bboxSize.y * aspect) / 2.F,
-                    bbox.min.y,
-                    bboxSize.y * aspect,
-                    bboxSize.y);
+                out = math::Box2i(
+                    box.min.x + boxSize.x / 2.F - (boxSize.y * aspect) / 2.F,
+                    box.min.y,
+                    boxSize.y * aspect,
+                    boxSize.y);
             }
             else
             {
-                out = math::BBox2i(
-                    bbox.min.x,
-                    bbox.min.y + bboxSize.y / 2.F - (bboxSize.x / aspect) / 2.F,
-                    bboxSize.x,
-                    bboxSize.x / aspect);
+                out = math::Box2i(
+                    box.min.x,
+                    box.min.y + boxSize.y / 2.F - (boxSize.x / aspect) / 2.F,
+                    boxSize.x,
+                    boxSize.x / aspect);
             }
             return out;
         }

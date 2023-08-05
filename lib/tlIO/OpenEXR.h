@@ -6,7 +6,7 @@
 
 #include <tlIO/SequenceIO.h>
 
-#include <tlCore/BBox.h>
+#include <tlCore/Box.h>
 
 #include <ImathBox.h>
 #include <ImfHeader.h>
@@ -101,7 +101,7 @@ namespace tl
         void writeTags(const image::Tags&, double speed, Imf::Header&);
 
         //! Convert an Imath box type.
-        math::BBox2i fromImath(const Imath::Box2i&);
+        math::Box2i fromImath(const Imath::Box2i&);
 
         //! Convert from an Imf channel.
         Channel fromImf(const std::string& name, const Imf::Channel&);

@@ -112,7 +112,7 @@ namespace tl
             return out;
         }
 
-        void ViewToolBar::setGeometry(const math::BBox2i& value)
+        void ViewToolBar::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

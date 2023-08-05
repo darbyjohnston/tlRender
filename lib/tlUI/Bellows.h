@@ -48,7 +48,7 @@ namespace tl
             //! Set whether the bellows is open.
             void setOpen(bool);
 
-            void setGeometry(const math::BBox2i&) override;
+            void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:

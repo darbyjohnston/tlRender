@@ -52,7 +52,7 @@ namespace tl
                     _render->begin(size);
                     _render->drawVideo(
                         { _videoData },
-                        { math::BBox2i(0, 0, size.w, size.h) });
+                        { math::Box2i(0, 0, size.w, size.h) });
                     _render->end();
 
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))

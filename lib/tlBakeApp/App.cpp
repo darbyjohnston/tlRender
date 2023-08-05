@@ -431,7 +431,7 @@ namespace tl
             const auto videoData = _timeline->getVideo(_inputTime).get();
             _render->drawVideo(
                 { videoData },
-                { math::BBox2i(0, 0, _renderSize.w, _renderSize.h) });
+                { math::Box2i(0, 0, _renderSize.w, _renderSize.h) });
             _render->end();
 
             // Write the frame.

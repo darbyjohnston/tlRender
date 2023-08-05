@@ -129,11 +129,11 @@ namespace tl
             _updates |= ui::Update::Draw;
         }
 
-        math::BBox2i IItem::_getClipRect(
-            const math::BBox2i& value,
+        math::Box2i IItem::_getClipRect(
+            const math::Box2i& value,
             double scale)
         {
-            math::BBox2i out;
+            math::Box2i out;
             const math::Vector2i c = value.getCenter();
             out.min.x = (value.min.x - c.x) * scale + c.x;
             out.min.y = (value.min.y - c.y) * scale + c.y;

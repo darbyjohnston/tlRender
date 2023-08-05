@@ -46,10 +46,10 @@ namespace tl
             virtual void setRenderSize(const image::Size&) = 0;
 
             //! Get the viewport.
-            virtual math::BBox2i getViewport() const = 0;
+            virtual math::Box2i getViewport() const = 0;
 
             //! Set the viewport.
-            virtual void setViewport(const math::BBox2i&) = 0;
+            virtual void setViewport(const math::Box2i&) = 0;
 
             //! Clear the viewport.
             virtual void clearViewport(const image::Color4f&) = 0;
@@ -61,10 +61,10 @@ namespace tl
             virtual void setClipRectEnabled(bool) = 0;
 
             //! Get the clipping rectangle.
-            virtual math::BBox2i getClipRect() const = 0;
+            virtual math::Box2i getClipRect() const = 0;
 
             //! Set the clipping rectangle.
-            virtual void setClipRect(const math::BBox2i&) = 0;
+            virtual void setClipRect(const math::Box2i&) = 0;
 
             //! Get the transformation matrix.
             virtual math::Matrix4x4f getTransform() const = 0;
@@ -74,7 +74,7 @@ namespace tl
 
             //! Draw a rectangle.
             virtual void drawRect(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const image::Color4f&) = 0;
 
             //! Draw a triangle mesh.
@@ -98,20 +98,20 @@ namespace tl
             //! Draw a texture.
             virtual void drawTexture(
                 unsigned int,
-                const math::BBox2i&,
+                const math::Box2i&,
                 const image::Color4f& = image::Color4f(1.F, 1.F, 1.F)) = 0;
 
             //! Draw an image.
             virtual void drawImage(
                 const std::shared_ptr<image::Image>&,
-                const math::BBox2i&,
+                const math::Box2i&,
                 const image::Color4f& = image::Color4f(1.F, 1.F, 1.F),
                 const ImageOptions& = ImageOptions()) = 0;
 
             //! Draw timeline video data.
             virtual void drawVideo(
                 const std::vector<timeline::VideoData>&,
-                const std::vector<math::BBox2i>&,
+                const std::vector<math::Box2i>&,
                 const std::vector<ImageOptions>& = {},
                 const std::vector<DisplayOptions>& = {},
                 const CompareOptions& = CompareOptions()) = 0;

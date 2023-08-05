@@ -110,10 +110,10 @@ namespace tl
             void setAlign(HAlign, VAlign);
 
             //! Get the geometry.
-            const math::BBox2i& getGeometry() const;
+            const math::Box2i& getGeometry() const;
 
             //! Set the geometry.
-            virtual void setGeometry(const math::BBox2i&);
+            virtual void setGeometry(const math::Box2i&);
 
             ///@}
 
@@ -131,7 +131,7 @@ namespace tl
 
             //! Get the clipping rect applied to the child widgets. By
             //! default this is the same as the widget geometry.
-            virtual math::BBox2i getChildrenClipRect() const;
+            virtual math::Box2i getChildrenClipRect() const;
 
             ///@}
 
@@ -208,18 +208,18 @@ namespace tl
 
             //! Clip event.
             virtual void clipEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 bool clipped,
                 const ClipEvent&);
 
             //! Draw event.
             virtual void drawEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const DrawEvent&);
 
             //! Draw overlay event.
             virtual void drawOverlayEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const DrawEvent&);
 
             //! Mouse enter event.
@@ -279,7 +279,7 @@ namespace tl
             Stretch _vStretch = Stretch::Fixed;
             HAlign _hAlign = HAlign::Center;
             VAlign _vAlign = VAlign::Center;
-            math::BBox2i _geometry;
+            math::Box2i _geometry;
             bool _visible = true;
             bool _parentsVisible = true;
             bool _clipped = false;

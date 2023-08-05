@@ -45,7 +45,7 @@
 #endif // TLRENDER_STB
 
 #include <tlCoreTest/AudioTest.h>
-#include <tlCoreTest/BBoxTest.h>
+#include <tlCoreTest/BoxTest.h>
 #include <tlCoreTest/ColorTest.h>
 #include <tlCoreTest/ContextTest.h>
 #include <tlCoreTest/ErrorTest.h>
@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
         if (1)
         {
             tests.push_back(core_tests::AudioTest::create(context));
-            tests.push_back(core_tests::BBoxTest::create(context));
+            tests.push_back(core_tests::BoxTest::create(context));
             tests.push_back(core_tests::ColorTest::create(context));
             tests.push_back(core_tests::ContextTest::create(context));
             tests.push_back(core_tests::ErrorTest::create(context));

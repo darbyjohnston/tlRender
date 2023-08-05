@@ -223,7 +223,7 @@ namespace tl
         }
 
         void IButton::clipEvent(
-            const math::BBox2i& clipRect,
+            const math::Box2i& clipRect,
             bool clipped,
             const ClipEvent& event)
         {

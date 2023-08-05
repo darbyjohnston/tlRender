@@ -144,7 +144,7 @@ namespace tl
             }
         }
 
-        void TimelineItem::setGeometry(const math::BBox2i& value)
+        void TimelineItem::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
@@ -158,7 +158,7 @@ namespace tl
             for (const auto& child : _children)
             {
                 const auto& sizeHint = child->getSizeHint();
-                child->setGeometry(math::BBox2i(
+                child->setGeometry(math::Box2i(
                     _geometry.min.x,
                     _geometry.min.y + y,
                     sizeHint.x,
@@ -202,7 +202,7 @@ namespace tl
         }
 
         void TimelineItem::clipEvent(
-            const math::BBox2i& clipRect,
+            const math::Box2i& clipRect,
             bool clipped,
             const ui::ClipEvent& event)
         {
@@ -215,13 +215,13 @@ namespace tl
         }
 
         void TimelineItem::drawOverlayEvent(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const ui::DrawEvent& event)
         {
             IItem::drawOverlayEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::BBox2i& g = _geometry;
+            const math::Box2i& g = _geometry;
 
             int y =
                 p.size.scrollPos.y +
@@ -232,13 +232,13 @@ namespace tl
                 p.size.margin +
                 p.size.border * 4;
             event.render->drawRect(
-                math::BBox2i(g.min.x, y, g.w(), h),
+                math::Box2i(g.min.x, y, g.w(), h),
                 event.style->getColorRole(ui::ColorRole::Window));
 
             y = y + h;
             h = p.size.border;
             event.render->drawRect(
-                math::BBox2i(g.min.x, y, g.w(), h),
+                math::Box2i(g.min.x, y, g.w(), h),
                 event.style->getColorRole(ui::ColorRole::Border));
 
             _drawInOutPoints(drawRect, event);
@@ -363,14 +363,14 @@ namespace tl
         }
 
         void TimelineItem::_drawInOutPoints(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const ui::DrawEvent& event)
         {
             TLRENDER_P();
             if (!time::compareExact(_p->inOutRange, time::invalidTimeRange) &&
                 !time::compareExact(_p->inOutRange, _p->timeRange))
             {
-                const math::BBox2i& g = _geometry;
+                const math::Box2i& g = _geometry;
 
                 switch (_options.inOutDisplay)
                 {
@@ -378,7 +378,7 @@ namespace tl
                 {
                     const int x0 = _timeToPos(_p->inOutRange.start_time());
                     const int x1 = _timeToPos(_p->inOutRange.end_time_exclusive());
-                    const math::BBox2i bbox(
+                    const math::Box2i box(
                         x0,
                         p.size.scrollPos.y +
                         g.min.y,
@@ -387,7 +387,7 @@ namespace tl
                         p.size.fontMetrics.lineHeight +
                         p.size.margin);
                     event.render->drawRect(
-                        bbox,
+                        box,
                         event.style->getColorRole(ui::ColorRole::InOut));
                     break;
                 }
@@ -395,7 +395,7 @@ namespace tl
                 {
                     int x0 = _timeToPos(_p->timeRange.start_time());
                     int x1 = _timeToPos(_p->inOutRange.start_time());
-                    math::BBox2i bbox(
+                    math::Box2i box(
                         x0,
                         p.size.scrollPos.y +
                         g.min.y,
@@ -404,11 +404,11 @@ namespace tl
                         p.size.fontMetrics.lineHeight +
                         p.size.margin);
                     event.render->drawRect(
-                        bbox,
+                        box,
                         event.style->getColorRole(ui::ColorRole::InOut));
                     x0 = _timeToPos(_p->inOutRange.end_time_exclusive());
                     x1 = _timeToPos(_p->timeRange.end_time_exclusive());
-                    bbox = math::BBox2i(
+                    box = math::Box2i(
                         x0,
                         p.size.scrollPos.y +
                         g.min.y,
@@ -417,7 +417,7 @@ namespace tl
                         p.size.fontMetrics.lineHeight +
                         p.size.margin);
                     event.render->drawRect(
-                        bbox,
+                        box,
                         event.style->getColorRole(ui::ColorRole::InOut));
                     break;
                 }
@@ -427,13 +427,13 @@ namespace tl
         }
 
         void TimelineItem::_drawTimeTicks(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const ui::DrawEvent& event)
         {
             TLRENDER_P();
 
             const int handle = event.style->getSizeRole(ui::SizeRole::Handle, event.displayScale);
-            const math::BBox2i& g = _geometry;
+            const math::Box2i& g = _geometry;
 
             const std::string labelMax = _data.timeUnitsModel->getLabel(p.timeRange.duration());
             const math::Vector2i labelMaxSize = event.fontSystem->getSize(labelMax, p.size.fontInfo);
@@ -448,7 +448,7 @@ namespace tl
                 size_t i = 1;
                 for (double t = 0.0; t < duration; t += 1.0 / p.timeRange.duration().rate())
                 {
-                    const math::BBox2i bbox(
+                    const math::Box2i box(
                         g.min.x +
                         t / duration * w,
                         p.size.scrollPos.y +
@@ -458,12 +458,12 @@ namespace tl
                         p.size.border,
                         p.size.margin +
                         p.size.border * 4);
-                    if (bbox.intersects(drawRect))
+                    if (box.intersects(drawRect))
                     {
-                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
-                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));
-                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.max.y + 1));
-                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.max.y + 1));
+                        mesh.v.push_back(math::Vector2f(box.min.x, box.min.y));
+                        mesh.v.push_back(math::Vector2f(box.max.x + 1, box.min.y));
+                        mesh.v.push_back(math::Vector2f(box.max.x + 1, box.max.y + 1));
+                        mesh.v.push_back(math::Vector2f(box.min.x, box.max.y + 1));
                         mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
                         mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
                         i += 4;
@@ -504,7 +504,7 @@ namespace tl
                 size_t i = 1;
                 for (double t = 0.0; t < duration; t += seconds)
                 {
-                    const math::BBox2i bbox(
+                    const math::Box2i box(
                         g.min.x +
                         t / duration * w,
                         p.size.scrollPos.y +
@@ -514,12 +514,12 @@ namespace tl
                         p.size.fontMetrics.lineHeight +
                         p.size.margin +
                         p.size.border * 4);
-                    if (bbox.intersects(drawRect))
+                    if (box.intersects(drawRect))
                     {
-                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
-                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));
-                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.max.y + 1));
-                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.max.y + 1));
+                        mesh.v.push_back(math::Vector2f(box.min.x, box.min.y));
+                        mesh.v.push_back(math::Vector2f(box.max.x + 1, box.min.y));
+                        mesh.v.push_back(math::Vector2f(box.max.x + 1, box.max.y + 1));
+                        mesh.v.push_back(math::Vector2f(box.min.x, box.max.y + 1));
                         mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
                         mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
                         i += 4;
@@ -538,7 +538,7 @@ namespace tl
                 {
                     const otime::RationalTime time = p.timeRange.start_time() +
                         otime::RationalTime(t, 1.0).rescaled_to(p.timeRange.duration().rate());
-                    const math::BBox2i bbox(
+                    const math::Box2i box(
                         g.min.x +
                         t / duration * w +
                         p.size.border +
@@ -548,14 +548,14 @@ namespace tl
                         p.size.margin,
                         labelMaxSize.x,
                         p.size.fontMetrics.lineHeight);
-                    if (time != currentTime && bbox.intersects(drawRect))
+                    if (time != currentTime && box.intersects(drawRect))
                     {
                         const std::string label = _data.timeUnitsModel->getLabel(time);
                         event.render->drawText(
                             event.fontSystem->getGlyphs(label, p.size.fontInfo),
                             math::Vector2i(
-                                bbox.min.x,
-                                bbox.min.y +
+                                box.min.x,
+                                box.min.y +
                                 p.size.fontMetrics.ascender),
                             event.style->getColorRole(ui::ColorRole::TextDisabled));
                     }
@@ -564,12 +564,12 @@ namespace tl
         }
 
         void TimelineItem::_drawCacheInfo(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const ui::DrawEvent& event)
         {
             TLRENDER_P();
 
-            const math::BBox2i& g = _geometry;
+            const math::Box2i& g = _geometry;
 
             if (CacheDisplay::VideoAndAudio == _options.cacheDisplay ||
                 CacheDisplay::VideoOnly == _options.cacheDisplay)
@@ -583,7 +583,7 @@ namespace tl
                     const int h = CacheDisplay::VideoAndAudio == _options.cacheDisplay ?
                         p.size.border * 2 :
                         p.size.border * 4;
-                    const math::BBox2i bbox(
+                    const math::Box2i box(
                         x0,
                         p.size.scrollPos.y +
                         g.min.y +
@@ -592,12 +592,12 @@ namespace tl
                         p.size.margin,
                         x1 - x0 + 1,
                         h);
-                    if (bbox.intersects(drawRect))
+                    if (box.intersects(drawRect))
                     {
-                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
-                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));
-                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.max.y + 1));
-                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.max.y + 1));
+                        mesh.v.push_back(math::Vector2f(box.min.x, box.min.y));
+                        mesh.v.push_back(math::Vector2f(box.max.x + 1, box.min.y));
+                        mesh.v.push_back(math::Vector2f(box.max.x + 1, box.max.y + 1));
+                        mesh.v.push_back(math::Vector2f(box.min.x, box.max.y + 1));
                         mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
                         mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
                         i += 4;
@@ -620,7 +620,7 @@ namespace tl
                 {
                     const int x0 = _timeToPos(t.start_time());
                     const int x1 = _timeToPos(t.end_time_exclusive());
-                    const math::BBox2i bbox(
+                    const math::Box2i box(
                         x0,
                         p.size.scrollPos.y +
                         g.min.y +
@@ -630,12 +630,12 @@ namespace tl
                         p.size.border * 2,
                         x1 - x0 + 1,
                         p.size.border * 2);
-                    if (bbox.intersects(drawRect))
+                    if (box.intersects(drawRect))
                     {
-                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
-                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));
-                        mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.max.y + 1));
-                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.max.y + 1));
+                        mesh.v.push_back(math::Vector2f(box.min.x, box.min.y));
+                        mesh.v.push_back(math::Vector2f(box.max.x + 1, box.min.y));
+                        mesh.v.push_back(math::Vector2f(box.max.x + 1, box.max.y + 1));
+                        mesh.v.push_back(math::Vector2f(box.min.x, box.max.y + 1));
                         mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
                         mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
                         i += 4;
@@ -652,12 +652,12 @@ namespace tl
         }
 
         void TimelineItem::_drawCurrentTime(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const ui::DrawEvent& event)
         {
             TLRENDER_P();
 
-            const math::BBox2i& g = _geometry;
+            const math::Box2i& g = _geometry;
 
             const otime::RationalTime& currentTime = p.player->observeCurrentTime()->get();
             if (!time::compareExact(currentTime, time::invalidTime))
@@ -668,7 +668,7 @@ namespace tl
                     g.min.y);
 
                 event.render->drawRect(
-                    math::BBox2i(
+                    math::Box2i(
                         pos.x,
                         pos.y,
                         p.size.border * 2,

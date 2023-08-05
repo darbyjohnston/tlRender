@@ -33,7 +33,7 @@ namespace tl
             struct SizeData
             {
                 int thumbnailWidth = 0;
-                math::BBox2i clipRect;
+                math::Box2i clipRect;
             };
             SizeData size;
 
@@ -216,7 +216,7 @@ namespace tl
         }
 
         void VideoClipItem::clipEvent(
-            const math::BBox2i& clipRect,
+            const math::Box2i& clipRect,
             bool clipped,
             const ui::ClipEvent& event)
         {
@@ -236,7 +236,7 @@ namespace tl
         }
 
         void VideoClipItem::drawEvent(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const ui::DrawEvent& event)
         {
             IBasicItem::drawEvent(drawRect, event);
@@ -247,28 +247,28 @@ namespace tl
         }
 
         void VideoClipItem::_drawThumbnails(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const ui::DrawEvent& event)
         {
             TLRENDER_P();
 
-            const math::BBox2i g = _getInsideGeometry();
+            const math::Box2i g = _getInsideGeometry();
             const int m = _getMargin();
             const auto now = std::chrono::steady_clock::now();
 
-            const math::BBox2i bbox(
+            const math::Box2i box(
                 g.min.x,
                 g.min.y +
                 _getLineHeight() + m * 2,
                 g.w(),
                 _options.thumbnailHeight);
             event.render->drawRect(
-                bbox,
+                box,
                 image::Color4f(0.F, 0.F, 0.F));
             const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
             const timeline::ClipRectState clipRectState(event.render);
             event.render->setClipRectEnabled(true);
-            event.render->setClipRect(bbox.intersect(clipRectState.getClipRect()));
+            event.render->setClipRect(box.intersect(clipRectState.getClipRect()));
 
             std::set<otime::RationalTime> thumbnailsDelete;
             for (const auto& thumbnail : p.thumbnails)
@@ -276,7 +276,7 @@ namespace tl
                 thumbnailsDelete.insert(thumbnail.first);
             }
 
-            const math::BBox2i clipRect = _getClipRect(
+            const math::Box2i clipRect = _getClipRect(
                 drawRect,
                 _options.clipRectScale);
             if (g.intersects(clipRect))
@@ -323,7 +323,7 @@ namespace tl
                         {
                             gl::OffscreenBufferBinding binding(buffer);
                             event.render->setRenderSize(size);
-                            event.render->setViewport(math::BBox2i(0, 0, size.w, size.h));
+                            event.render->setViewport(math::Box2i(0, 0, size.w, size.h));
                             event.render->setClipRectEnabled(false);
                             event.render->setTransform(
                                 math::ortho(
@@ -338,7 +338,7 @@ namespace tl
                             {
                                 event.render->drawImage(
                                     i.second.image,
-                                    math::BBox2i(0, 0, size.w, size.h));
+                                    math::Box2i(0, 0, size.w, size.h));
                             }
                         }
                         p.thumbnails[i.first] = { buffer, now };
@@ -349,14 +349,14 @@ namespace tl
                 const int w = _sizeHint.x;
                 for (int x = 0; x < w; x += p.size.thumbnailWidth)
                 {
-                    const math::BBox2i bbox(
+                    const math::Box2i box(
                         g.min.x +
                         x,
                         g.min.y +
                         _getLineHeight() + m * 2,
                         p.size.thumbnailWidth,
                         _options.thumbnailHeight);
-                    if (bbox.intersects(clipRect))
+                    if (box.intersects(clipRect))
                     {
                         const otime::RationalTime time = time::floor(otime::RationalTime(
                             p.timeRange.start_time().value() +
@@ -376,7 +376,7 @@ namespace tl
                             }
                             event.render->drawTexture(
                                 id,
-                                bbox,
+                                box,
                                 image::Color4f(1.F, 1.F, 1.F, a));
                             thumbnailsDelete.erase(time);
                         }

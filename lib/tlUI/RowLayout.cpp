@@ -72,11 +72,11 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void RowLayout::setGeometry(const math::BBox2i& value)
+        void RowLayout::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
-            const math::BBox2i g = _geometry.margin(-p.size.margin);
+            const math::Box2i g = _geometry.margin(-p.size.margin);
             std::vector<math::Vector2i> sizeHints;
             size_t expanding = 0;
             std::shared_ptr<IWidget> lastVisibleChild;
@@ -138,7 +138,7 @@ namespace tl
                         }
                         break;
                     }
-                    child->setGeometry(math::BBox2i(pos.x, pos.y, size.x, size.y));
+                    child->setGeometry(math::Box2i(pos.x, pos.y, size.x, size.y));
                     switch (p.orientation)
                     {
                     case Orientation::Horizontal:
@@ -175,7 +175,7 @@ namespace tl
             }
         }
 
-        math::BBox2i RowLayout::getChildrenClipRect() const
+        math::Box2i RowLayout::getChildrenClipRect() const
         {
             return _geometry.margin(-_p->size.margin);
         }

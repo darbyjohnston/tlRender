@@ -64,7 +64,7 @@ namespace tl
                 std::shared_ptr<TimestampManager> timestampManager;
                 uint64_t timestamp = 0;
 
-                math::BBox2i bbox;
+                math::Box2i box;
                 uint8_t border = 0;
                 uint8_t textureIndex = 0;
                 std::shared_ptr<BoxPackingNode> children[2];
@@ -112,40 +112,40 @@ namespace tl
                 {
                     const math::Vector2i dataSize =
                         math::Vector2i(image->getWidth(), image->getHeight()) + border * 2;
-                    const math::Vector2i& bboxSize = bbox.getSize();
-                    if (dataSize.x > bboxSize.x || dataSize.y > bboxSize.y)
+                    const math::Vector2i& boxSize = box.getSize();
+                    if (dataSize.x > boxSize.x || dataSize.y > boxSize.y)
                     {
                         return nullptr;
                     }
-                    if (dataSize == bboxSize)
+                    if (dataSize == boxSize)
                     {
                         return shared_from_this();
                     }
                     children[0] = create(border, timestampManager);
                     children[1] = create(border, timestampManager);
-                    const int dw = bboxSize.x - dataSize.x;
-                    const int dh = bboxSize.y - dataSize.y;
+                    const int dw = boxSize.x - dataSize.x;
+                    const int dh = boxSize.y - dataSize.y;
                     if (dw > dh)
                     {
-                        children[0]->bbox.min.x = bbox.min.x;
-                        children[0]->bbox.min.y = bbox.min.y;
-                        children[0]->bbox.max.x = bbox.min.x + dataSize.x - 1;
-                        children[0]->bbox.max.y = bbox.max.y;
-                        children[1]->bbox.min.x = bbox.min.x + dataSize.x;
-                        children[1]->bbox.min.y = bbox.min.y;
-                        children[1]->bbox.max.x = bbox.max.x;
-                        children[1]->bbox.max.y = bbox.max.y;
+                        children[0]->box.min.x = box.min.x;
+                        children[0]->box.min.y = box.min.y;
+                        children[0]->box.max.x = box.min.x + dataSize.x - 1;
+                        children[0]->box.max.y = box.max.y;
+                        children[1]->box.min.x = box.min.x + dataSize.x;
+                        children[1]->box.min.y = box.min.y;
+                        children[1]->box.max.x = box.max.x;
+                        children[1]->box.max.y = box.max.y;
                     }
                     else
                     {
-                        children[0]->bbox.min.x = bbox.min.x;
-                        children[0]->bbox.min.y = bbox.min.y;
-                        children[0]->bbox.max.x = bbox.max.x;
-                        children[0]->bbox.max.y = bbox.min.y + dataSize.y - 1;
-                        children[1]->bbox.min.x = bbox.min.x;
-                        children[1]->bbox.min.y = bbox.min.y + dataSize.y;
-                        children[1]->bbox.max.x = bbox.max.x;
-                        children[1]->bbox.max.y = bbox.max.y;
+                        children[0]->box.min.x = box.min.x;
+                        children[0]->box.min.y = box.min.y;
+                        children[0]->box.max.x = box.max.x;
+                        children[0]->box.max.y = box.min.y + dataSize.y - 1;
+                        children[1]->box.min.x = box.min.x;
+                        children[1]->box.min.y = box.min.y + dataSize.y;
+                        children[1]->box.max.x = box.max.x;
+                        children[1]->box.max.y = box.max.y;
                     }
                     children[0]->textureIndex = textureIndex;
                     children[1]->textureIndex = textureIndex;
@@ -201,10 +201,10 @@ namespace tl
                 p.textures.push_back(texture);
 
                 auto node = BoxPackingNode::create(border, p.timestampManager);
-                node->bbox.min.x = 0;
-                node->bbox.min.y = 0;
-                node->bbox.max.x = textureSize - 1;
-                node->bbox.max.y = textureSize - 1;
+                node->box.min.x = 0;
+                node->box.min.y = 0;
+                node->box.max.x = textureSize - 1;
+                node->box.max.y = textureSize - 1;
                 node->textureIndex = i;
                 p.boxPackingNodes.push_back(node);
             }
@@ -281,7 +281,7 @@ namespace tl
                     // The data has been added to the atlas.
                     p.id = p.id + 1;
                     node->id = p.id;
-                    p.textures[node->textureIndex]->copy(*image, node->bbox.min.x + p.border, node->bbox.min.y + p.border);
+                    p.textures[node->textureIndex]->copy(*image, node->box.min.x + p.border, node->box.min.y + p.border);
                     p.cache[node->id] = node;
                     p.toTextureAtlasItem(node, out);
                     return node->id;
@@ -297,15 +297,15 @@ namespace tl
             std::sort(nodes.begin(), nodes.end(),
                 [](const std::shared_ptr<BoxPackingNode>& a, const std::shared_ptr<BoxPackingNode>& b)
                 {
-                    const int aArea = a->bbox.getArea();
-                    const int bArea = b->bbox.getArea();
+                    const int aArea = a->box.getArea();
+                    const int bArea = b->box.getArea();
                     return std::tie(aArea, a->timestamp) < std::tie(bArea, b->timestamp);
                 });
             const math::Vector2i dataSize =
                 math::Vector2i(image->getWidth(), image->getHeight()) + p.border * 2;
             for (auto node : nodes)
             {
-                const math::Vector2i nodeSize = node->bbox.getSize();
+                const math::Vector2i nodeSize = node->box.getSize();
                 if (dataSize.x <= nodeSize.x && dataSize.y <= nodeSize.y)
                 {
                     auto old = node;
@@ -327,12 +327,12 @@ namespace tl
                         //! \todo Do we need to zero out the old data?
                         //auto zero = Image::Data::create(Image::Info(data->getSize() + p.border * 2, p.textureType));
                         //zero->zero();
-                        //p.textures[node2->texture]->copy(zero, node2->bbox.min);
+                        //p.textures[node2->texture]->copy(zero, node2->box.min);
 
                         p.textures[node2->textureIndex]->copy(
                             *image,
-                            static_cast<uint16_t>(node2->bbox.min.x + p.border),
-                            static_cast<uint16_t>(node2->bbox.min.y + p.border));
+                            static_cast<uint16_t>(node2->box.min.x + p.border),
+                            static_cast<uint16_t>(node2->box.min.y + p.border));
                         p.cache[node2->id] = node2;
                         p.toTextureAtlasItem(node2, out);
 
@@ -358,7 +358,7 @@ namespace tl
                     {
                         if (j->isOccupied())
                         {
-                            used += j->bbox.getArea();
+                            used += j->box.getArea();
                         }
                     }
                     out += static_cast<float>(used);
@@ -401,15 +401,15 @@ namespace tl
             const std::shared_ptr<BoxPackingNode>& node,
             TextureAtlasItem& out)
         {
-            out.w = node->bbox.w();
-            out.h = node->bbox.h();
+            out.w = node->box.w();
+            out.h = node->box.h();
             out.textureIndex = node->textureIndex;
             out.textureU = math::FloatRange(
-                (node->bbox.min.x + static_cast<float>(border)) / static_cast<float>(textureSize),
-                (node->bbox.max.x - static_cast<float>(border) + 0.F) / static_cast<float>(textureSize));
+                (node->box.min.x + static_cast<float>(border)) / static_cast<float>(textureSize),
+                (node->box.max.x - static_cast<float>(border) + 0.F) / static_cast<float>(textureSize));
             out.textureV = math::FloatRange(
-                (node->bbox.min.y + static_cast<float>(border)) / static_cast<float>(textureSize),
-                (node->bbox.max.y - static_cast<float>(border) + 0.F) / static_cast<float>(textureSize));
+                (node->box.min.y + static_cast<float>(border)) / static_cast<float>(textureSize),
+                (node->box.max.y - static_cast<float>(border) + 0.F) / static_cast<float>(textureSize));
         }
 
         void TextureAtlas::Private::removeFromAtlas(const std::shared_ptr<BoxPackingNode>& node)

@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlCore/BBox.h>
+#include <tlCore/Box.h>
 
 #include <tlCore/Error.h>
 #include <tlCore/String.h>
@@ -13,57 +13,57 @@ namespace tl
 {
     namespace math
     {
-        BBox2i operator * (const BBox2i& a, float b)
+        Box2i operator * (const Box2i& a, float b)
         {
-            BBox2i out;
+            Box2i out;
             out.min = a.min * b;
             out.max = a.max * b;
             return out;
         }
 
-        BBox2f operator * (const BBox2f& a, float b)
+        Box2f operator * (const Box2f& a, float b)
         {
-            BBox2f out;
+            Box2f out;
             out.min = a.min * b;
             out.max = a.max * b;
             return out;
         }
 
-        void to_json(nlohmann::json& json, const BBox2i& value)
+        void to_json(nlohmann::json& json, const Box2i& value)
         {
             json = { value.min, value.max };
         }
 
-        void to_json(nlohmann::json& json, const BBox2f& value)
+        void to_json(nlohmann::json& json, const Box2f& value)
         {
             json = { value.min, value.max };
         }
 
-        void from_json(const nlohmann::json& json, BBox2i& value)
+        void from_json(const nlohmann::json& json, Box2i& value)
         {
             json.at(0).get_to(value.min);
             json.at(1).get_to(value.max);
         }
 
-        void from_json(const nlohmann::json& json, BBox2f& value)
+        void from_json(const nlohmann::json& json, Box2f& value)
         {
             json.at(0).get_to(value.min);
             json.at(1).get_to(value.max);
         }
 
-        std::ostream& operator << (std::ostream& os, const BBox2i& value)
+        std::ostream& operator << (std::ostream& os, const Box2i& value)
         {
             os << value.min.x << "," << value.min.y << "-" << value.max.x << "," << value.max.y;
             return os;
         }
 
-        std::ostream& operator << (std::ostream& os, const BBox2f& value)
+        std::ostream& operator << (std::ostream& os, const Box2f& value)
         {
             os << value.min.x << "," << value.min.y << "-" << value.max.x << "," << value.max.y;
             return os;
         }
 
-        std::istream& operator >> (std::istream& is, BBox2i& value)
+        std::istream& operator >> (std::istream& is, Box2i& value)
         {
             std::string s;
             is >> s;
@@ -83,7 +83,7 @@ namespace tl
             return is;
         }
 
-        std::istream& operator >> (std::istream& is, BBox2f& value)
+        std::istream& operator >> (std::istream& is, Box2f& value)
         {
             std::string s;
             is >> s;

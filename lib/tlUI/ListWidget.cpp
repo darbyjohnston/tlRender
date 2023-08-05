@@ -105,7 +105,7 @@ namespace tl
             _searchUpdate();
         }
 
-        void ListWidget::setGeometry(const math::BBox2i& value)
+        void ListWidget::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->scrollWidget->setGeometry(value);

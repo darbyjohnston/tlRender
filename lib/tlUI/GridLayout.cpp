@@ -104,12 +104,12 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void GridLayout::setGeometry(const math::BBox2i& value)
+        void GridLayout::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
 
-            const math::BBox2i g = _geometry.margin(-p.size.margin);
+            const math::Box2i g = _geometry.margin(-p.size.margin);
 
             // Get the child size hints.
             std::vector<int> rowSizeHints;
@@ -213,7 +213,7 @@ namespace tl
                 const math::Vector2i size(
                     columnSizes[i.second.column],
                     rowSizes[i.second.row]);
-                i.first->setGeometry(math::BBox2i(pos.x, pos.y, size.x, size.y));
+                i.first->setGeometry(math::Box2i(pos.x, pos.y, size.x, size.y));
             }
         }
 

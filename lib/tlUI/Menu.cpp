@@ -46,11 +46,11 @@ namespace tl
                     const TickEvent&) override;
                 void sizeHintEvent(const SizeHintEvent&) override;
                 void clipEvent(
-                    const math::BBox2i&,
+                    const math::Box2i&,
                     bool,
                     const ClipEvent&) override;
                 void drawEvent(
-                    const math::BBox2i&,
+                    const math::Box2i&,
                     const DrawEvent&) override;
                 void keyPressEvent(KeyEvent&) override;
                 void keyReleaseEvent(KeyEvent&) override;
@@ -277,7 +277,7 @@ namespace tl
             }
 
             void MenuButton::clipEvent(
-                const math::BBox2i& clipRect,
+                const math::Box2i& clipRect,
                 bool clipped,
                 const ClipEvent& event)
             {
@@ -290,12 +290,12 @@ namespace tl
             }
 
             void MenuButton::drawEvent(
-                const math::BBox2i& drawRect,
+                const math::Box2i& drawRect,
                 const DrawEvent& event)
             {
                 IButton::drawEvent(drawRect, event);
 
-                const math::BBox2i& g = _geometry;
+                const math::Box2i& g = _geometry;
                 const bool enabled = isEnabled();
 
                 // Draw the key focus.
@@ -330,7 +330,7 @@ namespace tl
                 }
 
                 // Draw the icon.
-                const math::BBox2i g2 = g.margin(-_size.border * 2);
+                const math::Box2i g2 = g.margin(-_size.border * 2);
                 int x = g2.x() + _size.margin;
                 if (_iconImage)
                 {
@@ -338,12 +338,12 @@ namespace tl
                     if (_checked)
                     {
                         event.render->drawRect(
-                            math::BBox2i(g2.x(), g2.y(), g2.h(), g2.h()),
+                            math::Box2i(g2.x(), g2.y(), g2.h(), g2.h()),
                             event.style->getColorRole(ColorRole::Checked));
                     }
                     event.render->drawImage(
                         _iconImage,
-                        math::BBox2i(
+                        math::Box2i(
                             x,
                             g2.y() + g2.h() / 2 - iconSize.h / 2,
                             iconSize.w,
@@ -359,12 +359,12 @@ namespace tl
                     if (_checked)
                     {
                         event.render->drawRect(
-                            math::BBox2i(g2.x(), g2.y(), g2.h(), g2.h()),
+                            math::Box2i(g2.x(), g2.y(), g2.h(), g2.h()),
                             event.style->getColorRole(ColorRole::Checked));
                     }
                     event.render->drawImage(
                         _checkedIcon.image,
-                        math::BBox2i(
+                        math::Box2i(
                             x,
                             g2.y() + g2.h() / 2 - iconSize.h / 2,
                             iconSize.w,
@@ -380,12 +380,12 @@ namespace tl
                     if (_checked)
                     {
                         event.render->drawRect(
-                            math::BBox2i(g2.x(), g2.y(), g2.h(), g2.h()),
+                            math::Box2i(g2.x(), g2.y(), g2.h(), g2.h()),
                             event.style->getColorRole(ColorRole::Checked));
                     }
                     event.render->drawImage(
                         _uncheckedIcon.image,
-                        math::BBox2i(
+                        math::Box2i(
                             x,
                             g2.y() + g2.h() / 2 - iconSize.h / 2,
                             iconSize.w,
@@ -441,7 +441,7 @@ namespace tl
                     const image::Size& iconSize = _subMenuIcon.image->getSize();
                     event.render->drawImage(
                       _subMenuIcon.image,
-                      math::BBox2i(
+                      math::Box2i(
                           g2.max.x - _size.margin - iconSize.w,
                           g2.y() + g2.h() / 2 - iconSize.h / 2,
                           iconSize.w,

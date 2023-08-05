@@ -193,7 +193,7 @@ namespace tl
             return out;
         }
 
-        void ColorConfigWidget::setGeometry(const math::BBox2i& value)
+        void ColorConfigWidget::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -306,7 +306,7 @@ namespace tl
             return out;
         }
 
-        void LUTWidget::setGeometry(const math::BBox2i& value)
+        void LUTWidget::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -506,7 +506,7 @@ namespace tl
             return out;
         }
 
-        void ColorWidget::setGeometry(const math::BBox2i& value)
+        void ColorWidget::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -677,7 +677,7 @@ namespace tl
             return out;
         }
 
-        void LevelsWidget::setGeometry(const math::BBox2i& value)
+        void LevelsWidget::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -831,7 +831,7 @@ namespace tl
             return out;
         }
 
-        void EXRDisplayWidget::setGeometry(const math::BBox2i& value)
+        void EXRDisplayWidget::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -921,7 +921,7 @@ namespace tl
             return out;
         }
 
-        void SoftClipWidget::setGeometry(const math::BBox2i& value)
+        void SoftClipWidget::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

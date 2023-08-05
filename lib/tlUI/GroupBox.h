@@ -42,14 +42,14 @@ namespace tl
             //! Set the font role.
             void setFontRole(FontRole);
 
-            void setGeometry(const math::BBox2i&) override;
+            void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void clipEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 bool,
                 const ClipEvent&) override;
             void drawEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const DrawEvent&) override;
 
         private:

@@ -117,7 +117,7 @@ namespace tl
             return out;
         }
 
-        void MenuBar::setGeometry(const math::BBox2i& value)
+        void MenuBar::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();

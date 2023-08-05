@@ -284,7 +284,7 @@ namespace tl
                     _setCursor(image, hotspot);
                 });
             p.eventLoop->setCapture(
-                [this](const math::BBox2i& value)
+                [this](const math::Box2i& value)
                 {
                     return _capture(value);
                 });
@@ -537,7 +537,7 @@ namespace tl
             p.cursor.reset(new Cursor(p.glfwWindow, glfwCursor));
         }
 
-        std::shared_ptr<image::Image> IApp::_capture(const math::BBox2i& value)
+        std::shared_ptr<image::Image> IApp::_capture(const math::Box2i& value)
         {
             TLRENDER_P();
             const image::Size size(value.w(), value.h());

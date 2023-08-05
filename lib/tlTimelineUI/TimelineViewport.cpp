@@ -251,7 +251,7 @@ namespace tl
             }
         }
 
-        void TimelineViewport::setGeometry(const math::BBox2i& value)
+        void TimelineViewport::setGeometry(const math::Box2i& value)
         {
             const bool changed = value != _geometry;
             IWidget::setGeometry(value);
@@ -271,7 +271,7 @@ namespace tl
         }
 
         void TimelineViewport::clipEvent(
-            const math::BBox2i& clipRect,
+            const math::Box2i& clipRect,
             bool clipped,
             const ui::ClipEvent& event)
         {
@@ -284,7 +284,7 @@ namespace tl
         }
 
         void TimelineViewport::drawEvent(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const ui::DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
@@ -295,7 +295,7 @@ namespace tl
                 _frameView();
             }
 
-            const math::BBox2i& g = _geometry;
+            const math::Box2i& g = _geometry;
 
             event.render->drawRect(g, image::Color4f(0.F, 0.F, 0.F));
 
@@ -322,7 +322,7 @@ namespace tl
                 {
                     gl::OffscreenBufferBinding binding(p.buffer);
                     event.render->setRenderSize(size);
-                    event.render->setViewport(math::BBox2i(0, 0, g.w(), g.h()));
+                    event.render->setViewport(math::Box2i(0, 0, g.w(), g.h()));
                     event.render->setClipRectEnabled(false);
                     math::Matrix4x4f vm;
                     vm = vm * math::translate(math::Vector3f(p.viewPos.x, p.viewPos.y, 0.F));
@@ -338,7 +338,7 @@ namespace tl
                     event.render->clearViewport(image::Color4f(0.F, 0.F, 0.F));
                     event.render->drawVideo(
                         p.videoData,
-                        timeline::getBBoxes(p.compareOptions.mode, p.timelineSizes),
+                        timeline::getBoxes(p.compareOptions.mode, p.timelineSizes),
                         p.imageOptions,
                         p.displayOptions,
                         p.compareOptions);

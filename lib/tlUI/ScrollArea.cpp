@@ -74,7 +74,7 @@ namespace tl
             math::Vector2i tmp = value;
             if (clamp)
             {
-                const math::BBox2i g = _geometry.margin(-p.size.border);
+                const math::Box2i g = _geometry.margin(-p.size.border);
                 tmp = math::Vector2i(
                     math::clamp(tmp.x, 0, std::max(0, p.scrollSize.x - g.w())),
                     math::clamp(tmp.y, 0, std::max(0, p.scrollSize.y - g.h())));
@@ -95,7 +95,7 @@ namespace tl
             _p->scrollPosCallback = value;
         }
 
-        math::BBox2i ScrollArea::getChildrenClipRect() const
+        math::Box2i ScrollArea::getChildrenClipRect() const
         {
             TLRENDER_P();
             return _geometry.margin(-p.size.border);
@@ -111,11 +111,11 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void ScrollArea::setGeometry(const math::BBox2i& value)
+        void ScrollArea::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
-            const math::BBox2i g = value.margin(-p.size.border);
+            const math::Box2i g = value.margin(-p.size.border);
 
             math::Vector2i scrollSize;
             for (const auto& child : _children)
@@ -138,7 +138,7 @@ namespace tl
                 }
                 scrollSize.x = std::max(scrollSize.x, sizeHint.x);
                 scrollSize.y = std::max(scrollSize.y, sizeHint.y);
-                const math::BBox2i g2(
+                const math::Box2i g2(
                     g.min.x - p.scrollPos.x,
                     g.min.y - p.scrollPos.y,
                     sizeHint.x,
@@ -207,13 +207,13 @@ namespace tl
         }
 
         void ScrollArea::drawEvent(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::BBox2i& g = _geometry;
+            const math::Box2i& g = _geometry;
 
             if (p.border)
             {

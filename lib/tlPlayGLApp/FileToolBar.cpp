@@ -106,7 +106,7 @@ namespace tl
             return out;
         }
 
-        void FileToolBar::setGeometry(const math::BBox2i& value)
+        void FileToolBar::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

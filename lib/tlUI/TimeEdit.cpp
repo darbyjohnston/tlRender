@@ -140,7 +140,7 @@ namespace tl
             _p->lineEdit->setFontRole(value);
         }
 
-        void TimeEdit::setGeometry(const math::BBox2i& value)
+        void TimeEdit::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

@@ -129,10 +129,10 @@ namespace tl
             std::unique_ptr<OCIOLUTData> lutData;
 #endif // TLRENDER_OCIO
 
-            math::BBox2i viewport;
+            math::Box2i viewport;
             math::Matrix4x4f transform;
             bool clipRectEnabled = false;
-            math::BBox2i clipRect;
+            math::Box2i clipRect;
 
             std::map<std::string, std::shared_ptr<gl::Shader> > shaders;
             std::map<std::string, std::shared_ptr<gl::OffscreenBuffer> > buffers;

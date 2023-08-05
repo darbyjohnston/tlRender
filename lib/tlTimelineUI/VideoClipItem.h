@@ -43,19 +43,19 @@ namespace tl
                 const ui::TickEvent&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
             void clipEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 bool,
                 const ui::ClipEvent&) override;
             void drawEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const ui::DrawEvent&) override;
 
         private:
             void _drawInfo(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const ui::DrawEvent&);
             void _drawThumbnails(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const ui::DrawEvent&);
 
             TLRENDER_PRIVATE();

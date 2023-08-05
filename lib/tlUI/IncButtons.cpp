@@ -64,13 +64,13 @@ namespace tl
         }
 
         void IncButton::drawEvent(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const DrawEvent& event)
         {
             IButton::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::BBox2i& g = _geometry;
+            const math::Box2i& g = _geometry;
 
             const ColorRole colorRole = _checked ?
                 ColorRole::Checked :
@@ -101,7 +101,7 @@ namespace tl
                 const auto iconSize = _iconImage->getSize();
                 event.render->drawImage(
                   _iconImage,
-                  math::BBox2i(
+                  math::Box2i(
                       x,
                       g.y() + g.h() / 2 - iconSize.h / 2,
                       iconSize.w,
@@ -137,15 +137,15 @@ namespace tl
             return out;
         }
 
-        void IncButtons::setGeometry(const math::BBox2i& value)
+        void IncButtons::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
-            _incButton->setGeometry(math::BBox2i(
+            _incButton->setGeometry(math::Box2i(
                 value.min.x,
                 value.min.y,
                 value.w(),
                 value.h() / 2));
-            _decButton->setGeometry(math::BBox2i(
+            _decButton->setGeometry(math::Box2i(
                 value.min.x,
                 value.max.y - value.h() / 2,
                 value.w(),

@@ -322,7 +322,7 @@ namespace tl
                                         requestIt->lutOptions);
                                     render->drawVideo(
                                         { videoData },
-                                        { math::BBox2i(0, 0, info.size.w, info.size.h) });
+                                        { math::Box2i(0, 0, info.size.w, info.size.h) });
                                     render->end();
 
                                     glPixelStorei(GL_PACK_ALIGNMENT, 1);

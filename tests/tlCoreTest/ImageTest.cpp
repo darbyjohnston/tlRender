@@ -64,9 +64,9 @@ namespace tl
                 TLRENDER_ASSERT(size == size2);
             }
             {
-                TLRENDER_ASSERT(math::BBox2i(0, 0, 100, 100) == getBBox(1.F, math::BBox2i(0, 0, 100, 100)));
-                TLRENDER_ASSERT(math::BBox2i(50, 0, 100, 100) == getBBox(1.F, math::BBox2i(0, 0, 200, 100)));
-                TLRENDER_ASSERT(math::BBox2i(0, 50, 100, 100) == getBBox(1.F, math::BBox2i(0, 0, 100, 200)));
+                TLRENDER_ASSERT(math::Box2i(0, 0, 100, 100) == getBox(1.F, math::Box2i(0, 0, 100, 100)));
+                TLRENDER_ASSERT(math::Box2i(50, 0, 100, 100) == getBox(1.F, math::Box2i(0, 0, 200, 100)));
+                TLRENDER_ASSERT(math::Box2i(0, 50, 100, 100) == getBox(1.F, math::Box2i(0, 0, 100, 200)));
             }
         }
 

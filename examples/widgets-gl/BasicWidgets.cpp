@@ -238,7 +238,7 @@ namespace tl
                 return out;
             }
 
-            void BasicWidgets::setGeometry(const math::BBox2i& value)
+            void BasicWidgets::setGeometry(const math::Box2i& value)
             {
                 IExampleWidget::setGeometry(value);
                 _p->layout->setGeometry(value);

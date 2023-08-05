@@ -1026,9 +1026,9 @@ namespace tl
                 Imf::Rational(speedRational.first, speedRational.second));
         }
 
-        math::BBox2i fromImath(const Imath::Box2i& value)
+        math::Box2i fromImath(const Imath::Box2i& value)
         {
-            return math::BBox2i(math::Vector2i(value.min.x, value.min.y), math::Vector2i(value.max.x, value.max.y));
+            return math::Box2i(math::Vector2i(value.min.x, value.min.y), math::Vector2i(value.max.x, value.max.y));
         }
 
         Channel fromImf(const std::string& name, const Imf::Channel& channel)

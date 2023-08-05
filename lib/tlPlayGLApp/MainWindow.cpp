@@ -614,7 +614,7 @@ namespace tl
             }
         }
 
-        void MainWindow::setGeometry(const math::BBox2i& value)
+        void MainWindow::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

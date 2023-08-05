@@ -36,7 +36,7 @@ namespace tl
             //! Open the menu popup.
             void open(
                 const std::shared_ptr<EventLoop>&,
-                const math::BBox2i& buttonGeometry);
+                const math::Box2i& buttonGeometry);
 
             //! Get whether the menu popup is open.
             bool isOpen() const;
@@ -56,10 +56,10 @@ namespace tl
             //! Set the widget.
             void setWidget(const std::shared_ptr<IWidget>&);
 
-            void setGeometry(const math::BBox2i&) override;
+            void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void drawEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const DrawEvent&) override;
 
         private:

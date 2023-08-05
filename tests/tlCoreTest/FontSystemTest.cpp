@@ -96,12 +96,12 @@ namespace tl
                         ss << "Size: " << size;
                         _print(ss.str());
                     }
-                    const auto bboxes = fontSystem->getBBox(text[i], fi, maxLineWidth[i]);
-                    TLRENDER_ASSERT(text[i].size() == bboxes.size());
+                    const auto boxes = fontSystem->getBox(text[i], fi, maxLineWidth[i]);
+                    TLRENDER_ASSERT(text[i].size() == boxes.size());
                     for (size_t j = 0; j < text[i].size(); ++j)
                     {
                         std::stringstream ss;
-                        ss << "BBox '" << text[i][j] << "': " << bboxes[j];
+                        ss << "Box '" << text[i][j] << "': " << boxes[j];
                         _print(ss.str());
                     }
                     const auto glyphs = fontSystem->getGlyphs(text[i], fi);

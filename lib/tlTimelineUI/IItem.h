@@ -103,8 +103,8 @@ namespace tl
             virtual void setOptions(const ItemOptions&);
 
         protected:
-            static math::BBox2i _getClipRect(
-                const math::BBox2i&,
+            static math::Box2i _getClipRect(
+                const math::Box2i&,
                 double scale);
 
             std::string _getDurationLabel(const otime::RationalTime&);

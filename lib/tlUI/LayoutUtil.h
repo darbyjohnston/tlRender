@@ -6,15 +6,15 @@
 
 #include <tlUI/IWidgetOptions.h>
 
-#include <tlCore/BBox.h>
+#include <tlCore/Box.h>
 
 namespace tl
 {
     namespace ui
     {
-        //! Align within the given bounding box.
-        math::BBox2i align(
-            const math::BBox2i&   bbox,
+        //! Align within the given box.
+        math::Box2i align(
+            const math::Box2i&    box,
             const math::Vector2i& sizeHint,
             Stretch               hStretch,
             Stretch               vStretch,

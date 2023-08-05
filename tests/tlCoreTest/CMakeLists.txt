@@ -1,6 +1,6 @@
 set(HEADERS
     AudioTest.h
-    BBoxTest.h
+    BoxTest.h
     ColorTest.h
     ContextTest.h
     ErrorTest.h
@@ -28,7 +28,7 @@ set(HEADERS
 
 set(SOURCE
     AudioTest.cpp
-    BBoxTest.cpp
+    BoxTest.cpp
     ColorTest.cpp
     ContextTest.cpp
     ErrorTest.cpp

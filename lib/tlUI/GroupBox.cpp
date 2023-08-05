@@ -89,11 +89,11 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void GroupBox::setGeometry(const math::BBox2i& value)
+        void GroupBox::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
-            math::BBox2i g = value;
+            math::Box2i g = value;
             g.min.y += p.size.fontMetrics.lineHeight + p.size.spacing;
             g = g.margin(-(p.size.border + p.size.margin));
             for (const auto& child : _children)
@@ -130,7 +130,7 @@ namespace tl
         }
 
         void GroupBox::clipEvent(
-            const math::BBox2i& clipRect,
+            const math::Box2i& clipRect,
             bool clipped,
             const ClipEvent& event)
         {
@@ -143,13 +143,13 @@ namespace tl
         }
 
         void GroupBox::drawEvent(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::BBox2i& g = _geometry;
+            const math::Box2i& g = _geometry;
 
             if (!p.text.empty() && p.draw.glyphs.empty())
             {
@@ -160,7 +160,7 @@ namespace tl
                 math::Vector2i(g.x(), g.y() + p.size.fontMetrics.ascender),
                 event.style->getColorRole(ColorRole::Text));
 
-            const math::BBox2i g2(
+            const math::Box2i g2(
                 math::Vector2i(
                     g.min.x,
                     g.min.y + p.size.fontMetrics.lineHeight + p.size.spacing),

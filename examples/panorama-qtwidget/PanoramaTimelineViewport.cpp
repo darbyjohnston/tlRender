@@ -176,7 +176,7 @@ namespace tl
                             _lutOptions);
                         _render->drawVideo(
                             { _videoData },
-                            { math::BBox2i(0, 0, _videoSize.w, _videoSize.h) },
+                            { math::Box2i(0, 0, _videoSize.w, _videoSize.h) },
                             { _imageOptions });
                         _render->end();
                     }

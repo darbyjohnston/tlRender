@@ -170,7 +170,7 @@ namespace tl
             _p->lineEdit->setFontRole(value);
         }
 
-        void FloatEdit::setGeometry(const math::BBox2i& value)
+        void FloatEdit::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

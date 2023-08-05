@@ -42,8 +42,8 @@ namespace tl
             //! Set the margin role.
             void setMarginRole(SizeRole);
 
-            void setGeometry(const math::BBox2i&) override;
-            math::BBox2i getChildrenClipRect() const override;
+            void setGeometry(const math::Box2i&) override;
+            math::Box2i getChildrenClipRect() const override;
             void childAddedEvent(const ChildEvent&) override;
             void childRemovedEvent(const ChildEvent&) override;
             void sizeHintEvent(const SizeHintEvent&) override;

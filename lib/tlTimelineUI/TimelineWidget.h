@@ -93,12 +93,12 @@ namespace tl
             //! Set the item options.
             void setItemOptions(const ItemOptions&);
 
-            void setGeometry(const math::BBox2i&) override;
+            void setGeometry(const math::Box2i&) override;
             void setVisible(bool) override;
             void setEnabled(bool) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
             void clipEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 bool,
                 const ui::ClipEvent&) override;
             void mouseMoveEvent(ui::MouseMoveEvent&) override;

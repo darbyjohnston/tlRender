@@ -145,7 +145,7 @@ namespace tl
         }
 
         void TimeLabel::clipEvent(
-            const math::BBox2i& clipRect,
+            const math::Box2i& clipRect,
             bool clipped,
             const ClipEvent& event)
         {
@@ -158,7 +158,7 @@ namespace tl
         }
 
         void TimeLabel::drawEvent(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
@@ -166,7 +166,7 @@ namespace tl
 
             //event.render->drawRect(_geometry, image::Color4f(.5F, .3F, .3F));
 
-            const math::BBox2i g = align(
+            const math::Box2i g = align(
                 _geometry,
                 _sizeHint,
                 Stretch::Fixed,

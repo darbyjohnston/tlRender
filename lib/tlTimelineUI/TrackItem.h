@@ -46,10 +46,10 @@ namespace tl
 
             void setOptions(const ItemOptions&) override;
 
-            void setGeometry(const math::BBox2i&) override;
+            void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
             void drawEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const ui::DrawEvent&) override;
 
         protected:

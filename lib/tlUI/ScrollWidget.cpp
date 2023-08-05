@@ -162,7 +162,7 @@ namespace tl
             }
         }
 
-        math::BBox2i ScrollWidget::getViewport() const
+        math::Box2i ScrollWidget::getViewport() const
         {
             return _p->scrollArea->getChildrenClipRect();
         }
@@ -219,7 +219,7 @@ namespace tl
             _p->layout->setMarginRole(value);
         }
 
-        void ScrollWidget::setGeometry(const math::BBox2i& value)
+        void ScrollWidget::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

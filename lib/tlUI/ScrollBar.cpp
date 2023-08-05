@@ -136,13 +136,13 @@ namespace tl
         }
 
         void ScrollBar::drawEvent(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::BBox2i g = _getBorderGeometry();
+            const math::Box2i g = _getBorderGeometry();
 
             event.render->drawMesh(
                 border(g, p.size.border),
@@ -152,7 +152,7 @@ namespace tl
             const int scrollPosMax = _getScrollPosMax();
             if (scrollPosMax > 0)
             {
-                const math::BBox2i g2 = _getHandleGeometry();
+                const math::Box2i g2 = _getHandleGeometry();
                 event.render->drawRect(
                     g2,
                     event.style->getColorRole(ColorRole::Button));
@@ -229,7 +229,7 @@ namespace tl
             p.mouse.pos = event.pos;
             p.mouse.pressed = true;
             p.mouse.pressedPos = event.pos;
-            const math::BBox2i g = _getHandleGeometry();
+            const math::Box2i g = _getHandleGeometry();
             if (!g.contains(event.pos))
             {
                 int scrollPos = 0;
@@ -269,11 +269,11 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        math::BBox2i ScrollBar::_getBorderGeometry() const
+        math::Box2i ScrollBar::_getBorderGeometry() const
         {
             TLRENDER_P();
-            math::BBox2i out;
-            const math::BBox2i& g = _geometry;
+            math::Box2i out;
+            const math::Box2i& g = _geometry;
             switch (p.orientation)
             {
             case Orientation::Horizontal:
@@ -287,11 +287,11 @@ namespace tl
             return out;
         }
 
-        math::BBox2i ScrollBar::_getHandleGeometry() const
+        math::Box2i ScrollBar::_getHandleGeometry() const
         {
             TLRENDER_P();
-            math::BBox2i out;
-            const math::BBox2i g = _getBorderGeometry().margin(-p.size.border);
+            math::Box2i out;
+            const math::Box2i g = _getBorderGeometry().margin(-p.size.border);
             switch (p.orientation)
             {
             case Orientation::Horizontal:
@@ -301,7 +301,7 @@ namespace tl
                     static_cast<int>(g.w() / static_cast<float>(p.scrollSize) * g.w()),
                     p.size.handle * 2);
                 const int x = p.scrollPos / static_cast<float>(w) * (g.w() - w2);
-                out = math::BBox2i(
+                out = math::Box2i(
                     g.x() + x,
                     g.y(),
                     w2,
@@ -315,7 +315,7 @@ namespace tl
                     static_cast<int>(g.h() / static_cast<float>(p.scrollSize) * g.h()),
                     p.size.handle * 2);
                 const int y = p.scrollPos / static_cast<float>(h) * (g.h() - h2);
-                out = math::BBox2i(
+                out = math::Box2i(
                     g.x(),
                     g.y() + y,
                     g.w(),
@@ -331,7 +331,7 @@ namespace tl
         {
             TLRENDER_P();
             int out = 0;
-            const math::BBox2i g = _getBorderGeometry().margin(-p.size.border);
+            const math::Box2i g = _getBorderGeometry().margin(-p.size.border);
             switch (p.orientation)
             {
             case Orientation::Horizontal:
@@ -349,7 +349,7 @@ namespace tl
         {
             TLRENDER_P();
             float out = 0.F;
-            const math::BBox2i g = _getBorderGeometry().margin(-p.size.border);
+            const math::Box2i g = _getBorderGeometry().margin(-p.size.border);
             switch (p.orientation)
             {
             case Orientation::Horizontal:

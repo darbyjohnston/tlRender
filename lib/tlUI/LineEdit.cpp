@@ -117,7 +117,7 @@ namespace tl
             struct DrawData
             {
                 std::vector<std::shared_ptr<image::Glyph> > glyphs;
-                std::vector<math::BBox2i> glyphsBBox;
+                std::vector<math::Box2i> glyphsBox;
             };
             DrawData draw;
 
@@ -289,7 +289,7 @@ namespace tl
         }
 
         void LineEdit::clipEvent(
-            const math::BBox2i& clipRect,
+            const math::Box2i& clipRect,
             bool clipped,
             const ClipEvent& event)
         {
@@ -298,18 +298,18 @@ namespace tl
             if (clipped)
             {
                 p.draw.glyphs.clear();
-                p.draw.glyphsBBox.clear();
+                p.draw.glyphsBox.clear();
             }
         }
 
         void LineEdit::drawEvent(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::BBox2i g = _getAlignGeometry();
+            const math::Box2i g = _getAlignGeometry();
             const bool enabled = isEnabled();
 
             if (_keyFocus)
@@ -336,7 +336,7 @@ namespace tl
             event.render->setClipRectEnabled(true);
             event.render->setClipRect(g.margin(-p.size.border * 2).intersect(drawRect));
 
-            const math::BBox2i g2 = g.margin(-(p.size.border * 2 + p.size.margin));
+            const math::Box2i g2 = g.margin(-(p.size.border * 2 + p.size.margin));
             if (p.selection.isValid())
             {
                 const auto selection = p.selection.getSorted();
@@ -345,7 +345,7 @@ namespace tl
                 const std::string text1 = p.text.substr(0, selection.second);
                 const int x1 = event.fontSystem->getSize(text1, p.size.fontInfo).x;
                 event.render->drawRect(
-                    math::BBox2i(g2.x() + x0, g2.y(), x1 - x0, g2.h()),
+                    math::Box2i(g2.x() + x0, g2.y(), x1 - x0, g2.h()),
                     event.style->getColorRole(ColorRole::Checked));
             }
 
@@ -356,7 +356,7 @@ namespace tl
             if (!p.text.empty() && p.draw.glyphs.empty())
             {
                 p.draw.glyphs = event.fontSystem->getGlyphs(p.text, p.size.fontInfo);
-                p.draw.glyphsBBox = event.fontSystem->getBBox(p.text, p.size.fontInfo);
+                p.draw.glyphsBox = event.fontSystem->getBox(p.text, p.size.fontInfo);
             }
             event.render->drawText(
                 p.draw.glyphs,
@@ -365,15 +365,15 @@ namespace tl
                     ColorRole::Text :
                     ColorRole::TextDisabled));
             
-            /*for (const auto& bbox : p.draw.glyphsBBox)
+            /*for (const auto& box : p.draw.glyphsBox)
             {
-                const math::BBox2i bbox2(
-                    g2.x() + bbox.x(),
-                    g2.y() + g2.h() / 2 - p.size.fontMetrics.lineHeight / 2 + bbox.y(),
-                    bbox.w(),
-                    bbox.h());
+                const math::Box2i box2(
+                    g2.x() + box.x(),
+                    g2.y() + g2.h() / 2 - p.size.fontMetrics.lineHeight / 2 + box.y(),
+                    box.w(),
+                    box.h());
                 event.render->drawRect(
-                    bbox2,
+                    box2,
                     image::Color4f(1.F, 0.F, 0.F, .2F));
             }*/
 
@@ -382,7 +382,7 @@ namespace tl
                 const std::string text = p.text.substr(0, p.cursorPos);
                 const int x = event.fontSystem->getSize(text, p.size.fontInfo).x;
                 event.render->drawRect(
-                    math::BBox2i(
+                    math::Box2i(
                         g2.x() + x,
                         g2.y(),
                         p.size.border,
@@ -735,7 +735,7 @@ namespace tl
             _textUpdate();
         }
 
-        math::BBox2i LineEdit::_getAlignGeometry() const
+        math::Box2i LineEdit::_getAlignGeometry() const
         {
             return align(
                 _geometry,
@@ -750,20 +750,20 @@ namespace tl
         {
             TLRENDER_P();
             int out = 0;
-            const math::BBox2i g = _getAlignGeometry();
-            const math::BBox2i g2 = g.margin(-p.size.border * 2);
+            const math::Box2i g = _getAlignGeometry();
+            const math::Box2i g2 = g.margin(-p.size.border * 2);
             const math::Vector2i pos(
                 math::clamp(value.x, g2.min.x, g2.max.x - 1),
                 math::clamp(value.y, g2.min.y, g2.max.y - 1));
-            math::BBox2i bbox(
+            math::Box2i box(
                 g2.x(),
                 g2.y(),
                 0,
                 g2.h());
-            for (const auto& glyphBBox : p.draw.glyphsBBox)
+            for (const auto& glyphBox : p.draw.glyphsBox)
             {
-                bbox.max.x = g2.x() + glyphBBox.x() + glyphBBox.w();
-                if (bbox.contains(pos))
+                box.max.x = g2.x() + glyphBox.x() + glyphBox.w();
+                if (box.contains(pos))
                 {
                     break;
                 }
@@ -776,7 +776,7 @@ namespace tl
         {
             TLRENDER_P();
             p.draw.glyphs.clear();
-            p.draw.glyphsBBox.clear();
+            p.draw.glyphsBox.clear();
             _updates |= Update::Draw;
         }
     }

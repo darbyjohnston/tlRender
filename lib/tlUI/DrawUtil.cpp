@@ -11,16 +11,16 @@ namespace tl
     namespace ui
     {
         geom::TriangleMesh2 rect(
-            const math::BBox2i& bbox,
+            const math::Box2i& box,
             int cornerRadius,
             size_t resolution)
         {
             geom::TriangleMesh2 out;
 
-            const int x = bbox.x();
-            const int y = bbox.y();
-            const int w = bbox.w();
-            const int h = bbox.h();
+            const int x = box.x();
+            const int y = box.y();
+            const int w = box.w();
+            const int h = box.h();
 
             if (0 == cornerRadius)
             {
@@ -123,17 +123,17 @@ namespace tl
         }
 
         geom::TriangleMesh2 border(
-            const math::BBox2i& bbox,
+            const math::Box2i& box,
             int width,
             int radius,
             size_t resolution)
         {
             geom::TriangleMesh2 out;
 
-            const int x = bbox.x();
-            const int y = bbox.y();
-            const int w = bbox.w();
-            const int h = bbox.h();
+            const int x = box.x();
+            const int y = box.y();
+            const int w = box.w();
+            const int h = box.h();
 
             if (0 == radius)
             {
@@ -212,17 +212,17 @@ namespace tl
         }
 
         geom::TriangleMesh2 shadow(
-            const math::BBox2i& bbox,
+            const math::Box2i& box,
             int cornerRadius,
             const float alpha,
             size_t resolution)
         {
             geom::TriangleMesh2 out;
 
-            const int x = bbox.x();
-            const int y = bbox.y();
-            const int w = bbox.w();
-            const int h = bbox.h();
+            const int x = box.x();
+            const int y = box.y();
+            const int w = box.w();
+            const int h = box.h();
             const int r = cornerRadius;
 
             out.c.push_back(math::Vector4f(0.F, 0.F, 0.F, alpha));

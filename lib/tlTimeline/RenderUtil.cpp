@@ -31,7 +31,7 @@ namespace tl
         struct ViewportState::Private
         {
             std::shared_ptr<IRender> render;
-            math::BBox2i viewport;
+            math::Box2i viewport;
         };
 
         ViewportState::ViewportState(const std::shared_ptr<IRender>& render) :
@@ -71,7 +71,7 @@ namespace tl
         struct ClipRectState::Private
         {
             std::shared_ptr<IRender> render;
-            math::BBox2i clipRect;
+            math::Box2i clipRect;
         };
 
         ClipRectState::ClipRectState(const std::shared_ptr<IRender>& render) :
@@ -88,7 +88,7 @@ namespace tl
             p.render->setClipRect(p.clipRect);
         }
 
-        const math::BBox2i& ClipRectState::getClipRect() const
+        const math::Box2i& ClipRectState::getClipRect() const
         {
             return _p->clipRect;
         }

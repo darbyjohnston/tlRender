@@ -36,10 +36,10 @@ namespace tl
 
             void close() override;
 
-            void setGeometry(const math::BBox2i&) override;
+            void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void drawEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const DrawEvent&) override;
 
         private:

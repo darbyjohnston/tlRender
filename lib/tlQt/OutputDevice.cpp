@@ -628,7 +628,7 @@ namespace tl
                                 lutOptions);
                             render->drawVideo(
                                 videoData,
-                                timeline::getBBoxes(compareOptions.mode, sizes),
+                                timeline::getBoxes(compareOptions.mode, sizes),
                                 imageOptions,
                                 displayOptions,
                                 compareOptions);
@@ -731,7 +731,7 @@ namespace tl
                             glActiveTexture(GL_TEXTURE0);
                             glBindTexture(GL_TEXTURE_2D, offscreenBuffer->getColorID());
 
-                            auto mesh = geom::bbox(math::BBox2i(0, 0, renderSize.w, renderSize.h));
+                            auto mesh = geom::box(math::Box2i(0, 0, renderSize.w, renderSize.h));
                             if (!vbo)
                             {
                                 vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos2_F32_UV_U16);
@@ -784,7 +784,7 @@ namespace tl
 
                                 glBindTexture(GL_TEXTURE_2D, overlayTexture->getID());
 
-                                mesh = geom::bbox(math::BBox2i(0, 0, viewportSize.w, viewportSize.h));
+                                mesh = geom::box(math::Box2i(0, 0, viewportSize.w, viewportSize.h));
                                 if (!overlayVbo)
                                 {
                                     overlayVbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos2_F32_UV_U16);

@@ -134,7 +134,7 @@ namespace tl
         }
 
         void Icon::clipEvent(
-            const math::BBox2i& clipRect,
+            const math::Box2i& clipRect,
             bool clipped,
             const ClipEvent& event)
         {
@@ -146,18 +146,18 @@ namespace tl
         }
 
         void Icon::drawEvent(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
-            const math::BBox2i g = _geometry.margin(-p.size.margin);
+            const math::Box2i g = _geometry.margin(-p.size.margin);
             if (p.iconImage)
             {
                 const image::Size& iconSize = p.iconImage->getSize();
                 event.render->drawImage(
                     p.iconImage,
-                    math::BBox2i(
+                    math::Box2i(
                         g.x() + g.w() / 2 - iconSize.w / 2,
                         g.y() + g.h() / 2 - iconSize.h / 2,
                         iconSize.w,

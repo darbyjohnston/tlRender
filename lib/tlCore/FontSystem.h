@@ -112,8 +112,8 @@ namespace tl
                 const FontInfo&,
                 uint16_t maxLineWidth = 0);
 
-            //! Get the character bounding boxes.
-            std::vector<math::BBox2i> getBBox(
+            //! Get the character boxes.
+            std::vector<math::Box2i> getBox(
                 const std::string&,
                 const FontInfo&,
                 uint16_t maxLineWidth = 0);

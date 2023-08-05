@@ -89,7 +89,7 @@ namespace tl
                 const std::shared_ptr<image::Image>&,
                 const math::Vector2i&);
 
-            std::shared_ptr<image::Image> _capture(const math::BBox2i&);
+            std::shared_ptr<image::Image> _capture(const math::Box2i&);
 
             virtual void _drop(const std::vector<std::string>&);
 

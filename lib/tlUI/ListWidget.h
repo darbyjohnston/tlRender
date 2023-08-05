@@ -45,7 +45,7 @@ namespace tl
             //! Set the search.
             void setSearch(const std::string&);
 
-            void setGeometry(const math::BBox2i&) override;
+            void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:

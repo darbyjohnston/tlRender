@@ -71,7 +71,7 @@ namespace tl
 
                 void _draw();
                 void _drawViewport(
-                    const math::BBox2i& bbox,
+                    const math::Box2i&,
                     uint16_t fontSize,
                     const timeline::CompareOptions&,
                     float rotation);

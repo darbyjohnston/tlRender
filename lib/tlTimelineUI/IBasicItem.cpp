@@ -111,7 +111,7 @@ namespace tl
         }
 
         void IBasicItem::clipEvent(
-            const math::BBox2i& clipRect,
+            const math::Box2i& clipRect,
             bool clipped,
             const ui::ClipEvent& event)
         {
@@ -126,13 +126,13 @@ namespace tl
         }
 
         void IBasicItem::drawEvent(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const ui::DrawEvent& event)
         {
             IItem::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::BBox2i g = _geometry.margin(-(p.size.border * 2));
+            const math::Box2i g = _geometry.margin(-(p.size.border * 2));
             event.render->drawRect(
                 g,
                 event.style->getColorRole(p.colorRole));
@@ -142,7 +142,7 @@ namespace tl
             event.render->setClipRectEnabled(true);
             event.render->setClipRect(g.intersect(drawRect));
 
-            math::BBox2i labelGeometry(
+            math::Box2i labelGeometry(
                 g.min.x + p.size.margin,
                 g.min.y + p.size.margin,
                 p.size.labelSize.x,
@@ -162,7 +162,7 @@ namespace tl
                     event.style->getColorRole(ui::ColorRole::Text));
             }
 
-            const math::BBox2i durationGeometry(
+            const math::Box2i durationGeometry(
                 g.max.x -
                 p.size.durationSize.x -
                 p.size.margin,
@@ -204,7 +204,7 @@ namespace tl
                     const int x1 =
                         _geometry.min.x +
                         p.markers[i].range.end_time_exclusive().rescaled_to(1.0).value() * _scale - 1;
-                    math::BBox2i g2;
+                    math::Box2i g2;
                     g2.min.x = std::max(x0, g.min.x);
                     g2.min.y = y;
                     g2.max.x = std::min(x1, g.max.x);
@@ -213,7 +213,7 @@ namespace tl
 
                     y += p.size.border * 2;
 
-                    labelGeometry = math::BBox2i(
+                    labelGeometry = math::Box2i(
                         g2.min.x + p.size.margin,
                         y + p.size.margin,
                         p.size.markerSizes[i].x,
@@ -249,7 +249,7 @@ namespace tl
             return _p->size.fontMetrics.lineHeight;
         }
 
-        math::BBox2i IBasicItem::_getInsideGeometry() const
+        math::Box2i IBasicItem::_getInsideGeometry() const
         {
             return _geometry.margin(-(_p->size.border * 2));
         }

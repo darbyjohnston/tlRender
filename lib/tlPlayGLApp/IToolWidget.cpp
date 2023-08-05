@@ -79,7 +79,7 @@ namespace tl
         IToolWidget::~IToolWidget()
         {}
 
-        void IToolWidget::setGeometry(const math::BBox2i & value)
+        void IToolWidget::setGeometry(const math::Box2i & value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

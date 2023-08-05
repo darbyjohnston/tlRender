@@ -10,12 +10,12 @@ namespace tl
 {
     namespace geom
     {
-        TriangleMesh2 bbox(const math::BBox2i& bbox, bool flipV)
+        TriangleMesh2 box(const math::Box2i& box, bool flipV)
         {
             TriangleMesh2 out;
 
-            const auto& min = bbox.min;
-            const auto& max = bbox.max;
+            const auto& min = box.min;
+            const auto& max = box.max;
             out.v.push_back(math::Vector2f(min.x, min.y));
             out.v.push_back(math::Vector2f(max.x + 1, min.y));
             out.v.push_back(math::Vector2f(max.x + 1, max.y + 1));
@@ -44,12 +44,12 @@ namespace tl
             return out;
         }
 
-        TriangleMesh2 bbox(const math::BBox2f& bbox, bool flipV)
+        TriangleMesh2 box(const math::Box2f& box, bool flipV)
         {
             TriangleMesh2 out;
 
-            const auto& min = bbox.min;
-            const auto& max = bbox.max;
+            const auto& min = box.min;
+            const auto& max = box.max;
             out.v.push_back(math::Vector2f(min.x, min.y));
             out.v.push_back(math::Vector2f(max.x, min.y));
             out.v.push_back(math::Vector2f(max.x, max.y));

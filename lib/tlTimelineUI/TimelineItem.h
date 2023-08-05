@@ -39,14 +39,14 @@ namespace tl
 
             void setVisible(bool) override;
             void setEnabled(bool) override;
-            void setGeometry(const math::BBox2i&) override;
+            void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
             void clipEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 bool,
                 const ui::ClipEvent&) override;
             void drawOverlayEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const ui::DrawEvent&) override;
             void mouseEnterEvent() override;
             void mouseLeaveEvent() override;
@@ -61,16 +61,16 @@ namespace tl
 
         private:
             void _drawInOutPoints(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const ui::DrawEvent&);
             void _drawTimeTicks(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const ui::DrawEvent&);
             void _drawCacheInfo(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const ui::DrawEvent&);
             void _drawCurrentTime(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const ui::DrawEvent&);
 
             otime::RationalTime _posToTime(float) const;

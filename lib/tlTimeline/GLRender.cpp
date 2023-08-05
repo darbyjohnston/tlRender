@@ -517,7 +517,7 @@ namespace tl
             p.vbos["video"] = gl::VBO::create(2 * 3, gl::VBOType::Pos2_F32_UV_U16);
             p.vaos["video"] = gl::VAO::create(p.vbos["video"]->getType(), p.vbos["video"]->getID());
 
-            setViewport(math::BBox2i(0, 0, renderSize.w, renderSize.h));
+            setViewport(math::Box2i(0, 0, renderSize.w, renderSize.h));
             if (renderOptions.clear)
             {
                 clearViewport(renderOptions.clearColor);
@@ -621,12 +621,12 @@ namespace tl
             _p->renderSize = value;
         }
 
-        math::BBox2i GLRender::getViewport() const
+        math::Box2i GLRender::getViewport() const
         {
             return _p->viewport;
         }
 
-        void GLRender::setViewport(const math::BBox2i& value)
+        void GLRender::setViewport(const math::Box2i& value)
         {
             TLRENDER_P();
             p.viewport = value;
@@ -662,12 +662,12 @@ namespace tl
             }
         }
 
-        math::BBox2i GLRender::getClipRect() const
+        math::Box2i GLRender::getClipRect() const
         {
             return _p->clipRect;
         }
 
-        void GLRender::setClipRect(const math::BBox2i& value)
+        void GLRender::setClipRect(const math::Box2i& value)
         {
             TLRENDER_P();
             p.clipRect = value;

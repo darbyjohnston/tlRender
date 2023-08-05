@@ -72,41 +72,41 @@ namespace tl
             }
         }
 
-        void ToolTip::setGeometry(const math::BBox2i& value)
+        void ToolTip::setGeometry(const math::Box2i& value)
         {
             IPopup::setGeometry(value);
             TLRENDER_P();
             math::Vector2i sizeHint = p.label->getSizeHint();
-            std::list<math::BBox2i> bboxes;
-            bboxes.push_back(math::BBox2i(
+            std::list<math::Box2i> boxes;
+            boxes.push_back(math::Box2i(
                 p.pos.x + p.size.handle,
                 p.pos.y + p.size.handle,
                 sizeHint.x,
                 sizeHint.y));
-            bboxes.push_back(math::BBox2i(
+            boxes.push_back(math::Box2i(
                 p.pos.x - p.size.handle - sizeHint.x,
                 p.pos.y + p.size.handle,
                 sizeHint.x,
                 sizeHint.y));
-            bboxes.push_back(math::BBox2i(
+            boxes.push_back(math::Box2i(
                 p.pos.x + p.size.handle,
                 p.pos.y - p.size.handle - sizeHint.y,
                 sizeHint.x,
                 sizeHint.y));
-            bboxes.push_back(math::BBox2i(
+            boxes.push_back(math::Box2i(
                 p.pos.x - p.size.handle - sizeHint.x,
                 p.pos.y - p.size.handle - sizeHint.y,
                 sizeHint.x,
                 sizeHint.y));
             struct Intersect
             {
-                math::BBox2i original;
-                math::BBox2i intersected;
+                math::Box2i original;
+                math::Box2i intersected;
             };
             std::vector<Intersect> intersect;
-            for (const auto& bbox : bboxes)
+            for (const auto& box : boxes)
             {
-                intersect.push_back({ bbox, bbox.intersect(value) });
+                intersect.push_back({ box, box.intersect(value) });
             }
             std::stable_sort(
                 intersect.begin(),
@@ -115,7 +115,7 @@ namespace tl
                 {
                     return a.intersected.getArea() > b.intersected.getArea();
                 });
-            math::BBox2i g = intersect.front().intersected;
+            math::Box2i g = intersect.front().intersected;
             p.label->setGeometry(g);
         }
 
@@ -129,7 +129,7 @@ namespace tl
         }
 
         void ToolTip::drawEvent(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const DrawEvent& event)
         {
             IPopup::drawEvent(drawRect, event);
@@ -137,8 +137,8 @@ namespace tl
             //event.render->drawRect(
             //    _geometry,
             //    image::Color4f(0.F, 0.F, 0.F, .2F));
-            const math::BBox2i g = p.label->getGeometry();
-            const math::BBox2i g2(
+            const math::Box2i g = p.label->getGeometry();
+            const math::Box2i g2(
                 g.min.x - p.size.shadow,
                 g.min.y,
                 g.w() + p.size.shadow * 2,

@@ -78,7 +78,7 @@ namespace tl
                 bool,
                 const TickEvent&) override;
             void clipEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 bool,
                 const ClipEvent&) override;
             void mouseEnterEvent() override;

@@ -177,7 +177,7 @@ namespace tl
         }
 
         void DoubleSlider::clipEvent(
-            const math::BBox2i& clipRect,
+            const math::Box2i& clipRect,
             bool clipped,
             const ClipEvent& event)
         {
@@ -190,13 +190,13 @@ namespace tl
         }
 
         void DoubleSlider::drawEvent(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::BBox2i& g = _geometry;
+            const math::Box2i& g = _geometry;
 
             if (_keyFocus)
             {
@@ -217,7 +217,7 @@ namespace tl
                 g.margin(-p.size.border * 2),
                 event.style->getColorRole(ColorRole::Base));
 
-            const math::BBox2i g2 = _getSliderGeometry();
+            const math::Box2i g2 = _getSliderGeometry();
             //event.render->drawRect(
             //    g2,
             //    image::Color4f(1.F, 0.F, 0.F, .5F));
@@ -226,7 +226,7 @@ namespace tl
             {
                 pos = _valueToPos(p.model->getValue());
             }
-            const math::BBox2i g3(
+            const math::Box2i g3(
                 pos - p.size.handle / 2,
                 g2.y(),
                 p.size.handle,
@@ -344,7 +344,7 @@ namespace tl
             event.accept = true;
         }
 
-        math::BBox2i DoubleSlider::_getSliderGeometry() const
+        math::Box2i DoubleSlider::_getSliderGeometry() const
         {
             TLRENDER_P();
             return _geometry.margin(
@@ -357,7 +357,7 @@ namespace tl
         double DoubleSlider::_posToValue(int pos) const
         {
             TLRENDER_P();
-            const math::BBox2i g = _getSliderGeometry();
+            const math::Box2i g = _getSliderGeometry();
             const double v = (pos - g.x()) / static_cast<double>(g.w());
             double out = 0.0;
             if (p.model)
@@ -371,7 +371,7 @@ namespace tl
         int DoubleSlider::_valueToPos(double value) const
         {
             TLRENDER_P();
-            const math::BBox2i g = _getSliderGeometry();
+            const math::Box2i g = _getSliderGeometry();
             double v = 0.0;
             if (p.model)
             {

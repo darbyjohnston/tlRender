@@ -80,18 +80,18 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void StackLayout::setGeometry(const math::BBox2i& value)
+        void StackLayout::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
-            const math::BBox2i g = _geometry.margin(-p.size.margin);
+            const math::Box2i g = _geometry.margin(-p.size.margin);
             for (const auto& child : _children)
             {
                 child->setGeometry(g);
             }
         }
 
-        math::BBox2i StackLayout::getChildrenClipRect() const
+        math::Box2i StackLayout::getChildrenClipRect() const
         {
             return _geometry.margin(-_p->size.margin);
         }

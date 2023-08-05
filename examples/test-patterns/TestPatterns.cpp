@@ -95,14 +95,14 @@ namespace tl
                         secondsPos.y + secondsSize.y);
 
                     render->drawRect(
-                        math::BBox2i(0, 0, _size.w, _size.h),
+                        math::Box2i(0, 0, _size.w, _size.h),
                         image::Color4f(.1F, .1F, .1F));
 
                     /*render->drawRect(
-                        math::BBox2i(secondsPos.x, secondsPos.y, secondsSize.x, secondsSize.y),
+                        math::Box2i(secondsPos.x, secondsPos.y, secondsSize.x, secondsSize.y),
                         image::Color4f(.5F, 0.F, 0.F));
                     render->drawRect(
-                        math::BBox2i(framesPos.x, framesPos.y, framesSize.x, framesSize.y),
+                        math::Box2i(framesPos.x, framesPos.y, framesSize.x, framesSize.y),
                         image::Color4f(0.F, .5F, 0.F));*/
 
                     const size_t resolution = 100;
@@ -225,10 +225,10 @@ namespace tl
                 for (int x = 0, i = 0; x < _size.w; x += swatchWidth, ++i)
                 {
                     render->drawRect(
-                        math::BBox2i(x, 0, swatchWidth, _size.h / 2),
+                        math::Box2i(x, 0, swatchWidth, _size.h / 2),
                         colors[i]);
                 }
-                render->drawImage(_gradient, math::BBox2i(0, _size.h / 2, _size.w, _size.h / 2));
+                render->drawImage(_gradient, math::Box2i(0, _size.h / 2, _size.w, _size.h / 2));
             }
 
             GridTestPattern::~GridTestPattern()

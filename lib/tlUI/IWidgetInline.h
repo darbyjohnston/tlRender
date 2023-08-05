@@ -73,7 +73,7 @@ namespace tl
             return _vAlign;
         }
 
-        inline const math::BBox2i& IWidget::getGeometry() const
+        inline const math::Box2i& IWidget::getGeometry() const
         {
             return _geometry;
         }

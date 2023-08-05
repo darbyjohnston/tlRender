@@ -64,7 +64,7 @@ namespace tl
                 const FontInfo&,
                 uint16_t maxLineWidth,
                 math::Vector2i&,
-                std::vector<math::BBox2i>* = nullptr);
+                std::vector<math::Box2i>* = nullptr);
 
             std::map<std::string, std::vector<uint8_t> > fontData;
             FT_Library ftLibrary = nullptr;
@@ -197,13 +197,13 @@ namespace tl
             return out;
         }
 
-        std::vector<math::BBox2i> FontSystem::getBBox(
+        std::vector<math::Box2i> FontSystem::getBox(
             const std::string& text,
             const FontInfo& fontInfo,
             uint16_t maxLineWidth)
         {
             TLRENDER_P();
-            std::vector<math::BBox2i> out;
+            std::vector<math::Box2i> out;
             try
             {
                 const auto utf32 = p.utf32Convert.from_bytes(text);
@@ -313,7 +313,7 @@ namespace tl
             const FontInfo& fontInfo,
             uint16_t maxLineWidth,
             math::Vector2i& size,
-            std::vector<math::BBox2i>* glyphGeom)
+            std::vector<math::Box2i>* glyphGeom)
         {
             const auto i = ftFaces.find(fontInfo.family);
             if (i != ftFaces.end())
@@ -338,16 +338,16 @@ namespace tl
                     const auto glyph = getGlyph(*j, fontInfo);
                     if (glyphGeom)
                     {
-                        math::BBox2i bbox;
+                        math::Box2i box;
                         if (glyph)
                         {
-                            bbox = math::BBox2i(
+                            box = math::Box2i(
                                 pos.x,
                                 pos.y - h,
                                 glyph->advance,
                                 h);
                         }
-                        glyphGeom->push_back(bbox);
+                        glyphGeom->push_back(box);
                     }
 
                     int32_t x = 0;

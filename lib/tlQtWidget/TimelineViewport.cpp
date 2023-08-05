@@ -365,7 +365,7 @@ namespace tl
                     {
                         p.render->drawVideo(
                             p.videoData,
-                            timeline::getBBoxes(p.compareOptions.mode, p.timelineSizes),
+                            timeline::getBoxes(p.compareOptions.mode, p.timelineSizes),
                             p.imageOptions,
                             p.displayOptions,
                             p.compareOptions);
@@ -411,7 +411,7 @@ namespace tl
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, p.buffer->getColorID());
 
-                const auto mesh = geom::bbox(math::BBox2i(0, 0, renderSize.w, renderSize.h));
+                const auto mesh = geom::box(math::Box2i(0, 0, renderSize.w, renderSize.h));
                 if (!p.vbo)
                 {
                     p.vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos2_F32_UV_U16);

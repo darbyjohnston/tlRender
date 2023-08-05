@@ -64,12 +64,12 @@ namespace tl
                 bool,
                 const TickEvent&) override;
             void clipEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 bool,
                 const ClipEvent&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void drawEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const DrawEvent&) override;
             void mouseEnterEvent() override;
             void mouseLeaveEvent() override;
@@ -82,7 +82,7 @@ namespace tl
             void textEvent(TextEvent&) override;
 
         private:
-            math::BBox2i _getAlignGeometry() const;
+            math::Box2i _getAlignGeometry() const;
 
             int _getCursorPos(const math::Vector2i&);
 

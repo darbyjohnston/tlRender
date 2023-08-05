@@ -54,7 +54,7 @@ namespace tl
 
             ~ClipRectState();
 
-            const math::BBox2i& getClipRect() const;
+            const math::Box2i& getClipRect() const;
 
         private:
             TLRENDER_PRIVATE();

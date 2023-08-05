@@ -33,7 +33,7 @@ namespace tl
 
             struct SizeData
             {
-                math::BBox2i clipRect;
+                math::Box2i clipRect;
             };
             SizeData size;
 
@@ -196,20 +196,20 @@ namespace tl
                                 }
                             }
                             const int h2 = size.y / 2;
-                            const math::BBox2i bbox(
+                            const math::Box2i box(
                                 math::Vector2i(
                                     x,
                                     h2 - h2 * max),
                                 math::Vector2i(
                                     x + 1,
                                     h2 - h2 * min));
-                            if (bbox.isValid())
+                            if (box.isValid())
                             {
                                 const size_t j = 1 + out->v.size();
-                                out->v.push_back(math::Vector2f(bbox.x(), bbox.y()));
-                                out->v.push_back(math::Vector2f(bbox.x() + bbox.w(), bbox.y()));
-                                out->v.push_back(math::Vector2f(bbox.x() + bbox.w(), bbox.y() + bbox.h()));
-                                out->v.push_back(math::Vector2f(bbox.x(), bbox.y() + bbox.h()));
+                                out->v.push_back(math::Vector2f(box.x(), box.y()));
+                                out->v.push_back(math::Vector2f(box.x() + box.w(), box.y()));
+                                out->v.push_back(math::Vector2f(box.x() + box.w(), box.y() + box.h()));
+                                out->v.push_back(math::Vector2f(box.x(), box.y() + box.h()));
                                 out->triangles.push_back(geom::Triangle2({ j + 0, j + 1, j + 2 }));
                                 out->triangles.push_back(geom::Triangle2({ j + 2, j + 3, j + 0 }));
                             }
@@ -379,7 +379,7 @@ namespace tl
         }
 
         void AudioClipItem::clipEvent(
-            const math::BBox2i& clipRect,
+            const math::Box2i& clipRect,
             bool clipped,
             const ui::ClipEvent& event)
         {
@@ -393,7 +393,7 @@ namespace tl
         }
 
         void AudioClipItem::drawEvent(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const ui::DrawEvent& event)
         {
             IBasicItem::drawEvent(drawRect, event);
@@ -404,28 +404,28 @@ namespace tl
         }
 
         void AudioClipItem::_drawWaveforms(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const ui::DrawEvent& event)
         {
             TLRENDER_P();
 
-            const math::BBox2i g = _getInsideGeometry();
+            const math::Box2i g = _getInsideGeometry();
             const int m = _getMargin();
             const auto now = std::chrono::steady_clock::now();
 
-            const math::BBox2i bbox(
+            const math::Box2i box(
                 g.min.x,
                 g.min.y +
                 _getLineHeight() + m * 2,
                 g.w(),
                 _options.waveformHeight);
             event.render->drawRect(
-                bbox,
+                box,
                 image::Color4f(0.F, 0.F, 0.F));
             const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
             const timeline::ClipRectState clipRectState(event.render);
             event.render->setClipRectEnabled(true);
-            event.render->setClipRect(bbox.intersect(clipRectState.getClipRect()));
+            event.render->setClipRect(box.intersect(clipRectState.getClipRect()));
 
             std::set<otime::RationalTime> audioDataDelete;
             for (const auto& audioData : p.audioData)
@@ -433,7 +433,7 @@ namespace tl
                 audioDataDelete.insert(audioData.first);
             }
 
-            const math::BBox2i clipRect = _getClipRect(
+            const math::Box2i clipRect = _getClipRect(
                 drawRect,
                 _options.clipRectScale);
             if (g.intersects(clipRect))
@@ -455,14 +455,14 @@ namespace tl
                 const int w = _sizeHint.x;
                 for (int x = 0; x < w; x += _options.waveformWidth)
                 {
-                    math::BBox2i bbox(
+                    const math::Box2i box(
                         g.min.x +
                         x,
                         g.min.y +
                         _getLineHeight() + m * 2,
                         _options.waveformWidth,
                         _options.waveformHeight);
-                    if (bbox.intersects(clipRect))
+                    if (box.intersects(clipRect))
                     {
                         const otime::RationalTime time = time::round(otime::RationalTime(
                             p.timeRange.start_time().value() +
@@ -481,7 +481,7 @@ namespace tl
                                     const float a = std::min(diff.count() / _options.thumbnailFade, 1.F);
                                     event.render->drawMesh(
                                         *i->second.mesh,
-                                        bbox.min,
+                                        box.min,
                                         image::Color4f(1.F, 1.F, 1.F, a));
                                 }
                                 break;
@@ -492,7 +492,7 @@ namespace tl
                                     const float a = std::min(diff.count() / _options.thumbnailFade, 1.F);
                                     event.render->drawImage(
                                         (i->second).image,
-                                        bbox,
+                                        box,
                                         image::Color4f(1.F, 1.F, 1.F, a));
                                 }
                                 break;
@@ -519,7 +519,7 @@ namespace tl
                                     p.memoryRead,
                                     p.availableRange.start_time(),
                                     mediaRange);
-                                p.audioDataFutures[time].size = bbox.getSize();
+                                p.audioDataFutures[time].size = box.getSize();
                             }
                         }
                     }

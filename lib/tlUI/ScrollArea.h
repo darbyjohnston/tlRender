@@ -61,11 +61,11 @@ namespace tl
             //! Set whether the scroll area has a border.
             void setBorder(bool);
 
-            math::BBox2i getChildrenClipRect() const override;
-            void setGeometry(const math::BBox2i&) override;
+            math::Box2i getChildrenClipRect() const override;
+            void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void drawEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const DrawEvent&) override;
 
         private:

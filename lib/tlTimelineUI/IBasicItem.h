@@ -33,17 +33,17 @@ namespace tl
 
             void sizeHintEvent(const ui::SizeHintEvent&) override;
             void clipEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 bool,
                 const ui::ClipEvent&) override;
             void drawEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const ui::DrawEvent&) override;
 
         protected:
             int _getMargin() const;
             int _getLineHeight() const;
-            math::BBox2i _getInsideGeometry() const;
+            math::Box2i _getInsideGeometry() const;
 
             void _timeUnitsUpdate() override;
 

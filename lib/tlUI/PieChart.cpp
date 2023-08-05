@@ -234,7 +234,7 @@ namespace tl
         }
 
         void PieChart::drawEvent(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
@@ -242,7 +242,7 @@ namespace tl
 
             //event.render->drawRect(_geometry, image::Color4f(.5F, .3F, .3F));
 
-            const math::BBox2i g = align(
+            const math::Box2i g = align(
                 _geometry.margin(-p.size.margin),
                 _sizeHint,
                 Stretch::Fixed,
@@ -251,7 +251,7 @@ namespace tl
                 _vAlign);
 
             // Draw the percentage labels.
-            const math::BBox2i g2(
+            const math::Box2i g2(
                 g.min.x,
                 g.min.y,
                 p.size.pieDiameter,

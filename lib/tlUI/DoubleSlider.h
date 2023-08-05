@@ -64,11 +64,11 @@ namespace tl
             void setEnabled(bool) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void clipEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 bool,
                 const ClipEvent&) override;
             void drawEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const DrawEvent&) override;
             void mouseEnterEvent() override;
             void mouseLeaveEvent() override;
@@ -79,7 +79,7 @@ namespace tl
             void keyReleaseEvent(KeyEvent&) override;
 
         private:
-            math::BBox2i _getSliderGeometry() const;
+            math::Box2i _getSliderGeometry() const;
 
             double _posToValue(int) const;
             int _valueToPos(double) const;

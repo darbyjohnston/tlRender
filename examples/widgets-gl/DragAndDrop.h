@@ -45,9 +45,9 @@ namespace tl
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
-                void setGeometry(const math::BBox2i&) override;
+                void setGeometry(const math::Box2i&) override;
                 void sizeHintEvent(const ui::SizeHintEvent&) override;
-                void drawEvent(const math::BBox2i&, const ui::DrawEvent&) override;
+                void drawEvent(const math::Box2i&, const ui::DrawEvent&) override;
                 void mouseEnterEvent() override;
                 void mouseLeaveEvent() override;
                 void mouseMoveEvent(ui::MouseMoveEvent&) override;
@@ -82,7 +82,7 @@ namespace tl
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
-                void setGeometry(const math::BBox2i&) override;
+                void setGeometry(const math::Box2i&) override;
                 void sizeHintEvent(const ui::SizeHintEvent&) override;
 
             private:

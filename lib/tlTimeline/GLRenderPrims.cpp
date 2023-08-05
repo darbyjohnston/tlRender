@@ -17,7 +17,7 @@ namespace tl
     namespace timeline
     {
         void GLRender::drawRect(
-            const math::BBox2i& bbox,
+            const math::Box2i& box,
             const image::Color4f& color)
         {
             TLRENDER_P();
@@ -30,7 +30,7 @@ namespace tl
 
             if (p.vbos["rect"])
             {
-                p.vbos["rect"]->copy(convert(geom::bbox(bbox), p.vbos["rect"]->getType()));
+                p.vbos["rect"]->copy(convert(geom::box(box), p.vbos["rect"]->getType()));
             }
             if (p.vaos["rect"])
             {
@@ -218,13 +218,13 @@ namespace tl
                         }
 
                         const math::Vector2i& offset = glyph->offset;
-                        const math::BBox2i bbox(
+                        const math::Box2i box(
                             pos.x + x + offset.x,
                             pos.y - offset.y,
                             glyph->image->getWidth(),
                             glyph->image->getHeight());
-                        const auto& min = bbox.min;
-                        const auto& max = bbox.max;
+                        const auto& min = box.min;
+                        const auto& max = box.max;
 
                         mesh.v.push_back(math::Vector2f(min.x, min.y));
                         mesh.v.push_back(math::Vector2f(max.x + 1, min.y));
@@ -262,7 +262,7 @@ namespace tl
 
         void GLRender::drawTexture(
             unsigned int id,
-            const math::BBox2i& bbox,
+            const math::Box2i& box,
             const image::Color4f& color)
         {
             TLRENDER_P();
@@ -279,7 +279,7 @@ namespace tl
 
             if (p.vbos["texture"])
             {
-                p.vbos["texture"]->copy(convert(geom::bbox(bbox), p.vbos["texture"]->getType()));
+                p.vbos["texture"]->copy(convert(geom::box(box), p.vbos["texture"]->getType()));
             }
             if (p.vaos["texture"])
             {
@@ -290,7 +290,7 @@ namespace tl
 
         void GLRender::drawImage(
             const std::shared_ptr<image::Image>& image,
-            const math::BBox2i& bbox,
+            const math::Box2i& box,
             const image::Color4f& color,
             const ImageOptions& imageOptions)
         {
@@ -347,7 +347,7 @@ namespace tl
 
             if (p.vbos["image"])
             {
-                p.vbos["image"]->copy(convert(geom::bbox(bbox), p.vbos["image"]->getType()));
+                p.vbos["image"]->copy(convert(geom::box(box), p.vbos["image"]->getType()));
             }
             if (p.vaos["image"])
             {

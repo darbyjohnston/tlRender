@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore/BBox.h>
+#include <tlCore/Box.h>
 #include <tlCore/Memory.h>
 #include <tlCore/Range.h>
 #include <tlCore/Util.h>
@@ -53,9 +53,9 @@ namespace tl
             bool operator < (const Size&) const noexcept;
         };
 
-        //! Get a bounding box with the given aspect ratio that fits within
-        //! the given bounding box.
-        math::BBox2i getBBox(float aspect, const math::BBox2i&) noexcept;
+        //! Get a box with the given aspect ratio that fits within
+        //! the given box.
+        math::Box2i getBox(float aspect, const math::Box2i&) noexcept;
 
         ///@}
 

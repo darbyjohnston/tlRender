@@ -321,7 +321,7 @@ namespace tl
             _p->pathsWidget->setRecentFilesModel(value);
         }
 
-        void FileBrowserWidget::setGeometry(const math::BBox2i& value)
+        void FileBrowserWidget::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

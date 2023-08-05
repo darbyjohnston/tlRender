@@ -48,7 +48,7 @@ namespace tl
             void setEnabled(bool) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void drawEvent(
-                const math::BBox2i&,
+                const math::Box2i&,
                 const DrawEvent&) override;
             void mouseEnterEvent() override;
             void mouseLeaveEvent() override;
@@ -57,8 +57,8 @@ namespace tl
             void mouseReleaseEvent(MouseClickEvent&) override;
 
         private:
-            math::BBox2i _getBorderGeometry() const;
-            math::BBox2i _getHandleGeometry() const;
+            math::Box2i _getBorderGeometry() const;
+            math::Box2i _getHandleGeometry() const;
             int _getScrollPosMax() const;
             float _getScrollScale() const;
 

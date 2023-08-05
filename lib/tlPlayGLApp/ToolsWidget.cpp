@@ -80,7 +80,7 @@ namespace tl
             return out;
         }
 
-        void ToolsWidget::setGeometry(const math::BBox2i & value)
+        void ToolsWidget::setGeometry(const math::Box2i & value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

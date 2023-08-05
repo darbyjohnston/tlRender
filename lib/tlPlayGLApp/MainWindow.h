@@ -78,7 +78,7 @@ namespace tl
             //! Set the window options.
             void setWindowOptions(const WindowOptions&);
 
-            void setGeometry(const math::BBox2i&) override;
+            void setGeometry(const math::Box2i&) override;
             void keyPressEvent(ui::KeyEvent&) override;
             void keyReleaseEvent(ui::KeyEvent&) override;
 

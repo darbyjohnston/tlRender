@@ -114,7 +114,7 @@ namespace tl
             _p->callback = value;
         }
 
-        void FileEdit::setGeometry(const math::BBox2i& value)
+        void FileEdit::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

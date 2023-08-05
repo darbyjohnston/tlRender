@@ -111,7 +111,7 @@ namespace tl
 
             //! Set the screenshot capture function.
             void setCapture(const std::function<std::shared_ptr<image::Image>(
-                const math::BBox2i&)>&);
+                const math::Box2i&)>&);
 
         protected:
             void _tickEvent();
@@ -131,7 +131,7 @@ namespace tl
             void _clipEvent();
             void _clipEvent(
                 const std::shared_ptr<IWidget>&,
-                const math::BBox2i&,
+                const math::Box2i&,
                 bool clipped,
                 const ClipEvent&);
 
@@ -140,7 +140,7 @@ namespace tl
             void _drawEvent(const std::shared_ptr<timeline::IRender>&);
             void _drawEvent(
                 const std::shared_ptr<IWidget>&,
-                const math::BBox2i&,
+                const math::Box2i&,
                 const DrawEvent&);
 
             std::list<std::shared_ptr<IWidget> > _getUnderCursor(const math::Vector2i&);

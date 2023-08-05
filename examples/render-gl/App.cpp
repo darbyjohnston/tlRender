@@ -404,7 +404,7 @@ namespace tl
 
                 _compareOptions.mode = timeline::CompareMode::A;
                 _drawViewport(
-                    math::BBox2i(
+                    math::Box2i(
                         0,
                         0,
                         viewportSize.x,
@@ -414,7 +414,7 @@ namespace tl
                     0.F);
                 _compareOptions.mode = timeline::CompareMode::A;
                 _drawViewport(
-                    math::BBox2i(
+                    math::Box2i(
                         viewportSize.x + viewportSpacing,
                         0,
                         viewportSize.x,
@@ -424,7 +424,7 @@ namespace tl
                     _rotation);
                 _compareOptions.mode = timeline::CompareMode::B;
                 _drawViewport(
-                    math::BBox2i(
+                    math::Box2i(
                         viewportSize.x * 2 + viewportSpacing * 2,
                         0,
                         viewportSize.x,
@@ -435,7 +435,7 @@ namespace tl
 
                 _compareOptions.mode = timeline::CompareMode::Wipe;
                 _drawViewport(
-                    math::BBox2i(
+                    math::Box2i(
                         0,
                         viewportSize.y + viewportSpacing,
                         viewportSize.x,
@@ -445,7 +445,7 @@ namespace tl
                     _rotation);
                 _compareOptions.mode = timeline::CompareMode::Overlay;
                 _drawViewport(
-                    math::BBox2i(
+                    math::Box2i(
                         viewportSize.x + viewportSpacing,
                         viewportSize.y + viewportSpacing,
                         viewportSize.x,
@@ -455,7 +455,7 @@ namespace tl
                     _rotation);
                 _compareOptions.mode = timeline::CompareMode::Difference;
                 _drawViewport(
-                    math::BBox2i(
+                    math::Box2i(
                         viewportSize.x * 2 + viewportSpacing * 2,
                         viewportSize.y + viewportSpacing,
                         viewportSize.x,
@@ -466,7 +466,7 @@ namespace tl
 
                 _compareOptions.mode = timeline::CompareMode::Horizontal;
                 _drawViewport(
-                    math::BBox2i(
+                    math::Box2i(
                         0,
                         viewportSize.y * 2 + viewportSpacing * 2,
                         viewportSize.x,
@@ -476,7 +476,7 @@ namespace tl
                     _rotation);
                 _compareOptions.mode = timeline::CompareMode::Vertical;
                 _drawViewport(
-                    math::BBox2i(
+                    math::Box2i(
                         viewportSize.x + viewportSpacing,
                         viewportSize.y * 2 + viewportSpacing * 2,
                         viewportSize.x,
@@ -486,7 +486,7 @@ namespace tl
                     _rotation);
                 _compareOptions.mode = timeline::CompareMode::Tile;
                 _drawViewport(
-                    math::BBox2i(
+                    math::Box2i(
                         viewportSize.x * 2 + viewportSpacing * 2,
                         viewportSize.y * 2 + viewportSpacing * 2,
                         viewportSize.x,
@@ -497,12 +497,12 @@ namespace tl
             }
 
             void App::_drawViewport(
-                const math::BBox2i& bbox,
+                const math::Box2i& box,
                 uint16_t fontSize,
                 const timeline::CompareOptions& compareOptions,
                 float rotation)
             {
-                const math::Vector2i viewportSize = bbox.getSize();
+                const math::Vector2i viewportSize = box.getSize();
                 const float viewportAspect = viewportSize.y > 0 ?
                     (viewportSize.x / static_cast<float>(viewportSize.y)) :
                     1.F;
@@ -528,8 +528,8 @@ namespace tl
                 }
 
                 _render->setClipRectEnabled(true);
-                _render->setViewport(bbox);
-                _render->setClipRect(bbox);
+                _render->setViewport(box);
+                _render->setClipRect(box);
                 _render->clearViewport(image::Color4f(0.F, 0.F, 0.F));
 
                 _render->setTransform(math::ortho(
@@ -544,7 +544,7 @@ namespace tl
                     math::translate(math::Vector3f(-renderSize.w / 2, -renderSize.h / 2, 0.F)));
                 _render->drawVideo(
                     _videoData,
-                    timeline::getBBoxes(compareOptions.mode, _videoSizes),
+                    timeline::getBoxes(compareOptions.mode, _videoSizes),
                     {},
                     {},
                     compareOptions);
@@ -566,7 +566,7 @@ namespace tl
                     std::string text = timeline::getLabel(compareOptions.mode);
                     math::Vector2i textSize = fontSystem->getSize(text, fontInfo);
                     _render->drawRect(
-                        math::BBox2i(0, 0, viewportSize.x, fontMetrics.lineHeight),
+                        math::Box2i(0, 0, viewportSize.x, fontMetrics.lineHeight),
                         image::Color4f(0.F, 0.F, 0.F, .7F));
                     _render->drawText(
                         fontSystem->getGlyphs(text, fontInfo),

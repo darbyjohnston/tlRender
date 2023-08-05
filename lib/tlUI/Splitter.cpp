@@ -20,7 +20,7 @@ namespace tl
             {
                 int spacing = 0;
                 int handle = 0;
-                std::vector<math::BBox2i> handleGeometry;
+                std::vector<math::Box2i> handleGeometry;
             };
             SizeData size;
 
@@ -87,12 +87,12 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void Splitter::setGeometry(const math::BBox2i& value)
+        void Splitter::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
 
-            const math::BBox2i& g = _geometry;
+            const math::Box2i& g = _geometry;
 
             std::vector<bool> childVisible;
             for (const auto& child : _children)
@@ -100,7 +100,7 @@ namespace tl
                 childVisible.push_back(child->isVisible(false));
             }
             p.size.handleGeometry.clear();
-            std::vector<math::BBox2i> childGeometry;
+            std::vector<math::Box2i> childGeometry;
             int x = g.x();
             int y = g.y();
             int w = 0;
@@ -114,21 +114,21 @@ namespace tl
                 {
                     w = g.w() * p.split - p.size.handle / 2;
                     h = g.h();
-                    childGeometry.push_back(math::BBox2i(x, y, w, h));
+                    childGeometry.push_back(math::Box2i(x, y, w, h));
                     x += w;
                     x += p.size.spacing;
                     w = p.size.handle;
-                    p.size.handleGeometry.push_back(math::BBox2i(x, y, w, h));
+                    p.size.handleGeometry.push_back(math::Box2i(x, y, w, h));
                     x += w;
                     x += p.size.spacing;
                     w = g.x() + g.w() - x;
-                    childGeometry.push_back(math::BBox2i(x, y, w, h));
+                    childGeometry.push_back(math::Box2i(x, y, w, h));
                 }
                 else
                 {
                     for (size_t i = 0; i < _children.size(); ++i)
                     {
-                        childGeometry.push_back(math::BBox2i(x, y, g.w(), g.h()));
+                        childGeometry.push_back(math::Box2i(x, y, g.w(), g.h()));
                     }
                 }
                 break;
@@ -139,21 +139,21 @@ namespace tl
                 {
                     w = g.w();
                     h = g.h() * p.split - p.size.handle / 2;
-                    childGeometry.push_back(math::BBox2i(x, y, w, h));
+                    childGeometry.push_back(math::Box2i(x, y, w, h));
                     y += h;
                     y += p.size.spacing;
                     h = p.size.handle;
-                    p.size.handleGeometry.push_back(math::BBox2i(x, y, w, h));
+                    p.size.handleGeometry.push_back(math::Box2i(x, y, w, h));
                     y += h;
                     y += p.size.spacing;
                     h = g.y() + g.h() - y;
-                    childGeometry.push_back(math::BBox2i(x, y, w, h));
+                    childGeometry.push_back(math::Box2i(x, y, w, h));
                 }
                 else
                 {
                     for (size_t i = 0; i < _children.size(); ++i)
                     {
-                        childGeometry.push_back(math::BBox2i(x, y, g.w(), g.h()));
+                        childGeometry.push_back(math::Box2i(x, y, g.w(), g.h()));
                     }
                 }
                 break;
@@ -204,7 +204,7 @@ namespace tl
         }
 
         void Splitter::clipEvent(
-            const math::BBox2i& clipRect,
+            const math::Box2i& clipRect,
             bool clipped,
             const ClipEvent& event)
         {
@@ -217,7 +217,7 @@ namespace tl
         }
 
         void Splitter::drawEvent(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
@@ -266,7 +266,7 @@ namespace tl
             event.accept = true;
             if (p.mouse.pressedHandle != -1)
             {
-                const math::BBox2i& g = _geometry;
+                const math::Box2i& g = _geometry;
                 float split = 0.F;
                 switch (p.orientation)
                 {

@@ -31,7 +31,7 @@ namespace tl
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
-                void setGeometry(const math::BBox2i&) override;
+                void setGeometry(const math::Box2i&) override;
 
             private:
                 TLRENDER_PRIVATE();

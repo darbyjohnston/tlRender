@@ -4,8 +4,8 @@ set(HEADERS
     AudioConvert.h
     AudioInline.h
     AudioSystem.h
-    BBox.h
-    BBoxInline.h
+    Box.h
+    BoxInline.h
     Color.h
     ColorInline.h
     Context.h
@@ -66,7 +66,7 @@ set(SOURCE
     Audio.cpp
     AudioConvert.cpp
     AudioSystem.cpp
-    BBox.cpp
+    Box.cpp
     Color.cpp
     Context.cpp
     Error.cpp

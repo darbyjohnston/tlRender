@@ -74,7 +74,7 @@ namespace tl
             }
 
             void ScrollAreasWidget::clipEvent(
-                const math::BBox2i& clipRect,
+                const math::Box2i& clipRect,
                 bool clipped,
                 const ui::ClipEvent& event)
             {
@@ -90,13 +90,13 @@ namespace tl
             }
 
             void ScrollAreasWidget::drawEvent(
-                const math::BBox2i& drawRect,
+                const math::Box2i& drawRect,
                 const ui::DrawEvent& event)
             {
                 IWidget::drawEvent(drawRect, event);
                 TLRENDER_P();
 
-                const math::BBox2i& g = _geometry;
+                const math::Box2i& g = _geometry;
 
                 const auto fontInfo = event.style->getFontRole(ui::FontRole::Label, event.displayScale);
                 const auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
@@ -106,7 +106,7 @@ namespace tl
                     {
                         const bool even = ((x + y) % 2 == 0);
 
-                        const math::BBox2i g2(
+                        const math::Box2i g2(
                             g.x() + x * p.cellSize,
                             g.y() + y * p.cellSize,
                             p.cellSize,
@@ -189,7 +189,7 @@ namespace tl
                 return out;
             }
 
-            void ScrollAreas::setGeometry(const math::BBox2i& value)
+            void ScrollAreas::setGeometry(const math::Box2i& value)
             {
                 IExampleWidget::setGeometry(value);
                 _p->layout->setGeometry(value);

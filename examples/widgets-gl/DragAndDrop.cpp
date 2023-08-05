@@ -80,7 +80,7 @@ namespace tl
                 return out;
             }
 
-            void DragAndDropWidget::setGeometry(const math::BBox2i& value)
+            void DragAndDropWidget::setGeometry(const math::Box2i& value)
             {
                 IWidget::setGeometry(value);
                 _p->label->setGeometry(_geometry);
@@ -94,18 +94,18 @@ namespace tl
                 _sizeHint = p.label->getSizeHint();
             }
 
-            void DragAndDropWidget::drawEvent(const math::BBox2i& drawRect, const ui::DrawEvent& event)
+            void DragAndDropWidget::drawEvent(const math::Box2i& drawRect, const ui::DrawEvent& event)
             {
                 IWidget::drawEvent(drawRect, event);
                 TLRENDER_P();
 
-                const math::BBox2i& g = _geometry;
+                const math::Box2i& g = _geometry;
                 event.render->drawMesh(
                     ui::border(g, p.border),
                     math::Vector2i(),
                     event.style->getColorRole(ui::ColorRole::Border));
 
-                const math::BBox2i g2 = g.margin(-p.border);
+                const math::Box2i g2 = g.margin(-p.border);
                 event.render->drawRect(
                     g2,
                     event.style->getColorRole(ui::ColorRole::Button));
@@ -263,7 +263,7 @@ namespace tl
                 return out;
             }
 
-            void DragAndDrop::setGeometry(const math::BBox2i& value)
+            void DragAndDrop::setGeometry(const math::Box2i& value)
             {
                 IExampleWidget::setGeometry(value);
                 _p->layout->setGeometry(value);

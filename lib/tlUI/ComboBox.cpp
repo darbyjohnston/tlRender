@@ -389,7 +389,7 @@ namespace tl
         }
 
         void ComboBox::clipEvent(
-            const math::BBox2i& clipRect,
+            const math::Box2i& clipRect,
             bool clipped,
             const ClipEvent& event)
         {
@@ -402,13 +402,13 @@ namespace tl
         }
 
         void ComboBox::drawEvent(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::BBox2i& g = _geometry;
+            const math::Box2i& g = _geometry;
             const bool enabled = isEnabled();
 
             if (_keyFocus)
@@ -426,7 +426,7 @@ namespace tl
                     event.style->getColorRole(ColorRole::Border));
             }
 
-            const math::BBox2i g2 = g.margin(-p.size.border * 2);
+            const math::Box2i g2 = g.margin(-p.size.border * 2);
             event.render->drawRect(
                 g2,
                 event.style->getColorRole(ColorRole::Button));
@@ -444,14 +444,14 @@ namespace tl
                     event.style->getColorRole(ColorRole::Hover));
             }
 
-            const math::BBox2i g3 = g2.margin(-p.size.margin);
+            const math::Box2i g3 = g2.margin(-p.size.margin);
             int x = g3.x();
             if (p.iconImage)
             {
                 const image::Size& iconSize = p.iconImage->getSize();
                 event.render->drawImage(
                     p.iconImage,
-                    math::BBox2i(
+                    math::Box2i(
                         x,
                         g3.y() + g3.h() / 2 - iconSize.h / 2,
                         iconSize.w,
@@ -486,7 +486,7 @@ namespace tl
                 const image::Size& iconSize = p.arrowIconImage->getSize();
                 event.render->drawImage(
                     p.arrowIconImage,
-                    math::BBox2i(
+                    math::Box2i(
                         g3.x() + g3.w() - iconSize.w,
                         g3.y() + g3.h() / 2 - iconSize.h / 2,
                         iconSize.w,

@@ -165,7 +165,7 @@ namespace tl
         }
 
         void Button::clipEvent(
-            const math::BBox2i& clipRect,
+            const math::Box2i& clipRect,
             bool clipped,
             const ClipEvent& event)
         {
@@ -178,13 +178,13 @@ namespace tl
         }
 
         void Button::drawEvent(
-            const math::BBox2i& drawRect,
+            const math::Box2i& drawRect,
             const DrawEvent& event)
         {
             IButton::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::BBox2i& g = _geometry;
+            const math::Box2i& g = _geometry;
             const bool enabled = isEnabled();
 
             // Draw the key focus.
@@ -222,14 +222,14 @@ namespace tl
             }
 
             // Draw the icon.
-            const math::BBox2i g2 = g.margin(-p.size.border * 2);
+            const math::Box2i g2 = g.margin(-p.size.border * 2);
             int x = g2.x() + p.size.margin;
             if (_iconImage)
             {
                 const image::Size& iconSize = _iconImage->getSize();
                 event.render->drawImage(
                     _iconImage,
-                    math::BBox2i(
+                    math::Box2i(
                         x,
                         g2.y() + g2.h() / 2 - iconSize.h / 2,
                         iconSize.w,

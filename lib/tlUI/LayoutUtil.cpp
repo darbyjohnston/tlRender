@@ -12,8 +12,8 @@ namespace tl
 {
     namespace ui
     {
-        math::BBox2i align(
-            const math::BBox2i&   bbox,
+        math::Box2i align(
+            const math::Box2i&    box,
             const math::Vector2i& sizeHint,
             Stretch               hStretch,
             Stretch               vStretch,
@@ -29,20 +29,20 @@ namespace tl
                 switch (hAlign)
                 {
                 case HAlign::Left:
-                    pos.x = bbox.x();
+                    pos.x = box.x();
                     break;
                 case HAlign::Center:
-                    pos.x = bbox.x() + bbox.w() / 2 - sizeHint.x / 2;
+                    pos.x = box.x() + box.w() / 2 - sizeHint.x / 2;
                     break;
                 case HAlign::Right:
-                    pos.x = bbox.x() + bbox.w() - sizeHint.x;
+                    pos.x = box.x() + box.w() - sizeHint.x;
                     break;
                 }
                 size.x = sizeHint.x;
                 break;
             case Stretch::Expanding:
-                pos.x = bbox.x();
-                size.x = bbox.w();
+                pos.x = box.x();
+                size.x = box.w();
                 break;
             }
 
@@ -52,24 +52,24 @@ namespace tl
                 switch (vAlign)
                 {
                 case VAlign::Top:
-                    pos.y = bbox.y();
+                    pos.y = box.y();
                     break;
                 case VAlign::Center:
-                    pos.y = bbox.y() + bbox.h() / 2 - sizeHint.y / 2;
+                    pos.y = box.y() + box.h() / 2 - sizeHint.y / 2;
                     break;
                 case VAlign::Bottom:
-                    pos.y = bbox.y() + bbox.w() - sizeHint.y;
+                    pos.y = box.y() + box.w() - sizeHint.y;
                     break;
                 }
                 size.y = sizeHint.y;
                 break;
             case Stretch::Expanding:
-                pos.y = bbox.y();
-                size.y = bbox.h();
+                pos.y = box.y();
+                size.y = box.h();
                 break;
             }
 
-            return math::BBox2i(pos.x, pos.y, size.x, size.y);
+            return math::Box2i(pos.x, pos.y, size.x, size.y);
         }
 
         std::string format(int value)

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore/BBox.h>
+#include <tlCore/Box.h>
 
 #include <array>
 #include <vector>
@@ -68,11 +68,11 @@ namespace tl
             std::vector<Triangle3> triangles;
         };
 
-        //! Create a two-dimensional bounding box mesh.
-        TriangleMesh2 bbox(const math::BBox2i&, bool flipV = false);
+        //! Create a two-dimensional axis aligned box mesh.
+        TriangleMesh2 box(const math::Box2i&, bool flipV = false);
 
-        //! Create a two-dimensional bounding box mesh.
-        TriangleMesh2 bbox(const math::BBox2f&, bool flipV = false);
+        //! Create a two-dimensional axis aligned box mesh.
+        TriangleMesh2 box(const math::Box2f&, bool flipV = false);
 
         //! Edge function.
         float edge(

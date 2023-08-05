@@ -122,7 +122,7 @@ namespace tl
             _p->cancelCallback = value;
         }
 
-        void SeparateAudioWidget::setGeometry(const math::BBox2i& value)
+        void SeparateAudioWidget::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
