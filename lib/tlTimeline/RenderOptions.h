@@ -17,7 +17,7 @@ namespace tl
             bool clear = true;
 
             //! Clear color.
-            imaging::Color4f clearColor;
+            image::Color4f clearColor;
 
             //! Texture cache size.
             size_t textureCacheSize = 6;

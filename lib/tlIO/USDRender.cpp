@@ -562,10 +562,10 @@ namespace tl
                         {
                             aspectRatio = 1.F;
                         }
-                        info.video.push_back(imaging::Info(
+                        info.video.push_back(image::Info(
                             renderOptions.renderWidth,
                             renderOptions.renderWidth / aspectRatio,
-                            imaging::PixelType::RGBA_F16));
+                            image::PixelType::RGBA_F16));
                         info.videoTime = otime::TimeRange::range_from_start_end_time_inclusive(
                             otime::RationalTime(startTimeCode, timeCodesPerSecond),
                             otime::RationalTime(endTimeCode, timeCodesPerSecond));
@@ -579,7 +579,7 @@ namespace tl
                 {
                     // Check the disk cache for a previously rendered frame.
                     const std::string fileName = request->path.get();
-                    std::shared_ptr<imaging::Image> image;
+                    std::shared_ptr<image::Image> image;
                     std::shared_ptr<Private::DiskCacheItem> diskCacheItem;
                     if (renderOptions.diskCacheByteCount > 0 &&
                         p.thread.diskCache.get(Private::DiskCacheKey({ fileName, request->time }), diskCacheItem))
@@ -592,7 +592,7 @@ namespace tl
                         fileIO->readU16(&h);
                         uint32_t pixelType = 0;
                         fileIO->readU32(&pixelType);
-                        image = imaging::Image::create(w, h, static_cast<imaging::PixelType>(pixelType));
+                        image = image::Image::create(w, h, static_cast<image::PixelType>(pixelType));
                         fileIO->read(image->getData(), image->getDataByteCount());
                     }
                     else
@@ -696,10 +696,10 @@ namespace tl
                                     switch (HdxGetHioFormat(colorTextureHandle->GetDescriptor().format))
                                     {
                                     case HioFormat::HioFormatFloat16Vec4:
-                                        image = imaging::Image::create(
+                                        image = image::Image::create(
                                             renderOptions.renderWidth,
                                             renderHeight,
-                                            imaging::PixelType::RGBA_F16);
+                                            image::PixelType::RGBA_F16);
                                         memcpy(image->getData(), mappedColorTextureBuffer.get(), image->getDataByteCount());
                                         break;
                                     default: break;
@@ -716,10 +716,10 @@ namespace tl
                                     switch (HdStHioConversions::GetHioFormat(colorRenderBuffer->GetFormat()))
                                     {
                                     case HioFormat::HioFormatFloat16Vec4:
-                                        image = imaging::Image::create(
+                                        image = image::Image::create(
                                             renderOptions.renderWidth,
                                             renderHeight,
-                                            imaging::PixelType::RGBA_F16);
+                                            image::PixelType::RGBA_F16);
                                         memcpy(image->getData(), colorRenderBuffer->Map(), image->getDataByteCount());
                                         break;
                                     default: break;

@@ -34,8 +34,8 @@ namespace tl
         protected:
             void _init(
                 size_t textureCount,
-                imaging::SizeType textureSize,
-                imaging::PixelType textureType,
+                image::SizeType textureSize,
+                image::PixelType textureType,
                 timeline::ImageFilter filter,
                 int border);
 
@@ -47,20 +47,20 @@ namespace tl
             //! Create a new texture atlas.
             static std::shared_ptr<TextureAtlas> create(
                 size_t textureCount,
-                imaging::SizeType textureSize,
-                imaging::PixelType textureType,
+                image::SizeType textureSize,
+                image::PixelType textureType,
                 timeline::ImageFilter filter = timeline::ImageFilter::Linear,
                 int border = 1);
 
             size_t getTextureCount() const;
-            imaging::SizeType getTextureSize() const;
-            imaging::PixelType getTextureType() const;
+            image::SizeType getTextureSize() const;
+            image::PixelType getTextureType() const;
             std::vector<unsigned int> getTextures() const;
 
             bool getItem(TextureAtlasID, TextureAtlasItem&);
 
             TextureAtlasID addItem(
-                const std::shared_ptr<imaging::Image>&,
+                const std::shared_ptr<image::Image>&,
                 TextureAtlasItem&);
 
             float getPercentageUsed() const;

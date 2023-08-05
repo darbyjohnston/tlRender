@@ -59,28 +59,28 @@ namespace tl
             ~ReadVideo();
 
             bool isValid() const;
-            const imaging::Info& getInfo() const;
+            const image::Info& getInfo() const;
             const otime::TimeRange& getTimeRange() const;
-            const imaging::Tags& getTags() const;
+            const image::Tags& getTags() const;
 
             void start();
             void seek(const otime::RationalTime&);
             void process(const otime::RationalTime& currentTime);
 
             bool isBufferEmpty() const;
-            std::shared_ptr<imaging::Image> popBuffer();
+            std::shared_ptr<image::Image> popBuffer();
 
             bool isEOF() const;
 
         private:
             int _decode(const otime::RationalTime& currentTime);
-            void _copy(const std::shared_ptr<imaging::Image>&);
+            void _copy(const std::shared_ptr<image::Image>&);
 
             std::string _fileName;
             Options _options;
-            imaging::Info _info;
+            image::Info _info;
             otime::TimeRange _timeRange = time::invalidTimeRange;
-            imaging::Tags _tags;
+            image::Tags _tags;
 
             AVFormatContext* _avFormatContext = nullptr;
             AVIOBufferData _avIOBufferData;
@@ -95,7 +95,7 @@ namespace tl
             AVPixelFormat _avInputPixelFormat = AV_PIX_FMT_NONE;
             AVPixelFormat _avOutputPixelFormat = AV_PIX_FMT_NONE;
             SwsContext* _swsContext = nullptr;
-            std::list<std::shared_ptr<imaging::Image> > _buffer;
+            std::list<std::shared_ptr<image::Image> > _buffer;
             bool _eof = false;
         };
 
@@ -113,7 +113,7 @@ namespace tl
             bool isValid() const;
             const audio::Info& getInfo() const;
             const otime::TimeRange& getTimeRange() const;
-            const imaging::Tags& getTags() const;
+            const image::Tags& getTags() const;
 
             void start();
             void seek(const otime::RationalTime&);
@@ -133,7 +133,7 @@ namespace tl
             Options _options;
             audio::Info _info;
             otime::TimeRange _timeRange = time::invalidTimeRange;
-            imaging::Tags _tags;
+            image::Tags _tags;
 
             AVFormatContext* _avFormatContext = nullptr;
             AVIOBufferData _avIOBufferData;

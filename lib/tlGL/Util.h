@@ -13,10 +13,10 @@ namespace tl
     namespace gl
     {
         //! Get the glReadPixels format.
-        unsigned int getReadPixelsFormat(imaging::PixelType);
+        unsigned int getReadPixelsFormat(image::PixelType);
 
         //! Get the glReadPixels type.
-        unsigned int getReadPixelsType(imaging::PixelType);
+        unsigned int getReadPixelsType(image::PixelType);
 
         //! Set whether an OpenGL capability is enabled and restore it to the
         //! previous value when finished.

@@ -23,7 +23,7 @@ namespace tl
                 int cellSize = 0;
                 int margin = 0;
                 std::vector<math::Vector2i> textSize;
-                std::vector<std::vector<std::shared_ptr<imaging::Glyph> > > glyphs;
+                std::vector<std::vector<std::shared_ptr<image::Glyph> > > glyphs;
             };
 
             void ScrollAreasWidget::_init(

@@ -56,7 +56,7 @@ namespace tl
                     "NotoSans-Regular"
                 }))
             {
-                const auto font = imaging::getFontData(i);
+                const auto font = image::getFontData(i);
                 const int id = QFontDatabase::addApplicationFontFromData(
                     QByteArray(reinterpret_cast<const char*>(font.data()), font.size()));
                 for (const auto& j : QFontDatabase::applicationFontFamilies(id))

@@ -30,7 +30,7 @@ namespace tl
     namespace timeline
     {
         void copyTextures(
-            const std::shared_ptr<imaging::Image>& image,
+            const std::shared_ptr<image::Image>& image,
             const std::vector<std::shared_ptr<gl::Texture> >& textures,
             size_t offset)
         {
@@ -38,7 +38,7 @@ namespace tl
             const auto& info = image->getInfo();
             switch (info.pixelType)
             {
-            case imaging::PixelType::YUV_420P_U8:
+            case image::PixelType::YUV_420P_U8:
             {
                 glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                 textures[0]->copy(image->getData(), textures[0]->getInfo());
@@ -54,7 +54,7 @@ namespace tl
                 textures[2]->copy(image->getData() + (w * h) + (w2 * h2), textures[2]->getInfo());
                 break;
             }
-            case imaging::PixelType::YUV_422P_U8:
+            case image::PixelType::YUV_422P_U8:
             {
                 glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                 textures[0]->copy(image->getData(), textures[0]->getInfo());
@@ -69,7 +69,7 @@ namespace tl
                 textures[2]->copy(image->getData() + (w * h) + (w2 * h), textures[2]->getInfo());
                 break;
             }
-            case imaging::PixelType::YUV_444P_U8:
+            case image::PixelType::YUV_444P_U8:
             {
                 glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                 textures[0]->copy(image->getData(), textures[0]->getInfo());
@@ -83,7 +83,7 @@ namespace tl
                 textures[2]->copy(image->getData() + (w * h) + (w * h), textures[2]->getInfo());
                 break;
             }
-            case imaging::PixelType::YUV_420P_U16:
+            case image::PixelType::YUV_420P_U16:
             {
                 glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                 textures[0]->copy(image->getData(), textures[0]->getInfo());
@@ -99,7 +99,7 @@ namespace tl
                 textures[2]->copy(image->getData() + (w * h) * 2 + (w2 * h2) * 2, textures[2]->getInfo());
                 break;
             }
-            case imaging::PixelType::YUV_422P_U16:
+            case image::PixelType::YUV_422P_U16:
             {
                 glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                 textures[0]->copy(image->getData(), textures[0]->getInfo());
@@ -114,7 +114,7 @@ namespace tl
                 textures[2]->copy(image->getData() + (w * h) * 2 + (w2 * h) * 2, textures[2]->getInfo());
                 break;
             }
-            case imaging::PixelType::YUV_444P_U16:
+            case image::PixelType::YUV_444P_U16:
             {
                 glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                 textures[0]->copy(image->getData(), textures[0]->getInfo());
@@ -138,7 +138,7 @@ namespace tl
         namespace
         {
             std::vector<std::shared_ptr<gl::Texture> > getTextures(
-                const imaging::Info& info,
+                const image::Info& info,
                 const ImageFilters& imageFilters,
                 size_t offset)
             {
@@ -148,10 +148,10 @@ namespace tl
                 options.pbo = true;
                 switch (info.pixelType)
                 {
-                case imaging::PixelType::YUV_420P_U8:
+                case image::PixelType::YUV_420P_U8:
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                    auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U8);
+                    auto infoTmp = image::Info(info.size, image::PixelType::L_U8);
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
@@ -159,50 +159,50 @@ namespace tl
                     const std::size_t h = info.size.h;
                     const std::size_t w2 = w / 2;
                     const std::size_t h2 = h / 2;
-                    infoTmp = imaging::Info(imaging::Size(w2, h2), imaging::PixelType::L_U8);
+                    infoTmp = image::Info(image::Size(w2, h2), image::PixelType::L_U8);
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
                     out.push_back(gl::Texture::create(infoTmp, options));
                     break;
                 }
-                case imaging::PixelType::YUV_422P_U8:
+                case image::PixelType::YUV_422P_U8:
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                    auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U8);
+                    auto infoTmp = image::Info(info.size, image::PixelType::L_U8);
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
                     const std::size_t w = info.size.w;
                     const std::size_t h = info.size.h;
                     const std::size_t w2 = w / 2;
-                    infoTmp = imaging::Info(imaging::Size(w2, h), imaging::PixelType::L_U8);
+                    infoTmp = image::Info(image::Size(w2, h), image::PixelType::L_U8);
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
                     out.push_back(gl::Texture::create(infoTmp, options));
                     break;
                 }
-                case imaging::PixelType::YUV_444P_U8:
+                case image::PixelType::YUV_444P_U8:
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                    auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U8);
+                    auto infoTmp = image::Info(info.size, image::PixelType::L_U8);
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
                     const std::size_t w = info.size.w;
                     const std::size_t h = info.size.h;
-                    infoTmp = imaging::Info(imaging::Size(w, h), imaging::PixelType::L_U8);
+                    infoTmp = image::Info(image::Size(w, h), image::PixelType::L_U8);
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
                     out.push_back(gl::Texture::create(infoTmp, options));
                     break;
                 }
-                case imaging::PixelType::YUV_420P_U16:
+                case image::PixelType::YUV_420P_U16:
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                    auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U16);
+                    auto infoTmp = image::Info(info.size, image::PixelType::L_U16);
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
@@ -210,40 +210,40 @@ namespace tl
                     const std::size_t h = info.size.h;
                     const std::size_t w2 = w / 2;
                     const std::size_t h2 = h / 2;
-                    infoTmp = imaging::Info(imaging::Size(w2, h2), imaging::PixelType::L_U16);
+                    infoTmp = image::Info(image::Size(w2, h2), image::PixelType::L_U16);
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
                     out.push_back(gl::Texture::create(infoTmp, options));
                     break;
                 }
-                case imaging::PixelType::YUV_422P_U16:
+                case image::PixelType::YUV_422P_U16:
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                    auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U16);
+                    auto infoTmp = image::Info(info.size, image::PixelType::L_U16);
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
                     const std::size_t w = info.size.w;
                     const std::size_t h = info.size.h;
                     const std::size_t w2 = w / 2;
-                    infoTmp = imaging::Info(imaging::Size(w2, h), imaging::PixelType::L_U16);
+                    infoTmp = image::Info(image::Size(w2, h), image::PixelType::L_U16);
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
                     out.push_back(gl::Texture::create(infoTmp, options));
                     break;
                 }
-                case imaging::PixelType::YUV_444P_U16:
+                case image::PixelType::YUV_444P_U16:
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                    auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U16);
+                    auto infoTmp = image::Info(info.size, image::PixelType::L_U16);
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
                     const std::size_t w = info.size.w;
                     const std::size_t h = info.size.h;
-                    infoTmp = imaging::Info(imaging::Size(w, h), imaging::PixelType::L_U16);
+                    infoTmp = image::Info(image::Size(w, h), image::PixelType::L_U16);
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
@@ -271,7 +271,7 @@ namespace tl
         }
 
         std::vector<std::shared_ptr<gl::Texture> > TextureCache::get(
-            const imaging::Info& info,
+            const image::Info& info,
             const ImageFilters& imageFilters,
             size_t offset)
         {
@@ -297,7 +297,7 @@ namespace tl
         }
 
         void TextureCache::add(
-            const imaging::Info& info,
+            const image::Info& info,
             const ImageFilters& imageFilters,
             const std::vector<std::shared_ptr<gl::Texture> >& textures)
         {
@@ -350,7 +350,7 @@ namespace tl
             p.glyphTextureAtlas = gl::TextureAtlas::create(
                 1,
                 4096,
-                imaging::PixelType::L_U8,
+                image::PixelType::L_U8,
                 ImageFilter::Linear);
 
             p.logTimer = std::chrono::steady_clock::now();
@@ -371,7 +371,7 @@ namespace tl
         }
 
         void GLRender::begin(
-            const imaging::Size& renderSize,
+            const image::Size& renderSize,
             const ColorConfigOptions& colorConfigOptions,
             const LUTOptions& lutOptions,
             const RenderOptions& renderOptions)
@@ -611,12 +611,12 @@ namespace tl
             }
         }
 
-        imaging::Size GLRender::getRenderSize() const
+        image::Size GLRender::getRenderSize() const
         {
             return _p->renderSize;
         }
 
-        void GLRender::setRenderSize(const imaging::Size& value)
+        void GLRender::setRenderSize(const image::Size& value)
         {
             _p->renderSize = value;
         }
@@ -637,7 +637,7 @@ namespace tl
                 value.h());
         }
 
-        void GLRender::clearViewport(const imaging::Color4f& value)
+        void GLRender::clearViewport(const image::Color4f& value)
         {
             glClearColor(value.r, value.g, value.b, value.a);
             glClear(GL_COLOR_BUFFER_BIT);

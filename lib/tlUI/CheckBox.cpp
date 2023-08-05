@@ -17,8 +17,8 @@ namespace tl
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
-                imaging::FontInfo fontInfo;
-                imaging::FontMetrics fontMetrics;
+                image::FontInfo fontInfo;
+                image::FontMetrics fontMetrics;
                 int checkBox = 0;
                 bool textInit = true;
                 math::Vector2i textSize;
@@ -27,7 +27,7 @@ namespace tl
 
             struct DrawData
             {
-                std::vector<std::shared_ptr<imaging::Glyph> > glyphs;
+                std::vector<std::shared_ptr<image::Glyph> > glyphs;
             };
             DrawData draw;
         };

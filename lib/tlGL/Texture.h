@@ -13,13 +13,13 @@ namespace tl
     namespace gl
     {
         //! Get the OpenGL texture format.
-        unsigned int getTextureFormat(imaging::PixelType);
+        unsigned int getTextureFormat(image::PixelType);
 
         //! Get the OpenGL internal texture format.
-        unsigned int getTextureInternalFormat(imaging::PixelType);
+        unsigned int getTextureInternalFormat(image::PixelType);
 
         //! Get the OpenGL texture type.
-        unsigned int getTextureType(imaging::PixelType);
+        unsigned int getTextureType(image::PixelType);
 
         //! OpenGL texture options.
         struct TextureOptions
@@ -38,7 +38,7 @@ namespace tl
 
         protected:
             void _init(
-                const imaging::Info&,
+                const image::Info&,
                 const TextureOptions& = TextureOptions());
 
             Texture();
@@ -48,28 +48,28 @@ namespace tl
 
             //! Create a new texture.
             static std::shared_ptr<Texture> create(
-                const imaging::Info&,
+                const image::Info&,
                 const TextureOptions& = TextureOptions());
 
             //! Get the OpenGL texture ID.
             unsigned int getID() const;
 
             //! Get the image information.
-            const imaging::Info& getInfo() const;
+            const image::Info& getInfo() const;
 
             //! Get the size.
-            const imaging::Size& getSize() const;
+            const image::Size& getSize() const;
 
             //! Get the pixel type.
-            imaging::PixelType getPixelType() const;
+            image::PixelType getPixelType() const;
 
             //! \name Copy
             //! Copy image data to the texture.
             ///@{
 
-            void copy(const imaging::Image&);
-            void copy(const uint8_t*, const imaging::Info&);
-            void copy(const imaging::Image&, uint16_t x, uint16_t y);
+            void copy(const image::Image&);
+            void copy(const uint8_t*, const image::Info&);
+            void copy(const image::Image&, uint16_t x, uint16_t y);
 
             ///@}
 

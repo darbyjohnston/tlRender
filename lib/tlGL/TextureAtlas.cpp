@@ -73,7 +73,7 @@ namespace tl
                 bool isOccupied() const { return id != 0; }
 
                 std::shared_ptr<BoxPackingNode> insert(
-                    const std::shared_ptr<imaging::Image>&);
+                    const std::shared_ptr<image::Image>&);
             };
 
             BoxPackingNode::BoxPackingNode(
@@ -94,7 +94,7 @@ namespace tl
             }
 
             std::shared_ptr<BoxPackingNode> BoxPackingNode::insert(
-                const std::shared_ptr<imaging::Image>& image)
+                const std::shared_ptr<image::Image>& image)
             {
                 if (isBranch())
                 {
@@ -157,8 +157,8 @@ namespace tl
         struct TextureAtlas::Private
         {
             size_t textureCount = 0;
-            imaging::SizeType textureSize = 0;
-            imaging::PixelType textureType = imaging::PixelType::None;
+            image::SizeType textureSize = 0;
+            image::PixelType textureType = image::PixelType::None;
             int border = 0;
             TextureAtlasID id = 0;
             std::vector<std::shared_ptr<Texture> > textures;
@@ -180,8 +180,8 @@ namespace tl
 
         void TextureAtlas::_init(
             size_t textureCount,
-            imaging::SizeType textureSize,
-            imaging::PixelType textureType,
+            image::SizeType textureSize,
+            image::PixelType textureType,
             timeline::ImageFilter filter,
             int border)
         {
@@ -197,7 +197,7 @@ namespace tl
                 TextureOptions textureOptions;
                 textureOptions.filters.minify = filter;
                 textureOptions.filters.magnify = filter;
-                auto texture = Texture::create(imaging::Info(textureSize, textureSize, textureType), textureOptions);
+                auto texture = Texture::create(image::Info(textureSize, textureSize, textureType), textureOptions);
                 p.textures.push_back(texture);
 
                 auto node = BoxPackingNode::create(border, p.timestampManager);
@@ -219,8 +219,8 @@ namespace tl
 
         std::shared_ptr<TextureAtlas> TextureAtlas::create(
             size_t textureCount,
-            imaging::SizeType textureSize,
-            imaging::PixelType textureType,
+            image::SizeType textureSize,
+            image::PixelType textureType,
             timeline::ImageFilter filter,
             int border)
         {
@@ -239,7 +239,7 @@ namespace tl
             return _p->textureSize;
         }
 
-        imaging::PixelType TextureAtlas::getTextureType() const
+        image::PixelType TextureAtlas::getTextureType() const
         {
             return _p->textureType;
         }
@@ -269,7 +269,7 @@ namespace tl
         }
 
         TextureAtlasID TextureAtlas::addItem(
-            const std::shared_ptr<imaging::Image>& image,
+            const std::shared_ptr<image::Image>& image,
             TextureAtlasItem& out)
         {
             TLRENDER_P();

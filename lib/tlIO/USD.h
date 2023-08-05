@@ -98,8 +98,8 @@ namespace tl
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
                 const io::Options & = io::Options()) override;
-            imaging::Info getWriteInfo(
-                const imaging::Info&,
+            image::Info getWriteInfo(
+                const image::Info&,
                 const io::Options& = io::Options()) const override;
             std::shared_ptr<io::IWrite> write(
                 const file::Path&,

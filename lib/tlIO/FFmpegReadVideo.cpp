@@ -141,50 +141,50 @@ namespace tl
                 {
                 case AV_PIX_FMT_RGB24:
                     _avOutputPixelFormat = _avInputPixelFormat;
-                    _info.pixelType = imaging::PixelType::RGB_U8;
+                    _info.pixelType = image::PixelType::RGB_U8;
                     break;
                 case AV_PIX_FMT_GRAY8:
                     _avOutputPixelFormat = _avInputPixelFormat;
-                    _info.pixelType = imaging::PixelType::L_U8;
+                    _info.pixelType = image::PixelType::L_U8;
                     break;
                 case AV_PIX_FMT_RGBA:
                     _avOutputPixelFormat = _avInputPixelFormat;
-                    _info.pixelType = imaging::PixelType::RGBA_U8;
+                    _info.pixelType = image::PixelType::RGBA_U8;
                     break;
                 case AV_PIX_FMT_YUV420P:
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB24;
-                        _info.pixelType = imaging::PixelType::RGB_U8;
+                        _info.pixelType = image::PixelType::RGB_U8;
                     }
                     else
                     {
                         _avOutputPixelFormat = _avInputPixelFormat;
-                        _info.pixelType = imaging::PixelType::YUV_420P_U8;
+                        _info.pixelType = image::PixelType::YUV_420P_U8;
                     }
                     break;
                 case AV_PIX_FMT_YUV422P:
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB24;
-                        _info.pixelType = imaging::PixelType::RGB_U8;
+                        _info.pixelType = image::PixelType::RGB_U8;
                     }
                     else
                     {
                         _avOutputPixelFormat = _avInputPixelFormat;
-                        _info.pixelType = imaging::PixelType::YUV_422P_U8;
+                        _info.pixelType = image::PixelType::YUV_422P_U8;
                     }
                     break;
                 case AV_PIX_FMT_YUV444P:
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB24;
-                        _info.pixelType = imaging::PixelType::RGB_U8;
+                        _info.pixelType = image::PixelType::RGB_U8;
                     }
                     else
                     {
                         _avOutputPixelFormat = _avInputPixelFormat;
-                        _info.pixelType = imaging::PixelType::YUV_444P_U8;
+                        _info.pixelType = image::PixelType::YUV_444P_U8;
                     }
                     break;
                 case AV_PIX_FMT_YUV420P10BE:
@@ -196,14 +196,14 @@ namespace tl
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB48;
-                        _info.pixelType = imaging::PixelType::RGB_U16;
+                        _info.pixelType = image::PixelType::RGB_U16;
                     }
                     else
                     {
                         //! \todo Use the _info.layout.endian field instead of
                         //! converting endianness.
                         _avOutputPixelFormat = AV_PIX_FMT_YUV420P16LE;
-                        _info.pixelType = imaging::PixelType::YUV_420P_U16;
+                        _info.pixelType = image::PixelType::YUV_420P_U16;
                     }
                     break;
                 case AV_PIX_FMT_YUV422P10BE:
@@ -215,14 +215,14 @@ namespace tl
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB48;
-                        _info.pixelType = imaging::PixelType::RGB_U16;
+                        _info.pixelType = image::PixelType::RGB_U16;
                     }
                     else
                     {
                         //! \todo Use the _info.layout.endian field instead of
                         //! converting endianness.
                         _avOutputPixelFormat = AV_PIX_FMT_YUV422P16LE;
-                        _info.pixelType = imaging::PixelType::YUV_422P_U16;
+                        _info.pixelType = image::PixelType::YUV_422P_U16;
                     }
                     break;
                 case AV_PIX_FMT_YUV444P10BE:
@@ -240,37 +240,37 @@ namespace tl
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB48;
-                        _info.pixelType = imaging::PixelType::RGB_U16;
+                        _info.pixelType = image::PixelType::RGB_U16;
                     }
                     else
                     {
                         //! \todo Use the _info.layout.endian field instead of
                         //! converting endianness.
                         _avOutputPixelFormat = AV_PIX_FMT_YUV444P16LE;
-                        _info.pixelType = imaging::PixelType::YUV_444P_U16;
+                        _info.pixelType = image::PixelType::YUV_444P_U16;
                     }
                     break;
                 default:
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB24;
-                        _info.pixelType = imaging::PixelType::RGB_U8;
+                        _info.pixelType = image::PixelType::RGB_U8;
                     }
                     else
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_YUV420P;
-                        _info.pixelType = imaging::PixelType::YUV_420P_U8;
+                        _info.pixelType = image::PixelType::YUV_420P_U8;
                     }
                     break;
                 }
                 if (_avCodecContext[_avStream]->color_range != AVCOL_RANGE_JPEG)
                 {
-                    _info.videoLevels = imaging::VideoLevels::LegalRange;
+                    _info.videoLevels = image::VideoLevels::LegalRange;
                 }
                 switch (_avCodecParameters[_avStream]->color_space)
                 {
                 case AVCOL_SPC_BT2020_NCL:
-                    _info.yuvCoefficients = imaging::YUVCoefficients::BT2020;
+                    _info.yuvCoefficients = image::YUVCoefficients::BT2020;
                     break;
                 default: break;
                 }
@@ -303,7 +303,7 @@ namespace tl
                         swap(avVideoStream->r_frame_rate));
                 }
         
-                imaging::Tags tags;
+                image::Tags tags;
                 AVDictionaryEntry* tag = nullptr;
                 while ((tag = av_dict_get(_avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
                 {
@@ -433,7 +433,7 @@ namespace tl
             return _avStream != -1;
         }
 
-        const imaging::Info& ReadVideo::getInfo() const
+        const image::Info& ReadVideo::getInfo() const
         {
             return _info;
         }
@@ -443,7 +443,7 @@ namespace tl
             return _timeRange;
         }
 
-        const imaging::Tags& ReadVideo::getTags() const
+        const image::Tags& ReadVideo::getTags() const
         {
             return _tags;
         }
@@ -615,9 +615,9 @@ namespace tl
             return _buffer.empty();
         }
 
-        std::shared_ptr<imaging::Image> ReadVideo::popBuffer()
+        std::shared_ptr<image::Image> ReadVideo::popBuffer()
         {
-            std::shared_ptr<imaging::Image> out;
+            std::shared_ptr<image::Image> out;
             if (!_buffer.empty())
             {
                 out = _buffer.front();
@@ -656,7 +656,7 @@ namespace tl
                 if (time >= currentTime)
                 {
                     //std::cout << "video time: " << time << std::endl;
-                    auto image = imaging::Image::create(_info);
+                    auto image = image::Image::create(_info);
                     
                     auto tags = _tags;
                     AVDictionaryEntry* tag = nullptr;
@@ -664,7 +664,7 @@ namespace tl
                     {
                         tags[tag->key] = tag->value;
                     }
-                    imaging::HDRData hdrData;
+                    image::HDRData hdrData;
                     toHDRData(_avFrame->side_data, _avFrame->nb_side_data, hdrData);
                     tags["hdr"] = nlohmann::json(hdrData).dump();
                     image->setTags(tags);
@@ -678,7 +678,7 @@ namespace tl
             return out;
         }
 
-        void ReadVideo::_copy(const std::shared_ptr<imaging::Image>& image)
+        void ReadVideo::_copy(const std::shared_ptr<image::Image>& image)
         {
             const auto& info = image->getInfo();
             const std::size_t w = info.size.w;

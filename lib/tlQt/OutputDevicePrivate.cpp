@@ -8,13 +8,13 @@ namespace tl
 {
     namespace qt
     {
-        imaging::PixelType getOffscreenType(device::PixelType value)
+        image::PixelType getOffscreenType(device::PixelType value)
         {
-            const std::array<imaging::PixelType, static_cast<size_t>(device::PixelType::Count)> data =
+            const std::array<image::PixelType, static_cast<size_t>(device::PixelType::Count)> data =
             {
-                imaging::PixelType::None,
-                imaging::PixelType::RGBA_U8,
-                imaging::PixelType::RGB_U10
+                image::PixelType::None,
+                image::PixelType::RGBA_U8,
+                image::PixelType::RGB_U10
             };
             return data[static_cast<size_t>(value)];
         }

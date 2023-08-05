@@ -156,7 +156,7 @@ namespace tl
                     }
                     else
                     {
-                        dataByteCount = imaging::getDataByteCount(_info);
+                        dataByteCount = image::getDataByteCount(_info);
                     }
                     if (dataByteCount > fileDataByteCount)
                     {
@@ -167,8 +167,8 @@ namespace tl
 
                     _info.size.w = _header.width;
                     _info.size.h = _header.height;
-                    _info.pixelType = imaging::getIntType(_header.channels, 1 == _header.bytes ? 8 : 16);
-                    if (imaging::PixelType::None == _info.pixelType)
+                    _info.pixelType = image::getIntType(_header.channels, 1 == _header.bytes ? 8 : 16);
+                    if (image::PixelType::None == _info.pixelType)
                     {
                         throw std::runtime_error(string::Format("{0}: {1}").
                             arg(fileName).
@@ -177,7 +177,7 @@ namespace tl
                     _info.layout.endian = memory::Endian::MSB;
                 }
 
-                const imaging::Info& getInfo() const
+                const image::Info& getInfo() const
                 {
                     return _info;
                 }
@@ -188,14 +188,14 @@ namespace tl
                 {
                     io::VideoData out;
                     out.time = time;
-                    out.image = imaging::Image::create(_info);
+                    out.image = image::Image::create(_info);
 
                     const size_t pos = _io->getPos();
                     const size_t size = _io->getSize() - pos;
-                    const size_t channels = imaging::getChannelCount(_info.pixelType);
-                    const size_t bytes = imaging::getBitDepth(_info.pixelType) / 8;
+                    const size_t channels = image::getChannelCount(_info.pixelType);
+                    const size_t bytes = image::getBitDepth(_info.pixelType) / 8;
                     const size_t dataByteCount = out.image->getDataByteCount();
-                    auto tmp = imaging::Image::create(_info);
+                    auto tmp = image::Image::create(_info);
                     if (!_header.storage)
                     {
                         _io->read(tmp->getData(), dataByteCount);
@@ -269,7 +269,7 @@ namespace tl
             private:
                 std::shared_ptr<file::FileIO> _io;
                 Header _header;
-                imaging::Info _info;
+                image::Info _info;
                 std::vector<uint32_t> _rleOffset;
                 std::vector<uint32_t> _rleSize;
             };

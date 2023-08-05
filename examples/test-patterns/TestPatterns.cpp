@@ -17,7 +17,7 @@ namespace tl
         {
             void ITestPattern::_init(
                 const std::string& name,
-                const imaging::Size& size,
+                const image::Size& size,
                 const std::shared_ptr<system::Context>& context)
             {
                 _context = context;
@@ -37,18 +37,18 @@ namespace tl
             }
 
             void CountTestPattern::_init(
-                const imaging::Size& size,
+                const image::Size& size,
                 const std::shared_ptr<system::Context>& context)
             {
                 ITestPattern::_init(getClassName(), size, context);
 
-                auto fontSystem = context->getSystem<imaging::FontSystem>();
-                _secondsFontInfo = imaging::FontInfo(
+                auto fontSystem = context->getSystem<image::FontSystem>();
+                _secondsFontInfo = image::FontInfo(
                     "NotoMono-Regular",
                     _size.h / 2.F);
                 _secondsFontMetrics = fontSystem->getMetrics(_secondsFontInfo);
 
-                _framesFontInfo = imaging::FontInfo(
+                _framesFontInfo = image::FontInfo(
                     "NotoMono-Regular",
                     _secondsFontInfo.size / 4.F);
                 _framesFontMetrics = fontSystem->getMetrics(_framesFontInfo);
@@ -63,7 +63,7 @@ namespace tl
             }
 
             std::shared_ptr<CountTestPattern> CountTestPattern::create(
-                const imaging::Size& size,
+                const image::Size& size,
                 const std::shared_ptr<system::Context>& context)
             {
                 auto out = std::shared_ptr<CountTestPattern>(new CountTestPattern);
@@ -82,7 +82,7 @@ namespace tl
                     const int frames = static_cast<int>(time.value()) % static_cast<int>(time.rate());
 
                     const std::string secondsString = string::Format("{0}").arg(wholeSeconds);
-                    auto fontSystem = context->getSystem<imaging::FontSystem>();
+                    auto fontSystem = context->getSystem<image::FontSystem>();
                     const math::Vector2i secondsSize = fontSystem->getSize(secondsString, _secondsFontInfo);
                     const math::Vector2i secondsPos(
                         _size.w / 2.F - secondsSize.x / 2.F,
@@ -96,14 +96,14 @@ namespace tl
 
                     render->drawRect(
                         math::BBox2i(0, 0, _size.w, _size.h),
-                        imaging::Color4f(.1F, .1F, .1F));
+                        image::Color4f(.1F, .1F, .1F));
 
                     /*render->drawRect(
                         math::BBox2i(secondsPos.x, secondsPos.y, secondsSize.x, secondsSize.y),
-                        imaging::Color4f(.5F, 0.F, 0.F));
+                        image::Color4f(.5F, 0.F, 0.F));
                     render->drawRect(
                         math::BBox2i(framesPos.x, framesPos.y, framesSize.x, framesSize.y),
-                        imaging::Color4f(0.F, .5F, 0.F));*/
+                        image::Color4f(0.F, .5F, 0.F));*/
 
                     const size_t resolution = 100;
                     geom::TriangleMesh2 mesh;
@@ -133,7 +133,7 @@ namespace tl
                     render->drawMesh(
                         mesh,
                         math::Vector2i(),
-                        imaging::Color4f(.2F, .2F, .2F));
+                        image::Color4f(.2F, .2F, .2F));
 
                     mesh.v.clear();
                     mesh.triangles.clear();
@@ -160,28 +160,28 @@ namespace tl
                     render->drawMesh(
                         mesh,
                         math::Vector2i(),
-                        imaging::Color4f(.3F, .3F, .3F));
+                        image::Color4f(.3F, .3F, .3F));
 
                     render->drawText(
                         fontSystem->getGlyphs(secondsString, _secondsFontInfo),
                         math::Vector2i(secondsPos.x, secondsPos.y + _secondsFontMetrics.ascender),
-                        imaging::Color4f(1.F, 1.F, 1.F));
+                        image::Color4f(1.F, 1.F, 1.F));
 
                     render->drawText(
                         fontSystem->getGlyphs(framesString, _framesFontInfo),
                         math::Vector2i(framesPos.x, framesPos.y + _framesFontMetrics.ascender),
-                        imaging::Color4f(1.F, 1.F, 1.F));
+                        image::Color4f(1.F, 1.F, 1.F));
                 }
             }
 
             void SwatchesTestPattern::_init(
-                const imaging::Size& size,
+                const image::Size& size,
                 const std::shared_ptr<system::Context>& context)
             {
                 ITestPattern::_init(getClassName(), size, context);
 
-                const imaging::Info info(_size.w, 1, imaging::PixelType::L_F32);
-                _gradient = imaging::Image::create(info);
+                const image::Info info(_size.w, 1, image::PixelType::L_F32);
+                _gradient = image::Image::create(info);
                 float* data = reinterpret_cast<float*>(_gradient->getData());
                 for (float* p = data, v = 0.F; p < data + _size.w; ++p, v += 1.F / _size.w)
                 {
@@ -198,7 +198,7 @@ namespace tl
             }
 
             std::shared_ptr<SwatchesTestPattern> SwatchesTestPattern::create(
-                const imaging::Size& size,
+                const image::Size& size,
                 const std::shared_ptr<system::Context>& context)
             {
                 auto out = std::shared_ptr<SwatchesTestPattern>(new SwatchesTestPattern);
@@ -210,16 +210,16 @@ namespace tl
                 const std::shared_ptr<timeline::IRender>& render,
                 const otime::RationalTime& time)
             {
-                const std::array<imaging::Color4f, 8> colors =
+                const std::array<image::Color4f, 8> colors =
                 {
-                    imaging::Color4f(0.F, 0.F, 0.F),
-                    imaging::Color4f(1.F, 0.F, 0.F),
-                    imaging::Color4f(1.F, 1.F, 0.F),
-                    imaging::Color4f(0.F, 1.F, 0.F),
-                    imaging::Color4f(0.F, 1.F, 1.F),
-                    imaging::Color4f(0.F, 0.F, 1.F),
-                    imaging::Color4f(1.F, 0.F, 1.F),
-                    imaging::Color4f(1.F, 1.F, 1.F)
+                    image::Color4f(0.F, 0.F, 0.F),
+                    image::Color4f(1.F, 0.F, 0.F),
+                    image::Color4f(1.F, 1.F, 0.F),
+                    image::Color4f(0.F, 1.F, 0.F),
+                    image::Color4f(0.F, 1.F, 1.F),
+                    image::Color4f(0.F, 0.F, 1.F),
+                    image::Color4f(1.F, 0.F, 1.F),
+                    image::Color4f(1.F, 1.F, 1.F)
                 };
                 const int swatchWidth = _size.w / colors.size();
                 for (int x = 0, i = 0; x < _size.w; x += swatchWidth, ++i)
@@ -240,7 +240,7 @@ namespace tl
             }
 
             std::shared_ptr<GridTestPattern> GridTestPattern::create(
-                const imaging::Size& size,
+                const image::Size& size,
                 const std::shared_ptr<system::Context>& context)
             {
                 auto out = std::shared_ptr<GridTestPattern>(new GridTestPattern);
@@ -278,7 +278,7 @@ namespace tl
                     render->drawMesh(
                         mesh,
                         math::Vector2i(),
-                        imaging::Color4f(1.F, 1.F, 1.F));
+                        image::Color4f(1.F, 1.F, 1.F));
                 }
                 {
                     geom::TriangleMesh2 mesh;
@@ -300,13 +300,13 @@ namespace tl
                     render->drawMesh(
                         mesh,
                         math::Vector2i(),
-                        imaging::Color4f(1.F, 1.F, 1.F));
+                        image::Color4f(1.F, 1.F, 1.F));
                 }
             }
 
             std::shared_ptr<ITestPattern> TestPatternFactory::create(
                 const std::string& name,
-                const imaging::Size& size,
+                const image::Size& size,
                 const std::shared_ptr<system::Context>& context)
             {
                 std::shared_ptr<ITestPattern> out;

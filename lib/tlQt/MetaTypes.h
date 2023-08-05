@@ -23,8 +23,8 @@ Q_DECLARE_METATYPE(tl::log::Type);
 
 Q_DECLARE_METATYPE(tl::file::Mode);
 
-Q_DECLARE_METATYPE(tl::imaging::Size);
-Q_DECLARE_METATYPE(tl::imaging::VideoLevels);
+Q_DECLARE_METATYPE(tl::image::Size);
+Q_DECLARE_METATYPE(tl::image::VideoLevels);
 
 Q_DECLARE_METATYPE(tl::memory::Endian);
 

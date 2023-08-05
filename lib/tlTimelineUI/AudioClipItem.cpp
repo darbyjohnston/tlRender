@@ -49,8 +49,8 @@ namespace tl
                 math::Vector2i size;
                 std::future<std::shared_ptr<geom::TriangleMesh2> > meshFuture;
                 std::shared_ptr<geom::TriangleMesh2> mesh;
-                std::future<std::shared_ptr<imaging::Image> > imageFuture;
-                std::shared_ptr<imaging::Image> image;
+                std::future<std::shared_ptr<image::Image> > imageFuture;
+                std::shared_ptr<image::Image> image;
                 std::chrono::steady_clock::time_point time;
             };
             std::map<otime::RationalTime, AudioData> audioData;
@@ -222,11 +222,11 @@ namespace tl
                 return out;
             }
 
-            std::shared_ptr<imaging::Image> audioImage(
+            std::shared_ptr<image::Image> audioImage(
                 const std::shared_ptr<audio::Audio>& audio,
                 const math::Vector2i& size)
             {
-                auto out = imaging::Image::create(size.x, size.y, imaging::PixelType::L_U8);
+                auto out = image::Image::create(size.x, size.y, image::PixelType::L_U8);
                 const auto& info = audio->getInfo();
                 const size_t sampleCount = audio->getSampleCount();
                 if (sampleCount > 0)
@@ -421,7 +421,7 @@ namespace tl
                 _options.waveformHeight);
             event.render->drawRect(
                 bbox,
-                imaging::Color4f(0.F, 0.F, 0.F));
+                image::Color4f(0.F, 0.F, 0.F));
             const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
             const timeline::ClipRectState clipRectState(event.render);
             event.render->setClipRectEnabled(true);
@@ -482,7 +482,7 @@ namespace tl
                                     event.render->drawMesh(
                                         *i->second.mesh,
                                         bbox.min,
-                                        imaging::Color4f(1.F, 1.F, 1.F, a));
+                                        image::Color4f(1.F, 1.F, 1.F, a));
                                 }
                                 break;
                             case WaveformPrim::Image:
@@ -493,7 +493,7 @@ namespace tl
                                     event.render->drawImage(
                                         (i->second).image,
                                         bbox,
-                                        imaging::Color4f(1.F, 1.F, 1.F, a));
+                                        image::Color4f(1.F, 1.F, 1.F, a));
                                 }
                                 break;
                             }

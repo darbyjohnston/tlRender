@@ -31,7 +31,7 @@ namespace tl
 
             //! Start a render.
             virtual void begin(
-                const imaging::Size&,
+                const image::Size&,
                 const ColorConfigOptions& = ColorConfigOptions(),
                 const LUTOptions& = LUTOptions(),
                 const RenderOptions& = RenderOptions()) = 0;
@@ -40,10 +40,10 @@ namespace tl
             virtual void end() = 0;
 
             //! Get the render size.
-            virtual imaging::Size getRenderSize() const = 0;
+            virtual image::Size getRenderSize() const = 0;
 
             //! Set the render size.
-            virtual void setRenderSize(const imaging::Size&) = 0;
+            virtual void setRenderSize(const image::Size&) = 0;
 
             //! Get the viewport.
             virtual math::BBox2i getViewport() const = 0;
@@ -52,7 +52,7 @@ namespace tl
             virtual void setViewport(const math::BBox2i&) = 0;
 
             //! Clear the viewport.
-            virtual void clearViewport(const imaging::Color4f&) = 0;
+            virtual void clearViewport(const image::Color4f&) = 0;
 
             //! Get whether the clipping rectangle is enabled.
             virtual bool getClipRectEnabled() const = 0;
@@ -75,37 +75,37 @@ namespace tl
             //! Draw a rectangle.
             virtual void drawRect(
                 const math::BBox2i&,
-                const imaging::Color4f&) = 0;
+                const image::Color4f&) = 0;
 
             //! Draw a triangle mesh.
             virtual void drawMesh(
                 const geom::TriangleMesh2&,
                 const math::Vector2i& position,
-                const imaging::Color4f&) = 0;
+                const image::Color4f&) = 0;
 
             //! Draw a triangle mesh with vertex color information.
             virtual void drawColorMesh(
                 const geom::TriangleMesh2&,
                 const math::Vector2i& position,
-                const imaging::Color4f&) = 0;
+                const image::Color4f&) = 0;
 
             //! Draw text.
             virtual void drawText(
-                const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
+                const std::vector<std::shared_ptr<image::Glyph> >& glyphs,
                 const math::Vector2i& position,
-                const imaging::Color4f&) = 0;
+                const image::Color4f&) = 0;
 
             //! Draw a texture.
             virtual void drawTexture(
                 unsigned int,
                 const math::BBox2i&,
-                const imaging::Color4f& = imaging::Color4f(1.F, 1.F, 1.F)) = 0;
+                const image::Color4f& = image::Color4f(1.F, 1.F, 1.F)) = 0;
 
             //! Draw an image.
             virtual void drawImage(
-                const std::shared_ptr<imaging::Image>&,
+                const std::shared_ptr<image::Image>&,
                 const math::BBox2i&,
-                const imaging::Color4f& = imaging::Color4f(1.F, 1.F, 1.F),
+                const image::Color4f& = image::Color4f(1.F, 1.F, 1.F),
                 const ImageOptions& = ImageOptions()) = 0;
 
             //! Draw timeline video data.

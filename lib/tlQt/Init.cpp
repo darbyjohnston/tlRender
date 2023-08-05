@@ -71,13 +71,13 @@ namespace tl
             qRegisterMetaType<geom::Vertex2>("tl::geom::Vertex2");
             qRegisterMetaType<geom::Vertex3>("tl::geom::Vertex3");
 
-            qRegisterMetaType<imaging::FontInfo>("tl::imaging::FontInfo");
-            qRegisterMetaType<imaging::FontMetrics>("tl::imaging::FontMetrics");
-            qRegisterMetaType<imaging::GlyphInfo>("tl::imaging::GlyphInfo");
-            qRegisterMetaType<imaging::Glyph>("tl::imaging::Glyph");
-            qRegisterMetaType<imaging::PixelType>("tl::imaging::PixelType");
-            qRegisterMetaType<imaging::Size>("tl::imaging::Size");
-            qRegisterMetaType<imaging::VideoLevels>("tl::imaging::VideoLevels");
+            qRegisterMetaType<image::FontInfo>("tl::image::FontInfo");
+            qRegisterMetaType<image::FontMetrics>("tl::image::FontMetrics");
+            qRegisterMetaType<image::GlyphInfo>("tl::image::GlyphInfo");
+            qRegisterMetaType<image::Glyph>("tl::image::Glyph");
+            qRegisterMetaType<image::PixelType>("tl::image::PixelType");
+            qRegisterMetaType<image::Size>("tl::image::Size");
+            qRegisterMetaType<image::VideoLevels>("tl::image::VideoLevels");
 
             qRegisterMetaType<memory::Endian>("tl::memory::Endian");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))

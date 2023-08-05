@@ -4,7 +4,7 @@
 
 namespace tl
 {
-    namespace imaging
+    namespace image
     {
         inline FontInfo::FontInfo() noexcept
         {}

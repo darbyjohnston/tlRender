@@ -177,11 +177,11 @@ namespace tl
                     _sampleDepth = tiffSampleDepth;
                     _scanlineSize = tiffWidth * tiffSamples * tiffSampleDepth / 8;
 
-                    imaging::PixelType pixelType = imaging::PixelType::None;
+                    image::PixelType pixelType = image::PixelType::None;
                     switch (tiffPhotometric)
                     {
                     case PHOTOMETRIC_PALETTE:
-                        pixelType = imaging::PixelType::RGB_U8;
+                        pixelType = image::PixelType::RGB_U8;
                         break;
                     case PHOTOMETRIC_MINISWHITE:
                     case PHOTOMETRIC_MINISBLACK:
@@ -190,20 +190,20 @@ namespace tl
                             break;
                         if (SAMPLEFORMAT_IEEEFP == tiffSampleFormat)
                         {
-                            pixelType = imaging::getFloatType(tiffSamples, tiffSampleDepth);
+                            pixelType = image::getFloatType(tiffSamples, tiffSampleDepth);
                         }
                         else
                         {
-                            pixelType = imaging::getIntType(tiffSamples, tiffSampleDepth);
+                            pixelType = image::getIntType(tiffSamples, tiffSampleDepth);
                         }
                         break;
                     }
-                    if (imaging::PixelType::None == pixelType)
+                    if (image::PixelType::None == pixelType)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
 
-                    imaging::Info imageInfo(tiffWidth, tiffHeight, pixelType);
+                    image::Info imageInfo(tiffWidth, tiffHeight, pixelType);
                     imageInfo.layout.mirror.y = true;
                     _info.video.push_back(imageInfo);
 
@@ -250,7 +250,7 @@ namespace tl
                     io::VideoData out;
                     out.time = time;
                     const auto& info = _info.video[0];
-                    out.image = imaging::Image::create(info);
+                    out.image = image::Image::create(info);
                     out.image->setTags(_info.tags);
 
                     if (_planar)
@@ -324,7 +324,7 @@ namespace tl
                             readPalette(
                                 p,
                                 info.size.w,
-                                static_cast<int>(imaging::getChannelCount(info.pixelType)),
+                                static_cast<int>(image::getChannelCount(info.pixelType)),
                                 _colormap[0], _colormap[1], _colormap[2]);
                         }
                     }

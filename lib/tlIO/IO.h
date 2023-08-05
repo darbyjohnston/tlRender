@@ -41,7 +41,7 @@ namespace tl
         struct Info
         {
             //! Video layer information.
-            std::vector<imaging::Info> video;
+            std::vector<image::Info> video;
 
             //! Video time range.
             otime::TimeRange videoTime = time::invalidTimeRange;
@@ -53,7 +53,7 @@ namespace tl
             otime::TimeRange audioTime = time::invalidTimeRange;
 
             //! Metadata tags.
-            imaging::Tags tags;
+            image::Tags tags;
 
             bool operator == (const Info&) const;
             bool operator != (const Info&) const;
@@ -66,11 +66,11 @@ namespace tl
             VideoData(
                 const otime::RationalTime&,
                 uint16_t layer,
-                const std::shared_ptr<imaging::Image>&);
+                const std::shared_ptr<image::Image>&);
 
             otime::RationalTime             time = time::invalidTime;
             uint16_t                        layer = 0;
-            std::shared_ptr<imaging::Image> image;
+            std::shared_ptr<image::Image> image;
 
             bool operator == (const VideoData&) const;
             bool operator != (const VideoData&) const;
@@ -173,7 +173,7 @@ namespace tl
             //! Write video data.
             virtual void writeVideo(
                 const otime::RationalTime&,
-                const std::shared_ptr<imaging::Image>&) = 0;
+                const std::shared_ptr<image::Image>&) = 0;
 
         protected:
             Info _info;
@@ -219,8 +219,8 @@ namespace tl
                 const Options& = Options()) = 0;
 
             //! Get information for writing.
-            virtual imaging::Info getWriteInfo(
-                const imaging::Info&,
+            virtual image::Info getWriteInfo(
+                const image::Info&,
                 const Options& = Options()) const = 0;
 
             //! Create a writer for the given path.
@@ -230,7 +230,7 @@ namespace tl
                 const Options& = Options()) = 0;
 
         protected:
-            bool _isWriteCompatible(const imaging::Info&, const Options&) const;
+            bool _isWriteCompatible(const image::Info&, const Options&) const;
 
             std::weak_ptr<log::System> _logSystem;
             Options _options;

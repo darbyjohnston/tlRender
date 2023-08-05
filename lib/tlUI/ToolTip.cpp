@@ -136,7 +136,7 @@ namespace tl
             TLRENDER_P();
             //event.render->drawRect(
             //    _geometry,
-            //    imaging::Color4f(0.F, 0.F, 0.F, .2F));
+            //    image::Color4f(0.F, 0.F, 0.F, .2F));
             const math::BBox2i g = p.label->getGeometry();
             const math::BBox2i g2(
                 g.min.x - p.size.shadow,
@@ -146,7 +146,7 @@ namespace tl
             event.render->drawColorMesh(
                 shadow(g2, p.size.shadow),
                 math::Vector2i(),
-                imaging::Color4f(1.F, 1.F, 1.F));
+                image::Color4f(1.F, 1.F, 1.F));
 
             event.render->drawMesh(
                 border(g.margin(p.size.border), p.size.border),

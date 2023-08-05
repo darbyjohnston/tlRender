@@ -17,11 +17,11 @@ namespace tl
             PieChartData(
                 const std::string&      text,
                 int                     percentage,
-                const imaging::Color4f& color);
+                const image::Color4f& color);
 
             std::string      text;
             int              percentage;
-            imaging::Color4f color;
+            image::Color4f color;
 
             bool operator == (const PieChartData&) const;
             bool operator != (const PieChartData&) const;

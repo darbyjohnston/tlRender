@@ -193,12 +193,12 @@ namespace tl
             }
             switch (videoInfo.pixelType)
             {
-            case imaging::PixelType::L_U8:     p.avPixelFormatIn = AV_PIX_FMT_GRAY8;  break;
-            case imaging::PixelType::RGB_U8:   p.avPixelFormatIn = AV_PIX_FMT_RGB24;  break;
-            case imaging::PixelType::RGBA_U8:  p.avPixelFormatIn = AV_PIX_FMT_RGBA;   break;
-            case imaging::PixelType::L_U16:    p.avPixelFormatIn = AV_PIX_FMT_GRAY16; break;
-            case imaging::PixelType::RGB_U16:  p.avPixelFormatIn = AV_PIX_FMT_RGB48;  break;
-            case imaging::PixelType::RGBA_U16: p.avPixelFormatIn = AV_PIX_FMT_RGBA64; break;
+            case image::PixelType::L_U8:     p.avPixelFormatIn = AV_PIX_FMT_GRAY8;  break;
+            case image::PixelType::RGB_U8:   p.avPixelFormatIn = AV_PIX_FMT_RGB24;  break;
+            case image::PixelType::RGBA_U8:  p.avPixelFormatIn = AV_PIX_FMT_RGBA;   break;
+            case image::PixelType::L_U16:    p.avPixelFormatIn = AV_PIX_FMT_GRAY16; break;
+            case image::PixelType::RGB_U16:  p.avPixelFormatIn = AV_PIX_FMT_RGB48;  break;
+            case image::PixelType::RGBA_U16: p.avPixelFormatIn = AV_PIX_FMT_RGBA64; break;
             default:
                 throw std::runtime_error(string::Format("{0}: Incompatible pixel type").arg(p.fileName));
                 break;
@@ -294,7 +294,7 @@ namespace tl
 
         void Write::writeVideo(
             const otime::RationalTime& time,
-            const std::shared_ptr<imaging::Image>& image)
+            const std::shared_ptr<image::Image>& image)
         {
             TLRENDER_P();
 
@@ -311,11 +311,11 @@ namespace tl
             // Flip the image vertically.
             switch (info.pixelType)
             {
-            case imaging::PixelType::L_U8:
-            case imaging::PixelType::RGB_U8:
-            case imaging::PixelType::RGBA_U8:
+            case image::PixelType::L_U8:
+            case image::PixelType::RGB_U8:
+            case image::PixelType::RGBA_U8:
             {
-                const size_t channelCount = imaging::getChannelCount(info.pixelType);
+                const size_t channelCount = image::getChannelCount(info.pixelType);
                 for (size_t i = 0; i < channelCount; i++)
                 {
                     p.avFrame2->data[i] += p.avFrame2->linesize[i] * (info.size.h - 1);
@@ -323,12 +323,12 @@ namespace tl
                 }
                 break;
             }
-            case imaging::PixelType::YUV_420P_U8:
-            case imaging::PixelType::YUV_422P_U8:
-            case imaging::PixelType::YUV_444P_U8:
-            case imaging::PixelType::YUV_420P_U16:
-            case imaging::PixelType::YUV_422P_U16:
-            case imaging::PixelType::YUV_444P_U16:
+            case image::PixelType::YUV_420P_U8:
+            case image::PixelType::YUV_422P_U8:
+            case image::PixelType::YUV_444P_U8:
+            case image::PixelType::YUV_420P_U16:
+            case image::PixelType::YUV_422P_U16:
+            case image::PixelType::YUV_444P_U16:
                 //! \bug How do we flip YUV data?
                 throw std::runtime_error(string::Format("{0}: Incompatible pixel type").arg(p.fileName));
                 break;

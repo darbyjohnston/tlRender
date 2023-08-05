@@ -47,37 +47,37 @@ namespace tl
             return out;
         }
 
-        imaging::Color4f getMarkerColor(const std::string& value)
+        image::Color4f getMarkerColor(const std::string& value)
         {
-            const std::map<std::string, imaging::Color4f> colors =
+            const std::map<std::string, image::Color4f> colors =
             {
                 //! \bug The OTIO marker variables are causing undefined
                 //! symbol errors on Linux and macOS.
-                /*{otio::Marker::Color::pink, imaging::Color4f(1.F, .752F, .796F)},
-                { otio::Marker::Color::red, imaging::Color4f(1.F, 0.F, 0.F) },
-                { otio::Marker::Color::orange, imaging::Color4f(1.F, .75F, 0.F) },
-                { otio::Marker::Color::yellow, imaging::Color4f(1.F, 1.F, 0.F) },
-                { otio::Marker::Color::green, imaging::Color4f(0.F, 1.F, 0.F) },
-                { otio::Marker::Color::cyan, imaging::Color4f(0.F, 1.F, 1.F) },
-                { otio::Marker::Color::blue, imaging::Color4f(0.F, 0.F, 1.F) },
-                { otio::Marker::Color::purple, imaging::Color4f(0.5F, 0.F, .5F) },
-                { otio::Marker::Color::magenta, imaging::Color4f(1.F, 0.F, 1.F) },
-                { otio::Marker::Color::black, imaging::Color4f(0.F, 0.F, 0.F) },
-                { otio::Marker::Color::white, imaging::Color4f(1.F, 1.F, 1.F) }*/
-                { "PINK", imaging::Color4f(1.F, .752F, .796F)},
-                { "RED", imaging::Color4f(1.F, 0.F, 0.F)},
-                { "ORANGE", imaging::Color4f(1.F, .75F, 0.F) },
-                { "YELLOW", imaging::Color4f(1.F, 1.F, 0.F)},
-                { "GREEN", imaging::Color4f(0.F, 1.F, 0.F) },
-                { "CYAN", imaging::Color4f(0.F, 1.F, 1.F)},
-                { "BLUE", imaging::Color4f(0.F, 0.F, 1.F)},
-                { "PURPLE", imaging::Color4f(0.5F, 0.F, .5F)},
-                { "MAGENTA", imaging::Color4f(1.F, 0.F, 1.F)},
-                { "BLACK", imaging::Color4f(0.F, 0.F, 0.F)},
-                { "WHITE", imaging::Color4f(1.F, 1.F, 1.F)}
+                /*{otio::Marker::Color::pink, image::Color4f(1.F, .752F, .796F)},
+                { otio::Marker::Color::red, image::Color4f(1.F, 0.F, 0.F) },
+                { otio::Marker::Color::orange, image::Color4f(1.F, .75F, 0.F) },
+                { otio::Marker::Color::yellow, image::Color4f(1.F, 1.F, 0.F) },
+                { otio::Marker::Color::green, image::Color4f(0.F, 1.F, 0.F) },
+                { otio::Marker::Color::cyan, image::Color4f(0.F, 1.F, 1.F) },
+                { otio::Marker::Color::blue, image::Color4f(0.F, 0.F, 1.F) },
+                { otio::Marker::Color::purple, image::Color4f(0.5F, 0.F, .5F) },
+                { otio::Marker::Color::magenta, image::Color4f(1.F, 0.F, 1.F) },
+                { otio::Marker::Color::black, image::Color4f(0.F, 0.F, 0.F) },
+                { otio::Marker::Color::white, image::Color4f(1.F, 1.F, 1.F) }*/
+                { "PINK", image::Color4f(1.F, .752F, .796F)},
+                { "RED", image::Color4f(1.F, 0.F, 0.F)},
+                { "ORANGE", image::Color4f(1.F, .75F, 0.F) },
+                { "YELLOW", image::Color4f(1.F, 1.F, 0.F)},
+                { "GREEN", image::Color4f(0.F, 1.F, 0.F) },
+                { "CYAN", image::Color4f(0.F, 1.F, 1.F)},
+                { "BLUE", image::Color4f(0.F, 0.F, 1.F)},
+                { "PURPLE", image::Color4f(0.5F, 0.F, .5F)},
+                { "MAGENTA", image::Color4f(1.F, 0.F, 1.F)},
+                { "BLACK", image::Color4f(0.F, 0.F, 0.F)},
+                { "WHITE", image::Color4f(1.F, 1.F, 1.F)}
             };
             const auto i = colors.find(value);
-            return i != colors.end() ? i->second : imaging::Color4f();
+            return i != colors.end() ? i->second : image::Color4f();
         }
 
         struct IItem::Private

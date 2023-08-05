@@ -46,7 +46,7 @@ namespace tl
             PixelType getPixelType() const;
 
             //! Get the output device size.
-            const imaging::Size& getSize() const;
+            const image::Size& getSize() const;
 
             //! Get the output device frame rate.
             const otime::RationalTime& getFrameRate() const;
@@ -73,7 +73,7 @@ namespace tl
             int _deviceIndex = 0;
             int _displayModeIndex = 0;
             PixelType _pixelType = PixelType::None;
-            imaging::Size _size;
+            image::Size _size;
             otime::RationalTime _frameRate;
         };
     }

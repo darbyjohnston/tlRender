@@ -48,7 +48,7 @@ namespace tl
                     }
 
                     QOpenGLFramebufferObject* fbo = framebufferObject();
-                    const imaging::Size size(fbo->width(), fbo->height());
+                    const image::Size size(fbo->width(), fbo->height());
                     _render->begin(size);
                     _render->drawVideo(
                         { _videoData },

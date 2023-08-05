@@ -4,7 +4,7 @@
 
 namespace tl
 {
-    namespace imaging
+    namespace image
     {
         inline bool HDRData::operator == (const HDRData& other) const noexcept
         {

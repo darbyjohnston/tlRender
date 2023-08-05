@@ -6,7 +6,7 @@
 
 namespace tl
 {
-    namespace imaging
+    namespace image
     {
         constexpr Size::Size() noexcept
         {}

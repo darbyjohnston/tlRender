@@ -86,9 +86,9 @@ namespace tl
             io::Info info;
             read(io, info);
 
-            out.image = imaging::Image::create(info.video[0]);
+            out.image = image::Image::create(info.video[0]);
             out.image->setTags(info.tags);
-            io->read(out.image->getData(), imaging::getDataByteCount(info.video[0]));
+            io->read(out.image->getData(), image::getDataByteCount(info.video[0]));
             return out;
         }
     }

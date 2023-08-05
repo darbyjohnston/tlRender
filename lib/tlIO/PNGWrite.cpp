@@ -19,7 +19,7 @@ namespace tl
                 FILE* f,
                 png_structp png,
                 png_infop* pngInfo,
-                const imaging::Info& info)
+                const image::Info& info)
             {
                 if (setjmp(png_jmpbuf(png)))
                 {
@@ -35,26 +35,26 @@ namespace tl
                 int colorType = 0;
                 switch (info.pixelType)
                 {
-                case imaging::PixelType::L_U8:
-                case imaging::PixelType::L_U16:
+                case image::PixelType::L_U8:
+                case image::PixelType::L_U16:
                     colorType = PNG_COLOR_TYPE_GRAY;
                     break;
-                case imaging::PixelType::LA_U8:
-                case imaging::PixelType::LA_U16:
+                case image::PixelType::LA_U8:
+                case image::PixelType::LA_U16:
                     colorType = PNG_COLOR_TYPE_GRAY_ALPHA;
                     break;
-                case imaging::PixelType::RGB_U8:
-                case imaging::PixelType::RGB_U16:
+                case image::PixelType::RGB_U8:
+                case image::PixelType::RGB_U16:
                     colorType = PNG_COLOR_TYPE_RGB;
                     break;
-                case imaging::PixelType::RGBA_U8:
-                case imaging::PixelType::RGBA_U16:
+                case image::PixelType::RGBA_U8:
+                case image::PixelType::RGBA_U16:
                     colorType = PNG_COLOR_TYPE_RGB_ALPHA;
                     break;
                 default: break;
                 }
 
-                const int bitDepth = imaging::getBitDepth(info.pixelType);
+                const int bitDepth = image::getBitDepth(info.pixelType);
                 png_set_IHDR(
                     png,
                     *pngInfo,
@@ -96,7 +96,7 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const std::shared_ptr<imaging::Image>& image)
+                    const std::shared_ptr<image::Image>& image)
                 {
                     _png.p = png_create_write_struct(
                         PNG_LIBPNG_VER_STRING,
@@ -131,17 +131,17 @@ namespace tl
                     size_t scanlineByteCount = 0;
                     switch (info.pixelType)
                     {
-                    case imaging::PixelType::L_U8: scanlineByteCount = info.size.w; break;
-                    case imaging::PixelType::L_U16: scanlineByteCount = static_cast<size_t>(info.size.w) * 2; break;
-                    case imaging::PixelType::LA_U8: scanlineByteCount = static_cast<size_t>(info.size.w) * 2; break;
-                    case imaging::PixelType::LA_U16: scanlineByteCount = static_cast<size_t>(info.size.w) * 2 * 2; break;
-                    case imaging::PixelType::RGB_U8: scanlineByteCount = static_cast<size_t>(info.size.w) * 3; break;
-                    case imaging::PixelType::RGB_U16: scanlineByteCount = static_cast<size_t>(info.size.w) * 3 * 2; break;
-                    case imaging::PixelType::RGBA_U8: scanlineByteCount = static_cast<size_t>(info.size.w) * 4; break;
-                    case imaging::PixelType::RGBA_U16: scanlineByteCount = static_cast<size_t>(info.size.w) * 4 * 2; break;
+                    case image::PixelType::L_U8: scanlineByteCount = info.size.w; break;
+                    case image::PixelType::L_U16: scanlineByteCount = static_cast<size_t>(info.size.w) * 2; break;
+                    case image::PixelType::LA_U8: scanlineByteCount = static_cast<size_t>(info.size.w) * 2; break;
+                    case image::PixelType::LA_U16: scanlineByteCount = static_cast<size_t>(info.size.w) * 2 * 2; break;
+                    case image::PixelType::RGB_U8: scanlineByteCount = static_cast<size_t>(info.size.w) * 3; break;
+                    case image::PixelType::RGB_U16: scanlineByteCount = static_cast<size_t>(info.size.w) * 3 * 2; break;
+                    case image::PixelType::RGBA_U8: scanlineByteCount = static_cast<size_t>(info.size.w) * 4; break;
+                    case image::PixelType::RGBA_U16: scanlineByteCount = static_cast<size_t>(info.size.w) * 4 * 2; break;
                     default: break;
                     }
-                    scanlineByteCount = imaging::getAlignedByteCount(scanlineByteCount, info.layout.alignment);
+                    scanlineByteCount = image::getAlignedByteCount(scanlineByteCount, info.layout.alignment);
                     const uint8_t* p = image->getData() + (info.size.h - 1) * scanlineByteCount;
                     for (uint16_t y = 0; y < info.size.h; ++y, p -= scanlineByteCount)
                     {
@@ -219,7 +219,7 @@ namespace tl
         void Write::_writeVideo(
             const std::string& fileName,
             const otime::RationalTime&,
-            const std::shared_ptr<imaging::Image>& image)
+            const std::shared_ptr<image::Image>& image)
         {
             const auto f = File(fileName, image);
         }

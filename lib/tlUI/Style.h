@@ -85,7 +85,7 @@ namespace tl
         TLRENDER_ENUM_SERIALIZE(ColorRole);
 
         //! Get default color roles.
-        std::map<ColorRole, imaging::Color4f> defaultColorRoles();
+        std::map<ColorRole, image::Color4f> defaultColorRoles();
 
         //! Font roles.
         enum class FontRole
@@ -102,7 +102,7 @@ namespace tl
         TLRENDER_ENUM_SERIALIZE(FontRole);
 
         //! Get default font roles.
-        std::map<FontRole, imaging::FontInfo> defaultFontRoles();
+        std::map<FontRole, image::FontInfo> defaultFontRoles();
 
         //! Style.
         class Style : public std::enable_shared_from_this<Style>
@@ -132,30 +132,30 @@ namespace tl
             void setSizeRoles(const std::map<SizeRole, int>&);
 
             //! Get a color role.
-            imaging::Color4f getColorRole(ColorRole) const;
+            image::Color4f getColorRole(ColorRole) const;
 
             //! Set a color role.
-            void setColorRole(ColorRole, const imaging::Color4f&);
+            void setColorRole(ColorRole, const image::Color4f&);
 
             //! Set the color roles.
-            void setColorRoles(const std::map<ColorRole, imaging::Color4f>&);
+            void setColorRoles(const std::map<ColorRole, image::Color4f>&);
 
             //! Get a font role.
-            imaging::FontInfo getFontRole(FontRole, float scale) const;
+            image::FontInfo getFontRole(FontRole, float scale) const;
 
             //! Set a font role.
-            void setFontRole(FontRole, const imaging::FontInfo&);
+            void setFontRole(FontRole, const image::FontInfo&);
 
             //! Set the font roles.
-            void setFontRoles(const std::map<FontRole, imaging::FontInfo>&);
+            void setFontRoles(const std::map<FontRole, image::FontInfo>&);
 
             //! Observe style changes.
             std::shared_ptr<observer::IValue<bool> > observeChanged() const;
 
         private:
             std::map<SizeRole, int> _sizeRoles;
-            std::map<ColorRole, imaging::Color4f> _colorRoles;
-            std::map<FontRole, imaging::FontInfo> _fontRoles;
+            std::map<ColorRole, image::Color4f> _colorRoles;
+            std::map<FontRole, image::FontInfo> _fontRoles;
 
             TLRENDER_PRIVATE();
         };
@@ -163,9 +163,9 @@ namespace tl
         //! \name Serialize
         ///@{
 
-        void to_json(nlohmann::json&, const std::map<ColorRole, imaging::Color4f>&);
+        void to_json(nlohmann::json&, const std::map<ColorRole, image::Color4f>&);
 
-        void from_json(const nlohmann::json&, std::map<ColorRole, imaging::Color4f>&);
+        void from_json(const nlohmann::json&, std::map<ColorRole, image::Color4f>&);
 
         ///@}
     }

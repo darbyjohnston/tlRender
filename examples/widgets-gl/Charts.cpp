@@ -33,19 +33,19 @@ namespace tl
                 auto pieChart0 = ui::PieChart::create(context);
                 pieChart0->setData(
                     {
-                        ui::PieChartData("0-20", 35, imaging::Color4f(.01F, .1F, .37F)),
-                        ui::PieChartData("20-40", 25, imaging::Color4f(1.F, .73F, .27F)),
-                        ui::PieChartData("40-60", 15, imaging::Color4f(78.F, .5F, 0.F)),
-                        ui::PieChartData("60-80", 25, imaging::Color4f(1.F, .39F, .15F))
+                        ui::PieChartData("0-20", 35, image::Color4f(.01F, .1F, .37F)),
+                        ui::PieChartData("20-40", 25, image::Color4f(1.F, .73F, .27F)),
+                        ui::PieChartData("40-60", 15, image::Color4f(78.F, .5F, 0.F)),
+                        ui::PieChartData("60-80", 25, image::Color4f(1.F, .39F, .15F))
                     });
                 auto pieChart1 = ui::PieChart::create(context);
                 pieChart1->setData(
                     {
-                        ui::PieChartData("Front", 20, imaging::Color4f(.92F, .5F, 0.F)),
-                        ui::PieChartData("Side", 15, imaging::Color4f(.93F, .62F, .01F)),
-                        ui::PieChartData("Back", 10, imaging::Color4f(.13F, .3F, .44F)),
-                        ui::PieChartData("Above", 25, imaging::Color4f(.07F, .48F, .53F)),
-                        ui::PieChartData("Below", 30, imaging::Color4f(.67F, .92F, .93F))
+                        ui::PieChartData("Front", 20, image::Color4f(.92F, .5F, 0.F)),
+                        ui::PieChartData("Side", 15, image::Color4f(.93F, .62F, .01F)),
+                        ui::PieChartData("Back", 10, image::Color4f(.13F, .3F, .44F)),
+                        ui::PieChartData("Above", 25, image::Color4f(.07F, .48F, .53F)),
+                        ui::PieChartData("Below", 30, image::Color4f(.67F, .92F, .93F))
                     });
                 pieChart1->setSizeMult(10);
 

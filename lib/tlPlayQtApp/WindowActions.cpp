@@ -32,17 +32,17 @@ namespace tl
 
             p.app = app;
 
-            const std::vector<imaging::Size> sizes =
+            const std::vector<image::Size> sizes =
             {
-                imaging::Size(1280, 720),
-                imaging::Size(1280, 720),
-                imaging::Size(1920, 1080)
+                image::Size(1280, 720),
+                image::Size(1280, 720),
+                image::Size(1920, 1080)
             };
             for (const auto& i : sizes)
             {
                 const QString key = QString("Resize/%1x%2").arg(i.w).arg(i.h);
                 p.actions[key] = new QAction(parent);
-                p.actions[key]->setData(QVariant::fromValue<imaging::Size>(i));
+                p.actions[key]->setData(QVariant::fromValue<image::Size>(i));
                 p.actions[key]->setText(QString("%1x%2").arg(i.w).arg(i.h));
             }
             p.actionGroups["Resize"] = new QActionGroup(this);
@@ -95,7 +95,7 @@ namespace tl
                 &QActionGroup::triggered,
                 [this](QAction* action)
                 {
-                    Q_EMIT resize(action->data().value<imaging::Size>());
+                    Q_EMIT resize(action->data().value<image::Size>());
                 });
         }
 

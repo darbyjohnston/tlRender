@@ -46,7 +46,7 @@ namespace tl
         AVRational swap(AVRational);
 
         //! Convert to HDR data.
-        void toHDRData(AVFrameSideData**, int size, imaging::HDRData&);
+        void toHDRData(AVFrameSideData**, int size, image::HDRData&);
 
         //! Convert from FFmpeg.
         audio::DataType toAudioType(AVSampleFormat);
@@ -135,7 +135,7 @@ namespace tl
 
             void writeVideo(
                 const otime::RationalTime&,
-                const std::shared_ptr<imaging::Image>&) override;
+                const std::shared_ptr<image::Image>&) override;
 
         private:
             void _encodeVideo(AVFrame*);
@@ -162,8 +162,8 @@ namespace tl
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
                 const io::Options & = io::Options()) override;
-            imaging::Info getWriteInfo(
-                const imaging::Info&,
+            image::Info getWriteInfo(
+                const image::Info&,
                 const io::Options& = io::Options()) const override;
             std::shared_ptr<io::IWrite> write(
                 const file::Path&,

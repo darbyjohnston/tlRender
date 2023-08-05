@@ -29,7 +29,7 @@ namespace tl
             "10BitRGBXLE");
         TLRENDER_ENUM_SERIALIZE_IMPL(PixelType);
 
-        size_t getDataByteCount(const imaging::Size& size, PixelType pixelType)
+        size_t getDataByteCount(const image::Size& size, PixelType pixelType)
         {
             size_t out = 0;
             switch (pixelType)
@@ -46,7 +46,7 @@ namespace tl
         }
 
         void PixelData::_init(
-            const imaging::Size& size,
+            const image::Size& size,
             PixelType pixelType,
             const otime::RationalTime& time)
         {
@@ -66,7 +66,7 @@ namespace tl
         }
 
         std::shared_ptr<PixelData> PixelData::create(
-            const imaging::Size& size,
+            const image::Size& size,
             PixelType pixelType,
             const otime::RationalTime& time)
         {
@@ -75,7 +75,7 @@ namespace tl
             return out;
         }
 
-        const imaging::Size& PixelData::getSize() const
+        const image::Size& PixelData::getSize() const
         {
             return _size;
         }
@@ -115,12 +115,12 @@ namespace tl
             std::memset(_data, 0, _dataByteCount);
         }
 
-        const std::shared_ptr<imaging::HDRData>& PixelData::getHDRData() const
+        const std::shared_ptr<image::HDRData>& PixelData::getHDRData() const
         {
             return _hdrData;
         }
 
-        void PixelData::setHDRData(const std::shared_ptr<imaging::HDRData>& value)
+        void PixelData::setHDRData(const std::shared_ptr<image::HDRData>& value)
         {
             _hdrData = value;
         }
@@ -141,9 +141,9 @@ namespace tl
             "Custom");
         TLRENDER_ENUM_SERIALIZE_IMPL(HDRMode);
 
-        std::shared_ptr<imaging::HDRData> getHDRData(const timeline::VideoData& videoData)
+        std::shared_ptr<image::HDRData> getHDRData(const timeline::VideoData& videoData)
         {
-            std::shared_ptr<imaging::HDRData> out;
+            std::shared_ptr<image::HDRData> out;
             for (const auto& layer : videoData.layers)
             {
                 if (layer.image)
@@ -152,7 +152,7 @@ namespace tl
                     const auto k = tags.find("hdr");
                     if (k != tags.end())
                     {
-                        out = std::shared_ptr<imaging::HDRData>(new imaging::HDRData);
+                        out = std::shared_ptr<image::HDRData>(new image::HDRData);
                         try
                         {
                             auto json = nlohmann::json::parse(k->second);

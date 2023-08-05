@@ -240,7 +240,7 @@ namespace tl
             io->read(&out.film, sizeof(Header::Film));
 
             // Convert the endian if necessary.
-            imaging::Info imageInfo;
+            image::Info imageInfo;
             if (convertEndian)
             {
                 io->setEndianConversion(true);
@@ -283,7 +283,7 @@ namespace tl
                 switch (out.image.channel[0].bitDepth)
                 {
                 case 10:
-                    imageInfo.pixelType = imaging::PixelType::RGB_U10;
+                    imageInfo.pixelType = image::PixelType::RGB_U10;
                     imageInfo.layout.alignment = 4;
                     break;
                 default: break;
@@ -291,7 +291,7 @@ namespace tl
                 break;
             default: break;
             }
-            if (imaging::PixelType::None == imageInfo.pixelType)
+            if (image::PixelType::None == imageInfo.pixelType)
             {
                 throw std::runtime_error(string::Format("{0}: {1}").
                     arg(io->getFileName()).
@@ -310,7 +310,7 @@ namespace tl
                     arg("Unsupported channel padding"));
             }
 
-            if (io->getSize() - out.file.imageOffset != imaging::getDataByteCount(imageInfo))
+            if (io->getSize() - out.file.imageOffset != image::getDataByteCount(imageInfo))
             {
                 throw std::runtime_error(string::Format("{0}: {1}").
                     arg(io->getFileName()).
@@ -456,10 +456,10 @@ namespace tl
 
                 switch (bitDepth)
                 {
-                case  8: header.image.channel[i].highData = imaging::U8Range.getMax();  break;
-                case 10: header.image.channel[i].highData = imaging::U10Range.getMax(); break;
-                case 12: header.image.channel[i].highData = imaging::U12Range.getMax(); break;
-                case 16: header.image.channel[i].highData = imaging::U16Range.getMax(); break;
+                case  8: header.image.channel[i].highData = image::U8Range.getMax();  break;
+                case 10: header.image.channel[i].highData = image::U10Range.getMax(); break;
+                case 12: header.image.channel[i].highData = image::U12Range.getMax(); break;
+                case 16: header.image.channel[i].highData = image::U16Range.getMax(); break;
                 default: break;
                 }
             }
@@ -622,15 +622,15 @@ namespace tl
             return Read::create(path, memory, io::merge(options, _options), _logSystem);
         }
 
-        imaging::Info Plugin::getWriteInfo(
-            const imaging::Info& info,
+        image::Info Plugin::getWriteInfo(
+            const image::Info& info,
             const io::Options& options) const
         {
-            imaging::Info out;
+            image::Info out;
             out.size = info.size;
             switch (info.pixelType)
             {
-            case imaging::PixelType::RGB_U10:
+            case image::PixelType::RGB_U10:
                 out.pixelType = info.pixelType;
                 break;
             default: break;

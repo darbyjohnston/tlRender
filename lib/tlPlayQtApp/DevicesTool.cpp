@@ -185,7 +185,7 @@ namespace tl
                 QOverload<int>::of(&QComboBox::activated),
                 [this](int value)
                 {
-                    _p->app->devicesModel()->setVideoLevels(static_cast<imaging::VideoLevels>(value));
+                    _p->app->devicesModel()->setVideoLevels(static_cast<image::VideoLevels>(value));
                 });
 
             connect(
@@ -350,7 +350,7 @@ namespace tl
                     {
                         QSignalBlocker blocker(_p->videoLevelsComboBox);
                         _p->videoLevelsComboBox->clear();
-                        for (const auto& i : imaging::getVideoLevelsEnums())
+                        for (const auto& i : image::getVideoLevelsEnums())
                         {
                             std::stringstream ss;
                             ss << i;

@@ -28,8 +28,8 @@ namespace tl
             bool jpegOpen(
                 FILE* f,
                 jpeg_compress_struct* jpeg,
-                const imaging::Info& info,
-                const imaging::Tags& tags,
+                const image::Info& info,
+                const image::Tags& tags,
                 int quality,
                 ErrorStruct* error)
             {
@@ -40,12 +40,12 @@ namespace tl
                 jpeg_stdio_dest(jpeg, f);
                 jpeg->image_width = info.size.w;
                 jpeg->image_height = info.size.h;
-                if (imaging::PixelType::L_U8 == info.pixelType)
+                if (image::PixelType::L_U8 == info.pixelType)
                 {
                     jpeg->input_components = 1;
                     jpeg->in_color_space = JCS_GRAYSCALE;
                 }
-                else if (imaging::PixelType::RGB_U8 == info.pixelType)
+                else if (image::PixelType::RGB_U8 == info.pixelType)
                 {
                     jpeg->input_components = 3;
                     jpeg->in_color_space = JCS_RGB;
@@ -97,7 +97,7 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const std::shared_ptr<imaging::Image>& image,
+                    const std::shared_ptr<image::Image>& image,
                     int quality)
                 {
                     std::memset(&_jpeg.compress, 0, sizeof(jpeg_compress_struct));
@@ -130,11 +130,11 @@ namespace tl
                     size_t scanlineByteCount = 0;
                     switch (info.pixelType)
                     {
-                    case imaging::PixelType::L_U8: scanlineByteCount = info.size.w; break;
-                    case imaging::PixelType::RGB_U8: scanlineByteCount = static_cast<size_t>(info.size.w) * 3; break;
+                    case image::PixelType::L_U8: scanlineByteCount = info.size.w; break;
+                    case image::PixelType::RGB_U8: scanlineByteCount = static_cast<size_t>(info.size.w) * 3; break;
                     default: break;
                     }
-                    scanlineByteCount = imaging::getAlignedByteCount(scanlineByteCount, info.layout.alignment);
+                    scanlineByteCount = image::getAlignedByteCount(scanlineByteCount, info.layout.alignment);
                     const uint8_t* imageP = image->getData() + (info.size.h - 1) * scanlineByteCount;
                     for (uint16_t y = 0; y < info.size.h; ++y, imageP -= scanlineByteCount)
                     {
@@ -213,7 +213,7 @@ namespace tl
         void Write::_writeVideo(
             const std::string& fileName,
             const otime::RationalTime&,
-            const std::shared_ptr<imaging::Image>& image)
+            const std::shared_ptr<image::Image>& image)
         {
             const auto f = File(fileName, image, _quality);
         }

@@ -33,12 +33,12 @@ namespace tl
             TickEvent(
                 const std::shared_ptr<Style>&               style,
                 const std::shared_ptr<IconLibrary>&         iconLibrary,
-                const std::shared_ptr<imaging::FontSystem>& fontSystem,
+                const std::shared_ptr<image::FontSystem>& fontSystem,
                 float                                       displayScale);
 
             std::shared_ptr<Style>               style;
             std::shared_ptr<IconLibrary>         iconLibrary;
-            std::shared_ptr<imaging::FontSystem> fontSystem;
+            std::shared_ptr<image::FontSystem> fontSystem;
             float                                displayScale = 1.F;
         };
 
@@ -49,16 +49,16 @@ namespace tl
             SizeHintEvent(
                 const std::shared_ptr<Style>&               style,
                 const std::shared_ptr<IconLibrary>&         iconLibrary,
-                const std::shared_ptr<imaging::FontSystem>& fontSystem,
+                const std::shared_ptr<image::FontSystem>& fontSystem,
                 float                                       displayScale);
 
             std::shared_ptr<Style>                   style;
             std::shared_ptr<IconLibrary>             iconLibrary;
-            std::shared_ptr<imaging::FontSystem>     fontSystem;
-            std::map<FontRole, imaging::FontMetrics> fontMetrics;
+            std::shared_ptr<image::FontSystem>     fontSystem;
+            std::map<FontRole, image::FontMetrics> fontMetrics;
             float                                    displayScale = 1.F;
 
-            imaging::FontMetrics getFontMetrics(FontRole) const;
+            image::FontMetrics getFontMetrics(FontRole) const;
         };
 
         //! Clip event.
@@ -68,16 +68,16 @@ namespace tl
             ClipEvent(
                 const std::shared_ptr<Style>&               style,
                 const std::shared_ptr<IconLibrary>&         iconLibrary,
-                const std::shared_ptr<imaging::FontSystem>& fontSystem,
+                const std::shared_ptr<image::FontSystem>& fontSystem,
                 float                                       displayScale);
 
             std::shared_ptr<Style>                   style;
             std::shared_ptr<IconLibrary>             iconLibrary;
-            std::shared_ptr<imaging::FontSystem>     fontSystem;
-            std::map<FontRole, imaging::FontMetrics> fontMetrics;
+            std::shared_ptr<image::FontSystem>     fontSystem;
+            std::map<FontRole, image::FontMetrics> fontMetrics;
             float                                    displayScale = 1.F;
 
-            imaging::FontMetrics getFontMetrics(FontRole) const;
+            image::FontMetrics getFontMetrics(FontRole) const;
         };
 
         //! Draw event.
@@ -88,17 +88,17 @@ namespace tl
                 const std::shared_ptr<Style>&               style,
                 const std::shared_ptr<IconLibrary>&         iconLibrary,
                 const std::shared_ptr<timeline::IRender>&   render,
-                const std::shared_ptr<imaging::FontSystem>& fontSystem,
+                const std::shared_ptr<image::FontSystem>& fontSystem,
                 float                                       displayScale);
 
             std::shared_ptr<Style>                   style;
             std::shared_ptr<IconLibrary>             iconLibrary;
             std::shared_ptr<timeline::IRender>       render;
-            std::shared_ptr<imaging::FontSystem>     fontSystem;
-            std::map<FontRole, imaging::FontMetrics> fontMetrics;
+            std::shared_ptr<image::FontSystem>     fontSystem;
+            std::map<FontRole, image::FontMetrics> fontMetrics;
             float                                    displayScale = 1.F;
 
-            imaging::FontMetrics getFontMetrics(FontRole) const;
+            image::FontMetrics getFontMetrics(FontRole) const;
         };
 
         //! Drag and drop data.
@@ -120,7 +120,7 @@ namespace tl
             math::Vector2i                   prev;
             bool                             accept = false;
             std::shared_ptr<DragAndDropData> dndData;
-            std::shared_ptr<imaging::Image>  dndCursor;
+            std::shared_ptr<image::Image>  dndCursor;
             math::Vector2i                   dndCursorHotspot;
         };
 

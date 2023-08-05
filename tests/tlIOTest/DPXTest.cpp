@@ -42,10 +42,10 @@ namespace tl
         {
             void write(
                 const std::shared_ptr<io::IPlugin>& plugin,
-                const std::shared_ptr<imaging::Image>& image,
+                const std::shared_ptr<image::Image>& image,
                 const file::Path& path,
-                const imaging::Info& imageInfo,
-                const imaging::Tags& tags)
+                const image::Info& imageInfo,
+                const image::Tags& tags)
             {
                 Info info;
                 info.video.push_back(imageInfo);
@@ -57,10 +57,10 @@ namespace tl
 
             void read(
                 const std::shared_ptr<io::IPlugin>& plugin,
-                const std::shared_ptr<imaging::Image>& image,
+                const std::shared_ptr<image::Image>& image,
                 const file::Path& path,
                 bool memoryIO,
-                const imaging::Tags& tags)
+                const image::Tags& tags)
             {
                 std::vector<uint8_t> memoryData;
                 std::vector<file::MemoryRead> memory;
@@ -91,7 +91,7 @@ namespace tl
 
             void readError(
                 const std::shared_ptr<io::IPlugin>& plugin,
-                const std::shared_ptr<imaging::Image>& image,
+                const std::shared_ptr<image::Image>& image,
                 const file::Path& path,
                 bool memoryIO)
             {
@@ -119,7 +119,7 @@ namespace tl
         {
             auto plugin = _context->getSystem<System>()->getPlugin<dpx::Plugin>();
 
-            const imaging::Tags tags =
+            const image::Tags tags =
             {
             };
             const std::vector<std::string> fileNames =
@@ -132,11 +132,11 @@ namespace tl
                 false,
                 true
             };
-            const std::vector<imaging::Size> sizes =
+            const std::vector<image::Size> sizes =
             {
-                imaging::Size(16, 16),
-                imaging::Size(1, 1),
-                imaging::Size(0, 0)
+                image::Size(16, 16),
+                image::Size(1, 1),
+                image::Size(0, 0)
             };
 
             for (const auto& fileName : fileNames)
@@ -145,9 +145,9 @@ namespace tl
                 {
                     for (const auto& size : sizes)
                     {
-                        for (const auto& pixelType : imaging::getPixelTypeEnums())
+                        for (const auto& pixelType : image::getPixelTypeEnums())
                         {
-                            const auto imageInfo = plugin->getWriteInfo(imaging::Info(size, pixelType));
+                            const auto imageInfo = plugin->getWriteInfo(image::Info(size, pixelType));
                             if (imageInfo.isValid())
                             {
                                 file::Path path;
@@ -157,7 +157,7 @@ namespace tl
                                     _print(ss.str());
                                     path = file::Path(ss.str());
                                 }
-                                auto image = imaging::Image::create(imageInfo);
+                                auto image = image::Image::create(imageInfo);
                                 image->zero();
                                 image->setTags(tags);
                                 try

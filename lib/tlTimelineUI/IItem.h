@@ -74,7 +74,7 @@ namespace tl
         struct Marker
         {
             std::string name;
-            imaging::Color4f color;
+            image::Color4f color;
             otime::TimeRange range;
         };
 
@@ -82,7 +82,7 @@ namespace tl
         std::vector<Marker> getMarkers(const otio::Item*);
 
         //! Convert a named marker color.
-        imaging::Color4f getMarkerColor(const std::string&);
+        image::Color4f getMarkerColor(const std::string&);
 
         //! Base class for items.
         class IItem : public ui::IWidget

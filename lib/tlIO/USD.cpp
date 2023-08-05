@@ -137,11 +137,11 @@ namespace tl
             return Read::create(p.id, p.render, path, io::merge(options, _options), _logSystem);
         }
         
-        imaging::Info Plugin::getWriteInfo(
-            const imaging::Info&,
+        image::Info Plugin::getWriteInfo(
+            const image::Info&,
             const io::Options&) const
         {
-            return imaging::Info();
+            return image::Info();
         }
         
         std::shared_ptr<io::IWrite> Plugin::write(

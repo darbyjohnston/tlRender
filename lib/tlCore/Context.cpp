@@ -36,7 +36,7 @@ namespace tl
                 arg(info.ramGB));
 
             addSystem(time::TimerSystem::create(shared_from_this()));
-            addSystem(imaging::FontSystem::create(shared_from_this()));
+            addSystem(image::FontSystem::create(shared_from_this()));
             addSystem(audio::System::create(shared_from_this()));
         }
 

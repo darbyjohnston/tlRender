@@ -80,13 +80,13 @@ namespace tl
 
             void writeVideo(
                 const otime::RationalTime&,
-                const std::shared_ptr<imaging::Image>&) override;
+                const std::shared_ptr<image::Image>&) override;
 
         protected:
             virtual void _writeVideo(
                 const std::string& fileName,
                 const otime::RationalTime&,
-                const std::shared_ptr<imaging::Image>&) = 0;
+                const std::shared_ptr<image::Image>&) = 0;
 
         private:
             TLRENDER_PRIVATE();

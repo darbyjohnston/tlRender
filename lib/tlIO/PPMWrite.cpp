@@ -17,12 +17,12 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const std::shared_ptr<imaging::Image>& image,
+                    const std::shared_ptr<image::Image>& image,
                     Data data)
                 {
                     const auto& info = image->getInfo();
                     uint8_t ppmType = Data::ASCII == data ? 2 : 5;
-                    const uint8_t channelCount = imaging::getChannelCount(info.pixelType);
+                    const uint8_t channelCount = image::getChannelCount(info.pixelType);
                     if (3 == channelCount)
                     {
                         ++ppmType;
@@ -36,7 +36,7 @@ namespace tl
                     ss << info.size.w << ' ' << info.size.h;
                     io->write(ss.str());
                     io->writeU8('\n');
-                    const uint8_t bitDepth = imaging::getBitDepth(info.pixelType);
+                    const uint8_t bitDepth = image::getBitDepth(info.pixelType);
                     const uint16_t maxValue = 8 == bitDepth ? 255 : 65535;
                     ss = std::stringstream();
                     ss << maxValue;
@@ -62,7 +62,7 @@ namespace tl
                         break;
                     }
                     case Data::Binary:
-                        io->write(p, imaging::getDataByteCount(info));
+                        io->write(p, image::getDataByteCount(info));
                         break;
                     default: break;
                     }
@@ -106,7 +106,7 @@ namespace tl
         void Write::_writeVideo(
             const std::string& fileName,
             const otime::RationalTime&,
-            const std::shared_ptr<imaging::Image>& image)
+            const std::shared_ptr<image::Image>& image)
         {
             const auto f = File(fileName, image, _data);
         }

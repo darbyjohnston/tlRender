@@ -480,8 +480,8 @@ namespace tl
                                 "    Audio: {4} {5} {6}\n"
                                 "    Audio time: {7}").
                             arg(path.get()).
-                            arg(!out.ioInfo.video.empty() ? out.ioInfo.video[0].size : imaging::Size()).
-                            arg(!out.ioInfo.video.empty() ? out.ioInfo.video[0].pixelType : imaging::PixelType::None).
+                            arg(!out.ioInfo.video.empty() ? out.ioInfo.video[0].size : image::Size()).
+                            arg(!out.ioInfo.video.empty() ? out.ioInfo.video[0].pixelType : image::PixelType::None).
                             arg(out.ioInfo.videoTime).
                             arg(out.ioInfo.audio.channelCount).
                             arg(out.ioInfo.audio.dataType).

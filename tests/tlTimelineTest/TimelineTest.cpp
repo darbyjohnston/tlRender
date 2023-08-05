@@ -71,9 +71,9 @@ namespace tl
 
         void TimelineTest::_create()
         {
-            imaging::Info imageInfo(16, 16, imaging::PixelType::RGB_U8);
+            image::Info imageInfo(16, 16, image::PixelType::RGB_U8);
             imageInfo.layout.endian = memory::Endian::MSB;
-            const auto image = imaging::Image::create(imageInfo);
+            const auto image = image::Image::create(imageInfo);
             io::Info ioInfo;
             ioInfo.video.push_back(imageInfo);
             ioInfo.videoTime = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0));
@@ -151,9 +151,9 @@ namespace tl
             }
 
             // Write the image sequence files.
-            imaging::Info imageInfo(16, 16, imaging::PixelType::RGB_U8);
+            image::Info imageInfo(16, 16, image::PixelType::RGB_U8);
             imageInfo.layout.endian = memory::Endian::MSB;
-            const auto image = imaging::Image::create(imageInfo);
+            const auto image = image::Image::create(imageInfo);
             io::Info ioInfo;
             ioInfo.video.push_back(imageInfo);
             ioInfo.videoTime = clipTimeRange;

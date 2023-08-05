@@ -94,9 +94,9 @@ namespace tl
             std::string _text;
             FontRole _fontRole = FontRole::Label;
             std::string _icon;
-            std::shared_ptr<imaging::Image> _iconImage;
+            std::shared_ptr<image::Image> _iconImage;
             std::string _checkedIcon;
-            std::shared_ptr<imaging::Image> _checkedIconImage;
+            std::shared_ptr<image::Image> _checkedIconImage;
             ColorRole _buttonRole = ColorRole::Button;
             ColorRole _checkedRole = ColorRole::Checked;
             bool _inside = false;

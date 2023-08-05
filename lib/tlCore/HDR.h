@@ -9,7 +9,7 @@
 
 namespace tl
 {
-    namespace imaging
+    namespace image
     {
         //! HDR data.
         struct HDRData

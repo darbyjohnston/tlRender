@@ -24,8 +24,8 @@ namespace tl
             {
                 int margin = 0;
                 int border = 0;
-                imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
-                imaging::FontMetrics fontMetrics;
+                image::FontInfo fontInfo = image::FontInfo("", 0);
+                image::FontMetrics fontMetrics;
                 bool textUpdate = true;
                 math::Vector2i labelSize;
                 math::Vector2i durationSize;
@@ -35,9 +35,9 @@ namespace tl
 
             struct DrawData
             {
-                std::vector<std::shared_ptr<imaging::Glyph> > labelGlyphs;
-                std::vector<std::shared_ptr<imaging::Glyph> > durationGlyphs;
-                std::vector<std::vector<std::shared_ptr<imaging::Glyph> > > markerGlyphs;
+                std::vector<std::shared_ptr<image::Glyph> > labelGlyphs;
+                std::vector<std::shared_ptr<image::Glyph> > durationGlyphs;
+                std::vector<std::vector<std::shared_ptr<image::Glyph> > > markerGlyphs;
             };
             DrawData draw;
         };
@@ -78,7 +78,7 @@ namespace tl
             p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, event.displayScale);
             p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
 
-            auto fontInfo = imaging::FontInfo(
+            auto fontInfo = image::FontInfo(
                 _options.regularFont,
                 _options.fontSize * event.displayScale);
             if (fontInfo != p.size.fontInfo || p.size.textUpdate)

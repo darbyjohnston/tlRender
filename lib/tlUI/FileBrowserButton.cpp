@@ -24,8 +24,8 @@ namespace tl
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
-                imaging::FontInfo fontInfo;
-                imaging::FontMetrics fontMetrics;
+                image::FontInfo fontInfo;
+                image::FontMetrics fontMetrics;
                 bool textInit = true;
                 std::vector<int> textWidths;
             };
@@ -33,7 +33,7 @@ namespace tl
 
             struct DrawData
             {
-                std::vector< std::vector<std::shared_ptr<imaging::Glyph> > > glyphs;
+                std::vector< std::vector<std::shared_ptr<image::Glyph> > > glyphs;
             };
             DrawData draw;
         };
@@ -226,7 +226,7 @@ namespace tl
             int x = g2.x() + p.size.margin;
             if (_iconImage)
             {
-                const imaging::Size& iconSize = _iconImage->getSize();
+                const image::Size& iconSize = _iconImage->getSize();
                 event.render->drawImage(
                     _iconImage,
                     math::BBox2i(

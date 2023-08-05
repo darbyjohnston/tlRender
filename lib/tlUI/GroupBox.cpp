@@ -20,15 +20,15 @@ namespace tl
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
-                imaging::FontInfo fontInfo;
-                imaging::FontMetrics fontMetrics;
+                image::FontInfo fontInfo;
+                image::FontMetrics fontMetrics;
                 math::Vector2i textSize;
             };
             SizeData size;
 
             struct DrawData
             {
-                std::vector<std::shared_ptr<imaging::Glyph> > glyphs;
+                std::vector<std::shared_ptr<image::Glyph> > glyphs;
             };
             DrawData draw;
         };

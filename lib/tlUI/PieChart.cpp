@@ -19,7 +19,7 @@ namespace tl
         PieChartData::PieChartData(
             const std::string& text,
             int percentage,
-            const imaging::Color4f& color) :
+            const image::Color4f& color) :
             text(text),
             percentage(percentage),
             color(color)
@@ -48,7 +48,7 @@ namespace tl
             {
                 int margin = 0;
                 int spacing = 0;
-                imaging::FontMetrics fontMetrics;
+                image::FontMetrics fontMetrics;
                 int pieDiameter = 0;
                 math::Vector2i textSize;
             };
@@ -61,7 +61,7 @@ namespace tl
                     std::string text;
                     math::Vector2i size;
                     math::Vector2i pos;
-                    std::vector<std::shared_ptr<imaging::Glyph> > glyphs;
+                    std::vector<std::shared_ptr<image::Glyph> > glyphs;
                 };
                 std::vector<PercentageLabel> percentageLabels;
                 std::vector<geom::TriangleMesh2> pieSliceMeshes;
@@ -70,8 +70,8 @@ namespace tl
                     std::string text;
                     math::Vector2i size;
                     math::Vector2i pos;
-                    std::vector<std::shared_ptr<imaging::Glyph> > glyphs;
-                    imaging::Color4f color;
+                    std::vector<std::shared_ptr<image::Glyph> > glyphs;
+                    image::Color4f color;
                     geom::TriangleMesh2 circleMesh;
                 };
                 std::vector<TextLabel> textLabels;
@@ -240,7 +240,7 @@ namespace tl
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            //event.render->drawRect(_geometry, imaging::Color4f(.5F, .3F, .3F));
+            //event.render->drawRect(_geometry, image::Color4f(.5F, .3F, .3F));
 
             const math::BBox2i g = align(
                 _geometry.margin(-p.size.margin),

@@ -65,8 +65,8 @@ namespace tl
                 {
                     std::string name;
                     bool init = false;
-                    std::future<std::shared_ptr<imaging::Image> > future;
-                    std::shared_ptr<imaging::Image> image;
+                    std::future<std::shared_ptr<image::Image> > future;
+                    std::shared_ptr<image::Image> image;
                 };
                 IconData _checkedIcon;
                 IconData _uncheckedIcon;
@@ -77,8 +77,8 @@ namespace tl
                     int margin = 0;
                     int spacing = 0;
                     int border = 0;
-                    imaging::FontInfo fontInfo;
-                    imaging::FontMetrics fontMetrics;
+                    image::FontInfo fontInfo;
+                    image::FontMetrics fontMetrics;
                     math::Vector2i textSize;
                     math::Vector2i shortcutSize;
                 };
@@ -86,8 +86,8 @@ namespace tl
 
                 struct DrawData
                 {
-                    std::vector<std::shared_ptr<imaging::Glyph> > textGlyphs;
-                    std::vector<std::shared_ptr<imaging::Glyph> > shortcutGlyphs;
+                    std::vector<std::shared_ptr<image::Glyph> > textGlyphs;
+                    std::vector<std::shared_ptr<image::Glyph> > shortcutGlyphs;
                 };
                 DrawData _draw;
             };
@@ -170,13 +170,13 @@ namespace tl
                 {
                     _iconScale = event.displayScale;
                     _checkedIcon.init = true;
-                    _checkedIcon.future = std::future<std::shared_ptr<imaging::Image> >();
+                    _checkedIcon.future = std::future<std::shared_ptr<image::Image> >();
                     _checkedIcon.image.reset();
                     _uncheckedIcon.init = true;
-                    _uncheckedIcon.future = std::future<std::shared_ptr<imaging::Image> >();
+                    _uncheckedIcon.future = std::future<std::shared_ptr<image::Image> >();
                     _uncheckedIcon.image.reset();
                     _subMenuIcon.init = true;
-                    _subMenuIcon.future = std::future<std::shared_ptr<imaging::Image> >();
+                    _subMenuIcon.future = std::future<std::shared_ptr<image::Image> >();
                     _subMenuIcon.image.reset();
                 }
                 if (!_checkedIcon.name.empty() && _checkedIcon.init)
@@ -334,7 +334,7 @@ namespace tl
                 int x = g2.x() + _size.margin;
                 if (_iconImage)
                 {
-                    const imaging::Size& iconSize = _iconImage->getSize();
+                    const image::Size& iconSize = _iconImage->getSize();
                     if (_checked)
                     {
                         event.render->drawRect(
@@ -355,7 +355,7 @@ namespace tl
                 }
                 else if (_checked && _checkedIcon.image)
                 {
-                    const imaging::Size& iconSize = _checkedIcon.image->getSize();
+                    const image::Size& iconSize = _checkedIcon.image->getSize();
                     if (_checked)
                     {
                         event.render->drawRect(
@@ -376,7 +376,7 @@ namespace tl
                 }
                 else if (!_checked && _uncheckedIcon.image)
                 {
-                    const imaging::Size& iconSize = _uncheckedIcon.image->getSize();
+                    const image::Size& iconSize = _uncheckedIcon.image->getSize();
                     if (_checked)
                     {
                         event.render->drawRect(
@@ -438,7 +438,7 @@ namespace tl
                 // Draw the sub menu icon.
                 if (_subMenuIcon.image)
                 {
-                    const imaging::Size& iconSize = _subMenuIcon.image->getSize();
+                    const image::Size& iconSize = _subMenuIcon.image->getSize();
                     event.render->drawImage(
                       _subMenuIcon.image,
                       math::BBox2i(

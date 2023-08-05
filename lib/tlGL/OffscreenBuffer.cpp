@@ -113,7 +113,7 @@ namespace tl
 
         struct OffscreenBuffer::Private
         {
-            imaging::Size size;
+            image::Size size;
             OffscreenBufferOptions options;
             GLuint id = 0;
             GLuint colorID = 0;
@@ -121,7 +121,7 @@ namespace tl
         };
 
         void OffscreenBuffer::_init(
-            const imaging::Size& size,
+            const image::Size& size,
             const OffscreenBufferOptions& options)
         {
             TLRENDER_P();
@@ -153,7 +153,7 @@ namespace tl
             }
 
             // Create the color texture.
-            if (p.options.colorType != imaging::PixelType::None)
+            if (p.options.colorType != image::PixelType::None)
             {
                 glGenTextures(1, &p.colorID);
                 if (!p.colorID)
@@ -269,7 +269,7 @@ namespace tl
         }
 
         std::shared_ptr<OffscreenBuffer> OffscreenBuffer::create(
-            const imaging::Size& size,
+            const image::Size& size,
             const OffscreenBufferOptions& options)
         {
             auto out = std::shared_ptr<OffscreenBuffer>(new OffscreenBuffer);
@@ -277,17 +277,17 @@ namespace tl
             return out;
         }
 
-        const imaging::Size& OffscreenBuffer::getSize() const
+        const image::Size& OffscreenBuffer::getSize() const
         {
             return _p->size;
         }
 
-        imaging::SizeType OffscreenBuffer::getWidth() const
+        image::SizeType OffscreenBuffer::getWidth() const
         {
             return _p->size.w;
         }
 
-        imaging::SizeType OffscreenBuffer::getHeight() const
+        image::SizeType OffscreenBuffer::getHeight() const
         {
             return _p->size.h;
         }
@@ -314,7 +314,7 @@ namespace tl
 
         bool doCreate(
             const std::shared_ptr<OffscreenBuffer>& offscreenBuffer,
-            const imaging::Size& size,
+            const image::Size& size,
             const OffscreenBufferOptions& options)
         {
             bool out = false;

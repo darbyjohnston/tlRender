@@ -36,7 +36,7 @@ namespace tl
 
         Q_SIGNALS:
             //! This signal is emitted to resize the window.
-            void resize(const tl::imaging::Size&);
+            void resize(const tl::image::Size&);
 
         private:
             void _actionsUpdate();

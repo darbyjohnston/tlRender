@@ -19,7 +19,7 @@ namespace tl
         VideoData::VideoData(
             const otime::RationalTime& time,
             uint16_t layer,
-            const std::shared_ptr<imaging::Image>& image) :
+            const std::shared_ptr<image::Image>& image) :
             time(time),
             layer(layer),
             image(image)
@@ -147,9 +147,9 @@ namespace tl
             _options = options;
         }
 
-        bool IPlugin::_isWriteCompatible(const imaging::Info& info, const Options& options) const
+        bool IPlugin::_isWriteCompatible(const image::Info& info, const Options& options) const
         {
-            return info.pixelType != imaging::PixelType::None && info == getWriteInfo(info, options);
+            return info.pixelType != image::PixelType::None && info == getWriteInfo(info, options);
         }
     }
 }

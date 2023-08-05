@@ -223,7 +223,7 @@ namespace tl
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            //event.render->drawRect(_geometry, imaging::Color4f(.5F, .3F, .3F));
+            //event.render->drawRect(_geometry, image::Color4f(.5F, .3F, .3F));
 
             for (const auto& handle : p.size.handleGeometry)
             {

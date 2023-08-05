@@ -21,12 +21,12 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const std::shared_ptr<imaging::Image>& image)
+                    const std::shared_ptr<image::Image>& image)
                 {
                     const auto& info = image->getInfo();
                     const int comp = static_cast<int>(
-                        imaging::getChannelCount(info.pixelType));
-                    const size_t bytes = imaging::getBitDepth(info.pixelType) / 8;
+                        image::getChannelCount(info.pixelType));
+                    const size_t bytes = image::getBitDepth(info.pixelType) / 8;
                     if (bytes > 1)
                         throw std::runtime_error(string::Format("{0}: {1}").
                             arg(fileName).
@@ -99,7 +99,7 @@ namespace tl
         void Write::_writeVideo(
             const std::string& fileName,
             const otime::RationalTime&,
-            const std::shared_ptr<imaging::Image>& image)
+            const std::shared_ptr<image::Image>& image)
         {
             const auto f = File(fileName, image);
         }

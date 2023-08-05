@@ -105,9 +105,9 @@ namespace tl
                 }
 
                 for (const auto& size : {
-                    imaging::Size(1920, 1080),
-                    imaging::Size(3840, 2160),
-                    imaging::Size(4096, 2160)
+                    image::Size(1920, 1080),
+                    image::Size(3840, 2160),
+                    image::Size(4096, 2160)
                     })
                 {
                     otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(new otio::Timeline);
@@ -147,11 +147,11 @@ namespace tl
                         {
                             throw std::runtime_error(string::Format("{0}: Cannot open").arg(output));
                         }
-                        imaging::Info info;
+                        image::Info info;
                         info.size = size;
-                        info.pixelType = imaging::PixelType::RGB_U10;
+                        info.pixelType = image::PixelType::RGB_U10;
                         info = writerPlugin->getWriteInfo(info);
-                        if (imaging::PixelType::None == info.pixelType)
+                        if (image::PixelType::None == info.pixelType)
                         {
                             throw std::runtime_error(string::Format("{0}: Cannot open").arg(output));
                         }
@@ -166,10 +166,10 @@ namespace tl
 
                         // Create the offscreen buffer.
                         gl::OffscreenBufferOptions offscreenBufferOptions;
-                        offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
+                        offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
                         auto buffer = gl::OffscreenBuffer::create(size, offscreenBufferOptions);
                         gl::OffscreenBufferBinding binding(buffer);
-                        auto image = imaging::Image::create(info);
+                        auto image = image::Image::create(info);
 
                         // Render the test pattern.
                         auto render = timeline::GLRender::create(_context);

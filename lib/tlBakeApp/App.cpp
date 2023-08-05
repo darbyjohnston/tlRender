@@ -87,16 +87,16 @@ namespace tl
                         _options.inOutRange,
                         { "-inOutRange" },
                         "Set the in/out points range."),
-                    app::CmdLineValueOption<imaging::Size>::create(
+                    app::CmdLineValueOption<image::Size>::create(
                         _options.renderSize,
                         { "-renderSize", "-rs" },
                         "Render size."),
-                    app::CmdLineValueOption<imaging::PixelType>::create(
+                    app::CmdLineValueOption<image::PixelType>::create(
                         _options.outputPixelType,
                         { "-outputPixelType", "-op" },
                         "Output pixel type.",
                         std::string(),
-                        string::join(imaging::getPixelTypeLabels(), ", ")),
+                        string::join(image::getPixelTypeLabels(), ", ")),
                     app::CmdLineValueOption<std::string>::create(
                         _options.colorConfigOptions.fileName,
                         { "-colorConfig", "-cc" },
@@ -373,7 +373,7 @@ namespace tl
             // Create the renderer.
             _render = timeline::GLRender::create(_context);
             gl::OffscreenBufferOptions offscreenBufferOptions;
-            offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
+            offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
             _buffer = gl::OffscreenBuffer::create(_renderSize, offscreenBufferOptions);
 
             // Create the writer.
@@ -384,18 +384,18 @@ namespace tl
             }
             io::Info ioInfo;
             _outputInfo.size = _renderSize;
-            _outputInfo.pixelType = _options.outputPixelType != imaging::PixelType::None ?
+            _outputInfo.pixelType = _options.outputPixelType != image::PixelType::None ?
                 _options.outputPixelType :
                 info.video[0].pixelType;
             _outputInfo = _writerPlugin->getWriteInfo(_outputInfo);
-            if (imaging::PixelType::None == _outputInfo.pixelType)
+            if (image::PixelType::None == _outputInfo.pixelType)
             {
-                _outputInfo.pixelType = imaging::PixelType::RGB_U8;
+                _outputInfo.pixelType = image::PixelType::RGB_U8;
             }
             _print(string::Format("Output info: {0} {1}").
                 arg(_outputInfo.size).
                 arg(_outputInfo.pixelType));
-            _outputImage = imaging::Image::create(_outputInfo);
+            _outputImage = image::Image::create(_outputInfo);
             ioInfo.video.push_back(_outputInfo);
             ioInfo.videoTime = _timeRange;
             _writer = _writerPlugin->write(file::Path(_output), ioInfo);

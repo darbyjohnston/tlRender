@@ -8,9 +8,9 @@ namespace tl
 {
     namespace qtwidget
     {
-        imaging::Color4f fromQt(const QColor& value)
+        image::Color4f fromQt(const QColor& value)
         {
-            return imaging::Color4f(
+            return image::Color4f(
                 value.redF(),
                 value.greenF(),
                 value.blueF(),

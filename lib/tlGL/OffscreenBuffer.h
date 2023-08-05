@@ -49,7 +49,7 @@ namespace tl
         //! Offscreen buffer options.
         struct OffscreenBufferOptions
         {
-            imaging::PixelType colorType = imaging::PixelType::None;
+            image::PixelType colorType = image::PixelType::None;
             timeline::ImageFilters colorFilters;
             OffscreenDepth depth = OffscreenDepth::None;
             OffscreenStencil stencil = OffscreenStencil::None;
@@ -66,7 +66,7 @@ namespace tl
 
         protected:
             void _init(
-                const imaging::Size&,
+                const image::Size&,
                 const OffscreenBufferOptions&);
 
             OffscreenBuffer();
@@ -76,17 +76,17 @@ namespace tl
 
             //! Create a new offscreen buffer.
             static std::shared_ptr<OffscreenBuffer> create(
-                const imaging::Size&,
+                const image::Size&,
                 const OffscreenBufferOptions&);
 
             //! Get the offscreen buffer size.
-            const imaging::Size& getSize() const;
+            const image::Size& getSize() const;
 
             //! Get the offscreen buffer width.
-            imaging::SizeType getWidth() const;
+            image::SizeType getWidth() const;
 
             //! Get the offscreen buffer height.
-            imaging::SizeType getHeight() const;
+            image::SizeType getHeight() const;
 
             //! Get the options.
             const OffscreenBufferOptions& getOptions() const;
@@ -107,7 +107,7 @@ namespace tl
         //! Check whether the offscreen buffer should be created or re-created.
         bool doCreate(
             const std::shared_ptr<OffscreenBuffer>&,
-            const imaging::Size&,
+            const image::Size&,
             const OffscreenBufferOptions&);
 
         //! Offscreen buffer binding.

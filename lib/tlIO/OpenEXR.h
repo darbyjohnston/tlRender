@@ -93,12 +93,12 @@ namespace tl
         std::vector<Layer> getLayers(const Imf::ChannelList&, ChannelGrouping);
 
         //! Read the tags from an Imf header.
-        void readTags(const Imf::Header&, imaging::Tags&);
+        void readTags(const Imf::Header&, image::Tags&);
 
         //! Write tags to an Imf header.
         //!
         //! \todo Write all the tags that are handled by readTags().
-        void writeTags(const imaging::Tags&, double speed, Imf::Header&);
+        void writeTags(const image::Tags&, double speed, Imf::Header&);
 
         //! Convert an Imath box type.
         math::BBox2i fromImath(const Imath::Box2i&);
@@ -195,7 +195,7 @@ namespace tl
             void _writeVideo(
                 const std::string& fileName,
                 const otime::RationalTime&,
-                const std::shared_ptr<imaging::Image>&) override;
+                const std::shared_ptr<image::Image>&) override;
 
         private:
             Compression _compression = Compression::ZIP;
@@ -221,8 +221,8 @@ namespace tl
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
                 const io::Options& = io::Options()) override;
-            imaging::Info getWriteInfo(
-                const imaging::Info&,
+            image::Info getWriteInfo(
+                const image::Info&,
                 const io::Options& = io::Options()) const override;
             std::shared_ptr<io::IWrite> write(
                 const file::Path&,

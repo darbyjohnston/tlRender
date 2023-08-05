@@ -27,8 +27,8 @@ namespace tl
             {
                 int margin = 0;
                 int border = 0;
-                imaging::FontInfo fontInfo = imaging::FontInfo("", 0);
-                imaging::FontMetrics fontMetrics;
+                image::FontInfo fontInfo = image::FontInfo("", 0);
+                image::FontMetrics fontMetrics;
                 math::Vector2i scrollPos;
             };
             SizeData size;
@@ -180,7 +180,7 @@ namespace tl
             p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, event.displayScale);
             p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
 
-            p.size.fontInfo = imaging::FontInfo(
+            p.size.fontInfo = image::FontInfo(
                 _options.monoFont,
                 _options.fontSize * event.displayScale);
             p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);

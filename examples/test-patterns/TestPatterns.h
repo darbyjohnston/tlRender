@@ -19,7 +19,7 @@ namespace tl
             protected:
                 void _init(
                     const std::string&,
-                    const imaging::Size&,
+                    const image::Size&,
                     const std::shared_ptr<system::Context>&);
 
                 ITestPattern();
@@ -36,14 +36,14 @@ namespace tl
             protected:
                 std::weak_ptr<system::Context> _context;
                 std::string _name;
-                imaging::Size _size;
+                image::Size _size;
             };
 
             class CountTestPattern : public ITestPattern
             {
             protected:
                 void _init(
-                    const imaging::Size&,
+                    const image::Size&,
                     const std::shared_ptr<system::Context>&);
 
             public:
@@ -52,7 +52,7 @@ namespace tl
                 static std::string getClassName();
 
                 static std::shared_ptr<CountTestPattern> create(
-                    const imaging::Size&,
+                    const image::Size&,
                     const std::shared_ptr<system::Context>&);
 
                 void render(
@@ -60,17 +60,17 @@ namespace tl
                     const otime::RationalTime&) override;
 
             private:
-                imaging::FontInfo _secondsFontInfo;
-                imaging::FontMetrics _secondsFontMetrics;
-                imaging::FontInfo _framesFontInfo;
-                imaging::FontMetrics _framesFontMetrics;
+                image::FontInfo _secondsFontInfo;
+                image::FontMetrics _secondsFontMetrics;
+                image::FontInfo _framesFontInfo;
+                image::FontMetrics _framesFontMetrics;
             };
 
             class SwatchesTestPattern : public ITestPattern
             {
             protected:
                 void _init(
-                    const imaging::Size&,
+                    const image::Size&,
                     const std::shared_ptr<system::Context>&);
 
             public:
@@ -79,7 +79,7 @@ namespace tl
                 static std::string getClassName();
 
                 static std::shared_ptr<SwatchesTestPattern> create(
-                    const imaging::Size&,
+                    const image::Size&,
                     const std::shared_ptr<system::Context>&);
 
                 void render(
@@ -87,7 +87,7 @@ namespace tl
                     const otime::RationalTime&) override;
 
             private:
-                std::shared_ptr<imaging::Image> _gradient;
+                std::shared_ptr<image::Image> _gradient;
             };
 
             class GridTestPattern : public ITestPattern
@@ -98,7 +98,7 @@ namespace tl
                 static std::string getClassName();
 
                 static std::shared_ptr<GridTestPattern> create(
-                    const imaging::Size&,
+                    const image::Size&,
                     const std::shared_ptr<system::Context>&);
 
                 void render(
@@ -111,7 +111,7 @@ namespace tl
             public:
                 static std::shared_ptr<ITestPattern> create(
                     const std::string& name,
-                    const imaging::Size&,
+                    const image::Size&,
                     const std::shared_ptr<system::Context>&);
             };
         }

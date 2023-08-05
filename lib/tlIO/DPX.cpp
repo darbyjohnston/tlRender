@@ -221,7 +221,7 @@ namespace tl
             io->read(&out.tv, sizeof(Header::TV));
 
             // Flip the endian of the data if necessary.
-            imaging::Info imageInfo;
+            image::Info imageInfo;
             if (fileEndian != memory::getEndian())
             {
                 io->setEndianConversion(true);
@@ -266,7 +266,7 @@ namespace tl
                 case Descriptor::RGBA: channels = 4; break;
                 default: break;
                 }
-                imageInfo.pixelType = imaging::getIntType(channels, out.image.elem[0].bitDepth);
+                imageInfo.pixelType = image::getIntType(channels, out.image.elem[0].bitDepth);
             }
             break;
             case Components::TypeA:
@@ -275,7 +275,7 @@ namespace tl
                 case 10:
                     if (Descriptor::RGB == static_cast<Descriptor>(out.image.elem[0].descriptor))
                     {
-                        imageInfo.pixelType = imaging::PixelType::RGB_U10;
+                        imageInfo.pixelType = image::PixelType::RGB_U10;
                         imageInfo.layout.alignment = 4;
                     }
                     break;
@@ -289,7 +289,7 @@ namespace tl
                     case Descriptor::RGBA: channels = 4; break;
                     default: break;
                     }
-                    imageInfo.pixelType = imaging::getIntType(channels, out.image.elem[0].bitDepth);
+                    imageInfo.pixelType = image::getIntType(channels, out.image.elem[0].bitDepth);
                     break;
                 }
                 default: break;
@@ -297,13 +297,13 @@ namespace tl
                 break;
             default: break;
             }
-            if (imaging::PixelType::None == imageInfo.pixelType)
+            if (image::PixelType::None == imageInfo.pixelType)
             {
                 throw std::runtime_error(string::Format("{0}: {1}").
                     arg(io->getFileName()).
                     arg("Unsupported file"));
             }
-            const size_t dataByteCount = imaging::getDataByteCount(imageInfo);
+            const size_t dataByteCount = image::getDataByteCount(imageInfo);
             const size_t ioSize = io->getSize();
             if (dataByteCount > ioSize - out.file.imageOffset)
             {
@@ -582,23 +582,23 @@ namespace tl
 
             switch (imageInfo.pixelType)
             {
-            case imaging::PixelType::L_U8:
-            case imaging::PixelType::L_U16:
-            case imaging::PixelType::L_F16:
-            case imaging::PixelType::L_F32:
+            case image::PixelType::L_U8:
+            case image::PixelType::L_U16:
+            case image::PixelType::L_F16:
+            case image::PixelType::L_F32:
                 header.image.elem[0].descriptor = static_cast<uint8_t>(Descriptor::L);
                 break;
-            case imaging::PixelType::RGB_U8:
-            case imaging::PixelType::RGB_U10:
-            case imaging::PixelType::RGB_U16:
-            case imaging::PixelType::RGB_F16:
-            case imaging::PixelType::RGB_F32:
+            case image::PixelType::RGB_U8:
+            case image::PixelType::RGB_U10:
+            case image::PixelType::RGB_U16:
+            case image::PixelType::RGB_F16:
+            case image::PixelType::RGB_F32:
                 header.image.elem[0].descriptor = static_cast<uint8_t>(Descriptor::RGB);
                 break;
-            case imaging::PixelType::RGBA_U8:
-            case imaging::PixelType::RGBA_U16:
-            case imaging::PixelType::RGBA_F16:
-            case imaging::PixelType::RGBA_F32:
+            case image::PixelType::RGBA_U8:
+            case image::PixelType::RGBA_U16:
+            case image::PixelType::RGBA_F16:
+            case image::PixelType::RGBA_F32:
                 header.image.elem[0].descriptor = static_cast<uint8_t>(Descriptor::RGBA);
                 break;
             default: break;
@@ -606,13 +606,13 @@ namespace tl
 
             switch (imageInfo.pixelType)
             {
-            case imaging::PixelType::RGB_U10:
+            case image::PixelType::RGB_U10:
                 header.image.elem[0].packing = static_cast<uint16_t>(Components::TypeA);
                 break;
             default: break;
             }
 
-            const int bitDepth = imaging::getBitDepth(imageInfo.pixelType);
+            const int bitDepth = image::getBitDepth(imageInfo.pixelType);
             header.image.elem[0].bitDepth = bitDepth;
             header.image.elem[0].dataSign = 0;
             header.image.elem[0].lowData = 0;
@@ -931,15 +931,15 @@ namespace tl
             return Read::create(path, memory, io::merge(options, _options), _logSystem);
         }
 
-        imaging::Info Plugin::getWriteInfo(
-            const imaging::Info& info,
+        image::Info Plugin::getWriteInfo(
+            const image::Info& info,
             const io::Options& options) const
         {
-            imaging::Info out;
+            image::Info out;
             out.size = info.size;
             switch (info.pixelType)
             {
-            case imaging::PixelType::RGB_U10:
+            case image::PixelType::RGB_U10:
                 out.pixelType = info.pixelType;
                 break;
             default: break;

@@ -65,8 +65,8 @@ namespace tl
                     default: break;
                     }
                     const size_t bitDepth = maxValue < 256 ? 8 : 16;
-                    _info.pixelType = imaging::getIntType(channelCount, bitDepth);
-                    if (imaging::PixelType::None == _info.pixelType)
+                    _info.pixelType = image::getIntType(channelCount, bitDepth);
+                    if (image::PixelType::None == _info.pixelType)
                     {
                         throw std::runtime_error(string::Format("{0}: {1}").
                             arg(fileName).
@@ -76,7 +76,7 @@ namespace tl
                     const size_t ioSize = _io->getSize();
                     const size_t ioPos = _io->getPos();
                     const size_t fileDataByteCount = ioSize >= ioPos ? (ioSize - ioPos) : 0;
-                    const size_t dataByteCount = imaging::getDataByteCount(_info);
+                    const size_t dataByteCount = image::getDataByteCount(_info);
                     if (Data::Binary == _data && dataByteCount > fileDataByteCount)
                     {
                         throw std::runtime_error(string::Format("{0}: {1}").
@@ -92,7 +92,7 @@ namespace tl
                     return _data;
                 }
 
-                const imaging::Info& getInfo() const
+                const image::Info& getInfo() const
                 {
                     return _info;
                 }
@@ -103,15 +103,15 @@ namespace tl
                 {
                     io::VideoData out;
                     out.time = time;
-                    out.image = imaging::Image::create(_info);
+                    out.image = image::Image::create(_info);
 
                     uint8_t* p = out.image->getData();
                     switch (_data)
                     {
                     case Data::ASCII:
                     {
-                        const size_t channelCount = imaging::getChannelCount(_info.pixelType);
-                        const size_t bitDepth = imaging::getBitDepth(_info.pixelType);
+                        const size_t channelCount = image::getChannelCount(_info.pixelType);
+                        const size_t bitDepth = image::getBitDepth(_info.pixelType);
                         const std::size_t scanlineByteCount = _info.size.w * channelCount * (bitDepth / 8);
                         for (uint16_t y = 0; y < _info.size.h; ++y, p += scanlineByteCount)
                         {
@@ -133,7 +133,7 @@ namespace tl
             private:
                 std::shared_ptr<file::FileIO> _io;
                 Data _data = Data::First;
-                imaging::Info _info;
+                image::Info _info;
             };
         }
 

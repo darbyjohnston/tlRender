@@ -42,7 +42,7 @@ namespace tl
         std::string differenceFragmentSource();
 
         void copyTextures(
-            const std::shared_ptr<imaging::Image>&,
+            const std::shared_ptr<image::Image>&,
             const std::vector<std::shared_ptr<gl::Texture> >&,
             size_t offset = 0);
 
@@ -52,12 +52,12 @@ namespace tl
             void setSize(size_t);
 
             std::vector<std::shared_ptr<gl::Texture> > get(
-                const imaging::Info&,
+                const image::Info&,
                 const ImageFilters&,
                 size_t offset = 0);
 
             void add(
-                const imaging::Info&,
+                const image::Info&,
                 const ImageFilters&,
                 const std::vector<std::shared_ptr<gl::Texture> >&);
 
@@ -68,7 +68,7 @@ namespace tl
 
             struct TextureData
             {
-                imaging::Info info;
+                image::Info info;
                 ImageFilters imageFilters;
                 std::vector<std::shared_ptr<gl::Texture> > texture;
             };
@@ -119,7 +119,7 @@ namespace tl
 
         struct GLRender::Private
         {
-            imaging::Size renderSize;
+            image::Size renderSize;
             ColorConfigOptions colorConfigOptions;
             LUTOptions lutOptions;
             RenderOptions renderOptions;
@@ -138,7 +138,7 @@ namespace tl
             std::map<std::string, std::shared_ptr<gl::OffscreenBuffer> > buffers;
             TextureCache textureCache;
             std::shared_ptr<gl::TextureAtlas> glyphTextureAtlas;
-            std::map<imaging::GlyphInfo, gl::TextureAtlasID> glyphIDs;
+            std::map<image::GlyphInfo, gl::TextureAtlasID> glyphIDs;
             std::map<std::string, std::shared_ptr<gl::VBO> > vbos;
             std::map<std::string, std::shared_ptr<gl::VAO> > vaos;
 

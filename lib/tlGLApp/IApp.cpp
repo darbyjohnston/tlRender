@@ -135,11 +135,11 @@ namespace tl
             Options options;
 
             GLFWwindow* glfwWindow = nullptr;
-            imaging::Size windowSize;
+            image::Size windowSize;
             math::Vector2i windowPos;
             std::shared_ptr<observer::Value<bool> > fullscreen;
             std::shared_ptr<observer::Value<bool> > floatOnTop;
-            imaging::Size frameBufferSize;
+            image::Size frameBufferSize;
             math::Vector2f contentScale = math::Vector2f(1.F, 1.F);
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
@@ -169,7 +169,7 @@ namespace tl
             TLRENDER_P();
             std::vector<std::shared_ptr<app::ICmdLineOption> > options2 = options;
             options2.push_back(
-                app::CmdLineValueOption<imaging::Size>::create(
+                app::CmdLineValueOption<image::Size>::create(
                     p.options.windowSize,
                     { "-windowSize", "-ws" },
                     "Window size.",
@@ -278,7 +278,7 @@ namespace tl
                 });
             p.eventLoop->setCursor(
                 [this](
-                    const std::shared_ptr<imaging::Image>& image,
+                    const std::shared_ptr<image::Image>& image,
                     const math::Vector2i& hotspot)
                 {
                     _setCursor(image, hotspot);
@@ -331,7 +331,7 @@ namespace tl
                 p.eventLoop->tick();
 
                 gl::OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
+                offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
                 if (gl::doCreate(p.offscreenBuffer, p.frameBufferSize, offscreenBufferOptions))
                 {
                     p.offscreenBuffer = gl::OffscreenBuffer::create(
@@ -395,15 +395,15 @@ namespace tl
             return _p->style;
         }
 
-        imaging::Size IApp::getWindowSize() const
+        image::Size IApp::getWindowSize() const
         {
             int width = 0;
             int height = 0;
             glfwGetWindowSize(_p->glfwWindow, &width, &height);
-            return imaging::Size(width, height);
+            return image::Size(width, height);
         }
 
-        void IApp::setWindowSize(const imaging::Size& value)
+        void IApp::setWindowSize(const image::Size& value)
         {
             glfwSetWindowSize(_p->glfwWindow, value.w, value.h);
         }
@@ -525,7 +525,7 @@ namespace tl
         }
 
         void IApp::_setCursor(
-            const std::shared_ptr<imaging::Image>& image,
+            const std::shared_ptr<image::Image>& image,
             const math::Vector2i& hotspot)
         {
             TLRENDER_P();
@@ -537,12 +537,12 @@ namespace tl
             p.cursor.reset(new Cursor(p.glfwWindow, glfwCursor));
         }
 
-        std::shared_ptr<imaging::Image> IApp::_capture(const math::BBox2i& value)
+        std::shared_ptr<image::Image> IApp::_capture(const math::BBox2i& value)
         {
             TLRENDER_P();
-            const imaging::Size size(value.w(), value.h());
-            const imaging::Info info(size, imaging::PixelType::RGBA_U8);
-            auto out = imaging::Image::create(info);
+            const image::Size size(value.w(), value.h());
+            const image::Info info(size, image::PixelType::RGBA_U8);
+            auto out = image::Image::create(info);
 
             gl::OffscreenBufferBinding binding(p.offscreenBuffer);
 
@@ -557,7 +557,7 @@ namespace tl
                 gl::getReadPixelsType(info.pixelType),
                 out->getData());
 
-            auto flipped = imaging::Image::create(info);
+            auto flipped = image::Image::create(info);
             for (size_t y = 0; y < size.h; ++y)
             {
                 uint8_t* p = flipped->getData() + y * size.w * 4;

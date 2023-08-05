@@ -19,9 +19,9 @@ namespace tl
 {
     namespace gl
     {
-        unsigned int getTextureFormat(imaging::PixelType value)
+        unsigned int getTextureFormat(image::PixelType value)
         {
-            const std::array<GLenum, static_cast<std::size_t>(imaging::PixelType::Count)> data =
+            const std::array<GLenum, static_cast<std::size_t>(image::PixelType::Count)> data =
             {
                 GL_NONE,
 
@@ -55,9 +55,9 @@ namespace tl
             return data[static_cast<std::size_t>(value)];
         }
 
-        unsigned int getTextureInternalFormat(imaging::PixelType type)
+        unsigned int getTextureInternalFormat(image::PixelType type)
         {
-            const std::array<GLenum, static_cast<std::size_t>(imaging::PixelType::Count)> data =
+            const std::array<GLenum, static_cast<std::size_t>(image::PixelType::Count)> data =
             {
                 GL_NONE,
 
@@ -91,9 +91,9 @@ namespace tl
             return data[static_cast<std::size_t>(type)];
         }
 
-        unsigned int getTextureType(imaging::PixelType value)
+        unsigned int getTextureType(image::PixelType value)
         {
-            const std::array<GLenum, static_cast<std::size_t>(imaging::PixelType::Count)> data =
+            const std::array<GLenum, static_cast<std::size_t>(image::PixelType::Count)> data =
             {
                 GL_NONE,
 
@@ -139,12 +139,12 @@ namespace tl
 
         struct Texture::Private
         {
-            imaging::Info info;
+            image::Info info;
             GLuint pbo = 0;
             GLuint id = 0;
         };
 
-        void Texture::_init(const imaging::Info& info, const TextureOptions& options)
+        void Texture::_init(const image::Info& info, const TextureOptions& options)
         {
             TLRENDER_P();
             p.info = info;
@@ -158,7 +158,7 @@ namespace tl
                     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, p.pbo);
                     glBufferData(
                         GL_PIXEL_UNPACK_BUFFER,
-                        imaging::getDataByteCount(p.info),
+                        image::getDataByteCount(p.info),
                         NULL,
                         GL_STREAM_DRAW);
                     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
@@ -201,24 +201,24 @@ namespace tl
             }
         }
 
-        std::shared_ptr<Texture> Texture::create(const imaging::Info& info, const TextureOptions& options)
+        std::shared_ptr<Texture> Texture::create(const image::Info& info, const TextureOptions& options)
         {
             auto out = std::shared_ptr<Texture>(new Texture);
             out->_init(info, options);
             return out;
         }
 
-        const imaging::Info& Texture::getInfo() const
+        const image::Info& Texture::getInfo() const
         {
             return _p->info;
         }
 
-        const imaging::Size& Texture::getSize() const
+        const image::Size& Texture::getSize() const
         {
             return _p->info.size;
         }
 
-        imaging::PixelType Texture::getPixelType() const
+        image::PixelType Texture::getPixelType() const
         {
             return _p->info.pixelType;
         }
@@ -228,7 +228,7 @@ namespace tl
             return _p->id;
         }
 
-        void Texture::copy(const imaging::Image& data)
+        void Texture::copy(const image::Image& data)
         {
             TLRENDER_P();
             if (p.pbo)
@@ -277,7 +277,7 @@ namespace tl
             }
         }
 
-        void Texture::copy(const uint8_t* data, const imaging::Info& info)
+        void Texture::copy(const uint8_t* data, const image::Info& info)
         {
             TLRENDER_P();
             if (p.pbo)
@@ -288,7 +288,7 @@ namespace tl
                     memcpy(
                         buffer,
                         data,
-                        imaging::getDataByteCount(info));
+                        image::getDataByteCount(info));
                     glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
                     glBindTexture(GL_TEXTURE_2D, p.id);
                     glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
@@ -324,7 +324,7 @@ namespace tl
             }
         }
 
-        void Texture::copy(const imaging::Image& data, uint16_t x, uint16_t y)
+        void Texture::copy(const image::Image& data, uint16_t x, uint16_t y)
         {
             TLRENDER_P();
             if (p.pbo)

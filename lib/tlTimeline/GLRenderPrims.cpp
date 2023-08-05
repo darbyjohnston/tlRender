@@ -18,7 +18,7 @@ namespace tl
     {
         void GLRender::drawRect(
             const math::BBox2i& bbox,
-            const imaging::Color4f& color)
+            const image::Color4f& color)
         {
             TLRENDER_P();
             ++(p.currentStats.rects);
@@ -42,7 +42,7 @@ namespace tl
         void GLRender::drawMesh(
             const geom::TriangleMesh2& mesh,
             const math::Vector2i& position,
-            const imaging::Color4f& color)
+            const image::Color4f& color)
         {
             TLRENDER_P();
             ++(p.currentStats.meshes);
@@ -87,7 +87,7 @@ namespace tl
         void GLRender::drawColorMesh(
             const geom::TriangleMesh2& mesh,
             const math::Vector2i& position,
-            const imaging::Color4f& color)
+            const image::Color4f& color)
         {
             TLRENDER_P();
             ++(p.currentStats.meshes);
@@ -157,9 +157,9 @@ namespace tl
         }
 
         void GLRender::drawText(
-            const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
+            const std::vector<std::shared_ptr<image::Glyph> >& glyphs,
             const math::Vector2i& pos,
-            const imaging::Color4f& color)
+            const image::Color4f& color)
         {
             TLRENDER_P();
             ++(p.currentStats.text);
@@ -263,7 +263,7 @@ namespace tl
         void GLRender::drawTexture(
             unsigned int id,
             const math::BBox2i& bbox,
-            const imaging::Color4f& color)
+            const image::Color4f& color)
         {
             TLRENDER_P();
             ++(p.currentStats.textures);
@@ -289,9 +289,9 @@ namespace tl
         }
 
         void GLRender::drawImage(
-            const std::shared_ptr<imaging::Image>& image,
+            const std::shared_ptr<image::Image>& image,
             const math::BBox2i& bbox,
-            const imaging::Color4f& color,
+            const image::Color4f& color,
             const ImageOptions& imageOptions)
         {
             TLRENDER_P();
@@ -304,26 +304,26 @@ namespace tl
             p.shaders["image"]->bind();
             p.shaders["image"]->setUniform("color", color);
             p.shaders["image"]->setUniform("pixelType", static_cast<int>(info.pixelType));
-            imaging::VideoLevels videoLevels = info.videoLevels;
+            image::VideoLevels videoLevels = info.videoLevels;
             switch (imageOptions.videoLevels)
             {
-            case InputVideoLevels::FullRange:  videoLevels = imaging::VideoLevels::FullRange;  break;
-            case InputVideoLevels::LegalRange: videoLevels = imaging::VideoLevels::LegalRange; break;
+            case InputVideoLevels::FullRange:  videoLevels = image::VideoLevels::FullRange;  break;
+            case InputVideoLevels::LegalRange: videoLevels = image::VideoLevels::LegalRange; break;
             default: break;
             }
             p.shaders["image"]->setUniform("videoLevels", static_cast<int>(videoLevels));
-            p.shaders["image"]->setUniform("yuvCoefficients", imaging::getYUVCoefficients(info.yuvCoefficients));
-            p.shaders["image"]->setUniform("imageChannels", imaging::getChannelCount(info.pixelType));
+            p.shaders["image"]->setUniform("yuvCoefficients", image::getYUVCoefficients(info.yuvCoefficients));
+            p.shaders["image"]->setUniform("imageChannels", image::getChannelCount(info.pixelType));
             p.shaders["image"]->setUniform("mirrorX", info.layout.mirror.x);
             p.shaders["image"]->setUniform("mirrorY", info.layout.mirror.y);
             switch (info.pixelType)
             {
-            case imaging::PixelType::YUV_420P_U8:
-            case imaging::PixelType::YUV_422P_U8:
-            case imaging::PixelType::YUV_444P_U8:
-            case imaging::PixelType::YUV_420P_U16:
-            case imaging::PixelType::YUV_422P_U16:
-            case imaging::PixelType::YUV_444P_U16:
+            case image::PixelType::YUV_420P_U8:
+            case image::PixelType::YUV_422P_U8:
+            case image::PixelType::YUV_444P_U8:
+            case image::PixelType::YUV_420P_U16:
+            case image::PixelType::YUV_422P_U16:
+            case image::PixelType::YUV_444P_U16:
                 p.shaders["image"]->setUniform("textureSampler1", 1);
                 p.shaders["image"]->setUniform("textureSampler2", 2);
             default:

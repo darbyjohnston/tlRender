@@ -18,7 +18,7 @@ namespace tl
             {
                 int border = 0;
                 int handle = 0;
-                imaging::FontMetrics fontMetrics;
+                image::FontMetrics fontMetrics;
             };
             SizeData size;
 
@@ -220,7 +220,7 @@ namespace tl
             const math::BBox2i g2 = _getSliderGeometry();
             //event.render->drawRect(
             //    g2,
-            //    imaging::Color4f(1.F, 0.F, 0.F, .5F));
+            //    image::Color4f(1.F, 0.F, 0.F, .5F));
             int pos = 0;
             if (p.model)
             {

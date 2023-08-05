@@ -20,7 +20,7 @@
 
 namespace tl
 {
-    namespace imaging
+    namespace image
     {
         //! \name Sizes
         ///@{

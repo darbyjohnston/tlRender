@@ -64,7 +64,7 @@ namespace tl
                 timeline::LUTOptions _lutOptions;
                 timeline::ImageOptions _imageOptions;
                 qt::TimelinePlayer* _timelinePlayer = nullptr;
-                imaging::Size _videoSize;
+                image::Size _videoSize;
                 timeline::VideoData _videoData;
                 math::Vector2f _cameraRotation;
                 float _cameraFOV = 45.F;

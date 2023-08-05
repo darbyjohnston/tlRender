@@ -103,7 +103,7 @@ namespace tl
             void keyReleaseEvent(ui::KeyEvent&) override;
 
         private:
-            imaging::Size _renderSize() const;
+            image::Size _renderSize() const;
             math::Vector2i _viewportCenter() const;
             void _frameView();
 

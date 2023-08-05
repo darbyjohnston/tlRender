@@ -50,7 +50,7 @@ namespace tl
                         _options.compareFileName,
                         { "-compare", "-b" },
                         "A/B comparison \"B\" file name."),
-                    app::CmdLineValueOption<imaging::Size>::create(
+                    app::CmdLineValueOption<image::Size>::create(
                         _options.windowSize,
                         { "-windowSize", "-ws" },
                         "Window size.",
@@ -506,11 +506,11 @@ namespace tl
                 const float viewportAspect = viewportSize.y > 0 ?
                     (viewportSize.x / static_cast<float>(viewportSize.y)) :
                     1.F;
-                const imaging::Size renderSize = timeline::getRenderSize(
+                const image::Size renderSize = timeline::getRenderSize(
                     compareOptions.mode,
                     _videoSizes);
                 const float renderSizeAspect = renderSize.getAspect();
-                imaging::Size transformSize;
+                image::Size transformSize;
                 math::Vector2f transformOffset;
                 if (renderSizeAspect > 1.F)
                 {
@@ -530,7 +530,7 @@ namespace tl
                 _render->setClipRectEnabled(true);
                 _render->setViewport(bbox);
                 _render->setClipRect(bbox);
-                _render->clearViewport(imaging::Color4f(0.F, 0.F, 0.F));
+                _render->clearViewport(image::Color4f(0.F, 0.F, 0.F));
 
                 _render->setTransform(math::ortho(
                     0.F,
@@ -559,19 +559,19 @@ namespace tl
                         -1.F,
                         1.F));
 
-                    imaging::FontInfo fontInfo;
+                    image::FontInfo fontInfo;
                     fontInfo.size = fontSize;
-                    auto fontSystem = _context->getSystem<imaging::FontSystem>();
+                    auto fontSystem = _context->getSystem<image::FontSystem>();
                     auto fontMetrics = fontSystem->getMetrics(fontInfo);
                     std::string text = timeline::getLabel(compareOptions.mode);
                     math::Vector2i textSize = fontSystem->getSize(text, fontInfo);
                     _render->drawRect(
                         math::BBox2i(0, 0, viewportSize.x, fontMetrics.lineHeight),
-                        imaging::Color4f(0.F, 0.F, 0.F, .7F));
+                        image::Color4f(0.F, 0.F, 0.F, .7F));
                     _render->drawText(
                         fontSystem->getGlyphs(text, fontInfo),
                         math::Vector2i(fontSize / 5, fontMetrics.ascender),
-                        imaging::Color4f(1.F, 1.F, 1.F));
+                        image::Color4f(1.F, 1.F, 1.F));
                 }
 
                 _render->setClipRectEnabled(false);

@@ -31,8 +31,8 @@ namespace tl
         struct Options
         {
             otime::TimeRange inOutRange = time::invalidTimeRange;
-            imaging::Size renderSize;
-            imaging::PixelType outputPixelType = imaging::PixelType::None;
+            image::Size renderSize;
+            image::PixelType outputPixelType = image::PixelType::None;
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
             float sequenceDefaultSpeed = io::sequenceDefaultSpeed;
@@ -88,8 +88,8 @@ namespace tl
             Options _options;
 
             std::shared_ptr<timeline::Timeline> _timeline;
-            imaging::Size _renderSize;
-            imaging::Info _outputInfo;
+            image::Size _renderSize;
+            image::Info _outputInfo;
             otime::TimeRange _timeRange = time::invalidTimeRange;
             otime::RationalTime _inputTime = time::invalidTime;
             otime::RationalTime _outputTime = time::invalidTime;
@@ -101,7 +101,7 @@ namespace tl
 
             std::shared_ptr<io::IPlugin> _writerPlugin;
             std::shared_ptr<io::IWrite> _writer;
-            std::shared_ptr<imaging::Image> _outputImage;
+            std::shared_ptr<image::Image> _outputImage;
 
             bool _running = true;
             std::chrono::steady_clock::time_point _startTime;

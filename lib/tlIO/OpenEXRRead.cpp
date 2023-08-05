@@ -205,17 +205,17 @@ namespace tl
                         switch (layer.channels[0].pixelType)
                         {
                         case Imf::PixelType::HALF:
-                            info.pixelType = imaging::getFloatType(layer.channels.size(), 16);
+                            info.pixelType = image::getFloatType(layer.channels.size(), 16);
                             break;
                         case Imf::PixelType::FLOAT:
-                            info.pixelType = imaging::getFloatType(layer.channels.size(), 32);
+                            info.pixelType = image::getFloatType(layer.channels.size(), 32);
                             break;
                         case Imf::PixelType::UINT:
-                            info.pixelType = imaging::getIntType(layer.channels.size(), 32);
+                            info.pixelType = image::getIntType(layer.channels.size(), 32);
                             break;
                         default: break;
                         }
-                        if (imaging::PixelType::None == info.pixelType)
+                        if (image::PixelType::None == info.pixelType)
                         {
                             throw std::runtime_error(string::Format("{0}: Unsupported image type").arg(fileName));
                         }
@@ -235,11 +235,11 @@ namespace tl
                 {
                     io::VideoData out;
                     layer = std::min(static_cast<size_t>(layer), _info.video.size() - 1);
-                    imaging::Info imageInfo = _info.video[layer];
-                    out.image = imaging::Image::create(imageInfo);
+                    image::Info imageInfo = _info.video[layer];
+                    out.image = image::Image::create(imageInfo);
                     out.image->setTags(_info.tags);
-                    const size_t channels = imaging::getChannelCount(imageInfo.pixelType);
-                    const size_t channelByteCount = imaging::getBitDepth(imageInfo.pixelType) / 8;
+                    const size_t channels = image::getChannelCount(imageInfo.pixelType);
+                    const size_t channelByteCount = image::getBitDepth(imageInfo.pixelType) / 8;
                     const size_t cb = channels * channelByteCount;
                     const size_t scb = imageInfo.size.w * channels * channelByteCount;
                     if (_fast)

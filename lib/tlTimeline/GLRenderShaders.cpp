@@ -131,7 +131,7 @@ namespace tl
         namespace
         {
             const std::string pixelType =
-                "// enum tl::imaging::PixelType\n"
+                "// enum tl::image::PixelType\n"
                 "const uint PixelType_None         = 0;\n"
                 "const uint PixelType_L_U8         = 1;\n"
                 "const uint PixelType_L_U16        = 2;\n"
@@ -162,7 +162,7 @@ namespace tl
                 "const uint PixelType_YUV_444P_U16 = 27;\n";
 
             const std::string videoLevels =
-                "// enum tl::imaging::VideoLevels\n"
+                "// enum tl::image::VideoLevels\n"
                 "const uint VideoLevels_FullRange  = 0;\n"
                 "const uint VideoLevels_LegalRange = 1;\n";
 

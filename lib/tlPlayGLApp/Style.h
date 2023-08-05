@@ -23,6 +23,6 @@ namespace tl
         TLRENDER_ENUM_SERIALIZE(StylePalette);
 
         //! Get the style palette.
-        std::map<ui::ColorRole, imaging::Color4f> getStylePalette(StylePalette);
+        std::map<ui::ColorRole, image::Color4f> getStylePalette(StylePalette);
     }
 }

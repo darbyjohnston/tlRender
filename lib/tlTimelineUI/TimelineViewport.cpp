@@ -20,7 +20,7 @@ namespace tl
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
             std::vector<std::shared_ptr<timeline::Player> > players;
-            std::vector<imaging::Size> timelineSizes;
+            std::vector<image::Size> timelineSizes;
             math::Vector2i viewPos;
             double viewZoom = 1.0;
             std::shared_ptr<observer::Value<bool> > frameView;
@@ -297,7 +297,7 @@ namespace tl
 
             const math::BBox2i& g = _geometry;
 
-            event.render->drawRect(g, imaging::Color4f(0.F, 0.F, 0.F));
+            event.render->drawRect(g, image::Color4f(0.F, 0.F, 0.F));
 
             if (p.renderBuffer)
             {
@@ -309,9 +309,9 @@ namespace tl
                 const timeline::TransformState transformState(event.render);
                 const timeline::RenderSizeState renderSizeState(event.render);
 
-                const imaging::Size size(g.w(), g.h());
+                const image::Size size(g.w(), g.h());
                 gl::OffscreenBufferOptions options;
-                options.colorType = imaging::PixelType::RGB_F32;
+                options.colorType = image::PixelType::RGB_F32;
                 options.depth = gl::OffscreenDepth::_24;
                 options.stencil = gl::OffscreenStencil::_8;
                 if (gl::doCreate(p.buffer, size, options))
@@ -335,7 +335,7 @@ namespace tl
                         -1.F,
                         1.F);
                     event.render->setTransform(pm * vm);
-                    event.render->clearViewport(imaging::Color4f(0.F, 0.F, 0.F));
+                    event.render->clearViewport(image::Color4f(0.F, 0.F, 0.F));
                     event.render->drawVideo(
                         p.videoData,
                         timeline::getBBoxes(p.compareOptions.mode, p.timelineSizes),
@@ -447,7 +447,7 @@ namespace tl
             event.accept = true;
         }
 
-        imaging::Size TimelineViewport::_renderSize() const
+        image::Size TimelineViewport::_renderSize() const
         {
             TLRENDER_P();
             return timeline::getRenderSize(p.compareOptions.mode, p.timelineSizes);
@@ -461,8 +461,8 @@ namespace tl
         void TimelineViewport::_frameView()
         {
             TLRENDER_P();
-            const imaging::Size viewportSize(_geometry.w(), _geometry.h());
-            const imaging::Size renderSize = _renderSize();
+            const image::Size viewportSize(_geometry.w(), _geometry.h());
+            const image::Size renderSize = _renderSize();
             double zoom = viewportSize.w / static_cast<double>(renderSize.w);
             if (zoom * renderSize.h > viewportSize.h)
             {

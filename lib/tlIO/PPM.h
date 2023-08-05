@@ -114,7 +114,7 @@ namespace tl
             void _writeVideo(
                 const std::string& fileName,
                 const otime::RationalTime&,
-                const std::shared_ptr<imaging::Image>&) override;
+                const std::shared_ptr<image::Image>&) override;
 
         private:
             Data _data = Data::Binary;
@@ -137,8 +137,8 @@ namespace tl
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
                 const io::Options & = io::Options()) override;
-            imaging::Info getWriteInfo(
-                const imaging::Info&,
+            image::Info getWriteInfo(
+                const image::Info&,
                 const io::Options& = io::Options()) const override;
             std::shared_ptr<io::IWrite> write(
                 const file::Path&,

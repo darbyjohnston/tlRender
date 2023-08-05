@@ -18,8 +18,8 @@ namespace tl
                 int margin2 = 0;
                 int spacing = 0;
                 int border = 0;
-                imaging::FontInfo fontInfo;
-                imaging::FontMetrics fontMetrics;
+                image::FontInfo fontInfo;
+                image::FontMetrics fontMetrics;
                 bool textInit = true;
                 math::Vector2i textSize;
             };
@@ -27,7 +27,7 @@ namespace tl
 
             struct DrawData
             {
-                std::vector<std::shared_ptr<imaging::Glyph> > glyphs;
+                std::vector<std::shared_ptr<image::Glyph> > glyphs;
             };
             DrawData draw;
         };
@@ -211,7 +211,7 @@ namespace tl
             int x = g3.x();
             if (_iconImage)
             {
-                const imaging::Size& iconSize = _iconImage->getSize();
+                const image::Size& iconSize = _iconImage->getSize();
                 event.render->drawImage(
                   _iconImage,
                   math::BBox2i(

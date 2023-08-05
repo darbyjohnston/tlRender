@@ -26,7 +26,7 @@ namespace tl
         TickEvent::TickEvent(
             const std::shared_ptr<Style>&               style,
             const std::shared_ptr<IconLibrary>&         iconLibrary,
-            const std::shared_ptr<imaging::FontSystem>& fontSystem,
+            const std::shared_ptr<image::FontSystem>& fontSystem,
             float                                       displayScale) :
             style(style),
             iconLibrary(iconLibrary),
@@ -40,7 +40,7 @@ namespace tl
         SizeHintEvent::SizeHintEvent(
             const std::shared_ptr<Style>&                   style,
             const std::shared_ptr<IconLibrary>&             iconLibrary,
-            const std::shared_ptr<imaging::FontSystem>&     fontSystem,
+            const std::shared_ptr<image::FontSystem>&     fontSystem,
             float                                           displayScale) :
             style(style),
             iconLibrary(iconLibrary),
@@ -54,9 +54,9 @@ namespace tl
             }
         }
 
-        imaging::FontMetrics SizeHintEvent::getFontMetrics(FontRole role) const
+        image::FontMetrics SizeHintEvent::getFontMetrics(FontRole role) const
         {
-            imaging::FontMetrics out;
+            image::FontMetrics out;
             const auto i = fontMetrics.find(role);
             if (i != fontMetrics.end())
             {
@@ -71,7 +71,7 @@ namespace tl
         ClipEvent::ClipEvent(
             const std::shared_ptr<Style>&               style,
             const std::shared_ptr<IconLibrary>&         iconLibrary,
-            const std::shared_ptr<imaging::FontSystem>& fontSystem,
+            const std::shared_ptr<image::FontSystem>& fontSystem,
             float                                       displayScale) :
             style(style),
             iconLibrary(iconLibrary),
@@ -92,7 +92,7 @@ namespace tl
             const std::shared_ptr<Style>&                   style,
             const std::shared_ptr<IconLibrary>&             iconLibrary,
             const std::shared_ptr<timeline::IRender>&       render,
-            const std::shared_ptr<imaging::FontSystem>&     fontSystem,
+            const std::shared_ptr<image::FontSystem>&     fontSystem,
             float                                           displayScale) :
             style(style),
             iconLibrary(iconLibrary),
@@ -107,9 +107,9 @@ namespace tl
             }
         }
 
-        imaging::FontMetrics DrawEvent::getFontMetrics(FontRole role) const
+        image::FontMetrics DrawEvent::getFontMetrics(FontRole role) const
         {
-            imaging::FontMetrics out;
+            image::FontMetrics out;
             const auto i = fontMetrics.find(role);
             if (i != fontMetrics.end())
             {

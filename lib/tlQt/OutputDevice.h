@@ -74,7 +74,7 @@ namespace tl
             void setDisplayOptions(const std::vector<timeline::DisplayOptions>&);
 
             //! Set the HDR mode and metadata.
-            void setHDR(device::HDRMode, const imaging::HDRData&);
+            void setHDR(device::HDRMode, const image::HDRData&);
 
             //! Set the comparison options.
             void setCompareOptions(const timeline::CompareOptions&);
@@ -113,7 +113,7 @@ namespace tl
             void deviceActiveChanged(bool);
 
             //! This signal is emitted when the output device size is changed.
-            void sizeChanged(const tl::imaging::Size&);
+            void sizeChanged(const tl::image::Size&);
 
             //! This signal is emitted when the output device frame rate is
             //! changed.

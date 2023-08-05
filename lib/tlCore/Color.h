@@ -12,7 +12,7 @@
 namespace tl
 {
     //! Imaging.
-    namespace imaging
+    namespace image
     {
         //! Color.
         class Color4f
@@ -28,10 +28,10 @@ namespace tl
         };
 
         //! Get a lighter color.
-        imaging::Color4f lighter(const imaging::Color4f&, float);
+        image::Color4f lighter(const image::Color4f&, float);
 
         //! Get a darker color.
-        imaging::Color4f darker(const imaging::Color4f&, float);
+        image::Color4f darker(const image::Color4f&, float);
 
         //! \name Serialize
         ///@{

@@ -129,11 +129,11 @@ namespace tl
             std::string icon;
             float iconScale = 1.F;
             bool iconInit = false;
-            std::future<std::shared_ptr<imaging::Image> > iconFuture;
-            std::shared_ptr<imaging::Image> iconImage;
+            std::future<std::shared_ptr<image::Image> > iconFuture;
+            std::shared_ptr<image::Image> iconImage;
             bool arrowIconInit = false;
-            std::future<std::shared_ptr<imaging::Image> > arrowIconFuture;
-            std::shared_ptr<imaging::Image> arrowIconImage;
+            std::future<std::shared_ptr<image::Image> > arrowIconFuture;
+            std::shared_ptr<image::Image> arrowIconImage;
 
             std::shared_ptr<ComboBoxMenu> menu;
 
@@ -142,15 +142,15 @@ namespace tl
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
-                imaging::FontInfo fontInfo;
-                imaging::FontMetrics fontMetrics;
+                image::FontInfo fontInfo;
+                image::FontMetrics fontMetrics;
                 math::Vector2i textSize;
             };
             SizeData size;
 
             struct DrawData
             {
-                std::vector<std::shared_ptr<imaging::Glyph> > glyphs;
+                std::vector<std::shared_ptr<image::Glyph> > glyphs;
             };
             DrawData draw;
 
@@ -213,7 +213,7 @@ namespace tl
             p.text = item.text;
             p.icon = item.icon;
             p.iconInit = true;
-            p.iconFuture = std::future<std::shared_ptr<imaging::Image> >();
+            p.iconFuture = std::future<std::shared_ptr<image::Image> >();
             p.iconImage.reset();
             p.draw.glyphs.clear();
             _updates |= Update::Size;
@@ -245,7 +245,7 @@ namespace tl
             p.text = item.text;
             p.icon = item.icon;
             p.iconInit = true;
-            p.iconFuture = std::future<std::shared_ptr<imaging::Image> >();
+            p.iconFuture = std::future<std::shared_ptr<image::Image> >();
             p.iconImage.reset();
             p.draw.glyphs.clear();
             _updates |= Update::Size;
@@ -304,10 +304,10 @@ namespace tl
             {
                 p.iconScale = event.displayScale;
                 p.iconInit = true;
-                p.iconFuture = std::future<std::shared_ptr<imaging::Image> >();
+                p.iconFuture = std::future<std::shared_ptr<image::Image> >();
                 p.iconImage.reset();
                 p.arrowIconInit = true;
-                p.arrowIconFuture = std::future<std::shared_ptr<imaging::Image> >();
+                p.arrowIconFuture = std::future<std::shared_ptr<image::Image> >();
                 p.arrowIconImage.reset();
             }
             if (!p.icon.empty() && p.iconInit)
@@ -448,7 +448,7 @@ namespace tl
             int x = g3.x();
             if (p.iconImage)
             {
-                const imaging::Size& iconSize = p.iconImage->getSize();
+                const image::Size& iconSize = p.iconImage->getSize();
                 event.render->drawImage(
                     p.iconImage,
                     math::BBox2i(
@@ -483,7 +483,7 @@ namespace tl
 
             if (p.arrowIconImage)
             {
-                const imaging::Size& iconSize = p.arrowIconImage->getSize();
+                const image::Size& iconSize = p.arrowIconImage->getSize();
                 event.render->drawImage(
                     p.arrowIconImage,
                     math::BBox2i(

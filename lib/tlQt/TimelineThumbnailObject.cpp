@@ -298,10 +298,10 @@ namespace tl
                                 futureIt->wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                             {
                                 const auto videoData = futureIt->get();
-                                const imaging::Info info(
+                                const image::Info info(
                                     requestIt->size.width(),
                                     requestIt->size.height(),
-                                    imaging::PixelType::RGBA_U8);
+                                    image::PixelType::RGBA_U8);
                                 std::vector<uint8_t> pixelData(
                                     static_cast<size_t>(info.size.w) *
                                     static_cast<size_t>(info.size.h) * 4);
@@ -309,7 +309,7 @@ namespace tl
                                 try
                                 {
                                     gl::OffscreenBufferOptions offscreenBufferOptions;
-                                    offscreenBufferOptions.colorType = imaging::PixelType::RGBA_U8;
+                                    offscreenBufferOptions.colorType = image::PixelType::RGBA_U8;
                                     if (gl::doCreate(offscreenBuffer, info.size, offscreenBufferOptions))
                                     {
                                         offscreenBuffer = gl::OffscreenBuffer::create(info.size, offscreenBufferOptions);

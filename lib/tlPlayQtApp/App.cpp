@@ -389,7 +389,7 @@ namespace tl
             /*connect(
                 p.outputDevice,
                 &qt::OutputDevice::sizeChanged,
-                [this](const imaging::Size& value)
+                [this](const image::Size& value)
                 {
                     std::cout << "output device size: " << value << std::endl;
                 });
@@ -418,7 +418,7 @@ namespace tl
             if (!s.empty())
             {
                 auto json = nlohmann::json::parse(s);
-                imaging::HDRData hdrData;
+                image::HDRData hdrData;
                 try
                 {
                     from_json(json, hdrData);

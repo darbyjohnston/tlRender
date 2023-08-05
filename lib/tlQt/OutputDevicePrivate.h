@@ -21,7 +21,7 @@ namespace tl
 {
     namespace qt
     {
-        imaging::PixelType getOffscreenType(device::PixelType);
+        image::PixelType getOffscreenType(device::PixelType);
         GLenum getReadPixelsFormat(device::PixelType);
         GLenum getReadPixelsType(device::PixelType);
         GLint getReadPixelsAlign(device::PixelType);
@@ -61,7 +61,7 @@ namespace tl
             bool deviceEnabled = true;
             bool deviceActive = false;
             device::HDRMode hdrMode = device::HDRMode::FromFile;
-            imaging::HDRData hdrData;
+            image::HDRData hdrData;
 
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
@@ -71,7 +71,7 @@ namespace tl
             QVector<QSharedPointer<qt::TimelinePlayer> > timelinePlayers;
             timeline::Playback playback = timeline::Playback::Stop;
             otime::RationalTime currentTime = time::invalidTime;
-            std::vector<imaging::Size> sizes;
+            std::vector<image::Size> sizes;
             math::Vector2i viewPos;
             float viewZoom = 1.F;
             bool frameView = true;

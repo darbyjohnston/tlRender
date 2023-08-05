@@ -62,16 +62,16 @@ namespace tl
             return Read::create(path, memory, io::merge(options, _options), _logSystem);
         }
 
-        imaging::Info Plugin::getWriteInfo(
-            const imaging::Info& info,
+        image::Info Plugin::getWriteInfo(
+            const image::Info& info,
             const io::Options& options) const
         {
-            imaging::Info out;
+            image::Info out;
             out.size = info.size;
             switch (info.pixelType)
             {
-            case imaging::PixelType::L_U8:
-            case imaging::PixelType::RGB_U8:
+            case image::PixelType::L_U8:
+            case image::PixelType::RGB_U8:
                 out.pixelType = info.pixelType;
                 break;
             default: break;

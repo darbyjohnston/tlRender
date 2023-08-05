@@ -28,7 +28,7 @@ namespace tl
             "Tile");
         TLRENDER_ENUM_SERIALIZE_IMPL(CompareMode);
 
-        std::vector<math::BBox2i> getBBoxes(CompareMode mode, const std::vector<imaging::Size>& sizes)
+        std::vector<math::BBox2i> getBBoxes(CompareMode mode, const std::vector<image::Size>& sizes)
         {
             std::vector<math::BBox2i> out;
             const size_t count = sizes.size();
@@ -36,7 +36,7 @@ namespace tl
             {
             case CompareMode::Horizontal:
             {
-                imaging::Size size;
+                image::Size size;
                 if (count > 0)
                 {
                     size = sizes[0];
@@ -65,7 +65,7 @@ namespace tl
             }
             case CompareMode::Vertical:
             {
-                imaging::Size size;
+                image::Size size;
                 if (count > 0)
                 {
                     size = sizes[0];
@@ -95,7 +95,7 @@ namespace tl
             case CompareMode::Tile:
                 if (count > 0)
                 {
-                    imaging::Size tileSize;
+                    image::Size tileSize;
                     for (const auto& i : sizes)
                     {
                         tileSize = std::max(tileSize, i);
@@ -152,9 +152,9 @@ namespace tl
             return out;
         }
 
-        imaging::Size getRenderSize(CompareMode mode, const std::vector<imaging::Size>& sizes)
+        image::Size getRenderSize(CompareMode mode, const std::vector<image::Size>& sizes)
         {
-            imaging::Size out;
+            image::Size out;
             math::BBox2i bbox;
             const auto bboxes = getBBoxes(mode, sizes);
             if (!bboxes.empty())

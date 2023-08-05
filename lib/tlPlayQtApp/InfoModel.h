@@ -30,7 +30,7 @@ namespace tl
             virtual ~TagsModel();
 
             //! Set the tags.
-            void setTags(const imaging::Tags&);
+            void setTags(const image::Tags&);
 
             int rowCount(const QModelIndex& parent = QModelIndex()) const override;
             int columnCount(const QModelIndex& parent = QModelIndex()) const override;

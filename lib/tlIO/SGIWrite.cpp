@@ -82,19 +82,19 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const std::shared_ptr<imaging::Image>& image)
+                    const std::shared_ptr<image::Image>& image)
                 {
                     const auto& info = image->getInfo();
                     Header header;
-                    header.bytes = imaging::getBitDepth(info.pixelType) / 8;
+                    header.bytes = image::getBitDepth(info.pixelType) / 8;
                     header.dimension = 3;
                     header.width = info.size.w;
                     header.height = info.size.h;
-                    header.channels = imaging::getChannelCount(info.pixelType);
+                    header.channels = image::getChannelCount(info.pixelType);
                     header.pixelMin = 0;
-                    header.pixelMax = imaging::getBitDepth(info.pixelType) == 8 ?
-                        imaging::U8Range.getMax() :
-                        imaging::U16Range.getMax();
+                    header.pixelMax = image::getBitDepth(info.pixelType) == 8 ?
+                        image::U8Range.getMax() :
+                        image::U16Range.getMax();
 
                     auto io = file::FileIO::create(fileName, file::Mode::Write);
                     io->setEndianConversion(memory::getEndian() != memory::Endian::MSB);
@@ -111,13 +111,13 @@ namespace tl
                     io->write(dummy.data(), dummy.size());
                     io->setEndianConversion(false);
 
-                    auto tmp = imaging::Image::create(info);
+                    auto tmp = image::Image::create(info);
                     planarDeinterleave(
                         image->getData(),
                         tmp->getData(),
                         info.size.w,
                         info.size.h,
-                        imaging::getChannelCount(info.pixelType));
+                        image::getChannelCount(info.pixelType));
                     io->write(tmp->getData(), tmp->getDataByteCount());
                 }
             };
@@ -152,7 +152,7 @@ namespace tl
         void Write::_writeVideo(
             const std::string& fileName,
             const otime::RationalTime&,
-            const std::shared_ptr<imaging::Image>& image)
+            const std::shared_ptr<image::Image>& image)
         {
             const auto f = File(fileName, image);
         }

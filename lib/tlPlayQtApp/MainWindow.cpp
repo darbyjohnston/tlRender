@@ -80,7 +80,7 @@ namespace tl
             QVector<QSharedPointer<qt::TimelinePlayer> > timelinePlayers;
             bool floatOnTop = false;
             bool secondaryFloatOnTop = false;
-            imaging::VideoLevels outputVideoLevels;
+            image::VideoLevels outputVideoLevels;
 
             FileActions* fileActions = nullptr;
             CompareActions* compareActions = nullptr;
@@ -467,7 +467,7 @@ namespace tl
             connect(
                 p.windowActions,
                 &WindowActions::resize,
-                [this](const imaging::Size& size)
+                [this](const image::Size& size)
                 {
                     resize(size.w, size.h);
                 });

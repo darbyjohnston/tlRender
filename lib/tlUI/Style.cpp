@@ -91,40 +91,40 @@ namespace tl
             "Yellow");
         TLRENDER_ENUM_SERIALIZE_IMPL(ColorRole);
 
-        std::map<ColorRole, imaging::Color4f> defaultColorRoles()
+        std::map<ColorRole, image::Color4f> defaultColorRoles()
         {
-            std::map<ColorRole, imaging::Color4f> out;
-            out[ColorRole::None] = imaging::Color4f();
+            std::map<ColorRole, image::Color4f> out;
+            out[ColorRole::None] = image::Color4f();
 
-            out[ColorRole::Window] = imaging::Color4f(.2F, .2F, .2F);
-            out[ColorRole::Base] = imaging::Color4f(.17F, .17F, .17F);
-            out[ColorRole::Button] = imaging::Color4f(.3F, .3F, .3F);
-            out[ColorRole::Text] = imaging::Color4f(1.F, 1.F, 1.F);
-            out[ColorRole::TextDisabled] = imaging::Color4f(.5F, .5F, .5F);
-            out[ColorRole::Border] = imaging::Color4f(.13F, .13F, .13F);
-            out[ColorRole::Hover] = imaging::Color4f(1.F, 1.F, 1.F, .1F);
-            out[ColorRole::Pressed] = imaging::Color4f(1.F, 1.F, 1.F, .2F);
-            out[ColorRole::Checked] = imaging::Color4f(.6F, .4F, .2F);
-            out[ColorRole::KeyFocus] = imaging::Color4f(.6F, .6F, .4F);
-            out[ColorRole::Overlay] = imaging::Color4f(0.F, 0.F, 0.F, .5F);
-            out[ColorRole::ToolTipWindow] = imaging::Color4f(1.F, .95F, .7F);
-            out[ColorRole::ToolTipText] = imaging::Color4f(0.F, 0.F, 0.F);
+            out[ColorRole::Window] = image::Color4f(.2F, .2F, .2F);
+            out[ColorRole::Base] = image::Color4f(.17F, .17F, .17F);
+            out[ColorRole::Button] = image::Color4f(.3F, .3F, .3F);
+            out[ColorRole::Text] = image::Color4f(1.F, 1.F, 1.F);
+            out[ColorRole::TextDisabled] = image::Color4f(.5F, .5F, .5F);
+            out[ColorRole::Border] = image::Color4f(.13F, .13F, .13F);
+            out[ColorRole::Hover] = image::Color4f(1.F, 1.F, 1.F, .1F);
+            out[ColorRole::Pressed] = image::Color4f(1.F, 1.F, 1.F, .2F);
+            out[ColorRole::Checked] = image::Color4f(.6F, .4F, .2F);
+            out[ColorRole::KeyFocus] = image::Color4f(.6F, .6F, .4F);
+            out[ColorRole::Overlay] = image::Color4f(0.F, 0.F, 0.F, .5F);
+            out[ColorRole::ToolTipWindow] = image::Color4f(1.F, .95F, .7F);
+            out[ColorRole::ToolTipText] = image::Color4f(0.F, 0.F, 0.F);
 
-            out[ColorRole::InOut] = imaging::Color4f(1.F, .7F, .2F, .1F);
-            out[ColorRole::VideoCache] = imaging::Color4f(.2F, .4F, .4F);
-            out[ColorRole::AudioCache] = imaging::Color4f(.3F, .25F, .4F);
-            out[ColorRole::VideoClip] = imaging::Color4f(.2F, .4F, .4F);
-            out[ColorRole::VideoGap] = imaging::Color4f(.25F, .31F, .31F);
-            out[ColorRole::AudioClip] = imaging::Color4f(.3F, .25F, .4F);
-            out[ColorRole::AudioGap] = imaging::Color4f(.25F, .24F, .3F);
-            out[ColorRole::Transition] = imaging::Color4f(.4F, .3F, .3F);
+            out[ColorRole::InOut] = image::Color4f(1.F, .7F, .2F, .1F);
+            out[ColorRole::VideoCache] = image::Color4f(.2F, .4F, .4F);
+            out[ColorRole::AudioCache] = image::Color4f(.3F, .25F, .4F);
+            out[ColorRole::VideoClip] = image::Color4f(.2F, .4F, .4F);
+            out[ColorRole::VideoGap] = image::Color4f(.25F, .31F, .31F);
+            out[ColorRole::AudioClip] = image::Color4f(.3F, .25F, .4F);
+            out[ColorRole::AudioGap] = image::Color4f(.25F, .24F, .3F);
+            out[ColorRole::Transition] = image::Color4f(.4F, .3F, .3F);
 
-            out[ColorRole::Red] = imaging::Color4f(.6F, .3F, .3F);
-            out[ColorRole::Green] = imaging::Color4f(.3F, .6F, .3F);
-            out[ColorRole::Blue] = imaging::Color4f(.3F, .3F, .6F);
-            out[ColorRole::Cyan] = imaging::Color4f(.3F, .6F, .6F);
-            out[ColorRole::Magenta] = imaging::Color4f(.6F, .3F, .6F);
-            out[ColorRole::Yellow] = imaging::Color4f(.6F, .6F, .3F);
+            out[ColorRole::Red] = image::Color4f(.6F, .3F, .3F);
+            out[ColorRole::Green] = image::Color4f(.3F, .6F, .3F);
+            out[ColorRole::Blue] = image::Color4f(.3F, .3F, .6F);
+            out[ColorRole::Cyan] = image::Color4f(.3F, .6F, .6F);
+            out[ColorRole::Magenta] = image::Color4f(.6F, .3F, .6F);
+            out[ColorRole::Yellow] = image::Color4f(.6F, .6F, .3F);
             return out;
         }
 
@@ -136,12 +136,12 @@ namespace tl
             "Title");
         TLRENDER_ENUM_SERIALIZE_IMPL(FontRole);
 
-        std::map<FontRole, imaging::FontInfo> defaultFontRoles()
+        std::map<FontRole, image::FontInfo> defaultFontRoles()
         {
-            std::map<FontRole, imaging::FontInfo> out;
-            out[FontRole::Label] = imaging::FontInfo("NotoSans-Regular", 12 * 1);
-            out[FontRole::Mono] = imaging::FontInfo("NotoMono-Regular", 12 * 1);
-            out[FontRole::Title] = imaging::FontInfo("NotoSans-Bold", 16 * 1);
+            std::map<FontRole, image::FontInfo> out;
+            out[FontRole::Label] = image::FontInfo("NotoSans-Regular", 12 * 1);
+            out[FontRole::Mono] = image::FontInfo("NotoMono-Regular", 12 * 1);
+            out[FontRole::Title] = image::FontInfo("NotoSans-Bold", 16 * 1);
             return out;
         }
 
@@ -195,7 +195,7 @@ namespace tl
             p.changed->setAlways(true);
         }
 
-        void Style::setColorRole(ColorRole role, const imaging::Color4f& value)
+        void Style::setColorRole(ColorRole role, const image::Color4f& value)
         {
             TLRENDER_P();
             if (_colorRoles[role] == value)
@@ -204,7 +204,7 @@ namespace tl
             p.changed->setAlways(true);
         }
 
-        void Style::setColorRoles(const std::map<ColorRole, imaging::Color4f>& value)
+        void Style::setColorRoles(const std::map<ColorRole, image::Color4f>& value)
         {
             TLRENDER_P();
             if (_colorRoles == value)
@@ -213,7 +213,7 @@ namespace tl
             p.changed->setAlways(true);
         }
 
-        void Style::setFontRole(FontRole role, const imaging::FontInfo& value)
+        void Style::setFontRole(FontRole role, const image::FontInfo& value)
         {
             TLRENDER_P();
             if (_fontRoles[role] == value)
@@ -222,7 +222,7 @@ namespace tl
             p.changed->setAlways(true);
         }
 
-        void Style::setFontRoles(const std::map<FontRole, imaging::FontInfo>& value)
+        void Style::setFontRoles(const std::map<FontRole, image::FontInfo>& value)
         {
             TLRENDER_P();
             if (_fontRoles == value)
@@ -236,7 +236,7 @@ namespace tl
             return _p->changed;
         }
 
-        void to_json(nlohmann::json& json, const std::map<ColorRole, imaging::Color4f>& in)
+        void to_json(nlohmann::json& json, const std::map<ColorRole, image::Color4f>& in)
         {
             std::map<std::string, std::string> s;
             for (const auto& i : in)
@@ -250,7 +250,7 @@ namespace tl
             json = s;
         }
 
-        void from_json(const nlohmann::json& json, std::map<ColorRole, imaging::Color4f>& out)
+        void from_json(const nlohmann::json& json, std::map<ColorRole, image::Color4f>& out)
         {
             for (auto i = json.begin(); i != json.end(); ++i)
             {
@@ -258,7 +258,7 @@ namespace tl
                 ColorRole colorRole = ColorRole::None;
                 ss >> colorRole;
                 std::stringstream ss2(std::string(i.value()));
-                imaging::Color4f color;
+                image::Color4f color;
                 ss2 >> color;
                 out[colorRole] = color;
             }

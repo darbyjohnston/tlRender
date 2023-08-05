@@ -15,9 +15,9 @@ namespace tl
             bool checkable = false;
             float iconScale = 1.F;
             bool iconInit = false;
-            std::future<std::shared_ptr<imaging::Image> > iconFuture;
+            std::future<std::shared_ptr<image::Image> > iconFuture;
             bool checkedIconInit = false;
-            std::future<std::shared_ptr<imaging::Image> > checkedIconFuture;
+            std::future<std::shared_ptr<image::Image> > checkedIconFuture;
             bool repeatClick = false;
             bool repeatClickInit = false;
             std::chrono::steady_clock::time_point repeatClickTimer;
@@ -178,10 +178,10 @@ namespace tl
             {
                 p.iconScale = event.displayScale;
                 p.iconInit = true;
-                p.iconFuture = std::future<std::shared_ptr<imaging::Image> >();
+                p.iconFuture = std::future<std::shared_ptr<image::Image> >();
                 _iconImage.reset();
                 p.checkedIconInit = true;
-                p.checkedIconFuture = std::future<std::shared_ptr<imaging::Image> >();
+                p.checkedIconFuture = std::future<std::shared_ptr<image::Image> >();
                 _checkedIconImage.reset();
             }
             if (!_icon.empty() && p.iconInit)

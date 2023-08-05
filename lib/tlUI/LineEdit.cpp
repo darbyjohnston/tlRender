@@ -107,8 +107,8 @@ namespace tl
             {
                 int margin = 0;
                 int border = 0;
-                imaging::FontInfo fontInfo;
-                imaging::FontMetrics fontMetrics;
+                image::FontInfo fontInfo;
+                image::FontMetrics fontMetrics;
                 math::Vector2i textSize;
                 math::Vector2i formatSize;
             };
@@ -116,7 +116,7 @@ namespace tl
 
             struct DrawData
             {
-                std::vector<std::shared_ptr<imaging::Glyph> > glyphs;
+                std::vector<std::shared_ptr<image::Glyph> > glyphs;
                 std::vector<math::BBox2i> glyphsBBox;
             };
             DrawData draw;
@@ -374,7 +374,7 @@ namespace tl
                     bbox.h());
                 event.render->drawRect(
                     bbox2,
-                    imaging::Color4f(1.F, 0.F, 0.F, .2F));
+                    image::Color4f(1.F, 0.F, 0.F, .2F));
             }*/
 
             if (p.cursorVisible)

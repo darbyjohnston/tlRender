@@ -175,7 +175,7 @@ namespace tl
                 }
 
                 otime::RationalTime timeReference = time::invalidTime;
-                imaging::Tags tags;
+                image::Tags tags;
                 AVDictionaryEntry* tag = nullptr;
                 while ((tag = av_dict_get(_avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
                 {
@@ -314,7 +314,7 @@ namespace tl
             return _timeRange;
         }
 
-        const imaging::Tags& ReadAudio::getTags() const
+        const image::Tags& ReadAudio::getTags() const
         {
             return _tags;
         }

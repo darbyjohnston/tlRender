@@ -14,7 +14,7 @@ namespace tl
         class Context;
     }
 
-    namespace imaging
+    namespace image
     {
         //! Get font data.
         std::vector<uint8_t> getFontData(const std::string&);
@@ -59,7 +59,7 @@ namespace tl
         struct Glyph
         {
             GlyphInfo                       info;
-            std::shared_ptr<imaging::Image> image;
+            std::shared_ptr<image::Image> image;
             math::Vector2i                  offset;
             int16_t                         advance  = 0;
             int32_t                         lsbDelta = 0;

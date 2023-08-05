@@ -19,10 +19,10 @@ namespace tl
         //! Video layer.
         struct VideoLayer
         {
-            std::shared_ptr<imaging::Image> image;
+            std::shared_ptr<image::Image> image;
             ImageOptions imageOptions;
 
-            std::shared_ptr<imaging::Image> imageB;
+            std::shared_ptr<image::Image> imageB;
             ImageOptions imageOptionsB;
 
             Transition transition = Transition::None;

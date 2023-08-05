@@ -19,7 +19,7 @@
 
 namespace tl
 {
-    namespace imaging
+    namespace image
     {
         namespace
         {
@@ -75,7 +75,7 @@ namespace tl
 
         void FontSystem::_init(const std::shared_ptr<system::Context>& context)
         {
-            ISystem::_init("tl::imaging::FontSystem", context);
+            ISystem::_init("tl::image::FontSystem", context);
             TLRENDER_P();
 
             try
@@ -272,8 +272,8 @@ namespace tl
                         out = std::make_shared<Glyph>();
                         out->info = GlyphInfo(code, fontInfo);
                         auto ftBitmap = i->second->glyph->bitmap;
-                        const imaging::Info imageInfo(ftBitmap.width, ftBitmap.rows, imaging::PixelType::L_U8);
-                        out->image = imaging::Image::create(imageInfo);
+                        const image::Info imageInfo(ftBitmap.width, ftBitmap.rows, image::PixelType::L_U8);
+                        out->image = image::Image::create(imageInfo);
                         for (size_t y = 0; y < ftBitmap.rows; ++y)
                         {
                             uint8_t* dataP = out->image->getData() + ftBitmap.width * y;

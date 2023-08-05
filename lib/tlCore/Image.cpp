@@ -15,7 +15,7 @@
 
 namespace tl
 {
-    namespace imaging
+    namespace image
     {
         math::BBox2i getBBox(float aspect, const math::BBox2i& bbox) noexcept
         {
@@ -275,7 +275,7 @@ namespace tl
         void Image::_init(const Info& info)
         {
             _info = info;
-            _dataByteCount = imaging::getDataByteCount(info);
+            _dataByteCount = image::getDataByteCount(info);
             //! \bug Allocate a bit of extra space since FFmpeg sws_scale()
             //! seems to be reading past the end?
             _data = new uint8_t[_dataByteCount + 16];

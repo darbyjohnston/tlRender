@@ -20,7 +20,7 @@ namespace tl
         //! Application options.
         struct Options
         {
-            imaging::Size windowSize = imaging::Size(1920, 1080);
+            image::Size windowSize = image::Size(1920, 1080);
             bool fullscreen = false;
         };
 
@@ -57,10 +57,10 @@ namespace tl
             const std::shared_ptr<ui::Style> getStyle() const;
 
             //! Get the window size.
-            imaging::Size getWindowSize() const;
+            image::Size getWindowSize() const;
 
             //! Set the window size.
-            void setWindowSize(const imaging::Size&);
+            void setWindowSize(const image::Size&);
 
             //! Get whether the window is in full screen mode.
             bool isFullScreen() const;
@@ -86,10 +86,10 @@ namespace tl
 
             void _setCursor(ui::StandardCursor value);
             void _setCursor(
-                const std::shared_ptr<imaging::Image>&,
+                const std::shared_ptr<image::Image>&,
                 const math::Vector2i&);
 
-            std::shared_ptr<imaging::Image> _capture(const math::BBox2i&);
+            std::shared_ptr<image::Image> _capture(const math::BBox2i&);
 
             virtual void _drop(const std::vector<std::string>&);
 

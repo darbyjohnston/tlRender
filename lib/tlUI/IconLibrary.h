@@ -31,7 +31,7 @@ namespace tl
                 const std::shared_ptr<system::Context>&);
 
             //! Request an icon.
-            std::future<std::shared_ptr<imaging::Image> > request(
+            std::future<std::shared_ptr<image::Image> > request(
                 const std::string& name,
                 float displayScale);
 

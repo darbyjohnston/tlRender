@@ -18,7 +18,7 @@ namespace tl
         struct DisplayMode
         {
             std::string name;
-            imaging::Size size;
+            image::Size size;
             otime::RationalTime frameRate;
 
             bool operator == (const DisplayMode&) const;
@@ -38,7 +38,7 @@ namespace tl
         TLRENDER_ENUM_SERIALIZE(PixelType);
 
         //! Get the number of bytes used to store the pixel data.
-        size_t getDataByteCount(const imaging::Size&, PixelType);
+        size_t getDataByteCount(const image::Size&, PixelType);
 
         //! Pixel data.
         class PixelData : public std::enable_shared_from_this<PixelData>
@@ -47,7 +47,7 @@ namespace tl
 
         protected:
             void _init(
-                const imaging::Size&,
+                const image::Size&,
                 PixelType,
                 const otime::RationalTime&);
             PixelData();
@@ -57,12 +57,12 @@ namespace tl
 
             //! Create new pixel data.
             static std::shared_ptr<PixelData> create(
-                const imaging::Size&,
+                const image::Size&,
                 PixelType,
                 const otime::RationalTime&);
 
             //! Get the pixel data size.
-            const imaging::Size& getSize() const;
+            const image::Size& getSize() const;
 
             //! Get the pixel type.
             PixelType getPixelType() const;
@@ -86,18 +86,18 @@ namespace tl
             void zero();
 
             //! Get HDR data.
-            const std::shared_ptr<imaging::HDRData>& getHDRData() const;
+            const std::shared_ptr<image::HDRData>& getHDRData() const;
 
             //! Set HDR data.
-            void setHDRData(const std::shared_ptr<imaging::HDRData>&);
+            void setHDRData(const std::shared_ptr<image::HDRData>&);
 
         private:
-            imaging::Size _size;
+            image::Size _size;
             PixelType _pixelType = PixelType::None;
             otime::RationalTime _time;
             size_t _dataByteCount = 0;
             uint8_t* _data = nullptr;
-            std::shared_ptr<imaging::HDRData> _hdrData;
+            std::shared_ptr<image::HDRData> _hdrData;
         };
 
         //! Device information.
@@ -127,6 +127,6 @@ namespace tl
         TLRENDER_ENUM_SERIALIZE(HDRMode);
 
         //! Get HDR data from timeline video data.
-        std::shared_ptr<imaging::HDRData> getHDRData(const timeline::VideoData&);
+        std::shared_ptr<image::HDRData> getHDRData(const timeline::VideoData&);
     }
 }

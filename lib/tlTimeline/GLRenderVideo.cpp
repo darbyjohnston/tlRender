@@ -167,7 +167,7 @@ namespace tl
             glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
             glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
             p.shaders["wipe"]->bind();
-            p.shaders["wipe"]->setUniform("color", imaging::Color4f(1.F, 0.F, 0.F));
+            p.shaders["wipe"]->setUniform("color", image::Color4f(1.F, 0.F, 0.F));
             {
                 if (p.vbos["wipe"])
                 {
@@ -208,7 +208,7 @@ namespace tl
             glStencilFunc(GL_ALWAYS, 1, 0xFF);
             glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
             p.shaders["wipe"]->bind();
-            p.shaders["wipe"]->setUniform("color", imaging::Color4f(0.F, 1.F, 0.F));
+            p.shaders["wipe"]->setUniform("color", image::Color4f(0.F, 1.F, 0.F));
             {
                 if (p.vbos["wipe"])
                 {
@@ -260,11 +260,11 @@ namespace tl
             }
             if (!videoData.empty() && !bbox.empty())
             {
-                const imaging::Size offscreenBufferSize(
+                const image::Size offscreenBufferSize(
                     bbox[0].w(),
                     bbox[0].h());
                 gl::OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
+                offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
                 if (!displayOptions.empty())
                 {
                     offscreenBufferOptions.colorFilters = displayOptions[0].imageFilters;
@@ -324,7 +324,7 @@ namespace tl
                         p.viewport.h());
 
                     p.shaders["overlay"]->bind();
-                    p.shaders["overlay"]->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F, compareOptions.overlay));
+                    p.shaders["overlay"]->setUniform("color", image::Color4f(1.F, 1.F, 1.F, compareOptions.overlay));
                     p.shaders["overlay"]->setUniform("textureSampler", 0);
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
@@ -355,11 +355,11 @@ namespace tl
             TLRENDER_P();
             if (!videoData.empty() && !bbox.empty())
             {
-                const imaging::Size offscreenBufferSize(
+                const image::Size offscreenBufferSize(
                     bbox[0].w(),
                     bbox[0].h());
                 gl::OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
+                offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
                 if (!imageOptions.empty())
                 {
                     offscreenBufferOptions.colorFilters = displayOptions[0].imageFilters;
@@ -411,7 +411,7 @@ namespace tl
                 if (videoData.size() > 1)
                 {
                     offscreenBufferOptions = gl::OffscreenBufferOptions();
-                    offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
+                    offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
                     if (imageOptions.size() > 1)
                     {
                         offscreenBufferOptions.colorFilters = displayOptions[1].imageFilters;
@@ -567,9 +567,9 @@ namespace tl
             p.shaders["image"]->bind();
             p.shaders["image"]->setUniform("transform.mvp", transform);
 
-            const imaging::Size offscreenBufferSize(bbox.w(), bbox.h());
+            const image::Size offscreenBufferSize(bbox.w(), bbox.h());
             gl::OffscreenBufferOptions offscreenBufferOptions;
-            offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
+            offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
             if (imageOptions.get())
             {
                 offscreenBufferOptions.colorFilters = displayOptions.imageFilters;
@@ -619,17 +619,17 @@ namespace tl
 
                                     drawImage(
                                         layer.image,
-                                        imaging::getBBox(
+                                        image::getBBox(
                                             layer.image->getAspect(),
                                             math::BBox2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
-                                        imaging::Color4f(1.F, 1.F, 1.F, 1.F - layer.transitionValue),
+                                        image::Color4f(1.F, 1.F, 1.F, 1.F - layer.transitionValue),
                                         imageOptions.get() ? *imageOptions : layer.imageOptions);
                                     drawImage(
                                         layer.imageB,
-                                        imaging::getBBox(
+                                        image::getBBox(
                                             layer.imageB->getAspect(),
                                             math::BBox2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
-                                        imaging::Color4f(1.F, 1.F, 1.F, layer.transitionValue),
+                                        image::Color4f(1.F, 1.F, 1.F, layer.transitionValue),
                                         imageOptions.get() ? *imageOptions : layer.imageOptionsB);
                                 }
                                 if (p.buffers["dissolve"])
@@ -638,7 +638,7 @@ namespace tl
 
                                     p.shaders["dissolve"]->bind();
                                     p.shaders["dissolve"]->setUniform("transform.mvp", transform);
-                                    p.shaders["dissolve"]->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F));
+                                    p.shaders["dissolve"]->setUniform("color", image::Color4f(1.F, 1.F, 1.F));
                                     p.shaders["dissolve"]->setUniform("textureSampler", 0);
 
                                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
@@ -661,20 +661,20 @@ namespace tl
                             {
                                 drawImage(
                                     layer.image,
-                                    imaging::getBBox(
+                                    image::getBBox(
                                         layer.image->getAspect(),
                                         math::BBox2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
-                                    imaging::Color4f(1.F, 1.F, 1.F, 1.F - layer.transitionValue),
+                                    image::Color4f(1.F, 1.F, 1.F, 1.F - layer.transitionValue),
                                     imageOptions.get() ? *imageOptions : layer.imageOptions);
                             }
                             else if (layer.imageB)
                             {
                                 drawImage(
                                     layer.imageB,
-                                    imaging::getBBox(
+                                    image::getBBox(
                                         layer.imageB->getAspect(),
                                         math::BBox2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
-                                    imaging::Color4f(1.F, 1.F, 1.F, layer.transitionValue),
+                                    image::Color4f(1.F, 1.F, 1.F, layer.transitionValue),
                                     imageOptions.get() ? *imageOptions : layer.imageOptionsB);
                             }
                             break;
@@ -684,10 +684,10 @@ namespace tl
                         {
                             drawImage(
                                 layer.image,
-                                imaging::getBBox(
+                                image::getBBox(
                                     layer.image->getAspect(),
                                     math::BBox2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
-                                imaging::Color4f(1.F, 1.F, 1.F),
+                                image::Color4f(1.F, 1.F, 1.F),
                                 imageOptions.get() ? *imageOptions : layer.imageOptions);
                         }
                         break;

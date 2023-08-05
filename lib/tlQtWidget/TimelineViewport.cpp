@@ -31,7 +31,7 @@ namespace tl
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
             QVector<QSharedPointer<qt::TimelinePlayer> > timelinePlayers;
-            std::vector<imaging::Size> timelineSizes;
+            std::vector<image::Size> timelineSizes;
             math::Vector2i viewPos;
             float viewZoom = 1.F;
             bool frameView = true;
@@ -337,7 +337,7 @@ namespace tl
                 if (renderSize.isValid())
                 {
                     gl::OffscreenBufferOptions offscreenBufferOptions;
-                    offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
+                    offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
                     if (!p.displayOptions.empty())
                     {
                         offscreenBufferOptions.colorFilters = p.displayOptions[0].imageFilters;
@@ -539,21 +539,21 @@ namespace tl
             }
         }
 
-        imaging::Size TimelineViewport::_viewportSize() const
+        image::Size TimelineViewport::_viewportSize() const
         {
             const float devicePixelRatio = window()->devicePixelRatio();
-            return imaging::Size(
+            return image::Size(
                 width() * devicePixelRatio,
                 height() * devicePixelRatio);
         }
         
         math::Vector2i TimelineViewport::_viewportCenter() const
         {
-            const imaging::Size viewportSize = _viewportSize();
+            const image::Size viewportSize = _viewportSize();
             return math::Vector2i(viewportSize.w / 2, viewportSize.h / 2);
         }
 
-        imaging::Size TimelineViewport::_renderSize() const
+        image::Size TimelineViewport::_renderSize() const
         {
             TLRENDER_P();
             return timeline::getRenderSize(p.compareOptions.mode, p.timelineSizes);
@@ -562,8 +562,8 @@ namespace tl
         void TimelineViewport::_frameView()
         {
             TLRENDER_P();
-            const imaging::Size viewportSize = _viewportSize();
-            const imaging::Size renderSize = _renderSize();
+            const image::Size viewportSize = _viewportSize();
+            const image::Size renderSize = _renderSize();
             float zoom = viewportSize.w / static_cast<float>(renderSize.w);
             if (zoom * renderSize.h > viewportSize.h)
             {

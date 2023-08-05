@@ -26,17 +26,17 @@ namespace tl
             static std::shared_ptr<GLRender> create(const std::shared_ptr<system::Context>&);
 
             void begin(
-                const imaging::Size&,
+                const image::Size&,
                 const ColorConfigOptions& = ColorConfigOptions(),
                 const LUTOptions& = LUTOptions(),
                 const RenderOptions& = RenderOptions()) override;
             void end() override;
 
-            imaging::Size getRenderSize() const override;
-            void setRenderSize(const imaging::Size&) override;
+            image::Size getRenderSize() const override;
+            void setRenderSize(const image::Size&) override;
             math::BBox2i getViewport() const override;
             void setViewport(const math::BBox2i&) override;
-            void clearViewport(const imaging::Color4f&) override;
+            void clearViewport(const image::Color4f&) override;
             bool getClipRectEnabled() const override;
             void setClipRectEnabled(bool) override;
             math::BBox2i getClipRect() const override;
@@ -46,27 +46,27 @@ namespace tl
 
             void drawRect(
                 const math::BBox2i&,
-                const imaging::Color4f&) override;
+                const image::Color4f&) override;
             void drawMesh(
                 const geom::TriangleMesh2&,
                 const math::Vector2i& position,
-                const imaging::Color4f&) override;
+                const image::Color4f&) override;
             void drawColorMesh(
                 const geom::TriangleMesh2&,
                 const math::Vector2i& position,
-                const imaging::Color4f&) override;
+                const image::Color4f&) override;
             void drawText(
-                const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
+                const std::vector<std::shared_ptr<image::Glyph> >& glyphs,
                 const math::Vector2i& position,
-                const imaging::Color4f&) override;
+                const image::Color4f&) override;
             void drawTexture(
                 unsigned int,
                 const math::BBox2i&,
-                const imaging::Color4f& = imaging::Color4f(1.F, 1.F, 1.F)) override;
+                const image::Color4f& = image::Color4f(1.F, 1.F, 1.F)) override;
             void drawImage(
-                const std::shared_ptr<imaging::Image>&,
+                const std::shared_ptr<image::Image>&,
                 const math::BBox2i&,
-                const imaging::Color4f& = imaging::Color4f(1.F, 1.F, 1.F),
+                const image::Color4f& = image::Color4f(1.F, 1.F, 1.F),
                 const ImageOptions& = ImageOptions()) override;
             void drawVideo(
                 const std::vector<VideoData>&,

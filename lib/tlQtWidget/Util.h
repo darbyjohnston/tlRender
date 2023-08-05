@@ -13,6 +13,6 @@ namespace tl
     namespace qtwidget
     {
         //! Convert a Qt color.
-        imaging::Color4f fromQt(const QColor&);
+        image::Color4f fromQt(const QColor&);
     }
 }

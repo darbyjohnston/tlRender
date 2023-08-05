@@ -14,7 +14,7 @@
 
 namespace tl
 {
-    namespace imaging
+    namespace image
     {
         class Color4f;
     }
@@ -62,7 +62,7 @@ namespace tl
             void setUniform(int, const math::Vector4f&);
             void setUniform(int, const math::Matrix3x3f&);
             void setUniform(int, const math::Matrix4x4f&);
-            void setUniform(int, const imaging::Color4f&);
+            void setUniform(int, const image::Color4f&);
             void setUniform(int, const float[4]);
 
             void setUniform(int, const std::vector<int>&);
@@ -77,7 +77,7 @@ namespace tl
             void setUniform(const std::string&, const math::Vector4f&);
             void setUniform(const std::string&, const math::Matrix3x3f&);
             void setUniform(const std::string&, const math::Matrix4x4f&);
-            void setUniform(const std::string&, const imaging::Color4f&);
+            void setUniform(const std::string&, const image::Color4f&);
             void setUniform(const std::string&, const float[4]);
 
             void setUniform(const std::string&, const std::vector<int>&);

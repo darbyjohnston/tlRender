@@ -6,7 +6,7 @@
 
 namespace tl
 {
-    namespace imaging
+    namespace image
     {
         inline Color4f::Color4f() :
             r(0.F), g(0.F), b(0.F), a(0.F)
@@ -30,18 +30,18 @@ namespace tl
             return !(*this == other);
         }
 
-        inline imaging::Color4f lighter(const imaging::Color4f& color, float amount)
+        inline image::Color4f lighter(const image::Color4f& color, float amount)
         {
-            return imaging::Color4f(
+            return image::Color4f(
                 color.r + amount,
                 color.g + amount,
                 color.b + amount,
                 color.a);
         }
 
-        inline imaging::Color4f darker(const imaging::Color4f& color, float amount)
+        inline image::Color4f darker(const image::Color4f& color, float amount)
         {
-            return imaging::Color4f(
+            return image::Color4f(
                 color.r - amount,
                 color.g - amount,
                 color.b - amount,

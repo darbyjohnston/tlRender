@@ -46,9 +46,9 @@ namespace tl
                             res = stbi_is_16_bit_from_memory(memory->p, memory->size);
                             if (res) bits = 16;
                             
-                            _info.pixelType = imaging::getIntType(n, bits);
+                            _info.pixelType = image::getIntType(n, bits);
                             
-                            if (imaging::PixelType::None == _info.pixelType)
+                            if (image::PixelType::None == _info.pixelType)
                             {
                                 throw std::runtime_error(
                                     string::Format("{0}: {1}")
@@ -73,8 +73,8 @@ namespace tl
                             res = stbi_is_16_bit(fileName.c_str());
                             if (res) bits = 16;
                     
-                            _info.pixelType = imaging::getIntType(n, bits);
-                            if (imaging::PixelType::None == _info.pixelType)
+                            _info.pixelType = image::getIntType(n, bits);
+                            if (image::PixelType::None == _info.pixelType)
                             {
                                 throw std::runtime_error(
                                     string::Format("{0}: {1}")
@@ -85,7 +85,7 @@ namespace tl
                         }
                 }
 
-                const imaging::Info& getInfo() const
+                const image::Info& getInfo() const
                 {
                     return _info;
                 }
@@ -96,11 +96,11 @@ namespace tl
                 {
                     io::VideoData out;
                     out.time = time;
-                    out.image = imaging::Image::create(_info);
+                    out.image = image::Image::create(_info);
 
                     const int channels = static_cast<int>(
-                        imaging::getChannelCount(_info.pixelType));
-                    const size_t bytes = imaging::getBitDepth(_info.pixelType) / 8;
+                        image::getChannelCount(_info.pixelType));
+                    const size_t bytes = image::getBitDepth(_info.pixelType) / 8;
                     
                     stbi_set_flip_vertically_on_load(1);
 
@@ -136,7 +136,7 @@ namespace tl
                 }
 
             private:
-                imaging::Info _info;
+                image::Info _info;
                 const file::MemoryRead* _memory;
             };
         }

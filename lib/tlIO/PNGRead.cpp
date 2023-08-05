@@ -198,24 +198,24 @@ namespace tl
                     }
                     _scanlineSize = width * channels * bitDepth / 8;
 
-                    imaging::PixelType pixelType = imaging::getIntType(channels, bitDepth);
-                    if (imaging::PixelType::None == pixelType)
+                    image::PixelType pixelType = image::getIntType(channels, bitDepth);
+                    if (image::PixelType::None == pixelType)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
 
-                    _info = imaging::Info(width, height, pixelType);
+                    _info = image::Info(width, height, pixelType);
                     _info.layout.mirror.y = true;
                 }
 
-                const imaging::Info& getInfo() const
+                const image::Info& getInfo() const
                 {
                     return _info;
                 }
 
-                std::shared_ptr<imaging::Image> read()
+                std::shared_ptr<image::Image> read()
                 {
-                    auto out = imaging::Image::create(_info);
+                    auto out = image::Image::create(_info);
                     uint8_t* p = out->getData();
                     for (uint16_t y = 0; y < _info.size.h; ++y, p += _scanlineSize)
                     {
@@ -263,7 +263,7 @@ namespace tl
                 file::MemoryRead _memory;
                 ErrorStruct      _error;
                 size_t           _scanlineSize = 0;
-                imaging::Info    _info;
+                image::Info    _info;
             };
         }
 

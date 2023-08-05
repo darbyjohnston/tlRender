@@ -68,7 +68,7 @@ namespace tl
                 if (_timelinePlayer)
                 {
                     const auto& ioInfo = _timelinePlayer->ioInfo();
-                    _videoSize = !ioInfo.video.empty() ? ioInfo.video[0].size : imaging::Size();
+                    _videoSize = !ioInfo.video.empty() ? ioInfo.video[0].size : image::Size();
                     _videoData = _timelinePlayer->currentVideo();
                     connect(
                         _timelinePlayer,
@@ -160,7 +160,7 @@ namespace tl
                 {
                     // Create the offscreen buffer.
                     gl::OffscreenBufferOptions offscreenBufferOptions;
-                    offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
+                    offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
                     if (gl::doCreate(_buffer, _videoSize, offscreenBufferOptions))
                     {
                         _buffer = gl::OffscreenBuffer::create(_videoSize, offscreenBufferOptions);
@@ -192,7 +192,7 @@ namespace tl
                 glDisable(GL_SCISSOR_TEST);
                 glDisable(GL_BLEND);
                 const float devicePixelRatio = window()->devicePixelRatio();
-                const imaging::Size windowSize(
+                const image::Size windowSize(
                     width() * devicePixelRatio,
                     height() * devicePixelRatio);
                 glViewport(

@@ -7,7 +7,7 @@
 #include <tlCore/Assert.h>
 #include <tlCore/Image.h>
 
-using namespace tl::imaging;
+using namespace tl::image;
 
 namespace tl
 {

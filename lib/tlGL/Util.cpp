@@ -19,9 +19,9 @@ namespace tl
 {
     namespace gl
     {
-        unsigned int getReadPixelsFormat(imaging::PixelType value)
+        unsigned int getReadPixelsFormat(image::PixelType value)
         {
-            const std::array<GLenum, static_cast<std::size_t>(imaging::PixelType::Count)> data =
+            const std::array<GLenum, static_cast<std::size_t>(image::PixelType::Count)> data =
             {
                 GL_NONE,
 
@@ -55,9 +55,9 @@ namespace tl
             return data[static_cast<std::size_t>(value)];
         }
 
-        unsigned int getReadPixelsType(imaging::PixelType value)
+        unsigned int getReadPixelsType(image::PixelType value)
         {
-            const std::array<GLenum, static_cast<std::size_t>(imaging::PixelType::Count)> data =
+            const std::array<GLenum, static_cast<std::size_t>(image::PixelType::Count)> data =
             {
                 GL_NONE,
 

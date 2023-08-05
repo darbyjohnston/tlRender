@@ -9,7 +9,7 @@
 
 #include <sstream>
 
-using namespace tl::imaging;
+using namespace tl::image;
 
 namespace tl
 {
@@ -68,7 +68,7 @@ namespace tl
                 TLRENDER_ASSERT(a < b);
             }
             {
-                auto fontSystem = _context->getSystem<imaging::FontSystem>();
+                auto fontSystem = _context->getSystem<image::FontSystem>();
                 FontInfo fi("NotoMono-Regular", 14);
                 auto fm = fontSystem->getMetrics(fi);
                 std::vector<std::string> text =
@@ -108,7 +108,7 @@ namespace tl
                     TLRENDER_ASSERT(text[i].size() == glyphs.size());
                     for (size_t j = 0; j < text[i].size(); ++j)
                     {
-                        imaging::Size size;
+                        image::Size size;
                         if (glyphs[j] && glyphs[j]->image)
                         {
                             size = glyphs[j]->image->getSize();

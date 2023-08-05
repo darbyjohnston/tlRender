@@ -44,7 +44,7 @@ namespace tl
                 std::string audioFileName;
                 std::string compareFileName;
                 timeline::CompareOptions compareOptions;
-                imaging::Size windowSize = imaging::Size(1920, 1080);
+                image::Size windowSize = image::Size(1920, 1080);
                 bool fullscreen = false;
                 bool hud = true;
                 double speed = 0.0;
@@ -146,7 +146,7 @@ namespace tl
                     { "-wipeRotation", "-wr" },
                     "A/B comparison wipe rotation.",
                     string::Format("{0}").arg(p.options.compareOptions.wipeRotation)),
-                app::CmdLineValueOption<imaging::Size>::create(
+                app::CmdLineValueOption<image::Size>::create(
                     p.options.windowSize,
                     { "-windowSize", "-ws" },
                     "Window size.",
@@ -325,7 +325,7 @@ namespace tl
                 p.settings->read(p.settingsFileName);
             }
             p.settings->setDefaultValue("Files/RecentMax", 10);
-            imaging::Size windowSize = p.options.windowSize;
+            image::Size windowSize = p.options.windowSize;
             p.settings->setDefaultValue("Window/Size", windowSize);
             p.settings->setDefaultValue("Audio/Volume", 1.F);
             p.settings->setDefaultValue("Audio/Mute", false);

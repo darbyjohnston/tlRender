@@ -11,7 +11,7 @@
 
 namespace tl
 {
-    namespace imaging
+    namespace image
     {
         void to_json(nlohmann::json& json, const Color4f& value)
         {
