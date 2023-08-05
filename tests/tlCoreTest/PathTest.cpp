@@ -98,7 +98,7 @@ namespace tl
             }
             {
                 Path a("/");
-                Path b("\\");
+                Path b("/");
                 TLRENDER_ASSERT(a == b);
                 b = Path("/tmp");
                 TLRENDER_ASSERT(a != b);
