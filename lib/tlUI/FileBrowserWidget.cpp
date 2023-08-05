@@ -12,6 +12,7 @@
 #include <tlUI/PushButton.h>
 #include <tlUI/RecentFilesModel.h>
 #include <tlUI/RowLayout.h>
+#include <tlUI/SearchBox.h>
 #include <tlUI/ScrollWidget.h>
 #include <tlUI/Spacer.h>
 #include <tlUI/Splitter.h>
@@ -41,8 +42,7 @@ namespace tl
             std::shared_ptr<ScrollWidget> pathsScrollWidget;
             std::shared_ptr<DirectoryWidget> directoryWidget;
             std::shared_ptr<ScrollWidget> directoryScrollWidget;
-            std::shared_ptr<LineEdit> filterEdit;
-            std::shared_ptr<ToolButton> filterClearButton;
+            std::shared_ptr<SearchBox> searchBox;
             std::shared_ptr<ComboBox> extensionsComboBox;
             std::shared_ptr<ComboBox> sortComboBox;
             std::shared_ptr<CheckBox> reverseSortCheckBox;
@@ -100,12 +100,7 @@ namespace tl
             p.directoryScrollWidget->setWidget(p.directoryWidget);
             p.directoryScrollWidget->setVStretch(Stretch::Expanding);
 
-            p.filterEdit = LineEdit::create(context);
-            p.filterEdit->setToolTip("Filter the contents of the directory");
-            
-            p.filterClearButton = ToolButton::create(context);
-            p.filterClearButton->setIcon("Clear");
-            p.filterClearButton->setToolTip("Clear the filter");
+            p.searchBox = SearchBox::create(context);
 
             p.extensionsComboBox = ComboBox::create(extensionsLabels, context);
             if (!extensionsLabels.empty())
@@ -113,7 +108,7 @@ namespace tl
                 p.extensionsComboBox->setCurrentIndex(extensionsLabels.size() - 1);
             }
             p.extensionsComboBox->setToolTip(
-                "Filter the contents of the directory by file extension");
+                "Only show files with this extension");
 
             p.sortComboBox = ComboBox::create(file::getListSortLabels(), context);
             p.sortComboBox->setToolTip("Set the sort mode");
@@ -147,12 +142,9 @@ namespace tl
             p.directoryScrollWidget->setParent(p.splitter);
             hLayout = HorizontalLayout::create(context, vLayout);
             hLayout->setSpacingRole(SizeRole::SpacingSmall);
-            label = Label::create("Filter:", context, hLayout);
+            label = Label::create("Search:", context, hLayout);
             label->setMarginRole(SizeRole::MarginInside);
-            auto hLayout2 = HorizontalLayout::create(context, hLayout);
-            hLayout2->setSpacingRole(SizeRole::SpacingTool);
-            p.filterEdit->setParent(hLayout2);
-            p.filterClearButton->setParent(hLayout2);
+            p.searchBox->setParent(hLayout);
             label = Label::create("Extensions:", context, hLayout);
             label->setMarginRole(SizeRole::MarginInside);
             p.extensionsComboBox->setParent(hLayout);
@@ -212,21 +204,12 @@ namespace tl
                     }
                 });
 
-            p.filterEdit->setTextChangedCallback(
+            p.searchBox->setCallback(
                 [this](const std::string& value)
                 {
                     FileBrowserOptions options = _p->directoryWidget->getOptions();
-                    options.filter = value;
+                    options.search = value;
                     _p->directoryWidget->setOptions(options);
-                });
-
-            p.filterClearButton->setClickedCallback(
-                [this]
-                {
-                    FileBrowserOptions options = _p->directoryWidget->getOptions();
-                    options.filter = std::string();
-                    _p->directoryWidget->setOptions(options);
-                    _p->filterEdit->clearText();
                 });
 
             p.extensionsComboBox->setIndexCallback(
@@ -323,7 +306,7 @@ namespace tl
         {
             TLRENDER_P();
             p.directoryWidget->setOptions(value);
-            p.filterEdit->setText(value.filter);
+            p.searchBox->setText(value.search);
             const auto i = std::find(p.extensions.begin(), p.extensions.end(), value.extension);
             if (i != p.extensions.end())
             {

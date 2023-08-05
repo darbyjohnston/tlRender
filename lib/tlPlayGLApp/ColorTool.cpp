@@ -9,26 +9,209 @@
 #include <tlPlay/ColorModel.h>
 
 #include <tlUI/Bellows.h>
+#include <tlUI/ButtonGroup.h>
 #include <tlUI/CheckBox.h>
 #include <tlUI/ComboBox.h>
 #include <tlUI/FileEdit.h>
 #include <tlUI/FloatEditSlider.h>
 #include <tlUI/GridLayout.h>
 #include <tlUI/Label.h>
+#include <tlUI/ListWidget.h>
 #include <tlUI/RowLayout.h>
+#include <tlUI/SearchBox.h>
+#include <tlUI/TabBar.h>
 #include <tlUI/ScrollWidget.h>
+#include <tlUI/StackLayout.h>
 
 namespace tl
 {
     namespace play_gl
     {
+        struct ColorConfigWidget::Private
+        {
+            std::shared_ptr<play::ColorConfigModel> colorConfigModel;
+
+            std::shared_ptr<ui::CheckBox> enabledCheckBox;
+            std::shared_ptr<ui::FileEdit> fileEdit;
+            std::shared_ptr<ui::TabBar> tabBar;
+            std::map<std::string, std::shared_ptr<ui::ListWidget> > listWidgets;
+            std::map<std::string, std::shared_ptr<ui::SearchBox> > searchBoxes;
+            std::shared_ptr<ui::StackLayout> tabLayout;
+            std::shared_ptr<ui::VerticalLayout> layout;
+
+            std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > optionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > optionsObserver2;
+            std::shared_ptr<observer::ValueObserver<play::ColorConfigModelData> > dataObserver;
+        };
+
+        void ColorConfigWidget::_init(
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<ui::IWidget>& parent)
+        {
+            ui::IWidget::_init("tl::play_gl::ColorConfigWidget", context, parent);
+            TLRENDER_P();
+
+            p.colorConfigModel = play::ColorConfigModel::create(context);
+
+            p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
+
+            p.fileEdit = ui::FileEdit::create(context);
+
+            p.tabBar = ui::TabBar::create(context);
+            const std::vector<std::string> tabs = { "Input", "Display", "View" };
+            p.tabBar->setTabs(tabs);
+            for (const auto& tab : tabs)
+            {
+                p.listWidgets[tab] = ui::ListWidget::create(ui::ButtonGroupType::Radio, context);
+                p.searchBoxes[tab] = ui::SearchBox::create(context);
+                p.searchBoxes[tab]->setHStretch(ui::Stretch::Expanding);
+            }
+
+            p.layout = ui::VerticalLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            auto gridLayout = ui::GridLayout::create(context, p.layout);
+            gridLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            p.enabledCheckBox->setParent(gridLayout);
+            gridLayout->setGridPos(p.enabledCheckBox, 0, 0);
+            auto label = ui::Label::create("File name:", context, gridLayout);
+            gridLayout->setGridPos(label, 1, 0);
+            p.fileEdit->setParent(gridLayout);
+            gridLayout->setGridPos(p.fileEdit, 1, 1);
+            auto vLayout = ui::VerticalLayout::create(context, p.layout);
+            vLayout->setSpacingRole(ui::SizeRole::None);
+            p.tabBar->setParent(vLayout);
+            p.tabLayout = ui::StackLayout::create(context, vLayout);
+            for (const auto& tab : tabs)
+            {
+                vLayout = ui::VerticalLayout::create(context, p.tabLayout);
+                vLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
+                p.listWidgets[tab]->setParent(vLayout);
+                p.searchBoxes[tab]->setParent(vLayout);
+            }
+
+            p.optionsObserver = observer::ValueObserver<timeline::ColorConfigOptions>::create(
+                app->getColorModel()->observeColorConfigOptions(),
+                [this](const timeline::ColorConfigOptions& value)
+                {
+                    _p->enabledCheckBox->setChecked(value.enabled);
+                    _p->fileEdit->setPath(value.fileName);
+                    _p->colorConfigModel->setConfigOptions(value);
+                });
+
+            auto appWeak = std::weak_ptr<App>(app);
+            p.optionsObserver2 = observer::ValueObserver<timeline::ColorConfigOptions>::create(
+                p.colorConfigModel->observeConfigOptions(),
+                [appWeak](const timeline::ColorConfigOptions& value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getColorModel()->setColorConfigOptions(value);
+                    }
+                });
+
+            p.dataObserver = observer::ValueObserver<play::ColorConfigModelData>::create(
+                p.colorConfigModel->observeData(),
+                [this](const play::ColorConfigModelData& value)
+                {
+                    _p->enabledCheckBox->setChecked(value.enabled);
+                    _p->fileEdit->setPath(value.fileName);
+                    _p->listWidgets["Input"]->setItems(value.inputs);
+                    _p->listWidgets["Input"]->setCurrentItem(value.inputIndex);
+                    _p->listWidgets["Display"]->setItems(value.displays);
+                    _p->listWidgets["Display"]->setCurrentItem(value.displayIndex);
+                    _p->listWidgets["View"]->setItems(value.views);
+                    _p->listWidgets["View"]->setCurrentItem(value.viewIndex);
+                });
+
+            p.tabBar->setCallback(
+                [this](int index)
+                {
+                    _p->tabLayout->setCurrentIndex(index);
+                });
+
+            p.enabledCheckBox->setCheckedCallback(
+                [this](bool value)
+                {
+                    _p->colorConfigModel->setEnabled(value);
+                });
+
+            p.fileEdit->setCallback(
+                [this](const std::string& value)
+                {
+                    _p->colorConfigModel->setConfig(value);
+                });
+
+            p.listWidgets["Input"]->setCallback(
+                [this](int index)
+                {
+                    _p->colorConfigModel->setInputIndex(index);
+                });
+            p.listWidgets["Display"]->setCallback(
+                [this](int index)
+                {
+                    _p->colorConfigModel->setDisplayIndex(index);
+                });
+            p.listWidgets["View"]->setCallback(
+                [this](int index)
+                {
+                    _p->colorConfigModel->setViewIndex(index);
+                });
+
+            p.searchBoxes["Input"]->setCallback(
+                [this](const std::string& value)
+                {
+                    _p->listWidgets["Input"]->setSearch(value);
+                });
+            p.searchBoxes["Display"]->setCallback(
+                [this](const std::string& value)
+                {
+                    _p->listWidgets["Display"]->setSearch(value);
+                });
+            p.searchBoxes["View"]->setCallback(
+                [this](const std::string& value)
+                {
+                    _p->listWidgets["View"]->setSearch(value);
+                });
+        }
+
+        ColorConfigWidget::ColorConfigWidget() :
+            _p(new Private)
+        {}
+
+        ColorConfigWidget::~ColorConfigWidget()
+        {}
+
+        std::shared_ptr<ColorConfigWidget> ColorConfigWidget::create(
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            auto out = std::shared_ptr<ColorConfigWidget>(new ColorConfigWidget);
+            out->_init(app, context, parent);
+            return out;
+        }
+
+        void ColorConfigWidget::setGeometry(const math::BBox2i& value)
+        {
+            IWidget::setGeometry(value);
+            _p->layout->setGeometry(value);
+        }
+
+        void ColorConfigWidget::sizeHintEvent(const ui::SizeHintEvent& value)
+        {
+            IWidget::sizeHintEvent(value);
+            _sizeHint = _p->layout->getSizeHint();
+        }
+
         struct LUTWidget::Private
         {
+            std::shared_ptr<ui::CheckBox> enabledCheckBox;
             std::shared_ptr<ui::FileEdit> fileEdit;
             std::shared_ptr<ui::ComboBox> orderComboBox;
             std::shared_ptr<ui::GridLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<std::string> > fileObserver;
             std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > optionsObservers;
         };
 
@@ -40,6 +223,8 @@ namespace tl
             ui::IWidget::_init("tl::play_gl::LUTWidget", context, parent);
             TLRENDER_P();
 
+            p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
+
             p.fileEdit = ui::FileEdit::create(context);
 
             p.orderComboBox = ui::ComboBox::create(timeline::getLUTOrderLabels(), context);
@@ -47,6 +232,8 @@ namespace tl
             p.layout = ui::GridLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
             p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            p.enabledCheckBox->setParent(p.layout);
+            p.layout->setGridPos(p.enabledCheckBox, 0, 0);
             auto label = ui::Label::create("File name:", context, p.layout);
             p.layout->setGridPos(label, 1, 0);
             p.fileEdit->setParent(p.layout);
@@ -60,17 +247,30 @@ namespace tl
                 app->getColorModel()->observeLUTOptions(),
                 [this](const timeline::LUTOptions& value)
                 {
+                    _p->enabledCheckBox->setChecked(value.enabled);
                     _p->fileEdit->setPath(value.fileName);
                     _p->orderComboBox->setCurrentIndex(static_cast<size_t>(value.order));
                 });
 
             auto appWeak = std::weak_ptr<App>(app);
+            p.enabledCheckBox->setCheckedCallback(
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getColorModel()->getLUTOptions();
+                        options.enabled = value;
+                        app->getColorModel()->setLUTOptions(options);
+                    }
+                });
+
             p.fileEdit->setCallback(
                 [appWeak](const std::string& value)
                 {
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getLUTOptions();
+                        options.enabled = true;
                         options.fileName = value;
                         app->getColorModel()->setLUTOptions(options);
                     }
@@ -82,6 +282,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getLUTOptions();
+                        options.enabled = true;
                         options.order = static_cast<timeline::LUTOrder>(value);
                         app->getColorModel()->setLUTOptions(options);
                     }
@@ -186,7 +387,7 @@ namespace tl
                 app->getColorModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
-                    _p->enabledCheckBox->setChecked(value.colorEnabled);
+                    _p->enabledCheckBox->setChecked(value.color.enabled);
                     _p->sliders["Add"]->setValue(value.color.add.x);
                     _p->sliders["Brightness"]->setValue(value.color.brightness.x);
                     _p->sliders["Contrast"]->setValue(value.color.contrast.x);
@@ -202,7 +403,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.colorEnabled = value;
+                        options.color.enabled = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
                 });
@@ -213,59 +414,63 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.colorEnabled = true;
+                        options.color.enabled = true;
                         options.color.add.x = value;
                         options.color.add.y = value;
                         options.color.add.z = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
                 });
+
             p.sliders["Brightness"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.colorEnabled = true;
+                        options.color.enabled = true;
                         options.color.brightness.x = value;
                         options.color.brightness.y = value;
                         options.color.brightness.z = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
                 });
+
             p.sliders["Contrast"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.colorEnabled = true;
+                        options.color.enabled = true;
                         options.color.contrast.x = value;
                         options.color.contrast.y = value;
                         options.color.contrast.z = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
                 });
+
             p.sliders["Saturation"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.colorEnabled = true;
+                        options.color.enabled = true;
                         options.color.saturation.x = value;
                         options.color.saturation.y = value;
                         options.color.saturation.z = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
                 });
+
             p.sliders["Tint"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.colorEnabled = true;
+                        options.color.enabled = true;
                         options.color.tint = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
@@ -277,7 +482,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.colorEnabled = true;
+                        options.color.enabled = true;
                         options.color.invert = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
@@ -374,7 +579,7 @@ namespace tl
                 app->getColorModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
-                    _p->enabledCheckBox->setChecked(value.levelsEnabled);
+                    _p->enabledCheckBox->setChecked(value.levels.enabled);
                     _p->sliders["InLow"]->setValue(value.levels.inLow);
                     _p->sliders["InHigh"]->setValue(value.levels.inHigh);
                     _p->sliders["Gamma"]->setValue(value.levels.gamma);
@@ -389,7 +594,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.levelsEnabled = value;
+                        options.levels.enabled = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
                 });
@@ -400,51 +605,55 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.levelsEnabled = true;
+                        options.levels.enabled = true;
                         options.levels.inLow = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
                 });
+
             p.sliders["InHigh"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.levelsEnabled = true;
+                        options.levels.enabled = true;
                         options.levels.inHigh = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
                 });
+
             p.sliders["Gamma"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.levelsEnabled = true;
+                        options.levels.enabled = true;
                         options.levels.gamma = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
                 });
+
             p.sliders["OutLow"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.levelsEnabled = true;
+                        options.levels.enabled = true;
                         options.levels.outLow = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
                 });
+
             p.sliders["OutHigh"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.levelsEnabled = true;
+                        options.levels.enabled = true;
                         options.levels.outHigh = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
@@ -537,7 +746,7 @@ namespace tl
                 app->getColorModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
-                    _p->enabledCheckBox->setChecked(value.exrDisplayEnabled);
+                    _p->enabledCheckBox->setChecked(value.exrDisplay.enabled);
                     _p->sliders["Exposure"]->setValue(value.exrDisplay.exposure);
                     _p->sliders["Defog"]->setValue(value.exrDisplay.defog);
                     _p->sliders["KneeLow"]->setValue(value.exrDisplay.kneeLow);
@@ -551,7 +760,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.exrDisplayEnabled = value;
+                        options.exrDisplay.enabled = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
                 });
@@ -562,40 +771,43 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.exrDisplayEnabled = true;
+                        options.exrDisplay.enabled = true;
                         options.exrDisplay.exposure = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
                 });
+
             p.sliders["Defog"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.exrDisplayEnabled = true;
+                        options.exrDisplay.enabled = true;
                         options.exrDisplay.defog = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
                 });
+
             p.sliders["KneeLow"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.exrDisplayEnabled = true;
+                        options.exrDisplay.enabled = true;
                         options.exrDisplay.kneeLow = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
                 });
+
             p.sliders["KneeHigh"]->setCallback(
                 [appWeak](float value)
                 {
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.exrDisplayEnabled = true;
+                        options.exrDisplay.enabled = true;
                         options.exrDisplay.kneeHigh = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
@@ -663,8 +875,8 @@ namespace tl
                 app->getColorModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
-                    _p->enabledCheckBox->setChecked(value.softClipEnabled);
-                    _p->sliders["SoftClip"]->setValue(value.softClip);
+                    _p->enabledCheckBox->setChecked(value.softClip.enabled);
+                    _p->sliders["SoftClip"]->setValue(value.softClip.value);
                 });
 
             auto appWeak = std::weak_ptr<App>(app);
@@ -674,7 +886,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.softClipEnabled = value;
+                        options.softClip.enabled = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
                 });
@@ -685,8 +897,8 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getDisplayOptions();
-                        options.softClipEnabled = true;
-                        options.softClip = value;
+                        options.softClip.enabled = true;
+                        options.softClip.value = value;
                         app->getColorModel()->setDisplayOptions(options);
                     }
                 });
@@ -723,6 +935,7 @@ namespace tl
 
         struct ColorTool::Private
         {
+            std::shared_ptr<ColorConfigWidget> colorConfigWidget;
             std::shared_ptr<LUTWidget> lutWidget;
             std::shared_ptr<ColorWidget> colorWidget;
             std::shared_ptr<LevelsWidget> levelsWidget;
@@ -744,6 +957,7 @@ namespace tl
                 parent);
             TLRENDER_P();
 
+            p.colorConfigWidget = ColorConfigWidget::create(app, context);
             p.lutWidget = LUTWidget::create(app, context);
             p.colorWidget = ColorWidget::create(app, context);
             p.levelsWidget = LevelsWidget::create(app, context);
@@ -754,6 +968,7 @@ namespace tl
             layout->setSpacingRole(ui::SizeRole::None);
             p.bellows["Config"] = ui::Bellows::create("Configuration", context);
             p.bellows["Config"]->setParent(layout);
+            p.bellows["Config"]->setWidget(p.colorConfigWidget);
             p.bellows["LUT"] = ui::Bellows::create("LUT", context);
             p.bellows["LUT"]->setParent(layout);
             p.bellows["LUT"]->setWidget(p.lutWidget);

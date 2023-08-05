@@ -81,6 +81,9 @@ namespace tl
             void setFloatOnTop(bool);
 
         protected:
+            void _setColorConfigOptions(const timeline::ColorConfigOptions&);
+            void _setLUTOptions(const timeline::LUTOptions&);
+
             void _setCursor(ui::StandardCursor value);
             void _setCursor(
                 const std::shared_ptr<imaging::Image>&,

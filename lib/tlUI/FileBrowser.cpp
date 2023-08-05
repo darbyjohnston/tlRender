@@ -10,7 +10,8 @@ namespace tl
     {
         bool FileBrowserOptions::operator == (const FileBrowserOptions& other) const
         {
-            return filter == other.filter &&
+            return
+                search == other.search &&
                 extension == other.extension &&
                 list == other.list;
         }
@@ -93,7 +94,7 @@ namespace tl
             to_json(list, value.list);
             json =
             {
-                { "filter", value.filter },
+                { "search", value.search },
                 { "extension", value.extension },
                 { "list", list }
             };
@@ -101,7 +102,7 @@ namespace tl
 
         void from_json(const nlohmann::json& json, FileBrowserOptions& value)
         {
-            json.at("filter").get_to(value.filter);
+            json.at("search").get_to(value.search);
             json.at("extension").get_to(value.extension);
             from_json(json.at("list"), value.list);
         }

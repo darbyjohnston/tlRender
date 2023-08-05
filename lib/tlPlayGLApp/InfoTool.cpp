@@ -8,10 +8,9 @@
 
 #include <tlUI/GridLayout.h>
 #include <tlUI/Label.h>
-#include <tlUI/LineEdit.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/ScrollWidget.h>
-#include <tlUI/ToolButton.h>
+#include <tlUI/SearchBox.h>
 
 namespace tl
 {
@@ -20,10 +19,9 @@ namespace tl
         struct InfoTool::Private
         {
             io::Info info;
-            std::string filter;
+            std::string search;
 
-            std::shared_ptr<ui::LineEdit> filterEdit;
-            std::shared_ptr<ui::ToolButton> filterClearButton;
+            std::shared_ptr<ui::SearchBox> searchBox;
             std::shared_ptr<ui::GridLayout> layout;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playerObserver;
@@ -42,13 +40,8 @@ namespace tl
                 parent);
             TLRENDER_P();
 
-            p.filterEdit = ui::LineEdit::create(context);
-            p.filterEdit->setHStretch(ui::Stretch::Expanding);
-            p.filterEdit->setToolTip("Filter the information");
-
-            p.filterClearButton = ui::ToolButton::create(context);
-            p.filterClearButton->setIcon("Clear");
-            p.filterClearButton->setToolTip("Clear the filter");
+            p.searchBox = ui::SearchBox::create(context);
+            p.searchBox->setHStretch(ui::Stretch::Expanding);
 
             p.layout = ui::GridLayout::create(context);
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
@@ -63,8 +56,7 @@ namespace tl
             auto hLayout = ui::HorizontalLayout::create(context, layout);
             hLayout->setMarginRole(ui::SizeRole::MarginInside);
             hLayout->setSpacingRole(ui::SizeRole::SpacingTool);
-            p.filterEdit->setParent(hLayout);
-            p.filterClearButton->setParent(hLayout);
+            p.searchBox->setParent(hLayout);
             _setWidget(layout);
 
             p.playerObserver = observer::ListObserver<std::shared_ptr<timeline::Player> >::create(
@@ -77,17 +69,10 @@ namespace tl
                     _widgetUpdate();
                 });
 
-            p.filterEdit->setTextChangedCallback(
+            p.searchBox->setCallback(
                 [this](const std::string& value)
                 {
-                    _p->filter = value;
-                    _widgetUpdate();
-                });
-
-            p.filterClearButton->setClickedCallback(
-                [this]
-                {
-                    _p->filter = std::string();
+                    _p->search = value;
                     _widgetUpdate();
                 });
         }
@@ -123,14 +108,14 @@ namespace tl
                 for (const auto& tag : p.info.tags)
                 {
                     bool filter = false;
-                    if (!p.filter.empty() &&
+                    if (!p.search.empty() &&
                         !string::contains(
                             tag.first,
-                            p.filter,
+                            p.search,
                             string::Compare::CaseInsensitive) &&
                         !string::contains(
                             tag.second,
-                            p.filter,
+                            p.search,
                             string::Compare::CaseInsensitive))
                     {
                         filter = true;

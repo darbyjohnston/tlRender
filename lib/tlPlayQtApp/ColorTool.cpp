@@ -33,12 +33,14 @@ namespace tl
     {
         struct ConfigWidget::Private
         {
-            std::shared_ptr<ColorConfigModel> colorConfigModel;
+            std::shared_ptr<play::ColorConfigModel> colorConfigModel;
+
+            QCheckBox* enabledCheckBox = nullptr;
             qtwidget::FileWidget* fileWidget = nullptr;
 
             std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > configOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > configOptionsObserver2;
-            std::shared_ptr<observer::ValueObserver<ColorConfigModelData> > dataObserver;
+            std::shared_ptr<observer::ValueObserver<play::ColorConfigModelData> > dataObserver;
         };
 
         ConfigWidget::ConfigWidget(App* app, QWidget* parent) :
@@ -47,7 +49,9 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.colorConfigModel = ColorConfigModel::create(app->getContext());
+            p.colorConfigModel = play::ColorConfigModel::create(app->getContext());
+
+            p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
             auto inputListModel = new ColorInputListModel(p.colorConfigModel, this);
             auto inputListProxyModel = new QSortFilterProxyModel(this);
@@ -94,6 +98,7 @@ namespace tl
             viewSearchWidget->setContentsMargins(2, 2, 2, 2);
 
             auto formLayout = new QFormLayout;
+            formLayout->addRow(p.enabledCheckBox);
             formLayout->addRow(tr("File name:"), p.fileWidget);
 
             auto tabWidget = new QTabWidget;
@@ -126,6 +131,14 @@ namespace tl
             layout->addLayout(formLayout);
             layout->addWidget(tabWidget);
             setLayout(layout);
+
+            connect(
+                p.enabledCheckBox,
+                &QCheckBox::toggled,
+                [this](bool value)
+                {
+                    _p->colorConfigModel->setEnabled(value);
+                });
 
             connect(
                 p.fileWidget,
@@ -194,9 +207,9 @@ namespace tl
                     _p->colorConfigModel->setConfigOptions(value);
                 });
 
-            p.dataObserver = observer::ValueObserver<ColorConfigModelData>::create(
+            p.dataObserver = observer::ValueObserver<play::ColorConfigModelData>::create(
                 p.colorConfigModel->observeData(),
-                [this](const ColorConfigModelData& value)
+                [this](const play::ColorConfigModelData& value)
                 {
                     _widgetUpdate(value);
                 });
@@ -205,9 +218,13 @@ namespace tl
         ConfigWidget::~ConfigWidget()
         {}
 
-        void ConfigWidget::_widgetUpdate(const ColorConfigModelData& value)
+        void ConfigWidget::_widgetUpdate(const play::ColorConfigModelData& value)
         {
             TLRENDER_P();
+            {
+                QSignalBlocker blocker(p.enabledCheckBox);
+                p.enabledCheckBox->setChecked(value.enabled);
+            }
             {
                 QSignalBlocker blocker(p.fileWidget);
                 p.fileWidget->setFile(QString::fromUtf8(value.fileName.c_str()));
@@ -216,6 +233,7 @@ namespace tl
 
         struct LUTWidget::Private
         {
+            QCheckBox* enabledCheckBox = nullptr;
             qtwidget::FileWidget* fileWidget = nullptr;
             QComboBox* orderComboBox = nullptr;
 
@@ -233,14 +251,28 @@ namespace tl
             {
                 extensions.push_back(QString::fromUtf8(i.c_str()));
             }
+
+            p.enabledCheckBox = new QCheckBox(tr("Enabled"));
+
             p.fileWidget = new qtwidget::FileWidget(app->getContext());
 
             p.orderComboBox = new QComboBox;
 
             auto layout = new QFormLayout;
+            layout->addRow(p.enabledCheckBox);
             layout->addRow(tr("File name:"), p.fileWidget);
             layout->addRow(tr("Order:"), p.orderComboBox);
             setLayout(layout);
+
+            connect(
+                p.enabledCheckBox,
+                &QCheckBox::toggled,
+                [app](bool value)
+                {
+                    auto options = app->colorModel()->getLUTOptions();
+                    options.enabled = value;
+                    app->colorModel()->setLUTOptions(options);
+                });
 
             connect(
                 p.fileWidget,
@@ -248,6 +280,7 @@ namespace tl
                 [app](const QString& value)
                 {
                     auto options = app->colorModel()->getLUTOptions();
+                    options.enabled = true;
                     options.fileName = value.toUtf8().data();
                     app->colorModel()->setLUTOptions(options);
                 });
@@ -258,6 +291,7 @@ namespace tl
                 [app](int value)
                 {
                     auto options = app->colorModel()->getLUTOptions();
+                    options.enabled = true;
                     options.order = static_cast<timeline::LUTOrder>(value);
                     app->colorModel()->setLUTOptions(options);
                 });
@@ -276,6 +310,10 @@ namespace tl
         void LUTWidget::_widgetUpdate(const tl::timeline::LUTOptions& value)
         {
             TLRENDER_P();
+            {
+                QSignalBlocker blocker(p.enabledCheckBox);
+                p.enabledCheckBox->setChecked(value.enabled);
+            }
             {
                 QSignalBlocker blocker(p.fileWidget);
                 p.fileWidget->setFile(QString::fromUtf8(value.fileName.c_str()));
@@ -349,7 +387,7 @@ namespace tl
                 [app](bool value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.colorEnabled = value;
+                    options.color.enabled = value;
                     app->colorModel()->setDisplayOptions(options);
                 });
 
@@ -359,7 +397,7 @@ namespace tl
                 [app](float value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.colorEnabled = true;
+                    options.color.enabled = true;
                     options.color.add.x = value;
                     options.color.add.y = value;
                     options.color.add.z = value;
@@ -372,7 +410,7 @@ namespace tl
                 [app](float value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.colorEnabled = true;
+                    options.color.enabled = true;
                     options.color.brightness.x = value;
                     options.color.brightness.y = value;
                     options.color.brightness.z = value;
@@ -385,7 +423,7 @@ namespace tl
                 [app](float value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.colorEnabled = true;
+                    options.color.enabled = true;
                     options.color.contrast.x = value;
                     options.color.contrast.y = value;
                     options.color.contrast.z = value;
@@ -398,7 +436,7 @@ namespace tl
                 [app](float value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.colorEnabled = true;
+                    options.color.enabled = true;
                     options.color.saturation.x = value;
                     options.color.saturation.y = value;
                     options.color.saturation.z = value;
@@ -411,7 +449,7 @@ namespace tl
                 [app](float value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.colorEnabled = true;
+                    options.color.enabled = true;
                     options.color.tint = value;
                     app->colorModel()->setDisplayOptions(options);
                 });
@@ -422,7 +460,7 @@ namespace tl
                 [app](bool value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.colorEnabled = true;
+                    options.color.enabled = true;
                     options.color.invert = value;
                     app->colorModel()->setDisplayOptions(options);
                 });
@@ -443,7 +481,7 @@ namespace tl
             TLRENDER_P();
             {
                 QSignalBlocker signalBlocker(p.enabledCheckBox);
-                p.enabledCheckBox->setChecked(value.colorEnabled);
+                p.enabledCheckBox->setChecked(value.color.enabled);
             }
             {
                 QSignalBlocker signalBlocker(p.addSlider);
@@ -522,7 +560,7 @@ namespace tl
                 [app](bool value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.levelsEnabled = value;
+                    options.levels.enabled = value;
                     app->colorModel()->setDisplayOptions(options);
                 });
 
@@ -532,7 +570,7 @@ namespace tl
                 [app](float value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.levelsEnabled = true;
+                    options.levels.enabled = true;
                     options.levels.inLow = value;
                     app->colorModel()->setDisplayOptions(options);
                 });
@@ -543,7 +581,7 @@ namespace tl
                 [app](float value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.levelsEnabled = true;
+                    options.levels.enabled = true;
                     options.levels.inHigh = value;
                     app->colorModel()->setDisplayOptions(options);
                 });
@@ -554,7 +592,7 @@ namespace tl
                 [app](float value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.levelsEnabled = true;
+                    options.levels.enabled = true;
                     options.levels.gamma = value;
                     app->colorModel()->setDisplayOptions(options);
                 });
@@ -565,7 +603,7 @@ namespace tl
                 [app](float value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.levelsEnabled = true;
+                    options.levels.enabled = true;
                     options.levels.outLow = value;
                     app->colorModel()->setDisplayOptions(options);
                 });
@@ -576,7 +614,7 @@ namespace tl
                 [app](float value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.levelsEnabled = true;
+                    options.levels.enabled = true;
                     options.levels.outHigh = value;
                     app->colorModel()->setDisplayOptions(options);
                 });
@@ -597,7 +635,7 @@ namespace tl
             TLRENDER_P();
             {
                 QSignalBlocker signalBlocker(p.enabledCheckBox);
-                p.enabledCheckBox->setChecked(value.levelsEnabled);
+                p.enabledCheckBox->setChecked(value.levels.enabled);
             }
             {
                 QSignalBlocker signalBlocker(p.inLowSlider);
@@ -670,7 +708,7 @@ namespace tl
                 [app](bool value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.exrDisplayEnabled = value;
+                    options.exrDisplay.enabled = value;
                     app->colorModel()->setDisplayOptions(options);
                 });
 
@@ -680,7 +718,7 @@ namespace tl
                 [app](float value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.exrDisplayEnabled = true;
+                    options.exrDisplay.enabled = true;
                     options.exrDisplay.exposure = value;
                     app->colorModel()->setDisplayOptions(options);
                 });
@@ -691,7 +729,7 @@ namespace tl
                 [app](float value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.exrDisplayEnabled = true;
+                    options.exrDisplay.enabled = true;
                     options.exrDisplay.defog = value;
                     app->colorModel()->setDisplayOptions(options);
                 });
@@ -702,7 +740,7 @@ namespace tl
                 [app](float value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.exrDisplayEnabled = true;
+                    options.exrDisplay.enabled = true;
                     options.exrDisplay.kneeLow = value;
                     app->colorModel()->setDisplayOptions(options);
                 });
@@ -713,7 +751,7 @@ namespace tl
                 [app](float value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.exrDisplayEnabled = true;
+                    options.exrDisplay.enabled = true;
                     options.exrDisplay.kneeHigh = value;
                     app->colorModel()->setDisplayOptions(options);
                 });
@@ -734,7 +772,7 @@ namespace tl
             TLRENDER_P();
             {
                 QSignalBlocker signalBlocker(p.enabledCheckBox);
-                p.enabledCheckBox->setChecked(value.exrDisplayEnabled);
+                p.enabledCheckBox->setChecked(value.exrDisplay.enabled);
             }
             {
                 QSignalBlocker signalBlocker(p.exposureSlider);
@@ -784,7 +822,7 @@ namespace tl
                 [app](bool value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.softClipEnabled = value;
+                    options.softClip.enabled = value;
                     app->colorModel()->setDisplayOptions(options);
                 });
 
@@ -794,8 +832,8 @@ namespace tl
                 [app](float value)
                 {
                     auto options = app->colorModel()->getDisplayOptions();
-                    options.softClipEnabled = true;
-                    options.softClip = value;
+                    options.softClip.enabled = true;
+                    options.softClip.value = value;
                     app->colorModel()->setDisplayOptions(options);
                 });
 
@@ -815,11 +853,11 @@ namespace tl
             TLRENDER_P();
             {
                 QSignalBlocker signalBlocker(p.enabledCheckBox);
-                p.enabledCheckBox->setChecked(value.softClipEnabled);
+                p.enabledCheckBox->setChecked(value.softClip.enabled);
             }
             {
                 QSignalBlocker signalBlocker(p.softClipSlider);
-                p.softClipSlider->setValue(value.softClip);
+                p.softClipSlider->setValue(value.softClip.value);
             }
         }
 

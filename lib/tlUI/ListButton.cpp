@@ -12,9 +12,12 @@ namespace tl
     {
         struct ListButton::Private
         {
+            SizeRole labelMarginRole = SizeRole::MarginInside;
+
             struct SizeData
             {
                 int margin = 0;
+                int margin2 = 0;
                 int spacing = 0;
                 int border = 0;
                 imaging::FontInfo fontInfo;
@@ -67,6 +70,16 @@ namespace tl
             return out;
         }
 
+        void ListButton::setLabelMarginRole(SizeRole value)
+        {
+            TLRENDER_P();
+            if (value == p.labelMarginRole)
+                return;
+            p.labelMarginRole = value;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
+        }
+
         void ListButton::setText(const std::string& value)
         {
             const bool changed = value != _text;
@@ -97,6 +110,7 @@ namespace tl
             TLRENDER_P();
 
             p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);
+            p.size.margin2 = event.style->getSizeRole(p.labelMarginRole, event.displayScale);
             p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
 
@@ -111,7 +125,7 @@ namespace tl
                     p.size.textInit = false;
                     p.size.textSize = event.fontSystem->getSize(_text, fontInfo);
                 }
-                _sizeHint.x = p.size.textSize.x + p.size.margin * 2;
+                _sizeHint.x = p.size.textSize.x + p.size.margin2 * 2;
                 _sizeHint.y = p.size.fontMetrics.lineHeight + p.size.margin * 2;
             }
             if (_iconImage || _checkedIconImage)
@@ -235,7 +249,7 @@ namespace tl
                     p.draw.glyphs = event.fontSystem->getGlyphs(_text, p.size.fontInfo);
                 }
                 const math::Vector2i pos(
-                    x + p.size.margin,
+                    x + p.size.margin2,
                     g2.y() + g2.h() / 2 - p.size.textSize.y / 2 +
                     p.size.fontMetrics.ascender);
                 event.render->drawText(

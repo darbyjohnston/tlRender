@@ -18,7 +18,7 @@ namespace tl
         //! File browser options.
         struct FileBrowserOptions
         {
-            std::string filter;
+            std::string search;
             std::string extension;
             file::ListOptions list;
 

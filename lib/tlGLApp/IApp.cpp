@@ -141,6 +141,8 @@ namespace tl
             std::shared_ptr<observer::Value<bool> > floatOnTop;
             imaging::Size frameBufferSize;
             math::Vector2f contentScale = math::Vector2f(1.F, 1.F);
+            timeline::ColorConfigOptions colorConfigOptions;
+            timeline::LUTOptions lutOptions;
             bool refresh = false;
             std::unique_ptr<Cursor> cursor;
 
@@ -342,7 +344,10 @@ namespace tl
                     p.refresh = false;
                     {
                         gl::OffscreenBufferBinding binding(p.offscreenBuffer);
-                        p.render->begin(p.frameBufferSize);
+                        p.render->begin(
+                            p.frameBufferSize,
+                            p.colorConfigOptions,
+                            p.lutOptions);
                         p.eventLoop->draw(p.render);
                         p.render->end();
                     }
@@ -473,6 +478,23 @@ namespace tl
                     GLFW_FLOATING,
                     value ? GLFW_TRUE : GLFW_FALSE);
             }
+        }
+        void IApp::_setColorConfigOptions(const timeline::ColorConfigOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.colorConfigOptions)
+                return;
+            p.colorConfigOptions = value;
+            p.refresh = true;
+        }
+
+        void IApp::_setLUTOptions(const timeline::LUTOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.lutOptions)
+                return;
+            p.lutOptions = value;
+            p.refresh = true;
         }
 
         void IApp::_setCursor(ui::StandardCursor value)

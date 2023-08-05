@@ -71,6 +71,11 @@ namespace tl
                 [this]
                 {
                     _p->lineEdit->clearText();
+                    _p->path = std::string();
+                    if (_p->callback)
+                    {
+                        _p->callback(_p->path);
+                    }
                 });
         }
 

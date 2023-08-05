@@ -9,6 +9,7 @@ namespace tl
         inline bool Color::operator == (const Color& other) const
         {
             return
+                enabled == other.enabled &&
                 add == other.add &&
                 brightness == other.brightness &&
                 contrast == other.contrast &&
@@ -25,6 +26,7 @@ namespace tl
         inline bool Levels::operator == (const Levels& other) const
         {
             return
+                enabled == other.enabled &&
                 inLow == other.inLow &&
                 inHigh == other.inHigh &&
                 gamma == other.gamma &&
@@ -40,6 +42,7 @@ namespace tl
         inline bool EXRDisplay::operator == (const EXRDisplay& other) const
         {
             return
+                enabled == other.enabled &&
                 exposure == other.exposure &&
                 defog == other.defog &&
                 kneeLow == other.kneeLow &&
@@ -51,18 +54,26 @@ namespace tl
             return !(*this == other);
         }
 
+        inline bool SoftClip::operator == (const SoftClip& other) const
+        {
+            return
+                enabled == other.enabled &&
+                value == other.value;
+        }
+
+        inline bool SoftClip::operator != (const SoftClip& other) const
+        {
+            return !(*this == other);
+        }
+
         inline bool DisplayOptions::operator == (const DisplayOptions& other) const
         {
             return
                 channels == other.channels &&
                 mirror == other.mirror &&
-                colorEnabled == other.colorEnabled &&
                 color == other.color &&
-                levelsEnabled == other.levelsEnabled &&
                 levels == other.levels &&
-                exrDisplayEnabled == other.exrDisplayEnabled &&
                 exrDisplay == other.exrDisplay &&
-                softClipEnabled == other.softClipEnabled &&
                 softClip == other.softClip &&
                 imageFilters == other.imageFilters &&
                 videoLevels == other.videoLevels;

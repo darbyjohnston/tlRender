@@ -6,10 +6,39 @@
 
 #include <tlPlayGLApp/ColorTool.h>
 
+#include <tlPlay/ColorConfigModel.h>
+
 namespace tl
 {
     namespace play_gl
     {
+        class ColorConfigWidget : public ui::IWidget
+        {
+            TLRENDER_NON_COPYABLE(ColorConfigWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent);
+
+            ColorConfigWidget();
+
+        public:
+            virtual ~ColorConfigWidget();
+
+            static std::shared_ptr<ColorConfigWidget> create(
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            void setGeometry(const math::BBox2i&) override;
+            void sizeHintEvent(const ui::SizeHintEvent&) override;
+
+        private:
+            TLRENDER_PRIVATE();
+        };
+
         class LUTWidget : public ui::IWidget
         {
             TLRENDER_NON_COPYABLE(LUTWidget);

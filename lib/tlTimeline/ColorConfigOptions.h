@@ -15,6 +15,7 @@ namespace tl
         //! Color configuration options.
         struct ColorConfigOptions
         {
+            bool        enabled  = false;
             std::string fileName;
             std::string input;
             std::string display;

@@ -710,22 +710,28 @@ namespace tl
                 p.shaders["display"]->setUniform("channels", static_cast<int>(displayOptions.channels));
                 p.shaders["display"]->setUniform("mirrorX", displayOptions.mirror.x);
                 p.shaders["display"]->setUniform("mirrorY", displayOptions.mirror.y);
-                const bool colorMatrixEnabled = displayOptions.colorEnabled && displayOptions.color != Color();
+                const bool colorMatrixEnabled =
+                    displayOptions.color != Color() &&
+                    displayOptions.color.enabled;
                 p.shaders["display"]->setUniform("colorEnabled", colorMatrixEnabled);
                 p.shaders["display"]->setUniform("colorAdd", displayOptions.color.add);
                 if (colorMatrixEnabled)
                 {
                     p.shaders["display"]->setUniform("colorMatrix", color(displayOptions.color));
                 }
-                p.shaders["display"]->setUniform("colorInvert", displayOptions.colorEnabled ? displayOptions.color.invert : false);
-                p.shaders["display"]->setUniform("levelsEnabled", displayOptions.levelsEnabled);
+                p.shaders["display"]->setUniform(
+                    "colorInvert",
+                    displayOptions.color.enabled ? displayOptions.color.invert : false);
+                p.shaders["display"]->setUniform("levelsEnabled", displayOptions.levels.enabled);
                 p.shaders["display"]->setUniform("levels.inLow", displayOptions.levels.inLow);
                 p.shaders["display"]->setUniform("levels.inHigh", displayOptions.levels.inHigh);
-                p.shaders["display"]->setUniform("levels.gamma", displayOptions.levels.gamma > 0.F ? (1.F / displayOptions.levels.gamma) : 1000000.F);
+                p.shaders["display"]->setUniform(
+                    "levels.gamma",
+                    displayOptions.levels.gamma > 0.F ? (1.F / displayOptions.levels.gamma) : 1000000.F);
                 p.shaders["display"]->setUniform("levels.outLow", displayOptions.levels.outLow);
                 p.shaders["display"]->setUniform("levels.outHigh", displayOptions.levels.outHigh);
-                p.shaders["display"]->setUniform("exrDisplayEnabled", displayOptions.exrDisplayEnabled);
-                if (displayOptions.exrDisplayEnabled)
+                p.shaders["display"]->setUniform("exrDisplayEnabled", displayOptions.exrDisplay.enabled);
+                if (displayOptions.exrDisplay.enabled)
                 {
                     const float v = powf(2.F, displayOptions.exrDisplay.exposure + 2.47393F);
                     const float d = displayOptions.exrDisplay.defog;
@@ -737,11 +743,18 @@ namespace tl
                     p.shaders["display"]->setUniform("exrDisplay.d", d);
                     p.shaders["display"]->setUniform("exrDisplay.k", k);
                     p.shaders["display"]->setUniform("exrDisplay.f", f);
-                    const float gamma = displayOptions.levels.gamma > 0.F ? (1.F / displayOptions.levels.gamma) : 1000000.F;
+                    const float gamma =
+                        displayOptions.levels.gamma > 0.F ?
+                        (1.F / displayOptions.levels.gamma) :
+                        1000000.F;
                     p.shaders["display"]->setUniform("exrDisplay.g", gamma );
                 }
-                p.shaders["display"]->setUniform("softClip", displayOptions.softClipEnabled ? displayOptions.softClip : 0.F);
-                p.shaders["display"]->setUniform("videoLevels", static_cast<int>(displayOptions.videoLevels));
+                p.shaders["display"]->setUniform(
+                    "softClip",
+                    displayOptions.softClip.enabled ? displayOptions.softClip.value : 0.F);
+                p.shaders["display"]->setUniform(
+                    "videoLevels",
+                    static_cast<int>(displayOptions.videoLevels));
 
                 glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                 glBindTexture(GL_TEXTURE_2D, p.buffers["video"]->getColorID());

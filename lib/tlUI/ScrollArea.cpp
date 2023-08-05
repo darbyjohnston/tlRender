@@ -191,14 +191,14 @@ namespace tl
             switch (p.scrollType)
             {
                 case ScrollType::Horizontal:
-                    _sizeHint.x = std::min(_sizeHint.x, sa);
+                    _sizeHint.x = sa;
                     break;
                 case ScrollType::Vertical:
-                    _sizeHint.y = std::min(_sizeHint.y, sa);
+                    _sizeHint.y = sa;
                     break;
                 case ScrollType::Both:
-                    _sizeHint.x = std::min(_sizeHint.x, sa);
-                    _sizeHint.y = std::min(_sizeHint.y, sa);
+                    _sizeHint.x = sa;
+                    _sizeHint.y = sa;
                     break;
                 default: break;
             }

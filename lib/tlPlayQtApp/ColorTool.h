@@ -5,7 +5,8 @@
 #pragma once
 
 #include <tlPlayQtApp/IToolWidget.h>
-#include <tlPlayQtApp/ColorConfigModel.h>
+
+#include <tlPlay/ColorConfigModel.h>
 
 #include <tlQt/MetaTypes.h>
 
@@ -26,7 +27,7 @@ namespace tl
             virtual ~ConfigWidget();
 
         private:
-            void _widgetUpdate(const ColorConfigModelData&);
+            void _widgetUpdate(const play::ColorConfigModelData&);
 
             TLRENDER_PRIVATE();
         };

@@ -41,6 +41,7 @@ set(HEADERS
     LayoutUtil.h
     LineEdit.h
     ListButton.h
+    ListWidget.h
     Menu.h
     MenuBar.h
     PieChart.h
@@ -51,10 +52,12 @@ set(HEADERS
     ScrollWidget.h
     Spacer.h
     ScrollBar.h
+    SearchBox.h
     Splitter.h
     StackLayout.h
     Style.h
     StyleInline.h
+    TabBar.h
     TimeEdit.h
     TimeLabel.h
     ToolButton.h
@@ -109,6 +112,7 @@ set(SOURCE
     LayoutUtil.cpp
     LineEdit.cpp
     ListButton.cpp
+    ListWidget.cpp
     Menu.cpp
     MenuBar.cpp
     PieChart.cpp
@@ -117,11 +121,13 @@ set(SOURCE
     RowLayout.cpp
     ScrollArea.cpp
     ScrollWidget.cpp
+    SearchBox.cpp
     Spacer.cpp
     ScrollBar.cpp
     Splitter.cpp
     StackLayout.cpp
     Style.cpp
+    TabBar.cpp
     TimeEdit.cpp
     TimeLabel.cpp
     ToolButton.cpp

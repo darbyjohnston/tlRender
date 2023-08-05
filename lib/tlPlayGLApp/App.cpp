@@ -91,6 +91,8 @@ namespace tl
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
             std::shared_ptr<observer::ListObserver<int> > layersObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > colorConfigOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ValueObserver<double> > syncOffsetObserver;
@@ -418,6 +420,19 @@ namespace tl
                             player->setVideoLayer(value[i]);
                         }
                     }
+                });
+
+            p.colorConfigOptionsObserver = observer::ValueObserver<timeline::ColorConfigOptions>::create(
+                p.colorModel->observeColorConfigOptions(),
+                [this](const timeline::ColorConfigOptions& value)
+                {
+                    _setColorConfigOptions(value);
+                });
+            p.lutOptionsObserver = observer::ValueObserver<timeline::LUTOptions>::create(
+                p.colorModel->observeLUTOptions(),
+                [this](const timeline::LUTOptions& value)
+                {
+                    _setLUTOptions(value);
                 });
 
             p.volumeObserver = observer::ValueObserver<float>::create(

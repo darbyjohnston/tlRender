@@ -8,7 +8,9 @@ namespace tl
     {
         inline bool ColorConfigOptions::operator == (const ColorConfigOptions& other) const
         {
-            return fileName == other.fileName &&
+            return
+                enabled == other.enabled &&
+                fileName == other.fileName &&
                 input == other.input &&
                 display == other.display &&
                 view == other.view &&

@@ -733,7 +733,8 @@ namespace tl
             p.colorConfigOptions = value;
 
 #if defined(TLRENDER_OCIO)
-            if (!p.colorConfigOptions.input.empty() &&
+            if (p.colorConfigOptions.enabled &&
+                !p.colorConfigOptions.input.empty() &&
                 !p.colorConfigOptions.display.empty() &&
                 !p.colorConfigOptions.view.empty())
             {
@@ -910,7 +911,7 @@ namespace tl
             p.lutOptions = value;
 
 #if defined(TLRENDER_OCIO)
-            if (!p.lutOptions.fileName.empty())
+            if (p.lutOptions.enabled && !p.lutOptions.fileName.empty())
             {
                 p.lutData.reset(new OCIOLUTData);
 

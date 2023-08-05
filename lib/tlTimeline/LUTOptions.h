@@ -31,8 +31,9 @@ namespace tl
         //! LUT options.
         struct LUTOptions
         {
+            bool        enabled  = false;
             std::string fileName;
-            LUTOrder order = LUTOrder::First;
+            LUTOrder    order    = LUTOrder::First;
 
             bool operator == (const LUTOptions&) const;
             bool operator != (const LUTOptions&) const;
