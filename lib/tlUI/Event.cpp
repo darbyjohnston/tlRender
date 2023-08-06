@@ -172,6 +172,10 @@ namespace tl
             {
                 out.push_back("Alt");
             }
+            if (value & static_cast<size_t>(KeyModifier::Super))
+            {
+                out.push_back("Cmd");
+            }
             return string::join(out, '+');
         }
 
