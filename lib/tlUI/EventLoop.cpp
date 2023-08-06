@@ -873,7 +873,8 @@ namespace tl
             const math::Box2i& drawRect,
             const DrawEvent& event)
         {
-            if (!widget->isClipped() && widget->getGeometry().isValid())
+            const math::Box2i& g = widget->getGeometry();
+            if (!widget->isClipped() && g.w() > 0 && g.h() > 0)
             {
                 event.render->setClipRect(drawRect);
                 widget->drawEvent(drawRect, event);
