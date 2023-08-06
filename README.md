@@ -135,10 +135,10 @@ Start the build:
 ```
 cmake --build . -j 4 --config Debug
 ```
-Try running the "play-glfw" example:
+Try running the "tlplay-gl" application:
 ```
 export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
-./tlRender/src/tlRender-build/examples/play-glfw/play-glfw ../etc/SampleData/MultipleClips.otio
+./tlRender/src/tlRender-build/bin/tlplay-gl/tlplay-gl ../etc/SampleData/MultipleClips.otio
 ```
 
 ### Building on Linux with Qt 6
@@ -193,9 +193,9 @@ Start the build:
 ```
 cmake --build . -j 4 --config Debug
 ```
-Try running the "play-glfw" example:
+Try running the "tlplay-gl" application:
 ```
-./tlRender/src/tlRender-build/examples/play-glfw/play-glfw ../etc/SampleData/MultipleClips.otio
+./tlRender/src/tlRender-build/bin/tlplay-gl/tlplay-gl ../etc/SampleData/MultipleClips.otio
 ```
 
 ### Building on macOS with Qt 6
@@ -279,10 +279,10 @@ Start the build:
 ```
 cmake --build . -j 4 --config Debug
 ```
-Try running the "play-glfw" example:
+Try running the "tlplay-gl" application:
 ```
 set PATH=%CD%\install\bin;%PATH%
-.\tlRender\src\tlRender-build\examples\play-glfw\Debug\play-glfw ..\etc\SampleData\MultipleClips.otio
+.\tlRender\src\tlRender-build\bin\tlplay-gl\Debug\tlplay-gl ..\etc\SampleData\MultipleClips.otio
 ```
 
 ### Building on Windows with Qt 6
