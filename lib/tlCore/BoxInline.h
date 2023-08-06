@@ -64,7 +64,7 @@ namespace tl
         constexpr bool Box2<T>::isValid() const noexcept
         {
             return
-                min.x < max.x&&
+                min.x < max.x &&
                 min.y < max.y;
         }
 

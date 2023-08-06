@@ -190,6 +190,7 @@ namespace tl
             p.textureCount = textureCount;
             p.textureSize = textureSize;
             p.textureType = textureType;
+            p.border = border;
             p.timestampManager = TimestampManager::create();
 
             for (uint8_t i = 0; i < p.textureCount; ++i)
@@ -406,10 +407,10 @@ namespace tl
             out.textureIndex = node->textureIndex;
             out.textureU = math::FloatRange(
                 (node->box.min.x + static_cast<float>(border)) / static_cast<float>(textureSize),
-                (node->box.max.x - static_cast<float>(border) + 0.F) / static_cast<float>(textureSize));
+                (node->box.max.x - static_cast<float>(border) + 1.F) / static_cast<float>(textureSize));
             out.textureV = math::FloatRange(
                 (node->box.min.y + static_cast<float>(border)) / static_cast<float>(textureSize),
-                (node->box.max.y - static_cast<float>(border) + 0.F) / static_cast<float>(textureSize));
+                (node->box.max.y - static_cast<float>(border) + 1.F) / static_cast<float>(textureSize));
         }
 
         void TextureAtlas::Private::removeFromAtlas(const std::shared_ptr<BoxPackingNode>& node)

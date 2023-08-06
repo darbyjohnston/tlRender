@@ -318,7 +318,9 @@ namespace tl
 
         void FileBrowserWidget::setRecentFilesModel(const std::shared_ptr<RecentFilesModel>& value)
         {
-            _p->pathsWidget->setRecentFilesModel(value);
+            TLRENDER_P();
+            p.recentFilesModel = value;
+            p.pathsWidget->setRecentFilesModel(value);
         }
 
         void FileBrowserWidget::setGeometry(const math::Box2i& value)

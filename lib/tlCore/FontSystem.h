@@ -58,12 +58,12 @@ namespace tl
         //! Font glyph.
         struct Glyph
         {
-            GlyphInfo                       info;
+            GlyphInfo                     info;
             std::shared_ptr<image::Image> image;
-            math::Vector2i                  offset;
-            int16_t                         advance  = 0;
-            int32_t                         lsbDelta = 0;
-            int32_t                         rsbDelta = 0;
+            math::Vector2i                offset;
+            int16_t                       advance  = 0;
+            int32_t                       lsbDelta = 0;
+            int32_t                       rsbDelta = 0;
         };
 
         //! Font system.

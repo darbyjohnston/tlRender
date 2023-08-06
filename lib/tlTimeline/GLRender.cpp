@@ -671,7 +671,7 @@ namespace tl
         {
             TLRENDER_P();
             p.clipRect = value;
-            if (p.clipRect.isValid())
+            if (value.w() > 0 && value.h() > 0)
             {
                 glScissor(
                     value.x(),
