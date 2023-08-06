@@ -102,7 +102,9 @@ namespace tl
                 setAcceptsKeyFocus(true);
                 
                 _checkedIcon.name = "MenuChecked";
+                _checkedIcon.init = true;
                 _uncheckedIcon.name = "MenuUnchecked";
+                _uncheckedIcon.init = true;
             }
 
             MenuButton::MenuButton()
