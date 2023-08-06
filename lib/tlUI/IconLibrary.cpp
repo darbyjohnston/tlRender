@@ -311,9 +311,8 @@ namespace tl
                                     i < requestCount && !p.mutex.requests.empty();
                                     ++i)
                                 {
-                                    auto request = p.mutex.requests.front();
+                                    requests.push_back(p.mutex.requests.front());
                                     p.mutex.requests.pop_front();
-                                    requests.push_back(request);
                                 }
                             }
                         }
@@ -347,8 +346,7 @@ namespace tl
                                     }
                                 }
                                 catch (const std::exception&)
-                                {
-                                }
+                                {}
                             }
                         }
                         for (const auto& request : requests)
