@@ -141,7 +141,7 @@ namespace tl
             std::map<FontRole, image::FontInfo> out;
             out[FontRole::Label] = image::FontInfo("NotoSans-Regular", 12 * 1);
             out[FontRole::Mono] = image::FontInfo("NotoMono-Regular", 12 * 1);
-            out[FontRole::Title] = image::FontInfo("NotoSans-Bold", 16 * 1);
+            out[FontRole::Title] = image::FontInfo("NotoSans-Regular", 16 * 1);
             return out;
         }
 

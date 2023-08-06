@@ -50,8 +50,8 @@ namespace tl
             p.layout = ui::VerticalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ui::SizeRole::None);
             auto label = ui::Label::create("Open Separate Audio", context, p.layout);
-            label->setBackgroundRole(ui::ColorRole::Button);
             label->setMarginRole(ui::SizeRole::MarginSmall);
+            label->setBackgroundRole(ui::ColorRole::Button);
             auto vLayout = ui::VerticalLayout::create(context, p.layout);
             vLayout->setVStretch(ui::Stretch::Expanding);
             vLayout->setMarginRole(ui::SizeRole::MarginSmall);

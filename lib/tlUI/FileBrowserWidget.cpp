@@ -125,8 +125,8 @@ namespace tl
             p.layout = VerticalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(SizeRole::None);
             auto label = Label::create("File Browser", context, p.layout);
-            label->setBackgroundRole(ColorRole::Button);
             label->setMarginRole(SizeRole::MarginSmall);
+            label->setBackgroundRole(ColorRole::Button);
             Divider::create(Orientation::Vertical, context, p.layout);
             auto vLayout = VerticalLayout::create(context, p.layout);
             vLayout->setSpacingRole(SizeRole::SpacingSmall);
