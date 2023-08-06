@@ -91,7 +91,7 @@ ExternalProject_Add(
     USD
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/USD
     DEPENDS ${USD_DEPS}
-    URL https://github.com/PixarAnimationStudios/USD/archive/refs/tags/v23.05.tar.gz
+    URL https://github.com/PixarAnimationStudios/OpenUSD/archive/refs/tags/v23.08.tar.gz
     CONFIGURE_COMMAND ""
     PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${CMAKE_CURRENT_SOURCE_DIR}/USD-patch/build_usd.py
