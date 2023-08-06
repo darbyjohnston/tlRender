@@ -13,6 +13,14 @@ integrating the library with Qt and OpenGL applications.
 
 The source code is written in C++14 and uses CMake for the build system.
 
+![tlplay](etc/Images/tlplay-gl-screenshot1.png)
+
+This screenshot shows an example playback application built with the tlRender
+user interface library. Two files are being compared with an A/B "wipe", a USD
+animation and a rendered movie.
+
+"Spring" content: © Blender Foundation | cloud.blender.org/spring
+
 Currently supported:
 * Movie files (H264, MP4, etc.)
 * Image file sequences (Cineon, DPX, JPEG, OpenEXR, PNG, PPM, TIFF)
@@ -34,7 +42,6 @@ To do:
 * Python bindings
 
 Contents:
-* [Example Applications](#example-applications)
 * [Dependencies](#dependencies)
 * [Building](#building)
     * [Building Dependencies](#build-dependencies)
@@ -43,24 +50,6 @@ Contents:
     * [Building on macOS](#building-on-macos)
     * [Building FFmpeg on Windows](#building-ffmpeg-on-windows)
     * [Building on Windows](#building-on-windows)
-
-# Example Applications
-
-## tlplay-gl
-
-![tlplay](etc/Images/tlplay-gl-screenshot1.png)
-
-Playback application built with the tlRender UI.
-
-"Spring" content: © Blender Foundation | cloud.blender.org/spring
-
-## tlplay-qt
-
-Playback application built with Qt.
-
-## tlbake
-
-Render a timeline to a movie or image sequence.
 
 
 # Dependencies
