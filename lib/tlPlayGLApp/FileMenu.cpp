@@ -19,6 +19,7 @@ namespace tl
         {
             std::weak_ptr<App> app;
             std::vector<std::string> extensions;
+            std::shared_ptr<ui::RecentFilesModel> recentFilesModel;
 
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::shared_ptr<Menu> recentMenu;
@@ -45,13 +46,17 @@ namespace tl
 
             p.app = app;
 
-            if (auto context = _context.lock())
+            auto ioSystem = context->getSystem<io::System>();
+            for (const auto& extension : ioSystem->getExtensions())
             {
-                auto ioSystem = context->getSystem<io::System>();
-                for (const auto& extension : ioSystem->getExtensions())
-                {
-                    p.extensions.push_back(extension);
-                }
+                p.extensions.push_back(extension);
+            }
+            p.extensions.push_back(".otio");
+            p.extensions.push_back(".otioz");
+
+            if (auto fileBrowserSystem = context->getSystem<ui::FileBrowserSystem>())
+            {
+                p.recentFilesModel = fileBrowserSystem->getRecentFilesModel();
             }
 
             p.actions = actions;
@@ -100,10 +105,10 @@ namespace tl
                     _layersUpdate(value);
                 });
 
-            if (auto fileBrowserSystem = context->getSystem<ui::FileBrowserSystem>())
+            if (p.recentFilesModel)
             {
                 p.recentObserver = observer::ListObserver<file::Path>::create(
-                    fileBrowserSystem->getRecentFilesModel()->observeRecent(),
+                    p.recentFilesModel->observeRecent(),
                     [this](const std::vector<file::Path>& value)
                     {
                         _recentUpdate(value);
@@ -183,10 +188,10 @@ namespace tl
                         [this, value, i]
                         {
                             close();
-                        if (auto app = _p->app.lock())
-                        {
-                            app->getFilesModel()->setLayer(value, i);
-                        }
+                            if (auto app = _p->app.lock())
+                            {
+                                app->getFilesModel()->setLayer(value, i);
+                            }
                         });
                     item->checked = i == value->videoLayer;
                     p.layersMenu->addItem(item);
@@ -245,11 +250,15 @@ namespace tl
                             path.get(-1, false),
                             [this, path]
                             {
+                                if (auto app = _p->app.lock())
+                                {
+                                    app->open(path.get());
+                                }
+                                if (_p->recentFilesModel)
+                                {
+                                    _p->recentFilesModel->addRecent(path);
+                                }
                                 close();
-                            if (auto app = _p->app.lock())
-                            {
-                                app->open(path.get());
-                            }
                             });
                         p.recentMenu->addItem(item);
                     }
