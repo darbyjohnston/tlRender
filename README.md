@@ -9,7 +9,7 @@ applications for visual effects, film, and animation.
 
 The library can render and playback timelines with multiple video clips,
 image sequences, audio clips, and transitions. Examples are provided for
-integrating the library with Qt and GLFW applications.
+integrating the library with Qt and OpenGL applications.
 
 The source code is written in C++14 and uses CMake for the build system.
 
@@ -17,9 +17,12 @@ Currently supported:
 * Movie files (H264, MP4, etc.)
 * Image file sequences (Cineon, DPX, JPEG, OpenEXR, PNG, PPM, TIFF)
 * Multi-channel audio
-* Color management
+* Color management with OpenColorIO v2.2
 * A/B comparison
 * OTIOZ file bundles
+
+Work in progress:
+* Support for USD
 
 To do:
 * Software rendering
@@ -31,21 +34,34 @@ To do:
 * Python bindings
 
 Contents:
-* [Libraries](#libraries)
 * [Applications](#applications)
+* [Dependencies](#dependencies)
 * [Building](#building)
-    * [Dependencies](#dependencies)
+    * [Building Dependencies](#build-dependencies)
     * [CMake build options](#cmake-build-options)
     * [Building on Linux](#building-on-linux)
     * [Building on macOS](#building-on-macos)
     * [Building FFmpeg on Windows](#building-ffmpeg-on-windows)
     * [Building on Windows](#building-on-windows)
 
-# Libraries
+# Applications
 
-## tlCore, tlIO, tlTimeline
+## tlplay-gl
 
-The core libraries providing timeline rendering, playback, and I/O.
+![tlplay](etc/Images/tlplay-gl-screenshot1.png)
+
+Playback application built with the tlRender UI.
+
+## tlplay-qt
+
+Playback application built with Qt.
+
+## tlbake
+
+Render a timeline to a movie or image sequence.
+
+
+# Dependencies
 
 Required dependencies:
 * [FSeq](https://github.com/darbyjohnston/FSeq)
@@ -70,34 +86,10 @@ Optional dependencies:
 * [nativefiledialog-extended](https://github.com/btzy/nativefiledialog-extended)
 * [Qt version 5 or 6](https://www.qt.io)
 
-## tlGL
-
-Library for rendering timelines with OpenGL.
-
-## tlQt, tlQtWidget, tlQtQuick
-
-Libraries for integrating with Qt based applications.
-
-Required dependencies:
-* [Qt](https://www.qt.io)
-
-
-# Applications
-
-## tlplay
-
-![tlplay](etc/Images/tlplay-screenshot1.png)
-
-Play timelines, movies, and image sequences.
-
-## tlbake
-
-Render a timeline to a movie or image sequence.
-
 
 # Building
 
-## Dependencies
+## Building Dependencies
 
 A CMake super build script is provided to build the dependencies from source,
 except for Qt. Qt should be installed separately.
@@ -108,6 +100,7 @@ except for Qt. Qt should be installed separately.
 | ----------------- | ------------------------------------------------- | --------- |
 | TLRENDER_MMAP     | Enable memory-mapped file I/O                     | TRUE      |
 | TLRENDER_PYTHON   | Enable Python support (for OTIO Python adapters)  | FALSE     |
+| TLRENDER_GLFW     | Enable support for GLFW                           | TRUE      |
 | TLRENDER_OCIO     | Enable support for OpenColorIO                    | TRUE      |
 | TLRENDER_AUDIO    | Enable support for audio                          | TRUE      |
 | TLRENDER_JPEG     | Enable support for JPEG                           | TRUE      |
@@ -116,9 +109,10 @@ except for Qt. Qt should be installed separately.
 | TLRENDER_PNG      | Enable support for PNG                            | TRUE      |
 | TLRENDER_EXR      | Enable support for OpenEXR                        | TRUE      |
 | TLRENDER_FFMPEG   | Enable support for FFmpeg                         | TRUE      |
-| TLRENDER_GL       | Enable support for OpenGL                         | TRUE      |
+| TLRENDER_USD      | Enable support for USD                            | FALSE     |
 | TLRENDER_BMD      | Enable support for Blackmagic Design devices      | FALSE     |
 | TLRENDER_BMD_SDK  | Full path to the Blackmagic Design SDK            | ""        |
+| TLRENDER_NFD      | Enable support for native file dialogs            | OS Dependent |
 | TLRENDER_QT6      | Enable support for Qt6                            | FALSE     |
 | TLRENDER_QT5      | Enable support for Qt5                            | FALSE     |
 | TLRENDER_PROGRAMS | Build programs                                    | TRUE      |
@@ -126,6 +120,7 @@ except for Qt. Qt should be installed separately.
 | TLRENDER_TESTS    | Build tests                                       | TRUE      |
 | TLRENDER_GCOV     | Enable gcov code coverage                         | FALSE     |
 | TLRENDER_GPROF    | Enable gprof code profiling                       | FALSE     |
+| TLRENDER_GL_DEBUG | Enable OpenGL debugging                           | FALSE     |
 
 ## Building on Linux
 
