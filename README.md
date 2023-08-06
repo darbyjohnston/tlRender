@@ -11,7 +11,7 @@ The library can render and playback timelines with multiple video clips,
 image sequences, audio clips, and transitions. Examples are provided for
 integrating the library with Qt and OpenGL applications.
 
-The source code is written in C++14 and uses CMake for the build system.
+The library is written in C++ and uses the CMake build system.
 
 ![tlplay](etc/Images/tlplay-gl-screenshot1.png)
 
