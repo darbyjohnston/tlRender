@@ -27,10 +27,10 @@ Currently supported:
 * Multi-channel audio
 * Color management with OpenColorIO v2.2
 * A/B comparison
-* OTIOZ file bundles
+* .otioz file bundles
 
 Work in progress:
-* Support for USD
+* USD support
 
 To do:
 * Software rendering
