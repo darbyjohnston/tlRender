@@ -125,9 +125,6 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
-
-            bool mousePressed = false;
-            math::Vector2i mousePos;
         };
 
         MainWindow::MainWindow(App* app, QWidget* parent) :
@@ -219,7 +216,6 @@ namespace tl
 
             auto context = app->getContext();
             p.timelineViewport = new qtwidget::TimelineViewport(context);
-            p.timelineViewport->installEventFilter(this);
             setCentralWidget(p.timelineViewport);
 
             p.timelineWidget = new qtwidget::TimelineWidget(
@@ -614,8 +610,15 @@ namespace tl
 
             connect(
                 p.timelineViewport,
+                &qtwidget::TimelineViewport::compareOptionsChanged,
+                [this](const timeline::CompareOptions& value)
+                {
+                    _p->app->filesModel()->setCompareOptions(value);
+                });
+            connect(
+                p.timelineViewport,
                 &qtwidget::TimelineViewport::viewPosAndZoomChanged,
-                [this](const tl::math::Vector2i& pos, float zoom)
+                [this](const math::Vector2i& pos, float zoom)
                 {
                     _p->app->outputDevice()->setView(
                         pos,
@@ -838,69 +841,6 @@ namespace tl
                     p.app->open(fileName);
                 }
             }
-        }
-
-        bool MainWindow::eventFilter(QObject* obj, QEvent* event)
-        {
-            TLRENDER_P();
-            bool out = QObject::eventFilter(obj, event);;
-            if (p.timelineViewport == obj)
-            {
-                if (event->type() == QEvent::Enter)
-                {
-                    p.mousePressed = false;
-                }
-                else if (event->type() == QEvent::Leave)
-                {
-                    p.mousePressed = false;
-                }
-                else if (event->type() == QEvent::MouseButtonPress)
-                {
-                    auto mouseEvent = static_cast<QMouseEvent*>(event);
-                    if (Qt::LeftButton == mouseEvent->button() && mouseEvent->modifiers() & Qt::AltModifier)
-                    {
-                        p.mousePressed = true;
-                        out = true;
-                    }
-                }
-                else if (event->type() == QEvent::MouseButtonRelease)
-                {
-                    if (p.mousePressed)
-                    {
-                        p.mousePressed = false;
-                        out = true;
-                    }
-                }
-                else if (event->type() == QEvent::MouseMove)
-                {
-                    auto mouseEvent = static_cast<QMouseEvent*>(event);
-                    const float devicePixelRatio = p.timelineViewport->window()->devicePixelRatio();
-                    p.mousePos.x = mouseEvent->x() * devicePixelRatio;
-                    p.mousePos.y = p.timelineViewport->height() * devicePixelRatio - 1 -
-                        mouseEvent->y() * devicePixelRatio;
-                    if (p.mousePressed)
-                    {
-                        if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
-                        {
-                            const auto& ioInfo = p.timelinePlayers[0]->ioInfo();
-                            if (!ioInfo.video.empty())
-                            {
-                                const auto& imageInfo = ioInfo.video[0];
-                                const math::Vector2i& viewPos = p.timelineViewport->viewPos();
-                                const float viewZoom = p.timelineViewport->viewZoom();
-                                auto compareOptions = p.app->filesModel()->getCompareOptions();
-                                compareOptions.wipeCenter.x = (p.mousePos.x - viewPos.x) / viewZoom /
-                                    static_cast<float>(imageInfo.size.w * imageInfo.size.pixelAspectRatio);
-                                compareOptions.wipeCenter.y = 1.F - (p.mousePos.y - viewPos.y) / viewZoom /
-                                    static_cast<float>(imageInfo.size.h);
-                                p.app->filesModel()->setCompareOptions(compareOptions);
-                            }
-                        }
-                        out = true;
-                    }
-                }
-            }
-            return out;
         }
 
         void MainWindow::_secondaryWindowCallback(bool value)

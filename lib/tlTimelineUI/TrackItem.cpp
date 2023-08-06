@@ -242,6 +242,8 @@ namespace tl
                 p.size.fontMetrics = event.fontSystem->getMetrics(fontInfo);
                 p.size.labelSize = event.fontSystem->getSize(p.label, fontInfo);
                 p.size.durationSize = event.fontSystem->getSize(p.durationLabel, fontInfo);
+                p.draw.labelGlyphs.clear();
+                p.draw.durationGlyphs.clear();
             }
             p.size.textUpdate = false;
 

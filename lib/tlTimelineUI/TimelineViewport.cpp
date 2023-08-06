@@ -19,6 +19,7 @@ namespace tl
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
+            std::function<void(timeline::CompareOptions)> compareCallback;
             std::vector<std::shared_ptr<timeline::Player> > players;
             std::vector<image::Size> timelineSizes;
             math::Vector2i viewPos;
@@ -29,9 +30,15 @@ namespace tl
             std::shared_ptr<gl::OffscreenBuffer> buffer;
             bool renderBuffer = false;
 
+            enum class MouseMode
+            {
+                None,
+                View,
+                Wipe
+            };
             struct MouseData
             {
-                bool pressed = false;
+                MouseMode mode = MouseMode::None;
                 math::Vector2i pressPos;
                 math::Vector2i viewPos;
             };
@@ -118,6 +125,11 @@ namespace tl
             p.compareOptions = value;
             p.renderBuffer = true;
             _updates |= ui::Update::Draw;
+        }
+
+        void TimelineViewport::setCompareCallback(const std::function<void(timeline::CompareOptions)>& value)
+        {
+            _p->compareCallback = value;
         }
 
         void TimelineViewport::setPlayers(const std::vector<std::shared_ptr<timeline::Player> >& value)
@@ -229,6 +241,12 @@ namespace tl
         {
             TLRENDER_P();
             setViewZoom(p.viewZoom / 2.0, _viewportCenter());
+        }
+
+        void TimelineViewport::setViewPosAndZoomCallback(
+            const std::function<void(const math::Vector2i&, double)>& value)
+        {
+            _p->viewPosAndZoomCallback = value;
         }
 
         void TimelineViewport::setVisible(bool value)
@@ -356,8 +374,9 @@ namespace tl
         {
             TLRENDER_P();
             event.accept = true;
-            if (p.mouse.pressed)
+            switch (p.mouse.mode)
             {
+            case Private::MouseMode::View:
                 p.viewPos.x = p.mouse.viewPos.x + (event.pos.x - p.mouse.pressPos.x);
                 p.viewPos.y = p.mouse.viewPos.y + (event.pos.y - p.mouse.pressPos.y);
                 p.renderBuffer = true;
@@ -367,6 +386,30 @@ namespace tl
                     p.viewPosAndZoomCallback(p.viewPos, p.viewZoom);
                 }
                 setFrameView(false);
+                break;
+            case Private::MouseMode::Wipe:
+            {
+                if (!p.players.empty() && p.players[0])
+                {
+                    const auto& ioInfo = p.players[0]->getIOInfo();
+                    if (!ioInfo.video.empty())
+                    {
+                        const auto& imageInfo = ioInfo.video[0];
+                        p.compareOptions.wipeCenter.x = (event.pos.x - _geometry.min.x - p.viewPos.x) / p.viewZoom /
+                            static_cast<float>(imageInfo.size.w * imageInfo.size.pixelAspectRatio);
+                        p.compareOptions.wipeCenter.y = (event.pos.y - _geometry.min.y - p.viewPos.y) / p.viewZoom /
+                            static_cast<float>(imageInfo.size.h);
+                        p.renderBuffer = true;
+                        _updates |= ui::Update::Draw;
+                        if (p.compareCallback)
+                        {
+                            p.compareCallback(p.compareOptions);
+                        }
+                    }
+                }
+                break;
+            }
+            default: break;
             }
         }
 
@@ -378,9 +421,15 @@ namespace tl
             if (0 == event.button &&
                 event.modifiers & static_cast<int>(ui::KeyModifier::Control))
             {
-                p.mouse.pressed = true;
+                p.mouse.mode = Private::MouseMode::View;
                 p.mouse.pressPos = event.pos;
                 p.mouse.viewPos = p.viewPos;
+            }
+            else if (0 == event.button &&
+                event.modifiers & static_cast<int>(ui::KeyModifier::Alt))
+            {
+                p.mouse.mode = Private::MouseMode::Wipe;
+                p.mouse.pressPos = event.pos;
             }
         }
 
@@ -388,7 +437,7 @@ namespace tl
         {
             TLRENDER_P();
             event.accept = true;
-            p.mouse.pressed = false;
+            p.mouse.mode = Private::MouseMode::None;
         }
 
         void TimelineViewport::scrollEvent(ui::ScrollEvent& event)
@@ -486,7 +535,7 @@ namespace tl
         void TimelineViewport::_resetMouse()
         {
             TLRENDER_P();
-            p.mouse.pressed = false;
+            p.mouse.mode = Private::MouseMode::None;
         }
 
         void TimelineViewport::_videoDataCallback(const timeline::VideoData& value, size_t index)

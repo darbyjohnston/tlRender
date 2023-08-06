@@ -111,6 +111,7 @@ namespace tl
                     p.size.fontInfo = fontInfo;
                     p.size.textInit = false;
                     p.size.textSize = event.fontSystem->getSize(_text, fontInfo);
+                    p.draw.glyphs.clear();
                 }
 
                 _sizeHint.x = p.size.textSize.x + p.size.margin2 * 2;

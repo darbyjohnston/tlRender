@@ -109,6 +109,7 @@ namespace tl
                 p.size.fontInfo = fontInfo;
                 p.size.textInit = false;
                 p.size.textSize = event.fontSystem->getSize(_text, fontInfo);
+                p.draw.glyphs.clear();
             }
             p.size.checkBox = p.size.fontMetrics.lineHeight * .8F;
 

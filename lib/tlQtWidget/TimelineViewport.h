@@ -78,6 +78,9 @@ namespace tl
             void viewZoomOut();
 
         Q_SIGNALS:
+            //! This signal is emitted when the comparison options are changed.
+            void compareOptionsChanged(const tl::timeline::CompareOptions&);
+
             //! This signal is emitted when the position and zoom change.
             void viewPosAndZoomChanged(const tl::math::Vector2i&, float);
 

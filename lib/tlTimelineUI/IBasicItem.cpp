@@ -93,6 +93,9 @@ namespace tl
                     p.size.markerSizes.push_back(
                         event.fontSystem->getSize(marker.name, fontInfo));
                 }
+                p.draw.labelGlyphs.clear();
+                p.draw.durationGlyphs.clear();
+                p.draw.markerGlyphs.clear();
             }
             p.size.textUpdate = false;
 

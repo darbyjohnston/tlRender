@@ -142,6 +142,7 @@ namespace tl
                         p.size.textWidths.push_back(
                             event.fontSystem->getSize(label, fontInfo).x);
                     }
+                    p.draw.glyphs.clear();
                 }
                 _sizeHint.y = p.size.fontMetrics.lineHeight;
             }

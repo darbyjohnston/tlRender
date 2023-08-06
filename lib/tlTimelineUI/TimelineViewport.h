@@ -47,6 +47,9 @@ namespace tl
             //! Set the comparison options.
             void setCompareOptions(const timeline::CompareOptions&);
 
+            //! Set the comparison callback.
+            void setCompareCallback(const std::function<void(timeline::CompareOptions)>&);
+
             //! Set the timeline players.
             void setPlayers(const std::vector<std::shared_ptr<timeline::Player> >&);
 
