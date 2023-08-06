@@ -98,4 +98,4 @@ ExternalProject_Add(
         ${CMAKE_CURRENT_BINARY_DIR}/USD/src/USD/build_scripts/build_usd.py
     BUILD_COMMAND ${TLRENDER_USD_PYTHON} build_scripts/build_usd.py ${USD_ARGS} ${CMAKE_INSTALL_PREFIX}
     BUILD_IN_SOURCE 1
-    INSTALL_COMMAND ${USD_INSTALL_COMMAND})
+    INSTALL_COMMAND "${USD_INSTALL_COMMAND}")
