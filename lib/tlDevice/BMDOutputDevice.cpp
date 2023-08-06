@@ -65,7 +65,7 @@ namespace tl
                 public IDeckLinkVideoFrameMetadataExtensions
             {
             public:
-                DLHDRVideoFrame(std::shared_ptr<IDeckLinkMutableVideoFrame>& frame, imaging::HDRData& hdrData) :
+                DLHDRVideoFrame(std::shared_ptr<IDeckLinkMutableVideoFrame>& frame, image::HDRData& hdrData) :
                     _frame(frame),
                     _hdrData(hdrData),
                     _refCount(1)
@@ -92,11 +92,11 @@ namespace tl
                 HRESULT GetString(BMDDeckLinkFrameMetadataID metadataID, BSTR* value) override;
                 HRESULT GetBytes(BMDDeckLinkFrameMetadataID metadataID, void* buffer, uint32_t* bufferSize) override;
 
-                void UpdateHDRMetadata(const imaging::HDRData& metadata) { _hdrData = metadata; }
+                void UpdateHDRMetadata(const image::HDRData& metadata) { _hdrData = metadata; }
 
             private:
                 std::shared_ptr<IDeckLinkMutableVideoFrame> _frame;
-                imaging::HDRData _hdrData;
+                image::HDRData _hdrData;
                 std::atomic<ULONG> _refCount;
             };
 
@@ -245,7 +245,7 @@ namespace tl
         struct DLOutputCallback::Private
         {
             IDeckLinkOutput* dlOutput = nullptr;
-            imaging::Size size;
+            image::Size size;
             PixelType pixelType = PixelType::None;
             otime::RationalTime frameRate = time::invalidTime;
             audio::Info audioInfo;
@@ -291,7 +291,7 @@ namespace tl
 
         DLOutputCallback::DLOutputCallback(
             IDeckLinkOutput* dlOutput,
-            const imaging::Size& size,
+            const image::Size& size,
             PixelType pixelType,
             const otime::RationalTime& frameRate,
             const audio::Info& audioInfo) :
