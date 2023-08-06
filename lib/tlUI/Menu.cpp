@@ -334,13 +334,13 @@ namespace tl
                 int x = g2.x() + _size.margin;
                 if (_iconImage)
                 {
-                    const image::Size& iconSize = _iconImage->getSize();
                     if (_checked)
                     {
                         event.render->drawRect(
                             math::Box2i(g2.x(), g2.y(), g2.h(), g2.h()),
                             event.style->getColorRole(ColorRole::Checked));
                     }
+                    const image::Size& iconSize = _iconImage->getSize();
                     event.render->drawImage(
                         _iconImage,
                         math::Box2i(
@@ -355,13 +355,10 @@ namespace tl
                 }
                 else if (_checked && _checkedIcon.image)
                 {
+                    event.render->drawRect(
+                        math::Box2i(g2.x(), g2.y(), g2.h(), g2.h()),
+                        event.style->getColorRole(ColorRole::Checked));
                     const image::Size& iconSize = _checkedIcon.image->getSize();
-                    if (_checked)
-                    {
-                        event.render->drawRect(
-                            math::Box2i(g2.x(), g2.y(), g2.h(), g2.h()),
-                            event.style->getColorRole(ColorRole::Checked));
-                    }
                     event.render->drawImage(
                         _checkedIcon.image,
                         math::Box2i(
@@ -377,12 +374,6 @@ namespace tl
                 else if (!_checked && _uncheckedIcon.image)
                 {
                     const image::Size& iconSize = _uncheckedIcon.image->getSize();
-                    if (_checked)
-                    {
-                        event.render->drawRect(
-                            math::Box2i(g2.x(), g2.y(), g2.h(), g2.h()),
-                            event.style->getColorRole(ColorRole::Checked));
-                    }
                     event.render->drawImage(
                         _uncheckedIcon.image,
                         math::Box2i(
