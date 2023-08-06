@@ -34,7 +34,7 @@ To do:
 * Python bindings
 
 Contents:
-* [Applications](#applications)
+* [Example Applications](#example-applications)
 * [Dependencies](#dependencies)
 * [Building](#building)
     * [Building Dependencies](#build-dependencies)
@@ -44,13 +44,15 @@ Contents:
     * [Building FFmpeg on Windows](#building-ffmpeg-on-windows)
     * [Building on Windows](#building-on-windows)
 
-# Applications
+# Example Applications
 
 ## tlplay-gl
 
 ![tlplay](etc/Images/tlplay-gl-screenshot1.png)
 
 Playback application built with the tlRender UI.
+
+"Spring" content: © Blender Foundation | cloud.blender.org/spring
 
 ## tlplay-qt
 
