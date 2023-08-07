@@ -49,6 +49,9 @@ namespace tl
             void drawEvent(
                 const math::Box2i&,
                 const ui::DrawEvent&) override;
+            void mouseMoveEvent(ui::MouseMoveEvent&) override;
+            void mousePressEvent(ui::MouseClickEvent&) override;
+            void mouseReleaseEvent(ui::MouseClickEvent&) override;
 
         private:
             void _drawInfo(

@@ -35,10 +35,6 @@ namespace tl
                 std::shared_ptr<ui::Label> label;
                 int border = 0;
                 int dragLength = 0;
-                bool inside = false;
-                math::Vector2i cursorPos;
-                bool pressed = false;
-                math::Vector2i pressedPos;
                 bool dropTarget = false;
             };
 
@@ -52,6 +48,9 @@ namespace tl
                     context,
                     parent);
                 TLRENDER_P();
+
+                _mouse.hoverEnabled = true;
+                _mouse.pressEnabled = true;
 
                 p.number = number;
 
@@ -91,6 +90,7 @@ namespace tl
                 IWidget::sizeHintEvent(event);
                 TLRENDER_P();
                 p.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
+                p.dragLength = event.style->getSizeRole(ui::SizeRole::DragLength, event.displayScale);
                 _sizeHint = p.label->getSizeHint();
             }
 
@@ -110,13 +110,13 @@ namespace tl
                     g2,
                     event.style->getColorRole(ui::ColorRole::Button));
 
-                if (p.pressed && _geometry.contains(p.cursorPos))
+                if (_mouse.press && _geometry.contains(_mouse.pos))
                 {
                     event.render->drawRect(
                         g2,
                         event.style->getColorRole(ui::ColorRole::Pressed));
                 }
-                else if (p.inside)
+                else if (_mouse.inside)
                 {
                     event.render->drawRect(
                         g2,
@@ -133,30 +133,31 @@ namespace tl
 
             void DragAndDropWidget::mouseEnterEvent()
             {
-                _p->inside = true;
+                IWidget::mouseEnterEvent();
+                _updates |= ui::Update::Draw;
             }
 
             void DragAndDropWidget::mouseLeaveEvent()
             {
-                _p->inside = false;
+                IWidget::mouseLeaveEvent();
+                _updates |= ui::Update::Draw;
             }
 
             void DragAndDropWidget::mouseMoveEvent(ui::MouseMoveEvent& event)
             {
+                IWidget::mouseMoveEvent(event);
                 TLRENDER_P();
-                event.accept = true;
-                p.cursorPos = event.pos;
-                if (p.pressed)
+                if (_mouse.press)
                 {
                     event.accept = true;
-                    const float length = math::length(event.pos - p.pressedPos);
+                    const float length = math::length(event.pos - _mouse.pressPos);
                     if (length > p.dragLength)
                     {
                         if (auto eventLoop = getEventLoop().lock())
                         {
                             event.dndData = std::make_shared<DragAndDropData>(p.number);
                             event.dndCursor = eventLoop->screenshot(shared_from_this());
-                            event.dndCursorHotspot = p.cursorPos - _geometry.min;
+                            event.dndCursorHotspot = _mouse.pos - _geometry.min;
                         }
                     }
                 }
@@ -164,17 +165,14 @@ namespace tl
 
             void DragAndDropWidget::mousePressEvent(ui::MouseClickEvent& event)
             {
-                TLRENDER_P();
-                event.accept = true;
-                p.pressed = true;
-                p.pressedPos = event.pos;
+                IWidget::mousePressEvent(event);
+                _updates |= ui::Update::Draw;
             }
 
             void DragAndDropWidget::mouseReleaseEvent(ui::MouseClickEvent& event)
             {
-                TLRENDER_P();
-                event.accept = true;
-                p.pressed = false;
+                IWidget::mouseReleaseEvent(event);
+                _updates |= ui::Update::Draw;
             }
 
             void DragAndDropWidget::dragEnterEvent(ui::DragAndDropEvent& event)

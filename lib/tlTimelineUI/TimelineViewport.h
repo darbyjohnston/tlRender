@@ -87,14 +87,8 @@ namespace tl
             void setViewPosAndZoomCallback(
                 const std::function<void(const math::Vector2i&, double)>&);
 
-            void setVisible(bool) override;
-            void setEnabled(bool) override;
             void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
-            void clipEvent(
-                const math::Box2i&,
-                bool,
-                const ui::ClipEvent&) override;
             void drawEvent(
                 const math::Box2i&,
                 const ui::DrawEvent&) override;
@@ -105,12 +99,13 @@ namespace tl
             void keyPressEvent(ui::KeyEvent&) override;
             void keyReleaseEvent(ui::KeyEvent&) override;
 
+        protected:
+            void _releaseMouse() override;
+
         private:
             image::Size _renderSize() const;
             math::Vector2i _viewportCenter() const;
             void _frameView();
-
-            void _resetMouse();
 
             void _videoDataCallback(const timeline::VideoData&, size_t);
 

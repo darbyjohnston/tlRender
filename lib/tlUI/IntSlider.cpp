@@ -22,14 +22,6 @@ namespace tl
             };
             SizeData size;
 
-            struct MouseData
-            {
-                bool inside = false;
-                math::Vector2i pos;
-                bool pressed = false;
-            };
-            MouseData mouse;
-
             std::function<void(int)> callback;
 
             std::shared_ptr<observer::ValueObserver<int> > valueObserver;
@@ -44,9 +36,10 @@ namespace tl
             IWidget::_init("tl::ui::IntSlider", context, parent);
             TLRENDER_P();
 
-            setMouseHover(true);
             setAcceptsKeyFocus(true);
             setHStretch(Stretch::Expanding);
+            _mouse.hoverEnabled = true;
+            _mouse.pressEnabled = true;
 
             p.model = model;
             if (!p.model)
@@ -137,26 +130,6 @@ namespace tl
             return _p->model;
         }
 
-        void IntSlider::setVisible(bool value)
-        {
-            const bool changed = value != _visible;
-            IWidget::setVisible(value);
-            if (changed && !_visible)
-            {
-                _resetMouse();
-            }
-        }
-
-        void IntSlider::setEnabled(bool value)
-        {
-            const bool changed = value != _enabled;
-            IWidget::setEnabled(value);
-            if (changed && !_enabled)
-            {
-                _resetMouse();
-            }
-        }
-
         void IntSlider::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
@@ -174,19 +147,6 @@ namespace tl
             _sizeHint.y =
                 p.size.fontMetrics.lineHeight +
                 p.size.border * 6;
-        }
-
-        void IntSlider::clipEvent(
-            const math::Box2i& clipRect,
-            bool clipped,
-            const ClipEvent& event)
-        {
-            const bool changed = clipped != _clipped;
-            IWidget::clipEvent(clipRect, clipped, event);
-            if (changed && clipped)
-            {
-                _resetMouse();
-            }
         }
 
         void IntSlider::drawEvent(
@@ -234,13 +194,13 @@ namespace tl
             event.render->drawRect(
                 g3,
                 event.style->getColorRole(ColorRole::Button));
-            if (p.mouse.pressed)
+            if (_mouse.press)
             {
                 event.render->drawRect(
                     g3,
                     event.style->getColorRole(ColorRole::Pressed));
             }
-            else if (p.mouse.inside)
+            else if (_mouse.inside)
             {
                 event.render->drawRect(
                     g3,
@@ -250,37 +210,33 @@ namespace tl
 
         void IntSlider::mouseEnterEvent()
         {
-            TLRENDER_P();
-            p.mouse.inside = true;
+            IWidget::mouseEnterEvent();
             _updates |= Update::Draw;
         }
 
         void IntSlider::mouseLeaveEvent()
         {
-            TLRENDER_P();
-            p.mouse.inside = false;
+            IWidget::mouseLeaveEvent();
             _updates |= Update::Draw;
         }
 
         void IntSlider::mouseMoveEvent(MouseMoveEvent& event)
         {
+            IWidget::mouseMoveEvent(event);
             TLRENDER_P();
-            event.accept = true;
-            p.mouse.pos = event.pos;
-            if (p.mouse.pressed && p.model)
+            if (_mouse.press && p.model)
             {
-                p.model->setValue(_posToValue(p.mouse.pos.x));
+                p.model->setValue(_posToValue(_mouse.pos.x));
             }
         }
 
         void IntSlider::mousePressEvent(MouseClickEvent& event)
         {
+            IWidget::mousePressEvent(event);
             TLRENDER_P();
-            event.accept = true;
-            p.mouse.pressed = true;
             if (p.model)
             {
-                p.model->setValue(_posToValue(p.mouse.pos.x));
+                p.model->setValue(_posToValue(_mouse.pos.x));
             }
             takeKeyFocus();
             _updates |= Update::Draw;
@@ -288,9 +244,7 @@ namespace tl
 
         void IntSlider::mouseReleaseEvent(MouseClickEvent& event)
         {
-            TLRENDER_P();
-            event.accept = true;
-            p.mouse.pressed = false;
+            IWidget::mouseReleaseEvent(event);
             _updates |= Update::Draw;
         }
 
@@ -385,17 +339,6 @@ namespace tl
             }
             const int out = g.x() + g.w() * v;
             return out;
-        }
-
-        void IntSlider::_resetMouse()
-        {
-            TLRENDER_P();
-            if (p.mouse.pressed || p.mouse.inside)
-            {
-                p.mouse.pressed = false;
-                p.mouse.inside = false;
-                _updates |= Update::Draw;
-            }
         }
     }
 }

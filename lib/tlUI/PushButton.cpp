@@ -188,14 +188,14 @@ namespace tl
             }
 
             // Draw the pressed and hover states.
-            if (_pressed && _geometry.contains(_cursorPos))
+            if (_mouse.press && _geometry.contains(_mouse.pos))
             {
                 event.render->drawMesh(
                     mesh,
                     math::Vector2i(),
                     event.style->getColorRole(ColorRole::Pressed));
             }
-            else if (_inside)
+            else if (_mouse.inside)
             {
                 event.render->drawMesh(
                     mesh,

@@ -158,9 +158,6 @@ namespace tl
 
             void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void mouseMoveEvent(MouseMoveEvent&) override;
-            void mousePressEvent(MouseClickEvent&) override;
-            void mouseReleaseEvent(MouseClickEvent&) override;
 
         private:
             void _pathUpdate();

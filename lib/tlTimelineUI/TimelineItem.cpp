@@ -35,8 +35,6 @@ namespace tl
 
             struct MouseData
             {
-                bool pressed = false;
-                math::Vector2i pressPos;
                 bool currentTimeDrag = false;
             };
             MouseData mouse;
@@ -55,7 +53,8 @@ namespace tl
             IItem::_init("tl::timelineui::TimelineItem", itemData, context, parent);
             TLRENDER_P();
 
-            setMouseHover(true);
+            _mouse.hoverEnabled = true;
+            _mouse.pressEnabled = true;
 
             p.player = player;
             p.timeRange = player->getTimeRange();
@@ -124,26 +123,6 @@ namespace tl
             _p->stopOnScrub = value;
         }
 
-        void TimelineItem::setVisible(bool value)
-        {
-            const bool changed = value != _visible;
-            IWidget::setVisible(value);
-            if (changed && !_visible)
-            {
-                _resetMouse();
-            }
-        }
-
-        void TimelineItem::setEnabled(bool value)
-        {
-            const bool changed = value != _enabled;
-            IWidget::setEnabled(value);
-            if (changed && !_enabled)
-            {
-                _resetMouse();
-            }
-        }
-
         void TimelineItem::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
@@ -201,19 +180,6 @@ namespace tl
                 childrenHeight);
         }
 
-        void TimelineItem::clipEvent(
-            const math::Box2i& clipRect,
-            bool clipped,
-            const ui::ClipEvent& event)
-        {
-            const bool changed = clipped != _clipped;
-            IWidget::clipEvent(clipRect, clipped, event);
-            if (changed && clipped)
-            {
-                _resetMouse();
-            }
-        }
-
         void TimelineItem::drawOverlayEvent(
             const math::Box2i& drawRect,
             const ui::DrawEvent& event)
@@ -265,30 +231,24 @@ namespace tl
 
         void TimelineItem::mousePressEvent(ui::MouseClickEvent& event)
         {
+            IWidget::mousePressEvent(event);
             TLRENDER_P();
-            if (0 == event.modifiers)
+            takeKeyFocus();
+            if (p.stopOnScrub)
             {
-                event.accept = true;
-                takeKeyFocus();
-                p.mouse.pressed = true;
-                p.mouse.pressPos = event.pos;
-                if (p.stopOnScrub)
-                {
-                    p.player->setPlayback(timeline::Playback::Stop);
-                }
-                if (_geometry.contains(event.pos))
-                {
-                    p.mouse.currentTimeDrag = true;
-                    p.player->seek(_posToTime(event.pos.x));
-                }
+                p.player->setPlayback(timeline::Playback::Stop);
+            }
+            if (_geometry.contains(event.pos))
+            {
+                p.mouse.currentTimeDrag = true;
+                p.player->seek(_posToTime(event.pos.x));
             }
         }
 
         void TimelineItem::mouseReleaseEvent(ui::MouseClickEvent& event)
         {
+            IWidget::mouseReleaseEvent(event);
             TLRENDER_P();
-            event.accept = true;
-            p.mouse.pressed = false;
             p.mouse.currentTimeDrag = false;
         }
 
@@ -355,11 +315,37 @@ namespace tl
             event.accept = true;
         }*/
 
+        void TimelineItem::dragEnterEvent(ui::DragAndDropEvent& event)
+        {
+
+        }
+
+        void TimelineItem::dragLeaveEvent(ui::DragAndDropEvent& event)
+        {
+
+        }
+
+        void TimelineItem::dropEvent(ui::DragAndDropEvent& event)
+        {
+
+        }
+
         void TimelineItem::_timeUnitsUpdate()
         {
             IItem::_timeUnitsUpdate();
             _updates |= ui::Update::Size;
             _updates |= ui::Update::Draw;
+        }
+
+        void TimelineItem::_releaseMouse()
+        {
+            TLRENDER_P();
+            IWidget::_releaseMouse();
+            if (p.mouse.currentTimeDrag)
+            {
+                p.mouse.currentTimeDrag = false;
+                _updates |= ui::Update::Draw;
+            }
         }
 
         void TimelineItem::_drawInOutPoints(
@@ -713,17 +699,6 @@ namespace tl
             TLRENDER_P();
             const otime::RationalTime t = value - p.timeRange.start_time();
             return _geometry.min.x + t.rescaled_to(1.0).value() * _scale;
-        }
-
-        void TimelineItem::_resetMouse()
-        {
-            TLRENDER_P();
-            if (p.mouse.pressed || p.mouse.currentTimeDrag)
-            {
-                p.mouse.pressed = false;
-                p.mouse.currentTimeDrag = false;
-                _updates |= ui::Update::Draw;
-            }
         }
     }
 }

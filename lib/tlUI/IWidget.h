@@ -152,9 +152,6 @@ namespace tl
             //! Does the widget support mouse enter and leave events?
             bool hasMouseHover();
 
-            //! Set whether the widget supports mouse enter and leave events.
-            void setMouseHover(bool);
-
             ///@}
 
             //! Key Focus
@@ -267,6 +264,8 @@ namespace tl
             ///@}
 
         protected:
+            virtual void _releaseMouse();
+
             std::weak_ptr<system::Context> _context;
             std::string _name;
             ColorRole _backgroundRole = ColorRole::None;
@@ -285,7 +284,16 @@ namespace tl
             bool _clipped = false;
             bool _enabled = true;
             bool _parentsEnabled = true;
-            bool _mouseHover = false;
+            struct MouseData
+            {
+                bool hoverEnabled = false;
+                bool pressEnabled = false;
+                bool inside = false;
+                math::Vector2i pos;
+                bool press = false;
+                math::Vector2i pressPos;
+            };
+            MouseData _mouse;
             bool _acceptsKeyFocus = false;
             bool _keyFocus = false;
             std::string _toolTip;

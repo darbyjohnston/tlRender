@@ -29,7 +29,8 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(name, context, parent);
-            setMouseHover(true);
+            _mouse.hoverEnabled = true;
+            _mouse.pressEnabled = true;
         }
 
         IButton::IButton() :
@@ -147,26 +148,6 @@ namespace tl
             _checkedCallback = value;
         }
 
-        void IButton::setVisible(bool value)
-        {
-            const bool changed = value != _visible;
-            IWidget::setVisible(value);
-            if (changed && !_visible)
-            {
-                _resetMouse();
-            }
-        }
-
-        void IButton::setEnabled(bool value)
-        {
-            const bool changed = value != _enabled;
-            IWidget::setEnabled(value);
-            if (changed && !_enabled)
-            {
-                _resetMouse();
-            }
-        }
-
         void IButton::tickEvent(
             bool parentsVisible,
             bool parentsEnabled,
@@ -208,7 +189,7 @@ namespace tl
                 _updates |= Update::Size;
                 _updates |= Update::Draw;
             }
-            if (_pressed && p.repeatClick)
+            if (_mouse.press && p.repeatClick)
             {
                 const float duration = p.repeatClickInit ? .4F : .02F;
                 const auto now = std::chrono::steady_clock::now();
@@ -222,54 +203,34 @@ namespace tl
             }
         }
 
-        void IButton::clipEvent(
-            const math::Box2i& clipRect,
-            bool clipped,
-            const ClipEvent& event)
-        {
-            const bool changed = clipped != _clipped;
-            IWidget::clipEvent(clipRect, clipped, event);
-            if (changed && clipped)
-            {
-                _resetMouse();
-            }
-        }
-
         void IButton::mouseEnterEvent()
         {
-            _inside = true;
+            IWidget::mouseEnterEvent();
             _updates |= Update::Draw;
             if (_hoveredCallback)
             {
-                _hoveredCallback(_inside);
+                _hoveredCallback(_mouse.inside);
             }
         }
 
         void IButton::mouseLeaveEvent()
         {
-            _inside = false;
+            IWidget::mouseLeaveEvent();
             _updates |= Update::Draw;
             if (_hoveredCallback)
             {
-                _hoveredCallback(_inside);
+                _hoveredCallback(_mouse.inside);
             }
-        }
-
-        void IButton::mouseMoveEvent(MouseMoveEvent& event)
-        {
-            event.accept = true;
-            _cursorPos = event.pos;
         }
 
         void IButton::mousePressEvent(MouseClickEvent& event)
         {
+            IWidget::mousePressEvent(event);
             TLRENDER_P();
-            event.accept = true;
             if (acceptsKeyFocus())
             {
                 takeKeyFocus();
             }
-            _pressed = true;
             _updates |= Update::Draw;
             if (_pressedCallback)
             {
@@ -284,10 +245,9 @@ namespace tl
 
         void IButton::mouseReleaseEvent(MouseClickEvent& event)
         {
-            event.accept = true;
-            _pressed = false;
+            IWidget::mouseReleaseEvent(event);
             _updates |= Update::Draw;
-            if (_geometry.contains(_cursorPos))
+            if (_geometry.contains(_mouse.pos))
             {
                 _click();
             }
@@ -311,16 +271,15 @@ namespace tl
             }
         }
 
-        void IButton::_resetMouse()
+        void IButton::_releaseMouse()
         {
-            if (_pressed || _inside)
+            const bool inside = _mouse.inside;
+            IWidget::_releaseMouse();
+            if (inside)
             {
-                _pressed = false;
-                _inside = false;
-                _updates |= Update::Draw;
                 if (_hoveredCallback)
                 {
-                    _hoveredCallback(_inside);
+                    _hoveredCallback(false);
                 }
             }
         }

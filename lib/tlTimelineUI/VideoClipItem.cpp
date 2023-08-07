@@ -34,6 +34,7 @@ namespace tl
             {
                 int thumbnailWidth = 0;
                 math::Box2i clipRect;
+                int dragLength;
             };
             SizeData size;
 
@@ -70,6 +71,9 @@ namespace tl
                 context,
                 parent);
             TLRENDER_P();
+
+            _mouse.hoverEnabled = true;
+            _mouse.pressEnabled = true;
 
             p.clip = clip;
             p.track = dynamic_cast<otio::Track*>(clip->parent());
@@ -209,6 +213,7 @@ namespace tl
                 p.bufferPool.clear();
                 _updates |= ui::Update::Draw;
             }
+            p.size.dragLength = event.style->getSizeRole(ui::SizeRole::DragLength, event.displayScale);
             if (_options.thumbnails)
             {
                 _sizeHint.y += _options.thumbnailHeight;
@@ -244,6 +249,23 @@ namespace tl
             {
                 _drawThumbnails(drawRect, event);
             }
+        }
+
+        void VideoClipItem::mouseMoveEvent(ui::MouseMoveEvent& event)
+        {
+            IWidget::mouseMoveEvent(event);
+        }
+
+        void VideoClipItem::mousePressEvent(ui::MouseClickEvent& event)
+        {
+            IWidget::mousePressEvent(event);
+            TLRENDER_P();
+        }
+
+        void VideoClipItem::mouseReleaseEvent(ui::MouseClickEvent& event)
+        {
+            IWidget::mouseReleaseEvent(event);
+            TLRENDER_P();
         }
 
         void VideoClipItem::_drawThumbnails(

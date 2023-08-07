@@ -94,19 +94,16 @@ namespace tl
             void setItemOptions(const ItemOptions&);
 
             void setGeometry(const math::Box2i&) override;
-            void setVisible(bool) override;
-            void setEnabled(bool) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
-            void clipEvent(
-                const math::Box2i&,
-                bool,
-                const ui::ClipEvent&) override;
             void mouseMoveEvent(ui::MouseMoveEvent&) override;
             void mousePressEvent(ui::MouseClickEvent&) override;
             void mouseReleaseEvent(ui::MouseClickEvent&) override;
             void scrollEvent(ui::ScrollEvent&) override;
             void keyPressEvent(ui::KeyEvent&) override;
             void keyReleaseEvent(ui::KeyEvent&) override;
+
+        protected:
+            void _releaseMouse() override;
 
         private:
             void _setViewZoom(
@@ -123,8 +120,6 @@ namespace tl
             void _setItemOptions(
                 const std::shared_ptr<IWidget>&,
                 const ItemOptions&);
-
-            void _resetMouse();
 
             void _timelineUpdate();
 

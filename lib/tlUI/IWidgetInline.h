@@ -105,7 +105,7 @@ namespace tl
 
         inline bool IWidget::hasMouseHover()
         {
-            return _mouseHover;
+            return _mouse.hoverEnabled;
         }
 
         inline bool IWidget::acceptsKeyFocus() const

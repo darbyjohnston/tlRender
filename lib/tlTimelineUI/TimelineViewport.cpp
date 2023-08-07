@@ -39,7 +39,6 @@ namespace tl
             struct MouseData
             {
                 MouseMode mode = MouseMode::None;
-                math::Vector2i pressPos;
                 math::Vector2i viewPos;
             };
             MouseData mouse;
@@ -57,6 +56,9 @@ namespace tl
 
             setHStretch(ui::Stretch::Expanding);
             setVStretch(ui::Stretch::Expanding);
+
+            _mouse.hoverEnabled = true;
+            _mouse.pressEnabled = true;
 
             p.frameView = observer::Value<bool>::create(true);
         }
@@ -249,26 +251,6 @@ namespace tl
             _p->viewPosAndZoomCallback = value;
         }
 
-        void TimelineViewport::setVisible(bool value)
-        {
-            const bool changed = value != _visible;
-            IWidget::setVisible(value);
-            if (changed && !_visible)
-            {
-                _resetMouse();
-            }
-        }
-
-        void TimelineViewport::setEnabled(bool value)
-        {
-            const bool changed = value != _enabled;
-            IWidget::setEnabled(value);
-            if (changed && !_enabled)
-            {
-                _resetMouse();
-            }
-        }
-
         void TimelineViewport::setGeometry(const math::Box2i& value)
         {
             const bool changed = value != _geometry;
@@ -286,19 +268,6 @@ namespace tl
             const int sa = event.style->getSizeRole(ui::SizeRole::ScrollArea, event.displayScale);
             _sizeHint.x = sa;
             _sizeHint.y = sa;
-        }
-
-        void TimelineViewport::clipEvent(
-            const math::Box2i& clipRect,
-            bool clipped,
-            const ui::ClipEvent& event)
-        {
-            const bool changed = clipped != _clipped;
-            IWidget::clipEvent(clipRect, clipped, event);
-            if (changed && clipped)
-            {
-                _resetMouse();
-            }
         }
 
         void TimelineViewport::drawEvent(
@@ -372,13 +341,13 @@ namespace tl
 
         void TimelineViewport::mouseMoveEvent(ui::MouseMoveEvent& event)
         {
+            IWidget::mouseMoveEvent(event);
             TLRENDER_P();
-            event.accept = true;
             switch (p.mouse.mode)
             {
             case Private::MouseMode::View:
-                p.viewPos.x = p.mouse.viewPos.x + (event.pos.x - p.mouse.pressPos.x);
-                p.viewPos.y = p.mouse.viewPos.y + (event.pos.y - p.mouse.pressPos.y);
+                p.viewPos.x = p.mouse.viewPos.x + (event.pos.x - _mouse.pressPos.x);
+                p.viewPos.y = p.mouse.viewPos.y + (event.pos.y - _mouse.pressPos.y);
                 p.renderBuffer = true;
                 _updates |= ui::Update::Draw;
                 if (p.viewPosAndZoomCallback)
@@ -415,28 +384,26 @@ namespace tl
 
         void TimelineViewport::mousePressEvent(ui::MouseClickEvent& event)
         {
+            IWidget::mousePressEvent(event);
             TLRENDER_P();
-            event.accept = true;
             takeKeyFocus();
             if (0 == event.button &&
                 event.modifiers & static_cast<int>(ui::KeyModifier::Control))
             {
                 p.mouse.mode = Private::MouseMode::View;
-                p.mouse.pressPos = event.pos;
                 p.mouse.viewPos = p.viewPos;
             }
             else if (0 == event.button &&
                 event.modifiers & static_cast<int>(ui::KeyModifier::Alt))
             {
                 p.mouse.mode = Private::MouseMode::Wipe;
-                p.mouse.pressPos = event.pos;
             }
         }
 
         void TimelineViewport::mouseReleaseEvent(ui::MouseClickEvent& event)
         {
+            IWidget::mouseReleaseEvent(event);
             TLRENDER_P();
-            event.accept = true;
             p.mouse.mode = Private::MouseMode::None;
         }
 
@@ -496,6 +463,13 @@ namespace tl
             event.accept = true;
         }
 
+        void TimelineViewport::_releaseMouse()
+        {
+            IWidget::_releaseMouse();
+            TLRENDER_P();
+            p.mouse.mode = Private::MouseMode::None;
+        }
+
         image::Size TimelineViewport::_renderSize() const
         {
             TLRENDER_P();
@@ -530,12 +504,6 @@ namespace tl
                     p.viewPosAndZoomCallback(p.viewPos, p.viewZoom);
                 }
             }
-        }
-
-        void TimelineViewport::_resetMouse()
-        {
-            TLRENDER_P();
-            p.mouse.mode = Private::MouseMode::None;
         }
 
         void TimelineViewport::_videoDataCallback(const timeline::VideoData& value, size_t index)

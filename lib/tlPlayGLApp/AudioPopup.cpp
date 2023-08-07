@@ -88,7 +88,7 @@ namespace tl
                 app->getAudioModel()->observeVolume(),
                 [this](float value)
                 {
-                    _p->volumeSlider->setValue(value * 100.F);
+                    _p->volumeSlider->setValue(std::roundf(value * 100.F));
                 });
         }
 

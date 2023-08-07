@@ -71,11 +71,8 @@ namespace tl
             void drawEvent(
                 const math::Box2i&,
                 const DrawEvent&) override;
-            void mouseEnterEvent() override;
-            void mouseLeaveEvent() override;
             void mouseMoveEvent(MouseMoveEvent&) override;
             void mousePressEvent(MouseClickEvent&) override;
-            void mouseReleaseEvent(MouseClickEvent&) override;
             void keyFocusEvent(bool) override;
             void keyPressEvent(KeyEvent&) override;
             void keyReleaseEvent(KeyEvent&) override;

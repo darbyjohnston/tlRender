@@ -163,6 +163,7 @@ namespace tl
             _visible = value;
             if (!_visible)
             {
+                _releaseMouse();
                 releaseKeyFocus();
             }
             _updates |= Update::Size;
@@ -181,15 +182,11 @@ namespace tl
             _enabled = value;
             if (!_enabled)
             {
+                _releaseMouse();
                 releaseKeyFocus();
             }
             _updates |= Update::Size;
             _updates |= Update::Draw;
-        }
-
-        void IWidget::setMouseHover(bool value)
-        {
-            _mouseHover = value;
         }
 
         void IWidget::setAcceptsKeyFocus(bool value)
@@ -219,7 +216,6 @@ namespace tl
         void IWidget::setToolTip(const std::string& value)
         {
             _toolTip = value;
-            setMouseHover(!_toolTip.empty());
         }
 
         void IWidget::childAddedEvent(const ChildEvent&)
@@ -249,6 +245,7 @@ namespace tl
         {
             if (clipped && clipped != _clipped)
             {
+                _releaseMouse();
                 releaseKeyFocus();
             }
             _clipped = clipped;
@@ -275,19 +272,42 @@ namespace tl
         }
 
         void IWidget::mouseEnterEvent()
-        {}
+        {
+            _mouse.inside = true;
+        }
 
         void IWidget::mouseLeaveEvent()
-        {}
+        {
+            _mouse.inside = false;
+        }
 
         void IWidget::mouseMoveEvent(MouseMoveEvent& event)
-        {}
+        {
+            if (_mouse.hoverEnabled)
+            {
+                event.accept = true;
+            }
+            _mouse.pos = event.pos;
+        }
 
-        void IWidget::mousePressEvent(MouseClickEvent&)
-        {}
+        void IWidget::mousePressEvent(MouseClickEvent& event)
+        {
+            if (_mouse.pressEnabled)
+            {
+                event.accept = true;
+                _mouse.press = true;
+                _mouse.pressPos = _mouse.pos;
+            }
+        }
 
-        void IWidget::mouseReleaseEvent(MouseClickEvent&)
-        {}
+        void IWidget::mouseReleaseEvent(MouseClickEvent& event)
+        {
+            if (_mouse.pressEnabled)
+            {
+                event.accept = true;
+                _mouse.press = false;
+            }
+        }
 
         void IWidget::scrollEvent(ScrollEvent&)
         {}
@@ -317,5 +337,15 @@ namespace tl
 
         void IWidget::dropEvent(DragAndDropEvent&)
         {}
+
+        void IWidget::_releaseMouse()
+        {
+            if (_mouse.inside || _mouse.press)
+            {
+                _mouse.inside = false;
+                _mouse.press = false;
+                _updates |= Update::Draw;
+            }
+        }
     }
 }

@@ -64,23 +64,16 @@ namespace tl
             //! Set the font role.
             void setFontRole(FontRole);
 
-            void setVisible(bool) override;
-            void setEnabled(bool) override;
             void tickEvent(
                 bool,
                 bool,
                 const TickEvent&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void clipEvent(
-                const math::Box2i&,
-                bool,
-                const ClipEvent&) override;
             void drawEvent(
                 const math::Box2i&,
                 const DrawEvent&) override;
             void mouseEnterEvent() override;
             void mouseLeaveEvent() override;
-            void mouseMoveEvent(MouseMoveEvent&) override;
             void mousePressEvent(MouseClickEvent&) override;
             void mouseReleaseEvent(MouseClickEvent&) override;
             void keyPressEvent(KeyEvent&) override;
@@ -90,7 +83,6 @@ namespace tl
             ComboBoxItem _getItem(int) const;
 
             void _click();
-            void _resetMouse();
 
             void _commitIndex(int);
 

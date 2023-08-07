@@ -71,25 +71,19 @@ namespace tl
             //! Set the checked callback.
             void setCheckedCallback(const std::function<void(bool)>&);
 
-            void setVisible(bool) override;
-            void setEnabled(bool) override;
             void tickEvent(
                 bool,
                 bool,
                 const TickEvent&) override;
-            void clipEvent(
-                const math::Box2i&,
-                bool,
-                const ClipEvent&) override;
             void mouseEnterEvent() override;
             void mouseLeaveEvent() override;
-            void mouseMoveEvent(MouseMoveEvent&) override;
             void mousePressEvent(MouseClickEvent&) override;
             void mouseReleaseEvent(MouseClickEvent&) override;
 
         protected:
             void _click();
-            void _resetMouse();
+
+            void _releaseMouse() override;
 
             std::string _text;
             FontRole _fontRole = FontRole::Label;
@@ -99,9 +93,6 @@ namespace tl
             std::shared_ptr<image::Image> _checkedIconImage;
             ColorRole _buttonRole = ColorRole::Button;
             ColorRole _checkedRole = ColorRole::Checked;
-            bool _inside = false;
-            math::Vector2i _cursorPos;
-            bool _pressed = false;
             bool _checked = false;
             std::function<void(bool)> _hoveredCallback;
             std::function<void(void)> _pressedCallback;

@@ -120,12 +120,6 @@ namespace tl
                 std::vector<math::Box2i> glyphsBox;
             };
             DrawData draw;
-
-            struct MouseData
-            {
-                bool press = false;
-            };
-            MouseData mouse;
         };
 
         void LineEdit::_init(
@@ -134,8 +128,9 @@ namespace tl
         {
             IWidget::_init("tl::ui::LineEdit", context, parent);
             TLRENDER_P();
-            setMouseHover(true);
             setAcceptsKeyFocus(true);
+            _mouse.hoverEnabled = true;
+            _mouse.pressEnabled = true;
             _textUpdate();
         }
 
@@ -391,18 +386,12 @@ namespace tl
             }
         }
 
-        void LineEdit::mouseEnterEvent()
-        {}
-
-        void LineEdit::mouseLeaveEvent()
-        {}
-
         void LineEdit::mouseMoveEvent(MouseMoveEvent& event)
         {
+            IWidget::mouseMoveEvent(event);
             TLRENDER_P();
-            if (p.mouse.press)
+            if (_mouse.press)
             {
-                event.accept = true;
                 const int cursorPos = _getCursorPos(event.pos);
                 if (cursorPos != p.cursorPos)
                 {
@@ -421,9 +410,8 @@ namespace tl
 
         void LineEdit::mousePressEvent(MouseClickEvent& event)
         {
+            IWidget::mousePressEvent(event);
             TLRENDER_P();
-            event.accept = true;
-            p.mouse.press = true;
             const int cursorPos = _getCursorPos(event.pos);
             if (cursorPos != p.cursorPos)
             {
@@ -439,13 +427,6 @@ namespace tl
                 _updates |= Update::Draw;
             }
             takeKeyFocus();
-        }
-
-        void LineEdit::mouseReleaseEvent(MouseClickEvent& event)
-        {
-            TLRENDER_P();
-            event.accept = true;
-            p.mouse.press = false;
         }
 
         void LineEdit::keyFocusEvent(bool value)

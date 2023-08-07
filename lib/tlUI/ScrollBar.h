@@ -44,8 +44,6 @@ namespace tl
             //! Set the scroll position callback.
             void setScrollPosCallback(const std::function<void(int)>&);
 
-            void setVisible(bool) override;
-            void setEnabled(bool) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void drawEvent(
                 const math::Box2i&,
@@ -61,8 +59,6 @@ namespace tl
             math::Box2i _getHandleGeometry() const;
             int _getScrollPosMax() const;
             float _getScrollScale() const;
-
-            void _resetMouse();
 
             TLRENDER_PRIVATE();
         };

@@ -34,9 +34,6 @@ namespace tl
 
                 void setGeometry(const math::Box2i&) override;
                 void sizeHintEvent(const SizeHintEvent&) override;
-                void mouseMoveEvent(MouseMoveEvent&) override;
-                void mousePressEvent(MouseClickEvent&) override;
-                void mouseReleaseEvent(MouseClickEvent&) override;
             };
 
             void MenuWidget::_init(
@@ -44,7 +41,8 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent)
             {
                 IWidget::_init("tl::ui::MenuWidget", context, parent);
-                setMouseHover(true);
+                _mouse.hoverEnabled = true;
+                _mouse.pressEnabled = true;
             }
 
             MenuWidget::MenuWidget()
@@ -78,21 +76,6 @@ namespace tl
                 {
                     _sizeHint = _children.front()->getSizeHint();
                 }
-            }
-
-            void MenuWidget::mouseMoveEvent(MouseMoveEvent& event)
-            {
-                event.accept = true;
-            }
-
-            void MenuWidget::mousePressEvent(MouseClickEvent& event)
-            {
-                event.accept = true;
-            }
-
-            void MenuWidget::mouseReleaseEvent(MouseClickEvent& event)
-            {
-                event.accept = true;
             }
         }
 

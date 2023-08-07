@@ -65,7 +65,8 @@ namespace tl
 
             setHStretch(Stretch::Expanding);
             setVStretch(Stretch::Expanding);
-            setMouseHover(true);
+            _mouse.hoverEnabled = true;
+            _mouse.pressEnabled = true;
 
             p.path = path;
 
@@ -333,21 +334,6 @@ namespace tl
         {
             IWidget::sizeHintEvent(value);
             _sizeHint = _p->layout->getSizeHint();
-        }
-
-        void FileBrowserWidget::mouseMoveEvent(MouseMoveEvent& event)
-        {
-            event.accept = true;
-        }
-
-        void FileBrowserWidget::mousePressEvent(MouseClickEvent& event)
-        {
-            event.accept = true;
-        }
-
-        void FileBrowserWidget::mouseReleaseEvent(MouseClickEvent& event)
-        {
-            event.accept = true;
         }
 
         void FileBrowserWidget::_pathUpdate()

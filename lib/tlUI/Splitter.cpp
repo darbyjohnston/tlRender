@@ -39,9 +39,10 @@ namespace tl
         {
             IWidget::_init("tl::ui::Splitter", context, parent);
             TLRENDER_P();
-            setMouseHover(true);
             _hStretch = Stretch::Expanding;
             _vStretch = Stretch::Expanding;
+            _mouse.hoverEnabled = true;
+            _mouse.pressEnabled = true;
             p.orientation = orientation;
         }
 
@@ -170,26 +171,6 @@ namespace tl
             }
         }
 
-        void Splitter::setVisible(bool value)
-        {
-            const bool changed = value != _visible;
-            IWidget::setVisible(value);
-            if (changed && !_visible)
-            {
-                _resetMouse();
-            }
-        }
-
-        void Splitter::setEnabled(bool value)
-        {
-            const bool changed = value != _enabled;
-            IWidget::setEnabled(value);
-            if (changed && !_enabled)
-            {
-                _resetMouse();
-            }
-        }
-
         void Splitter::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
@@ -201,19 +182,6 @@ namespace tl
 
             _sizeHint.x = sa;
             _sizeHint.y = sa;
-        }
-
-        void Splitter::clipEvent(
-            const math::Box2i& clipRect,
-            bool clipped,
-            const ClipEvent& event)
-        {
-            const bool changed = clipped != _clipped;
-            IWidget::clipEvent(clipRect, clipped, event);
-            if (changed && clipped)
-            {
-                _resetMouse();
-            }
         }
 
         void Splitter::drawEvent(
@@ -328,8 +296,9 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void Splitter::_resetMouse()
+        void Splitter::_releaseMouse()
         {
+            IWidget::_releaseMouse();
             TLRENDER_P();
             if (p.mouse.hoverHandle || p.mouse.pressedHandle)
             {

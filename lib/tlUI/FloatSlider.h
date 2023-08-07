@@ -60,13 +60,7 @@ namespace tl
             //! Get the model.
             const std::shared_ptr<FloatModel>& getModel() const;
 
-            void setVisible(bool) override;
-            void setEnabled(bool) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void clipEvent(
-                const math::Box2i&,
-                bool,
-                const ClipEvent&) override;
             void drawEvent(
                 const math::Box2i&,
                 const DrawEvent&) override;
@@ -83,8 +77,6 @@ namespace tl
 
             float _posToValue(int) const;
             int _valueToPos(float) const;
-
-            void _resetMouse();
 
             TLRENDER_PRIVATE();
         };

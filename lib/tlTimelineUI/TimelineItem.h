@@ -37,14 +37,8 @@ namespace tl
             //! Set whether playback stops when scrubbing.
             void setStopOnScrub(bool);
 
-            void setVisible(bool) override;
-            void setEnabled(bool) override;
             void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
-            void clipEvent(
-                const math::Box2i&,
-                bool,
-                const ui::ClipEvent&) override;
             void drawOverlayEvent(
                 const math::Box2i&,
                 const ui::DrawEvent&) override;
@@ -55,9 +49,14 @@ namespace tl
             void mouseReleaseEvent(ui::MouseClickEvent&) override;
             //void keyPressEvent(ui::KeyEvent&) override;
             //void keyReleaseEvent(ui::KeyEvent&) override;
+            void dragEnterEvent(ui::DragAndDropEvent&) override;
+            void dragLeaveEvent(ui::DragAndDropEvent&) override;
+            void dropEvent(ui::DragAndDropEvent&) override;
 
         protected:
             void _timeUnitsUpdate() override;
+
+            void _releaseMouse() override;
 
         private:
             void _drawInOutPoints(
@@ -75,8 +74,6 @@ namespace tl
 
             otime::RationalTime _posToTime(float) const;
             int _timeToPos(const otime::RationalTime&) const;
-
-            void _resetMouse();
 
             TLRENDER_PRIVATE();
         };

@@ -38,7 +38,8 @@ namespace tl
             TLRENDER_P();
 
             setHStretch(ui::Stretch::Expanding);
-            setMouseHover(true);
+            _mouse.hoverEnabled = true;
+            _mouse.pressEnabled = true;
 
             p.videoFileEdit = ui::FileEdit::create(context);
 
@@ -132,21 +133,6 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             _sizeHint = _p->layout->getSizeHint();
-        }
-
-        void SeparateAudioWidget::mouseMoveEvent(ui::MouseMoveEvent& event)
-        {
-            event.accept = true;
-        }
-
-        void SeparateAudioWidget::mousePressEvent(ui::MouseClickEvent& event)
-        {
-            event.accept = true;
-        }
-
-        void SeparateAudioWidget::mouseReleaseEvent(ui::MouseClickEvent& event)
-        {
-            event.accept = true;
         }
     }
 }
