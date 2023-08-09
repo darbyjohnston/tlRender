@@ -222,8 +222,8 @@ namespace tl
 
         void TimelineItem::mouseMoveEvent(ui::MouseMoveEvent& event)
         {
+            IWidget::mouseMoveEvent(event);
             TLRENDER_P();
-            event.accept = true;
             if (p.mouse.currentTimeDrag)
             {
                 p.player->seek(_posToTime(event.pos.x));

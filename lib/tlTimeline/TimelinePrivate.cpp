@@ -502,7 +502,10 @@ namespace tl
             ReadCacheItem item = getRead(clip, options.ioOptions);
             if (item.read)
             {
-                const auto mediaTime = timeline::toVideoMediaTime(time, clip, item.ioInfo);
+                const auto mediaTime = timeline::toVideoMediaTime(
+                    time,
+                    clip,
+                    item.ioInfo.videoTime.duration().rate());
                 out = item.read->readVideo(mediaTime, videoLayer);
             }
             return out;
@@ -516,7 +519,10 @@ namespace tl
             ReadCacheItem item = getRead(clip, options.ioOptions);
             if (item.read)
             {
-                const auto mediaRange = timeline::toAudioMediaTime(timeRange, clip, item.ioInfo);
+                const auto mediaRange = timeline::toAudioMediaTime(
+                    timeRange,
+                    clip,
+                    item.ioInfo.audio.sampleRate);
                 out = item.read->readAudio(mediaRange);
             }
             return out;

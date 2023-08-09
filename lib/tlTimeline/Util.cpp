@@ -361,22 +361,21 @@ namespace tl
         otime::RationalTime toVideoMediaTime(
             const otime::RationalTime& time,
             const otio::Clip* clip,
-            const io::Info& ioInfo)
+            double rate)
         {
             otime::RationalTime clipTime;
             if (auto parent = clip->parent())
             {
                 clipTime = parent->transformed_time(time, clip);
             }
-            const auto mediaTime = time::round(
-                clipTime.rescaled_to(ioInfo.videoTime.duration().rate()));
+            const auto mediaTime = time::round(clipTime.rescaled_to(rate));
             return mediaTime;
         }
 
         otime::TimeRange toAudioMediaTime(
             const otime::TimeRange& timeRange,
             const otio::Clip* clip,
-            const io::Info& ioInfo)
+            double sampleRate)
         {
             otime::TimeRange clipRange;
             if (auto parent = clip->parent())
@@ -384,8 +383,8 @@ namespace tl
                 clipRange = parent->transformed_time_range(timeRange, clip);
             }
             const otime::TimeRange mediaRange(
-                time::round(clipRange.start_time().rescaled_to(ioInfo.audio.sampleRate)),
-                time::round(clipRange.duration().rescaled_to(ioInfo.audio.sampleRate)));
+                time::round(clipRange.start_time().rescaled_to(sampleRate)),
+                time::round(clipRange.duration().rescaled_to(sampleRate)));
             return mediaRange;
         }
     }

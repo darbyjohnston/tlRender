@@ -37,8 +37,6 @@ namespace tl
             file::Path path;
             std::vector<file::MemoryRead> memoryRead;
             otime::TimeRange availableRange = time::invalidTimeRange;
-            bool ioInfoInit = true;
-            io::Info ioInfo;
 
             struct SizeData
             {
@@ -47,6 +45,8 @@ namespace tl
             };
             SizeData size;
 
+            std::future<io::Info> infoFuture;
+            std::unique_ptr<io::Info> ioInfo;
             struct AudioFuture
             {
                 std::future<io::AudioData> future;
@@ -112,6 +112,7 @@ namespace tl
                 _data.ioManager->observeCancelRequests(),
                 [this](bool)
                 {
+                    _p->infoFuture = std::future<io::Info>();
                     _p->audioDataFutures.clear();
                 });
         }
@@ -142,8 +143,8 @@ namespace tl
             TLRENDER_P();
             if (changed)
             {
-                _data.ioManager->cancelRequests();
                 p.audioData.clear();
+                _data.ioManager->cancelRequests();
                 _updates |= ui::Update::Draw;
             }
         }
@@ -159,8 +160,8 @@ namespace tl
             TLRENDER_P();
             if (thumbnailsChanged)
             {
-                _data.ioManager->cancelRequests();
                 p.audioData.clear();
+                _data.ioManager->cancelRequests();
                 _updates |= ui::Update::Draw;
             }
         }
@@ -292,6 +293,17 @@ namespace tl
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
             TLRENDER_P();
+
+            // Check if the I/O information is finished.
+            if (p.infoFuture.valid() &&
+                p.infoFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+            {
+                p.ioInfo = std::make_unique<io::Info>(p.infoFuture.get());
+                _updates |= ui::Update::Size;
+                _updates |= ui::Update::Draw;
+            }
+
+            // Check if any audio reads are finished.
             auto i = p.audioDataFutures.begin();
             while (i != p.audioDataFutures.end())
             {
@@ -343,6 +355,7 @@ namespace tl
                 }
             }
 
+            // Check if any audio thumbnails are finished.
             const auto now = std::chrono::steady_clock::now();
             for (auto& audioData : p.audioData)
             {
@@ -398,8 +411,12 @@ namespace tl
             if (clipRect == p.size.clipRect)
                 return;
             p.size.clipRect = clipRect;
-            _data.ioManager->cancelRequests();
-            _updates |= ui::Update::Draw;
+            if (clipped)
+            {
+                p.audioData.clear();
+                _data.ioManager->cancelRequests();
+                _updates |= ui::Update::Draw;
+            }
         }
 
         void AudioClipItem::drawEvent(
@@ -468,15 +485,12 @@ namespace tl
                 _options.clipRectScale);
             if (g.intersects(clipRect))
             {
-                if (p.ioInfoInit)
+                if (!p.ioInfo && !p.infoFuture.valid())
                 {
-                    p.ioInfoInit = false;
-                    p.ioInfo = _data.ioManager->getInfo(
+                    p.infoFuture = _data.ioManager->getInfo(
                         p.path,
                         p.memoryRead,
-                        p.availableRange.start_time()).get();
-                    _updates |= ui::Update::Size;
-                    _updates |= ui::Update::Draw;
+                        p.availableRange.start_time());
                 }
             }
 
@@ -529,7 +543,7 @@ namespace tl
                             }
                             audioDataDelete.erase(time);
                         }
-                        else if (p.ioInfo.audio.isValid())
+                        else if (p.ioInfo && p.ioInfo->audio.isValid())
                         {
                             const auto j = p.audioDataFutures.find(time);
                             if (j == p.audioDataFutures.end())
@@ -542,7 +556,7 @@ namespace tl
                                 const otime::TimeRange mediaRange = timeline::toAudioMediaTime(
                                     otime::TimeRange::range_from_start_end_time(time, time2),
                                     p.clip,
-                                    p.ioInfo);
+                                    p.ioInfo->audio.sampleRate);
                                 p.audioDataFutures[time].future = _data.ioManager->readAudio(
                                     p.path,
                                     p.memoryRead,
