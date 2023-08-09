@@ -69,14 +69,12 @@ namespace tl
         //! Transform track time to video media time.
         otime::RationalTime toVideoMediaTime(
             const otime::RationalTime&,
-            const otio::Track*,
             const otio::Clip*,
             const io::Info&);
 
         //! Transform track time to audio media time.
         otime::TimeRange toAudioMediaTime(
             const otime::TimeRange&,
-            const otio::Track*,
             const otio::Clip*,
             const io::Info&);
     }

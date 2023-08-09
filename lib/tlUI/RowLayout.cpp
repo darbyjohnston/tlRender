@@ -26,11 +26,11 @@ namespace tl
 
         void RowLayout::_init(
             Orientation orientation,
-            const std::string& name,
+            const std::string& objectName,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init(name, context, parent);
+            IWidget::_init(objectName, context, parent);
             TLRENDER_P();
             p.orientation = orientation;
         }

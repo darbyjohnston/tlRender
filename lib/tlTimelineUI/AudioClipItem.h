@@ -12,12 +12,29 @@ namespace tl
 {
     namespace timelineui
     {
+        class AudioClipItem;
+
+        //! Audio drag and drop data.
+        class AudioDragAndDropData : public ui::DragAndDropData
+        {
+        public:
+            AudioDragAndDropData(const std::shared_ptr<AudioClipItem>&);
+
+            virtual ~AudioDragAndDropData();
+
+            const std::shared_ptr<AudioClipItem>& getItem() const;
+
+        private:
+            std::shared_ptr<AudioClipItem> _item;
+        };
+
         //! Audio clip item.
         class AudioClipItem : public IBasicItem
         {
         protected:
             void _init(
                 const otio::SerializableObject::Retainer<otio::Clip>&,
+                const otime::TimeRange&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
@@ -30,6 +47,7 @@ namespace tl
             //! Create a new item.
             static std::shared_ptr<AudioClipItem> create(
                 const otio::SerializableObject::Retainer<otio::Clip>&,
+                const otime::TimeRange&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
@@ -49,6 +67,7 @@ namespace tl
             void drawEvent(
                 const math::Box2i&,
                 const ui::DrawEvent&) override;
+            void mouseMoveEvent(ui::MouseMoveEvent&) override;
 
         private:
             void _drawWaveforms(

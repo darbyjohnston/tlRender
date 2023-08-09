@@ -32,12 +32,10 @@ namespace tl
                 const otio::Clip*,
                 const io::Options&);
             std::future<io::VideoData> readVideo(
-                const otio::Track*,
                 const otio::Clip*,
                 const otime::RationalTime&,
                 uint16_t videoLayer);
             std::future<io::AudioData> readAudio(
-                const otio::Track*,
                 const otio::Clip*,
                 const otime::TimeRange&);
 

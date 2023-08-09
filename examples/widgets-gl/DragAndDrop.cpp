@@ -149,7 +149,6 @@ namespace tl
                 TLRENDER_P();
                 if (_mouse.press)
                 {
-                    event.accept = true;
                     const float length = math::length(event.pos - _mouse.pressPos);
                     if (length > p.dragLength)
                     {

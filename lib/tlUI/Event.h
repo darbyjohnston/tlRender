@@ -120,7 +120,7 @@ namespace tl
             math::Vector2i                   prev;
             bool                             accept = false;
             std::shared_ptr<DragAndDropData> dndData;
-            std::shared_ptr<image::Image>  dndCursor;
+            std::shared_ptr<image::Image>    dndCursor;
             math::Vector2i                   dndCursorHotspot;
         };
 

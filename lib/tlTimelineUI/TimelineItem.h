@@ -18,6 +18,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<timeline::Player>&,
+                const otime::TimeRange&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
@@ -30,6 +31,7 @@ namespace tl
             //! Create a new item.
             static std::shared_ptr<TimelineItem> create(
                 const std::shared_ptr<timeline::Player>&,
+                const otime::TimeRange&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
@@ -42,16 +44,11 @@ namespace tl
             void drawOverlayEvent(
                 const math::Box2i&,
                 const ui::DrawEvent&) override;
-            void mouseEnterEvent() override;
-            void mouseLeaveEvent() override;
             void mouseMoveEvent(ui::MouseMoveEvent&) override;
             void mousePressEvent(ui::MouseClickEvent&) override;
             void mouseReleaseEvent(ui::MouseClickEvent&) override;
             //void keyPressEvent(ui::KeyEvent&) override;
             //void keyReleaseEvent(ui::KeyEvent&) override;
-            void dragEnterEvent(ui::DragAndDropEvent&) override;
-            void dragLeaveEvent(ui::DragAndDropEvent&) override;
-            void dropEvent(ui::DragAndDropEvent&) override;
 
         protected:
             void _timeUnitsUpdate() override;
@@ -71,9 +68,6 @@ namespace tl
             void _drawCurrentTime(
                 const math::Box2i&,
                 const ui::DrawEvent&);
-
-            otime::RationalTime _posToTime(float) const;
-            int _timeToPos(const otime::RationalTime&) const;
 
             TLRENDER_PRIVATE();
         };

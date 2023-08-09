@@ -10,17 +10,17 @@ namespace tl
     {
         void VideoGapItem::_init(
             const otio::SerializableObject::Retainer<otio::Gap>& gap,
+            const otime::TimeRange& timeRange,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            const auto rangeOpt = gap->trimmed_range_in_parent();
             IBasicItem::_init(
-                rangeOpt.has_value() ? rangeOpt.value() : time::invalidTimeRange,
                 !gap->name().empty() ? gap->name() : "Gap",
                 ui::ColorRole::VideoGap,
                 getMarkers(gap),
                 "tl::timelineui::VideoGapItem",
+                timeRange,
                 itemData,
                 context,
                 parent);
@@ -34,12 +34,13 @@ namespace tl
 
         std::shared_ptr<VideoGapItem> VideoGapItem::create(
             const otio::SerializableObject::Retainer<otio::Gap>& gap,
+            const otime::TimeRange& timeRange,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<VideoGapItem>(new VideoGapItem);
-            out->_init(gap, itemData, context, parent);
+            out->_init(gap, timeRange, itemData, context, parent);
             return out;
         }
     }

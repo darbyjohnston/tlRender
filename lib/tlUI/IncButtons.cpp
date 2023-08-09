@@ -184,7 +184,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IncButtons::_init(context, parent);
-            setName("tl::ui::IntIncButtons");
+            setObjectName("tl::ui::IntIncButtons");
             TLRENDER_P();
 
             p.model = model;
@@ -262,7 +262,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IncButtons::_init(context, parent);
-            setName("tl::ui::FloatIncButtons");
+            setObjectName("tl::ui::FloatIncButtons");
             TLRENDER_P();
 
             p.model = model;
@@ -340,7 +340,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IncButtons::_init(context, parent);
-            setName("tl::ui::DoubleIncButtons");
+            setObjectName("tl::ui::DoubleIncButtons");
             TLRENDER_P();
 
             p.model = model;

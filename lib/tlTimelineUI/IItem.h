@@ -89,7 +89,8 @@ namespace tl
         {
         protected:
             void _init(
-                const std::string& name,
+                const std::string& objectName,
+                const otime::TimeRange&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
@@ -98,6 +99,8 @@ namespace tl
 
         public:
             virtual ~IItem();
+
+            const otime::TimeRange& getTimeRange() const;
 
             virtual void setScale(double);
             virtual void setOptions(const ItemOptions&);
@@ -109,8 +112,12 @@ namespace tl
 
             std::string _getDurationLabel(const otime::RationalTime&);
 
+            otime::RationalTime _posToTime(float) const;
+            int _timeToPos(const otime::RationalTime&) const;
+
             virtual void _timeUnitsUpdate();
 
+            otime::TimeRange _timeRange;
             ItemData _data;
             double _scale = 500.0;
             ItemOptions _options;

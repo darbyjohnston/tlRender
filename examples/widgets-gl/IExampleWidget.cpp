@@ -12,11 +12,11 @@ namespace tl
         {
             void IExampleWidget::_init(
                 const std::string& exampleName,
-                const std::string& name,
+                const std::string& objectName,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                IWidget::_init(name, context, parent);
+                IWidget::_init(objectName, context, parent);
                 _exampleName = exampleName;
             }
 

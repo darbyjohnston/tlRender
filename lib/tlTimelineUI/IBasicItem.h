@@ -17,11 +17,11 @@ namespace tl
         {
         protected:
             void _init(
-                const otime::TimeRange&,
                 const std::string& label,
                 ui::ColorRole,
                 const std::vector<Marker>&,
-                const std::string& name,
+                const std::string& objectName,
+                const otime::TimeRange&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

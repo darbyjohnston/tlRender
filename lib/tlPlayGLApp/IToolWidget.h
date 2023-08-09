@@ -22,7 +22,7 @@ namespace tl
         protected:
             void _init(
                 Tool,
-                const std::string& name,
+                const std::string& objectName,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);

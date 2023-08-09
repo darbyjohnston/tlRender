@@ -26,11 +26,11 @@ namespace tl
         };
 
         void IDialog::_init(
-            const std::string& name,
+            const std::string& objectName,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IPopup::_init(name, context, parent);
+            IPopup::_init(objectName, context, parent);
         }
 
         IDialog::IDialog() :

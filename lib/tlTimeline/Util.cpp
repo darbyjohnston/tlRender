@@ -360,11 +360,14 @@ namespace tl
 
         otime::RationalTime toVideoMediaTime(
             const otime::RationalTime& time,
-            const otio::Track* track,
             const otio::Clip* clip,
             const io::Info& ioInfo)
         {
-            otime::RationalTime clipTime = track->transformed_time(time, clip);
+            otime::RationalTime clipTime;
+            if (auto parent = clip->parent())
+            {
+                clipTime = parent->transformed_time(time, clip);
+            }
             const auto mediaTime = time::round(
                 clipTime.rescaled_to(ioInfo.videoTime.duration().rate()));
             return mediaTime;
@@ -372,11 +375,14 @@ namespace tl
 
         otime::TimeRange toAudioMediaTime(
             const otime::TimeRange& timeRange,
-            const otio::Track* track,
             const otio::Clip* clip,
             const io::Info& ioInfo)
         {
-            otime::TimeRange clipRange = track->transformed_time_range(timeRange, clip);
+            otime::TimeRange clipRange;
+            if (auto parent = clip->parent())
+            {
+                clipRange = parent->transformed_time_range(timeRange, clip);
+            }
             const otime::TimeRange mediaRange(
                 time::round(clipRange.start_time().rescaled_to(ioInfo.audio.sampleRate)),
                 time::round(clipRange.duration().rescaled_to(ioInfo.audio.sampleRate)));

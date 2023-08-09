@@ -9,11 +9,11 @@ namespace tl
     namespace ui
     {
         void IPopup::_init(
-            const std::string& name,
+            const std::string& objectName,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init(name, context, parent);
+            IWidget::_init(objectName, context, parent);
         }
 
         IPopup::IPopup()

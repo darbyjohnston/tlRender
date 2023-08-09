@@ -22,7 +22,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::string& name,
+                const std::string& objectName,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -31,11 +31,11 @@ namespace tl
         public:
             virtual ~IWidget() = 0;
 
-            //! Get the widget name.
-            const std::string& getName() const;
+            //! Get the object name.
+            const std::string& getObjectName() const;
 
-            //! Set the widget name.
-            void setName(const std::string&);
+            //! Set the object name.
+            void setObjectName(const std::string&);
 
             //! Set the background role.
             void setBackgroundRole(ColorRole);
@@ -267,7 +267,7 @@ namespace tl
             virtual void _releaseMouse();
 
             std::weak_ptr<system::Context> _context;
-            std::string _name;
+            std::string _objectName;
             ColorRole _backgroundRole = ColorRole::None;
             int _updates = 0;
             std::weak_ptr<IWidget> _parent;

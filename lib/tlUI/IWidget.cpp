@@ -11,12 +11,12 @@ namespace tl
     namespace ui
     {
         void IWidget::_init(
-            const std::string& name,
+            const std::string& objectName,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             _context = context;
-            _name = name;
+            _objectName = objectName;
             _parent = parent;
             if (parent)
             {
@@ -35,9 +35,9 @@ namespace tl
         IWidget::~IWidget()
         {}
 
-        void IWidget::setName(const std::string& value)
+        void IWidget::setObjectName(const std::string& value)
         {
-            _name = value;
+            _objectName = value;
         }
 
         void IWidget::setBackgroundRole(ColorRole value)

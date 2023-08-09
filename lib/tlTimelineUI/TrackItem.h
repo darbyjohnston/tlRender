@@ -6,6 +6,8 @@
 
 #include <tlTimelineUI/IItem.h>
 
+#include <tlTimeline/Player.h>
+
 #include <opentimelineio/track.h>
 
 namespace tl
@@ -25,8 +27,10 @@ namespace tl
         {
         protected:
             void _init(
+                const std::shared_ptr<timeline::Player>&,
                 const otio::SerializableObject::Retainer<otio::Track>&,
-                int,
+                int trackIndex,
+                const otime::TimeRange&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
@@ -38,8 +42,10 @@ namespace tl
 
             //! Create a new item.
             static std::shared_ptr<TrackItem> create(
+                const std::shared_ptr<timeline::Player>&,
                 const otio::SerializableObject::Retainer<otio::Track>&,
-                int,
+                int trackIndex,
+                const otime::TimeRange&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
@@ -51,6 +57,13 @@ namespace tl
             void drawEvent(
                 const math::Box2i&,
                 const ui::DrawEvent&) override;
+            void drawOverlayEvent(
+                const math::Box2i&,
+                const ui::DrawEvent&) override;
+            void dragEnterEvent(ui::DragAndDropEvent&) override;
+            void dragLeaveEvent(ui::DragAndDropEvent&) override;
+            void dragMoveEvent(ui::DragAndDropEvent&) override;
+            void dropEvent(ui::DragAndDropEvent&) override;
 
         protected:
             void _timeUnitsUpdate() override;

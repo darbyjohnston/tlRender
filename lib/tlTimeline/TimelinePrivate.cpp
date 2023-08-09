@@ -182,7 +182,7 @@ namespace tl
                                     VideoLayerData videoData;
                                     if (auto otioClip = dynamic_cast<const otio::Clip*>(otioItem))
                                     {
-                                        videoData.image = readVideo(otioTrack, otioClip, requestTime, request->videoLayer);
+                                        videoData.image = readVideo(otioClip, requestTime, request->videoLayer);
                                     }
                                     const auto neighbors = otioTrack->neighbors_of(otioItem, &errorStatus);
                                     if (auto otioTransition = dynamic_cast<otio::Transition*>(neighbors.second.value))
@@ -197,7 +197,7 @@ namespace tl
                                             const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
                                             if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.second.value))
                                             {
-                                                videoData.imageB = readVideo(otioTrack, otioClipB, requestTime, request->videoLayer);
+                                                videoData.imageB = readVideo(otioClipB, requestTime, request->videoLayer);
                                             }
                                         }
                                     }
@@ -214,7 +214,7 @@ namespace tl
                                             const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
                                             if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.first.value))
                                             {
-                                                videoData.image = readVideo(otioTrack, otioClipB, requestTime, request->videoLayer);
+                                                videoData.image = readVideo(otioClipB, requestTime, request->videoLayer);
                                             }
                                         }
                                     }
@@ -261,7 +261,7 @@ namespace tl
                                         audioData.timeRange = requestTimeRange.clamped(clipTimeRange);
                                         if (auto otioClip = dynamic_cast<const otio::Clip*>(otioItem))
                                         {
-                                            audioData.audio = readAudio(otioTrack, otioClip, requestTimeRange);
+                                            audioData.audio = readAudio(otioClip, requestTimeRange);
                                         }
                                         request->layerData.push_back(std::move(audioData));
                                     }
@@ -494,7 +494,6 @@ namespace tl
         }
 
         std::future<io::VideoData> Timeline::Private::readVideo(
-            const otio::Track* track,
             const otio::Clip* clip,
             const otime::RationalTime& time,
             uint16_t videoLayer)
@@ -503,18 +502,13 @@ namespace tl
             ReadCacheItem item = getRead(clip, options.ioOptions);
             if (item.read)
             {
-                const auto mediaTime = timeline::toVideoMediaTime(
-                    time,
-                    track,
-                    clip,
-                    item.ioInfo);
+                const auto mediaTime = timeline::toVideoMediaTime(time, clip, item.ioInfo);
                 out = item.read->readVideo(mediaTime, videoLayer);
             }
             return out;
         }
 
         std::future<io::AudioData> Timeline::Private::readAudio(
-            const otio::Track* track,
             const otio::Clip* clip,
             const otime::TimeRange& timeRange)
         {
@@ -522,11 +516,7 @@ namespace tl
             ReadCacheItem item = getRead(clip, options.ioOptions);
             if (item.read)
             {
-                const auto mediaRange = timeline::toAudioMediaTime(
-                    timeRange,
-                    track,
-                    clip,
-                    item.ioInfo);
+                const auto mediaRange = timeline::toAudioMediaTime(timeRange, clip, item.ioInfo);
                 out = item.read->readAudio(mediaRange);
             }
             return out;

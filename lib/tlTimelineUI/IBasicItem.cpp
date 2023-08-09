@@ -14,7 +14,6 @@ namespace tl
     {
         struct IBasicItem::Private
         {
-            otime::TimeRange timeRange = time::invalidTimeRange;
             std::string label;
             std::string durationLabel;
             ui::ColorRole colorRole = ui::ColorRole::VideoClip;
@@ -43,19 +42,18 @@ namespace tl
         };
 
         void IBasicItem::_init(
-            const otime::TimeRange& timeRange,
             const std::string& label,
             ui::ColorRole colorRole,
             const std::vector<Marker>& markers,
-            const std::string& name,
+            const std::string& objectName,
+            const otime::TimeRange& timeRange,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IItem::_init(name, itemData, context, parent);
+            IItem::_init(objectName, timeRange, itemData, context, parent);
             TLRENDER_P();
 
-            p.timeRange = timeRange;
             p.label = label;
             p.colorRole = colorRole;
             p.markers = markers;
@@ -100,7 +98,7 @@ namespace tl
             p.size.textUpdate = false;
 
             _sizeHint = math::Vector2i(
-                p.timeRange.duration().rescaled_to(1.0).value() * _scale,
+                _timeRange.duration().rescaled_to(1.0).value() * _scale,
                 p.size.fontMetrics.lineHeight +
                 p.size.margin * 2 +
                 p.size.border * 4);
@@ -266,7 +264,7 @@ namespace tl
         void IBasicItem::_textUpdate()
         {
             TLRENDER_P();
-            p.durationLabel = _getDurationLabel(p.timeRange.duration());
+            p.durationLabel = _getDurationLabel(_timeRange.duration());
             p.size.textUpdate = true;
             p.draw.durationGlyphs.clear();
             _updates |= ui::Update::Size;

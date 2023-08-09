@@ -10,17 +10,17 @@ namespace tl
     {
         void TransitionItem::_init(
             const otio::SerializableObject::Retainer<otio::Transition>& transition,
+            const otime::TimeRange& timeRange,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            const auto rangeOpt = transition->trimmed_range_in_parent();
             IBasicItem::_init(
-                rangeOpt.has_value() ? rangeOpt.value() : time::invalidTimeRange,
                 !transition->name().empty() ? transition->name() : "Transition",
                 ui::ColorRole::Transition,
                 {},
                 "tl::timelineui::TransitionItem",
+                timeRange,
                 itemData,
                 context,
                 parent);
@@ -34,12 +34,13 @@ namespace tl
 
         std::shared_ptr<TransitionItem> TransitionItem::create(
             const otio::SerializableObject::Retainer<otio::Transition>& transition,
+            const otime::TimeRange& timeRange,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TransitionItem>(new TransitionItem);
-            out->_init(transition, itemData, context, parent);
+            out->_init(transition, timeRange, itemData, context, parent);
             return out;
         }
     }

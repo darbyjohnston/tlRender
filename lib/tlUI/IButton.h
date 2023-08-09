@@ -17,7 +17,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::string& name,
+                const std::string& objectName,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 

@@ -493,7 +493,11 @@ namespace tl
                         context);
                     itemData.timeUnitsModel = p.timeUnitsModel;
 
-                    p.timelineItem = TimelineItem::create(p.player, itemData, context);
+                    p.timelineItem = TimelineItem::create(
+                        p.player,
+                        p.player->getTimeRange(),
+                        itemData,
+                        context);
                     p.timelineItem->setStopOnScrub(p.stopOnScrub->get());
                     p.scrollWidget->setScrollPos(math::Vector2i());
                     _setItemOptions(p.timelineItem, p.itemOptions->get());

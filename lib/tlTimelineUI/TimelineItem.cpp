@@ -17,7 +17,6 @@ namespace tl
         struct TimelineItem::Private
         {
             std::shared_ptr<timeline::Player> player;
-            otime::TimeRange timeRange = time::invalidTimeRange;
             otime::RationalTime currentTime = time::invalidTime;
             otime::TimeRange inOutRange = time::invalidTimeRange;
             timeline::PlayerCacheInfo cacheInfo;
@@ -46,32 +45,39 @@ namespace tl
 
         void TimelineItem::_init(
             const std::shared_ptr<timeline::Player>& player,
+            const otime::TimeRange& timeRange,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IItem::_init("tl::timelineui::TimelineItem", itemData, context, parent);
+            IItem::_init(
+                "tl::timelineui::TimelineItem",
+                timeRange,
+                itemData,
+                context,
+                parent);
             TLRENDER_P();
 
             _mouse.hoverEnabled = true;
             _mouse.pressEnabled = true;
 
             p.player = player;
-            p.timeRange = player->getTimeRange();
 
             const auto otioTimeline = p.player->getTimeline()->getTimeline();
-            int trackNumber = 0;
+            int trackIndex = 0;
             for (const auto& child : otioTimeline->tracks()->children())
             {
                 if (auto track = otio::dynamic_retainer_cast<otio::Track>(child))
                 {
                     auto trackItem = TrackItem::create(
+                        player,
                         track,
-                        trackNumber,
+                        trackIndex,
+                        track->trimmed_range(),
                         itemData,
                         context,
                         shared_from_this());
-                    ++trackNumber;
+                    ++trackIndex;
                 }
             }
 
@@ -109,12 +115,13 @@ namespace tl
 
         std::shared_ptr<TimelineItem> TimelineItem::create(
             const std::shared_ptr<timeline::Player>& player,
+            const otime::TimeRange& timeRange,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TimelineItem>(new TimelineItem);
-            out->_init(player, itemData, context, parent);
+            out->_init(player, timeRange, itemData, context, parent);
             return out;
         }
 
@@ -171,7 +178,7 @@ namespace tl
             }
 
             _sizeHint = math::Vector2i(
-                p.timeRange.duration().rescaled_to(1.0).value() * _scale,
+                _timeRange.duration().rescaled_to(1.0).value() * _scale,
                 p.size.margin +
                 p.size.fontMetrics.lineHeight +
                 p.size.margin +
@@ -212,12 +219,6 @@ namespace tl
             _drawCacheInfo(drawRect, event);
             _drawCurrentTime(drawRect, event);
         }
-
-        void TimelineItem::mouseEnterEvent()
-        {}
-
-        void TimelineItem::mouseLeaveEvent()
-        {}
 
         void TimelineItem::mouseMoveEvent(ui::MouseMoveEvent& event)
         {
@@ -315,21 +316,6 @@ namespace tl
             event.accept = true;
         }*/
 
-        void TimelineItem::dragEnterEvent(ui::DragAndDropEvent& event)
-        {
-
-        }
-
-        void TimelineItem::dragLeaveEvent(ui::DragAndDropEvent& event)
-        {
-
-        }
-
-        void TimelineItem::dropEvent(ui::DragAndDropEvent& event)
-        {
-
-        }
-
         void TimelineItem::_timeUnitsUpdate()
         {
             IItem::_timeUnitsUpdate();
@@ -354,7 +340,7 @@ namespace tl
         {
             TLRENDER_P();
             if (!time::compareExact(_p->inOutRange, time::invalidTimeRange) &&
-                !time::compareExact(_p->inOutRange, _p->timeRange))
+                !time::compareExact(_p->inOutRange, _timeRange))
             {
                 const math::Box2i& g = _geometry;
 
@@ -379,7 +365,7 @@ namespace tl
                 }
                 case InOutDisplay::OutsideRange:
                 {
-                    int x0 = _timeToPos(_p->timeRange.start_time());
+                    int x0 = _timeToPos(_timeRange.start_time());
                     int x1 = _timeToPos(_p->inOutRange.start_time());
                     math::Box2i box(
                         x0,
@@ -393,7 +379,7 @@ namespace tl
                         box,
                         event.style->getColorRole(ui::ColorRole::InOut));
                     x0 = _timeToPos(_p->inOutRange.end_time_exclusive());
-                    x1 = _timeToPos(_p->timeRange.end_time_exclusive());
+                    x1 = _timeToPos(_timeRange.end_time_exclusive());
                     box = math::Box2i(
                         x0,
                         p.size.scrollPos.y +
@@ -421,18 +407,18 @@ namespace tl
             const int handle = event.style->getSizeRole(ui::SizeRole::Handle, event.displayScale);
             const math::Box2i& g = _geometry;
 
-            const std::string labelMax = _data.timeUnitsModel->getLabel(p.timeRange.duration());
+            const std::string labelMax = _data.timeUnitsModel->getLabel(_timeRange.duration());
             const math::Vector2i labelMaxSize = event.fontSystem->getSize(labelMax, p.size.fontInfo);
             const int distanceMin = p.size.border + p.size.margin + labelMaxSize.x;
 
             const int w = _sizeHint.x;
-            const float duration = p.timeRange.duration().rescaled_to(1.0).value();
-            const int frameTick = 1.0 / p.timeRange.duration().value() * w;
+            const float duration = _timeRange.duration().rescaled_to(1.0).value();
+            const int frameTick = 1.0 / _timeRange.duration().value() * w;
             if (frameTick >= handle)
             {
                 geom::TriangleMesh2 mesh;
                 size_t i = 1;
-                for (double t = 0.0; t < duration; t += 1.0 / p.timeRange.duration().rate())
+                for (double t = 0.0; t < duration; t += 1.0 / _timeRange.duration().rate())
                 {
                     const math::Box2i box(
                         g.min.x +
@@ -522,8 +508,8 @@ namespace tl
                 const otime::RationalTime& currentTime = p.player->observeCurrentTime()->get();
                 for (double t = 0.0; t < duration; t += seconds)
                 {
-                    const otime::RationalTime time = p.timeRange.start_time() +
-                        otime::RationalTime(t, 1.0).rescaled_to(p.timeRange.duration().rate());
+                    const otime::RationalTime time = _timeRange.start_time() +
+                        otime::RationalTime(t, 1.0).rescaled_to(_timeRange.duration().rate());
                     const math::Box2i box(
                         g.min.x +
                         t / duration * w +
@@ -671,34 +657,6 @@ namespace tl
                         p.size.fontMetrics.ascender),
                     event.style->getColorRole(ui::ColorRole::Text));
             }
-        }
-
-        otime::RationalTime TimelineItem::_posToTime(float value) const
-        {
-            TLRENDER_P();
-            otime::RationalTime out = time::invalidTime;
-            if (_geometry.w() > 0)
-            {
-                const double normalized =
-                    (value - _geometry.min.x) / static_cast<double>(_geometry.w());
-                out = time::round(
-                    p.timeRange.start_time() +
-                    otime::RationalTime(
-                        p.timeRange.duration().value() * normalized,
-                        p.timeRange.duration().rate()));
-                out = math::clamp(
-                    out,
-                    p.timeRange.start_time(),
-                    p.timeRange.end_time_inclusive());
-            }
-            return out;
-        }
-
-        int TimelineItem::_timeToPos(const otime::RationalTime& value) const
-        {
-            TLRENDER_P();
-            const otime::RationalTime t = value - p.timeRange.start_time();
-            return _geometry.min.x + t.rescaled_to(1.0).value() * _scale;
         }
     }
 }

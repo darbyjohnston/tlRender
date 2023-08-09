@@ -5,6 +5,7 @@
 #include <tlTimelineUI/AudioClipItem.h>
 
 #include <tlUI/DrawUtil.h>
+#include <tlUI/EventLoop.h>
 
 #include <tlTimeline/RenderUtil.h>
 #include <tlTimeline/Util.h>
@@ -12,27 +13,36 @@
 #include <tlCore/AudioConvert.h>
 #include <tlCore/Mesh.h>
 
-#include <opentimelineio/track.h>
-
 #include <sstream>
 
 namespace tl
 {
     namespace timelineui
     {
+        AudioDragAndDropData::AudioDragAndDropData(const std::shared_ptr<AudioClipItem>& item) :
+            _item(item)
+        {}
+
+        AudioDragAndDropData::~AudioDragAndDropData()
+        {}
+
+        const std::shared_ptr<AudioClipItem>& AudioDragAndDropData::getItem() const
+        {
+            return _item;
+        }
+
         struct AudioClipItem::Private
         {
             otio::SerializableObject::Retainer<otio::Clip> clip;
-            otio::SerializableObject::Retainer<otio::Track> track;
             file::Path path;
             std::vector<file::MemoryRead> memoryRead;
-            otime::TimeRange timeRange = time::invalidTimeRange;
             otime::TimeRange availableRange = time::invalidTimeRange;
             bool ioInfoInit = true;
             io::Info ioInfo;
 
             struct SizeData
             {
+                int dragLength = 0;
                 math::Box2i clipRect;
             };
             SizeData size;
@@ -59,36 +69,34 @@ namespace tl
 
         void AudioClipItem::_init(
             const otio::SerializableObject::Retainer<otio::Clip>& clip,
+            const otime::TimeRange& timeRange,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            const auto rangeOpt = clip->trimmed_range_in_parent();
             const auto path = timeline::getPath(
                 clip->media_reference(),
                 itemData.directory,
                 itemData.options.pathOptions);
             IBasicItem::_init(
-                rangeOpt.has_value() ? rangeOpt.value() : time::invalidTimeRange,
                 !clip->name().empty() ? clip->name() : path.get(-1, false),
                 ui::ColorRole::AudioClip,
                 getMarkers(clip),
                 "tl::timelineui::AudioClipItem",
+                timeRange,
                 itemData,
                 context,
                 parent);
             TLRENDER_P();
 
+            _mouse.hoverEnabled = true;
+            _mouse.pressEnabled = true;
+
             p.clip = clip;
-            p.track = dynamic_cast<otio::Track*>(clip->parent());
 
             p.path = path;
             p.memoryRead = timeline::getMemoryRead(clip->media_reference());
 
-            if (rangeOpt.has_value())
-            {
-                p.timeRange = rangeOpt.value();
-            }
             otio::ErrorStatus error;
             const otime::TimeRange availableRange = clip->available_range(&error);
             if (!otio::is_error(error))
@@ -117,12 +125,13 @@ namespace tl
 
         std::shared_ptr<AudioClipItem> AudioClipItem::create(
             const otio::SerializableObject::Retainer<otio::Clip>& clip,
+            const otime::TimeRange& timeRange,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<AudioClipItem>(new AudioClipItem);
-            out->_init(clip, itemData, context, parent);
+            out->_init(clip, timeRange, itemData, context, parent);
             return out;
         }
 
@@ -372,6 +381,7 @@ namespace tl
         {
             IBasicItem::sizeHintEvent(event);
             TLRENDER_P();
+            p.size.dragLength = event.style->getSizeRole(ui::SizeRole::DragLength, event.displayScale);
             if (_options.thumbnails)
             {
                 _sizeHint.y += _options.waveformHeight;
@@ -400,6 +410,26 @@ namespace tl
             if (_options.thumbnails)
             {
                 _drawWaveforms(drawRect, event);
+            }
+        }
+
+        void AudioClipItem::mouseMoveEvent(ui::MouseMoveEvent& event)
+        {
+            IWidget::mouseMoveEvent(event);
+            TLRENDER_P();
+            if (_mouse.press)
+            {
+                const float length = math::length(event.pos - _mouse.pressPos);
+                if (length > p.size.dragLength)
+                {
+                    if (auto eventLoop = getEventLoop().lock())
+                    {
+                        event.dndData = std::make_shared<AudioDragAndDropData>(
+                            std::dynamic_pointer_cast<AudioClipItem>(shared_from_this()));
+                        event.dndCursor = eventLoop->screenshot(shared_from_this());
+                        event.dndCursorHotspot = _mouse.pos - _geometry.min;
+                    }
+                }
             }
         }
 
@@ -465,10 +495,10 @@ namespace tl
                     if (box.intersects(clipRect))
                     {
                         const otime::RationalTime time = time::round(otime::RationalTime(
-                            p.timeRange.start_time().value() +
+                            _timeRange.start_time().value() +
                             (w > 0 ? (x / static_cast<double>(w)) : 0) *
-                            p.timeRange.duration().value(),
-                            p.timeRange.duration().rate()));
+                            _timeRange.duration().value(),
+                            _timeRange.duration().rate()));
                         auto i = p.audioData.find(time);
                         if (i != p.audioData.end())
                         {
@@ -505,13 +535,12 @@ namespace tl
                             if (j == p.audioDataFutures.end())
                             {
                                 const otime::RationalTime time2 = time::round(otime::RationalTime(
-                                    p.timeRange.start_time().value() +
+                                    _timeRange.start_time().value() +
                                     (w > 0 ? ((x + _options.waveformWidth) / static_cast<double>(w)) : 0) *
-                                    p.timeRange.duration().value(),
-                                    p.timeRange.duration().rate()));
+                                    _timeRange.duration().value(),
+                                    _timeRange.duration().rate()));
                                 const otime::TimeRange mediaRange = timeline::toAudioMediaTime(
                                     otime::TimeRange::range_from_start_end_time(time, time2),
-                                    p.track,
                                     p.clip,
                                     p.ioInfo);
                                 p.audioDataFutures[time].future = _data.ioManager->readAudio(

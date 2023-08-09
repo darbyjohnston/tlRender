@@ -12,12 +12,29 @@ namespace tl
 {
     namespace timelineui
     {
+        class VideoClipItem;
+
+        //! Video drag and drop data.
+        class VideoDragAndDropData : public ui::DragAndDropData
+        {
+        public:
+            VideoDragAndDropData(const std::shared_ptr<VideoClipItem>&);
+
+            virtual ~VideoDragAndDropData();
+
+            const std::shared_ptr<VideoClipItem>& getItem() const;
+
+        private:
+            std::shared_ptr<VideoClipItem> _item;
+        };
+
         //! Video clip item.
         class VideoClipItem : public IBasicItem
         {
         protected:
             void _init(
                 const otio::SerializableObject::Retainer<otio::Clip>&,
+                const otime::TimeRange&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
@@ -30,9 +47,12 @@ namespace tl
             //! Create a new item.
             static std::shared_ptr<VideoClipItem> create(
                 const otio::SerializableObject::Retainer<otio::Clip>&,
+                const otime::TimeRange&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
+
+            const otio::SerializableObject::Retainer<otio::Clip>& getClip() const;
 
             void setScale(double) override;
             void setOptions(const ItemOptions&) override;
@@ -50,8 +70,6 @@ namespace tl
                 const math::Box2i&,
                 const ui::DrawEvent&) override;
             void mouseMoveEvent(ui::MouseMoveEvent&) override;
-            void mousePressEvent(ui::MouseClickEvent&) override;
-            void mouseReleaseEvent(ui::MouseClickEvent&) override;
 
         private:
             void _drawInfo(
