@@ -57,8 +57,8 @@ namespace tl
             setHStretch(ui::Stretch::Expanding);
             setVStretch(ui::Stretch::Expanding);
 
-            _mouse.hoverEnabled = true;
-            _mouse.pressEnabled = true;
+            _setMouseHover(true);
+            _setMousePress(true);
 
             p.frameView = observer::Value<bool>::create(true);
         }

@@ -41,8 +41,8 @@ namespace tl
             TLRENDER_P();
             _hStretch = Stretch::Expanding;
             _vStretch = Stretch::Expanding;
-            _mouse.hoverEnabled = true;
-            _mouse.pressEnabled = true;
+            _setMouseHover(true);
+            _setMousePress(true);
             p.orientation = orientation;
         }
 

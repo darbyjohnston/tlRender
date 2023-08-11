@@ -38,8 +38,8 @@ namespace tl
             TLRENDER_P();
 
             setHStretch(ui::Stretch::Expanding);
-            _mouse.hoverEnabled = true;
-            _mouse.pressEnabled = true;
+            _setMouseHover(true);
+            _setMousePress(true);
 
             p.videoFileEdit = ui::FileEdit::create(context);
 

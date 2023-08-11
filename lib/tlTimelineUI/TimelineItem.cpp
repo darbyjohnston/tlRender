@@ -58,8 +58,8 @@ namespace tl
                 parent);
             TLRENDER_P();
 
-            _mouse.hoverEnabled = true;
-            _mouse.pressEnabled = true;
+            _setMouseHover(true);
+            _setMousePress(true, 0, 0);
 
             p.player = player;
 
@@ -234,15 +234,18 @@ namespace tl
         {
             IWidget::mousePressEvent(event);
             TLRENDER_P();
-            takeKeyFocus();
-            if (p.stopOnScrub)
+            if (0 == event.button && 0 == event.modifiers)
             {
-                p.player->setPlayback(timeline::Playback::Stop);
-            }
-            if (_geometry.contains(event.pos))
-            {
-                p.mouse.currentTimeDrag = true;
-                p.player->seek(_posToTime(event.pos.x));
+                takeKeyFocus();
+                if (p.stopOnScrub)
+                {
+                    p.player->setPlayback(timeline::Playback::Stop);
+                }
+                if (_geometry.contains(event.pos))
+                {
+                    p.mouse.currentTimeDrag = true;
+                    p.player->seek(_posToTime(event.pos.x));
+                }
             }
         }
 

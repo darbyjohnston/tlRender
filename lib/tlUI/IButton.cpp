@@ -29,8 +29,8 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(objectName, context, parent);
-            _mouse.hoverEnabled = true;
-            _mouse.pressEnabled = true;
+            _setMouseHover(true);
+            _setMousePress(true);
         }
 
         IButton::IButton() :

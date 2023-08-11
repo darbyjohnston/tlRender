@@ -49,15 +49,13 @@ namespace tl
             //! Cancel requests.
             void cancelRequests(int64_t id);
 
-            //! Cancel requests.
-            void cancelRequests();
-
         private:
             void _open(
                 const std::string&,
                 PXR_NS::UsdStageRefPtr&,
                 std::shared_ptr<PXR_NS::UsdImagingGLEngine>&);
             void _run();
+            void _finish();
 
             TLRENDER_PRIVATE();
         };

@@ -154,11 +154,7 @@ namespace tl
                             logSystem->print(id, e.what(), log::Type::Error);
                         }
                     }
-                    {
-                        std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                        p.mutex.stopped = true;
-                    }
-                    cancelRequests();
+                    _finish();
                 });
             
             if (auto logSystem = p.logSystem.lock())
@@ -311,27 +307,7 @@ namespace tl
                 request->promise.set_value(io::VideoData());
             }
         }
-        
-        void Render::cancelRequests()
-        {
-            TLRENDER_P();
-            std::list<std::shared_ptr<Private::InfoRequest> > infoRequests;
-            std::list<std::shared_ptr<Private::Request> > requests;
-            {
-                std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                infoRequests = std::move(p.mutex.infoRequests);
-                requests = std::move(p.mutex.requests);
-            }
-            for (auto& request : infoRequests)
-            {
-                request->promise.set_value(io::Info());
-            }
-            for (auto& request : requests)
-            {
-                request->promise.set_value(io::VideoData());
-            }
-        }
-                
+                        
         namespace
         {
             UsdGeomCamera getCamera(
@@ -781,6 +757,27 @@ namespace tl
                         }
                     }
                 }
+            }
+        }
+
+        void Render::_finish()
+        {
+            TLRENDER_P();
+            std::list<std::shared_ptr<Private::InfoRequest> > infoRequests;
+            std::list<std::shared_ptr<Private::Request> > requests;
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.stopped = true;
+                infoRequests = std::move(p.mutex.infoRequests);
+                requests = std::move(p.mutex.requests);
+            }
+            for (auto& request : infoRequests)
+            {
+                request->promise.set_value(io::Info());
+            }
+            for (auto& request : requests)
+            {
+                request->promise.set_value(io::VideoData());
             }
         }
     }

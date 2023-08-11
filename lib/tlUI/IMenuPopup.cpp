@@ -41,8 +41,8 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent)
             {
                 IWidget::_init("tl::ui::MenuWidget", context, parent);
-                _mouse.hoverEnabled = true;
-                _mouse.pressEnabled = true;
+                _setMouseHover(true);
+                _setMousePress(true);
             }
 
             MenuWidget::MenuWidget()

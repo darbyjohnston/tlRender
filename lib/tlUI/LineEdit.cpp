@@ -129,8 +129,8 @@ namespace tl
             IWidget::_init("tl::ui::LineEdit", context, parent);
             TLRENDER_P();
             setAcceptsKeyFocus(true);
-            _mouse.hoverEnabled = true;
-            _mouse.pressEnabled = true;
+            _setMouseHover(true);
+            _setMousePress(true);
             _textUpdate();
         }
 

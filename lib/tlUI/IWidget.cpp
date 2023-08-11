@@ -283,7 +283,7 @@ namespace tl
 
         void IWidget::mouseMoveEvent(MouseMoveEvent& event)
         {
-            if (_mouse.hoverEnabled)
+            if (_mouseHoverEnabled)
             {
                 event.accept = true;
             }
@@ -292,17 +292,25 @@ namespace tl
 
         void IWidget::mousePressEvent(MouseClickEvent& event)
         {
-            if (_mouse.pressEnabled)
+            const bool button =
+                _mousePressButton != -1 ?
+                event.button == _mousePressButton :
+                true;
+            const bool modifiers =
+                _mousePressModifiers != -1 ?
+                event.modifiers == _mousePressModifiers :
+                true;
+            if (_mousePressEnabled && button && modifiers)
             {
                 event.accept = true;
                 _mouse.press = true;
-                _mouse.pressPos = _mouse.pos;
+                _mouse.pressPos = event.pos;
             }
         }
 
         void IWidget::mouseReleaseEvent(MouseClickEvent& event)
         {
-            if (_mouse.pressEnabled)
+            if (_mouse.press)
             {
                 event.accept = true;
                 _mouse.press = false;
@@ -337,6 +345,18 @@ namespace tl
 
         void IWidget::dropEvent(DragAndDropEvent&)
         {}
+
+        void IWidget::_setMouseHover(bool value)
+        {
+            _mouseHoverEnabled = value;
+        }
+
+        void IWidget::_setMousePress(bool value, int button, int modifiers)
+        {
+            _mousePressEnabled = value;
+            _mousePressButton = button;
+            _mousePressModifiers = modifiers;
+        }
 
         void IWidget::_releaseMouse()
         {

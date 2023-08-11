@@ -264,6 +264,8 @@ namespace tl
             ///@}
 
         protected:
+            void _setMouseHover(bool);
+            void _setMousePress(bool, int button = -1, int modifiers = -1);
             virtual void _releaseMouse();
 
             std::weak_ptr<system::Context> _context;
@@ -286,8 +288,6 @@ namespace tl
             bool _parentsEnabled = true;
             struct MouseData
             {
-                bool hoverEnabled = false;
-                bool pressEnabled = false;
                 bool inside = false;
                 math::Vector2i pos;
                 bool press = false;
@@ -297,6 +297,12 @@ namespace tl
             bool _acceptsKeyFocus = false;
             bool _keyFocus = false;
             std::string _toolTip;
+
+        private:
+            bool _mouseHoverEnabled = false;
+            bool _mousePressEnabled = false;
+            int _mousePressButton = -1;
+            int _mousePressModifiers = -1;
         };
     }
 }

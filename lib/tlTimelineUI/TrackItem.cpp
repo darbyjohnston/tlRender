@@ -70,8 +70,7 @@ namespace tl
                 parent);
             TLRENDER_P();
 
-            _mouse.hoverEnabled = true;
-            _mouse.pressEnabled = true;
+            _setMouseHover(true);
 
             p.player = player;
             p.track = track;

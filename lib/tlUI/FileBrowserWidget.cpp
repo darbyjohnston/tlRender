@@ -65,8 +65,8 @@ namespace tl
 
             setHStretch(Stretch::Expanding);
             setVStretch(Stretch::Expanding);
-            _mouse.hoverEnabled = true;
-            _mouse.pressEnabled = true;
+            _setMouseHover(true);
+            _setMousePress(true);
 
             p.path = path;
 

@@ -7,6 +7,7 @@
 #include <tlIO/IO.h>
 
 #include <tlCore/Context.h>
+#include <tlCore/Mesh.h>
 #include <tlCore/ValueObserver.h>
 
 namespace tl
@@ -31,22 +32,24 @@ namespace tl
                 const io::Options&,
                 const std::shared_ptr<system::Context>&);
 
-            //! Get information.
-            std::future<io::Info> getInfo(
+            //! Request information.
+            std::future<io::Info> requestInfo(
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
                 const otime::RationalTime& startTime);
 
-            //! Read video data.
-            std::future<io::VideoData> readVideo(
+            //! Request video thumbnails.
+            std::future<std::shared_ptr<image::Image> > requestVideo(
+                const image::Size&,
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
                 const otime::RationalTime& startTime,
                 const otime::RationalTime&,
                 uint16_t layer = 0);
 
-            //! Read audio data.
-            std::future<io::AudioData> readAudio(
+            //! Request audio waveforms.
+            std::future<std::shared_ptr<geom::TriangleMesh2> > requestAudio(
+                const image::Size&,
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
                 const otime::RationalTime& startTime,

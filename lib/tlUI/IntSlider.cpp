@@ -38,8 +38,8 @@ namespace tl
 
             setAcceptsKeyFocus(true);
             setHStretch(Stretch::Expanding);
-            _mouse.hoverEnabled = true;
-            _mouse.pressEnabled = true;
+            _setMouseHover(true);
+            _setMousePress(true);
 
             p.model = model;
             if (!p.model)

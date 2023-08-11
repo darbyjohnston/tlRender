@@ -13,6 +13,7 @@ namespace tl
         struct TimelineWidget::Private
         {
             std::shared_ptr<timeline::ITimeUnitsModel> timeUnitsModel;
+            std::shared_ptr<IOManager> ioManager;
             std::shared_ptr<timeline::Player> player;
             std::shared_ptr<observer::ValueObserver<bool> > timelineObserver;
             std::shared_ptr<observer::Value<bool> > frameView;
@@ -49,8 +50,8 @@ namespace tl
             IWidget::_init("tl::ui::TimelineWidget", context, parent);
             TLRENDER_P();
 
-            _mouse.hoverEnabled = true;
-            _mouse.pressEnabled = true;
+            _setMouseHover(true);
+            _setMousePress(true, 0, static_cast<int>(p.scrollKeyModifier));
 
             p.timeUnitsModel = timeUnitsModel;
 
@@ -92,17 +93,16 @@ namespace tl
             p.timelineObserver.reset();
             p.scrollWidget->setWidget(nullptr);
             p.timelineItem.reset();
+            p.ioManager.reset();
 
             p.player = player;
 
-            _timelineUpdate();
-            if (p.timelineItem)
-            {
-                p.scale = _getTimelineScale();
-                _setItemScale(p.timelineItem, p.scale);
-            }
             if (p.player)
             {
+                p.ioManager = IOManager::create(
+                    p.player->getOptions().ioOptions,
+                    _context.lock());
+
                 p.timelineObserver = observer::ValueObserver<bool>::create(
                     p.player->getTimeline()->observeTimelineChanges(),
                     [this](bool)
@@ -110,6 +110,13 @@ namespace tl
                         _timelineUpdate();
                         _setItemScale(_p->timelineItem, _p->scale);
                     });
+            }
+
+            _timelineUpdate();
+            if (p.timelineItem)
+            {
+                p.scale = _getTimelineScale();
+                _setItemScale(p.timelineItem, p.scale);
             }
         }
 
@@ -287,21 +294,16 @@ namespace tl
         {
             IWidget::mousePressEvent(event);
             TLRENDER_P();
-            takeKeyFocus();
-            if (event.modifiers & static_cast<int>(p.scrollKeyModifier))
+            if (0 == event.button &&
+                event.modifiers & static_cast<int>(p.scrollKeyModifier))
             {
+                takeKeyFocus();
                 p.mouse.mode = Private::MouseMode::Scroll;
+                p.mouse.scrollPos = p.scrollWidget->getScrollPos();
             }
             else
             {
                 p.mouse.mode = Private::MouseMode::None;
-            }
-            switch (p.mouse.mode)
-            {
-            case Private::MouseMode::Scroll:
-                p.mouse.scrollPos = p.scrollWidget->getScrollPos();
-                break;
-            default: break;
             }
         }
 
@@ -477,6 +479,8 @@ namespace tl
         {
             TLRENDER_P();
 
+            const math::Vector2i scrollPos = p.scrollWidget->getScrollPos();
+
             p.scrollWidget->setWidget(nullptr);
             p.timelineItem.reset();
 
@@ -488,9 +492,7 @@ namespace tl
                     itemData.speed = p.player->getDefaultSpeed();
                     itemData.directory = p.player->getPath().getDirectory();
                     itemData.options = p.player->getOptions();
-                    itemData.ioManager = IOManager::create(
-                        p.player->getOptions().ioOptions,
-                        context);
+                    itemData.ioManager = p.ioManager;
                     itemData.timeUnitsModel = p.timeUnitsModel;
 
                     p.timelineItem = TimelineItem::create(
@@ -499,7 +501,7 @@ namespace tl
                         itemData,
                         context);
                     p.timelineItem->setStopOnScrub(p.stopOnScrub->get());
-                    p.scrollWidget->setScrollPos(math::Vector2i());
+                    p.scrollWidget->setScrollPos(scrollPos);
                     _setItemOptions(p.timelineItem, p.itemOptions->get());
                     p.scrollWidget->setWidget(p.timelineItem);
                 }

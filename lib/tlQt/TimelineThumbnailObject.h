@@ -39,7 +39,7 @@ namespace tl
                 const QString&,
                 const QSize&,
                 const QList<otime::RationalTime>&,
-                const timeline::ColorConfigOptions & = timeline::ColorConfigOptions(),
+                const timeline::ColorConfigOptions& = timeline::ColorConfigOptions(),
                 const timeline::LUTOptions& = timeline::LUTOptions());
 
             //! Cancel thumbnail requests.

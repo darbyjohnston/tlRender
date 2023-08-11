@@ -4,10 +4,24 @@
 
 #include <tlTimelineUI/IOManager.h>
 
+#include <tlTimeline/GLRender.h>
+
 #include <tlIO/IOSystem.h>
 
+#include <tlGL/OffscreenBuffer.h>
+
+#include <tlCore/AudioConvert.h>
 #include <tlCore/LRUCache.h>
 #include <tlCore/StringFormat.h>
+
+#if defined(TLRENDER_GL_DEBUG)
+#include <tlGladDebug/gl.h>
+#else // TLRENDER_GL_DEBUG
+#include <tlGlad/gl.h>
+#endif // TLRENDER_GL_DEBUG
+
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
 
 #include <sstream>
 
@@ -20,6 +34,8 @@ namespace tl
             std::weak_ptr<system::Context> context;
             io::Options ioOptions;
             std::shared_ptr<observer::Value<bool> > cancelRequests;
+
+            GLFWwindow* glfwWindow = nullptr;
             
             struct InfoRequest
             {
@@ -31,20 +47,23 @@ namespace tl
 
             struct VideoRequest
             {
+                image::Size size;
                 file::Path path;
                 std::vector<file::MemoryRead> memoryRead;
                 otime::RationalTime startTime = time::invalidTime;
                 otime::RationalTime time = time::invalidTime;
-                std::promise<io::VideoData> promise;
+                uint16_t layer = 0;
+                std::promise<std::shared_ptr<image::Image> > promise;
             };
 
             struct AudioRequest
             {
+                image::Size size;
                 file::Path path;
                 std::vector<file::MemoryRead> memoryRead;
                 otime::RationalTime startTime = time::invalidTime;
                 otime::TimeRange range = time::invalidTimeRange;
-                std::promise<io::AudioData> promise;
+                std::promise<std::shared_ptr<geom::TriangleMesh2> > promise;
             };
             
             struct Mutex
@@ -60,7 +79,10 @@ namespace tl
             
             struct Thread
             {
-                memory::LRUCache<std::string, std::shared_ptr<io::IRead> > cache;
+                memory::LRUCache<std::string, io::Info> infoCache;
+                memory::LRUCache<std::string, std::shared_ptr<image::Image> > thumbnailCache;
+                memory::LRUCache<std::string, std::shared_ptr<geom::TriangleMesh2> > waveformCache;
+                memory::LRUCache<std::string, std::shared_ptr<io::IRead> > ioCache;
                 std::condition_variable cv;
                 std::thread thread;
                 std::atomic<bool> running;
@@ -87,12 +109,25 @@ namespace tl
                 p.ioOptions["ffmpeg/AudioBufferSize"] = ss.str();
             }
             p.cancelRequests = observer::Value<bool>::create(false);
+
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+            glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
+            p.glfwWindow = glfwCreateWindow(1, 1, "tl::ui::ThumbnailSystem", NULL, NULL);
+            if (!p.glfwWindow)
+            {
+                throw std::runtime_error("Cannot create window");
+            }
             
             p.thread.running = true;
             p.thread.thread = std::thread(
                 [this]
                 {
                     TLRENDER_P();
+                    glfwMakeContextCurrent(p.glfwWindow);
                     _run();
                     {
                         std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -125,7 +160,7 @@ namespace tl
             return out;
         }
 
-        std::future<io::Info> IOManager::getInfo(
+        std::future<io::Info> IOManager::requestInfo(
             const file::Path& path,
             const std::vector<file::MemoryRead>& memoryRead,
             const otime::RationalTime& startTime)
@@ -156,7 +191,8 @@ namespace tl
             return future;
         }
 
-        std::future<io::VideoData> IOManager::readVideo(
+        std::future<std::shared_ptr<image::Image> > IOManager::requestVideo(
+            const image::Size& size,
             const file::Path& path,
             const std::vector<file::MemoryRead>& memoryRead,
             const otime::RationalTime& startTime,
@@ -165,10 +201,12 @@ namespace tl
         {
             TLRENDER_P();
             auto request = std::make_shared<Private::VideoRequest>();
+            request->size = size;
             request->path = path;
             request->memoryRead = memoryRead;
             request->startTime = startTime;
             request->time = time;
+            request->layer = layer;
             auto future = request->promise.get_future();
             bool valid = false;
             {
@@ -185,12 +223,13 @@ namespace tl
             }
             else
             {
-                request->promise.set_value(io::VideoData());
+                request->promise.set_value(nullptr);
             }
             return future;
         }
 
-        std::future<io::AudioData> IOManager::readAudio(
+        std::future<std::shared_ptr<geom::TriangleMesh2> > IOManager::requestAudio(
+            const image::Size& size,
             const file::Path& path,
             const std::vector<file::MemoryRead>& memoryRead,
             const otime::RationalTime& startTime,
@@ -198,6 +237,7 @@ namespace tl
         {
             TLRENDER_P();
             auto request = std::make_shared<Private::AudioRequest>();
+            request->size = size;
             request->path = path;
             request->memoryRead = memoryRead;
             request->startTime = startTime;
@@ -218,7 +258,7 @@ namespace tl
             }
             else
             {
-                request->promise.set_value(io::AudioData());
+                request->promise.set_value(nullptr);
             }
             return future;
         }
@@ -236,10 +276,173 @@ namespace tl
         {
             return _p->cancelRequests;
         }
+
+        namespace
+        {
+            std::shared_ptr<geom::TriangleMesh2> audioMesh(
+                const std::shared_ptr<audio::Audio>& audio,
+                const image::Size& size)
+            {
+                auto out = std::shared_ptr<geom::TriangleMesh2>(new geom::TriangleMesh2);
+                const auto& info = audio->getInfo();
+                const size_t sampleCount = audio->getSampleCount();
+                if (sampleCount > 0)
+                {
+                    switch (info.dataType)
+                    {
+                    case audio::DataType::F32:
+                    {
+                        const audio::F32_T* data = reinterpret_cast<const audio::F32_T*>(
+                            audio->getData());
+                        for (int x = 0; x < size.w; ++x)
+                        {
+                            const int x0 = std::min(
+                                static_cast<size_t>((x + 0) / static_cast<double>(size.w - 1) * (sampleCount - 1)),
+                                sampleCount - 1);
+                            const int x1 = std::min(
+                                static_cast<size_t>((x + 1) / static_cast<double>(size.w - 1) * (sampleCount - 1)),
+                                sampleCount - 1);
+                            //std::cout << x << ": " << x0 << " " << x1 << std::endl;
+                            audio::F32_T min = 0.F;
+                            audio::F32_T max = 0.F;
+                            if (x0 < x1)
+                            {
+                                min = audio::F32Range.getMax();
+                                max = audio::F32Range.getMin();
+                                for (int i = x0; i < x1; ++i)
+                                {
+                                    const audio::F32_T v = *(data + i * info.channelCount);
+                                    min = std::min(min, v);
+                                    max = std::max(max, v);
+                                }
+                            }
+                            const int h2 = size.h / 2;
+                            const math::Box2i box(
+                                math::Vector2i(
+                                    x,
+                                    h2 - h2 * max),
+                                math::Vector2i(
+                                    x + 1,
+                                    h2 - h2 * min));
+                            if (box.isValid())
+                            {
+                                const size_t j = 1 + out->v.size();
+                                out->v.push_back(math::Vector2f(box.x(), box.y()));
+                                out->v.push_back(math::Vector2f(box.x() + box.w(), box.y()));
+                                out->v.push_back(math::Vector2f(box.x() + box.w(), box.y() + box.h()));
+                                out->v.push_back(math::Vector2f(box.x(), box.y() + box.h()));
+                                out->triangles.push_back(geom::Triangle2({ j + 0, j + 1, j + 2 }));
+                                out->triangles.push_back(geom::Triangle2({ j + 2, j + 3, j + 0 }));
+                            }
+                        }
+                        break;
+                    }
+                    default: break;
+                    }
+                }
+                return out;
+            }
+
+            std::shared_ptr<image::Image> audioImage(
+                const std::shared_ptr<audio::Audio>& audio,
+                const image::Size& size)
+            {
+                auto out = image::Image::create(size, image::PixelType::L_U8);
+                const auto& info = audio->getInfo();
+                const size_t sampleCount = audio->getSampleCount();
+                if (sampleCount > 0)
+                {
+                    switch (info.dataType)
+                    {
+                    case audio::DataType::F32:
+                    {
+                        const audio::F32_T* data = reinterpret_cast<const audio::F32_T*>(
+                            audio->getData());
+                        for (int x = 0; x < size.w; ++x)
+                        {
+                            const int x0 = std::min(
+                                static_cast<size_t>((x + 0) / static_cast<double>(size.w - 1) * (sampleCount - 1)),
+                                sampleCount - 1);
+                            const int x1 = std::min(
+                                static_cast<size_t>((x + 1) / static_cast<double>(size.w - 1) * (sampleCount - 1)),
+                                sampleCount - 1);
+                            //std::cout << x << ": " << x0 << " " << x1 << std::endl;
+                            audio::F32_T min = 0.F;
+                            audio::F32_T max = 0.F;
+                            if (x0 < x1)
+                            {
+                                min = audio::F32Range.getMax();
+                                max = audio::F32Range.getMin();
+                                for (int i = x0; i < x1; ++i)
+                                {
+                                    const audio::F32_T v = *(data + i * info.channelCount);
+                                    min = std::min(min, v);
+                                    max = std::max(max, v);
+                                }
+                            }
+                            uint8_t* p = out->getData() + x;
+                            for (int y = 0; y < size.h; ++y)
+                            {
+                                const float v = y / static_cast<float>(size.h - 1) * 2.F - 1.F;
+                                *p = (v > min && v < max) ? 255 : 0;
+                                p += size.w;
+                            }
+                        }
+                        break;
+                    }
+                    default: break;
+                    }
+                }
+                return out;
+            }
+
+            std::string getInfoKey(
+                const file::Path& path,
+                const otime::RationalTime& startTime)
+            {
+                return string::Format("{0}_{1}").
+                    arg(path.get()).
+                    arg(startTime);
+            }
+
+            std::string getVideoKey(
+                const image::Size& size,
+                const file::Path& path,
+                const otime::RationalTime& startTime,
+                const otime::RationalTime& time,
+                uint16_t layer)
+            {
+                return string::Format("{0}_{1}_{2}_{3}_{4}").
+                    arg(size).
+                    arg(path.get()).
+                    arg(startTime).
+                    arg(time).
+                    arg(layer);
+            }
+
+            std::string getAudioKey(
+                const image::Size& size,
+                const file::Path& path,
+                const otime::RationalTime& startTime,
+                const otime::TimeRange& timeRange)
+            {
+                return string::Format("{0}_{1}_{2}_{3}").
+                    arg(size).
+                    arg(path.get()).
+                    arg(startTime).
+                    arg(timeRange);
+            }
+        }
         
         void IOManager::_run()
         {
             TLRENDER_P();
+            std::shared_ptr<timeline::GLRender> render;
+            if (auto context = p.context.lock())
+            {
+                render = timeline::GLRender::create(context);
+            }
+            std::shared_ptr<gl::OffscreenBuffer> buffer;
             while (p.thread.running)
             {
                 // Check requests.
@@ -287,7 +490,7 @@ namespace tl
                 // Cancel requests.
                 if (cancelRequests)
                 {
-                    for (const auto& i : p.thread.cache.getValues())
+                    for (const auto& i : p.thread.ioCache.getValues())
                     {
                         if (i)
                         {
@@ -300,25 +503,32 @@ namespace tl
                 if (infoRequest)
                 {
                     io::Info info;
-                    std::shared_ptr<io::IRead> read;
-                    const std::string& fileName = infoRequest->path.get();
-                    if (!p.thread.cache.get(fileName, read))
+                    const std::string key = getInfoKey(
+                        infoRequest->path,
+                        infoRequest->startTime);
+                    if (!p.thread.infoCache.get(key, info))
                     {
-                        if (auto context = p.context.lock())
+                        std::shared_ptr<io::IRead> read;
+                        const std::string& fileName = infoRequest->path.get();
+                        if (!p.thread.ioCache.get(fileName, read))
                         {
-                            auto ioSystem = context->getSystem<io::System>();
-                            io::Options options = p.ioOptions;
-                            options["FFmpeg/StartTime"] = string::Format("{0}").arg(infoRequest->startTime);
-                            read = ioSystem->read(
-                                infoRequest->path,
-                                infoRequest->memoryRead,
-                                options);
-                            p.thread.cache.add(fileName, read);
+                            if (auto context = p.context.lock())
+                            {
+                                auto ioSystem = context->getSystem<io::System>();
+                                io::Options options = p.ioOptions;
+                                options["FFmpeg/StartTime"] = string::Format("{0}").arg(infoRequest->startTime);
+                                read = ioSystem->read(
+                                    infoRequest->path,
+                                    infoRequest->memoryRead,
+                                    options);
+                                p.thread.ioCache.add(fileName, read);
+                            }
                         }
-                    }
-                    if (read)
-                    {
-                        info = read->getInfo().get();
+                        if (read)
+                        {
+                            info = read->getInfo().get();
+                        }
+                        p.thread.infoCache.add(key, info);
                     }
                     infoRequest->promise.set_value(info);
                 }
@@ -326,55 +536,117 @@ namespace tl
                 // Handle video requests.
                 if (videoRequest)
                 {
-                    io::VideoData videoData;
-                    std::shared_ptr<io::IRead> read;
-                    const std::string& fileName = videoRequest->path.get();
-                    if (!p.thread.cache.get(fileName, read))
+                    std::shared_ptr<image::Image> image;
+                    const std::string key = getVideoKey(
+                        videoRequest->size,
+                        videoRequest->path,
+                        videoRequest->startTime,
+                        videoRequest->time,
+                        videoRequest->layer);
+                    if (!p.thread.thumbnailCache.get(key, image))
                     {
-                        if (auto context = p.context.lock())
+                        try
                         {
-                            auto ioSystem = context->getSystem<io::System>();
-                            io::Options options = p.ioOptions;
-                            options["FFmpeg/StartTime"] = string::Format("{0}").arg(videoRequest->startTime);
-                            read = ioSystem->read(
-                                videoRequest->path,
-                                videoRequest->memoryRead,
-                                options);
-                            p.thread.cache.add(fileName, read);
+                            const std::string& fileName = videoRequest->path.get();
+                            std::shared_ptr<io::IRead> read;
+                            if (!p.thread.ioCache.get(fileName, read))
+                            {
+                                if (auto context = p.context.lock())
+                                {
+                                    auto ioSystem = context->getSystem<io::System>();
+                                    io::Options options = p.ioOptions;
+                                    options["FFmpeg/StartTime"] = string::Format("{0}").arg(videoRequest->startTime);
+                                    read = ioSystem->read(
+                                        videoRequest->path,
+                                        videoRequest->memoryRead,
+                                        options);
+                                    p.thread.ioCache.add(fileName, read);
+                                }
+                            }
+                            if (read)
+                            {
+                                auto videoData = read->readVideo(videoRequest->time).get();
+                                gl::OffscreenBufferOptions options;
+                                options.colorType = image::PixelType::RGB_F32;
+                                if (gl::doCreate(buffer, videoRequest->size, options))
+                                {
+                                    buffer = gl::OffscreenBuffer::create(videoRequest->size, options);
+                                }
+                                if (render && buffer && videoData.image)
+                                {
+                                    gl::OffscreenBufferBinding binding(buffer);
+                                    render->begin(videoRequest->size);
+                                    render->drawImage(
+                                        videoData.image,
+                                        { math::Box2i(0, 0, videoRequest->size.w, videoRequest->size.h) });
+                                    render->end();
+                                    image = image::Image::create(videoRequest->size, image::PixelType::RGBA_U8);
+                                    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+                                    glReadPixels(
+                                        0,
+                                        0,
+                                        videoRequest->size.w,
+                                        videoRequest->size.h,
+                                        GL_RGBA,
+                                        GL_UNSIGNED_BYTE,
+                                        image->getData());
+                                }
+                            }
                         }
+                        catch (const std::exception&)
+                        {}
+                        p.thread.thumbnailCache.add(key, image);
                     }
-                    if (read)
-                    {
-                        videoData = read->readVideo(videoRequest->time).get();
-                    }
-                    videoRequest->promise.set_value(videoData);
+                    videoRequest->promise.set_value(image);
                 }
                 
                 // Handle audio requests.
                 if (audioRequest)
                 {
-                    io::AudioData audioData;
-                    std::shared_ptr<io::IRead> read;
-                    const std::string& fileName = audioRequest->path.get();
-                    if (!p.thread.cache.get(fileName, read))
+                    std::shared_ptr<geom::TriangleMesh2> mesh;
+                    const std::string key = getAudioKey(
+                        audioRequest->size,
+                        audioRequest->path,
+                        audioRequest->startTime,
+                        audioRequest->range);
+                    if (!p.thread.waveformCache.get(key, mesh))
                     {
-                        if (auto context = p.context.lock())
+                        try
                         {
-                            auto ioSystem = context->getSystem<io::System>();
-                            io::Options options = p.ioOptions;
-                            options["FFmpeg/StartTime"] = string::Format("{0}").arg(audioRequest->startTime);
-                            read = ioSystem->read(
-                                audioRequest->path,
-                                audioRequest->memoryRead,
-                                options);
-                            p.thread.cache.add(fileName, read);
+                            const std::string& fileName = audioRequest->path.get();
+                            std::shared_ptr<io::IRead> read;
+                            if (!p.thread.ioCache.get(fileName, read))
+                            {
+                                if (auto context = p.context.lock())
+                                {
+                                    auto ioSystem = context->getSystem<io::System>();
+                                    io::Options options = p.ioOptions;
+                                    options["FFmpeg/StartTime"] = string::Format("{0}").arg(audioRequest->startTime);
+                                    read = ioSystem->read(
+                                        audioRequest->path,
+                                        audioRequest->memoryRead,
+                                        options);
+                                    p.thread.ioCache.add(fileName, read);
+                                }
+                            }
+                            if (read)
+                            {
+                                auto audioData = read->readAudio(audioRequest->range).get();
+                                if (audioData.audio)
+                                {
+                                    auto convert = audio::AudioConvert::create(
+                                        audioData.audio->getInfo(),
+                                        audio::Info(1, audio::DataType::F32, audioData.audio->getSampleRate()));
+                                    const auto convertedAudio = convert->convert(audioData.audio);
+                                    mesh = audioMesh(convertedAudio, audioRequest->size);
+                                }
+                            }
                         }
+                        catch (const std::exception&)
+                        {}
+                        p.thread.waveformCache.add(key, mesh);
                     }
-                    if (read)
-                    {
-                        audioData = read->readAudio(audioRequest->range).get();
-                    }
-                    audioRequest->promise.set_value(audioData);
+                    audioRequest->promise.set_value(mesh);
                 }
             }
         }
@@ -397,11 +669,11 @@ namespace tl
             }
             for (auto& request : videoRequests)
             {
-                request->promise.set_value(io::VideoData());
+                request->promise.set_value(nullptr);
             }
             for (auto& request : audioRequests)
             {
-                request->promise.set_value(io::AudioData());
+                request->promise.set_value(nullptr);
             }
         }
     }

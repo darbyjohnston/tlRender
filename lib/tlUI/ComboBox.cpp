@@ -161,8 +161,8 @@ namespace tl
         {
             IWidget::_init("tl::ui::ComboBox", context, parent);
             setAcceptsKeyFocus(true);
-            _mouse.hoverEnabled = true;
-            _mouse.pressEnabled = true;
+            _setMouseHover(true);
+            _setMousePress(true);
         }
 
         ComboBox::ComboBox() :
