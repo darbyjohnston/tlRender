@@ -53,9 +53,13 @@ namespace tl
                         track->remove_child(itemIndex);
                         if (trackIndex >= 0 && trackIndex < tracks.size())
                         {
-                            if (auto track = dynamic_cast<otio::Track*>(tracks[trackIndex].value))
+                            if (auto newTrack = dynamic_cast<otio::Track*>(tracks[trackIndex].value))
                             {
-                                track->insert_child(insertIndex, newItem);
+                                if (track == newTrack && itemIndex < insertIndex)
+                                {
+                                    --insertIndex;
+                                }
+                                newTrack->insert_child(insertIndex, newItem);
                             }
                         }
                     }

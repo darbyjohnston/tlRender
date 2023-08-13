@@ -14,7 +14,8 @@ namespace tl
 {
     namespace timelineui
     {
-        VideoDragAndDropData::VideoDragAndDropData(const std::shared_ptr<VideoClipItem>& item) :
+        VideoDragAndDropData::VideoDragAndDropData(
+            const std::shared_ptr<VideoClipItem>& item) :
             _item(item)
         {}
 

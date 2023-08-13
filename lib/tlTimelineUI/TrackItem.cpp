@@ -42,6 +42,7 @@ namespace tl
             {
                 std::vector<std::shared_ptr<image::Glyph> > labelGlyphs;
                 std::vector<std::shared_ptr<image::Glyph> > durationGlyphs;
+                std::vector<math::Box2i> dropTargets;
             };
             DrawData draw;
 
@@ -356,25 +357,20 @@ namespace tl
                         p.size.fontMetrics.ascender),
                     event.style->getColorRole(ui::ColorRole::Text));
             }
-        }
 
-        void TrackItem::drawOverlayEvent(
-            const math::Box2i& drawRect,
-            const ui::DrawEvent& event)
-        {
-            TLRENDER_P();
-            if (!p.mouse.dropTargets.empty())
+            if (p.mouse.currentDropTarget >= 0 &&
+                p.mouse.currentDropTarget < p.draw.dropTargets.size())
             {
-                const math::Box2i& g = _geometry;
-                for (size_t i = 0; i < p.mouse.dropTargets.size(); ++i)
-                {
-                    event.render->drawRect(
-                        p.mouse.dropTargets[i],
-                        event.style->getColorRole(
-                            p.mouse.currentDropTarget == i ?
-                            ui::ColorRole::Green :
-                            ui::ColorRole::Red));
-                }
+                const math::Box2i& g2 = p.draw.dropTargets[p.mouse.currentDropTarget];
+                geom::TriangleMesh2 mesh;
+                mesh.v.push_back(math::Vector2f(g2.min.x, g2.min.y));
+                mesh.v.push_back(math::Vector2f(g2.max.x, g2.min.y));
+                mesh.v.push_back(math::Vector2f((g2.min.x + g2.max.x) / 2.F, g2.max.y));
+                mesh.triangles.push_back({ 1, 2, 3 });
+                event.render->drawMesh(
+                    mesh,
+                    math::Vector2i(),
+                    event.style->getColorRole(ui::ColorRole::Checked));
             }
         }
 
@@ -384,21 +380,39 @@ namespace tl
             if (auto videoData = std::dynamic_pointer_cast<VideoDragAndDropData>(event.data))
             {
                 event.accept = true;
+                p.draw.dropTargets.clear();
+                p.mouse.dropTargets.clear();
+                const math::Box2i& g = getGeometry();
+                const float h = p.size.fontMetrics.lineHeight + p.size.margin * 2;
                 for (const auto& child : _children)
                 {
                     if (auto item = std::dynamic_pointer_cast<IItem>(child))
                     {
                         const otime::TimeRange& timeRange = item->getTimeRange();
-                        const math::Box2i& g = item->getGeometry();
-                        float x = _timeToPos(timeRange.start_time());
+                        const float x = _timeToPos(timeRange.start_time());
+                        p.draw.dropTargets.push_back(math::Box2i(x - h / 2, g.min.y, h, h));
                         p.mouse.dropTargets.push_back(math::Box2i(
-                            x - p.size.handle,
+                            x - _options.thumbnailHeight,
                             g.min.y,
-                            p.size.handle * 2,
+                            _options.thumbnailHeight * 2,
                             g.h()));
                     }
                 }
-                if (!p.mouse.dropTargets.empty())
+                if (!_children.empty())
+                {
+                    if (auto item = std::dynamic_pointer_cast<IItem>(_children.back()))
+                    {
+                        const otime::TimeRange& timeRange = item->getTimeRange();
+                        const float x = _timeToPos(timeRange.end_time_exclusive());
+                        p.draw.dropTargets.push_back(math::Box2i(x - h / 2, g.min.y, h, h));
+                        p.mouse.dropTargets.push_back(math::Box2i(
+                            x - _options.thumbnailHeight,
+                            g.min.y,
+                            _options.thumbnailHeight * 2,
+                            g.h()));
+                    }
+                }
+                if (!p.draw.dropTargets.empty())
                 {
                     _updates |= ui::Update::Draw;
                 }
@@ -411,9 +425,10 @@ namespace tl
             if (auto videoData = std::dynamic_pointer_cast<VideoDragAndDropData>(event.data))
             {
                 event.accept = true;
-                if (!p.mouse.dropTargets.empty())
+                p.mouse.dropTargets.clear();
+                if (!p.draw.dropTargets.empty())
                 {
-                    p.mouse.dropTargets.clear();
+                    p.draw.dropTargets.clear();
                     _updates |= ui::Update::Draw;
                 }
             }

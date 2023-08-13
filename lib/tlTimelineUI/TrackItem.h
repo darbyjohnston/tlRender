@@ -57,9 +57,6 @@ namespace tl
             void drawEvent(
                 const math::Box2i&,
                 const ui::DrawEvent&) override;
-            void drawOverlayEvent(
-                const math::Box2i&,
-                const ui::DrawEvent&) override;
             void dragEnterEvent(ui::DragAndDropEvent&) override;
             void dragLeaveEvent(ui::DragAndDropEvent&) override;
             void dragMoveEvent(ui::DragAndDropEvent&) override;
