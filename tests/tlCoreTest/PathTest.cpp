@@ -44,10 +44,14 @@ namespace tl
                 TLRENDER_ASSERT(path.getExtension().empty());
             }
             {
-                TLRENDER_ASSERT(Path("/tmp/file.txt").get() == "/tmp/file.txt");
-                TLRENDER_ASSERT(Path("/tmp", "file.txt").get() == "/tmp/file.txt");
-                TLRENDER_ASSERT(Path("/tmp/", "file.txt").get() == "/tmp/file.txt");
-                TLRENDER_ASSERT(Path("\\tmp\\file.txt").get() == "\\tmp\\file.txt");
+                Path path("/tmp/file.txt");
+                TLRENDER_ASSERT(path.get() == "/tmp/file.txt");
+                path = Path("/tmp", "file.txt");
+                TLRENDER_ASSERT(path.get() == "/tmp/file.txt");
+                path = Path("/tmp/", "file.txt");
+                TLRENDER_ASSERT(path.get() == "/tmp/file.txt");
+                path = Path("\\tmp\\file.txt");
+                TLRENDER_ASSERT(path.get() == "\\tmp\\file.txt");
             }
             {
                 TLRENDER_ASSERT(Path("/tmp/", "render.", "0001", 4, ".exr").get() ==

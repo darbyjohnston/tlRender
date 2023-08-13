@@ -98,11 +98,13 @@ namespace tl
         bool Path::isAbsolute() const
         {
             const std::size_t size = _directory.size();
-            if (size > 0 && ('/' == _directory[0] || '\\' == _directory[0]))
+            if (size > 0 &&
+                (pathSeparators[0] == _directory[0] || pathSeparators[1] == _directory[0]))
             {
                 return true;
             }
-            if (size > 1 && _directory[0] >= 'A' && _directory[0] <= 'Z' && ':' == _directory[1])
+            if (size > 1 &&
+                _directory[0] >= 'A' && _directory[0] <= 'Z' && ':' == _directory[1])
             {
                 return true;
             }
@@ -127,9 +129,24 @@ namespace tl
         {
             std::string out = value;
             const size_t size = out.size();
-            if (size > 0 && !('/' == out[size - 1] || '\\' == out[size - 1]))
+            char separator = pathSeparator;
+            for (size_t i = 0; i < size; ++i)
             {
-                out += pathSeparator;
+                if (out[i] == pathSeparators[0])
+                {
+                    separator = pathSeparators[0];
+                    break;
+                }
+                else if(out[i] == pathSeparators[1])
+                {
+                    separator = pathSeparators[1];
+                    break;
+                }
+            }
+            if (size > 0 &&
+                !(pathSeparators[0] == out[size - 1] || pathSeparators[1] == out[size - 1]))
+            {
+                out += separator;
             }
             return out;
         }
@@ -137,7 +154,8 @@ namespace tl
         std::string getParent(const std::string& value)
         {
             char startSeparator = 0;
-            if (!value.empty() && ('/' == value[0] || '\\' == value[0]))
+            if (!value.empty() &&
+                (pathSeparators[0] == value[0] || pathSeparators[1] == value[0]))
             {
                 startSeparator = value[0];
             }
