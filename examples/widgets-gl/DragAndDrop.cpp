@@ -9,6 +9,8 @@
 #include <tlUI/GridLayout.h>
 #include <tlUI/Label.h>
 
+#include <tlTimeline/RenderUtil.h>
+
 #include <sstream>
 
 namespace tl
@@ -98,8 +100,8 @@ namespace tl
             {
                 IWidget::drawEvent(drawRect, event);
                 TLRENDER_P();
-
                 const math::Box2i& g = _geometry;
+
                 event.render->drawMesh(
                     ui::border(g, p.border),
                     math::Vector2i(),

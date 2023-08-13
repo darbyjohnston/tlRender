@@ -79,6 +79,32 @@ namespace tl
             }
         }
 
+        void IWidget::moveToFront(const std::shared_ptr<IWidget>& value)
+        {
+            auto i = std::find(_children.begin(), _children.end(), value);
+            if (i != _children.end())
+            {
+                auto child = *i;
+                _children.erase(i);
+                _children.push_back(child);
+                value->_updates |= Update::Size;
+                value->_updates |= Update::Draw;
+            }
+        }
+
+        void IWidget::moveToBack(const std::shared_ptr<IWidget>& value)
+        {
+            auto i = std::find(_children.begin(), _children.end(), value);
+            if (i != _children.end())
+            {
+                auto child = *i;
+                _children.erase(i);
+                _children.push_front(child);
+                value->_updates |= Update::Size;
+                value->_updates |= Update::Draw;
+            }
+        }
+
         std::shared_ptr<IWidget> IWidget::getTopLevel()
         {
             std::shared_ptr<IWidget> out = shared_from_this();

@@ -42,6 +42,8 @@ set(HEADERS
     LineEdit.h
     ListButton.h
     ListWidget.h
+    MDICanvas.h
+    MDIWidget.h
     Menu.h
     MenuBar.h
     PieChart.h
@@ -113,6 +115,8 @@ set(SOURCE
     LineEdit.cpp
     ListButton.cpp
     ListWidget.cpp
+    MDICanvas.cpp
+    MDIWidget.cpp
     Menu.cpp
     MenuBar.cpp
     PieChart.cpp

@@ -5,6 +5,7 @@ set(HEADERS
     DragAndDrop.h
     GridLayouts.h
     IExampleWidget.h
+    MDI.h
     MainWindow.h
     NumericWidgets.h
     RowLayouts.h
@@ -17,6 +18,7 @@ set(SOURCE
     DragAndDrop.cpp
     GridLayouts.cpp
     IExampleWidget.cpp
+    MDI.cpp
     MainWindow.cpp
     NumericWidgets.cpp
     RowLayouts.cpp

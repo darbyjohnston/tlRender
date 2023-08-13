@@ -8,6 +8,7 @@
 #include "Charts.h"
 #include "DragAndDrop.h"
 #include "GridLayouts.h"
+#include "MDI.h"
 #include "NumericWidgets.h"
 #include "RowLayouts.h"
 #include "ScrollAreas.h"
@@ -52,6 +53,8 @@ namespace tl
                 p.widgets[widget->getExampleName()] = widget;
                 widget = GridLayouts::create(context);
                 p.widgets[widget->getExampleName()] = widget;
+                widget = MDI::create(context);
+                p.widgets[widget->getExampleName()] = widget;
                 widget = NumericWidgets::create(context);
                 p.widgets[widget->getExampleName()] = widget;
                 widget = RowLayouts::create(context);
@@ -84,12 +87,12 @@ namespace tl
                     ui::ScrollType::Vertical,
                     p.layout);
                 auto buttonLayout = ui::VerticalLayout::create(context);
-                scrollWidget->setWidget(buttonLayout);
                 buttonLayout->setSpacingRole(ui::SizeRole::None);
                 for (auto button : p.buttons)
                 {
                     button.second->setParent(buttonLayout);
                 }
+                scrollWidget->setWidget(buttonLayout);
                 p.stackLayout = ui::StackLayout::create(context, p.layout);
                 p.stackLayout->setHStretch(ui::Stretch::Expanding);
                 for (auto widget : p.widgets)
@@ -101,7 +104,7 @@ namespace tl
                     scrollWidget->setWidget(widget.second);
                 }
 
-                //p.stackLayout->setCurrentIndex(4);
+                //p.stackLayout->setCurrentIndex(2);
             }
 
             MainWindow::MainWindow() :

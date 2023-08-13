@@ -106,11 +106,11 @@ namespace tl
             void draw(const std::shared_ptr<timeline::IRender>&);
 
             //! Take a screenshot of a widget.
-            std::shared_ptr<image::Image> screenshot(
+            std::shared_ptr<gl::OffscreenBuffer> screenshot(
                 const std::shared_ptr<IWidget>&);
 
             //! Set the screenshot capture function.
-            void setCapture(const std::function<std::shared_ptr<image::Image>(
+            void setCapture(const std::function<std::shared_ptr<gl::OffscreenBuffer>(
                 const math::Box2i&)>&);
 
         protected:

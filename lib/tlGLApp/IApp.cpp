@@ -537,40 +537,33 @@ namespace tl
             p.cursor.reset(new Cursor(p.glfwWindow, glfwCursor));
         }
 
-        std::shared_ptr<image::Image> IApp::_capture(const math::Box2i& value)
+        std::shared_ptr<OffscreenBuffer> IApp::_capture(const math::Box2i& value)
         {
             TLRENDER_P();
-            const image::Size size(value.w(), value.h());
-            const image::Info info(size, image::PixelType::RGBA_U8);
-            auto out = image::Image::create(info);
-
-            gl::OffscreenBufferBinding binding(p.offscreenBuffer);
-
-            glPixelStorei(GL_PACK_ALIGNMENT, 1);
-            glPixelStorei(GL_PACK_SWAP_BYTES, 0);
-            glReadPixels(
-                value.min.x,
-                p.frameBufferSize.h - value.min.y - size.h,
-                size.w,
-                size.h,
-                gl::getReadPixelsFormat(info.pixelType),
-                gl::getReadPixelsType(info.pixelType),
-                out->getData());
-
-            auto flipped = image::Image::create(info);
-            for (size_t y = 0; y < size.h; ++y)
+            std::shared_ptr<OffscreenBuffer> out;
+            try
             {
-                uint8_t* p = flipped->getData() + y * size.w * 4;
-                memcpy(
-                    p,
-                    out->getData() + (size.h - 1 - y) * size.w * 4,
-                    size.w * 4);
-                //for (size_t x = 0; x < size.w; ++x, p += 4)
-                //{
-                //    p[3] /= 2;
-                //}
+                OffscreenBufferOptions offscreenBufferOptions;
+                offscreenBufferOptions.colorType = image::PixelType::RGBA_U8;
+                out = OffscreenBuffer::create(image::Size(value.w(), value.h()), offscreenBufferOptions);
+                glBindFramebuffer(GL_READ_FRAMEBUFFER, p.offscreenBuffer->getID());
+                glBindFramebuffer(GL_DRAW_FRAMEBUFFER, out->getID());
+                glBlitFramebuffer(
+                    value.min.x,
+                    p.frameBufferSize.h - 1 - value.min.y,
+                    value.max.x,
+                    p.frameBufferSize.h - 1 - value.max.y,
+                    0,
+                    0,
+                    value.w(),
+                    value.h(),
+                    GL_COLOR_BUFFER_BIT,
+                    GL_LINEAR);
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
             }
-            return flipped;
+            catch (const std::exception&)
+            {}
+            return out;
         }
 
         void IApp::_drop(const std::vector<std::string>&)

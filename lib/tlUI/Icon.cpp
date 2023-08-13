@@ -26,11 +26,6 @@ namespace tl
                 int margin = 0;
             };
             SizeData size;
-
-            struct DrawData
-            {
-            };
-            DrawData draw;
         };
 
         void Icon::_init(

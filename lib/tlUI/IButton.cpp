@@ -164,6 +164,8 @@ namespace tl
                 p.checkedIconInit = true;
                 p.checkedIconFuture = std::future<std::shared_ptr<image::Image> >();
                 _checkedIconImage.reset();
+                _updates |= Update::Size;
+                _updates |= Update::Draw;
             }
             if (!_icon.empty() && p.iconInit)
             {

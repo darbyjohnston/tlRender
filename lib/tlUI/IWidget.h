@@ -59,6 +59,12 @@ namespace tl
             template<typename T>
             std::shared_ptr<T> getParentT() const;
 
+            //! Move the child widget to the front of the drawing order.
+            void moveToFront(const std::shared_ptr<IWidget>&);
+
+            //! Move the child widget to the back of the drawing order.
+            void moveToBack(const std::shared_ptr<IWidget>&);
+
             //! Get the top level widget.
             std::shared_ptr<IWidget> getTopLevel();
 

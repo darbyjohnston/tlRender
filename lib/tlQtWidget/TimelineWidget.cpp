@@ -126,6 +126,14 @@ namespace tl
                 p.iconLibrary,
                 p.clipboard,
                 context);
+            p.eventLoop->setCapture(
+                [this](const math::Box2i& value)
+                {
+                    makeCurrent();
+                    auto out = _capture(value);
+                    doneCurrent();
+                    return out;
+                });
             p.timelineWidget = timelineui::TimelineWidget::create(timeUnitsModel, context);
             //p.timelineWidget->setScrollBarsVisible(false);
             p.eventLoop->addWidget(p.timelineWidget);
@@ -418,10 +426,10 @@ namespace tl
             TLRENDER_P();
             event->accept();
             setFocus();
-            int button = 0;
+            int button = -1;
             if (event->button() == Qt::LeftButton)
             {
-                button = 1;
+                button = 0;
             }
             p.eventLoop->mouseButton(
                 button,
@@ -629,6 +637,36 @@ namespace tl
         {
             const float devicePixelRatio = window()->devicePixelRatio();
             return devicePixelRatio > 0.F ? (value / devicePixelRatio) : math::Vector2i();
+        }
+
+        std::shared_ptr<gl::OffscreenBuffer> TimelineWidget::_capture(const math::Box2i& value)
+        {
+            TLRENDER_P();
+            std::shared_ptr<gl::OffscreenBuffer> out;
+            try
+            {
+                gl::OffscreenBufferOptions offscreenBufferOptions;
+                offscreenBufferOptions.colorType = image::PixelType::RGBA_U8;
+                out = gl::OffscreenBuffer::create(image::Size(value.w(), value.h()), offscreenBufferOptions);
+                glBindFramebuffer(GL_READ_FRAMEBUFFER, p.buffer->getID());
+                glBindFramebuffer(GL_DRAW_FRAMEBUFFER, out->getID());
+                glBlitFramebuffer(
+                    value.min.x,
+                    p.buffer->getHeight() - 1 - value.min.y,
+                    value.max.x,
+                    p.buffer->getHeight() - 1 - value.max.y,
+                    0,
+                    0,
+                    value.w(),
+                    value.h(),
+                    GL_COLOR_BUFFER_BIT,
+                    GL_LINEAR);
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            }
+            catch (const std::exception&)
+            {
+            }
+            return out;
         }
 
         void TimelineWidget::_styleUpdate()

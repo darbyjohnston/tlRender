@@ -121,7 +121,11 @@ namespace tl
             {
                 throw std::runtime_error("Cannot create window");
             }
-            
+
+            p.thread.infoCache.setMax(1000);
+            p.thread.thumbnailCache.setMax(1000);
+            p.thread.waveformCache.setMax(1000);
+            p.thread.ioCache.setMax(1000);
             p.thread.running = true;
             p.thread.thread = std::thread(
                 [this]
