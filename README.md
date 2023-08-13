@@ -63,9 +63,9 @@ Required dependencies:
 * [minizip-ng](https://github.com/zlib-ng/minizip-ng)
 * [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
 * [FreeType](https://www.freetype.org)
-* [GLFW](https://www.glfw.org/)
 
 Optional dependencies:
+* [GLFW](https://www.glfw.org/)
 * [OpenColorIO](https://github.com/AcademySoftwareFoundation/OpenColorIO)
 * [RtAudio](https://github.com/thestk/rtaudio)
 * [libsamplerate](https://github.com/libsndfile/libsamplerate)
