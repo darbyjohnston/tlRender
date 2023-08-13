@@ -487,6 +487,7 @@ namespace tl
                     }
                     p.dndData.reset();
                     p.dndCursor.reset();
+                    p.updates |= Update::Draw;
                 }
 
                 MouseMoveEvent event(

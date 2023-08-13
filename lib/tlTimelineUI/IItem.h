@@ -17,6 +17,8 @@ namespace tl
 {
     namespace timelineui
     {
+        class IItem;
+
         //! Item data.
         struct ItemData
         {
@@ -83,6 +85,20 @@ namespace tl
 
         //! Convert a named marker color.
         image::Color4f getMarkerColor(const std::string&);
+
+        //! Drag and drop data.
+        class DragAndDropData : public ui::DragAndDropData
+        {
+        public:
+            DragAndDropData(const std::shared_ptr<IItem>&);
+
+            virtual ~DragAndDropData();
+
+            const std::shared_ptr<IItem>& getItem() const;
+
+        private:
+            std::shared_ptr<IItem> _item;
+        };
 
         //! Base class for items.
         class IItem : public ui::IWidget

@@ -14,19 +14,6 @@ namespace tl
 {
     namespace timelineui
     {
-        VideoDragAndDropData::VideoDragAndDropData(
-            const std::shared_ptr<VideoClipItem>& item) :
-            _item(item)
-        {}
-
-        VideoDragAndDropData::~VideoDragAndDropData()
-        {}
-
-        const std::shared_ptr<VideoClipItem>& VideoDragAndDropData::getItem() const
-        {
-            return _item;
-        }
-
         struct VideoClipItem::Private
         {
             otio::SerializableObject::Retainer<otio::Clip> clip;
@@ -250,8 +237,8 @@ namespace tl
                 {
                     if (auto eventLoop = getEventLoop().lock())
                     {
-                        event.dndData = std::make_shared<VideoDragAndDropData>(
-                            std::dynamic_pointer_cast<VideoClipItem>(shared_from_this()));
+                        event.dndData = std::make_shared<DragAndDropData>(
+                            std::dynamic_pointer_cast<IItem>(shared_from_this()));
                         event.dndCursor = eventLoop->screenshot(shared_from_this());
                         event.dndCursorHotspot = _mouse.pos - _geometry.min;
                     }

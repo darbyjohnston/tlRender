@@ -80,6 +80,19 @@ namespace tl
             return i != colors.end() ? i->second : image::Color4f();
         }
 
+        DragAndDropData::DragAndDropData(
+            const std::shared_ptr<IItem>& item) :
+            _item(item)
+        {}
+
+        DragAndDropData::~DragAndDropData()
+        {}
+
+        const std::shared_ptr<IItem>& DragAndDropData::getItem() const
+        {
+            return _item;
+        }
+
         struct IItem::Private
         {
             std::shared_ptr<observer::ValueObserver<bool> > timeUnitsObserver;

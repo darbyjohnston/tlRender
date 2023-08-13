@@ -12,22 +12,6 @@ namespace tl
 {
     namespace timelineui
     {
-        class VideoClipItem;
-
-        //! Video drag and drop data.
-        class VideoDragAndDropData : public ui::DragAndDropData
-        {
-        public:
-            VideoDragAndDropData(const std::shared_ptr<VideoClipItem>&);
-
-            virtual ~VideoDragAndDropData();
-
-            const std::shared_ptr<VideoClipItem>& getItem() const;
-
-        private:
-            std::shared_ptr<VideoClipItem> _item;
-        };
-
         //! Video clip item.
         class VideoClipItem : public IBasicItem
         {
@@ -52,6 +36,7 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            //! Get the associated clip.
             const otio::SerializableObject::Retainer<otio::Clip>& getClip() const;
 
             void setScale(double) override;
