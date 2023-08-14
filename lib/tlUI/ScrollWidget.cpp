@@ -239,7 +239,7 @@ namespace tl
             {
                 event.accept = true;
                 math::Vector2i scrollPos = getScrollPos();
-                scrollPos.y -= event.dy * getLineStep();
+                scrollPos.y -= event.value.y * getLineStep();
                 setScrollPos(scrollPos);
             }
         }

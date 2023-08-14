@@ -147,14 +147,12 @@ namespace tl
         {}
 
         ScrollEvent::ScrollEvent(
+            const math::Vector2f& value,
             int                   modifiers,
-            const math::Vector2i& pos,
-            float                 dx,
-            float                 dy) :
+            const math::Vector2i& pos) :
+            value(value),
             modifiers(modifiers),
-            pos(pos),
-            dx(dx),
-            dy(dy)
+            pos(pos)
         {}
 
         std::string getKeyModifierLabel(int value)

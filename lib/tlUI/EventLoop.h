@@ -72,7 +72,7 @@ namespace tl
             void mouseButton(int button, bool press, int modifiers);
 
             //! Handle scrolling (mouse wheel or touch pad).
-            void scroll(float dx, float dy, int modifiers);
+            void scroll(const math::Vector2f&, int modifiers);
 
             //! Get the clipboard.
             const std::shared_ptr<IClipboard>& getClipboard() const;

@@ -165,26 +165,69 @@ namespace tl
             p.window = gl::GLFWWindow::create(
                 cmdLineName,
                 p.options.windowSize,
-                _context);            
-            glfwSetWindowUserPointer(p.window->getGLFW(), this);
-            int width = 0;
-            int height = 0;
-            glfwGetFramebufferSize(p.window->getGLFW(), &width, &height);
-            p.frameBufferSize.w = width;
-            p.frameBufferSize.h = height;
-            glfwGetWindowContentScale(p.window->getGLFW(), &p.contentScale.x, &p.contentScale.y);
-            glfwSetFramebufferSizeCallback(p.window->getGLFW(), _frameBufferSizeCallback);
-            glfwSetWindowContentScaleCallback(p.window->getGLFW(), _windowContentScaleCallback);
-            glfwSetWindowRefreshCallback(p.window->getGLFW(), _windowRefreshCallback);
+                _context);
+            p.frameBufferSize = p.window->getFrameBufferSize();
+            p.contentScale = p.window->getContentScale();
+            p.window->setFrameBufferSizeCallback(
+                [this](const math::Size2i& value)
+                {
+                    _p->frameBufferSize = value;
+                });
+            p.window->setContentScaleCallback(
+                [this](const math::Vector2f& value)
+                {
+                    _p->contentScale = value;
+                });
+            p.window->setRefreshCallback(
+                [this]
+                {
+                    _p->refresh = true;
+                });
+            p.window->setCursorEnterCallback(
+                [this](bool value)
+                {
+                    _p->eventLoop->cursorEnter(value);
+                });
+            p.window->setCursorPosCallback(
+                [this](const math::Vector2f& value)
+                {
+                    math::Vector2i pos;
+#if defined(__APPLE__)
+                    //! \bug The mouse position needs to be scaled on macOS?
+                    pos.x = value.x * _p->contentScale.x;
+                    pos.y = value.y * _p->contentScale.y;
+#else // __APPLE__
+                    pos.x = value.x;
+                    pos.y = value.y;
+#endif // __APPLE__
+                    _p->eventLoop->cursorPos(pos);
+                });
+            p.window->setButtonCallback(
+                [this](int button, int action, int mods)
+                {
+                    _buttonCallback(button, action, mods);
+                });
+            p.window->setScrollCallback(
+                [this](const math::Vector2f& value)
+                {
+                    _scrollCallback(value);
+                });
+            p.window->setKeyCallback(
+                [this](int key, int scanCode, int action, int mods)
+                {
+                    _keyCallback(key, scanCode, action, mods);
+                });
+            p.window->setCharCallback(
+                [this](unsigned int value)
+                {
+                    _charCallback(value);
+                });
+            p.window->setDropCallback(
+                [this](int count, const char** fileNames)
+                {
+                    _dropCallback(count, fileNames);
+                });
             setFullScreen(p.options.fullscreen);
-            glfwSetCursorEnterCallback(p.window->getGLFW(), _cursorEnterCallback);
-            glfwSetCursorPosCallback(p.window->getGLFW(), _cursorPosCallback);
-            glfwSetMouseButtonCallback(p.window->getGLFW(), _mouseButtonCallback);
-            glfwSetScrollCallback(p.window->getGLFW(), _scrollCallback);
-            glfwSetKeyCallback(p.window->getGLFW(), _keyCallback);
-            glfwSetCharCallback(p.window->getGLFW(), _charCallback);
-            glfwSetDropCallback(p.window->getGLFW(), _dropCallback);
-            p.window->show();
 
             // Initialize the user interface.
             p.style = ui::Style::create(_context);
@@ -399,47 +442,6 @@ namespace tl
         void IApp::_tick()
         {}
 
-        void IApp::_frameBufferSizeCallback(GLFWwindow* glfwWindow, int width, int height)
-        {
-            IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
-            app->_p->frameBufferSize.w = width;
-            app->_p->frameBufferSize.h = height;
-        }
-            
-        void IApp::_windowContentScaleCallback(GLFWwindow* glfwWindow, float x, float y)
-        {
-            IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
-            app->_p->contentScale.x = x;
-            app->_p->contentScale.y = y;
-        }
-
-        void IApp::_windowRefreshCallback(GLFWwindow* glfwWindow)
-        {
-            IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
-            app->_p->refresh = true;
-        }
-
-        void IApp::_cursorEnterCallback(GLFWwindow* glfwWindow, int value)
-        {
-            IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
-            app->_p->eventLoop->cursorEnter(GLFW_TRUE == value);
-        }
-
-        void IApp::_cursorPosCallback(GLFWwindow* glfwWindow, double x, double y)
-        {
-            IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
-            math::Vector2i pos;
-#if defined(__APPLE__)
-            //! \bug The mouse position needs to be scaled on macOS?
-            pos.x = x * app->_p->contentScale.x;
-            pos.y = y * app->_p->contentScale.y;
-#else // __APPLE__
-            pos.x = x;
-            pos.y = y;
-#endif // __APPLE__
-            app->_p->eventLoop->cursorPos(pos);
-        }
-
         namespace
         {
             int fromGLFWModifiers(int value)
@@ -465,17 +467,17 @@ namespace tl
             }
         }
 
-        void IApp::_mouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int modifiers)
+        void IApp::_buttonCallback(int button, int action, int modifiers)
         {
-            IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
-            app->_p->modifiers = modifiers;
-            app->_p->eventLoop->mouseButton(button, GLFW_PRESS == action, fromGLFWModifiers(modifiers));
+            TLRENDER_P();
+            p.modifiers = modifiers;
+            p.eventLoop->mouseButton(button, GLFW_PRESS == action, fromGLFWModifiers(modifiers));
         }
 
-        void IApp::_scrollCallback(GLFWwindow* glfwWindow, double dx, double dy)
+        void IApp::_scrollCallback(const math::Vector2f& value)
         {
-            IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
-            app->_p->eventLoop->scroll(dx, dy, fromGLFWModifiers(app->_p->modifiers));
+            TLRENDER_P();
+            p.eventLoop->scroll(value, fromGLFWModifiers(p.modifiers));
         }
 
         namespace
@@ -577,21 +579,21 @@ namespace tl
             }
         }
 
-        void IApp::_keyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int modifiers)
+        void IApp::_keyCallback(int key, int scanCode, int action, int modifiers)
         {
-            IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
-            app->_p->modifiers = modifiers;
+            TLRENDER_P();
+            p.modifiers = modifiers;
             switch (action)
             {
             case GLFW_PRESS:
             case GLFW_REPEAT:
-                app->_p->eventLoop->key(
+                p.eventLoop->key(
                     fromGLFWKey(key),
                     true,
                     fromGLFWModifiers(modifiers));
                 break;
             case GLFW_RELEASE:
-                app->_p->eventLoop->key(
+                p.eventLoop->key(
                     fromGLFWKey(key),
                     false,
                     fromGLFWModifiers(modifiers));
@@ -609,22 +611,20 @@ namespace tl
 #endif // _WINDOWS
         }
 
-        void IApp::_charCallback(GLFWwindow* glfwWindow, unsigned int c)
+        void IApp::_charCallback(unsigned int c)
         {
-            IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
             std::wstring_convert<std::codecvt_utf8<tl_char_t>, tl_char_t> utf32Convert;
-            app->_p->eventLoop->text(utf32Convert.to_bytes(c));
+            _p->eventLoop->text(utf32Convert.to_bytes(c));
         }
 
-        void IApp::_dropCallback(GLFWwindow* glfwWindow, int count, const char** fileNames)
+        void IApp::_dropCallback(int count, const char** fileNames)
         {
-            IApp* app = reinterpret_cast<IApp*>(glfwGetWindowUserPointer(glfwWindow));
             std::vector<std::string> tmp;
             for (int i = 0; i < count; ++i)
             {
                 tmp.push_back(fileNames[i]);
             }
-            app->_drop(tmp);
+            _drop(tmp);
         }
     }
 }

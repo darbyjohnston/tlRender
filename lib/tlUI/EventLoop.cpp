@@ -493,10 +493,10 @@ namespace tl
             }
         }
 
-        void EventLoop::scroll(float dx, float dy, int modifiers)
+        void EventLoop::scroll(const math::Vector2f& value, int modifiers)
         {
             TLRENDER_P();
-            ScrollEvent event(modifiers, p.cursorPos, dx, dy);
+            ScrollEvent event(value, modifiers, p.cursorPos);
             auto widgets = _getUnderCursor(p.cursorPos);
             for (auto i = widgets.begin(); i != widgets.end(); ++i)
             {

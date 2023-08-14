@@ -9,15 +9,13 @@
 #include <tlTimeline/GLRender.h>
 
 #include <tlGL/GL.h>
+#include <tlGL/GLFWWindow.h>
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Util.h>
 
 #include <tlIO/IOSystem.h>
 
 #include <tlCore/StringFormat.h>
-
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/imageSequenceReference.h>
@@ -44,43 +42,18 @@ namespace tl
                     "Example test patterns application.");
 
                 // Create the window.
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-                glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-                glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-                glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-                glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
-                _glfwWindow = glfwCreateWindow(
-                    100,
-                    100,
-                    "tlbake",
-                    NULL,
-                    NULL);
-                if (!_glfwWindow)
-                {
-                    throw std::runtime_error("Cannot create window");
-                }
-                glfwMakeContextCurrent(_glfwWindow);
-                if (!gladLoaderLoadGL())
-                {
-                    throw std::runtime_error("Cannot initialize GLAD");
-                }
-                const int glMajor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MAJOR);
-                const int glMinor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MINOR);
-                const int glRevision = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_REVISION);
-                _log(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
+                _window = gl::GLFWWindow::create(
+                    "test-patterns",
+                    math::Size2i(1, 1),
+                    context,
+                    static_cast<int>(gl::GLFWWindowOptions::MakeCurrent));
             }
 
             App::App()
             {}
 
             App::~App()
-            {
-                if (_glfwWindow)
-                {
-                    glfwDestroyWindow(_glfwWindow);
-                }
-            }
+            {}
 
             std::shared_ptr<App> App::create(
                 int argc,

@@ -4,10 +4,13 @@
 
 #include <tlApp/IApp.h>
 
-struct GLFWwindow;
-
 namespace tl
 {
+    namespace gl
+    {
+        class GLFWWindow;
+    }
+
     namespace examples
     {
         //! Example test patterns application.
@@ -38,7 +41,7 @@ namespace tl
                 void run();
 
             private:
-                GLFWwindow* _glfwWindow = nullptr;
+                std::shared_ptr<gl::GLFWWindow> _window;
             };
         }
     }

@@ -318,7 +318,7 @@ namespace tl
         {
             TLRENDER_P();
             event.accept = true;
-            if (event.dy > 0)
+            if (event.value.y > 0)
             {
                 const double zoom = p.scale * p.mouseWheelScale;
                 setViewZoom(zoom, event.pos);

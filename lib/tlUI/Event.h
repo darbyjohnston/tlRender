@@ -169,15 +169,13 @@ namespace tl
         {
             ScrollEvent();
             ScrollEvent(
+                const math::Vector2f& value,
                 int                   modifiers,
-                const math::Vector2i& pos,
-                float                 dx,
-                float                 dy);
+                const math::Vector2i& pos);
 
+            math::Vector2f value;
             int            modifiers = 0;
             math::Vector2i pos;
-            float          dx        = 0.F;
-            float          dy        = 0.F;
             bool           accept    = false;
         };
 

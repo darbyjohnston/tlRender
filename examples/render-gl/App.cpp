@@ -6,11 +6,12 @@
 
 #include <tlTimeline/GLRender.h>
 
+#include <tlGL/GL.h>
+#include <tlGL/GLFWWindow.h>
+
 #include <tlCore/Math.h>
 #include <tlCore/StringFormat.h>
 #include <tlCore/Time.h>
-
-#include <tlGL/GL.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -108,13 +109,7 @@ namespace tl
             {}
 
             App::~App()
-            {
-                _render.reset();
-                if (_glfwWindow)
-                {
-                    glfwDestroyWindow(_glfwWindow);
-                }
-            }
+            {}
 
             std::shared_ptr<App> App::create(
                 int argc,
@@ -158,43 +153,30 @@ namespace tl
                 }
 
                 // Create the window.
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-                glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-                glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-                glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-                glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-                _glfwWindow = glfwCreateWindow(
-                    _options.windowSize.w,
-                    _options.windowSize.h,
+                _window = gl::GLFWWindow::create(
                     "render-gl",
-                    NULL,
-                    NULL);
-                if (!_glfwWindow)
-                {
-                    throw std::runtime_error("Cannot create window");
-                }
-                glfwSetWindowUserPointer(_glfwWindow, this);
-                int width = 0;
-                int height = 0;
-                glfwGetFramebufferSize(_glfwWindow, &width, &height);
-                _frameBufferSize.w = width;
-                _frameBufferSize.h = height;
-                glfwGetWindowContentScale(_glfwWindow, &_contentScale.x, &_contentScale.y);
-                glfwMakeContextCurrent(_glfwWindow);
-                if (!gladLoaderLoadGL())
-                {
-                    throw std::runtime_error("Cannot initialize GLAD");
-                }
-                const int glMajor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MAJOR);
-                const int glMinor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MINOR);
-                const int glRevision = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_REVISION);
-                _log(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
-                glfwSetFramebufferSizeCallback(_glfwWindow, _frameBufferSizeCallback);
-                glfwSetWindowContentScaleCallback(_glfwWindow, _windowContentScaleCallback);
-                _setFullscreenWindow(_options.fullscreen);
-                glfwSetKeyCallback(_glfwWindow, _keyCallback);
-                glfwShowWindow(_glfwWindow);
+                    _options.windowSize,
+                    _context);
+                _frameBufferSize = _window->getFrameBufferSize();
+                _contentScale = _window->getContentScale();
+                _window->setFullScreen(_options.fullscreen);
+                _window->setFrameBufferSizeCallback(
+                    [this](const math::Size2i& value)
+                    {
+                        _frameBufferSize = value;
+                        _renderDirty = true;
+                    });
+                _window->setContentScaleCallback(
+                    [this](const math::Vector2f& value)
+                    {
+                        _contentScale = value;
+                        _renderDirty = true;
+                    });
+                _window->setKeyCallback(
+                    [this](int key, int scanCode, int action, int mods)
+                    {
+                        _keyCallback(key, scanCode, action, mods);
+                    });
 
                 // Create the renderer.
                 _render = timeline::GLRender::create(_context);
@@ -215,7 +197,7 @@ namespace tl
                 }
                 _players[0]->setPlayback(_options.playback);
                 _startTime = std::chrono::steady_clock::now();
-                while (_running && !glfwWindowShouldClose(_glfwWindow))
+                while (_running && !_window->shouldClose())
                 {
                     glfwPollEvents();
                     _tick();
@@ -227,102 +209,38 @@ namespace tl
                 _running = false;
             }
 
-            void App::_setFullscreenWindow(bool value)
-            {
-                if (value == _fullscreen)
-                    return;
-
-                _fullscreen = value;
-
-                if (_fullscreen)
-                {
-                    int width = 0;
-                    int height = 0;
-                    glfwGetWindowSize(_glfwWindow, &width, &height);
-                    _windowSize.w = width;
-                    _windowSize.h = height;
-
-                    GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
-                    const GLFWvidmode* glfwVidmode = glfwGetVideoMode(glfwMonitor);
-                    glfwGetWindowPos(_glfwWindow, &_windowPos.x, &_windowPos.y);
-                    glfwSetWindowMonitor(
-                        _glfwWindow,
-                        glfwMonitor,
-                        0,
-                        0,
-                        glfwVidmode->width,
-                        glfwVidmode->height,
-                        glfwVidmode->refreshRate);
-                }
-                else
-                {
-                    GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
-                    glfwSetWindowMonitor(
-                        _glfwWindow,
-                        NULL,
-                        _windowPos.x,
-                        _windowPos.y,
-                        _windowSize.w,
-                        _windowSize.h,
-                        0);
-                }
-            }
-
-            void App::_fullscreenCallback(bool value)
-            {
-                _setFullscreenWindow(value);
-                _log(string::Format("Fullscreen: {0}").arg(_fullscreen));
-            }
-
-            void App::_frameBufferSizeCallback(GLFWwindow* glfwWindow, int width, int height)
-            {
-                App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
-                app->_frameBufferSize.w = width;
-                app->_frameBufferSize.h = height;
-                app->_renderDirty = true;
-            }
-
-            void App::_windowContentScaleCallback(GLFWwindow* glfwWindow, float x, float y)
-            {
-                App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
-                app->_contentScale.x = x;
-                app->_contentScale.y = y;
-                app->_renderDirty = true;
-            }
-
-            void App::_keyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int mods)
+            void App::_keyCallback(int key, int scanCode, int action, int mods)
             {
                 if (GLFW_RELEASE == action || GLFW_REPEAT == action)
                 {
-                    App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
                     switch (key)
                     {
                     case GLFW_KEY_ESCAPE:
-                        app->exit();
+                        exit();
                         break;
                     case GLFW_KEY_U:
-                        app->_fullscreenCallback(!app->_fullscreen);
+                        _window->setFullScreen(!_window->isFullScreen());
                         break;
                     case GLFW_KEY_H:
-                        app->_hudCallback(!app->_hud);
+                        _hudCallback(!_hud);
                         break;
                     case GLFW_KEY_SPACE:
-                        app->_playbackCallback(
-                            timeline::Playback::Stop == app->_players[0]->observePlayback()->get() ?
+                        _playbackCallback(
+                            timeline::Playback::Stop == _players[0]->observePlayback()->get() ?
                             timeline::Playback::Forward :
                             timeline::Playback::Stop);
                         break;
                     case GLFW_KEY_HOME:
-                        app->_players[0]->start();
+                        _players[0]->start();
                         break;
                     case GLFW_KEY_END:
-                        app->_players[0]->end();
+                        _players[0]->end();
                         break;
                     case GLFW_KEY_LEFT:
-                        app->_players[0]->framePrev();
+                        _players[0]->framePrev();
                         break;
                     case GLFW_KEY_RIGHT:
-                        app->_players[0]->frameNext();
+                        _players[0]->frameNext();
                         break;
                     }
                 }
@@ -371,7 +289,7 @@ namespace tl
                         _options.lutOptions);
                     _draw();
                     _render->end();
-                    glfwSwapBuffers(_glfwWindow);
+                    _window->swap();
                     _renderDirty = false;
                 }
                 else

@@ -7,10 +7,13 @@
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/Player.h>
 
-struct GLFWwindow;
-
 namespace tl
 {
+    namespace gl
+    {
+        class GLFWWindow;
+    }
+
     namespace examples
     {
         //! Example GLFW rendering application.
@@ -59,11 +62,7 @@ namespace tl
                 void exit();
 
             private:
-                void _setFullscreenWindow(bool);
-                void _fullscreenCallback(bool);
-                static void _frameBufferSizeCallback(GLFWwindow*, int, int);
-                static void _windowContentScaleCallback(GLFWwindow*, float, float);
-                static void _keyCallback(GLFWwindow*, int, int, int, int);
+                void _keyCallback(int, int, int, int);
 
                 void _printShortcutsHelp();
 
@@ -86,10 +85,7 @@ namespace tl
                 std::vector<std::shared_ptr<timeline::Player> > _players;
                 std::vector<image::Size> _videoSizes;
 
-                GLFWwindow* _glfwWindow = nullptr;
-                math::Size2i _windowSize;
-                math::Vector2i _windowPos;
-                bool _fullscreen = false;
+                std::shared_ptr<gl::GLFWWindow> _window;
                 math::Size2i _frameBufferSize;
                 math::Vector2f _contentScale = math::Vector2f(1.F, 1.F);
                 timeline::CompareOptions _compareOptions;

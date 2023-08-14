@@ -20,10 +20,13 @@
 #include <tlIO/USD.h>
 #endif // TLRENDER_USD
 
-struct GLFWwindow;
-
 namespace tl
 {
+    namespace gl
+    {
+        class GLFWWindow;
+    }
+
     //! "tlbake" application.
     namespace bake
     {
@@ -94,7 +97,7 @@ namespace tl
             otime::RationalTime _inputTime = time::invalidTime;
             otime::RationalTime _outputTime = time::invalidTime;
 
-            GLFWwindow* _glfwWindow = nullptr;
+            std::shared_ptr<gl::GLFWWindow> _window;
             std::shared_ptr<io::IPlugin> _usdPlugin;
             std::shared_ptr<timeline::IRender> _render;
             std::shared_ptr<gl::OffscreenBuffer> _buffer;

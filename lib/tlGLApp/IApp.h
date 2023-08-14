@@ -91,16 +91,11 @@ namespace tl
             virtual void _tick();
 
         private:
-            static void _frameBufferSizeCallback(GLFWwindow*, int, int);
-            static void _windowContentScaleCallback(GLFWwindow*, float, float);
-            static void _windowRefreshCallback(GLFWwindow*);
-            static void _cursorEnterCallback(GLFWwindow*, int);
-            static void _cursorPosCallback(GLFWwindow*, double, double);
-            static void _mouseButtonCallback(GLFWwindow*, int, int, int);
-            static void _scrollCallback(GLFWwindow*, double, double);
-            static void _keyCallback(GLFWwindow*, int, int, int, int);
-            static void _charCallback(GLFWwindow*, unsigned int);
-            static void _dropCallback(GLFWwindow*, int, const char**);
+            void _buttonCallback(int, int, int);
+            void _scrollCallback(const math::Vector2f&);
+            void _keyCallback(int, int, int, int);
+            void _charCallback(unsigned int);
+            void _dropCallback(int, const char**);
 
             TLRENDER_PRIVATE();
         };

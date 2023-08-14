@@ -415,9 +415,9 @@ namespace tl
                 event.accept = true;
                 const double mult = 1.1;
                 const double zoom =
-                    event.dy < 0 ?
-                    p.viewZoom / (-event.dy * mult) :
-                    p.viewZoom * (event.dy * mult);
+                    event.value.y < 0 ?
+                    p.viewZoom / (-event.value.y * mult) :
+                    p.viewZoom * (event.value.y * mult);
                 setViewZoom(zoom, event.pos - _geometry.min);
             }
             else if (event.modifiers & static_cast<int>(ui::KeyModifier::Control))
@@ -426,7 +426,7 @@ namespace tl
                 if (!p.players.empty() && p.players[0])
                 {
                     const otime::RationalTime t = p.players[0]->getCurrentTime();
-                    p.players[0]->seek(t + otime::RationalTime(event.dy, t.rate()));
+                    p.players[0]->seek(t + otime::RationalTime(event.value.y, t.rate()));
                 }
             }
         }

@@ -469,8 +469,9 @@ namespace tl
             const float delta = event->angleDelta().y() / 8.F / 15.F;
             p.mouseWheelTimer = now;
             p.eventLoop->scroll(
-                event->angleDelta().x() / 8.F / 15.F,
-                event->angleDelta().y() / 8.F / 15.F,
+                math::Vector2f(
+                    event->angleDelta().x() / 8.F / 15.F,
+                    event->angleDelta().y() / 8.F / 15.F),
                 fromQtModifiers(event->modifiers()));
         }
 
