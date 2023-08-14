@@ -59,7 +59,7 @@ namespace tl
                 struct PercentageLabel
                 {
                     std::string text;
-                    math::Vector2i size;
+                    math::Size2i size;
                     math::Vector2i pos;
                     std::vector<std::shared_ptr<image::Glyph> > glyphs;
                 };
@@ -68,7 +68,7 @@ namespace tl
                 struct TextLabel
                 {
                     std::string text;
-                    math::Vector2i size;
+                    math::Size2i size;
                     math::Vector2i pos;
                     std::vector<std::shared_ptr<image::Glyph> > glyphs;
                     image::Color4f color;
@@ -152,7 +152,7 @@ namespace tl
                 label.size = event.fontSystem->getSize(label.text, fontInfo);
                 label.glyphs = event.fontSystem->getGlyphs(label.text, fontInfo);
                 p.draw.percentageLabels.push_back(label);
-                percentageWidthMax = std::max(percentageWidthMax, label.size.x);
+                percentageWidthMax = std::max(percentageWidthMax, label.size.w);
             }
             int a = 0;
             for (size_t i = 0; i < p.data.size(); ++i)
@@ -161,11 +161,11 @@ namespace tl
                 const int d = a + p.data[i].percentage / 2;
                 const float r = p.size.fontMetrics.lineHeight * p.sizeMult / 2.F +
                     p.size.spacing +
-                    label.size.x / 2.F;
+                    label.size.w / 2.F;
                 label.pos.x = cos(math::deg2rad(d / 100.F * 360.F - 90.F)) * r -
-                    label.size.x / 2;
+                    label.size.w / 2;
                 label.pos.y = sin(math::deg2rad(d / 100.F * 360.F - 90.F)) * r -
-                    label.size.y / 2;
+                    label.size.h / 2;
                 a += p.data[i].percentage;
             }
 
@@ -210,7 +210,7 @@ namespace tl
                 p.draw.textLabels.push_back(label);
                 p.size.textSize.x = std::max(
                     p.size.textSize.x,
-                    r2 + p.size.spacing + label.size.x);
+                    r2 + p.size.spacing + label.size.w);
                 p.size.textSize.y += p.size.fontMetrics.lineHeight;
                 if (i < p.data.size() - 1)
                 {

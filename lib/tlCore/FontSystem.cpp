@@ -62,8 +62,8 @@ namespace tl
             void measure(
                 const std::basic_string<tl_char_t>& utf32,
                 const FontInfo&,
-                uint16_t maxLineWidth,
-                math::Vector2i&,
+                int maxLineWidth,
+                math::Size2i&,
                 std::vector<math::Box2i>* = nullptr);
 
             std::map<std::string, std::vector<uint8_t> > fontData;
@@ -178,13 +178,13 @@ namespace tl
             return out;
         }
 
-        math::Vector2i FontSystem::getSize(
+        math::Size2i FontSystem::getSize(
             const std::string& text,
             const FontInfo& fontInfo,
-            uint16_t maxLineWidth)
+            int maxLineWidth)
         {
             TLRENDER_P();
-            math::Vector2i out;
+            math::Size2i out;
             try
             {
                 const auto utf32 = p.utf32Convert.from_bytes(text);
@@ -200,14 +200,14 @@ namespace tl
         std::vector<math::Box2i> FontSystem::getBox(
             const std::string& text,
             const FontInfo& fontInfo,
-            uint16_t maxLineWidth)
+            int maxLineWidth)
         {
             TLRENDER_P();
             std::vector<math::Box2i> out;
             try
             {
                 const auto utf32 = p.utf32Convert.from_bytes(text);
-                math::Vector2i size;
+                math::Size2i size;
                 p.measure(utf32, fontInfo, maxLineWidth, size, &out);
             }
             catch (const std::exception& e)
@@ -311,8 +311,8 @@ namespace tl
         void FontSystem::Private::measure(
             const std::basic_string<tl_char_t>& utf32,
             const FontInfo& fontInfo,
-            uint16_t maxLineWidth,
-            math::Vector2i& size,
+            int maxLineWidth,
+            math::Size2i& size,
             std::vector<math::Box2i>* glyphGeom)
         {
             const auto i = ftFaces.find(fontInfo.family);
@@ -372,7 +372,7 @@ namespace tl
 
                     if (isNewline(*j))
                     {
-                        size.x = std::max(size.x, pos.x);
+                        size.w = std::max(size.w, pos.x);
                         pos.x = 0;
                         pos.y += h;
                         rsbDeltaPrev = 0;
@@ -386,13 +386,13 @@ namespace tl
                         {
                             j = textLine;
                             textLine = utf32.end();
-                            size.x = std::max(size.x, textLineX);
+                            size.w = std::max(size.w, textLineX);
                             pos.x = 0;
                             pos.y += h;
                         }
                         else
                         {
-                            size.x = std::max(size.x, pos.x);
+                            size.w = std::max(size.w, pos.x);
                             pos.x = x;
                             pos.y += h;
                         }
@@ -408,8 +408,8 @@ namespace tl
                         pos.x += x;
                     }
                 }
-                size.x = std::max(size.x, pos.x);
-                size.y = pos.y;
+                size.w = std::max(size.w, pos.x);
+                size.h = pos.y;
             }
         }
     }

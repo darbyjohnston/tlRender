@@ -159,11 +159,12 @@ namespace tl
                 try
                 {
                     // Create the offscreen buffer.
+                    math::Size2i offscreenBufferSize(_videoSize.w, _videoSize.h);
                     gl::OffscreenBufferOptions offscreenBufferOptions;
                     offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
-                    if (gl::doCreate(_buffer, _videoSize, offscreenBufferOptions))
+                    if (gl::doCreate(_buffer, offscreenBufferSize, offscreenBufferOptions))
                     {
-                        _buffer = gl::OffscreenBuffer::create(_videoSize, offscreenBufferOptions);
+                        _buffer = gl::OffscreenBuffer::create(offscreenBufferSize, offscreenBufferOptions);
                     }
 
                     // Render the video data into the offscreen buffer.
@@ -171,7 +172,7 @@ namespace tl
                     {
                         gl::OffscreenBufferBinding binding(_buffer);
                         _render->begin(
-                            _videoSize,
+                            offscreenBufferSize,
                             _colorConfigOptions,
                             _lutOptions);
                         _render->drawVideo(
@@ -192,7 +193,7 @@ namespace tl
                 glDisable(GL_SCISSOR_TEST);
                 glDisable(GL_BLEND);
                 const float devicePixelRatio = window()->devicePixelRatio();
-                const image::Size windowSize(
+                const math::Size2i windowSize(
                     width() * devicePixelRatio,
                     height() * devicePixelRatio);
                 glViewport(

@@ -282,15 +282,15 @@ namespace tl
         int ScrollWidget::getLineStep() const
         {
             TLRENDER_P();
-            const math::Vector2i scrollAreaSize = p.scrollArea->getGeometry().getSize();
-            return scrollAreaSize.y / 10.F;
+            const math::Size2i scrollAreaSize = p.scrollArea->getGeometry().getSize();
+            return scrollAreaSize.h / 10.F;
         }
 
         int ScrollWidget::getPageStep() const
         {
             TLRENDER_P();
-            const math::Vector2i scrollAreaSize = p.scrollArea->getGeometry().getSize();
-            return scrollAreaSize.y;
+            const math::Size2i scrollAreaSize = p.scrollArea->getGeometry().getSize();
+            return scrollAreaSize.h;
         }
     }
 }

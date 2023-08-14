@@ -20,7 +20,7 @@ namespace tl
             struct Options
             {
                 std::string compareFileName;
-                image::Size windowSize = image::Size(1920, 1080);
+                math::Size2i windowSize = math::Size2i(1920, 1080);
                 bool fullscreen = false;
                 bool hud = true;
                 timeline::Playback playback = timeline::Playback::Forward;
@@ -87,10 +87,10 @@ namespace tl
                 std::vector<image::Size> _videoSizes;
 
                 GLFWwindow* _glfwWindow = nullptr;
-                image::Size _windowSize;
+                math::Size2i _windowSize;
                 math::Vector2i _windowPos;
                 bool _fullscreen = false;
-                image::Size _frameBufferSize;
+                math::Size2i _frameBufferSize;
                 math::Vector2f _contentScale = math::Vector2f(1.F, 1.F);
                 timeline::CompareOptions _compareOptions;
                 float _rotation = 0.F;

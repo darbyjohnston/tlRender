@@ -113,7 +113,7 @@ namespace tl
             void deviceActiveChanged(bool);
 
             //! This signal is emitted when the output device size is changed.
-            void sizeChanged(const tl::image::Size&);
+            void sizeChanged(const tl::math::Size2i&);
 
             //! This signal is emitted when the output device frame rate is
             //! changed.

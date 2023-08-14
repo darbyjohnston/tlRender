@@ -411,8 +411,8 @@ namespace tl
             const math::Box2i& g = _geometry;
 
             const std::string labelMax = _data.timeUnitsModel->getLabel(_timeRange.duration());
-            const math::Vector2i labelMaxSize = event.fontSystem->getSize(labelMax, p.size.fontInfo);
-            const int distanceMin = p.size.border + p.size.margin + labelMaxSize.x;
+            const math::Size2i labelMaxSize = event.fontSystem->getSize(labelMax, p.size.fontInfo);
+            const int distanceMin = p.size.border + p.size.margin + labelMaxSize.w;
 
             const int w = _sizeHint.x;
             const float duration = _timeRange.duration().rescaled_to(1.0).value();
@@ -521,7 +521,7 @@ namespace tl
                         p.size.scrollPos.y +
                         g.min.y +
                         p.size.margin,
-                        labelMaxSize.x,
+                        labelMaxSize.w,
                         p.size.fontMetrics.lineHeight);
                     if (time != currentTime && box.intersects(drawRect))
                     {

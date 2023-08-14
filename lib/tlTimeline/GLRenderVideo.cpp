@@ -4,16 +4,11 @@
 
 #include <tlTimeline/GLRenderPrivate.h>
 
+#include <tlGl/GL.h>
 #include <tlGL/Mesh.h>
 #include <tlGL/Util.h>
 
 #include <tlCore/Math.h>
-
-#if defined(TLRENDER_GL_DEBUG)
-#include <tlGladDebug/gl.h>
-#else // TLRENDER_GL_DEBUG
-#include <tlGlad/gl.h>
-#endif // TLRENDER_GL_DEBUG
 
 namespace tl
 {
@@ -260,7 +255,7 @@ namespace tl
             }
             if (!videoData.empty() && !boxes.empty())
             {
-                const image::Size offscreenBufferSize(
+                const math::Size2i offscreenBufferSize(
                     boxes[0].w(),
                     boxes[0].h());
                 gl::OffscreenBufferOptions offscreenBufferOptions;
@@ -355,7 +350,7 @@ namespace tl
             TLRENDER_P();
             if (!videoData.empty() && !boxes.empty())
             {
-                const image::Size offscreenBufferSize(
+                const math::Size2i offscreenBufferSize(
                     boxes[0].w(),
                     boxes[0].h());
                 gl::OffscreenBufferOptions offscreenBufferOptions;
@@ -567,7 +562,7 @@ namespace tl
             p.shaders["image"]->bind();
             p.shaders["image"]->setUniform("transform.mvp", transform);
 
-            const image::Size offscreenBufferSize(box.w(), box.h());
+            const math::Size2i& offscreenBufferSize = box.getSize();
             gl::OffscreenBufferOptions offscreenBufferOptions;
             offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
             if (imageOptions.get())

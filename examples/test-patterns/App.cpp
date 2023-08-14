@@ -8,18 +8,13 @@
 
 #include <tlTimeline/GLRender.h>
 
+#include <tlGL/GL.h>
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Util.h>
 
 #include <tlIO/IOSystem.h>
 
 #include <tlCore/StringFormat.h>
-
-#if defined(TLRENDER_GL_DEBUG)
-#include <tlGladDebug/gl.h>
-#else // TLRENDER_GL_DEBUG
-#include <tlGlad/gl.h>
-#endif // TLRENDER_GL_DEBUG
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -105,9 +100,9 @@ namespace tl
                 }
 
                 for (const auto& size : {
-                    image::Size(1920, 1080),
-                    image::Size(3840, 2160),
-                    image::Size(4096, 2160)
+                    math::Size2i(1920, 1080),
+                    math::Size2i(3840, 2160),
+                    math::Size2i(4096, 2160)
                     })
                 {
                     otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(new otio::Timeline);
@@ -148,7 +143,8 @@ namespace tl
                             throw std::runtime_error(string::Format("{0}: Cannot open").arg(output));
                         }
                         image::Info info;
-                        info.size = size;
+                        info.size.w = size.w;
+                        info.size.h = size.h;
                         info.pixelType = image::PixelType::RGB_U10;
                         info = writerPlugin->getWriteInfo(info);
                         if (image::PixelType::None == info.pixelType)

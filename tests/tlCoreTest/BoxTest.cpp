@@ -136,18 +136,14 @@ namespace tl
         {
             {
                 Box2i b(1, 2, 3, 4);
-                TLRENDER_ASSERT(Vector2i(3, 4) == b.getSize());
+                TLRENDER_ASSERT(Size2i(3, 4) == b.getSize());
                 TLRENDER_ASSERT(Vector2i(2, 4) == b.getCenter());
-                TLRENDER_ASSERT(12 == b.getArea());
-                TLRENDER_ASSERT(3 / static_cast<float>(4) == b.getAspect());
             }
             {
                 Box2f b(1.F, 2.F, 3.F, 4.F);
-                TLRENDER_ASSERT(Vector2f(3.F, 4.F) == b.getSize());
+                TLRENDER_ASSERT(Size2f(3.F, 4.F) == b.getSize());
                 const auto c = b.getCenter();
                 TLRENDER_ASSERT(Vector2f(2.5F, 4.F) == c);
-                TLRENDER_ASSERT(12.F == b.getArea());
-                TLRENDER_ASSERT(3.F / 4.F == b.getAspect());
             }
         }
 

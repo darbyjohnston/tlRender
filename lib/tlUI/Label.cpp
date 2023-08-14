@@ -28,7 +28,7 @@ namespace tl
                 image::FontInfo fontInfo;
                 image::FontMetrics fontMetrics;
                 bool textInit = true;
-                math::Vector2i textSize;
+                math::Size2i textSize;
             };
             SizeData size;
 
@@ -149,10 +149,10 @@ namespace tl
             }
 
             _sizeHint.x =
-                p.size.textSize.x +
+                p.size.textSize.w +
                 p.size.margin * 2;
             _sizeHint.y =
-                p.size.textSize.y +
+                p.size.textSize.h +
                 p.size.margin * 2;
         }
 

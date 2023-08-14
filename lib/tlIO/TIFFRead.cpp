@@ -324,7 +324,7 @@ namespace tl
                             readPalette(
                                 p,
                                 info.size.w,
-                                static_cast<int>(image::getChannelCount(info.pixelType)),
+                                image::getChannelCount(info.pixelType),
                                 _colormap[0], _colormap[1], _colormap[2]);
                         }
                     }

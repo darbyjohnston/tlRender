@@ -33,6 +33,18 @@ namespace tl
         {}
 
         template<>
+        inline Box2<int>::Box2(const Vector2<int>& pos, const Size2<int>& size) noexcept :
+            min(pos.x, pos.y),
+            max(pos.x + size.w - 1, pos.y + size.h - 1)
+        {}
+
+        template<>
+        inline Box2<float>::Box2(const Vector2<float>& pos, const Size2<float>& size) noexcept :
+            min(pos.x, pos.y),
+            max(pos.x + size.w, pos.y + size.h)
+        {}
+
+        template<>
         inline Box2<int>::Box2(int x, int y, int w, int h) noexcept :
             min(x, y),
             max(x + w - 1, y + h - 1)
@@ -81,15 +93,15 @@ namespace tl
         }
 
         template<>
-        inline Vector2<int> Box2<int>::getSize() const noexcept
+        inline Size2<int> Box2<int>::getSize() const noexcept
         {
-            return Vector2<int>(max.x - min.x + 1, max.y - min.y + 1);
+            return Size2<int>(max.x - min.x + 1, max.y - min.y + 1);
         }
 
         template<>
-        inline Vector2<float> Box2<float>::getSize() const noexcept
+        inline Size2<float> Box2<float>::getSize() const noexcept
         {
-            return Vector2<float>(max.x - min.x, max.y - min.y);
+            return Size2<float>(max.x - min.x, max.y - min.y);
         }
 
         template<>
@@ -106,32 +118,6 @@ namespace tl
             return Vector2<float>(
                 min.x + (max.x - min.x) / 2.F,
                 min.y + (max.y - min.y) / 2.F);
-        }
-
-        template<>
-        inline int Box2<int>::getArea() const noexcept
-        {
-            return w() * h();
-        }
-
-        template<>
-        inline float Box2<float>::getArea() const noexcept
-        {
-            return w() * h();
-        }
-
-        template<>
-        inline float Box2<int>::getAspect() const noexcept
-        {
-            const int h = this->h();
-            return h != 0 ? w() / static_cast<float>(h) : 0.F;
-        }
-
-        template<>
-        inline float Box2<float>::getAspect() const noexcept
-        {
-            const float h = this->h();
-            return h != 0 ? w() / h : 0.F;
         }
 
         template<>

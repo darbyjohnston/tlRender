@@ -28,8 +28,8 @@ namespace tl
                 int margin = 0;
                 image::FontInfo fontInfo;
                 image::FontMetrics fontMetrics;
-                math::Vector2i textSize;
-                math::Vector2i formatSize;
+                math::Size2i textSize;
+                math::Size2i formatSize;
             };
             SizeData size;
 
@@ -137,7 +137,7 @@ namespace tl
             p.size.formatSize = event.fontSystem->getSize(p.format, fontInfo);
 
             _sizeHint.x =
-                std::max(p.size.textSize.x, p.size.formatSize.x) +
+                std::max(p.size.textSize.w, p.size.formatSize.w) +
                 p.size.margin * 2;
             _sizeHint.y =
                 p.size.fontMetrics.lineHeight +

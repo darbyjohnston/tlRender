@@ -6,21 +6,16 @@
 
 #include <tlTimeline/GLRender.h>
 
-#include <tlGL/Util.h>
-
 #include <tlIO/IOSystem.h>
+
+#include <tlGL/GL.h>
+#include <tlGL/Util.h>
 
 #include <tlCore/File.h>
 #include <tlCore/Math.h>
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 #include <tlCore/Time.h>
-
-#if defined(TLRENDER_GL_DEBUG)
-#include <tlGladDebug/gl.h>
-#else // TLRENDER_GL_DEBUG
-#include <tlGlad/gl.h>
-#endif // TLRENDER_GL_DEBUG
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -31,7 +26,7 @@ namespace tl
     {
         namespace
         {
-#if defined(TLRENDER_GL_DEBUG)
+#if defined(TLRENDER_API_GL_4_1_Debug)
             void APIENTRY glDebugOutput(
                 GLenum         source,
                 GLenum         type,
@@ -58,7 +53,7 @@ namespace tl
                 default: break;
                 }
             }
-#endif // TLRENDER_GL_DEBUG
+#endif // TLRENDER_API_GL_4_1_Debug
         }
 
         void App::_init(
@@ -87,7 +82,7 @@ namespace tl
                         _options.inOutRange,
                         { "-inOutRange" },
                         "Set the in/out points range."),
-                    app::CmdLineValueOption<image::Size>::create(
+                    app::CmdLineValueOption<math::Size2i>::create(
                         _options.renderSize,
                         { "-renderSize", "-rs" },
                         "Render size."),
@@ -305,9 +300,9 @@ namespace tl
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
             glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
             glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
-#if defined(TLRENDER_GL_DEBUG)
+#if defined(TLRENDER_API_GL_4_1_Debug)
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-#endif // TLRENDER_GL_DEBUG
+#endif // TLRENDER_API_GL_4_1_Debug
             _glfwWindow = glfwCreateWindow(1, 1, "tlbake", NULL, NULL);
             if (!_glfwWindow)
             {
@@ -318,7 +313,7 @@ namespace tl
             {
                 throw std::runtime_error("Cannot initialize GLAD");
             }
-#if defined(TLRENDER_GL_DEBUG)
+#if defined(TLRENDER_API_GL_4_1_Debug)
             GLint flags = 0;
             glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
             if (flags & static_cast<GLint>(GL_CONTEXT_FLAG_DEBUG_BIT))
@@ -334,7 +329,7 @@ namespace tl
                     nullptr,
                     GL_TRUE);
             }
-#endif // TLRENDER_GL_DEBUG
+#endif // TLRENDER_API_GL_4_1_Debug
             const int glMajor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MAJOR);
             const int glMinor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MINOR);
             const int glRevision = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_REVISION);
@@ -367,7 +362,7 @@ namespace tl
             }
             _renderSize = _options.renderSize.isValid() ?
                 _options.renderSize :
-                info.video[0].size;
+                math::Size2i(info.video[0].size.w, info.video[0].size.h);
             _print(string::Format("Render size: {0}").arg(_renderSize));
 
             // Create the renderer.
@@ -383,7 +378,8 @@ namespace tl
                 throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));
             }
             io::Info ioInfo;
-            _outputInfo.size = _renderSize;
+            _outputInfo.size.w = _renderSize.w;
+            _outputInfo.size.h = _renderSize.h;
             _outputInfo.pixelType = _options.outputPixelType != image::PixelType::None ?
                 _options.outputPixelType :
                 info.video[0].pixelType;

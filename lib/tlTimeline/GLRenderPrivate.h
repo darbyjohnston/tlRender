@@ -119,7 +119,7 @@ namespace tl
 
         struct GLRender::Private
         {
-            image::Size renderSize;
+            math::Size2i renderSize;
             ColorConfigOptions colorConfigOptions;
             LUTOptions lutOptions;
             RenderOptions renderOptions;

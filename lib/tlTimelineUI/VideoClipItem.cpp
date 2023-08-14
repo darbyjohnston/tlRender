@@ -328,7 +328,7 @@ namespace tl
                                     p.clip,
                                     p.ioInfo->videoTime.duration().rate());
                                 p.thumbnailFutures[time] = _data.ioManager->requestVideo(
-                                    image::Size(p.size.thumbnailWidth, _options.thumbnailHeight),
+                                    math::Size2i(p.size.thumbnailWidth, _options.thumbnailHeight),
                                     p.path,
                                     p.memoryRead,
                                     p.availableRange.start_time(),

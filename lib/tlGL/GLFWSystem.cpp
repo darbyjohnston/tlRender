@@ -4,15 +4,11 @@
 
 #include <tlGL/GLFWSystem.h>
 
+#include <tlGL/GL.h>
+
 #include <tlCore/Context.h>
 #include <tlCore/LogSystem.h>
 #include <tlCore/StringFormat.h>
-
-#if defined(TLRENDER_GL_DEBUG)
-#include <tlGladDebug/gl.h>
-#else // TLRENDER_GL_DEBUG
-#include <tlGlad/gl.h>
-#endif // TLRENDER_GL_DEBUG
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>

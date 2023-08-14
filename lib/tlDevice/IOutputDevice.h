@@ -8,6 +8,8 @@
 
 #include <tlTimeline/Player.h>
 
+#include <tlCore/Size.h>
+
 namespace tl
 {
     namespace system
@@ -46,7 +48,7 @@ namespace tl
             PixelType getPixelType() const;
 
             //! Get the output device size.
-            const image::Size& getSize() const;
+            const math::Size2i& getSize() const;
 
             //! Get the output device frame rate.
             const otime::RationalTime& getFrameRate() const;
@@ -73,7 +75,7 @@ namespace tl
             int _deviceIndex = 0;
             int _displayModeIndex = 0;
             PixelType _pixelType = PixelType::None;
-            image::Size _size;
+            math::Size2i _size;
             otime::RationalTime _frameRate;
         };
     }

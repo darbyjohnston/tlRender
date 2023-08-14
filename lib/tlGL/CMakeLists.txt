@@ -1,4 +1,5 @@
 set(HEADERS
+    GL.h
     Init.h
     Mesh.h
     OffscreenBuffer.h
@@ -7,7 +8,9 @@ set(HEADERS
     TextureAtlas.h
     Util.h)
 if(TLRENDER_GLFW)
-    list(APPEND HEADERS GLFWSystem.h)
+    list(APPEND HEADERS
+        GLFWSystem.h
+        GLFWWindow.h)
 endif()
 set(PRIVATE_HEADERS)
 
@@ -21,15 +24,12 @@ set(SOURCE
     TextureAtlas.cpp
     Util.cpp)
 if(TLRENDER_GLFW)
-    list(APPEND SOURCE GLFWSystem.cpp)
+    list(APPEND SOURCE
+        GLFWSystem.cpp
+        GLFWWindow.cpp)
 endif()
 
-set(LIBRARIES tlCore)
-if(TLRENDER_GL_DEBUG)
-    list(APPEND LIBRARIES tlGladDebug)
-else()
-    list(APPEND LIBRARIES tlGlad)
-endif()
+set(LIBRARIES tlCore tlGlad)
 if(TLRENDER_GLFW)
     list(APPEND LIBRARIES GLFW)
 endif()

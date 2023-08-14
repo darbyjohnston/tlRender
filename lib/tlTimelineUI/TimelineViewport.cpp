@@ -296,7 +296,7 @@ namespace tl
                 const timeline::TransformState transformState(event.render);
                 const timeline::RenderSizeState renderSizeState(event.render);
 
-                const image::Size size(g.w(), g.h());
+                const math::Size2i size(g.w(), g.h());
                 gl::OffscreenBufferOptions options;
                 options.colorType = image::PixelType::RGB_F32;
                 options.depth = gl::OffscreenDepth::_24;
@@ -470,7 +470,7 @@ namespace tl
             p.mouse.mode = Private::MouseMode::None;
         }
 
-        image::Size TimelineViewport::_renderSize() const
+        math::Size2i TimelineViewport::_renderSize() const
         {
             TLRENDER_P();
             return timeline::getRenderSize(p.compareOptions.mode, p.timelineSizes);
@@ -484,8 +484,8 @@ namespace tl
         void TimelineViewport::_frameView()
         {
             TLRENDER_P();
-            const image::Size viewportSize(_geometry.w(), _geometry.h());
-            const image::Size renderSize = _renderSize();
+            const math::Size2i viewportSize(_geometry.w(), _geometry.h());
+            const math::Size2i renderSize = _renderSize();
             double zoom = viewportSize.w / static_cast<double>(renderSize.w);
             if (zoom * renderSize.h > viewportSize.h)
             {

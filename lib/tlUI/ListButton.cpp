@@ -23,7 +23,7 @@ namespace tl
                 image::FontInfo fontInfo;
                 image::FontMetrics fontMetrics;
                 bool textInit = true;
-                math::Vector2i textSize;
+                math::Size2i textSize;
             };
             SizeData size;
 
@@ -126,7 +126,7 @@ namespace tl
                     p.size.textSize = event.fontSystem->getSize(_text, fontInfo);
                     p.draw.glyphs.clear();
                 }
-                _sizeHint.x = p.size.textSize.x + p.size.margin2 * 2;
+                _sizeHint.x = p.size.textSize.w + p.size.margin2 * 2;
                 _sizeHint.y = p.size.fontMetrics.lineHeight + p.size.margin * 2;
             }
             if (_iconImage || _checkedIconImage)
@@ -138,13 +138,13 @@ namespace tl
                 math::Vector2i size;
                 if (_iconImage)
                 {
-                    size.x = std::max(size.x, static_cast<int>(_iconImage->getWidth()));
-                    size.y = std::max(size.y, static_cast<int>(_iconImage->getHeight()));
+                    size.x = std::max(size.x, _iconImage->getWidth());
+                    size.y = std::max(size.y, _iconImage->getHeight());
                 }
                 if (_checkedIconImage)
                 {
-                    size.x = std::max(size.x, static_cast<int>(_checkedIconImage->getWidth()));
-                    size.y = std::max(size.y, static_cast<int>(_checkedIconImage->getHeight()));
+                    size.x = std::max(size.x, _checkedIconImage->getWidth());
+                    size.y = std::max(size.y, _checkedIconImage->getHeight());
                 }
                 _sizeHint.x += size.x;
                 _sizeHint.y = std::max(_sizeHint.y, size.y);
@@ -251,7 +251,7 @@ namespace tl
                 }
                 const math::Vector2i pos(
                     x + p.size.margin2,
-                    g2.y() + g2.h() / 2 - p.size.textSize.y / 2 +
+                    g2.y() + g2.h() / 2 - p.size.textSize.h / 2 +
                     p.size.fontMetrics.ascender);
                 event.render->drawText(
                     p.draw.glyphs,

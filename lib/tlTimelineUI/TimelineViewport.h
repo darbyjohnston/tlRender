@@ -103,7 +103,7 @@ namespace tl
             void _releaseMouse() override;
 
         private:
-            image::Size _renderSize() const;
+            math::Size2i _renderSize() const;
             math::Vector2i _viewportCenter() const;
             void _frameView();
 

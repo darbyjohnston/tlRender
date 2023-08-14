@@ -4,13 +4,9 @@
 
 #include <tlGL/Texture.h>
 
-#include <tlCore/Assert.h>
+#include <tlGL/GL.h>
 
-#if defined(TLRENDER_GL_DEBUG)
-#include <tlGladDebug/gl.h>
-#else // TLRENDER_GL_DEBUG
-#include <tlGlad/gl.h>
-#endif // TLRENDER_GL_DEBUG
+#include <tlCore/Assert.h>
 
 #include <array>
 #include <iostream>

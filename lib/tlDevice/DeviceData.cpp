@@ -29,7 +29,7 @@ namespace tl
             "10BitRGBXLE");
         TLRENDER_ENUM_SERIALIZE_IMPL(PixelType);
 
-        size_t getDataByteCount(const image::Size& size, PixelType pixelType)
+        size_t getDataByteCount(const math::Size2i& size, PixelType pixelType)
         {
             size_t out = 0;
             switch (pixelType)
@@ -46,7 +46,7 @@ namespace tl
         }
 
         void PixelData::_init(
-            const image::Size& size,
+            const math::Size2i& size,
             PixelType pixelType,
             const otime::RationalTime& time)
         {
@@ -66,7 +66,7 @@ namespace tl
         }
 
         std::shared_ptr<PixelData> PixelData::create(
-            const image::Size& size,
+            const math::Size2i& size,
             PixelType pixelType,
             const otime::RationalTime& time)
         {
@@ -75,7 +75,7 @@ namespace tl
             return out;
         }
 
-        const image::Size& PixelData::getSize() const
+        const math::Size2i& PixelData::getSize() const
         {
             return _size;
         }

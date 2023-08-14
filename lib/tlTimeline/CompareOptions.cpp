@@ -152,9 +152,9 @@ namespace tl
             return out;
         }
 
-        image::Size getRenderSize(CompareMode mode, const std::vector<image::Size>& sizes)
+        math::Size2i getRenderSize(CompareMode mode, const std::vector<image::Size>& sizes)
         {
-            image::Size out;
+            math::Size2i out;
             math::Box2i box;
             const auto boxes = getBoxes(mode, sizes);
             if (!boxes.empty())

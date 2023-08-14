@@ -1106,7 +1106,7 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define GL_ZERO 0
 
 
-#include <tlGlad/khrplatform.h>
+#include <tlGlad_GL_4_1/khrplatform.h>
 
 typedef unsigned int GLenum;
 

@@ -13,6 +13,7 @@
 #include <tlCore/Context.h>
 #include <tlCore/FontSystem.h>
 #include <tlCore/Mesh.h>
+#include <tlCore/Size.h>
 
 namespace tl
 {
@@ -31,7 +32,7 @@ namespace tl
 
             //! Start a render.
             virtual void begin(
-                const image::Size&,
+                const math::Size2i&,
                 const ColorConfigOptions& = ColorConfigOptions(),
                 const LUTOptions& = LUTOptions(),
                 const RenderOptions& = RenderOptions()) = 0;
@@ -40,10 +41,10 @@ namespace tl
             virtual void end() = 0;
 
             //! Get the render size.
-            virtual image::Size getRenderSize() const = 0;
+            virtual math::Size2i getRenderSize() const = 0;
 
             //! Set the render size.
-            virtual void setRenderSize(const image::Size&) = 0;
+            virtual void setRenderSize(const math::Size2i&) = 0;
 
             //! Get the viewport.
             virtual math::Box2i getViewport() const = 0;

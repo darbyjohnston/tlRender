@@ -27,7 +27,7 @@ namespace tl
             std::shared_ptr<IconLibrary> iconLibrary;
             std::shared_ptr<image::FontSystem> fontSystem;
             std::shared_ptr<IClipboard> clipboard;
-            image::Size displaySize;
+            math::Size2i displaySize;
             float displayScale = 1.F;
             std::list<std::weak_ptr<IWidget> > topLevelWidgets;
             math::Vector2i cursorPos;
@@ -38,10 +38,6 @@ namespace tl
             std::weak_ptr<IWidget> keyFocus;
             std::weak_ptr<IWidget> keyPress;
             KeyEvent keyEvent;
-            std::function<void(StandardCursor)> cursor;
-            std::function<void(
-                const std::shared_ptr<image::Image>&,
-                const math::Vector2i&)> customCursor;
             std::shared_ptr<DragAndDropData> dndData;
             std::shared_ptr<gl::OffscreenBuffer> dndCursor;
             math::Vector2i dndCursorHotspot;
@@ -99,10 +95,10 @@ namespace tl
             return out;
         }
 
-        void EventLoop::setDisplaySize(const image::Size& value)
+        void EventLoop::setDisplaySize(const math::Size2i& value)
         {
             TLRENDER_P();
-            if (value == p.displaySize )
+            if (value == p.displaySize)
                 return;
             p.displaySize = value;
             p.updates |= Update::Size;
@@ -495,18 +491,6 @@ namespace tl
                     p.cursorPosPrev);
                 _hoverUpdate(event);
             }
-        }
-
-        void EventLoop::setCursor(const std::function<void(StandardCursor)>& value)
-        {
-            _p->cursor = value;
-        }
-
-        void EventLoop::setCursor(const std::function<void(
-            const std::shared_ptr<image::Image>&,
-            const math::Vector2i&)>& value)
-        {
-            _p->customCursor = value;
         }
 
         void EventLoop::scroll(float dx, float dy, int modifiers)

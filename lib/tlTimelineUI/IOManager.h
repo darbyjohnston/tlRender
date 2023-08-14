@@ -8,6 +8,7 @@
 
 #include <tlCore/Context.h>
 #include <tlCore/Mesh.h>
+#include <tlCore/Size.h>
 #include <tlCore/ValueObserver.h>
 
 namespace tl
@@ -40,7 +41,7 @@ namespace tl
 
             //! Request video thumbnails.
             std::future<std::shared_ptr<image::Image> > requestVideo(
-                const image::Size&,
+                const math::Size2i&,
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
                 const otime::RationalTime& startTime,
@@ -49,7 +50,7 @@ namespace tl
 
             //! Request audio waveforms.
             std::future<std::shared_ptr<geom::TriangleMesh2> > requestAudio(
-                const image::Size&,
+                const math::Size2i&,
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
                 const otime::RationalTime& startTime,

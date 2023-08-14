@@ -11,17 +11,13 @@
 
 #include <tlIO/IOSystem.h>
 
+#include <tlGL/GL.h>
+#include <tlGL/GLFWWindow.h>
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Util.h>
 
 #include <tlCore/LogSystem.h>
 #include <tlCore/StringFormat.h>
-
-#if defined(TLRENDER_GL_DEBUG)
-#include <tlGladDebug/gl.h>
-#else // TLRENDER_GL_DEBUG
-#include <tlGlad/gl.h>
-#endif // TLRENDER_GL_DEBUG
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -35,35 +31,6 @@ namespace tl
     {
         namespace
         {
-#if defined(TLRENDER_GL_DEBUG)
-            void APIENTRY glDebugOutput(
-                GLenum         source,
-                GLenum         type,
-                GLuint         id,
-                GLenum         severity,
-                GLsizei        length,
-                const GLchar * message,
-                const void *   userParam)
-            {
-                switch (severity)
-                {
-                case GL_DEBUG_SEVERITY_HIGH:
-                    std::cerr << "HIGH: " << message << std::endl;
-                    break;
-                case GL_DEBUG_SEVERITY_MEDIUM:
-                    std::cerr << "MEDIUM: " << message << std::endl;
-                    break;
-                case GL_DEBUG_SEVERITY_LOW:
-                    std::cerr << "LOW: " << message << std::endl;
-                    break;
-                //case GL_DEBUG_SEVERITY_NOTIFICATION:
-                //    std::cerr << "NOTIFICATION: " << message << std::endl;
-                //    break;
-                default: break;
-                }
-            }
-#endif // TLRENDER_GL_DEBUG
-
             class Clipboard : public ui::IClipboard
             {
                 TLRENDER_NON_COPYABLE(Clipboard);
@@ -134,12 +101,10 @@ namespace tl
         {
             Options options;
 
-            GLFWwindow* glfwWindow = nullptr;
-            image::Size windowSize;
-            math::Vector2i windowPos;
+            std::shared_ptr<gl::GLFWWindow> window;
             std::shared_ptr<observer::Value<bool> > fullscreen;
             std::shared_ptr<observer::Value<bool> > floatOnTop;
-            image::Size frameBufferSize;
+            math::Size2i frameBufferSize;
             math::Vector2f contentScale = math::Vector2f(1.F, 1.F);
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
@@ -169,7 +134,7 @@ namespace tl
             TLRENDER_P();
             std::vector<std::shared_ptr<app::ICmdLineOption> > options2 = options;
             options2.push_back(
-                app::CmdLineValueOption<image::Size>::create(
+                app::CmdLineValueOption<math::Size2i>::create(
                     p.options.windowSize,
                     { "-windowSize", "-ws" },
                     "Window size.",
@@ -197,92 +162,39 @@ namespace tl
             p.floatOnTop = observer::Value<bool>::create(false);
 
             // Create the window.
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-            glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-#if defined(TLRENDER_GL_DEBUG)
-            glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-#endif // TLRENDER_GL_DEBUG
-            p.glfwWindow = glfwCreateWindow(
-                p.options.windowSize.w,
-                p.options.windowSize.h,
-                cmdLineName.c_str(),
-                NULL,
-                NULL);
-            if (!p.glfwWindow)
-            {
-                throw std::runtime_error("Cannot create window");
-            }
-            
-            glfwSetWindowUserPointer(p.glfwWindow, this);
+            p.window = gl::GLFWWindow::create(
+                cmdLineName,
+                p.options.windowSize,
+                _context);            
+            glfwSetWindowUserPointer(p.window->getGLFW(), this);
             int width = 0;
             int height = 0;
-            glfwGetFramebufferSize(p.glfwWindow, &width, &height);
+            glfwGetFramebufferSize(p.window->getGLFW(), &width, &height);
             p.frameBufferSize.w = width;
             p.frameBufferSize.h = height;
-            glfwGetWindowContentScale(p.glfwWindow, &p.contentScale.x, &p.contentScale.y);
-            glfwMakeContextCurrent(p.glfwWindow);
-            if (!gladLoaderLoadGL())
-            {
-                throw std::runtime_error("Cannot initialize GLAD");
-            }
-#if defined(TLRENDER_GL_DEBUG)
-            GLint flags = 0;
-            glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-            if (flags & static_cast<GLint>(GL_CONTEXT_FLAG_DEBUG_BIT))
-            {
-                glEnable(GL_DEBUG_OUTPUT);
-                glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-                glDebugMessageCallback(glDebugOutput, context.get());
-                glDebugMessageControl(
-                    static_cast<GLenum>(GL_DONT_CARE),
-                    static_cast<GLenum>(GL_DONT_CARE),
-                    static_cast<GLenum>(GL_DONT_CARE),
-                    0,
-                    nullptr,
-                    GLFW_TRUE);
-            }
-#endif // TLRENDER_GL_DEBUG
-            const int glMajor = glfwGetWindowAttrib(p.glfwWindow, GLFW_CONTEXT_VERSION_MAJOR);
-            const int glMinor = glfwGetWindowAttrib(p.glfwWindow, GLFW_CONTEXT_VERSION_MINOR);
-            const int glRevision = glfwGetWindowAttrib(p.glfwWindow, GLFW_CONTEXT_REVISION);
-            _log(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
-            glfwSetFramebufferSizeCallback(p.glfwWindow, _frameBufferSizeCallback);
-            glfwSetWindowContentScaleCallback(p.glfwWindow, _windowContentScaleCallback);
-            glfwSetWindowRefreshCallback(p.glfwWindow, _windowRefreshCallback);
+            glfwGetWindowContentScale(p.window->getGLFW(), &p.contentScale.x, &p.contentScale.y);
+            glfwSetFramebufferSizeCallback(p.window->getGLFW(), _frameBufferSizeCallback);
+            glfwSetWindowContentScaleCallback(p.window->getGLFW(), _windowContentScaleCallback);
+            glfwSetWindowRefreshCallback(p.window->getGLFW(), _windowRefreshCallback);
             setFullScreen(p.options.fullscreen);
-            glfwSetCursorEnterCallback(p.glfwWindow, _cursorEnterCallback);
-            glfwSetCursorPosCallback(p.glfwWindow, _cursorPosCallback);
-            glfwSetMouseButtonCallback(p.glfwWindow, _mouseButtonCallback);
-            glfwSetScrollCallback(p.glfwWindow, _scrollCallback);
-            glfwSetKeyCallback(p.glfwWindow, _keyCallback);
-            glfwSetCharCallback(p.glfwWindow, _charCallback);
-            glfwSetDropCallback(p.glfwWindow, _dropCallback);
-            glfwShowWindow(p.glfwWindow);
+            glfwSetCursorEnterCallback(p.window->getGLFW(), _cursorEnterCallback);
+            glfwSetCursorPosCallback(p.window->getGLFW(), _cursorPosCallback);
+            glfwSetMouseButtonCallback(p.window->getGLFW(), _mouseButtonCallback);
+            glfwSetScrollCallback(p.window->getGLFW(), _scrollCallback);
+            glfwSetKeyCallback(p.window->getGLFW(), _keyCallback);
+            glfwSetCharCallback(p.window->getGLFW(), _charCallback);
+            glfwSetDropCallback(p.window->getGLFW(), _dropCallback);
+            p.window->show();
 
             // Initialize the user interface.
             p.style = ui::Style::create(_context);
             p.iconLibrary = ui::IconLibrary::create(_context);
-            p.clipboard = Clipboard::create(p.glfwWindow, _context);
+            p.clipboard = Clipboard::create(p.window->getGLFW(), _context);
             p.eventLoop = ui::EventLoop::create(
                 p.style,
                 p.iconLibrary,
                 p.clipboard,
                 _context);
-            p.eventLoop->setCursor(
-                [this](ui::StandardCursor value)
-                {
-                    _setCursor(value);
-                });
-            p.eventLoop->setCursor(
-                [this](
-                    const std::shared_ptr<image::Image>& image,
-                    const math::Vector2i& hotspot)
-                {
-                    _setCursor(image, hotspot);
-                });
             p.eventLoop->setCapture(
                 [this](const math::Box2i& value)
                 {
@@ -298,16 +210,7 @@ namespace tl
         {}
 
         IApp::~IApp()
-        {
-            TLRENDER_P();
-            p.eventLoop.reset();
-            p.render.reset();
-            p.offscreenBuffer.reset();
-            if (p.glfwWindow)
-            {
-                glfwDestroyWindow(p.glfwWindow);
-            }
-        }
+        {}
 
         void IApp::run()
         {
@@ -318,7 +221,7 @@ namespace tl
             }
 
             // Start the main loop.
-            while (p.running && !glfwWindowShouldClose(p.glfwWindow))
+            while (p.running && !p.window->shouldClose())
             {
                 glfwPollEvents();
 
@@ -372,7 +275,7 @@ namespace tl
                         p.frameBufferSize.h,
                         GL_COLOR_BUFFER_BIT,
                         GL_LINEAR);
-                    glfwSwapBuffers(p.glfwWindow);
+                    p.window->swap();
                 }
 
                 time::sleep(std::chrono::milliseconds(5));
@@ -395,17 +298,14 @@ namespace tl
             return _p->style;
         }
 
-        image::Size IApp::getWindowSize() const
+        math::Size2i IApp::getWindowSize() const
         {
-            int width = 0;
-            int height = 0;
-            glfwGetWindowSize(_p->glfwWindow, &width, &height);
-            return image::Size(width, height);
+            return _p->window->getSize();
         }
 
-        void IApp::setWindowSize(const image::Size& value)
+        void IApp::setWindowSize(const math::Size2i& value)
         {
-            glfwSetWindowSize(_p->glfwWindow, value.w, value.h);
+            _p->window->setSize(value);
         }
 
         bool IApp::isFullScreen() const
@@ -423,38 +323,7 @@ namespace tl
             TLRENDER_P();
             if (p.fullscreen->setIfChanged(value))
             {
-                if (value)
-                {
-                    int width = 0;
-                    int height = 0;
-                    glfwGetWindowSize(p.glfwWindow, &width, &height);
-                    p.windowSize.w = width;
-                    p.windowSize.h = height;
-
-                    GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
-                    const GLFWvidmode* glfwVidmode = glfwGetVideoMode(glfwMonitor);
-                    glfwGetWindowPos(p.glfwWindow, &p.windowPos.x, &p.windowPos.y);
-                    glfwSetWindowMonitor(
-                        p.glfwWindow,
-                        glfwMonitor,
-                        0,
-                        0,
-                        glfwVidmode->width,
-                        glfwVidmode->height,
-                        glfwVidmode->refreshRate);
-                }
-                else
-                {
-                    GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
-                    glfwSetWindowMonitor(
-                        p.glfwWindow,
-                        NULL,
-                        p.windowPos.x,
-                        p.windowPos.y,
-                        p.windowSize.w,
-                        p.windowSize.h,
-                        0);
-                }
+                p.window->setFullScreen(value);
             }
         }
 
@@ -473,12 +342,10 @@ namespace tl
             TLRENDER_P();
             if (p.floatOnTop->setIfChanged(value))
             {
-                glfwSetWindowAttrib(
-                    p.glfwWindow,
-                    GLFW_FLOATING,
-                    value ? GLFW_TRUE : GLFW_FALSE);
+                p.window->setFloatOnTop(value);
             }
         }
+
         void IApp::_setColorConfigOptions(const timeline::ColorConfigOptions& value)
         {
             TLRENDER_P();
@@ -497,46 +364,6 @@ namespace tl
             p.refresh = true;
         }
 
-        void IApp::_setCursor(ui::StandardCursor value)
-        {
-            TLRENDER_P();
-            GLFWcursor* cursor = nullptr;
-            switch (value)
-            {
-            case ui::StandardCursor::Arrow:
-                break;
-            case ui::StandardCursor::IBeam:
-                cursor = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
-                break;
-            case ui::StandardCursor::Crosshair:
-                cursor = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
-                break;
-            case ui::StandardCursor::Hand:
-                cursor = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
-                break;
-            case ui::StandardCursor::HResize:
-                cursor = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
-                break;
-            case ui::StandardCursor::VResize:
-                cursor = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
-                break;
-            }
-            glfwSetCursor(p.glfwWindow, cursor);
-        }
-
-        void IApp::_setCursor(
-            const std::shared_ptr<image::Image>& image,
-            const math::Vector2i& hotspot)
-        {
-            TLRENDER_P();
-            GLFWimage glfwImage;
-            glfwImage.width = image->getWidth();
-            glfwImage.height = image->getHeight();
-            glfwImage.pixels = image->getData();
-            GLFWcursor* glfwCursor = glfwCreateCursor(&glfwImage, hotspot.x, hotspot.y);
-            p.cursor.reset(new Cursor(p.glfwWindow, glfwCursor));
-        }
-
         std::shared_ptr<OffscreenBuffer> IApp::_capture(const math::Box2i& value)
         {
             TLRENDER_P();
@@ -545,7 +372,7 @@ namespace tl
             {
                 OffscreenBufferOptions offscreenBufferOptions;
                 offscreenBufferOptions.colorType = image::PixelType::RGBA_U8;
-                out = OffscreenBuffer::create(image::Size(value.w(), value.h()), offscreenBufferOptions);
+                out = OffscreenBuffer::create(math::Size2i(value.w(), value.h()), offscreenBufferOptions);
                 glBindFramebuffer(GL_READ_FRAMEBUFFER, p.offscreenBuffer->getID());
                 glBindFramebuffer(GL_DRAW_FRAMEBUFFER, out->getID());
                 glBlitFramebuffer(

@@ -107,8 +107,8 @@ namespace tl
             void keyPressEvent(QKeyEvent*) override;
 
         private:
-            image::Size _viewportSize() const;
-            image::Size _renderSize() const;
+            math::Size2i _viewportSize() const;
+            math::Size2i _renderSize() const;
             math::Vector2i _viewportCenter() const;
             void _frameView();
 

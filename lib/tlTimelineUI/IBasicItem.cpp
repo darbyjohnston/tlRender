@@ -26,9 +26,9 @@ namespace tl
                 image::FontInfo fontInfo = image::FontInfo("", 0);
                 image::FontMetrics fontMetrics;
                 bool textUpdate = true;
-                math::Vector2i labelSize;
-                math::Vector2i durationSize;
-                std::vector<math::Vector2i> markerSizes;
+                math::Size2i labelSize;
+                math::Size2i durationSize;
+                std::vector<math::Size2i> markerSizes;
             };
             SizeData size;
 
@@ -146,7 +146,7 @@ namespace tl
             math::Box2i labelGeometry(
                 g.min.x + p.size.margin,
                 g.min.y + p.size.margin,
-                p.size.labelSize.x,
+                p.size.labelSize.w,
                 p.size.fontMetrics.lineHeight);
             if (drawRect.intersects(labelGeometry))
             {
@@ -165,10 +165,10 @@ namespace tl
 
             const math::Box2i durationGeometry(
                 g.max.x -
-                p.size.durationSize.x -
+                p.size.durationSize.w -
                 p.size.margin,
                 g.min.y + p.size.margin,
-                p.size.durationSize.x,
+                p.size.durationSize.w,
                 p.size.fontMetrics.lineHeight);
             if (drawRect.intersects(durationGeometry) &&
                 !durationGeometry.intersects(labelGeometry))
@@ -217,7 +217,7 @@ namespace tl
                     labelGeometry = math::Box2i(
                         g2.min.x + p.size.margin,
                         y + p.size.margin,
-                        p.size.markerSizes[i].x,
+                        p.size.markerSizes[i].w,
                         p.size.fontMetrics.lineHeight);
                     if (drawRect.intersects(labelGeometry))
                     {

@@ -31,7 +31,7 @@ namespace tl
         struct Options
         {
             otime::TimeRange inOutRange = time::invalidTimeRange;
-            image::Size renderSize;
+            math::Size2i renderSize;
             image::PixelType outputPixelType = image::PixelType::None;
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
@@ -88,7 +88,7 @@ namespace tl
             Options _options;
 
             std::shared_ptr<timeline::Timeline> _timeline;
-            image::Size _renderSize;
+            math::Size2i _renderSize;
             image::Info _outputInfo;
             otime::TimeRange _timeRange = time::invalidTimeRange;
             otime::RationalTime _inputTime = time::invalidTime;

@@ -26,6 +26,7 @@ project(
 
 set(TLRENDER_MMAP TRUE CACHE BOOL "Enable memory-mapped file I/O")
 set(TLRENDER_PYTHON FALSE CACHE BOOL "Enable Python support (for OTIO Python adapters)")
+set(TLRENDER_API "GL_4_1" CACHE STRING "Graphics API (GL_4_1, GL_4_1_Debug, GLES_2)")
 set(TLRENDER_GLFW TRUE CACHE BOOL "Enable support for GLFW")
 set(TLRENDER_OCIO TRUE CACHE BOOL "Enable support for OpenColorIO")
 set(TLRENDER_AUDIO TRUE CACHE BOOL "Enable support for audio")
@@ -51,7 +52,6 @@ set(TLRENDER_EXAMPLES TRUE CACHE BOOL "Build examples")
 set(TLRENDER_TESTS TRUE CACHE BOOL "Build tests")
 set(TLRENDER_GCOV FALSE CACHE BOOL "Enable gcov code coverage")
 set(TLRENDER_GPROF FALSE CACHE BOOL "Enable gprof code profiling")
-set(TLRENDER_GL_DEBUG FALSE CACHE BOOL "Enable OpenGL debugging")
 
 #-------------------------------------------------------------------------------
 # Internal configuration
@@ -213,12 +213,8 @@ endif()
 add_subdirectory(deps/FSeq)
 set_target_properties(fseq PROPERTIES FOLDER deps)
 
-if(TLRENDER_GL_DEBUG)
-    add_definitions(-DTLRENDER_GL_DEBUG)
-    add_subdirectory(deps/tlGladDebug)
-else()
-    add_subdirectory(deps/tlGlad)
-endif()
+add_definitions(-DTLRENDER_API_${TLRENDER_API})
+add_subdirectory(deps/tlGlad_${TLRENDER_API})
 
 add_subdirectory(lib)
 if(TLRENDER_PROGRAMS)

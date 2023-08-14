@@ -49,6 +49,8 @@ set(HEADERS
     RandomInline.h
     Range.h
     RangeInline.h
+    Size.h
+    SizeInline.h
     String.h
     StringFormat.h
     StringFormatInline.h
@@ -86,6 +88,7 @@ set(SOURCE
     Path.cpp
     Random.cpp
     Range.cpp
+    Size.cpp
     String.cpp
     StringFormat.cpp
     Time.cpp

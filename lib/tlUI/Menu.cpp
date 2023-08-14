@@ -79,8 +79,8 @@ namespace tl
                     int border = 0;
                     image::FontInfo fontInfo;
                     image::FontMetrics fontMetrics;
-                    math::Vector2i textSize;
-                    math::Vector2i shortcutSize;
+                    math::Size2i textSize;
+                    math::Size2i shortcutSize;
                 };
                 SizeData _size;
 
@@ -251,24 +251,20 @@ namespace tl
                 {
                     _size.textSize = event.fontSystem->getSize(_text, fontInfo);
 
-                    _sizeHint.x += _size.textSize.x + _size.margin * 2;
-                    _sizeHint.y = std::max(
-                        _sizeHint.y,
-                        static_cast<int>(_size.fontMetrics.lineHeight));
+                    _sizeHint.x += _size.textSize.w + _size.margin * 2;
+                    _sizeHint.y = std::max(_sizeHint.y, _size.fontMetrics.lineHeight);
                 }
                 if (!_shortcutText.empty())
                 {
                     _size.shortcutSize = event.fontSystem->getSize(_shortcutText, fontInfo);
 
-                    _sizeHint.x += _size.spacing * 4 + _size.shortcutSize.x;
-                    _sizeHint.y = std::max(_sizeHint.y, _size.shortcutSize.y);
+                    _sizeHint.x += _size.spacing * 4 + _size.shortcutSize.w;
+                    _sizeHint.y = std::max(_sizeHint.y, _size.shortcutSize.h);
                 }
                 if (_subMenuIcon.image)
                 {
                     _sizeHint.x += _size.spacing + _subMenuIcon.image->getWidth();
-                    _sizeHint.y = std::max(
-                        _sizeHint.y,
-                        static_cast<int>(_subMenuIcon.image->getHeight()));
+                    _sizeHint.y = std::max(_sizeHint.y, _subMenuIcon.image->getHeight());
                 }
                 _sizeHint.x +=
                     _size.margin * 2 +
@@ -398,7 +394,7 @@ namespace tl
                     }
                     const math::Vector2i pos(
                         x + _size.margin,
-                        g2.y() + g2.h() / 2 - _size.textSize.y / 2 +
+                        g2.y() + g2.h() / 2 - _size.textSize.h / 2 +
                         _size.fontMetrics.ascender);
                     event.render->drawText(
                         _draw.textGlyphs,
@@ -406,7 +402,7 @@ namespace tl
                         event.style->getColorRole(enabled ?
                             ColorRole::Text :
                             ColorRole::TextDisabled));
-                    x += _size.margin + _size.textSize.x;
+                    x += _size.margin + _size.textSize.w;
                 }
 
                 // Draw the shortcut.
@@ -417,8 +413,8 @@ namespace tl
                         _draw.shortcutGlyphs = event.fontSystem->getGlyphs(_shortcutText, _size.fontInfo);
                     }
                     const math::Vector2i pos(
-                        g2.max.x - _size.margin - _size.shortcutSize.x,
-                        g2.y() + g2.h() / 2 - _size.shortcutSize.y / 2 +
+                        g2.max.x - _size.margin - _size.shortcutSize.w,
+                        g2.y() + g2.h() / 2 - _size.shortcutSize.h / 2 +
                         _size.fontMetrics.ascender);
                     event.render->drawText(
                         _draw.shortcutGlyphs,

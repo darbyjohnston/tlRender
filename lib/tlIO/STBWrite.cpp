@@ -24,8 +24,7 @@ namespace tl
                     const std::shared_ptr<image::Image>& image)
                 {
                     const auto& info = image->getInfo();
-                    const int comp = static_cast<int>(
-                        image::getChannelCount(info.pixelType));
+                    const int comp = image::getChannelCount(info.pixelType);
                     const size_t bytes = image::getBitDepth(info.pixelType) / 8;
                     if (bytes > 1)
                         throw std::runtime_error(string::Format("{0}: {1}").

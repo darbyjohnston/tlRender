@@ -10,11 +10,7 @@
 #include <tlCore/StringFormat.h>
 #include <tlCore/Time.h>
 
-#if defined(TLRENDER_GL_DEBUG)
-#include <tlGladDebug/gl.h>
-#else // TLRENDER_GL_DEBUG
-#include <tlGlad/gl.h>
-#endif // TLRENDER_GL_DEBUG
+#include <tlGL/GL.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -50,7 +46,7 @@ namespace tl
                         _options.compareFileName,
                         { "-compare", "-b" },
                         "A/B comparison \"B\" file name."),
-                    app::CmdLineValueOption<image::Size>::create(
+                    app::CmdLineValueOption<math::Size2i>::create(
                         _options.windowSize,
                         { "-windowSize", "-ws" },
                         "Window size.",
@@ -166,6 +162,7 @@ namespace tl
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
                 glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
                 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+                glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
                 glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
                 _glfwWindow = glfwCreateWindow(
                     _options.windowSize.w,
@@ -502,11 +499,9 @@ namespace tl
                 const timeline::CompareOptions& compareOptions,
                 float rotation)
             {
-                const math::Vector2i viewportSize = box.getSize();
-                const float viewportAspect = viewportSize.y > 0 ?
-                    (viewportSize.x / static_cast<float>(viewportSize.y)) :
-                    1.F;
-                const image::Size renderSize = timeline::getRenderSize(
+                const math::Size2i viewportSize = box.getSize();
+                const float viewportAspect = viewportSize.getAspect();
+                const math::Size2i renderSize = timeline::getRenderSize(
                     compareOptions.mode,
                     _videoSizes);
                 const float renderSizeAspect = renderSize.getAspect();
@@ -553,8 +548,8 @@ namespace tl
                 {
                     _render->setTransform(math::ortho(
                         0.F,
-                        static_cast<float>(viewportSize.x),
-                        static_cast<float>(viewportSize.y),
+                        static_cast<float>(viewportSize.w),
+                        static_cast<float>(viewportSize.h),
                         0.F,
                         -1.F,
                         1.F));
@@ -564,9 +559,9 @@ namespace tl
                     auto fontSystem = _context->getSystem<image::FontSystem>();
                     auto fontMetrics = fontSystem->getMetrics(fontInfo);
                     std::string text = timeline::getLabel(compareOptions.mode);
-                    math::Vector2i textSize = fontSystem->getSize(text, fontInfo);
+                    math::Size2i textSize = fontSystem->getSize(text, fontInfo);
                     _render->drawRect(
-                        math::Box2i(0, 0, viewportSize.x, fontMetrics.lineHeight),
+                        math::Box2i(0, 0, viewportSize.w, fontMetrics.lineHeight),
                         image::Color4f(0.F, 0.F, 0.F, .7F));
                     _render->drawText(
                         fontSystem->getGlyphs(text, fontInfo),

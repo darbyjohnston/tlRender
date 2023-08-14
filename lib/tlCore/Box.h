@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlCore/Size.h>
 #include <tlCore/Vector.h>
 
 namespace tl
@@ -18,6 +19,7 @@ namespace tl
             Box2() noexcept;
             explicit Box2(const Vector2<T>&) noexcept;
             Box2(const Vector2<T>& min, const Vector2<T>& max) noexcept;
+            Box2(const Vector2<T>&, const Size2<T>&) noexcept;
             Box2(T x, T y, T w, T h) noexcept;
 
             Vector2<T> min;
@@ -40,10 +42,8 @@ namespace tl
             //! \name Dimensions
             ///@{
 
-            Vector2<T> getSize() const noexcept;
+            Size2<T> getSize() const noexcept;
             Vector2<T> getCenter() const noexcept;
-            T getArea() const noexcept;
-            float getAspect() const noexcept;
 
             ///@}
 
@@ -79,10 +79,10 @@ namespace tl
             constexpr bool operator != (const Box2<T>&) const noexcept;
         };
 
-        //! Two-dimensional integer box.
+        //! Two-dimensional axis aligned integer box.
         typedef Box2<int> Box2i;
 
-        //! Two-dimensional floating point box.
+        //! Two-dimensional axis aligned floating point box.
         typedef Box2<float> Box2f;
 
         //! \name Operators

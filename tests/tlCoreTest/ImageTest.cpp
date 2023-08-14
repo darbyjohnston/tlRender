@@ -127,13 +127,13 @@ namespace tl
             for (auto i : getPixelTypeEnums())
             {
                 std::stringstream ss;
-                ss << i << " channel count: " << static_cast<int>(getChannelCount(i));
+                ss << i << " channel count: " << getChannelCount(i);
                 _print(ss.str());
             }
             for (auto i : getPixelTypeEnums())
             {
                 std::stringstream ss;
-                ss << i << " bit depth: " << static_cast<int>(getBitDepth(i));
+                ss << i << " bit depth: " << getBitDepth(i);
                 _print(ss.str());
             }
             for (size_t c : { 1, 2, 3, 4 })

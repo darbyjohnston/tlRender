@@ -144,7 +144,7 @@ namespace tl
                 int border = 0;
                 image::FontInfo fontInfo;
                 image::FontMetrics fontMetrics;
-                math::Vector2i textSize;
+                math::Size2i textSize;
             };
             SizeData size;
 
@@ -321,18 +321,18 @@ namespace tl
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
             auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
             p.size.fontInfo = fontInfo;
-            p.size.textSize = math::Vector2i();
+            p.size.textSize = math::Size2i();
             for (const auto& i : p.items)
             {
                 if (!i.text.empty())
                 {
-                    const math::Vector2i textSize = event.fontSystem->getSize(i.text, fontInfo);
-                    p.size.textSize.x = std::max(p.size.textSize.x, textSize.x);
-                    p.size.textSize.y = std::max(p.size.textSize.y, textSize.y);
+                    const math::Size2i textSize = event.fontSystem->getSize(i.text, fontInfo);
+                    p.size.textSize.w = std::max(p.size.textSize.w, textSize.w);
+                    p.size.textSize.h = std::max(p.size.textSize.h, textSize.h);
                 }
             }
 
-            _sizeHint.x = p.size.textSize.x + p.size.margin * 2;
+            _sizeHint.x = p.size.textSize.w + p.size.margin * 2;
             _sizeHint.y = p.size.fontMetrics.lineHeight;
             if (p.iconImage)
             {
@@ -430,7 +430,7 @@ namespace tl
                 }
                 const math::Vector2i pos(
                     x + p.size.margin,
-                    g3.y() + g3.h() / 2 - p.size.textSize.y / 2 +
+                    g3.y() + g3.h() / 2 - p.size.textSize.h / 2 +
                     p.size.fontMetrics.ascender);
                 event.render->drawText(
                     p.draw.glyphs,
@@ -438,7 +438,7 @@ namespace tl
                     event.style->getColorRole(enabled ?
                         ColorRole::Text :
                         ColorRole::TextDisabled));
-                x += p.size.textSize.x + p.size.margin * 2 + p.size.spacing;
+                x += p.size.textSize.w + p.size.margin * 2 + p.size.spacing;
             }
 
             if (p.arrowIconImage)

@@ -22,7 +22,7 @@ namespace tl
                 int border = 0;
                 image::FontInfo fontInfo;
                 image::FontMetrics fontMetrics;
-                math::Vector2i textSize;
+                math::Size2i textSize;
             };
             SizeData size;
 
@@ -125,7 +125,7 @@ namespace tl
             }
             _sizeHint.x += p.size.margin * 2 + p.size.border * 2;
             _sizeHint.y += p.size.margin * 2 + p.size.border * 2;
-            _sizeHint.x = std::max(_sizeHint.x, p.size.textSize.x);
+            _sizeHint.x = std::max(_sizeHint.x, p.size.textSize.w);
             _sizeHint.y += p.size.fontMetrics.lineHeight + p.size.spacing;
         }
 

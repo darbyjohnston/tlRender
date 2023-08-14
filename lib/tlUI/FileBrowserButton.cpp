@@ -140,7 +140,7 @@ namespace tl
                     for (const auto& label : p.labels)
                     {
                         p.size.textWidths.push_back(
-                            event.fontSystem->getSize(label, fontInfo).x);
+                            event.fontSystem->getSize(label, fontInfo).w);
                     }
                     p.draw.glyphs.clear();
                 }
@@ -153,9 +153,7 @@ namespace tl
                 {
                     _sizeHint.x += p.size.spacing;
                 }
-                _sizeHint.y = std::max(
-                    _sizeHint.y,
-                    static_cast<int>(_iconImage->getHeight()));
+                _sizeHint.y = std::max(_sizeHint.y, _iconImage->getHeight());
             }
             _sizeHint.x +=
                 p.size.margin * 2 +

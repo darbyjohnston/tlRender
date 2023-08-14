@@ -21,7 +21,7 @@ namespace tl
                 image::FontMetrics fontMetrics;
                 int checkBox = 0;
                 bool textInit = true;
-                math::Vector2i textSize;
+                math::Size2i textSize;
             };
             SizeData size;
 
@@ -116,7 +116,7 @@ namespace tl
             _sizeHint.x =
                 p.size.checkBox +
                 p.size.spacing +
-                p.size.textSize.x + p.size.margin * 2 +
+                p.size.textSize.w + p.size.margin * 2 +
                 p.size.margin * 2 +
                 p.size.border * 4;
             _sizeHint.y =
@@ -192,7 +192,7 @@ namespace tl
                 }
                 const math::Vector2i pos(
                     g3.x() + p.size.checkBox + p.size.spacing + p.size.margin,
-                    g3.y() + g3.h() / 2 - p.size.textSize.y / 2 +
+                    g3.y() + g3.h() / 2 - p.size.textSize.h / 2 +
                     p.size.fontMetrics.ascender);
                 event.render->drawText(
                     p.draw.glyphs,

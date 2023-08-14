@@ -308,16 +308,17 @@ namespace tl
 
                                 try
                                 {
+                                    math::Size2i offscreenBufferSize(info.size.w, info.size.h);
                                     gl::OffscreenBufferOptions offscreenBufferOptions;
                                     offscreenBufferOptions.colorType = image::PixelType::RGBA_U8;
-                                    if (gl::doCreate(offscreenBuffer, info.size, offscreenBufferOptions))
+                                    if (gl::doCreate(offscreenBuffer, offscreenBufferSize, offscreenBufferOptions))
                                     {
-                                        offscreenBuffer = gl::OffscreenBuffer::create(info.size, offscreenBufferOptions);
+                                        offscreenBuffer = gl::OffscreenBuffer::create(offscreenBufferSize, offscreenBufferOptions);
                                     }
                                     gl::OffscreenBufferBinding binding(offscreenBuffer);
 
                                     render->begin(
-                                        info.size,
+                                        offscreenBufferSize,
                                         requestIt->colorConfigOptions,
                                         requestIt->lutOptions);
                                     render->drawVideo(

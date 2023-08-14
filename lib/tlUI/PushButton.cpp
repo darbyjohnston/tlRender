@@ -21,7 +21,7 @@ namespace tl
                 image::FontInfo fontInfo;
                 image::FontMetrics fontMetrics;
                 bool textInit = true;
-                math::Vector2i textSize;
+                math::Size2i textSize;
             };
             SizeData size;
 
@@ -114,7 +114,7 @@ namespace tl
                     p.draw.glyphs.clear();
                 }
 
-                _sizeHint.x = p.size.textSize.x + p.size.margin2 * 2;
+                _sizeHint.x = p.size.textSize.w + p.size.margin2 * 2;
                 _sizeHint.y = p.size.fontMetrics.lineHeight;
             }
             if (_iconImage)
@@ -124,9 +124,7 @@ namespace tl
                 {
                     _sizeHint.x += p.size.spacing;
                 }
-                _sizeHint.y = std::max(
-                    _sizeHint.y,
-                    static_cast<int>(_iconImage->getHeight()));
+                _sizeHint.y = std::max(_sizeHint.y, _iconImage->getHeight());
             }
             _sizeHint.x +=
                 p.size.margin * 2 +
@@ -235,7 +233,7 @@ namespace tl
                 }
                 const math::Vector2i pos(
                     x + p.size.margin2,
-                    g3.y() + g3.h() / 2 - p.size.textSize.y / 2 +
+                    g3.y() + g3.h() / 2 - p.size.textSize.h / 2 +
                     p.size.fontMetrics.ascender);
                 event.render->drawText(
                     p.draw.glyphs,

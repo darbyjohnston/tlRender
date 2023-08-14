@@ -9,7 +9,7 @@ namespace tl
         inline FontInfo::FontInfo() noexcept
         {}
 
-        inline FontInfo::FontInfo(const std::string& family, uint16_t size) :
+        inline FontInfo::FontInfo(const std::string& family, int size) :
             family(family),
             size(size)
         {}

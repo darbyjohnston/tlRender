@@ -11,7 +11,7 @@ namespace tl
         struct RenderSizeState::Private
         {
             std::shared_ptr<IRender> render;
-            image::Size size;
+            math::Size2i size;
         };
 
         RenderSizeState::RenderSizeState(const std::shared_ptr<IRender>& render) :

@@ -110,10 +110,10 @@ namespace tl
                 }
                 else
                 {
-                    const math::Vector2i dataSize =
-                        math::Vector2i(image->getWidth(), image->getHeight()) + border * 2;
-                    const math::Vector2i& boxSize = box.getSize();
-                    if (dataSize.x > boxSize.x || dataSize.y > boxSize.y)
+                    const math::Size2i dataSize =
+                        math::Size2i(image->getWidth(), image->getHeight()) + border * 2;
+                    const math::Size2i boxSize = box.getSize();
+                    if (dataSize.w > boxSize.w || dataSize.h > boxSize.h)
                     {
                         return nullptr;
                     }
@@ -123,15 +123,15 @@ namespace tl
                     }
                     children[0] = create(border, timestampManager);
                     children[1] = create(border, timestampManager);
-                    const int dw = boxSize.x - dataSize.x;
-                    const int dh = boxSize.y - dataSize.y;
+                    const int dw = boxSize.w - dataSize.w;
+                    const int dh = boxSize.h - dataSize.h;
                     if (dw > dh)
                     {
                         children[0]->box.min.x = box.min.x;
                         children[0]->box.min.y = box.min.y;
-                        children[0]->box.max.x = box.min.x + dataSize.x - 1;
+                        children[0]->box.max.x = box.min.x + dataSize.w - 1;
                         children[0]->box.max.y = box.max.y;
-                        children[1]->box.min.x = box.min.x + dataSize.x;
+                        children[1]->box.min.x = box.min.x + dataSize.w;
                         children[1]->box.min.y = box.min.y;
                         children[1]->box.max.x = box.max.x;
                         children[1]->box.max.y = box.max.y;
@@ -141,9 +141,9 @@ namespace tl
                         children[0]->box.min.x = box.min.x;
                         children[0]->box.min.y = box.min.y;
                         children[0]->box.max.x = box.max.x;
-                        children[0]->box.max.y = box.min.y + dataSize.y - 1;
+                        children[0]->box.max.y = box.min.y + dataSize.h - 1;
                         children[1]->box.min.x = box.min.x;
-                        children[1]->box.min.y = box.min.y + dataSize.y;
+                        children[1]->box.min.y = box.min.y + dataSize.h;
                         children[1]->box.max.x = box.max.x;
                         children[1]->box.max.y = box.max.y;
                     }
@@ -157,7 +157,7 @@ namespace tl
         struct TextureAtlas::Private
         {
             size_t textureCount = 0;
-            image::SizeType textureSize = 0;
+            int textureSize = 0;
             image::PixelType textureType = image::PixelType::None;
             int border = 0;
             TextureAtlasID id = 0;
@@ -180,7 +180,7 @@ namespace tl
 
         void TextureAtlas::_init(
             size_t textureCount,
-            image::SizeType textureSize,
+            int textureSize,
             image::PixelType textureType,
             timeline::ImageFilter filter,
             int border)
@@ -220,7 +220,7 @@ namespace tl
 
         std::shared_ptr<TextureAtlas> TextureAtlas::create(
             size_t textureCount,
-            image::SizeType textureSize,
+            int textureSize,
             image::PixelType textureType,
             timeline::ImageFilter filter,
             int border)
@@ -235,7 +235,7 @@ namespace tl
             return _p->textureCount;
         }
 
-        uint16_t TextureAtlas::getTextureSize() const
+        int TextureAtlas::getTextureSize() const
         {
             return _p->textureSize;
         }
@@ -298,16 +298,16 @@ namespace tl
             std::sort(nodes.begin(), nodes.end(),
                 [](const std::shared_ptr<BoxPackingNode>& a, const std::shared_ptr<BoxPackingNode>& b)
                 {
-                    const int aArea = a->box.getArea();
-                    const int bArea = b->box.getArea();
+                    const int aArea = a->box.getSize().getArea();
+                    const int bArea = b->box.getSize().getArea();
                     return std::tie(aArea, a->timestamp) < std::tie(bArea, b->timestamp);
                 });
-            const math::Vector2i dataSize =
-                math::Vector2i(image->getWidth(), image->getHeight()) + p.border * 2;
+            const math::Size2i dataSize =
+                math::Size2i(image->getWidth(), image->getHeight()) + p.border * 2;
             for (auto node : nodes)
             {
-                const math::Vector2i nodeSize = node->box.getSize();
-                if (dataSize.x <= nodeSize.x && dataSize.y <= nodeSize.y)
+                const math::Size2i nodeSize = node->box.getSize();
+                if (dataSize.w <= nodeSize.w && dataSize.h <= nodeSize.h)
                 {
                     auto old = node;
                     p.removeFromAtlas(old);
@@ -332,8 +332,8 @@ namespace tl
 
                         p.textures[node2->textureIndex]->copy(
                             *image,
-                            static_cast<uint16_t>(node2->box.min.x + p.border),
-                            static_cast<uint16_t>(node2->box.min.y + p.border));
+                            node2->box.min.x + p.border,
+                            node2->box.min.y + p.border);
                         p.cache[node2->id] = node2;
                         p.toTextureAtlasItem(node2, out);
 
@@ -359,7 +359,7 @@ namespace tl
                     {
                         if (j->isOccupied())
                         {
-                            used += j->box.getArea();
+                            used += j->box.getSize().getArea();
                         }
                     }
                     out += static_cast<float>(used);

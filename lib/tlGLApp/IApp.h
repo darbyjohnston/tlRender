@@ -20,7 +20,7 @@ namespace tl
         //! Application options.
         struct Options
         {
-            image::Size windowSize = image::Size(1920, 1080);
+            math::Size2i windowSize = math::Size2i(1920, 1080);
             bool fullscreen = false;
         };
 
@@ -57,10 +57,10 @@ namespace tl
             const std::shared_ptr<ui::Style> getStyle() const;
 
             //! Get the window size.
-            image::Size getWindowSize() const;
+            math::Size2i getWindowSize() const;
 
             //! Set the window size.
-            void setWindowSize(const image::Size&);
+            void setWindowSize(const math::Size2i&);
 
             //! Get whether the window is in full screen mode.
             bool isFullScreen() const;
@@ -83,11 +83,6 @@ namespace tl
         protected:
             void _setColorConfigOptions(const timeline::ColorConfigOptions&);
             void _setLUTOptions(const timeline::LUTOptions&);
-
-            void _setCursor(ui::StandardCursor value);
-            void _setCursor(
-                const std::shared_ptr<image::Image>&,
-                const math::Vector2i&);
 
             std::shared_ptr<OffscreenBuffer> _capture(const math::Box2i&);
 

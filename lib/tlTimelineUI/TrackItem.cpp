@@ -33,8 +33,8 @@ namespace tl
                 image::FontInfo fontInfo = image::FontInfo("", 0);
                 image::FontMetrics fontMetrics;
                 bool textUpdate = true;
-                math::Vector2i labelSize;
-                math::Vector2i durationSize;
+                math::Size2i labelSize;
+                math::Size2i durationSize;
             };
             SizeData size;
 
@@ -313,15 +313,15 @@ namespace tl
                 p.size.margin,
                 g.min.y +
                 p.size.margin,
-                p.size.labelSize.x,
+                p.size.labelSize.w,
                 p.size.fontMetrics.lineHeight);
             const math::Box2i durationGeometry(
                 g.max.x -
-                p.size.durationSize.x -
+                p.size.durationSize.w -
                 p.size.margin,
                 g.min.y +
                 p.size.margin,
-                p.size.durationSize.x,
+                p.size.durationSize.w,
                 p.size.fontMetrics.lineHeight);
             const bool labelVisible = drawRect.intersects(labelGeometry);
             const bool durationVisible =

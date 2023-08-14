@@ -25,24 +25,21 @@ namespace tl
         //! \name Sizes
         ///@{
 
-        //! Image size type.
-        typedef uint16_t SizeType;
-
         //! Image size.
         class Size
         {
         public:
             constexpr Size() noexcept;
             constexpr Size(
-                SizeType w,
-                SizeType h,
+                int w,
+                int h,
                 float pixelAspectRatio = 1.F) noexcept;
 
-            SizeType w = 0;
-            SizeType h = 0;
+            int w = 0;
+            int h = 0;
             float pixelAspectRatio = 1.F;
 
-            //! Is this size valid?
+            //! Is the size valid?
             constexpr bool isValid() const noexcept;
 
             //! Get the aspect ratio.
@@ -185,10 +182,10 @@ namespace tl
 #endif // TLRENDER_ENDIAN_MSB
 
         //! Get the number of channels for the given pixel type.
-        uint8_t getChannelCount(PixelType) noexcept;
+        int getChannelCount(PixelType) noexcept;
 
         //! Get the bit-depth for the given pixel type.
-        uint8_t getBitDepth(PixelType) noexcept;
+        int getBitDepth(PixelType) noexcept;
 
         //! Determine the integer pixel type for a given channel count and bit depth.
         PixelType getIntType(std::size_t channelCount, std::size_t bitDepth) noexcept;
@@ -222,11 +219,11 @@ namespace tl
             Layout() noexcept;
             Layout(
                 const Mirror&  mirror,
-                uint8_t        alignment = 1,
+                int            alignment = 1,
                 memory::Endian endian    = memory::getEndian()) noexcept;
 
             Mirror         mirror;
-            uint8_t        alignment = 1;
+            int            alignment = 1;
             memory::Endian endian    = memory::getEndian();
 
             bool operator == (const Layout&) const noexcept;
@@ -239,7 +236,7 @@ namespace tl
         public:
             Info();
             explicit Info(const Size&, PixelType);
-            explicit Info(SizeType w, SizeType h, PixelType);
+            explicit Info(int w, int h, PixelType);
 
             std::string     name             = "Default";
             Size            size;
@@ -284,7 +281,7 @@ namespace tl
             static std::shared_ptr<Image> create(const Size&, PixelType);
 
             //! Create a new image.
-            static std::shared_ptr<Image> create(SizeType w, SizeType h, PixelType);
+            static std::shared_ptr<Image> create(int w, int h, PixelType);
 
             //! Get the image information.
             const Info& getInfo() const;
@@ -293,10 +290,10 @@ namespace tl
             const Size& getSize() const;
 
             //! Get the image width.
-            SizeType getWidth() const;
+            int getWidth() const;
 
             //! Get the image height.
-            SizeType getHeight() const;
+            int getHeight() const;
 
             //! Get the aspect ratio.
             float getAspect() const;

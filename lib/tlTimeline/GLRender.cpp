@@ -4,6 +4,7 @@
 
 #include <tlTimeline/GLRenderPrivate.h>
 
+#include <tlGl/GL.h>
 #include <tlGL/Mesh.h>
 #include <tlGL/Util.h>
 
@@ -12,12 +13,6 @@
 #include <tlCore/Error.h>
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
-
-#if defined(TLRENDER_GL_DEBUG)
-#include <tlGladDebug/gl.h>
-#else // TLRENDER_GL_DEBUG
-#include <tlGlad/gl.h>
-#endif // TLRENDER_GL_DEBUG
 
 #include <array>
 #include <list>
@@ -155,11 +150,7 @@ namespace tl
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
-                    const std::size_t w = info.size.w;
-                    const std::size_t h = info.size.h;
-                    const std::size_t w2 = w / 2;
-                    const std::size_t h2 = h / 2;
-                    infoTmp = image::Info(image::Size(w2, h2), image::PixelType::L_U8);
+                    infoTmp = image::Info(image::Size(info.size.w / 2, info.size.h / 2), image::PixelType::L_U8);
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
@@ -173,10 +164,7 @@ namespace tl
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
-                    const std::size_t w = info.size.w;
-                    const std::size_t h = info.size.h;
-                    const std::size_t w2 = w / 2;
-                    infoTmp = image::Info(image::Size(w2, h), image::PixelType::L_U8);
+                    infoTmp = image::Info(image::Size(info.size.w / 2, info.size.h), image::PixelType::L_U8);
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
@@ -190,9 +178,7 @@ namespace tl
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
-                    const std::size_t w = info.size.w;
-                    const std::size_t h = info.size.h;
-                    infoTmp = image::Info(image::Size(w, h), image::PixelType::L_U8);
+                    infoTmp = image::Info(info.size, image::PixelType::L_U8);
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
@@ -206,11 +192,7 @@ namespace tl
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
-                    const std::size_t w = info.size.w;
-                    const std::size_t h = info.size.h;
-                    const std::size_t w2 = w / 2;
-                    const std::size_t h2 = h / 2;
-                    infoTmp = image::Info(image::Size(w2, h2), image::PixelType::L_U16);
+                    infoTmp = image::Info(image::Size(info.size.w / 2, info.size.h / 2), image::PixelType::L_U16);
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
@@ -224,10 +206,7 @@ namespace tl
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
-                    const std::size_t w = info.size.w;
-                    const std::size_t h = info.size.h;
-                    const std::size_t w2 = w / 2;
-                    infoTmp = image::Info(image::Size(w2, h), image::PixelType::L_U16);
+                    infoTmp = image::Info(image::Size(info.size.w / 2, info.size.h), image::PixelType::L_U16);
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
@@ -241,9 +220,7 @@ namespace tl
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
-                    const std::size_t w = info.size.w;
-                    const std::size_t h = info.size.h;
-                    infoTmp = image::Info(image::Size(w, h), image::PixelType::L_U16);
+                    infoTmp = image::Info(info.size, image::PixelType::L_U16);
                     out.push_back(gl::Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
@@ -371,7 +348,7 @@ namespace tl
         }
 
         void GLRender::begin(
-            const image::Size& renderSize,
+            const math::Size2i& renderSize,
             const ColorConfigOptions& colorConfigOptions,
             const LUTOptions& lutOptions,
             const RenderOptions& renderOptions)
@@ -611,12 +588,12 @@ namespace tl
             }
         }
 
-        image::Size GLRender::getRenderSize() const
+        math::Size2i GLRender::getRenderSize() const
         {
             return _p->renderSize;
         }
 
-        void GLRender::setRenderSize(const image::Size& value)
+        void GLRender::setRenderSize(const math::Size2i& value)
         {
             _p->renderSize = value;
         }

@@ -324,7 +324,7 @@ namespace tl
                                     p.clip,
                                     p.ioInfo->audio.sampleRate);
                                 p.waveformFutures[time] = _data.ioManager->requestAudio(
-                                    image::Size(box.w(), box.h()),
+                                    box.getSize(),
                                     p.path,
                                     p.memoryRead,
                                     p.availableRange.start_time(),

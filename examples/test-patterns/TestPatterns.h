@@ -19,7 +19,7 @@ namespace tl
             protected:
                 void _init(
                     const std::string&,
-                    const image::Size&,
+                    const math::Size2i&,
                     const std::shared_ptr<system::Context>&);
 
                 ITestPattern();
@@ -36,14 +36,14 @@ namespace tl
             protected:
                 std::weak_ptr<system::Context> _context;
                 std::string _name;
-                image::Size _size;
+                math::Size2i _size;
             };
 
             class CountTestPattern : public ITestPattern
             {
             protected:
                 void _init(
-                    const image::Size&,
+                    const math::Size2i&,
                     const std::shared_ptr<system::Context>&);
 
             public:
@@ -52,7 +52,7 @@ namespace tl
                 static std::string getClassName();
 
                 static std::shared_ptr<CountTestPattern> create(
-                    const image::Size&,
+                    const math::Size2i&,
                     const std::shared_ptr<system::Context>&);
 
                 void render(
@@ -70,7 +70,7 @@ namespace tl
             {
             protected:
                 void _init(
-                    const image::Size&,
+                    const math::Size2i&,
                     const std::shared_ptr<system::Context>&);
 
             public:
@@ -79,7 +79,7 @@ namespace tl
                 static std::string getClassName();
 
                 static std::shared_ptr<SwatchesTestPattern> create(
-                    const image::Size&,
+                    const math::Size2i&,
                     const std::shared_ptr<system::Context>&);
 
                 void render(
@@ -98,7 +98,7 @@ namespace tl
                 static std::string getClassName();
 
                 static std::shared_ptr<GridTestPattern> create(
-                    const image::Size&,
+                    const math::Size2i&,
                     const std::shared_ptr<system::Context>&);
 
                 void render(
@@ -111,7 +111,7 @@ namespace tl
             public:
                 static std::shared_ptr<ITestPattern> create(
                     const std::string& name,
-                    const image::Size&,
+                    const math::Size2i&,
                     const std::shared_ptr<system::Context>&);
             };
         }

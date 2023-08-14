@@ -79,6 +79,8 @@ namespace tl
             qRegisterMetaType<image::Size>("tl::image::Size");
             qRegisterMetaType<image::VideoLevels>("tl::image::VideoLevels");
 
+            qRegisterMetaType<math::Size2i>("tl::math::Size2i");
+
             qRegisterMetaType<memory::Endian>("tl::memory::Endian");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<memory::Endian>();

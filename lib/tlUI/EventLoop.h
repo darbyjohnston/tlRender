@@ -15,17 +15,6 @@ namespace tl
     {
         class IClipboard;
 
-        //! Cursors.
-        enum class StandardCursor
-        {
-            Arrow,
-            IBeam,
-            Crosshair,
-            Hand,
-            HResize,
-            VResize
-        };
-
         //! Event loop.
         class EventLoop : public std::enable_shared_from_this<EventLoop>
         {
@@ -57,7 +46,7 @@ namespace tl
             void removeWidget(const std::shared_ptr<IWidget>&);
 
             //! Set the user interface display resolution.
-            void setDisplaySize(const image::Size&);
+            void setDisplaySize(const math::Size2i&);
 
             //! Set the user interface display scale. This will scale the size
             //! roles, fonts, and other metrics to support different
@@ -81,14 +70,6 @@ namespace tl
 
             //! Handle mouse button presses.
             void mouseButton(int button, bool press, int modifiers);
-
-            //! Set the standard cursor function.
-            void setCursor(const std::function<void(StandardCursor)>&);
-
-            //! Set the custom cursor function.
-            void setCursor(const std::function<void(
-                const std::shared_ptr<image::Image>&,
-                const math::Vector2i&)>&);
 
             //! Handle scrolling (mouse wheel or touch pad).
             void scroll(float dx, float dy, int modifiers);

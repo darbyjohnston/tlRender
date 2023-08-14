@@ -41,7 +41,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->setWindowSize(image::Size(1280, 720));
+                        app->setWindowSize(math::Size2i(1280, 720));
                     }
                 });
             p.resizeMenu->addItem(action);
@@ -51,7 +51,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->setWindowSize(image::Size(1920, 1080));
+                        app->setWindowSize(math::Size2i(1920, 1080));
                     }
                 });
             p.resizeMenu->addItem(action);

@@ -109,8 +109,8 @@ namespace tl
                 int border = 0;
                 image::FontInfo fontInfo;
                 image::FontMetrics fontMetrics;
-                math::Vector2i textSize;
-                math::Vector2i formatSize;
+                math::Size2i textSize;
+                math::Size2i formatSize;
             };
             SizeData size;
 
@@ -274,7 +274,7 @@ namespace tl
             p.size.formatSize = event.fontSystem->getSize(p.format, fontInfo);
 
             _sizeHint.x =
-                p.size.formatSize.x +
+                p.size.formatSize.w +
                 p.size.margin * 2 +
                 p.size.border * 4;
             _sizeHint.y =
@@ -336,9 +336,9 @@ namespace tl
             {
                 const auto selection = p.selection.getSorted();
                 const std::string text0 = p.text.substr(0, selection.first);
-                const int x0 = event.fontSystem->getSize(text0, p.size.fontInfo).x;
+                const int x0 = event.fontSystem->getSize(text0, p.size.fontInfo).w;
                 const std::string text1 = p.text.substr(0, selection.second);
-                const int x1 = event.fontSystem->getSize(text1, p.size.fontInfo).x;
+                const int x1 = event.fontSystem->getSize(text1, p.size.fontInfo).w;
                 event.render->drawRect(
                     math::Box2i(g2.x() + x0, g2.y(), x1 - x0, g2.h()),
                     event.style->getColorRole(ColorRole::Checked));
@@ -375,7 +375,7 @@ namespace tl
             if (p.cursorVisible)
             {
                 const std::string text = p.text.substr(0, p.cursorPos);
-                const int x = event.fontSystem->getSize(text, p.size.fontInfo).x;
+                const int x = event.fontSystem->getSize(text, p.size.fontInfo).w;
                 event.render->drawRect(
                     math::Box2i(
                         g2.x() + x,

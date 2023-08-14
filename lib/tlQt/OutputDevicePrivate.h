@@ -8,11 +8,7 @@
 
 #include <tlDevice/IDeviceSystem.h>
 
-#if defined(TLRENDER_GL_DEBUG)
-#include <tlGladDebug/gl.h>
-#else // TLRENDER_GL_DEBUG
-#include <tlGlad/gl.h>
-#endif // TLRENDER_GL_DEBUG
+#include <tlGl/GL.h>
 
 #include <QOffscreenSurface>
 #include <QOpenGLContext>

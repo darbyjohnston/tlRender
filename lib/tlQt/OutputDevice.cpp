@@ -549,7 +549,7 @@ namespace tl
                     offscreenBuffer2.reset();
                     offscreenBuffer.reset();
                     device.reset();
-                    image::Size deviceSize;
+                    math::Size2i deviceSize;
                     otime::RationalTime deviceFrameRate = time::invalidTime;
                     if (deviceIndex != -1 &&
                         displayModeIndex != -1 &&
@@ -587,7 +587,7 @@ namespace tl
                     glGenBuffers(pbo.size(), pbo.data());
                     if (device)
                     {
-                        const image::Size viewportSize = device->getSize();
+                        const math::Size2i viewportSize = device->getSize();
                         for (size_t i = 0; i < pbo.size(); ++i)
                         {
                             glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo[i]);
@@ -604,7 +604,7 @@ namespace tl
                 {
                     try
                     {
-                        const image::Size renderSize = timeline::getRenderSize(_p->compareOptions.mode, sizes);
+                        const math::Size2i renderSize = timeline::getRenderSize(_p->compareOptions.mode, sizes);
                         gl::OffscreenBufferOptions offscreenBufferOptions;
                         offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
                         if (!displayOptions.empty())
@@ -635,7 +635,7 @@ namespace tl
                             render->end();
                         }
 
-                        const image::Size viewportSize = device->getSize();
+                        const math::Size2i viewportSize = device->getSize();
                         offscreenBufferOptions = gl::OffscreenBufferOptions();
                         offscreenBufferOptions.colorType = getOffscreenType(pixelType);
                         if (!displayOptions.empty())

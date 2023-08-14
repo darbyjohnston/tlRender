@@ -4,13 +4,8 @@
 
 #include <tlGL/OffscreenBuffer.h>
 
+#include <tlGL/GL.h>
 #include <tlGL/Texture.h>
-
-#if defined(TLRENDER_GL_DEBUG)
-#include <tlGladDebug/gl.h>
-#else // TLRENDER_GL_DEBUG
-#include <tlGlad/gl.h>
-#endif // TLRENDER_GL_DEBUG
 
 #include <array>
 #include <sstream>
@@ -113,7 +108,7 @@ namespace tl
 
         struct OffscreenBuffer::Private
         {
-            image::Size size;
+            math::Size2i size;
             OffscreenBufferOptions options;
             GLuint id = 0;
             GLuint colorID = 0;
@@ -121,7 +116,7 @@ namespace tl
         };
 
         void OffscreenBuffer::_init(
-            const image::Size& size,
+            const math::Size2i& size,
             const OffscreenBufferOptions& options)
         {
             TLRENDER_P();
@@ -269,7 +264,7 @@ namespace tl
         }
 
         std::shared_ptr<OffscreenBuffer> OffscreenBuffer::create(
-            const image::Size& size,
+            const math::Size2i& size,
             const OffscreenBufferOptions& options)
         {
             auto out = std::shared_ptr<OffscreenBuffer>(new OffscreenBuffer);
@@ -277,17 +272,17 @@ namespace tl
             return out;
         }
 
-        const image::Size& OffscreenBuffer::getSize() const
+        const math::Size2i& OffscreenBuffer::getSize() const
         {
             return _p->size;
         }
 
-        image::SizeType OffscreenBuffer::getWidth() const
+        int OffscreenBuffer::getWidth() const
         {
             return _p->size.w;
         }
 
-        image::SizeType OffscreenBuffer::getHeight() const
+        int OffscreenBuffer::getHeight() const
         {
             return _p->size.h;
         }
@@ -314,7 +309,7 @@ namespace tl
 
         bool doCreate(
             const std::shared_ptr<OffscreenBuffer>& offscreenBuffer,
-            const image::Size& size,
+            const math::Size2i& size,
             const OffscreenBufferOptions& options)
         {
             bool out = false;

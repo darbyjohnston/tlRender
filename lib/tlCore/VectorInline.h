@@ -63,7 +63,7 @@ namespace tl
         }
 
         template<typename T>
-        bool Vector2<T>::operator != (const Vector2<T>& other) const
+        inline bool Vector2<T>::operator != (const Vector2<T>& other) const
         {
             return !(*this == other);
         }

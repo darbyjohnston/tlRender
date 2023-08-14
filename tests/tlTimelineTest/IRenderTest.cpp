@@ -40,7 +40,7 @@ namespace tl
         void IRenderTest::_util()
         {
             {
-                image::Size size = getRenderSize(CompareMode::A, {});
+                math::Size2i size = getRenderSize(CompareMode::A, {});
                 TLRENDER_ASSERT(0 == size.w);
                 TLRENDER_ASSERT(0 == size.h);
             }

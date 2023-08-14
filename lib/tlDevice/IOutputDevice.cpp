@@ -40,7 +40,7 @@ namespace tl
             return _pixelType;
         }
 
-        const image::Size& IOutputDevice::getSize() const
+        const math::Size2i& IOutputDevice::getSize() const
         {
             return _size;
         }

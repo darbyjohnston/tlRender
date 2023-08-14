@@ -23,10 +23,10 @@ namespace tl
         struct FontInfo
         {
             FontInfo() noexcept;
-            FontInfo(const std::string& family, uint16_t size);
+            FontInfo(const std::string& family, int size);
 
             std::string family = "NotoSans-Regular";
-            uint16_t    size   = 12;
+            int         size   = 12;
 
             bool operator == (const FontInfo&) const noexcept;
             bool operator != (const FontInfo&) const noexcept;
@@ -36,9 +36,9 @@ namespace tl
         //! Font metrics.
         struct FontMetrics
         {
-            int16_t ascender   = 0;
-            int16_t descender  = 0;
-            int16_t lineHeight = 0;
+            int ascender   = 0;
+            int descender  = 0;
+            int lineHeight = 0;
         };
 
         //! Font glyph information.
@@ -61,7 +61,7 @@ namespace tl
             GlyphInfo                     info;
             std::shared_ptr<image::Image> image;
             math::Vector2i                offset;
-            int16_t                       advance  = 0;
+            int                           advance  = 0;
             int32_t                       lsbDelta = 0;
             int32_t                       rsbDelta = 0;
         };
@@ -107,16 +107,16 @@ namespace tl
             FontMetrics getMetrics(const FontInfo&);
 
             //! Get the size of text.
-            math::Vector2i getSize(
+            math::Size2i getSize(
                 const std::string&,
                 const FontInfo&,
-                uint16_t maxLineWidth = 0);
+                int maxLineWidth = 0);
 
             //! Get the character boxes.
             std::vector<math::Box2i> getBox(
                 const std::string&,
                 const FontInfo&,
-                uint16_t maxLineWidth = 0);
+                int maxLineWidth = 0);
 
             ///@}
 

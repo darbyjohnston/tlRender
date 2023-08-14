@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlCore/Image.h>
+#include <tlCore/Size.h>
 
 namespace tl
 {
@@ -44,7 +45,7 @@ namespace tl
         std::vector<math::Box2i> getBoxes(CompareMode, const std::vector<image::Size>&);
 
         //! Get the render size for the given compare mode and sizes.
-        image::Size getRenderSize(CompareMode, const std::vector<image::Size>&);
+        math::Size2i getRenderSize(CompareMode, const std::vector<image::Size>&);
     }
 }
 

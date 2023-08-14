@@ -47,7 +47,7 @@ namespace tl
             for (auto i : getDataTypeEnums())
             {
                 std::stringstream ss;
-                ss << i << " byte count: " << static_cast<int>(getByteCount(i));
+                ss << i << " byte count: " << getByteCount(i);
                 _print(ss.str());
             }
             for (auto i : { 0, 1, 2, 3, 4, 5, 6, 7, 8 })

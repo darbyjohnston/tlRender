@@ -16,8 +16,8 @@ namespace tl
         //! Texture atlas item.
         struct TextureAtlasItem
         {
-            uint16_t w = 0;
-            uint16_t h = 0;
+            int w = 0;
+            int h = 0;
             uint8_t textureIndex = 0;
             math::FloatRange textureU;
             math::FloatRange textureV;
@@ -34,7 +34,7 @@ namespace tl
         protected:
             void _init(
                 size_t textureCount,
-                image::SizeType textureSize,
+                int textureSize,
                 image::PixelType textureType,
                 timeline::ImageFilter filter,
                 int border);
@@ -47,13 +47,13 @@ namespace tl
             //! Create a new texture atlas.
             static std::shared_ptr<TextureAtlas> create(
                 size_t textureCount,
-                image::SizeType textureSize,
+                int textureSize,
                 image::PixelType textureType,
                 timeline::ImageFilter filter = timeline::ImageFilter::Linear,
                 int border = 1);
 
             size_t getTextureCount() const;
-            image::SizeType getTextureSize() const;
+            int getTextureSize() const;
             image::PixelType getTextureType() const;
             std::vector<unsigned int> getTextures() const;
 

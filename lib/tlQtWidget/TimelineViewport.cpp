@@ -572,21 +572,21 @@ namespace tl
             }
         }
 
-        image::Size TimelineViewport::_viewportSize() const
+        math::Size2i TimelineViewport::_viewportSize() const
         {
             const float devicePixelRatio = window()->devicePixelRatio();
-            return image::Size(
+            return math::Size2i(
                 width() * devicePixelRatio,
                 height() * devicePixelRatio);
         }
         
         math::Vector2i TimelineViewport::_viewportCenter() const
         {
-            const image::Size viewportSize = _viewportSize();
+            const math::Size2i viewportSize = _viewportSize();
             return math::Vector2i(viewportSize.w / 2, viewportSize.h / 2);
         }
 
-        image::Size TimelineViewport::_renderSize() const
+        math::Size2i TimelineViewport::_renderSize() const
         {
             TLRENDER_P();
             return timeline::getRenderSize(p.compareOptions.mode, p.timelineSizes);
@@ -595,8 +595,8 @@ namespace tl
         void TimelineViewport::_frameView()
         {
             TLRENDER_P();
-            const image::Size viewportSize = _viewportSize();
-            const image::Size renderSize = _renderSize();
+            const math::Size2i viewportSize = _viewportSize();
+            const math::Size2i renderSize = _renderSize();
             float zoom = viewportSize.w / static_cast<float>(renderSize.w);
             if (zoom * renderSize.h > viewportSize.h)
             {

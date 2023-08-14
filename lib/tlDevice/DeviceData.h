@@ -8,6 +8,7 @@
 
 #include <tlCore/HDR.h>
 #include <tlCore/Image.h>
+#include <tlCore/Size.h>
 #include <tlCore/Time.h>
 
 namespace tl
@@ -18,7 +19,7 @@ namespace tl
         struct DisplayMode
         {
             std::string name;
-            image::Size size;
+            math::Size2i size;
             otime::RationalTime frameRate;
 
             bool operator == (const DisplayMode&) const;
@@ -38,7 +39,7 @@ namespace tl
         TLRENDER_ENUM_SERIALIZE(PixelType);
 
         //! Get the number of bytes used to store the pixel data.
-        size_t getDataByteCount(const image::Size&, PixelType);
+        size_t getDataByteCount(const math::Size2i&, PixelType);
 
         //! Pixel data.
         class PixelData : public std::enable_shared_from_this<PixelData>
@@ -47,7 +48,7 @@ namespace tl
 
         protected:
             void _init(
-                const image::Size&,
+                const math::Size2i&,
                 PixelType,
                 const otime::RationalTime&);
             PixelData();
@@ -57,12 +58,12 @@ namespace tl
 
             //! Create new pixel data.
             static std::shared_ptr<PixelData> create(
-                const image::Size&,
+                const math::Size2i&,
                 PixelType,
                 const otime::RationalTime&);
 
             //! Get the pixel data size.
-            const image::Size& getSize() const;
+            const math::Size2i& getSize() const;
 
             //! Get the pixel type.
             PixelType getPixelType() const;
@@ -92,7 +93,7 @@ namespace tl
             void setHDRData(const std::shared_ptr<image::HDRData>&);
 
         private:
-            image::Size _size;
+            math::Size2i _size;
             PixelType _pixelType = PixelType::None;
             otime::RationalTime _time;
             size_t _dataByteCount = 0;

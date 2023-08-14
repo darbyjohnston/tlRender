@@ -20,23 +20,23 @@ namespace tl
         math::Box2i getBox(float aspect, const math::Box2i& box) noexcept
         {
             math::Box2i out;
-            const math::Vector2i boxSize = box.getSize();
-            const float boxAspect = box.getAspect();
+            const math::Size2i boxSize = box.getSize();
+            const float boxAspect = boxSize.getAspect();
             if (boxAspect > aspect)
             {
                 out = math::Box2i(
-                    box.min.x + boxSize.x / 2.F - (boxSize.y * aspect) / 2.F,
+                    box.min.x + boxSize.w / 2.F - (boxSize.h * aspect) / 2.F,
                     box.min.y,
-                    boxSize.y * aspect,
-                    boxSize.y);
+                    boxSize.h * aspect,
+                    boxSize.h);
             }
             else
             {
                 out = math::Box2i(
                     box.min.x,
-                    box.min.y + boxSize.y / 2.F - (boxSize.x / aspect) / 2.F,
-                    boxSize.x,
-                    boxSize.x / aspect);
+                    box.min.y + boxSize.h / 2.F - (boxSize.w / aspect) / 2.F,
+                    boxSize.w,
+                    boxSize.w / aspect);
             }
             return out;
         }
@@ -101,9 +101,9 @@ namespace tl
             "LegalRange");
         TLRENDER_ENUM_SERIALIZE_IMPL(VideoLevels);
 
-        uint8_t getChannelCount(PixelType value) noexcept
+        int getChannelCount(PixelType value) noexcept
         {
-            const std::array<uint8_t, static_cast<size_t>(PixelType::Count)> values =
+            const std::array<int, static_cast<size_t>(PixelType::Count)> values =
             {
                 0,
                 1, 1, 1, 1, 1,
@@ -116,9 +116,9 @@ namespace tl
             return values[static_cast<size_t>(value)];
         }
 
-        uint8_t getBitDepth(PixelType value) noexcept
+        int getBitDepth(PixelType value) noexcept
         {
-            const std::array<uint8_t, static_cast<size_t>(PixelType::Count)> values =
+            const std::array<int, static_cast<size_t>(PixelType::Count)> values =
             {
                 0,
                 8, 16, 32, 16, 32,
@@ -215,8 +215,8 @@ namespace tl
             std::map<size_t, PixelType> diff;
             for (const auto& type : types)
             {
-                diff[abs(static_cast<int>(getChannelCount(value)) - static_cast<int>(getChannelCount(type))) +
-                    abs(static_cast<int>(getBitDepth(value)) - static_cast<int>(getBitDepth(type)))] = type;
+                diff[abs(getChannelCount(value) - getChannelCount(type)) +
+                    abs(getBitDepth(value) - getBitDepth(type))] = type;
             }
             return !diff.empty() ? diff.begin()->second : PixelType::None;
         }
@@ -301,7 +301,7 @@ namespace tl
             return create(Info(size, pixelType));
         }
 
-        std::shared_ptr<Image> Image::create(SizeType w, SizeType h, PixelType pixelType)
+        std::shared_ptr<Image> Image::create(int w, int h, PixelType pixelType)
         {
             return create(Info(w, h, pixelType));
         }

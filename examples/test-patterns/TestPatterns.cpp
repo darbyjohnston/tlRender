@@ -17,7 +17,7 @@ namespace tl
         {
             void ITestPattern::_init(
                 const std::string& name,
-                const image::Size& size,
+                const math::Size2i& size,
                 const std::shared_ptr<system::Context>& context)
             {
                 _context = context;
@@ -37,7 +37,7 @@ namespace tl
             }
 
             void CountTestPattern::_init(
-                const image::Size& size,
+                const math::Size2i& size,
                 const std::shared_ptr<system::Context>& context)
             {
                 ITestPattern::_init(getClassName(), size, context);
@@ -63,7 +63,7 @@ namespace tl
             }
 
             std::shared_ptr<CountTestPattern> CountTestPattern::create(
-                const image::Size& size,
+                const math::Size2i& size,
                 const std::shared_ptr<system::Context>& context)
             {
                 auto out = std::shared_ptr<CountTestPattern>(new CountTestPattern);
@@ -83,16 +83,16 @@ namespace tl
 
                     const std::string secondsString = string::Format("{0}").arg(wholeSeconds);
                     auto fontSystem = context->getSystem<image::FontSystem>();
-                    const math::Vector2i secondsSize = fontSystem->getSize(secondsString, _secondsFontInfo);
+                    const math::Size2i secondsSize = fontSystem->getSize(secondsString, _secondsFontInfo);
                     const math::Vector2i secondsPos(
-                        _size.w / 2.F - secondsSize.x / 2.F,
-                        _size.h / 2.F - secondsSize.y / 2.F);
+                        _size.w / 2.F - secondsSize.w / 2.F,
+                        _size.h / 2.F - secondsSize.h / 2.F);
 
                     const std::string framesString = string::Format("{0}").arg(frames);
-                    const math::Vector2i framesSize = fontSystem->getSize(framesString, _framesFontInfo);
+                    const math::Size2i framesSize = fontSystem->getSize(framesString, _framesFontInfo);
                     const math::Vector2i framesPos(
-                        _size.w / 2.F - framesSize.x / 2.F,
-                        secondsPos.y + secondsSize.y);
+                        _size.w / 2.F - framesSize.w / 2.F,
+                        secondsPos.y + secondsSize.h);
 
                     render->drawRect(
                         math::Box2i(0, 0, _size.w, _size.h),
@@ -114,7 +114,7 @@ namespace tl
                     {
                         const float f = i / static_cast<float>(resolution - 1);
                         const float a = f * math::pi2;
-                        const float r = secondsSize.y / 2.F + framesSize.y + 10.F;
+                        const float r = secondsSize.h / 2.F + framesSize.h + 10.F;
                         mesh.v.push_back(math::Vector2f(
                             _size.w / 2.F + std::cos(a) * r,
                             _size.h / 2.F + std::sin(a) * r));
@@ -145,7 +145,7 @@ namespace tl
                         const float v = frames / time.rate();
                         const float f = i / static_cast<float>(resolution - 1);
                         const float a = v * f * math::pi2 - math::pi / 2.F;
-                        const float r = secondsSize.y / 2.F + framesSize.y + 10.F;
+                        const float r = secondsSize.h / 2.F + framesSize.h + 10.F;
                         mesh.v.push_back(math::Vector2f(
                             _size.w / 2.F + std::cos(a) * r,
                             _size.h / 2.F + std::sin(a) * r));
@@ -175,7 +175,7 @@ namespace tl
             }
 
             void SwatchesTestPattern::_init(
-                const image::Size& size,
+                const math::Size2i& size,
                 const std::shared_ptr<system::Context>& context)
             {
                 ITestPattern::_init(getClassName(), size, context);
@@ -198,7 +198,7 @@ namespace tl
             }
 
             std::shared_ptr<SwatchesTestPattern> SwatchesTestPattern::create(
-                const image::Size& size,
+                const math::Size2i& size,
                 const std::shared_ptr<system::Context>& context)
             {
                 auto out = std::shared_ptr<SwatchesTestPattern>(new SwatchesTestPattern);
@@ -240,7 +240,7 @@ namespace tl
             }
 
             std::shared_ptr<GridTestPattern> GridTestPattern::create(
-                const image::Size& size,
+                const math::Size2i& size,
                 const std::shared_ptr<system::Context>& context)
             {
                 auto out = std::shared_ptr<GridTestPattern>(new GridTestPattern);
@@ -306,7 +306,7 @@ namespace tl
 
             std::shared_ptr<ITestPattern> TestPatternFactory::create(
                 const std::string& name,
-                const image::Size& size,
+                const math::Size2i& size,
                 const std::shared_ptr<system::Context>& context)
             {
                 std::shared_ptr<ITestPattern> out;

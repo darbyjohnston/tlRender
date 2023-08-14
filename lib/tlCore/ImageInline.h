@@ -12,8 +12,8 @@ namespace tl
         {}
 
         constexpr Size::Size(
-            SizeType w,
-            SizeType h,
+            int w,
+            int h,
             float pixelAspectRatio) noexcept :
             w(w),
             h(h),
@@ -45,8 +45,8 @@ namespace tl
 
         inline bool Size::operator < (const Size& other) const noexcept
         {
-            const int widthScaled = static_cast<int>(static_cast<int>(w) * pixelAspectRatio);
-            const int otherWidthScaled = static_cast<int>(static_cast<int>(other.w) * other.pixelAspectRatio);
+            const int widthScaled = w * pixelAspectRatio;
+            const int otherWidthScaled = other.w * other.pixelAspectRatio;
             return
                 std::tie(widthScaled, h) <
                 std::tie(otherWidthScaled, other.h);
@@ -99,7 +99,7 @@ namespace tl
         inline Layout::Layout() noexcept
         {}
 
-        inline Layout::Layout(const Mirror& mirror, uint8_t alignment, memory::Endian endian) noexcept :
+        inline Layout::Layout(const Mirror& mirror, int alignment, memory::Endian endian) noexcept :
             mirror(mirror),
             alignment(alignment),
             endian(endian)
@@ -126,7 +126,7 @@ namespace tl
             pixelType(pixelType)
         {}
 
-        inline Info::Info(SizeType w, SizeType h, PixelType pixelType) :
+        inline Info::Info(int w, int h, PixelType pixelType) :
             size(w, h),
             pixelType(pixelType)
         {}
@@ -161,12 +161,12 @@ namespace tl
             return _info.size;
         }
 
-        inline SizeType Image::getWidth() const
+        inline int Image::getWidth() const
         {
             return _info.size.w;
         }
 
-        inline SizeType Image::getHeight() const
+        inline int Image::getHeight() const
         {
             return _info.size.h;
         }

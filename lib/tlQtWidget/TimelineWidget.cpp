@@ -283,7 +283,7 @@ namespace tl
             
             const float devicePixelRatio = window()->devicePixelRatio();
             p.eventLoop->setDisplayScale(devicePixelRatio);
-            p.eventLoop->setDisplaySize(image::Size(_toUI(w), _toUI(h)));
+            p.eventLoop->setDisplaySize(math::Size2i(_toUI(w), _toUI(h)));
             
             p.vao.reset();
             p.vbo.reset();
@@ -292,7 +292,7 @@ namespace tl
         void TimelineWidget::paintGL()
         {
             TLRENDER_P();
-            const image::Size renderSize(_toUI(width()), _toUI(height()));
+            const math::Size2i renderSize(_toUI(width()), _toUI(height()));
             if (p.eventLoop->hasDrawUpdate())
             {
                 try
@@ -647,7 +647,7 @@ namespace tl
             {
                 gl::OffscreenBufferOptions offscreenBufferOptions;
                 offscreenBufferOptions.colorType = image::PixelType::RGBA_U8;
-                out = gl::OffscreenBuffer::create(image::Size(value.w(), value.h()), offscreenBufferOptions);
+                out = gl::OffscreenBuffer::create(value.getSize(), offscreenBufferOptions);
                 glBindFramebuffer(GL_READ_FRAMEBUFFER, p.buffer->getID());
                 glBindFramebuffer(GL_DRAW_FRAMEBUFFER, out->getID());
                 glBlitFramebuffer(

@@ -7,6 +7,7 @@
 #include <tlTimeline/ImageOptions.h>
 
 #include <tlCore/Image.h>
+#include <tlCore/Size.h>
 
 namespace tl
 {
@@ -66,7 +67,7 @@ namespace tl
 
         protected:
             void _init(
-                const image::Size&,
+                const math::Size2i&,
                 const OffscreenBufferOptions&);
 
             OffscreenBuffer();
@@ -76,17 +77,17 @@ namespace tl
 
             //! Create a new offscreen buffer.
             static std::shared_ptr<OffscreenBuffer> create(
-                const image::Size&,
+                const math::Size2i&,
                 const OffscreenBufferOptions&);
 
             //! Get the offscreen buffer size.
-            const image::Size& getSize() const;
+            const math::Size2i& getSize() const;
 
             //! Get the offscreen buffer width.
-            image::SizeType getWidth() const;
+            int getWidth() const;
 
             //! Get the offscreen buffer height.
-            image::SizeType getHeight() const;
+            int getHeight() const;
 
             //! Get the options.
             const OffscreenBufferOptions& getOptions() const;
@@ -107,7 +108,7 @@ namespace tl
         //! Check whether the offscreen buffer should be created or re-created.
         bool doCreate(
             const std::shared_ptr<OffscreenBuffer>&,
-            const image::Size&,
+            const math::Size2i&,
             const OffscreenBufferOptions&);
 
         //! Offscreen buffer binding.

@@ -26,14 +26,14 @@ namespace tl
             static std::shared_ptr<GLRender> create(const std::shared_ptr<system::Context>&);
 
             void begin(
-                const image::Size&,
+                const math::Size2i&,
                 const ColorConfigOptions& = ColorConfigOptions(),
                 const LUTOptions& = LUTOptions(),
                 const RenderOptions& = RenderOptions()) override;
             void end() override;
 
-            image::Size getRenderSize() const override;
-            void setRenderSize(const image::Size&) override;
+            math::Size2i getRenderSize() const override;
+            void setRenderSize(const math::Size2i&) override;
             math::Box2i getViewport() const override;
             void setViewport(const math::Box2i&) override;
             void clearViewport(const image::Color4f&) override;

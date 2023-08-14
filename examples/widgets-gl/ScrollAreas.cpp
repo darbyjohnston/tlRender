@@ -22,7 +22,7 @@ namespace tl
                 math::Vector2i cellCount;
                 int cellSize = 0;
                 int margin = 0;
-                std::vector<math::Vector2i> textSize;
+                std::vector<math::Size2i> textSize;
                 std::vector<std::vector<std::shared_ptr<image::Glyph> > > glyphs;
             };
 
@@ -67,8 +67,8 @@ namespace tl
                     arg(ui::format(p.cellCount.x)).
                     arg(ui::format(p.cellCount.y));
                 const auto fontInfo = event.style->getFontRole(ui::FontRole::Label, event.displayScale);
-                const math::Vector2i textSize = event.fontSystem->getSize(format, fontInfo);
-                p.cellSize = textSize.x + p.margin * 2;
+                const math::Size2i textSize = event.fontSystem->getSize(format, fontInfo);
+                p.cellSize = textSize.w + p.margin * 2;
                 _sizeHint.x = p.cellCount.x * p.cellSize;
                 _sizeHint.y = p.cellCount.y * p.cellSize;
             }
@@ -129,7 +129,9 @@ namespace tl
                         }
                         event.render->drawText(
                             p.glyphs[i],
-                            g2.getCenter() - p.textSize[i] / 2 + math::Vector2i(0, fontMetrics.ascender),
+                            g2.getCenter() -
+                                math::Vector2i(p.textSize[i].w, p.textSize[i].h) / 2 +
+                                math::Vector2i(0, fontMetrics.ascender),
                             event.style->getColorRole(ui::ColorRole::Text));
                     }
                 }

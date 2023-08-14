@@ -234,7 +234,9 @@ namespace tl
                 intersect.end(),
                 [](const Intersect& a, const Intersect& b)
                 {
-                    return a.intersected.getArea() > b.intersected.getArea();
+                    return
+                        a.intersected.getSize().getArea() >
+                        b.intersected.getSize().getArea();
                 });
             math::Box2i g = intersect.front().intersected;
             p.menuWidget->setGeometry(g);

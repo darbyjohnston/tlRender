@@ -98,8 +98,7 @@ namespace tl
                     out.time = time;
                     out.image = image::Image::create(_info);
 
-                    const int channels = static_cast<int>(
-                        image::getChannelCount(_info.pixelType));
+                    const int channels = image::getChannelCount(_info.pixelType);
                     const size_t bytes = image::getBitDepth(_info.pixelType) / 8;
                     
                     stbi_set_flip_vertically_on_load(1);
