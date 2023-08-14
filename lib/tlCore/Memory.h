@@ -35,7 +35,7 @@ namespace tl
         TLRENDER_ENUM_SERIALIZE(Endian);
 
         //! Get the current machine's endian.
-        constexpr Endian getEndian();
+        Endian getEndian();
 
         //! Get the opposite of the given endian.
         constexpr Endian opposite(Endian);

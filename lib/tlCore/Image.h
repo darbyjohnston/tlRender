@@ -216,8 +216,8 @@ namespace tl
         class Layout
         {
         public:
-            constexpr Layout();
-            constexpr Layout(
+            Layout();
+            Layout(
                 const Mirror&  mirror,
                 int            alignment = 1,
                 memory::Endian endian    = memory::getEndian());

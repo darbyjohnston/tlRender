@@ -8,7 +8,7 @@ namespace tl
 {
     namespace memory
     {
-        constexpr Endian getEndian()
+        inline Endian getEndian()
         {
             const uint32_t tmp = 1;
             return *(reinterpret_cast<const uint8_t*>(&tmp)) ? Endian::LSB : Endian::MSB;

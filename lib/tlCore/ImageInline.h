@@ -96,10 +96,10 @@ namespace tl
             return !(other == *this);
         }
 
-        constexpr Layout::Layout()
+        inline Layout::Layout()
         {}
 
-        constexpr Layout::Layout(const Mirror& mirror, int alignment, memory::Endian endian) :
+        inline Layout::Layout(const Mirror& mirror, int alignment, memory::Endian endian) :
             mirror(mirror),
             alignment(alignment),
             endian(endian)
