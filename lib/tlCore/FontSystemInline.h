@@ -6,7 +6,7 @@ namespace tl
 {
     namespace image
     {
-        inline FontInfo::FontInfo() noexcept
+        inline FontInfo::FontInfo()
         {}
 
         inline FontInfo::FontInfo(const std::string& family, int size) :
@@ -14,12 +14,12 @@ namespace tl
             size(size)
         {}
 
-        inline bool FontInfo::operator == (const FontInfo & other) const noexcept
+        inline bool FontInfo::operator == (const FontInfo & other) const
         {
             return family == other.family && size == other.size;
         }
 
-        inline bool FontInfo::operator != (const FontInfo& other) const noexcept
+        inline bool FontInfo::operator != (const FontInfo& other) const
         {
             return !(*this == other);
         }
@@ -29,20 +29,20 @@ namespace tl
             return std::tie(family, size) < std::tie(other.family, other.size);
         }
 
-        inline GlyphInfo::GlyphInfo() noexcept
+        inline GlyphInfo::GlyphInfo()
         {}
 
-        inline GlyphInfo::GlyphInfo(uint32_t code, const FontInfo& fontInfo) noexcept :
+        inline GlyphInfo::GlyphInfo(uint32_t code, const FontInfo& fontInfo) :
             code(code),
             fontInfo(fontInfo)
         {}
 
-        inline bool GlyphInfo::operator == (const GlyphInfo & other) const noexcept
+        inline bool GlyphInfo::operator == (const GlyphInfo & other) const
         {
             return code == other.code && fontInfo == other.fontInfo;
         }
 
-        inline bool GlyphInfo::operator != (const GlyphInfo& other) const noexcept
+        inline bool GlyphInfo::operator != (const GlyphInfo& other) const
         {
             return !(*this == other);
         }

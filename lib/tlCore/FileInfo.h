@@ -42,19 +42,19 @@ namespace tl
             explicit FileInfo(const Path&);
 
             //! Get the path.
-            const Path& getPath() const noexcept;
+            const Path& getPath() const;
 
             //! Get the file type.
-            Type getType() const noexcept;
+            Type getType() const;
 
             //! Get the file size.
-            uint64_t getSize() const noexcept;
+            uint64_t getSize() const;
 
             //! Get the file permissions.
-            int getPermissions() const noexcept;
+            int getPermissions() const;
 
             //! Get the file last modification time.
-            time_t getTime() const noexcept;
+            time_t getTime() const;
 
         private:
             bool _stat(std::string* error);

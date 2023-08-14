@@ -15,18 +15,18 @@ namespace tl
         class Matrix3x3
         {
         public:
-            Matrix3x3() noexcept;
-            Matrix3x3(
+            constexpr Matrix3x3();
+            constexpr Matrix3x3(
                 T e0, T e1, T e2,
                 T e3, T e4, T e5,
-                T e6, T e7, T e8) noexcept;
+                T e6, T e7, T e8);
 
             T e[9];
 
-            bool operator == (const Matrix3x3<T>&) const;
-            bool operator != (const Matrix3x3<T>&) const;
+            constexpr bool operator == (const Matrix3x3<T>&) const;
+            constexpr bool operator != (const Matrix3x3<T>&) const;
 
-            Matrix3x3<T> operator * (const Matrix3x3<T>&) const;
+            inline Matrix3x3<T> operator * (const Matrix3x3<T>&) const;
         };
 
         //! 4x4 matrix.
@@ -34,17 +34,17 @@ namespace tl
         class Matrix4x4
         {
         public:
-            Matrix4x4() noexcept;
-            Matrix4x4(
+            constexpr Matrix4x4();
+            constexpr Matrix4x4(
                 T e0, T e1, T e2, T e3,
                 T e4, T e5, T e6, T e7,
                 T e8, T e9, T e10, T e11,
-                T e12, T e13, T e14, T e15) noexcept;
+                T e12, T e13, T e14, T e15);
 
             T e[16];
 
-            bool operator == (const Matrix4x4<T>&) const;
-            bool operator != (const Matrix4x4<T>&) const;
+            constexpr bool operator == (const Matrix4x4<T>&) const;
+            constexpr bool operator != (const Matrix4x4<T>&) const;
 
             Matrix4x4<T> operator * (const Matrix4x4<T>&) const;
         };
@@ -77,11 +77,11 @@ namespace tl
 
         //! Create an orthographic matrix.
         template<typename T>
-        Matrix4x4<T> ortho(T left, T right, T bottom, T top, T nearClip, T farClip);
+        constexpr Matrix4x4<T> ortho(T left, T right, T bottom, T top, T nearClip, T farClip);
 
         //! Create a perspective matrix.
         template<typename T>
-        Matrix4x4<T> perspective(T fov, T aspect, T nearClip, T farClip);
+        constexpr Matrix4x4<T> perspective(T fov, T aspect, T nearClip, T farClip);
 
         //! \name Serialize
         ///@{

@@ -9,71 +9,73 @@ namespace tl
     namespace math
     {
         template<>
-        inline Box2<int>::Box2() noexcept :
+        constexpr Box2<int>::Box2() :
             min(0, 0),
             max(0, 0)
         {}
 
         template<>
-        inline Box2<float>::Box2() noexcept :
+        constexpr Box2<float>::Box2() :
             min(0.F, 0.F),
             max(0.F, 0.F)
         {}
 
         template<typename T>
-        inline Box2<T>::Box2(const Vector2<T>& value) noexcept :
+        constexpr Box2<T>::Box2(const Vector2<T>& value) :
             min(value),
             max(value)
         {}
 
         template<typename T>
-        inline Box2<T>::Box2(const Vector2<T>& min, const Vector2<T>& max) noexcept :
+        constexpr Box2<T>::Box2(const Vector2<T>& min, const Vector2<T>& max) :
             min(min),
             max(max)
         {}
 
         template<>
-        inline Box2<int>::Box2(const Vector2<int>& pos, const Size2<int>& size) noexcept :
+        constexpr Box2<int>::Box2(const Vector2<int>& pos, const Size2<int>& size) :
             min(pos.x, pos.y),
             max(pos.x + size.w - 1, pos.y + size.h - 1)
         {}
 
         template<>
-        inline Box2<float>::Box2(const Vector2<float>& pos, const Size2<float>& size) noexcept :
+        constexpr Box2<float>::Box2(const Vector2<float>& pos, const Size2<float>& size) :
             min(pos.x, pos.y),
             max(pos.x + size.w, pos.y + size.h)
         {}
 
         template<>
-        inline Box2<int>::Box2(int x, int y, int w, int h) noexcept :
+        constexpr Box2<int>::Box2(int x, int y, int w, int h) :
             min(x, y),
             max(x + w - 1, y + h - 1)
         {}
 
         template<>
-        inline Box2<float>::Box2(float x, float y, float w, float h) noexcept :
+        constexpr Box2<float>::Box2(float x, float y, float w, float h) :
             min(x, y),
             max(x + w, y + h)
         {}
 
         template<typename T>
-        inline T Box2<T>::x() const noexcept { return min.x; }
+        constexpr T Box2<T>::x() const { return min.x; }
 
         template<typename T>
-        inline T Box2<T>::y() const noexcept { return min.y; }
+        constexpr T Box2<T>::y() const { return min.y; }
 
         template<>
-        inline float Box2<float>::w() const noexcept { return max.x - min.x; }
-        template<>
-        inline int Box2<int>::w() const noexcept { return max.x - min.x + 1; }
+        constexpr float Box2<float>::w() const { return max.x - min.x; }
 
         template<>
-        inline float Box2<float>::h() const noexcept { return max.y - min.y; }
+        constexpr int Box2<int>::w() const { return max.x - min.x + 1; }
+
         template<>
-        inline int Box2<int>::h() const noexcept { return max.y - min.y + 1; }
+        constexpr float Box2<float>::h() const { return max.y - min.y; }
+
+        template<>
+        constexpr int Box2<int>::h() const { return max.y - min.y + 1; }
 
         template<typename T>
-        constexpr bool Box2<T>::isValid() const noexcept
+        constexpr bool Box2<T>::isValid() const
         {
             return
                 min.x < max.x &&
@@ -81,31 +83,31 @@ namespace tl
         }
 
         template<>
-        inline void Box2<int>::zero() noexcept
+        inline void Box2<int>::zero()
         {
             min.x = min.y = max.x = max.y = 0;
         }
 
         template<>
-        inline void Box2<float>::zero() noexcept
+        inline void Box2<float>::zero()
         {
             min.x = min.y = max.x = max.y = 0.F;
         }
 
         template<>
-        inline Size2<int> Box2<int>::getSize() const noexcept
+        constexpr Size2<int> Box2<int>::getSize() const
         {
             return Size2<int>(max.x - min.x + 1, max.y - min.y + 1);
         }
 
         template<>
-        inline Size2<float> Box2<float>::getSize() const noexcept
+        constexpr Size2<float> Box2<float>::getSize() const
         {
             return Size2<float>(max.x - min.x, max.y - min.y);
         }
 
         template<>
-        inline Vector2<int> Box2<int>::getCenter() const noexcept
+        constexpr Vector2<int> Box2<int>::getCenter() const
         {
             return Vector2<int>(
                 min.x + static_cast<int>((max.x - min.x + 1) / 2.F),
@@ -113,7 +115,7 @@ namespace tl
         }
 
         template<>
-        inline Vector2<float> Box2<float>::getCenter() const noexcept
+        constexpr Vector2<float> Box2<float>::getCenter() const
         {
             return Vector2<float>(
                 min.x + (max.x - min.x) / 2.F,
@@ -121,7 +123,7 @@ namespace tl
         }
 
         template<>
-        inline bool Box2<int>::contains(const Box2<int>& value) const noexcept
+        constexpr bool Box2<int>::contains(const Box2<int>& value) const
         {
             return
                 value.min.x >= min.x && value.max.x <= max.x &&
@@ -129,7 +131,7 @@ namespace tl
         }
 
         template<>
-        inline bool Box2<float>::contains(const Box2<float>& value) const noexcept
+        constexpr bool Box2<float>::contains(const Box2<float>& value) const
         {
             return
                 value.min.x >= min.x && value.max.x <= max.x &&
@@ -137,7 +139,7 @@ namespace tl
         }
 
         template<>
-        inline bool Box2<int>::contains(const Vector2<int>& value) const noexcept
+        constexpr bool Box2<int>::contains(const Vector2<int>& value) const
         {
             return
                 value.x >= min.x && value.x < max.x&&
@@ -145,7 +147,7 @@ namespace tl
         }
 
         template<>
-        inline bool Box2<float>::contains(const Vector2<float>& value) const noexcept
+        constexpr bool Box2<float>::contains(const Vector2<float>& value) const
         {
             return
                 value.x >= min.x && value.x <= max.x &&
@@ -153,7 +155,7 @@ namespace tl
         }
 
         template<>
-        inline bool Box2<int>::intersects(const Box2<int>& value) const noexcept
+        constexpr bool Box2<int>::intersects(const Box2<int>& value) const
         {
             return !(
                 value.max.x < min.x ||
@@ -163,7 +165,7 @@ namespace tl
         }
 
         template<>
-        inline bool Box2<float>::intersects(const Box2<float>& value) const noexcept
+        constexpr bool Box2<float>::intersects(const Box2<float>& value) const
         {
             return !(
                 value.max.x < min.x ||
@@ -173,7 +175,7 @@ namespace tl
         }
 
         template<typename T>
-        inline Box2<T> Box2<T>::intersect(const Box2<T>& value) const
+        constexpr Box2<T> Box2<T>::intersect(const Box2<T>& value) const
         {
             Box2<T> out;
             out.min.x = std::max(min.x, value.min.x);
@@ -202,7 +204,7 @@ namespace tl
         }
 
         template<typename T>
-        constexpr Box2<T> Box2<T>::margin(const Vector2<T>& value) const noexcept
+        constexpr Box2<T> Box2<T>::margin(const Vector2<T>& value) const
         {
             return Box2<T>(
                 Vector2<T>(min.x - value.x, min.y - value.y),
@@ -210,7 +212,7 @@ namespace tl
         }
 
         template<typename T>
-        constexpr Box2<T> Box2<T>::margin(T value) const noexcept
+        constexpr Box2<T> Box2<T>::margin(T value) const
         {
             return Box2<T>(
                 Vector2<T>(min.x - value, min.y - value),
@@ -218,7 +220,7 @@ namespace tl
         }
 
         template<typename T>
-        constexpr Box2<T> Box2<T>::margin(T x0, T y0, T x1, T y1) const noexcept
+        constexpr Box2<T> Box2<T>::margin(T x0, T y0, T x1, T y1) const
         {
             return Box2<T>(
                 Vector2<T>(min.x - x0, min.y - y0),
@@ -226,13 +228,13 @@ namespace tl
         }
 
         template<typename T>
-        constexpr bool Box2<T>::operator == (const Box2<T>& value) const noexcept
+        constexpr bool Box2<T>::operator == (const Box2<T>& value) const
         {
             return min == value.min && max == value.max;
         }
 
         template<typename T>
-        constexpr bool Box2<T>::operator != (const Box2<T>& value) const noexcept
+        constexpr bool Box2<T>::operator != (const Box2<T>& value) const
         {
             return !(*this == value);
         }

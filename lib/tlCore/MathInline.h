@@ -10,12 +10,12 @@ namespace tl
 {
     namespace math
     {
-        constexpr float deg2rad(float value) noexcept
+        constexpr float deg2rad(float value)
         {
             return value / 360.F * pi2;
         }
 
-        constexpr float rad2deg(float value) noexcept
+        constexpr float rad2deg(float value)
         {
             return value / pi2 * 360.F;
         }
@@ -27,22 +27,22 @@ namespace tl
         }
 
         template<class T, class U>
-        constexpr T lerp(U value, T min, T max) noexcept
+        constexpr T lerp(U value, T min, T max)
         {
             return min + T(value * (max - min));
         }
 
-        constexpr float smoothStep(float value, float min, float max) noexcept
+        constexpr float smoothStep(float value, float min, float max)
         {
             return lerp(value * value * (3.F - (2.F * value)), min, max);
         }
 
-        constexpr double smoothStep(double value, double min, double max) noexcept
+        constexpr double smoothStep(double value, double min, double max)
         {
             return lerp(value * value * (3. - (2. * value)), min, max);
         }
 
-        inline size_t digits(int value) noexcept
+        inline size_t digits(int value)
         {
             size_t out = 0;
             if (value != 0)
@@ -65,12 +65,12 @@ namespace tl
             return out;
         }
 
-        inline bool fuzzyCompare(double a, double b, double e) noexcept
+        inline bool fuzzyCompare(double a, double b, double e)
         {
             return fabs(a - b) < e;
         }
 
-        inline bool fuzzyCompare(float a, float b, float e) noexcept
+        inline bool fuzzyCompare(float a, float b, float e)
         {
             return fabsf(a - b) < e;
         }

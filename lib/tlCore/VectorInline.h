@@ -9,39 +9,39 @@ namespace tl
     namespace math
     {
         template<>
-        inline Vector2<int>::Vector2() noexcept :
+        constexpr Vector2<int>::Vector2() :
             x(0),
             y(0)
         {}
 
         template<>
-        inline Vector2<float>::Vector2() noexcept :
+        constexpr Vector2<float>::Vector2() :
             x(0.F),
             y(0.F)
         {}
 
         template<typename T>
-        inline Vector2<T>::Vector2(T x, T y) noexcept :
+        constexpr Vector2<T>::Vector2(T x, T y) :
             x(x),
             y(y)
         {}
 
         template<>
-        inline Vector3<float>::Vector3() noexcept :
+        constexpr Vector3<float>::Vector3() :
             x(0.F),
             y(0.F),
             z(0.F)
         {}
 
         template<typename T>
-        inline Vector3<T>::Vector3(T x, T y, T z) noexcept :
+        constexpr Vector3<T>::Vector3(T x, T y, T z) :
             x(x),
             y(y),
             z(z)
         {}
 
         template<>
-        inline Vector4<float>::Vector4() noexcept :
+        constexpr Vector4<float>::Vector4() :
             x(0.F),
             y(0.F),
             z(0.F),
@@ -49,7 +49,7 @@ namespace tl
         {}
 
         template<typename T>
-        inline Vector4<T>::Vector4(T x, T y, T z, T w) noexcept :
+        constexpr Vector4<T>::Vector4(T x, T y, T z, T w) :
             x(x),
             y(y),
             z(z),
@@ -57,37 +57,37 @@ namespace tl
         {}
 
         template<typename T>
-        inline bool Vector2<T>::operator == (const Vector2<T>& other) const
+        constexpr bool Vector2<T>::operator == (const Vector2<T>& other) const
         {
             return x == other.x && y == other.y;
         }
 
         template<typename T>
-        inline bool Vector2<T>::operator != (const Vector2<T>& other) const
+        constexpr bool Vector2<T>::operator != (const Vector2<T>& other) const
         {
             return !(*this == other);
         }
 
         template<typename T>
-        inline bool Vector3<T>::operator == (const Vector3<T>& other) const
+        constexpr bool Vector3<T>::operator == (const Vector3<T>& other) const
         {
             return x == other.x && y == other.y && z == other.z;
         }
 
         template<typename T>
-        inline bool Vector3<T>::operator != (const Vector3<T>& other) const
+        constexpr bool Vector3<T>::operator != (const Vector3<T>& other) const
         {
             return !(*this == other);
         }
 
         template<typename T>
-        inline bool Vector4<T>::operator == (const Vector4<T>& other) const
+        constexpr bool Vector4<T>::operator == (const Vector4<T>& other) const
         {
             return x == other.x && y == other.y && z == other.z && w == other.w;
         }
 
         template<typename T>
-        inline bool Vector4<T>::operator != (const Vector4<T>& other) const
+        constexpr bool Vector4<T>::operator != (const Vector4<T>& other) const
         {
             return !(*this == other);
         }

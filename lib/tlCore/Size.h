@@ -17,24 +17,24 @@ namespace tl
         class Size2
         {
         public:
-            constexpr Size2() noexcept;
-            constexpr Size2(T w, T h) noexcept;
+            constexpr Size2();
+            constexpr Size2(T w, T h);
 
             T w;
             T h;
 
             //! Is the size valid?
-            constexpr bool isValid() const noexcept;
+            constexpr bool isValid() const;
 
             //! Get the area.
-            constexpr float getArea() const noexcept;
+            constexpr float getArea() const;
 
             //! Get the aspect ratio.
-            constexpr float getAspect() const noexcept;
+            constexpr float getAspect() const;
 
-            constexpr bool operator == (const Size2&) const noexcept;
-            constexpr bool operator != (const Size2&) const noexcept;
-            bool operator < (const Size2&) const noexcept;
+            constexpr bool operator == (const Size2&) const;
+            constexpr bool operator != (const Size2&) const;
+            bool operator < (const Size2&) const;
         };
 
         //! Two-dimensional integer size.

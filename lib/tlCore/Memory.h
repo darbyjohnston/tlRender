@@ -35,23 +35,23 @@ namespace tl
         TLRENDER_ENUM_SERIALIZE(Endian);
 
         //! Get the current machine's endian.
-        Endian getEndian() noexcept;
+        constexpr Endian getEndian();
 
         //! Get the opposite of the given endian.
-        constexpr Endian opposite(Endian) noexcept;
+        constexpr Endian opposite(Endian);
 
         //! Convert the endianness of a block of memory in place.
         void endian(
             void* in,
             size_t size,
-            size_t wordSize) noexcept;
+            size_t wordSize);
 
         //! Convert the endianness of a block of memory.
         void endian(
             const void* in,
             void* out,
             size_t      size,
-            size_t      wordSize) noexcept;
+            size_t      wordSize);
     }
 }
 

@@ -16,10 +16,10 @@ namespace tl
         constexpr float pi2 = pi * 2.F;
 
         //! Convert degress to radians.
-        constexpr float deg2rad(float) noexcept;
+        constexpr float deg2rad(float);
 
         //! Convert radians to degress.
-        constexpr float rad2deg(float) noexcept;
+        constexpr float rad2deg(float);
 
         //! Clamp a value.
         template<typename T>
@@ -27,20 +27,20 @@ namespace tl
 
         //! Linear interpolation.
         template<typename T, typename U>
-        constexpr T lerp(U value, T min, T max) noexcept;
+        constexpr T lerp(U value, T min, T max);
 
         //! Smooth step function.
         template<typename T>
-        constexpr T smoothStep(T value, T min, T max) noexcept;
+        constexpr T smoothStep(T value, T min, T max);
 
         //! Count the number of digits.
-        size_t digits(int) noexcept;
+        size_t digits(int);
 
         //! Fuzzy double comparison.
-        bool fuzzyCompare(double a, double b, double e = .1e-9) noexcept;
+        bool fuzzyCompare(double a, double b, double e = .1e-9);
 
         //! Fuzzy float comparison.
-        bool fuzzyCompare(float a, float b, float e = .1e-6F) noexcept;
+        bool fuzzyCompare(float a, float b, float e = .1e-6F);
     }
 }
 

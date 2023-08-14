@@ -9,13 +9,13 @@ namespace tl
     namespace math
     {
         template<typename T>
-        constexpr Range<T>::Range() noexcept :
+        constexpr Range<T>::Range() :
             _min(static_cast<T>(0)),
             _max(static_cast<T>(0))
         {}
 
         template<typename T>
-        constexpr Range<T>::Range(T minMax) noexcept :
+        constexpr Range<T>::Range(T minMax) :
             _min(minMax),
             _max(minMax)
         {}
@@ -31,43 +31,43 @@ namespace tl
         {}
 
         template<typename T>
-        constexpr T Range<T>::getMin() const noexcept
+        constexpr T Range<T>::getMin() const
         {
             return _min;
         }
 
         template<typename T>
-        constexpr T Range<T>::getMax() const noexcept
+        constexpr T Range<T>::getMax() const
         {
             return _max;
         }
 
         template<>
-        inline void Range<int>::zero() noexcept
+        inline void Range<int>::zero()
         {
             _min = _max = 0;
         }
 
         template<>
-        inline void Range<std::size_t>::zero() noexcept
+        inline void Range<std::size_t>::zero()
         {
             _min = _max = std::size_t(0);
         }
 
         template<>
-        inline void Range<float>::zero() noexcept
+        inline void Range<float>::zero()
         {
             _min = _max = 0.F;
         }
 
         template<typename T>
-        constexpr bool Range<T>::contains(T value) const noexcept
+        constexpr bool Range<T>::contains(T value) const
         {
             return value >= _min && value <= _max;
         }
 
         template<typename T>
-        constexpr bool Range<T>::intersects(const Range<T>& value) const noexcept
+        constexpr bool Range<T>::intersects(const Range<T>& value) const
         {
             return !(
                 value._max < _min ||

@@ -8,29 +8,29 @@ namespace tl
 {
     namespace image
     {
-        constexpr Size::Size() noexcept
+        constexpr Size::Size()
         {}
 
         constexpr Size::Size(
             int w,
             int h,
-            float pixelAspectRatio) noexcept :
+            float pixelAspectRatio) :
             w(w),
             h(h),
             pixelAspectRatio(pixelAspectRatio)
         {}
 
-        constexpr bool Size::isValid() const noexcept
+        constexpr bool Size::isValid() const
         {
             return w > 0 && h > 0;
         }
 
-        constexpr float Size::getAspect() const noexcept
+        constexpr float Size::getAspect() const
         {
             return h > 0 ? (w / static_cast<float>(h) * pixelAspectRatio) : 0;
         }
 
-        constexpr bool Size::operator == (const Size& other) const noexcept
+        constexpr bool Size::operator == (const Size& other) const
         {
             return
                 w == other.w &&
@@ -38,12 +38,12 @@ namespace tl
                 pixelAspectRatio == other.pixelAspectRatio;
         }
 
-        constexpr bool Size::operator != (const Size& other) const noexcept
+        constexpr bool Size::operator != (const Size& other) const
         {
             return !(*this == other);
         }
 
-        inline bool Size::operator < (const Size& other) const noexcept
+        inline bool Size::operator < (const Size& other) const
         {
             const int widthScaled = w * pixelAspectRatio;
             const int otherWidthScaled = other.w * other.pixelAspectRatio;
@@ -52,7 +52,7 @@ namespace tl
                 std::tie(otherWidthScaled, other.h);
         }
 
-        constexpr bool U10_MSB::operator == (const U10_MSB& value) const noexcept
+        constexpr bool U10_MSB::operator == (const U10_MSB& value) const
         {
             return
                 value.r == r &&
@@ -60,12 +60,12 @@ namespace tl
                 value.b == b;
         }
 
-        constexpr bool U10_MSB::operator != (const U10_MSB& value) const noexcept
+        constexpr bool U10_MSB::operator != (const U10_MSB& value) const
         {
             return !(*this == value);
         }
 
-        constexpr bool U10_LSB::operator == (const U10_LSB& value) const noexcept
+        constexpr bool U10_LSB::operator == (const U10_LSB& value) const
         {
             return
                 value.r == r &&
@@ -73,39 +73,39 @@ namespace tl
                 value.b == b;
         }
 
-        constexpr bool U10_LSB::operator != (const U10_LSB& value) const noexcept
+        constexpr bool U10_LSB::operator != (const U10_LSB& value) const
         {
             return !(*this == value);
         }
 
-        constexpr Mirror::Mirror() noexcept
+        constexpr Mirror::Mirror()
         {}
 
-        constexpr Mirror::Mirror(bool x, bool y) noexcept :
+        constexpr Mirror::Mirror(bool x, bool y) :
             x(x),
             y(y)
         {}
 
-        constexpr bool Mirror::operator == (const Mirror& other) const noexcept
+        constexpr bool Mirror::operator == (const Mirror& other) const
         {
             return other.x == x && other.y == y;
         }
 
-        constexpr bool Mirror::operator != (const Mirror& other) const noexcept
+        constexpr bool Mirror::operator != (const Mirror& other) const
         {
             return !(other == *this);
         }
 
-        inline Layout::Layout() noexcept
+        constexpr Layout::Layout()
         {}
 
-        inline Layout::Layout(const Mirror& mirror, int alignment, memory::Endian endian) noexcept :
+        constexpr Layout::Layout(const Mirror& mirror, int alignment, memory::Endian endian) :
             mirror(mirror),
             alignment(alignment),
             endian(endian)
         {}
 
-        inline bool Layout::operator == (const Layout & other) const noexcept
+        constexpr bool Layout::operator == (const Layout & other) const
         {
             return
                 other.mirror == mirror &&
@@ -113,7 +113,7 @@ namespace tl
                 other.endian == endian;
         }
 
-        inline bool Layout::operator != (const Layout & other) const noexcept
+        constexpr bool Layout::operator != (const Layout & other) const
         {
             return !(other == *this);
         }

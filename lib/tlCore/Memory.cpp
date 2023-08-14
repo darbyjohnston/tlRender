@@ -22,9 +22,9 @@ namespace tl
         TLRENDER_ENUM_SERIALIZE_IMPL(Endian);
 
         void endian(
-            void* in,
+            void*  in,
             size_t size,
-            size_t wordSize) noexcept
+            size_t wordSize)
         {
             uint8_t* p = reinterpret_cast<uint8_t*>(in);
             uint8_t tmp;
@@ -33,39 +33,42 @@ namespace tl
             case 2:
                 while (size--)
                 {
-                    tmp = p[0];
+                    tmp  = p[0];
                     p[0] = p[1];
                     p[1] = tmp;
+
                     p += 2;
                 }
                 break;
             case 4:
                 while (size--)
                 {
-                    tmp = p[0];
+                    tmp  = p[0];
                     p[0] = p[3];
                     p[3] = tmp;
-                    tmp = p[1];
+                    tmp  = p[1];
                     p[1] = p[2];
                     p[2] = tmp;
+
                     p += 4;
                 }
                 break;
             case 8:
                 while (size--)
                 {
-                    tmp = p[0];
+                    tmp  = p[0];
                     p[0] = p[7];
                     p[7] = tmp;
-                    tmp = p[1];
+                    tmp  = p[1];
                     p[1] = p[6];
                     p[6] = tmp;
-                    tmp = p[2];
+                    tmp  = p[2];
                     p[2] = p[5];
                     p[5] = tmp;
-                    tmp = p[3];
+                    tmp  = p[3];
                     p[3] = p[4];
                     p[4] = tmp;
+
                     p += 8;
                 }
                 break;
@@ -75,9 +78,9 @@ namespace tl
 
         void endian(
             const void* in,
-            void* out,
+            void*       out,
             size_t      size,
-            size_t      wordSize) noexcept
+            size_t      wordSize)
         {
             const uint8_t* inP = reinterpret_cast<const uint8_t*>(in);
             uint8_t* outP = reinterpret_cast<uint8_t*>(out);

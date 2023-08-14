@@ -56,43 +56,43 @@ namespace tl
         const math::Range<F64_T> F64Range(-1.F, 1.F);
 
         //! Get the byte count for the given data type.
-        size_t getByteCount(DataType) noexcept;
+        size_t getByteCount(DataType);
 
         //! Determine the integer data type for a given byte count.
-        DataType getIntType(uint8_t) noexcept;
+        DataType getIntType(size_t);
 
         //! Determine the floating point data type for a given byte count.
-        DataType getFloatType(uint8_t) noexcept;
+        DataType getFloatType(size_t);
 
         ///@}
 
         //! \name Audio Type Conversion
         ///@{
 
-        void S8ToS16(S8_T, S16_T&) noexcept;
-        void S8ToS32(S8_T, S32_T&) noexcept;
-        void S8ToF32(S8_T, F32_T&) noexcept;
-        void S8ToF64(S8_T, F64_T&) noexcept;
+        void S8ToS16(S8_T, S16_T&);
+        void S8ToS32(S8_T, S32_T&);
+        void S8ToF32(S8_T, F32_T&);
+        void S8ToF64(S8_T, F64_T&);
 
-        void S16ToS8(S16_T, S8_T&) noexcept;
-        void S16ToS32(S16_T, S32_T&) noexcept;
-        void S16ToF32(S16_T, F32_T&) noexcept;
-        void S16ToF64(S16_T, F64_T&) noexcept;
+        void S16ToS8(S16_T, S8_T&);
+        void S16ToS32(S16_T, S32_T&);
+        void S16ToF32(S16_T, F32_T&);
+        void S16ToF64(S16_T, F64_T&);
 
-        void S32ToS8(S32_T, S8_T&) noexcept;
-        void S32ToS16(S32_T, S16_T&) noexcept;
-        void S32ToF32(S32_T, F32_T&) noexcept;
-        void S32ToF64(S32_T, F64_T&) noexcept;
+        void S32ToS8(S32_T, S8_T&);
+        void S32ToS16(S32_T, S16_T&);
+        void S32ToF32(S32_T, F32_T&);
+        void S32ToF64(S32_T, F64_T&);
 
-        void F32ToS8(F32_T, S8_T&) noexcept;
-        void F32ToS16(F32_T, S16_T&) noexcept;
-        void F32ToS32(F32_T, S32_T&) noexcept;
-        void F32ToF64(F32_T, F64_T&) noexcept;
+        void F32ToS8(F32_T, S8_T&);
+        void F32ToS16(F32_T, S16_T&);
+        void F32ToS32(F32_T, S32_T&);
+        void F32ToF64(F32_T, F64_T&);
 
-        void F64ToS8(F64_T, S8_T&) noexcept;
-        void F64ToS16(F64_T, S16_T&) noexcept;
-        void F64ToS32(F64_T, S32_T&) noexcept;
-        void F64ToF32(F64_T, F32_T&) noexcept;
+        void F64ToS8(F64_T, S8_T&);
+        void F64ToS16(F64_T, S16_T&);
+        void F64ToS32(F64_T, S32_T&);
+        void F64ToF32(F64_T, F32_T&);
 
         ///@}
 
@@ -102,14 +102,14 @@ namespace tl
         public:
             Info();
             Info(
-                uint8_t  channelCount,
+                size_t   channelCount,
                 DataType dataType,
                 size_t   sampleRate);
 
-            std::string name = "Default";
-            uint8_t     channelCount = 0;
-            DataType    dataType = DataType::None;
-            size_t      sampleRate = 0;
+            std::string name         = "Default";
+            size_t      channelCount = 0;
+            DataType    dataType     = DataType::None;
+            size_t      sampleRate   = 0;
 
             //! Is the audio valid?
             bool isValid() const;
@@ -143,7 +143,7 @@ namespace tl
             const Info& getInfo() const;
 
             //! Get the audio channel count.
-            uint8_t getChannelCount() const;
+            size_t getChannelCount() const;
 
             //! Get the audio data type.
             DataType getDataType() const;
@@ -185,7 +185,7 @@ namespace tl
             uint8_t*        out,
             float           volume,
             size_t          sampleCount,
-            uint8_t         channelCount,
+            size_t          channelCount,
             DataType        dataType);
 
         //! Convert audio data.
@@ -198,9 +198,9 @@ namespace tl
         template<typename T>
         void planarInterleave(
             const T** in,
-            T* out,
-            uint8_t channelCount,
-            size_t sampleCount);
+            T*        out,
+            size_t    channelCount,
+            size_t    sampleCount);
 
         //! De-interleave audio data.
         std::shared_ptr<Audio> planarDeinterleave(const std::shared_ptr<Audio>&);

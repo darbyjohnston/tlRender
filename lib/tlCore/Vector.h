@@ -17,14 +17,14 @@ namespace tl
         class Vector2
         {
         public:
-            Vector2() noexcept;
-            Vector2(T x, T y) noexcept;
+            constexpr Vector2();
+            constexpr Vector2(T x, T y);
 
             T x;
             T y;
 
-            bool operator == (const Vector2<T>&) const;
-            bool operator != (const Vector2<T>&) const;
+            constexpr bool operator == (const Vector2<T>&) const;
+            constexpr bool operator != (const Vector2<T>&) const;
         };
 
         //! Three-dimensional vector.
@@ -32,15 +32,15 @@ namespace tl
         class Vector3
         {
         public:
-            Vector3() noexcept;
-            Vector3(T x, T y, T z) noexcept;
+            constexpr Vector3();
+            constexpr Vector3(T x, T y, T z);
 
             T x;
             T y;
             T z;
 
-            bool operator == (const Vector3<T>&) const;
-            bool operator != (const Vector3<T>&) const;
+            constexpr bool operator == (const Vector3<T>&) const;
+            constexpr bool operator != (const Vector3<T>&) const;
         };
 
         //! Four-dimensional vector.
@@ -48,16 +48,16 @@ namespace tl
         class Vector4
         {
         public:
-            Vector4() noexcept;
-            Vector4(T x, T y, T z, T w) noexcept;
+            constexpr Vector4();
+            constexpr Vector4(T x, T y, T z, T w);
 
             T x;
             T y;
             T z;
             T w;
 
-            bool operator == (const Vector4<T>&) const;
-            bool operator != (const Vector4<T>&) const;
+            constexpr bool operator == (const Vector4<T>&) const;
+            constexpr bool operator != (const Vector4<T>&) const;
         };
 
         //! Two-dimensional integer vector.

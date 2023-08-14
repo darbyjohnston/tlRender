@@ -16,11 +16,11 @@ namespace tl
         class Box2
         {
         public:
-            Box2() noexcept;
-            explicit Box2(const Vector2<T>&) noexcept;
-            Box2(const Vector2<T>& min, const Vector2<T>& max) noexcept;
-            Box2(const Vector2<T>&, const Size2<T>&) noexcept;
-            Box2(T x, T y, T w, T h) noexcept;
+            constexpr Box2();
+            constexpr explicit Box2(const Vector2<T>&);
+            constexpr Box2(const Vector2<T>& min, const Vector2<T>& max);
+            constexpr Box2(const Vector2<T>&, const Size2<T>&);
+            constexpr Box2(T x, T y, T w, T h);
 
             Vector2<T> min;
             Vector2<T> max;
@@ -28,33 +28,33 @@ namespace tl
             //! \name Components
             ///@{
 
-            T x() const noexcept;
-            T y() const noexcept;
-            T w() const noexcept;
-            T h() const noexcept;
+            constexpr T x() const;
+            constexpr T y() const;
+            constexpr T w() const;
+            constexpr T h() const;
 
-            constexpr bool isValid() const noexcept;
+            constexpr bool isValid() const;
 
-            void zero() noexcept;
+            void zero();
 
             ///@}
 
             //! \name Dimensions
             ///@{
 
-            Size2<T> getSize() const noexcept;
-            Vector2<T> getCenter() const noexcept;
+            constexpr Size2<T> getSize() const;
+            constexpr Vector2<T> getCenter() const;
 
             ///@}
 
             //! \name Intersections
             ///@{
 
-            bool contains(const Box2<T>&) const noexcept;
-            bool contains(const Vector2<T>&) const noexcept;
+            constexpr bool contains(const Box2<T>&) const;
+            constexpr bool contains(const Vector2<T>&) const;
 
-            bool intersects(const Box2<T>&) const noexcept;
-            Box2<T> intersect(const Box2<T>&) const;
+            constexpr bool intersects(const Box2<T>&) const;
+            constexpr Box2<T> intersect(const Box2<T>&) const;
 
             ///@}
 
@@ -69,14 +69,14 @@ namespace tl
             //! \name Margin
             ///@{
 
-            constexpr Box2<T> margin(const Vector2<T>&) const noexcept;
-            constexpr Box2<T> margin(T) const noexcept;
-            constexpr Box2<T> margin(T x0, T y0, T x1, T y1) const noexcept;
+            constexpr Box2<T> margin(const Vector2<T>&) const;
+            constexpr Box2<T> margin(T) const;
+            constexpr Box2<T> margin(T x0, T y0, T x1, T y1) const;
 
             ///@}
 
-            constexpr bool operator == (const Box2<T>&) const noexcept;
-            constexpr bool operator != (const Box2<T>&) const noexcept;
+            constexpr bool operator == (const Box2<T>&) const;
+            constexpr bool operator != (const Box2<T>&) const;
         };
 
         //! Two-dimensional axis aligned integer box.

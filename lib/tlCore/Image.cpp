@@ -17,7 +17,7 @@ namespace tl
 {
     namespace image
     {
-        math::Box2i getBox(float aspect, const math::Box2i& box) noexcept
+        math::Box2i getBox(float aspect, const math::Box2i& box)
         {
             math::Box2i out;
             const math::Size2i boxSize = box.getSize();
@@ -85,7 +85,7 @@ namespace tl
             "BT2020");
         TLRENDER_ENUM_SERIALIZE_IMPL(YUVCoefficients);
 
-        math::Vector4f getYUVCoefficients(YUVCoefficients value) noexcept
+        math::Vector4f getYUVCoefficients(YUVCoefficients value)
         {
             const std::array<math::Vector4f, static_cast<size_t>(YUVCoefficients::Count)> data =
             {
@@ -101,7 +101,7 @@ namespace tl
             "LegalRange");
         TLRENDER_ENUM_SERIALIZE_IMPL(VideoLevels);
 
-        int getChannelCount(PixelType value) noexcept
+        int getChannelCount(PixelType value)
         {
             const std::array<int, static_cast<size_t>(PixelType::Count)> values =
             {
@@ -116,7 +116,7 @@ namespace tl
             return values[static_cast<size_t>(value)];
         }
 
-        int getBitDepth(PixelType value) noexcept
+        int getBitDepth(PixelType value)
         {
             const std::array<int, static_cast<size_t>(PixelType::Count)> values =
             {
@@ -131,7 +131,7 @@ namespace tl
             return values[static_cast<size_t>(value)];
         }
 
-        PixelType getIntType(std::size_t channelCount, std::size_t bitDepth) noexcept
+        PixelType getIntType(std::size_t channelCount, std::size_t bitDepth)
         {
             PixelType out = PixelType::None;
             switch (channelCount)
@@ -173,7 +173,7 @@ namespace tl
             return out;
         }
 
-        PixelType getFloatType(std::size_t channelCount, std::size_t bitDepth) noexcept
+        PixelType getFloatType(std::size_t channelCount, std::size_t bitDepth)
         {
             PixelType out = PixelType::None;
             switch (channelCount)

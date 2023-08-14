@@ -22,14 +22,14 @@ namespace tl
         //! Font information.
         struct FontInfo
         {
-            FontInfo() noexcept;
+            FontInfo();
             FontInfo(const std::string& family, int size);
 
             std::string family = "NotoSans-Regular";
             int         size   = 12;
 
-            bool operator == (const FontInfo&) const noexcept;
-            bool operator != (const FontInfo&) const noexcept;
+            bool operator == (const FontInfo&) const;
+            bool operator != (const FontInfo&) const;
             bool operator < (const FontInfo&) const;
         };
 
@@ -44,14 +44,14 @@ namespace tl
         //! Font glyph information.
         struct GlyphInfo
         {
-            GlyphInfo() noexcept;
-            GlyphInfo(uint32_t code, const FontInfo&) noexcept;
+            GlyphInfo();
+            GlyphInfo(uint32_t code, const FontInfo&);
 
             uint32_t code     = 0;
             FontInfo fontInfo;
 
-            bool operator == (const GlyphInfo&) const noexcept;
-            bool operator != (const GlyphInfo&) const noexcept;
+            bool operator == (const GlyphInfo&) const;
+            bool operator != (const GlyphInfo&) const;
             bool operator < (const GlyphInfo&) const;
         };
 

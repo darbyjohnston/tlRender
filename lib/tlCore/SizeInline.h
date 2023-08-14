@@ -7,55 +7,55 @@ namespace tl
     namespace math
     {
         template<>
-        constexpr Size2<int>::Size2() noexcept :
+        constexpr Size2<int>::Size2() :
             w(0),
             h(0)
         {}
 
         template<>
-        constexpr Size2<float>::Size2() noexcept :
+        constexpr Size2<float>::Size2() :
             w(0.F),
             h(0.F)
         {}
 
         template<typename T>
-        constexpr Size2<T>::Size2(T w, T h) noexcept :
+        constexpr Size2<T>::Size2(T w, T h) :
             w(w),
             h(h)
         {}
 
         template<typename T>
-        constexpr bool Size2<T>::isValid() const noexcept
+        constexpr bool Size2<T>::isValid() const
         {
             return w > T(0) && h > T(0);
         }
 
         template<typename T>
-        constexpr float Size2<T>::getArea() const noexcept
+        constexpr float Size2<T>::getArea() const
         {
             return w * h;
         }
 
         template<typename T>
-        constexpr float Size2<T>::getAspect() const noexcept
+        constexpr float Size2<T>::getAspect() const
         {
             return h > T(0) ? (w / static_cast<float>(h)) : 0.F;
         }
 
         template<typename T>
-        constexpr bool Size2<T>::operator == (const Size2<T>& other) const noexcept
+        constexpr bool Size2<T>::operator == (const Size2<T>& other) const
         {
             return w == other.w && h == other.h;
         }
 
         template<typename T>
-        constexpr bool Size2<T>::operator != (const Size2<T>& other) const noexcept
+        constexpr bool Size2<T>::operator != (const Size2<T>& other) const
         {
             return !(*this == other);
         }
 
         template<typename T>
-        inline bool Size2<T>::operator < (const Size2<T>& other) const noexcept
+        inline bool Size2<T>::operator < (const Size2<T>& other) const
         {
             return std::tie(w, h) < std::tie(other.w, other.h);
         }

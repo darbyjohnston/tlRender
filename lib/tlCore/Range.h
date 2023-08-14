@@ -18,25 +18,25 @@ namespace tl
         class Range
         {
         public:
-            constexpr Range() noexcept;
-            explicit constexpr Range(T minMax) noexcept;
+            constexpr Range();
+            explicit constexpr Range(T minMax);
             constexpr Range(T min, T max);
             ~Range();
 
             //! Get the minimum value.
-            constexpr T getMin() const noexcept;
+            constexpr T getMin() const;
 
             //! Get the maximum value.
-            constexpr T getMax() const noexcept;
+            constexpr T getMax() const;
 
             //! Set the range minimum and maximum to zero.
-            void zero() noexcept;
+            void zero();
 
             //! Does the range contain the given number?
-            constexpr bool contains(T) const noexcept;
+            constexpr bool contains(T) const;
 
             //! Does the range interset the given range?
-            constexpr bool intersects(const Range<T>&) const noexcept;
+            constexpr bool intersects(const Range<T>&) const;
 
             //! Expand the range to include the given number.
             void expand(T);

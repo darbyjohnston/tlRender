@@ -6,27 +6,27 @@ namespace tl
 {
     namespace file
     {
-        inline const Path& FileInfo::getPath() const noexcept
+        inline const Path& FileInfo::getPath() const
         {
             return _path;
         }
 
-        inline Type FileInfo::getType() const noexcept
+        inline Type FileInfo::getType() const
         {
             return _type;
         }
 
-        inline uint64_t FileInfo::getSize() const noexcept
+        inline uint64_t FileInfo::getSize() const
         {
             return _size;
         }
 
-        inline int FileInfo::getPermissions() const noexcept
+        inline int FileInfo::getPermissions() const
         {
             return _permissions;
         }
 
-        inline time_t FileInfo::getTime() const noexcept
+        inline time_t FileInfo::getTime() const
         {
             return _time;
         }

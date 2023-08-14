@@ -27,8 +27,8 @@ namespace tl
             float maxCLL  = 1000.F;
             float maxFALL = 400.F;
 
-            bool operator == (const HDRData&) const noexcept;
-            bool operator != (const HDRData&) const noexcept;
+            bool operator == (const HDRData&) const;
+            bool operator != (const HDRData&) const;
         };
 
         //! \name Serialize
