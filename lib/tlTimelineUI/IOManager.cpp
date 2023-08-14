@@ -8,7 +8,7 @@
 
 #include <tlIO/IOSystem.h>
 
-#include <tlGl/GL.h>
+#include <tlGL/GL.h>
 #include <tlGL/OffscreenBuffer.h>
 
 #include <tlCore/AudioConvert.h>

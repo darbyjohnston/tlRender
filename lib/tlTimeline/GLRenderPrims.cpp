@@ -4,7 +4,7 @@
 
 #include <tlTimeline/GLRenderPrivate.h>
 
-#include <tlGl/GL.h>
+#include <tlGL/GL.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 

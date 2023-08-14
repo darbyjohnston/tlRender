@@ -4,7 +4,7 @@
 
 #include <tlTimeline/GLRenderPrivate.h>
 
-#include <tlGl/GL.h>
+#include <tlGL/GL.h>
 #include <tlGL/Mesh.h>
 #include <tlGL/Util.h>
 

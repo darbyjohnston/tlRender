@@ -8,7 +8,7 @@
 
 #include <tlDevice/IDeviceSystem.h>
 
-#include <tlGl/GL.h>
+#include <tlGL/GL.h>
 
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
