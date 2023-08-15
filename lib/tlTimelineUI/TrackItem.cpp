@@ -48,6 +48,9 @@ namespace tl
 
             struct MouseData
             {
+                std::shared_ptr<IItem> item;
+                int itemIndex = -1;
+                math::Box2i itemGeometry;
                 std::vector<math::Box2i> dropTargets;
                 int currentDropTarget = -1;
             };
@@ -72,6 +75,7 @@ namespace tl
             TLRENDER_P();
 
             _setMouseHover(true);
+            _setMousePress(true, 0, 0);
 
             p.player = player;
             p.track = track;
@@ -208,21 +212,24 @@ namespace tl
             {
                 if (auto item = std::dynamic_pointer_cast<IItem>(child))
                 {
-                    if (std::dynamic_pointer_cast<VideoClipItem>(child) ||
-                        std::dynamic_pointer_cast<VideoGapItem>(child) ||
-                        std::dynamic_pointer_cast<AudioClipItem>(child) ||
-                        std::dynamic_pointer_cast<AudioGapItem>(child))
+                    if (item != p.mouse.item)
                     {
-                        const otime::TimeRange& timeRange = item->getTimeRange();
-                        const math::Vector2i& sizeHint = item->getSizeHint();
-                        const math::Box2i box(
-                            _geometry.min.x +
-                            timeRange.start_time().rescaled_to(1.0).value() * _scale,
-                            y,
-                            sizeHint.x,
-                            sizeHint.y);
-                        item->setGeometry(box);
-                        h = std::max(h, sizeHint.y);
+                        if (std::dynamic_pointer_cast<VideoClipItem>(child) ||
+                            std::dynamic_pointer_cast<VideoGapItem>(child) ||
+                            std::dynamic_pointer_cast<AudioClipItem>(child) ||
+                            std::dynamic_pointer_cast<AudioGapItem>(child))
+                        {
+                            const otime::TimeRange& timeRange = item->getTimeRange();
+                            const math::Vector2i& sizeHint = item->getSizeHint();
+                            const math::Box2i box(
+                                _geometry.min.x +
+                                timeRange.start_time().rescaled_to(1.0).value() * _scale,
+                                y,
+                                sizeHint.x,
+                                sizeHint.y);
+                            item->setGeometry(box);
+                            h = std::max(h, sizeHint.y);
+                        }
                     }
                 }
             }
@@ -357,145 +364,148 @@ namespace tl
                         p.size.fontMetrics.ascender),
                     event.style->getColorRole(ui::ColorRole::Text));
             }
+        }
 
+        void TrackItem::drawOverlayEvent(
+            const math::Box2i& drawRect,
+            const ui::DrawEvent& event)
+        {
+            IItem::drawOverlayEvent(drawRect, event);
+            TLRENDER_P();
             if (p.mouse.currentDropTarget >= 0 &&
                 p.mouse.currentDropTarget < p.draw.dropTargets.size())
             {
-                const math::Box2i& g2 = p.draw.dropTargets[p.mouse.currentDropTarget];
-                geom::TriangleMesh2 mesh;
-                mesh.v.push_back(math::Vector2f(g2.min.x, g2.min.y));
-                mesh.v.push_back(math::Vector2f(g2.max.x, g2.min.y));
-                mesh.v.push_back(math::Vector2f((g2.min.x + g2.max.x) / 2.F, g2.max.y));
-                mesh.triangles.push_back({ 1, 2, 3 });
-                event.render->drawMesh(
-                    mesh,
-                    math::Vector2i(),
-                    event.style->getColorRole(ui::ColorRole::Checked));
+                const math::Box2i& g = p.draw.dropTargets[p.mouse.currentDropTarget];
+                event.render->drawRect(
+                    g,
+                    event.style->getColorRole(ui::ColorRole::Green));
             }
         }
 
-        void TrackItem::dragEnterEvent(ui::DragAndDropEvent& event)
+        void TrackItem::mouseMoveEvent(ui::MouseMoveEvent& event)
         {
+            IItem::mouseMoveEvent(event);
             TLRENDER_P();
-            if (auto data = std::dynamic_pointer_cast<DragAndDropData>(event.data))
+            if (p.mouse.item)
             {
-                auto video = std::dynamic_pointer_cast<VideoClipItem>(data->getItem());
-                auto audio = std::dynamic_pointer_cast<AudioClipItem>(data->getItem());
-                if ((video && video->getClip()->parent() == p.track) ||
-                    (audio && audio->getClip()->parent() == p.track))
+                const math::Box2i& g = p.mouse.itemGeometry;
+                p.mouse.item->setGeometry(math::Box2i(
+                    g.min + _mouse.pos - _mouse.pressPos,
+                    g.getSize()));
+
+                int dropTarget = -1;
+                for (size_t i = 0; i < p.mouse.dropTargets.size(); ++i)
                 {
-                    event.accept = true;
-                    p.draw.dropTargets.clear();
-                    p.mouse.dropTargets.clear();
-                    const math::Box2i& g = getGeometry();
-                    const float h = p.size.fontMetrics.lineHeight + p.size.margin * 2;
-                    for (const auto& child : _children)
+                    if (p.mouse.dropTargets[i].contains(_mouse.pos))
                     {
-                        if (auto item = std::dynamic_pointer_cast<IItem>(child))
-                        {
-                            const otime::TimeRange& timeRange = item->getTimeRange();
-                            const float x = _timeToPos(timeRange.start_time());
-                            p.draw.dropTargets.push_back(math::Box2i(x - h / 2, g.min.y, h, h));
-                            p.mouse.dropTargets.push_back(math::Box2i(
-                                x - _options.thumbnailHeight,
-                                g.min.y,
-                                _options.thumbnailHeight * 2,
-                                g.h()));
-                        }
+                        dropTarget = i;
+                        break;
                     }
-                    if (!_children.empty())
-                    {
-                        if (auto item = std::dynamic_pointer_cast<IItem>(_children.back()))
-                        {
-                            const otime::TimeRange& timeRange = item->getTimeRange();
-                            const float x = _timeToPos(timeRange.end_time_exclusive());
-                            p.draw.dropTargets.push_back(math::Box2i(x - h / 2, g.min.y, h, h));
-                            p.mouse.dropTargets.push_back(math::Box2i(
-                                x - _options.thumbnailHeight,
-                                g.min.y,
-                                _options.thumbnailHeight * 2,
-                                g.h()));
-                        }
-                    }
-                    if (!p.draw.dropTargets.empty())
-                    {
-                        _updates |= ui::Update::Draw;
-                    }
+                }
+                if (dropTarget != p.mouse.currentDropTarget)
+                {
+                    p.mouse.currentDropTarget = dropTarget;
+                    _updates |= ui::Update::Draw;
                 }
             }
         }
 
-        void TrackItem::dragLeaveEvent(ui::DragAndDropEvent& event)
+        void TrackItem::mousePressEvent(ui::MouseClickEvent& event)
         {
+            IItem::mousePressEvent(event);
             TLRENDER_P();
-            if (auto data = std::dynamic_pointer_cast<DragAndDropData>(event.data))
+            if (_mouse.press)
             {
-                auto video = std::dynamic_pointer_cast<VideoClipItem>(data->getItem());
-                auto audio = std::dynamic_pointer_cast<AudioClipItem>(data->getItem());
-                if ((video && video->getClip()->parent() == p.track) ||
-                    (audio && audio->getClip()->parent() == p.track))
+                size_t i = 0;
+                for (auto child : _children)
                 {
-                    event.accept = true;
-                    p.mouse.dropTargets.clear();
-                    if (!p.draw.dropTargets.empty())
+                    const math::Box2i& g = child->getGeometry();
+                    if (g.contains(_mouse.pressPos))
                     {
-                        p.draw.dropTargets.clear();
-                        _updates |= ui::Update::Draw;
+                        p.mouse.item = std::dynamic_pointer_cast<IItem>(child);
+                        p.mouse.itemIndex = i;
+                        p.mouse.itemGeometry = g;
+                        break;
+                    }
+                    ++i;
+                }
+            }
+            if (p.mouse.item)
+            {
+                p.mouse.dropTargets.clear();
+                p.draw.dropTargets.clear();
+                const float h = p.size.fontMetrics.lineHeight + p.size.margin * 2;
+                for (const auto& child : _children)
+                {
+                    if (auto item = std::dynamic_pointer_cast<IItem>(child))
+                    {
+                        const otime::TimeRange& timeRange = item->getTimeRange();
+                        const math::Box2i& g = item->getGeometry();
+                        const float x = _timeToPos(timeRange.start_time());
+                        p.mouse.dropTargets.push_back(math::Box2i(
+                            x - _options.thumbnailHeight / 2,
+                            g.min.y,
+                            _options.thumbnailHeight,
+                            g.h()));
+                        p.draw.dropTargets.push_back(math::Box2i(
+                            x - p.size.handle,
+                            g.min.y,
+                            p.size.handle * 2,
+                            g.h()));
                     }
                 }
+                if (!_children.empty())
+                {
+                    if (auto item = std::dynamic_pointer_cast<IItem>(_children.back()))
+                    {
+                        const otime::TimeRange& timeRange = item->getTimeRange();
+                        const math::Box2i& g = item->getGeometry();
+                        const float x = _timeToPos(timeRange.end_time_exclusive());
+                        p.mouse.dropTargets.push_back(math::Box2i(
+                            x - _options.thumbnailHeight / 2,
+                            g.min.y,
+                            _options.thumbnailHeight,
+                            g.h()));
+                        p.draw.dropTargets.push_back(math::Box2i(
+                            x - p.size.handle,
+                            g.min.y,
+                            p.size.handle * 2,
+                            g.h()));
+                    }
+                }
+                moveToFront(p.mouse.item);
             }
         }
 
-        void TrackItem::dragMoveEvent(ui::DragAndDropEvent& event)
+        void TrackItem::mouseReleaseEvent(ui::MouseClickEvent& event)
         {
+            IItem::mouseReleaseEvent(event);
             TLRENDER_P();
-            if (auto data = std::dynamic_pointer_cast<DragAndDropData>(event.data))
+            if (p.mouse.item)
             {
-                auto video = std::dynamic_pointer_cast<VideoClipItem>(data->getItem());
-                auto audio = std::dynamic_pointer_cast<AudioClipItem>(data->getItem());
-                if ((video && video->getClip()->parent() == p.track) ||
-                    (audio && audio->getClip()->parent() == p.track))
+                if (p.mouse.currentDropTarget != -1 &&
+                    p.mouse.currentDropTarget != p.mouse.itemIndex &&
+                    p.mouse.currentDropTarget != (p.mouse.itemIndex + 1))
                 {
-                    event.accept = true;
-                    int dropTarget = -1;
-                    for (size_t i = 0; i < p.mouse.dropTargets.size(); ++i)
-                    {
-                        if (p.mouse.dropTargets[i].contains(event.pos))
-                        {
-                            dropTarget = i;
-                            break;
-                        }
-                    }
-                    if (dropTarget != p.mouse.currentDropTarget)
-                    {
-                        p.mouse.currentDropTarget = dropTarget;
-                        _updates |= ui::Update::Draw;
-                    }
+                    auto video = std::dynamic_pointer_cast<VideoClipItem>(p.mouse.item);
+                    auto audio = std::dynamic_pointer_cast<AudioClipItem>(p.mouse.item);
+                    auto otioTimeline = insert(
+                        p.player->getTimeline()->getTimeline().value,
+                        video ? video->getClip() : (audio ? audio->getClip() : nullptr),
+                        p.trackIndex,
+                        p.mouse.currentDropTarget);
+                    p.player->getTimeline()->setTimeline(otioTimeline);
                 }
-            }
-        }
-
-        void TrackItem::dropEvent(ui::DragAndDropEvent& event)
-        {
-            TLRENDER_P();
-            if (auto data = std::dynamic_pointer_cast<DragAndDropData>(event.data))
-            {
-                auto video = std::dynamic_pointer_cast<VideoClipItem>(data->getItem());
-                auto audio = std::dynamic_pointer_cast<AudioClipItem>(data->getItem());
-                if ((video && video->getClip()->parent() == p.track) ||
-                    (audio && audio->getClip()->parent() == p.track))
+                else
                 {
-                    if (p.mouse.currentDropTarget != -1)
-                    {
-                        event.accept = true;
-                        auto otioTimeline = insert(
-                            p.player->getTimeline()->getTimeline().value,
-                            video ? video->getClip() : (audio ? audio->getClip() : nullptr),
-                            p.trackIndex,
-                            p.mouse.currentDropTarget);
-                        p.player->getTimeline()->setTimeline(otioTimeline);
-                    }
+                    p.mouse.item->setGeometry(p.mouse.itemGeometry);
                 }
+                p.mouse.item.reset();
+                p.mouse.itemIndex = -1;
+                p.mouse.dropTargets.clear();
+                p.mouse.currentDropTarget = -1;
+                p.draw.dropTargets.clear();
+                _updates |= ui::Update::Draw;
             }
         }
 

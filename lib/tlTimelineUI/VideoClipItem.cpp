@@ -5,7 +5,6 @@
 #include <tlTimelineUI/VideoClipItem.h>
 
 #include <tlUI/DrawUtil.h>
-#include <tlUI/EventLoop.h>
 
 #include <tlTimeline/RenderUtil.h>
 #include <tlTimeline/Util.h>
@@ -57,9 +56,6 @@ namespace tl
                 context,
                 parent);
             TLRENDER_P();
-
-            _setMouseHover(true);
-            _setMousePress(true, 0, 0);
 
             p.clip = clip;
 
@@ -223,26 +219,6 @@ namespace tl
             if (_options.thumbnails)
             {
                 _drawThumbnails(drawRect, event);
-            }
-        }
-
-        void VideoClipItem::mouseMoveEvent(ui::MouseMoveEvent& event)
-        {
-            IWidget::mouseMoveEvent(event);
-            TLRENDER_P();
-            if (_mouse.press)
-            {
-                const float length = math::length(event.pos - _mouse.pressPos);
-                if (length > p.size.dragLength)
-                {
-                    if (auto eventLoop = getEventLoop().lock())
-                    {
-                        event.dndData = std::make_shared<DragAndDropData>(
-                            std::dynamic_pointer_cast<IItem>(shared_from_this()));
-                        event.dndCursor = eventLoop->screenshot(shared_from_this());
-                        event.dndCursorHotspot = _mouse.pos - _geometry.min;
-                    }
-                }
             }
         }
 

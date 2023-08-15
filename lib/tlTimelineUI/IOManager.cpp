@@ -22,6 +22,13 @@ namespace tl
 {
     namespace timelineui
     {
+        namespace
+        {
+            const size_t infoRequestsMax = 3;
+            const size_t videoRequestsMax = 3;
+            const size_t audioRequestsMax = 3;
+        }
+
         struct IOManager::Private
         {
             std::weak_ptr<system::Context> context;
@@ -450,9 +457,9 @@ namespace tl
             while (p.thread.running)
             {
                 // Check requests.
-                std::shared_ptr<Private::InfoRequest> infoRequest;
-                std::shared_ptr<Private::VideoRequest> videoRequest;
-                std::shared_ptr<Private::AudioRequest> audioRequest;
+                std::list<std::shared_ptr<Private::InfoRequest> > infoRequests;
+                std::list<std::shared_ptr<Private::VideoRequest> > videoRequests;
+                std::list<std::shared_ptr<Private::AudioRequest> > audioRequests;
                 bool cancelRequests = false;
                 {
                     std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -468,19 +475,22 @@ namespace tl
                                 _p->mutex.cancelRequests;
                         }))
                     {
-                        if (!p.mutex.infoRequests.empty())
+                        while (!p.mutex.infoRequests.empty() &&
+                            infoRequests.size() < infoRequestsMax)
                         {
-                            infoRequest = p.mutex.infoRequests.front();
+                            infoRequests.push_back(p.mutex.infoRequests.front());
                             p.mutex.infoRequests.pop_front();
                         }
-                        if (!p.mutex.videoRequests.empty())
+                        if (!p.mutex.videoRequests.empty() &&
+                            videoRequests.size() < videoRequestsMax)
                         {
-                            videoRequest = p.mutex.videoRequests.front();
+                            videoRequests.push_back(p.mutex.videoRequests.front());
                             p.mutex.videoRequests.pop_front();
                         }
-                        if (!p.mutex.audioRequests.empty())
+                        if (!p.mutex.audioRequests.empty() &&
+                            audioRequests.size() < audioRequestsMax)
                         {
-                            audioRequest = p.mutex.audioRequests.front();
+                            audioRequests.push_back(p.mutex.audioRequests.front());
                             p.mutex.audioRequests.pop_front();
                         }
                         if (p.mutex.cancelRequests)
@@ -504,7 +514,7 @@ namespace tl
                 }
                 
                 // Handle information requests.
-                if (infoRequest)
+                for (const auto& infoRequest : infoRequests)
                 {
                     io::Info info;
                     const std::string key = getInfoKey(
@@ -543,7 +553,7 @@ namespace tl
                 }
                 
                 // Handle video requests.
-                if (videoRequest)
+                for (const auto& videoRequest : videoRequests)
                 {
                     std::shared_ptr<image::Image> image;
                     const std::string key = getVideoKey(
@@ -623,7 +633,7 @@ namespace tl
                 }
                 
                 // Handle audio requests.
-                if (audioRequest)
+                for (const auto& audioRequest : audioRequests)
                 {
                     std::shared_ptr<geom::TriangleMesh2> mesh;
                     const std::string key = getAudioKey(
