@@ -12,29 +12,29 @@ namespace tl
 {
     namespace timelineui
     {
-        //! Audio gap item.
-        class AudioGapItem : public IBasicItem
+        //! Gap item.
+        class GapItem : public IBasicItem
         {
         protected:
             void _init(
+                ui::ColorRole,
                 const otio::SerializableObject::Retainer<otio::Gap>&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            AudioGapItem();
+            GapItem();
 
         public:
-            virtual ~AudioGapItem();
+            virtual ~GapItem();
 
             //! Create a new item.
-            static std::shared_ptr<AudioGapItem> create(
+            static std::shared_ptr<GapItem> create(
+                ui::ColorRole,
                 const otio::SerializableObject::Retainer<otio::Gap>&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
-
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
         };
     }
 }

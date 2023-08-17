@@ -5,11 +5,10 @@
 #include <tlTimelineUI/TrackItem.h>
 
 #include <tlTimelineUI/AudioClipItem.h>
-#include <tlTimelineUI/AudioGapItem.h>
 #include <tlTimelineUI/Edit.h>
+#include <tlTimelineUI/GapItem.h>
 #include <tlTimelineUI/TransitionItem.h>
 #include <tlTimelineUI/VideoClipItem.h>
-#include <tlTimelineUI/VideoGapItem.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -35,7 +34,7 @@ namespace tl
                 bool textUpdate = true;
                 math::Size2i labelSize;
                 math::Size2i durationSize;
-                int clipsAndGapsHeight = 0;
+                int clipHeight = 0;
             };
             SizeData size;
 
@@ -135,29 +134,18 @@ namespace tl
                 }
                 else if (auto gap = otio::dynamic_retainer_cast<otio::Gap>(child))
                 {
-                    std::shared_ptr<IItem> item;
-                    switch (p.trackType)
-                    {
-                    case TrackType::Video:
-                        item = VideoGapItem::create(
-                            gap,
-                            itemData,
-                            context,
-                            shared_from_this());
-                        break;
-                    case TrackType::Audio:
-                        item = AudioGapItem::create(
-                            gap,
-                            itemData,
-                            context,
-                            shared_from_this());
-                        break;
-                    default: break;
-                    }
+                    std::shared_ptr<IItem> item = GapItem::create(
+                        TrackType::Video == p.trackType ?
+                        ui::ColorRole::VideoGap :
+                        ui::ColorRole::AudioGap,
+                        gap,
+                        itemData,
+                        context,
+                        shared_from_this());
                 }
                 else if (auto transition = otio::dynamic_retainer_cast<otio::Transition>(child))
                 {
-                    auto item = TransitionItem::create(
+                    TransitionItem::create(
                         transition,
                         itemData,
                         context,
@@ -205,7 +193,6 @@ namespace tl
             int y = _geometry.min.y +
                 p.size.fontMetrics.lineHeight +
                 p.size.margin * 2;
-            int h = 0;
             for (const auto& child : _children)
             {
                 if (auto item = std::dynamic_pointer_cast<IItem>(child))
@@ -213,9 +200,8 @@ namespace tl
                     if (item != p.mouse.item)
                     {
                         if (std::dynamic_pointer_cast<VideoClipItem>(child) ||
-                            std::dynamic_pointer_cast<VideoGapItem>(child) ||
                             std::dynamic_pointer_cast<AudioClipItem>(child) ||
-                            std::dynamic_pointer_cast<AudioGapItem>(child))
+                            std::dynamic_pointer_cast<GapItem>(child))
                         {
                             const otime::TimeRange& timeRange = item->getTimeRange();
                             const math::Vector2i& sizeHint = item->getSizeHint();
@@ -224,14 +210,13 @@ namespace tl
                                 timeRange.start_time().rescaled_to(1.0).value() * _scale,
                                 y,
                                 sizeHint.x,
-                                sizeHint.y);
+                                p.size.clipHeight);
                             item->setGeometry(box);
-                            h = std::max(h, sizeHint.y);
                         }
                     }
                 }
             }
-            y += h;
+            y += p.size.clipHeight;
             for (const auto& child : _children)
             {
                 if (auto item = std::dynamic_pointer_cast<TransitionItem>(child))
@@ -271,17 +256,16 @@ namespace tl
             }
             p.size.textUpdate = false;
 
-            p.size.clipsAndGapsHeight = 0;
+            p.size.clipHeight = 0;
             for (const auto& child : _children)
             {
                 if (auto item = std::dynamic_pointer_cast<IItem>(child))
                 {
                     if (std::dynamic_pointer_cast<VideoClipItem>(child) ||
-                        std::dynamic_pointer_cast<VideoGapItem>(child) ||
                         std::dynamic_pointer_cast<AudioClipItem>(child) ||
-                        std::dynamic_pointer_cast<AudioGapItem>(child))
+                        std::dynamic_pointer_cast<GapItem>(child))
                     {
-                        p.size.clipsAndGapsHeight = std::max(p.size.clipsAndGapsHeight, item->getSizeHint().y);
+                        p.size.clipHeight = std::max(p.size.clipHeight, item->getSizeHint().y);
                     }
                 }
             }
@@ -301,7 +285,7 @@ namespace tl
                 _timeRange.duration().rescaled_to(1.0).value() * _scale,
                 p.size.fontMetrics.lineHeight +
                 p.size.margin * 2 +
-                p.size.clipsAndGapsHeight +
+                p.size.clipHeight +
                 transitionsHeight);
         }
 
@@ -444,12 +428,12 @@ namespace tl
                             x - _options.thumbnailHeight / 2,
                             g.min.y,
                             _options.thumbnailHeight,
-                            p.size.clipsAndGapsHeight));
+                            p.size.clipHeight));
                         p.draw.dropTargets.push_back(math::Box2i(
                             x - p.size.handle,
                             g.min.y,
                             p.size.handle * 2,
-                            p.size.clipsAndGapsHeight));
+                            p.size.clipHeight));
                     }
                 }
                 if (!_children.empty())
@@ -463,12 +447,12 @@ namespace tl
                             x - _options.thumbnailHeight / 2,
                             g.min.y,
                             _options.thumbnailHeight,
-                            p.size.clipsAndGapsHeight));
+                            p.size.clipHeight));
                         p.draw.dropTargets.push_back(math::Box2i(
                             x - p.size.handle,
                             g.min.y,
                             p.size.handle * 2,
-                            p.size.clipsAndGapsHeight));
+                            p.size.clipHeight));
                     }
                 }
                 moveToFront(p.mouse.item);
@@ -485,22 +469,12 @@ namespace tl
                     p.mouse.currentDropTarget != p.mouse.itemIndex &&
                     p.mouse.currentDropTarget != (p.mouse.itemIndex + 1))
                 {
-                    const bool video = otio::Track::Kind::video == p.track->kind();
-                    auto videoClip = std::dynamic_pointer_cast<VideoClipItem>(p.mouse.item);
-                    auto videoGap = std::dynamic_pointer_cast<VideoGapItem>(p.mouse.item);
-                    const bool audio = otio::Track::Kind::audio == p.track->kind();
-                    auto audioClip = std::dynamic_pointer_cast<AudioClipItem>(p.mouse.item);
-                    auto audioGap = std::dynamic_pointer_cast<AudioGapItem>(p.mouse.item);
-                    if ((video && (videoClip || videoGap)) ||
-                        (audio && (audioClip || audioGap)))
-                    {
-                        auto otioTimeline = insert(
-                            p.player->getTimeline()->getTimeline().value,
-                            p.mouse.item->getComposable(),
-                            p.trackIndex,
-                            p.mouse.currentDropTarget);
-                        p.player->getTimeline()->setTimeline(otioTimeline);
-                    }
+                    auto otioTimeline = insert(
+                        p.player->getTimeline()->getTimeline().value,
+                        p.mouse.item->getComposable(),
+                        p.trackIndex,
+                        p.mouse.currentDropTarget);
+                    p.player->getTimeline()->setTimeline(otioTimeline);
                 }
                 else
                 {

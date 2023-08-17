@@ -2,13 +2,14 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlTimelineUI/AudioGapItem.h>
+#include <tlTimelineUI/GapItem.h>
 
 namespace tl
 {
     namespace timelineui
     {
-        void AudioGapItem::_init(
+        void GapItem::_init(
+            ui::ColorRole colorRole,
             const otio::SerializableObject::Retainer<otio::Gap>& gap,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
@@ -16,38 +17,30 @@ namespace tl
         {
             IBasicItem::_init(
                 !gap->name().empty() ? gap->name() : "Gap",
-                ui::ColorRole::AudioGap,
-                "tl::timelineui::AudioGapItem",
+                colorRole,
+                "tl::timelineui::GapItem",
                 gap.value,
                 itemData,
                 context,
                 parent);
         }
 
-        AudioGapItem::AudioGapItem()
+        GapItem::GapItem()
         {}
 
-        AudioGapItem::~AudioGapItem()
+        GapItem::~GapItem()
         {}
 
-        std::shared_ptr<AudioGapItem> AudioGapItem::create(
+        std::shared_ptr<GapItem> GapItem::create(
+            ui::ColorRole colorRole,
             const otio::SerializableObject::Retainer<otio::Gap>& gap,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            auto out = std::shared_ptr<AudioGapItem>(new AudioGapItem);
-            out->_init(gap, itemData, context, parent);
+            auto out = std::shared_ptr<GapItem>(new GapItem);
+            out->_init(colorRole, gap, itemData, context, parent);
             return out;
-        }
-
-        void AudioGapItem::sizeHintEvent(const ui::SizeHintEvent& event)
-        {
-            IBasicItem::sizeHintEvent(event);
-            if (_options.thumbnails)
-            {
-                _sizeHint.y += _options.waveformHeight;
-            }
         }
     }
 }
