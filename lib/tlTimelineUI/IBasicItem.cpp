@@ -44,19 +44,25 @@ namespace tl
         void IBasicItem::_init(
             const std::string& label,
             ui::ColorRole colorRole,
-            const std::vector<Marker>& markers,
             const std::string& objectName,
-            const otime::TimeRange& timeRange,
+            const otio::SerializableObject::Retainer<otio::Item>& item,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IItem::_init(objectName, timeRange, itemData, context, parent);
+            const auto timeRangeOpt = item->trimmed_range_in_parent();
+            IItem::_init(
+                objectName,
+                item.value,
+                timeRangeOpt.has_value() ? timeRangeOpt.value() : time::invalidTimeRange,
+                itemData,
+                context,
+                parent);
             TLRENDER_P();
 
             p.label = label;
             p.colorRole = colorRole;
-            p.markers = markers;
+            p.markers = getMarkers(item.value);
 
             _textUpdate();
         }

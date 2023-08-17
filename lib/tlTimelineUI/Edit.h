@@ -6,7 +6,6 @@
 
 #include <tlCore/Time.h>
 
-#include <opentimelineio/item.h>
 #include <opentimelineio/timeline.h>
 
 namespace tl
@@ -15,7 +14,7 @@ namespace tl
     {
         otio::SerializableObject::Retainer<otio::Timeline> insert(
             const otio::Timeline*,
-            const otio::Item*,
+            const otio::Composable*,
             int trackIndex,
             int insertIndex);
     }

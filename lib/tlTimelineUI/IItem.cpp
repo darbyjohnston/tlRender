@@ -100,6 +100,7 @@ namespace tl
 
         void IItem::_init(
             const std::string& objectName,
+            const otio::SerializableObject::Retainer<otio::Composable>& composable,
             const otime::TimeRange& timeRange,
             const ItemData& data,
             const std::shared_ptr<system::Context>& context,
@@ -108,6 +109,7 @@ namespace tl
             IWidget::_init(objectName, context, parent);
             TLRENDER_P();
 
+            _composable = composable;
             _timeRange = timeRange;
             _data = data;
 
@@ -125,6 +127,11 @@ namespace tl
 
         IItem::~IItem()
         {}
+
+        const otio::SerializableObject::Retainer<otio::Composable>& IItem::getComposable() const
+        {
+            return _composable;
+        }
 
         const otime::TimeRange& IItem::getTimeRange() const
         {

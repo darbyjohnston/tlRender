@@ -37,7 +37,6 @@ namespace tl
 
         void VideoClipItem::_init(
             const otio::SerializableObject::Retainer<otio::Clip>& clip,
-            const otime::TimeRange& timeRange,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -49,9 +48,8 @@ namespace tl
             IBasicItem::_init(
                 !clip->name().empty() ? clip->name() : path.get(-1, false),
                 ui::ColorRole::VideoClip,
-                getMarkers(clip),
                 "tl::timelineui::VideoClipItem",
-                timeRange,
+                clip.value,
                 itemData,
                 context,
                 parent);
@@ -91,13 +89,12 @@ namespace tl
 
         std::shared_ptr<VideoClipItem> VideoClipItem::create(
             const otio::SerializableObject::Retainer<otio::Clip>& clip,
-            const otime::TimeRange& timeRange,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<VideoClipItem>(new VideoClipItem);
-            out->_init(clip, timeRange, itemData, context, parent);
+            out->_init(clip, itemData, context, parent);
             return out;
         }
 

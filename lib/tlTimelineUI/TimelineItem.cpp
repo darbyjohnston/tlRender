@@ -45,14 +45,15 @@ namespace tl
 
         void TimelineItem::_init(
             const std::shared_ptr<timeline::Player>& player,
-            const otime::TimeRange& timeRange,
+            const otio::SerializableObject::Retainer<otio::Stack>& stack,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IItem::_init(
                 "tl::timelineui::TimelineItem",
-                timeRange,
+                stack.value,
+                stack->trimmed_range(),
                 itemData,
                 context,
                 parent);
@@ -72,8 +73,6 @@ namespace tl
                     auto trackItem = TrackItem::create(
                         player,
                         track,
-                        trackIndex,
-                        track->trimmed_range(),
                         itemData,
                         context,
                         shared_from_this());
@@ -115,13 +114,13 @@ namespace tl
 
         std::shared_ptr<TimelineItem> TimelineItem::create(
             const std::shared_ptr<timeline::Player>& player,
-            const otime::TimeRange& timeRange,
+            const otio::SerializableObject::Retainer<otio::Stack>& stack,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TimelineItem>(new TimelineItem);
-            out->_init(player, timeRange, itemData, context, parent);
+            out->_init(player, stack, itemData, context, parent);
             return out;
         }
 

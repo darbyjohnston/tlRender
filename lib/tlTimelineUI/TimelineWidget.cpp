@@ -497,7 +497,7 @@ namespace tl
 
                     p.timelineItem = TimelineItem::create(
                         p.player,
-                        p.player->getTimeRange(),
+                        p.player->getTimeline()->getTimeline()->tracks(),
                         itemData,
                         context);
                     p.timelineItem->setStopOnScrub(p.stopOnScrub->get());

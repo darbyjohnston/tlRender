@@ -106,6 +106,7 @@ namespace tl
         protected:
             void _init(
                 const std::string& objectName,
+                const otio::SerializableObject::Retainer<otio::Composable>&,
                 const otime::TimeRange&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
@@ -116,6 +117,8 @@ namespace tl
         public:
             virtual ~IItem();
 
+            const otio::SerializableObject::Retainer<otio::Composable>& getComposable() const;
+                
             const otime::TimeRange& getTimeRange() const;
 
             virtual void setScale(double);
@@ -133,7 +136,8 @@ namespace tl
 
             virtual void _timeUnitsUpdate();
 
-            otime::TimeRange _timeRange;
+            otio::SerializableObject::Retainer<otio::Composable> _composable;
+            otime::TimeRange _timeRange = time::invalidTimeRange;
             ItemData _data;
             double _scale = 500.0;
             ItemOptions _options;

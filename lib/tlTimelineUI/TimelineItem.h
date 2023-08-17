@@ -18,7 +18,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<timeline::Player>&,
-                const otime::TimeRange&,
+                const otio::SerializableObject::Retainer<otio::Stack>&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
@@ -31,7 +31,7 @@ namespace tl
             //! Create a new item.
             static std::shared_ptr<TimelineItem> create(
                 const std::shared_ptr<timeline::Player>&,
-                const otime::TimeRange&,
+                const otio::SerializableObject::Retainer<otio::Stack>&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

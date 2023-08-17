@@ -10,15 +10,15 @@ namespace tl
     {
         namespace
         {
-            int getChildIndex(const otio::Item* item)
+            int getIndex(const otio::Composable* composable)
             {
                 int out = -1;
-                if (item && item->parent())
+                if (composable && composable->parent())
                 {
-                    const auto& children = item->parent()->children();
+                    const auto& children = composable->parent()->children();
                     for (int i = 0; i < children.size(); ++i)
                     {
-                        if (item == children[i].value)
+                        if (composable == children[i].value)
                         {
                             out = i;
                             break;
@@ -31,7 +31,7 @@ namespace tl
 
         otio::SerializableObject::Retainer<otio::Timeline> insert(
             const otio::Timeline* timeline,
-            const otio::Item* item,
+            const otio::Composable* composable,
             int trackIndex,
             int insertIndex)
         {
@@ -39,29 +39,27 @@ namespace tl
             otio::SerializableObject::Retainer<otio::Timeline> out(
                 dynamic_cast<otio::Timeline*>(otio::Timeline::from_json_string(s)));
 
-            auto tracks = out->tracks()->children();
-            const int itemTrackIndex = getChildIndex(item->parent());
-            if (itemTrackIndex >= 0 && itemTrackIndex < tracks.size())
+            const int oldIndex = getIndex(composable);
+            const int oldTrackIndex = getIndex(composable->parent());
+            if (oldIndex != -1 &&
+                oldTrackIndex != -1 &&
+                trackIndex >= 0 &&
+                trackIndex < out->tracks()->children().size())
             {
-                if (auto track = dynamic_cast<otio::Track*>(tracks[itemTrackIndex].value))
+                if (oldTrackIndex == trackIndex && oldIndex < insertIndex)
                 {
-                    auto children = track->children();
-                    const int itemIndex = getChildIndex(item);
-                    if (itemIndex >= 0 && itemIndex < children.size())
+                    --insertIndex;
+                }
+                if (auto track = otio::dynamic_retainer_cast<otio::Track>(
+                    out->tracks()->children()[oldTrackIndex]))
+                {
+                    auto child = track->children()[oldIndex];
+                    track->remove_child(oldIndex);
+
+                    if (auto track = otio::dynamic_retainer_cast<otio::Track>(
+                        out->tracks()->children()[trackIndex]))
                     {
-                        auto newItem = children[itemIndex];
-                        track->remove_child(itemIndex);
-                        if (trackIndex >= 0 && trackIndex < tracks.size())
-                        {
-                            if (auto newTrack = dynamic_cast<otio::Track*>(tracks[trackIndex].value))
-                            {
-                                if (track == newTrack && itemIndex < insertIndex)
-                                {
-                                    --insertIndex;
-                                }
-                                newTrack->insert_child(insertIndex, newItem);
-                            }
-                        }
+                        track->insert_child(insertIndex, child);
                     }
                 }
             }

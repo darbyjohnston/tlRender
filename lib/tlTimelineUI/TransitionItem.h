@@ -13,12 +13,11 @@ namespace tl
     namespace timelineui
     {
         //! Transition item.
-        class TransitionItem : public IBasicItem
+        class TransitionItem : public IItem
         {
         protected:
             void _init(
                 const otio::SerializableObject::Retainer<otio::Transition>&,
-                const otime::TimeRange&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
@@ -31,7 +30,6 @@ namespace tl
             //! Create a new item.
             static std::shared_ptr<TransitionItem> create(
                 const otio::SerializableObject::Retainer<otio::Transition>&,
-                const otime::TimeRange&,
                 const ItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

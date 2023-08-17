@@ -35,6 +35,7 @@ namespace tl
                 bool textUpdate = true;
                 math::Size2i labelSize;
                 math::Size2i durationSize;
+                int clipsAndGapsHeight = 0;
             };
             SizeData size;
 
@@ -60,15 +61,14 @@ namespace tl
         void TrackItem::_init(
             const std::shared_ptr<timeline::Player>& player,
             const otio::SerializableObject::Retainer<otio::Track>& track,
-            int trackIndex,
-            const otime::TimeRange& timeRange,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IItem::_init(
                 "tl::timelineui::TrackItem",
-                timeRange,
+                track.value,
+                track->trimmed_range(),
                 itemData,
                 context,
                 parent);
@@ -79,7 +79,18 @@ namespace tl
 
             p.player = player;
             p.track = track;
-            p.trackIndex = trackIndex;
+            if (auto parent = track->parent())
+            {
+                const auto& children = parent->children();
+                for (int i = 0; i < children.size(); ++i)
+                {
+                    if (p.track.value == children[i])
+                    {
+                        p.trackIndex = i;
+                        break;
+                    }
+                }
+            }
             p.label = track->name();
             if (otio::Track::Kind::video == track->kind())
             {
@@ -100,12 +111,6 @@ namespace tl
 
             for (const auto& child : track->children())
             {
-                otime::TimeRange timeRange = time::invalidTimeRange;
-                const auto timeRangeOpt = track->trimmed_range_of_child(child);
-                if (timeRangeOpt.has_value())
-                {
-                    timeRange = timeRangeOpt.value();
-                }
                 if (auto clip = otio::dynamic_retainer_cast<otio::Clip>(child))
                 {
                     std::shared_ptr<IItem> item;
@@ -114,7 +119,6 @@ namespace tl
                     case TrackType::Video:
                         item = VideoClipItem::create(
                             clip,
-                            timeRange,
                             itemData,
                             context,
                             shared_from_this());
@@ -122,7 +126,6 @@ namespace tl
                     case TrackType::Audio:
                         item = AudioClipItem::create(
                             clip,
-                            timeRange,
                             itemData,
                             context,
                             shared_from_this());
@@ -138,7 +141,6 @@ namespace tl
                     case TrackType::Video:
                         item = VideoGapItem::create(
                             gap,
-                            timeRange,
                             itemData,
                             context,
                             shared_from_this());
@@ -146,7 +148,6 @@ namespace tl
                     case TrackType::Audio:
                         item = AudioGapItem::create(
                             gap,
-                            timeRange,
                             itemData,
                             context,
                             shared_from_this());
@@ -158,7 +159,6 @@ namespace tl
                 {
                     auto item = TransitionItem::create(
                         transition,
-                        timeRange,
                         itemData,
                         context,
                         shared_from_this());
@@ -179,14 +179,12 @@ namespace tl
         std::shared_ptr<TrackItem> TrackItem::create(
             const std::shared_ptr<timeline::Player>& player,
             const otio::SerializableObject::Retainer<otio::Track>& track,
-            int trackIndex,
-            const otime::TimeRange& timeRange,
             const ItemData& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TrackItem>(new TrackItem);
-            out->_init(player, track, trackIndex, timeRange, itemData, context, parent);
+            out->_init(player, track, itemData, context, parent);
             return out;
         }
 
@@ -273,7 +271,7 @@ namespace tl
             }
             p.size.textUpdate = false;
 
-            int clipsAndGapsHeight = 0;
+            p.size.clipsAndGapsHeight = 0;
             for (const auto& child : _children)
             {
                 if (auto item = std::dynamic_pointer_cast<IItem>(child))
@@ -283,7 +281,7 @@ namespace tl
                         std::dynamic_pointer_cast<AudioClipItem>(child) ||
                         std::dynamic_pointer_cast<AudioGapItem>(child))
                     {
-                        clipsAndGapsHeight = std::max(clipsAndGapsHeight, item->getSizeHint().y);
+                        p.size.clipsAndGapsHeight = std::max(p.size.clipsAndGapsHeight, item->getSizeHint().y);
                     }
                 }
             }
@@ -303,7 +301,7 @@ namespace tl
                 _timeRange.duration().rescaled_to(1.0).value() * _scale,
                 p.size.fontMetrics.lineHeight +
                 p.size.margin * 2 +
-                clipsAndGapsHeight +
+                p.size.clipsAndGapsHeight +
                 transitionsHeight);
         }
 
@@ -446,12 +444,12 @@ namespace tl
                             x - _options.thumbnailHeight / 2,
                             g.min.y,
                             _options.thumbnailHeight,
-                            g.h()));
+                            p.size.clipsAndGapsHeight));
                         p.draw.dropTargets.push_back(math::Box2i(
                             x - p.size.handle,
                             g.min.y,
                             p.size.handle * 2,
-                            g.h()));
+                            p.size.clipsAndGapsHeight));
                     }
                 }
                 if (!_children.empty())
@@ -465,12 +463,12 @@ namespace tl
                             x - _options.thumbnailHeight / 2,
                             g.min.y,
                             _options.thumbnailHeight,
-                            g.h()));
+                            p.size.clipsAndGapsHeight));
                         p.draw.dropTargets.push_back(math::Box2i(
                             x - p.size.handle,
                             g.min.y,
                             p.size.handle * 2,
-                            g.h()));
+                            p.size.clipsAndGapsHeight));
                     }
                 }
                 moveToFront(p.mouse.item);
@@ -487,14 +485,22 @@ namespace tl
                     p.mouse.currentDropTarget != p.mouse.itemIndex &&
                     p.mouse.currentDropTarget != (p.mouse.itemIndex + 1))
                 {
-                    auto video = std::dynamic_pointer_cast<VideoClipItem>(p.mouse.item);
-                    auto audio = std::dynamic_pointer_cast<AudioClipItem>(p.mouse.item);
-                    auto otioTimeline = insert(
-                        p.player->getTimeline()->getTimeline().value,
-                        video ? video->getClip() : (audio ? audio->getClip() : nullptr),
-                        p.trackIndex,
-                        p.mouse.currentDropTarget);
-                    p.player->getTimeline()->setTimeline(otioTimeline);
+                    const bool video = otio::Track::Kind::video == p.track->kind();
+                    auto videoClip = std::dynamic_pointer_cast<VideoClipItem>(p.mouse.item);
+                    auto videoGap = std::dynamic_pointer_cast<VideoGapItem>(p.mouse.item);
+                    const bool audio = otio::Track::Kind::audio == p.track->kind();
+                    auto audioClip = std::dynamic_pointer_cast<AudioClipItem>(p.mouse.item);
+                    auto audioGap = std::dynamic_pointer_cast<AudioGapItem>(p.mouse.item);
+                    if ((video && (videoClip || videoGap)) ||
+                        (audio && (audioClip || audioGap)))
+                    {
+                        auto otioTimeline = insert(
+                            p.player->getTimeline()->getTimeline().value,
+                            p.mouse.item->getComposable(),
+                            p.trackIndex,
+                            p.mouse.currentDropTarget);
+                        p.player->getTimeline()->setTimeline(otioTimeline);
+                    }
                 }
                 else
                 {
