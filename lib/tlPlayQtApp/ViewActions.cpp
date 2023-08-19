@@ -16,7 +16,7 @@ namespace tl
 
             QMap<QString, QAction*> actions;
 
-            QMenu* menu = nullptr;
+            QScopedPointer<QMenu> menu;
         };
 
         ViewActions::ViewActions(App* app, QObject* parent) :
@@ -44,7 +44,7 @@ namespace tl
             p.actions["ZoomOut"] = new QAction(this);
             p.actions["ZoomOut"]->setText(tr("Zoom Out"));
 
-            p.menu = new QMenu;
+            p.menu.reset(new QMenu);
             p.menu->setTitle(tr("&View"));
             p.menu->addAction(p.actions["Frame"]);
             p.menu->addAction(p.actions["Zoom1To1"]);
@@ -64,7 +64,7 @@ namespace tl
 
         QMenu* ViewActions::menu() const
         {
-            return _p->menu;
+            return _p->menu.get();
         }
 
         void ViewActions::_actionsUpdate()

@@ -77,24 +77,24 @@ namespace tl
         {
             Options options;
 
-            qt::ContextObject* contextObject = nullptr;
+            QScopedPointer<qt::ContextObject> contextObject;
             std::shared_ptr<file::FileLogSystem> fileLogSystem;
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
-            qt::TimeObject* timeObject = nullptr;
-            SettingsObject* settingsObject = nullptr;
-            qt::TimelineThumbnailObject* thumbnailObject = nullptr;
+            QScopedPointer<qt::TimeObject> timeObject;
+            QScopedPointer<SettingsObject> settingsObject;
+            QScopedPointer<qt::TimelineThumbnailObject> thumbnailObject;
             std::shared_ptr<play::FilesModel> filesModel;
             std::vector<std::shared_ptr<play::FilesModelItem> > files;
             std::vector<std::shared_ptr<play::FilesModelItem> > activeFiles;
             QVector<QSharedPointer<qt::TimelinePlayer> > players;
             std::shared_ptr<ui::RecentFilesModel> recentFilesModel;
             std::shared_ptr<play::ColorModel> colorModel;
-            qt::OutputDevice* outputDevice = nullptr;
+            QScopedPointer<qt::OutputDevice> outputDevice;
             bool deviceActive = false;
             std::shared_ptr<DevicesModel> devicesModel;
             std::shared_ptr<play::AudioModel> audioModel;
 
-            MainWindow* mainWindow = nullptr;
+            QScopedPointer<MainWindow> mainWindow;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
@@ -307,11 +307,11 @@ namespace tl
             ioSystem->setOptions(ioOptions);
 
             // Create models and objects.
-            p.contextObject = new qt::ContextObject(context, this);
+            p.contextObject.reset(new qt::ContextObject(context));
             p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
-            p.timeObject = new qt::TimeObject(p.timeUnitsModel, this);
+            p.timeObject.reset(new qt::TimeObject(p.timeUnitsModel));
 
-            p.settingsObject = new SettingsObject(p.options.resetSettings, p.timeObject, this);
+            p.settingsObject.reset(new SettingsObject(p.options.resetSettings, p.timeObject.get()));
             p.settingsObject->setDefaultValue("Timeline/FrameView", true);
             p.settingsObject->setDefaultValue("Timeline/StopOnScrub", false);
             p.settingsObject->setDefaultValue("Timeline/Thumbnails", true);
@@ -343,7 +343,7 @@ namespace tl
             p.settingsObject->setDefaultValue("Performance/FFmpegThreadCount", 0);
             p.settingsObject->setDefaultValue("Misc/ToolTipsEnabled", true);
             connect(
-                p.settingsObject,
+                p.settingsObject.get(),
                 &SettingsObject::valueChanged,
                 [this](const QString& name, const QVariant& value)
                 {
@@ -361,7 +361,7 @@ namespace tl
                     }
                 });
 
-            p.thumbnailObject = new qt::TimelineThumbnailObject(context, this);
+            p.thumbnailObject.reset(new qt::TimelineThumbnailObject(context));
 
             p.filesModel = play::FilesModel::create(context);
 
@@ -377,9 +377,9 @@ namespace tl
             p.colorModel->setColorConfigOptions(p.options.colorConfigOptions);
             p.colorModel->setLUTOptions(p.options.lutOptions);
 
-            p.outputDevice = new qt::OutputDevice(context);
+            p.outputDevice.reset(new qt::OutputDevice(context));
             connect(
-                p.outputDevice,
+                p.outputDevice.get(),
                 &qt::OutputDevice::deviceActiveChanged,
                 [this](bool value)
                 {
@@ -387,7 +387,7 @@ namespace tl
                     _audioUpdate();
                 });
             /*connect(
-                p.outputDevice,
+                p.outputDevice.get(),
                 &qt::OutputDevice::sizeChanged,
                 [this](const image::Size& value)
                 {
@@ -501,7 +501,7 @@ namespace tl
                 });
 
             // Create the main window.
-            p.mainWindow = new MainWindow(this);
+            p.mainWindow.reset(new MainWindow(this));
 
             // Open the input files.
             if (!p.options.fileName.empty())
@@ -543,13 +543,6 @@ namespace tl
         App::~App()
         {
             TLRENDER_P();
-
-            delete p.mainWindow;
-            p.mainWindow = nullptr;
-
-            delete p.outputDevice;
-            p.outputDevice = nullptr;
-
             if (p.settingsObject)
             {
                 QList<QString> recent;
@@ -591,10 +584,6 @@ namespace tl
                         QString::fromUtf8(json.dump().c_str()));
                 }
             }
-
-            //! \bug Why is it necessary to manually delete this to get the settings to save?
-            delete p.settingsObject;
-            p.settingsObject = nullptr;
         }
 
         const std::shared_ptr<timeline::TimeUnitsModel>& App::timeUnitsModel() const
@@ -604,17 +593,17 @@ namespace tl
 
         qt::TimeObject* App::timeObject() const
         {
-            return _p->timeObject;
+            return _p->timeObject.get();
         }
 
         SettingsObject* App::settingsObject() const
         {
-            return _p->settingsObject;
+            return _p->settingsObject.get();
         }
 
         qt::TimelineThumbnailObject* App::thumbnailObject() const
         {
-            return _p->thumbnailObject;
+            return _p->thumbnailObject.get();
         }
 
         const std::shared_ptr<play::FilesModel>& App::filesModel() const
@@ -634,7 +623,7 @@ namespace tl
 
         qt::OutputDevice* App::outputDevice() const
         {
-            return _p->outputDevice;
+            return _p->outputDevice.get();
         }
 
         const std::shared_ptr<DevicesModel>& App::devicesModel() const
@@ -669,7 +658,7 @@ namespace tl
             if (auto fileBrowserSystem = _context->getSystem<qtwidget::FileBrowserSystem>())
             {
                 fileBrowserSystem->open(
-                    p.mainWindow,
+                    p.mainWindow.get(),
                     [this](const file::Path& value)
                     {
                         if (!value.isEmpty())

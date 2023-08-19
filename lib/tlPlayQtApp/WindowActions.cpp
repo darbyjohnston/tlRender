@@ -21,7 +21,7 @@ namespace tl
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
 
-            QMenu* menu = nullptr;
+            QScopedPointer<QMenu> menu;
         };
 
         WindowActions::WindowActions(App* app, QObject* parent) :
@@ -73,7 +73,7 @@ namespace tl
             p.actions["SecondaryFloatOnTop"]->setCheckable(true);
             p.actions["SecondaryFloatOnTop"]->setText(tr("Secondary Float On Top"));
 
-            p.menu = new QMenu;
+            p.menu.reset(new QMenu);
             p.menu->setTitle(tr("&Window"));
             auto resizeMenu = p.menu->addMenu(tr("Resize"));
             for (auto i : sizes)
@@ -109,7 +109,7 @@ namespace tl
 
         QMenu* WindowActions::menu() const
         {
-            return _p->menu;
+            return _p->menu.get();
         }
 
         void WindowActions::_actionsUpdate()

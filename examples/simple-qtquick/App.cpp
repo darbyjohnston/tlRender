@@ -49,9 +49,9 @@ namespace tl
                 setApplicationName("simple-qtquick");
 
                 // Create models and objects.
-                _contextObject = new qt::ContextObject(context, this);
+                _contextObject.reset(new qt::ContextObject(context, this));
                 _timeUnitsModel = timeline::TimeUnitsModel::create(context);
-                _timeObject = new qt::TimeObject(_timeUnitsModel, this);
+                _timeObject.reset(new qt::TimeObject(_timeUnitsModel, this));
 
                 // Open the input file.
                 auto timeline = timeline::Timeline::create(_input, context);
@@ -59,14 +59,14 @@ namespace tl
                 _timelinePlayer.reset(new qt::TimelinePlayer(player, context));
 
                 // Load the QML.
-                _qmlEngine = new QQmlApplicationEngine;
+                _qmlEngine.reset(new QQmlApplicationEngine);
                 _qmlEngine->rootContext()->setContextProperty("timelinePlayer", _timelinePlayer.get());
-                QQmlComponent component(_qmlEngine, QUrl(QStringLiteral("qrc:/simple-qtquick.qml")));
+                QQmlComponent component(_qmlEngine.get(), QUrl(QStringLiteral("qrc:/simple-qtquick.qml")));
                 if (component.status() != QQmlComponent::Status::Ready)
                 {
                     throw std::runtime_error(component.errorString().toUtf8().data());
                 }
-                _qmlObject = component.create();
+                _qmlObject.reset(component.create());
 
                 // Start playback.
                 _timelinePlayer->setPlayback(timeline::Playback::Forward);

@@ -54,16 +54,14 @@ namespace tl
             _pixelType = pixelType;
             _time = time;
             _dataByteCount = device::getDataByteCount(_size, _pixelType);
-            _data = new uint8_t[_dataByteCount];
+            _data.resize(_dataByteCount);
         }
 
         PixelData::PixelData()
         {}
 
         PixelData::~PixelData()
-        {
-            delete[] _data;
-        }
+        {}
 
         std::shared_ptr<PixelData> PixelData::create(
             const math::Size2i& size,
@@ -102,17 +100,17 @@ namespace tl
 
         const uint8_t* PixelData::getData() const
         {
-            return _data;
+            return _data.data();
         }
 
         uint8_t* PixelData::getData()
         {
-            return _data;
+            return _data.data();
         }
 
         void PixelData::zero()
         {
-            std::memset(_data, 0, _dataByteCount);
+            std::memset(_data.data(), 0, _dataByteCount);
         }
 
         const std::shared_ptr<image::HDRData>& PixelData::getHDRData() const

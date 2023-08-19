@@ -53,6 +53,7 @@
 #include <QMenuBar>
 #include <QMimeData>
 #include <QMouseEvent>
+#include <QPointer>
 #include <QSharedPointer>
 #include <QSlider>
 #include <QStatusBar>
@@ -111,7 +112,7 @@ namespace tl
             QLabel* infoLabel = nullptr;
             QLabel* cacheLabel = nullptr;
             QStatusBar* statusBar = nullptr;
-            SecondaryWindow* secondaryWindow = nullptr;
+            QPointer<SecondaryWindow> secondaryWindow;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
@@ -736,8 +737,7 @@ namespace tl
             settingsObject->setValue("MainWindow/SecondaryFloatOnTop", p.secondaryFloatOnTop);
             if (p.secondaryWindow)
             {
-                delete p.secondaryWindow;
-                p.secondaryWindow = nullptr;
+                p.secondaryWindow->close();
             }
         }
 
@@ -800,8 +800,7 @@ namespace tl
             TLRENDER_P();
             if (p.secondaryWindow)
             {
-                delete p.secondaryWindow;
-                p.secondaryWindow = nullptr;
+                p.secondaryWindow->close();
             }
         }
 
@@ -892,15 +891,13 @@ namespace tl
             }
             else if (!value && p.secondaryWindow)
             {
-                delete p.secondaryWindow;
-                p.secondaryWindow = nullptr;
+                p.secondaryWindow->close();
             }
         }
 
         void MainWindow::_secondaryWindowDestroyedCallback()
         {
             TLRENDER_P();
-            p.secondaryWindow = nullptr;
             {
                 QSignalBlocker blocker(p.windowActions->actions()["Secondary"]);
                 p.windowActions->actions()["Secondary"]->setChecked(false);

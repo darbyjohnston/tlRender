@@ -23,7 +23,7 @@ namespace tl
 
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
-            QMenu* menu = nullptr;
+            QScopedPointer<QMenu> menu;
 
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
@@ -133,7 +133,7 @@ namespace tl
             p.actionGroups["MagnifyFilter"]->addAction(p.actions["MagnifyFilter/Nearest"]);
             p.actionGroups["MagnifyFilter"]->addAction(p.actions["MagnifyFilter/Linear"]);
 
-            p.menu = new QMenu;
+            p.menu.reset(new QMenu);
             p.menu->setTitle(tr("&Render"));
             p.menu->addAction(p.actions["Channels/Red"]);
             p.menu->addAction(p.actions["Channels/Green"]);
@@ -255,7 +255,7 @@ namespace tl
 
         QMenu* RenderActions::menu() const
         {
-            return _p->menu;
+            return _p->menu.get();
         }
 
         void RenderActions::_actionsUpdate()

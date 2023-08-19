@@ -23,10 +23,10 @@ namespace tl
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
 
-            QMenu* menu = nullptr;
-            QMenu* recentMenu = nullptr;
-            QMenu* currentMenu = nullptr;
-            QMenu* layerMenu = nullptr;
+            QScopedPointer<QMenu> menu;
+            QScopedPointer<QMenu> recentMenu;
+            QScopedPointer<QMenu> currentMenu;
+            QScopedPointer<QMenu> layerMenu;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
@@ -103,26 +103,26 @@ namespace tl
             p.actionGroups["Layer"] = new QActionGroup(this);
             p.actionGroups["Layer"]->setExclusive(true);
 
-            p.menu = new QMenu;
+            p.menu.reset(new QMenu);
             p.menu->setTitle(tr("&File"));
             p.menu->addAction(p.actions["Open"]);
             p.menu->addAction(p.actions["OpenSeparateAudio"]);
             p.menu->addAction(p.actions["Close"]);
             p.menu->addAction(p.actions["CloseAll"]);
             p.menu->addAction(p.actions["Reload"]);
-            p.recentMenu = new QMenu;
+            p.recentMenu.reset(new QMenu);
             p.recentMenu->setTitle(tr("&Recent"));
-            p.menu->addMenu(p.recentMenu);
+            p.menu->addMenu(p.recentMenu.get());
             p.menu->addSeparator();
-            p.currentMenu = new QMenu;
+            p.currentMenu.reset(new QMenu);
             p.currentMenu->setTitle(tr("&Current"));
-            p.menu->addMenu(p.currentMenu);
+            p.menu->addMenu(p.currentMenu.get());
             p.menu->addAction(p.actions["Next"]);
             p.menu->addAction(p.actions["Prev"]);
             p.menu->addSeparator();
-            p.layerMenu = new QMenu;
+            p.layerMenu.reset(new QMenu);
             p.layerMenu->setTitle(tr("&Layer"));
-            p.menu->addMenu(p.layerMenu);
+            p.menu->addMenu(p.layerMenu.get());
             p.menu->addAction(p.actions["NextLayer"]);
             p.menu->addAction(p.actions["PrevLayer"]);
             p.menu->addSeparator();
@@ -261,7 +261,7 @@ namespace tl
 
         QMenu* FileActions::menu() const
         {
-            return _p->menu;
+            return _p->menu.get();
         }
 
         void FileActions::_recentUpdate(const std::vector<file::Path>& value)
@@ -269,17 +269,15 @@ namespace tl
             TLRENDER_P();
             for (const auto& i : p.actionGroups["Recent"]->actions())
             {
-                p.actionGroups["Recent"]->removeAction(i);
-                i->setParent(nullptr);
                 delete i;
             }
             p.recentMenu->clear();
-            for (size_t i = 0; i < value.size(); ++i)
+            for (auto i = value.rbegin(); i != value.rend(); ++i)
             {
-                auto action = new QAction;
-                const QString label = QString::fromUtf8(value[i].get(-1, false).c_str());
-                action->setText(QString("%1 %2").arg(i + 1).arg(label));
-                const QString fileName = QString::fromUtf8(value[i].get().c_str());
+                auto action = new QAction(this);
+                const QString label = QString::fromUtf8(i->get(-1, false).c_str());
+                action->setText(QString("%1").arg(label));
+                const QString fileName = QString::fromUtf8(i->get().c_str());
                 action->setData(fileName);
                 p.actionGroups["Recent"]->addAction(action);
                 p.recentMenu->addAction(action);
@@ -308,7 +306,7 @@ namespace tl
             const int aIndex = p.app->filesModel()->observeAIndex()->get();
             for (size_t i = 0; i < files.size(); ++i)
             {
-                auto action = new QAction;
+                auto action = new QAction(this);
                 action->setCheckable(true);
                 action->setChecked(i == aIndex);
                 action->setText(QString::fromUtf8(files[i]->path.get(-1, false).c_str()));
@@ -325,7 +323,7 @@ namespace tl
             {
                 for (size_t i = 0; i < a->videoLayers.size(); ++i)
                 {
-                    auto action = new QAction;
+                    auto action = new QAction(this);
                     action->setCheckable(true);
                     action->setChecked(i == a->videoLayer);
                     action->setText(QString::fromUtf8(a->videoLayers[i].c_str()));

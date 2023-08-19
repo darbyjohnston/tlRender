@@ -31,7 +31,7 @@ namespace tl
                 Args(const std::vector<std::string>& args)
                 {
                     argc = args.size();
-                    argv = new char*[argc];
+                    argv = new char* [argc];
                     for (int i = 0; i < argc; ++i)
                     {
                         const size_t size = args[i].size();

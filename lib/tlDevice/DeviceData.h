@@ -97,7 +97,7 @@ namespace tl
             PixelType _pixelType = PixelType::None;
             otime::RationalTime _time;
             size_t _dataByteCount = 0;
-            uint8_t* _data = nullptr;
+            std::vector<uint8_t> _data;
             std::shared_ptr<image::HDRData> _hdrData;
         };
 

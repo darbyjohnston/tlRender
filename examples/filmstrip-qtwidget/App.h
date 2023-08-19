@@ -34,8 +34,8 @@ namespace tl
 
             private:
                 std::string _input;
-                qt::ContextObject* _contextObject = nullptr;
-                MainWindow* _mainWindow = nullptr;
+                QScopedPointer<qt::ContextObject> _contextObject;
+                QScopedPointer<MainWindow> _mainWindow;
             };
         }
     }

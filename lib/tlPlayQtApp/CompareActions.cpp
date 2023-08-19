@@ -24,8 +24,8 @@ namespace tl
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
 
-            QMenu* menu = nullptr;
-            QMenu* bMenu = nullptr;
+            QScopedPointer<QMenu> menu;
+            QScopedPointer<QMenu> bMenu;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
@@ -127,11 +127,11 @@ namespace tl
             p.actionGroups["Compare"]->addAction(p.actions["Vertical"]);
             p.actionGroups["Compare"]->addAction(p.actions["Tile"]);
 
-            p.menu = new QMenu;
+            p.menu.reset(new QMenu);
             p.menu->setTitle(tr("&Compare"));
-            p.bMenu = new QMenu;
+            p.bMenu.reset(new QMenu);
             p.bMenu->setTitle(tr("&B"));
-            p.menu->addMenu(p.bMenu);
+            p.menu->addMenu(p.bMenu.get());
             p.menu->addSeparator();
             p.menu->addAction(p.actions["A"]);
             p.menu->addAction(p.actions["B"]);
@@ -215,7 +215,7 @@ namespace tl
 
         QMenu* CompareActions::menu() const
         {
-            return _p->menu;
+            return _p->menu.get();
         }
 
         void CompareActions::_actionsUpdate()
@@ -232,7 +232,7 @@ namespace tl
             const size_t count = files.size();
             for (size_t i = 0; i < count; ++i)
             {
-                auto action = new QAction;
+                auto action = new QAction(this);
                 action->setCheckable(true);
                 action->setChecked(std::find(bIndexes.begin(), bIndexes.end(), i) != bIndexes.end());
                 action->setText(QString::fromUtf8(files[i]->path.get(-1, false).c_str()));

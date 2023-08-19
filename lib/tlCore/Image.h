@@ -326,7 +326,7 @@ namespace tl
             Info _info;
             Tags _tags;
             size_t _dataByteCount = 0;
-            uint8_t* _data = nullptr;
+            std::vector<uint8_t> _data;
         };
 
         //! \name Serialize

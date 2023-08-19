@@ -17,7 +17,7 @@ namespace tl
             App* app = nullptr;
 
             QMap<QString, QAction*> actions;
-            QMenu* menu = nullptr;
+            QScopedPointer<QMenu> menu;
 
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
         };
@@ -48,7 +48,7 @@ namespace tl
             p.actions["Mute"]->setShortcut(QKeySequence(Qt::Key_M));
             p.actions["Mute"]->setToolTip(tr("Mute the audio"));
 
-            p.menu = new QMenu;
+            p.menu.reset(new QMenu);
             p.menu->setTitle(tr("&Audio"));
             p.menu->addAction(p.actions["VolumeUp"]);
             p.menu->addAction(p.actions["VolumeDown"]);
@@ -98,7 +98,7 @@ namespace tl
 
         QMenu* AudioActions::menu() const
         {
-            return _p->menu;
+            return _p->menu.get();
         }
 
         void AudioActions::_actionsUpdate()

@@ -27,6 +27,8 @@ namespace tl
                     const std::shared_ptr<system::Context>&,
                     QWidget* parent = nullptr);
 
+                virtual ~MainWindow();
+
             protected:
                 void dragEnterEvent(QDragEnterEvent*) override;
                 void dragMoveEvent(QDragMoveEvent*) override;

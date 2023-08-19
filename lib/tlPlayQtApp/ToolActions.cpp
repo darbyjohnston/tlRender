@@ -17,7 +17,7 @@ namespace tl
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
 
-            QMenu* menu = nullptr;
+            QScopedPointer<QMenu> menu;
         };
 
         ToolActions::ToolActions(App* app, QObject* parent) :
@@ -28,7 +28,7 @@ namespace tl
 
             p.app = app;
 
-            p.menu = new QMenu;
+            p.menu.reset(new QMenu);
             p.menu->setTitle(tr("&Tools"));
 
             _actionsUpdate();
@@ -44,7 +44,7 @@ namespace tl
 
         QMenu* ToolActions::menu() const
         {
-            return _p->menu;
+            return _p->menu.get();
         }
 
         void ToolActions::_actionsUpdate()

@@ -37,7 +37,8 @@ int main(int argc, char* argv[])
         QApplication app(argc, argv);
 
         // Create the context object.
-        auto contextObject = new tl::qt::ContextObject(context);
+        QScopedPointer<tl::qt::ContextObject> contextObject(
+            new tl::qt::ContextObject(context));
 
         // Create the timeline player.
         auto timeline = tl::timeline::Timeline::create(argv[1], context);
@@ -48,6 +49,7 @@ int main(int argc, char* argv[])
         // Create the timeline viewport.
         auto timelineViewport = new tl::qtwidget::TimelineViewport(context);
         timelineViewport->setTimelinePlayers({ timelinePlayer });
+        timelineViewport->setAttribute(Qt::WA_DeleteOnClose);
         timelineViewport->show();
 
         // Start playback.

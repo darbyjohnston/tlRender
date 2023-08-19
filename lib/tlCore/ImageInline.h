@@ -198,12 +198,12 @@ namespace tl
 
         inline const uint8_t* Image::getData() const
         {
-            return _data;
+            return _data.data();
         }
 
         inline uint8_t* Image::getData()
         {
-            return _data;
+            return _data.data();
         }
     }
 }

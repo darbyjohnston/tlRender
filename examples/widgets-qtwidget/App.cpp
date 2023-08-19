@@ -22,9 +22,9 @@ namespace tl
                 setPalette(qtwidget::darkStyle());
                 setStyleSheet(qtwidget::styleSheet());
 
-                _contextObject = new qt::ContextObject(context, this);
+                _contextObject.reset(new qt::ContextObject(context, this));
 
-                _mainWindow = new MainWindow(context);
+                _mainWindow.reset(new MainWindow(context));
                 _mainWindow->show();
             }
         }

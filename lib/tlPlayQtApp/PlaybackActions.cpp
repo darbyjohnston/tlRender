@@ -25,8 +25,8 @@ namespace tl
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
 
-            QMenu* menu = nullptr;
-            QMenu* speedMenu = nullptr;
+            QScopedPointer<QMenu> menu;
+            QScopedPointer<QMenu> speedMenu;
         };
 
         PlaybackActions::PlaybackActions(App* app, QObject* parent) :
@@ -226,7 +226,7 @@ namespace tl
             }
             p.actionGroups["Speed"]->addAction(p.actions["Speed/Default"]);
 
-            p.menu = new QMenu;
+            p.menu.reset(new QMenu);
             p.menu->setTitle(tr("&Playback"));
             p.menu->addAction(p.actions["Stop"]);
             p.menu->addAction(p.actions["Forward"]);
@@ -269,7 +269,7 @@ namespace tl
             p.menu->addAction(p.actions["Timeline/Transitions"]);
             p.menu->addAction(p.actions["Timeline/Markers"]);
 
-            p.speedMenu = new QMenu;
+            p.speedMenu.reset(new QMenu);
             for (auto i : speeds)
             {
                 const QString key = QString("Speed/%1").arg(i);
@@ -511,12 +511,12 @@ namespace tl
 
         QMenu* PlaybackActions::menu() const
         {
-            return _p->menu;
+            return _p->menu.get();
         }
 
         QMenu* PlaybackActions::speedMenu() const
         {
-            return _p->speedMenu;
+            return _p->speedMenu.get();
         }
 
         void PlaybackActions::setTimelinePlayers(const QVector<QSharedPointer<qt::TimelinePlayer> >& timelinePlayers)

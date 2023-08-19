@@ -278,16 +278,14 @@ namespace tl
             _dataByteCount = image::getDataByteCount(info);
             //! \bug Allocate a bit of extra space since FFmpeg sws_scale()
             //! seems to be reading past the end?
-            _data = new uint8_t[_dataByteCount + 16];
+            _data.resize(_dataByteCount + 16);
         }
 
         Image::Image()
         {}
 
         Image::~Image()
-        {
-            delete[] _data;
-        }
+        {}
 
         std::shared_ptr<Image> Image::create(const Info& info)
         {
@@ -313,7 +311,7 @@ namespace tl
 
         void Image::zero()
         {
-            std::memset(_data, 0, _dataByteCount);
+            std::memset(_data.data(), 0, _dataByteCount);
         }
 
         void to_json(nlohmann::json& json, const Size& value)

@@ -44,6 +44,9 @@ namespace tl
                 resize(1280, 720);
             }
 
+            MainWindow::~MainWindow()
+            {}
+
             void MainWindow::dragEnterEvent(QDragEnterEvent* event)
             {
                 const QMimeData* mimeData = event->mimeData();

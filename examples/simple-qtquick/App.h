@@ -37,13 +37,13 @@ namespace tl
             private:
                 std::string _input;
 
-                qt::ContextObject* _contextObject = nullptr;
+                QScopedPointer<qt::ContextObject> _contextObject;
                 std::shared_ptr<timeline::TimeUnitsModel> _timeUnitsModel;
-                qt::TimeObject* _timeObject = nullptr;
+                QScopedPointer<qt::TimeObject> _timeObject;
                 QScopedPointer<qt::TimelinePlayer> _timelinePlayer;
 
-                QQmlApplicationEngine* _qmlEngine = nullptr;
-                QObject* _qmlObject = nullptr;
+                QScopedPointer<QQmlApplicationEngine> _qmlEngine;
+                QScopedPointer<QObject> _qmlObject;
             };
         }
     }

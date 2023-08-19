@@ -28,8 +28,8 @@ namespace tl
                     const std::shared_ptr<system::Context>&);
 
             private:
-                qt::ContextObject* _contextObject = nullptr;
-                MainWindow* _mainWindow = nullptr;
+                QScopedPointer<qt::ContextObject> _contextObject;
+                QScopedPointer<MainWindow> _mainWindow;
             };
         }
     }

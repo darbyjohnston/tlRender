@@ -172,7 +172,7 @@ namespace tl
         private:
             Info _info;
             size_t _sampleCount = 0;
-            uint8_t* _data = nullptr;
+            std::vector<uint8_t> _data;
         };
 
         //! \name Utility

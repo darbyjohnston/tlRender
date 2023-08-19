@@ -51,14 +51,14 @@ namespace tl
             std::vector<std::string> out;
             if (DWORD result = GetLogicalDriveStringsW(0, NULL))
             {
-                WCHAR* buf = new WCHAR[result];
-                result = GetLogicalDriveStringsW(result, buf);
+                std::vector<WCHAR> buf(result);
+                result = GetLogicalDriveStringsW(result, buf.data());
                 if (result)
                 {
                     try
                     {
                         std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16;
-                        for (WCHAR* p = buf, *end = buf + result; p < end && *p; ++p)
+                        for (WCHAR* p = buf.data(), * end = buf.data() + result; p < end && *p; ++p)
                         {
                             WCHAR* p2 = p;
                             for (; p2 < end && *p2 && *p2 != '\\'; ++p2)
@@ -76,7 +76,6 @@ namespace tl
                         //! \bug How should we handle this error?
                     }
                 }
-                delete[] buf;
             }
             return out;
         }

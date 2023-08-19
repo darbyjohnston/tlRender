@@ -189,12 +189,12 @@ namespace tl
 
         inline uint8_t* Audio::getData()
         {
-            return _data;
+            return _data.data();
         }
 
         inline const uint8_t* Audio::getData() const
         {
-            return _data;
+            return _data.data();
         }
 
         template<typename T>

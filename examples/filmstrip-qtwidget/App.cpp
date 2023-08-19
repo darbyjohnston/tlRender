@@ -46,20 +46,15 @@ namespace tl
                 setStyle("Fusion");
 
                 // Create the context object.
-                _contextObject = new qt::ContextObject(context, this);
+                _contextObject.reset(new qt::ContextObject(context, this));
 
                 // Create the main window.
-                _mainWindow = new MainWindow(_input, _context);
+                _mainWindow.reset(new MainWindow(_input, _context));
                 _mainWindow->show();
             }
 
             App::~App()
-            {
-                delete _mainWindow;
-                _mainWindow = nullptr;
-                delete _contextObject;
-                _contextObject = nullptr;
-            }
+            {}
         }
     }
 }
