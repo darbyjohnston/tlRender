@@ -12,6 +12,14 @@ namespace tl
 {
     namespace timelineui
     {
+        //! Track types.
+        enum class TrackType
+        {
+            None,
+            Video,
+            Audio
+        };
+
         //! Timeline item.
         class TimelineItem : public IItem
         {
@@ -68,6 +76,8 @@ namespace tl
             void _drawCurrentTime(
                 const math::Box2i&,
                 const ui::DrawEvent&);
+
+            void _textUpdate();
 
             TLRENDER_PRIVATE();
         };

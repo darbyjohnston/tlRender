@@ -139,19 +139,29 @@ namespace tl
             IItem::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::Box2i g = _geometry.margin(-(p.size.border * 2));
+            const math::Box2i& g = _geometry;
+            ui::ColorRole colorRole = getSelectRole();
+            if (colorRole != ui::ColorRole::None)
+            {
+                event.render->drawMesh(
+                    ui::border(g, p.size.border * 2),
+                    math::Vector2i(),
+                    event.style->getColorRole(colorRole));
+            }
+
+            const math::Box2i g2 = g.margin(-(p.size.border * 2));
             event.render->drawRect(
-                g,
+                g2,
                 event.style->getColorRole(p.colorRole));
 
             const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
             const timeline::ClipRectState clipRectState(event.render);
             event.render->setClipRectEnabled(true);
-            event.render->setClipRect(g.intersect(drawRect));
+            event.render->setClipRect(g2.intersect(drawRect));
 
             math::Box2i labelGeometry(
-                g.min.x + p.size.margin,
-                g.min.y + p.size.margin,
+                g2.min.x + p.size.margin,
+                g2.min.y + p.size.margin,
                 p.size.labelSize.w,
                 p.size.fontMetrics.lineHeight);
             if (drawRect.intersects(labelGeometry))
@@ -170,10 +180,10 @@ namespace tl
             }
 
             const math::Box2i durationGeometry(
-                g.max.x -
+                g2.max.x -
                 p.size.durationSize.w -
                 p.size.margin,
-                g.min.y + p.size.margin,
+                g2.min.y + p.size.margin,
                 p.size.durationSize.w,
                 p.size.fontMetrics.lineHeight);
             if (drawRect.intersects(durationGeometry) &&
@@ -198,7 +208,7 @@ namespace tl
                 {
                     p.draw.markerGlyphs.resize(p.markers.size());
                 }
-                float y = g.max.y + 1 -
+                float y = g2.max.y + 1 -
                     (p.size.fontMetrics.lineHeight +
                     p.size.margin * 2 +
                     p.size.border * 2) *
@@ -212,9 +222,9 @@ namespace tl
                         _geometry.min.x +
                         p.markers[i].range.end_time_exclusive().rescaled_to(1.0).value() * _scale - 1;
                     math::Box2i g2;
-                    g2.min.x = std::max(x0, g.min.x);
+                    g2.min.x = std::max(x0, g2.min.x);
                     g2.min.y = y;
-                    g2.max.x = std::min(x1, g.max.x);
+                    g2.max.x = std::min(x1, g2.max.x);
                     g2.max.y = y + p.size.border * 2 - 1;
                     event.render->drawRect(g2, p.markers[i].color);
 

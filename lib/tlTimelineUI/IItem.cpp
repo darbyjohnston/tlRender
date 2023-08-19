@@ -95,6 +95,7 @@ namespace tl
 
         struct IItem::Private
         {
+            ui::ColorRole selectRole = ui::ColorRole::None;
             std::shared_ptr<observer::ValueObserver<bool> > timeUnitsObserver;
         };
 
@@ -153,6 +154,20 @@ namespace tl
                 return;
             _options = value;
             _updates |= ui::Update::Size;
+            _updates |= ui::Update::Draw;
+        }
+
+        ui::ColorRole IItem::getSelectRole() const
+        {
+            return _p->selectRole;
+        }
+
+        void IItem::setSelectRole(ui::ColorRole value)
+        {
+            TLRENDER_P();
+            if (value == p.selectRole)
+                return;
+            p.selectRole = value;
             _updates |= ui::Update::Draw;
         }
 

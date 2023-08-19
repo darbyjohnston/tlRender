@@ -117,12 +117,23 @@ namespace tl
         public:
             virtual ~IItem();
 
+            //! Get the OTIO object.
             const otio::SerializableObject::Retainer<otio::Composable>& getComposable() const;
-                
+            
+            //! Get the item time range.
             const otime::TimeRange& getTimeRange() const;
 
+            //! Set the item scale.
             virtual void setScale(double);
+
+            //! Set the item options.
             virtual void setOptions(const ItemOptions&);
+
+            //! Get the selection color role.
+            ui::ColorRole getSelectRole() const;
+
+            //! Set the selection color role.
+            void setSelectRole(ui::ColorRole);
 
         protected:
             static math::Box2i _getClipRect(

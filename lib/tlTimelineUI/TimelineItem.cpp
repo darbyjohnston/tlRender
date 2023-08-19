@@ -4,11 +4,18 @@
 
 #include <tlTimelineUI/TimelineItem.h>
 
-#include <tlTimelineUI/TrackItem.h>
+#include <tlTimelineUI/AudioClipItem.h>
+#include <tlTimelineUI/Edit.h>
+#include <tlTimelineUI/GapItem.h>
+#include <tlTimelineUI/VideoClipItem.h>
 
+#include <tlUI/DrawUtil.h>
+#include <tlUI/Label.h>
 #include <tlUI/ScrollArea.h>
 
 #include <tlTimeline/Util.h>
+
+#include <tlCore/StringFormat.h>
 
 namespace tl
 {
@@ -22,25 +29,71 @@ namespace tl
             timeline::PlayerCacheInfo cacheInfo;
             bool stopOnScrub = true;
 
+            struct Track
+            {
+                TrackType type = TrackType::None;
+                otime::TimeRange timeRange;
+                std::shared_ptr<ui::Label> label;
+                std::shared_ptr<ui::Label> durationLabel;
+                std::vector<std::shared_ptr<IItem> > items;
+                math::Vector2i size;
+                int clipHeight = 0;
+            };
+            std::vector<Track> tracks;
+
             struct SizeData
             {
                 int margin = 0;
                 int border = 0;
+                int handle = 0;
                 image::FontInfo fontInfo = image::FontInfo("", 0);
                 image::FontMetrics fontMetrics;
                 math::Vector2i scrollPos;
             };
             SizeData size;
 
+            struct DrawData
+            {
+                std::vector<math::Box2i> dropTargets;
+            };
+            DrawData draw;
+
+            enum class MouseMode
+            {
+                None,
+                CurrentTime,
+                Item
+            };
+            struct MouseItemData
+            {
+                ~MouseItemData();
+
+                std::shared_ptr<IItem> p;
+                int index = -1;
+                int track = -1;
+                math::Box2i geometry;
+            };
+            struct MouseItemDropTarget
+            {
+                int index = -1;
+                int track = -1;
+                math::Box2i geometry;
+                math::Box2i draw;
+            };
             struct MouseData
             {
-                bool currentTimeDrag = false;
+                MouseMode mode = MouseMode::None;
+                std::unique_ptr<MouseItemData> item;
+                std::vector<MouseItemDropTarget> dropTargets;
+                int currentDropTarget = -1;
             };
             MouseData mouse;
 
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
             std::shared_ptr<observer::ValueObserver<otime::TimeRange> > inOutRangeObserver;
             std::shared_ptr<observer::ValueObserver<timeline::PlayerCacheInfo> > cacheInfoObserver;
+
+            std::vector<MouseItemDropTarget> getDropTargets(int index, int track);
         };
 
         void TimelineItem::_init(
@@ -53,7 +106,7 @@ namespace tl
             IItem::_init(
                 "tl::timelineui::TimelineItem",
                 stack.value,
-                stack->trimmed_range(),
+                player->getTimeRange(),
                 itemData,
                 context,
                 parent);
@@ -68,17 +121,78 @@ namespace tl
             int trackIndex = 0;
             for (const auto& child : otioTimeline->tracks()->children())
             {
-                if (auto track = otio::dynamic_retainer_cast<otio::Track>(child))
+                if (auto otioTrack = otio::dynamic_retainer_cast<otio::Track>(child))
                 {
-                    auto trackItem = TrackItem::create(
-                        player,
-                        track,
-                        itemData,
+                    Private::Track track;
+                    std::string trackLabel = otioTrack->name();
+                    if (otio::Track::Kind::video == otioTrack->kind())
+                    {
+                        track.type = TrackType::Video;
+                        if (trackLabel.empty())
+                        {
+                            trackLabel = "Video Track";
+                        }
+                    }
+                    else if (otio::Track::Kind::audio == otioTrack->kind())
+                    {
+                        track.type = TrackType::Audio;
+                        if (trackLabel.empty())
+                        {
+                            trackLabel = "Audio Track";
+                        }
+                    }
+                    track.timeRange = otioTrack->trimmed_range();
+                    track.label = ui::Label::create(
+                        trackLabel,
                         context,
                         shared_from_this());
-                    ++trackIndex;
+                    track.label->setMarginRole(ui::SizeRole::MarginInside);
+                    track.durationLabel = ui::Label::create(
+                        context,
+                        shared_from_this());
+                    track.durationLabel->setMarginRole(ui::SizeRole::MarginInside);
+
+                    for (const auto& child : otioTrack->children())
+                    {
+                        if (auto clip = otio::dynamic_retainer_cast<otio::Clip>(child))
+                        {
+                            switch (track.type)
+                            {
+                            case TrackType::Video:
+                                track.items.push_back(VideoClipItem::create(
+                                    clip,
+                                    itemData,
+                                    context,
+                                    shared_from_this()));
+                                break;
+                            case TrackType::Audio:
+                                track.items.push_back(AudioClipItem::create(
+                                    clip,
+                                    itemData,
+                                    context,
+                                    shared_from_this()));
+                                break;
+                            default: break;
+                            }
+                        }
+                        else if (auto gap = otio::dynamic_retainer_cast<otio::Gap>(child))
+                        {
+                            track.items.push_back(GapItem::create(
+                                TrackType::Video == track.type ?
+                                ui::ColorRole::VideoGap :
+                                ui::ColorRole::AudioGap,
+                                gap,
+                                itemData,
+                                context,
+                                shared_from_this()));
+                        }
+                    }
+
+                    p.tracks.push_back(track);
                 }
             }
+
+            _textUpdate();
 
             p.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
                 p.player->observeCurrentTime(),
@@ -134,21 +248,46 @@ namespace tl
             IWidget::setGeometry(value);
             TLRENDER_P();
 
+            const math::Box2i& g = _geometry;
             float y =
                 p.size.margin +
                 p.size.fontMetrics.lineHeight +
                 p.size.margin +
                 p.size.border * 4 +
-                p.size.border;
-            for (const auto& child : _children)
+                p.size.border +
+                g.min.y;
+            for (const auto& track : p.tracks)
             {
-                const auto& sizeHint = child->getSizeHint();
-                child->setGeometry(math::Box2i(
-                    _geometry.min.x,
-                    _geometry.min.y + y,
-                    sizeHint.x,
-                    sizeHint.y));
-                y += sizeHint.y;;
+                const math::Vector2i& labelSizeHint = track.label->getSizeHint();
+                track.label->setGeometry(math::Box2i(
+                    g.min.x,
+                    y,
+                    labelSizeHint.x,
+                    labelSizeHint.y));
+                const math::Vector2i& durationSizeHint = track.durationLabel->getSizeHint();
+                track.durationLabel->setGeometry(math::Box2i(
+                    g.min.x + track.size.x - durationSizeHint.x,
+                    y,
+                    durationSizeHint.x,
+                    durationSizeHint.y));
+
+                for (const auto& item : track.items)
+                {
+                    if (p.mouse.item && item == p.mouse.item->p)
+                    {
+                        continue;
+                    }
+                    const otime::TimeRange& timeRange = item->getTimeRange();
+                    const math::Vector2i& sizeHint = item->getSizeHint();
+                    item->setGeometry(math::Box2i(
+                        _geometry.min.x +
+                        timeRange.start_time().rescaled_to(1.0).value() * _scale,
+                        y + std::max(labelSizeHint.y, durationSizeHint.y),
+                        sizeHint.x,
+                        track.clipHeight));
+                }
+
+                y += track.size.y;
             }
 
             if (auto scrollArea = getParentT<ui::ScrollArea>())
@@ -164,16 +303,28 @@ namespace tl
 
             p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, event.displayScale);
             p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
+            p.size.handle = event.style->getSizeRole(ui::SizeRole::Handle, event.displayScale);
 
             p.size.fontInfo = image::FontInfo(
                 _options.monoFont,
                 _options.fontSize * event.displayScale);
             p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
 
-            int childrenHeight = 0;
-            for (const auto& child : _children)
+            int tracksHeight = 0;
+            for (auto& track : p.tracks)
             {
-                childrenHeight += child->getSizeHint().y;
+                track.size.x = track.timeRange.duration().rescaled_to(1.0).value() * _scale;
+                track.size.y = 0;
+                for (const auto& item : track.items)
+                {
+                    const math::Vector2i& sizeHint = item->getSizeHint();
+                    track.size.y = std::max(track.size.y, sizeHint.y);
+                }
+                track.clipHeight = track.size.y;
+                track.size.y += std::max(
+                    track.label->getSizeHint().y,
+                    track.durationLabel->getSizeHint().y);
+                tracksHeight += track.size.y;
             }
 
             _sizeHint = math::Vector2i(
@@ -183,7 +334,7 @@ namespace tl
                 p.size.margin +
                 p.size.border * 4 +
                 p.size.border +
-                childrenHeight);
+                tracksHeight);
         }
 
         void TimelineItem::drawOverlayEvent(
@@ -213,6 +364,19 @@ namespace tl
                 math::Box2i(g.min.x, y, g.w(), h),
                 event.style->getColorRole(ui::ColorRole::Border));
 
+            if (p.mouse.currentDropTarget >= 0 &&
+                p.mouse.currentDropTarget < p.mouse.dropTargets.size())
+            {
+                const auto& dt = p.mouse.dropTargets[p.mouse.currentDropTarget];
+                event.render->drawMesh(
+                    ui::border(dt.draw, p.size.border),
+                    math::Vector2i(),
+                    event.style->getColorRole(ui::ColorRole::Border));
+                event.render->drawRect(
+                    dt.draw.margin(-p.size.border),
+                    event.style->getColorRole(ui::ColorRole::Green));
+            }
+
             _drawInOutPoints(drawRect, event);
             _drawTimeTicks(drawRect, event);
             _drawCacheInfo(drawRect, event);
@@ -223,9 +387,42 @@ namespace tl
         {
             IWidget::mouseMoveEvent(event);
             TLRENDER_P();
-            if (p.mouse.currentTimeDrag)
+            switch (p.mouse.mode)
             {
+            case Private::MouseMode::CurrentTime:
                 p.player->seek(_posToTime(event.pos.x));
+                break;
+            case Private::MouseMode::Item:
+            {
+                if (p.mouse.item)
+                {
+                    const math::Box2i& g = p.mouse.item->geometry;
+                    p.mouse.item->p->setGeometry(math::Box2i(
+                        g.min + _mouse.pos - _mouse.pressPos,
+                        g.getSize()));
+                    
+                    int dropTarget = -1;
+                    for (size_t i = 0; i < p.mouse.dropTargets.size(); ++i)
+                    {
+                        if (p.mouse.dropTargets[i].geometry.contains(event.pos))
+                        {
+                            dropTarget = i;
+                            break;
+                        }
+                    }
+                    if (dropTarget != p.mouse.currentDropTarget)
+                    {
+                        p.mouse.item->p->setSelectRole(
+                            dropTarget != -1 ?
+                            ui::ColorRole::Green :
+                            ui::ColorRole::Checked);
+                        p.mouse.currentDropTarget = dropTarget;
+                        _updates |= ui::Update::Draw;
+                    }
+                }
+                break;
+            }
+            default: break;
             }
         }
 
@@ -236,14 +433,56 @@ namespace tl
             if (0 == event.button && 0 == event.modifiers)
             {
                 takeKeyFocus();
-                if (p.stopOnScrub)
+
+                p.mouse.mode = Private::MouseMode::None;
+
+                const math::Box2i& g = _geometry;
+                for (size_t i = 0; i < p.tracks.size(); ++i)
                 {
-                    p.player->setPlayback(timeline::Playback::Stop);
+                    const auto& items = p.tracks[i].items;
+                    for (size_t j = 0; j < items.size(); ++j)
+                    {
+                        const auto& item = items[j];
+                        const math::Box2i& g2 = item->getGeometry();
+                        if (g2.contains(event.pos))
+                        {
+                            p.mouse.mode = Private::MouseMode::Item;
+                            p.mouse.item = std::make_unique<Private::MouseItemData>();
+                            p.mouse.item->p = item;
+                            p.mouse.item->index = j;
+                            p.mouse.item->track = i;
+                            p.mouse.item->geometry = g2;
+                            item->setSelectRole(ui::ColorRole::Checked);
+                            moveToFront(item);
+                            p.mouse.dropTargets = p.getDropTargets(j, i);
+                            break;
+                        }
+                    }
+                    if (p.mouse.item)
+                    {
+                        break;
+                    }
                 }
-                if (_geometry.contains(event.pos))
+
+                if (!p.mouse.item)
                 {
-                    p.mouse.currentTimeDrag = true;
-                    p.player->seek(_posToTime(event.pos.x));
+                    const math::Box2i g2(
+                        g.min.x,
+                        g.min.y,
+                        g.w(),
+                        p.size.margin +
+                        p.size.fontMetrics.lineHeight +
+                        p.size.margin +
+                        p.size.border * 4);
+                    if (g2.contains(event.pos))
+                    {
+                        p.mouse.mode = Private::MouseMode::CurrentTime;
+                        if (p.stopOnScrub)
+                        {
+                            p.player->setPlayback(timeline::Playback::Stop);
+                        }
+                        p.player->seek(_posToTime(event.pos.x));
+                    }
                 }
             }
         }
@@ -252,7 +491,24 @@ namespace tl
         {
             IWidget::mouseReleaseEvent(event);
             TLRENDER_P();
-            p.mouse.currentTimeDrag = false;
+            p.mouse.mode = Private::MouseMode::None;
+            if (p.mouse.item && p.mouse.currentDropTarget != -1)
+            {
+                const auto& dt = p.mouse.dropTargets[p.mouse.currentDropTarget];
+                auto otioTimeline = insert(
+                    p.player->getTimeline()->getTimeline().value,
+                    p.mouse.item->p->getComposable(),
+                    dt.track,
+                    dt.index);
+                p.player->getTimeline()->setTimeline(otioTimeline);
+            }
+            p.mouse.item.reset();
+            if (!p.mouse.dropTargets.empty())
+            {
+                p.mouse.dropTargets.clear();
+                _updates |= ui::Update::Draw;
+            }
+            p.mouse.currentDropTarget = -1;
         }
 
         /*void TimelineItem::keyPressEvent(ui::KeyEvent& event)
@@ -262,52 +518,6 @@ namespace tl
             {
                 switch (event.key)
                 {
-                case ui::Key::Space:
-                    event.accept = true;
-                    switch (p.player->observePlayback()->get())
-                    {
-                    case timeline::Playback::Stop:
-                        p.player->setPlayback(timeline::Playback::Forward);
-                        break;
-                    case timeline::Playback::Forward:
-                    case timeline::Playback::Reverse:
-                        p.player->setPlayback(timeline::Playback::Stop);
-                        break;
-                    default: break;
-                    }
-                    break;
-                case ui::Key::Up:
-                    event.accept = true;
-                    p.player->timeAction(timeline::TimeAction::FrameNextX10);
-                    break;
-                case ui::Key::Down:
-                    event.accept = true;
-                    p.player->timeAction(timeline::TimeAction::FramePrevX10);
-                    break;
-                case ui::Key::Right:
-                    event.accept = true;
-                    p.player->timeAction(timeline::TimeAction::FrameNext);
-                    break;
-                case ui::Key::Left:
-                    event.accept = true;
-                    p.player->timeAction(timeline::TimeAction::FramePrev);
-                    break;
-                case ui::Key::PageUp:
-                    event.accept = true;
-                    p.player->timeAction(timeline::TimeAction::FrameNextX100);
-                    break;
-                case ui::Key::PageDown:
-                    event.accept = true;
-                    p.player->timeAction(timeline::TimeAction::FramePrevX100);
-                    break;
-                case ui::Key::Home:
-                    event.accept = true;
-                    p.player->timeAction(timeline::TimeAction::Start);
-                    break;
-                case ui::Key::End:
-                    event.accept = true;
-                    p.player->timeAction(timeline::TimeAction::End);
-                    break;
                 default: break;
                 }
             }
@@ -321,6 +531,7 @@ namespace tl
         void TimelineItem::_timeUnitsUpdate()
         {
             IItem::_timeUnitsUpdate();
+            _textUpdate();
             _updates |= ui::Update::Size;
             _updates |= ui::Update::Draw;
         }
@@ -329,11 +540,7 @@ namespace tl
         {
             TLRENDER_P();
             IWidget::_releaseMouse();
-            if (p.mouse.currentTimeDrag)
-            {
-                p.mouse.currentTimeDrag = false;
-                _updates |= ui::Update::Draw;
-            }
+            p.mouse.item.reset();
         }
 
         void TimelineItem::_drawInOutPoints(
@@ -659,6 +866,90 @@ namespace tl
                         p.size.fontMetrics.ascender),
                     event.style->getColorRole(ui::ColorRole::Text));
             }
+        }
+
+        void TimelineItem::_textUpdate()
+        {
+            TLRENDER_P();
+            for (const auto& track : p.tracks)
+            {
+                const otime::RationalTime duration = track.timeRange.duration();
+                const bool khz =
+                    TrackType::Audio == track.type ?
+                    (duration.rate() >= 1000.0) :
+                    false;
+                const otime::RationalTime rescaled = duration.rescaled_to(_data.speed);
+                const std::string label = string::Format("{0}, {1}{2}").
+                    arg(_data.timeUnitsModel->getLabel(rescaled)).
+                    arg(khz ? (duration.rate() / 1000.0) : duration.rate()).
+                    arg(khz ? "kHz" : "FPS");
+                track.durationLabel->setText(label);
+            }
+        }
+
+        TimelineItem::Private::MouseItemData::~MouseItemData()
+        {
+            if (p)
+            {
+                p->setSelectRole(ui::ColorRole::None);
+                p->setGeometry(geometry);
+            }
+        }
+
+        std::vector<TimelineItem::Private::MouseItemDropTarget> TimelineItem::Private::getDropTargets(int index, int trackIndex)
+        {
+            std::vector<MouseItemDropTarget> out;
+            for (size_t i = 0; i < tracks.size(); ++i)
+            {
+                const auto& track = tracks[i];
+                if (track.type == tracks[trackIndex].type)
+                {
+                    size_t j = 0;
+                    math::Box2i g;
+                    for (; j < track.items.size(); ++j)
+                    {
+                        const auto& item = track.items[j];
+                        g = item->getGeometry();
+                        if ((i == trackIndex && j == index) ||
+                            (i == trackIndex && j == (index + 1)))
+                        {
+                            continue;
+                        }
+                        MouseItemDropTarget dt;
+                        dt.index = j;
+                        dt.track = i;
+                        dt.geometry = math::Box2i(
+                            g.min.x - g.h() / 2,
+                            g.min.y,
+                            g.h(),
+                            g.h());
+                        dt.draw = math::Box2i(
+                            g.min.x - size.handle,
+                            g.min.y,
+                            size.handle * 2,
+                            g.h());
+                        out.push_back(dt);
+                    }
+                    if (!track.items.empty())
+                    {
+                        MouseItemDropTarget dt;
+                        dt.index = j;
+                        dt.track = i;
+                        dt.geometry = math::Box2i(
+                            g.max.x - g.h() / 2,
+                            g.min.y,
+                            g.h(),
+                            g.h());
+                        dt.draw = math::Box2i(
+                            g.max.x - size.handle,
+                            g.min.y,
+                            size.handle * 2,
+                            g.h());
+                        out.push_back(dt);
+                    }
+                }
+            }
+            return out;
         }
     }
 }
