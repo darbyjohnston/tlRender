@@ -13,6 +13,13 @@ namespace tl
 {
     namespace gl
     {
+        //! Default offscreen buffer color type.
+#if defined(TLRENDER_API_GL_4_1)
+        const image::PixelType OffscreenColorDefault = image::PixelType::RGBA_F32;
+#elif defined(TLRENDER_API_GLES_2)
+        const image::PixelType OffscreenColorDefault = image::PixelType::RGBA_U8;
+#endif // TLRENDER_API_GL_4_1
+
         //! Offscreen buffer depth size.
         enum class OffscreenDepth
         {
@@ -24,6 +31,13 @@ namespace tl
             Count,
             First = None
         };
+
+        //! Default offscreen buffer color type.
+#if defined(TLRENDER_API_GL_4_1)
+        const OffscreenDepth OffscreenDepthDefault = OffscreenDepth::_16;
+#elif defined(TLRENDER_API_GLES_2)
+        const OffscreenDepth OffscreenDepthDefault = OffscreenDepth::_24;
+#endif // TLRENDER_API_GL_4_1
 
         //! Offscreen buffer stencil size.
         enum class OffscreenStencil
@@ -60,7 +74,7 @@ namespace tl
             bool operator == (const OffscreenBufferOptions&) const;
             bool operator != (const OffscreenBufferOptions&) const;
         };
-
+        
         //! Offscreen buffer.
         class OffscreenBuffer : public std::enable_shared_from_this<OffscreenBuffer>
         {

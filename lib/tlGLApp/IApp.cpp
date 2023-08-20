@@ -13,7 +13,9 @@
 
 #include <tlGL/GL.h>
 #include <tlGL/GLFWWindow.h>
+#include <tlGL/Mesh.h>
 #include <tlGL/OffscreenBuffer.h>
+#include <tlGL/Shader.h>
 #include <tlGL/Util.h>
 
 #include <tlCore/LogSystem.h>
@@ -118,6 +120,7 @@ namespace tl
             std::shared_ptr<ui::EventLoop> eventLoop;
             std::shared_ptr<timeline::IRender> render;
             std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
+            std::shared_ptr<gl::Shader> shader;
 
             bool running = true;
         };
@@ -277,7 +280,7 @@ namespace tl
                 p.eventLoop->tick();
 
                 gl::OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
+                offscreenBufferOptions.colorType = image::PixelType::RGBA_U8;
                 if (gl::doCreate(p.offscreenBuffer, p.frameBufferSize, offscreenBufferOptions))
                 {
                     p.offscreenBuffer = gl::OffscreenBuffer::create(
@@ -302,7 +305,7 @@ namespace tl
                         0,
                         GLsizei(p.frameBufferSize.w),
                         GLsizei(p.frameBufferSize.h));
-                    glClearColor(0.F, 0.F, 0.F, 0.F);
+                    glClearColor(1.F, 0.F, 0.F, 0.F);
                     glClear(GL_COLOR_BUFFER_BIT);
 #if defined(TLRENDER_API_GL_4_1)
                     glBindFramebuffer(
@@ -319,6 +322,85 @@ namespace tl
                         p.frameBufferSize.h,
                         GL_COLOR_BUFFER_BIT,
                         GL_LINEAR);
+#elif defined(TLRENDER_API_GLES_2)
+                    if (!p.shader)
+                    {
+                        try
+                        {
+                            const std::string vertexSource =
+                                "precision mediump int;\n"
+                                "precision mediump float;\n"
+                                "\n"
+                                "attribute vec3 vPos;\n"
+                                "attribute vec2 vTexture;\n"
+                                "\n"
+                                "varying vec2 fTexture;\n"
+                                "\n"
+                                "uniform struct Transform\n"
+                                "{\n"
+                                "    mat4 mvp;\n"
+                                "} transform;\n"
+                                "\n"
+                                "void main()\n"
+                                "{\n"
+                                "    gl_Position = transform.mvp * vec4(vPos, 1.0);\n"
+                                "    fTexture = vTexture;\n"
+                                "}\n";
+                            const std::string fragmentSource =
+                                "precision mediump int;\n"
+                                "precision mediump float;\n"
+                                "\n"
+                                "varying vec2 fTexture;\n"
+                                "\n"
+                                "uniform sampler2D textureSampler;\n"
+                                "\n"
+                                "void main()\n"
+                                "{\n"
+                                //"    gl_FragColor = texture2D(textureSampler, fTexture);\n"
+                                "    gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
+                                "}\n";
+                            p.shader = gl::Shader::create(vertexSource, fragmentSource);
+                        }
+                        catch (const std::exception& e)
+                        {
+                            _log(string::Format("Cannot compile shader: {0}").arg(e.what()),
+                                log::Type::Error);
+                        }
+                    }
+                    if (p.shader)
+                    {
+                        glDisable(GL_BLEND);
+                        glDisable(GL_SCISSOR_TEST);
+                                                
+                        p.shader->bind();
+                        p.shader->setUniform("transform.mvp",
+                            math::ortho(
+                                0.F,
+                                static_cast<float>(p.frameBufferSize.w),
+                                static_cast<float>(p.frameBufferSize.h),
+                                0.F,
+                                -1.F,
+                                1.F));
+                        p.shader->setUniform("textureSampler", 0);
+                                
+                        glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
+                        glBindTexture(GL_TEXTURE_2D, p.offscreenBuffer->getColorID());
+                        
+                        auto mesh = geom::box(math::Box2i(
+                            0,
+                            0,
+                            p.frameBufferSize.w,
+                            p.frameBufferSize.h));
+                        auto vboData = gl::convert(
+                            mesh,
+                            gl::VBOType::Pos3_F32_UV_U16,
+                            math::SizeTRange(0, mesh.triangles.size() - 1));
+                        auto vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos3_F32_UV_U16);
+                        vbo->copy(vboData);
+                        auto vao = gl::VAO::create(gl::VBOType::Pos3_F32_UV_U16, vbo->getID());
+                        vao->bind();
+                        vao->draw(GL_TRIANGLES, 0, mesh.triangles.size() * 3);
+                    }
 #endif // TLRENDER_API_GL_4_1
                     p.window->swap();
                 }

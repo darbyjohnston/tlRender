@@ -11,6 +11,11 @@
 
 #include <tlCore/Context.h>
 
+#if defined(TLRENDER_GLFW)
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+#endif // TLRENDER_GLFW
+
 namespace tl
 {
     namespace gl
@@ -30,7 +35,7 @@ namespace tl
 #if defined(TLRENDER_API_GL_4_1)
             gladLoaderLoadGL();
 #elif defined(TLRENDER_API_GLES_2)
-            gladLoaderLoadGLES2();
+            gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress);
 #endif // TLRENDER_API_GL_4_1
         }
     }

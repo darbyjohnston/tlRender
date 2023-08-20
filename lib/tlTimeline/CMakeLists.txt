@@ -60,8 +60,12 @@ set(SOURCE
 list(APPEND SOURCE
     GLRender.cpp
     GLRenderPrims.cpp
-    GLRenderShaders.cpp
     GLRenderVideo.cpp)
+if("${TLRENDER_API}" STREQUAL "GL_4_1" OR "${TLRENDER_API}" STREQUAL "GL_4_1_Debug")
+    list(APPEND SOURCE GLRenderShaders_GL_4_1.cpp)
+elseif("${TLRENDER_API}" STREQUAL "GLES_2")
+    list(APPEND SOURCE GLRenderShaders_GLES_2.cpp)
+endif()
 
 add_library(tlTimeline ${HEADERS} ${PRIVATE_HEADERS} ${SOURCE})
 target_link_libraries(tlTimeline tlIO)

@@ -343,7 +343,7 @@ namespace tl
                 if (renderSize.isValid())
                 {
                     gl::OffscreenBufferOptions offscreenBufferOptions;
-                    offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
+                    offscreenBufferOptions.colorType = gl::OffscreenColorDefault;
                     if (!p.displayOptions.empty())
                     {
                         offscreenBufferOptions.colorFilters = p.displayOptions[0].imageFilters;

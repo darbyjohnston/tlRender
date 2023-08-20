@@ -434,9 +434,7 @@ namespace tl
 
         struct VAO::Private
         {
-#if defined(TLRENDER_API_GL_4_1)
             GLuint vao = 0;
-#endif // TLRENDER_API_GL_4_1
         };
 
         void VAO::_init(VBOType type, unsigned int vbo)
@@ -446,6 +444,9 @@ namespace tl
 #if defined(TLRENDER_API_GL_4_1)
             glGenVertexArrays(1, &p.vao);
             glBindVertexArray(p.vao);
+#elif defined(TLRENDER_API_GLES_2)
+            glGenVertexArraysOES(1, &p.vao);
+            glBindVertexArrayOES(p.vao);
 #endif // TLRENDER_API_GL_4_1
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
             const std::size_t byteCount = getByteCount(type);
@@ -512,13 +513,15 @@ namespace tl
         VAO::~VAO()
         {
             TLRENDER_P();
-#if defined(TLRENDER_API_GL_4_1)
             if (p.vao)
             {
+#if defined(TLRENDER_API_GL_4_1)
                 glDeleteVertexArrays(1, &p.vao);
+#elif defined(TLRENDER_API_GLES_2)
+                glDeleteVertexArraysOES(1, &p.vao);
+#endif // TLRENDER_API_GL_4_1
                 p.vao = 0;
             }
-#endif // TLRENDER_API_GL_4_1
         }
 
         std::shared_ptr<VAO> VAO::create(VBOType type, unsigned int vbo)
@@ -530,17 +533,15 @@ namespace tl
 
         unsigned int VAO::getID() const
         {
-#if defined(TLRENDER_API_GL_4_1)
             return _p->vao;
-#elif defined(TLRENDER_API_GLES_2)
-            return 0;
-#endif // TLRENDER_API_GL_4_1
         }
 
         void VAO::bind()
         {
 #if defined(TLRENDER_API_GL_4_1)
             glBindVertexArray(_p->vao);
+#elif defined(TLRENDER_API_GLES_2)
+            glBindVertexArrayOES(_p->vao);
 #endif // TLRENDER_API_GL_4_1
         }
 

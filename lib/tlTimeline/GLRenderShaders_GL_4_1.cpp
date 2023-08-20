@@ -49,6 +49,7 @@ namespace tl
                 "    fColor = color;\n"
                 "}\n";
         }
+
         std::string colorMeshVertexSource()
         {
             return

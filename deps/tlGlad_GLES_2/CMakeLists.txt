@@ -1,12 +1,9 @@
 set(HEADERS
-    include/EGL/eglplatform.h
-    include/glad/egl.h
-    include/glad/gles2.h
+    include/glad/glad.h
     include/KHR/khrplatform.h)
 
 set(SOURCE
-    src/egl.c
-    src/gles2.c)
+    src/glad.c)
 
 add_library(tlGlad ${HEADERS} ${SOURCE})
 target_link_libraries(tlGlad OpenGL::GL ${CMAKE_DL_LIBS})

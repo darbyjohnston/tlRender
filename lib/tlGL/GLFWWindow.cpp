@@ -5,6 +5,7 @@
 #include <tlGL/GLFWWindow.h>
 
 #include <tlGL/GL.h>
+#include <tlGL/Init.h>
 
 #include <tlCore/Context.h>
 #include <tlCore/StringFormat.h>
@@ -202,17 +203,7 @@ namespace tl
             if (p.gladInit)
             {
                 p.gladInit = false;
-#if defined(TLRENDER_API_GL_4_1)
-                if (!gladLoaderLoadGL())
-                {
-                    throw std::runtime_error("Cannot initialize GLAD");
-                }
-#elif defined(TLRENDER_API_GLES_2)
-                if (!gladLoaderLoadGLES2())
-                {
-                    throw std::runtime_error("Cannot initialize GLAD");
-                }
-#endif // TLRENDER_API_GL_4_1
+                initGLAD();
 #if defined(TLRENDER_API_GL_4_1_Debug)
                 GLint flags = 0;
                 glGetIntegerv(GL_CONTEXT_FLAGS, &flags);

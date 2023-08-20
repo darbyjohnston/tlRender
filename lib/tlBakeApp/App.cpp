@@ -291,7 +291,7 @@ namespace tl
             // Create the renderer.
             _render = timeline::GLRender::create(_context);
             gl::OffscreenBufferOptions offscreenBufferOptions;
-            offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
+            offscreenBufferOptions.colorType = gl::OffscreenColorDefault;
             _buffer = gl::OffscreenBuffer::create(_renderSize, offscreenBufferOptions);
 
             // Create the writer.

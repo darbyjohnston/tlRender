@@ -298,9 +298,12 @@ namespace tl
 
                 const math::Size2i size(g.w(), g.h());
                 gl::OffscreenBufferOptions options;
-                options.colorType = image::PixelType::RGB_F32;
+                options.colorType = gl::OffscreenColorDefault;
+#if defined(TLRENDER_API_GL_4_1)
                 options.depth = gl::OffscreenDepth::_24;
                 options.stencil = gl::OffscreenStencil::_8;
+#elif defined(TLRENDER_API_GLES_2)
+#endif // TLRENDER_API_GL_4_1
                 if (gl::doCreate(p.buffer, size, options))
                 {
                     p.buffer = gl::OffscreenBuffer::create(size, options);

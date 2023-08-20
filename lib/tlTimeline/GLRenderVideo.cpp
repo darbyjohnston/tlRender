@@ -259,7 +259,7 @@ namespace tl
                     boxes[0].w(),
                     boxes[0].h());
                 gl::OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
+                offscreenBufferOptions.colorType = gl::OffscreenColorDefault;
                 if (!displayOptions.empty())
                 {
                     offscreenBufferOptions.colorFilters = displayOptions[0].imageFilters;
@@ -354,7 +354,7 @@ namespace tl
                     boxes[0].w(),
                     boxes[0].h());
                 gl::OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
+                offscreenBufferOptions.colorType = gl::OffscreenColorDefault;
                 if (!imageOptions.empty())
                 {
                     offscreenBufferOptions.colorFilters = displayOptions[0].imageFilters;
@@ -406,7 +406,7 @@ namespace tl
                 if (videoData.size() > 1)
                 {
                     offscreenBufferOptions = gl::OffscreenBufferOptions();
-                    offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
+                    offscreenBufferOptions.colorType = gl::OffscreenColorDefault;
                     if (imageOptions.size() > 1)
                     {
                         offscreenBufferOptions.colorFilters = displayOptions[1].imageFilters;
@@ -564,7 +564,7 @@ namespace tl
 
             const math::Size2i& offscreenBufferSize = box.getSize();
             gl::OffscreenBufferOptions offscreenBufferOptions;
-            offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
+            offscreenBufferOptions.colorType = gl::OffscreenColorDefault;
             if (imageOptions.get())
             {
                 offscreenBufferOptions.colorFilters = displayOptions.imageFilters;
