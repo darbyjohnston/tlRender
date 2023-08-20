@@ -13,8 +13,8 @@
 # * tlRender::tlIO
 # * tlRender::tlTimeline
 # * tlRender::tlDevice
-# * tlRender::tlGlad
 # * tlRender::tlGL
+# * tlRender::glad
 #
 # This module defines the following interfaces:
 #
@@ -59,15 +59,15 @@ if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
     find_library(tlRender_tlIO_LIBRARY NAMES tlIO)
     find_library(tlRender_tlTimeline_LIBRARY NAMES tlTimeline)
     find_library(tlRender_tlDevice_LIBRARY NAMES tlDevice)
-    find_library(tlRender_tlGlad_LIBRARY NAMES tlGlad)
     find_library(tlRender_tlGL_LIBRARY NAMES tlGL)
+    find_library(tlRender_glad_LIBRARY NAMES glad)
 else()
     find_library(tlRender_tlCore_LIBRARY NAMES tlCore)
     find_library(tlRender_tlIO_LIBRARY NAMES tlIO)
     find_library(tlRender_tlTimeline_LIBRARY NAMES tlTimeline)
     find_library(tlRender_tlDevice_LIBRARY NAMES tlDevice)
-    find_library(tlRender_tlGlad_LIBRARY NAMES tlGlad)
     find_library(tlRender_tlGL_LIBRARY NAMES tlGL)
+    find_library(tlRender_glad_LIBRARY NAMES glad)
 endif()
 
 set(tlRender_LIBRARIES
@@ -75,8 +75,8 @@ set(tlRender_LIBRARIES
     ${tlRender_tlIO_LIBRARY}
     ${tlRender_tlTimeline_LIBRARY}
     ${tlRender_tlDevice_LIBRARY}
-    ${tlRender_tlGlad_LIBRARY}
     ${tlRender_tlGL_LIBRARY}
+    ${tlRender_glad_LIBRARY}
     ${FSeq_LIBRARIES}
     ${GLM_LIBRARIES}
     ${Imath_LIBRARIES}
@@ -100,16 +100,16 @@ find_package_handle_standard_args(
         tlRender_tlIO_LIBRARY
         tlRender_tlTimeline_LIBRARY
         tlRender_tlDevice_LIBRARY
-        tlRender_tlGlad_LIBRARY
-        tlRender_tlGL_LIBRARY)
+        tlRender_tlGL_LIBRARY
+        tlRender_glad_LIBRARY)
 mark_as_advanced(
     tlRender_INCLUDE_DIR
     tlRender_tlCore_LIBRARY
     tlRender_tlIO_LIBRARY
     tlRender_tlTimeline_LIBRARY
     tlRender_tlDevice_LIBRARY
-    tlRender_tlGlad_LIBRARY
-    tlRender_tlGL_LIBRARY)
+    tlRender_tlGL_LIBRARY
+    tlRender_glad_LIBRARY)
 
 set(tlRender_COMPILE_DEFINITIONS tlRender_FOUND)
 
@@ -143,17 +143,17 @@ if(tlRender_FOUND AND NOT TARGET tlRender::tlDevice)
         INTERFACE_COMPILE_DEFINITIONS "${tlRender_COMPILE_DEFINITIONS}"
         INTERFACE_INCLUDE_DIRECTORIES "${tlRender_INCLUDE_DIR}")
 endif()
-if(tlRender_FOUND AND NOT TARGET tlRender::tlGlad)
-    add_library(tlRender::tlGlad UNKNOWN IMPORTED)
-    set_target_properties(tlRender::tlGlad PROPERTIES
-        IMPORTED_LOCATION "${tlRender_tlGlad_LIBRARY}"
-        INTERFACE_COMPILE_DEFINITIONS "${tlRender_COMPILE_DEFINITIONS}"
-        INTERFACE_INCLUDE_DIRECTORIES "${tlRender_INCLUDE_DIR}")
-endif()
 if(tlRender_FOUND AND NOT TARGET tlRender::tlGL)
     add_library(tlRender::tlGL UNKNOWN IMPORTED)
     set_target_properties(tlRender::tlGL PROPERTIES
         IMPORTED_LOCATION "${tlRender_tlGL_LIBRARY}"
+        INTERFACE_COMPILE_DEFINITIONS "${tlRender_COMPILE_DEFINITIONS}"
+        INTERFACE_INCLUDE_DIRECTORIES "${tlRender_INCLUDE_DIR}")
+endif()
+if(tlRender_FOUND AND NOT TARGET tlRender::glad)
+    add_library(tlRender::glad UNKNOWN IMPORTED)
+    set_target_properties(tlRender::glad PROPERTIES
+        IMPORTED_LOCATION "${tlRender_glad_LIBRARY}"
         INTERFACE_COMPILE_DEFINITIONS "${tlRender_COMPILE_DEFINITIONS}"
         INTERFACE_INCLUDE_DIRECTORIES "${tlRender_INCLUDE_DIR}")
 endif()
@@ -163,6 +163,6 @@ if(tlRender_FOUND AND NOT TARGET tlRender)
     target_link_libraries(tlRender INTERFACE tlRender::tlIO)
     target_link_libraries(tlRender INTERFACE tlRender::tlTimeline)
     target_link_libraries(tlRender INTERFACE tlRender::tlDevice)
-    target_link_libraries(tlRender INTERFACE tlRender::tlGlad)
     target_link_libraries(tlRender INTERFACE tlRender::tlGL)
+    target_link_libraries(tlRender INTERFACE tlRender::glad)
 endif()

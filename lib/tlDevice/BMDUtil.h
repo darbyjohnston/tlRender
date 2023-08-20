@@ -6,13 +6,9 @@
 
 #include <tlDevice/DeviceData.h>
 
-#include <tlCore/Image.h>
+#include <tlGL/GL.h>
 
-#if defined(TLRENDER_GL_DEBUG)
-#include <tlGladDebug/gl.h>
-#else // TLRENDER_GL_DEBUG
-#include <tlGlad/gl.h>
-#endif // TLRENDER_GL_DEBUG
+#include <tlCore/Image.h>
 
 #ifndef NOMINMAX
 #define NOMINMAX

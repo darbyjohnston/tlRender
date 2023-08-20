@@ -29,7 +29,7 @@ if(TLRENDER_GLFW)
         GLFWWindow.cpp)
 endif()
 
-set(LIBRARIES tlCore tlGlad)
+set(LIBRARIES tlCore glad)
 if(TLRENDER_GLFW)
     list(APPEND LIBRARIES GLFW)
 endif()

@@ -93,11 +93,11 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/etc
     ${PROJECT_SOURCE_DIR}/tests)
 if ("${TLRENDER_API}" STREQUAL "GL_4_1")
-    include_directories(${PROJECT_SOURCE_DIR}/deps/tlGlad_GL_4_1/include)
+    include_directories(${PROJECT_SOURCE_DIR}/deps/glad_GL_4_1/include)
 elseif ("${TLRENDER_API}" STREQUAL "GL_4_1_Debug")
-    include_directories(${PROJECT_SOURCE_DIR}/deps/tlGlad_GL_4_1_Debug/include)
+    include_directories(${PROJECT_SOURCE_DIR}/deps/glad_GL_4_1_Debug/include)
 elseif ("${TLRENDER_API}" STREQUAL "GLES_2")
-    include_directories(${PROJECT_SOURCE_DIR}/deps/tlGlad_GLES_2/include)
+    include_directories(${PROJECT_SOURCE_DIR}/deps/glad_GLES_2/include)
 endif()
 
 if(TLRENDER_GPROF)
@@ -224,7 +224,7 @@ add_definitions(-DTLRENDER_API_${TLRENDER_API})
 if("${TLRENDER_API}" STREQUAL "GL_4_1_Debug")
     add_definitions(-DTLRENDER_API_GL_4_1)
 endif()
-add_subdirectory(deps/tlGlad_${TLRENDER_API})
+add_subdirectory(deps/glad_${TLRENDER_API})
 
 add_subdirectory(lib)
 if(TLRENDER_PROGRAMS)
