@@ -245,7 +245,7 @@ namespace tl
         struct DLOutputCallback::Private
         {
             IDeckLinkOutput* dlOutput = nullptr;
-            image::Size size;
+            math::Size2i size;
             PixelType pixelType = PixelType::None;
             otime::RationalTime frameRate = time::invalidTime;
             audio::Info audioInfo;
@@ -291,7 +291,7 @@ namespace tl
 
         DLOutputCallback::DLOutputCallback(
             IDeckLinkOutput* dlOutput,
-            const image::Size& size,
+            const math::Size2i& size,
             PixelType pixelType,
             const otime::RationalTime& frameRate,
             const audio::Info& audioInfo) :

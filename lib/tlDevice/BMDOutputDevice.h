@@ -57,7 +57,7 @@ namespace tl
         public:
             DLOutputCallback(
                 IDeckLinkOutput*,
-                const image::Size& size,
+                const math::Size2i& size,
                 PixelType pixelType,
                 const otime::RationalTime& frameRate,
                 const audio::Info& audioInfo);
