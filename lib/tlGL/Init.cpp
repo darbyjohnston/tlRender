@@ -27,7 +27,11 @@ namespace tl
 
         void initGLAD()
         {
+#if defined(TLRENDER_API_GL_4_1)
             gladLoaderLoadGL();
+#elif defined(TLRENDER_API_GLES_2)
+            gladLoaderLoadGLES2();
+#endif // TLRENDER_API_GL_4_1
         }
     }
 }

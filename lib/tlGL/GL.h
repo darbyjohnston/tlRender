@@ -5,9 +5,7 @@
 #pragma once
 
 #if defined(TLRENDER_API_GL_4_1)
-#include <tlGlad_GL_4_1/gl.h>
-#elif defined(TLRENDER_API_GL_4_1_Debug)
-#include <tlGlad_GL_4_1_Debug/gl.h>
+#include <glad/gl.h>
 #elif defined(TLRENDER_API_GLES_2)
-#include <tlGlad_GLES_2/gles2.h>
+#include <glad/gles2.h>
 #endif

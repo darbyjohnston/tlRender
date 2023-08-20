@@ -1,7 +1,10 @@
+/**
+ * SPDX-License-Identifier: (WTFPL OR CC0-1.0) AND Apache-2.0
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <tlGlad_GL_4_1/gl.h>
+#include <glad/gl.h>
 
 #ifndef GLAD_IMPL_UTIL_C_
 #define GLAD_IMPL_UTIL_C_
@@ -1053,9 +1056,9 @@ static int glad_gl_get_extensions( int version, const char **out_exts, unsigned 
 #if GLAD_GL_IS_SOME_NEW_VERSION
     if(GLAD_VERSION_MAJOR(version) < 3) {
 #else
-    (void) version;
-    (void) out_num_exts_i;
-    (void) out_exts_i;
+    GLAD_UNUSED(version);
+    GLAD_UNUSED(out_num_exts_i);
+    GLAD_UNUSED(out_exts_i);
 #endif
         if (glad_glGetString == NULL) {
             return 0;
@@ -1147,7 +1150,7 @@ static int glad_gl_find_extensions_gl( int version) {
     char **exts_i = NULL;
     if (!glad_gl_get_extensions(version, &exts, &num_exts_i, &exts_i)) return 0;
 
-    (void) glad_gl_has_extension;
+    GLAD_UNUSED(glad_gl_has_extension);
 
     glad_gl_free_extensions(exts_i, num_exts_i);
 
@@ -1324,7 +1327,7 @@ static GLADapiproc glad_gl_get_proc(void *vuserptr, const char *name) {
     return result;
 }
 
-static void* _gl_handle = NULL;
+static void* _glad_GL_loader_handle = NULL;
 
 static void* glad_gl_dlopen_handle(void) {
 #if GLAD_PLATFORM_APPLE
@@ -1346,11 +1349,11 @@ static void* glad_gl_dlopen_handle(void) {
     };
 #endif
 
-    if (_gl_handle == NULL) {
-        _gl_handle = glad_get_dlopen_handle(NAMES, sizeof(NAMES) / sizeof(NAMES[0]));
+    if (_glad_GL_loader_handle == NULL) {
+        _glad_GL_loader_handle = glad_get_dlopen_handle(NAMES, sizeof(NAMES) / sizeof(NAMES[0]));
     }
 
-    return _gl_handle;
+    return _glad_GL_loader_handle;
 }
 
 static struct _glad_gl_userptr glad_gl_build_userptr(void *handle) {
@@ -1376,7 +1379,7 @@ int gladLoaderLoadGL(void) {
     int did_load = 0;
     struct _glad_gl_userptr userptr;
 
-    did_load = _gl_handle == NULL;
+    did_load = _glad_GL_loader_handle == NULL;
     handle = glad_gl_dlopen_handle();
     if (handle) {
         userptr = glad_gl_build_userptr(handle);
@@ -1394,9 +1397,9 @@ int gladLoaderLoadGL(void) {
 
 
 void gladLoaderUnloadGL(void) {
-    if (_gl_handle != NULL) {
-        glad_close_dlopen_handle(_gl_handle);
-        _gl_handle = NULL;
+    if (_glad_GL_loader_handle != NULL) {
+        glad_close_dlopen_handle(_glad_GL_loader_handle);
+        _glad_GL_loader_handle = NULL;
     }
 }
 

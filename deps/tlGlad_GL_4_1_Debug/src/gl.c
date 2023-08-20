@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <tlGlad_GL_4_1_Debug/gl.h>
+#include <glad/gl.h>
 
 #ifndef GLAD_IMPL_UTIL_C_
 #define GLAD_IMPL_UTIL_C_
@@ -37,7 +37,6 @@ int GLAD_GL_VERSION_3_2 = 0;
 int GLAD_GL_VERSION_3_3 = 0;
 int GLAD_GL_VERSION_4_0 = 0;
 int GLAD_GL_VERSION_4_1 = 0;
-int GLAD_GL_ARB_debug_output = 0;
 int GLAD_GL_KHR_debug = 0;
 
 
@@ -595,14 +594,6 @@ static void GLAD_API_PTR glad_debug_impl_glDebugMessageCallback(GLDEBUGPROC call
     
 }
 PFNGLDEBUGMESSAGECALLBACKPROC glad_debug_glDebugMessageCallback = glad_debug_impl_glDebugMessageCallback;
-PFNGLDEBUGMESSAGECALLBACKARBPROC glad_glDebugMessageCallbackARB = NULL;
-static void GLAD_API_PTR glad_debug_impl_glDebugMessageCallbackARB(GLDEBUGPROCARB callback, const void * userParam) {
-    _pre_call_gl_callback("glDebugMessageCallbackARB", (GLADapiproc) glad_glDebugMessageCallbackARB, 2, callback, userParam);
-    glad_glDebugMessageCallbackARB(callback, userParam);
-    _post_call_gl_callback(NULL, "glDebugMessageCallbackARB", (GLADapiproc) glad_glDebugMessageCallbackARB, 2, callback, userParam);
-    
-}
-PFNGLDEBUGMESSAGECALLBACKARBPROC glad_debug_glDebugMessageCallbackARB = glad_debug_impl_glDebugMessageCallbackARB;
 PFNGLDEBUGMESSAGECONTROLPROC glad_glDebugMessageControl = NULL;
 static void GLAD_API_PTR glad_debug_impl_glDebugMessageControl(GLenum source, GLenum type, GLenum severity, GLsizei count, const GLuint * ids, GLboolean enabled) {
     _pre_call_gl_callback("glDebugMessageControl", (GLADapiproc) glad_glDebugMessageControl, 6, source, type, severity, count, ids, enabled);
@@ -611,14 +602,6 @@ static void GLAD_API_PTR glad_debug_impl_glDebugMessageControl(GLenum source, GL
     
 }
 PFNGLDEBUGMESSAGECONTROLPROC glad_debug_glDebugMessageControl = glad_debug_impl_glDebugMessageControl;
-PFNGLDEBUGMESSAGECONTROLARBPROC glad_glDebugMessageControlARB = NULL;
-static void GLAD_API_PTR glad_debug_impl_glDebugMessageControlARB(GLenum source, GLenum type, GLenum severity, GLsizei count, const GLuint * ids, GLboolean enabled) {
-    _pre_call_gl_callback("glDebugMessageControlARB", (GLADapiproc) glad_glDebugMessageControlARB, 6, source, type, severity, count, ids, enabled);
-    glad_glDebugMessageControlARB(source, type, severity, count, ids, enabled);
-    _post_call_gl_callback(NULL, "glDebugMessageControlARB", (GLADapiproc) glad_glDebugMessageControlARB, 6, source, type, severity, count, ids, enabled);
-    
-}
-PFNGLDEBUGMESSAGECONTROLARBPROC glad_debug_glDebugMessageControlARB = glad_debug_impl_glDebugMessageControlARB;
 PFNGLDEBUGMESSAGEINSERTPROC glad_glDebugMessageInsert = NULL;
 static void GLAD_API_PTR glad_debug_impl_glDebugMessageInsert(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar * buf) {
     _pre_call_gl_callback("glDebugMessageInsert", (GLADapiproc) glad_glDebugMessageInsert, 6, source, type, id, severity, length, buf);
@@ -627,14 +610,6 @@ static void GLAD_API_PTR glad_debug_impl_glDebugMessageInsert(GLenum source, GLe
     
 }
 PFNGLDEBUGMESSAGEINSERTPROC glad_debug_glDebugMessageInsert = glad_debug_impl_glDebugMessageInsert;
-PFNGLDEBUGMESSAGEINSERTARBPROC glad_glDebugMessageInsertARB = NULL;
-static void GLAD_API_PTR glad_debug_impl_glDebugMessageInsertARB(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar * buf) {
-    _pre_call_gl_callback("glDebugMessageInsertARB", (GLADapiproc) glad_glDebugMessageInsertARB, 6, source, type, id, severity, length, buf);
-    glad_glDebugMessageInsertARB(source, type, id, severity, length, buf);
-    _post_call_gl_callback(NULL, "glDebugMessageInsertARB", (GLADapiproc) glad_glDebugMessageInsertARB, 6, source, type, id, severity, length, buf);
-    
-}
-PFNGLDEBUGMESSAGEINSERTARBPROC glad_debug_glDebugMessageInsertARB = glad_debug_impl_glDebugMessageInsertARB;
 PFNGLDELETEBUFFERSPROC glad_glDeleteBuffers = NULL;
 static void GLAD_API_PTR glad_debug_impl_glDeleteBuffers(GLsizei n, const GLuint * buffers) {
     _pre_call_gl_callback("glDeleteBuffers", (GLADapiproc) glad_glDeleteBuffers, 2, n, buffers);
@@ -1302,15 +1277,6 @@ static GLuint GLAD_API_PTR glad_debug_impl_glGetDebugMessageLog(GLuint count, GL
     return ret;
 }
 PFNGLGETDEBUGMESSAGELOGPROC glad_debug_glGetDebugMessageLog = glad_debug_impl_glGetDebugMessageLog;
-PFNGLGETDEBUGMESSAGELOGARBPROC glad_glGetDebugMessageLogARB = NULL;
-static GLuint GLAD_API_PTR glad_debug_impl_glGetDebugMessageLogARB(GLuint count, GLsizei bufSize, GLenum * sources, GLenum * types, GLuint * ids, GLenum * severities, GLsizei * lengths, GLchar * messageLog) {
-    GLuint ret;
-    _pre_call_gl_callback("glGetDebugMessageLogARB", (GLADapiproc) glad_glGetDebugMessageLogARB, 8, count, bufSize, sources, types, ids, severities, lengths, messageLog);
-    ret = glad_glGetDebugMessageLogARB(count, bufSize, sources, types, ids, severities, lengths, messageLog);
-    _post_call_gl_callback((void*) &ret, "glGetDebugMessageLogARB", (GLADapiproc) glad_glGetDebugMessageLogARB, 8, count, bufSize, sources, types, ids, severities, lengths, messageLog);
-    return ret;
-}
-PFNGLGETDEBUGMESSAGELOGARBPROC glad_debug_glGetDebugMessageLogARB = glad_debug_impl_glGetDebugMessageLogARB;
 PFNGLGETDOUBLEI_VPROC glad_glGetDoublei_v = NULL;
 static void GLAD_API_PTR glad_debug_impl_glGetDoublei_v(GLenum target, GLuint index, GLdouble * data) {
     _pre_call_gl_callback("glGetDoublei_v", (GLADapiproc) glad_glGetDoublei_v, 3, target, index, data);
@@ -4583,13 +4549,6 @@ static void glad_gl_load_GL_VERSION_4_1( GLADuserptrloadfunc load, void* userptr
     glad_glViewportIndexedf = (PFNGLVIEWPORTINDEXEDFPROC) load(userptr, "glViewportIndexedf");
     glad_glViewportIndexedfv = (PFNGLVIEWPORTINDEXEDFVPROC) load(userptr, "glViewportIndexedfv");
 }
-static void glad_gl_load_GL_ARB_debug_output( GLADuserptrloadfunc load, void* userptr) {
-    if(!GLAD_GL_ARB_debug_output) return;
-    glad_glDebugMessageCallbackARB = (PFNGLDEBUGMESSAGECALLBACKARBPROC) load(userptr, "glDebugMessageCallbackARB");
-    glad_glDebugMessageControlARB = (PFNGLDEBUGMESSAGECONTROLARBPROC) load(userptr, "glDebugMessageControlARB");
-    glad_glDebugMessageInsertARB = (PFNGLDEBUGMESSAGEINSERTARBPROC) load(userptr, "glDebugMessageInsertARB");
-    glad_glGetDebugMessageLogARB = (PFNGLGETDEBUGMESSAGELOGARBPROC) load(userptr, "glGetDebugMessageLogARB");
-}
 static void glad_gl_load_GL_KHR_debug( GLADuserptrloadfunc load, void* userptr) {
     if(!GLAD_GL_KHR_debug) return;
     glad_glDebugMessageCallback = (PFNGLDEBUGMESSAGECALLBACKPROC) load(userptr, "glDebugMessageCallback");
@@ -4711,7 +4670,6 @@ static int glad_gl_find_extensions_gl( int version) {
     char **exts_i = NULL;
     if (!glad_gl_get_extensions(version, &exts, &num_exts_i, &exts_i)) return 0;
 
-    GLAD_GL_ARB_debug_output = glad_gl_has_extension(version, exts, num_exts_i, exts_i, "GL_ARB_debug_output");
     GLAD_GL_KHR_debug = glad_gl_has_extension(version, exts, num_exts_i, exts_i, "GL_KHR_debug");
 
     glad_gl_free_extensions(exts_i, num_exts_i);
@@ -4785,7 +4743,6 @@ int gladLoadGLUserPtr( GLADuserptrloadfunc load, void *userptr) {
     glad_gl_load_GL_VERSION_4_1(load, userptr);
 
     if (!glad_gl_find_extensions_gl(version)) return 0;
-    glad_gl_load_GL_ARB_debug_output(load, userptr);
     glad_gl_load_GL_KHR_debug(load, userptr);
 
 
@@ -4866,11 +4823,8 @@ void gladInstallGLDebug() {
     glad_debug_glCreateShaderProgramv = glad_debug_impl_glCreateShaderProgramv;
     glad_debug_glCullFace = glad_debug_impl_glCullFace;
     glad_debug_glDebugMessageCallback = glad_debug_impl_glDebugMessageCallback;
-    glad_debug_glDebugMessageCallbackARB = glad_debug_impl_glDebugMessageCallbackARB;
     glad_debug_glDebugMessageControl = glad_debug_impl_glDebugMessageControl;
-    glad_debug_glDebugMessageControlARB = glad_debug_impl_glDebugMessageControlARB;
     glad_debug_glDebugMessageInsert = glad_debug_impl_glDebugMessageInsert;
-    glad_debug_glDebugMessageInsertARB = glad_debug_impl_glDebugMessageInsertARB;
     glad_debug_glDeleteBuffers = glad_debug_impl_glDeleteBuffers;
     glad_debug_glDeleteFramebuffers = glad_debug_impl_glDeleteFramebuffers;
     glad_debug_glDeleteProgram = glad_debug_impl_glDeleteProgram;
@@ -4954,7 +4908,6 @@ void gladInstallGLDebug() {
     glad_debug_glGetBufferSubData = glad_debug_impl_glGetBufferSubData;
     glad_debug_glGetCompressedTexImage = glad_debug_impl_glGetCompressedTexImage;
     glad_debug_glGetDebugMessageLog = glad_debug_impl_glGetDebugMessageLog;
-    glad_debug_glGetDebugMessageLogARB = glad_debug_impl_glGetDebugMessageLogARB;
     glad_debug_glGetDoublei_v = glad_debug_impl_glGetDoublei_v;
     glad_debug_glGetDoublev = glad_debug_impl_glGetDoublev;
     glad_debug_glGetError = glad_debug_impl_glGetError;
@@ -5362,11 +5315,8 @@ void gladUninstallGLDebug() {
     glad_debug_glCreateShaderProgramv = glad_glCreateShaderProgramv;
     glad_debug_glCullFace = glad_glCullFace;
     glad_debug_glDebugMessageCallback = glad_glDebugMessageCallback;
-    glad_debug_glDebugMessageCallbackARB = glad_glDebugMessageCallbackARB;
     glad_debug_glDebugMessageControl = glad_glDebugMessageControl;
-    glad_debug_glDebugMessageControlARB = glad_glDebugMessageControlARB;
     glad_debug_glDebugMessageInsert = glad_glDebugMessageInsert;
-    glad_debug_glDebugMessageInsertARB = glad_glDebugMessageInsertARB;
     glad_debug_glDeleteBuffers = glad_glDeleteBuffers;
     glad_debug_glDeleteFramebuffers = glad_glDeleteFramebuffers;
     glad_debug_glDeleteProgram = glad_glDeleteProgram;
@@ -5450,7 +5400,6 @@ void gladUninstallGLDebug() {
     glad_debug_glGetBufferSubData = glad_glGetBufferSubData;
     glad_debug_glGetCompressedTexImage = glad_glGetCompressedTexImage;
     glad_debug_glGetDebugMessageLog = glad_glGetDebugMessageLog;
-    glad_debug_glGetDebugMessageLogARB = glad_glGetDebugMessageLogARB;
     glad_debug_glGetDoublei_v = glad_glGetDoublei_v;
     glad_debug_glGetDoublev = glad_glGetDoublev;
     glad_debug_glGetError = glad_glGetError;

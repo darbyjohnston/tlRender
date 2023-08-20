@@ -17,6 +17,7 @@ namespace tl
         enum class OffscreenDepth
         {
             None,
+            _16,
             _24,
             _32,
 

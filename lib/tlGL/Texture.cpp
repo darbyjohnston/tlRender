@@ -21,6 +21,7 @@ namespace tl
             {
                 GL_NONE,
 
+#if defined(TLRENDER_API_GL_4_1)
                 GL_RED,
                 GL_RED,
                 GL_RED,
@@ -45,6 +46,32 @@ namespace tl
                 GL_RGBA,
                 GL_RGBA,
                 GL_RGBA,
+#elif defined(TLRENDER_API_GLES_2)
+                GL_LUMINANCE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+
+                GL_LUMINANCE_ALPHA,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+
+                GL_RGB,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+
+                GL_RGBA,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+#endif // TLRENDER_API_GL_4_1
 
                 GL_NONE
             };
@@ -57,6 +84,7 @@ namespace tl
             {
                 GL_NONE,
 
+#if defined(TLRENDER_API_GL_4_1)
                 GL_R8,
                 GL_R16,
                 GL_R32I,
@@ -81,6 +109,32 @@ namespace tl
                 GL_RGBA32I,
                 GL_RGBA16F,
                 GL_RGBA32F,
+#elif defined(TLRENDER_API_GLES_2)
+                GL_LUMINANCE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+
+                GL_LUMINANCE_ALPHA,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+
+                GL_RGB,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+
+                GL_RGBA,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+#endif // TLRENDER_API_GL_4_1
 
                 GL_NONE
             };
@@ -93,6 +147,7 @@ namespace tl
             {
                 GL_NONE,
 
+#if defined(TLRENDER_API_GL_4_1)
                 GL_UNSIGNED_BYTE,
                 GL_UNSIGNED_SHORT,
                 GL_UNSIGNED_INT,
@@ -117,6 +172,32 @@ namespace tl
                 GL_UNSIGNED_INT,
                 GL_HALF_FLOAT,
                 GL_FLOAT,
+#elif defined(TLRENDER_API_GLES_2)
+                GL_UNSIGNED_BYTE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+
+                GL_UNSIGNED_BYTE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+
+                GL_UNSIGNED_BYTE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+
+                GL_UNSIGNED_BYTE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+#endif // TLRENDER_API_GL_4_1
 
                 GL_NONE
             };
@@ -146,6 +227,7 @@ namespace tl
             p.info = info;
             if (p.info.isValid())
             {
+#if defined(TLRENDER_API_GL_4_1)
                 if (options.pbo &&
                     1 == p.info.layout.alignment &&
                     memory::getEndian() == p.info.layout.endian)
@@ -159,6 +241,7 @@ namespace tl
                         GL_STREAM_DRAW);
                     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
                 }
+#endif // TLRENDER_API_GL_4_1
                 glGenTextures(1, &p.id);
                 glBindTexture(GL_TEXTURE_2D, p.id);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -227,6 +310,7 @@ namespace tl
         void Texture::copy(const image::Image& data)
         {
             TLRENDER_P();
+#if defined(TLRENDER_API_GL_4_1)
             if (p.pbo)
             {
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, p.pbo);
@@ -255,11 +339,14 @@ namespace tl
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
             }
             else
+#endif // TLRENDER_API_GL_4_1
             {
                 const auto& info = data.getInfo();
                 glBindTexture(GL_TEXTURE_2D, p.id);
                 glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
+#if defined(TLRENDER_API_GL_4_1)
                 glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
+#endif // TLRENDER_API_GL_4_1
                 glTexSubImage2D(
                     GL_TEXTURE_2D,
                     0,
@@ -276,6 +363,7 @@ namespace tl
         void Texture::copy(const uint8_t* data, const image::Info& info)
         {
             TLRENDER_P();
+#if defined(TLRENDER_API_GL_4_1)
             if (p.pbo)
             {
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, p.pbo);
@@ -303,10 +391,13 @@ namespace tl
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
             }
             else
+#endif // TLRENDER_API_GL_4_1
             {
                 glBindTexture(GL_TEXTURE_2D, p.id);
                 glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
+#if defined(TLRENDER_API_GL_4_1)
                 glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
+#endif // TLRENDER_API_GL_4_1
                 glTexSubImage2D(
                     GL_TEXTURE_2D,
                     0,
@@ -323,6 +414,7 @@ namespace tl
         void Texture::copy(const image::Image& data, uint16_t x, uint16_t y)
         {
             TLRENDER_P();
+#if defined(TLRENDER_API_GL_4_1)
             if (p.pbo)
             {
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, p.pbo);
@@ -351,11 +443,14 @@ namespace tl
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
             }
             else
+#endif // TLRENDER_API_GL_4_1
             {
                 const auto& info = data.getInfo();
                 glBindTexture(GL_TEXTURE_2D, p.id);
                 glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
+#if defined(TLRENDER_API_GL_4_1)
                 glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
+#endif // TLRENDER_API_GL_4_1
                 glTexSubImage2D(
                     GL_TEXTURE_2D,
                     0,

@@ -37,6 +37,7 @@ namespace tl
                 const std::string& cmdLineSummary,
                 const std::vector<std::shared_ptr<ICmdLineArg> >& = {},
                 const std::vector<std::shared_ptr<ICmdLineOption> >& = {});
+
             IApp();
 
         public:

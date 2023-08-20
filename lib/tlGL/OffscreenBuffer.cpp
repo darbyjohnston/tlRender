@@ -46,49 +46,89 @@ namespace tl
                 return out;
             }
 
-            GLenum getBufferInternalFormat(OffscreenDepth depth, OffscreenStencil stencil)
+            GLenum getBufferInternalFormat(OffscreenDepth value)
             {
                 GLenum out = GL_NONE;
-                switch (depth)
+                switch (value)
                 {
-                case OffscreenDepth::None:
-                    switch (stencil)
-                    {
-                    case OffscreenStencil::_8:
-                        out = GL_STENCIL_INDEX8;
-                        break;
-                    default:
-                        break;
-                    }
+                case OffscreenDepth::_16:
+                    out = GL_DEPTH_COMPONENT16;
                     break;
+#if defined(TLRENDER_API_GL_4_1)
                 case OffscreenDepth::_24:
-                    switch (stencil)
-                    {
-                    case OffscreenStencil::None:
-                        out = GL_DEPTH_COMPONENT24;
-                        break;
-                    case OffscreenStencil::_8:
-                        out = GL_DEPTH24_STENCIL8;
-                        break;
-                    default: break;
-                    }
+                    out = GL_DEPTH_COMPONENT24;
                     break;
                 case OffscreenDepth::_32:
-                    switch (stencil)
-                    {
-                    case OffscreenStencil::None:
-                        out = GL_DEPTH_COMPONENT32F;
-                        break;
-                    case OffscreenStencil::_8:
-                        out = GL_DEPTH32F_STENCIL8;
-                        break;
-                    default: break;
-                    }
+                    out = GL_DEPTH_COMPONENT32F;
                     break;
+#endif // TLRENDER_API_GL_4_1
                 default: break;
                 }
                 return out;
             }
+        }
+
+        GLenum getBufferInternalFormat(OffscreenStencil value)
+        {
+            GLenum out = GL_NONE;
+            switch (value)
+            {
+            case OffscreenStencil::_8:
+                out = GL_STENCIL_INDEX8;
+                break;
+            default:
+                break;
+            }
+            return out;
+        }
+
+        GLenum getBufferInternalFormat(OffscreenDepth depth, OffscreenStencil stencil)
+        {
+            GLenum out = GL_NONE;
+            switch (depth)
+            {
+            case OffscreenDepth::None:
+                switch (stencil)
+                {
+                case OffscreenStencil::_8:
+                    out = GL_STENCIL_INDEX8;
+                    break;
+                default:
+                    break;
+                }
+                break;
+            case OffscreenDepth::_16:
+                out = GL_DEPTH_COMPONENT16;
+                break;
+#if defined(TLRENDER_API_GL_4_1)
+            case OffscreenDepth::_24:
+                switch (stencil)
+                {
+                case OffscreenStencil::None:
+                    out = GL_DEPTH_COMPONENT24;
+                    break;
+                case OffscreenStencil::_8:
+                    out = GL_DEPTH24_STENCIL8;
+                    break;
+                default: break;
+                }
+                break;
+            case OffscreenDepth::_32:
+                switch (stencil)
+                {
+                case OffscreenStencil::None:
+                    out = GL_DEPTH_COMPONENT32F;
+                    break;
+                case OffscreenStencil::_8:
+                    out = GL_DEPTH32F_STENCIL8;
+                    break;
+                default: break;
+                }
+                break;
+#endif // TLRENDER_API_GL_4_1
+            default: break;
+            }
+            return out;
         }
 
         bool OffscreenBufferOptions::operator == (const OffscreenBufferOptions& other) const
@@ -125,6 +165,8 @@ namespace tl
             p.options = options;
 
             GLenum target = GL_TEXTURE_2D;
+
+#if defined(TLRENDER_API_GL_4_1)
             size_t samples = 0;
             switch (p.options.sampling)
             {
@@ -146,6 +188,7 @@ namespace tl
                 break;
             default: break;
             }
+#endif // TLRENDER_API_GL_4_1
 
             // Create the color texture.
             if (p.options.colorType != image::PixelType::None)
@@ -158,6 +201,7 @@ namespace tl
                 glBindTexture(target, p.colorID);
                 switch (p.options.sampling)
                 {
+#if defined(TLRENDER_API_GL_4_1)
                 case OffscreenSampling::_2:
                 case OffscreenSampling::_4:
                 case OffscreenSampling::_8:
@@ -170,6 +214,7 @@ namespace tl
                         p.size.h,
                         false);
                     break;
+#endif // TLRENDER_API_GL_4_1
                 default:
                     glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                     glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -199,12 +244,20 @@ namespace tl
                     throw std::runtime_error(getErrorLabel(Error::RenderBuffer));
                 }
                 glBindRenderbuffer(GL_RENDERBUFFER, p.depthStencilID);
+#if defined(TLRENDER_API_GL_4_1)
                 glRenderbufferStorageMultisample(
                     GL_RENDERBUFFER,
                     static_cast<GLsizei>(samples),
                     getBufferInternalFormat(p.options.depth, p.options.stencil),
                     p.size.w,
                     p.size.h);
+#elif defined(TLRENDER_API_GLES_2)
+                glRenderbufferStorage(
+                    GL_RENDERBUFFER,
+                    getBufferInternalFormat(p.options.depth, p.options.stencil),
+                    p.size.w,
+                    p.size.h);
+#endif // TLRENDER_API_GL_4_1
                 glBindRenderbuffer(GL_RENDERBUFFER, 0);
             }
 
@@ -228,7 +281,7 @@ namespace tl
             {
                 glFramebufferRenderbuffer(
                     GL_FRAMEBUFFER,
-                    GL_DEPTH_STENCIL_ATTACHMENT,
+                    GL_DEPTH_ATTACHMENT,
                     GL_RENDERBUFFER,
                     p.depthStencilID);
             }

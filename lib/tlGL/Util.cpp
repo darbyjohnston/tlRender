@@ -21,6 +21,7 @@ namespace tl
             {
                 GL_NONE,
 
+#if defined(TLRENDER_API_GL_4_1)
                 GL_RED,
                 GL_RED,
                 GL_RED,
@@ -45,6 +46,32 @@ namespace tl
                 GL_RGBA,
                 GL_RGBA,
                 GL_RGBA,
+#elif defined(TLRENDER_API_GLES_2)
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+
+                GL_RGB,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+
+                GL_RGBA,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+#endif // TLRENDER_API_GL_4_1
 
                 GL_NONE
             };
@@ -58,10 +85,17 @@ namespace tl
                 GL_NONE,
 
                 GL_UNSIGNED_BYTE,
+#if defined(TLRENDER_API_GL_4_1)
                 GL_UNSIGNED_SHORT,
                 GL_UNSIGNED_INT,
                 GL_HALF_FLOAT,
                 GL_FLOAT,
+#elif defined(TLRENDER_API_GLES_2)
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+#endif // TLRENDER_API_GL_4_1
 
                 GL_NONE,
                 GL_NONE,
@@ -70,17 +104,32 @@ namespace tl
                 GL_NONE,
 
                 GL_UNSIGNED_BYTE,
+#if defined(TLRENDER_API_GL_4_1)
                 GL_UNSIGNED_INT_10_10_10_2,
                 GL_UNSIGNED_SHORT,
                 GL_UNSIGNED_INT,
                 GL_HALF_FLOAT,
                 GL_FLOAT,
+#elif defined(TLRENDER_API_GLES_2)
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+#endif // TLRENDER_API_GL_4_1
 
                 GL_UNSIGNED_BYTE,
+#if defined(TLRENDER_API_GL_4_1)
                 GL_UNSIGNED_SHORT,
                 GL_UNSIGNED_INT,
                 GL_HALF_FLOAT,
                 GL_FLOAT,
+#elif defined(TLRENDER_API_GLES_2)
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+#endif // TLRENDER_API_GL_4_1
 
                 GL_NONE
             };

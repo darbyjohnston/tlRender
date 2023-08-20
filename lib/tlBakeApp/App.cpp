@@ -355,7 +355,9 @@ namespace tl
 
             // Write the frame.
             glPixelStorei(GL_PACK_ALIGNMENT, _outputInfo.layout.alignment);
+#if defined(TLRENDER_API_GL_4_1)
             glPixelStorei(GL_PACK_SWAP_BYTES, _outputInfo.layout.endian != memory::getEndian());
+#endif // TLRENDER_API_GL_4_1
             const GLenum format = gl::getReadPixelsFormat(_outputInfo.pixelType);
             const GLenum type = gl::getReadPixelsType(_outputInfo.pixelType);
             if (GL_NONE == format || GL_NONE == type)

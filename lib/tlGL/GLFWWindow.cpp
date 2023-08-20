@@ -31,6 +31,7 @@ namespace tl
                 const GLchar*  message,
                 const void*    userParam)
             {
+                //! \todo Send output to the log instead of cerr?
                 switch (severity)
                 {
                 case GL_DEBUG_SEVERITY_HIGH:
@@ -53,6 +54,7 @@ namespace tl
 
         struct GLFWWindow::Private
         {
+            std::weak_ptr<system::Context> context;
             GLFWwindow* glfwWindow = nullptr;
             bool gladInit = true;
             math::Size2i size;
@@ -83,10 +85,19 @@ namespace tl
         {
             TLRENDER_P();
 
+            p.context = context;
+
+#if defined(TLRENDER_API_GL_4_1)
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#elif defined(TLRENDER_API_GLES_2)
+            glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+#endif // TLRENDER_API_GL_4_1
             glfwWindowHint(GLFW_VISIBLE,
                 options & static_cast<int>(GLFWWindowOptions::Visible));
             glfwWindowHint(GLFW_DOUBLEBUFFER,
@@ -191,10 +202,17 @@ namespace tl
             if (p.gladInit)
             {
                 p.gladInit = false;
+#if defined(TLRENDER_API_GL_4_1)
                 if (!gladLoaderLoadGL())
                 {
                     throw std::runtime_error("Cannot initialize GLAD");
                 }
+#elif defined(TLRENDER_API_GLES_2)
+                if (!gladLoaderLoadGLES2())
+                {
+                    throw std::runtime_error("Cannot initialize GLAD");
+                }
+#endif // TLRENDER_API_GL_4_1
 #if defined(TLRENDER_API_GL_4_1_Debug)
                 GLint flags = 0;
                 glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
@@ -202,7 +220,7 @@ namespace tl
                 {
                     glEnable(GL_DEBUG_OUTPUT);
                     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-                    glDebugMessageCallback(glDebugOutput, _context.get());
+                    glDebugMessageCallback(glDebugOutput, nullptr);
                     glDebugMessageControl(
                         static_cast<GLenum>(GL_DONT_CARE),
                         static_cast<GLenum>(GL_DONT_CARE),

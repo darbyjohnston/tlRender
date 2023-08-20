@@ -304,6 +304,7 @@ namespace tl
                         GLsizei(p.frameBufferSize.h));
                     glClearColor(0.F, 0.F, 0.F, 0.F);
                     glClear(GL_COLOR_BUFFER_BIT);
+#if defined(TLRENDER_API_GL_4_1)
                     glBindFramebuffer(
                         GL_READ_FRAMEBUFFER,
                         p.offscreenBuffer->getID());
@@ -318,6 +319,7 @@ namespace tl
                         p.frameBufferSize.h,
                         GL_COLOR_BUFFER_BIT,
                         GL_LINEAR);
+#endif // TLRENDER_API_GL_4_1
                     p.window->swap();
                 }
 
@@ -416,6 +418,7 @@ namespace tl
                 OffscreenBufferOptions offscreenBufferOptions;
                 offscreenBufferOptions.colorType = image::PixelType::RGBA_U8;
                 out = OffscreenBuffer::create(math::Size2i(value.w(), value.h()), offscreenBufferOptions);
+#if defined(TLRENDER_API_GL_4_1)
                 glBindFramebuffer(GL_READ_FRAMEBUFFER, p.offscreenBuffer->getID());
                 glBindFramebuffer(GL_DRAW_FRAMEBUFFER, out->getID());
                 glBlitFramebuffer(
@@ -430,6 +433,7 @@ namespace tl
                     GL_COLOR_BUFFER_BIT,
                     GL_LINEAR);
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
+#endif // TLRENDER_API_GL_4_1
             }
             catch (const std::exception&)
             {}
