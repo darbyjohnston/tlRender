@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
+#include <tlQt/TimelinePlayer.h>
 
 #include <QAction>
 #include <QObject>
@@ -18,21 +18,24 @@ namespace tl
     {
         class App;
 
-        //! View actions.
-        class ViewActions : public QObject
+        //! Frame actions.
+        class FrameActions : public QObject
         {
             Q_OBJECT
 
         public:
-            ViewActions(App*, QObject* parent = nullptr);
+            FrameActions(App*, QObject* parent = nullptr);
 
-            virtual ~ViewActions();
+            virtual ~FrameActions();
 
             //! Get the actions.
             const QMap<QString, QAction*>& actions() const;
 
             //! Get the menu.
             QMenu* menu() const;
+
+            //! Set the timeline players.
+            void setTimelinePlayers(const QVector<QSharedPointer<qt::TimelinePlayer> >&);
 
         private:
             void _actionsUpdate();

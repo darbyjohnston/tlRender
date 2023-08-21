@@ -27,6 +27,7 @@ namespace tl
             otime::RationalTime currentTime = time::invalidTime;
             otime::TimeRange inOutRange = time::invalidTimeRange;
             timeline::PlayerCacheInfo cacheInfo;
+            bool editable = false;
             bool stopOnScrub = true;
 
             struct Track
@@ -238,6 +239,11 @@ namespace tl
             return out;
         }
 
+        void TimelineItem::setEditable(bool value)
+        {
+            _p->editable = value;
+        }
+
         void TimelineItem::setStopOnScrub(bool value)
         {
             _p->stopOnScrub = value;
@@ -437,30 +443,33 @@ namespace tl
                 p.mouse.mode = Private::MouseMode::None;
 
                 const math::Box2i& g = _geometry;
-                for (size_t i = 0; i < p.tracks.size(); ++i)
+                if (p.editable)
                 {
-                    const auto& items = p.tracks[i].items;
-                    for (size_t j = 0; j < items.size(); ++j)
+                    for (size_t i = 0; i < p.tracks.size(); ++i)
                     {
-                        const auto& item = items[j];
-                        const math::Box2i& g2 = item->getGeometry();
-                        if (g2.contains(event.pos))
+                        const auto& items = p.tracks[i].items;
+                        for (size_t j = 0; j < items.size(); ++j)
                         {
-                            p.mouse.mode = Private::MouseMode::Item;
-                            p.mouse.item = std::make_unique<Private::MouseItemData>();
-                            p.mouse.item->p = item;
-                            p.mouse.item->index = j;
-                            p.mouse.item->track = i;
-                            p.mouse.item->geometry = g2;
-                            item->setSelectRole(ui::ColorRole::Checked);
-                            moveToFront(item);
-                            p.mouse.dropTargets = p.getDropTargets(j, i);
+                            const auto& item = items[j];
+                            const math::Box2i& g2 = item->getGeometry();
+                            if (g2.contains(event.pos))
+                            {
+                                p.mouse.mode = Private::MouseMode::Item;
+                                p.mouse.item = std::make_unique<Private::MouseItemData>();
+                                p.mouse.item->p = item;
+                                p.mouse.item->index = j;
+                                p.mouse.item->track = i;
+                                p.mouse.item->geometry = g2;
+                                item->setSelectRole(ui::ColorRole::Checked);
+                                moveToFront(item);
+                                p.mouse.dropTargets = p.getDropTargets(j, i);
+                                break;
+                            }
+                        }
+                        if (p.mouse.item)
+                        {
                             break;
                         }
-                    }
-                    if (p.mouse.item)
-                    {
-                        break;
                     }
                 }
 

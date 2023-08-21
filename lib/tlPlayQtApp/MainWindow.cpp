@@ -15,6 +15,7 @@
 #include <tlPlayQtApp/DevicesTool.h>
 #include <tlPlayQtApp/FileActions.h>
 #include <tlPlayQtApp/FilesTool.h>
+#include <tlPlayQtApp/FrameActions.h>
 #include <tlPlayQtApp/InfoTool.h>
 #include <tlPlayQtApp/MessagesTool.h>
 #include <tlPlayQtApp/PlaybackActions.h>
@@ -23,6 +24,7 @@
 #include <tlPlayQtApp/SettingsObject.h>
 #include <tlPlayQtApp/SettingsTool.h>
 #include <tlPlayQtApp/SystemLogTool.h>
+#include <tlPlayQtApp/TimelineActions.h>
 #include <tlPlayQtApp/ToolActions.h>
 #include <tlPlayQtApp/ViewActions.h>
 #include <tlPlayQtApp/WindowActions.h>
@@ -89,6 +91,8 @@ namespace tl
             ViewActions* viewActions = nullptr;
             RenderActions* renderActions = nullptr;
             PlaybackActions* playbackActions = nullptr;
+            FrameActions* frameActions = nullptr;
+            TimelineActions* timelineActions = nullptr;
             AudioActions* audioActions = nullptr;
             ToolActions* toolActions = nullptr;
 
@@ -145,6 +149,8 @@ namespace tl
             p.viewActions = new ViewActions(app, this);
             p.renderActions = new RenderActions(app, this);
             p.playbackActions = new PlaybackActions(app, this);
+            p.frameActions = new FrameActions(app, this);
+            p.timelineActions = new TimelineActions(app, this);
             p.audioActions = new AudioActions(app, this);
             p.toolActions = new ToolActions(app, this);
 
@@ -155,6 +161,8 @@ namespace tl
             menuBar->addMenu(p.viewActions->menu());
             menuBar->addMenu(p.renderActions->menu());
             menuBar->addMenu(p.playbackActions->menu());
+            menuBar->addMenu(p.frameActions->menu());
+            menuBar->addMenu(p.timelineActions->menu());
             menuBar->addMenu(p.audioActions->menu());
             menuBar->addMenu(p.toolActions->menu());
             setMenuBar(menuBar);
@@ -270,10 +278,10 @@ namespace tl
             bottomToolBar->addAction(p.playbackActions->actions()["Reverse"]);
             bottomToolBar->addAction(p.playbackActions->actions()["Stop"]);
             bottomToolBar->addAction(p.playbackActions->actions()["Forward"]);
-            bottomToolBar->addAction(p.playbackActions->actions()["Start"]);
-            bottomToolBar->addAction(p.playbackActions->actions()["FramePrev"]);
-            bottomToolBar->addAction(p.playbackActions->actions()["FrameNext"]);
-            bottomToolBar->addAction(p.playbackActions->actions()["End"]);
+            bottomToolBar->addAction(p.frameActions->actions()["Start"]);
+            bottomToolBar->addAction(p.frameActions->actions()["FramePrev"]);
+            bottomToolBar->addAction(p.frameActions->actions()["FrameNext"]);
+            bottomToolBar->addAction(p.frameActions->actions()["End"]);
             bottomToolBar->addWidget(p.currentTimeSpinBox);
             bottomToolBar->addWidget(p.speedSpinBox);
             bottomToolBar->addWidget(p.speedButton);
@@ -545,7 +553,7 @@ namespace tl
                 });
 
             connect(
-                p.playbackActions->actions()["FocusCurrentFrame"],
+                p.frameActions->actions()["FocusCurrentFrame"],
                 &QAction::triggered,
                 [this]
                 {
@@ -558,7 +566,14 @@ namespace tl
                 &qtwidget::TimelineWidget::frameViewChanged,
                 [this](bool value)
                 {
-                    _p->playbackActions->actions()["Timeline/FrameView"]->setChecked(value);
+                    _p->timelineActions->actions()["FrameView"]->setChecked(value);
+                });
+            connect(
+                p.timelineWidget,
+                &qtwidget::TimelineWidget::editableChanged,
+                [this](bool value)
+                {
+                    _p->timelineActions->actions()["Editable"]->setChecked(value);
                 });
 
             connect(
@@ -653,7 +668,11 @@ namespace tl
                 &SettingsObject::valueChanged,
                 [this](const QString& name, const QVariant& value)
                 {
-                    if ("Timeline/FrameView" == name)
+                    if ("Timeline/Editable" == name)
+                    {
+                        _p->timelineWidget->setEditable(value.toBool());
+                    }
+                    else if ("Timeline/FrameView" == name)
                     {
                         _p->timelineWidget->setFrameView(value.toBool());
                     }
@@ -931,6 +950,7 @@ namespace tl
         {
             TLRENDER_P();
             p.playbackActions->setTimelinePlayers(p.timelinePlayers);
+            p.frameActions->setTimelinePlayers(p.timelinePlayers);
             p.timelineViewport->setTimelinePlayers(p.timelinePlayers);
             if (p.secondaryWindow)
             {
@@ -1011,6 +1031,7 @@ namespace tl
                 p.timelinePlayers[0]->player() :
                 nullptr);
             auto settingsObject = p.app->settingsObject();
+            p.timelineWidget->setEditable(settingsObject->value("Timeline/Editable").toBool());
             p.timelineWidget->setFrameView(settingsObject->value("Timeline/FrameView").toBool());
             p.timelineWidget->setStopOnScrub(settingsObject->value("Timeline/StopOnScrub").toBool());
             auto itemOptions = p.timelineWidget->itemOptions();

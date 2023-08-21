@@ -6,8 +6,6 @@
 
 #include <tlUI/Menu.h>
 
-#include <tlTimeline/Player.h>
-
 namespace tl
 {
     namespace play_gl
@@ -15,10 +13,10 @@ namespace tl
         class App;
         class MainWindow;
 
-        //! Playback menu.
-        class PlaybackMenu : public ui::Menu
+        //! Timeline menu.
+        class TimelineMenu : public ui::Menu
         {
-            TLRENDER_NON_COPYABLE(PlaybackMenu);
+            TLRENDER_NON_COPYABLE(TimelineMenu);
 
         protected:
             void _init(
@@ -28,22 +26,22 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            PlaybackMenu();
+            TimelineMenu();
 
         public:
-            ~PlaybackMenu();
+            ~TimelineMenu();
 
-            static std::shared_ptr<PlaybackMenu> create(
+            static std::shared_ptr<TimelineMenu> create(
                 const std::map<std::string, std::shared_ptr<ui::Action> >&,
                 const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            void close() override;
+
         private:
-            void _setPlayer(const std::shared_ptr<timeline::Player>&);
-            void _playbackUpdate();
-            void _loopUpdate();
+            void _thumbnailsSizeUpdate();
 
             TLRENDER_PRIVATE();
         };

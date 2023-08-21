@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlQt/TimelinePlayer.h>
-
 #include <tlTimeline/IRender.h>
 
 #include <QAction>

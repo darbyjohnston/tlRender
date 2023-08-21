@@ -44,6 +44,9 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            //! Set whether the timeline is editable.
+            void setEditable(bool);
+
             //! Set whether playback stops when scrubbing.
             void setStopOnScrub(bool);
 

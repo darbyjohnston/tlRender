@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlQt/TimelinePlayer.h>
+#include <tlCore/Path.h>
 
 #include <QAction>
 #include <QObject>

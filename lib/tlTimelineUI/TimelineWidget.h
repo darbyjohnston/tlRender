@@ -37,6 +37,15 @@ namespace tl
             //! Set the timeline player.
             void setPlayer(const std::shared_ptr<timeline::Player>&);
 
+            //! Get whether the timeline is editable.
+            bool isEditable() const;
+
+            //! Observe whether the timeline is editable.
+            std::shared_ptr<observer::IValue<bool> > observeEditable() const;
+
+            //! Set whether the timeline is editable.
+            void setEditable(bool);
+
             //! Set the view zoom.
             void setViewZoom(double);
 

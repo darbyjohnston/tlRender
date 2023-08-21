@@ -18,15 +18,15 @@ namespace tl
     {
         class App;
 
-        //! View actions.
-        class ViewActions : public QObject
+        //! Timeline actions.
+        class TimelineActions : public QObject
         {
             Q_OBJECT
 
         public:
-            ViewActions(App*, QObject* parent = nullptr);
+            TimelineActions(App*, QObject* parent = nullptr);
 
-            virtual ~ViewActions();
+            virtual ~TimelineActions();
 
             //! Get the actions.
             const QMap<QString, QAction*>& actions() const;

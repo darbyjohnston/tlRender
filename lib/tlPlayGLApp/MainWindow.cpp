@@ -22,6 +22,8 @@
 #include <tlPlayGLApp/RenderMenu.h>
 #include <tlPlayGLApp/Settings.h>
 #include <tlPlayGLApp/SpeedPopup.h>
+#include <tlPlayGLApp/TimelineActions.h>
+#include <tlPlayGLApp/TimelineMenu.h>
 #include <tlPlayGLApp/ToolsActions.h>
 #include <tlPlayGLApp/ToolsMenu.h>
 #include <tlPlayGLApp/ToolsToolBar.h>
@@ -100,6 +102,7 @@ namespace tl
             std::shared_ptr<RenderActions> renderActions;
             std::shared_ptr<PlaybackActions> playbackActions;
             std::shared_ptr<FrameActions> frameActions;
+            std::shared_ptr<TimelineActions> timelineActions;
             std::shared_ptr<AudioActions> audioActions;
             std::shared_ptr<ToolsActions> toolsActions;
             std::shared_ptr<FileMenu> fileMenu;
@@ -109,6 +112,7 @@ namespace tl
             std::shared_ptr<RenderMenu> renderMenu;
             std::shared_ptr<PlaybackMenu> playbackMenu;
             std::shared_ptr<FrameMenu> frameMenu;
+            std::shared_ptr<TimelineMenu> timelineMenu;
             std::shared_ptr<AudioMenu> audioMenu;
             std::shared_ptr<ToolsMenu> toolsMenu;
             std::shared_ptr<ui::MenuBar> menuBar;
@@ -224,6 +228,10 @@ namespace tl
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
                 app,
                 context);
+            p.timelineActions = TimelineActions::create(
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                app,
+                context);
             p.audioActions = AudioActions::create(app, context);
             p.toolsActions = ToolsActions::create(app, context);
 
@@ -258,6 +266,11 @@ namespace tl
                 p.frameActions->getActions(),
                 app,
                 context);
+            p.timelineMenu = TimelineMenu::create(
+                p.timelineActions->getActions(),
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                app,
+                context);
             p.audioMenu = AudioMenu::create(
                 p.audioActions->getActions(),
                 app,
@@ -274,6 +287,7 @@ namespace tl
             p.menuBar->addMenu("Render", p.renderMenu);
             p.menuBar->addMenu("Playback", p.playbackMenu);
             p.menuBar->addMenu("Frame", p.frameMenu);
+            p.menuBar->addMenu("Timeline", p.timelineMenu);
             p.menuBar->addMenu("Audio", p.audioMenu);
             p.menuBar->addMenu("Tools", p.toolsMenu);
 

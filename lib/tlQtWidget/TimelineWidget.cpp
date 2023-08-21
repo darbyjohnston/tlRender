@@ -92,6 +92,7 @@ namespace tl
 
             int timer = 0;
 
+            std::shared_ptr<observer::ValueObserver<bool> > editableObserver;
             std::shared_ptr<observer::ValueObserver<bool> > frameViewObserver;
         };
 
@@ -140,6 +141,13 @@ namespace tl
 
             _styleUpdate();
 
+            p.editableObserver = observer::ValueObserver<bool>::create(
+                p.timelineWidget->observeEditable(),
+                [this](bool value)
+                {
+                    Q_EMIT editableChanged(value);
+                });
+
             p.frameViewObserver = observer::ValueObserver<bool>::create(
                 p.timelineWidget->observeFrameView(),
                 [this](bool value)
@@ -160,6 +168,11 @@ namespace tl
                 return;
             p.player = player;
             p.timelineWidget->setPlayer(p.player);
+        }
+
+        bool TimelineWidget::isEditable() const
+        {
+            return _p->timelineWidget->isEditable();
         }
 
         bool TimelineWidget::hasFrameView() const
@@ -190,6 +203,11 @@ namespace tl
         const timelineui::ItemOptions& TimelineWidget::itemOptions() const
         {
             return _p->timelineWidget->getItemOptions();
+        }
+
+        void TimelineWidget::setEditable(bool value)
+        {
+            _p->timelineWidget->setEditable(value);
         }
 
         void TimelineWidget::setFrameView(bool value)

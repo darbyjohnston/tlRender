@@ -14,6 +14,7 @@ set(HEADERS
     FilesBModel.h
     FilesTool.h
     FilesView.h
+    FrameActions.h
     IFilesTableModel.h
     IToolWidget.h
     InfoTool.h
@@ -28,6 +29,7 @@ set(HEADERS
     SettingsObject.h
     SettingsTool.h
     SystemLogTool.h
+    TimelineActions.h
     ToolActions.h
     ViewActions.h
     WindowActions.h)
@@ -48,6 +50,7 @@ set(SOURCE
     FilesBModel.cpp
     FilesTool.cpp
     FilesView.cpp
+    FrameActions.cpp
     IFilesTableModel.cpp
     IToolWidget.cpp
     InfoTool.cpp
@@ -62,6 +65,7 @@ set(SOURCE
     SettingsObject.cpp
     SettingsTool.cpp
     SystemLogTool.cpp
+    TimelineActions.cpp
     ToolActions.cpp
     ViewActions.cpp
     WindowActions.cpp)

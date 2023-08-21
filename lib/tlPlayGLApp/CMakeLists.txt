@@ -30,6 +30,8 @@ set(HEADERS
     SettingsTool.h
     Style.h
     SystemLogTool.h
+    TimelineActions.h
+    TimelineMenu.h
     Tools.h
     ToolsActions.h
     ToolsMenu.h
@@ -77,6 +79,8 @@ set(SOURCE
     SettingsTool.cpp
     Style.cpp
     SystemLogTool.cpp
+    TimelineActions.cpp
+    TimelineMenu.cpp
     Tools.cpp
     ToolsActions.cpp
     ToolsMenu.cpp
