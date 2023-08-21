@@ -41,13 +41,17 @@ namespace tl
 
             p.actions = actions;
             addItem(p.actions["Editable"]);
+            addItem(p.actions["EditAssociatedClips"]);
+            addDivider();
             addItem(p.actions["FrameView"]);
             addItem(p.actions["StopOnScrub"]);
+            addDivider();
             addItem(p.actions["Thumbnails"]);
             p.thumbnailsSizeMenu = addSubMenu("Thumbnails Size");
             p.thumbnailsSizeMenu->addItem(p.actions["Thumbnails100"]);
             p.thumbnailsSizeMenu->addItem(p.actions["Thumbnails200"]);
             p.thumbnailsSizeMenu->addItem(p.actions["Thumbnails300"]);
+            addDivider();
             addItem(p.actions["Transitions"]);
             addItem(p.actions["Markers"]);
 
@@ -82,9 +86,10 @@ namespace tl
                 mainWindow->getTimelineWidget()->observeItemOptions(),
                 [this](const timelineui::ItemOptions& value)
                 {
+                    setItemChecked(_p->actions["EditAssociatedClips"], value.editAssociatedClips);
                     setItemChecked(_p->actions["Thumbnails"], value.thumbnails);
                     _thumbnailsSizeUpdate();
-                    setItemChecked(_p->actions["Transiitons"], value.showTransitions);
+                    setItemChecked(_p->actions["Transitions"], value.showTransitions);
                     setItemChecked(_p->actions["Markers"], value.showMarkers);
                 });
         }

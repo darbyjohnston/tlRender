@@ -312,6 +312,8 @@ namespace tl
             p.timeObject.reset(new qt::TimeObject(p.timeUnitsModel));
 
             p.settingsObject.reset(new SettingsObject(p.options.resetSettings, p.timeObject.get()));
+            p.settingsObject->setDefaultValue("Timeline/Editable", false);
+            p.settingsObject->setDefaultValue("Timeline/EditAssociatedClips", true);
             p.settingsObject->setDefaultValue("Timeline/FrameView", true);
             p.settingsObject->setDefaultValue("Timeline/StopOnScrub", false);
             p.settingsObject->setDefaultValue("Timeline/Thumbnails", true);

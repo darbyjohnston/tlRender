@@ -67,6 +67,12 @@ namespace tl
             };
             struct MouseItemData
             {
+                MouseItemData();
+                MouseItemData(
+                    const std::shared_ptr<IItem>&,
+                    int index,
+                    int track);
+
                 ~MouseItemData();
 
                 std::shared_ptr<IItem> p;
@@ -84,7 +90,7 @@ namespace tl
             struct MouseData
             {
                 MouseMode mode = MouseMode::None;
-                std::unique_ptr<MouseItemData> item;
+                std::vector<std::shared_ptr<MouseItemData> > items;
                 std::vector<MouseItemDropTarget> dropTargets;
                 int currentDropTarget = -1;
             };
@@ -93,6 +99,11 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
             std::shared_ptr<observer::ValueObserver<otime::TimeRange> > inOutRangeObserver;
             std::shared_ptr<observer::ValueObserver<timeline::PlayerCacheInfo> > cacheInfoObserver;
+
+            std::shared_ptr<IItem> getAssociated(
+                const std::shared_ptr<IItem>&,
+                int& index,
+                int& trackIndex) const;
 
             std::vector<MouseItemDropTarget> getDropTargets(int index, int track);
         };
@@ -279,7 +290,14 @@ namespace tl
 
                 for (const auto& item : track.items)
                 {
-                    if (p.mouse.item && item == p.mouse.item->p)
+                    const auto i = std::find_if(
+                        p.mouse.items.begin(),
+                        p.mouse.items.end(),
+                        [item](const std::shared_ptr<Private::MouseItemData>& value)
+                        {
+                            return item == value->p;
+                        });
+                    if (i != p.mouse.items.end())
                     {
                         continue;
                     }
@@ -400,12 +418,15 @@ namespace tl
                 break;
             case Private::MouseMode::Item:
             {
-                if (p.mouse.item)
+                if (!p.mouse.items.empty())
                 {
-                    const math::Box2i& g = p.mouse.item->geometry;
-                    p.mouse.item->p->setGeometry(math::Box2i(
-                        g.min + _mouse.pos - _mouse.pressPos,
-                        g.getSize()));
+                    for (const auto& item : p.mouse.items)
+                    {
+                        const math::Box2i& g = item->geometry;
+                        item->p->setGeometry(math::Box2i(
+                            g.min + _mouse.pos - _mouse.pressPos,
+                            g.getSize()));
+                    }
                     
                     int dropTarget = -1;
                     for (size_t i = 0; i < p.mouse.dropTargets.size(); ++i)
@@ -418,10 +439,13 @@ namespace tl
                     }
                     if (dropTarget != p.mouse.currentDropTarget)
                     {
-                        p.mouse.item->p->setSelectRole(
-                            dropTarget != -1 ?
-                            ui::ColorRole::Green :
-                            ui::ColorRole::Checked);
+                        for (const auto& item : p.mouse.items)
+                        {
+                            item->p->setSelectRole(
+                                dropTarget != -1 ?
+                                ui::ColorRole::Green :
+                                ui::ColorRole::Checked);
+                        }
                         p.mouse.currentDropTarget = dropTarget;
                         _updates |= ui::Update::Draw;
                     }
@@ -445,35 +469,39 @@ namespace tl
                 const math::Box2i& g = _geometry;
                 if (p.editable)
                 {
-                    for (size_t i = 0; i < p.tracks.size(); ++i)
+                    for (int i = 0; i < p.tracks.size(); ++i)
                     {
                         const auto& items = p.tracks[i].items;
-                        for (size_t j = 0; j < items.size(); ++j)
+                        for (int j = 0; j < items.size(); ++j)
                         {
                             const auto& item = items[j];
-                            const math::Box2i& g2 = item->getGeometry();
-                            if (g2.contains(event.pos))
+                            if (item->getGeometry().contains(event.pos))
                             {
                                 p.mouse.mode = Private::MouseMode::Item;
-                                p.mouse.item = std::make_unique<Private::MouseItemData>();
-                                p.mouse.item->p = item;
-                                p.mouse.item->index = j;
-                                p.mouse.item->track = i;
-                                p.mouse.item->geometry = g2;
-                                item->setSelectRole(ui::ColorRole::Checked);
-                                moveToFront(item);
+                                p.mouse.items.push_back(
+                                    std::make_shared<Private::MouseItemData>(item, j, i));
                                 p.mouse.dropTargets = p.getDropTargets(j, i);
+                                moveToFront(item);
+                                if (_options.editAssociatedClips)
+                                {
+                                    if (auto associated = p.getAssociated(item, j, i))
+                                    {
+                                        p.mouse.items.push_back(
+                                            std::make_shared<Private::MouseItemData>(associated, j, i));
+                                        moveToFront(associated);
+                                    }
+                                }
                                 break;
                             }
                         }
-                        if (p.mouse.item)
+                        if (!p.mouse.items.empty())
                         {
                             break;
                         }
                     }
                 }
 
-                if (!p.mouse.item)
+                if (p.mouse.items.empty())
                 {
                     const math::Box2i g2(
                         g.min.x,
@@ -501,17 +529,21 @@ namespace tl
             IWidget::mouseReleaseEvent(event);
             TLRENDER_P();
             p.mouse.mode = Private::MouseMode::None;
-            if (p.mouse.item && p.mouse.currentDropTarget != -1)
+            if (!p.mouse.items.empty() && p.mouse.currentDropTarget != -1)
             {
-                const auto& dt = p.mouse.dropTargets[p.mouse.currentDropTarget];
+                const auto& dropTarget = p.mouse.dropTargets[p.mouse.currentDropTarget];
+                std::vector<InsertData> insertData;
+                for (const auto& item : p.mouse.items)
+                {
+                    const int track = dropTarget.track + (item->track - p.mouse.items[0]->track);
+                    insertData.push_back({ item->p->getComposable(), track, dropTarget.index });
+                }
                 auto otioTimeline = insert(
                     p.player->getTimeline()->getTimeline().value,
-                    p.mouse.item->p->getComposable(),
-                    dt.track,
-                    dt.index);
+                    insertData);
                 p.player->getTimeline()->setTimeline(otioTimeline);
             }
-            p.mouse.item.reset();
+            p.mouse.items.clear();
             if (!p.mouse.dropTargets.empty())
             {
                 p.mouse.dropTargets.clear();
@@ -549,7 +581,7 @@ namespace tl
         {
             TLRENDER_P();
             IWidget::_releaseMouse();
-            p.mouse.item.reset();
+            p.mouse.items.clear();
         }
 
         void TimelineItem::_drawInOutPoints(
@@ -896,6 +928,24 @@ namespace tl
             }
         }
 
+        TimelineItem::Private::MouseItemData::MouseItemData()
+        {}
+
+        TimelineItem::Private::MouseItemData::MouseItemData(
+            const std::shared_ptr<IItem>& item,
+            int index,
+            int track) :
+            p(item),
+            index(index),
+            track(track)
+        {
+            if (p)
+            {
+                p->setSelectRole(ui::ColorRole::Checked);
+                geometry = p->getGeometry();
+            }
+        }
+
         TimelineItem::Private::MouseItemData::~MouseItemData()
         {
             if (p)
@@ -905,28 +955,93 @@ namespace tl
             }
         }
 
+        std::shared_ptr<IItem> TimelineItem::Private::getAssociated(
+            const std::shared_ptr<IItem>& item,
+            int& index,
+            int& trackIndex) const
+        {
+            std::shared_ptr<IItem> out;
+            if (trackIndex >= 0 && trackIndex < tracks.size() &&
+                tracks.size() > 1)
+            {
+                const otime::TimeRange& timeRange = item->getTimeRange();
+                if (TrackType::Video == tracks[trackIndex].type &&
+                    trackIndex < tracks.size() - 1 &&
+                    TrackType::Audio == tracks[trackIndex + 1].type)
+                {
+                    for (size_t i = 0; i < tracks[trackIndex + 1].items.size(); ++i)
+                    {
+                        const otime::TimeRange& audioTimeRange =
+                            tracks[trackIndex + 1].items[i]->getTimeRange();
+                        const otime::RationalTime audioStartTime =
+                            audioTimeRange.start_time().rescaled_to(timeRange.start_time().rate());
+                        const otime::RationalTime audioDuration =
+                            audioTimeRange.duration().rescaled_to(timeRange.duration().rate());
+                        if (math::fuzzyCompare(
+                                audioStartTime.value(),
+                                timeRange.start_time().value()) &&
+                            math::fuzzyCompare(
+                                audioDuration.value(),
+                                timeRange.duration().value()))
+                        {
+                            out = tracks[trackIndex + 1].items[i];
+                            index = i;
+                            trackIndex = trackIndex + 1;
+                            break;
+                        }
+                    }
+                }
+                else if (TrackType::Audio == tracks[trackIndex].type &&
+                    trackIndex > 0 &&
+                    TrackType::Video == tracks[trackIndex - 1].type)
+                {
+                    for (size_t i = 0; i < tracks[trackIndex - 1].items.size(); ++i)
+                    {
+                        const otime::TimeRange& videoTimeRange = 
+                            tracks[trackIndex - 1].items[i]->getTimeRange();
+                        const otime::RationalTime videoStartTime =
+                            videoTimeRange.start_time().rescaled_to(timeRange.start_time().rate());
+                        const otime::RationalTime videoDuration =
+                            videoTimeRange.duration().rescaled_to(timeRange.duration().rate());
+                        if (math::fuzzyCompare(
+                                videoStartTime.value(),
+                                timeRange.start_time().value()) &&
+                            math::fuzzyCompare(
+                                videoDuration.value(),
+                                timeRange.duration().value()))
+                        {
+                            out = tracks[trackIndex - 1].items[i];
+                            index = i;
+                            trackIndex = trackIndex - 1;
+                            break;
+                        }
+                    }
+                }
+            }
+            return out;
+        }
+
         std::vector<TimelineItem::Private::MouseItemDropTarget> TimelineItem::Private::getDropTargets(int index, int trackIndex)
         {
             std::vector<MouseItemDropTarget> out;
-            for (size_t i = 0; i < tracks.size(); ++i)
+            if (trackIndex >= 0 && trackIndex < tracks.size())
             {
-                const auto& track = tracks[i];
+                const auto& track = tracks[trackIndex];
                 if (track.type == tracks[trackIndex].type)
                 {
-                    size_t j = 0;
+                    size_t i = 0;
                     math::Box2i g;
-                    for (; j < track.items.size(); ++j)
+                    for (; i < track.items.size(); ++i)
                     {
-                        const auto& item = track.items[j];
+                        const auto& item = track.items[i];
                         g = item->getGeometry();
-                        if ((i == trackIndex && j == index) ||
-                            (i == trackIndex && j == (index + 1)))
+                        if (i == index || i == (index + 1))
                         {
                             continue;
                         }
                         MouseItemDropTarget dt;
-                        dt.index = j;
-                        dt.track = i;
+                        dt.index = i;
+                        dt.track = trackIndex;
                         dt.geometry = math::Box2i(
                             g.min.x - g.h() / 2,
                             g.min.y,
@@ -939,11 +1054,11 @@ namespace tl
                             g.h());
                         out.push_back(dt);
                     }
-                    if (!track.items.empty())
+                    if (!track.items.empty() && index < (track.items.size() - 1))
                     {
                         MouseItemDropTarget dt;
-                        dt.index = j;
-                        dt.track = i;
+                        dt.index = i;
+                        dt.track = trackIndex;
                         dt.geometry = math::Box2i(
                             g.max.x - g.h() / 2,
                             g.min.y,

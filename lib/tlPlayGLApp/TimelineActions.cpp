@@ -38,6 +38,19 @@ namespace tl
                     }
                 });
 
+            p.actions["EditAssociatedClips"] = std::make_shared<ui::Action>(
+                "Edit Associated Clips",
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto mainWindow = app->getMainWindow();
+                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        options.editAssociatedClips = value;
+                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                    }
+                });
+
             p.actions["FrameView"] = std::make_shared<ui::Action>(
                 "Frame Timeline View",
                 [appWeak](bool value)

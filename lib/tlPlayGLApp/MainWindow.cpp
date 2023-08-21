@@ -171,13 +171,18 @@ namespace tl
             WindowOptions windowOptions;
             settings->setDefaultValue("Window/Options", windowOptions);
             settings->getValue("Window/Options", windowOptions);
+            bool editable = true;
+            settings->setDefaultValue("Timeline/Editable", editable);
+            settings->getValue("Timeline/Editable", editable);
+            timelineui::ItemOptions itemOptions;
+            settings->setDefaultValue("Timeline/EditAssociatedClips", itemOptions.editAssociatedClips);
+            settings->getValue("Timeline/EditAssociatedClips", itemOptions.editAssociatedClips);
             bool frameView = true;
             settings->setDefaultValue("Timeline/FrameView", frameView);
             settings->getValue("Timeline/FrameView", frameView);
             bool stopOnScrub = true;
             settings->setDefaultValue("Timeline/StopOnScrub", stopOnScrub);
             settings->getValue("Timeline/FrameView", stopOnScrub);
-            timelineui::ItemOptions itemOptions;
             settings->setDefaultValue("Timeline/Thumbnails",
                 itemOptions.thumbnails);
             settings->getValue("Timeline/Thumbnails", itemOptions.thumbnails);
@@ -204,8 +209,9 @@ namespace tl
             p.timelineViewport = timelineui::TimelineViewport::create(context);
 
             p.timelineWidget = timelineui::TimelineWidget::create(p.timeUnitsModel, context);
-            p.timelineWidget->setScrollBarsVisible(false);
+            p.timelineWidget->setEditable(editable);
             p.timelineWidget->setFrameView(frameView);
+            p.timelineWidget->setScrollBarsVisible(false);
             p.timelineWidget->setStopOnScrub(stopOnScrub);
             p.timelineWidget->setItemOptions(itemOptions);
 
@@ -579,11 +585,15 @@ namespace tl
             if (auto settings = p.settings.lock())
             {
                 settings->setValue("Window/Options", p.windowOptions->get());
+                settings->setValue("Timeline/Editable",
+                    p.timelineWidget->isEditable());
+                const auto& timelineItemOptions = p.timelineWidget->getItemOptions();
+                settings->setValue("Timeline/EditAssociatedClips",
+                    timelineItemOptions.editAssociatedClips);
                 settings->setValue("Timeline/FrameView",
                     p.timelineWidget->hasFrameView());
                 settings->setValue("Timeline/StopOnScrub",
                     p.timelineWidget->hasStopOnScrub());
-                const auto& timelineItemOptions = p.timelineWidget->getItemOptions();
                 settings->setValue("Timeline/Thumbnails",
                     timelineItemOptions.thumbnails);
                 settings->setValue("Timeline/ThumbnailsSize",

@@ -6,16 +6,28 @@
 
 #include <tlCore/Time.h>
 
+#include <opentimelineio/clip.h>
 #include <opentimelineio/timeline.h>
 
 namespace tl
 {
     namespace timelineui
     {
+        //! Find an associated audio or video clip on an adjacent track.
+        otio::SerializableObject::Retainer<otio::Clip> getAssociatedClip(
+            const otio::SerializableObject::Retainer<otio::Clip>&);
+
+        //! Insert data.
+        struct InsertData
+        {
+            otio::SerializableObject::Retainer<otio::Composable> composable;
+            int trackIndex = 0;
+            int insertIndex = 0;
+        };
+
+        //! Insert the given composables.
         otio::SerializableObject::Retainer<otio::Timeline> insert(
-            const otio::Timeline*,
-            const otio::Composable*,
-            int trackIndex,
-            int insertIndex);
+            const otio::SerializableObject::Retainer<otio::Timeline>&,
+            const std::vector<InsertData>&);
     }
 }

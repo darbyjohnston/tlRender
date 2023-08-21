@@ -563,17 +563,17 @@ namespace tl
 
             connect(
                 p.timelineWidget,
-                &qtwidget::TimelineWidget::frameViewChanged,
-                [this](bool value)
-                {
-                    _p->timelineActions->actions()["FrameView"]->setChecked(value);
-                });
-            connect(
-                p.timelineWidget,
                 &qtwidget::TimelineWidget::editableChanged,
                 [this](bool value)
                 {
                     _p->timelineActions->actions()["Editable"]->setChecked(value);
+                });
+            connect(
+                p.timelineWidget,
+                &qtwidget::TimelineWidget::frameViewChanged,
+                [this](bool value)
+                {
+                    _p->timelineActions->actions()["FrameView"]->setChecked(value);
                 });
 
             connect(
@@ -671,6 +671,12 @@ namespace tl
                     if ("Timeline/Editable" == name)
                     {
                         _p->timelineWidget->setEditable(value.toBool());
+                    }
+                    else if ("Timeline/EditAssociatedClips" == name)
+                    {
+                        auto itemOptions = _p->timelineWidget->itemOptions();
+                        itemOptions.editAssociatedClips = value.toBool();
+                        _p->timelineWidget->setItemOptions(itemOptions);
                     }
                     else if ("Timeline/FrameView" == name)
                     {
@@ -1035,6 +1041,7 @@ namespace tl
             p.timelineWidget->setFrameView(settingsObject->value("Timeline/FrameView").toBool());
             p.timelineWidget->setStopOnScrub(settingsObject->value("Timeline/StopOnScrub").toBool());
             auto itemOptions = p.timelineWidget->itemOptions();
+            itemOptions.editAssociatedClips = settingsObject->value("Timeline/EditAssociatedClips").toBool();
             itemOptions.thumbnails = settingsObject->value("Timeline/Thumbnails").toBool();
             itemOptions.thumbnailHeight = settingsObject->value("Timeline/ThumbnailsSize").toInt();
             itemOptions.waveformHeight = itemOptions.thumbnailHeight / 2;

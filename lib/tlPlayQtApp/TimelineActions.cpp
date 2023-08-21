@@ -38,6 +38,10 @@ namespace tl
             p.actions["Editable"]->setCheckable(true);
             p.actions["Editable"]->setText(tr("Editable"));
 
+            p.actions["EditAssociatedClips"] = new QAction(parent);
+            p.actions["EditAssociatedClips"]->setCheckable(true);
+            p.actions["EditAssociatedClips"]->setText(tr("Edit Associated Clips"));
+
             p.actions["FrameView"] = new QAction(parent);
             p.actions["FrameView"]->setCheckable(true);
             p.actions["FrameView"]->setText(tr("Frame Timeline View"));
@@ -77,13 +81,17 @@ namespace tl
             p.menu.reset(new QMenu);
             p.menu->setTitle(tr("&Timeline"));
             p.menu->addAction(p.actions["Editable"]);
+            p.menu->addAction(p.actions["EditAssociatedClips"]);
+            p.menu->addSeparator();
             p.menu->addAction(p.actions["FrameView"]);
             p.menu->addAction(p.actions["StopOnScrub"]);
+            p.menu->addSeparator();
             p.menu->addAction(p.actions["Thumbnails"]);
             auto thumbnailsSizeMenu = p.menu->addMenu(tr("Thumbnails Size"));
             thumbnailsSizeMenu->addAction(p.actions["ThumbnailsSize/Small"]);
             thumbnailsSizeMenu->addAction(p.actions["ThumbnailsSize/Medium"]);
             thumbnailsSizeMenu->addAction(p.actions["ThumbnailsSize/Large"]);
+            p.menu->addSeparator();
             p.menu->addAction(p.actions["Transitions"]);
             p.menu->addAction(p.actions["Markers"]);
 
@@ -95,6 +103,14 @@ namespace tl
                 [app](bool value)
                 {
                     app->settingsObject()->setValue("Timeline/Editable", value);
+                });
+
+            connect(
+                p.actions["EditAssociatedClips"],
+                &QAction::toggled,
+                [app](bool value)
+                {
+                    app->settingsObject()->setValue("Timeline/EditAssociatedClips", value);
                 });
 
             connect(
@@ -167,6 +183,11 @@ namespace tl
                 QSignalBlocker blocker(p.actions["Editable"]);
                 p.actions["Editable"]->setChecked(
                     p.app->settingsObject()->value("Timeline/Editable").toBool());
+            }
+            {
+                QSignalBlocker blocker(p.actions["EditAssociatedClips"]);
+                p.actions["EditAssociatedClips"]->setChecked(
+                    p.app->settingsObject()->value("Timeline/EditAssociatedClips").toBool());
             }
             {
                 QSignalBlocker blocker(p.actions["FrameView"]);

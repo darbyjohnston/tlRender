@@ -17,16 +17,21 @@ namespace tl
         bool ItemOptions::operator == (const ItemOptions& other) const
         {
             return
+                editAssociatedClips == other.editAssociatedClips &&
                 inOutDisplay == other.inOutDisplay &&
                 cacheDisplay == other.cacheDisplay &&
                 clipRectScale == other.clipRectScale &&
                 thumbnails == other.thumbnails &&
                 thumbnailHeight == other.thumbnailHeight &&
+                waveformWidth == other.waveformWidth &&
                 waveformHeight == other.waveformHeight &&
                 waveformPrim == other.waveformPrim &&
                 thumbnailFade == other.thumbnailFade &&
                 showTransitions == other.showTransitions &&
-                showMarkers == other.showMarkers;
+                showMarkers == other.showMarkers &&
+                regularFont == other.regularFont &&
+                monoFont == other.monoFont &&
+                fontSize == other.fontSize;
         }
 
         bool ItemOptions::operator != (const ItemOptions& other) const

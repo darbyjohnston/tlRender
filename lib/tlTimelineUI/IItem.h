@@ -53,6 +53,7 @@ namespace tl
         //! Item options.
         struct ItemOptions
         {
+            bool editAssociatedClips = true;
             InOutDisplay inOutDisplay = InOutDisplay::InsideRange;
             CacheDisplay cacheDisplay = CacheDisplay::VideoAndAudio;
             float clipRectScale = 2.F;
