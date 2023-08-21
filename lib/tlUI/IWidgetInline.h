@@ -48,7 +48,7 @@ namespace tl
             return getTopLevel()->_eventLoop;
         }
 
-        inline const math::Vector2i& IWidget::getSizeHint() const
+        inline const math::Size2i& IWidget::getSizeHint() const
         {
             return _sizeHint;
         }

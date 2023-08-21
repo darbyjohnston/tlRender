@@ -273,11 +273,11 @@ namespace tl
             p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
             p.size.formatSize = event.fontSystem->getSize(p.format, fontInfo);
 
-            _sizeHint.x =
+            _sizeHint.w =
                 p.size.formatSize.w +
                 p.size.margin * 2 +
                 p.size.border * 4;
-            _sizeHint.y =
+            _sizeHint.h =
                 p.size.fontMetrics.lineHeight +
                 p.size.margin * 2 +
                 p.size.border * 4;

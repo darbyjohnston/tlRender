@@ -148,10 +148,10 @@ namespace tl
                 p.draw.glyphs.clear();
             }
 
-            _sizeHint.x =
+            _sizeHint.w =
                 p.size.textSize.w +
                 p.size.margin * 2;
-            _sizeHint.y =
+            _sizeHint.h =
                 p.size.textSize.h +
                 p.size.margin * 2;
         }

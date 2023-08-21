@@ -114,7 +114,7 @@ namespace tl
             p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
 
-            _sizeHint = math::Vector2i();
+            _sizeHint = math::Size2i();
             if (!_text.empty())
             {
                 p.size.fontMetrics = event.getFontMetrics(_fontRole);
@@ -126,14 +126,14 @@ namespace tl
                     p.size.textSize = event.fontSystem->getSize(_text, fontInfo);
                     p.draw.glyphs.clear();
                 }
-                _sizeHint.x = p.size.textSize.w + p.size.margin2 * 2;
-                _sizeHint.y = p.size.fontMetrics.lineHeight + p.size.margin * 2;
+                _sizeHint.w = p.size.textSize.w + p.size.margin2 * 2;
+                _sizeHint.h = p.size.fontMetrics.lineHeight + p.size.margin * 2;
             }
             if (_iconImage || _checkedIconImage)
             {
                 if (!_text.empty())
                 {
-                    _sizeHint.x += p.size.spacing;
+                    _sizeHint.w += p.size.spacing;
                 }
                 math::Vector2i size;
                 if (_iconImage)
@@ -146,11 +146,11 @@ namespace tl
                     size.x = std::max(size.x, _checkedIconImage->getWidth());
                     size.y = std::max(size.y, _checkedIconImage->getHeight());
                 }
-                _sizeHint.x += size.x;
-                _sizeHint.y = std::max(_sizeHint.y, size.y);
+                _sizeHint.w += size.x;
+                _sizeHint.h = std::max(_sizeHint.h, size.y);
             }
-            _sizeHint.x += p.size.border * 4;
-            _sizeHint.y += p.size.border * 4;
+            _sizeHint.w += p.size.border * 4;
+            _sizeHint.h += p.size.border * 4;
         }
 
         void ListButton::clipEvent(

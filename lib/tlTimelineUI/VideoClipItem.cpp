@@ -202,7 +202,7 @@ namespace tl
             p.size.dragLength = event.style->getSizeRole(ui::SizeRole::DragLength, event.displayScale);
             if (_options.thumbnails)
             {
-                _sizeHint.y += _options.thumbnailHeight;
+                _sizeHint.h += _options.thumbnailHeight;
             }
         }
 
@@ -281,7 +281,7 @@ namespace tl
             if (p.size.thumbnailWidth > 0)
             {
                 const auto now = std::chrono::steady_clock::now();
-                const int w = _sizeHint.x;
+                const int w = _sizeHint.w;
                 for (int x = 0; x < w; x += p.size.thumbnailWidth)
                 {
                     const math::Box2i box(

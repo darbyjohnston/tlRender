@@ -103,14 +103,14 @@ namespace tl
             }
             p.size.textUpdate = false;
 
-            _sizeHint = math::Vector2i(
+            _sizeHint = math::Size2i(
                 _timeRange.duration().rescaled_to(1.0).value() * _scale,
                 p.size.fontMetrics.lineHeight +
                 p.size.margin * 2 +
                 p.size.border * 4);
             if (_options.showMarkers)
             {
-                _sizeHint.y += p.markers.size() *
+                _sizeHint.h += p.markers.size() *
                     (p.size.fontMetrics.lineHeight +
                     p.size.margin * 2 +
                     p.size.border * 2);

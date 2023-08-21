@@ -113,13 +113,13 @@ namespace tl
             }
             p.size.checkBox = p.size.fontMetrics.lineHeight * .8F;
 
-            _sizeHint.x =
+            _sizeHint.w =
                 p.size.checkBox +
                 p.size.spacing +
                 p.size.textSize.w + p.size.margin * 2 +
                 p.size.margin * 2 +
                 p.size.border * 4;
-            _sizeHint.y =
+            _sizeHint.h =
                 p.size.fontMetrics.lineHeight +
                 p.size.margin * 2 +
                 p.size.border * 4;

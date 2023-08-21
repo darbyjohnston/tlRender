@@ -76,28 +76,28 @@ namespace tl
         {
             IPopup::setGeometry(value);
             TLRENDER_P();
-            math::Vector2i sizeHint = p.label->getSizeHint();
+            math::Size2i sizeHint = p.label->getSizeHint();
             std::list<math::Box2i> boxes;
             boxes.push_back(math::Box2i(
                 p.pos.x + p.size.handle,
                 p.pos.y + p.size.handle,
-                sizeHint.x,
-                sizeHint.y));
+                sizeHint.w,
+                sizeHint.h));
             boxes.push_back(math::Box2i(
-                p.pos.x - p.size.handle - sizeHint.x,
+                p.pos.x - p.size.handle - sizeHint.w,
                 p.pos.y + p.size.handle,
-                sizeHint.x,
-                sizeHint.y));
+                sizeHint.w,
+                sizeHint.h));
             boxes.push_back(math::Box2i(
                 p.pos.x + p.size.handle,
-                p.pos.y - p.size.handle - sizeHint.y,
-                sizeHint.x,
-                sizeHint.y));
+                p.pos.y - p.size.handle - sizeHint.h,
+                sizeHint.w,
+                sizeHint.h));
             boxes.push_back(math::Box2i(
-                p.pos.x - p.size.handle - sizeHint.x,
-                p.pos.y - p.size.handle - sizeHint.y,
-                sizeHint.x,
-                sizeHint.y));
+                p.pos.x - p.size.handle - sizeHint.w,
+                p.pos.y - p.size.handle - sizeHint.h,
+                sizeHint.w,
+                sizeHint.h));
             struct Intersect
             {
                 math::Box2i original;

@@ -80,7 +80,7 @@ namespace tl
             ///@{
 
             //! Get the size hint.
-            const math::Vector2i& getSizeHint() const;
+            const math::Size2i& getSizeHint() const;
 
             //! Get the horizontal layout stretch.
             Stretch getHStretch() const;
@@ -281,7 +281,7 @@ namespace tl
             std::weak_ptr<IWidget> _parent;
             std::weak_ptr<EventLoop> _eventLoop;
             std::list<std::shared_ptr<IWidget> > _children;
-            math::Vector2i _sizeHint;
+            math::Size2i _sizeHint;
             Stretch _hStretch = Stretch::Fixed;
             Stretch _vStretch = Stretch::Fixed;
             HAlign _hAlign = HAlign::Center;

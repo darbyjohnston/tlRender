@@ -14,7 +14,7 @@ namespace tl
     {
         math::Box2i align(
             const math::Box2i&    box,
-            const math::Vector2i& sizeHint,
+            const math::Size2i& sizeHint,
             Stretch               hStretch,
             Stretch               vStretch,
             HAlign                hAlign,
@@ -32,13 +32,13 @@ namespace tl
                     pos.x = box.x();
                     break;
                 case HAlign::Center:
-                    pos.x = box.x() + box.w() / 2 - sizeHint.x / 2;
+                    pos.x = box.x() + box.w() / 2 - sizeHint.w / 2;
                     break;
                 case HAlign::Right:
-                    pos.x = box.x() + box.w() - sizeHint.x;
+                    pos.x = box.x() + box.w() - sizeHint.w;
                     break;
                 }
-                size.x = sizeHint.x;
+                size.x = sizeHint.w;
                 break;
             case Stretch::Expanding:
                 pos.x = box.x();
@@ -55,13 +55,13 @@ namespace tl
                     pos.y = box.y();
                     break;
                 case VAlign::Center:
-                    pos.y = box.y() + box.h() / 2 - sizeHint.y / 2;
+                    pos.y = box.y() + box.h() / 2 - sizeHint.h / 2;
                     break;
                 case VAlign::Bottom:
-                    pos.y = box.y() + box.w() - sizeHint.y;
+                    pos.y = box.y() + box.w() - sizeHint.h;
                     break;
                 }
-                size.y = sizeHint.y;
+                size.y = sizeHint.h;
                 break;
             case Stretch::Expanding:
                 pos.y = box.y();

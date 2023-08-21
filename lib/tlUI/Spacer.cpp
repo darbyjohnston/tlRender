@@ -50,14 +50,14 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
-            _sizeHint = math::Vector2i();
+            _sizeHint = math::Size2i();
             switch (p.orientation)
             {
             case Orientation::Horizontal:
-                _sizeHint.x = event.style->getSizeRole(p.spacingRole, event.displayScale);
+                _sizeHint.w = event.style->getSizeRole(p.spacingRole, event.displayScale);
                 break;
             case Orientation::Vertical:
-                _sizeHint.y = event.style->getSizeRole(p.spacingRole, event.displayScale);
+                _sizeHint.h = event.style->getSizeRole(p.spacingRole, event.displayScale);
                 break;
             default: break;
             }

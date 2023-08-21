@@ -53,14 +53,14 @@ namespace tl
 
             //p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);
 
-            _sizeHint = math::Vector2i();
+            _sizeHint = math::Size2i();
             if (_iconImage)
             {
-                _sizeHint.x = _iconImage->getWidth();
-                _sizeHint.y = _iconImage->getHeight();
+                _sizeHint.w = _iconImage->getWidth();
+                _sizeHint.h = _iconImage->getHeight();
             }
-            _sizeHint.x += p.size.margin * 2;
-            _sizeHint.y += p.size.margin * 2;
+            _sizeHint.w += p.size.margin * 2;
+            _sizeHint.h += p.size.margin * 2;
         }
 
         void IncButton::drawEvent(
@@ -155,10 +155,10 @@ namespace tl
         void IncButtons::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            const math::Vector2i incSizeHint = _incButton->getSizeHint();
-            const math::Vector2i decSizeHint = _decButton->getSizeHint();
-            _sizeHint.x = std::max(incSizeHint.x, decSizeHint.x);
-            _sizeHint.y = incSizeHint.y + decSizeHint.y;
+            const math::Size2i incSizeHint = _incButton->getSizeHint();
+            const math::Size2i decSizeHint = _decButton->getSizeHint();
+            _sizeHint.w = std::max(incSizeHint.w, decSizeHint.w);
+            _sizeHint.h = incSizeHint.h + decSizeHint.h;
         }
 
         void IncButtons::setIncCallback(const std::function<void(void)>& value)

@@ -37,7 +37,7 @@ namespace tl
                 std::shared_ptr<ui::Label> label;
                 std::shared_ptr<ui::Label> durationLabel;
                 std::vector<std::shared_ptr<IItem> > items;
-                math::Vector2i size;
+                math::Size2i size;
                 int clipHeight = 0;
             };
             std::vector<Track> tracks;
@@ -264,18 +264,18 @@ namespace tl
                 g.min.y;
             for (const auto& track : p.tracks)
             {
-                const math::Vector2i& labelSizeHint = track.label->getSizeHint();
+                const math::Size2i& labelSizeHint = track.label->getSizeHint();
                 track.label->setGeometry(math::Box2i(
                     g.min.x,
                     y,
-                    labelSizeHint.x,
-                    labelSizeHint.y));
-                const math::Vector2i& durationSizeHint = track.durationLabel->getSizeHint();
+                    labelSizeHint.w,
+                    labelSizeHint.h));
+                const math::Size2i& durationSizeHint = track.durationLabel->getSizeHint();
                 track.durationLabel->setGeometry(math::Box2i(
-                    g.min.x + track.size.x - durationSizeHint.x,
+                    g.min.x + track.size.w - durationSizeHint.w,
                     y,
-                    durationSizeHint.x,
-                    durationSizeHint.y));
+                    durationSizeHint.w,
+                    durationSizeHint.h));
 
                 for (const auto& item : track.items)
                 {
@@ -284,16 +284,16 @@ namespace tl
                         continue;
                     }
                     const otime::TimeRange& timeRange = item->getTimeRange();
-                    const math::Vector2i& sizeHint = item->getSizeHint();
+                    const math::Size2i& sizeHint = item->getSizeHint();
                     item->setGeometry(math::Box2i(
                         _geometry.min.x +
                         timeRange.start_time().rescaled_to(1.0).value() * _scale,
-                        y + std::max(labelSizeHint.y, durationSizeHint.y),
-                        sizeHint.x,
+                        y + std::max(labelSizeHint.h, durationSizeHint.h),
+                        sizeHint.w,
                         track.clipHeight));
                 }
 
-                y += track.size.y;
+                y += track.size.h;
             }
 
             if (auto scrollArea = getParentT<ui::ScrollArea>())
@@ -319,21 +319,21 @@ namespace tl
             int tracksHeight = 0;
             for (auto& track : p.tracks)
             {
-                track.size.x = track.timeRange.duration().rescaled_to(1.0).value() * _scale;
-                track.size.y = 0;
+                track.size.w = track.timeRange.duration().rescaled_to(1.0).value() * _scale;
+                track.size.h = 0;
                 for (const auto& item : track.items)
                 {
-                    const math::Vector2i& sizeHint = item->getSizeHint();
-                    track.size.y = std::max(track.size.y, sizeHint.y);
+                    const math::Size2i& sizeHint = item->getSizeHint();
+                    track.size.h = std::max(track.size.h, sizeHint.h);
                 }
-                track.clipHeight = track.size.y;
-                track.size.y += std::max(
-                    track.label->getSizeHint().y,
-                    track.durationLabel->getSizeHint().y);
-                tracksHeight += track.size.y;
+                track.clipHeight = track.size.h;
+                track.size.h += std::max(
+                    track.label->getSizeHint().h,
+                    track.durationLabel->getSizeHint().h);
+                tracksHeight += track.size.h;
             }
 
-            _sizeHint = math::Vector2i(
+            _sizeHint = math::Size2i(
                 _timeRange.duration().rescaled_to(1.0).value() * _scale,
                 p.size.margin +
                 p.size.fontMetrics.lineHeight +
@@ -629,7 +629,7 @@ namespace tl
             const math::Size2i labelMaxSize = event.fontSystem->getSize(labelMax, p.size.fontInfo);
             const int distanceMin = p.size.border + p.size.margin + labelMaxSize.w;
 
-            const int w = _sizeHint.x;
+            const int w = _sizeHint.w;
             const float duration = _timeRange.duration().rescaled_to(1.0).value();
             const int frameTick = 1.0 / _timeRange.duration().value() * w;
             if (frameTick >= handle)

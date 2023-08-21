@@ -141,10 +141,10 @@ namespace tl
             auto fontInfo = event.style->getFontRole(FontRole::Label, event.displayScale);
             p.size.fontMetrics = event.fontSystem->getMetrics(fontInfo);
 
-            _sizeHint.x =
+            _sizeHint.w =
                 event.style->getSizeRole(SizeRole::Slider, event.displayScale) +
                 p.size.border * 6;
-            _sizeHint.y =
+            _sizeHint.h =
                 p.size.fontMetrics.lineHeight +
                 p.size.border * 6;
         }

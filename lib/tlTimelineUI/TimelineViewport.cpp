@@ -266,8 +266,8 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             const int sa = event.style->getSizeRole(ui::SizeRole::ScrollArea, event.displayScale);
-            _sizeHint.x = sa;
-            _sizeHint.y = sa;
+            _sizeHint.w = sa;
+            _sizeHint.h = sa;
         }
 
         void TimelineViewport::drawEvent(

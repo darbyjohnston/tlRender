@@ -45,7 +45,8 @@ namespace tl
         void Divider::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint.x = _sizeHint.y = event.style->getSizeRole(SizeRole::Border, event.displayScale);
+            _sizeHint.w = _sizeHint.h =
+                event.style->getSizeRole(SizeRole::Border, event.displayScale);
         }
     }
 }

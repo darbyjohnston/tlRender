@@ -127,7 +127,7 @@ namespace tl
             p.size.spacing = event.style->getSizeRole(SizeRole::Spacing, event.displayScale);
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
 
-            _sizeHint = math::Vector2i();
+            _sizeHint = math::Size2i();
             if (!p.labels.empty())
             {
                 p.size.fontMetrics = event.getFontMetrics(_fontRole);
@@ -144,21 +144,21 @@ namespace tl
                     }
                     p.draw.glyphs.clear();
                 }
-                _sizeHint.y = p.size.fontMetrics.lineHeight;
+                _sizeHint.h = p.size.fontMetrics.lineHeight;
             }
             if (_iconImage)
             {
-                _sizeHint.x += _iconImage->getWidth();
+                _sizeHint.w += _iconImage->getWidth();
                 if (!p.labels.empty())
                 {
-                    _sizeHint.x += p.size.spacing;
+                    _sizeHint.w += p.size.spacing;
                 }
-                _sizeHint.y = std::max(_sizeHint.y, _iconImage->getHeight());
+                _sizeHint.h = std::max(_sizeHint.h, _iconImage->getHeight());
             }
-            _sizeHint.x +=
+            _sizeHint.w +=
                 p.size.margin * 2 +
                 p.size.border * 4;
-            _sizeHint.y +=
+            _sizeHint.h +=
                 p.size.margin * 2 +
                 p.size.border * 4;
         }

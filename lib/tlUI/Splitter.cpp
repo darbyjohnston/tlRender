@@ -180,8 +180,8 @@ namespace tl
             p.size.handle = event.style->getSizeRole(SizeRole::HandleSmall, event.displayScale);
             const int sa = event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
 
-            _sizeHint.x = sa;
-            _sizeHint.y = sa;
+            _sizeHint.w = sa;
+            _sizeHint.h = sa;
         }
 
         void Splitter::drawEvent(

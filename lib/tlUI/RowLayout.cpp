@@ -77,7 +77,7 @@ namespace tl
             IWidget::setGeometry(value);
             TLRENDER_P();
             const math::Box2i g = _geometry.margin(-p.size.margin);
-            std::vector<math::Vector2i> sizeHints;
+            std::vector<math::Size2i> sizeHints;
             size_t expanding = 0;
             std::shared_ptr<IWidget> lastVisibleChild;
             for (const auto& child : _children)
@@ -104,50 +104,50 @@ namespace tl
                 }
             }
             const std::pair<int, int> extra(
-                _geometry.w() - _sizeHint.x,
-                _geometry.h() - _sizeHint.y);
+                _geometry.w() - _sizeHint.w,
+                _geometry.h() - _sizeHint.h);
             math::Vector2i pos = g.min;
             size_t count = 0;
             for (const auto& child : _children)
             {
                 if (child->isVisible(false))
                 {
-                    math::Vector2i size = sizeHints[count];
+                    math::Size2i size = sizeHints[count];
                     switch (p.orientation)
                     {
                     case Orientation::Horizontal:
-                        size.y = g.h();
+                        size.h = g.h();
                         if (Stretch::Expanding == child->getHStretch())
                         {
-                            size.x += extra.first / expanding;
+                            size.w += extra.first / expanding;
                             if (child == lastVisibleChild)
                             {
-                                size.x += extra.first - (extra.first / expanding * expanding);
+                                size.w += extra.first - (extra.first / expanding * expanding);
                             }
                         }
                         break;
                     case Orientation::Vertical:
-                        size.x = g.w();
+                        size.w = g.w();
                         if (Stretch::Expanding == child->getVStretch())
                         {
-                            size.y += extra.second / expanding;
+                            size.h += extra.second / expanding;
                             if (child == lastVisibleChild)
                             {
-                                size.y += extra.second - (extra.second / expanding * expanding);
+                                size.h += extra.second - (extra.second / expanding * expanding);
                             }
                         }
                         break;
                     }
-                    child->setGeometry(math::Box2i(pos.x, pos.y, size.x, size.y));
+                    child->setGeometry(math::Box2i(pos, size));
                     switch (p.orientation)
                     {
                     case Orientation::Horizontal:
-                        pos.x += size.x;
-                        if (sizeHints[count].x > 0)
+                        pos.x += size.w;
+                        if (sizeHints[count].w > 0)
                         {
                             for (size_t i = count + 1; i < sizeHints.size(); ++i)
                             {
-                                if (sizeHints[i].x > 0)
+                                if (sizeHints[i].w > 0)
                                 {
                                     pos.x += p.size.spacing;
                                     break;
@@ -156,12 +156,12 @@ namespace tl
                         }
                         break;
                     case Orientation::Vertical:
-                        pos.y += size.y;
-                        if (sizeHints[count].y > 0)
+                        pos.y += size.h;
+                        if (sizeHints[count].h > 0)
                         {
                             for (size_t i = count + 1; i < sizeHints.size(); ++i)
                             {
-                                if (sizeHints[i].y > 0)
+                                if (sizeHints[i].h > 0)
                                 {
                                     pos.y += p.size.spacing;
                                     break;
@@ -188,29 +188,29 @@ namespace tl
             p.size.margin = event.style->getSizeRole(p.marginRole, event.displayScale);
             p.size.spacing = event.style->getSizeRole(p.spacingRole, event.displayScale);
 
-            _sizeHint = math::Vector2i();
-            std::vector<math::Vector2i> sizeHints;
+            _sizeHint = math::Size2i();
+            std::vector<math::Size2i> sizeHints;
             size_t visible = 0;
             for (const auto& child : _children)
             {
                 if (child->isVisible(false))
                 {
-                    const math::Vector2i& sizeHint = child->getSizeHint();
+                    const math::Size2i& sizeHint = child->getSizeHint();
                     sizeHints.push_back(sizeHint);
                     switch (p.orientation)
                     {
                     case Orientation::Horizontal:
-                        _sizeHint.x += sizeHint.x;
-                        _sizeHint.y = std::max(_sizeHint.y, sizeHint.y);
-                        if (sizeHint.x > 0)
+                        _sizeHint.w += sizeHint.w;
+                        _sizeHint.h = std::max(_sizeHint.h, sizeHint.h);
+                        if (sizeHint.w > 0)
                         {
                             ++visible;
                         }
                         break;
                     case Orientation::Vertical:
-                        _sizeHint.x = std::max(_sizeHint.x, sizeHint.x);
-                        _sizeHint.y += sizeHint.y;
-                        if (sizeHint.y > 0)
+                        _sizeHint.w = std::max(_sizeHint.w, sizeHint.w);
+                        _sizeHint.h += sizeHint.h;
+                        if (sizeHint.h > 0)
                         {
                             ++visible;
                         }
@@ -223,16 +223,16 @@ namespace tl
                 switch (p.orientation)
                 {
                 case Orientation::Horizontal:
-                    _sizeHint.x += p.size.spacing * (visible - 1);
+                    _sizeHint.w += p.size.spacing * (visible - 1);
                     break;
                 case Orientation::Vertical:
-                    _sizeHint.y += p.size.spacing * (visible - 1);
+                    _sizeHint.h += p.size.spacing * (visible - 1);
                     break;
                 default: break;
                 }
             }
-            _sizeHint.x += p.size.margin * 2;
-            _sizeHint.y += p.size.margin * 2;
+            _sizeHint.w += p.size.margin * 2;
+            _sizeHint.h += p.size.margin * 2;
         }
 
         void RowLayout::childAddedEvent(const ChildEvent&)

@@ -120,29 +120,29 @@ namespace tl
             math::Vector2i scrollSize;
             for (const auto& child : _children)
             {
-                math::Vector2i sizeHint = child->getSizeHint();
+                math::Size2i sizeHint = child->getSizeHint();
                 switch (p.scrollType)
                 {
                 case ScrollType::Horizontal:
-                    sizeHint.y = std::max(sizeHint.y, g.h());
+                    sizeHint.h = std::max(sizeHint.h, g.h());
                     break;
                 case ScrollType::Vertical:
                 case ScrollType::Menu:
-                    sizeHint.x = std::max(sizeHint.x, g.w());
+                    sizeHint.w = std::max(sizeHint.w, g.w());
                     break;
                 case ScrollType::Both:
-                    sizeHint.x = std::max(sizeHint.x, g.w());
-                    sizeHint.y = std::max(sizeHint.y, g.h());
+                    sizeHint.w = std::max(sizeHint.w, g.w());
+                    sizeHint.h = std::max(sizeHint.h, g.h());
                     break;
                 default: break;
                 }
-                scrollSize.x = std::max(scrollSize.x, sizeHint.x);
-                scrollSize.y = std::max(scrollSize.y, sizeHint.y);
+                scrollSize.x = std::max(scrollSize.x, sizeHint.w);
+                scrollSize.y = std::max(scrollSize.y, sizeHint.h);
                 const math::Box2i g2(
                     g.min.x - p.scrollPos.x,
                     g.min.y - p.scrollPos.y,
-                    sizeHint.x,
-                    sizeHint.y);
+                    sizeHint.w,
+                    sizeHint.h);
                 child->setGeometry(g2);
             }
             if (scrollSize != p.scrollSize)
@@ -181,29 +181,29 @@ namespace tl
                 0;
             const int sa = event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
 
-            _sizeHint = math::Vector2i();
+            _sizeHint = math::Size2i();
             for (const auto& child : _children)
             {
-                const math::Vector2i& sizeHint = child->getSizeHint();
-                _sizeHint.x = std::max(_sizeHint.x, sizeHint.x);
-                _sizeHint.y = std::max(_sizeHint.y, sizeHint.y);
+                const math::Size2i& sizeHint = child->getSizeHint();
+                _sizeHint.w = std::max(_sizeHint.w, sizeHint.w);
+                _sizeHint.h = std::max(_sizeHint.h, sizeHint.h);
             }
             switch (p.scrollType)
             {
                 case ScrollType::Horizontal:
-                    _sizeHint.x = sa;
+                    _sizeHint.w = sa;
                     break;
                 case ScrollType::Vertical:
-                    _sizeHint.y = sa;
+                    _sizeHint.h = sa;
                     break;
                 case ScrollType::Both:
-                    _sizeHint.x = sa;
-                    _sizeHint.y = sa;
+                    _sizeHint.w = sa;
+                    _sizeHint.h = sa;
                     break;
                 default: break;
             }
-            _sizeHint.x += p.size.border * 2;
-            _sizeHint.y += p.size.border * 2;
+            _sizeHint.w += p.size.border * 2;
+            _sizeHint.h += p.size.border * 2;
         }
 
         void ScrollArea::drawEvent(

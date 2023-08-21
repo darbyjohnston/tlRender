@@ -332,31 +332,31 @@ namespace tl
                 }
             }
 
-            _sizeHint.x = p.size.textSize.w + p.size.margin * 2;
-            _sizeHint.y = p.size.fontMetrics.lineHeight;
+            _sizeHint.w = p.size.textSize.w + p.size.margin * 2;
+            _sizeHint.h = p.size.fontMetrics.lineHeight;
             if (p.iconImage)
             {
-                _sizeHint.x += p.iconImage->getWidth();
+                _sizeHint.w += p.iconImage->getWidth();
                 if (!p.text.empty())
                 {
-                    _sizeHint.x += p.size.spacing;
+                    _sizeHint.w += p.size.spacing;
                 }
-                _sizeHint.y = std::max(
-                    _sizeHint.y,
+                _sizeHint.h = std::max(
+                    _sizeHint.h,
                     static_cast<int>(p.iconImage->getHeight()));
             }
             if (p.arrowIconImage)
             {
-                _sizeHint.x += p.arrowIconImage->getWidth();
-                _sizeHint.x += p.size.spacing;
-                _sizeHint.y = std::max(
-                    _sizeHint.y,
+                _sizeHint.w += p.arrowIconImage->getWidth();
+                _sizeHint.w += p.size.spacing;
+                _sizeHint.h = std::max(
+                    _sizeHint.h,
                     static_cast<int>(p.arrowIconImage->getHeight()));
             }
-            _sizeHint.x +=
+            _sizeHint.w +=
                 p.size.margin * 2 +
                 p.size.border * 4;
-            _sizeHint.y +=
+            _sizeHint.h +=
                 p.size.margin * 2 +
                 p.size.border * 4;
         }

@@ -96,17 +96,17 @@ namespace tl
             p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
             p.size.handle = event.style->getSizeRole(SizeRole::Handle, event.displayScale);
 
-            _sizeHint.x = p.size.handle;
-            _sizeHint.y = p.size.handle;
+            _sizeHint.w = p.size.handle;
+            _sizeHint.h = p.size.handle;
             switch (p.orientation)
             {
             case Orientation::Horizontal:
-                _sizeHint.x += p.size.handle + p.size.border * 2;
-                _sizeHint.y += p.size.border;
+                _sizeHint.w += p.size.handle + p.size.border * 2;
+                _sizeHint.h += p.size.border;
                 break;
             case Orientation::Vertical:
-                _sizeHint.x += p.size.border;
-                _sizeHint.y += p.size.handle + p.size.border * 2;
+                _sizeHint.w += p.size.border;
+                _sizeHint.h += p.size.handle + p.size.border * 2;
                 break;
             default: break;
             }

@@ -229,14 +229,14 @@ namespace tl
             std::vector<int> rowSizeHints;
             std::vector<int> columnSizeHints;
             p.getSizeHints(rowSizeHints, columnSizeHints);
-            _sizeHint = math::Vector2i();
+            _sizeHint = math::Size2i();
             for (int i : rowSizeHints)
             {
-                _sizeHint.y += i;
+                _sizeHint.h += i;
             }
             for (int i : columnSizeHints)
             {
-                _sizeHint.x += i;
+                _sizeHint.w += i;
             }
 
             // Add spacing.
@@ -245,16 +245,16 @@ namespace tl
             p.getVisible(rowsVisible, columnsVisible);
             if (rowsVisible > 0)
             {
-                _sizeHint.y += (rowsVisible - 1) * p.size.spacing;
+                _sizeHint.h += (rowsVisible - 1) * p.size.spacing;
             }
             if (columnsVisible > 0)
             {
-                _sizeHint.x += (columnsVisible - 1) * p.size.spacing;
+                _sizeHint.w += (columnsVisible - 1) * p.size.spacing;
             }
 
             // Add the margin.
-            _sizeHint.x += p.size.margin * 2;
-            _sizeHint.y += p.size.margin * 2;
+            _sizeHint.w += p.size.margin * 2;
+            _sizeHint.h += p.size.margin * 2;
         }
 
         void GridLayout::childRemovedEvent(const ChildEvent& event)
@@ -297,13 +297,13 @@ namespace tl
                 const bool visible = i.first->isVisible(false);
                 if (visible)
                 {
-                    const math::Vector2i& sizeHint = i.first->getSizeHint();
+                    const math::Size2i& sizeHint = i.first->getSizeHint();
                     rows[i.second.row] = std::max(
                         rows[i.second.row],
-                        sizeHint.y);
+                        sizeHint.h);
                     columns[i.second.column] = std::max(
                         columns[i.second.column],
-                        sizeHint.x);
+                        sizeHint.w);
                 }
             }
         }

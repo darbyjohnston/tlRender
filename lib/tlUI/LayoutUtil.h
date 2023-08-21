@@ -15,7 +15,7 @@ namespace tl
         //! Align within the given box.
         math::Box2i align(
             const math::Box2i&    box,
-            const math::Vector2i& sizeHint,
+            const math::Size2i& sizeHint,
             Stretch               hStretch,
             Stretch               vStretch,
             HAlign                hAlign,

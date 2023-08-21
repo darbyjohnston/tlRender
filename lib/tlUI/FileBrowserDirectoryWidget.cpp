@@ -189,7 +189,7 @@ namespace tl
             _sizeHint = p.layout->getSizeHint();
             for (size_t i = 0; i < columns.size(); ++i)
             {
-                _sizeHint.x += columns[i];
+                _sizeHint.w += columns[i];
             }
         }
 

@@ -218,8 +218,8 @@ namespace tl
             p.size.shadow = event.style->getSizeRole(SizeRole::Shadow, event.displayScale);
             const int margin = std::max(p.size.handle, p.size.shadow);
             _sizeHint = p.layout->getSizeHint() + p.size.border * 2;
-            _sizeHint.x += margin * 2;
-            _sizeHint.y += p.size.handle + margin;
+            _sizeHint.w += margin * 2;
+            _sizeHint.h += p.size.handle + margin;
         }
 
         void MDIWidget::drawEvent(

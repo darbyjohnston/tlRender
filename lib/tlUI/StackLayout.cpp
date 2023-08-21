@@ -113,15 +113,15 @@ namespace tl
 
             p.size.margin = event.style->getSizeRole(p.marginRole, event.displayScale);
 
-            _sizeHint = math::Vector2i();
+            _sizeHint = math::Size2i();
             for (const auto& child : _children)
             {
-                const math::Vector2i& sizeHint = child->getSizeHint();
-                _sizeHint.x = std::max(_sizeHint.x, sizeHint.x);
-                _sizeHint.y = std::max(_sizeHint.y, sizeHint.y);
+                const math::Size2i& sizeHint = child->getSizeHint();
+                _sizeHint.w = std::max(_sizeHint.w, sizeHint.w);
+                _sizeHint.h = std::max(_sizeHint.h, sizeHint.h);
             }
-            _sizeHint.x += p.size.margin * 2;
-            _sizeHint.y += p.size.margin * 2;
+            _sizeHint.w += p.size.margin * 2;
+            _sizeHint.h += p.size.margin * 2;
         }
 
         std::shared_ptr<IWidget> StackLayout::_getCurrentWidget() const

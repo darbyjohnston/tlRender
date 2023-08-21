@@ -180,7 +180,7 @@ namespace tl
         {
             IPopup::setGeometry(value);
             TLRENDER_P();
-            math::Vector2i sizeHint = p.menuWidget->getSizeHint();
+            math::Size2i sizeHint = p.menuWidget->getSizeHint();
             std::list<math::Box2i> boxes;
             switch (p.popupStyle)
             {
@@ -188,35 +188,35 @@ namespace tl
                 boxes.push_back(math::Box2i(
                     p.buttonGeometry.min.x,
                     p.buttonGeometry.max.y + 1,
-                    sizeHint.x,
-                    sizeHint.y));
+                    sizeHint.w,
+                    sizeHint.h));
                 boxes.push_back(math::Box2i(
-                    p.buttonGeometry.max.x + 1 - sizeHint.x,
+                    p.buttonGeometry.max.x + 1 - sizeHint.w,
                     p.buttonGeometry.max.y + 1,
-                    sizeHint.x,
-                    sizeHint.y));
+                    sizeHint.w,
+                    sizeHint.h));
                 boxes.push_back(math::Box2i(
                     p.buttonGeometry.min.x,
-                    p.buttonGeometry.min.y - sizeHint.y,
-                    sizeHint.x,
-                    sizeHint.y));
+                    p.buttonGeometry.min.y - sizeHint.h,
+                    sizeHint.w,
+                    sizeHint.h));
                 boxes.push_back(math::Box2i(
-                    p.buttonGeometry.max.x + 1 - sizeHint.x,
-                    p.buttonGeometry.min.y - sizeHint.y,
-                    sizeHint.x,
-                    sizeHint.y));
+                    p.buttonGeometry.max.x + 1 - sizeHint.w,
+                    p.buttonGeometry.min.y - sizeHint.h,
+                    sizeHint.w,
+                    sizeHint.h));
                 break;
             case MenuPopupStyle::SubMenu:
                 boxes.push_back(math::Box2i(
                     p.buttonGeometry.max.x,
                     p.buttonGeometry.min.y,
-                    sizeHint.x,
-                    sizeHint.y));
+                    sizeHint.w,
+                    sizeHint.h));
                 boxes.push_back(math::Box2i(
-                    p.buttonGeometry.min.x - sizeHint.x,
+                    p.buttonGeometry.min.x - sizeHint.w,
                     p.buttonGeometry.min.y,
-                    sizeHint.x,
-                    sizeHint.y));
+                    sizeHint.w,
+                    sizeHint.h));
                 break;
             }
             struct Intersect

@@ -136,10 +136,10 @@ namespace tl
             p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
             p.size.formatSize = event.fontSystem->getSize(p.format, fontInfo);
 
-            _sizeHint.x =
+            _sizeHint.w =
                 std::max(p.size.textSize.w, p.size.formatSize.w) +
                 p.size.margin * 2;
-            _sizeHint.y =
+            _sizeHint.h =
                 p.size.fontMetrics.lineHeight +
                 p.size.margin * 2;
         }

@@ -103,7 +103,7 @@ namespace tl
                     {
                         if (auto widget = _p->mouse.widget)
                         {
-                            const math::Vector2i sizeHint = widget->getSizeHint();
+                            const math::Size2i sizeHint = widget->getSizeHint();
                             const math::Box2i& g = getGeometry();
                             math::Box2i g2 = _p->mouse.geom;
                             switch (value)
@@ -112,13 +112,13 @@ namespace tl
                                 g2.min.y = math::clamp(
                                     g2.min.y + move.y,
                                     g.min.y,
-                                    _p->mouse.geom.max.y - sizeHint.y);
+                                    _p->mouse.geom.max.y - sizeHint.h);
                                 break;
                             case MDIResize::NorthEast:
                                 g2.min.y = math::clamp(
                                     g2.min.y + move.y,
                                     g.min.y,
-                                    _p->mouse.geom.max.y - sizeHint.y);
+                                    _p->mouse.geom.max.y - sizeHint.h);
                                 g2.max.x = std::min(g2.max.x + move.x, g.max.x);
                                 break;
                             case MDIResize::East:
@@ -135,24 +135,24 @@ namespace tl
                                 g2.min.x = math::clamp(
                                     g2.min.x + move.x,
                                     g.min.x,
-                                    _p->mouse.geom.max.x - sizeHint.x);
+                                    _p->mouse.geom.max.x - sizeHint.w);
                                 g2.max.y = std::min(g2.max.y + move.y, g.max.y);
                                 break;
                             case MDIResize::West:
                                 g2.min.x = math::clamp(
                                     g2.min.x + move.x,
                                     g.min.x,
-                                    _p->mouse.geom.max.x - sizeHint.x);
+                                    _p->mouse.geom.max.x - sizeHint.w);
                                 break;
                             case MDIResize::NorthWest:
                                 g2.min.x = math::clamp(
                                     g2.min.x + move.x,
                                     g.min.x,
-                                    _p->mouse.geom.max.x - sizeHint.x);
+                                    _p->mouse.geom.max.x - sizeHint.w);
                                 g2.min.y = math::clamp(
                                     g2.min.y + move.y,
                                     g.min.y,
-                                    _p->mouse.geom.max.y - sizeHint.y);
+                                    _p->mouse.geom.max.y - sizeHint.h);
                                 break;
                             default: break;
                             }
@@ -176,25 +176,25 @@ namespace tl
             {
                 if (auto widget = p.newWidgets.front().lock())
                 {
-                    const math::Vector2i& sizeHint = widget->getSizeHint();
+                    const math::Size2i& sizeHint = widget->getSizeHint();
                     widget->setGeometry(math::Box2i(
                         pos.x,
                         pos.y,
-                        sizeHint.x,
-                        sizeHint.y));
+                        sizeHint.w,
+                        sizeHint.h));
                     pos = pos + p.size.spacing;
                 }
                 p.newWidgets.pop_front();
             }
             for (const auto& child : _children)
             {
-                const math::Vector2i& sizeHint = child->getSizeHint();
+                const math::Size2i& sizeHint = child->getSizeHint();
                 const math::Box2i& g2 = child->getGeometry();
                 child->setGeometry(math::Box2i(
                     g2.min.x,
                     g2.min.y,
-                    std::max(g2.w(), sizeHint.x),
-                    std::max(g2.h(), sizeHint.y)));
+                    std::max(g2.w(), sizeHint.w),
+                    std::max(g2.h(), sizeHint.h)));
             }
         }
 
@@ -204,8 +204,8 @@ namespace tl
             TLRENDER_P();
             p.size.spacing = event.style->getSizeRole(SizeRole::SpacingLarge, event.displayScale);
             const int sa = event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
-            _sizeHint.x = sa;
-            _sizeHint.y = sa;
+            _sizeHint.w = sa;
+            _sizeHint.h = sa;
         }
 
         void MDICanvas::mouseMoveEvent(MouseMoveEvent& event)

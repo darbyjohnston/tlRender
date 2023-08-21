@@ -69,8 +69,8 @@ namespace tl
                 const auto fontInfo = event.style->getFontRole(ui::FontRole::Label, event.displayScale);
                 const math::Size2i textSize = event.fontSystem->getSize(format, fontInfo);
                 p.cellSize = textSize.w + p.margin * 2;
-                _sizeHint.x = p.cellCount.x * p.cellSize;
-                _sizeHint.y = p.cellCount.y * p.cellSize;
+                _sizeHint.w = p.cellCount.x * p.cellSize;
+                _sizeHint.h = p.cellCount.y * p.cellSize;
             }
 
             void ScrollAreasWidget::clipEvent(

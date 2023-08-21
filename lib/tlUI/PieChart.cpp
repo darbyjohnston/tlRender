@@ -223,12 +223,12 @@ namespace tl
                 p.size.fontMetrics.lineHeight * p.sizeMult +
                 p.size.spacing * 2 +
                 percentageWidthMax * 2;
-            _sizeHint.x =
+            _sizeHint.w =
                 p.size.pieDiameter +
                 p.size.spacing +
                 p.size.textSize.x +
                 p.size.margin * 2;
-            _sizeHint.y =
+            _sizeHint.h =
                 std::max(p.size.pieDiameter, p.size.textSize.y) +
                 p.size.margin * 2;
         }

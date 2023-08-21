@@ -231,45 +231,45 @@ namespace tl
                 auto fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
                 _size.fontInfo = fontInfo;
 
-                _sizeHint = math::Vector2i();
+                _sizeHint = math::Size2i();
                 if (_iconImage)
                 {
-                    _sizeHint.x = _iconImage->getWidth() + _size.spacing;
-                    _sizeHint.y = _iconImage->getHeight();
+                    _sizeHint.w = _iconImage->getWidth() + _size.spacing;
+                    _sizeHint.h = _iconImage->getHeight();
                 }
                 else if (_checked && _checkedIcon.image)
                 {
-                    _sizeHint.x = _checkedIcon.image->getWidth() + _size.spacing;
-                    _sizeHint.y = _checkedIcon.image->getHeight();
+                    _sizeHint.w = _checkedIcon.image->getWidth() + _size.spacing;
+                    _sizeHint.h = _checkedIcon.image->getHeight();
                 }
                 else if (!_checked && _uncheckedIcon.image)
                 {
-                    _sizeHint.x = _uncheckedIcon.image->getWidth() + _size.spacing;
-                    _sizeHint.y = _uncheckedIcon.image->getHeight();
+                    _sizeHint.w = _uncheckedIcon.image->getWidth() + _size.spacing;
+                    _sizeHint.h = _uncheckedIcon.image->getHeight();
                 }
                 if (!_text.empty())
                 {
                     _size.textSize = event.fontSystem->getSize(_text, fontInfo);
 
-                    _sizeHint.x += _size.textSize.w + _size.margin * 2;
-                    _sizeHint.y = std::max(_sizeHint.y, _size.fontMetrics.lineHeight);
+                    _sizeHint.w += _size.textSize.w + _size.margin * 2;
+                    _sizeHint.h = std::max(_sizeHint.h, _size.fontMetrics.lineHeight);
                 }
                 if (!_shortcutText.empty())
                 {
                     _size.shortcutSize = event.fontSystem->getSize(_shortcutText, fontInfo);
 
-                    _sizeHint.x += _size.spacing * 4 + _size.shortcutSize.w;
-                    _sizeHint.y = std::max(_sizeHint.y, _size.shortcutSize.h);
+                    _sizeHint.w += _size.spacing * 4 + _size.shortcutSize.w;
+                    _sizeHint.h = std::max(_sizeHint.h, _size.shortcutSize.h);
                 }
                 if (_subMenuIcon.image)
                 {
-                    _sizeHint.x += _size.spacing + _subMenuIcon.image->getWidth();
-                    _sizeHint.y = std::max(_sizeHint.y, _subMenuIcon.image->getHeight());
+                    _sizeHint.w += _size.spacing + _subMenuIcon.image->getWidth();
+                    _sizeHint.h = std::max(_sizeHint.h, _subMenuIcon.image->getHeight());
                 }
-                _sizeHint.x +=
+                _sizeHint.w +=
                     _size.margin * 2 +
                     _size.border * 4;
-                _sizeHint.y +=
+                _sizeHint.h +=
                     _size.margin * 2 +
                     _size.border * 4;
             }

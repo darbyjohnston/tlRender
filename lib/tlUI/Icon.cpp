@@ -120,11 +120,11 @@ namespace tl
 
             p.size.margin = event.style->getSizeRole(p.marginRole, event.displayScale);
 
-            _sizeHint = math::Vector2i();
+            _sizeHint = math::Size2i();
             if (p.iconImage)
             {
-                _sizeHint.x = p.iconImage->getWidth();
-                _sizeHint.y = p.iconImage->getHeight();
+                _sizeHint.w = p.iconImage->getWidth();
+                _sizeHint.h = p.iconImage->getHeight();
             }
         }
 
