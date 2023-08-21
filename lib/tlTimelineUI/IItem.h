@@ -61,7 +61,7 @@ namespace tl
             int waveformWidth = 200;
             int waveformHeight = 50;
             WaveformPrim waveformPrim = WaveformPrim::Mesh;
-            float thumbnailFade = .5F;
+            float thumbnailFade = .2F;
             bool showTransitions = false;
             bool showMarkers = false;
             std::string regularFont = "NotoSans-Regular";

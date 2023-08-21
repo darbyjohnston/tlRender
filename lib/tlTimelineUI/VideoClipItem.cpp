@@ -31,7 +31,12 @@ namespace tl
             std::future<io::Info> infoFuture;
             std::unique_ptr<io::Info> ioInfo;
             std::map<otime::RationalTime, std::future<std::shared_ptr<image::Image> > > thumbnailFutures;
-            std::map<otime::RationalTime, std::shared_ptr<image::Image> > thumbnails;
+            struct Thumbnail
+            {
+                std::shared_ptr<image::Image> image;
+                std::chrono::steady_clock::time_point time;
+            };
+            std::map<otime::RationalTime, Thumbnail> thumbnails;
             std::shared_ptr<observer::ValueObserver<bool> > cancelObserver;
         };
 
@@ -149,6 +154,7 @@ namespace tl
             }
 
             // Check if any thumbnails are finished.
+            const auto now = std::chrono::steady_clock::now();
             auto i = p.thumbnailFutures.begin();
             while (i != p.thumbnailFutures.end())
             {
@@ -156,13 +162,23 @@ namespace tl
                     i->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
                     const auto image = i->second.get();
-                    p.thumbnails[i->first] = image;
+                    p.thumbnails[i->first] = { image, now };
                     i = p.thumbnailFutures.erase(i);
                     _updates |= ui::Update::Draw;
                 }
                 else
                 {
                     ++i;
+                }
+            }
+
+            // Check if any thumbnails need to be redrawn.
+            for (const auto& thumbnail : p.thumbnails)
+            {
+                const std::chrono::duration<float> diff = now - thumbnail.second.time;
+                if (diff.count() <= _options.thumbnailFade)
+                {
+                    _updates |= ui::Update::Draw;
                 }
             }
         }
@@ -264,6 +280,7 @@ namespace tl
 
             if (p.size.thumbnailWidth > 0)
             {
+                const auto now = std::chrono::steady_clock::now();
                 const int w = _sizeHint.x;
                 for (int x = 0; x < w; x += p.size.thumbnailWidth)
                 {
@@ -285,9 +302,18 @@ namespace tl
                         const auto i = p.thumbnails.find(time);
                         if (i != p.thumbnails.end())
                         {
-                            if (i->second)
+                            if (i->second.image)
                             {
-                                event.render->drawImage(i->second, box);
+                                const std::chrono::duration<float> diff = now - i->second.time;
+                                float a = 1.F;
+                                if (_options.thumbnailFade > 0.F)
+                                {
+                                    a = std::min(diff.count() / _options.thumbnailFade, 1.F);
+                                }
+                                event.render->drawImage(
+                                    i->second.image,
+                                    box,
+                                    image::Color4f(1.F, 1.F, 1.F, a));
                             }
                             thumbnailsDelete.erase(time);
                         }

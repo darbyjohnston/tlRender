@@ -30,7 +30,12 @@ namespace tl
             std::future<io::Info> infoFuture;
             std::unique_ptr<io::Info> ioInfo;
             std::map<otime::RationalTime, std::future<std::shared_ptr<geom::TriangleMesh2> > > waveformFutures;
-            std::map<otime::RationalTime, std::shared_ptr<geom::TriangleMesh2> > waveforms;
+            struct Waveform
+            {
+                std::shared_ptr<geom::TriangleMesh2> mesh;
+                std::chrono::steady_clock::time_point time;
+            };
+            std::map<otime::RationalTime, Waveform> waveforms;
             std::shared_ptr<observer::ValueObserver<bool> > cancelObserver;
         };
 
@@ -150,6 +155,7 @@ namespace tl
             }
 
             // Check if any audio waveforms are finished.
+            const auto now = std::chrono::steady_clock::now();
             auto i = p.waveformFutures.begin();
             while (i != p.waveformFutures.end())
             {
@@ -157,13 +163,23 @@ namespace tl
                     i->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
                     const auto mesh = i->second.get();
-                    p.waveforms[i->first] = mesh;
+                    p.waveforms[i->first] = { mesh, now };
                     i = p.waveformFutures.erase(i);
                     _updates |= ui::Update::Draw;
                 }
                 else
                 {
                     ++i;
+                }
+            }
+
+            // Check if any waveforms need to be redrawn.
+            for (const auto& waveform : p.waveforms)
+            {
+                const std::chrono::duration<float> diff = now - waveform.second.time;
+                if (diff.count() <= _options.thumbnailFade)
+                {
+                    _updates |= ui::Update::Draw;
                 }
             }
         }
@@ -253,6 +269,7 @@ namespace tl
 
             if (_options.waveformWidth > 0)
             {
+                const auto now = std::chrono::steady_clock::now();
                 const int w = _sizeHint.x;
                 for (int x = 0; x < w; x += _options.waveformWidth)
                 {
@@ -273,12 +290,18 @@ namespace tl
                         auto i = p.waveforms.find(time);
                         if (i != p.waveforms.end())
                         {
-                            if (i->second)
+                            if (i->second.mesh)
                             {
+                                const std::chrono::duration<float> diff = now - i->second.time;
+                                float a = 1.F;
+                                if (_options.thumbnailFade > 0.F)
+                                {
+                                    a = std::min(diff.count() / _options.thumbnailFade, 1.F);
+                                }
                                 event.render->drawMesh(
-                                    *i->second,
+                                    *i->second.mesh,
                                     box.min,
-                                    image::Color4f(1.F, 1.F, 1.F));
+                                    image::Color4f(1.F, 1.F, 1.F, a));
                             }
                             waveformsDelete.erase(time);
                         }
