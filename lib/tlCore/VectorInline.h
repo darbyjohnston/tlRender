@@ -57,6 +57,30 @@ namespace tl
         {}
 
         template<typename T>
+        inline void Vector2<T>::zero()
+        {
+            x = T(0);
+            y = T(0);
+        }
+
+        template<typename T>
+        inline void Vector3<T>::zero()
+        {
+            x = T(0);
+            y = T(0);
+            z = T(0);
+        }
+
+        template<typename T>
+        inline void Vector4<T>::zero()
+        {
+            x = T(0);
+            y = T(0);
+            z = T(0);
+            w = T(0);
+        }
+
+        template<typename T>
         constexpr bool Vector2<T>::operator == (const Vector2<T>& other) const
         {
             return x == other.x && y == other.y;
@@ -164,7 +188,7 @@ namespace tl
         }
 
         template<typename T>
-        inline Vector2<T> operator - (const Vector2<T>& a, T& b)
+        inline Vector2<T> operator - (const Vector2<T>& a, T b)
         {
             return Vector2<T>(a.x - b, a.y - b);
         }

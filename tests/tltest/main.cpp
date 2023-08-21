@@ -65,6 +65,7 @@
 #include <tlCoreTest/OSTest.h>
 #include <tlCoreTest/PathTest.h>
 #include <tlCoreTest/RangeTest.h>
+#include <tlCoreTest/SizeTest.h>
 #include <tlCoreTest/StringTest.h>
 #include <tlCoreTest/StringFormatTest.h>
 #include <tlCoreTest/TimeTest.h>
@@ -111,7 +112,8 @@ int main(int argc, char* argv[])
     std::vector<std::shared_ptr<tests::ITest> > tests;
     if (0)
     {
-        tests.push_back(core_tests::AudioTest::create(context));
+        tests.push_back(core_tests::SizeTest::create(context));
+        tests.push_back(core_tests::VectorTest::create(context));
     }
     else
     {
@@ -138,6 +140,7 @@ int main(int argc, char* argv[])
             tests.push_back(core_tests::OSTest::create(context));
             tests.push_back(core_tests::PathTest::create(context));
             tests.push_back(core_tests::RangeTest::create(context));
+            tests.push_back(core_tests::SizeTest::create(context));
             tests.push_back(core_tests::StringTest::create(context));
             tests.push_back(core_tests::StringFormatTest::create(context));
             tests.push_back(core_tests::TimeTest::create(context));

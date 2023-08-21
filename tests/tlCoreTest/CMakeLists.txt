@@ -20,6 +20,7 @@ set(HEADERS
     OSTest.h
     PathTest.h
     RangeTest.h
+    SizeTest.h
     StringTest.h
     StringFormatTest.h
     TimeTest.h
@@ -48,6 +49,7 @@ set(SOURCE
     OSTest.cpp
     PathTest.cpp
     RangeTest.cpp
+    SizeTest.cpp
     StringTest.cpp
     StringFormatTest.cpp
     TimeTest.cpp

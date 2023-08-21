@@ -23,6 +23,13 @@ namespace tl
             T x;
             T y;
 
+            //! \name Components
+            ///@{
+
+            void zero();
+
+            ///@}
+
             constexpr bool operator == (const Vector2<T>&) const;
             constexpr bool operator != (const Vector2<T>&) const;
         };
@@ -38,6 +45,13 @@ namespace tl
             T x;
             T y;
             T z;
+
+            //! \name Components
+            ///@{
+
+            void zero();
+
+            ///@}
 
             constexpr bool operator == (const Vector3<T>&) const;
             constexpr bool operator != (const Vector3<T>&) const;
@@ -55,6 +69,13 @@ namespace tl
             T y;
             T z;
             T w;
+
+            //! \name Components
+            ///@{
+
+            void zero();
+
+            ///@}
 
             constexpr bool operator == (const Vector4<T>&) const;
             constexpr bool operator != (const Vector4<T>&) const;

@@ -31,6 +31,13 @@ namespace tl
         }
 
         template<typename T>
+        inline void Size2<T>::zero()
+        {
+            w = T(0);
+            h = T(0);
+        }
+
+        template<typename T>
         constexpr float Size2<T>::getArea() const
         {
             return w * h;

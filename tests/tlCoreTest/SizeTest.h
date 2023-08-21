@@ -10,19 +10,20 @@ namespace tl
 {
     namespace core_tests
     {
-        class VectorTest : public tests::ITest
+        class SizeTest : public tests::ITest
         {
         protected:
-            VectorTest(const std::shared_ptr<system::Context>&);
+            SizeTest(const std::shared_ptr<system::Context>&);
 
         public:
-            static std::shared_ptr<VectorTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<SizeTest> create(const std::shared_ptr<system::Context>&);
 
             void run() override;
 
         private:
             void _ctors();
             void _components();
+            void _dimensions();
             void _operators();
             void _serialize();
         };

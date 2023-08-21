@@ -23,14 +23,25 @@ namespace tl
             T w;
             T h;
 
-            //! Is the size valid?
+            //! \name Components
+            ///@{
+
             constexpr bool isValid() const;
+
+            void zero();
+
+            ///@}
+
+            //! \name Dimensions
+            ///@{
 
             //! Get the area.
             constexpr float getArea() const;
 
             //! Get the aspect ratio.
             constexpr float getAspect() const;
+
+            ///@}
 
             constexpr bool operator == (const Size2&) const;
             constexpr bool operator != (const Size2&) const;
