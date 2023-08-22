@@ -45,8 +45,8 @@ namespace tl
 
         inline bool Size::operator < (const Size& other) const
         {
-            const int widthScaled = w * pixelAspectRatio;
-            const int otherWidthScaled = other.w * other.pixelAspectRatio;
+            const int widthScaled = static_cast<int>(w * pixelAspectRatio);
+            const int otherWidthScaled = static_cast<int>(other.w * other.pixelAspectRatio);
             return
                 std::tie(widthScaled, h) <
                 std::tie(otherWidthScaled, other.h);
