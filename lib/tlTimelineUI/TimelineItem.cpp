@@ -503,23 +503,12 @@ namespace tl
 
                 if (p.mouse.items.empty())
                 {
-                    const math::Box2i g2(
-                        g.min.x,
-                        g.min.y,
-                        g.w(),
-                        p.size.margin +
-                        p.size.fontMetrics.lineHeight +
-                        p.size.margin +
-                        p.size.border * 4);
-                    if (g2.contains(event.pos))
+                    p.mouse.mode = Private::MouseMode::CurrentTime;
+                    if (p.stopOnScrub)
                     {
-                        p.mouse.mode = Private::MouseMode::CurrentTime;
-                        if (p.stopOnScrub)
-                        {
-                            p.player->setPlayback(timeline::Playback::Stop);
-                        }
-                        p.player->seek(_posToTime(event.pos.x));
+                        p.player->setPlayback(timeline::Playback::Stop);
                     }
+                    p.player->seek(_posToTime(event.pos.x));
                 }
             }
         }
