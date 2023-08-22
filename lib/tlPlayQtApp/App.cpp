@@ -391,7 +391,7 @@ namespace tl
             /*connect(
                 p.outputDevice.get(),
                 &qt::OutputDevice::sizeChanged,
-                [this](const image::Size& value)
+                [this](const math::Size2i& value)
                 {
                     std::cout << "output device size: " << value << std::endl;
                 });
