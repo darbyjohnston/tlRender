@@ -213,7 +213,9 @@ namespace tl
 
         void TimelineWidget::setScrollKeyModifier(ui::KeyModifier value)
         {
-            _p->scrollKeyModifier = value;
+            TLRENDER_P();
+            p.scrollKeyModifier = value;
+            _setMousePress(true, 0, static_cast<int>(p.scrollKeyModifier));
         }
 
         bool TimelineWidget::hasStopOnScrub() const
