@@ -443,7 +443,6 @@ namespace tl
         {
             TLRENDER_P();
             event->accept();
-            setFocus();
             int button = -1;
             if (event->button() == Qt::LeftButton)
             {
