@@ -598,6 +598,10 @@ namespace tl
             {
                 event->accept();
             }
+            else
+            {
+                QOpenGLWidget::keyPressEvent(event);
+            }
         }
 
         void TimelineWidget::keyReleaseEvent(QKeyEvent* event)
@@ -609,6 +613,10 @@ namespace tl
                 fromQtModifiers(event->modifiers())))
             {
                 event->accept();
+            }
+            else
+            {
+                QOpenGLWidget::keyPressEvent(event);
             }
         }
 
