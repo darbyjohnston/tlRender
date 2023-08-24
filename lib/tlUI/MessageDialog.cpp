@@ -57,7 +57,7 @@ namespace tl
             {
                 IWidget::_init("tl::ui::MessageWidget", context, parent);
 
-                _titleLabel = Label::create("File Browser", context);
+                _titleLabel = Label::create("Message", context);
                 _titleLabel->setMarginRole(SizeRole::MarginSmall);
                 _titleLabel->setBackgroundRole(ColorRole::Button);
 
