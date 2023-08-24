@@ -38,6 +38,7 @@ namespace tl
             float    complexity         = 1.F;
             DrawMode drawMode           = DrawMode::ShadedSmooth;
             bool     enableLighting     = true;
+            bool     sRGB               = true;
             size_t   stageCacheCount    = 10;
             size_t   diskCacheByteCount = 0;
             

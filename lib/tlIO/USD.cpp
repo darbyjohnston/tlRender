@@ -29,6 +29,7 @@ namespace tl
                 complexity == other.complexity &&
                 drawMode == other.drawMode &&
                 enableLighting == other.enableLighting &&
+                sRGB == other.sRGB &&
                 stageCacheCount == other.stageCacheCount &&
                 diskCacheByteCount == other.diskCacheByteCount;
         }

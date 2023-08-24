@@ -640,7 +640,10 @@ namespace tl
                             renderParams.complexity = renderOptions.complexity;
                             renderParams.drawMode = toUSD(renderOptions.drawMode);
                             renderParams.enableLighting = renderOptions.enableLighting;
-                            renderParams.colorCorrectionMode = HdxColorCorrectionTokens->sRGB;
+                            renderParams.clearColor = GfVec4f(0.F, 0.F, 0.F, 0.F);
+                            renderParams.colorCorrectionMode = renderOptions.sRGB ?
+                                HdxColorCorrectionTokens->sRGB :
+                                HdxColorCorrectionTokens->disabled;
                             const UsdPrim& pseudoRoot = stageCacheItem.stage->GetPseudoRoot();
                             unsigned int sleepTime = 10;
                             while (true)
