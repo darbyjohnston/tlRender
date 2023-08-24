@@ -569,6 +569,9 @@ namespace tl
                 event->accept();
                 setFrameView(true);
                 break;
+            default:
+                QOpenGLWidget::keyPressEvent(event);
+                break;
             }
         }
 

@@ -616,7 +616,7 @@ namespace tl
             }
             else
             {
-                QOpenGLWidget::keyPressEvent(event);
+                QOpenGLWidget::keyReleaseEvent(event);
             }
         }
 

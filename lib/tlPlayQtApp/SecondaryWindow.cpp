@@ -70,6 +70,10 @@ namespace tl
                 event->accept();
                 close();
             }
+            else
+            {
+                QWidget::keyPressEvent(event);
+            }
         }
     }
 }
