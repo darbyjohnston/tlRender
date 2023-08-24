@@ -70,10 +70,7 @@ namespace tl
                 NFD::OpenDialog(outPath);
                 if (outPath)
                 {
-                    if (callback)
-                    {
-                        callback(file::FileInfo(file::Path(outPath)));
-                    }
+                    callback(file::FileInfo(file::Path(outPath)));
                     NFD::FreePath(outPath);
                 }
             }
@@ -91,10 +88,7 @@ namespace tl
                     p.fileBrowser->setCallback(
                         [this, callback](const file::FileInfo& value)
                         {
-                            if (callback)
-                            {
-                                callback(value);
-                            }
+                            callback(value);
                             _p->fileBrowser->close();
                         });
                     p.fileBrowser->setCloseCallback(

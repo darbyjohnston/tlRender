@@ -5,6 +5,7 @@
 #include <tlUI/Init.h>
 
 #include <tlUI/FileBrowser.h>
+#include <tlUI/MessageDialog.h>
 
 #include <tlIO/Init.h>
 
@@ -20,6 +21,10 @@ namespace tl
             if (!context->getSystem<FileBrowserSystem>())
             {
                 context->addSystem(FileBrowserSystem::create(context));
+            }
+            if (!context->getSystem<MessageDialogSystem>())
+            {
+                context->addSystem(MessageDialogSystem::create(context));
             }
         }
     }

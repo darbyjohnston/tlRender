@@ -16,6 +16,7 @@
 #include <tlUI/IntEdit.h>
 #include <tlUI/Label.h>
 #include <tlUI/LineEdit.h>
+#include <tlUI/MessageDialog.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/ScrollWidget.h>
 #include <tlUI/ToolButton.h>
@@ -796,11 +797,29 @@ namespace tl
 
             std::weak_ptr<App> appWeak(app);
             p.resetButton->setClickedCallback(
-                [appWeak]
+                [this, appWeak]
                 {
-                    if (auto app = appWeak.lock())
+                    if (auto context = _context.lock())
                     {
-                        app->getSettings()->reset();
+                        if (auto eventLoop = getEventLoop().lock())
+                        {
+                            if (auto messageDialogSystem = context->getSystem<ui::MessageDialogSystem>())
+                            {
+                                messageDialogSystem->open(
+                                    "Reset preferences to default values?",
+                                    eventLoop,
+                                    [appWeak](bool value)
+                                    {
+                                        if (value)
+                                        {
+                                            if (auto app = appWeak.lock())
+                                            {
+                                                app->getSettings()->reset();
+                                            }
+                                        }
+                                    });
+                            }
+                        }
                     }
                 });
         }

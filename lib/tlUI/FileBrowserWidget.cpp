@@ -35,6 +35,7 @@ namespace tl
             std::vector<std::string> extensions;
             std::shared_ptr<RecentFilesModel> recentFilesModel;
 
+            std::shared_ptr<Label> titleLabel;
             std::shared_ptr<ToolButton> upButton;
             std::shared_ptr<ToolButton> cwdButton;
             std::shared_ptr<LineEdit> pathEdit;
@@ -83,6 +84,10 @@ namespace tl
             p.extensions.push_back(std::string());
             extensionsLabels.push_back("*.*");
 
+            p.titleLabel = Label::create("File Browser", context);
+            p.titleLabel->setMarginRole(SizeRole::MarginSmall);
+            p.titleLabel->setBackgroundRole(ColorRole::Button);
+
             p.upButton = ToolButton::create(context);
             p.upButton->setIcon("DirectoryUp");
             p.upButton->setToolTip("Go up a directory");
@@ -125,9 +130,7 @@ namespace tl
 
             p.layout = VerticalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(SizeRole::None);
-            auto label = Label::create("File Browser", context, p.layout);
-            label->setMarginRole(SizeRole::MarginSmall);
-            label->setBackgroundRole(ColorRole::Button);
+            p.titleLabel->setParent(p.layout);
             Divider::create(Orientation::Vertical, context, p.layout);
             auto vLayout = VerticalLayout::create(context, p.layout);
             vLayout->setSpacingRole(SizeRole::SpacingSmall);
@@ -143,7 +146,7 @@ namespace tl
             p.directoryScrollWidget->setParent(p.splitter);
             hLayout = HorizontalLayout::create(context, vLayout);
             hLayout->setSpacingRole(SizeRole::SpacingSmall);
-            label = Label::create("Search:", context, hLayout);
+            auto label = Label::create("Search:", context, hLayout);
             label->setMarginRole(SizeRole::MarginInside);
             p.searchBox->setParent(hLayout);
             label = Label::create("Extensions:", context, hLayout);

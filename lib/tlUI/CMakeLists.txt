@@ -46,6 +46,7 @@ set(HEADERS
     MDIWidget.h
     Menu.h
     MenuBar.h
+    MessageDialog.h
     PieChart.h
     PushButton.h
     RecentFilesModel.h
@@ -119,6 +120,7 @@ set(SOURCE
     MDIWidget.cpp
     Menu.cpp
     MenuBar.cpp
+    MessageDialog.cpp
     PieChart.cpp
     PushButton.cpp
     RecentFilesModel.cpp
