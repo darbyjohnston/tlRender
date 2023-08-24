@@ -18,6 +18,7 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMessageBox>
 #include <QSpinBox>
 #include <QToolButton>
 
@@ -481,7 +482,14 @@ namespace tl
                 &QToolButton::clicked,
                 [settingsObject]
                 {
-                    settingsObject->reset();
+                    QMessageBox messageBox;
+                    messageBox.setText("Reset preferences to default values?");
+                    messageBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+                    messageBox.setDefaultButton(QMessageBox::Ok);
+                    if (messageBox.exec() == QMessageBox::Ok)
+                    {
+                        settingsObject->reset();
+                    }
                 });
         }
 
