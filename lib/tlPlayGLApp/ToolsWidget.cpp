@@ -13,6 +13,7 @@
 #include <tlPlayGLApp/MessagesTool.h>
 #include <tlPlayGLApp/SettingsTool.h>
 #include <tlPlayGLApp/SystemLogTool.h>
+#include <tlPlayGLApp/ViewTool.h>
 
 #include <tlUI/RowLayout.h>
 #include <tlUI/StackLayout.h>
@@ -47,6 +48,7 @@ namespace tl
             p.toolWidgets[Tool::Messages] = MessagesTool::create(app, context);
             p.toolWidgets[Tool::Settings] = SettingsTool::create(app, context);
             p.toolWidgets[Tool::SystemLog] = SystemLogTool::create(app, context);
+            p.toolWidgets[Tool::View] = ViewTool::create(app, context);
 
             p.layout = ui::StackLayout::create(context, shared_from_this());
             for (const auto& widget : p.toolWidgets)

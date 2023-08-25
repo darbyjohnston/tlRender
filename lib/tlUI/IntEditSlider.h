@@ -60,9 +60,6 @@ namespace tl
             //! Get the model.
             const std::shared_ptr<IntModel>& getModel() const;
 
-            //! Set the number of digits to display.
-            void setDigits(int);
-
             //! Set the font role.
             void setFontRole(FontRole);
 

@@ -36,6 +36,7 @@
 #include <tlPlayGLApp/WindowToolBar.h>
 
 #include <tlPlay/ColorModel.h>
+#include <tlPlay/ViewportModel.h>
 
 #include <tlTimelineUI/TimelineViewport.h>
 #include <tlTimelineUI/TimelineWidget.h>
@@ -148,6 +149,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timelineui::ViewportBackgroundOptions> > viewportBackgroundOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > colorConfigOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
@@ -197,7 +199,8 @@ namespace tl
             settings->getValue("Timeline/Markers", itemOptions.showMarkers);
             p.settings = settings;
 
-            p.windowOptions = observer::Value<WindowOptions>::create(windowOptions);
+            p.windowOptions = observer::Value<WindowOptions>::create(
+                windowOptions);
 
             p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
 
@@ -539,6 +542,13 @@ namespace tl
                     _viewportUpdate();
                 });
 
+            p.viewportBackgroundOptionsObserver = observer::ValueObserver<timelineui::ViewportBackgroundOptions>::create(
+                app->getViewportModel()->observeBackgroundOptions(),
+                [this](const timelineui::ViewportBackgroundOptions&)
+                {
+                    _viewportUpdate();
+                });
+
             p.colorConfigOptionsObserver = observer::ValueObserver<timeline::ColorConfigOptions>::create(
                 app->getColorModel()->observeColorConfigOptions(),
                 [this](const timeline::ColorConfigOptions&)
@@ -584,7 +594,8 @@ namespace tl
             TLRENDER_P();
             if (auto settings = p.settings.lock())
             {
-                settings->setValue("Window/Options", p.windowOptions->get());
+                settings->setValue("Window/Options",
+                    p.windowOptions->get());
                 settings->setValue("Timeline/Editable",
                     p.timelineWidget->isEditable());
                 const auto& timelineItemOptions = p.timelineWidget->getItemOptions();
@@ -841,9 +852,11 @@ namespace tl
             if (auto app = p.app.lock())
             {
                 p.timelineViewport->setColorConfigOptions(
-                    { app->getColorModel()->getColorConfigOptions() });
+                    app->getColorModel()->getColorConfigOptions());
                 p.timelineViewport->setLUTOptions(
-                    { app->getColorModel()->getLUTOptions() });
+                    app->getColorModel()->getLUTOptions());
+                p.timelineViewport->setBackgroundOptions(
+                    app->getViewportModel()->getBackgroundOptions());
                 const auto& imageOptions = app->getColorModel()->getImageOptions();
                 p.timelineViewport->setImageOptions(
                     { imageOptions });

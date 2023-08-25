@@ -4,18 +4,17 @@
 
 #pragma once
 
-#include <tlUI/IWidgetPopup.h>
+#include <tlPlayGLApp/ViewTool.h>
+
+#include <tlTimelineUI/TimelineViewport.h>
 
 namespace tl
 {
     namespace play_gl
     {
-        class App;
-
-        //! Audio popup.
-        class AudioPopup : public ui::IWidgetPopup
+        class BackgroundWidget : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(AudioPopup);
+            TLRENDER_NON_COPYABLE(BackgroundWidget);
 
         protected:
             void _init(
@@ -23,17 +22,22 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            AudioPopup();
+            BackgroundWidget();
 
         public:
-            virtual ~AudioPopup();
+            virtual ~BackgroundWidget();
 
-            static std::shared_ptr<AudioPopup> create(
+            static std::shared_ptr<BackgroundWidget> create(
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            void setGeometry(const math::Box2i&) override;
+            void sizeHintEvent(const ui::SizeHintEvent&) override;
+
         private:
+            void _optionsUpdate(const timelineui::ViewportBackgroundOptions&);
+
             TLRENDER_PRIVATE();
         };
     }

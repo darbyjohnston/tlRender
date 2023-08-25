@@ -87,8 +87,10 @@ namespace tl
 
             p.rangeObserver = observer::ValueObserver<math::DoubleRange>::create(
                 p.model->observeRange(),
-                [this](const math::DoubleRange&)
+                [this](const math::DoubleRange& value)
                 {
+                    _p->digits = math::digits(value.getMax());
+                    _updates |= Update::Size;
                     _textUpdate();
                 });
 
@@ -150,15 +152,6 @@ namespace tl
         const std::shared_ptr<DoubleModel>& DoubleEdit::getModel() const
         {
             return _p->model;
-        }
-
-        void DoubleEdit::setDigits(int value)
-        {
-            TLRENDER_P();
-            if (value == p.digits)
-                return;
-            p.digits = value;
-            _textUpdate();
         }
 
         void DoubleEdit::setPrecision(int value)

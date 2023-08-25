@@ -22,6 +22,7 @@ namespace tl
         class AudioModel;
         class ColorModel;
         class FilesModel;
+        class ViewportModel;
     }
 
     //! "tlplay-gl" application.
@@ -72,6 +73,9 @@ namespace tl
 
             //! Observe the active timeline players.
             std::shared_ptr<observer::IList<std::shared_ptr<timeline::Player> > > observeActivePlayers() const;
+
+            //! Get the viewport model.
+            const std::shared_ptr<play::ViewportModel>& getViewportModel() const;
 
             //! Get the color model.
             const std::shared_ptr<play::ColorModel>& getColorModel() const;

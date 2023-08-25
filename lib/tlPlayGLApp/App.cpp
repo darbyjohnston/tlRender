@@ -13,6 +13,7 @@
 #include <tlPlay/AudioModel.h>
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/FilesModel.h>
+#include <tlPlay/ViewportModel.h>
 #include <tlPlay/Util.h>
 
 #include <tlUI/EventLoop.h>
@@ -80,6 +81,7 @@ namespace tl
             std::vector<std::shared_ptr<play::FilesModelItem> > activeFiles;
             std::vector<std::shared_ptr<timeline::Player> > players;
             std::shared_ptr<observer::List<std::shared_ptr<timeline::Player> > > activePlayers;
+            std::shared_ptr<play::ViewportModel> viewportModel;
             std::shared_ptr<play::ColorModel> colorModel;
             bool deviceActive = false;
             std::shared_ptr<play::AudioModel> audioModel;
@@ -327,6 +329,8 @@ namespace tl
             p.settings->setDefaultValue("Files/RecentMax", 10);
             math::Size2i windowSize = p.options.windowSize;
             p.settings->setDefaultValue("Window/Size", windowSize);
+            p.settings->setDefaultValue("Viewport/Background",
+                timelineui::ViewportBackgroundOptions());
             p.settings->setDefaultValue("Audio/Volume", 1.F);
             p.settings->setDefaultValue("Audio/Mute", false);
             p.settings->setDefaultValue("Cache/ReadAhead",
@@ -355,6 +359,10 @@ namespace tl
 
             // Initialize the models.
             p.filesModel = play::FilesModel::create(context);
+            p.viewportModel = play::ViewportModel::create(context);
+            timelineui::ViewportBackgroundOptions viewportBackgroundOptions;
+            p.settings->getValue("Viewport/Background", viewportBackgroundOptions);
+            p.viewportModel->setBackgroundOptions(viewportBackgroundOptions);
             p.colorModel = play::ColorModel::create(context);
             p.colorModel->setColorConfigOptions(p.options.colorConfigOptions);
             p.colorModel->setLUTOptions(p.options.lutOptions);
@@ -548,6 +556,8 @@ namespace tl
             if (p.settings)
             {
                 p.settings->setValue("Window/Size", getWindowSize());
+                p.settings->setValue("Viewport/Background",
+                    p.viewportModel->getBackgroundOptions());
                 p.settings->setValue("Audio/Volume", p.audioModel->getVolume());
                 p.settings->setValue("Audio/Mute", p.audioModel->isMuted());
                 if (auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>())
@@ -640,6 +650,11 @@ namespace tl
         std::shared_ptr<observer::IList<std::shared_ptr<timeline::Player> > > App::observeActivePlayers() const
         {
             return _p->activePlayers;
+        }
+
+        const std::shared_ptr<play::ViewportModel>& App::getViewportModel() const
+        {
+            return _p->viewportModel;
         }
 
         const std::shared_ptr<play::ColorModel>& App::getColorModel() const

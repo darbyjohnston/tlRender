@@ -10,7 +10,7 @@ namespace tl
 {
     namespace ui
     {
-        //! Base class for popup widgets.
+        //! Base class for popups.
         class IPopup : public IWidget
         {
             TLRENDER_NON_COPYABLE(IPopup);

@@ -366,7 +366,6 @@ namespace tl
                 timeline::getTimerModeLabels(), context);
 
             p.audioBufferFramesEdit = ui::IntEdit::create(context);
-            p.audioBufferFramesEdit->setDigits(4);
             p.audioBufferFramesEdit->setRange(math::IntRange(1024, 4096));
             p.audioBufferFramesEdit->setStep(256);
             p.audioBufferFramesEdit->setLargeStep(1024);

@@ -8,30 +8,32 @@
 
 namespace tl
 {
-    namespace play_gl
+    namespace ui
     {
-        class App;
-
-        //! Audio popup.
-        class AudioPopup : public ui::IWidgetPopup
+        //! Color popup.
+        class ColorPopup : public IWidgetPopup
         {
-            TLRENDER_NON_COPYABLE(AudioPopup);
+            TLRENDER_NON_COPYABLE(ColorPopup);
 
         protected:
             void _init(
-                const std::shared_ptr<App>&,
+                const image::Color4f&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            AudioPopup();
+            ColorPopup();
 
         public:
-            virtual ~AudioPopup();
+            virtual ~ColorPopup();
 
-            static std::shared_ptr<AudioPopup> create(
-                const std::shared_ptr<App>&,
+            //! Create a new popup.
+            static std::shared_ptr<ColorPopup> create(
+                const image::Color4f&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
+
+            //! Set the callback.
+            void setCallback(const std::function<void(const image::Color4f&)>&);
 
         private:
             TLRENDER_PRIVATE();

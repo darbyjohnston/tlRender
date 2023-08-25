@@ -146,11 +146,6 @@ namespace tl
             return _p->model;
         }
 
-        void DoubleEditSlider::setDigits(int value)
-        {
-            _p->edit->setDigits(value);
-        }
-
         void DoubleEditSlider::setPrecision(int value)
         {
             _p->edit->setPrecision(value);

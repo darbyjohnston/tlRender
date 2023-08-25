@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlUI/IWidget.h>
+#include <tlTimelineUI/TimelineViewport.h>
 
 #include <tlTimeline/Player.h>
 
@@ -12,7 +12,6 @@ namespace tl
 {
     namespace timelineui
     {
-        class TimelineViewport;
         class TimelineWidget;
     }
 

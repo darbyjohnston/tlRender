@@ -146,11 +146,6 @@ namespace tl
             return _p->model;
         }
 
-        void FloatEditSlider::setDigits(int value)
-        {
-            _p->edit->setDigits(value);
-        }
-
         void FloatEditSlider::setPrecision(int value)
         {
             _p->edit->setPrecision(value);

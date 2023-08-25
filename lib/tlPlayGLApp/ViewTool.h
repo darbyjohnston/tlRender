@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlUI/IWidgetPopup.h>
+#include <tlPlayGLApp/IToolWidget.h>
 
 namespace tl
 {
@@ -12,10 +12,10 @@ namespace tl
     {
         class App;
 
-        //! Audio popup.
-        class AudioPopup : public ui::IWidgetPopup
+        //! View tool.
+        class ViewTool : public IToolWidget
         {
-            TLRENDER_NON_COPYABLE(AudioPopup);
+            TLRENDER_NON_COPYABLE(ViewTool);
 
         protected:
             void _init(
@@ -23,12 +23,12 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            AudioPopup();
+            ViewTool();
 
         public:
-            virtual ~AudioPopup();
+            virtual ~ViewTool();
 
-            static std::shared_ptr<AudioPopup> create(
+            static std::shared_ptr<ViewTool> create(
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

@@ -82,8 +82,10 @@ namespace tl
 
             p.rangeObserver = observer::ValueObserver<math::FloatRange>::create(
                 p.model->observeRange(),
-                [this](const math::FloatRange&)
+                [this](const math::FloatRange& value)
                 {
+                    _p->digits = math::digits(value.getMax());
+                    _updates |= Update::Size;
                     _textUpdate();
                 });
 
@@ -145,15 +147,6 @@ namespace tl
         const std::shared_ptr<FloatModel>& FloatEdit::getModel() const
         {
             return _p->model;
-        }
-
-        void FloatEdit::setDigits(int value)
-        {
-            TLRENDER_P();
-            if (value == p.digits)
-                return;
-            p.digits = value;
-            _textUpdate();
         }
 
         void FloatEdit::setPrecision(int value)

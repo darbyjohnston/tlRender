@@ -146,11 +146,6 @@ namespace tl
             return _p->model;
         }
 
-        void IntEditSlider::setDigits(int value)
-        {
-            _p->edit->setDigits(value);
-        }
-
         void IntEditSlider::setFontRole(FontRole value)
         {
             _p->edit->setFontRole(value);

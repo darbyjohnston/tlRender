@@ -40,12 +40,14 @@ set(HEADERS
     ViewActions.h
     ViewMenu.h
     ViewToolBar.h
+    ViewTool.h
     WindowActions.h
     WindowMenu.h
     WindowToolBar.h)
 set(HEADERS_PRIVATE
     ColorToolPrivate.h
-    SeparateAudioPrivate.h)
+    SeparateAudioPrivate.h
+    ViewToolPrivate.h)
 
 set(SOURCE
     App.cpp
@@ -89,6 +91,7 @@ set(SOURCE
     ViewActions.cpp
     ViewMenu.cpp
     ViewToolBar.cpp
+    ViewTool.cpp
     WindowActions.cpp
     WindowMenu.cpp
     WindowToolBar.cpp)

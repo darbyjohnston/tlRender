@@ -2,11 +2,10 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/IMenuPopup.h>
+#include <tlUI/IWidgetPopup.h>
 
 #include <tlUI/DrawUtil.h>
 #include <tlUI/EventLoop.h>
-#include <tlUI/ScrollWidget.h>
 
 namespace tl
 {
@@ -69,9 +68,9 @@ namespace tl
                 }
             }
 
-            void ContainerWidget::sizeHintEvent(const SizeHintEvent& value)
+            void ContainerWidget::sizeHintEvent(const SizeHintEvent& event)
             {
-                IWidget::sizeHintEvent(value);
+                IWidget::sizeHintEvent(event);
                 if (!_children.empty())
                 {
                     _sizeHint = _children.front()->getSizeHint();
@@ -79,48 +78,41 @@ namespace tl
             }
         }
 
-        struct IMenuPopup::Private
+        struct IWidgetPopup::Private
         {
-            MenuPopupStyle popupStyle = MenuPopupStyle::Menu;
             ColorRole popupRole = ColorRole::Window;
             math::Box2i buttonGeometry;
             bool open = false;
             std::function<void(void)> closeCallback;
             std::shared_ptr<IWidget> widget;
-            std::shared_ptr<ScrollWidget> scrollWidget;
             std::shared_ptr<ContainerWidget> containerWidget;
 
             struct SizeData
             {
+                int border = 0;
                 int shadow = 0;
             };
             SizeData size;
         };
 
-        void IMenuPopup::_init(
+        void IWidgetPopup::_init(
             const std::string& objectName,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IPopup::_init(objectName, context, parent);
             TLRENDER_P();
-
-            p.scrollWidget = ScrollWidget::create(
-                context,
-                ScrollType::Menu);
-            
             p.containerWidget = ContainerWidget::create(context, shared_from_this());
-            p.scrollWidget->setParent(p.containerWidget);
         }
 
-        IMenuPopup::IMenuPopup() :
+        IWidgetPopup::IWidgetPopup() :
             _p(new Private)
         {}
 
-        IMenuPopup::~IMenuPopup()
+        IWidgetPopup::~IWidgetPopup()
         {}
 
-        void IMenuPopup::open(
+        void IWidgetPopup::open(
             const std::shared_ptr<EventLoop>& eventLoop,
             const math::Box2i& buttonGeometry)
         {
@@ -130,12 +122,12 @@ namespace tl
             eventLoop->addWidget(shared_from_this());
         }
 
-        bool IMenuPopup::isOpen() const
+        bool IWidgetPopup::isOpen() const
         {
             return _p->open;
         }
 
-        void IMenuPopup::close()
+        void IWidgetPopup::close()
         {
             TLRENDER_P();
             p.open = false;
@@ -149,18 +141,12 @@ namespace tl
             }
         }
 
-        void IMenuPopup::setCloseCallback(const std::function<void(void)>& value)
+        void IWidgetPopup::setCloseCallback(const std::function<void(void)>& value)
         {
             _p->closeCallback = value;
         }
 
-        void IMenuPopup::setPopupStyle(MenuPopupStyle value)
-        {
-            TLRENDER_P();
-            p.popupStyle = value;
-        }
-
-        void IMenuPopup::setPopupRole(ColorRole value)
+        void IWidgetPopup::setPopupRole(ColorRole value)
         {
             TLRENDER_P();
             if (value == p.popupRole)
@@ -169,57 +155,46 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void IMenuPopup::setWidget(const std::shared_ptr<IWidget>& value)
+        void IWidgetPopup::setWidget(const std::shared_ptr<IWidget>& value)
         {
             TLRENDER_P();
+            if (p.widget)
+            {
+                p.widget->setParent(nullptr);
+            }
             p.widget = value;
-            p.scrollWidget->setWidget(p.widget);
+            if (p.widget)
+            {
+                p.widget->setParent(p.containerWidget);
+            }
         }
 
-        void IMenuPopup::setGeometry(const math::Box2i& value)
+        void IWidgetPopup::setGeometry(const math::Box2i& value)
         {
             IPopup::setGeometry(value);
             TLRENDER_P();
             math::Size2i sizeHint = p.containerWidget->getSizeHint();
             std::list<math::Box2i> boxes;
-            switch (p.popupStyle)
-            {
-            case MenuPopupStyle::Menu:
-                boxes.push_back(math::Box2i(
-                    p.buttonGeometry.min.x,
-                    p.buttonGeometry.max.y + 1,
-                    sizeHint.w,
-                    sizeHint.h));
-                boxes.push_back(math::Box2i(
-                    p.buttonGeometry.max.x + 1 - sizeHint.w,
-                    p.buttonGeometry.max.y + 1,
-                    sizeHint.w,
-                    sizeHint.h));
-                boxes.push_back(math::Box2i(
-                    p.buttonGeometry.min.x,
-                    p.buttonGeometry.min.y - sizeHint.h,
-                    sizeHint.w,
-                    sizeHint.h));
-                boxes.push_back(math::Box2i(
-                    p.buttonGeometry.max.x + 1 - sizeHint.w,
-                    p.buttonGeometry.min.y - sizeHint.h,
-                    sizeHint.w,
-                    sizeHint.h));
-                break;
-            case MenuPopupStyle::SubMenu:
-                boxes.push_back(math::Box2i(
-                    p.buttonGeometry.max.x,
-                    p.buttonGeometry.min.y,
-                    sizeHint.w,
-                    sizeHint.h));
-                boxes.push_back(math::Box2i(
-                    p.buttonGeometry.min.x - sizeHint.w,
-                    p.buttonGeometry.min.y,
-                    sizeHint.w,
-                    sizeHint.h));
-                break;
-            default: break;
-            }
+            boxes.push_back(math::Box2i(
+                p.buttonGeometry.min.x,
+                p.buttonGeometry.max.y + 1,
+                sizeHint.w,
+                sizeHint.h));
+            boxes.push_back(math::Box2i(
+                p.buttonGeometry.max.x + 1 - sizeHint.w,
+                p.buttonGeometry.max.y + 1,
+                sizeHint.w,
+                sizeHint.h));
+            boxes.push_back(math::Box2i(
+                p.buttonGeometry.min.x,
+                p.buttonGeometry.min.y - sizeHint.h,
+                sizeHint.w,
+                sizeHint.h));
+            boxes.push_back(math::Box2i(
+                p.buttonGeometry.max.x + 1 - sizeHint.w,
+                p.buttonGeometry.min.y - sizeHint.h,
+                sizeHint.w,
+                sizeHint.h));
             struct Intersect
             {
                 math::Box2i original;
@@ -243,14 +218,15 @@ namespace tl
             p.containerWidget->setGeometry(g);
         }
 
-        void IMenuPopup::sizeHintEvent(const SizeHintEvent& event)
+        void IWidgetPopup::sizeHintEvent(const SizeHintEvent& event)
         {
             IPopup::sizeHintEvent(event);
             TLRENDER_P();
+            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
             p.size.shadow = event.style->getSizeRole(SizeRole::Shadow, event.displayScale);
         }
 
-        void IMenuPopup::drawEvent(
+        void IWidgetPopup::drawEvent(
             const math::Box2i& drawRect,
             const DrawEvent& event)
         {
@@ -259,7 +235,7 @@ namespace tl
             //event.render->drawRect(
             //    _geometry,
             //    image::Color4f(0.F, 0.F, 0.F, .2F));
-            const math::Box2i& g = p.containerWidget->getGeometry();
+            const math::Box2i g = p.containerWidget->getGeometry().margin(p.size.border);
             if (g.isValid())
             {
                 const math::Box2i g2(
@@ -272,7 +248,14 @@ namespace tl
                     math::Vector2i(),
                     image::Color4f(1.F, 1.F, 1.F));
 
-                event.render->drawRect(g, event.style->getColorRole(p.popupRole));
+                event.render->drawMesh(
+                    border(g, p.size.border),
+                    math::Vector2i(),
+                    event.style->getColorRole(ColorRole::Border));
+
+                event.render->drawRect(
+                    g.margin(-p.size.border),
+                    event.style->getColorRole(p.popupRole));
             }
         }
     }

@@ -16,6 +16,7 @@ namespace tl
         enum class Tool
         {
             Files,
+            View,
             Color,
             Info,
             Audio,

@@ -101,13 +101,13 @@ namespace tl
         //! Display options.
         struct DisplayOptions
         {
-            Channels             channels     = Channels::Color;
+            Channels           channels     = Channels::Color;
             image::Mirror      mirror;
-            Color                color;
-            Levels               levels;
-            EXRDisplay           exrDisplay;
-            SoftClip             softClip;
-            ImageFilters         imageFilters;
+            Color              color;
+            Levels             levels;
+            EXRDisplay         exrDisplay;
+            SoftClip           softClip;
+            ImageFilters       imageFilters;
             image::VideoLevels videoLevels  = image::VideoLevels::FullRange;
 
             bool operator == (const DisplayOptions&) const;

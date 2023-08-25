@@ -60,9 +60,6 @@ namespace tl
             //! Get the model.
             const std::shared_ptr<FloatModel>& getModel() const;
 
-            //! Set the number of digits to display.
-            void setDigits(int);
-
             //! Set the display precision.
             void setPrecision(int);
 

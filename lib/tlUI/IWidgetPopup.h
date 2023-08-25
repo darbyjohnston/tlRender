@@ -10,17 +10,10 @@ namespace tl
 {
     namespace ui
     {
-        //! Popup style.
-        enum class MenuPopupStyle
+        //! Base class for popup widgets.
+        class IWidgetPopup : public IPopup
         {
-            Menu,
-            SubMenu
-        };
-
-        //! Base class for popup menus.
-        class IMenuPopup : public IPopup
-        {
-            TLRENDER_NON_COPYABLE(IMenuPopup);
+            TLRENDER_NON_COPYABLE(IWidgetPopup);
 
         protected:
             void _init(
@@ -28,10 +21,10 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            IMenuPopup();
+            IWidgetPopup();
 
         public:
-            virtual ~IMenuPopup() = 0;
+            virtual ~IWidgetPopup() = 0;
 
             //! Open the popup.
             void open(
@@ -46,9 +39,6 @@ namespace tl
 
             //! Set the close callback.
             void setCloseCallback(const std::function<void(void)>&);
-
-            //! Set the popup style.
-            void setPopupStyle(MenuPopupStyle);
 
             //! Set the popup color role.
             void setPopupRole(ColorRole);

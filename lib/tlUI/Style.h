@@ -31,6 +31,8 @@ namespace tl
             Slider,
             Handle,
             HandleSmall,
+            Swatch,
+            SwatchLarge,
             Shadow,
             DragLength,
 

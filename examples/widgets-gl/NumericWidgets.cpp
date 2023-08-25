@@ -45,12 +45,6 @@ namespace tl
                     math::IntRange(-100, 200),
                     math::IntRange(-100, -200)
                 };
-                size_t digits = 0;
-                for (const auto& i : intRanges)
-                {
-                    digits = std::max(digits, math::digits(i.getMin()));
-                    digits = std::max(digits, math::digits(i.getMax()));
-                }
                 std::vector<std::shared_ptr<ui::Label> > intLabels;
                 std::vector<std::shared_ptr<ui::IntEditSlider> > intEdits;
                 for (const auto& i : intRanges)
@@ -60,7 +54,6 @@ namespace tl
                     intLabels.push_back(label);
                     auto edit = ui::IntEditSlider::create(context);
                     edit->setRange(i);
-                    edit->setDigits(digits);
                     intEdits.push_back(edit);
                 }
 
@@ -74,12 +67,6 @@ namespace tl
                     math::FloatRange(-100.F, 200.F),
                     math::FloatRange(-100.F, -200.F)
                 };
-                digits = 0;
-                for (const auto& i : floatRanges)
-                {
-                    digits = std::max(digits, math::digits(i.getMin()));
-                    digits = std::max(digits, math::digits(i.getMax()));
-                }
                 std::vector<std::shared_ptr<ui::Label> > floatLabels;
                 std::vector<std::shared_ptr<ui::FloatEditSlider> > floatEdits;
                 for (const auto& i : floatRanges)
@@ -88,7 +75,6 @@ namespace tl
                     label->setText(string::Format("{0} - {1}:").arg(i.getMin()).arg(i.getMax()));
                     floatLabels.push_back(label);
                     auto edit = ui::FloatEditSlider::create(context);
-                    edit->setDigits(digits);
                     edit->setRange(i);
                     floatEdits.push_back(edit);
                 }
@@ -103,12 +89,6 @@ namespace tl
                     math::DoubleRange(-100.0, 200.0),
                     math::DoubleRange(-100.0, -200.0)
                 };
-                digits = 0;
-                for (const auto& i : doubleRanges)
-                {
-                    digits = std::max(digits, math::digits(i.getMin()));
-                    digits = std::max(digits, math::digits(i.getMax()));
-                }
                 std::vector<std::shared_ptr<ui::Label> > doubleLabels;
                 std::vector<std::shared_ptr<ui::DoubleEditSlider> > doubleEdits;
                 for (const auto& i : doubleRanges)
@@ -117,7 +97,6 @@ namespace tl
                     label->setText(string::Format("{0} - {1}:").arg(i.getMin()).arg(i.getMax()));
                     doubleLabels.push_back(label);
                     auto edit = ui::DoubleEditSlider::create(context);
-                    edit->setDigits(digits);
                     edit->setRange(i);
                     doubleEdits.push_back(edit);
                 }

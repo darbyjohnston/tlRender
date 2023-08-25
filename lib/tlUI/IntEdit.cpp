@@ -80,8 +80,10 @@ namespace tl
 
             p.rangeObserver = observer::ValueObserver<math::IntRange>::create(
                 p.model->observeRange(),
-                [this](const math::IntRange&)
+                [this](const math::IntRange& value)
                 {
+                    _p->digits = math::digits(value.getMax());
+                    _updates |= Update::Size;
                     _textUpdate();
                 });
 
@@ -143,15 +145,6 @@ namespace tl
         const std::shared_ptr<IntModel>& IntEdit::getModel() const
         {
             return _p->model;
-        }
-
-        void IntEdit::setDigits(int value)
-        {
-            TLRENDER_P();
-            if (value == p.digits)
-                return;
-            p.digits = value;
-            _textUpdate();
         }
 
         void IntEdit::setFontRole(FontRole value)

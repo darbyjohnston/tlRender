@@ -17,6 +17,7 @@ namespace tl
         TLRENDER_ENUM_IMPL(
             Tool,
             "Files",
+            "View",
             "Color",
             "Info",
             "Audio",
@@ -31,6 +32,7 @@ namespace tl
             const std::array<std::string, static_cast<size_t>(Tool::Count)> data =
             {
                 "Files",
+                "View",
                 "Color",
                 "Information",
                 "Audio",
@@ -47,6 +49,7 @@ namespace tl
             const std::array<std::string, static_cast<size_t>(Tool::Count)> data =
             {
                 "Files",
+                "",
                 "Color",
                 "Info",
                 "Audio",
@@ -69,7 +72,8 @@ namespace tl
                 ui::Key::F5,
                 ui::Key::F6,
                 ui::Key::F7,
-                ui::Key::F8
+                ui::Key::F8,
+                ui::Key::F9
             };
             return data[static_cast<size_t>(value)];
         }
@@ -79,6 +83,7 @@ namespace tl
             const std::vector<Tool> out
             {
                 Tool::Files,
+                Tool::View,
                 Tool::Color,
                 Tool::Info,
                 Tool::Audio,

@@ -30,6 +30,9 @@ namespace tl
             "ScrollArea",
             "Slider",
             "Handle",
+            "HandleSmall",
+            "Swatch",
+            "SwatchLarge",
             "Shadow",
             "DragLength");
         TLRENDER_ENUM_SERIALIZE_IMPL(SizeRole);
@@ -51,6 +54,8 @@ namespace tl
             out[SizeRole::Slider] = 100;
             out[SizeRole::Handle] = 8;
             out[SizeRole::HandleSmall] = 6;
+            out[SizeRole::Swatch] = 20;
+            out[SizeRole::SwatchLarge] = 40;
             out[SizeRole::Shadow] = 15;
             out[SizeRole::DragLength] = 10;
             return out;

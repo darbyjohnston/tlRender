@@ -34,7 +34,7 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IMenuPopup::_init(
+            IWidgetPopup::_init(
                 "tl::play_gl::AudioPopup",
                 context,
                 parent);
