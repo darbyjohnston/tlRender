@@ -115,6 +115,8 @@ set(CMAKE_FIND_FRAMEWORK LAST)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+include(Package)
+
 #-------------------------------------------------------------------------------
 # Dependencies
 
@@ -236,3 +238,9 @@ endif()
 if(TLRENDER_EXAMPLES)
     add_subdirectory(examples)
 endif()
+
+#-------------------------------------------------------------------------------
+# Packaging
+
+include(CPack)
+include(InstallRequiredSystemLibraries)
