@@ -4,6 +4,8 @@
 
 #include <tlTimelineUI/TimelineViewport.h>
 
+#include <tlUI/DrawUtil.h>
+
 #include <tlTimeline/RenderUtil.h>
 
 #include <tlGL/OffscreenBuffer.h>
@@ -330,7 +332,7 @@ namespace tl
                 const timeline::TransformState transformState(event.render);
                 const timeline::RenderSizeState renderSizeState(event.render);
 
-                const math::Size2i size(g.w(), g.h());
+                const math::Size2i size = g.getSize();
                 gl::OffscreenBufferOptions options;
                 options.colorType = gl::OffscreenColorDefault;
 #if defined(TLRENDER_API_GL_4_1)
@@ -348,6 +350,32 @@ namespace tl
                     event.render->setRenderSize(size);
                     event.render->setViewport(math::Box2i(0, 0, g.w(), g.h()));
                     event.render->setClipRectEnabled(false);
+                    event.render->setTransform(math::ortho(
+                        0.F,
+                        static_cast<float>(g.w()),
+                        static_cast<float>(g.h()),
+                        0.F,
+                        -1.F,
+                        1.F));
+                    switch (p.backgroundOptions.type)
+                    {
+                    case ViewportBackground::Solid:
+                        event.render->clearViewport(
+                            p.backgroundOptions.solidColor);
+                        break;
+                    case ViewportBackground::Checkers:
+                        event.render->clearViewport(image::Color4f(0.F, 0.F, 0.F));
+                        event.render->drawColorMesh(
+                            ui::checkers(
+                                math::Box2i(0, 0, g.w(), g.h()),
+                                p.backgroundOptions.checkersColor0,
+                                p.backgroundOptions.checkersColor1,
+                                p.backgroundOptions.checkersSize * event.displayScale),
+                            math::Vector2i(),
+                            image::Color4f(1.F, 1.F, 1.F));
+                        break;
+                    default: break;
+                    }
                     math::Matrix4x4f vm;
                     vm = vm * math::translate(math::Vector3f(p.viewPos.x, p.viewPos.y, 0.F));
                     vm = vm * math::scale(math::Vector3f(p.viewZoom, p.viewZoom, 1.F));
@@ -359,15 +387,6 @@ namespace tl
                         -1.F,
                         1.F);
                     event.render->setTransform(pm * vm);
-                    switch (p.backgroundOptions.type)
-                    {
-                    case ViewportBackground::Solid:
-                        event.render->clearViewport(p.backgroundOptions.solidColor);
-                        break;
-                    case ViewportBackground::Checkers:
-                        break;
-                    default: break;
-                    }
                     event.render->drawVideo(
                         p.videoData,
                         timeline::getBoxes(p.compareOptions.mode, p.timelineSizes),

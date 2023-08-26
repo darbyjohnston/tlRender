@@ -463,7 +463,9 @@ namespace tl
                 {
                     if (!_p->players.empty() && _p->players[0])
                     {
+                        _p->players[0]->setPlayback(timeline::Playback::Stop);
                         _p->players[0]->seek(value);
+                        _p->currentTimeEdit->setValue(_p->players[0]->getCurrentTime());
                     }
                 });
 

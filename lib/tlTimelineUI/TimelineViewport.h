@@ -31,7 +31,7 @@ namespace tl
             image::Color4f     solidColor     = image::Color4f(0.F, 0.F, 0.F);
             image::Color4f     checkersColor0 = image::Color4f(1.F, 1.F, 1.F);
             image::Color4f     checkersColor1 = image::Color4f(0.F, 0.F, 0.F);
-            math::Size2f       checkersSize   = math::Size2f(100.F, 100.F);
+            math::Size2i       checkersSize   = math::Size2i(100, 100);
 
             bool operator == (const ViewportBackgroundOptions&) const;
             bool operator != (const ViewportBackgroundOptions&) const;

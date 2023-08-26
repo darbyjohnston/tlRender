@@ -37,5 +37,12 @@ namespace tl
             int cornerRadius,
             const float alpha = .2F,
             size_t resolution = 8);
+
+        //! Create a mesh for drawing checkers.
+        geom::TriangleMesh2 checkers(
+            const math::Box2i&,
+            const image::Color4f& color0,
+            const image::Color4f& color1,
+            const math::Size2i& checkerSize);
     }
 }

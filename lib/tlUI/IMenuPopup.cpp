@@ -188,22 +188,22 @@ namespace tl
                 boxes.push_back(math::Box2i(
                     p.buttonGeometry.min.x,
                     p.buttonGeometry.max.y + 1,
-                    sizeHint.w,
+                    std::max(sizeHint.w, p.buttonGeometry.w()),
                     sizeHint.h));
                 boxes.push_back(math::Box2i(
                     p.buttonGeometry.max.x + 1 - sizeHint.w,
                     p.buttonGeometry.max.y + 1,
-                    sizeHint.w,
+                    std::max(sizeHint.w, p.buttonGeometry.w()),
                     sizeHint.h));
                 boxes.push_back(math::Box2i(
                     p.buttonGeometry.min.x,
                     p.buttonGeometry.min.y - sizeHint.h,
-                    sizeHint.w,
+                    std::max(sizeHint.w, p.buttonGeometry.w()),
                     sizeHint.h));
                 boxes.push_back(math::Box2i(
                     p.buttonGeometry.max.x + 1 - sizeHint.w,
                     p.buttonGeometry.min.y - sizeHint.h,
-                    sizeHint.w,
+                    std::max(sizeHint.w, p.buttonGeometry.w()),
                     sizeHint.h));
                 break;
             case MenuPopupStyle::SubMenu:

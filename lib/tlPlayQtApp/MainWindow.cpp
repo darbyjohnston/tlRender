@@ -585,6 +585,7 @@ namespace tl
                     {
                         _p->timelinePlayers[0]->setPlayback(timeline::Playback::Stop);
                         _p->timelinePlayers[0]->seek(value);
+                        _p->currentTimeSpinBox->setValue(_p->timelinePlayers[0]->currentTime());
                     }
                 });
 

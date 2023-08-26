@@ -54,7 +54,7 @@ namespace tl
             p.checkersColor1Swatch = ui::ColorSwatch::create(context);
             p.checkersColor1Swatch->setEditable(true);
             p.checkersSizeSlider = ui::IntEditSlider::create(context);
-            p.checkersSizeSlider->setRange(math::IntRange(1, 1000));
+            p.checkersSizeSlider->setRange(math::IntRange(10, 100));
 
             p.layout = ui::VerticalLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
@@ -103,6 +103,40 @@ namespace tl
                     {
                         auto options = app->getViewportModel()->getBackgroundOptions();
                         options.solidColor = value;
+                        app->getViewportModel()->setBackgroundOptions(options);
+                    }
+                });
+
+            p.checkersColor0Swatch->setCallback(
+                [appWeak](const image::Color4f& value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getViewportModel()->getBackgroundOptions();
+                        options.checkersColor0 = value;
+                        app->getViewportModel()->setBackgroundOptions(options);
+                    }
+                });
+
+            p.checkersColor1Swatch->setCallback(
+                [appWeak](const image::Color4f& value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getViewportModel()->getBackgroundOptions();
+                        options.checkersColor1 = value;
+                        app->getViewportModel()->setBackgroundOptions(options);
+                    }
+                });
+
+            p.checkersSizeSlider->setCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getViewportModel()->getBackgroundOptions();
+                        options.checkersSize.w = value;
+                        options.checkersSize.h = value;
                         app->getViewportModel()->setBackgroundOptions(options);
                     }
                 });

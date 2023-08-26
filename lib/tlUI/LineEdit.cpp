@@ -436,6 +436,10 @@ namespace tl
             if (!value)
             {
                 p.selection.clear();
+                if (p.textCallback)
+                {
+                    p.textCallback(p.text);
+                }
                 _updates |= Update::Draw;
             }
             if (p.focusCallback)
@@ -464,7 +468,6 @@ namespace tl
                 {
                     p.selection.clear();
                     p.selection.select(0, p.text.size());
-
                     _updates |= Update::Draw;
                 }
                 break;
