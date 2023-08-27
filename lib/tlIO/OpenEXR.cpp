@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlIO/OpenEXR.h>
+#include <tlIO/OpenEXRPrivate.h>
 
 #include <tlCore/Error.h>
 #include <tlCore/String.h>
