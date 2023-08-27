@@ -27,15 +27,60 @@ else()
     set(FFmpeg_CONFIGURE_ARGS
         --prefix=${CMAKE_INSTALL_PREFIX}
         --disable-programs
-        --disable-bzlib
-        --disable-iconv
-        --disable-lzma
+        --disable-doc
+        #--disable-encoders
+        #--disable-decoders
+        #--enable-decoder=h264
+        #--enable-encoder=h264
+        #--enable-decoder=dnxhd
+        #--enable-encoder=dnxhd
+        #--enable-decoder=gif
+        #--enable-encoder=gif
+        #--enable-decoder=mpeg4
+        #--enable-encoder=mpeg4
+        #--enable-decoder=prores
+        #--enable-encoder=prores
+        #--enable-decoder=flac
+        #--enable-encoder=flac
+        #--enable-decoder=aac
+        #--enable-encoder=aac
+        #--enable-decoder=vp9
+        #--enable-encoder=vp9
+        --disable-hwaccels
+        #--disable-muxers
+        #--disable-demuxers
+        #--disable-parsers
+        #--disable-bsfs
+        #--disable-protocols
+        --disable-devices
+        --disable-filters
+        --disable-alsa
         --disable-appkit
         --disable-avfoundation
+        --disable-bzlib
         --disable-coreimage
-        --disable-audiotoolbox
-        --disable-vaapi
+        --disable-iconv
+        --disable-lzma
+        --disable-metal
+        --disable-sndio
+        --disable-schannel
         --disable-sdl2
+        --disable-securetransport
+        --disable-vulkan
+        --disable-zlib
+        --disable-amf
+        --disable-audiotoolbox
+        --disable-cuda-llvm
+        --disable-cuvid
+        --disable-d3d11va
+        --disable-dxva2
+        --disable-ffnvcodec
+        --disable-nvdec
+        --disable-nvenc
+        --disable-v4l2-m2m
+        --disable-vaapi
+        --disable-vdpau
+        --disable-videotoolbox
         --enable-pic
         ${FFmpeg_CFLAGS}
         ${FFmpeg_CXXFLAGS}
