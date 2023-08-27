@@ -106,6 +106,9 @@ namespace tl
 #if defined(TLRENDER_API_GL_4_1_Debug)
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 #endif // TLRENDER_API_GL_4_1_Debug
+            context->log(
+                "tl::gl::GLFWWindow",
+                string::Format("Create window: {0}").arg(size));
             p.glfwWindow = glfwCreateWindow(size.w, size.h, name.c_str(), NULL, NULL);
             if (!p.glfwWindow)
             {
@@ -115,6 +118,15 @@ namespace tl
             glfwGetWindowSize(_p->glfwWindow, &p.size.w, &p.size.h);
             glfwGetFramebufferSize(_p->glfwWindow, &p.frameBufferSize.w, &p.frameBufferSize.h);
             glfwGetWindowContentScale(_p->glfwWindow, &p.contentScale.x, &p.contentScale.y);
+            context->log(
+                "tl::gl::GLFWWindow",
+                string::Format("Window size: {0}").arg(p.size));
+            context->log(
+                "tl::gl::GLFWWindow",
+                string::Format("Frame buffer size: {0}").arg(p.frameBufferSize));
+            context->log(
+                "tl::gl::GLFWWindow",
+                string::Format("Content scale: {0}").arg(p.contentScale));
 
             glfwSetWindowUserPointer(p.glfwWindow, this);
             glfwSetWindowSizeCallback(p.glfwWindow, _sizeCallback);
