@@ -293,6 +293,44 @@ jobs:
         cd tlRender/src/tlRender-build &&
         tests/tltest/tltest
 
+  macos-package:
+    runs-on: macos-latest
+
+    env:
+      TLRENDER_EXAMPLES: OFF
+      TLRENDER_TESTS: OFF
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    # \bug DYLD_LIBRARY_PATH is not being set here?
+    - name: Setup environment
+      run: >
+        echo "$PWD/build/install/bin" >> $GITHUB_PATH &&
+        echo "DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV &&
+        echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
+
+    - name: Build tlRender
+      run: >
+        export DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH &&
+        mkdir build &&
+        cd build &&
+        cmake ../etc/SuperBuild \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_INSTALL_PREFIX=$PWD/install \
+          -DCMAKE_PREFIX_PATH=$PWD/install \
+          -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
+          -DTLRENDER_TESTS=$TLRENDER_TESTS &&
+        cmake --build . -j 4
+
+    - name: Package
+      run: >
+        cd build &&
+        cd tlRender/src/tlRender-build &&
+        cmake --build . --target package
+
   windows-build:
     runs-on: windows-latest
 
