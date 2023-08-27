@@ -238,6 +238,7 @@ endif()
 if(TLRENDER_EXAMPLES)
     add_subdirectory(examples)
 endif()
+add_subdirectory(etc)
 
 #-------------------------------------------------------------------------------
 # Packaging
