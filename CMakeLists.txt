@@ -115,8 +115,6 @@ set(CMAKE_FIND_FRAMEWORK LAST)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-include(Package)
-
 #-------------------------------------------------------------------------------
 # Dependencies
 
@@ -243,5 +241,6 @@ add_subdirectory(etc)
 #-------------------------------------------------------------------------------
 # Packaging
 
+include(Package)
 include(CPack)
 include(InstallRequiredSystemLibraries)
