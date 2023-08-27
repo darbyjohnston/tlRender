@@ -113,14 +113,16 @@ namespace tl
             _p(new Private)
         {
             TLRENDER_P();
-            const std::string appDirPath = play::appDirPath("tlplay-qt");
-            std::string logFileName = play::logFileName(appDirPath);
-            const std::string settingsFileName = play::settingsName(appDirPath);
+            const std::string appName = "tlplay-qt";
+            const std::string appDirPath = play::appDirPath();
+            std::string logFileName = play::logFileName(appName, appDirPath);
+            const std::string settingsFileName =
+                play::settingsName(appName, appDirPath);
             IApp::_init(
                 argc,
                 argv,
                 context,
-                "tlplay-qt",
+                appName,
                 "Play timelines, movies, and image sequences.",
                 {
                     app::CmdLineValueArg<std::string>::create(
@@ -263,7 +265,7 @@ namespace tl
 
             // Initialize Qt.
             setOrganizationName("tlRender");
-            setApplicationName("tlplay-qt");
+            setApplicationName(QString::fromUtf8(appName.c_str()));
             setStyle("Fusion");
             setPalette(qtwidget::darkStyle());
             setStyleSheet(qtwidget::styleSheet());
