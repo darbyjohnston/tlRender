@@ -183,12 +183,12 @@ elseif(APPLE)
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderOsl.1.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderOsl.dylib)
         set(TBB_DYLIBS
-            ${CMAKE_INSTALL_PREFIX}/lib/libtbb.dylib)
-            #${CMAKE_INSTALL_PREFIX}/lib/libtbb_debug.dylib
-            #${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc.dylib
-            #${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc_debug.dylib
-            #${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc_proxy.dylib
-            #${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc_proxy_debug.dylib)
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbb.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbb_debug.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc_debug.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc_proxy.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc_proxy_debug.dylib)
         set(OSD_DYLIBS
             ${CMAKE_INSTALL_PREFIX}/lib/libosdCPU.3.5.0.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libosdCPU.dylib
@@ -264,4 +264,168 @@ elseif(APPLE)
         FILES ${INSTALL_DYLIBS}
         DESTINATION lib)
 
+else()
+
+    set(CPACK_GENERATOR TGZ)
+
+    set(INSTALL_LIBS)
+    
+    if(TLRENDER_FFMPEG)
+        set(FFMPEG_LIBS
+            ${CMAKE_INSTALL_PREFIX}/lib/libavcodec.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libavcodec.so.60
+            ${CMAKE_INSTALL_PREFIX}/lib/libavcodec.so.60.3.100
+            ${CMAKE_INSTALL_PREFIX}/lib/libavdevice.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libavdevice.so.60
+            ${CMAKE_INSTALL_PREFIX}/lib/libavdevice.so.60.1.100
+            ${CMAKE_INSTALL_PREFIX}/lib/libavfilter.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libavfilter.so.9
+            ${CMAKE_INSTALL_PREFIX}/lib/libavfilter.so.9.3.100
+            ${CMAKE_INSTALL_PREFIX}/lib/libavformat.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libavformat.so.60
+            ${CMAKE_INSTALL_PREFIX}/lib/libavformat.so.60.3.100
+            ${CMAKE_INSTALL_PREFIX}/lib/libavutil.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libavutil.so.58
+            ${CMAKE_INSTALL_PREFIX}/lib/libavutil.so.58.2.100
+            ${CMAKE_INSTALL_PREFIX}/lib/libswresample.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libswresample.so.4
+            ${CMAKE_INSTALL_PREFIX}/lib/libswresample.so.4.10.100
+            ${CMAKE_INSTALL_PREFIX}/lib/libswscale.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libswscale.so.7
+            ${CMAKE_INSTALL_PREFIX}/lib/libswscale.so.7.1.100)
+        list(APPEND INSTALL_LIBS ${FFMPEG_LIBS})
+    endif()
+
+    if(TLRENDER_USD)
+        set(BOOST_LIBS
+            ${CMAKE_INSTALL_PREFIX}/lib/libboost_atomic.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libboost_atomic.so.1
+            ${CMAKE_INSTALL_PREFIX}/lib/libboost_atomic.so.1.70
+            ${CMAKE_INSTALL_PREFIX}/lib/libboost_atomic.so.1.70.0
+            ${CMAKE_INSTALL_PREFIX}/lib/libboost_regex.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libboost_regex.so.1
+            ${CMAKE_INSTALL_PREFIX}/lib/libboost_regex.so.1.70
+            ${CMAKE_INSTALL_PREFIX}/lib/libboost_regex.so.1.70.0)
+        set(MATERIALX_LIBS
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXCore.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXCore.so.1
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXCore.so.1.38.7
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXFormat.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXFormat.so.1
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXFormat.so.1.38.7
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenGlsl.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenGlsl.so.1
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenGlsl.so.1.38.7
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMdl.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMdl.so.1
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMdl.so.1.38.7
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMsl.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMsl.so.1
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMsl.so.1.38.7
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenOsl.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenOsl.so.1
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenOsl.so.1.38.7
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenShader.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenShader.so.1
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenShader.so.1.38.7
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderGlsl.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderGlsl.so.1
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderGlsl.so.1.38.7
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderHw.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderHw.so.1
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderHw.so.1.38.7
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderOsl.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderOsl.so.1
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderOsl.so.1.38.7
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRender.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRender.so.1
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRender.so.1.38.7)
+        set(TBB_LIBS
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbb_debug.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbb_debug.so.2
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc_debug.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc_debug.so.2
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc_proxy_debug.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc_proxy_debug.so.2
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc_proxy.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc_proxy.so.2
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc.so.2
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbb.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbb.so.2)
+        set(OSD_LIBS
+            ${CMAKE_INSTALL_PREFIX}/lib/libosdCPU.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libosdCPU.so.3.5.0
+            ${CMAKE_INSTALL_PREFIX}/lib/libosdGPU.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libosdGPU.so.3.5.0)
+        set(USD_LIBS
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_arch.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_ar.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_cameraUtil.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_garch.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_geomUtil.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_gf.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_glf.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_hdar.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_hdGp.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_hdMtlx.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_hdsi.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_hd.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_hdSt.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_hdx.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_hf.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_hgiGL.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_hgiInterop.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_hgi.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_hio.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_js.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_kind.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_ndr.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_pcp.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_plug.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_pxOsd.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_sdf.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_sdr.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_tf.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_trace.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdAppUtils.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdBakeMtlx.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdGeom.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdHydra.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdImagingGL.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdImaging.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdLux.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdMedia.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdMtlx.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdPhysics.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdProcImaging.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdProc.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdRender.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdRiImaging.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdRi.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdShade.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdSkelImaging.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdSkel.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usd.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdUI.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdUtils.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdVolImaging.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdVol.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_vt.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_work.so)
+        list(APPEND INSTALL_LIBS ${BOOST_LIBS} ${MATERIALX_LIBS} ${TBB_LIBS} ${OSD_LIBS} ${USD_LIBS})
+
+        install(
+            DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib/usd
+            DESTINATION lib)
+        install(
+            DIRECTORY ${CMAKE_INSTALL_PREFIX}/plugin
+            DESTINATION ".")
+    endif()
+    
+    install(
+        FILES ${INSTALL_LIBS}
+        DESTINATION lib)
+
 endif()
+
