@@ -90,13 +90,15 @@ namespace tl
 
             virtual void _tick();
 
+            Options _options;
+
         private:
             void _buttonCallback(int, int, int);
             void _scrollCallback(const math::Vector2f&);
             void _keyCallback(int, int, int, int);
             void _charCallback(unsigned int);
             void _dropCallback(int, const char**);
-
+            
             TLRENDER_PRIVATE();
         };
     }

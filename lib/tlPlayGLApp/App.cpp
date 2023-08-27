@@ -45,8 +45,6 @@ namespace tl
                 std::string audioFileName;
                 std::string compareFileName;
                 timeline::CompareOptions compareOptions;
-                math::Size2i windowSize = math::Size2i(1920, 1080);
-                bool fullscreen = false;
                 bool hud = true;
                 double speed = 0.0;
                 timeline::Playback playback = timeline::Playback::Stop;
@@ -150,15 +148,6 @@ namespace tl
                     { "-wipeRotation", "-wr" },
                     "A/B comparison wipe rotation.",
                     string::Format("{0}").arg(p.options.compareOptions.wipeRotation)),
-                app::CmdLineValueOption<math::Size2i>::create(
-                    p.options.windowSize,
-                    { "-windowSize", "-ws" },
-                    "Window size.",
-                    string::Format("{0}x{1}").arg(p.options.windowSize.w).arg(p.options.windowSize.h)),
-                app::CmdLineFlagOption::create(
-                    p.options.fullscreen,
-                    { "-fullscreen", "-fs" },
-                    "Enable full screen mode."),
                 app::CmdLineValueOption<bool>::create(
                     p.options.hud,
                     { "-hud" },
@@ -329,8 +318,7 @@ namespace tl
                 p.settings->read(p.settingsFileName);
             }
             p.settings->setDefaultValue("Files/RecentMax", 10);
-            math::Size2i windowSize = p.options.windowSize;
-            p.settings->setDefaultValue("Window/Size", windowSize);
+            p.settings->setDefaultValue("Window/Size", _options.windowSize);
             p.settings->setDefaultValue("Viewport/Background",
                 timelineui::ViewportBackgroundOptions());
             p.settings->setDefaultValue("Audio/Volume", 1.F);
@@ -536,6 +524,7 @@ namespace tl
             }
 
             // Create the main window.
+            math::Size2i windowSize = _options.windowSize;
             p.settings->getValue("Window/Size", windowSize);
             setWindowSize(windowSize);
             p.mainWindow = MainWindow::create(

@@ -101,8 +101,6 @@ namespace tl
 
         struct IApp::Private
         {
-            Options options;
-
             std::shared_ptr<gl::GLFWWindow> window;
             std::shared_ptr<observer::Value<bool> > fullscreen;
             std::shared_ptr<observer::Value<bool> > floatOnTop;
@@ -135,16 +133,22 @@ namespace tl
             const std::vector<std::shared_ptr<app::ICmdLineOption> >& options)
         {
             TLRENDER_P();
+            if (const GLFWvidmode* monitorMode = glfwGetVideoMode(
+                glfwGetPrimaryMonitor()))
+            {
+                _options.windowSize.w = monitorMode->width * .7F;
+                _options.windowSize.h = monitorMode->height * .7F;
+            }
             std::vector<std::shared_ptr<app::ICmdLineOption> > options2 = options;
             options2.push_back(
                 app::CmdLineValueOption<math::Size2i>::create(
-                    p.options.windowSize,
+                    _options.windowSize,
                     { "-windowSize", "-ws" },
                     "Window size.",
-                    string::Format("{0}x{1}").arg(p.options.windowSize.w).arg(p.options.windowSize.h)));
+                    string::Format("{0}x{1}").arg(_options.windowSize.w).arg(_options.windowSize.h)));
             options2.push_back(
                 app::CmdLineFlagOption::create(
-                    p.options.fullscreen,
+                    _options.fullscreen,
                     { "-fullscreen", "-fs" },
                     "Enable full screen mode."));
             app::IApp::_init(
@@ -167,7 +171,7 @@ namespace tl
             // Create the window.
             p.window = gl::GLFWWindow::create(
                 cmdLineName,
-                p.options.windowSize,
+                _options.windowSize,
                 _context);
             p.frameBufferSize = p.window->getFrameBufferSize();
             p.contentScale = p.window->getContentScale();
@@ -230,7 +234,7 @@ namespace tl
                 {
                     _dropCallback(count, fileNames);
                 });
-            setFullScreen(p.options.fullscreen);
+            setFullScreen(_options.fullscreen);
 
             // Initialize the user interface.
             p.style = ui::Style::create(_context);
