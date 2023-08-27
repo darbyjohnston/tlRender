@@ -13,12 +13,16 @@ namespace tl
     {
         //! Get the path to the application directory. The directory is
         //! automatically created if it does not exist.
-        std::string appDirPath(const std::string& appName);
+        std::string appDirPath();
 
         //! Get the log file name.
-        std::string logFileName(const std::string& appDirPath);
+        std::string logFileName(
+            const std::string& appName,
+            const std::string& appDirPath);
 
         //! Get the settings file name.
-        std::string settingsName(const std::string& appDirPath);
+        std::string settingsName(
+            const std::string& appName,
+            const std::string& appDirPath);
     }
 }

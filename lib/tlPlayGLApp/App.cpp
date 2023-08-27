@@ -107,14 +107,16 @@ namespace tl
             const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
-            const std::string appDirPath = play::appDirPath("tlplay-gl");
-            std::string logFileName = play::logFileName(appDirPath);
-            const std::string settingsFileName = play::settingsName(appDirPath);
+            const std::string appName = "tlplay-gl";
+            const std::string appDirPath = play::appDirPath();
+            std::string logFileName = play::logFileName(appName, appDirPath);
+            const std::string settingsFileName =
+                play::settingsName(appName, appDirPath);
             IApp::_init(
                 argc,
                 argv,
                 context,
-                "tlplay-gl",
+                appName,
                 "Example GLFW playback application.",
                 {
                     app::CmdLineValueArg<std::string>::create(
