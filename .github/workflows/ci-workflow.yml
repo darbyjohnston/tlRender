@@ -224,6 +224,11 @@ jobs:
         cd tlRender/src/tlRender-build &&
         cmake --build . --target package
 
+    - uses: actions/upload-artifact@v3
+      with:
+        name: package
+        path: tlRender/src/tlRender-build/tlRender-0.1.0-Linux-x86_64.tar.gz
+
   macos-build:
     runs-on: macos-latest
 
@@ -331,6 +336,11 @@ jobs:
         cd tlRender/src/tlRender-build &&
         cmake --build . --target package
 
+    - uses: actions/upload-artifact@v3
+      with:
+        name: package
+        path: tlRender/src/tlRender-build/tlRender-0.1.0-Darwin-x86_64.tar.gz
+
   windows-build:
     runs-on: windows-latest
 
@@ -399,7 +409,9 @@ jobs:
   windows-package:
     runs-on: windows-latest
 
+    # \bug How to enable FFmpeg?
     env:
+      TLRENDER_FFMPEG: OFF
       TLRENDER_EXAMPLES: OFF
       TLRENDER_TESTS: OFF
 
@@ -412,6 +424,7 @@ jobs:
       run: >
         echo "$pwd\build\install\bin;$pwd\build\install\lib;$env:path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
         
+    # \bug Release mode currently fails with OpenColorIO unable to find ZLIB
     - name: Build tlRender
       run: >
         mkdir build &&
@@ -420,6 +433,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=Debug `
           -DCMAKE_INSTALL_PREFIX=install `
           -DCMAKE_PREFIX_PATH=install `
+          -DTLRENDER_FFMPEG=${{ env.TLRENDER_FFMPEG }} `
           -DTLRENDER_EXAMPLES=${{ env.TLRENDER_EXAMPLES }} `
           -DTLRENDER_TESTS=${{ env.TLRENDER_TESTS }} &&
         cmake --build . -j 4
@@ -430,3 +444,7 @@ jobs:
         cd tlRender/src/tlRender-build &&
         cmake --build . --target package
 
+    - uses: actions/upload-artifact@v3
+      with:
+        name: package
+        path: tlRender/src/tlRender-build/tlRender-0.1.0-Linux-AMD64.zip
