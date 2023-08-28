@@ -226,7 +226,7 @@ jobs:
 
     - uses: actions/upload-artifact@v3
       with:
-        name: package
+        name: tlRender-Linux-Packages
         path: build/tlRender/src/tlRender-build/tlRender-*.tar.gz
 
   macos-build:
@@ -338,7 +338,7 @@ jobs:
 
     - uses: actions/upload-artifact@v3
       with:
-        name: package
+        name: tlRender-macOS-Packages
         path: build/tlRender/src/tlRender-build/tlRender-*.tar.gz
 
   windows-build:
@@ -411,6 +411,8 @@ jobs:
 
     # \bug How to enable FFmpeg?
     env:
+      TLRENDER_JPEG: OFF
+      TLRENDER_TIFF: OFF
       TLRENDER_FFMPEG: OFF
       TLRENDER_EXAMPLES: OFF
       TLRENDER_TESTS: OFF
@@ -433,6 +435,8 @@ jobs:
           -DCMAKE_BUILD_TYPE=Debug `
           -DCMAKE_INSTALL_PREFIX=install `
           -DCMAKE_PREFIX_PATH=install `
+          -DTLRENDER_JPEG=${{ env.TLRENDER_JPEG }} `
+          -DTLRENDER_TIFF=${{ env.TLRENDER_TIFF }} `
           -DTLRENDER_FFMPEG=${{ env.TLRENDER_FFMPEG }} `
           -DTLRENDER_EXAMPLES=${{ env.TLRENDER_EXAMPLES }} `
           -DTLRENDER_TESTS=${{ env.TLRENDER_TESTS }} &&
@@ -446,5 +450,5 @@ jobs:
 
     - uses: actions/upload-artifact@v3
       with:
-        name: package
+        name: tlRender-Windows-Packages
         path: build\tlRender\src\tlRender-build\tlRender-*.zip
