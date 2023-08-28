@@ -250,6 +250,7 @@ jobs:
       TLRENDER_EXAMPLES: ON
       TLRENDER_TESTS: ON
       TLRENDER_GCOV: OFF
+      CMAKE_OSX_DEPLOYMENT_TARGET: 10.15
 
     steps:
     - uses: actions/checkout@v3
@@ -288,7 +289,8 @@ jobs:
           -DTLRENDER_PROGRAMS=$TLRENDER_PROGRAMS \
           -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
           -DTLRENDER_TESTS=$TLRENDER_TESTS \
-          -DTLRENDER_GCOV=$TLRENDER_GCOV &&
+          -DTLRENDER_GCOV=$TLRENDER_GCOV \
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET} &&
         cmake --build . -j 4
 
     - name: Run tests
@@ -304,6 +306,7 @@ jobs:
     env:
       TLRENDER_EXAMPLES: OFF
       TLRENDER_TESTS: OFF
+      CMAKE_OSX_DEPLOYMENT_TARGET: 10.15
 
     steps:
     - uses: actions/checkout@v3
@@ -327,7 +330,8 @@ jobs:
           -DCMAKE_INSTALL_PREFIX=$PWD/install \
           -DCMAKE_PREFIX_PATH=$PWD/install \
           -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
-          -DTLRENDER_TESTS=$TLRENDER_TESTS &&
+          -DTLRENDER_TESTS=$TLRENDER_TESTS \
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET} &&
         cmake --build . -j 4
 
     - name: Package
