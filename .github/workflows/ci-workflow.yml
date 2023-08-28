@@ -411,7 +411,7 @@ jobs:
 
     # \bug How to enable FFmpeg?
     env:
-      TLRENDER_JPEG: OFF
+      TLRENDER_JPEG: ON
       TLRENDER_TIFF: OFF
       TLRENDER_FFMPEG: OFF
       TLRENDER_EXAMPLES: OFF
