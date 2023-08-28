@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(JPEG_GIT_REPOSITORY "https://github.com/libjpeg-turbo/libjpeg-turbo.git")
-set(JPEG_GIT_TAG "2.1.91")
+set(JPEG_GIT_TAG "3.0.0")
 
 set(JPEG_DEPS ZLIB)
 if(NOT WIN32)
