@@ -417,7 +417,7 @@ jobs:
         mkdir build &&
         cd build &&
         cmake ..\etc\SuperBuild `
-          -DCMAKE_BUILD_TYPE=Release `
+          -DCMAKE_BUILD_TYPE=Debug `
           -DCMAKE_INSTALL_PREFIX=install `
           -DCMAKE_PREFIX_PATH=install `
           -DTLRENDER_EXAMPLES=${{ env.TLRENDER_EXAMPLES }} `
