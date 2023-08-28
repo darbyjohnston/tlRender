@@ -85,7 +85,7 @@ namespace tl
             _info = info;
             _sampleCount = sampleCount;
             const size_t byteCount = getByteCount();
-            _data.resize(byteCount);
+            _data.reserve(byteCount);
         }
 
         Audio::Audio()

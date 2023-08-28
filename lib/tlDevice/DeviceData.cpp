@@ -54,7 +54,7 @@ namespace tl
             _pixelType = pixelType;
             _time = time;
             _dataByteCount = device::getDataByteCount(_size, _pixelType);
-            _data.resize(_dataByteCount);
+            _data.reserve(_dataByteCount);
         }
 
         PixelData::PixelData()
