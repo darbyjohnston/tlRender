@@ -522,8 +522,9 @@ namespace tl
                         infoRequest->startTime);
                     if (!p.thread.infoCache.get(key, info))
                     {
-                        std::shared_ptr<io::IRead> read;
                         const std::string& fileName = infoRequest->path.get();
+                        //std::cout << "info request: " << infoRequest->path.get() << std::endl;
+                        std::shared_ptr<io::IRead> read;
                         if (!p.thread.ioCache.get(fileName, read))
                         {
                             if (auto context = p.context.lock())
@@ -567,6 +568,8 @@ namespace tl
                         try
                         {
                             const std::string& fileName = videoRequest->path.get();
+                            //std::cout << "video request: " << fileName << " " <<
+                            //    videoRequest->time << std::endl;
                             std::shared_ptr<io::IRead> read;
                             if (!p.thread.ioCache.get(fileName, read))
                             {
