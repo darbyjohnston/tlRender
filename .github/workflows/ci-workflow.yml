@@ -409,10 +409,8 @@ jobs:
   windows-package:
     runs-on: windows-latest
 
-    # \bug How to enable FFmpeg?
+    # \bug How can we build FFmpeg on Windows?
     env:
-      TLRENDER_JPEG: ON
-      TLRENDER_TIFF: OFF
       TLRENDER_FFMPEG: OFF
       TLRENDER_EXAMPLES: OFF
       TLRENDER_TESTS: OFF
@@ -435,8 +433,6 @@ jobs:
           -DCMAKE_BUILD_TYPE=Debug `
           -DCMAKE_INSTALL_PREFIX=install `
           -DCMAKE_PREFIX_PATH=install `
-          -DTLRENDER_JPEG=${{ env.TLRENDER_JPEG }} `
-          -DTLRENDER_TIFF=${{ env.TLRENDER_TIFF }} `
           -DTLRENDER_FFMPEG=${{ env.TLRENDER_FFMPEG }} `
           -DTLRENDER_EXAMPLES=${{ env.TLRENDER_EXAMPLES }} `
           -DTLRENDER_TESTS=${{ env.TLRENDER_TESTS }} &&
