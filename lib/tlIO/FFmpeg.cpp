@@ -179,7 +179,6 @@ namespace tl
                     { ".m4v", io::FileType::Movie },
                     { ".mp4", io::FileType::Movie },
                     { ".y4m", io::FileType::Movie },
-                    { ".mkv", io::FileType::Movie },
                     { ".mxf", io::FileType::Movie },
                     { ".wmv", io::FileType::Movie },
                     { ".avi", io::FileType::Movie },

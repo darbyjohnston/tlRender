@@ -29,11 +29,6 @@ else()
         --disable-programs
         --disable-doc
         --disable-hwaccels
-        #--disable-muxers
-        #--disable-demuxers
-        #--disable-parsers
-        #--disable-bsfs
-        #--disable-protocols
         --disable-devices
         --disable-filters
         --disable-alsa
@@ -81,33 +76,6 @@ else()
         list(APPEND FFmpeg_CONFIGURE_ARGS
             --disable-static
             --enable-shared)
-    endif()
-    if(TLRENDER_FFMPEG_MIN)
-        list(APPEND FFmpeg_CONFIGURE_ARGS
-            --disable-encoders
-            --disable-decoders
-            --enable-decoder=h264
-            --enable-encoder=h264
-            --enable-decoder=dnxhd
-            --enable-encoder=dnxhd
-            --enable-decoder=gif
-            --enable-encoder=gif
-            --enable-decoder=mpeg4
-            --enable-encoder=mpeg4
-            --enable-decoder=prores
-            --enable-encoder=prores
-            --enable-decoder=flac
-            --enable-encoder=flac
-            --enable-decoder=aac
-            --enable-encoder=aac
-            --enable-decoder=vp9
-            --enable-encoder=vp9
-            #--disable-muxers
-            #--disable-demuxers
-            #--disable-parsers
-            #--disable-bsfs
-            #--disable-protocols
-            )
     endif()
     if(FFmpeg_DEBUG)
         list(APPEND FFmpeg_CONFIGURE_ARGS
