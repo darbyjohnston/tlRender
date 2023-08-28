@@ -318,7 +318,7 @@ jobs:
         mkdir build &&
         cd build &&
         cmake ../etc/SuperBuild \
-          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_INSTALL_PREFIX=$PWD/install \
           -DCMAKE_PREFIX_PATH=$PWD/install \
           -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
@@ -395,3 +395,38 @@ jobs:
         cd tlRender\src\tlRender-build &&
         tests\tltest\Debug\tltest
         #ctest --rerun-failed --output-on-failure
+
+  windows-package:
+    runs-on: windows-latest
+
+    env:
+      TLRENDER_EXAMPLES: OFF
+      TLRENDER_TESTS: OFF
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Setup environment
+      run: >
+        echo "$pwd\build\install\bin;$pwd\build\install\lib;$env:path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+        
+    - name: Build tlRender
+      run: >
+        mkdir build &&
+        cd build &&
+        cmake ..\etc\SuperBuild `
+          -DCMAKE_BUILD_TYPE=Release `
+          -DCMAKE_INSTALL_PREFIX=install `
+          -DCMAKE_PREFIX_PATH=install `
+          -DTLRENDER_EXAMPLES=${{ env.TLRENDER_EXAMPLES }} `
+          -DTLRENDER_TESTS=${{ env.TLRENDER_TESTS }} &&
+        cmake --build . -j 4
+
+    - name: Package
+      run: >
+        cd build &&
+        cd tlRender/src/tlRender-build &&
+        cmake --build . --target package
+
