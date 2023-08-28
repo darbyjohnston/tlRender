@@ -227,7 +227,7 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: package
-        path: tlRender/src/tlRender-build/tlRender-0.1.0-Linux-x86_64.tar.gz
+        path: tlRender/src/tlRender-build/tlRender-*.tgz
 
   macos-build:
     runs-on: macos-latest
@@ -339,7 +339,7 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: package
-        path: tlRender/src/tlRender-build/tlRender-0.1.0-Darwin-x86_64.tar.gz
+        path: tlRender/src/tlRender-build/tlRender-*.tgz
 
   windows-build:
     runs-on: windows-latest
@@ -441,10 +441,10 @@ jobs:
     - name: Package
       run: >
         cd build &&
-        cd tlRender/src/tlRender-build &&
+        cd tlRender\src\tlRender-build &&
         cmake --build . --target package
 
     - uses: actions/upload-artifact@v3
       with:
         name: package
-        path: tlRender/src/tlRender-build/tlRender-0.1.0-Linux-AMD64.zip
+        path: tlRender\src\tlRender-build\tlRender-*.zip
