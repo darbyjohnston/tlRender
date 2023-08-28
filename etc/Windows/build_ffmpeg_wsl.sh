@@ -6,10 +6,36 @@ cd ffmpeg-6.0
 ./configure \
     --disable-programs \
     --disable-doc \
+    --disable-hwaccels \
+    --disable-devices \
+    --disable-filters \
+    --disable-alsa \
+    --disable-appkit \
+    --disable-avfoundation \
     --disable-bzlib \
+    --disable-coreimage \
     --disable-iconv \
     --disable-lzma \
+    --disable-metal \
+    --disable-sndio \
+    --disable-schannel \
+    --disable-sdl2 \
+    --disable-securetransport \
+    --disable-vulkan \
+    --disable-zlib \
+    --disable-amf \
+    --disable-audiotoolbox \
+    --disable-cuda-llvm \
+    --disable-cuvid \
+    --disable-d3d11va \
+    --disable-dxva2 \
+    --disable-ffnvcodec \
+    --disable-nvdec \
+    --disable-nvenc \
+    --disable-v4l2-m2m \
     --disable-vaapi \
+    --disable-vdpau \
+    --disable-videotoolbox \
     --enable-pic \
     --arch=x86_64 \
     --cross-prefix=x86_64-w64-mingw32- \
