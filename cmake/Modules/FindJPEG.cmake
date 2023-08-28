@@ -20,7 +20,7 @@ set(JPEG_INCLUDE_DIRS
     ${JPEG_INCLUDE_DIR}
     ${ZLIB_INCLUDE_DIRS})
 
-find_library(JPEG_LIBRARY NAMES jpeg62 jpeg jpeg-static)
+find_library(JPEG_LIBRARY NAMES jpeg-static jpeg)
 set(JPEG_LIBRARIES
     ${JPEG_LIBRARY}
     ${ZLIB_LIBRARIES})
