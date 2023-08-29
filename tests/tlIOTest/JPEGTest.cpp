@@ -4,8 +4,8 @@
 
 #include <tlIOTest/JPEGTest.h>
 
-#include <tlIO/IOSystem.h>
 #include <tlIO/JPEG.h>
+#include <tlIO/System.h>
 
 #include <tlCore/Assert.h>
 #include <tlCore/FileIO.h>

@@ -1,18 +1,22 @@
 set(HEADERS
+    Cache.h
     Cineon.h
     DPX.h
     IO.h
     IOInline.h
-    IOSystem.h
-    IOSystemInline.h
     Init.h
     PPM.h
+    Plugin.h
+    PluginInline.h
+    SGI.h
     SequenceIO.h
-    SGI.h)
+    System.h
+    SystemInline.h)
 set(HEADERS_PRIVATE
     SequenceIOReadPrivate.h)
 
 set(SOURCE
+    Cache.cpp
     CineonRead.cpp
     CineonWrite.cpp
     Cineon.cpp
@@ -20,16 +24,17 @@ set(SOURCE
     DPXWrite.cpp
     DPX.cpp
     IO.cpp
-    IOSystem.cpp
     Init.cpp
     PPM.cpp
     PPMRead.cpp
     PPMWrite.cpp
-    SequenceIORead.cpp
-    SequenceIOWrite.cpp
+    Plugin.cpp
     SGI.cpp
     SGIRead.cpp
-    SGIWrite.cpp)
+    SGIWrite.cpp
+    SequenceIORead.cpp
+    SequenceIOWrite.cpp
+    System.cpp)
 
 set(LIBRARIES)
 set(LIBRARIES_PRIVATE)

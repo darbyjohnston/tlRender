@@ -45,7 +45,9 @@ namespace tl
             std::shared_ptr<Render> render;
         };
         
-        void Plugin::_init(const std::weak_ptr<log::System>& logSystem)
+        void Plugin::_init(
+            const std::shared_ptr<io::Cache>& cache,
+            const std::weak_ptr<log::System>& logSystem)
         {
             IPlugin::_init(
                 "USD",
@@ -55,19 +57,22 @@ namespace tl
                     { ".usdc", io::FileType::Sequence },
                     { ".usdz", io::FileType::Sequence }
                 },
+                cache,
                 logSystem);
             TLRENDER_P();
-            p.render = Render::create(logSystem);
+            p.render = Render::create(cache, logSystem);
         }
         
         Plugin::Plugin() :
             _p(new Private)
         {}
         
-        std::shared_ptr<Plugin> Plugin::create(const std::weak_ptr<log::System>& logSystem)
+        std::shared_ptr<Plugin> Plugin::create(
+            const std::shared_ptr<io::Cache>& cache,
+            const std::weak_ptr<log::System>& logSystem)
         {
             auto out = std::shared_ptr<Plugin>(new Plugin);
-            out->_init(logSystem);
+            out->_init(cache, logSystem);
             return out;
         }
         
@@ -125,7 +130,13 @@ namespace tl
         {
             TLRENDER_P();
             ++(p.id);
-            return Read::create(p.id, p.render, path, io::merge(options, _options), _logSystem);
+            return Read::create(
+                p.id,
+                p.render,
+                path,
+                io::merge(options, _options),
+                _cache,
+                _logSystem);
         }
         
         std::shared_ptr<io::IRead> Plugin::read(
@@ -135,7 +146,13 @@ namespace tl
         {
             TLRENDER_P();
             ++(p.id);
-            return Read::create(p.id, p.render, path, io::merge(options, _options), _logSystem);
+            return Read::create(
+                p.id,
+                p.render,
+                path,
+                io::merge(options, _options),
+                _cache,
+                _logSystem);
         }
         
         image::Info Plugin::getWriteInfo(

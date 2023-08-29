@@ -384,10 +384,11 @@ namespace tl
             _eof = false;
         }
 
-        void ReadAudio::process(
+        bool ReadAudio::process(
             const otime::RationalTime& currentTime,
             size_t sampleCount)
         {
+            bool out = false;
             const size_t bufferSampleCount = audio::getSampleCount(_buffer);
             if (_avStream != -1 && bufferSampleCount < sampleCount)
             {
@@ -447,6 +448,7 @@ namespace tl
                         }
                         else if (1 == decoding)
                         {
+                            out = true;
                             break;
                         }
                     }
@@ -461,6 +463,7 @@ namespace tl
                 }
                 //std::cout << "audio buffer size: " << audio::getSampleCount(_buffer) << std::endl;
             }
+            return out;
         }
 
         size_t ReadAudio::getBufferSize() const
@@ -471,11 +474,6 @@ namespace tl
         void ReadAudio::bufferCopy(uint8_t* out, size_t sampleCount)
         {
             audio::copy(_buffer, out, sampleCount);
-        }
-
-        bool ReadAudio::isEOF() const
-        {
-            return _eof;
         }
 
         int ReadAudio::_decode(const otime::RationalTime& currentTime)

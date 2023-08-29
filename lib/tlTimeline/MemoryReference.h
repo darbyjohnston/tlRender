@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include <tlIO/IO.h>
+#include <tlCore/FileIO.h>
+#include <tlCore/Time.h>
 
 #include <opentimelineio/mediaReference.h>
 #include <opentimelineio/timeline.h>

@@ -75,6 +75,9 @@ namespace tl
             //! Make the OpenGL context current.
             void makeCurrent();
 
+            //! Release the OpenGL context.
+            void doneCurrent();
+
             //! Get whether the window should close.
             bool shouldClose() const;
 

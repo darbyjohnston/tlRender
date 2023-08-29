@@ -38,7 +38,9 @@ namespace tl
     {
         struct Render::Private
         {
+            std::shared_ptr<io::Cache> cache;
             std::weak_ptr<log::System> logSystem;
+
             GLFWwindow* glfwWindow = nullptr;
             
             struct InfoRequest
@@ -106,9 +108,13 @@ namespace tl
             Thread thread;
         };
         
-        void Render::_init(const std::weak_ptr<log::System>& logSystem)
+        void Render::_init(
+            const std::shared_ptr<io::Cache>& cache,
+            const std::weak_ptr<log::System>& logSystem)
         {
             TLRENDER_P();
+
+            p.cache = cache;
             p.logSystem = logSystem;
 
 #if defined(__APPLE__)
@@ -136,24 +142,11 @@ namespace tl
                 [this]
                 {
                     TLRENDER_P();
-                    try
-                    {
-                        glfwMakeContextCurrent(p.glfwWindow);
-                        _run();
-                        p.thread.stageCache.clear();
-                        p.thread.diskCache.clear();
-                    }
-                    catch (const std::exception& e)
-                    {
-                        //std::cout << e.what() << std::endl;
-                        if (auto logSystem = p.logSystem.lock())
-                        {
-                            const std::string id = string::Format("tl::usd::Render ({0}: {1})").
-                                arg(__FILE__).
-                                arg(__LINE__);
-                            logSystem->print(id, e.what(), log::Type::Error);
-                        }
-                    }
+                    glfwMakeContextCurrent(p.glfwWindow);
+                    _run();
+                    p.thread.stageCache.clear();
+                    p.thread.diskCache.clear();
+                    glfwMakeContextCurrent(nullptr);
                     _finish();
                 });
             
@@ -191,10 +184,12 @@ namespace tl
             }
         }
 
-        std::shared_ptr<Render> Render::create(const std::weak_ptr<log::System>& logSystem)
+        std::shared_ptr<Render> Render::create(
+            const std::shared_ptr<io::Cache>& cache,
+            const std::weak_ptr<log::System>& logSystem)
         {
             auto out = std::shared_ptr<Render>(new Render);
-            out->_init(logSystem);
+            out->_init(cache, logSystem);
             return out;
         }
         
@@ -461,9 +456,9 @@ namespace tl
                         [this, &renderOptions]
                         {
                             return
-                                _p->mutex.renderOptions != renderOptions ||
-                                !_p->mutex.infoRequests.empty() ||
-                                !_p->mutex.requests.empty();
+                            _p->mutex.renderOptions != renderOptions ||
+                            !_p->mutex.infoRequests.empty() ||
+                            !_p->mutex.requests.empty();
                         }))
                     {
                         renderOptions = p.mutex.renderOptions;
@@ -549,29 +544,70 @@ namespace tl
                     }
                     infoRequest->promise.set_value(info);
                 }
-                
-                // Handle requests.
+
+                // Check the I/O cache.
+                io::VideoData videoData;
+                if (request &&
+                    p.cache &&
+                    p.cache->getVideo(request->path.get(), request->time, 0, videoData))
+                {
+                    request->promise.set_value(videoData);
+                    request.reset();
+                }
+
+                // Check the disk cache.
                 if (request)
                 {
-                    // Check the disk cache for a previously rendered frame.
                     const std::string fileName = request->path.get();
-                    std::shared_ptr<image::Image> image;
                     std::shared_ptr<Private::DiskCacheItem> diskCacheItem;
                     if (renderOptions.diskCacheByteCount > 0 &&
                         p.thread.diskCache.get(Private::DiskCacheKey({ fileName, request->time }), diskCacheItem))
                     {
-                        //std::cout << "read temp file: " << diskCacheItem->fileName << std::endl;
-                        auto fileIO = file::FileIO::create(diskCacheItem->fileName, file::Mode::Read);
-                        uint16_t w = 0;
-                        uint16_t h = 0;
-                        fileIO->readU16(&w);
-                        fileIO->readU16(&h);
-                        uint32_t pixelType = 0;
-                        fileIO->readU32(&pixelType);
-                        image = image::Image::create(w, h, static_cast<image::PixelType>(pixelType));
-                        fileIO->read(image->getData(), image->getDataByteCount());
+                        std::shared_ptr<image::Image> image;
+                        try
+                        {
+                            //std::cout << "read temp file: " << diskCacheItem->fileName << std::endl;
+                            auto fileIO = file::FileIO::create(diskCacheItem->fileName, file::Mode::Read);
+                            uint16_t w = 0;
+                            uint16_t h = 0;
+                            fileIO->readU16(&w);
+                            fileIO->readU16(&h);
+                            uint32_t pixelType = 0;
+                            fileIO->readU32(&pixelType);
+                            image = image::Image::create(w, h, static_cast<image::PixelType>(pixelType));
+                            fileIO->read(image->getData(), image->getDataByteCount());
+                        }
+                        catch (const std::exception& e)
+                        {
+                            //std::cout << e.what() << std::endl;
+                            if (auto logSystem = p.logSystem.lock())
+                            {
+                                const std::string id = string::Format("tl::usd::Render ({0}: {1})").
+                                    arg(__FILE__).
+                                    arg(__LINE__);
+                                logSystem->print(id, e.what(), log::Type::Error);
+                            }
+                        }
+
+                        videoData.time = request->time;
+                        videoData.image = image;
+                        request->promise.set_value(videoData);
+
+                        if (p.cache)
+                        {
+                            p.cache->addVideo(fileName, request->time, 0, videoData);
+                        }
+
+                        request.reset();
                     }
-                    else
+                }
+
+                // Handle requests.
+                if (request)
+                {
+                    const std::string fileName = request->path.get();
+                    std::shared_ptr<image::Image> image;
+                    try
                     {
                         // Check the stage cache for a previously opened stage.
                         Private::StageCacheItem stageCacheItem;
@@ -585,7 +621,7 @@ namespace tl
                             const double timeCode = request->time.rescaled_to(
                                 stageCacheItem.stage->GetTimeCodesPerSecond()).value();
                             //std::cout << fileName << " timeCode: " << timeCode << std::endl;
-                            
+
                             // Setup the camera.
                             GfCamera gfCamera;
                             auto camera = getCamera(stageCacheItem.stage);
@@ -724,11 +760,26 @@ namespace tl
                             }
                         }
                     }
-                    
-                    io::VideoData data;
-                    data.time = request->time;
-                    data.image = image;
-                    request->promise.set_value(data);
+                    catch (const std::exception& e)
+                    {
+                        //std::cout << e.what() << std::endl;
+                        if (auto logSystem = p.logSystem.lock())
+                        {
+                            const std::string id = string::Format("tl::usd::Render ({0}: {1})").
+                                arg(__FILE__).
+                                arg(__LINE__);
+                            logSystem->print(id, e.what(), log::Type::Error);
+                        }
+                    }
+
+                    videoData.time = request->time;
+                    videoData.image = image;
+                    request->promise.set_value(videoData);
+
+                    if (p.cache)
+                    {
+                        p.cache->addVideo(fileName, request->time, 0, videoData);
+                    }
                 }
 
                 // Logging.

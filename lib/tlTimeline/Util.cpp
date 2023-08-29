@@ -6,7 +6,7 @@
 
 #include <tlTimeline/MemoryReference.h>
 
-#include <tlIO/IOSystem.h>
+#include <tlIO/System.h>
 
 #include <tlCore/FileInfo.h>
 #include <tlCore/StringFormat.h>

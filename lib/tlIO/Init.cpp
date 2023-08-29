@@ -4,7 +4,7 @@
 
 #include <tlIO/Init.h>
 
-#include <tlIO/IOSystem.h>
+#include <tlIO/System.h>
 
 #include <tlGL/Init.h>
 

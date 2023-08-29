@@ -13,7 +13,7 @@
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Util.h>
 
-#include <tlIO/IOSystem.h>
+#include <tlIO/System.h>
 
 #include <tlCore/StringFormat.h>
 

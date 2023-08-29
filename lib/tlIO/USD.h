@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlIO/IO.h>
+#include <tlIO/Plugin.h>
 
 namespace tl
 {
@@ -56,6 +56,7 @@ namespace tl
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
                 const io::Options&,
+                const std::shared_ptr<io::Cache>&,
                 const std::weak_ptr<log::System>&);
 
             Read();
@@ -69,6 +70,7 @@ namespace tl
                 const std::shared_ptr<Render>&,
                 const file::Path&,
                 const io::Options&,
+                const std::shared_ptr<io::Cache>&,
                 const std::weak_ptr<log::System>&);
 
             std::future<io::Info> getInfo() override;
@@ -83,13 +85,17 @@ namespace tl
         class Plugin : public io::IPlugin
         {
         protected:
-            void _init(const std::weak_ptr<log::System>&);
+            void _init(
+                const std::shared_ptr<io::Cache>&,
+                const std::weak_ptr<log::System>&);
             
             Plugin();
 
         public:
             //! Create a new plugin.
-            static std::shared_ptr<Plugin> create(const std::weak_ptr<log::System>&);
+            static std::shared_ptr<Plugin> create(
+                const std::shared_ptr<io::Cache>&,
+                const std::weak_ptr<log::System>&);
             
             void setOptions(const io::Options&) override;
             std::shared_ptr<io::IRead> read(

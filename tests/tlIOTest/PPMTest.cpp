@@ -4,8 +4,8 @@
 
 #include <tlIOTest/PPMTest.h>
 
-#include <tlIO/IOSystem.h>
 #include <tlIO/PPM.h>
+#include <tlIO/System.h>
 
 #include <tlCore/Assert.h>
 

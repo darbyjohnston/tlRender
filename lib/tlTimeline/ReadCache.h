@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlIO/IO.h>
+#include <tlIO/Plugin.h>
 
 namespace tl
 {

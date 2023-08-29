@@ -4,13 +4,14 @@
 
 #include <tlIOTest/IOTest.h>
 
-#include <tlIO/IOSystem.h>
+#include <tlIO/System.h>
 
 #include <tlCore/Assert.h>
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
 #include <sstream>
+
 using namespace tl::io;
 
 namespace tl

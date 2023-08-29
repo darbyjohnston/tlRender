@@ -28,6 +28,7 @@ namespace tl
     {
         struct CacheSettingsWidget::Private
         {
+            QSpinBox* cacheSizeSpinBox = nullptr;
             QDoubleSpinBox* readAheadSpinBox = nullptr;
             QDoubleSpinBox* readBehindSpinBox = nullptr;
         };
@@ -38,6 +39,9 @@ namespace tl
         {
             TLRENDER_P();
 
+            p.cacheSizeSpinBox = new QSpinBox;
+            p.cacheSizeSpinBox->setRange(0, 1024);
+
             p.readAheadSpinBox = new QDoubleSpinBox;
             p.readAheadSpinBox->setRange(0.0, 60.0);
 
@@ -45,12 +49,23 @@ namespace tl
             p.readBehindSpinBox->setRange(0, 60.0);
 
             auto layout = new QFormLayout;
+            layout->addRow(tr("Cache size (GB):"), p.cacheSizeSpinBox);
             layout->addRow(tr("Read ahead (seconds):"), p.readAheadSpinBox);
             layout->addRow(tr("Read behind (seconds):"), p.readBehindSpinBox);
             setLayout(layout);
 
+            const int i = settingsObject->value("Cache/Size").toInt();
+            p.cacheSizeSpinBox->setValue(i);
             p.readAheadSpinBox->setValue(settingsObject->value("Cache/ReadAhead").toDouble());
             p.readBehindSpinBox->setValue(settingsObject->value("Cache/ReadBehind").toDouble());
+
+            connect(
+                p.cacheSizeSpinBox,
+                QOverload<int>::of(&QSpinBox::valueChanged),
+                [settingsObject](int value)
+                {
+                    settingsObject->setValue("Cache/Size", value);
+                });
 
             connect(
                 p.readAheadSpinBox,
@@ -73,7 +88,12 @@ namespace tl
                 &SettingsObject::valueChanged,
                 [this](const QString& name, const QVariant& value)
                 {
-                    if (name == "Cache/ReadAhead")
+                    if (name == "Cache/Size")
+                    {
+                        QSignalBlocker signalBlocker(_p->cacheSizeSpinBox);
+                        _p->cacheSizeSpinBox->setValue(value.toInt());
+                    }
+                    else if (name == "Cache/ReadAhead")
                     {
                         QSignalBlocker signalBlocker(_p->readAheadSpinBox);
                         _p->readAheadSpinBox->setValue(value.toDouble());

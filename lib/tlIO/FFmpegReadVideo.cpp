@@ -541,8 +541,9 @@ namespace tl
             _eof = false;
         }
 
-        void ReadVideo::process(const otime::RationalTime& currentTime)
+        bool ReadVideo::process(const otime::RationalTime& currentTime)
         {
+            bool out = false;
             if (_avStream != -1 &&
                 _buffer.size() < _options.videoBufferSize)
             {
@@ -594,6 +595,7 @@ namespace tl
                         }
                         else if (1 == decoding)
                         {
+                            out = true;
                             break;
                         }
                     }
@@ -608,6 +610,7 @@ namespace tl
                 }
                 //std::cout << "video buffer size: " << _buffer.size() << std::endl;
             }
+            return out;
         }
 
         bool ReadVideo::isBufferEmpty() const
@@ -624,11 +627,6 @@ namespace tl
                 _buffer.pop_front();
             }
             return out;
-        }
-
-        bool ReadVideo::isEOF() const
-        {
-            return _eof;
         }
 
         int ReadVideo::_decode(const otime::RationalTime& currentTime)

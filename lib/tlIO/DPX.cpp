@@ -898,21 +898,26 @@ namespace tl
             io->writeU32(size);
         }
 
-        void Plugin::_init(const std::weak_ptr<log::System>& logSystem)
+        void Plugin::_init(
+            const std::shared_ptr<io::Cache>& cache,
+            const std::weak_ptr<log::System>& logSystem)
         {
             IPlugin::_init(
                 "DPX",
                 { { ".dpx", io::FileType::Sequence } },
+                cache,
                 logSystem);
         }
 
         Plugin::Plugin()
         {}
 
-        std::shared_ptr<Plugin> Plugin::create(const std::weak_ptr<log::System>& logSystem)
+        std::shared_ptr<Plugin> Plugin::create(
+            const std::shared_ptr<io::Cache>& cache,
+            const std::weak_ptr<log::System>& logSystem)
         {
             auto out = std::shared_ptr<Plugin>(new Plugin);
-            out->_init(logSystem);
+            out->_init(cache, logSystem);
             return out;
         }
 
@@ -920,7 +925,11 @@ namespace tl
             const file::Path& path,
             const io::Options& options)
         {
-            return Read::create(path, io::merge(options, _options), _logSystem);
+            return Read::create(
+                path,
+                io::merge(options, _options),
+                _cache,
+                _logSystem);
         }
 
         std::shared_ptr<io::IRead> Plugin::read(
@@ -928,7 +937,12 @@ namespace tl
             const std::vector<file::MemoryRead>& memory,
             const io::Options& options)
         {
-            return Read::create(path, memory, io::merge(options, _options), _logSystem);
+            return Read::create(
+                path,
+                memory,
+                io::merge(options, _options),
+                _cache,
+                _logSystem);
         }
 
         image::Info Plugin::getWriteInfo(

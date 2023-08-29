@@ -4,8 +4,8 @@
 
 #include <tlIOTest/OpenEXRTest.h>
 
-#include <tlIO/IOSystem.h>
 #include <tlIO/OpenEXR.h>
+#include <tlIO/System.h>
 
 #include <tlCore/Assert.h>
 #include <tlCore/FileIO.h>

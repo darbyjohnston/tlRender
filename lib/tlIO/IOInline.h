@@ -21,6 +21,18 @@ namespace tl
             return !(*this == other);
         }
 
+        inline VideoData::VideoData()
+        {}
+
+        inline VideoData::VideoData(
+            const otime::RationalTime& time,
+            uint16_t layer,
+            const std::shared_ptr<image::Image>& image) :
+            time(time),
+            layer(layer),
+            image(image)
+        {}
+
         inline bool VideoData::operator == (const VideoData& other) const
         {
             return
@@ -39,6 +51,16 @@ namespace tl
             return time < other.time;
         }
 
+        inline AudioData::AudioData()
+        {}
+
+        inline AudioData::AudioData(
+            const otime::RationalTime& time,
+            const std::shared_ptr<audio::Audio>& audio) :
+            time(time),
+            audio(audio)
+        {}
+
         inline bool AudioData::operator == (const AudioData& other) const
         {
             return
@@ -54,11 +76,6 @@ namespace tl
         inline bool AudioData::operator < (const AudioData& other) const
         {
             return time < other.time;
-        }
-
-        inline const file::Path& IIO::getPath() const
-        {
-            return _path;
         }
     }
 }

@@ -7,7 +7,7 @@
 #include <tlTimeline/Player.h>
 #include <tlTimeline/Util.h>
 
-#include <tlIO/IOSystem.h>
+#include <tlIO/System.h>
 
 #include <tlCore/Assert.h>
 

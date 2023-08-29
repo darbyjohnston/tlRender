@@ -7,9 +7,13 @@
 #include <tlIO/IO.h>
 
 #include <tlCore/Context.h>
+#include <tlCore/FileIO.h>
 #include <tlCore/Mesh.h>
+#include <tlCore/Path.h>
 #include <tlCore/Size.h>
 #include <tlCore/ValueObserver.h>
+
+#include <future>
 
 namespace tl
 {

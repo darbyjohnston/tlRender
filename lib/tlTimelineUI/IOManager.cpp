@@ -6,7 +6,7 @@
 
 #include <tlTimeline/GLRender.h>
 
-#include <tlIO/IOSystem.h>
+#include <tlIO/System.h>
 
 #include <tlGL/GL.h>
 #include <tlGL/GLFWWindow.h>
@@ -144,6 +144,7 @@ namespace tl
                         std::unique_lock<std::mutex> lock(p.mutex.mutex);
                         p.mutex.stopped = true;
                     }
+                    p.window->doneCurrent();
                     _cancelRequests();
                 });
         }

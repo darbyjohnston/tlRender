@@ -21,7 +21,9 @@ namespace tl
         class Render : public std::enable_shared_from_this<Render>
         {
         protected:
-            void _init(const std::weak_ptr<log::System>&);
+            void _init(
+                const std::shared_ptr<io::Cache>&,
+                const std::weak_ptr<log::System>&);
 
             Render();
 
@@ -29,7 +31,9 @@ namespace tl
             ~Render();
 
             //! Create a new renderer.
-            static std::shared_ptr<Render> create(const std::weak_ptr<log::System>&);
+            static std::shared_ptr<Render> create(
+                const std::shared_ptr<io::Cache>&,
+                const std::weak_ptr<log::System>&);
 
             //! Set render options.
             void setRenderOptions(const RenderOptions&);

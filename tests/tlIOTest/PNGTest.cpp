@@ -4,8 +4,8 @@
 
 #include <tlIOTest/PNGTest.h>
 
-#include <tlIO/IOSystem.h>
 #include <tlIO/PNG.h>
+#include <tlIO/System.h>
 
 #include <tlCore/Assert.h>
 #include <tlCore/FileIO.h>

@@ -6,7 +6,7 @@
 
 #include <tlTimeline/GLRender.h>
 
-#include <tlIO/IOSystem.h>
+#include <tlIO/System.h>
 
 #include <tlGL/GL.h>
 #include <tlGL/GLFWWindow.h>

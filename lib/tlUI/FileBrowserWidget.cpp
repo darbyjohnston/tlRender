@@ -18,7 +18,7 @@
 #include <tlUI/Splitter.h>
 #include <tlUI/ToolButton.h>
 
-#include <tlIO/IOSystem.h>
+#include <tlIO/System.h>
 
 #include <tlCore/File.h>
 #include <tlCore/StringFormat.h>

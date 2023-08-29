@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlIO/IO.h>
+#include <tlIO/Plugin.h>
 
 #include <tlCore/ISystem.h>
 
@@ -56,27 +56,32 @@ namespace tl
             //! Get the file type for the given extension.
             FileType getFileType(const std::string&) const;
 
-            // Create a reader for the given path.
+            //! Create a reader for the given path.
             std::shared_ptr<IRead> read(
                 const file::Path&,
                 const Options & = Options());
 
-            // Create a reader for the given path and memory locations.
+            //! Create a reader for the given path and memory locations.
             std::shared_ptr<IRead> read(
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
                 const Options & = Options());
 
-            // Create a writer for the given path.
+            //! Create a writer for the given path.
             std::shared_ptr<IWrite> write(
                 const file::Path&,
                 const Info&,
                 const Options& = Options());
 
+            //! Get the I/O cache.
+            const std::shared_ptr<Cache>& getCache() const;
+
         private:
             std::vector<std::shared_ptr<IPlugin> > _plugins;
+
+            TLRENDER_PRIVATE();
         };
     }
 }
 
-#include <tlIO/IOSystemInline.h>
+#include <tlIO/SystemInline.h>

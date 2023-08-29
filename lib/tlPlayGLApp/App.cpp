@@ -22,7 +22,7 @@
 
 #include <tlTimeline/Util.h>
 
-#include <tlIO/IOSystem.h>
+#include <tlIO/System.h>
 
 #include <tlCore/AudioSystem.h>
 #include <tlCore/File.h>
@@ -73,6 +73,7 @@ namespace tl
             std::shared_ptr<file::FileLogSystem> fileLogSystem;
             std::string settingsFileName;
             std::shared_ptr<Settings> settings;
+            size_t cacheSize = 4;
             timeline::PlayerCacheOptions playerCacheOptions;
             std::shared_ptr<play::FilesModel> filesModel;
             std::vector<std::shared_ptr<play::FilesModelItem> > files;
@@ -323,6 +324,7 @@ namespace tl
                 timelineui::ViewportBackgroundOptions());
             p.settings->setDefaultValue("Audio/Volume", 1.F);
             p.settings->setDefaultValue("Audio/Mute", false);
+            p.settings->setDefaultValue("Cache/Size", p.cacheSize);
             p.settings->setDefaultValue("Cache/ReadAhead",
                 p.playerCacheOptions.readAhead.value());
             p.settings->setDefaultValue("Cache/ReadBehind",
@@ -457,6 +459,15 @@ namespace tl
                 [this](const std::string&)
                 {
                     TLRENDER_P();
+                    {
+                        int value = 0;
+                        p.settings->getValue("Cache/Size", value);
+                        if (value != p.cacheSize)
+                        {
+                            p.cacheSize = value;
+                            _cacheUpdate();
+                        }
+                    }
                     {
                         double value = 0.0;
                         p.settings->getValue("Cache/ReadAhead", value);
@@ -857,7 +868,7 @@ namespace tl
             TLRENDER_P();
             const size_t activeCount = p.activeFiles.size();
             return otime::RationalTime(
-                p.playerCacheOptions.readAhead.value() / static_cast<double>(activeCount),
+                activeCount > 0 ? (p.playerCacheOptions.readAhead.value() / static_cast<double>(activeCount)) : 0.0,
                 1.0);
         }
 
@@ -866,7 +877,7 @@ namespace tl
             TLRENDER_P();
             const size_t activeCount = p.activeFiles.size();
             return otime::RationalTime(
-                p.playerCacheOptions.readBehind.value() / static_cast<double>(activeCount),
+                activeCount > 0 ? (p.playerCacheOptions.readBehind.value() / static_cast<double>(activeCount)) : 0.0,
                 1.0);
         }
 
@@ -874,12 +885,15 @@ namespace tl
         {
             TLRENDER_P();
 
-            const auto activePlayers = _getActivePlayers();
+            // Update the I/O cache.
+            auto ioSystem = _context->getSystem<io::System>();
+            ioSystem->getCache()->setMax(p.cacheSize * memory::gigabyte);
 
             // Update inactive players.
             timeline::PlayerCacheOptions cacheOptions;
             cacheOptions.readAhead = time::invalidTime;
             cacheOptions.readBehind = time::invalidTime;
+            const auto activePlayers = _getActivePlayers();
             for (const auto& player : p.players)
             {
                 const auto j = std::find(

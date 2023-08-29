@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlIO/IOSystem.h>
+#include <tlIO/System.h>
 
 #include <tlIO/Cineon.h>
 #include <tlIO/DPX.h>
@@ -41,42 +41,51 @@ namespace tl
 {
     namespace io
     {
+        struct System::Private
+        {
+            std::shared_ptr<Cache> cache;
+        };
+
         void System::_init(const std::shared_ptr<system::Context>& context)
         {
             ISystem::_init("tl::io::System", context);
+            TLRENDER_P();
+
+            p.cache = Cache::create();
 
             if (auto context = _context.lock())
             {
                 auto logSystem = context->getLogSystem();
-                _plugins.push_back(cineon::Plugin::create(logSystem));
-                _plugins.push_back(dpx::Plugin::create(logSystem));
-                _plugins.push_back(ppm::Plugin::create(logSystem));
-                _plugins.push_back(sgi::Plugin::create(logSystem));
+                _plugins.push_back(cineon::Plugin::create(p.cache, logSystem));
+                _plugins.push_back(dpx::Plugin::create(p.cache, logSystem));
+                _plugins.push_back(ppm::Plugin::create(p.cache, logSystem));
+                _plugins.push_back(sgi::Plugin::create(p.cache, logSystem));
 #if defined(TLRENDER_STB)
-                _plugins.push_back(stb::Plugin::create(logSystem));
+                _plugins.push_back(stb::Plugin::create(p.cache, logSystem));
 #endif
 #if defined(TLRENDER_FFMPEG)
-                _plugins.push_back(ffmpeg::Plugin::create(logSystem));
+                _plugins.push_back(ffmpeg::Plugin::create(p.cache, logSystem));
 #endif // TLRENDER_FFMPEG
 #if defined(TLRENDER_JPEG)
-                _plugins.push_back(jpeg::Plugin::create(logSystem));
+                _plugins.push_back(jpeg::Plugin::create(p.cache, logSystem));
 #endif // TLRENDER_JPEG
 #if defined(TLRENDER_EXR)
-                _plugins.push_back(exr::Plugin::create(logSystem));
+                _plugins.push_back(exr::Plugin::create(p.cache, logSystem));
 #endif // TLRENDER_EXR
 #if defined(TLRENDER_PNG)
-                _plugins.push_back(png::Plugin::create(logSystem));
+                _plugins.push_back(png::Plugin::create(p.cache, logSystem));
 #endif // TLRENDER_PNG
 #if defined(TLRENDER_TIFF)
-                _plugins.push_back(tiff::Plugin::create(logSystem));
+                _plugins.push_back(tiff::Plugin::create(p.cache, logSystem));
 #endif // TLRENDER_TIFF
 #if defined(TLRENDER_USD)
-                _plugins.push_back(usd::Plugin::create(logSystem));
+                _plugins.push_back(usd::Plugin::create(p.cache, logSystem));
 #endif // TLRENDER_USD
             }
         }
 
-        System::System()
+        System::System() :
+            _p(new Private)
         {}
 
         System::~System()
@@ -207,6 +216,11 @@ namespace tl
                 }
             }
             return nullptr;
+        }
+
+        const std::shared_ptr<Cache>& System::getCache() const
+        {
+            return _p->cache;
         }
     }
 }

@@ -5,7 +5,7 @@
 #include <tlIOTest/CineonTest.h>
 
 #include <tlIO/Cineon.h>
-#include <tlIO/IOSystem.h>
+#include <tlIO/System.h>
 
 #include <tlCore/Assert.h>
 

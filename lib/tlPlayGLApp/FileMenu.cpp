@@ -9,7 +9,7 @@
 #include <tlUI/FileBrowser.h>
 #include <tlUI/RecentFilesModel.h>
 
-#include <tlIO/IOSystem.h>
+#include <tlIO/System.h>
 
 namespace tl
 {

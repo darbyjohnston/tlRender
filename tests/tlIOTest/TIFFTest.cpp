@@ -4,7 +4,7 @@
 
 #include <tlIOTest/TIFFTest.h>
 
-#include <tlIO/IOSystem.h>
+#include <tlIO/System.h>
 #include <tlIO/TIFF.h>
 
 #include <tlCore/Assert.h>

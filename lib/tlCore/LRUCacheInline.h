@@ -126,7 +126,8 @@ namespace tl
         template<typename T, typename U>
         inline void LRUCache<T, U>::_maxUpdate()
         {
-            if (getSize() > _max)
+            size_t size = getSize();
+            if (size > _max)
             {
                 std::map<int64_t, T> sorted;
                 for (const auto& i : _counts)

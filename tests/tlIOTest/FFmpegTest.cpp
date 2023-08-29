@@ -4,8 +4,8 @@
 
 #include <tlIOTest/FFmpegTest.h>
 
-#include <tlIO/IOSystem.h>
 #include <tlIO/FFmpeg.h>
+#include <tlIO/System.h>
 
 #include <tlCore/Assert.h>
 #include <tlCore/FileIO.h>

@@ -4,7 +4,7 @@
 
 #include <tlUI/IconLibrary.h>
 
-#include <tlIO/IOSystem.h>
+#include <tlIO/System.h>
 
 #include <tlCore/StringFormat.h>
 #include <tlCore/LRUCache.h>

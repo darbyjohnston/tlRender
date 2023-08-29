@@ -22,9 +22,10 @@ namespace tl
             const file::Path& path,
             const std::vector<file::MemoryRead>& memory,
             const Options& options,
+            const std::shared_ptr<io::Cache>& cache,
             const std::weak_ptr<log::System>& logSystem)
         {
-            IRead::_init(path, memory, options, logSystem);
+            IRead::_init(path, memory, options, cache, logSystem);
 
             TLRENDER_P();
 
@@ -156,6 +157,7 @@ namespace tl
         {
             TLRENDER_P();
             auto request = std::make_shared<Private::VideoRequest>();
+            request->fileName = _path.get();
             request->time = time;
             request->layer = layer;
             auto future = request->promise.get_future();
@@ -238,25 +240,40 @@ namespace tl
                     auto request = videoRequests.front();
                     videoRequests.pop_front();
 
-                    //std::cout << "request: " << request.time << std::endl;
-                    bool seq = false;
-                    if (!_path.getNumber().empty())
+                    VideoData videoData;
+                    if (_cache &&
+                        _cache->getVideo(
+                        request->fileName,
+                        request->time,
+                        request->layer,
+                        videoData))
                     {
-                        seq = true;
-                        request->fileName = _path.get(static_cast<int>(request->time.value()));
+                        //std::cout << "cache: " << request->fileName << " " <<
+                        //    request->time << std::endl;
+                        request->promise.set_value(videoData);
                     }
                     else
                     {
-                        request->fileName = _path.get();
-                    }
-                    const std::string fileName = request->fileName;
-                    const otime::RationalTime time = request->time;
-                    const uint16_t layer = request->layer;
-                    request->future = std::async(
-                        std::launch::async,
-                        [this, seq, fileName, time, layer]
+                        //std::cout << "request: " << request->fileName << " " <<
+                        //    request->time << std::endl;
+                        bool seq = false;
+                        if (!_path.getNumber().empty())
                         {
-                            VideoData out;
+                            seq = true;
+                            request->fileName = _path.get(static_cast<int>(request->time.value()));
+                        }
+                        else
+                        {
+                            request->fileName = _path.get();
+                        }
+                        const std::string fileName = request->fileName;
+                        const otime::RationalTime time = request->time;
+                        const uint16_t layer = request->layer;
+                        request->future = std::async(
+                            std::launch::async,
+                            [this, seq, fileName, time, layer]
+                            {
+                                VideoData out;
                             try
                             {
                                 const int64_t frame = time.value();
@@ -275,8 +292,9 @@ namespace tl
                                 //! \todo How should this be handled?
                             }
                             return out;
-                        });
-                    p.thread.videoRequestsInProgress.push_back(request);
+                            });
+                        p.thread.videoRequestsInProgress.push_back(request);
+                    }
                 }
 
                 // Check for finished video requests.
@@ -291,8 +309,18 @@ namespace tl
                         (*requestIt)->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                     {
                         //std::cout << "finished: " << requestIt->time << std::endl;
-                        auto data = (*requestIt)->future.get();
-                        (*requestIt)->promise.set_value(data);
+                        auto videoData = (*requestIt)->future.get();
+                        (*requestIt)->promise.set_value(videoData);
+                        
+                        if (_cache)
+                        {
+                            _cache->addVideo(
+                                _path.get(),
+                                (*requestIt)->time,
+                                (*requestIt)->layer,
+                                videoData);
+                        }
+
                         requestIt = p.thread.videoRequestsInProgress.erase(requestIt);
                         continue;
                     }

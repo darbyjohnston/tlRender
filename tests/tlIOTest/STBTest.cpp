@@ -4,8 +4,8 @@
 
 #include <tlIOTest/STBTest.h>
 
-#include <tlIO/IOSystem.h>
 #include <tlIO/STB.h>
+#include <tlIO/System.h>
 
 #include <tlCore/Assert.h>
 

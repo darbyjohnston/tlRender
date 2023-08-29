@@ -9,8 +9,6 @@
 
 #include <tlTimeline/GLRender.h>
 
-#include <tlIO/IOSystem.h>
-
 #include <tlGL/GL.h>
 #include <tlGL/GLFWWindow.h>
 #include <tlGL/Mesh.h>

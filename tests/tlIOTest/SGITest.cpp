@@ -4,8 +4,8 @@
 
 #include <tlIOTest/SGITest.h>
 
-#include <tlIO/IOSystem.h>
 #include <tlIO/SGI.h>
+#include <tlIO/System.h>
 
 #include <tlCore/Assert.h>
 

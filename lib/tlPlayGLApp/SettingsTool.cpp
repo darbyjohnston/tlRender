@@ -29,6 +29,7 @@ namespace tl
     {
         struct CacheSettingsWidget::Private
         {
+            std::shared_ptr<ui::IntEdit> cacheSize;
             std::shared_ptr<ui::DoubleEdit> readAhead;
             std::shared_ptr<ui::DoubleEdit> readBehind;
             std::shared_ptr<ui::GridLayout> layout;
@@ -44,6 +45,9 @@ namespace tl
             IWidget::_init("tl::play_gl::CacheSettingsWidget", context, parent);
             TLRENDER_P();
 
+            p.cacheSize = ui::IntEdit::create(context);
+            p.cacheSize->setRange(math::IntRange(0, 1024));
+
             p.readAhead = ui::DoubleEdit::create(context);
             p.readAhead->setRange(math::DoubleRange(0.0, 60.0));
             p.readAhead->setStep(1.0);
@@ -57,16 +61,29 @@ namespace tl
             p.layout = ui::GridLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
             p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            auto label = ui::Label::create("Read ahead (seconds):", context, p.layout);
+            auto label = ui::Label::create("Cache size (GB):", context, p.layout);
             p.layout->setGridPos(label, 0, 0);
-            p.readAhead->setParent(p.layout);
-            p.layout->setGridPos(p.readAhead, 0, 1);
-            label = ui::Label::create("Read behind (seconds):", context, p.layout);
+            p.cacheSize->setParent(p.layout);
+            p.layout->setGridPos(p.cacheSize, 0, 1);
+            label = ui::Label::create("Read ahead (seconds):", context, p.layout);
             p.layout->setGridPos(label, 1, 0);
+            p.readAhead->setParent(p.layout);
+            p.layout->setGridPos(p.readAhead, 1, 1);
+            label = ui::Label::create("Read behind (seconds):", context, p.layout);
+            p.layout->setGridPos(label, 2, 0);
             p.readBehind->setParent(p.layout);
-            p.layout->setGridPos(p.readBehind, 1, 1);
+            p.layout->setGridPos(p.readBehind, 2, 1);
 
             auto appWeak = std::weak_ptr<App>(app);
+            p.cacheSize->setCallback(
+                [appWeak](double value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue("Cache/Size", value);
+                    }
+                });
+
             p.readAhead->setCallback(
                 [appWeak](double value)
                 {
@@ -93,6 +110,11 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto settings = app->getSettings();
+                        {
+                            int value = 0;
+                            settings->getValue<int>("Cache/Size", value);
+                            p.cacheSize->setValue(value);
+                        }
                         {
                             double value = 0.0;
                             settings->getValue<double>("Cache/ReadAhead", value);

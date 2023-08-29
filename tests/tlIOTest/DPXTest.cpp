@@ -5,7 +5,7 @@
 #include <tlIOTest/DPXTest.h>
 
 #include <tlIO/DPX.h>
-#include <tlIO/IOSystem.h>
+#include <tlIO/System.h>
 
 #include <tlCore/Assert.h>
 

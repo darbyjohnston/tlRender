@@ -236,6 +236,11 @@ namespace tl
             }
         }
 
+        void GLFWWindow::doneCurrent()
+        {
+            glfwMakeContextCurrent(nullptr);
+        }
+
         bool GLFWWindow::shouldClose() const
         {
             return glfwWindowShouldClose(_p->glfwWindow);

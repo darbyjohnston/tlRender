@@ -170,7 +170,9 @@ namespace tl
 
         std::weak_ptr<log::System> Plugin::_logSystemWeak;
 
-        void Plugin::_init(const std::weak_ptr<log::System>& logSystem)
+        void Plugin::_init(
+            const std::shared_ptr<io::Cache>& cache,
+            const std::weak_ptr<log::System>& logSystem)
         {
             IPlugin::_init(
                 "FFmpeg",
@@ -186,6 +188,7 @@ namespace tl
                     { ".mp3", io::FileType::Audio },
                     { ".aiff", io::FileType::Audio }
                 },
+                cache,
                 logSystem);
 
             _logSystemWeak = logSystem;
@@ -210,10 +213,12 @@ namespace tl
         Plugin::Plugin()
         {}
 
-        std::shared_ptr<Plugin> Plugin::create(const std::weak_ptr<log::System>& logSystem)
+        std::shared_ptr<Plugin> Plugin::create(
+            const std::shared_ptr<io::Cache>& cache,
+            const std::weak_ptr<log::System>& logSystem)
         {
             auto out = std::shared_ptr<Plugin>(new Plugin);
-            out->_init(logSystem);
+            out->_init(cache, logSystem);
             return out;
         }
 
@@ -221,7 +226,11 @@ namespace tl
             const file::Path& path,
             const io::Options& options)
         {
-            return Read::create(path, io::merge(options, _options), _logSystem);
+            return Read::create(
+                path,
+                io::merge(options, _options),
+                _cache,
+                _logSystem);
         }
 
         std::shared_ptr<io::IRead> Plugin::read(
@@ -229,7 +238,12 @@ namespace tl
             const std::vector<file::MemoryRead>& memory,
             const io::Options& options)
         {
-            return Read::create(path, memory, io::merge(options, _options), _logSystem);
+            return Read::create(
+                path,
+                memory,
+                io::merge(options, _options),
+                _cache,
+                _logSystem);
         }
 
         image::Info Plugin::getWriteInfo(
