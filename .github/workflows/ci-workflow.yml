@@ -343,7 +343,7 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: tlRender-macOS-Packages
-        path: build/tlRender/src/tlRender-build/tlRender-*.tar.gz
+        path: build/tlRender/src/tlRender-build/tlRender-*.dmg
 
   windows-build:
     runs-on: windows-latest
