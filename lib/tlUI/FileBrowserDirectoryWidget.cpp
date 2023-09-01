@@ -228,7 +228,7 @@ namespace tl
                     }
                     if (keep)
                     {
-                        auto button = Button::create(fileInfo, context);
+                        auto button = Button::create(fileInfo, p.options, context);
                         button->setParent(p.layout);
                         p.buttons.push_back(button);
                         p.buttonToIndex[button] = i;

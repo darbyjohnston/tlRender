@@ -21,6 +21,8 @@ namespace tl
             std::string search;
             std::string extension;
             file::ListOptions list;
+            bool thumbnails = true;
+            int thumbnailHeight = 100;
 
             bool operator == (const FileBrowserOptions&) const;
             bool operator != (const FileBrowserOptions&) const;

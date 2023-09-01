@@ -74,13 +74,7 @@ namespace tl
 
             TLRENDER_P();
 
-            auto i = options.find("FFmpeg/StartTime");
-            if (i != options.end())
-            {
-                std::stringstream ss(i->second);
-                ss >> p.options.startTime;
-            }
-            i = options.find("FFmpeg/YUVToRGBConversion");
+            auto i = options.find("FFmpeg/YUVToRGBConversion");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);

@@ -19,12 +19,10 @@ namespace tl
             otio::SerializableObject::Retainer<otio::Clip> clip;
             file::Path path;
             std::vector<file::MemoryRead> memoryRead;
-            otime::TimeRange availableRange = time::invalidTimeRange;
             std::weak_ptr<ui::ThumbnailSystem> thumbnailSystem;
 
             struct SizeData
             {
-                int thumbnailWidth = 0;
                 int dragLength = 0;
                 math::Box2i clipRect;
             };
@@ -60,22 +58,9 @@ namespace tl
                 context,
                 parent);
             TLRENDER_P();
-
             p.clip = clip;
             p.path = path;
             p.memoryRead = timeline::getMemoryRead(clip->media_reference());
-
-            otio::ErrorStatus error;
-            const otime::TimeRange availableRange = clip->available_range(&error);
-            if (!otio::is_error(error))
-            {
-                p.availableRange = availableRange;
-            }
-            else if (clip->source_range().has_value())
-            {
-                p.availableRange = clip->source_range().value();
-            }
-
             p.thumbnailSystem = context->getSystem<ui::ThumbnailSystem>();
         }
 
@@ -183,18 +168,6 @@ namespace tl
         {
             IBasicItem::sizeHintEvent(event);
             TLRENDER_P();
-            const int thumbnailWidth =
-                (_options.thumbnails && p.ioInfo && !p.ioInfo->video.empty()) ?
-                static_cast<int>(_options.thumbnailHeight * p.ioInfo->video[0].size.getAspect()) :
-                0;
-            if (thumbnailWidth != p.size.thumbnailWidth)
-            {
-                p.size.thumbnailWidth = thumbnailWidth;
-
-                p.thumbnails.clear();
-                _cancelRequests();
-                _updates |= ui::Update::Draw;
-            }
             p.size.dragLength = event.style->getSizeRole(ui::SizeRole::DragLength, event.displayScale);
             if (_options.thumbnails)
             {
@@ -268,25 +241,26 @@ namespace tl
             {
                 if (!p.ioInfo && !p.infoRequest.future.valid() && thumbnailSystem)
                 {
-                    p.infoRequest = thumbnailSystem->getInfo(
-                        p.path,
-                        p.memoryRead,
-                        p.availableRange.start_time());
+                    p.infoRequest = thumbnailSystem->getInfo(p.path, p.memoryRead);
                 }
             }
 
-            if (p.size.thumbnailWidth > 0 && thumbnailSystem)
+            const int thumbnailWidth =
+                (_options.thumbnails && p.ioInfo && !p.ioInfo->video.empty()) ?
+                static_cast<int>(_options.thumbnailHeight * p.ioInfo->video[0].size.getAspect()) :
+                0;
+            if (thumbnailWidth > 0 && thumbnailSystem)
             {
                 const auto now = std::chrono::steady_clock::now();
                 const int w = _sizeHint.w;
-                for (int x = 0; x < w; x += p.size.thumbnailWidth)
+                for (int x = 0; x < w; x += thumbnailWidth)
                 {
                     const math::Box2i box(
                         g.min.x +
                         x,
                         g.min.y +
                         _getLineHeight() + m * 2,
-                        p.size.thumbnailWidth,
+                        thumbnailWidth,
                         _options.thumbnailHeight);
                     if (box.intersects(clipRect))
                     {
@@ -324,10 +298,9 @@ namespace tl
                                     p.clip,
                                     p.ioInfo->videoTime.duration().rate());
                                 p.thumbnailRequests[time] = thumbnailSystem->getThumbnail(
-                                    math::Size2i(p.size.thumbnailWidth, _options.thumbnailHeight),
+                                    _options.thumbnailHeight,
                                     p.path,
                                     p.memoryRead,
-                                    p.availableRange.start_time(),
                                     mediaTime);
                             }
                         }

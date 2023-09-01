@@ -13,7 +13,9 @@ namespace tl
             return
                 search == other.search &&
                 extension == other.extension &&
-                list == other.list;
+                list == other.list &&
+                thumbnails == other.thumbnails &&
+                thumbnailHeight == other.thumbnailHeight;
         }
 
         bool FileBrowserOptions::operator != (const FileBrowserOptions& other) const

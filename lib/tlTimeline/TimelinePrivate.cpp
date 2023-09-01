@@ -452,18 +452,6 @@ namespace tl
                     const auto memoryRead = getMemoryRead(clip->media_reference());
                     io::Options options = ioOptions;
                     options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(timeRange.duration().rate());
-                    otio::ErrorStatus error;
-                    otime::RationalTime startTime = time::invalidTime;
-                    const otime::TimeRange availableRange = clip->available_range(&error);
-                    if (!otio::is_error(error))
-                    {
-                        startTime = availableRange.start_time();
-                    }
-                    else if (clip->source_range().has_value())
-                    {
-                        startTime = clip->source_range().value().start_time();
-                    }
-                    options["FFmpeg/StartTime"] = string::Format("{0}").arg(startTime);
                     const auto ioSystem = context->getSystem<io::System>();
                     out.read = ioSystem->read(path, memoryRead, options);
                     if (out.read)

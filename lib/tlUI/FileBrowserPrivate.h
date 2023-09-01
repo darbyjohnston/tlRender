@@ -57,6 +57,7 @@ namespace tl
         protected:
             void _init(
                 const file::FileInfo&,
+                const FileBrowserOptions&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -67,6 +68,7 @@ namespace tl
 
             static std::shared_ptr<Button> create(
                 const file::FileInfo&,
+                const FileBrowserOptions&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -74,6 +76,7 @@ namespace tl
 
             void setColumns(const std::vector<int>&);
 
+            void tickEvent(bool, bool, const TickEvent&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void clipEvent(
                 const math::Box2i&,

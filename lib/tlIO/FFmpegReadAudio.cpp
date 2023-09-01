@@ -199,11 +199,7 @@ namespace tl
                 }
 
                 otime::RationalTime startTime(0.0, sampleRate);
-                if (!time::compareExact(_options.startTime, time::invalidTime))
-                {
-                    startTime = _options.startTime.rescaled_to(sampleRate);
-                }
-                else if (!timecode.empty())
+                if (!timecode.empty())
                 {
                     otime::ErrorStatus errorStatus;
                     const otime::RationalTime time = otime::RationalTime::from_timecode(

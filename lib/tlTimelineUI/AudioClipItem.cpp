@@ -19,7 +19,6 @@ namespace tl
             otio::SerializableObject::Retainer<otio::Clip> clip;
             file::Path path;
             std::vector<file::MemoryRead> memoryRead;
-            otime::TimeRange availableRange = time::invalidTimeRange;
             std::weak_ptr<ui::ThumbnailSystem> thumbnailSystem;
 
             struct SizeData
@@ -59,22 +58,9 @@ namespace tl
                 context,
                 parent);
             TLRENDER_P();
-
             p.clip = clip;
             p.path = path;
             p.memoryRead = timeline::getMemoryRead(clip->media_reference());
-
-            otio::ErrorStatus error;
-            const otime::TimeRange availableRange = clip->available_range(&error);
-            if (!otio::is_error(error))
-            {
-                p.availableRange = availableRange;
-            }
-            else if (clip->source_range().has_value())
-            {
-                p.availableRange = clip->source_range().value();
-            }
-
             p.thumbnailSystem = context->getSystem<ui::ThumbnailSystem>();
         }
 
@@ -259,8 +245,7 @@ namespace tl
                 {
                     p.infoRequest = thumbnailSystem->getInfo(
                         p.path,
-                        p.memoryRead,
-                        p.availableRange.start_time());
+                        p.memoryRead);
                 }
             }
 
@@ -320,7 +305,6 @@ namespace tl
                                     box.getSize(),
                                     p.path,
                                     p.memoryRead,
-                                    p.availableRange.start_time(),
                                     mediaRange);
                             }
                         }

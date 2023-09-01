@@ -39,7 +39,6 @@ namespace tl
 
         struct Options
         {
-            otime::RationalTime startTime = time::invalidTime;
             bool yuvToRGBConversion = false;
             audio::Info audioConvertInfo;
             size_t threadCount = ffmpeg::threadCount;

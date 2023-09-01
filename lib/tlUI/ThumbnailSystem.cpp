@@ -39,17 +39,15 @@ namespace tl
                 uint64_t id = 0;
                 file::Path path;
                 std::vector<file::MemoryRead> memoryRead;
-                otime::RationalTime startTime = time::invalidTime;
                 std::promise<io::Info> promise;
             };
 
             struct ThumbnailRequest
             {
                 uint64_t id = 0;
-                math::Size2i size;
+                int height = 0;
                 file::Path path;
                 std::vector<file::MemoryRead> memoryRead;
-                otime::RationalTime startTime = time::invalidTime;
                 otime::RationalTime time = time::invalidTime;
                 uint16_t layer = 0;
                 std::promise<std::shared_ptr<image::Image> > promise;
@@ -61,8 +59,7 @@ namespace tl
                 math::Size2i size;
                 file::Path path;
                 std::vector<file::MemoryRead> memoryRead;
-                otime::RationalTime startTime = time::invalidTime;
-                otime::TimeRange range = time::invalidTimeRange;
+                otime::TimeRange timeRange = time::invalidTimeRange;
                 std::promise<std::shared_ptr<geom::TriangleMesh2> > promise;
             };
             
@@ -155,10 +152,14 @@ namespace tl
             return out;
         }
 
+        InfoRequest ThumbnailSystem::getInfo(const file::Path& path)
+        {
+            return getInfo(path, {});
+        }
+
         InfoRequest ThumbnailSystem::getInfo(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memoryRead,
-            const otime::RationalTime& startTime)
+            const std::vector<file::MemoryRead>& memoryRead)
         {
             TLRENDER_P();
             (p.requestId)++;
@@ -166,7 +167,6 @@ namespace tl
             request->id = p.requestId;
             request->path = path;
             request->memoryRead = memoryRead;
-            request->startTime = startTime;
             InfoRequest out;
             out.id = p.requestId;
             out.future = request->promise.get_future();
@@ -191,10 +191,18 @@ namespace tl
         }
 
         ThumbnailRequest ThumbnailSystem::getThumbnail(
-            const math::Size2i& size,
+            int height,
+            const file::Path& path,
+            const otime::RationalTime& time,
+            uint16_t layer)
+        {
+            return getThumbnail(height, path, {}, time, layer);
+        }
+
+        ThumbnailRequest ThumbnailSystem::getThumbnail(
+            int height,
             const file::Path& path,
             const std::vector<file::MemoryRead>& memoryRead,
-            const otime::RationalTime& startTime,
             const otime::RationalTime& time,
             uint16_t layer)
         {
@@ -202,10 +210,9 @@ namespace tl
             (p.requestId)++;
             auto request = std::make_shared<Private::ThumbnailRequest>();
             request->id = p.requestId;
-            request->size = size;
+            request->height = height;
             request->path = path;
             request->memoryRead = memoryRead;
-            request->startTime = startTime;
             request->time = time;
             request->layer = layer;
             ThumbnailRequest out;
@@ -234,9 +241,16 @@ namespace tl
         WaveformRequest ThumbnailSystem::getWaveform(
             const math::Size2i& size,
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memoryRead,
-            const otime::RationalTime& startTime,
             const otime::TimeRange& range)
+        {
+            return getWaveform(size, path, {}, range);
+        }
+
+        WaveformRequest ThumbnailSystem::getWaveform(
+            const math::Size2i& size,
+            const file::Path& path,
+            const std::vector<file::MemoryRead>& memoryRead,
+            const otime::TimeRange& timeRange)
         {
             TLRENDER_P();
             (p.requestId)++;
@@ -245,8 +259,7 @@ namespace tl
             request->size = size;
             request->path = path;
             request->memoryRead = memoryRead;
-            request->startTime = startTime;
-            request->range = range;
+            request->timeRange = timeRange;
             WaveformRequest out;
             out.id = p.requestId;
             out.future = request->promise.get_future();
@@ -437,26 +450,21 @@ namespace tl
                 return out;
             }
 
-            std::string getInfoKey(
-                const file::Path& path,
-                const otime::RationalTime& startTime)
+            std::string getInfoKey(const file::Path& path)
             {
                 return string::Format("{0}_{1}").
-                    arg(path.get()).
-                    arg(startTime);
+                    arg(path.get());
             }
 
             std::string getThumbnailKey(
-                const math::Size2i& size,
+                int height,
                 const file::Path& path,
-                const otime::RationalTime& startTime,
                 const otime::RationalTime& time,
                 uint16_t layer)
             {
                 return string::Format("{0}_{1}_{2}_{3}_{4}").
-                    arg(size).
+                    arg(height).
                     arg(path.get()).
-                    arg(startTime).
                     arg(time).
                     arg(layer);
             }
@@ -464,13 +472,11 @@ namespace tl
             std::string getWaveformKey(
                 const math::Size2i& size,
                 const file::Path& path,
-                const otime::RationalTime& startTime,
                 const otime::TimeRange& timeRange)
             {
                 return string::Format("{0}_{1}_{2}_{3}").
                     arg(size).
                     arg(path.get()).
-                    arg(startTime).
                     arg(timeRange);
             }
         }
@@ -529,9 +535,7 @@ namespace tl
                 for (const auto& infoRequest : infoRequests)
                 {
                     io::Info info;
-                    const std::string key = getInfoKey(
-                        infoRequest->path,
-                        infoRequest->startTime);
+                    const std::string key = getInfoKey(infoRequest->path);
                     if (!p.thread.infoCache.get(key, info))
                     {
                         const std::string& fileName = infoRequest->path.get();
@@ -542,14 +546,11 @@ namespace tl
                             if (auto context = _context.lock())
                             {
                                 auto ioSystem = context->getSystem<io::System>();
-                                io::Options options;
-                                options["FFmpeg/StartTime"] = string::Format("{0}").arg(infoRequest->startTime);
                                 try
                                 {
                                     read = ioSystem->read(
                                         infoRequest->path,
-                                        infoRequest->memoryRead,
-                                        options);
+                                        infoRequest->memoryRead);
                                     p.thread.ioCache.add(fileName, read);
                                 }
                                 catch (const std::exception&)
@@ -570,9 +571,8 @@ namespace tl
                 {
                     std::shared_ptr<image::Image> image;
                     const std::string key = getThumbnailKey(
-                        request->size,
+                        request->height,
                         request->path,
-                        request->startTime,
                         request->time,
                         request->layer);
                     if (!p.thread.thumbnailCache.get(key, image))
@@ -588,14 +588,11 @@ namespace tl
                                 if (auto context = _context.lock())
                                 {
                                     auto ioSystem = context->getSystem<io::System>();
-                                    io::Options options;
-                                    options["FFmpeg/StartTime"] = string::Format("{0}").arg(request->startTime);
                                     try
                                     {
                                         read = ioSystem->read(
                                             request->path,
-                                            request->memoryRead,
-                                            options);
+                                            request->memoryRead);
                                         p.thread.ioCache.add(fileName, read);
                                     }
                                     catch (const std::exception&)
@@ -604,33 +601,44 @@ namespace tl
                             }
                             if (read)
                             {
-                                auto videoData = read->readVideo(request->time).get();
+                                auto info = read->getInfo().get();
+                                otime::RationalTime time =
+                                    request->time != time::invalidTime ?
+                                    request->time :
+                                    info.videoTime.start_time();
+                                auto videoData = read->readVideo(time).get();
+                                math::Size2i size;
+                                if (!info.video.empty())
+                                {
+                                    size.h = request->height;
+                                    size.w = size.h * info.video[0].size.getAspect();
+                                }
                                 gl::OffscreenBufferOptions options;
                                 options.colorType = image::PixelType::RGB_F32;
-                                if (gl::doCreate(buffer, request->size, options))
+                                if (gl::doCreate(buffer, size, options))
                                 {
-                                    buffer = gl::OffscreenBuffer::create(request->size, options);
+                                    buffer = gl::OffscreenBuffer::create(size, options);
                                 }
                                 if (render && buffer && videoData.image)
                                 {
                                     try
                                     {
                                         gl::OffscreenBufferBinding binding(buffer);
-                                        render->begin(request->size);
+                                        render->begin(size);
                                         render->drawImage(
                                             videoData.image,
-                                            { math::Box2i(0, 0, request->size.w, request->size.h) });
+                                            { math::Box2i(0, 0, size.w, size.h) });
                                         render->end();
                                         image = image::Image::create(
-                                            request->size.w,
-                                            request->size.h,
+                                            size.w,
+                                            size.h,
                                             image::PixelType::RGBA_U8);
                                         glPixelStorei(GL_PACK_ALIGNMENT, 1);
                                         glReadPixels(
                                             0,
                                             0,
-                                            request->size.w,
-                                            request->size.h,
+                                            size.w,
+                                            size.h,
                                             GL_RGBA,
                                             GL_UNSIGNED_BYTE,
                                             image->getData());
@@ -654,8 +662,7 @@ namespace tl
                     const std::string key = getWaveformKey(
                         request->size,
                         request->path,
-                        request->startTime,
-                        request->range);
+                        request->timeRange);
                     if (!p.thread.waveformCache.get(key, mesh))
                     {
                         try
@@ -667,14 +674,11 @@ namespace tl
                                 if (auto context = _context.lock())
                                 {
                                     auto ioSystem = context->getSystem<io::System>();
-                                    io::Options options;
-                                    options["FFmpeg/StartTime"] = string::Format("{0}").arg(request->startTime);
                                     try
                                     {
                                         read = ioSystem->read(
                                             request->path,
-                                            request->memoryRead,
-                                            options);
+                                            request->memoryRead);
                                         p.thread.ioCache.add(fileName, read);
                                     }
                                     catch (const std::exception&)
@@ -683,7 +687,14 @@ namespace tl
                             }
                             if (read)
                             {
-                                auto audioData = read->readAudio(request->range).get();
+                                auto info = read->getInfo().get();
+                                otime::TimeRange timeRange =
+                                    request->timeRange != time::invalidTimeRange ?
+                                    request->timeRange :
+                                    otime::TimeRange(
+                                        otime::RationalTime(0.0, 1.0),
+                                        otime::RationalTime(1.0, 1.0));
+                                auto audioData = read->readAudio(timeRange).get();
                                 if (audioData.audio)
                                 {
                                     auto convert = audio::AudioConvert::create(

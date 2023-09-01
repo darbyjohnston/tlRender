@@ -55,27 +55,40 @@ namespace tl
                 const std::shared_ptr<system::Context>&);
 
             //! Get information.
+            InfoRequest getInfo(const file::Path&);
+
+            //! Get information.
             InfoRequest getInfo(
                 const file::Path&,
-                const std::vector<file::MemoryRead>&,
-                const otime::RationalTime& startTime);
+                const std::vector<file::MemoryRead>&);
 
-            //! Get video thumbnails.
+            //! Get a video thumbnail.
             ThumbnailRequest getThumbnail(
-                const math::Size2i&,
+                int height,
                 const file::Path&,
-                const std::vector<file::MemoryRead>&,
-                const otime::RationalTime& startTime,
-                const otime::RationalTime&,
+                const otime::RationalTime& = time::invalidTime,
                 uint16_t layer = 0);
 
-            //! Get audio waveforms.
+            //! Get a video thumbnail.
+            ThumbnailRequest getThumbnail(
+                int height,
+                const file::Path&,
+                const std::vector<file::MemoryRead>&,
+                const otime::RationalTime& = time::invalidTime,
+                uint16_t layer = 0);
+
+            //! Get an audio waveform.
+            WaveformRequest getWaveform(
+                const math::Size2i&,
+                const file::Path&,
+                const otime::TimeRange& = time::invalidTimeRange);
+
+            //! Get an audio waveform.
             WaveformRequest getWaveform(
                 const math::Size2i&,
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
-                const otime::RationalTime& startTime,
-                const otime::TimeRange&);
+                const otime::TimeRange& = time::invalidTimeRange);
 
             //! Cancel pending requests.
             void cancelRequests(std::vector<uint64_t>);
