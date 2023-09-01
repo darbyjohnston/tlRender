@@ -65,6 +65,7 @@ set(HEADERS
     Style.h
     StyleInline.h
     TabBar.h
+    ThumbnailSystem.h
     TimeEdit.h
     TimeLabel.h
     ToolButton.h
@@ -142,6 +143,7 @@ set(SOURCE
     StackLayout.cpp
     Style.cpp
     TabBar.cpp
+    ThumbnailSystem.cpp
     TimeEdit.cpp
     TimeLabel.cpp
     ToolButton.cpp

@@ -8,6 +8,7 @@
 
 #include <tlCore/Context.h>
 #include <tlCore/FileIO.h>
+#include <tlCore/ISystem.h>
 #include <tlCore/Mesh.h>
 #include <tlCore/Path.h>
 
@@ -15,7 +16,7 @@
 
 namespace tl
 {
-    namespace timelineui
+    namespace ui
     {
         //! Information request.
         struct InfoRequest
@@ -38,32 +39,29 @@ namespace tl
             std::future<std::shared_ptr<geom::TriangleMesh2> > future;
         };
 
-        //! I/O manager.
-        class IOManager : public std::enable_shared_from_this<IOManager>
+        //! Thumbnail system.
+        class ThumbnailSystem : public system::ISystem
         {
         protected:
-            void _init(
-                const io::Options&,
-                const std::shared_ptr<system::Context>&);
+            void _init(const std::shared_ptr<system::Context>&);
 
-            IOManager();
+            ThumbnailSystem();
 
         public:
-            ~IOManager();
+            ~ThumbnailSystem();
 
-            //! Create a new I/O manager.
-            static std::shared_ptr<IOManager> create(
-                const io::Options&,
+            //! Create a new system.
+            static std::shared_ptr<ThumbnailSystem> create(
                 const std::shared_ptr<system::Context>&);
 
-            //! Request information.
-            InfoRequest requestInfo(
+            //! Get information.
+            InfoRequest getInfo(
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
                 const otime::RationalTime& startTime);
 
-            //! Request video thumbnails.
-            ThumbnailRequest requestThumbnail(
+            //! Get video thumbnails.
+            ThumbnailRequest getThumbnail(
                 const math::Size2i&,
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
@@ -71,8 +69,8 @@ namespace tl
                 const otime::RationalTime&,
                 uint16_t layer = 0);
 
-            //! Request audio waveforms.
-            WaveformRequest requestWaveform(
+            //! Get audio waveforms.
+            WaveformRequest getWaveform(
                 const math::Size2i&,
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,

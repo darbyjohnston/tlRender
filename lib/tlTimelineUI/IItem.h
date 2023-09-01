@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlTimelineUI/IOManager.h>
-
 #include <tlUI/IWidget.h>
 
 #include <tlTimeline/TimeUnits.h>
@@ -25,7 +23,6 @@ namespace tl
             float speed = 0.0;
             std::string directory;
             timeline::Options options;
-            std::shared_ptr<IOManager> ioManager;
             std::shared_ptr<timeline::ITimeUnitsModel> timeUnitsModel;
         };
 

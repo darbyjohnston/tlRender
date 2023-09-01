@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlTimelineUI/IOManager.h>
+#include <tlUI/ThumbnailSystem.h>
 
 #include <tlTimeline/GLRender.h>
 
@@ -20,7 +20,7 @@
 
 namespace tl
 {
-    namespace timelineui
+    namespace ui
     {
         namespace
         {
@@ -29,13 +29,9 @@ namespace tl
             const size_t waveformRequestsMax = 3;
         }
 
-        struct IOManager::Private
+        struct ThumbnailSystem::Private
         {
-            std::weak_ptr<system::Context> context;
-            io::Options ioOptions;
-
             std::shared_ptr<gl::GLFWWindow> window;
-            
             uint64_t requestId = 0;
 
             struct InfoRequest
@@ -93,27 +89,13 @@ namespace tl
             Thread thread;
         };
 
-        void IOManager::_init(
-            const io::Options& ioOptions,
-            const std::shared_ptr<system::Context>& context)
+        void ThumbnailSystem::_init(const std::shared_ptr<system::Context>& context)
         {
+            ISystem::_init("tl::ui::ThumbnailSystem", context);
             TLRENDER_P();
 
-            p.context = context;
-            p.ioOptions = ioOptions;
-            {
-                std::stringstream ss;
-                ss << 1;
-                p.ioOptions["ffmpeg/VideoBufferSize"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << otime::RationalTime(1.0, 1.0);
-                p.ioOptions["ffmpeg/AudioBufferSize"] = ss.str();
-            }
-
             p.window = gl::GLFWWindow::create(
-                "tl::timelineui::IOManager",
+                "tl::timelineui::ThumbnailSystem",
                 math::Size2i(1, 1),
                 context,
                 static_cast<int>(gl::GLFWWindowOptions::None));
@@ -133,10 +115,10 @@ namespace tl
                     }
                     catch (const std::exception& e)
                     {
-                        if (auto context = p.context.lock())
+                        if (auto context = _context.lock())
                         {
                             context->log(
-                                "tl::timelineui::IOManager",
+                                "tl::timelineui::ThumbnailSystem",
                                 string::Format("Cannot make the OpenGL context current: {0}").
                                     arg(e.what()));
                         }
@@ -151,11 +133,11 @@ namespace tl
                 });
         }
 
-        IOManager::IOManager() :
+        ThumbnailSystem::ThumbnailSystem() :
             _p(new Private)
         {}
 
-        IOManager::~IOManager()
+        ThumbnailSystem::~ThumbnailSystem()
         {
             TLRENDER_P();
             p.thread.running = false;
@@ -165,16 +147,15 @@ namespace tl
             }
         }
 
-        std::shared_ptr<IOManager> IOManager::create(
-            const io::Options& options,
+        std::shared_ptr<ThumbnailSystem> ThumbnailSystem::create(
             const std::shared_ptr<system::Context>& context)
         {
-            auto out = std::shared_ptr<IOManager>(new IOManager);
-            out->_init(options, context);
+            auto out = std::shared_ptr<ThumbnailSystem>(new ThumbnailSystem);
+            out->_init(context);
             return out;
         }
 
-        InfoRequest IOManager::requestInfo(
+        InfoRequest ThumbnailSystem::getInfo(
             const file::Path& path,
             const std::vector<file::MemoryRead>& memoryRead,
             const otime::RationalTime& startTime)
@@ -209,7 +190,7 @@ namespace tl
             return out;
         }
 
-        ThumbnailRequest IOManager::requestThumbnail(
+        ThumbnailRequest ThumbnailSystem::getThumbnail(
             const math::Size2i& size,
             const file::Path& path,
             const std::vector<file::MemoryRead>& memoryRead,
@@ -250,7 +231,7 @@ namespace tl
             return out;
         }
 
-        WaveformRequest IOManager::requestWaveform(
+        WaveformRequest ThumbnailSystem::getWaveform(
             const math::Size2i& size,
             const file::Path& path,
             const std::vector<file::MemoryRead>& memoryRead,
@@ -289,7 +270,7 @@ namespace tl
             return out;
         }
 
-        void IOManager::cancelRequests(std::vector<uint64_t> ids)
+        void ThumbnailSystem::cancelRequests(std::vector<uint64_t> ids)
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -494,15 +475,16 @@ namespace tl
             }
         }
         
-        void IOManager::_run()
+        void ThumbnailSystem::_run()
         {
             TLRENDER_P();
             std::shared_ptr<timeline::GLRender> render;
-            if (auto context = p.context.lock())
+            if (auto context = _context.lock())
             {
                 render = timeline::GLRender::create(context);
             }
             std::shared_ptr<gl::OffscreenBuffer> buffer;
+            io::Options ioOptions;
             while (p.thread.running)
             {
                 // Check requests.
@@ -557,10 +539,10 @@ namespace tl
                         std::shared_ptr<io::IRead> read;
                         if (!p.thread.ioCache.get(fileName, read))
                         {
-                            if (auto context = p.context.lock())
+                            if (auto context = _context.lock())
                             {
                                 auto ioSystem = context->getSystem<io::System>();
-                                io::Options options = p.ioOptions;
+                                io::Options options;
                                 options["FFmpeg/StartTime"] = string::Format("{0}").arg(infoRequest->startTime);
                                 try
                                 {
@@ -603,10 +585,10 @@ namespace tl
                             std::shared_ptr<io::IRead> read;
                             if (!p.thread.ioCache.get(fileName, read))
                             {
-                                if (auto context = p.context.lock())
+                                if (auto context = _context.lock())
                                 {
                                     auto ioSystem = context->getSystem<io::System>();
-                                    io::Options options = p.ioOptions;
+                                    io::Options options;
                                     options["FFmpeg/StartTime"] = string::Format("{0}").arg(request->startTime);
                                     try
                                     {
@@ -682,10 +664,10 @@ namespace tl
                             std::shared_ptr<io::IRead> read;
                             if (!p.thread.ioCache.get(fileName, read))
                             {
-                                if (auto context = p.context.lock())
+                                if (auto context = _context.lock())
                                 {
                                     auto ioSystem = context->getSystem<io::System>();
-                                    io::Options options = p.ioOptions;
+                                    io::Options options;
                                     options["FFmpeg/StartTime"] = string::Format("{0}").arg(request->startTime);
                                     try
                                     {
@@ -721,7 +703,7 @@ namespace tl
             }
         }
         
-        void IOManager::_cancelRequests()
+        void ThumbnailSystem::_cancelRequests()
         {
             TLRENDER_P();
             std::list<std::shared_ptr<Private::InfoRequest> > infoRequests;

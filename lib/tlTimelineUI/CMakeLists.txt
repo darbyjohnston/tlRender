@@ -4,7 +4,6 @@ set(HEADERS
     GapItem.h
     IBasicItem.h
     IItem.h
-    IOManager.h
     Init.h
     TimelineItem.h
     TimelineViewport.h
@@ -19,7 +18,6 @@ set(SOURCE
     GapItem.cpp
     IBasicItem.cpp
     IItem.cpp
-    IOManager.cpp
     Init.cpp
     TimelineItem.cpp
     TimelineViewport.cpp

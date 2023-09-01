@@ -5,6 +5,7 @@
 #include <tlTimelineUI/VideoClipItem.h>
 
 #include <tlUI/DrawUtil.h>
+#include <tlUI/ThumbnailSystem.h>
 
 #include <tlTimeline/RenderUtil.h>
 #include <tlTimeline/Util.h>
@@ -19,6 +20,7 @@ namespace tl
             file::Path path;
             std::vector<file::MemoryRead> memoryRead;
             otime::TimeRange availableRange = time::invalidTimeRange;
+            std::weak_ptr<ui::ThumbnailSystem> thumbnailSystem;
 
             struct SizeData
             {
@@ -28,9 +30,9 @@ namespace tl
             };
             SizeData size;
 
-            InfoRequest infoRequest;
+            ui::InfoRequest infoRequest;
             std::unique_ptr<io::Info> ioInfo;
-            std::map<otime::RationalTime, ThumbnailRequest> thumbnailRequests;
+            std::map<otime::RationalTime, ui::ThumbnailRequest> thumbnailRequests;
             struct Thumbnail
             {
                 std::shared_ptr<image::Image> image;
@@ -60,7 +62,6 @@ namespace tl
             TLRENDER_P();
 
             p.clip = clip;
-
             p.path = path;
             p.memoryRead = timeline::getMemoryRead(clip->media_reference());
 
@@ -74,6 +75,8 @@ namespace tl
             {
                 p.availableRange = clip->source_range().value();
             }
+
+            p.thumbnailSystem = context->getSystem<ui::ThumbnailSystem>();
         }
 
         VideoClipItem::VideoClipItem() :
@@ -81,7 +84,9 @@ namespace tl
         {}
 
         VideoClipItem::~VideoClipItem()
-        {}
+        {
+            _cancelRequests();
+        }
 
         std::shared_ptr<VideoClipItem> VideoClipItem::create(
             const otio::SerializableObject::Retainer<otio::Clip>& clip,
@@ -258,18 +263,19 @@ namespace tl
             const math::Box2i clipRect = _getClipRect(
                 drawRect,
                 _options.clipRectScale);
+            auto thumbnailSystem = p.thumbnailSystem.lock();
             if (g.intersects(clipRect))
             {
-                if (!p.ioInfo && !p.infoRequest.future.valid())
+                if (!p.ioInfo && !p.infoRequest.future.valid() && thumbnailSystem)
                 {
-                    p.infoRequest = _data.ioManager->requestInfo(
+                    p.infoRequest = thumbnailSystem->getInfo(
                         p.path,
                         p.memoryRead,
                         p.availableRange.start_time());
                 }
             }
 
-            if (p.size.thumbnailWidth > 0)
+            if (p.size.thumbnailWidth > 0 && thumbnailSystem)
             {
                 const auto now = std::chrono::steady_clock::now();
                 const int w = _sizeHint.w;
@@ -317,7 +323,7 @@ namespace tl
                                     time,
                                     p.clip,
                                     p.ioInfo->videoTime.duration().rate());
-                                p.thumbnailRequests[time] = _data.ioManager->requestThumbnail(
+                                p.thumbnailRequests[time] = thumbnailSystem->getThumbnail(
                                     math::Size2i(p.size.thumbnailWidth, _options.thumbnailHeight),
                                     p.path,
                                     p.memoryRead,
@@ -342,18 +348,21 @@ namespace tl
         void VideoClipItem::_cancelRequests()
         {
             TLRENDER_P();
-            std::vector<uint64_t> ids;
-            if (p.infoRequest.future.valid())
+            if (auto thumbnailSystem = p.thumbnailSystem.lock())
             {
-                ids.push_back(p.infoRequest.id);
-                p.infoRequest = InfoRequest();
+                std::vector<uint64_t> ids;
+                if (p.infoRequest.future.valid())
+                {
+                    ids.push_back(p.infoRequest.id);
+                    p.infoRequest = ui::InfoRequest();
+                }
+                for (const auto& i : p.thumbnailRequests)
+                {
+                    ids.push_back(i.second.id);
+                }
+                p.thumbnailRequests.clear();
+                thumbnailSystem->cancelRequests(ids);
             }
-            for (const auto& i : p.thumbnailRequests)
-            {
-                ids.push_back(i.second.id);
-            }
-            p.thumbnailRequests.clear();
-            _data.ioManager->cancelRequests(ids);
         }
     }
 }

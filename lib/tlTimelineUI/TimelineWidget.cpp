@@ -13,7 +13,6 @@ namespace tl
         struct TimelineWidget::Private
         {
             std::shared_ptr<timeline::ITimeUnitsModel> timeUnitsModel;
-            std::shared_ptr<IOManager> ioManager;
             std::shared_ptr<timeline::Player> player;
             std::shared_ptr<observer::ValueObserver<bool> > timelineObserver;
             std::shared_ptr<observer::Value<bool> > editable;
@@ -95,16 +94,11 @@ namespace tl
             p.timelineObserver.reset();
             p.scrollWidget->setWidget(nullptr);
             p.timelineItem.reset();
-            p.ioManager.reset();
 
             p.player = player;
 
             if (p.player)
             {
-                p.ioManager = IOManager::create(
-                    p.player->getOptions().ioOptions,
-                    _context.lock());
-
                 p.timelineObserver = observer::ValueObserver<bool>::create(
                     p.player->getTimeline()->observeTimelineChanges(),
                     [this](bool)
@@ -518,7 +512,6 @@ namespace tl
                     itemData.speed = p.player->getDefaultSpeed();
                     itemData.directory = p.player->getPath().getDirectory();
                     itemData.options = p.player->getOptions();
-                    itemData.ioManager = p.ioManager;
                     itemData.timeUnitsModel = p.timeUnitsModel;
 
                     p.timelineItem = TimelineItem::create(
