@@ -10,8 +10,6 @@
 #include <tlCore/FileIO.h>
 #include <tlCore/Mesh.h>
 #include <tlCore/Path.h>
-#include <tlCore/Size.h>
-#include <tlCore/ValueObserver.h>
 
 #include <future>
 
@@ -19,6 +17,27 @@ namespace tl
 {
     namespace timelineui
     {
+        //! Information request.
+        struct InfoRequest
+        {
+            uint64_t id;
+            std::future<io::Info> future;
+        };
+
+        //! Video thumbnail request.
+        struct ThumbnailRequest
+        {
+            uint64_t id;
+            std::future<std::shared_ptr<image::Image> > future;
+        };
+
+        //! Audio waveform request.
+        struct WaveformRequest
+        {
+            uint64_t id;
+            std::future<std::shared_ptr<geom::TriangleMesh2> > future;
+        };
+
         //! I/O manager.
         class IOManager : public std::enable_shared_from_this<IOManager>
         {
@@ -38,13 +57,13 @@ namespace tl
                 const std::shared_ptr<system::Context>&);
 
             //! Request information.
-            std::future<io::Info> requestInfo(
+            InfoRequest requestInfo(
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
                 const otime::RationalTime& startTime);
 
             //! Request video thumbnails.
-            std::future<std::shared_ptr<image::Image> > requestVideo(
+            ThumbnailRequest requestThumbnail(
                 const math::Size2i&,
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
@@ -53,7 +72,7 @@ namespace tl
                 uint16_t layer = 0);
 
             //! Request audio waveforms.
-            std::future<std::shared_ptr<geom::TriangleMesh2> > requestAudio(
+            WaveformRequest requestWaveform(
                 const math::Size2i&,
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
@@ -61,10 +80,7 @@ namespace tl
                 const otime::TimeRange&);
 
             //! Cancel pending requests.
-            void cancelRequests();
-
-            //! Observe when pending requests are canceled.
-            std::shared_ptr<observer::IValue<bool> > observeCancelRequests() const;
+            void cancelRequests(std::vector<uint64_t>);
 
         private:
             void _run();

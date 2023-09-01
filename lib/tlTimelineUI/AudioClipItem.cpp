@@ -27,16 +27,15 @@ namespace tl
             };
             SizeData size;
 
-            std::future<io::Info> infoFuture;
+            InfoRequest infoRequest;
             std::unique_ptr<io::Info> ioInfo;
-            std::map<otime::RationalTime, std::future<std::shared_ptr<geom::TriangleMesh2> > > waveformFutures;
+            std::map<otime::RationalTime, WaveformRequest> waveformRequests;
             struct Waveform
             {
                 std::shared_ptr<geom::TriangleMesh2> mesh;
                 std::chrono::steady_clock::time_point time;
             };
             std::map<otime::RationalTime, Waveform> waveforms;
-            std::shared_ptr<observer::ValueObserver<bool> > cancelObserver;
         };
 
         void AudioClipItem::_init(
@@ -74,14 +73,6 @@ namespace tl
             {
                 p.availableRange = clip->source_range().value();
             }
-
-            p.cancelObserver = observer::ValueObserver<bool>::create(
-                _data.ioManager->observeCancelRequests(),
-                [this](bool)
-                {
-                    _p->infoFuture = std::future<io::Info>();
-                    _p->waveformFutures.clear();
-                });
         }
 
         AudioClipItem::AudioClipItem() :
@@ -115,7 +106,7 @@ namespace tl
             if (changed)
             {
                 p.waveforms.clear();
-                _data.ioManager->cancelRequests();
+                _cancelRequests();
                 _updates |= ui::Update::Draw;
             }
         }
@@ -132,7 +123,7 @@ namespace tl
             if (thumbnailsChanged)
             {
                 p.waveforms.clear();
-                _data.ioManager->cancelRequests();
+                _cancelRequests();
                 _updates |= ui::Update::Draw;
             }
         }
@@ -146,25 +137,25 @@ namespace tl
             TLRENDER_P();
 
             // Check if the I/O information is finished.
-            if (p.infoFuture.valid() &&
-                p.infoFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+            if (p.infoRequest.future.valid() &&
+                p.infoRequest.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
-                p.ioInfo = std::make_unique<io::Info>(p.infoFuture.get());
+                p.ioInfo = std::make_unique<io::Info>(p.infoRequest.future.get());
                 _updates |= ui::Update::Size;
                 _updates |= ui::Update::Draw;
             }
 
             // Check if any audio waveforms are finished.
             const auto now = std::chrono::steady_clock::now();
-            auto i = p.waveformFutures.begin();
-            while (i != p.waveformFutures.end())
+            auto i = p.waveformRequests.begin();
+            while (i != p.waveformRequests.end())
             {
-                if (i->second.valid() &&
-                    i->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                if (i->second.future.valid() &&
+                    i->second.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
-                    const auto mesh = i->second.get();
+                    const auto mesh = i->second.future.get();
                     p.waveforms[i->first] = { mesh, now };
-                    i = p.waveformFutures.erase(i);
+                    i = p.waveformRequests.erase(i);
                     _updates |= ui::Update::Draw;
                 }
                 else
@@ -208,7 +199,7 @@ namespace tl
             if (clipped)
             {
                 p.waveforms.clear();
-                _data.ioManager->cancelRequests();
+                _cancelRequests();
                 _updates |= ui::Update::Draw;
             }
         }
@@ -258,9 +249,9 @@ namespace tl
                 _options.clipRectScale);
             if (g.intersects(clipRect))
             {
-                if (!p.ioInfo && !p.infoFuture.valid())
+                if (!p.ioInfo && !p.infoRequest.future.valid())
                 {
-                    p.infoFuture = _data.ioManager->requestInfo(
+                    p.infoRequest = _data.ioManager->requestInfo(
                         p.path,
                         p.memoryRead,
                         p.availableRange.start_time());
@@ -307,8 +298,8 @@ namespace tl
                         }
                         else if (p.ioInfo && p.ioInfo->audio.isValid())
                         {
-                            const auto j = p.waveformFutures.find(time);
-                            if (j == p.waveformFutures.end())
+                            const auto j = p.waveformRequests.find(time);
+                            if (j == p.waveformRequests.end())
                             {
                                 const otime::RationalTime time2 = time::round(otime::RationalTime(
                                     _timeRange.start_time().value() +
@@ -319,7 +310,7 @@ namespace tl
                                     otime::TimeRange::range_from_start_end_time(time, time2),
                                     p.clip,
                                     p.ioInfo->audio.sampleRate);
-                                p.waveformFutures[time] = _data.ioManager->requestAudio(
+                                p.waveformRequests[time] = _data.ioManager->requestWaveform(
                                     box.getSize(),
                                     p.path,
                                     p.memoryRead,
@@ -339,6 +330,23 @@ namespace tl
                     p.waveforms.erase(j);
                 }
             }
+        }
+
+        void AudioClipItem::_cancelRequests()
+        {
+            TLRENDER_P();
+            std::vector<uint64_t> ids;
+            if (p.infoRequest.future.valid())
+            {
+                ids.push_back(p.infoRequest.id);
+                p.infoRequest = InfoRequest();
+            }
+            for (const auto& i : p.waveformRequests)
+            {
+                ids.push_back(i.second.id);
+            }
+            p.waveformRequests.clear();
+            _data.ioManager->cancelRequests(ids);
         }
     }
 }

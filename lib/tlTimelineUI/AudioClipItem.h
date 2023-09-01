@@ -58,6 +58,8 @@ namespace tl
                 const math::Box2i&,
                 const ui::DrawEvent&);
 
+            void _cancelRequests();
+
             TLRENDER_PRIVATE();
         };
     }
