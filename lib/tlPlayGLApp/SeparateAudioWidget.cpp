@@ -23,7 +23,8 @@ namespace tl
             std::shared_ptr<ui::PushButton> okButton;
             std::shared_ptr<ui::PushButton> cancelButton;
             std::shared_ptr<ui::VerticalLayout> layout;
-            std::function<void(const std::string&, const std::string&)> callback;
+
+            std::function<void(const file::Path&, const file::Path&)> callback;
             std::function<void(void)> cancelCallback;
         };
 
@@ -112,8 +113,8 @@ namespace tl
         }
 
         void SeparateAudioWidget::setCallback(const std::function<void(
-            const std::string&,
-            const std::string&)>& value)
+            const file::Path&,
+            const file::Path&)>& value)
         {
             _p->callback = value;
         }

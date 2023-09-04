@@ -59,7 +59,7 @@ namespace tl
         //! Create a new timeline from a file name. The file name can point
         //! to an .otio file, movie file, or image sequence.
         otio::SerializableObject::Retainer<otio::Timeline> create(
-            const std::string& fileName,
+            const file::Path&,
             const std::shared_ptr<system::Context>&,
             const Options& = Options(),
             const std::shared_ptr<ReadCache>& = nullptr);
@@ -68,8 +68,8 @@ namespace tl
         //! The file name can point to an .otio file, movie file, or
         //! image sequence.
         otio::SerializableObject::Retainer<otio::Timeline> create(
-            const std::string& fileName,
-            const std::string& audioFileName,
+            const file::Path& path,
+            const file::Path& audioPath,
             const std::shared_ptr<system::Context>&,
             const Options& = Options(),
             const std::shared_ptr<ReadCache>& = nullptr);
@@ -101,7 +101,7 @@ namespace tl
             //! Create a new timeline from a file name. The file name can point
             //! to an .otio file, movie file, or image sequence.
             static std::shared_ptr<Timeline> create(
-                const std::string& fileName,
+                const file::Path&,
                 const std::shared_ptr<system::Context>&,
                 const Options& = Options());
 
@@ -109,8 +109,8 @@ namespace tl
             //! The file name can point to an .otio file, movie file, or
             //! image sequence.
             static std::shared_ptr<Timeline> create(
-                const std::string& fileName,
-                const std::string& audioFileName,
+                const file::Path& path,
+                const file::Path& audioPath,
                 const std::shared_ptr<system::Context>&,
                 const Options& = Options());
 

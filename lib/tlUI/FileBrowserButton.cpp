@@ -21,12 +21,22 @@ namespace tl
             FileBrowserOptions options;
             std::vector<std::string> labels;
             std::vector<int> columns;
+            
             std::weak_ptr<ThumbnailSystem> thumbnailSystem;
-            InfoRequest infoRequest;
-            std::unique_ptr<io::Info> ioInfo;
-            ThumbnailRequest thumbnailRequest;
-            std::shared_ptr<image::Image> thumbnail;
-            std::chrono::steady_clock::time_point thumbnailTime;
+            struct InfoData
+            {
+                bool init = true;
+                InfoRequest request;
+                std::unique_ptr<io::Info> info;
+            };
+            InfoData info;
+            struct ThumbnailData
+            {
+                bool init = true;
+                ThumbnailRequest request;
+                std::shared_ptr<image::Image> image;
+            };
+            ThumbnailData thumbnail;
 
             struct SizeData
             {
@@ -110,7 +120,20 @@ namespace tl
         {}
 
         Button::~Button()
-        {}
+        {
+            TLRENDER_P();
+            if (auto thumbnailSystem = p.thumbnailSystem.lock())
+            {
+                if (p.info.request.future.valid())
+                {
+                    thumbnailSystem->cancelRequests({ p.info.request.id });
+                }
+                if (p.thumbnail.request.future.valid())
+                {
+                    thumbnailSystem->cancelRequests({ p.thumbnail.request.id });
+                }
+            }
+        }
 
         std::shared_ptr<Button> Button::create(
             const file::FileInfo& fileInfo,
@@ -140,19 +163,17 @@ namespace tl
         {
             IButton::tickEvent(parentsVisible, parentsEnabled, event);
             TLRENDER_P();
-            if (p.infoRequest.future.valid() &&
-                p.infoRequest.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+            if (p.info.request.future.valid() &&
+                p.info.request.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
-                p.ioInfo = std::make_unique<io::Info>(p.infoRequest.future.get());
+                p.info.info = std::make_unique<io::Info>(p.info.request.future.get());
                 _updates |= ui::Update::Size;
                 _updates |= ui::Update::Draw;
             }
-            const auto now = std::chrono::steady_clock::now();
-            if (p.thumbnailRequest.future.valid() &&
-                p.thumbnailRequest.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+            if (p.thumbnail.request.future.valid() &&
+                p.thumbnail.request.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
-                p.thumbnail = p.thumbnailRequest.future.get();
-                p.thumbnailTime = now;
+                p.thumbnail.image = p.thumbnail.request.future.get();
                 _updates |= ui::Update::Size;
                 _updates |= ui::Update::Draw;
             }
@@ -186,10 +207,10 @@ namespace tl
                 }
                 _sizeHint.h = p.size.fontMetrics.lineHeight;
             }
-            if (p.thumbnail)
+            if (p.thumbnail.image)
             {
-                _sizeHint.w += p.thumbnail->getWidth();
-                _sizeHint.h = std::max(_sizeHint.h, p.thumbnail->getHeight());
+                _sizeHint.w += p.thumbnail.image->getWidth();
+                _sizeHint.h = std::max(_sizeHint.h, p.thumbnail.image->getHeight());
             }
             else if (_iconImage)
             {
@@ -221,18 +242,23 @@ namespace tl
                 {
                     if (auto thumbnailSystem = p.thumbnailSystem.lock())
                     {
-                        p.infoRequest = thumbnailSystem->getInfo(p.fileInfo.getPath());
-                        p.thumbnailRequest = thumbnailSystem->getThumbnail(
-                            p.options.thumbnailHeight,
-                            p.fileInfo.getPath());
+                        if (p.info.init)
+                        {
+                            p.info.init = false;
+                            p.info.request = thumbnailSystem->getInfo(p.fileInfo.getPath());
+                        }
+                        if (p.thumbnail.init)
+                        {
+                            p.thumbnail.init = false;
+                            p.thumbnail.request = thumbnailSystem->getThumbnail(
+                                p.options.thumbnailHeight,
+                                p.fileInfo.getPath());
+                        }
                     }
                 }
             }
             else
             {
-                p.infoRequest = InfoRequest();
-                p.thumbnailRequest = ThumbnailRequest();
-                p.thumbnail.reset();
                 p.draw.glyphs.clear();
             }
         }
@@ -284,11 +310,11 @@ namespace tl
             // Draw the thumbnail or icon.
             const math::Box2i g2 = g.margin(-p.size.border * 2);
             int x = g2.x() + p.size.margin;
-            if (p.thumbnail)
+            if (p.thumbnail.image)
             {
-                const image::Size& size = p.thumbnail->getSize();
+                const image::Size& size = p.thumbnail.image->getSize();
                 event.render->drawImage(
-                    p.thumbnail,
+                    p.thumbnail.image,
                     math::Box2i(
                         x,
                         g2.y() + g2.h() / 2 - size.h / 2,

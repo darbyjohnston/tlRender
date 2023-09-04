@@ -2,12 +2,10 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlCore/FileInfo.h>
+#include <tlCore/FileInfoPrivate.h>
 
 #include <tlCore/Error.h>
 #include <tlCore/String.h>
-
-#include <fseq.h>
 
 #include <algorithm>
 #include <array>
@@ -31,6 +29,18 @@ namespace tl
         {
             std::string error;
             _stat(&error);
+        }
+
+        void FileInfo::sequence(const FileInfo& value)
+        {
+            math::IntRange sequence = _path.getSequence();
+            const math::IntRange& otherSequence = value.getPath().getSequence();
+            sequence.expand(otherSequence.getMin());
+            sequence.expand(otherSequence.getMax());
+            _path.setSequence(sequence);
+            _size += value._size;
+            _permissions = std::min(_permissions, value._permissions);
+            _time = std::max(_time, value._time);
         }
 
         TLRENDER_ENUM_IMPL(
@@ -59,35 +69,15 @@ namespace tl
             return !(*this == other);
         }
 
-        std::vector<FileInfo> list(const std::string& path, const ListOptions& options)
+        void list(
+            const std::string& path,
+            std::vector<FileInfo>& out,
+            const ListOptions& options)
         {
-            std::vector<FileInfo> out;
+            out.clear();
 
-            FSeqDirOptions dirOptions;
-            fseqDirOptionsInit(&dirOptions);
-            dirOptions.dotAndDotDotDirs = options.dotAndDotDotDirs;
-            dirOptions.dotFiles = options.dotFiles;
-            dirOptions.sequence = options.sequence;
-            dirOptions.fileNameOptions.negativeNumbers = options.negativeNumbers;
-            dirOptions.fileNameOptions.maxNumberDigits = options.maxNumberDigits;
-
-            FSeqBool error = FSEQ_FALSE;
-            auto dirList = fseqDirList(path.c_str(), &dirOptions, &error);
-            if (FSEQ_FALSE == error)
-            {
-                const std::string directory = appendSeparator(path);
-                for (auto entry = dirList; entry; entry = entry->next)
-                {
-                    out.push_back(FileInfo(Path(
-                        directory,
-                        entry->fileName.base,
-                        entry->fileName.number,
-                        entry->framePadding,
-                        entry->fileName.extension)));
-                }
-            }
-            fseqDirListDel(dirList);
-
+            _list(path, out, options);
+            
             std::function<int(const FileInfo& a, const FileInfo& b)> sort;
             switch (options.sort)
             {
@@ -135,12 +125,10 @@ namespace tl
                     [](const FileInfo& a, const FileInfo& b)
                     {
                         return
-                            static_cast<size_t>(a.getType()) >
-                            static_cast<size_t>(b.getType());
+                        static_cast<size_t>(a.getType()) >
+                    static_cast<size_t>(b.getType());
                     });
             }
-
-            return out;
         }
 
         void to_json(nlohmann::json& json, const ListOptions& value)

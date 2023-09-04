@@ -133,7 +133,7 @@ namespace tl
             }
 
             // Create a timeline player from the OTIO timeline.
-            auto timeline = Timeline::create(fileName, _context);
+            auto timeline = Timeline::create(file::Path(fileName), _context);
             auto player = Player::create(timeline, _context);
             TLRENDER_ASSERT(player->getTimeline());
             TLRENDER_ASSERT(fileName == player->getPath().get());

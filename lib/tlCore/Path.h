@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlCore/Range.h>
 #include <tlCore/Util.h>
 
 #include <nlohmann/json.hpp>
@@ -16,7 +17,7 @@ namespace tl
     namespace file
     {
         //! Path separators.
-        const std::vector<char> pathSeparators = { '/', '\\' };
+        const std::vector<char> pathSeparators = {'/', '\\'};
 
         //! Path separator.
 #if defined(_WINDOWS)
@@ -30,8 +31,8 @@ namespace tl
         {
             size_t maxNumberDigits = 9;
 
-            bool operator == (const PathOptions&) const;
-            bool operator != (const PathOptions&) const;
+            constexpr bool operator == (const PathOptions&) const;
+            constexpr bool operator != (const PathOptions&) const;
         };
 
         //! File system path.
@@ -65,6 +66,18 @@ namespace tl
             //! Get the number.
             const std::string& getNumber() const;
 
+            //! Get the number sequence.
+            const math::IntRange& getSequence() const;
+
+            //! Set the number sequence.
+            void setSequence(const math::IntRange&);
+
+            //! Get whether this path has a sequence.
+            bool isSequence() const;
+
+            //! Get whether the given path is part of this sequence.
+            bool sequence(const Path&) const;
+
             //! Get the number zero padding.
             uint8_t getPadding() const;
 
@@ -84,11 +97,15 @@ namespace tl
             std::string _directory;
             std::string _baseName;
             std::string _number;
+            math::IntRange _sequence;
             uint8_t _padding = 0;
             std::string _extension;
         };
 
-        //! Append a path separator to the end.
+        //! Get whether the given character is a path separator.
+        bool isPathSeparator(char);
+
+        //! Append a path separator.
         std::string appendSeparator(const std::string&);
 
         //! Get the parent directory.

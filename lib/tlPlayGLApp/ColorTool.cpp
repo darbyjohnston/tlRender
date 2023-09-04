@@ -96,7 +96,7 @@ namespace tl
                 [this](const timeline::ColorConfigOptions& value)
                 {
                     _p->enabledCheckBox->setChecked(value.enabled);
-                    _p->fileEdit->setPath(value.fileName);
+                    _p->fileEdit->setPath(file::Path(value.fileName));
                     _p->colorConfigModel->setConfigOptions(value);
                 });
 
@@ -116,7 +116,7 @@ namespace tl
                 [this](const play::ColorConfigModelData& value)
                 {
                     _p->enabledCheckBox->setChecked(value.enabled);
-                    _p->fileEdit->setPath(value.fileName);
+                    _p->fileEdit->setPath(file::Path(value.fileName));
                     _p->listWidgets["Input"]->setItems(value.inputs);
                     _p->listWidgets["Input"]->setCurrentItem(value.inputIndex);
                     _p->listWidgets["Display"]->setItems(value.displays);
@@ -138,9 +138,9 @@ namespace tl
                 });
 
             p.fileEdit->setCallback(
-                [this](const std::string& value)
+                [this](const file::Path& value)
                 {
-                    _p->colorConfigModel->setConfig(value);
+                    _p->colorConfigModel->setConfig(value.get());
                 });
 
             p.listWidgets["Input"]->setCallback(
@@ -248,7 +248,7 @@ namespace tl
                 [this](const timeline::LUTOptions& value)
                 {
                     _p->enabledCheckBox->setChecked(value.enabled);
-                    _p->fileEdit->setPath(value.fileName);
+                    _p->fileEdit->setPath(file::Path(value.fileName));
                     _p->orderComboBox->setCurrentIndex(static_cast<size_t>(value.order));
                 });
 
@@ -265,13 +265,13 @@ namespace tl
                 });
 
             p.fileEdit->setCallback(
-                [appWeak](const std::string& value)
+                [appWeak](const file::Path& value)
                 {
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getLUTOptions();
                         options.enabled = true;
-                        options.fileName = value;
+                        options.fileName = value.get();
                         app->getColorModel()->setLUTOptions(options);
                     }
                 });

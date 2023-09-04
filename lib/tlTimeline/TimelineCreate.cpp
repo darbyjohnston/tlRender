@@ -31,7 +31,7 @@ namespace tl
     {
         namespace
         {
-            file::Path _getAudioPath(
+            file::Path getAudioPath(
                 const file::Path& path,
                 const FileSequenceAudio& fileSequenceAudio,
                 const std::string& fileSequenceAudioFileName,
@@ -76,7 +76,9 @@ namespace tl
                     const file::Path directoryPath(path.getDirectory(), fileSequenceAudioDirectory, pathOptions);
                     file::ListOptions listOptions;
                     listOptions.maxNumberDigits = pathOptions.maxNumberDigits;
-                    for (const auto& fileInfo : file::list(directoryPath.get(), listOptions))
+                    std::vector<file::FileInfo> list;
+                    file::list(directoryPath.get(), list, listOptions);
+                    for (const auto& fileInfo : list)
                     {
                         if (file::Type::File == fileInfo.getType())
                         {
@@ -171,7 +173,7 @@ namespace tl
             void* reader = nullptr;
         };
 
-        otio::SerializableObject::Retainer<otio::Timeline> read(
+        otio::SerializableObject::Retainer<otio::Timeline> readOTIO(
             const file::Path& path,
             otio::ErrorStatus* errorStatus)
         {
@@ -347,19 +349,68 @@ namespace tl
         }
 
         otio::SerializableObject::Retainer<otio::Timeline> create(
-            const std::string& fileName,
+            const file::Path& path,
+            const std::shared_ptr<system::Context>& context,
+            const Options& options,
+            const std::shared_ptr<ReadCache>& readCache)
+        {
+            return create(path, file::Path(), context, options, readCache);
+        }
+
+        otio::SerializableObject::Retainer<otio::Timeline> create(
+            const file::Path& inputPath,
+            const file::Path& inputAudioPath,
             const std::shared_ptr<system::Context>& context,
             const Options& options,
             const std::shared_ptr<ReadCache>& readCache)
         {
             otio::SerializableObject::Retainer<otio::Timeline> out;
-            bool isSequence = false;
-            const file::Path path(fileName, options.pathOptions);
-            file::Path audioPath;
             std::string error;
+            file::Path path = inputPath;
+            file::Path audioPath = inputAudioPath;
             try
             {
                 auto ioSystem = context->getSystem<io::System>();
+
+                // Is the input a sequence?
+                const bool isSequence =
+                    io::FileType::Sequence == ioSystem->getFileType(path.getExtension()) &&
+                    !path.getNumber().empty();
+                if (isSequence)
+                {
+                    if (!path.isSequence())
+                    {
+                        // Check for other files in the sequence.
+                        std::vector<file::FileInfo> list;
+                        file::ListOptions listOptions;
+                        listOptions.maxNumberDigits = options.pathOptions.maxNumberDigits;
+                        file::list(path.getDirectory(), list, listOptions);
+                        const auto i = std::find_if(
+                            list.begin(),
+                            list.end(),
+                            [path](const file::FileInfo& value)
+                            {
+                                return value.getPath().sequence(path);
+                            });
+                        if (i != list.end())
+                        {
+                            path = i->getPath();
+                        }
+                    }
+                    if (audioPath.isEmpty())
+                    {
+                        // Check for an associated audio file.
+                        audioPath = getAudioPath(
+                            path,
+                            options.fileSequenceAudio,
+                            options.fileSequenceAudioFileName,
+                            options.fileSequenceAudioDirectory,
+                            options.pathOptions,
+                            context);
+                    }
+                }
+
+                // Is the input a video or audio file?
                 if (auto read = ioSystem->read(path, options.ioOptions))
                 {
                     const auto info = read->getInfo().get();
@@ -375,24 +426,26 @@ namespace tl
                     otio::Track* videoTrack = nullptr;
                     otio::Track* audioTrack = nullptr;
                     otio::ErrorStatus errorStatus;
+
+                    // Read the video.
                     if (!info.video.empty())
                     {
-                        startTime = info.videoTime.start_time();
-
+                        startTime = otime::RationalTime(0.0, info.videoTime.duration().rate());
                         auto videoClip = new otio::Clip;
                         videoClip->set_source_range(info.videoTime);
-                        isSequence = io::FileType::Sequence == ioSystem->getFileType(path.getExtension()) &&
-                            !path.getNumber().empty();
                         if (isSequence)
                         {
-                            videoClip->set_media_reference(new otio::ImageSequenceReference(
+                            startTime = info.videoTime.start_time();
+                            auto mediaReference = new otio::ImageSequenceReference(
                                 std::string(),
                                 path.getBaseName(),
                                 path.getExtension(),
                                 info.videoTime.start_time().value(),
                                 1,
                                 info.videoTime.duration().rate(),
-                                path.getPadding()));
+                                path.getPadding());
+                            mediaReference->set_available_range(info.videoTime);
+                            videoClip->set_media_reference(mediaReference);
                         }
                         else
                         {
@@ -406,47 +459,37 @@ namespace tl
                         {
                             throw std::runtime_error("Cannot append child");
                         }
+                    }
 
-                        if (isSequence)
+                    // Read the separate audio if provided.
+                    if (!audioPath.isEmpty())
+                    {
+                        if (auto audioRead = ioSystem->read(audioPath, options.ioOptions))
                         {
-                            audioPath = _getAudioPath(
-                                path,
-                                options.fileSequenceAudio,
-                                options.fileSequenceAudioFileName,
-                                options.fileSequenceAudioDirectory,
-                                options.pathOptions,
-                                context);
-                            if (!audioPath.isEmpty())
+                            const auto audioInfo = audioRead->getInfo().get();
+                            if (readCache)
                             {
-                                if (auto audioRead = ioSystem->read(audioPath, options.ioOptions))
-                                {
-                                    const auto audioInfo = audioRead->getInfo().get();
-                                    if (readCache)
-                                    {
-                                        ReadCacheItem item;
-                                        item.read = audioRead;
-                                        item.ioInfo = audioInfo;
-                                        readCache->add(item);
-                                    }
+                                ReadCacheItem item;
+                                item.read = audioRead;
+                                item.ioInfo = audioInfo;
+                                readCache->add(item);
+                            }
 
-                                    auto audioClip = new otio::Clip;
-                                    audioClip->set_source_range(audioInfo.audioTime);
-                                    audioClip->set_media_reference(new otio::ExternalReference(
-                                        audioPath.get(-1, false),
-                                        audioInfo.audioTime));
+                            auto audioClip = new otio::Clip;
+                            audioClip->set_source_range(audioInfo.audioTime);
+                            audioClip->set_media_reference(new otio::ExternalReference(
+                                audioPath.get(-1, false),
+                                audioInfo.audioTime));
 
-                                    audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
-                                    audioTrack->append_child(audioClip, &errorStatus);
-                                    if (otio::is_error(errorStatus))
-                                    {
-                                        throw std::runtime_error("Cannot append child");
-                                    }
-                                }
+                            audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
+                            audioTrack->append_child(audioClip, &errorStatus);
+                            if (otio::is_error(errorStatus))
+                            {
+                                throw std::runtime_error("Cannot append child");
                             }
                         }
                     }
-
-                    if (!audioTrack && info.audio.isValid())
+                    else if (info.audio.isValid())
                     {
                         if (time::compareExact(startTime, time::invalidTime))
                         {
@@ -467,6 +510,7 @@ namespace tl
                         }
                     }
 
+                    // Create the stack.
                     auto otioStack = new otio::Stack;
                     if (videoTrack)
                     {
@@ -485,6 +529,7 @@ namespace tl
                         }
                     }
 
+                    // Create the timeline.
                     out = new otio::Timeline(path.get());
                     out->set_tracks(otioStack);
                     if (time::isValid(startTime))
@@ -508,10 +553,11 @@ namespace tl
                 arg(path.get()).
                 arg(audioPath.get()));
 
+            // Is the input an OTIO file?
             if (!out)
             {
                 otio::ErrorStatus errorStatus;
-                out = read(path, &errorStatus);
+                out = readOTIO(path, &errorStatus);
                 if (otio::is_error(errorStatus))
                 {
                     out = nullptr;
@@ -519,163 +565,7 @@ namespace tl
                 }
                 else if (!out)
                 {
-                    error = string::Format("{0}: Cannot read timeline").arg(fileName);
-                }
-            }
-            if (!out)
-            {
-                throw std::runtime_error(error);
-            }
-
-            otio::AnyDictionary dict;
-            dict["path"] = path.get();
-            dict["audioPath"] = audioPath.get();
-            out->metadata()["tl::timeline"] = dict;
-
-            return out;
-        }
-
-        otio::SerializableObject::Retainer<otio::Timeline> create(
-            const std::string& fileName,
-            const std::string& audioFileName,
-            const std::shared_ptr<system::Context>& context,
-            const Options& options,
-            const std::shared_ptr<ReadCache>& readCache)
-        {
-            otio::SerializableObject::Retainer<otio::Timeline> out;
-            bool isSequence = false;
-            std::string error;
-            const file::Path path(fileName, options.pathOptions);
-            const file::Path audioPath(audioFileName, options.pathOptions);
-            try
-            {
-                auto ioSystem = context->getSystem<io::System>();
-                if (auto read = ioSystem->read(path, options.ioOptions))
-                {
-                    const auto info = read->getInfo().get();
-                    if (readCache)
-                    {
-                        ReadCacheItem item;
-                        item.read = read;
-                        item.ioInfo = info;
-                        readCache->add(item);
-                    }
-
-                    otime::RationalTime globalStartTime = time::invalidTime;
-                    otio::Track* videoTrack = nullptr;
-                    otio::Track* audioTrack = nullptr;
-                    otio::ErrorStatus errorStatus;
-                    if (!info.video.empty())
-                    {
-                        globalStartTime = otime::RationalTime(0.0, info.videoTime.duration().rate());
-                        auto videoClip = new otio::Clip;
-                        videoClip->set_source_range(info.videoTime);
-                        isSequence = io::FileType::Sequence == ioSystem->getFileType(path.getExtension()) &&
-                            !path.getNumber().empty();
-                        if (isSequence)
-                        {
-                            globalStartTime = info.videoTime.start_time();
-                            videoClip->set_media_reference(new otio::ImageSequenceReference(
-                                std::string(),
-                                path.getBaseName(),
-                                path.getExtension(),
-                                info.videoTime.start_time().value(),
-                                1,
-                                info.videoTime.duration().rate(),
-                                path.getPadding()));
-                        }
-                        else
-                        {
-                            videoClip->set_media_reference(new otio::ExternalReference(
-                                path.get(-1, false),
-                                info.videoTime));
-                        }
-                        videoTrack = new otio::Track("Video", otio::nullopt, otio::Track::Kind::video);
-                        videoTrack->append_child(videoClip, &errorStatus);
-                        if (otio::is_error(errorStatus))
-                        {
-                            throw std::runtime_error("Cannot append child");
-                        }
-                    }
-
-                    if (auto audioRead = ioSystem->read(audioPath, options.ioOptions))
-                    {
-                        const auto audioInfo = audioRead->getInfo().get();
-                        if (readCache)
-                        {
-                            ReadCacheItem item;
-                            item.read = audioRead;
-                            item.ioInfo = audioInfo;
-                            readCache->add(item);
-                        }
-
-                        auto audioClip = new otio::Clip;
-                        audioClip->set_source_range(audioInfo.audioTime);
-                        audioClip->set_media_reference(new otio::ExternalReference(
-                            audioPath.get(-1, false),
-                            audioInfo.audioTime));
-
-                        audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
-                        audioTrack->append_child(audioClip, &errorStatus);
-                        if (otio::is_error(errorStatus))
-                        {
-                            throw std::runtime_error("Cannot append child");
-                        }
-                    }
-
-                    auto otioStack = new otio::Stack;
-                    if (videoTrack)
-                    {
-                        otioStack->append_child(videoTrack, &errorStatus);
-                        if (otio::is_error(errorStatus))
-                        {
-                            throw std::runtime_error("Cannot append child");
-                        }
-                    }
-                    if (audioTrack)
-                    {
-                        otioStack->append_child(audioTrack, &errorStatus);
-                        if (otio::is_error(errorStatus))
-                        {
-                            throw std::runtime_error("Cannot append child");
-                        }
-                    }
-
-                    out = new otio::Timeline(path.get());
-                    out->set_tracks(otioStack);
-                    if (time::isValid(globalStartTime))
-                    {
-                        out->set_global_start_time(globalStartTime);
-                    }
-                }
-            }
-            catch (const std::exception& e)
-            {
-                error = e.what();
-            }
-
-            auto logSystem = context->getLogSystem();
-            logSystem->print(
-                "tl::timeline::create",
-                string::Format(
-                    "\n"
-                    "    Create from path: {0}\n"
-                    "    Audio path: {1}").
-                arg(path.get()).
-                arg(audioPath.get()));
-
-            if (!out)
-            {
-                otio::ErrorStatus errorStatus;
-                out = read(path, &errorStatus);
-                if (otio::is_error(errorStatus))
-                {
-                    out = nullptr;
-                    error = errorStatus.full_description;
-                }
-                else if (!out)
-                {
-                    error = string::Format("{0}: Cannot read timeline").arg(fileName);
+                    error = string::Format("{0}: Cannot read timeline").arg(path.get());
                 }
             }
             if (!out)
@@ -703,14 +593,14 @@ namespace tl
         }
 
         std::shared_ptr<Timeline> Timeline::create(
-            const std::string& fileName,
+            const file::Path& path,
             const std::shared_ptr<system::Context>& context,
             const Options& options)
         {
             auto out = std::shared_ptr<Timeline>(new Timeline);
             auto readCache = ReadCache::create();
             out->_init(
-                timeline::create(fileName, context, options, readCache),
+                timeline::create(path, context, options, readCache),
                 context,
                 options,
                 readCache);
@@ -718,15 +608,15 @@ namespace tl
         }
 
         std::shared_ptr<Timeline> Timeline::create(
-            const std::string& fileName,
-            const std::string& audioFileName,
+            const file::Path& path,
+            const file::Path& audioPath,
             const std::shared_ptr<system::Context>& context,
             const Options& options)
         {
             auto out = std::shared_ptr<Timeline>(new Timeline);
             auto readCache = ReadCache::create();
             out->_init(
-                timeline::create(fileName, audioFileName, context, options, readCache),
+                timeline::create(path, audioPath, context, options, readCache),
                 context,
                 options,
                 readCache);

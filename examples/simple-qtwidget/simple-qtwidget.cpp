@@ -40,11 +40,15 @@ int main(int argc, char* argv[])
         QScopedPointer<tl::qt::ContextObject> contextObject(
             new tl::qt::ContextObject(context));
 
+        // Create the timeline.
+        auto timeline = tl::timeline::Timeline::create(
+            tl::file::Path(argv[1]), context);
+
         // Create the timeline player.
-        auto timeline = tl::timeline::Timeline::create(argv[1], context);
-        auto player = tl::timeline::Player::create(timeline, context);
         QSharedPointer<tl::qt::TimelinePlayer> timelinePlayer(
-            new tl::qt::TimelinePlayer(player, context));
+            new tl::qt::TimelinePlayer(
+                tl::timeline::Player::create(timeline, context),
+                context));
 
         // Create the timeline viewport.
         auto timelineViewport = new tl::qtwidget::TimelineViewport(context);

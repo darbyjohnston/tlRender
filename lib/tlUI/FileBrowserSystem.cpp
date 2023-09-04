@@ -31,7 +31,6 @@ namespace tl
             TLRENDER_P();
 
             p.path = file::getCWD();
-            p.options.list.sequence = false;
             p.recentFilesModel = RecentFilesModel::create(context);
 
 #if defined(TLRENDER_NFD)
@@ -81,9 +80,12 @@ namespace tl
             {
                 if (auto context = _context.lock())
                 {
-                    p.fileBrowser = FileBrowser::create(p.path, context);
+                    if (!p.fileBrowser)
+                    {
+                        p.fileBrowser = FileBrowser::create(p.path, context);
+                        p.fileBrowser->setRecentFilesModel(p.recentFilesModel);
+                    }
                     p.fileBrowser->setOptions(p.options);
-                    p.fileBrowser->setRecentFilesModel(p.recentFilesModel);
                     p.fileBrowser->open(eventLoop);
                     p.fileBrowser->setCallback(
                         [this, callback](const file::FileInfo& value)
@@ -96,7 +98,6 @@ namespace tl
                         {
                             _p->path = _p->fileBrowser->getPath();
                             _p->options = _p->fileBrowser->getOptions();
-                            _p->fileBrowser.reset();
                         });
                 }
             }

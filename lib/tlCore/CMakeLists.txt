@@ -16,6 +16,7 @@ set(HEADERS
     FileIOInline.h
     FileInfo.h
     FileInfoInline.h
+    FileInfoPrivate.h
     FileLogSystem.h
     FontSystem.h
     FontSystemInline.h

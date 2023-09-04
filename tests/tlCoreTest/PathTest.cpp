@@ -72,12 +72,29 @@ namespace tl
                 const std::vector<Data> data =
                 {
                     { "", "", "", "", 0, "" },
+                    { "f", "", "f", "", 0, "" },
                     { "file", "", "file", "", 0, "" },
                     { "file.txt", "", "file", "", 0, ".txt" },
                     { "/tmp/file.txt", "/tmp/", "file", "", 0, ".txt" },
                     { "/tmp/render.1.exr", "/tmp/", "render.", "1", 0, ".exr" },
                     { "/tmp/render.0001.exr", "/tmp/", "render.", "0001", 4, ".exr" },
-                    { "/tmp/render0001.exr", "/tmp/", "render", "0001", 4, ".exr" }
+                    { "/tmp/render0001.exr", "/tmp/", "render", "0001", 4, ".exr" },
+                    { ".", "", ".", "", 0, "" },
+                    { "..", "", "..", "", 0, "" },
+                    { "/.", "/", ".", "", 0, "" },
+                    { "./", "./", "", "", 0, "" },
+                    { ".dotfile", "", ".dotfile", "", 0, "" },
+                    { "/tmp/.dotfile", "/tmp/", ".dotfile", "", 0, "" },
+                    { "/tmp/.dotdir/.dotfile", "/tmp/.dotdir/", ".dotfile", "", 0, "" },
+                    { "0", "", "", "0", 0, "" },
+                    { "0001", "", "", "0001", 4, "" },
+                    { "/tmp/0001", "/tmp/", "", "0001", 4, "" },
+                    { "/tmp/0001.exr", "/tmp/", "", "0001", 4, ".exr" },
+                    { "0001.exr", "", "", "0001", 4, ".exr" },
+                    { "1.exr", "", "", "1", 0, ".exr" },
+                    { "C:", "C:", "", "", 0, "" },
+                    { "C:/", "C:/", "", "", 0, "" },
+                    { "C:/tmp/file.txt", "C:/tmp/", "file", "", 0, ".txt" }
                 };
                 for (const auto& i : data)
                 {

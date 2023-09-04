@@ -63,6 +63,7 @@ namespace tl
             math::Size2i frameBufferSize;
             math::Vector2f contentScale;
             bool fullScreen = false;
+            math::Size2i restoreSize;
             bool floatOnTop = false;
 
             std::function<void(const math::Size2i)> sizeCallback;
@@ -259,8 +260,7 @@ namespace tl
             p.fullScreen = value;
             if (p.fullScreen)
             {
-                glfwGetWindowSize(_p->glfwWindow, &p.size.w, &p.size.h);
-
+                glfwGetWindowSize(_p->glfwWindow, &p.restoreSize.w, &p.restoreSize.h);
                 GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
                 const GLFWvidmode* glfwVidmode = glfwGetVideoMode(glfwMonitor);
                 glfwGetWindowPos(p.glfwWindow, &p.pos.x, &p.pos.y);
@@ -281,8 +281,8 @@ namespace tl
                     NULL,
                     p.pos.x,
                     p.pos.y,
-                    p.size.w,
-                    p.size.h,
+                    p.restoreSize.w,
+                    p.restoreSize.h,
                     0);
             }
         }

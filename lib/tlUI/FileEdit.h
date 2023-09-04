@@ -6,6 +6,8 @@
 
 #include <tlUI/IWidget.h>
 
+#include <tlCore/Path.h>
+
 namespace tl
 {
     namespace ui
@@ -31,13 +33,13 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the path.
-            void setPath(const std::string&);
+            void setPath(const file::Path&);
 
             //! Get the path.
-            const std::string& getPath() const;
+            const file::Path& getPath() const;
 
             //! Set the callback.
-            void setCallback(const std::function<void(const std::string&)>&);
+            void setCallback(const std::function<void(const file::Path&)>&);
 
             void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;

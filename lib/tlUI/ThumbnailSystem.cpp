@@ -494,6 +494,9 @@ namespace tl
             while (p.thread.running)
             {
                 // Check requests.
+                size_t infoRequestsSize = 0;
+                size_t thumbnailRequestsSize = 0;
+                size_t waveformRequestsSize = 0;
                 std::list<std::shared_ptr<Private::InfoRequest> > infoRequests;
                 std::list<std::shared_ptr<Private::ThumbnailRequest> > thumbnailRequests;
                 std::list<std::shared_ptr<Private::WaveformRequest> > waveformRequests;
@@ -510,6 +513,9 @@ namespace tl
                                 !_p->mutex.waveformRequests.empty();
                         }))
                     {
+                        infoRequestsSize = p.mutex.infoRequests.size();
+                        thumbnailRequestsSize = p.mutex.thumbnailRequests.size();
+                        waveformRequestsSize = p.mutex.waveformRequests.size();
                         while (!p.mutex.infoRequests.empty() &&
                             infoRequests.size() < infoRequestsMax)
                         {
@@ -529,6 +535,12 @@ namespace tl
                             p.mutex.waveformRequests.pop_front();
                         }
                     }
+                }
+                if (infoRequestsSize || thumbnailRequestsSize || waveformRequestsSize)
+                {
+                    //std::cout << "info requests: " << infoRequestsSize << std::endl;
+                    //std::cout << "thumbnail requests: " << thumbnailRequestsSize << std::endl;
+                    //std::cout << "waveform requests: " << waveformRequestsSize << std::endl;
                 }
                                 
                 // Handle information requests.

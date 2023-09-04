@@ -267,7 +267,10 @@ namespace tl
                         options.ioOptions["FFmpeg/ThreadCount"] = string::Format("{0}").arg(1);
                         try
                         {
-                            request.timeline = timeline::Timeline::create(request.fileName.toUtf8().data(), context, options);
+                            request.timeline = timeline::Timeline::create(
+                                file::Path(request.fileName.toUtf8().data()),
+                                context,
+                                options);
                             for (const auto& i : request.times)
                             {
                                 request.futures.push_back(request.timeline->getVideo(

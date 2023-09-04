@@ -112,8 +112,7 @@ int main(int argc, char* argv[])
     std::vector<std::shared_ptr<tests::ITest> > tests;
     if (0)
     {
-        tests.push_back(core_tests::SizeTest::create(context));
-        tests.push_back(core_tests::VectorTest::create(context));
+        tests.push_back(timeline_tests::TimelineTest::create(context));
     }
     else
     {

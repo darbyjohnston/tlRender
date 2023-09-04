@@ -648,7 +648,10 @@ namespace tl
             file::PathOptions pathOptions;
             pathOptions.maxNumberDigits = p.settingsObject->value(
                 "FileSequence/MaxDigits").toInt();
-            for (const auto& path : timeline::getPaths(fileName.toUtf8().data(), pathOptions, _context))
+            for (const auto& path : timeline::getPaths(
+                file::Path(fileName.toUtf8().data()),
+                pathOptions,
+                _context))
             {
                 auto item = std::make_shared<play::FilesModelItem>();
                 item->path = path;
@@ -739,8 +742,8 @@ namespace tl
                         options.pathOptions.maxNumberDigits =
                             p.settingsObject->value("FileSequence/MaxDigits").toInt();
                         auto otioTimeline = items[i]->audioPath.isEmpty() ?
-                            timeline::create(items[i]->path.get(), _context, options) :
-                            timeline::create(items[i]->path.get(), items[i]->audioPath.get(), _context, options);
+                            timeline::create(items[i]->path, _context, options) :
+                            timeline::create(items[i]->path, items[i]->audioPath, _context, options);
                         if (0)
                         {
                             createMemoryTimeline(

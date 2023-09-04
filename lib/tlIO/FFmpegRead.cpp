@@ -466,7 +466,7 @@ namespace tl
                         {
                             request = p.audioMutex.requests.front();
                             p.audioMutex.requests.pop_front();
-                            requestSampleCount = request->timeRange.duration().value();
+                            requestSampleCount = request->timeRange.duration().rescaled_to(p.info.audio.sampleRate).value();
                             if (!time::compareExact(
                                 request->timeRange.start_time(),
                                 p.audioThread.currentTime))

@@ -129,7 +129,9 @@ namespace tl
                 }
 
                 // Read the timelines.
-                auto timeline = timeline::Timeline::create(_input, _context);
+                auto timeline = timeline::Timeline::create(
+                    file::Path(_input),
+                    _context);
                 auto player = timeline::Player::create(timeline, _context);
                 _players.push_back(player);
                 auto ioInfo = player->getIOInfo();
@@ -140,7 +142,9 @@ namespace tl
                 _videoData.push_back(timeline::VideoData());
                 if (!_options.compareFileName.empty())
                 {
-                    timeline = timeline::Timeline::create(_options.compareFileName, _context);
+                    timeline = timeline::Timeline::create(
+                        file::Path(_options.compareFileName),
+                        _context);
                     player = timeline::Player::create(timeline, _context);
                     player->setExternalTime(_players[0]);
                     _players.push_back(player);

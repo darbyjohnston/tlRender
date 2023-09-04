@@ -40,8 +40,6 @@ namespace tl
 
             setBackgroundRole(ColorRole::Base);
 
-            p.options.list.sequence = false;
-
             p.buttonGroup = ButtonGroup::create(ButtonGroupType::Click, context);
 
             p.layout = VerticalLayout::create(context, shared_from_this());
@@ -108,7 +106,6 @@ namespace tl
             if (value == p.options)
                 return;
             p.options = value;
-            p.options.list.sequence = false;
             _directoryUpdate();
         }
 
@@ -203,7 +200,7 @@ namespace tl
             p.buttons.clear();
             p.buttonToIndex.clear();
             p.buttonGroup->clearButtons();
-            p.fileInfos = file::list(p.path, p.options.list);
+            file::list(p.path, p.fileInfos, p.options.list);
             if (auto context = _context.lock())
             {
                 for (size_t i = 0; i < p.fileInfos.size(); ++i)

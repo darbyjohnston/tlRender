@@ -17,12 +17,12 @@ namespace tl
     {
         struct FileEdit::Private
         {
-            std::string path;
+            file::Path path;
             std::shared_ptr<LineEdit> lineEdit;
             std::shared_ptr<ToolButton> browseButton;
             std::shared_ptr<ToolButton> clearButton;
             std::shared_ptr<HorizontalLayout> layout;
-            std::function<void(const std::string&)> callback;
+            std::function<void(const file::Path&)> callback;
         };
 
         void FileEdit::_init(
@@ -54,7 +54,7 @@ namespace tl
             p.lineEdit->setTextCallback(
                 [this](const std::string& value)
                 {
-                    _p->path = value;
+                    _p->path = file::Path(value);
                     if (_p->callback)
                     {
                         _p->callback(_p->path);
@@ -71,7 +71,7 @@ namespace tl
                 [this]
                 {
                     _p->lineEdit->clearText();
-                    _p->path = std::string();
+                    _p->path = file::Path();
                     if (_p->callback)
                     {
                         _p->callback(_p->path);
@@ -95,21 +95,21 @@ namespace tl
             return out;
         }
 
-        void FileEdit::setPath(const std::string& value)
+        void FileEdit::setPath(const file::Path& value)
         {
             TLRENDER_P();
             if (value == p.path)
                 return;
             p.path = value;
-            p.lineEdit->setText(value);
+            p.lineEdit->setText(value.get());
         }
 
-        const std::string& FileEdit::getPath() const
+        const file::Path& FileEdit::getPath() const
         {
             return _p->path;
         }
 
-        void FileEdit::setCallback(const std::function<void(const std::string&)>& value)
+        void FileEdit::setCallback(const std::function<void(const file::Path&)>& value)
         {
             _p->callback = value;
         }
@@ -139,8 +139,8 @@ namespace tl
                             eventLoop,
                             [this](const file::FileInfo& value)
                             {
-                                _p->path = value.getPath().get();
-                                _p->lineEdit->setText(_p->path);
+                                _p->path = value.getPath();
+                                _p->lineEdit->setText(_p->path.get());
                                 if (_p->callback)
                                 {
                                     _p->callback(_p->path);

@@ -53,8 +53,11 @@ namespace tl
             //! Get the file permissions.
             int getPermissions() const;
 
-            //! Get the file last modification time.
+            //! Get the last modification time.
             time_t getTime() const;
+
+            //! Expand the sequence.
+            void sequence(const FileInfo&);
 
         private:
             bool _stat(std::string* error);
@@ -98,9 +101,10 @@ namespace tl
         };
 
         //! Get the contents of the given directory.
-        std::vector<FileInfo> list(
+        void list(
             const std::string&,
-            const ListOptions & = ListOptions());
+            std::vector<FileInfo>&,
+            const ListOptions& = ListOptions());
 
         //! \name Serialize
         ///@{

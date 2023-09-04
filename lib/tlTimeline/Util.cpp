@@ -162,12 +162,11 @@ namespace tl
         }
 
         std::vector<file::Path> getPaths(
-            const std::string& fileName,
+            const file::Path& path,
             const file::PathOptions& pathOptions,
             const std::shared_ptr<system::Context>& context)
         {
             std::vector<file::Path> out;
-            const auto path = file::Path(fileName);
             const auto fileInfo = file::FileInfo(path);
             switch (fileInfo.getType())
             {
@@ -176,39 +175,15 @@ namespace tl
                 auto ioSystem = context->getSystem<io::System>();
                 file::ListOptions listOptions;
                 listOptions.maxNumberDigits = pathOptions.maxNumberDigits;
-                for (const auto& fileInfo : file::list(fileName, listOptions))
+                std::vector<file::FileInfo> list;
+                file::list(path.get(), list, listOptions);
+                for (const auto& fileInfo : list)
                 {
                     const file::Path& path = fileInfo.getPath();
                     const std::string extension = string::toLower(path.getExtension());
                     switch (ioSystem->getFileType(extension))
                     {
                     case io::FileType::Sequence:
-                    {
-                        if (out.empty() || path.getNumber().empty())
-                        {
-                            out.push_back(path);
-                        }
-                        else
-                        {
-                            bool exists = false;
-                            for (const auto& i : out)
-                            {
-                                if (i.getDirectory() == path.getDirectory() &&
-                                    i.getBaseName() == path.getBaseName() &&
-                                    !i.getNumber().empty() &&
-                                    i.getPadding() == path.getPadding())
-                                {
-                                    exists = true;
-                                    break;
-                                }
-                            }
-                            if (!exists)
-                            {
-                                out.push_back(path);
-                            }
-                        }
-                        break;
-                    }
                     case io::FileType::Movie:
                     case io::FileType::Audio:
                         out.push_back(path);
@@ -275,6 +250,7 @@ namespace tl
             file::PathOptions pathOptions)
         {
             std::string url;
+            math::IntRange sequence;
             if (auto externalRef = dynamic_cast<const otio::ExternalReference*>(ref))
             {
                 url = externalRef->target_url();
@@ -289,6 +265,9 @@ namespace tl
                     imageSequenceRef->start_frame() <<
                     imageSequenceRef->name_suffix();
                 url = ss.str();
+                sequence = math::IntRange(
+                    imageSequenceRef->start_frame(),
+                    imageSequenceRef->end_frame());
             }
             else if (auto rawMemoryRef = dynamic_cast<const RawMemoryReference*>(ref))
             {
@@ -308,7 +287,12 @@ namespace tl
             {
                 url = sharedMemorySequenceRef->target_url();
             }
-            return timeline::getPath(url, directory, pathOptions);
+            file::Path out = timeline::getPath(url, directory, pathOptions);
+            if (sequence.getMin() != sequence.getMax())
+            {
+                out.setSequence(sequence);
+            }
+            return out;
         }
 
         std::vector<file::MemoryRead> getMemoryRead(

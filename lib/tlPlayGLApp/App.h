@@ -56,8 +56,8 @@ namespace tl
 
             //! Open a file.
             void open(
-                const std::string&,
-                const std::string& audioFileName = std::string());
+                const file::Path& path,
+                const file::Path& audioPath = file::Path());
 
             //! Open a file dialog.
             void openDialog();

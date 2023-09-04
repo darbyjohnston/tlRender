@@ -7,8 +7,6 @@
 #include <tlCore/Error.h>
 #include <tlCore/String.h>
 
-#include <fseq.h>
-
 #include <algorithm>
 #include <array>
 #include <iomanip>
@@ -25,26 +23,72 @@ namespace tl
             const std::string& value,
             const PathOptions& options)
         {
-            FSeqFileNameOptions fseqOptions;
-            fseqFileNameOptionsInit(&fseqOptions);
-            fseqOptions.maxNumberDigits = options.maxNumberDigits;
-            FSeqFileName f;
-            fseqFileNameInit(&f);
-            fseqFileNameSplit(value.c_str(), &f, string::cBufferSize, &fseqOptions);
-            _directory = f.path;
-            _baseName = f.base;
-            if (_directory.empty() &&
-                2 == _baseName.size() &&
-                _baseName[0] >= 'A' &&
-                _baseName[0] <= 'Z' &&
-                ':' == _baseName[1])
+            if (!value.empty())
             {
-                _directory.swap(_baseName);
+                // Find the extension.
+                const size_t size = value.size();
+                size_t i = size - 1;
+                for (; i > 0 && value[i] != '.' && !isPathSeparator(value[i]); --i)
+                    ;
+                if (i > 0 &&
+                    '.' == value[i] &&
+                    '.' != value[i - 1] &&
+                    !isPathSeparator(value[i - 1]))
+                {
+                    _extension = value.substr(i, size - i);
+                }
+                else
+                {
+                    i = size;
+                }
+
+                // Find the number.
+                size_t j = i;
+                for (; i > 0 && value[i - 1] >= '0' && value[i - 1] <= '9'; --i)
+                    ;
+                if (value[i] >= '0' && value[i] <= '9' &&
+                    (j - i) <= options.maxNumberDigits)
+                {
+                    _number = value.substr(i, j - i);
+                    const int number = std::atoi(_number.c_str());
+                    _sequence = math::IntRange(number, number);
+                    if (_number.size() > 1 && '0' == _number[0])
+                    {
+                        _padding = _number.size();
+                    }
+                }
+                else
+                {
+                    i = j;
+                }
+
+                // Find the directory.
+                j = i;
+                for (; i > 0 && !isPathSeparator(value[i]); --i)
+                    ;
+                size_t k = 0;
+                if (isPathSeparator(value[i]))
+                {
+                    _directory = value.substr(0, i + 1);
+                    k = i + 1;
+                }
+
+                // Find the base name.
+                if (k < j)
+                {
+                    _baseName = value.substr(k, j - k);
+                }
+
+                // Special case for Windows drive letters.
+                if (_directory.empty() &&
+                    2 == _baseName.size() &&
+                    _baseName[0] >= 'A' &&
+                    _baseName[0] <= 'Z' &&
+                    ':' == _baseName[1])
+                {
+                    _directory.swap(_baseName);
+                }
             }
-            _number = f.number;
-            _padding = !_number.empty() ? ('0' == _number[0] ? _number.size() : 0) : 0;
-            _extension = f.extension;
-            fseqFileNameDel(&f);
         }
 
         Path::Path(
@@ -87,9 +131,15 @@ namespace tl
             return ss.str();
         }
 
+        void Path::setSequence(const math::IntRange& value)
+        {
+            _sequence = value;
+        }
+
         bool Path::isEmpty() const
         {
-            return _directory.empty() &&
+            return
+                _directory.empty() &&
                 _baseName.empty() &&
                 _number.empty() &&
                 _extension.empty();
@@ -98,8 +148,7 @@ namespace tl
         bool Path::isAbsolute() const
         {
             const std::size_t size = _directory.size();
-            if (size > 0 &&
-                (pathSeparators[0] == _directory[0] || pathSeparators[1] == _directory[0]))
+            if (size > 0 && isPathSeparator(_directory[0]))
             {
                 return true;
             }
@@ -113,9 +162,11 @@ namespace tl
 
         bool Path::operator == (const Path& other) const
         {
-            return _directory == other._directory &&
+            return
+                _directory == other._directory &&
                 _baseName == other._baseName &&
                 _number == other._number &&
+                _sequence == other._sequence &&
                 _padding == other._padding &&
                 _extension == other._extension;
         }
@@ -143,8 +194,7 @@ namespace tl
                     break;
                 }
             }
-            if (size > 0 &&
-                !(pathSeparators[0] == out[size - 1] || pathSeparators[1] == out[size - 1]))
+            if (size > 0 && !isPathSeparator(out[size - 1]))
             {
                 out += separator;
             }
@@ -154,8 +204,7 @@ namespace tl
         std::string getParent(const std::string& value)
         {
             char startSeparator = 0;
-            if (!value.empty() &&
-                (pathSeparators[0] == value[0] || pathSeparators[1] == value[0]))
+            if (!value.empty() && isPathSeparator(value[0]))
             {
                 startSeparator = value[0];
             }

@@ -152,12 +152,13 @@ namespace tl
         FileType System::getFileType(const std::string& extension) const
         {
             FileType out = FileType::Unknown;
+            const std::string lower = string::toLower(extension);
             for (const auto& plugin : _plugins)
             {
                 for (auto fileType : { FileType::Movie, FileType::Sequence, FileType::Audio })
                 {
                     const auto& extensions = plugin->getExtensions(static_cast<int>(fileType));
-                    const auto i = extensions.find(extension);
+                    const auto i = extensions.find(lower);
                     if (i != extensions.end())
                     {
                         out = fileType;

@@ -41,9 +41,9 @@ namespace tl
         //! Get the time range of a timeline.
         otime::TimeRange getTimeRange(const otio::Timeline*);
 
-        //! Get a list of files to open from the given path.
+        //! Get a list of paths to open from the given path.
         std::vector<file::Path> getPaths(
-            const std::string&,
+            const file::Path&,
             const file::PathOptions&,
             const std::shared_ptr<system::Context>&);
 

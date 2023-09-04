@@ -51,8 +51,8 @@ namespace tl
         }
 
         void SeparateAudioDialog::setCallback(const std::function<void(
-            const std::string&,
-            const std::string&)>& value)
+            const file::Path&,
+            const file::Path&)>& value)
         {
             _p->widget->setCallback(value);
         }

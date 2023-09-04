@@ -9,8 +9,6 @@
 #include <tlCore/LogSystem.h>
 #include <tlCore/StringFormat.h>
 
-#include <fseq.h>
-
 #include <cstring>
 #include <sstream>
 
@@ -26,7 +24,6 @@ namespace tl
             const std::weak_ptr<log::System>& logSystem)
         {
             IRead::_init(path, memory, options, cache, logSystem);
-
             TLRENDER_P();
 
             const std::string& number = path.getNumber();
@@ -40,33 +37,9 @@ namespace tl
                 }
                 else
                 {
-                    std::string directory = path.getDirectory();
-                    if (directory.empty())
-                    {
-                        directory = ".";
-                    }
-                    const std::string& baseName = path.getBaseName();
-                    const std::string& extension = path.getExtension();
-                    FSeqDirOptions dirOptions;
-                    fseqDirOptionsInit(&dirOptions);
-                    dirOptions.sequence = FSEQ_TRUE;
-                    FSeqBool error = FSEQ_FALSE;
-                    auto dirList = fseqDirList(directory.c_str(), &dirOptions, &error);
-                    if (FSEQ_FALSE == error)
-                    {
-                        for (auto entry = dirList; entry; entry = entry->next)
-                        {
-                            if (strlen(entry->fileName.number) > 0 &&
-                                0 == strcmp(entry->fileName.base, baseName.c_str()) &&
-                                0 == strcmp(entry->fileName.extension, extension.c_str()))
-                            {
-                                _startFrame = entry->frameMin;
-                                _endFrame = entry->frameMax;
-                                break;
-                            }
-                        }
-                    }
-                    fseqDirListDel(dirList);
+                    const math::IntRange& sequence = path.getSequence();
+                    _startFrame = sequence.getMin();
+                    _endFrame = sequence.getMax();
                 }
             }
 

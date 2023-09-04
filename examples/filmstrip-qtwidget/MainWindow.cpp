@@ -87,7 +87,9 @@ namespace tl
             {
                 try
                 {
-                    auto timeline = timeline::Timeline::create(fileName, _context);
+                    auto timeline = timeline::Timeline::create(
+                        file::Path(fileName),
+                        _context);
                     _filmstripWidget->setTimeline(timeline);
                 }
                 catch (const std::exception& e)

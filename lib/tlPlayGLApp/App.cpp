@@ -374,24 +374,22 @@ namespace tl
             style->setColorRoles(getStylePalette(stylePalette));
 
             // Initialize the file browser.
-            if (auto fileBrowserSystem = context->getSystem<ui::FileBrowserSystem>())
+            auto fileBrowserSystem = context->getSystem<ui::FileBrowserSystem>();
+            std::string path;
+            p.settings->getValue("FileBrowser/Path", path);
+            fileBrowserSystem->setPath(path);
+            ui::FileBrowserOptions options;
+            p.settings->getValue("FileBrowser/Options", options);
+            fileBrowserSystem->setOptions(options);
+            int recentFilesMax = 0;
+            p.settings->getValue("Files/RecentMax", recentFilesMax);
+            auto recentFilesModel = fileBrowserSystem->getRecentFilesModel();
+            recentFilesModel->setRecentMax(recentFilesMax);
+            std::vector<std::string> recentFiles;
+            p.settings->getValue("Files/Recent", recentFiles);
+            for (const auto& recentFile : recentFiles)
             {
-                std::string path;
-                p.settings->getValue("FileBrowser/Path", path);
-                fileBrowserSystem->setPath(path);
-                ui::FileBrowserOptions options;
-                p.settings->getValue("FileBrowser/Options", options);
-                fileBrowserSystem->setOptions(options);
-                int recentFilesMax = 0;
-                p.settings->getValue("Files/RecentMax", recentFilesMax);
-                auto recentFilesModel = fileBrowserSystem->getRecentFilesModel();
-                recentFilesModel->setRecentMax(recentFilesMax);
-                std::vector<std::string> recentFiles;
-                p.settings->getValue("Files/Recent", recentFiles);
-                for (const auto& recentFile : recentFiles)
-                {
-                    recentFilesModel->addRecent(file::Path(recentFile));
-                }
+                recentFilesModel->addRecent(file::Path(recentFile));
             }
 
             // Create observers.
@@ -486,10 +484,10 @@ namespace tl
                             _cacheUpdate();
                         }
                     }
-                    if (auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>())
                     {
                         bool value = false;
                         p.settings->getValue("FileBrowser/NativeFileDialog", value);
+                        auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>();
                         fileBrowserSystem->setNativeFileDialog(value);
                     }
                     {
@@ -504,12 +502,14 @@ namespace tl
             {
                 if (!p.options.compareFileName.empty())
                 {
-                    open(p.options.compareFileName);
+                    open(file::Path(p.options.compareFileName));
                     p.filesModel->setCompareOptions(p.options.compareOptions);
                     p.filesModel->setB(0, true);
                 }
 
-                open(p.options.fileName, p.options.audioFileName);
+                open(
+                    file::Path(p.options.fileName),
+                    file::Path(p.options.audioFileName));
                 
                 if (!p.players.empty())
                 {
@@ -562,23 +562,21 @@ namespace tl
                     p.viewportModel->getBackgroundOptions());
                 p.settings->setValue("Audio/Volume", p.audioModel->getVolume());
                 p.settings->setValue("Audio/Mute", p.audioModel->isMuted());
-                if (auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>())
+                auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>();
+                p.settings->setValue(
+                    "FileBrowser/Path",
+                    fileBrowserSystem->getPath());
+                p.settings->setValue(
+                    "FileBrowser/Options",
+                    fileBrowserSystem->getOptions());
+                auto recentFilesModel = fileBrowserSystem->getRecentFilesModel();
+                p.settings->setValue("Files/RecentMax", recentFilesModel->getRecentMax());
+                std::vector<std::string> recentFiles;
+                for (const auto& recentFile : recentFilesModel->getRecent())
                 {
-                    p.settings->setValue(
-                        "FileBrowser/Path",
-                        fileBrowserSystem->getPath());
-                    p.settings->setValue(
-                        "FileBrowser/Options",
-                        fileBrowserSystem->getOptions());
-                    auto recentFilesModel = fileBrowserSystem->getRecentFilesModel();
-                    p.settings->setValue("Files/RecentMax", recentFilesModel->getRecentMax());
-                    std::vector<std::string> recentFiles;
-                    for (const auto& recentFile : recentFilesModel->getRecent())
-                    {
-                        recentFiles.push_back(recentFile.get());
-                    }
-                    p.settings->setValue("Files/Recent", recentFiles);
+                    recentFiles.push_back(recentFile.get());
                 }
+                p.settings->setValue("Files/Recent", recentFiles);
                 p.settings->write(p.settingsFileName);
             }
         }
@@ -596,15 +594,13 @@ namespace tl
         void App::openDialog()
         {
             TLRENDER_P();
-            if (auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>())
-            {
-                fileBrowserSystem->open(
-                    getEventLoop(),
-                    [this](const file::FileInfo& value)
-                    {
-                        open(value.getPath().get());
-                    });
-            }
+            auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>();
+            fileBrowserSystem->open(
+                getEventLoop(),
+                [this](const file::FileInfo& value)
+                {
+                    open(value.getPath());
+                });
         }
 
         void App::openSeparateAudioDialog()
@@ -613,7 +609,7 @@ namespace tl
             p.separateAudioDialog = SeparateAudioDialog::create(_context);
             p.separateAudioDialog->open(getEventLoop());
             p.separateAudioDialog->setCallback(
-                [this](const std::string& value, const std::string& audio)
+                [this](const file::Path& value, const file::Path& audio)
                 {
                     open(value, audio);
                     _p->separateAudioDialog->close();
@@ -625,17 +621,21 @@ namespace tl
                 });
         }
 
-        void App::open(const std::string& fileName, const std::string& audioFileName)
+        void App::open(const file::Path& path, const file::Path& audioPath)
         {
             TLRENDER_P();
             file::PathOptions pathOptions;
             p.settings->getValue("FileSequence/MaxDigits", pathOptions.maxNumberDigits);
-            for (const auto& path : timeline::getPaths(fileName, pathOptions, _context))
+            for (const auto& i : timeline::getPaths(path, pathOptions, _context))
             {
                 auto item = std::make_shared<play::FilesModelItem>();
-                item->path = path;
-                item->audioPath = file::Path(audioFileName);
+                item->path = i;
+                item->audioPath = audioPath;
                 p.filesModel->add(item);
+
+                auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>();
+                auto recentFilesModel = fileBrowserSystem->getRecentFilesModel();
+                recentFilesModel->addRecent(path);
             }
         }
 
@@ -683,7 +683,7 @@ namespace tl
         {
             for (const auto& i : value)
             {
-                open(i);
+                open(file::Path(i));
             }
         }
 
@@ -772,8 +772,8 @@ namespace tl
                             "FileSequence/MaxDigits",
                             options.pathOptions.maxNumberDigits);
                         auto otioTimeline = items[i]->audioPath.isEmpty() ?
-                            timeline::create(items[i]->path.get(), _context, options) :
-                            timeline::create(items[i]->path.get(), items[i]->audioPath.get(), _context, options);
+                            timeline::create(items[i]->path, _context, options) :
+                            timeline::create(items[i]->path, items[i]->audioPath, _context, options);
                         auto timeline = timeline::Timeline::create(otioTimeline, _context, options);
 
                         timeline::PlayerOptions playerOptions;
