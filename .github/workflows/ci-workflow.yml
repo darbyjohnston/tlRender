@@ -180,7 +180,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      TLRENDER_USD: ON
+      TLRENDER_USD: OFF
       TLRENDER_EXAMPLES: OFF
       TLRENDER_TESTS: OFF
 
@@ -306,7 +306,7 @@ jobs:
     runs-on: macos-latest
 
     env:
-      TLRENDER_USD: ON
+      TLRENDER_USD: OFF
       TLRENDER_EXAMPLES: OFF
       TLRENDER_TESTS: OFF
       CMAKE_OSX_DEPLOYMENT_TARGET: 10.15
@@ -420,7 +420,7 @@ jobs:
     # \bug How can we build FFmpeg on Windows?
     env:
       TLRENDER_FFMPEG: OFF
-      TLRENDER_USD: ON
+      TLRENDER_USD: OFF
       TLRENDER_EXAMPLES: OFF
       TLRENDER_TESTS: OFF
 
