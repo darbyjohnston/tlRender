@@ -39,9 +39,9 @@ namespace tl
                 const otio::Clip*,
                 const otime::TimeRange&);
 
-            void trimAudio(
+            std::shared_ptr<audio::Audio> padAudioToOneSecond(
                 const std::shared_ptr<audio::Audio>&,
-                int64_t seconds,
+                double seconds,
                 const otime::TimeRange&);
 
             std::weak_ptr<system::Context> context;
@@ -81,7 +81,7 @@ namespace tl
                 AudioLayerData() {};
                 AudioLayerData(AudioLayerData&&) = default;
 
-                int64_t seconds = -1;
+                double seconds = -1.0;
                 otime::TimeRange timeRange;
                 std::future<io::AudioData> audio;
             };
@@ -90,7 +90,7 @@ namespace tl
                 AudioRequest() {};
                 AudioRequest(AudioRequest&&) = default;
 
-                int64_t seconds = -1;
+                double seconds = -1.0;
                 std::promise<AudioData> promise;
 
                 std::vector<AudioLayerData> layerData;

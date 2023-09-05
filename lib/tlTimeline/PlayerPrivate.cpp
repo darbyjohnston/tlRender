@@ -171,50 +171,54 @@ namespace tl
             const auto audioRanges = timeline::loop(audioRange, inOutAudioRange);
 
             // Remove old video from the cache.
-            auto videoDataCacheIt = thread.videoDataCache.begin();
-            while (videoDataCacheIt != thread.videoDataCache.end())
+            auto videoCacheIt = thread.videoDataCache.begin();
+            while (videoCacheIt != thread.videoDataCache.end())
             {
-                bool old = true;
-                for (const auto& i : videoRanges)
-                {
-                    if (i.contains(videoDataCacheIt->second.time))
+                const otime::RationalTime t = videoCacheIt->second.time;
+                const auto j = std::find_if(
+                    videoRanges.begin(),
+                    videoRanges.end(),
+                    [t](const otime::TimeRange& value)
                     {
-                        old = false;
-                        break;
-                    }
-                }
-                if (old)
+                        return value.contains(t);
+                    });
+                if (j == videoRanges.end())
                 {
-                    videoDataCacheIt = thread.videoDataCache.erase(videoDataCacheIt);
-                    continue;
+                    videoCacheIt = thread.videoDataCache.erase(videoCacheIt);
                 }
-                ++videoDataCacheIt;
+                else
+                {
+                    ++videoCacheIt;
+                }
             }
 
             // Remove old audio from the cache.
             {
                 std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                auto audioDataCacheIt = audioMutex.audioDataCache.begin();
-                while (audioDataCacheIt != audioMutex.audioDataCache.end())
+                auto audioCacheIt = audioMutex.audioDataCache.begin();
+                while (audioCacheIt != audioMutex.audioDataCache.end())
                 {
-                    bool old = true;
-                    for (const auto& i : audioRanges)
-                    {
-                        if (i.intersects(otime::TimeRange(
-                            otime::RationalTime(audioDataCacheIt->second.seconds, 1.0),
-                            otime::RationalTime(1.0, 1.0))))
+                    const otime::TimeRange cacheRange(
+                        otime::RationalTime(
+                            timeRange.start_time().rescaled_to(1.0).value() +
+                            audioCacheIt->second.seconds,
+                            1.0),
+                        otime::RationalTime(1.0, 1.0));
+                    const auto j = std::find_if(
+                        audioRanges.begin(),
+                        audioRanges.end(),
+                        [cacheRange](const otime::TimeRange& value)
                         {
-                            old = false;
-                            break;
-                        }
-                    }
-                    if (old)
+                            return cacheRange.intersects(value);
+                        });
+                    if (j == audioRanges.end())
                     {
-                        //std::cout << "audio remove: " << audioDataCacheIt->second.seconds << std::endl;
-                        audioDataCacheIt = audioMutex.audioDataCache.erase(audioDataCacheIt);
-                        continue;
+                        audioCacheIt = audioMutex.audioDataCache.erase(audioCacheIt);
                     }
-                    ++audioDataCacheIt;
+                    else
+                    {
+                        ++audioCacheIt;
+                    }
                 }
             }
 
@@ -248,18 +252,18 @@ namespace tl
                 std::set<int64_t> seconds;
                 for (const auto& range : audioRanges)
                 {
-                    const auto start = range.start_time();
-                    const auto end = range.end_time_exclusive();
-                    const auto inc = otime::RationalTime(1.0, range.duration().rate());
-                    for (auto time = start; time < end; time += inc)
+                    const int64_t start = range.start_time().rescaled_to(1.0).value() -
+                        timeRange.start_time().rescaled_to(1.0).value();
+                    const int64_t end = start + range.duration().rescaled_to(1.0).value();
+                    for (int64_t time = start; time < end; ++time)
                     {
-                        seconds.insert(time.rescaled_to(1.0).value());
+                        seconds.insert(time);
                     }
                 }
-                std::vector<int64_t> requests;
+                std::vector<double> requests;
                 {
                     std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                    for (const auto& s : seconds)
+                    for (int64_t s : seconds)
                     {
                         const auto i = audioMutex.audioDataCache.find(s);
                         if (i == audioMutex.audioDataCache.end())
@@ -267,7 +271,8 @@ namespace tl
                             const auto j = thread.audioDataRequests.find(s);
                             if (j == thread.audioDataRequests.end())
                             {
-                                requests.push_back(s);
+                                requests.push_back(
+                                    timeRange.start_time().rescaled_to(1.0).value() + s);
                             }
                         }
                     }
@@ -343,7 +348,9 @@ namespace tl
                     std::unique_lock<std::mutex> lock(audioMutex.mutex);
                     for (const auto& i : audioMutex.audioDataCache)
                     {
-                        cachedAudioFrames.push_back(otime::RationalTime(i.second.seconds, 1.0));
+                        cachedAudioFrames.push_back(otime::RationalTime(
+                            timeRange.start_time().rescaled_to(1.0).value() + i.second.seconds,
+                            1.0));
                     }
                 }
                 auto cachedVideoRanges = toRanges(cachedVideoFrames);

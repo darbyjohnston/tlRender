@@ -234,9 +234,9 @@ namespace tl
                             cacheOptions);
 
                         // Update the current video data.
+                        const auto& timeRange = p.timeline->getTimeRange();
                         if (!p.ioInfo.video.empty())
                         {
-                            const auto& timeRange = p.timeline->getTimeRange();
                             const auto i = p.thread.videoDataCache.find(currentTime);
                             if (i != p.thread.videoDataCache.end())
                             {
@@ -276,7 +276,8 @@ namespace tl
                         {
                             std::vector<AudioData> audioDataList;
                             {
-                                const int64_t seconds = time::floor(currentTime.rescaled_to(1.0)).value();
+                                const int64_t seconds = currentTime.rescaled_to(1.0).value() -
+                                    timeRange.start_time().rescaled_to(1.0).value();
                                 std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                                 for (int64_t s : { seconds - 1, seconds, seconds + 1 })
                                 {

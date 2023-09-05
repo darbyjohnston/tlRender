@@ -282,7 +282,7 @@ namespace tl
             return future;
         }
 
-        std::future<AudioData> Timeline::getAudio(int64_t seconds)
+        std::future<AudioData> Timeline::getAudio(double seconds)
         {
             TLRENDER_P();
             auto request = std::make_shared<Private::AudioRequest>();

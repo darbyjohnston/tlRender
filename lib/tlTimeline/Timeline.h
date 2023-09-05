@@ -154,7 +154,7 @@ namespace tl
             std::future<VideoData> getVideo(const otime::RationalTime&, uint16_t layer = 0);
 
             //! Get audio data.
-            std::future<AudioData> getAudio(int64_t seconds);
+            std::future<AudioData> getAudio(double seconds);
 
             //! Cancel requests.
             void cancelRequests();
