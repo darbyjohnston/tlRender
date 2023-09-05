@@ -187,14 +187,14 @@ namespace tl
         }
 
 #define _CONVERT(a, b) \
-{ \
-    const a##_T * inP = reinterpret_cast<const a##_T *>(in->getData()); \
-    b##_T * outP = reinterpret_cast<b##_T *>(out->getData()); \
-    for (size_t i = 0; i < sampleCount * channelCount; ++i, ++inP, ++outP) \
     { \
-        a##To##b(*inP, *outP); \
-    } \
-}
+        const a##_T * inP = reinterpret_cast<const a##_T *>(in->getData()); \
+        b##_T * outP = reinterpret_cast<b##_T *>(out->getData()); \
+        for (size_t i = 0; i < sampleCount * channelCount; ++i, ++inP, ++outP) \
+        { \
+            a##To##b(*inP, *outP); \
+        } \
+    }
 
         std::shared_ptr<Audio> convert(const std::shared_ptr<Audio>& in, DataType type)
         {
