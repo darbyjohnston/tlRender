@@ -115,7 +115,7 @@ else()
 endif()
 
 set(LIBRARIES OTIO Imath::Imath)
-set(LIBRARIES_PRIVATE FreeType nlohmann_json::nlohmann_json MINIZIP::minizip ZLIB GLM fseq)
+set(LIBRARIES_PRIVATE FreeType nlohmann_json::nlohmann_json MINIZIP::minizip ZLIB GLM)
 if(TLRENDER_OCIO AND NOT "${TLRENDER_API}" STREQUAL "GLES_2")
     list(APPEND LIBRARIES OpenColorIO::OpenColorIO)
 endif()

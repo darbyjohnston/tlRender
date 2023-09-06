@@ -55,7 +55,6 @@ Contents:
 # Dependencies
 
 Required dependencies:
-* [FSeq](https://github.com/darbyjohnston/FSeq)
 * [ZLIB](https://zlib.net)
 * [GLM](https://github.com/g-truc/glm)
 * [Imath](https://github.com/AcademySoftwareFoundation/Imath)

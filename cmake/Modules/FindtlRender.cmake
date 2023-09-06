@@ -22,7 +22,6 @@
 
 set(tlRender_VERSION 0.0.1)
 
-find_package(FSeq REQUIRED)
 find_package(GLM REQUIRED)
 find_package(Imath REQUIRED)
 find_package(nlohmann_json REQUIRED)
@@ -40,7 +39,6 @@ find_package(FFmpeg)
 find_path(tlRender_INCLUDE_DIR NAMES tlCore/Util.h PATH_SUFFIXES tlRender)
 set(tlRender_INCLUDE_DIRS
     ${tlRender_INCLUDE_DIR}
-    ${FSeq_INCLUDE_DIRS}
     ${GLM_INCLUDE_DIRS}
     ${Imath_INCLUDE_DIRS}
     ${nlohmann_json_INCLUDE_DIRS}
@@ -77,7 +75,6 @@ set(tlRender_LIBRARIES
     ${tlRender_tlDevice_LIBRARY}
     ${tlRender_tlGL_LIBRARY}
     ${tlRender_glad_LIBRARY}
-    ${FSeq_LIBRARIES}
     ${GLM_LIBRARIES}
     ${Imath_LIBRARIES}
     ${nlohmann_json_LIBRARIES}
@@ -119,7 +116,7 @@ if(tlRender_FOUND AND NOT TARGET tlRender::tlCore)
         IMPORTED_LOCATION "${tlRender_tlCore_LIBRARY}"
         INTERFACE_COMPILE_DEFINITIONS "${tlRender_COMPILE_DEFINITIONS}"
         INTERFACE_INCLUDE_DIRECTORIES "${tlRender_INCLUDE_DIR}"
-        INTERFACE_LINK_LIBRARIES "OTIO;OpenColorIO::OpenColorIO;Imath::Imath;RtAudio;libsamplerate;FreeType;nlohmann_json::nlohmann_json;GLM;FSeq")
+        INTERFACE_LINK_LIBRARIES "OTIO;OpenColorIO::OpenColorIO;Imath::Imath;RtAudio;libsamplerate;FreeType;nlohmann_json::nlohmann_json;GLM")
 endif()
 if(tlRender_FOUND AND NOT TARGET tlRender::tlIO)
     add_library(tlRender::tlIO UNKNOWN IMPORTED)

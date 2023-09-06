@@ -88,7 +88,6 @@ endif()
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/deps
-    ${PROJECT_SOURCE_DIR}/deps/FSeq
     ${PROJECT_SOURCE_DIR}/lib
     ${PROJECT_SOURCE_DIR}/etc
     ${PROJECT_SOURCE_DIR}/tests)
@@ -229,9 +228,6 @@ endif()
 
 #-------------------------------------------------------------------------------
 # Sub-directories
-
-add_subdirectory(deps/FSeq)
-set_target_properties(fseq PROPERTIES FOLDER deps)
 
 add_definitions(-DTLRENDER_API_${TLRENDER_API})
 if("${TLRENDER_API}" STREQUAL "GL_4_1_Debug")
