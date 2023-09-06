@@ -2,12 +2,13 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlCore/FileInfo.h>
+#include <tlCore/FileInfoPrivate.h>
+
+#include <cstring>
 
 #include <sys/stat.h>
 #include <sys/types.h>
-
-#include <cstring>
+#include <dirent.h>
 
 #if defined(__APPLE__)
 //! \bug OS X doesn't have stat64?
@@ -43,6 +44,27 @@ namespace tl
             _time = info.st_mtime;
             
             return true;
+        }
+
+        void _list(
+            const std::string& path,
+            std::vector<FileInfo>& out,
+            const ListOptions& options)
+        {
+            DIR* dir = opendir(path.c_str());
+            if (dir)
+            {
+                const struct dirent* de = nullptr;
+                while ((de = readdir(dir)))
+                {
+                    const std::string fileName(de->d_name);
+                    if (!listFilter(fileName, options))
+                    {
+                        listSequence(path, fileName, out, options);
+                    }
+                }
+                closedir(dir);
+            }
         }
     }
 }

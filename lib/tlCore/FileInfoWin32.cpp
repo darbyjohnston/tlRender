@@ -55,67 +55,21 @@ namespace tl
         {
             std::string glob = appendSeparator(path);
             glob.push_back('*');
-
             WIN32_FIND_DATAW ffd;
             HANDLE hFind = FindFirstFileW(string::toWide(glob).c_str(), &ffd);
-            if (INVALID_HANDLE_VALUE == hFind)
+            if (hFind != INVALID_HANDLE_VALUE)
             {
-                return;
-            }
-
-            do
-            {
-                const std::string fileName = string::fromWide(ffd.cFileName);
-                
-                bool filter = false;
-                if (!options.dotAndDotDotDirs &&
-                    1 == fileName.size() &&
-                    '.' == fileName[0])
+                do
                 {
-                    filter = true;
-                }
-                else if (!options.dotAndDotDotDirs &&
-                    2 == fileName.size() &&
-                    '.' == fileName[0] &&
-                    '.' == fileName[1])
-                {
-                    filter = true;
-                }
-                else if (!options.dotFiles &&
-                    fileName.size() > 0 &&
-                    '.' == fileName[0])
-                {
-                    filter = true;
-                }
-
-                if (!filter)
-                {
-                    const Path p(path, fileName);
-                    const FileInfo f(p);
-
-                    bool sequence = false;
-                    if (options.sequence && !p.getNumber().empty())
+                    const std::string fileName = string::fromWide(ffd.cFileName);
+                    if (!listFilter(fileName, options))
                     {
-                        for (auto& i : out)
-                        {
-                            if (i.getPath().sequence(p))
-                            {
-                                sequence = true;
-                                i.sequence(f);
-                                break;
-                            }
-                        }
-                    }
-
-                    if (!sequence)
-                    {
-                        out.push_back(f);
+                        listSequence(path, fileName, out, options);
                     }
                 }
+                while (FindNextFileW(hFind, &ffd) != 0);
+                FindClose(hFind);
             }
-            while (FindNextFileW(hFind, &ffd) != 0);
-
-            FindClose(hFind);
         }
     }
 }

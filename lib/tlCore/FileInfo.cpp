@@ -69,6 +69,58 @@ namespace tl
             return !(*this == other);
         }
 
+        bool listFilter(const std::string& fileName, const ListOptions& options)
+        {
+            bool out = false;
+            if (!options.dotAndDotDotDirs &&
+                1 == fileName.size() &&
+                '.' == fileName[0])
+            {
+                out = true;
+            }
+            else if (!options.dotAndDotDotDirs &&
+                2 == fileName.size() &&
+                '.' == fileName[0] &&
+                '.' == fileName[1])
+            {
+                out = true;
+            }
+            else if (!options.dotFiles &&
+                fileName.size() > 0 &&
+                '.' == fileName[0])
+            {
+                out = true;
+            }
+            return out;
+        }
+        
+        void listSequence(
+            const std::string& path,
+            const std::string& fileName,
+            std::vector<FileInfo>& out,
+            const ListOptions& options)
+        {
+            const Path p(path, fileName);
+            const FileInfo f(p);
+            bool sequence = false;
+            if (options.sequence && !p.getNumber().empty())
+            {
+                for (auto& i : out)
+                {
+                    if (i.getPath().sequence(p))
+                    {
+                        sequence = true;
+                        i.sequence(f);
+                        break;
+                    }
+                }
+            }
+            if (!sequence)
+            {
+                out.push_back(f);
+            }
+        }
+        
         void list(
             const std::string& path,
             std::vector<FileInfo>& out,

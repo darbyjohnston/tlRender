@@ -72,13 +72,16 @@ namespace tl
         {
             std::vector<std::string> out;
             out.push_back("/");
+            std::vector<FileInfo> list;
 #if defined(__APPLE__)
-            for (const auto& fileInfo : list("/Volumes"))
+            file::list("/Volumes", list);
+            for (const auto& fileInfo : list)
             {
                 out.push_back(fileInfo.getPath().get());
             }
 #else // __APPLE__
-            for (const auto& fileInfo : list("/mnt"))
+            file::list("/mnt", list);
+            for (const auto& fileInfo : list)
             {
                 out.push_back(fileInfo.getPath().get());
             }
