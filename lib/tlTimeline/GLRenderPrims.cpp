@@ -6,8 +6,6 @@
 
 #include <tlGL/GL.h>
 
-#include <glm/gtc/matrix_transform.hpp>
-
 namespace tl
 {
     namespace timeline
