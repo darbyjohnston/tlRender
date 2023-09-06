@@ -32,11 +32,11 @@ namespace tl
 
         void TimelineTest::run()
         {
-            //_enums();
-            //_transitions();
-            //_videoData();
-            //_create();
-            //_timeline();
+            _enums();
+            _transitions();
+            _videoData();
+            _create();
+            _timeline();
             _imageSequence();
         }
 
