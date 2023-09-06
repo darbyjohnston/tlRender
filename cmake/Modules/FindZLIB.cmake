@@ -2,6 +2,7 @@
 #
 # This module defines the following variables:
 #
+# * ZLIB_VERSION
 # * ZLIB_INCLUDE_DIRS
 # * ZLIB_LIBRARIES
 #
@@ -13,6 +14,8 @@
 # This module defines the following interfaces:
 #
 # * ZLIB
+
+set(ZLIB_VERSION "1.2.13")
 
 find_path(ZLIB_INCLUDE_DIR NAMES zlib.h)
 set(ZLIB_INCLUDE_DIRS ${ZLIB_INCLUDE_DIR})
@@ -27,7 +30,8 @@ set(ZLIB_LIBRARIES ${ZLIB_LIBRARY})
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
     ZLIB
-    REQUIRED_VARS ZLIB_INCLUDE_DIR ZLIB_LIBRARY)
+    REQUIRED_VARS ZLIB_INCLUDE_DIR ZLIB_LIBRARY
+    VERSION_VAR ZLIB_VERSION)
 mark_as_advanced(ZLIB_INCLUDE_DIR ZLIB_LIBRARY)
 
 if(ZLIB_FOUND AND NOT TARGET ZLIB::zlib)
