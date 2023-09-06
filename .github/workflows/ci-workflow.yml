@@ -432,14 +432,14 @@ jobs:
     - name: Setup environment
       run: >
         echo "$pwd\build\install\bin;$pwd\build\install\lib;$env:path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
-        
+
     # \bug Release mode currently fails with OpenColorIO unable to find ZLIB
     - name: Build tlRender
       run: >
         mkdir build &&
         cd build &&
         cmake ..\etc\SuperBuild `
-          -DCMAKE_BUILD_TYPE=Debug `
+          -DCMAKE_BUILD_TYPE=Release `
           -DCMAKE_INSTALL_PREFIX=install `
           -DCMAKE_PREFIX_PATH=install `
           -DTLRENDER_FFMPEG=${{ env.TLRENDER_FFMPEG }} `
