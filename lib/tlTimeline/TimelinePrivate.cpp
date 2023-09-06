@@ -259,7 +259,18 @@ namespace tl
                                     {
                                         AudioLayerData audioData;
                                         audioData.seconds = request->seconds;
-                                        audioData.timeRange = requestTimeRange.clamped(clipTimeRange);
+                                        //! \bug Why is otime::TimeRange::clamped() not giving us the
+                                        //! result we expect?
+                                        //audioData.timeRange = requestTimeRange.clamped(clipTimeRange);
+                                        const double start = std::max(
+                                            clipTimeRange.start_time().value(),
+                                            requestTimeRange.start_time().value());
+                                        const double end = std::min(
+                                            clipTimeRange.start_time().value() + clipTimeRange.duration().value(),
+                                            requestTimeRange.start_time().value() + requestTimeRange.duration().value());
+                                        audioData.timeRange = otime::TimeRange(
+                                            otime::RationalTime(start, 1.0),
+                                            otime::RationalTime(end - start, 1.0));
                                         audioData.audio = readAudio(otioClip, audioData.timeRange);
                                         request->layerData.push_back(std::move(audioData));
                                     }

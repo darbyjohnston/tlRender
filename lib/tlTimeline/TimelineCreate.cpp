@@ -430,12 +430,11 @@ namespace tl
                     // Read the video.
                     if (!info.video.empty())
                     {
-                        startTime = otime::RationalTime(0.0, info.videoTime.duration().rate());
+                        startTime = info.videoTime.start_time();
                         auto videoClip = new otio::Clip;
                         videoClip->set_source_range(info.videoTime);
                         if (isSequence)
                         {
-                            startTime = info.videoTime.start_time();
                             auto mediaReference = new otio::ImageSequenceReference(
                                 std::string(),
                                 path.getBaseName(),

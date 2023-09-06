@@ -22,7 +22,7 @@ namespace tl
         //! Audio data.
         struct AudioData
         {
-            int64_t seconds = -1;
+            double seconds = -1.0;
             std::vector<AudioLayer> layers;
 
             bool operator == (const AudioData&) const;

@@ -136,6 +136,7 @@ namespace tl
                 audio::Info info;
                 std::shared_ptr<audio::AudioConvert> convert;
                 std::list<std::shared_ptr<audio::Audio> > buffer;
+                std::shared_ptr<audio::Audio> silence;
                 size_t rtAudioCurrentFrame = 0;
             };
             AudioThread audioThread;

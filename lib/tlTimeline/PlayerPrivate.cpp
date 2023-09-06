@@ -201,7 +201,7 @@ namespace tl
                     const otime::TimeRange cacheRange(
                         otime::RationalTime(
                             timeRange.start_time().rescaled_to(1.0).value() +
-                            audioCacheIt->second.seconds,
+                            audioCacheIt->first,
                             1.0),
                         otime::RationalTime(1.0, 1.0));
                     const auto j = std::find_if(
@@ -255,12 +255,12 @@ namespace tl
                     const int64_t start = range.start_time().rescaled_to(1.0).value() -
                         timeRange.start_time().rescaled_to(1.0).value();
                     const int64_t end = start + range.duration().rescaled_to(1.0).value();
-                    for (int64_t time = start; time < end; ++time)
+                    for (int64_t time = start; time <= end; ++time)
                     {
                         seconds.insert(time);
                     }
                 }
-                std::vector<double> requests;
+                std::map<int64_t, double> requests;
                 {
                     std::unique_lock<std::mutex> lock(audioMutex.mutex);
                     for (int64_t s : seconds)
@@ -271,15 +271,14 @@ namespace tl
                             const auto j = thread.audioDataRequests.find(s);
                             if (j == thread.audioDataRequests.end())
                             {
-                                requests.push_back(
-                                    timeRange.start_time().rescaled_to(1.0).value() + s);
+                                requests[s] = timeRange.start_time().rescaled_to(1.0).value() + s;
                             }
                         }
                     }
                 }
                 for (auto i : requests)
                 {
-                    thread.audioDataRequests[i] = timeline->getAudio(i);
+                    thread.audioDataRequests[i.first] = timeline->getAudio(i.second);
                 }
                 /*if (!requests.empty())
                 {
@@ -317,10 +316,9 @@ namespace tl
                     audioDataRequestsIt->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
                     auto audioData = audioDataRequestsIt->second.get();
-                    audioData.seconds = audioDataRequestsIt->first;
                     {
                         std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                        audioMutex.audioDataCache[audioData.seconds] = audioData;
+                        audioMutex.audioDataCache[audioDataRequestsIt->first] = audioData;
                     }
                     audioDataRequestsIt = thread.audioDataRequests.erase(audioDataRequestsIt);
                     continue;
@@ -349,7 +347,7 @@ namespace tl
                     for (const auto& i : audioMutex.audioDataCache)
                     {
                         cachedAudioFrames.push_back(otime::RationalTime(
-                            timeRange.start_time().rescaled_to(1.0).value() + i.second.seconds,
+                            timeRange.start_time().rescaled_to(1.0).value() + i.first,
                             1.0));
                     }
                 }
@@ -406,14 +404,14 @@ namespace tl
             
             // Get mutex protected values.
             Playback playback = Playback::Stop;
-            int64_t playbackStartFrame = 0;
+            otime::RationalTime playbackStartTime = time::invalidTime;
+            double audioOffset = 0.0;
             bool externalTime = false;
             {
                 std::unique_lock<std::mutex> lock(p->mutex.mutex);
                 playback = p->mutex.playback;
-                playbackStartFrame =
-                    p->mutex.playbackStartTime.rescaled_to(p->ioInfo.audio.sampleRate).value() -
-                    otime::RationalTime(p->mutex.audioOffset, 1.0).rescaled_to(p->ioInfo.audio.sampleRate).value();
+                playbackStartTime = p->mutex.playbackStartTime;
+                audioOffset = p->mutex.audioOffset;
                 externalTime = p->mutex.externalTime;
             }
             double speed = 0.0;
@@ -463,8 +461,13 @@ namespace tl
                 }
 
                 // Fill the audio buffer.
-                if (p->ioInfo.audio.sampleRate > 0)
+                if (p->ioInfo.audio.sampleRate > 0 &&
+                    playbackStartTime != time::invalidTime)
                 {
+                    const int64_t playbackStartFrame =
+                        playbackStartTime.rescaled_to(p->ioInfo.audio.sampleRate).value() -
+                        p->timeline->getTimeRange().start_time().rescaled_to(p->ioInfo.audio.sampleRate).value() -
+                        otime::RationalTime(audioOffset, 1.0).rescaled_to(p->ioInfo.audio.sampleRate).value();;
                     int64_t frame = playbackStartFrame +
                         otime::RationalTime(
                             p->audioThread.rtAudioCurrentFrame + audio::getSampleCount(p->audioThread.buffer),
@@ -485,9 +488,10 @@ namespace tl
                                 audioData = j->second;
                             }
                         }
-                        if (audioData.layers.empty())
+                        if (!p->audioThread.silence)
                         {
-                            break;
+                            p->audioThread.silence = audio::Audio::create(p->ioInfo.audio, p->ioInfo.audio.sampleRate);
+                            p->audioThread.silence->zero();
                         }
                         std::vector<const uint8_t*> audioDataP;
                         for (const auto& layer : audioData.layers)
@@ -498,6 +502,12 @@ namespace tl
                                     layer.audio->getData() +
                                     (offset * p->ioInfo.audio.getByteCount()));
                             }
+                        }
+                        if (audioDataP.empty())
+                        {
+                            audioDataP.push_back(
+                                p->audioThread.silence->getData() +
+                                (offset * p->ioInfo.audio.getByteCount()));
                         }
 
                         const size_t size = std::min(
