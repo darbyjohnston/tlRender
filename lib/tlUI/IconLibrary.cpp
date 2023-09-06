@@ -4,6 +4,7 @@
 
 #include <tlUI/IconLibrary.h>
 
+#include <tlIO/PNG.h>
 #include <tlIO/System.h>
 
 #include <tlCore/StringFormat.h>
@@ -147,6 +148,7 @@ namespace tl
                 std::string name;
                 float displayScale = 1.F;
                 std::promise<std::shared_ptr<image::Image> > promise;
+                std::shared_ptr<io::IRead> reader;
                 std::future<io::VideoData> future;
             };
             const size_t requestTimeout = 5;
@@ -164,6 +166,7 @@ namespace tl
 
             struct Thread
             {
+                std::shared_ptr<io::IPlugin> plugin;
                 std::condition_variable cv;
                 std::thread thread;
                 std::atomic<bool> running;
@@ -288,6 +291,8 @@ namespace tl
 
             p.mutex.cache.setMax(1000);
 
+            auto io = context->getSystem<io::System>();
+            p.thread.plugin = io->getPlugin<png::Plugin>();
             p.thread.running = true;
             p.thread.thread = std::thread(
                 [this]
@@ -329,20 +334,17 @@ namespace tl
                             {
                                 try
                                 {
-                                    if (auto context = p.context.lock())
+                                    const std::string name = string::Format("{0}_{1}.png").
+                                        arg(request->name).
+                                        arg(dpi);
+                                    request->reader = p.thread.plugin->read(
+                                        file::Path(name),
+                                        { file::MemoryRead(i->second.data(), i->second.size()) });
+                                    if (request->reader)
                                     {
-                                        auto io = context->getSystem<io::System>();
-                                        const std::string name = string::Format("{0}_{1}.png").
-                                            arg(request->name).
-                                            arg(dpi);
-                                        auto reader = io->read(
-                                            file::Path(name),
-                                            { file::MemoryRead(i->second.data(), i->second.size()) });
-                                        if (reader)
-                                        {
-                                            const auto ioInfo = reader->getInfo().get();
-                                            request->future = reader->readVideo(ioInfo.videoTime.start_time());
-                                        }
+                                        const auto ioInfo = request->reader->getInfo().get();
+                                        request->future = request->reader->readVideo(
+                                            ioInfo.videoTime.start_time());
                                     }
                                 }
                                 catch (const std::exception&)
