@@ -1,3 +1,0 @@
-[submodule "deps/FSeq"]
-	path = deps/FSeq
-	url = https://github.com/darbyjohnston/FSeq.git
