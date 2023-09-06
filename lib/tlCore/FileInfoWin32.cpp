@@ -53,8 +53,8 @@ namespace tl
             std::vector<FileInfo>& out,
             const ListOptions& options)
         {
-            std::string glob = appendSeparator(path);
-            glob.push_back('*');
+            const std::string glob =
+                appendSeparator(!path.empty() ? path : std::string(".")) + "*";
             WIN32_FIND_DATAW ffd;
             HANDLE hFind = FindFirstFileW(string::toWide(glob).c_str(), &ffd);
             if (hFind != INVALID_HANDLE_VALUE)

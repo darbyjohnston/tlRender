@@ -51,7 +51,7 @@ namespace tl
             std::vector<FileInfo>& out,
             const ListOptions& options)
         {
-            DIR* dir = opendir(path.c_str());
+            DIR* dir = opendir(!path.empty() ? path.c_str() : ".");
             if (dir)
             {
                 const struct dirent* de = nullptr;
