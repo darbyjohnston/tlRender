@@ -132,13 +132,13 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Required dependencies
 find_package(Threads REQUIRED)
-find_package(GLM REQUIRED)
+find_package(OpenGL REQUIRED)
 find_package(Imath REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(ZLIB REQUIRED)
 find_package(minizip REQUIRED)
 find_package(OTIO REQUIRED)
 find_package(FreeType)
-find_package(OpenGL REQUIRED)
 
 # GLFW dependency
 if(TLRENDER_GLFW)

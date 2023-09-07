@@ -4,7 +4,6 @@ set(LEGAL
     LICENSE_FFmpeg.txt
     LICENSE_FreeType.txt
     LICENSE_GLFW.md
-    LICENSE_GLM.txt
     LICENSE_MaterialX.txt
     LICENSE_OFL.txt
     LICENSE_OpenColorIO.txt

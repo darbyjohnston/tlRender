@@ -55,10 +55,9 @@ Contents:
 # Dependencies
 
 Required dependencies:
-* [ZLIB](https://zlib.net)
-* [GLM](https://github.com/g-truc/glm)
 * [Imath](https://github.com/AcademySoftwareFoundation/Imath)
 * [nlohmann_json](https://github.com/nlohmann/json)
+* [ZLIB](https://zlib.net)
 * [minizip-ng](https://github.com/zlib-ng/minizip-ng)
 * [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
 * [FreeType](https://www.freetype.org)
