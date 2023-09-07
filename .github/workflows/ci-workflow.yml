@@ -83,7 +83,7 @@ jobs:
           -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
           -DTLRENDER_TESTS=$TLRENDER_TESTS \
           -DTLRENDER_GCOV=$TLRENDER_GCOV &&
-        cmake --build . -j 4
+        cmake --build . -j 4 --config Debug
 
     - name: Run tests
       run: >
@@ -168,7 +168,7 @@ jobs:
           -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
           -DTLRENDER_TESTS=$TLRENDER_TESTS \
           -DTLRENDER_GCOV=$TLRENDER_GCOV &&
-        cmake --build . -j 4
+        cmake --build . -j 4 --config Debug
 
     - name: Run tests
       run: >
@@ -218,13 +218,13 @@ jobs:
           -DTLRENDER_USD=$TLRENDER_USD \
           -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
           -DTLRENDER_TESTS=$TLRENDER_TESTS &&
-        cmake --build . -j 4
+        cmake --build . -j 4 --config Release
 
     - name: Package
       run: >
         cd build &&
         cd tlRender/src/tlRender-build &&
-        cmake --build . --target package
+        cmake --build . -j 4 --config Release --target package
 
     - uses: actions/upload-artifact@v3
       with:
@@ -293,7 +293,7 @@ jobs:
           -DTLRENDER_TESTS=$TLRENDER_TESTS \
           -DTLRENDER_GCOV=$TLRENDER_GCOV \
           -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET} &&
-        cmake --build . -j 4
+        cmake --build . -j 4 --config Debug
 
     - name: Run tests
       run: >
@@ -336,13 +336,13 @@ jobs:
           -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
           -DTLRENDER_TESTS=$TLRENDER_TESTS \
           -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET} &&
-        cmake --build . -j 4
+        cmake --build . -j 4 --config Release
 
     - name: Package
       run: >
         cd build &&
         cd tlRender/src/tlRender-build &&
-        cmake --build . --target package
+        cmake --build . -j 4 --config Release --target package
 
     - uses: actions/upload-artifact@v3
       with:
@@ -405,7 +405,7 @@ jobs:
           -DTLRENDER_EXAMPLES=${{ env.TLRENDER_EXAMPLES }} `
           -DTLRENDER_TESTS=${{ env.TLRENDER_TESTS }} `
           -DTLRENDER_GCOV=${{ env.TLRENDER_GCOV }} &&
-        cmake --build . -j 4
+        cmake --build . -j 4 --config Debug
 
     - name: Run tests
       run: >
@@ -446,13 +446,13 @@ jobs:
           -DTLRENDER_USD=${{ env.TLRENDER_USD }} `
           -DTLRENDER_EXAMPLES=${{ env.TLRENDER_EXAMPLES }} `
           -DTLRENDER_TESTS=${{ env.TLRENDER_TESTS }} &&
-        cmake --build . -j 4
+        cmake --build . -j 4 --config Release
 
     - name: Package
       run: >
         cd build &&
         cd tlRender\src\tlRender-build &&
-        cmake --build . --target package
+        cmake --build . -j 4 --config Release --target package
 
     - uses: actions/upload-artifact@v3
       with:
