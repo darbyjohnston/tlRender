@@ -433,7 +433,6 @@ jobs:
       run: >
         echo "$pwd\build\install\bin;$pwd\build\install\lib;$env:path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
 
-    # \bug Release mode currently fails with OpenColorIO unable to find ZLIB
     - name: Build tlRender
       run: >
         mkdir build &&
