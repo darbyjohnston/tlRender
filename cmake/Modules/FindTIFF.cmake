@@ -15,14 +15,14 @@
 # * TIFF
 
 find_package(ZLIB REQUIRED)
-find_package(JPEG)
+find_package(libjpeg-turbo)
 
 set(TIFF_VERSION 4.1.0)
 
 find_path(TIFF_INCLUDE_DIR NAMES tiff.h)
 set(TIFF_INCLUDE_DIRS ${TIFF_INCLUDE_DIR})
-if(JPEG_FOUND)
-    list(APPEND TIFF_INCLUDE_DIRS ${JPEG_INCLUDE_DIRS})
+if(libjpeg-turbo_FOUND)
+    list(APPEND TIFF_INCLUDE_DIRS ${libjpeg-turbo_INCLUDE_DIRS})
 endif()
 list(APPEND TIFF_INCLUDE_DIRS ${ZLIB_INCLUDE_DIRS})
 
@@ -32,8 +32,8 @@ else()
     find_library(TIFF_LIBRARY NAMES tiff)
 endif()
 set(TIFF_LIBRARIES ${TIFF_LIBRARY})
-if(JPEG_FOUND)
-    list(APPEND TIFF_LIBRARIES ${JPEG_LIBRARIES})
+if(libjpeg-turbo_FOUND)
+    list(APPEND TIFF_LIBRARIES ${libjpeg-turbo_LIBRARIES})
 endif()
 list(APPEND TIFF_LIBRARIES ${ZLIB_LIBRARIES})
 
@@ -46,8 +46,8 @@ mark_as_advanced(TIFF_INCLUDE_DIR TIFF_LIBRARY)
 if(TIFF_FOUND AND NOT TARGET TIFF::tiff)
     add_library(TIFF::tiff UNKNOWN IMPORTED)
     set(TIFF_INTERFACE_LINK_LIBRARIES)
-    if(JPEG_FOUND)
-        list(APPEND TIFF_INTERFACE_LINK_LIBRARIES JPEG)
+    if(libjpeg-turbo_FOUND)
+        list(APPEND TIFF_INTERFACE_LINK_LIBRARIES libjpeg-turbo::turbojpeg-static)
     endif()
     list(APPEND TIFF_INTERFACE_LINK_LIBRARIES ZLIB)
     set_target_properties(TIFF::tiff PROPERTIES

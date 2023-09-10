@@ -138,11 +138,11 @@ find_package(nlohmann_json REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(minizip REQUIRED)
 find_package(OTIO REQUIRED)
-find_package(FreeType)
+find_package(freetype)
 
 # GLFW dependency
 if(TLRENDER_GLFW)
-    find_package(GLFW REQUIRED)
+    find_package(glfw3 REQUIRED)
     add_definitions(-DTLRENDER_GLFW)
 endif()
 
@@ -161,8 +161,8 @@ endif()
 
 # I/O dependencies
 if(TLRENDER_JPEG)
-    find_package(JPEG)
-    if(JPEG_FOUND)
+    find_package(libjpeg-turbo)
+    if(libjpeg-turbo_FOUND)
         add_definitions(-DTLRENDER_JPEG)
     endif()
 endif()

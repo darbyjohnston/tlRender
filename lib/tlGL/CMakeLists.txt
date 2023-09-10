@@ -31,7 +31,7 @@ endif()
 
 set(LIBRARIES tlCore glad)
 if(TLRENDER_GLFW)
-    list(APPEND LIBRARIES GLFW)
+    list(APPEND LIBRARIES glfw)
 endif()
 set(LIBRARIES_PRIVATE)
 
