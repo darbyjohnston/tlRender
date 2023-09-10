@@ -2,11 +2,11 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlTimelineUI/Edit.h>
+#include <tlTimeline/Edit.h>
 
 namespace tl
 {
-    namespace timelineui
+    namespace timeline
     {
         namespace
         {

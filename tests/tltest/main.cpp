@@ -14,6 +14,7 @@
 #include <tlAppTest/CmdLineTest.h>
 
 #include <tlTimelineTest/ColorConfigOptionsTest.h>
+#include <tlTimelineTest/EditTest.h>
 #include <tlTimelineTest/IRenderTest.h>
 #include <tlTimelineTest/LUTOptionsTest.h>
 #include <tlTimelineTest/PlayerTest.h>
@@ -112,7 +113,7 @@ int main(int argc, char* argv[])
     std::vector<std::shared_ptr<tests::ITest> > tests;
     if (0)
     {
-        tests.push_back(timeline_tests::TimelineTest::create(context));
+        tests.push_back(timeline_tests::EditTest::create(context));
     }
     else
     {

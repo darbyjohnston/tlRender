@@ -7,6 +7,7 @@ set(HEADERS
     CompareOptionsInline.h
     DisplayOptions.h
     DisplayOptionsInline.h
+    Edit.h
     IRender.h
     ImageOptions.h
     ImageOptionsInline.h
@@ -41,6 +42,7 @@ set(SOURCE
     ColorConfigOptions.cpp
     CompareOptions.cpp
     DisplayOptions.cpp
+    Edit.cpp
     IRender.cpp
     ImageOptions.cpp
     Init.cpp

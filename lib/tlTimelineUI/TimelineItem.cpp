@@ -5,7 +5,6 @@
 #include <tlTimelineUI/TimelineItem.h>
 
 #include <tlTimelineUI/AudioClipItem.h>
-#include <tlTimelineUI/Edit.h>
 #include <tlTimelineUI/GapItem.h>
 #include <tlTimelineUI/VideoClipItem.h>
 
@@ -13,6 +12,7 @@
 #include <tlUI/Label.h>
 #include <tlUI/ScrollArea.h>
 
+#include <tlTimeline/Edit.h>
 #include <tlTimeline/Util.h>
 
 #include <tlCore/StringFormat.h>
@@ -521,7 +521,7 @@ namespace tl
             if (!p.mouse.items.empty() && p.mouse.currentDropTarget != -1)
             {
                 const auto& dropTarget = p.mouse.dropTargets[p.mouse.currentDropTarget];
-                std::vector<InsertData> insertData;
+                std::vector<timeline::InsertData> insertData;
                 for (const auto& item : p.mouse.items)
                 {
                     const int track = dropTarget.track + (item->track - p.mouse.items[0]->track);

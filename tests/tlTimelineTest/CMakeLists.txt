@@ -1,5 +1,6 @@
 set(HEADERS
     ColorConfigOptionsTest.h
+    EditTest.h
     IRenderTest.h
     LUTOptionsTest.h
     PlayerTest.h
@@ -8,6 +9,7 @@ set(HEADERS
 
 set(SOURCE
     ColorConfigOptionsTest.cpp
+    EditTest.cpp
     IRenderTest.cpp
     LUTOptionsTest.cpp
     PlayerTest.cpp

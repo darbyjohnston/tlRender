@@ -1,6 +1,5 @@
 set(HEADERS
     AudioClipItem.h
-    Edit.h
     GapItem.h
     IBasicItem.h
     IItem.h
@@ -14,7 +13,6 @@ set(HEADERS_PRIVATE)
 
 set(SOURCE
     AudioClipItem.cpp
-    Edit.cpp
     GapItem.cpp
     IBasicItem.cpp
     IItem.cpp
