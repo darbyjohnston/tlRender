@@ -19,6 +19,10 @@ namespace tl
             static std::shared_ptr<EditTest> create(const std::shared_ptr<system::Context>&);
 
             void run() override;
+
+        private:
+            void _insert();
+            void _util();
         };
     }
 }

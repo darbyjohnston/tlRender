@@ -94,7 +94,7 @@ namespace tl
                                         if (audioTimeRangeOpt.has_value())
                                         {
                                             const otime::TimeRange audioTimeRange = audioTimeRangeOpt.value();
-                                            if (audioTimeRange.start_time() == timeRange.start_time())
+                                            if (audioTimeRange == timeRange)
                                             {
                                                 out = audioClip;
                                                 break;
@@ -119,7 +119,7 @@ namespace tl
                                         if (videoTimeRangeOpt.has_value())
                                         {
                                             const otime::TimeRange videoTimeRange = videoTimeRangeOpt.value();
-                                            if (videoTimeRange.start_time() == timeRange.start_time())
+                                            if (videoTimeRange == timeRange)
                                             {
                                                 out = videoClip;
                                                 break;
