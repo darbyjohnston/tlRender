@@ -41,27 +41,47 @@ namespace tl
 
         void VideoClipItem::_init(
             const otio::SerializableObject::Retainer<otio::Clip>& clip,
-            const ItemData& itemData,
+            double scale,
+            const ItemOptions& options,
+            const std::shared_ptr<ItemData>& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             const auto path = timeline::getPath(
                 clip->media_reference(),
-                itemData.directory,
-                itemData.options.pathOptions);
+                itemData->directory,
+                itemData->options.pathOptions);
             IBasicItem::_init(
                 !clip->name().empty() ? clip->name() : path.get(-1, false),
                 ui::ColorRole::VideoClip,
                 "tl::timelineui::VideoClipItem",
                 clip.value,
+                scale,
+                options,
                 itemData,
                 context,
                 parent);
             TLRENDER_P();
+
             p.clip = clip;
             p.path = path;
             p.memoryRead = timeline::getMemoryRead(clip->media_reference());
             p.thumbnailSystem = context->getSystem<ui::ThumbnailSystem>();
+
+            const std::string fileName = p.path.get();
+            const auto i = _data->info.find(fileName);
+            if (i != _data->info.end())
+            {
+                p.ioInfo = std::make_unique<io::Info>(i->second);
+            }
+            const auto j = _data->thumbnails.find(fileName);
+            if (j != _data->thumbnails.end())
+            {
+                for (const auto& k : j->second)
+                {
+                    p.thumbnails[k.first].image = k.second;
+                }
+            }
         }
 
         VideoClipItem::VideoClipItem() :
@@ -70,17 +90,29 @@ namespace tl
 
         VideoClipItem::~VideoClipItem()
         {
+            TLRENDER_P();
             _cancelRequests();
+            const std::string fileName = p.path.get();
+            if (p.ioInfo)
+            {
+                _data->info[fileName] = *p.ioInfo;
+            }
+            for (const auto& i : p.thumbnails)
+            {
+                _data->thumbnails[fileName][i.first] = i.second.image;
+            }
         }
 
         std::shared_ptr<VideoClipItem> VideoClipItem::create(
             const otio::SerializableObject::Retainer<otio::Clip>& clip,
-            const ItemData& itemData,
+            double scale,
+            const ItemOptions& options,
+            const std::shared_ptr<ItemData>& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<VideoClipItem>(new VideoClipItem);
-            out->_init(clip, itemData, context, parent);
+            out->_init(clip, scale, options, itemData, context, parent);
             return out;
         }
 
@@ -96,7 +128,6 @@ namespace tl
             TLRENDER_P();
             if (changed)
             {
-                p.thumbnails.clear();
                 _cancelRequests();
                 _updates |= ui::Update::Draw;
             }
@@ -269,8 +300,12 @@ namespace tl
                             (w > 0 ? (x / static_cast<double>(w - 1)) : 0) *
                             _timeRange.duration().value(),
                             _timeRange.duration().rate()));
+                        const otime::RationalTime mediaTime = timeline::toVideoMediaTime(
+                            time,
+                            p.clip,
+                            p.ioInfo->videoTime.duration().rate());
 
-                        const auto i = p.thumbnails.find(time);
+                        const auto i = p.thumbnails.find(mediaTime);
                         if (i != p.thumbnails.end())
                         {
                             if (i->second.image)
@@ -286,18 +321,14 @@ namespace tl
                                     box,
                                     image::Color4f(1.F, 1.F, 1.F, a));
                             }
-                            thumbnailsDelete.erase(time);
+                            thumbnailsDelete.erase(mediaTime);
                         }
                         else if (p.ioInfo && !p.ioInfo->video.empty())
                         {
-                            const auto k = p.thumbnailRequests.find(time);
+                            const auto k = p.thumbnailRequests.find(mediaTime);
                             if (k == p.thumbnailRequests.end())
                             {
-                                const auto mediaTime = timeline::toVideoMediaTime(
-                                    time,
-                                    p.clip,
-                                    p.ioInfo->videoTime.duration().rate());
-                                p.thumbnailRequests[time] = thumbnailSystem->getThumbnail(
+                                p.thumbnailRequests[mediaTime] = thumbnailSystem->getThumbnail(
                                     _options.thumbnailHeight,
                                     p.path,
                                     p.memoryRead,

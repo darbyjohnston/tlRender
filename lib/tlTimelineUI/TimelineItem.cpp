@@ -111,7 +111,9 @@ namespace tl
         void TimelineItem::_init(
             const std::shared_ptr<timeline::Player>& player,
             const otio::SerializableObject::Retainer<otio::Stack>& stack,
-            const ItemData& itemData,
+            double scale,
+            const ItemOptions& options,
+            const std::shared_ptr<ItemData>& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -119,6 +121,8 @@ namespace tl
                 "tl::timelineui::TimelineItem",
                 stack.value,
                 player->getTimeRange(),
+                scale,
+                options,
                 itemData,
                 context,
                 parent);
@@ -173,6 +177,8 @@ namespace tl
                             case TrackType::Video:
                                 track.items.push_back(VideoClipItem::create(
                                     clip,
+                                    scale,
+                                    options,
                                     itemData,
                                     context,
                                     shared_from_this()));
@@ -180,6 +186,8 @@ namespace tl
                             case TrackType::Audio:
                                 track.items.push_back(AudioClipItem::create(
                                     clip,
+                                    scale,
+                                    options,
                                     itemData,
                                     context,
                                     shared_from_this()));
@@ -194,6 +202,8 @@ namespace tl
                                 ui::ColorRole::VideoGap :
                                 ui::ColorRole::AudioGap,
                                 gap,
+                                scale,
+                                options,
                                 itemData,
                                 context,
                                 shared_from_this()));
@@ -241,12 +251,14 @@ namespace tl
         std::shared_ptr<TimelineItem> TimelineItem::create(
             const std::shared_ptr<timeline::Player>& player,
             const otio::SerializableObject::Retainer<otio::Stack>& stack,
-            const ItemData& itemData,
+            double scale,
+            const ItemOptions& options,
+            const std::shared_ptr<ItemData>& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TimelineItem>(new TimelineItem);
-            out->_init(player, stack, itemData, context, parent);
+            out->_init(player, stack, scale, options, itemData, context, parent);
             return out;
         }
 
@@ -646,7 +658,7 @@ namespace tl
             const int handle = event.style->getSizeRole(ui::SizeRole::Handle, event.displayScale);
             const math::Box2i& g = _geometry;
 
-            const std::string labelMax = _data.timeUnitsModel->getLabel(_timeRange.duration());
+            const std::string labelMax = _data->timeUnitsModel->getLabel(_timeRange.duration());
             const math::Size2i labelMaxSize = event.fontSystem->getSize(labelMax, p.size.fontInfo);
             const int distanceMin = p.size.border + p.size.margin + labelMaxSize.w;
 
@@ -761,7 +773,7 @@ namespace tl
                         p.size.fontMetrics.lineHeight);
                     if (time != currentTime && box.intersects(drawRect))
                     {
-                        const std::string label = _data.timeUnitsModel->getLabel(time);
+                        const std::string label = _data->timeUnitsModel->getLabel(time);
                         event.render->drawText(
                             event.fontSystem->getGlyphs(label, p.size.fontInfo),
                             math::Vector2i(
@@ -886,7 +898,7 @@ namespace tl
                         g.h()),
                     event.style->getColorRole(ui::ColorRole::Red));
 
-                const std::string label = _data.timeUnitsModel->getLabel(currentTime);
+                const std::string label = _data->timeUnitsModel->getLabel(currentTime);
                 event.render->drawText(
                     event.fontSystem->getGlyphs(label, p.size.fontInfo),
                     math::Vector2i(
@@ -908,9 +920,9 @@ namespace tl
                     TrackType::Audio == track.type ?
                     (duration.rate() >= 1000.0) :
                     false;
-                const otime::RationalTime rescaled = duration.rescaled_to(_data.speed);
+                const otime::RationalTime rescaled = duration.rescaled_to(_data->speed);
                 const std::string label = string::Format("{0}, {1}{2}").
-                    arg(_data.timeUnitsModel->getLabel(rescaled)).
+                    arg(_data->timeUnitsModel->getLabel(rescaled)).
                     arg(khz ? (duration.rate() / 1000.0) : duration.rate()).
                     arg(khz ? "kHz" : "FPS");
                 track.durationLabel->setText(label);

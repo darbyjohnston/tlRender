@@ -46,7 +46,9 @@ namespace tl
             ui::ColorRole colorRole,
             const std::string& objectName,
             const otio::SerializableObject::Retainer<otio::Item>& item,
-            const ItemData& itemData,
+            double scale,
+            const ItemOptions& options,
+            const std::shared_ptr<ItemData>& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -55,6 +57,8 @@ namespace tl
                 objectName,
                 item.value,
                 timeRangeOpt.has_value() ? timeRangeOpt.value() : time::invalidTimeRange,
+                scale,
+                options,
                 itemData,
                 context,
                 parent);

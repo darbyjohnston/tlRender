@@ -11,7 +11,9 @@ namespace tl
         void GapItem::_init(
             ui::ColorRole colorRole,
             const otio::SerializableObject::Retainer<otio::Gap>& gap,
-            const ItemData& itemData,
+            double scale,
+            const ItemOptions& options,
+            const std::shared_ptr<ItemData>& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -20,6 +22,8 @@ namespace tl
                 colorRole,
                 "tl::timelineui::GapItem",
                 gap.value,
+                scale,
+                options,
                 itemData,
                 context,
                 parent);
@@ -34,12 +38,14 @@ namespace tl
         std::shared_ptr<GapItem> GapItem::create(
             ui::ColorRole colorRole,
             const otio::SerializableObject::Retainer<otio::Gap>& gap,
-            const ItemData& itemData,
+            double scale,
+            const ItemOptions& options,
+            const std::shared_ptr<ItemData>& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<GapItem>(new GapItem);
-            out->_init(colorRole, gap, itemData, context, parent);
+            out->_init(colorRole, gap, scale, options, itemData, context, parent);
             return out;
         }
     }

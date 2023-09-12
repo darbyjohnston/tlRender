@@ -24,6 +24,13 @@ namespace tl
             std::string directory;
             timeline::Options options;
             std::shared_ptr<timeline::ITimeUnitsModel> timeUnitsModel;
+            std::map<std::string, io::Info> info;
+            std::map<
+                std::string,
+                std::map<otime::RationalTime, std::shared_ptr<image::Image> > > thumbnails;
+            std::map<
+                std::string,
+                std::map<otime::RationalTime, std::shared_ptr<geom::TriangleMesh2> > > waveforms;
         };
 
         //! In/out points display options.
@@ -106,7 +113,9 @@ namespace tl
                 const std::string& objectName,
                 const otio::SerializableObject::Retainer<otio::Composable>&,
                 const otime::TimeRange&,
-                const ItemData&,
+                double scale,
+                const ItemOptions&,
+                const std::shared_ptr<ItemData>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -145,11 +154,11 @@ namespace tl
 
             virtual void _timeUnitsUpdate();
 
-            otio::SerializableObject::Retainer<otio::Composable> _composable;
             otime::TimeRange _timeRange = time::invalidTimeRange;
-            ItemData _data;
             double _scale = 500.0;
             ItemOptions _options;
+            otio::SerializableObject::Retainer<otio::Composable> _composable;
+            std::shared_ptr<ItemData> _data;
 
         private:
             TLRENDER_PRIVATE();

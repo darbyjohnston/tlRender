@@ -41,27 +41,47 @@ namespace tl
 
         void AudioClipItem::_init(
             const otio::SerializableObject::Retainer<otio::Clip>& clip,
-            const ItemData& itemData,
+            double scale,
+            const ItemOptions& options,
+            const std::shared_ptr<ItemData>& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             const auto path = timeline::getPath(
                 clip->media_reference(),
-                itemData.directory,
-                itemData.options.pathOptions);
+                itemData->directory,
+                itemData->options.pathOptions);
             IBasicItem::_init(
                 !clip->name().empty() ? clip->name() : path.get(-1, false),
                 ui::ColorRole::AudioClip,
                 "tl::timelineui::AudioClipItem",
                 clip.value,
+                scale,
+                options,
                 itemData,
                 context,
                 parent);
             TLRENDER_P();
+
             p.clip = clip;
             p.path = path;
             p.memoryRead = timeline::getMemoryRead(clip->media_reference());
             p.thumbnailSystem = context->getSystem<ui::ThumbnailSystem>();
+
+            const std::string fileName = p.path.get();
+            const auto i = _data->info.find(fileName);
+            if (i != _data->info.end())
+            {
+                p.ioInfo = std::make_unique<io::Info>(i->second);
+            }
+            const auto j = _data->waveforms.find(fileName);
+            if (j != _data->waveforms.end())
+            {
+                for (const auto& k : j->second)
+                {
+                    p.waveforms[k.first].mesh = k.second;
+                }
+            }
         }
 
         AudioClipItem::AudioClipItem() :
@@ -70,17 +90,29 @@ namespace tl
 
         AudioClipItem::~AudioClipItem()
         {
+            TLRENDER_P();
             _cancelRequests();
+            const std::string fileName = p.path.get();
+            if (p.ioInfo)
+            {
+                _data->info[fileName] = *p.ioInfo;
+            }
+            for (const auto& i : p.waveforms)
+            {
+                _data->waveforms[fileName][i.first] = i.second.mesh;
+            }
         }
 
         std::shared_ptr<AudioClipItem> AudioClipItem::create(
             const otio::SerializableObject::Retainer<otio::Clip>& clip,
-            const ItemData& itemData,
+            double scale,
+            const ItemOptions& options,
+            const std::shared_ptr<ItemData>& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<AudioClipItem>(new AudioClipItem);
-            out->_init(clip, itemData, context, parent);
+            out->_init(clip, scale, options, itemData, context, parent);
             return out;
         }
 
@@ -249,7 +281,7 @@ namespace tl
                 }
             }
 
-            if (_options.waveformWidth > 0 && thumbnailSystem)
+            if (_options.waveformWidth > 0 && p.ioInfo && thumbnailSystem)
             {
                 const auto now = std::chrono::steady_clock::now();
                 const int w = _sizeHint.w;
@@ -269,7 +301,17 @@ namespace tl
                             (w > 0 ? (x / static_cast<double>(w)) : 0) *
                             _timeRange.duration().value(),
                             _timeRange.duration().rate()));
-                        auto i = p.waveforms.find(time);
+                        const otime::RationalTime time2 = time::round(otime::RationalTime(
+                            _timeRange.start_time().value() +
+                            (w > 0 ? ((x + _options.waveformWidth) / static_cast<double>(w)) : 0) *
+                            _timeRange.duration().value(),
+                            _timeRange.duration().rate()));
+                        const otime::TimeRange mediaRange = timeline::toAudioMediaTime(
+                            otime::TimeRange::range_from_start_end_time(time, time2),
+                            p.clip,
+                            p.ioInfo->audio.sampleRate);
+
+                        auto i = p.waveforms.find(mediaRange.start_time());
                         if (i != p.waveforms.end())
                         {
                             if (i->second.mesh)
@@ -285,23 +327,14 @@ namespace tl
                                     box.min,
                                     image::Color4f(1.F, 1.F, 1.F, a));
                             }
-                            waveformsDelete.erase(time);
+                            waveformsDelete.erase(mediaRange.start_time());
                         }
                         else if (p.ioInfo && p.ioInfo->audio.isValid())
                         {
-                            const auto j = p.waveformRequests.find(time);
+                            const auto j = p.waveformRequests.find(mediaRange.start_time());
                             if (j == p.waveformRequests.end())
                             {
-                                const otime::RationalTime time2 = time::round(otime::RationalTime(
-                                    _timeRange.start_time().value() +
-                                    (w > 0 ? ((x + _options.waveformWidth) / static_cast<double>(w)) : 0) *
-                                    _timeRange.duration().value(),
-                                    _timeRange.duration().rate()));
-                                const otime::TimeRange mediaRange = timeline::toAudioMediaTime(
-                                    otime::TimeRange::range_from_start_end_time(time, time2),
-                                    p.clip,
-                                    p.ioInfo->audio.sampleRate);
-                                p.waveformRequests[time] = thumbnailSystem->getWaveform(
+                                p.waveformRequests[mediaRange.start_time()] = thumbnailSystem->getWaveform(
                                     box.getSize(),
                                     p.path,
                                     p.memoryRead,

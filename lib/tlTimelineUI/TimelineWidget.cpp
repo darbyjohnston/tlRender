@@ -12,7 +12,7 @@ namespace tl
     {
         struct TimelineWidget::Private
         {
-            std::shared_ptr<timeline::ITimeUnitsModel> timeUnitsModel;
+            std::shared_ptr<ItemData> itemData;
             std::shared_ptr<timeline::Player> player;
             std::shared_ptr<observer::ValueObserver<bool> > timelineObserver;
             std::shared_ptr<observer::Value<bool> > editable;
@@ -53,7 +53,8 @@ namespace tl
             _setMouseHover(true);
             _setMousePress(true, 0, static_cast<int>(p.scrollKeyModifier));
 
-            p.timeUnitsModel = timeUnitsModel;
+            p.itemData = std::make_shared<ItemData>();
+            p.itemData->timeUnitsModel = timeUnitsModel;
 
             p.editable = observer::Value<bool>::create(false);
             p.frameView = observer::Value<bool>::create(true);
@@ -97,6 +98,7 @@ namespace tl
 
             p.player = player;
 
+            p.scale = _getTimelineScale();
             if (p.player)
             {
                 p.timelineObserver = observer::ValueObserver<bool>::create(
@@ -104,15 +106,11 @@ namespace tl
                     [this](bool)
                     {
                         _timelineUpdate();
-                        _setItemScale(_p->timelineItem, _p->scale);
                     });
             }
-
-            _timelineUpdate();
-            if (p.timelineItem)
+            else
             {
-                p.scale = _getTimelineScale();
-                _setItemScale(p.timelineItem, p.scale);
+                _timelineUpdate();
             }
         }
 
@@ -282,6 +280,18 @@ namespace tl
             {
                 frameView();
             }
+        }
+
+        void TimelineWidget::tickEvent(
+            bool parentsVisible,
+            bool parentsEnabled,
+            const ui::TickEvent& event)
+        {
+            IWidget::tickEvent(parentsVisible, parentsEnabled, event);
+            TLRENDER_P();
+            p.itemData->info.clear();
+            p.itemData->thumbnails.clear();
+            p.itemData->waveforms.clear();
         }
 
         void TimelineWidget::sizeHintEvent(const ui::SizeHintEvent& event)
@@ -508,21 +518,19 @@ namespace tl
             {
                 if (auto context = _context.lock())
                 {
-                    ItemData itemData;
-                    itemData.speed = p.player->getDefaultSpeed();
-                    itemData.directory = p.player->getPath().getDirectory();
-                    itemData.options = p.player->getOptions();
-                    itemData.timeUnitsModel = p.timeUnitsModel;
-
+                    p.itemData->speed = p.player->getDefaultSpeed();
+                    p.itemData->directory = p.player->getPath().getDirectory();
+                    p.itemData->options = p.player->getOptions();
                     p.timelineItem = TimelineItem::create(
                         p.player,
                         p.player->getTimeline()->getTimeline()->tracks(),
-                        itemData,
+                        p.scale,
+                        p.itemOptions->get(),
+                        p.itemData,
                         context);
                     p.timelineItem->setEditable(p.editable->get());
                     p.timelineItem->setStopOnScrub(p.stopOnScrub->get());
                     p.scrollWidget->setScrollPos(scrollPos);
-                    _setItemOptions(p.timelineItem, p.itemOptions->get());
                     p.scrollWidget->setWidget(p.timelineItem);
                 }
             }

@@ -103,6 +103,10 @@ namespace tl
             void setItemOptions(const ItemOptions&);
 
             void setGeometry(const math::Box2i&) override;
+            void tickEvent(
+                bool,
+                bool,
+                const ui::TickEvent&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
             void mouseMoveEvent(ui::MouseMoveEvent&) override;
             void mousePressEvent(ui::MouseClickEvent&) override;

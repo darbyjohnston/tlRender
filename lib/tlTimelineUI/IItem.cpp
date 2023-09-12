@@ -108,19 +108,23 @@ namespace tl
             const std::string& objectName,
             const otio::SerializableObject::Retainer<otio::Composable>& composable,
             const otime::TimeRange& timeRange,
-            const ItemData& data,
+            double scale,
+            const ItemOptions& options,
+            const std::shared_ptr<ItemData>& data,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(objectName, context, parent);
             TLRENDER_P();
 
-            _composable = composable;
             _timeRange = timeRange;
+            _scale = scale;
+            _options = options;
+            _composable = composable;
             _data = data;
 
             p.timeUnitsObserver = observer::ValueObserver<bool>::create(
-                data.timeUnitsModel->observeTimeUnitsChanged(),
+                data->timeUnitsModel->observeTimeUnitsChanged(),
                 [this](bool)
                 {
                     _timeUnitsUpdate();
@@ -191,9 +195,9 @@ namespace tl
 
         std::string IItem::_getDurationLabel(const otime::RationalTime& value)
         {
-            const otime::RationalTime rescaled = value.rescaled_to(_data.speed);
+            const otime::RationalTime rescaled = value.rescaled_to(_data->speed);
             return string::Format("{0}").
-                arg(_data.timeUnitsModel->getLabel(rescaled));
+                arg(_data->timeUnitsModel->getLabel(rescaled));
         }
 
         otime::RationalTime IItem::_posToTime(float value) const
