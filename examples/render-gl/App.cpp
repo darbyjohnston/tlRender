@@ -26,12 +26,10 @@ namespace tl
         namespace render_gl
         {
             void App::_init(
-                int argc,
-                char* argv[],
+                const std::vector<std::string>& argv,
                 const std::shared_ptr<system::Context>& context)
             {
                 IApp::_init(
-                    argc,
                     argv,
                     context,
                     "render-gl",
@@ -112,100 +110,98 @@ namespace tl
             {}
 
             std::shared_ptr<App> App::create(
-                int argc,
-                char* argv[],
+                const std::vector<std::string>& argv,
                 const std::shared_ptr<system::Context>& context)
             {
                 auto out = std::shared_ptr<App>(new App);
-                out->_init(argc, argv, context);
+                out->_init(argv, context);
                 return out;
             }
 
-            void App::run()
+            int App::run()
             {
-                if (_exit != 0)
+                if (0 == _exit)
                 {
-                    return;
-                }
-
-                // Read the timelines.
-                auto timeline = timeline::Timeline::create(
-                    file::Path(_input),
-                    _context);
-                auto player = timeline::Player::create(timeline, _context);
-                _players.push_back(player);
-                auto ioInfo = player->getIOInfo();
-                if (!ioInfo.video.empty())
-                {
-                    _videoSizes.push_back(ioInfo.video[0].size);
-                }
-                _videoData.push_back(timeline::VideoData());
-                if (!_options.compareFileName.empty())
-                {
-                    timeline = timeline::Timeline::create(
-                        file::Path(_options.compareFileName),
+                    // Read the timelines.
+                    auto timeline = timeline::Timeline::create(
+                        file::Path(_input),
                         _context);
-                    player = timeline::Player::create(timeline, _context);
-                    player->setExternalTime(_players[0]);
+                    auto player = timeline::Player::create(timeline, _context);
                     _players.push_back(player);
-                    ioInfo = player->getIOInfo();
+                    auto ioInfo = player->getIOInfo();
                     if (!ioInfo.video.empty())
                     {
                         _videoSizes.push_back(ioInfo.video[0].size);
                     }
                     _videoData.push_back(timeline::VideoData());
-                }
-
-                // Create the window.
-                _window = gl::GLFWWindow::create(
-                    "render-gl",
-                    _options.windowSize,
-                    _context);
-                _frameBufferSize = _window->getFrameBufferSize();
-                _contentScale = _window->getContentScale();
-                _window->setFullScreen(_options.fullscreen);
-                _window->setFrameBufferSizeCallback(
-                    [this](const math::Size2i& value)
+                    if (!_options.compareFileName.empty())
                     {
-                        _frameBufferSize = value;
-                        _renderDirty = true;
-                    });
-                _window->setContentScaleCallback(
-                    [this](const math::Vector2f& value)
+                        timeline = timeline::Timeline::create(
+                            file::Path(_options.compareFileName),
+                            _context);
+                        player = timeline::Player::create(timeline, _context);
+                        player->setExternalTime(_players[0]);
+                        _players.push_back(player);
+                        ioInfo = player->getIOInfo();
+                        if (!ioInfo.video.empty())
+                        {
+                            _videoSizes.push_back(ioInfo.video[0].size);
+                        }
+                        _videoData.push_back(timeline::VideoData());
+                    }
+
+                    // Create the window.
+                    _window = gl::GLFWWindow::create(
+                        "render-gl",
+                        _options.windowSize,
+                        _context);
+                    _frameBufferSize = _window->getFrameBufferSize();
+                    _contentScale = _window->getContentScale();
+                    _window->setFullScreen(_options.fullscreen);
+                    _window->setFrameBufferSizeCallback(
+                        [this](const math::Size2i& value)
+                        {
+                            _frameBufferSize = value;
+                    _renderDirty = true;
+                        });
+                    _window->setContentScaleCallback(
+                        [this](const math::Vector2f& value)
+                        {
+                            _contentScale = value;
+                    _renderDirty = true;
+                        });
+                    _window->setKeyCallback(
+                        [this](int key, int scanCode, int action, int mods)
+                        {
+                            _keyCallback(key, scanCode, action, mods);
+                        });
+
+                    // Create the renderer.
+                    _render = timeline::GLRender::create(_context);
+
+                    // Print the shortcuts help.
+                    _printShortcutsHelp();
+
+                    // Start the main loop.
+                    _hud = _options.hud;
+                    if (time::isValid(_options.inOutRange))
                     {
-                        _contentScale = value;
-                        _renderDirty = true;
-                    });
-                _window->setKeyCallback(
-                    [this](int key, int scanCode, int action, int mods)
+                        _players[0]->setInOutRange(_options.inOutRange);
+                        _players[0]->seek(_options.inOutRange.start_time());
+                    }
+                    if (time::isValid(_options.seek))
                     {
-                        _keyCallback(key, scanCode, action, mods);
-                    });
-
-                // Create the renderer.
-                _render = timeline::GLRender::create(_context);
-
-                // Print the shortcuts help.
-                _printShortcutsHelp();
-
-                // Start the main loop.
-                _hud = _options.hud;
-                if (time::isValid(_options.inOutRange))
-                {
-                    _players[0]->setInOutRange(_options.inOutRange);
-                    _players[0]->seek(_options.inOutRange.start_time());
+                        _players[0]->seek(_options.seek);
+                    }
+                    _players[0]->setPlayback(_options.playback);
+                    _startTime = std::chrono::steady_clock::now();
+                    while (_running && !_window->shouldClose())
+                    {
+                        glfwPollEvents();
+                        _tick();
+                    }
                 }
-                if (time::isValid(_options.seek))
-                {
-                    _players[0]->seek(_options.seek);
-                }
-                _players[0]->setPlayback(_options.playback);
-                _startTime = std::chrono::steady_clock::now();
-                while (_running && !_window->shouldClose())
-                {
-                    glfwPollEvents();
-                    _tick();
-                }
+                return _exit;
             }
 
             void App::exit()

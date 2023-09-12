@@ -113,7 +113,8 @@ int main(int argc, char* argv[])
     std::vector<std::shared_ptr<tests::ITest> > tests;
     if (0)
     {
-        tests.push_back(core_tests::PathTest::create(context));
+        tests.push_back(app_tests::AppTest::create(context));
+        tests.push_back(app_tests::CmdLineTest::create(context));
     }
     else
     {

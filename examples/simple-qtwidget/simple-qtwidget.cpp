@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    int r = 0;
+    int r = 1;
     try
     {
         // Create the Qt application.
@@ -65,7 +65,6 @@ int main(int argc, char* argv[])
     catch (const std::exception& e)
     {
         std::cerr << "ERROR: " << e.what() << std::endl;
-        r = 1;
     }
     return r;
 }

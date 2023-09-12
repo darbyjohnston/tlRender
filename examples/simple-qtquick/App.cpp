@@ -26,8 +26,7 @@ namespace tl
                 QGuiApplication(argc, argv)
             {
                 IApp::_init(
-                    argc,
-                    argv,
+                    app::convert(argc, argv),
                     context,
                     "simple-qtquick",
                     "Example Qt Quick playback application.",

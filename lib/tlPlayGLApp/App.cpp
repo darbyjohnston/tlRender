@@ -101,8 +101,7 @@ namespace tl
         };
 
         void App::_init(
-            int argc,
-            char* argv[],
+            const std::vector<std::string>& argv,
             const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
@@ -112,7 +111,6 @@ namespace tl
             const std::string settingsFileName =
                 play::settingsName(appName, appDirPath);
             IApp::_init(
-                argc,
                 argv,
                 context,
                 appName,
@@ -582,12 +580,11 @@ namespace tl
         }
 
         std::shared_ptr<App> App::create(
-            int argc,
-            char* argv[],
+            const std::vector<std::string>& argv,
             const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<App>(new App);
-            out->_init(argc, argv, context);
+            out->_init(argv, context);
             return out;
         }
 

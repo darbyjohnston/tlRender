@@ -25,8 +25,7 @@ namespace tl
 
             protected:
                 void _init(
-                    int argc,
-                    char* argv[],
+                    const std::vector<std::string>&,
                     const std::shared_ptr<system::Context>&);
 
                 App();
@@ -36,8 +35,7 @@ namespace tl
 
                 //! Create a new application.
                 static std::shared_ptr<App> create(
-                    int argc,
-                    char* argv[],
+                    const std::vector<std::string>&,
                     const std::shared_ptr<system::Context>&);
 
             private:

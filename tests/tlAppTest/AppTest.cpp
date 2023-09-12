@@ -25,40 +25,10 @@ namespace tl
         
         namespace
         {
-            class Args
-            {
-            public:
-                Args(const std::vector<std::string>& args)
-                {
-                    argc = args.size();
-                    argv = new char* [argc];
-                    for (int i = 0; i < argc; ++i)
-                    {
-                        const size_t size = args[i].size();
-                        argv[i] = new char[size + 1];
-                        memcpy(argv[i], args[i].c_str(), size);
-                        argv[i][size] = 0;
-                    };
-                }
-                
-                ~Args()
-                {
-                    for (int i = 0; i < argc; ++i)
-                    {
-                        delete [] argv[i];
-                    }
-                    delete [] argv;
-                }
-                
-                int argc = 0;
-                char** argv = nullptr;
-            };
-            
             class App : public IApp
             {
                 void _init(
-                    int argc,
-                    char* argv[],
+                    const std::vector<std::string>& args,
                     const std::shared_ptr<system::Context>& context)
                 {
                     auto inputArg = CmdLineValueArg<std::string>::create(
@@ -75,8 +45,7 @@ namespace tl
                         { "-option" },
                         "This is the help for the option.");
                     IApp::_init(
-                        argc,
-                        argv,
+                        args,
                         context,
                         "test",
                         "Test application.",
@@ -90,12 +59,11 @@ namespace tl
 
             public:
                 static std::shared_ptr<App> create(
-                    int argc,
-                    char* argv[],
+                    const std::vector<std::string>& args,
                     const std::shared_ptr<system::Context>& context)
                 {
                     auto out = std::shared_ptr<App>(new App);
-                    out->_init(argc, argv, context);
+                    out->_init(args, context);
                     return out;
                 }
                 
@@ -109,19 +77,16 @@ namespace tl
         void AppTest::run()
         {
             {
-                const auto args = Args({ "app" });
-                auto app = App::create(args.argc, args.argv, _context);
+                auto app = App::create({ "app" }, _context);
                 TLRENDER_ASSERT(app->getContext());
                 TLRENDER_ASSERT(1 == app->getExit());
             }
             {
-                const auto args = Args({ "app", "-h" });
-                auto app = App::create(args.argc, args.argv, _context);
+                auto app = App::create({ "app", "-h" }, _context);
                 TLRENDER_ASSERT(1 == app->getExit());
             }
             {
-                const auto args = Args({ "app", "input", "-log" });
-                auto app = App::create(args.argc, args.argv, _context);
+                auto app = App::create({ "app", "input", "-log" }, _context);
                 for (size_t i = 0; i < 10; ++i)
                 {
                     _context->tick();
@@ -130,8 +95,7 @@ namespace tl
             }
             try
             {
-                const auto args = Args({ "app", "input", "output", "-option" });
-                auto app = App::create(args.argc, args.argv, _context);
+                auto app = App::create({ "app", "input", "output", "-option" }, _context);
                 TLRENDER_ASSERT(false);
             }
             catch (const std::exception&)

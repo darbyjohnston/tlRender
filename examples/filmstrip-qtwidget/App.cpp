@@ -21,8 +21,7 @@ namespace tl
                 QApplication(argc, argv)
             {
                 IApp::_init(
-                    argc,
-                    argv,
+                    app::convert(argc, argv),
                     context,
                     "filmstrip-qwidget",
                     "Example using the filmstrip widget.",

@@ -31,8 +31,7 @@ namespace tl
 
         protected:
             void _init(
-                int argc,
-                char* argv[],
+                const std::vector<std::string>&,
                 const std::shared_ptr<system::Context>&,
                 const std::string& cmdLineName,
                 const std::string& cmdLineSummary,
@@ -45,7 +44,7 @@ namespace tl
             ~IApp();
 
             //! Run the application.
-            virtual void run();
+            virtual int run();
 
             //! Exit the application.
             void exit(int = 0);

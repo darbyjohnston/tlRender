@@ -8,24 +8,19 @@
 
 #include <iostream>
 
-int main(int argc, char* argv[])
+TLRENDER_MAIN()
 {
-    int r = 0;
+    int r = 1;
     try
     {
         auto context = tl::system::Context::create();
         tl::timeline::init(context);
-        auto app = tl::examples::test_patterns::App::create(argc, argv, context);
-        if (0 == app->getExit())
-        {
-            app->run();
-            r = app->getExit();
-        }
+        auto app = tl::examples::test_patterns::App::create(tl::app::convert(argc, argv), context);
+        r = app->run();
     }
     catch(const std::exception& e)
     {
         std::cerr << "ERROR: " << e.what() << std::endl;
-        r = 1;
     }
     return r;
 }

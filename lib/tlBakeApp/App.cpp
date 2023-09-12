@@ -23,12 +23,10 @@ namespace tl
     namespace bake
     {
         void App::_init(
-            int argc,
-            char* argv[],
+            const std::vector<std::string>& argv,
             const std::shared_ptr<system::Context>& context)
         {
             IApp::_init(
-                argc,
                 argv,
                 context,
                 "tlbake",
@@ -233,107 +231,106 @@ namespace tl
         {}
 
         std::shared_ptr<App> App::create(
-            int argc,
-            char* argv[],
+            const std::vector<std::string>& argv,
             const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<App>(new App);
-            out->_init(argc, argv, context);
+            out->_init(argv, context);
             return out;
         }
 
-        void App::run()
+        int App::run()
         {
-            if (_exit != 0)
+            if (0 == _exit)
             {
-                return;
+                _startTime = std::chrono::steady_clock::now();
+
+                // Create the window.
+                _window = gl::GLFWWindow::create(
+                    "test-patterns",
+                    math::Size2i(1, 1),
+                    _context,
+                    static_cast<int>(gl::GLFWWindowOptions::MakeCurrent));
+
+                // Read the timeline.
+                _timeline = timeline::Timeline::create(file::Path(_input), _context);
+                _timeRange = _timeline->getTimeRange();
+                _print(string::Format("Timeline range: {0}-{1}").
+                    arg(_timeRange.start_time().value()).
+                    arg(_timeRange.end_time_inclusive().value()));
+                _print(string::Format("Timeline speed: {0}").arg(_timeRange.duration().rate()));
+
+                // Time range.
+                if (time::isValid(_options.inOutRange))
+                {
+                    _timeRange = _options.inOutRange;
+                }
+                _print(string::Format("In/out range: {0}-{1}").
+                    arg(_timeRange.start_time().value()).
+                    arg(_timeRange.end_time_inclusive().value()));
+                _inputTime = _timeRange.start_time();
+                _outputTime = otime::RationalTime(0.0, _timeRange.duration().rate());
+
+                // Render information.
+                const auto& info = _timeline->getIOInfo();
+                if (info.video.empty())
+                {
+                    throw std::runtime_error("No video information");
+                }
+                _renderSize = _options.renderSize.isValid() ?
+                    _options.renderSize :
+                    math::Size2i(info.video[0].size.w, info.video[0].size.h);
+                _print(string::Format("Render size: {0}").arg(_renderSize));
+
+                // Create the renderer.
+                _render = timeline::GLRender::create(_context);
+                gl::OffscreenBufferOptions offscreenBufferOptions;
+                offscreenBufferOptions.colorType = gl::OffscreenColorDefault;
+                _buffer = gl::OffscreenBuffer::create(_renderSize, offscreenBufferOptions);
+
+                // Create the writer.
+                _writerPlugin = _context->getSystem<io::System>()->getPlugin(file::Path(_output));
+                if (!_writerPlugin)
+                {
+                    throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));
+                }
+                io::Info ioInfo;
+                _outputInfo.size.w = _renderSize.w;
+                _outputInfo.size.h = _renderSize.h;
+                _outputInfo.pixelType = _options.outputPixelType != image::PixelType::None ?
+                    _options.outputPixelType :
+                    info.video[0].pixelType;
+                _outputInfo = _writerPlugin->getWriteInfo(_outputInfo);
+                if (image::PixelType::None == _outputInfo.pixelType)
+                {
+                    _outputInfo.pixelType = image::PixelType::RGB_U8;
+                }
+                _print(string::Format("Output info: {0} {1}").
+                    arg(_outputInfo.size).
+                    arg(_outputInfo.pixelType));
+                _outputImage = image::Image::create(_outputInfo);
+                ioInfo.video.push_back(_outputInfo);
+                ioInfo.videoTime = _timeRange;
+                _writer = _writerPlugin->write(file::Path(_output), ioInfo);
+                if (!_writer)
+                {
+                    throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));
+                }
+
+                // Start the main loop.
+                gl::OffscreenBufferBinding binding(_buffer);
+                while (_running)
+                {
+                    _tick();
+                }
+
+                const auto now = std::chrono::steady_clock::now();
+                const std::chrono::duration<float> diff = now - _startTime;
+                _print(string::Format("Seconds elapsed: {0}").arg(diff.count()));
+                _print(string::Format("Average FPS: {0}").arg(_timeRange.duration().value() / diff.count()));
             }
 
-            _startTime = std::chrono::steady_clock::now();
-
-            // Create the window.
-            _window = gl::GLFWWindow::create(
-                "test-patterns",
-                math::Size2i(1, 1),
-                _context,
-                static_cast<int>(gl::GLFWWindowOptions::MakeCurrent));
-
-            // Read the timeline.
-            _timeline = timeline::Timeline::create(file::Path(_input), _context);
-            _timeRange = _timeline->getTimeRange();
-            _print(string::Format("Timeline range: {0}-{1}").
-                arg(_timeRange.start_time().value()).
-                arg(_timeRange.end_time_inclusive().value()));
-            _print(string::Format("Timeline speed: {0}").arg(_timeRange.duration().rate()));
-
-            // Time range.
-            if (time::isValid(_options.inOutRange))
-            {
-                _timeRange = _options.inOutRange;
-            }
-            _print(string::Format("In/out range: {0}-{1}").
-                arg(_timeRange.start_time().value()).
-                arg(_timeRange.end_time_inclusive().value()));
-            _inputTime = _timeRange.start_time();
-            _outputTime = otime::RationalTime(0.0, _timeRange.duration().rate());
-
-            // Render information.
-            const auto& info = _timeline->getIOInfo();
-            if (info.video.empty())
-            {
-                throw std::runtime_error("No video information");
-            }
-            _renderSize = _options.renderSize.isValid() ?
-                _options.renderSize :
-                math::Size2i(info.video[0].size.w, info.video[0].size.h);
-            _print(string::Format("Render size: {0}").arg(_renderSize));
-
-            // Create the renderer.
-            _render = timeline::GLRender::create(_context);
-            gl::OffscreenBufferOptions offscreenBufferOptions;
-            offscreenBufferOptions.colorType = gl::OffscreenColorDefault;
-            _buffer = gl::OffscreenBuffer::create(_renderSize, offscreenBufferOptions);
-
-            // Create the writer.
-            _writerPlugin = _context->getSystem<io::System>()->getPlugin(file::Path(_output));
-            if (!_writerPlugin)
-            {
-                throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));
-            }
-            io::Info ioInfo;
-            _outputInfo.size.w = _renderSize.w;
-            _outputInfo.size.h = _renderSize.h;
-            _outputInfo.pixelType = _options.outputPixelType != image::PixelType::None ?
-                _options.outputPixelType :
-                info.video[0].pixelType;
-            _outputInfo = _writerPlugin->getWriteInfo(_outputInfo);
-            if (image::PixelType::None == _outputInfo.pixelType)
-            {
-                _outputInfo.pixelType = image::PixelType::RGB_U8;
-            }
-            _print(string::Format("Output info: {0} {1}").
-                arg(_outputInfo.size).
-                arg(_outputInfo.pixelType));
-            _outputImage = image::Image::create(_outputInfo);
-            ioInfo.video.push_back(_outputInfo);
-            ioInfo.videoTime = _timeRange;
-            _writer = _writerPlugin->write(file::Path(_output), ioInfo);
-            if (!_writer)
-            {
-                throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));
-            }
-
-            // Start the main loop.
-            gl::OffscreenBufferBinding binding(_buffer);
-            while (_running)
-            {
-                _tick();
-            }
-
-            const auto now = std::chrono::steady_clock::now();
-            const std::chrono::duration<float> diff = now - _startTime;
-            _print(string::Format("Seconds elapsed: {0}").arg(diff.count()));
-            _print(string::Format("Average FPS: {0}").arg(_timeRange.duration().value() / diff.count()));
+            return _exit;
         }
 
         void App::_tick()

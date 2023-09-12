@@ -122,13 +122,12 @@ namespace tl
         };
 
         void IApp::_init(
-            int argc,
-            char* argv[],
+            const std::vector<std::string>& argv,
             const std::shared_ptr<system::Context>& context,
             const std::string& cmdLineName,
             const std::string& cmdLineSummary,
-            const std::vector<std::shared_ptr<app::ICmdLineArg> >& args,
-            const std::vector<std::shared_ptr<app::ICmdLineOption> >& options)
+            const std::vector<std::shared_ptr<app::ICmdLineArg> >& cmdLineArgs,
+            const std::vector<std::shared_ptr<app::ICmdLineOption> >& cmdLineOptions)
         {
             TLRENDER_P();
             if (const GLFWvidmode* monitorMode = glfwGetVideoMode(
@@ -137,26 +136,25 @@ namespace tl
                 _options.windowSize.w = monitorMode->width * .7F;
                 _options.windowSize.h = monitorMode->height * .7F;
             }
-            std::vector<std::shared_ptr<app::ICmdLineOption> > options2 = options;
-            options2.push_back(
+            std::vector<std::shared_ptr<app::ICmdLineOption> > cmdLineOptions2 = cmdLineOptions;
+            cmdLineOptions2.push_back(
                 app::CmdLineValueOption<math::Size2i>::create(
                     _options.windowSize,
                     { "-windowSize", "-ws" },
                     "Window size.",
                     string::Format("{0}x{1}").arg(_options.windowSize.w).arg(_options.windowSize.h)));
-            options2.push_back(
+            cmdLineOptions2.push_back(
                 app::CmdLineFlagOption::create(
                     _options.fullscreen,
                     { "-fullscreen", "-fs" },
                     "Enable full screen mode."));
             app::IApp::_init(
-                argc,
                 argv,
                 context,
                 cmdLineName,
                 cmdLineSummary,
-                args,
-                options2);
+                cmdLineArgs,
+                cmdLineOptions2);
             if (_exit != 0)
             {
                 return;
@@ -260,155 +258,154 @@ namespace tl
         IApp::~IApp()
         {}
 
-        void IApp::run()
+        int IApp::run()
         {
             TLRENDER_P();
-            if (_exit != 0)
+            if (0 == _exit)
             {
-                return;
-            }
-
-            // Start the main loop.
-            while (p.running && !p.window->shouldClose())
-            {
-                glfwPollEvents();
-
-                _context->tick();
-
-                _tick();
-
-                p.eventLoop->setDisplaySize(p.frameBufferSize);
-                p.eventLoop->setDisplayScale(p.contentScale.x);
-                p.eventLoop->tick();
-
-                gl::OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.colorType = image::PixelType::RGBA_U8;
-                if (gl::doCreate(p.offscreenBuffer, p.frameBufferSize, offscreenBufferOptions))
+                // Start the main loop.
+                while (p.running && !p.window->shouldClose())
                 {
-                    p.offscreenBuffer = gl::OffscreenBuffer::create(
-                        p.frameBufferSize,
-                        offscreenBufferOptions);
-                }
-                if ((p.eventLoop->hasDrawUpdate() || p.refresh) &&
-                    p.offscreenBuffer)
-                {
-                    p.refresh = false;
+                    glfwPollEvents();
+
+                    _context->tick();
+
+                    _tick();
+
+                    p.eventLoop->setDisplaySize(p.frameBufferSize);
+                    p.eventLoop->setDisplayScale(p.contentScale.x);
+                    p.eventLoop->tick();
+
+                    gl::OffscreenBufferOptions offscreenBufferOptions;
+                    offscreenBufferOptions.colorType = image::PixelType::RGBA_U8;
+                    if (gl::doCreate(p.offscreenBuffer, p.frameBufferSize, offscreenBufferOptions))
                     {
-                        gl::OffscreenBufferBinding binding(p.offscreenBuffer);
-                        p.render->begin(
+                        p.offscreenBuffer = gl::OffscreenBuffer::create(
                             p.frameBufferSize,
-                            p.colorConfigOptions,
-                            p.lutOptions);
-                        p.eventLoop->draw(p.render);
-                        p.render->end();
+                            offscreenBufferOptions);
                     }
-                    glViewport(
-                        0,
-                        0,
-                        GLsizei(p.frameBufferSize.w),
-                        GLsizei(p.frameBufferSize.h));
-                    glClearColor(1.F, 0.F, 0.F, 0.F);
-                    glClear(GL_COLOR_BUFFER_BIT);
+                    if ((p.eventLoop->hasDrawUpdate() || p.refresh) &&
+                        p.offscreenBuffer)
+                    {
+                        p.refresh = false;
+                        {
+                            gl::OffscreenBufferBinding binding(p.offscreenBuffer);
+                            p.render->begin(
+                                p.frameBufferSize,
+                                p.colorConfigOptions,
+                                p.lutOptions);
+                            p.eventLoop->draw(p.render);
+                            p.render->end();
+                        }
+                        glViewport(
+                            0,
+                            0,
+                            GLsizei(p.frameBufferSize.w),
+                            GLsizei(p.frameBufferSize.h));
+                        glClearColor(1.F, 0.F, 0.F, 0.F);
+                        glClear(GL_COLOR_BUFFER_BIT);
 #if defined(TLRENDER_API_GL_4_1)
-                    glBindFramebuffer(
-                        GL_READ_FRAMEBUFFER,
-                        p.offscreenBuffer->getID());
-                    glBlitFramebuffer(
-                        0,
-                        0,
-                        p.frameBufferSize.w,
-                        p.frameBufferSize.h,
-                        0,
-                        0,
-                        p.frameBufferSize.w,
-                        p.frameBufferSize.h,
-                        GL_COLOR_BUFFER_BIT,
-                        GL_LINEAR);
-#elif defined(TLRENDER_API_GLES_2)
-                    if (!p.shader)
-                    {
-                        try
-                        {
-                            const std::string vertexSource =
-                                "precision mediump int;\n"
-                                "precision mediump float;\n"
-                                "\n"
-                                "attribute vec3 vPos;\n"
-                                "attribute vec2 vTexture;\n"
-                                "\n"
-                                "varying vec2 fTexture;\n"
-                                "\n"
-                                "uniform struct Transform\n"
-                                "{\n"
-                                "    mat4 mvp;\n"
-                                "} transform;\n"
-                                "\n"
-                                "void main()\n"
-                                "{\n"
-                                "    gl_Position = transform.mvp * vec4(vPos, 1.0);\n"
-                                "    fTexture = vTexture;\n"
-                                "}\n";
-                            const std::string fragmentSource =
-                                "precision mediump int;\n"
-                                "precision mediump float;\n"
-                                "\n"
-                                "varying vec2 fTexture;\n"
-                                "\n"
-                                "uniform sampler2D textureSampler;\n"
-                                "\n"
-                                "void main()\n"
-                                "{\n"
-                                //"    gl_FragColor = texture2D(textureSampler, fTexture);\n"
-                                "    gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
-                                "}\n";
-                            p.shader = gl::Shader::create(vertexSource, fragmentSource);
-                        }
-                        catch (const std::exception& e)
-                        {
-                            _log(string::Format("Cannot compile shader: {0}").arg(e.what()),
-                                log::Type::Error);
-                        }
-                    }
-                    if (p.shader)
-                    {
-                        glDisable(GL_BLEND);
-                        glDisable(GL_SCISSOR_TEST);
-                                                
-                        p.shader->bind();
-                        p.shader->setUniform("transform.mvp",
-                            math::ortho(
-                                0.F,
-                                static_cast<float>(p.frameBufferSize.w),
-                                static_cast<float>(p.frameBufferSize.h),
-                                0.F,
-                                -1.F,
-                                1.F));
-                        p.shader->setUniform("textureSampler", 0);
-                                
-                        glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
-                        glBindTexture(GL_TEXTURE_2D, p.offscreenBuffer->getColorID());
-                        
-                        auto mesh = geom::box(math::Box2i(
+                        glBindFramebuffer(
+                            GL_READ_FRAMEBUFFER,
+                            p.offscreenBuffer->getID());
+                        glBlitFramebuffer(
                             0,
                             0,
                             p.frameBufferSize.w,
-                            p.frameBufferSize.h));
-                        auto vboData = gl::convert(
-                            mesh,
-                            gl::VBOType::Pos3_F32_UV_U16,
-                            math::SizeTRange(0, mesh.triangles.size() - 1));
-                        auto vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos3_F32_UV_U16);
-                        vbo->copy(vboData);
-                        auto vao = gl::VAO::create(gl::VBOType::Pos3_F32_UV_U16, vbo->getID());
-                        vao->bind();
-                        vao->draw(GL_TRIANGLES, 0, mesh.triangles.size() * 3);
-                    }
-#endif // TLRENDER_API_GL_4_1
-                    p.window->swap();
-                }
+                            p.frameBufferSize.h,
+                            0,
+                            0,
+                            p.frameBufferSize.w,
+                            p.frameBufferSize.h,
+                            GL_COLOR_BUFFER_BIT,
+                            GL_LINEAR);
+#elif defined(TLRENDER_API_GLES_2)
+                        if (!p.shader)
+                        {
+                            try
+                            {
+                                const std::string vertexSource =
+                                    "precision mediump int;\n"
+                                    "precision mediump float;\n"
+                                    "\n"
+                                    "attribute vec3 vPos;\n"
+                                    "attribute vec2 vTexture;\n"
+                                    "\n"
+                                    "varying vec2 fTexture;\n"
+                                    "\n"
+                                    "uniform struct Transform\n"
+                                    "{\n"
+                                    "    mat4 mvp;\n"
+                                    "} transform;\n"
+                                    "\n"
+                                    "void main()\n"
+                                    "{\n"
+                                    "    gl_Position = transform.mvp * vec4(vPos, 1.0);\n"
+                                    "    fTexture = vTexture;\n"
+                                    "}\n";
+                                const std::string fragmentSource =
+                                    "precision mediump int;\n"
+                                    "precision mediump float;\n"
+                                    "\n"
+                                    "varying vec2 fTexture;\n"
+                                    "\n"
+                                    "uniform sampler2D textureSampler;\n"
+                                    "\n"
+                                    "void main()\n"
+                                    "{\n"
+                                    //"    gl_FragColor = texture2D(textureSampler, fTexture);\n"
+                                    "    gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
+                                    "}\n";
+                                p.shader = gl::Shader::create(vertexSource, fragmentSource);
+                            }
+                            catch (const std::exception& e)
+                            {
+                                _log(string::Format("Cannot compile shader: {0}").arg(e.what()),
+                                    log::Type::Error);
+                            }
+                        }
+                        if (p.shader)
+                        {
+                            glDisable(GL_BLEND);
+                            glDisable(GL_SCISSOR_TEST);
 
-                time::sleep(std::chrono::milliseconds(5));
+                            p.shader->bind();
+                            p.shader->setUniform("transform.mvp",
+                                math::ortho(
+                                    0.F,
+                                    static_cast<float>(p.frameBufferSize.w),
+                                    static_cast<float>(p.frameBufferSize.h),
+                                    0.F,
+                                    -1.F,
+                                    1.F));
+                            p.shader->setUniform("textureSampler", 0);
+
+                            glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
+                            glBindTexture(GL_TEXTURE_2D, p.offscreenBuffer->getColorID());
+
+                            auto mesh = geom::box(math::Box2i(
+                                0,
+                                0,
+                                p.frameBufferSize.w,
+                                p.frameBufferSize.h));
+                            auto vboData = gl::convert(
+                                mesh,
+                                gl::VBOType::Pos3_F32_UV_U16,
+                                math::SizeTRange(0, mesh.triangles.size() - 1));
+                            auto vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos3_F32_UV_U16);
+                            vbo->copy(vboData);
+                            auto vao = gl::VAO::create(gl::VBOType::Pos3_F32_UV_U16, vbo->getID());
+                            vao->bind();
+                            vao->draw(GL_TRIANGLES, 0, mesh.triangles.size() * 3);
+                        }
+#endif // TLRENDER_API_GL_4_1
+                        p.window->swap();
+                    }
+
+                    time::sleep(std::chrono::milliseconds(5));
+                }
             }
+            return _exit;
         }
 
         void IApp::exit(int r)

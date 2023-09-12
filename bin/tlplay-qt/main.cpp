@@ -10,7 +10,7 @@
 
 int main(int argc, char* argv[])
 {
-    int r = 0;
+    int r = 1;
     try
     {
         auto context = tl::system::Context::create();
@@ -29,7 +29,6 @@ int main(int argc, char* argv[])
     catch(const std::exception& e)
     {
         std::cerr << "ERROR: " << e.what() << std::endl;
-        r = 1;
     }
     return r;
 }

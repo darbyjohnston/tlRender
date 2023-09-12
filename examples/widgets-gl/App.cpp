@@ -15,12 +15,10 @@ namespace tl
         namespace widgets_gl
         {
             void App::_init(
-                int argc,
-                char* argv[],
+                const std::vector<std::string>& argv,
                 const std::shared_ptr<system::Context>& context)
             {
                 IApp::_init(
-                    argc,
                     argv,
                     context,
                     "widgets-gl",
@@ -41,12 +39,11 @@ namespace tl
             {}
 
             std::shared_ptr<App> App::create(
-                int argc,
-                char* argv[],
+                const std::vector<std::string>& argv,
                 const std::shared_ptr<system::Context>& context)
             {
                 auto out = std::shared_ptr<App>(new App);
-                out->_init(argc, argv, context);
+                out->_init(argv, context);
                 return out;
             }
         }

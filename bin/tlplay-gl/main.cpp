@@ -8,24 +8,34 @@
 
 #include <iostream>
 
-int main(int argc, char* argv[])
+#if defined(_WINDOWS)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif // WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <tchar.h>
+#endif // _WINDOWS
+
+TLRENDER_MAIN()
 {
-    int r = 0;
+    int r = 1;
     try
     {
         auto context = tl::system::Context::create();
         tl::timelineui::init(context);
-        auto app = tl::play_gl::App::create(argc, argv, context);
-        if (0 == app->getExit())
-        {
-            app->run();
-            r = app->getExit();
-        }
+        auto app = tl::play_gl::App::create(tl::app::convert(argc, argv), context);
+        r = app->run();
     }
     catch(const std::exception& e)
     {
         std::cerr << "ERROR: " << e.what() << std::endl;
-        r = 1;
     }
     return r;
 }
+
+#if defined(_WINDOWS)
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int)
+{
+    return wmain(__argc, __wargv);
+}
+#endif // _WINDOWS
