@@ -95,6 +95,11 @@ namespace tl
             _directoryUpdate();
         }
 
+        void DirectoryWidget::reload()
+        {
+            _directoryUpdate();
+        }
+
         void DirectoryWidget::setCallback(const std::function<void(const file::FileInfo&)>& value)
         {
             _p->callback = value;

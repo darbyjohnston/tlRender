@@ -112,6 +112,8 @@ namespace tl
 
             void setPath(const std::string&);
 
+            void reload();
+
             void setCallback(const std::function<void(const file::FileInfo&)>&);
 
             void setOptions(const FileBrowserOptions&);

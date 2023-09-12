@@ -86,42 +86,42 @@ namespace tl
             return *this;
         }
 
-        Format& Format::arg(int value, int width)
+        Format& Format::arg(int value, int width, char pad)
         {
             std::stringstream ss;
-            ss << std::setw(width) << value;
+            ss << std::setfill(pad) << std::setw(width) << value;
             return arg(ss.str());
         }
 
-        Format& Format::arg(int8_t value, int width)
+        Format& Format::arg(int8_t value, int width, char pad)
         {
             std::stringstream ss;
-            ss << std::setw(width) << static_cast<int>(value);
+            ss << std::setfill(pad) << std::setw(width) << static_cast<int>(value);
             return arg(ss.str());
         }
 
-        Format& Format::arg(uint8_t value, int width)
+        Format& Format::arg(uint8_t value, int width, char pad)
         {
             std::stringstream ss;
-            ss << std::setw(width) << static_cast<int>(value);
+            ss << std::setfill(pad) << std::setw(width) << static_cast<int>(value);
             return arg(ss.str());
         }
 
-        Format& Format::arg(int16_t value, int width)
+        Format& Format::arg(int16_t value, int width, char pad)
         {
             std::stringstream ss;
-            ss << std::setw(width) << static_cast<int>(value);
+            ss << std::setfill(pad) << std::setw(width) << static_cast<int>(value);
             return arg(ss.str());
         }
 
-        Format& Format::arg(uint16_t value, int width)
+        Format& Format::arg(uint16_t value, int width, char pad)
         {
             std::stringstream ss;
-            ss << std::setw(width) << static_cast<int>(value);
+            ss << std::setfill(pad) << std::setw(width) << static_cast<int>(value);
             return arg(ss.str());
         }
 
-        Format& Format::arg(float value, int precision, int width)
+        Format& Format::arg(float value, int precision, int width, char pad)
         {
             std::stringstream ss;
             if (precision >= 0)
@@ -129,11 +129,11 @@ namespace tl
                 ss.precision(precision);
                 ss << std::fixed;
             }
-            ss << std::setw(width) << value;
+            ss << std::setfill(pad) << std::setw(width) << value;
             return arg(ss.str());
         }
 
-        Format& Format::arg(double value, int precision, int width)
+        Format& Format::arg(double value, int precision, int width, char pad)
         {
             std::stringstream ss;
             if (precision >= 0)
@@ -141,7 +141,7 @@ namespace tl
                 ss.precision(precision);
                 ss << std::fixed;
             }
-            ss << std::setw(width) << value;
+            ss << std::setfill(pad) << std::setw(width) << value;
             return arg(ss.str());
         }
 

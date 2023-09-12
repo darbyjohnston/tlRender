@@ -38,6 +38,11 @@ namespace tl
             return _number;
         }
 
+        inline uint8_t Path::getPadding() const
+        {
+            return _padding;
+        }
+
         inline const math::IntRange& Path::getSequence() const
         {
             return _sequence;
@@ -55,11 +60,6 @@ namespace tl
                 _baseName == value._baseName &&
                 _padding == value._padding &&
                 _extension == value._extension;
-        }
-
-        inline uint8_t Path::getPadding() const
-        {
-            return _padding;
         }
 
         inline const std::string& Path::getExtension() const

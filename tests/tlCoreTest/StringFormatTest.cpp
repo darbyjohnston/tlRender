@@ -41,6 +41,14 @@ namespace tl
                 TLRENDER_ASSERT("123" == s);
             }
             {
+                const std::string s = Format("{0}").arg(1, 4);
+                TLRENDER_ASSERT("   1" == s);
+            }
+            {
+                const std::string s = Format("{0}").arg(1, 4, '0');
+                TLRENDER_ASSERT("0001" == s);
+            }
+            {
                 const std::string s = Format("{0}").arg(int8_t(1));
                 TLRENDER_ASSERT("1" == s);
             }

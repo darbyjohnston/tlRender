@@ -66,6 +66,9 @@ namespace tl
             //! Get the number.
             const std::string& getNumber() const;
 
+            //! Get the number zero padding.
+            uint8_t getPadding() const;
+
             //! Get the number sequence.
             const math::IntRange& getSequence() const;
 
@@ -78,8 +81,8 @@ namespace tl
             //! Get whether the given path is part of this sequence.
             bool sequence(const Path&) const;
 
-            //! Get the number zero padding.
-            uint8_t getPadding() const;
+            //! Get the sequence string.
+            std::string getSequenceString() const;
 
             //! Get the extension.
             const std::string& getExtension() const;

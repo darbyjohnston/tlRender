@@ -72,21 +72,40 @@ namespace tl
             p.fileInfo = fileInfo;
             p.options = options;
 
-            p.labels.push_back(fileInfo.getPath().get(-1, false));
-
+            // Icon.
             switch (fileInfo.getType())
             {
             case file::Type::File:
                 setIcon("File");
-                p.labels.push_back(fileInfo.getPath().getExtension());
                 break;
             case file::Type::Directory:
                 setIcon("Directory");
+                break;
+            default: break;
+            }
+
+            // File name.
+            p.labels.push_back(fileInfo.getPath().get(-1, false));
+
+            // File sequence.
+            if (fileInfo.getPath().isSequence())
+            {
+                p.labels.push_back(fileInfo.getPath().getSequenceString());
+            }
+
+            // File extension.
+            switch (fileInfo.getType())
+            {
+            case file::Type::File:
+                p.labels.push_back(fileInfo.getPath().getExtension());
+                break;
+            case file::Type::Directory:
                 p.labels.push_back(std::string());
                 break;
             default: break;
             }
 
+            // File size.
             std::string label;
             const uint64_t size = fileInfo.getSize();
             if (size < memory::megabyte)
@@ -106,6 +125,7 @@ namespace tl
             }
             p.labels.push_back(label);
 
+            // File last modification time.
             const std::time_t time = fileInfo.getTime();
             std::tm* localtime = std::localtime(&time);
             char buffer[32];

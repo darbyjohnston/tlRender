@@ -108,6 +108,16 @@ namespace tl
                 }
             }
             {
+                Path p("render.0001.exr");
+                const math::IntRange sequence(1, 100);
+                p.setSequence(sequence);
+                TLRENDER_ASSERT(sequence == p.getSequence());
+                TLRENDER_ASSERT(p.isSequence());
+                TLRENDER_ASSERT(p.sequence(Path("render.0101.exr")));
+                TLRENDER_ASSERT(!p.sequence(Path("render.101.exr")));
+                TLRENDER_ASSERT("0001-0100" == p.getSequenceString());
+            }
+            {
                 TLRENDER_ASSERT(Path("/").isAbsolute());
                 TLRENDER_ASSERT(Path("/tmp").isAbsolute());
                 TLRENDER_ASSERT(Path("\\").isAbsolute());

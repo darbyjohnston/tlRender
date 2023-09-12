@@ -37,7 +37,7 @@ namespace tl
 
             std::shared_ptr<Label> titleLabel;
             std::shared_ptr<ToolButton> upButton;
-            std::shared_ptr<ToolButton> cwdButton;
+            std::shared_ptr<ToolButton> reloadButton;
             std::shared_ptr<LineEdit> pathEdit;
             std::shared_ptr<PathsWidget> pathsWidget;
             std::shared_ptr<ScrollWidget> pathsScrollWidget;
@@ -47,6 +47,7 @@ namespace tl
             std::shared_ptr<ComboBox> extensionsComboBox;
             std::shared_ptr<ComboBox> sortComboBox;
             std::shared_ptr<CheckBox> reverseSortCheckBox;
+            std::shared_ptr<CheckBox> sequenceCheckBox;
             std::shared_ptr<PushButton> okButton;
             std::shared_ptr<PushButton> cancelButton;
             std::shared_ptr<Splitter> splitter;
@@ -92,6 +93,10 @@ namespace tl
             p.upButton->setIcon("DirectoryUp");
             p.upButton->setToolTip("Go up a directory");
 
+            p.reloadButton = ToolButton::create(context);
+            p.reloadButton->setIcon("Reload");
+            p.reloadButton->setToolTip("Reload the current directory");
+
             p.pathEdit = LineEdit::create(context);
             p.pathEdit->setHStretch(Stretch::Expanding);
             p.pathEdit->setToolTip("The current directory");
@@ -122,6 +127,9 @@ namespace tl
             p.reverseSortCheckBox = CheckBox::create("Reverse sort", context);
             p.reverseSortCheckBox->setToolTip("Reverse the sort");
 
+            p.sequenceCheckBox = CheckBox::create("Sequence", context);
+            p.sequenceCheckBox->setToolTip("Show sequences of files");
+
             p.okButton = PushButton::create(context);
             p.okButton->setText("Ok");
 
@@ -139,6 +147,7 @@ namespace tl
             auto hLayout = HorizontalLayout::create(context, vLayout);
             hLayout->setSpacingRole(SizeRole::SpacingSmall);
             p.upButton->setParent(hLayout);
+            p.reloadButton->setParent(hLayout);
             p.pathEdit->setParent(hLayout);
             p.splitter = Splitter::create(Orientation::Horizontal, context, vLayout);
             p.splitter->setSplit(0.2);
@@ -156,6 +165,7 @@ namespace tl
             label->setMarginRole(SizeRole::MarginInside);
             p.sortComboBox->setParent(hLayout);
             p.reverseSortCheckBox->setParent(hLayout);
+            p.sequenceCheckBox->setParent(hLayout);
             auto spacer = Spacer::create(Orientation::Horizontal, context, hLayout);
             spacer->setSpacingRole(SizeRole::None);
             spacer->setHStretch(Stretch::Expanding);
@@ -169,6 +179,12 @@ namespace tl
                 {
                     _p->path = file::getParent(_p->path);
                     _pathUpdate();
+                });
+
+            p.reloadButton->setClickedCallback(
+                [this]
+                {
+                    _p->directoryWidget->reload();
                 });
 
             p.pathEdit->setTextCallback(
@@ -240,6 +256,14 @@ namespace tl
                 {
                     FileBrowserOptions options = _p->directoryWidget->getOptions();
                     options.list.reverseSort = value;
+                    _p->directoryWidget->setOptions(options);
+                });
+
+            p.sequenceCheckBox->setCheckedCallback(
+                [this](bool value)
+                {
+                    FileBrowserOptions options = _p->directoryWidget->getOptions();
+                    options.list.sequence = value;
                     _p->directoryWidget->setOptions(options);
                 });
 
@@ -318,6 +342,7 @@ namespace tl
             }
             p.sortComboBox->setCurrentIndex(static_cast<int>(value.list.sort));
             p.reverseSortCheckBox->setChecked(value.list.reverseSort);
+            p.sequenceCheckBox->setChecked(value.list.sequence);
         }
 
         void FileBrowserWidget::setRecentFilesModel(const std::shared_ptr<RecentFilesModel>& value)
