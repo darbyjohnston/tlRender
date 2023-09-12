@@ -100,6 +100,8 @@ namespace
 #include "Resources/PlaybackStop_96.h"
 #include "Resources/Prev_192.h"
 #include "Resources/Prev_96.h"
+#include "Resources/Reload_192.h"
+#include "Resources/Reload_96.h"
 #include "Resources/Reset_192.h"
 #include "Resources/Reset_96.h"
 #include "Resources/Settings_192.h"
@@ -110,6 +112,8 @@ namespace
 #include "Resources/TimeEnd_96.h"
 #include "Resources/TimeStart_192.h"
 #include "Resources/TimeStart_96.h"
+#include "Resources/View_192.h"
+#include "Resources/View_96.h"
 #include "Resources/ViewFrame_192.h"
 #include "Resources/ViewFrame_96.h"
 #include "Resources/ViewZoom1To1_192.h"
@@ -224,10 +228,12 @@ namespace tl
             p.iconData[std::make_pair("PlaybackStop", 96)] = PlaybackStop_96_png;
             p.iconData[std::make_pair("Prev", 96)] = Prev_96_png;
             p.iconData[std::make_pair("Reset", 96)] = Reset_96_png;
+            p.iconData[std::make_pair("Reload", 96)] = Reload_96_png;
             p.iconData[std::make_pair("Settings", 96)] = Settings_96_png;
             p.iconData[std::make_pair("SubMenuArrow", 96)] = SubMenuArrow_96_png;
             p.iconData[std::make_pair("TimeEnd", 96)] = TimeEnd_96_png;
             p.iconData[std::make_pair("TimeStart", 96)] = TimeStart_96_png;
+            p.iconData[std::make_pair("View", 96)] = View_96_png;
             p.iconData[std::make_pair("ViewFrame", 96)] = ViewFrame_96_png;
             p.iconData[std::make_pair("ViewZoom1To1", 96)] = ViewZoom1To1_96_png;
             p.iconData[std::make_pair("Volume", 96)] = Volume_96_png;
@@ -279,10 +285,12 @@ namespace tl
             p.iconData[std::make_pair("PlaybackStop", 192)] = PlaybackStop_192_png;
             p.iconData[std::make_pair("Prev", 192)] = Prev_192_png;
             p.iconData[std::make_pair("Reset", 192)] = Reset_192_png;
+            p.iconData[std::make_pair("Reload", 192)] = Reload_192_png;
             p.iconData[std::make_pair("Settings", 192)] = Settings_192_png;
             p.iconData[std::make_pair("SubMenuArrow", 192)] = SubMenuArrow_192_png;
             p.iconData[std::make_pair("TimeEnd", 192)] = TimeEnd_192_png;
             p.iconData[std::make_pair("TimeStart", 192)] = TimeStart_192_png;
+            p.iconData[std::make_pair("View", 192)] = View_192_png;
             p.iconData[std::make_pair("ViewFrame", 192)] = ViewFrame_192_png;
             p.iconData[std::make_pair("ViewZoom1To1", 192)] = ViewZoom1To1_192_png;
             p.iconData[std::make_pair("Volume", 192)] = Volume_192_png;

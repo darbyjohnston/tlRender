@@ -49,7 +49,7 @@ namespace tl
             const std::array<std::string, static_cast<size_t>(Tool::Count)> data =
             {
                 "Files",
-                "",
+                "View",
                 "Color",
                 "Info",
                 "Audio",
