@@ -96,11 +96,11 @@ namespace tl
         void SettingsObject::setDefaultValue(const QString& name, const QVariant& value)
         {
             TLRENDER_P();
-            if (!p.settings.contains(name))
+            if (!p.settings.contains(version(name)))
             {
-                p.settings.setValue(name, value);
+                p.settings.setValue(version(name), value);
             }
-            p.defaultValues[name] = value;
+            p.defaultValues[version(name)] = value;
         }
 
         const QList<QString>& SettingsObject::recentFiles() const
@@ -111,9 +111,9 @@ namespace tl
         void SettingsObject::setValue(const QString& name, const QVariant& value)
         {
             TLRENDER_P();
-            if (!p.settings.contains(name))
+            if (!p.settings.contains(version(name)))
             {
-                p.defaultValues[name] = value;
+                p.defaultValues[version(name)] = value;
             }
             p.settings.setValue(version(name), value);
             if (name == "Misc/ToolTipsEnabled")
