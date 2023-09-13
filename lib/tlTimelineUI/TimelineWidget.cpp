@@ -161,10 +161,7 @@ namespace tl
             TLRENDER_P();
             p.scrollWidget->setScrollPos(math::Vector2i());
             p.scale = _getTimelineScale();
-            if (p.timelineItem)
-            {
-                _setItemScale(p.timelineItem, p.scale);
-            }
+            _setItemScale();
             _updates |= ui::Update::Size;
             _updates |= ui::Update::Draw;
         }
@@ -261,6 +258,9 @@ namespace tl
             TLRENDER_P();
             if (p.itemOptions->setIfChanged(value))
             {
+                p.itemData->info.clear();
+                p.itemData->thumbnails.clear();
+                p.itemData->waveforms.clear();
                 if (p.timelineItem)
                 {
                     _setItemOptions(p.timelineItem, value);
@@ -445,10 +445,7 @@ namespace tl
             if (zoomClamped != p.scale)
             {
                 p.scale = zoomClamped;
-                if (p.timelineItem)
-                {
-                    _setItemScale(p.timelineItem, p.scale);
-                }
+                _setItemScale();
                 const double s = zoomClamped / zoomPrev;
                 const math::Vector2i scrollPosNew(
                     (scrollPos.x + focus.x) * s - focus.x,
@@ -474,6 +471,16 @@ namespace tl
                 }
             }
             return out;
+        }
+
+        void TimelineWidget::_setItemScale()
+        {
+            TLRENDER_P();
+            p.itemData->waveforms.clear();
+            if (p.timelineItem)
+            {
+                _setItemScale(p.timelineItem, p.scale);
+            }
         }
 
         void TimelineWidget::_setItemScale(

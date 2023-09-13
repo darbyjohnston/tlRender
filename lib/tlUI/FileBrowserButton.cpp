@@ -271,8 +271,8 @@ namespace tl
                         {
                             p.thumbnail.init = false;
                             p.thumbnail.request = thumbnailSystem->getThumbnail(
-                                p.options.thumbnailHeight,
-                                p.fileInfo.getPath());
+                                p.fileInfo.getPath(),
+                                p.options.thumbnailHeight);
                         }
                     }
                 }

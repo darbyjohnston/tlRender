@@ -45,9 +45,9 @@ namespace tl
             struct ThumbnailRequest
             {
                 uint64_t id = 0;
-                int height = 0;
                 file::Path path;
                 std::vector<file::MemoryRead> memoryRead;
+                int height = 0;
                 otime::RationalTime time = time::invalidTime;
                 uint16_t layer = 0;
                 std::promise<std::shared_ptr<image::Image> > promise;
@@ -56,9 +56,9 @@ namespace tl
             struct WaveformRequest
             {
                 uint64_t id = 0;
-                math::Size2i size;
                 file::Path path;
                 std::vector<file::MemoryRead> memoryRead;
+                math::Size2i size;
                 otime::TimeRange timeRange = time::invalidTimeRange;
                 std::promise<std::shared_ptr<geom::TriangleMesh2> > promise;
             };
@@ -191,18 +191,18 @@ namespace tl
         }
 
         ThumbnailRequest ThumbnailSystem::getThumbnail(
-            int height,
             const file::Path& path,
+            int height,
             const otime::RationalTime& time,
             uint16_t layer)
         {
-            return getThumbnail(height, path, {}, time, layer);
+            return getThumbnail(path, {}, height, time, layer);
         }
 
         ThumbnailRequest ThumbnailSystem::getThumbnail(
-            int height,
             const file::Path& path,
             const std::vector<file::MemoryRead>& memoryRead,
+            int height,
             const otime::RationalTime& time,
             uint16_t layer)
         {
@@ -210,13 +210,15 @@ namespace tl
             (p.requestId)++;
             auto request = std::make_shared<Private::ThumbnailRequest>();
             request->id = p.requestId;
-            request->height = height;
             request->path = path;
             request->memoryRead = memoryRead;
+            request->height = height;
             request->time = time;
             request->layer = layer;
             ThumbnailRequest out;
             out.id = p.requestId;
+            out.height = height;
+            out.time = time;
             out.future = request->promise.get_future();
             bool valid = false;
             {
@@ -239,29 +241,31 @@ namespace tl
         }
 
         WaveformRequest ThumbnailSystem::getWaveform(
-            const math::Size2i& size,
             const file::Path& path,
+            const math::Size2i& size,
             const otime::TimeRange& range)
         {
-            return getWaveform(size, path, {}, range);
+            return getWaveform(path, {}, size, range);
         }
 
         WaveformRequest ThumbnailSystem::getWaveform(
-            const math::Size2i& size,
             const file::Path& path,
             const std::vector<file::MemoryRead>& memoryRead,
+            const math::Size2i& size,
             const otime::TimeRange& timeRange)
         {
             TLRENDER_P();
             (p.requestId)++;
             auto request = std::make_shared<Private::WaveformRequest>();
             request->id = p.requestId;
-            request->size = size;
             request->path = path;
             request->memoryRead = memoryRead;
+            request->size = size;
             request->timeRange = timeRange;
             WaveformRequest out;
             out.id = p.requestId;
+            out.size = size;
+            out.timeRange = timeRange;
             out.future = request->promise.get_future();
             bool valid = false;
             {

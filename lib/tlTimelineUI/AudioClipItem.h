@@ -58,6 +58,8 @@ namespace tl
                 const ui::DrawEvent&) override;
 
         private:
+            std::string _getWaveformKey(const otime::TimeRange&) const;
+
             void _drawWaveforms(
                 const math::Box2i&,
                 const ui::DrawEvent&);

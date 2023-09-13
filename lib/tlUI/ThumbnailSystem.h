@@ -29,6 +29,8 @@ namespace tl
         struct ThumbnailRequest
         {
             uint64_t id;
+            int height = 0;
+            otime::RationalTime time = time::invalidTime;
             std::future<std::shared_ptr<image::Image> > future;
         };
 
@@ -36,6 +38,8 @@ namespace tl
         struct WaveformRequest
         {
             uint64_t id;
+            math::Size2i size;
+            otime::TimeRange timeRange = time::invalidTimeRange;
             std::future<std::shared_ptr<geom::TriangleMesh2> > future;
         };
 
@@ -64,30 +68,30 @@ namespace tl
 
             //! Get a video thumbnail.
             ThumbnailRequest getThumbnail(
-                int height,
                 const file::Path&,
+                int height,
                 const otime::RationalTime& = time::invalidTime,
                 uint16_t layer = 0);
 
             //! Get a video thumbnail.
             ThumbnailRequest getThumbnail(
-                int height,
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
+                int height,
                 const otime::RationalTime& = time::invalidTime,
                 uint16_t layer = 0);
 
             //! Get an audio waveform.
             WaveformRequest getWaveform(
-                const math::Size2i&,
                 const file::Path&,
+                const math::Size2i&,
                 const otime::TimeRange& = time::invalidTimeRange);
 
             //! Get an audio waveform.
             WaveformRequest getWaveform(
-                const math::Size2i&,
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
+                const math::Size2i&,
                 const otime::TimeRange& = time::invalidTimeRange);
 
             //! Cancel pending requests.

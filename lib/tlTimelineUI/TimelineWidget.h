@@ -127,6 +127,7 @@ namespace tl
 
             double _getTimelineScale() const;
 
+            void _setItemScale();
             void _setItemScale(
                 const std::shared_ptr<IWidget>&,
                 double);

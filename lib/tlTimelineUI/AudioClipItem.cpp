@@ -10,6 +10,8 @@
 #include <tlTimeline/RenderUtil.h>
 #include <tlTimeline/Util.h>
 
+#include <tlCore/StringFormat.h>
+
 namespace tl
 {
     namespace timelineui
@@ -152,7 +154,7 @@ namespace tl
                     i->second.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
                     const auto mesh = i->second.future.get();
-                    _data->waveforms[fileName][i->first] = mesh;
+                    _data->waveforms[_getWaveformKey(i->second.timeRange)] = mesh;
                     i = p.waveformRequests.erase(i);
                     _updates |= ui::Update::Draw;
                 }
@@ -202,6 +204,12 @@ namespace tl
             }
         }
 
+        std::string AudioClipItem::_getWaveformKey(const otime::TimeRange& timeRange) const
+        {
+            TLRENDER_P();
+            return string::Format("{0}_{1}").arg(p.path.get()).arg(timeRange);
+        }
+
         void AudioClipItem::_drawWaveforms(
             const math::Box2i& drawRect,
             const ui::DrawEvent& event)
@@ -241,7 +249,6 @@ namespace tl
 
             if (_options.waveformWidth > 0 && p.ioInfo && thumbnailSystem)
             {
-                const std::string fileName = p.path.get();
                 const int w = _sizeHint.w;
                 for (int x = 0; x < w; x += _options.waveformWidth)
                 {
@@ -269,32 +276,26 @@ namespace tl
                             p.clip,
                             p.ioInfo->audio.sampleRate);
 
-                        bool found = false;
-                        const auto i = _data->waveforms.find(fileName);
+                        const auto i = _data->waveforms.find(_getWaveformKey(mediaRange));
                         if (i != _data->waveforms.end())
                         {
-                            const auto j = i->second.find(mediaRange.start_time());
-                            if (j != i->second.end())
+                            if (i->second)
                             {
-                                found = true;
-                                if (j->second)
-                                {
-                                    event.render->drawMesh(
-                                        *j->second,
-                                        box.min,
-                                        image::Color4f(1.F, 1.F, 1.F));
-                                }
+                                event.render->drawMesh(
+                                    *i->second,
+                                    box.min,
+                                    image::Color4f(1.F, 1.F, 1.F));
                             }
                         }
-                        if (!found && p.ioInfo && p.ioInfo->audio.isValid())
+                        else if (p.ioInfo && p.ioInfo->audio.isValid())
                         {
                             const auto j = p.waveformRequests.find(mediaRange.start_time());
                             if (j == p.waveformRequests.end())
                             {
                                 p.waveformRequests[mediaRange.start_time()] = thumbnailSystem->getWaveform(
-                                    box.getSize(),
                                     p.path,
                                     p.memoryRead,
+                                    box.getSize(),
                                     mediaRange);
                             }
                         }

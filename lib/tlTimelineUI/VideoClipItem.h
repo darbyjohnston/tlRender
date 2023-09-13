@@ -58,6 +58,8 @@ namespace tl
                 const ui::DrawEvent&) override;
 
         private:
+            std::string _getThumbnailKey(const otime::RationalTime&) const;
+
             void _drawInfo(
                 const math::Box2i&,
                 const ui::DrawEvent&);

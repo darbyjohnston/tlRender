@@ -10,6 +10,8 @@
 #include <tlTimeline/RenderUtil.h>
 #include <tlTimeline/Util.h>
 
+#include <tlCore/StringFormat.h>
+
 namespace tl
 {
     namespace timelineui
@@ -149,7 +151,7 @@ namespace tl
                     i->second.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
                     const auto image = i->second.future.get();
-                    _data->thumbnails[fileName][i->first] = image;
+                    _data->thumbnails[_getThumbnailKey(i->first)] = image;
                     i = p.thumbnailRequests.erase(i);
                     _updates |= ui::Update::Draw;
                 }
@@ -199,6 +201,12 @@ namespace tl
             }
         }
 
+        std::string VideoClipItem::_getThumbnailKey(const otime::RationalTime& time) const
+        {
+            TLRENDER_P();
+            return string::Format("{0}_{1}").arg(p.path.get()).arg(time);
+        }
+
         void VideoClipItem::_drawThumbnails(
             const math::Box2i& drawRect,
             const ui::DrawEvent& event)
@@ -240,7 +248,6 @@ namespace tl
                 0;
             if (thumbnailWidth > 0 && thumbnailSystem)
             {
-                const std::string fileName = p.path.get();
                 const int w = _sizeHint.w;
                 for (int x = 0; x < w; x += thumbnailWidth)
                 {
@@ -263,29 +270,23 @@ namespace tl
                             p.clip,
                             p.ioInfo->videoTime.duration().rate());
 
-                        bool found = false;
-                        const auto i = _data->thumbnails.find(fileName);
+                        const auto i = _data->thumbnails.find(_getThumbnailKey(mediaTime));
                         if (i != _data->thumbnails.end())
                         {
-                            const auto j = i->second.find(mediaTime);
-                            if (j != i->second.end())
+                            if (i->second)
                             {
-                                found = true;
-                                if (j->second)
-                                {
-                                    event.render->drawImage(j->second, box);
-                                }
+                                event.render->drawImage(i->second, box);
                             }
                         }
-                        if (!found && p.ioInfo && !p.ioInfo->video.empty())
+                        else if (p.ioInfo && !p.ioInfo->video.empty())
                         {
                             const auto k = p.thumbnailRequests.find(mediaTime);
                             if (k == p.thumbnailRequests.end())
                             {
                                 p.thumbnailRequests[mediaTime] = thumbnailSystem->getThumbnail(
-                                    _options.thumbnailHeight,
                                     p.path,
                                     p.memoryRead,
+                                    _options.thumbnailHeight,
                                     mediaTime);
                             }
                         }
