@@ -29,14 +29,8 @@ namespace tl
             SizeData size;
 
             ui::InfoRequest infoRequest;
-            std::unique_ptr<io::Info> ioInfo;
+            std::shared_ptr<io::Info> ioInfo;
             std::map<otime::RationalTime, ui::ThumbnailRequest> thumbnailRequests;
-            struct Thumbnail
-            {
-                std::shared_ptr<image::Image> image;
-                std::chrono::steady_clock::time_point time;
-            };
-            std::map<otime::RationalTime, Thumbnail> thumbnails;
         };
 
         void VideoClipItem::_init(
@@ -68,19 +62,10 @@ namespace tl
             p.memoryRead = timeline::getMemoryRead(clip->media_reference());
             p.thumbnailSystem = context->getSystem<ui::ThumbnailSystem>();
 
-            const std::string fileName = p.path.get();
-            const auto i = _data->info.find(fileName);
-            if (i != _data->info.end())
+            const auto i = itemData->info.find(path.get());
+            if (i != itemData->info.end())
             {
-                p.ioInfo = std::make_unique<io::Info>(i->second);
-            }
-            const auto j = _data->thumbnails.find(fileName);
-            if (j != _data->thumbnails.end())
-            {
-                for (const auto& k : j->second)
-                {
-                    p.thumbnails[k.first].image = k.second;
-                }
+                p.ioInfo = i->second;
             }
         }
 
@@ -90,17 +75,7 @@ namespace tl
 
         VideoClipItem::~VideoClipItem()
         {
-            TLRENDER_P();
             _cancelRequests();
-            const std::string fileName = p.path.get();
-            if (p.ioInfo)
-            {
-                _data->info[fileName] = *p.ioInfo;
-            }
-            for (const auto& i : p.thumbnails)
-            {
-                _data->thumbnails[fileName][i.first] = i.second.image;
-            }
         }
 
         std::shared_ptr<VideoClipItem> VideoClipItem::create(
@@ -142,7 +117,6 @@ namespace tl
             TLRENDER_P();
             if (thumbnailsChanged)
             {
-                p.thumbnails.clear();
                 _cancelRequests();
                 _updates |= ui::Update::Draw;
             }
@@ -157,16 +131,17 @@ namespace tl
             TLRENDER_P();
 
             // Check if the I/O information is finished.
+            const std::string fileName = p.path.get();
             if (p.infoRequest.future.valid() &&
                 p.infoRequest.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
-                p.ioInfo = std::make_unique<io::Info>(p.infoRequest.future.get());
+                p.ioInfo = std::make_shared<io::Info>(p.infoRequest.future.get());
+                _data->info[fileName] = p.ioInfo;
                 _updates |= ui::Update::Size;
                 _updates |= ui::Update::Draw;
             }
 
             // Check if any thumbnails are finished.
-            const auto now = std::chrono::steady_clock::now();
             auto i = p.thumbnailRequests.begin();
             while (i != p.thumbnailRequests.end())
             {
@@ -174,23 +149,13 @@ namespace tl
                     i->second.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
                     const auto image = i->second.future.get();
-                    p.thumbnails[i->first] = { image, now };
+                    _data->thumbnails[fileName][i->first] = image;
                     i = p.thumbnailRequests.erase(i);
                     _updates |= ui::Update::Draw;
                 }
                 else
                 {
                     ++i;
-                }
-            }
-
-            // Check if any thumbnails need to be redrawn.
-            for (const auto& thumbnail : p.thumbnails)
-            {
-                const std::chrono::duration<float> diff = now - thumbnail.second.time;
-                if (diff.count() <= _options.thumbnailFade)
-                {
-                    _updates |= ui::Update::Draw;
                 }
             }
         }
@@ -218,7 +183,6 @@ namespace tl
             p.size.clipRect = clipRect;
             if (clipped)
             {
-                p.thumbnails.clear();
                 _cancelRequests();
                 _updates |= ui::Update::Draw;
             }
@@ -258,12 +222,6 @@ namespace tl
             event.render->setClipRectEnabled(true);
             event.render->setClipRect(box.intersect(clipRectState.getClipRect()));
 
-            std::set<otime::RationalTime> thumbnailsDelete;
-            for (const auto& thumbnail : p.thumbnails)
-            {
-                thumbnailsDelete.insert(thumbnail.first);
-            }
-
             const math::Box2i clipRect = _getClipRect(
                 drawRect,
                 _options.clipRectScale);
@@ -282,7 +240,7 @@ namespace tl
                 0;
             if (thumbnailWidth > 0 && thumbnailSystem)
             {
-                const auto now = std::chrono::steady_clock::now();
+                const std::string fileName = p.path.get();
                 const int w = _sizeHint.w;
                 for (int x = 0; x < w; x += thumbnailWidth)
                 {
@@ -305,25 +263,21 @@ namespace tl
                             p.clip,
                             p.ioInfo->videoTime.duration().rate());
 
-                        const auto i = p.thumbnails.find(mediaTime);
-                        if (i != p.thumbnails.end())
+                        bool found = false;
+                        const auto i = _data->thumbnails.find(fileName);
+                        if (i != _data->thumbnails.end())
                         {
-                            if (i->second.image)
+                            const auto j = i->second.find(mediaTime);
+                            if (j != i->second.end())
                             {
-                                const std::chrono::duration<float> diff = now - i->second.time;
-                                float a = 1.F;
-                                if (_options.thumbnailFade > 0.F)
+                                found = true;
+                                if (j->second)
                                 {
-                                    a = std::min(diff.count() / _options.thumbnailFade, 1.F);
+                                    event.render->drawImage(j->second, box);
                                 }
-                                event.render->drawImage(
-                                    i->second.image,
-                                    box,
-                                    image::Color4f(1.F, 1.F, 1.F, a));
                             }
-                            thumbnailsDelete.erase(mediaTime);
                         }
-                        else if (p.ioInfo && !p.ioInfo->video.empty())
+                        if (!found && p.ioInfo && !p.ioInfo->video.empty())
                         {
                             const auto k = p.thumbnailRequests.find(mediaTime);
                             if (k == p.thumbnailRequests.end())
@@ -336,15 +290,6 @@ namespace tl
                             }
                         }
                     }
-                }
-            }
-
-            for (auto i : thumbnailsDelete)
-            {
-                const auto j = p.thumbnails.find(i);
-                if (j != p.thumbnails.end())
-                {
-                    p.thumbnails.erase(j);
                 }
             }
         }

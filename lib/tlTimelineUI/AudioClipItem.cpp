@@ -29,14 +29,8 @@ namespace tl
             SizeData size;
 
             ui::InfoRequest infoRequest;
-            std::unique_ptr<io::Info> ioInfo;
+            std::shared_ptr<io::Info> ioInfo;
             std::map<otime::RationalTime, ui::WaveformRequest> waveformRequests;
-            struct Waveform
-            {
-                std::shared_ptr<geom::TriangleMesh2> mesh;
-                std::chrono::steady_clock::time_point time;
-            };
-            std::map<otime::RationalTime, Waveform> waveforms;
         };
 
         void AudioClipItem::_init(
@@ -68,19 +62,10 @@ namespace tl
             p.memoryRead = timeline::getMemoryRead(clip->media_reference());
             p.thumbnailSystem = context->getSystem<ui::ThumbnailSystem>();
 
-            const std::string fileName = p.path.get();
-            const auto i = _data->info.find(fileName);
-            if (i != _data->info.end())
+            const auto i = itemData->info.find(path.get());
+            if (i != itemData->info.end())
             {
-                p.ioInfo = std::make_unique<io::Info>(i->second);
-            }
-            const auto j = _data->waveforms.find(fileName);
-            if (j != _data->waveforms.end())
-            {
-                for (const auto& k : j->second)
-                {
-                    p.waveforms[k.first].mesh = k.second;
-                }
+                p.ioInfo = i->second;
             }
         }
 
@@ -90,17 +75,7 @@ namespace tl
 
         AudioClipItem::~AudioClipItem()
         {
-            TLRENDER_P();
             _cancelRequests();
-            const std::string fileName = p.path.get();
-            if (p.ioInfo)
-            {
-                _data->info[fileName] = *p.ioInfo;
-            }
-            for (const auto& i : p.waveforms)
-            {
-                _data->waveforms[fileName][i.first] = i.second.mesh;
-            }
         }
 
         std::shared_ptr<AudioClipItem> AudioClipItem::create(
@@ -128,7 +103,6 @@ namespace tl
             TLRENDER_P();
             if (changed)
             {
-                p.waveforms.clear();
                 _cancelRequests();
                 _updates |= ui::Update::Draw;
             }
@@ -145,7 +119,6 @@ namespace tl
             TLRENDER_P();
             if (thumbnailsChanged)
             {
-                p.waveforms.clear();
                 _cancelRequests();
                 _updates |= ui::Update::Draw;
             }
@@ -160,10 +133,12 @@ namespace tl
             TLRENDER_P();
 
             // Check if the I/O information is finished.
+            const std::string fileName = p.path.get();
             if (p.infoRequest.future.valid() &&
                 p.infoRequest.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
-                p.ioInfo = std::make_unique<io::Info>(p.infoRequest.future.get());
+                p.ioInfo = std::make_shared<io::Info>(p.infoRequest.future.get());
+                _data->info[fileName] = p.ioInfo;
                 _updates |= ui::Update::Size;
                 _updates |= ui::Update::Draw;
             }
@@ -177,23 +152,13 @@ namespace tl
                     i->second.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
                     const auto mesh = i->second.future.get();
-                    p.waveforms[i->first] = { mesh, now };
+                    _data->waveforms[fileName][i->first] = mesh;
                     i = p.waveformRequests.erase(i);
                     _updates |= ui::Update::Draw;
                 }
                 else
                 {
                     ++i;
-                }
-            }
-
-            // Check if any waveforms need to be redrawn.
-            for (const auto& waveform : p.waveforms)
-            {
-                const std::chrono::duration<float> diff = now - waveform.second.time;
-                if (diff.count() <= _options.thumbnailFade)
-                {
-                    _updates |= ui::Update::Draw;
                 }
             }
         }
@@ -221,7 +186,6 @@ namespace tl
             p.size.clipRect = clipRect;
             if (clipped)
             {
-                p.waveforms.clear();
                 _cancelRequests();
                 _updates |= ui::Update::Draw;
             }
@@ -261,12 +225,6 @@ namespace tl
             event.render->setClipRectEnabled(true);
             event.render->setClipRect(box.intersect(clipRectState.getClipRect()));
 
-            std::set<otime::RationalTime> waveformsDelete;
-            for (const auto& waveform : p.waveforms)
-            {
-                waveformsDelete.insert(waveform.first);
-            }
-
             const math::Box2i clipRect = _getClipRect(
                 drawRect,
                 _options.clipRectScale);
@@ -283,7 +241,7 @@ namespace tl
 
             if (_options.waveformWidth > 0 && p.ioInfo && thumbnailSystem)
             {
-                const auto now = std::chrono::steady_clock::now();
+                const std::string fileName = p.path.get();
                 const int w = _sizeHint.w;
                 for (int x = 0; x < w; x += _options.waveformWidth)
                 {
@@ -311,25 +269,24 @@ namespace tl
                             p.clip,
                             p.ioInfo->audio.sampleRate);
 
-                        auto i = p.waveforms.find(mediaRange.start_time());
-                        if (i != p.waveforms.end())
+                        bool found = false;
+                        const auto i = _data->waveforms.find(fileName);
+                        if (i != _data->waveforms.end())
                         {
-                            if (i->second.mesh)
+                            const auto j = i->second.find(mediaRange.start_time());
+                            if (j != i->second.end())
                             {
-                                const std::chrono::duration<float> diff = now - i->second.time;
-                                float a = 1.F;
-                                if (_options.thumbnailFade > 0.F)
+                                found = true;
+                                if (j->second)
                                 {
-                                    a = std::min(diff.count() / _options.thumbnailFade, 1.F);
+                                    event.render->drawMesh(
+                                        *j->second,
+                                        box.min,
+                                        image::Color4f(1.F, 1.F, 1.F));
                                 }
-                                event.render->drawMesh(
-                                    *i->second.mesh,
-                                    box.min,
-                                    image::Color4f(1.F, 1.F, 1.F, a));
                             }
-                            waveformsDelete.erase(mediaRange.start_time());
                         }
-                        else if (p.ioInfo && p.ioInfo->audio.isValid())
+                        if (!found && p.ioInfo && p.ioInfo->audio.isValid())
                         {
                             const auto j = p.waveformRequests.find(mediaRange.start_time());
                             if (j == p.waveformRequests.end())
@@ -342,15 +299,6 @@ namespace tl
                             }
                         }
                     }
-                }
-            }
-
-            for (auto i : waveformsDelete)
-            {
-                const auto j = p.waveforms.find(i);
-                if (j != p.waveforms.end())
-                {
-                    p.waveforms.erase(j);
                 }
             }
         }

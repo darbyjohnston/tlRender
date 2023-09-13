@@ -92,6 +92,9 @@ namespace tl
             if (player == p.player)
                 return;
 
+            p.itemData->info.clear();
+            p.itemData->thumbnails.clear();
+            p.itemData->waveforms.clear();
             p.timelineObserver.reset();
             p.scrollWidget->setWidget(nullptr);
             p.timelineItem.reset();
@@ -288,10 +291,6 @@ namespace tl
             const ui::TickEvent& event)
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
-            TLRENDER_P();
-            p.itemData->info.clear();
-            p.itemData->thumbnails.clear();
-            p.itemData->waveforms.clear();
         }
 
         void TimelineWidget::sizeHintEvent(const ui::SizeHintEvent& event)

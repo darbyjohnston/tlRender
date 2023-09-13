@@ -24,7 +24,7 @@ namespace tl
             std::string directory;
             timeline::Options options;
             std::shared_ptr<timeline::ITimeUnitsModel> timeUnitsModel;
-            std::map<std::string, io::Info> info;
+            std::map<std::string, std::shared_ptr<io::Info> > info;
             std::map<
                 std::string,
                 std::map<otime::RationalTime, std::shared_ptr<image::Image> > > thumbnails;
