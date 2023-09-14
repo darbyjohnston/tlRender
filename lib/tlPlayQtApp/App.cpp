@@ -548,6 +548,7 @@ namespace tl
         App::~App()
         {
             TLRENDER_P();
+            p.mainWindow.reset();
             if (p.settingsObject)
             {
                 QList<QString> recent;
