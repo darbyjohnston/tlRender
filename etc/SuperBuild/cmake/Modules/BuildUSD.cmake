@@ -21,6 +21,7 @@ if(CMAKE_OSX_DEPLOYMENT_TARGET)
     #list(APPEND USD_ARGS TBB,"CFLAGS=-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET} CXXFLAGS=-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
 endif()
 list(APPEND USD_ARGS --no-python --no-examples --no-tutorials --no-tools)
+list(APPEND USD_ARGS --verbose)
 
 set(USD_INSTALL_COMMAND)
 if(WIN32)
