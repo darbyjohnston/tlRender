@@ -430,7 +430,7 @@ jobs:
         submodules: recursive
 
     - name: Setup environment
-      run: >
+      run: |
         echo "%CD%\build\install\bin;%CD%\build\install\lib" >> $GITHUB_PATH
 
     - name: Build tlRender
@@ -439,13 +439,13 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake ..\etc\SuperBuild \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_INSTALL_PREFIX=install \
-          -DCMAKE_PREFIX_PATH=install \
-          -DTLRENDER_FFMPEG=${{ env.TLRENDER_FFMPEG }} \
-          -DTLRENDER_USD=${{ env.TLRENDER_USD }} \
-          -DTLRENDER_EXAMPLES=${{ env.TLRENDER_EXAMPLES }} \
+        cmake ..\etc\SuperBuild ^
+          -DCMAKE_BUILD_TYPE=Release ^
+          -DCMAKE_INSTALL_PREFIX=install ^
+          -DCMAKE_PREFIX_PATH=install ^
+          -DTLRENDER_FFMPEG=${{ env.TLRENDER_FFMPEG }} ^
+          -DTLRENDER_USD=${{ env.TLRENDER_USD }} ^
+          -DTLRENDER_EXAMPLES=${{ env.TLRENDER_EXAMPLES }} ^
           -DTLRENDER_TESTS=${{ env.TLRENDER_TESTS }}
         cmake --build . -j 4 --config Release
 
