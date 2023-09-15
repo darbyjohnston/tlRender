@@ -434,8 +434,8 @@ jobs:
         echo "$pwd\build\install\bin;$pwd\build\install\lib;$env:path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
 
     - name: Build tlRender
+      continue-on-error: true
       run: >
-        "C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat" &&
         mkdir build &&
         cd build &&
         cmake ..\etc\SuperBuild `
@@ -451,6 +451,7 @@ jobs:
     - name: Package
       run: >
         cd build &&
+        type install\src\boost_1_70_0\log.txt &&
         cd tlRender\src\tlRender-build &&
         cmake --build . -j 4 --config Release --target package
 
