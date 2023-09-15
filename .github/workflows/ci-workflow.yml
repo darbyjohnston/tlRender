@@ -434,6 +434,7 @@ jobs:
         echo "$pwd\build\install\bin;$pwd\build\install\lib;$env:path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
 
     - name: Build tlRender
+      shell: cmd
       continue-on-error: true
       run: >
         mkdir build &&
@@ -451,7 +452,7 @@ jobs:
     - name: Package
       run: >
         cd build &&
-        type install\src\boost_1_70_0\log.txt &&
+        type USD\src\USD-build\bootstrap.log &&
         cd tlRender\src\tlRender-build &&
         cmake --build . -j 4 --config Release --target package
 
