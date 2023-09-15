@@ -431,14 +431,14 @@ jobs:
 
     - name: Setup environment
       run: >
-        echo "$pwd\build\install\bin;$pwd\build\install\lib;$env:path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+        echo "%CD%\build\install\bin;%CD%\build\install\lib" >> $GITHUB_PATH
 
     - name: Build tlRender
       shell: cmd
       continue-on-error: true
-      run: >
-        mkdir build &&
-        cd build &&
+      run: |
+        mkdir build
+        cd build
         cmake ..\etc\SuperBuild \
           -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_INSTALL_PREFIX=install \
@@ -446,14 +446,14 @@ jobs:
           -DTLRENDER_FFMPEG=${{ env.TLRENDER_FFMPEG }} \
           -DTLRENDER_USD=${{ env.TLRENDER_USD }} \
           -DTLRENDER_EXAMPLES=${{ env.TLRENDER_EXAMPLES }} \
-          -DTLRENDER_TESTS=${{ env.TLRENDER_TESTS }} &&
+          -DTLRENDER_TESTS=${{ env.TLRENDER_TESTS }}
         cmake --build . -j 4 --config Release
 
     - name: Package
-      run: >
-        cd build &&
-        type USD\src\USD-build\bootstrap.log &&
-        cd tlRender\src\tlRender-build &&
+      run: |
+        cd build
+        type USD\src\USD-build\bootstrap.log
+        cd tlRender\src\tlRender-build
         cmake --build . -j 4 --config Release --target package
 
     - uses: actions/upload-artifact@v3
