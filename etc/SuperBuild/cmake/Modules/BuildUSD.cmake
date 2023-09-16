@@ -22,7 +22,6 @@ if(CMAKE_OSX_DEPLOYMENT_TARGET)
 endif()
 list(APPEND USD_ARGS --no-python --no-examples --no-tutorials --no-tools)
 list(APPEND USD_ARGS --verbose)
-list(APPEND USD_ARGS --jobs 1)
 
 set(USD_INSTALL_COMMAND)
 if(WIN32)
