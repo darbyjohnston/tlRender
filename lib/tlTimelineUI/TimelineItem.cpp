@@ -538,6 +538,7 @@ namespace tl
                 {
                     const int track = dropTarget.track + (item->track - p.mouse.items[0]->track);
                     insertData.push_back({ item->p->getComposable(), track, dropTarget.index });
+                    item->p->setVisible(false);
                 }
                 auto otioTimeline = insert(
                     p.player->getTimeline()->getTimeline().value,
