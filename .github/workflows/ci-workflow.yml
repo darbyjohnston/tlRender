@@ -448,11 +448,17 @@ jobs:
           -DTLRENDER_EXAMPLES=${{ env.TLRENDER_EXAMPLES }} ^
           -DTLRENDER_TESTS=${{ env.TLRENDER_TESTS }}
         cmake --build . -j 4 --config Release
+    
+    - name: Debugging
+      shell: bash
+      run: |
+        cd build
+        find . -name bootstrap.log
+        find . -name bootstrap.log | xargs cat
 
     - name: Package
       run: |
         cd build
-        type USD\src\USD-build\bootstrap.log
         cd tlRender\src\tlRender-build
         cmake --build . -j 4 --config Release --target package
 
