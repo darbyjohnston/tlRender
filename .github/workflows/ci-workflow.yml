@@ -415,7 +415,7 @@ jobs:
         #ctest --rerun-failed --output-on-failure
 
   windows-package:
-    runs-on: windows-latest
+    runs-on: windows-2019
 
     # \bug How can we build FFmpeg on Windows?
     env:
