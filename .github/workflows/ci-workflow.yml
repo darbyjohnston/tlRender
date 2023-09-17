@@ -418,7 +418,9 @@ jobs:
     runs-on: windows-latest
     #runs-on: windows-2019
 
-    # \bug How can we build FFmpeg on Windows?
+    # \todo How can we build FFmpeg on Windows?
+    # \todo USD has errors in the boost build with windows-latest
+    # \todo USD has errors in the MaterialX build with windows-2019
     env:
       TLRENDER_FFMPEG: OFF
       TLRENDER_USD: OFF
