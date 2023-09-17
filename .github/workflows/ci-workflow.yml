@@ -430,6 +430,7 @@ jobs:
         submodules: recursive
 
     - name: Setup environment
+      shell: cmd
       run: |
         echo "%CD%\build\install\bin;%CD%\build\install\lib" >> $GITHUB_PATH
 
@@ -437,6 +438,7 @@ jobs:
       shell: cmd
       continue-on-error: true
       run: |
+        cmake --version
         mkdir build
         cd build
         cmake ..\etc\SuperBuild ^
@@ -457,6 +459,7 @@ jobs:
         find . -name bootstrap.log | xargs cat
 
     - name: Package
+      shell: cmd
       run: |
         cd build
         cd tlRender\src\tlRender-build
