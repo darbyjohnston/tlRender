@@ -433,12 +433,12 @@ jobs:
       shell: cmd
       run: |
         echo "%CD%\build\install\bin;%CD%\build\install\lib" >> $GITHUB_PATH
+        cmake --version
 
     - name: Build tlRender
       shell: cmd
       continue-on-error: true
       run: |
-        cmake --version
         mkdir build
         cd build
         cmake ..\etc\SuperBuild ^
