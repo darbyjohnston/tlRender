@@ -8,6 +8,14 @@
 
 #include <iostream>
 
+#if defined(_WINDOWS)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif // WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <tchar.h>
+#endif // _WINDOWS
+
 int main(int argc, char* argv[])
 {
     int r = 1;
@@ -32,3 +40,11 @@ int main(int argc, char* argv[])
     }
     return r;
 }
+
+#if defined(_WINDOWS)
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int)
+{
+    return main(__argc, __argv);
+}
+#endif // _WINDOWS
+
