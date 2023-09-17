@@ -247,24 +247,24 @@ namespace tl
                             [this, seq, fileName, time, layer]
                             {
                                 VideoData out;
-                            try
-                            {
-                                const int64_t frame = time.value();
-                                if (!seq || (seq && frame >= _startFrame && frame <= _endFrame))
+                                try
                                 {
-                                    const int64_t memoryIndex = seq ? (frame - _startFrame) : 0;
-                                    out = _readVideo(
-                                        fileName,
-                                        memoryIndex >= 0 && memoryIndex < _memory.size() ? &_memory[memoryIndex] : nullptr,
-                                        time,
-                                        layer);
+                                    const int64_t frame = time.value();
+                                    if (!seq || (seq && frame >= _startFrame && frame <= _endFrame))
+                                    {
+                                        const int64_t memoryIndex = seq ? (frame - _startFrame) : 0;
+                                        out = _readVideo(
+                                            fileName,
+                                            memoryIndex >= 0 && memoryIndex < _memory.size() ? &_memory[memoryIndex] : nullptr,
+                                            time,
+                                            layer);
+                                    }
                                 }
-                            }
-                            catch (const std::exception&)
-                            {
-                                //! \todo How should this be handled?
-                            }
-                            return out;
+                                catch (const std::exception&)
+                                {
+                                    //! \todo How should this be handled?
+                                }
+                                return out;
                             });
                         p.thread.videoRequestsInProgress.push_back(request);
                     }
