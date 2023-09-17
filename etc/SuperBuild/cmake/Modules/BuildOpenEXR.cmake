@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(OpenEXR_GIT_REPOSITORY "https://github.com/AcademySoftwareFoundation/openexr.git")
-set(OpenEXR_GIT_TAG "v3.1.7")
+set(OpenEXR_GIT_TAG "v3.2.0")
 
 set(OpenEXR_ARGS
     ${TLRENDER_EXTERNAL_ARGS}
