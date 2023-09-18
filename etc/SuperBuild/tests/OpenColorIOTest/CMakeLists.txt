@@ -1,3 +1,5 @@
+find_package(ZLIB REQUIRED)
+find_package(minizip REQUIRED)
 find_package(OpenColorIO REQUIRED)
 
 set(source main.cpp)
