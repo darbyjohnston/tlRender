@@ -157,6 +157,7 @@ namespace tl
                     return a.getTime() < b.getTime();
                 };
                 break;
+            default: break;
             }
             if (sort)
             {
