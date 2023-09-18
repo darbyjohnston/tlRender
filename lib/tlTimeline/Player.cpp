@@ -123,6 +123,9 @@ namespace tl
             p.mutex.cacheOptions = p.cacheOptions->get();
             p.mutex.cacheInfo = p.cacheInfo->get();
             p.audioMutex.speed = p.speed->get();
+#if defined(TLRENDER_AUDIO)
+            p.thread.rtAudio.reset(new RtAudio);
+#endif
             p.thread.running = true;
             p.thread.thread = std::thread(
                 [this]
@@ -143,7 +146,6 @@ namespace tl
                             {
                                 try
                                 {
-                                    p.thread.rtAudio.reset(new RtAudio);
                                     RtAudio::StreamParameters rtParameters;
                                     auto audioSystem = context->getSystem<audio::System>();
                                     rtParameters.deviceId = audioSystem->getDefaultOutputDevice();
@@ -165,7 +167,7 @@ namespace tl
                                 {
                                     std::stringstream ss;
                                     ss << "Cannot open audio stream: " << e.what();
-                                    context->log("tl::timline::Player", ss.str(), log::Type::Error);
+                                    context->log("tl::timeline::Player", ss.str(), log::Type::Error);
                                 }
                             }
                         }
@@ -232,7 +234,7 @@ namespace tl
                             audioOffset,
                             cacheDirection,
                             cacheOptions);
-
+                        
                         // Update the current video data.
                         const auto& timeRange = p.timeline->getTimeRange();
                         if (!p.ioInfo.video.empty())
@@ -925,6 +927,7 @@ namespace tl
                 currentAudioData = p.mutex.currentAudioData;
                 cacheInfo = p.mutex.cacheInfo;
             }
+            
             p.currentVideoData->setIfChanged(currentVideoData);
             p.currentAudioData->setIfChanged(currentAudioData);
             p.cacheInfo->setIfChanged(cacheInfo);
