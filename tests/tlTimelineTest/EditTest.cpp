@@ -50,7 +50,6 @@ namespace tl
         void EditTest::run()
         {
             _insert();
-            _util();
         }
 
         void EditTest::_insert()
@@ -237,62 +236,6 @@ namespace tl
                 insertData.trackIndex = 0;
                 auto otioTimeline3 = insert(otioTimeline2, { insertData });
                 TLRENDER_ASSERT("Video 0" == getChild(otioTimeline3, 0, 0)->name());
-            }
-        }
-
-        void EditTest::_util()
-        {
-            {
-                otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(new otio::Timeline);
-                auto otioTrack = new otio::Track("Video", otio::nullopt, otio::Track::Kind::video);
-                otioTimeline->tracks()->append_child(otioTrack);
-                otioTrack->append_child(new otio::Clip(
-                    "Video",
-                    nullptr,
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 24.0),
-                        otime::RationalTime(24.0, 24.0))));
-                otioTrack = new otio::Track(
-                    "Audio",
-                    otio::nullopt,
-                    otio::Track::Kind::audio);
-                otioTimeline->tracks()->append_child(otioTrack);
-                otioTrack->append_child(new otio::Clip(
-                    "Audio",
-                    nullptr,
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 48000.0),
-                        otime::RationalTime(48000.0, 48000.0))));
-
-                TLRENDER_ASSERT(
-                    timeline::getAssociatedClip(getClip(otioTimeline, 0, 0)).value ==
-                    getClip(otioTimeline, 1, 0).value);
-            }
-            {
-                otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(new otio::Timeline);
-                auto otioTrack = new otio::Track("Video", otio::nullopt, otio::Track::Kind::video);
-                otioTimeline->tracks()->append_child(otioTrack);
-                otioTrack->append_child(new otio::Clip(
-                    "Video",
-                    nullptr,
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 24.0),
-                        otime::RationalTime(24.0, 24.0))));
-                otioTrack = new otio::Track(
-                    "Audio",
-                    otio::nullopt,
-                    otio::Track::Kind::audio);
-                otioTimeline->tracks()->append_child(otioTrack);
-                otioTrack->append_child(new otio::Clip(
-                    "Audio",
-                    nullptr,
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 48000.0),
-                        otime::RationalTime(2 * 48000.0, 48000.0))));
-
-                TLRENDER_ASSERT(
-                    timeline::getAssociatedClip(getClip(otioTimeline, 0, 0)).value !=
-                    getClip(otioTimeline, 1, 0).value);
             }
         }
     }

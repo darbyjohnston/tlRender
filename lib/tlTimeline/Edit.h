@@ -13,10 +13,6 @@ namespace tl
 {
     namespace timeline
     {
-        //! Find an associated audio or video clip on an adjacent track.
-        otio::SerializableObject::Retainer<otio::Clip> getAssociatedClip(
-            const otio::SerializableObject::Retainer<otio::Clip>&);
-
         //! Insert data.
         struct InsertData
         {
