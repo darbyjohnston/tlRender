@@ -103,7 +103,9 @@ namespace tl
             const Path p(path, fileName);
             const FileInfo f(p);
             bool sequence = false;
-            if (options.sequence && !p.getNumber().empty())
+            if (options.sequence &&
+                !p.getNumber().empty() &&
+                f.getType() != Type::Directory)
             {
                 for (auto& i : out)
                 {
