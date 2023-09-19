@@ -79,6 +79,7 @@ namespace tl
                 memory::LRUCache<std::string, std::shared_ptr<image::Image> > thumbnailCache;
                 memory::LRUCache<std::string, std::shared_ptr<geom::TriangleMesh2> > waveformCache;
                 memory::LRUCache<std::string, std::shared_ptr<io::IRead> > ioCache;
+                std::chrono::steady_clock::time_point logTimer;
                 std::condition_variable cv;
                 std::thread thread;
                 std::atomic<bool> running;
@@ -495,6 +496,7 @@ namespace tl
             }
             std::shared_ptr<gl::OffscreenBuffer> buffer;
             io::Options ioOptions;
+            p.thread.logTimer = std::chrono::steady_clock::now();
             while (p.thread.running)
             {
                 // Check requests.
@@ -726,6 +728,45 @@ namespace tl
                         p.thread.waveformCache.add(key, mesh);
                     }
                     request->promise.set_value(mesh);
+                }
+
+                // Logging.
+                {
+                    const auto now = std::chrono::steady_clock::now();
+                    const std::chrono::duration<float> diff = now - p.thread.logTimer;
+                    if (diff.count() > 10.F)
+                    {
+                        p.thread.logTimer = now;
+                        size_t infoRequests = 0;
+                        size_t thumbnailRequests = 0;
+                        size_t waveformRequests = 0;
+                        {
+                            std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                            infoRequests = p.mutex.infoRequests.size();
+                            thumbnailRequests = p.mutex.thumbnailRequests.size();
+                            waveformRequests = p.mutex.waveformRequests.size();
+                        }
+                        _log(string::Format(
+                            "\n"
+                            "    Info requests: {0}\n"
+                            "    Thumbnail requests: {1}\n"
+                            "    Waveform requests: {2}\n"
+                            "    Info cache: {3}, {4}%\n"
+                            "    Thumbnail cache: {5}, {6}%\n"
+                            "    Waveform cache: {7}, {8}%\n"
+                            "    I/O cache: {9}, {10}%").
+                            arg(infoRequests).
+                            arg(thumbnailRequests).
+                            arg(waveformRequests).
+                            arg(p.thread.infoCache.getSize()).
+                            arg(p.thread.infoCache.getPercentage()).
+                            arg(p.thread.thumbnailCache.getSize()).
+                            arg(p.thread.thumbnailCache.getPercentage()).
+                            arg(p.thread.infoCache.getSize()).
+                            arg(p.thread.infoCache.getPercentage()).
+                            arg(p.thread.ioCache.getSize()).
+                            arg(p.thread.ioCache.getPercentage()));
+                    }
                 }
             }
         }
