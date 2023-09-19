@@ -53,15 +53,6 @@ namespace tl
             return _sequence.getMin() != _sequence.getMax();
         }
 
-        inline bool Path::sequence(const Path& value) const
-        {
-            return
-                _directory == value._directory &&
-                _baseName == value._baseName &&
-                _padding == value._padding &&
-                _extension == value._extension;
-        }
-
         inline const std::string& Path::getExtension() const
         {
             return _extension;

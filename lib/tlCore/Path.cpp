@@ -5,6 +5,7 @@
 #include <tlCore/Path.h>
 
 #include <tlCore/Error.h>
+#include <tlCore/Math.h>
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
@@ -51,8 +52,9 @@ namespace tl
                     (j - i) <= options.maxNumberDigits)
                 {
                     _number = value.substr(i, j - i);
-                    const int number = std::atoi(_number.c_str());
-                    _sequence = math::IntRange(number, number);
+                    _numberValue = std::atoi(_number.c_str());
+                    _numberDigits = math::digits(_numberValue);
+                    _sequence = math::IntRange(_numberValue, _numberValue);
                     if (_number.size() > 1 && '0' == _number[0])
                     {
                         _padding = _number.size();
@@ -135,6 +137,15 @@ namespace tl
         void Path::setSequence(const math::IntRange& value)
         {
             _sequence = value;
+        }
+
+        bool Path::sequence(const Path& value) const
+        {
+            return
+                _directory == value._directory &&
+                _baseName == value._baseName &&
+                (_padding == value._padding || _padding == value._numberDigits) &&
+                _extension == value._extension;
         }
 
         std::string Path::getSequenceString() const

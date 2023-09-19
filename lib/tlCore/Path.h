@@ -100,6 +100,8 @@ namespace tl
             std::string _directory;
             std::string _baseName;
             std::string _number;
+            int _numberValue = 0;
+            int _numberDigits = 0;
             math::IntRange _sequence;
             uint8_t _padding = 0;
             std::string _extension;

@@ -118,6 +118,10 @@ namespace tl
                 TLRENDER_ASSERT("0001-0100" == p.getSequenceString());
             }
             {
+                Path path("render.00000.exr");
+                TLRENDER_ASSERT(path.sequence(Path("render.10000.exr")));
+            }
+            {
                 TLRENDER_ASSERT(Path("/").isAbsolute());
                 TLRENDER_ASSERT(Path("/tmp").isAbsolute());
                 TLRENDER_ASSERT(Path("\\").isAbsolute());
