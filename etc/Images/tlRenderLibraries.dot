@@ -1,0 +1,25 @@
+digraph "tlRender" {
+    pad = 0.5
+    node [ fontsize = 24, style = filled, fontname = NotoSans, fontcolor = black, margin = "0.5,0.25" ];
+    "node0" [ label = "tlTimeline", shape = rectangle, fillcolor = lightblue ];
+    "node1" [ label = "tlIO", shape = rectangle, fillcolor = lightblue ];
+    "node2" [ label = "tlGL", shape = rectangle, fillcolor = lightblue ];
+    "node3" [ label = "tlCore", shape = rectangle, fillcolor = lightblue ];
+    "node2" -> "node3"  // tlGL -> tlCore
+    "node1" -> "node2"  // tlIO -> tlGL
+    "node0" -> "node1"  // tlTimeline -> tlIO
+    "node4" [ label = "tlQtWidget", shape = rectangle, fillcolor = lightgreen ];
+    "node5" [ label = "tlQt", shape = rectangle, fillcolor = lightgreen ];
+    "node6" [ label = "tlDevice", shape = rectangle, fillcolor = lightblue ];
+    "node6" -> "node0"  // tlDevice -> tlTimeline
+    "node5" -> "node6"  // tlQt -> tlDevice
+    "node4" -> "node5"  // tlQtWidget -> tlQt
+    "node7" [ label = "tlTimelineUI", shape = rectangle, fillcolor = orange ];
+    "node7" -> "node0"  // tlTimelineUI -> tlTimeline
+    "node8" [ label = "tlUI", shape = rectangle, fillcolor = orange ];
+    "node8" -> "node1"  // tlUI -> tlIO
+    "node7" -> "node8"  // tlTimelineUI -> tlUI
+    "node4" -> "node7"  // tlQtWidget -> tlTimelineUI
+    "node9" [ label = "tlQtQuick", shape = rectangle, fillcolor = lightgreen ];
+    "node9" -> "node5"  // tlQtQuick -> tlQt
+}
