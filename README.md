@@ -57,7 +57,7 @@ Contents:
 
 tlRender is composed of multiple libraries:
 
-![tlRenderLibraries](etc/Images/tlRenderLibraries.png | width=536)
+![tlRenderLibraries](etc/Images/tlRenderLibraries.png)
 
 | Libraries                                | Description              |
 | ---------------------------------------- | ------------------------ |

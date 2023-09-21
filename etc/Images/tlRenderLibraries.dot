@@ -1,5 +1,5 @@
 digraph "tlRender" {
-    bgcolor = "#00000000"
+    bgcolor = "#ffffff"
     pad = 0.5
     node [ fontsize = 16, style = filled, fontname = NotoSans, fontcolor = black, margin = "0.5,0.25" ];
     "node0" [ label = "tlTimeline", shape = rectangle, fillcolor = lightblue ];
