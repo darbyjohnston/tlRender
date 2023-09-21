@@ -1,6 +1,6 @@
 digraph "tlRender" {
     pad = 0.5
-    node [ fontsize = 24, style = filled, fontname = NotoSans, fontcolor = black, margin = "0.5,0.25" ];
+    node [ fontsize = 16, style = filled, fontname = NotoSans, fontcolor = black, margin = "0.5,0.25" ];
     "node0" [ label = "tlTimeline", shape = rectangle, fillcolor = lightblue ];
     "node1" [ label = "tlIO", shape = rectangle, fillcolor = lightblue ];
     "node2" [ label = "tlGL", shape = rectangle, fillcolor = lightblue ];
