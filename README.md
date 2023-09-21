@@ -46,7 +46,6 @@ Contents:
 * [Dependencies](#dependencies)
 * [Building](#building)
     * [Building Dependencies](#build-dependencies)
-    * [CMake build options](#cmake-build-options)
     * [Building on Linux](#building-on-linux)
     * [Building on macOS](#building-on-macos)
     * [Building FFmpeg on Windows](#building-ffmpeg-on-windows)
@@ -96,34 +95,6 @@ Optional dependencies:
 
 A CMake super build script is provided to build the dependencies from source,
 except for Qt. Qt should be installed separately.
-
-## CMake build options
-
-| Name              | Description                                       | Default   |
-| ----------------- | ------------------------------------------------- | --------- |
-| TLRENDER_MMAP     | Enable memory-mapped file I/O                     | TRUE      |
-| TLRENDER_PYTHON   | Enable Python support (for OTIO Python adapters)  | FALSE     |
-| TLRENDER_GLFW     | Enable support for GLFW                           | TRUE      |
-| TLRENDER_OCIO     | Enable support for OpenColorIO                    | TRUE      |
-| TLRENDER_AUDIO    | Enable support for audio                          | TRUE      |
-| TLRENDER_JPEG     | Enable support for JPEG                           | TRUE      |
-| TLRENDER_TIFF     | Enable support for TIFF                           | TRUE      |
-| TLRENDER_STB      | Enable support for STB I/O (TGA, BMP, PSD)        | TRUE      |
-| TLRENDER_PNG      | Enable support for PNG                            | TRUE      |
-| TLRENDER_EXR      | Enable support for OpenEXR                        | TRUE      |
-| TLRENDER_FFMPEG   | Enable support for FFmpeg                         | TRUE      |
-| TLRENDER_USD      | Enable support for USD                            | FALSE     |
-| TLRENDER_BMD      | Enable support for Blackmagic Design devices      | FALSE     |
-| TLRENDER_BMD_SDK  | Full path to the Blackmagic Design SDK            | ""        |
-| TLRENDER_NFD      | Enable support for native file dialogs            | OS Dependent |
-| TLRENDER_QT6      | Enable support for Qt6                            | FALSE     |
-| TLRENDER_QT5      | Enable support for Qt5                            | FALSE     |
-| TLRENDER_PROGRAMS | Build programs                                    | TRUE      |
-| TLRENDER_EXAMPLES | Build examples                                    | TRUE      |
-| TLRENDER_TESTS    | Build tests                                       | TRUE      |
-| TLRENDER_GCOV     | Enable gcov code coverage                         | FALSE     |
-| TLRENDER_GPROF    | Enable gprof code profiling                       | FALSE     |
-| TLRENDER_GL_DEBUG | Enable OpenGL debugging                           | FALSE     |
 
 ## Building on Linux
 
