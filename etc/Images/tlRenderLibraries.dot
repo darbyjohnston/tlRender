@@ -15,9 +15,8 @@ digraph "tlRender" {
     "node5" -> "node6"  // tlQt -> tlDevice
     "node4" -> "node5"  // tlQtWidget -> tlQt
     "node7" [ label = "tlTimelineUI", shape = rectangle, fillcolor = orange ];
-    "node7" -> "node0"  // tlTimelineUI -> tlTimeline
     "node8" [ label = "tlUI", shape = rectangle, fillcolor = orange ];
-    "node8" -> "node1"  // tlUI -> tlIO
+    "node8" -> "node0"  // tlUI -> tlTimeline
     "node7" -> "node8"  // tlTimelineUI -> tlUI
     "node4" -> "node7"  // tlQtWidget -> tlTimelineUI
     "node9" [ label = "tlQtQuick", shape = rectangle, fillcolor = lightgreen ];

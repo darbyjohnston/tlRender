@@ -24,7 +24,7 @@ set(SOURCE
     VideoClipItem.cpp)
 
 add_library(tlTimelineUI ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
-target_link_libraries(tlTimelineUI PUBLIC tlUI tlTimeline PRIVATE ${LIBRARIES_PRIVATE})
+target_link_libraries(tlTimelineUI PUBLIC tlUI PRIVATE ${LIBRARIES_PRIVATE})
 set_target_properties(tlTimelineUI PROPERTIES FOLDER lib)
 set_target_properties(tlTimelineUI PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
