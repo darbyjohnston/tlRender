@@ -20,5 +20,11 @@ ExternalProject_Add(
     DEPENDS Imath
     GIT_REPOSITORY ${OTIO_GIT_REPOSITORY}
     GIT_TAG ${OTIO_GIT_TAG}
+    PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_CURRENT_SOURCE_DIR}/OTIO-patch/clip.h
+        ${CMAKE_CURRENT_BINARY_DIR}/OTIO/src/OTIO/src/opentimelineio/clip.h
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_CURRENT_SOURCE_DIR}/OTIO-patch/clip.cpp
+        ${CMAKE_CURRENT_BINARY_DIR}/OTIO/src/OTIO/src/opentimelineio/clip.cpp
     LIST_SEPARATOR |
     CMAKE_ARGS ${OTIO_ARGS})
