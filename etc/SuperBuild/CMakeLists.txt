@@ -43,7 +43,11 @@ list(PREPEND CMAKE_MODULE_PATH
     ${PROJECT_SOURCE_DIR}/../../cmake/Modules
     ${PROJECT_SOURCE_DIR}/cmake/Modules)
 if(NOT CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 14)
+    if(TLRENDER_QT6)
+        set(CMAKE_CXX_STANDARD 17)
+    else()
+        set(CMAKE_CXX_STANDARD 14)
+    endif()
 endif()
 if(NOT BUILD_SHARED_LIBS)
     set(BUILD_SHARED_LIBS OFF)
