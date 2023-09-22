@@ -8,6 +8,8 @@
 #include <tlDevice/BMDDeviceSystem.h>
 #endif // TLRENDER_BMD
 
+#include <tlTimeline/Init.h>
+
 #include <tlCore/Context.h>
 
 namespace tl
@@ -16,6 +18,7 @@ namespace tl
     {
         void init(const std::shared_ptr<system::Context>& context)
         {
+            timeline::init(context);
 #if defined(TLRENDER_BMD)
             if (!context->getSystem<BMDDeviceSystem>())
             {

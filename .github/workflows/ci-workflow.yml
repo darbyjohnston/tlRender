@@ -54,15 +54,15 @@ jobs:
       run: sudo apt-get install qtdeclarative5-dev libqt5quick5 qtbase5-dev libqt5svg5-dev qtchooser qt5-qmake qtbase5-dev-tools
 
     - name: Setup environment
-      run: >
-        echo "$PWD/build/install/bin" >> $GITHUB_PATH &&
-        echo "LD_LIBRARY_PATH=$PWD/build/install/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV &&
+      run: |
+        echo "$PWD/build/install/bin" >> $GITHUB_PATH
+        echo "LD_LIBRARY_PATH=$PWD/build/install/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
 
     - name: Build tlRender
-      run: >
-        mkdir build &&
-        cd build &&
+      run: |
+        mkdir build
+        cd build
         cmake ../etc/SuperBuild \
           -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_INSTALL_PREFIX=$PWD/install \
@@ -82,20 +82,20 @@ jobs:
           -DTLRENDER_PROGRAMS=$TLRENDER_PROGRAMS \
           -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
           -DTLRENDER_TESTS=$TLRENDER_TESTS \
-          -DTLRENDER_GCOV=$TLRENDER_GCOV &&
+          -DTLRENDER_GCOV=$TLRENDER_GCOV
         cmake --build . -j 4 --config Debug
 
     - name: Run tests
-      run: >
-        cd build &&
-        cd tlRender/src/tlRender-build &&
+      run: |
+        cd build
+        cd tlRender/src/tlRender-build
         ctest --rerun-failed --output-on-failure
     
     - name: Code coverage
       if: env.TLRENDER_GCOV == 'ON'
-      run: >
-        cd build &&
-        cd tlRender/src/tlRender-build &&
+      run: |
+        cd build
+        cd tlRender/src/tlRender-build
         sh ../../../../etc/Linux/lcov.sh
 
     - name: Upload coverage to Codecov
@@ -138,15 +138,15 @@ jobs:
       run: sudo apt-get install xorg-dev libglu1-mesa-dev mesa-common-dev
       
     - name: Setup environment
-      run: >
-        echo "$PWD/build/install/bin" >> $GITHUB_PATH &&
-        echo "LD_LIBRARY_PATH=$PWD/build/install/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV &&
+      run: |
+        echo "$PWD/build/install/bin" >> $GITHUB_PATH
+        echo "LD_LIBRARY_PATH=$PWD/build/install/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
 
     - name: Build tlRender
-      run: >
-        mkdir build &&
-        cd build &&
+      run: |
+        mkdir build
+        cd build
         cmake ../etc/SuperBuild \
           -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_INSTALL_PREFIX=$PWD/install \
@@ -167,13 +167,13 @@ jobs:
           -DTLRENDER_PROGRAMS=$TLRENDER_PROGRAMS \
           -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
           -DTLRENDER_TESTS=$TLRENDER_TESTS \
-          -DTLRENDER_GCOV=$TLRENDER_GCOV &&
+          -DTLRENDER_GCOV=$TLRENDER_GCOV
         cmake --build . -j 4 --config Debug
 
     - name: Run tests
-      run: >
-        cd build &&
-        cd tlRender/src/tlRender-build &&
+      run: |
+        cd build
+        cd tlRender/src/tlRender-build
         ctest --rerun-failed --output-on-failure
 
   linux-package:
@@ -202,28 +202,28 @@ jobs:
       run: sudo apt-get install libpulse-dev
 
     - name: Setup environment
-      run: >
-        echo "$PWD/build/install/bin" >> $GITHUB_PATH &&
-        echo "LD_LIBRARY_PATH=$PWD/build/install/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV &&
+      run: |
+        echo "$PWD/build/install/bin" >> $GITHUB_PATH
+        echo "LD_LIBRARY_PATH=$PWD/build/install/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
 
     - name: Build tlRender
-      run: >
-        mkdir build &&
-        cd build &&
+      run: |
+        mkdir build
+        cd build
         cmake ../etc/SuperBuild \
           -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_INSTALL_PREFIX=$PWD/install \
           -DCMAKE_PREFIX_PATH=$PWD/install \
           -DTLRENDER_USD=$TLRENDER_USD \
           -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
-          -DTLRENDER_TESTS=$TLRENDER_TESTS &&
+          -DTLRENDER_TESTS=$TLRENDER_TESTS
         cmake --build . -j 4 --config Release
 
     - name: Package
-      run: >
-        cd build &&
-        cd tlRender/src/tlRender-build &&
+      run: |
+        cd build
+        cd tlRender/src/tlRender-build
         cmake --build . -j 4 --config Release --target package
 
     - uses: actions/upload-artifact@v3
@@ -261,16 +261,16 @@ jobs:
 
     # \bug DYLD_LIBRARY_PATH is not being set here?
     - name: Setup environment
-      run: >
-        echo "$PWD/build/install/bin" >> $GITHUB_PATH &&
-        echo "DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV &&
+      run: |
+        echo "$PWD/build/install/bin" >> $GITHUB_PATH
+        echo "DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
 
     - name: Build tlRender
-      run: >
-        export DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH &&
-        mkdir build &&
-        cd build &&
+      run: |
+        export DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH
+        mkdir build
+        cd build
         cmake ../etc/SuperBuild \
           -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_INSTALL_PREFIX=$PWD/install \
@@ -292,14 +292,14 @@ jobs:
           -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
           -DTLRENDER_TESTS=$TLRENDER_TESTS \
           -DTLRENDER_GCOV=$TLRENDER_GCOV \
-          -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET} &&
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
         cmake --build . -j 4 --config Debug
 
     - name: Run tests
-      run: >
-        export DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH &&
-        cd build &&
-        cd tlRender/src/tlRender-build &&
+      run: |
+        export DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH
+        cd build
+        cd tlRender/src/tlRender-build
         tests/tltest/tltest
 
   macos-package:
@@ -318,16 +318,16 @@ jobs:
 
     # \bug DYLD_LIBRARY_PATH is not being set here?
     - name: Setup environment
-      run: >
-        echo "$PWD/build/install/bin" >> $GITHUB_PATH &&
-        echo "DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV &&
+      run: |
+        echo "$PWD/build/install/bin" >> $GITHUB_PATH
+        echo "DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
 
     - name: Build tlRender
-      run: >
-        export DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH &&
-        mkdir build &&
-        cd build &&
+      run: |
+        export DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH
+        mkdir build
+        cd build
         cmake ../etc/SuperBuild \
           -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_INSTALL_PREFIX=$PWD/install \
@@ -335,13 +335,13 @@ jobs:
           -DTLRENDER_USD=$TLRENDER_USD \
           -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
           -DTLRENDER_TESTS=$TLRENDER_TESTS \
-          -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET} &&
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
         cmake --build . -j 4 --config Release
 
     - name: Package
-      run: >
-        cd build &&
-        cd tlRender/src/tlRender-build &&
+      run: |
+        cd build
+        cd tlRender/src/tlRender-build
         cmake --build . -j 4 --config Release --target package
 
     - uses: actions/upload-artifact@v3
@@ -377,13 +377,13 @@ jobs:
         submodules: recursive
 
     - name: Setup environment
-      run: >
+      run: |
         echo "$pwd\build\install\bin;$pwd\build\install\lib;$env:path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
         
     - name: Build tlRender
-      run: >
-        mkdir build &&
-        cd build &&
+      run: |
+        mkdir build
+        cd build
         cmake ..\etc\SuperBuild `
           -DCMAKE_BUILD_TYPE=Debug `
           -DCMAKE_INSTALL_PREFIX=install `
@@ -404,23 +404,26 @@ jobs:
           -DTLRENDER_PROGRAMS=${{ env.TLRENDER_PROGRAMS }} `
           -DTLRENDER_EXAMPLES=${{ env.TLRENDER_EXAMPLES }} `
           -DTLRENDER_TESTS=${{ env.TLRENDER_TESTS }} `
-          -DTLRENDER_GCOV=${{ env.TLRENDER_GCOV }} &&
+          -DTLRENDER_GCOV=${{ env.TLRENDER_GCOV }}
         cmake --build . -j 4 --config Debug
 
     - name: Run tests
-      run: >
-        cd build &&
-        cd tlRender\src\tlRender-build &&
+      run: |
+        cd build
+        cd tlRender\src\tlRender-build
         tests\tltest\Debug\tltest
         #ctest --rerun-failed --output-on-failure
 
   windows-package:
-    runs-on: windows-2019
+    runs-on: windows-latest
+    #runs-on: windows-2019
 
-    # \bug How can we build FFmpeg on Windows?
+    # \todo How can we build FFmpeg on Windows?
+    # \todo USD has errors in the boost build with windows-latest
+    # \todo USD has errors in the MaterialX build with windows-2019
     env:
       TLRENDER_FFMPEG: OFF
-      TLRENDER_USD: ON
+      TLRENDER_USD: OFF
       TLRENDER_EXAMPLES: OFF
       TLRENDER_TESTS: OFF
 
@@ -430,12 +433,12 @@ jobs:
         submodules: recursive
 
     - name: Setup environment
+      shell: cmd
       run: |
         echo "%CD%\build\install\bin;%CD%\build\install\lib" >> $GITHUB_PATH
 
     - name: Build tlRender
       shell: cmd
-      continue-on-error: true
       run: |
         mkdir build
         cd build
@@ -448,15 +451,9 @@ jobs:
           -DTLRENDER_EXAMPLES=${{ env.TLRENDER_EXAMPLES }} ^
           -DTLRENDER_TESTS=${{ env.TLRENDER_TESTS }}
         cmake --build . -j 4 --config Release
-    
-    - name: Debugging
-      shell: bash
-      run: |
-        cd build
-        find . -name bootstrap.log
-        find . -name bootstrap.log | xargs cat
 
     - name: Package
+      shell: cmd
       run: |
         cd build
         cd tlRender\src\tlRender-build

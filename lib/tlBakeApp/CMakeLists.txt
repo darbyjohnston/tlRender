@@ -4,7 +4,7 @@ set(HEADERS
 set(SOURCE
     App.cpp)
 
-set(LIBRARIES tlApp tlGL)
+set(LIBRARIES tlApp)
 
 add_library(tlBakeApp ${HEADERS} ${SOURCE})
 target_link_libraries(tlBakeApp ${LIBRARIES})

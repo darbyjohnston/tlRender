@@ -84,7 +84,7 @@ namespace tl
             {
                 int index = -1;
                 int track = -1;
-                math::Box2i geometry;
+                math::Box2i mouse;
                 math::Box2i draw;
             };
             struct MouseData
@@ -105,7 +105,10 @@ namespace tl
                 int& index,
                 int& trackIndex) const;
 
-            std::vector<MouseItemDropTarget> getDropTargets(int index, int track);
+            std::vector<MouseItemDropTarget> getDropTargets(
+                const math::Box2i& geometry,
+                int index,
+                int track);
         };
 
         void TimelineItem::_init(
@@ -400,23 +403,19 @@ namespace tl
                 math::Box2i(g.min.x, y, g.w(), h),
                 event.style->getColorRole(ui::ColorRole::Border));
 
-            if (p.mouse.currentDropTarget >= 0 &&
-                p.mouse.currentDropTarget < p.mouse.dropTargets.size())
-            {
-                const auto& dt = p.mouse.dropTargets[p.mouse.currentDropTarget];
-                event.render->drawMesh(
-                    ui::border(dt.draw, p.size.border),
-                    math::Vector2i(),
-                    event.style->getColorRole(ui::ColorRole::Border));
-                event.render->drawRect(
-                    dt.draw.margin(-p.size.border),
-                    event.style->getColorRole(ui::ColorRole::Green));
-            }
-
             _drawInOutPoints(drawRect, event);
             _drawTimeTicks(drawRect, event);
             _drawCacheInfo(drawRect, event);
             _drawCurrentTime(drawRect, event);
+
+            if (p.mouse.currentDropTarget >= 0 &&
+                p.mouse.currentDropTarget < p.mouse.dropTargets.size())
+            {
+                const auto& dt = p.mouse.dropTargets[p.mouse.currentDropTarget];
+                event.render->drawRect(
+                    dt.draw,
+                    event.style->getColorRole(ui::ColorRole::Green));
+            }
         }
 
         void TimelineItem::mouseMoveEvent(ui::MouseMoveEvent& event)
@@ -443,7 +442,7 @@ namespace tl
                     int dropTarget = -1;
                     for (size_t i = 0; i < p.mouse.dropTargets.size(); ++i)
                     {
-                        if (p.mouse.dropTargets[i].geometry.contains(event.pos))
+                        if (p.mouse.dropTargets[i].mouse.contains(event.pos))
                         {
                             dropTarget = i;
                             break;
@@ -492,7 +491,7 @@ namespace tl
                                 p.mouse.mode = Private::MouseMode::Item;
                                 p.mouse.items.push_back(
                                     std::make_shared<Private::MouseItemData>(item, j, i));
-                                p.mouse.dropTargets = p.getDropTargets(j, i);
+                                p.mouse.dropTargets = p.getDropTargets(g, j, i);
                                 moveToFront(item);
                                 if (_options.editAssociatedClips)
                                 {
@@ -656,7 +655,6 @@ namespace tl
         {
             TLRENDER_P();
 
-            const int handle = event.style->getSizeRole(ui::SizeRole::Handle, event.displayScale);
             const math::Box2i& g = _geometry;
 
             const std::string labelMax = _data->timeUnitsModel->getLabel(_timeRange.duration());
@@ -666,7 +664,7 @@ namespace tl
             const int w = _sizeHint.w;
             const float duration = _timeRange.duration().rescaled_to(1.0).value();
             const int frameTick = 1.0 / _timeRange.duration().value() * w;
-            if (frameTick >= handle)
+            if (frameTick >= p.size.handle)
             {
                 geom::TriangleMesh2 mesh;
                 size_t i = 1;
@@ -1023,7 +1021,10 @@ namespace tl
             return out;
         }
 
-        std::vector<TimelineItem::Private::MouseItemDropTarget> TimelineItem::Private::getDropTargets(int index, int trackIndex)
+        std::vector<TimelineItem::Private::MouseItemDropTarget> TimelineItem::Private::getDropTargets(
+            const math::Box2i& geometry,
+            int index,
+            int trackIndex)
         {
             std::vector<MouseItemDropTarget> out;
             if (trackIndex >= 0 && trackIndex < tracks.size())
@@ -1044,16 +1045,16 @@ namespace tl
                         MouseItemDropTarget dt;
                         dt.index = i;
                         dt.track = trackIndex;
-                        dt.geometry = math::Box2i(
-                            g.min.x - g.h() / 2,
-                            g.min.y,
-                            g.h(),
-                            g.h());
-                        dt.draw = math::Box2i(
+                        dt.mouse = math::Box2i(
                             g.min.x - size.handle,
                             g.min.y,
                             size.handle * 2,
                             g.h());
+                        dt.draw = math::Box2i(
+                            g.min.x - size.border * 2,
+                            size.scrollPos.y + geometry.min.y,
+                            size.border * 4,
+                            geometry.h());
                         out.push_back(dt);
                     }
                     if (!track.items.empty() && index < (track.items.size() - 1))
@@ -1061,16 +1062,16 @@ namespace tl
                         MouseItemDropTarget dt;
                         dt.index = i;
                         dt.track = trackIndex;
-                        dt.geometry = math::Box2i(
-                            g.max.x - g.h() / 2,
-                            g.min.y,
-                            g.h(),
-                            g.h());
-                        dt.draw = math::Box2i(
+                        dt.mouse = math::Box2i(
                             g.max.x - size.handle,
                             g.min.y,
                             size.handle * 2,
                             g.h());
+                        dt.draw = math::Box2i(
+                            g.max.x - size.border * 2,
+                            size.scrollPos.y + geometry.min.y,
+                            size.border * 4,
+                            geometry.h());
                         out.push_back(dt);
                     }
                 }

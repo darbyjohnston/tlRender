@@ -281,7 +281,9 @@ namespace tl
             {
                 glFramebufferRenderbuffer(
                     GL_FRAMEBUFFER,
-                    GL_DEPTH_ATTACHMENT,
+                    p.options.stencil != OffscreenStencil::None ?
+                        GL_DEPTH_STENCIL_ATTACHMENT :
+                        GL_DEPTH_ATTACHMENT,
                     GL_RENDERBUFFER,
                     p.depthStencilID);
             }

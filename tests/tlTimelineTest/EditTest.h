@@ -22,7 +22,6 @@ namespace tl
 
         private:
             void _insert();
-            void _util();
         };
     }
 }

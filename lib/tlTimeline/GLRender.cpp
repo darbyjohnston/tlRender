@@ -822,8 +822,17 @@ namespace tl
                     unsigned width = 0;
                     unsigned height = 0;
                     OCIO::GpuShaderDesc::TextureType channel = OCIO::GpuShaderDesc::TEXTURE_RGB_CHANNEL;
+                    OCIO::GpuShaderCreator::TextureDimensions dimensions = OCIO::GpuShaderDesc::TEXTURE_1D;
                     OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
-                    p.colorConfigData->shaderDesc->getTexture(i, textureName, samplerName, width, height, channel, interpolation);
+                    p.colorConfigData->shaderDesc->getTexture(
+                        i,
+                        textureName,
+                        samplerName,
+                        width,
+                        height,
+                        channel,
+                        dimensions,
+                        interpolation);
                     if (!textureName ||
                         !*textureName ||
                         !samplerName ||
@@ -851,17 +860,18 @@ namespace tl
                         format = GL_RED;
                     }
                     glGenTextures(1, &textureId);
-                    if (height > 1)
+                    switch (dimensions)
                     {
-                        glBindTexture(GL_TEXTURE_2D, textureId);
-                        setTextureParameters(GL_TEXTURE_2D, interpolation);
-                        glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, GL_FLOAT, values);
-                    }
-                    else
-                    {
+                    case OCIO::GpuShaderDesc::TEXTURE_1D:
                         glBindTexture(GL_TEXTURE_1D, textureId);
                         setTextureParameters(GL_TEXTURE_1D, interpolation);
                         glTexImage1D(GL_TEXTURE_1D, 0, internalformat, width, 0, format, GL_FLOAT, values);
+                        break;
+                    case OCIO::GpuShaderDesc::TEXTURE_2D:
+                        glBindTexture(GL_TEXTURE_2D, textureId);
+                        setTextureParameters(GL_TEXTURE_2D, interpolation);
+                        glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, GL_FLOAT, values);
+                        break;
                     }
                     p.colorConfigData->textures.push_back(OCIOTexture(
                         textureId,
@@ -977,8 +987,16 @@ namespace tl
                     unsigned width = 0;
                     unsigned height = 0;
                     OCIO::GpuShaderDesc::TextureType channel = OCIO::GpuShaderDesc::TEXTURE_RGB_CHANNEL;
+                    OCIO::GpuShaderDesc::TextureDimensions dimensions = OCIO::GpuShaderDesc::TEXTURE_1D;
                     OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
-                    p.lutData->shaderDesc->getTexture(i, textureName, samplerName, width, height, channel, interpolation);
+                    p.lutData->shaderDesc->getTexture(
+                        i, textureName,
+                        samplerName,
+                        width,
+                        height,
+                        channel,
+                        dimensions,
+                        interpolation);
                     if (!textureName ||
                         !*textureName ||
                         !samplerName ||
@@ -1006,17 +1024,18 @@ namespace tl
                         format = GL_RED;
                     }
                     glGenTextures(1, &textureId);
-                    if (height > 1)
+                    switch (dimensions)
                     {
-                        glBindTexture(GL_TEXTURE_2D, textureId);
-                        setTextureParameters(GL_TEXTURE_2D, interpolation);
-                        glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, GL_FLOAT, values);
-                    }
-                    else
-                    {
+                    case OCIO::GpuShaderDesc::TEXTURE_1D:
                         glBindTexture(GL_TEXTURE_1D, textureId);
                         setTextureParameters(GL_TEXTURE_1D, interpolation);
                         glTexImage1D(GL_TEXTURE_1D, 0, internalformat, width, 0, format, GL_FLOAT, values);
+                        break;
+                    case OCIO::GpuShaderDesc::TEXTURE_2D:
+                        glBindTexture(GL_TEXTURE_2D, textureId);
+                        setTextureParameters(GL_TEXTURE_2D, interpolation);
+                        glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, GL_FLOAT, values);
+                        break;
                     }
                     p.lutData->textures.push_back(OCIOTexture(
                         textureId,

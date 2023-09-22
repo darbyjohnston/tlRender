@@ -4,7 +4,7 @@ set(HEADERS
 set(SOURCE
     IApp.cpp)
 
-set(LIBRARIES tlApp tlUI tlTimeline)
+set(LIBRARIES tlApp tlUI)
 
 add_library(tlGLApp ${HEADERS} ${SOURCE})
 target_link_libraries(tlGLApp ${LIBRARIES})

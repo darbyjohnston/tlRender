@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(minizip-ng_GIT_REPOSITORY "https://github.com/zlib-ng/minizip-ng.git")
-set(minizip-ng_GIT_TAG "3.0.9")
+set(minizip-ng_GIT_TAG "3.0.7")
 
 set(minizip-ng_ARGS
     -DMZ_BZIP2=OFF
