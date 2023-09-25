@@ -62,6 +62,9 @@ namespace tl
             //! Get the exit code.
             int getExit() const;
 
+            //! Get unused arguments
+            const std::vector<std::string> getUnusedArgs() const;
+            
         protected:
             void _log(const std::string&, log::Type = log::Type::Message);
 
@@ -69,6 +72,7 @@ namespace tl
             void _printNewline();
             void _printError(const std::string&);
 
+            std::vector<std::string> _unusedArgs;
             std::shared_ptr<system::Context> _context;
             Options _options;
             int _exit = 0;

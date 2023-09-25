@@ -103,7 +103,8 @@ namespace tl
             ICmdLineArg(
                 const std::string& name,
                 const std::string& help,
-                bool optional);
+                bool optional,
+                bool unused = false);
 
         public:
             virtual ~ICmdLineArg() = 0;
@@ -119,11 +120,15 @@ namespace tl
 
             //! Get whether this argument is optional.
             bool isOptional() const;
+            
+            //! Get whether this argument is for unused arguments.
+            bool isUnused() const;
 
         protected:
             std::string _name;
             std::string _help;
             bool _optional = false;
+            bool _unused   = false;
         };
 
         //! Command line value argument.
@@ -135,7 +140,8 @@ namespace tl
                 T& value,
                 const std::string& name,
                 const std::string& help,
-                bool optional);
+                bool optional,
+                bool unused = false);
 
         public:
             //! Create a new command line argument.
@@ -143,7 +149,8 @@ namespace tl
                 T& value,
                 const std::string& name,
                 const std::string& help,
-                bool optional = false);
+                bool optional = false,
+                bool unused = false);
 
             void parse(std::vector<std::string>& args) override;
 

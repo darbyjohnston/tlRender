@@ -6,6 +6,7 @@
 #include <tlCore/String.h>
 
 #include <algorithm>
+#include <iostream>
 
 namespace tl
 {
@@ -112,10 +113,12 @@ namespace tl
         inline ICmdLineArg::ICmdLineArg(
             const std::string& name,
             const std::string& help,
-            bool optional) :
+            bool optional,
+            bool unused) :
             _name(name),
             _help(help),
-            _optional(optional)
+            _optional(optional),
+            _unused(unused)
         {}
 
         inline ICmdLineArg::~ICmdLineArg()
@@ -136,13 +139,19 @@ namespace tl
             return _optional;
         }
 
+        inline bool ICmdLineArg::isUnused() const
+        {
+            return _unused;
+        }
+
         template<typename T>
         inline CmdLineValueArg<T>::CmdLineValueArg(
             T& value,
             const std::string& name,
             const std::string& help,
-            bool optional) :
-            ICmdLineArg(name, help, optional),
+            bool optional,
+            bool unused) :
+            ICmdLineArg(name, help, optional, unused),
             _value(value)
         {}
 
@@ -151,9 +160,10 @@ namespace tl
             T& value,
             const std::string& name,
             const std::string& help,
-            bool optional)
+            bool optional,
+            bool unused)
         {
-            return std::shared_ptr<CmdLineValueArg<T> >(new CmdLineValueArg<T>(value, name, help, optional));
+            return std::shared_ptr<CmdLineValueArg<T> >(new CmdLineValueArg<T>(value, name, help, optional, unused));
         }
 
         template<typename T>
