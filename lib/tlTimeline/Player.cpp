@@ -124,7 +124,21 @@ namespace tl
             p.mutex.cacheInfo = p.cacheInfo->get();
             p.audioMutex.speed = p.speed->get();
 #if defined(TLRENDER_AUDIO)
-            p.thread.rtAudio.reset(new RtAudio);
+            try
+            {
+                p.thread.rtAudio.reset(new RtAudio);
+            }
+            catch (const std::exception& e)
+            {
+                std::stringstream ss;
+                ss << "Cannot open create RtAudio instance: " << e.what();
+                context->log("tl::timeline::Player", ss.str(), log::Type::Error);
+            }
+            if (!p.thread.rtAudio)
+            {
+                p.thread.running = false;
+                return;
+            }
 #endif
             p.thread.running = true;
             p.thread.thread = std::thread(
