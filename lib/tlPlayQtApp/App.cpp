@@ -18,7 +18,6 @@
 #include <tlQt/MetaTypes.h>
 #include <tlQt/OutputDevice.h>
 #include <tlQt/TimeObject.h>
-#include <tlQt/TimelineThumbnailObject.h>
 #include <tlQt/TimelinePlayer.h>
 
 #include <tlUI/RecentFilesModel.h>
@@ -82,7 +81,6 @@ namespace tl
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             QScopedPointer<qt::TimeObject> timeObject;
             QScopedPointer<SettingsObject> settingsObject;
-            QScopedPointer<qt::TimelineThumbnailObject> thumbnailObject;
             std::shared_ptr<play::FilesModel> filesModel;
             std::vector<std::shared_ptr<play::FilesModelItem> > files;
             std::vector<std::shared_ptr<play::FilesModelItem> > activeFiles;
@@ -114,10 +112,10 @@ namespace tl
         {
             TLRENDER_P();
             const std::string appName = "tlplay-qt";
-            const std::string appDirPath = play::appDirPath();
-            std::string logFileName = play::logFileName(appName, appDirPath);
+            const std::string appDocsPath = play::appDocsPath();
+            std::string logFileName = play::logFileName(appName, appDocsPath);
             const std::string settingsFileName =
-                play::settingsName(appName, appDirPath);
+                play::settingsName(appName, appDocsPath);
             IApp::_init(
                 app::convert(argc, argv),
                 context,
@@ -366,8 +364,6 @@ namespace tl
                     }
                 });
 
-            p.thumbnailObject.reset(new qt::TimelineThumbnailObject(context));
-
             p.filesModel = play::FilesModel::create(context);
 
             p.recentFilesModel = ui::RecentFilesModel::create(context);
@@ -605,11 +601,6 @@ namespace tl
         SettingsObject* App::settingsObject() const
         {
             return _p->settingsObject.get();
-        }
-
-        qt::TimelineThumbnailObject* App::thumbnailObject() const
-        {
-            return _p->thumbnailObject.get();
         }
 
         const std::shared_ptr<play::FilesModel>& App::filesModel() const

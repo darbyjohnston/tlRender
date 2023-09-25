@@ -10,7 +10,6 @@
 #include <tlPlayQtApp/ColorConfigModel.h>
 #include <tlPlayQtApp/ColorTool.h>
 #include <tlPlayQtApp/CompareActions.h>
-#include <tlPlayQtApp/CompareTool.h>
 #include <tlPlayQtApp/DevicesModel.h>
 #include <tlPlayQtApp/DevicesTool.h>
 #include <tlPlayQtApp/FileActions.h>
@@ -41,10 +40,9 @@
 #include <tlPlay/AudioModel.h>
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/FilesModel.h>
+#include <tlPlay/Info.h>
 
 #include <tlCore/File.h>
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
 
 #include <QComboBox>
 #include <QDoubleSpinBox>
@@ -105,7 +103,6 @@ namespace tl
             QComboBox* timeUnitsComboBox = nullptr;
             QSlider* volumeSlider = nullptr;
             FilesTool* filesTool = nullptr;
-            CompareTool* compareTool = nullptr;
             ColorTool* colorTool = nullptr;
             InfoTool* infoTool = nullptr;
             AudioTool* audioTool = nullptr;
@@ -307,13 +304,6 @@ namespace tl
             p.toolActions->menu()->addAction(filesDockWidget->toggleViewAction());
             toolsToolBar->addAction(filesDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, filesDockWidget);
-
-            p.compareTool = new CompareTool(p.compareActions->actions(), app);
-            auto compareDockWidget = new CompareDockWidget(p.compareTool);
-            compareDockWidget->hide();
-            p.toolActions->menu()->addAction(compareDockWidget->toggleViewAction());
-            toolsToolBar->addAction(compareDockWidget->toggleViewAction());
-            addDockWidget(Qt::RightDockWidgetArea, compareDockWidget);
 
             p.colorTool = new ColorTool(app);
             auto colorDockWidget = new ColorDockWidget(p.colorTool);
@@ -1066,65 +1056,17 @@ namespace tl
                 ? p.timelinePlayers[0]->audioOffset() :
                 0.0);
 
-            std::vector<std::string> infoLabel;
-            std::vector<std::string> infoTooltip;
+            std::string infoLabel;
+            std::string infoToolTip;
             if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
             {
-                const std::string fileName = p.timelinePlayers[0]->path().get(-1, false);
-                std::string fileNameLabel = fileName;
-                if (fileNameLabel.size() > infoLabelMax)
-                {
-                    fileNameLabel.replace(infoLabelMax, fileNameLabel.size() - infoLabelMax, "...");
-                }
-                infoLabel.push_back(fileNameLabel);
-                infoTooltip.push_back(fileName);
-
+                const file::Path& path = p.timelinePlayers[0]->path();
                 const io::Info& ioInfo = p.timelinePlayers[0]->ioInfo();
-                if (!ioInfo.video.empty())
-                {
-                    {
-                        std::stringstream ss;
-                        ss.precision(2);
-                        ss << "V:" <<
-                            ioInfo.video[0].size.w << "x" <<
-                            ioInfo.video[0].size.h << ":" <<
-                            std::fixed << ioInfo.video[0].size.getAspect() << " " <<
-                            ioInfo.video[0].pixelType;
-                        infoLabel.push_back(ss.str());
-                    }
-                    {
-                        std::stringstream ss;
-                        ss.precision(2);
-                        ss << "Video :" <<
-                            ioInfo.video[0].size.w << "x" <<
-                            ioInfo.video[0].size.h << ":" <<
-                            std::fixed << ioInfo.video[0].size.getAspect() << " " <<
-                            ioInfo.video[0].pixelType;
-                        infoTooltip.push_back(ss.str());
-                    }
-                }
-                if (ioInfo.audio.isValid())
-                {
-                    {
-                        std::stringstream ss;
-                        ss << "A: " <<
-                            static_cast<size_t>(ioInfo.audio.channelCount) << " " <<
-                            ioInfo.audio.dataType << " " <<
-                            ioInfo.audio.sampleRate;
-                        infoLabel.push_back(ss.str());
-                    }
-                    {
-                        std::stringstream ss;
-                        ss << "Audio: " <<
-                            static_cast<size_t>(ioInfo.audio.channelCount) << " " <<
-                            ioInfo.audio.dataType << " " <<
-                            ioInfo.audio.sampleRate;
-                        infoTooltip.push_back(ss.str());
-                    }
-                }
+                infoLabel = play::infoLabel(path, ioInfo);
+                infoToolTip = play::infoToolTip(path, ioInfo);
             }
-            p.infoLabel->setText(QString::fromUtf8(string::join(infoLabel, ", ").c_str()));
-            p.infoLabel->setToolTip(QString::fromUtf8(string::join(infoTooltip, "\n").c_str()));
+            p.infoLabel->setText(QString::fromUtf8(infoLabel.c_str()));
+            p.infoLabel->setToolTip(QString::fromUtf8(infoToolTip.c_str()));
 
             if (p.secondaryWindow)
             {

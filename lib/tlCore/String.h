@@ -60,6 +60,9 @@ namespace tl
         //! Remove trailing newlines.
         std::string removeTrailingNewlines(const std::string&);
 
+        //! Elide a string.
+        std::string elide(const std::string&, size_t = 32);
+
         ///@}
 
         //! \name Comparison

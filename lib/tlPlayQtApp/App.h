@@ -29,7 +29,6 @@ namespace tl
         class OutputDevice;
         class TimeObject;
         class TimelinePlayer;
-        class TimelineThumbnailObject;
     }
 
     namespace ui
@@ -66,9 +65,6 @@ namespace tl
 
             //! Get the settings object.
             SettingsObject* settingsObject() const;
-
-            //! Get the thumbnail object.
-            qt::TimelineThumbnailObject* thumbnailObject() const;
 
             //! Get the files model.
             const std::shared_ptr<play::FilesModel>& filesModel() const;

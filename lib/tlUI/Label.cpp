@@ -15,8 +15,6 @@ namespace tl
         struct Label::Private
         {
             std::string text;
-            size_t textWidth = 0;
-            std::string textTmp;
             std::vector<std::string> lines;
             ColorRole textRole = ColorRole::Text;
             SizeRole marginRole = SizeRole::None;
@@ -87,19 +85,6 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void Label::setTextWidth(size_t value)
-        {
-            TLRENDER_P();
-            if (value == p.textWidth)
-                return;
-            p.textWidth = value;
-            p.size.textInit = true;
-            p.draw.glyphs.clear();
-            _textUpdate();
-            _updates |= Update::Size;
-            _updates |= Update::Draw;
-        }
-
         void Label::setTextRole(ColorRole value)
         {
             TLRENDER_P();
@@ -144,7 +129,7 @@ namespace tl
             {
                 p.size.fontInfo = fontInfo;
                 p.size.textInit = false;
-                p.size.textSize = event.fontSystem->getSize(p.textTmp, fontInfo);
+                p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
                 p.draw.glyphs.clear();
             }
 
@@ -186,7 +171,7 @@ namespace tl
                 _hAlign,
                 _vAlign).margin(-p.size.margin);
 
-            if (!p.textTmp.empty() && p.draw.glyphs.empty())
+            if (!p.text.empty() && p.draw.glyphs.empty())
             {
                 for (const auto& line : p.lines)
                 {
@@ -207,16 +192,8 @@ namespace tl
         void Label::_textUpdate()
         {
             TLRENDER_P();
-            if (!p.text.empty() && p.textWidth > 0)
-            {
-                p.textTmp = p.text.substr(0, std::min(p.textWidth, p.text.size()));
-            }
-            else
-            {
-                p.textTmp = p.text;
-            }
             const auto lines = string::split(
-                p.textTmp,
+                p.text,
                 { '\n', '\r' },
                 string::SplitOptions::KeepEmpty);
             p.lines.clear();

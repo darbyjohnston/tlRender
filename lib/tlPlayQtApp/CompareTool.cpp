@@ -51,7 +51,6 @@ namespace tl
 
             p.filesBModel = new FilesBModel(
                 app->filesModel(),
-                app->thumbnailObject(),
                 app->getContext(),
                 this);
 

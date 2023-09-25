@@ -106,10 +106,10 @@ namespace tl
         {
             TLRENDER_P();
             const std::string appName = "tlplay-gl";
-            const std::string appDirPath = play::appDirPath();
-            std::string logFileName = play::logFileName(appName, appDirPath);
+            const std::string appDocsPath = play::appDocsPath();
+            std::string logFileName = play::logFileName(appName, appDocsPath);
             const std::string settingsFileName =
-                play::settingsName(appName, appDirPath);
+                play::settingsName(appName, appDocsPath);
             IApp::_init(
                 argv,
                 context,

@@ -2,7 +2,6 @@ set(HEADERS
     BellowsWidget.h
     FileBrowserSystem.h
     FileWidget.h
-    FilmstripWidget.h
     FloatEditSlider.h
     Init.h
     IntEditSlider.h
@@ -24,7 +23,6 @@ set(SOURCE
     BellowsWidget.cpp
     FileBrowserSystem.cpp
     FileWidget.cpp
-    FilmstripWidget.cpp
     FloatEditSlider.cpp
     Init.cpp
     IntEditSlider.cpp

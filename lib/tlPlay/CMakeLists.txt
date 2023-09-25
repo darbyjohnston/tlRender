@@ -3,6 +3,7 @@ set(HEADERS
     ColorConfigModel.h
     ColorModel.h
     FilesModel.h
+    Info.h
     Util.h
     ViewportModel.h)
 
@@ -11,6 +12,7 @@ set(SOURCE
     ColorConfigModel.cpp
     ColorModel.cpp
     FilesModel.cpp
+    Info.cpp
     Util.cpp
     ViewportModel.cpp)
 

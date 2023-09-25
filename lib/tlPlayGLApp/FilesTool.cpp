@@ -246,16 +246,18 @@ namespace tl
                     for (const auto& item : value)
                     {
                         auto label = ui::Label::create(context);
-                        label->setText(item->path.get(-1, false));
-                        label->setTextWidth(32);
+                        std::string s = string::elide(item->path.get(-1, false));
+                        label->setText(s);
                         label->setMarginRole(ui::SizeRole::MarginSmall);
                         label->setHStretch(ui::Stretch::Expanding);
+                        label->setToolTip(item->path.get());
                         label->setParent(p.widgetLayout);
                         p.widgetLayout->setGridPos(label, row, 0);
 
                         auto aButton = ui::ToolButton::create(context);
                         aButton->setText("A");
                         aButton->setChecked(item == a);
+                        aButton->setToolTip("Set the A file");
                         p.aButtons[item] = aButton;
                         p.aButtonGroup->addButton(aButton);
                         aButton->setParent(p.widgetLayout);
@@ -265,6 +267,7 @@ namespace tl
                         bButton->setText("B");
                         const auto i = std::find(b.begin(), b.end(), item);
                         bButton->setChecked(i != b.end());
+                        bButton->setToolTip("Set the B file(s)");
                         p.bButtons[item] = bButton;
                         p.bButtonGroup->addButton(bButton);
                         bButton->setParent(p.widgetLayout);
@@ -273,6 +276,7 @@ namespace tl
                         auto layerComboBox = ui::ComboBox::create(context);
                         layerComboBox->setItems(item->videoLayers);
                         layerComboBox->setCurrentIndex(item->videoLayer);
+                        layerComboBox->setToolTip("Set the current layer");
                         p.layerComboBoxes.push_back(layerComboBox);
                         layerComboBox->setParent(p.widgetLayout);
                         p.widgetLayout->setGridPos(layerComboBox, row, 3);
@@ -291,6 +295,7 @@ namespace tl
                     if (value.empty())
                     {
                         auto label = ui::Label::create("No files open", context, p.widgetLayout);
+                        label->setMarginRole(ui::SizeRole::MarginSmall);
                         p.widgetLayout->setGridPos(label, 0, 0);
                     }
                 }

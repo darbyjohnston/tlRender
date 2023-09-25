@@ -161,6 +161,18 @@ namespace tl
             return out;
         }
 
+        std::string elide(const std::string& value, size_t max)
+        {
+            std::string out = value.substr(0, max);
+            if (out.size() < value.size())
+            {
+                out.push_back('.');
+                out.push_back('.');
+                out.push_back('.');
+            }
+            return out;
+        }
+
         bool compare(
             const std::string& a,
             const std::string& b,

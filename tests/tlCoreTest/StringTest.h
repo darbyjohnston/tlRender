@@ -22,8 +22,8 @@ namespace tl
 
         private:
             void _split();
-            void _case();
-            void _util();
+            void _format();
+            void _compare();
             void _convert();
             void _escape();
         };

@@ -12,7 +12,7 @@ namespace tl
 {
     namespace play
     {
-        std::string appDirPath()
+        std::string appDocsPath()
         {
             const std::string documentsPath = file::getUserPath(
                 file::UserPath::Documents);
@@ -20,14 +20,14 @@ namespace tl
             {
                 file::mkdir(documentsPath);
             }
-            const std::string appDirPath = file::Path(
+            const std::string out = file::Path(
                 documentsPath,
                 "tlRender").get();
-            if (!file::exists(appDirPath))
+            if (!file::exists(out))
             {
-                file::mkdir(appDirPath);
+                file::mkdir(out);
             }
-            return appDirPath;
+            return out;
         }
 
         std::string logFileName(
