@@ -56,9 +56,7 @@ namespace tl
 
             void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
-            void drawOverlayEvent(
-                const math::Box2i&,
-                const ui::DrawEvent&) override;
+            void drawOverlayEvent(const math::Box2i&, const ui::DrawEvent&) override;
             void mouseMoveEvent(ui::MouseMoveEvent&) override;
             void mousePressEvent(ui::MouseClickEvent&) override;
             void mouseReleaseEvent(ui::MouseClickEvent&) override;

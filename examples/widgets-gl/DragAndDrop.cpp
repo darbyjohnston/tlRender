@@ -96,7 +96,9 @@ namespace tl
                 _sizeHint = p.label->getSizeHint();
             }
 
-            void DragAndDropWidget::drawEvent(const math::Box2i& drawRect, const ui::DrawEvent& event)
+            void DragAndDropWidget::drawEvent(
+                const math::Box2i& drawRect,
+                const ui::DrawEvent& event)
             {
                 IWidget::drawEvent(drawRect, event);
                 TLRENDER_P();

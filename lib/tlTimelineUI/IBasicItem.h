@@ -34,9 +34,7 @@ namespace tl
 
             void sizeHintEvent(const ui::SizeHintEvent&) override;
             void clipEvent(const math::Box2i&, bool) override;
-            void drawEvent(
-                const math::Box2i&,
-                const ui::DrawEvent&) override;
+            void drawEvent(const math::Box2i&, const ui::DrawEvent&) override;
 
         protected:
             int _getMargin() const;

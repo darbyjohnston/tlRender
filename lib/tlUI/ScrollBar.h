@@ -45,9 +45,7 @@ namespace tl
             void setScrollPosCallback(const std::function<void(int)>&);
 
             void sizeHintEvent(const SizeHintEvent&) override;
-            void drawEvent(
-                const math::Box2i&,
-                const DrawEvent&) override;
+            void drawEvent(const math::Box2i&, const DrawEvent&) override;
             void mouseEnterEvent() override;
             void mouseLeaveEvent() override;
             void mouseMoveEvent(MouseMoveEvent&) override;

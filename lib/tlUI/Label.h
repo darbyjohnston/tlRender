@@ -52,9 +52,7 @@ namespace tl
 
             void sizeHintEvent(const SizeHintEvent&) override;
             void clipEvent(const math::Box2i&, bool) override;
-            void drawEvent(
-                const math::Box2i&,
-                const DrawEvent&) override;
+            void drawEvent(const math::Box2i&, const DrawEvent&) override;
 
         private:
             void _textUpdate();
