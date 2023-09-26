@@ -210,20 +210,13 @@ namespace tl
             virtual void sizeHintEvent(const SizeHintEvent&);
 
             //! Clip event.
-            virtual void clipEvent(
-                const math::Box2i&,
-                bool clipped,
-                const ClipEvent&);
+            virtual void clipEvent(const math::Box2i&, bool clipped);
 
             //! Draw event.
-            virtual void drawEvent(
-                const math::Box2i&,
-                const DrawEvent&);
+            virtual void drawEvent(const math::Box2i&, const DrawEvent&);
 
             //! Draw overlay event.
-            virtual void drawOverlayEvent(
-                const math::Box2i&,
-                const DrawEvent&);
+            virtual void drawOverlayEvent(const math::Box2i&, const DrawEvent&);
 
             //! Mouse enter event.
             virtual void mouseEnterEvent();

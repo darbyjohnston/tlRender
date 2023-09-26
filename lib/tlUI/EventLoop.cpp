@@ -200,16 +200,7 @@ namespace tl
             }
             p.dndData.reset();
             p.dndCursor.reset();
-            ClipEvent event(
-                p.style,
-                p.iconLibrary,
-                p.fontSystem,
-                p.displayScale);
-            _clipEvent(
-                widget,
-                widget->getGeometry(),
-                true,
-                event);
+            _clipEvent(widget, widget->getGeometry(), true);
 
             widget->setEventLoop(nullptr);
             auto i = std::find_if(
@@ -769,11 +760,6 @@ namespace tl
         void EventLoop::_clipEvent()
         {
             TLRENDER_P();
-            ClipEvent event(
-                p.style,
-                p.iconLibrary,
-                p.fontSystem,
-                p.displayScale);
             for (const auto& i : p.topLevelWidgets)
             {
                 if (auto widget = i.lock())
@@ -781,8 +767,7 @@ namespace tl
                     _clipEvent(
                         widget,
                         widget->getGeometry(),
-                        !widget->isVisible(false),
-                        event);
+                        !widget->isVisible(false));
                 }
             }
         }
@@ -790,14 +775,13 @@ namespace tl
         void EventLoop::_clipEvent(
             const std::shared_ptr<IWidget>& widget,
             const math::Box2i& clipRect,
-            bool clipped,
-            const ClipEvent& event)
+            bool clipped)
         {
             const math::Box2i& g = widget->getGeometry();
             clipped |= !g.intersects(clipRect);
             clipped |= !widget->isVisible(false);
             const math::Box2i clipRect2 = g.intersect(clipRect);
-            widget->clipEvent(clipRect2, clipped, event);
+            widget->clipEvent(clipRect2, clipped);
             const math::Box2i childrenClipRect =
                 widget->getChildrenClipRect().intersect(clipRect2);
             for (const auto& child : widget->getChildren())
@@ -806,8 +790,7 @@ namespace tl
                 _clipEvent(
                     child,
                     childGeometry.intersect(childrenClipRect),
-                    clipped,
-                    event);
+                    clipped);
             }
         }
 

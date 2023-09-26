@@ -78,10 +78,7 @@ namespace tl
 
             void tickEvent(bool, bool, const TickEvent&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void clipEvent(
-                const math::Box2i&,
-                bool,
-                const ClipEvent&) override;
+            void clipEvent(const math::Box2i&, bool) override;
             void drawEvent(
                 const math::Box2i&,
                 const DrawEvent&) override;

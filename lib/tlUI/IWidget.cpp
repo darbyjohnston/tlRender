@@ -264,10 +264,7 @@ namespace tl
             _updates &= ~static_cast<int>(Update::Size);
         }
 
-        void IWidget::clipEvent(
-            const math::Box2i&,
-            bool clipped,
-            const ClipEvent& event)
+        void IWidget::clipEvent(const math::Box2i&, bool clipped)
         {
             if (clipped && clipped != _clipped)
             {

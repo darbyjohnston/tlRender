@@ -121,12 +121,9 @@ namespace tl
             }
         }
 
-        void IBasicItem::clipEvent(
-            const math::Box2i& clipRect,
-            bool clipped,
-            const ui::ClipEvent& event)
+        void IBasicItem::clipEvent(const math::Box2i& clipRect, bool clipped)
         {
-            IItem::clipEvent(clipRect, clipped, event);
+            IItem::clipEvent(clipRect, clipped);
             TLRENDER_P();
             if (clipped)
             {

@@ -113,8 +113,7 @@ namespace tl
             void _clipEvent(
                 const std::shared_ptr<IWidget>&,
                 const math::Box2i&,
-                bool clipped,
-                const ClipEvent&);
+                bool clipped);
 
             bool _getDrawUpdate();
             bool _getDrawUpdate(const std::shared_ptr<IWidget>&);

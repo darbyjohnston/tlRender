@@ -73,12 +73,9 @@ namespace tl
                 _sizeHint.h = p.cellCount.y * p.cellSize;
             }
 
-            void ScrollAreasWidget::clipEvent(
-                const math::Box2i& clipRect,
-                bool clipped,
-                const ui::ClipEvent& event)
+            void ScrollAreasWidget::clipEvent(const math::Box2i& clipRect, bool clipped)
             {
-                IWidget::clipEvent(clipRect, clipped, event);
+                IWidget::clipEvent(clipRect, clipped);
                 TLRENDER_P();
                 if (clipped)
                 {

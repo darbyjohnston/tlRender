@@ -44,10 +44,7 @@ namespace tl
 
             void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void clipEvent(
-                const math::Box2i&,
-                bool,
-                const ClipEvent&) override;
+            void clipEvent(const math::Box2i&, bool) override;
             void drawEvent(
                 const math::Box2i&,
                 const DrawEvent&) override;

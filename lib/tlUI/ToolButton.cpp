@@ -140,12 +140,9 @@ namespace tl
                 p.size.border * 4;
         }
 
-        void ToolButton::clipEvent(
-            const math::Box2i& clipRect,
-            bool clipped,
-            const ClipEvent& event)
+        void ToolButton::clipEvent(const math::Box2i& clipRect, bool clipped)
         {
-            IButton::clipEvent(clipRect, clipped, event);
+            IButton::clipEvent(clipRect, clipped);
             TLRENDER_P();
             if (clipped)
             {

@@ -129,12 +129,9 @@ namespace tl
             _sizeHint.h += p.size.fontMetrics.lineHeight + p.size.spacing;
         }
 
-        void GroupBox::clipEvent(
-            const math::Box2i& clipRect,
-            bool clipped,
-            const ClipEvent& event)
+        void GroupBox::clipEvent(const math::Box2i& clipRect, bool clipped)
         {
-            IWidget::clipEvent(clipRect, clipped, event);
+            IWidget::clipEvent(clipRect, clipped);
             TLRENDER_P();
             if (clipped)
             {

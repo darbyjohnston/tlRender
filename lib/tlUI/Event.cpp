@@ -65,26 +65,6 @@ namespace tl
             return out;
         }
 
-        ClipEvent::ClipEvent()
-        {}
-
-        ClipEvent::ClipEvent(
-            const std::shared_ptr<Style>&               style,
-            const std::shared_ptr<IconLibrary>&         iconLibrary,
-            const std::shared_ptr<image::FontSystem>& fontSystem,
-            float                                       displayScale) :
-            style(style),
-            iconLibrary(iconLibrary),
-            fontSystem(fontSystem),
-            displayScale(displayScale)
-        {
-            for (auto i : getFontRoleEnums())
-            {
-                fontMetrics[i] = fontSystem->getMetrics(
-                    style->getFontRole(i, displayScale));
-            }
-        }
-
         DrawEvent::DrawEvent()
         {}
 

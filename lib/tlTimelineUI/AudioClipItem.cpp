@@ -176,12 +176,9 @@ namespace tl
             }
         }
 
-        void AudioClipItem::clipEvent(
-            const math::Box2i& clipRect,
-            bool clipped,
-            const ui::ClipEvent& event)
+        void AudioClipItem::clipEvent(const math::Box2i& clipRect, bool clipped)
         {
-            IBasicItem::clipEvent(clipRect, clipped, event);
+            IBasicItem::clipEvent(clipRect, clipped);
             TLRENDER_P();
             if (clipRect == p.size.clipRect)
                 return;

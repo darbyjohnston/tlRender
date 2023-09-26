@@ -66,25 +66,6 @@ namespace tl
             image::FontMetrics getFontMetrics(FontRole) const;
         };
 
-        //! Clip event.
-        struct ClipEvent
-        {
-            ClipEvent();
-            ClipEvent(
-                const std::shared_ptr<Style>&             style,
-                const std::shared_ptr<IconLibrary>&       iconLibrary,
-                const std::shared_ptr<image::FontSystem>& fontSystem,
-                float                                     displayScale);
-
-            std::shared_ptr<Style>                 style;
-            std::shared_ptr<IconLibrary>           iconLibrary;
-            std::shared_ptr<image::FontSystem>     fontSystem;
-            std::map<FontRole, image::FontMetrics> fontMetrics;
-            float                                  displayScale = 1.F;
-
-            image::FontMetrics getFontMetrics(FontRole) const;
-        };
-
         //! Draw event.
         struct DrawEvent
         {

@@ -45,10 +45,7 @@ namespace tl
                     bool,
                     const TickEvent&) override;
                 void sizeHintEvent(const SizeHintEvent&) override;
-                void clipEvent(
-                    const math::Box2i&,
-                    bool,
-                    const ClipEvent&) override;
+                void clipEvent(const math::Box2i&, bool) override;
                 void drawEvent(
                     const math::Box2i&,
                     const DrawEvent&) override;
@@ -274,12 +271,9 @@ namespace tl
                     _size.border * 4;
             }
 
-            void MenuButton::clipEvent(
-                const math::Box2i& clipRect,
-                bool clipped,
-                const ClipEvent& event)
+            void MenuButton::clipEvent(const math::Box2i& clipRect, bool clipped)
             {
-                IWidget::clipEvent(clipRect, clipped, event);
+                IWidget::clipEvent(clipRect, clipped);
                 if (clipped)
                 {
                     _draw.textGlyphs.clear();
