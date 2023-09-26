@@ -133,7 +133,7 @@ namespace tl
                 if (auto context = getContext().lock())
                 {
                     std::stringstream ss;
-                    ss << "Cannot open create RtAudio instance: " << e.what();
+                    ss << "Cannot create RtAudio instance: " << e.what();
                     context->log("tl::timeline::Player", ss.str(), log::Type::Error);
                 }
             }
