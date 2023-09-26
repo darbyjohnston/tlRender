@@ -6,7 +6,6 @@
 #include <tlCore/String.h>
 
 #include <algorithm>
-#include <iostream>
 
 namespace tl
 {
