@@ -41,8 +41,7 @@ int main(int argc, char* argv[])
             new tl::qt::ContextObject(context));
 
         // Create the timeline.
-        auto timeline = tl::timeline::Timeline::create(
-            tl::file::Path(argv[1]), context);
+        auto timeline = tl::timeline::Timeline::create(argv[1], context);
 
         // Create the timeline player.
         QSharedPointer<tl::qt::TimelinePlayer> timelinePlayer(

@@ -279,6 +279,21 @@ namespace tl
             }
             else
             {
+                if (auto thumbnailSystem = p.thumbnailSystem.lock())
+                {
+                    if (p.info.request.future.valid())
+                    {
+                        thumbnailSystem->cancelRequests({ p.info.request.id });
+                        p.info.init = true;
+                        p.info.request.future = std::future<io::Info>();
+                    }
+                    if (p.thumbnail.request.future.valid())
+                    {
+                        thumbnailSystem->cancelRequests({ p.thumbnail.request.id });
+                        p.thumbnail.init = true;
+                        p.thumbnail.request.future = std::future<std::shared_ptr<image::Image> >();
+                    }
+                }
                 p.draw.glyphs.clear();
             }
         }

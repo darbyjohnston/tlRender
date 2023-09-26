@@ -56,17 +56,16 @@ namespace tl
             bool operator != (const Options&) const;
         };
 
-        //! Create a new timeline from a file name. The file name can point
-        //! to an .otio file, movie file, or image sequence.
+        //! Create a new timeline from a path. The path can point to an .otio
+        //! file, movie file, or image sequence.
         otio::SerializableObject::Retainer<otio::Timeline> create(
             const file::Path&,
             const std::shared_ptr<system::Context>&,
             const Options& = Options(),
             const std::shared_ptr<ReadCache>& = nullptr);
 
-        //! Create a new timeline from a file name and audio file name.
-        //! The file name can point to an .otio file, movie file, or
-        //! image sequence.
+        //! Create a new timeline from a path and audio path. The file name
+        //! can point to an .otio file, movie file, or image sequence.
         otio::SerializableObject::Retainer<otio::Timeline> create(
             const file::Path& path,
             const file::Path& audioPath,
@@ -101,6 +100,13 @@ namespace tl
             //! Create a new timeline from a file name. The file name can point
             //! to an .otio file, movie file, or image sequence.
             static std::shared_ptr<Timeline> create(
+                const std::string&,
+                const std::shared_ptr<system::Context>&,
+                const Options& = Options());
+
+            //! Create a new timeline from a path. The path can point to an
+            //! .otio file, movie file, or image sequence.
+            static std::shared_ptr<Timeline> create(
                 const file::Path&,
                 const std::shared_ptr<system::Context>&,
                 const Options& = Options());
@@ -108,6 +114,14 @@ namespace tl
             //! Create a new timeline from a file name and audio file name.
             //! The file name can point to an .otio file, movie file, or
             //! image sequence.
+            static std::shared_ptr<Timeline> create(
+                const std::string& fileName,
+                const std::string& audioFilename,
+                const std::shared_ptr<system::Context>&,
+                const Options& = Options());
+
+            //! Create a new timeline from a path and audio path. The path can
+            //! point to an .otio file, movie file, or image sequence.
             static std::shared_ptr<Timeline> create(
                 const file::Path& path,
                 const file::Path& audioPath,

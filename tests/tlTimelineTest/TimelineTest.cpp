@@ -90,7 +90,7 @@ namespace tl
                     write->writeVideo(otime::RationalTime(i, 24.0), image);
                 }
                 auto timeline = Timeline::create(
-                    file::Path("Timeline Create.0.ppm"),
+                    "Timeline Create.0.ppm",
                     _context);
                 const auto& timelineIOInfo = timeline->getIOInfo();
                 TLRENDER_ASSERT(!timelineIOInfo.video.empty());
@@ -108,7 +108,7 @@ namespace tl
                     write->writeVideo(otime::RationalTime(i, 24.0), image);
                 }
                 auto timeline = Timeline::create(
-                    file::Path("Timeline Create/Timeline Create.0.ppm"),
+                    "Timeline Create/Timeline Create.0.ppm",
                     _context);
                 const auto& timelineIOInfo = timeline->getIOInfo();
                 TLRENDER_ASSERT(!timelineIOInfo.video.empty());
@@ -183,7 +183,7 @@ namespace tl
             }
 
             // Create a timeline from the OTIO timeline.
-            auto timeline = Timeline::create(file::Path(fileName), _context);
+            auto timeline = Timeline::create(fileName, _context);
             TLRENDER_ASSERT(timeline->getTimeline());
             TLRENDER_ASSERT(fileName == timeline->getPath().get());
             TLRENDER_ASSERT(Options() == timeline->getOptions());
@@ -239,7 +239,7 @@ namespace tl
         void TimelineTest::_imageSequence()
         {
             //! \bug This uses the image sequence created by _timeline().
-            auto timeline = Timeline::create(file::Path("Timeline Test.0.ppm"), _context);
+            auto timeline = Timeline::create("Timeline Test.0.ppm", _context);
             {
                 std::stringstream ss;
                 ss << timeline->getTimeRange().duration();

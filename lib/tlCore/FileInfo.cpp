@@ -100,7 +100,12 @@ namespace tl
             std::vector<FileInfo>& out,
             const ListOptions& options)
         {
-            const Path p(path, fileName);
+            PathOptions pathOptions;
+            pathOptions.maxNumberDigits =
+                options.sequence ?
+                options.maxNumberDigits :
+                0;
+            const Path p(path, fileName, pathOptions);
             const FileInfo f(p);
             bool sequence = false;
             if (options.sequence &&

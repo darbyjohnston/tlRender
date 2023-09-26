@@ -592,17 +592,48 @@ namespace tl
         }
 
         std::shared_ptr<Timeline> Timeline::create(
+            const std::string& fileName,
+            const std::shared_ptr<system::Context>& context,
+            const Options& options)
+        {
+            auto out = std::shared_ptr<Timeline>(new Timeline);
+            auto readCache = ReadCache::create();
+            auto otioTimeline = timeline::create(
+                file::Path(fileName, options.pathOptions),
+                context,
+                options,
+                readCache);
+            out->_init(otioTimeline, context, options, readCache);
+            return out;
+        }
+
+        std::shared_ptr<Timeline> Timeline::create(
             const file::Path& path,
             const std::shared_ptr<system::Context>& context,
             const Options& options)
         {
             auto out = std::shared_ptr<Timeline>(new Timeline);
             auto readCache = ReadCache::create();
-            out->_init(
-                timeline::create(path, context, options, readCache),
+            auto otioTimeline = timeline::create(path, context, options, readCache);
+            out->_init(otioTimeline, context, options, readCache);
+            return out;
+        }
+
+        std::shared_ptr<Timeline> Timeline::create(
+            const std::string& fileName,
+            const std::string& audioFileName,
+            const std::shared_ptr<system::Context>& context,
+            const Options& options)
+        {
+            auto out = std::shared_ptr<Timeline>(new Timeline);
+            auto readCache = ReadCache::create();
+            auto otioTimeline = timeline::create(
+                file::Path(fileName, options.pathOptions),
+                file::Path(audioFileName, options.pathOptions),
                 context,
                 options,
                 readCache);
+            out->_init(otioTimeline, context, options, readCache);
             return out;
         }
 
@@ -614,11 +645,13 @@ namespace tl
         {
             auto out = std::shared_ptr<Timeline>(new Timeline);
             auto readCache = ReadCache::create();
-            out->_init(
-                timeline::create(path, audioPath, context, options, readCache),
+            auto otioTimeline = timeline::create(
+                path,
+                audioPath,
                 context,
                 options,
                 readCache);
+            out->_init(otioTimeline, context, options, readCache);
             return out;
         }
     }

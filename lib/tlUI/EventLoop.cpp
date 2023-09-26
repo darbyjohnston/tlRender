@@ -200,6 +200,16 @@ namespace tl
             }
             p.dndData.reset();
             p.dndCursor.reset();
+            ClipEvent event(
+                p.style,
+                p.iconLibrary,
+                p.fontSystem,
+                p.displayScale);
+            _clipEvent(
+                widget,
+                widget->getGeometry(),
+                true,
+                event);
 
             widget->setEventLoop(nullptr);
             auto i = std::find_if(

@@ -53,7 +53,7 @@ namespace tl
                 _timeObject.reset(new qt::TimeObject(_timeUnitsModel, this));
 
                 // Open the input file.
-                auto timeline = timeline::Timeline::create(file::Path(_input), context);
+                auto timeline = timeline::Timeline::create(_input, context);
                 auto player = timeline::Player::create(timeline, context);
                 _timelinePlayer.reset(new qt::TimelinePlayer(player, context));
 
