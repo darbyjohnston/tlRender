@@ -11,6 +11,7 @@
 #include <tlQtWidget/ColorWidget.h>
 #include <tlQtWidget/IntEditSlider.h>
 
+#include <QAction>
 #include <QBoxLayout>
 #include <QComboBox>
 #include <QFormLayout>
