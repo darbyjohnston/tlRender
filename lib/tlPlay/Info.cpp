@@ -25,7 +25,7 @@ namespace tl
             if (info.audio.isValid())
             {
                 s.push_back(std::string(
-                    string::Format("A: {0}, {1}, {2}").
+                    string::Format("A: {0}, {1}, {2}kHz").
                     arg(info.audio.channelCount).
                     arg(info.audio.dataType).
                     arg(info.audio.sampleRate / 1000)));
