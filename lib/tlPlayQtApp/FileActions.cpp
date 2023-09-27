@@ -63,6 +63,7 @@ namespace tl
             p.actions["CloseAll"] = new QAction(this);
             p.actions["CloseAll"]->setText(tr("Close All"));
             p.actions["CloseAll"]->setIcon(QIcon(":/Icons/FileCloseAll.svg"));
+            p.actions["CloseAll"]->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_E));
             p.actions["CloseAll"]->setToolTip(tr("Close all files"));
 
             p.actions["Reload"] = new QAction(this);
