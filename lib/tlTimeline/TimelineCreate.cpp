@@ -390,7 +390,9 @@ namespace tl
                             list.end(),
                             [path](const file::FileInfo& value)
                             {
-                                return value.getPath().sequence(path);
+                                const auto& vpath = value.getPath();
+                                return vpath.sequence(path) &&
+                                    vpath.isSequence();
                             });
                         if (i != list.end())
                         {
