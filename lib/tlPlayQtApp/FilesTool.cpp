@@ -188,6 +188,9 @@ namespace tl
             p.layerComboBoxes.clear();
 
             p.items = items;
+
+            const auto& a = p.app->filesModel()->getA();
+            const auto& b = p.app->filesModel()->getB();
             for (size_t i = 0; i < p.items.size(); ++i)
             {
                 auto item = p.items[i];
@@ -202,6 +205,7 @@ namespace tl
                 auto aButton = new QToolButton;
                 aButton->setText("A");
                 aButton->setCheckable(true);
+                aButton->setChecked(item == a);
                 aButton->setAutoRaise(true);
                 aButton->setToolTip("Set the A file");
                 p.aButtons.push_back(aButton);
@@ -209,6 +213,8 @@ namespace tl
                 auto bButton = new QToolButton;
                 bButton->setText("B");
                 bButton->setCheckable(true);
+                const auto j = std::find(b.begin(), b.end(), item);
+                bButton->setChecked(j != b.end());
                 bButton->setAutoRaise(true);
                 bButton->setToolTip("Set the B file(s)");
                 p.bButtons.push_back(bButton);
@@ -270,7 +276,8 @@ namespace tl
             {
                 QSignalBlocker signalBlocker(p.bButtons[i]);
                 const auto j = std::find(items.begin(), items.end(), p.items[i]);
-                p.bButtons[i]->setChecked(j != items.end());
+                const bool checked = j != items.end();
+                p.bButtons[i]->setChecked(checked);
             }
         }
 
