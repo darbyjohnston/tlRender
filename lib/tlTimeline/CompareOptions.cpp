@@ -41,10 +41,6 @@ namespace tl
                 {
                     size = sizes[0];
                 }
-                if (count > 1)
-                {
-                    size = std::max(size, sizes[1]);
-                }
                 if (count > 0)
                 {
                     out.push_back(math::Box2i(
@@ -69,10 +65,6 @@ namespace tl
                 if (count > 0)
                 {
                     size = sizes[0];
-                }
-                if (count > 1)
-                {
-                    size = std::max(size, sizes[1]);
                 }
                 if (count > 0)
                 {
