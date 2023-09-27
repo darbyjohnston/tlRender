@@ -101,9 +101,7 @@ namespace tl
             Q_OBJECT
 
         public:
-            SettingsDockWidget(
-                SettingsTool*,
-                QWidget* parent = nullptr);
+            SettingsDockWidget(SettingsTool*, QWidget* parent = nullptr);
         };
     }
 }

@@ -377,7 +377,6 @@ namespace tl
 
             p.timelineViewport->setFocus();
 
-            _timelinePlayersUpdate();
             _widgetUpdate();
 
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
@@ -622,17 +621,6 @@ namespace tl
                 SLOT(_volumeCallback(int)));
 
             connect(
-                p.audioTool,
-                &AudioTool::audioOffsetChanged,
-                [this](double value)
-                {
-                    if (!_p->timelinePlayers.empty())
-                    {
-                        _p->timelinePlayers[0]->setAudioOffset(value);
-                    }
-                });
-
-            connect(
                 p.timelineViewport,
                 &qtwidget::TimelineViewport::compareOptionsChanged,
                 [this](const timeline::CompareOptions& value)
@@ -660,6 +648,14 @@ namespace tl
                         _p->timelineViewport->viewPos(),
                         _p->timelineViewport->viewZoom(),
                         value);
+                });
+
+            connect(
+                app,
+                &App::activePlayersChanged,
+                [this](const QVector<QSharedPointer<qt::TimelinePlayer> >& value)
+                {
+                    _playersUpdate(value);
                 });
 
             connect(
@@ -774,60 +770,6 @@ namespace tl
             }
         }
 
-        void MainWindow::setTimelinePlayers(const QVector<QSharedPointer<qt::TimelinePlayer> >& timelinePlayers)
-        {
-            TLRENDER_P();
-            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
-            {
-                disconnect(
-                    p.timelinePlayers[0].get(),
-                    SIGNAL(speedChanged(double)),
-                    this,
-                    SLOT(_speedCallback(double)));
-                disconnect(
-                    p.timelinePlayers[0].get(),
-                    SIGNAL(playbackChanged(tl::timeline::Playback)),
-                    this,
-                    SLOT(_playbackCallback(tl::timeline::Playback)));
-                disconnect(
-                    p.timelinePlayers[0].get(),
-                    SIGNAL(currentTimeChanged(const otime::RationalTime&)),
-                    this,
-                    SLOT(_currentTimeCallback(const otime::RationalTime&)));
-                disconnect(
-                    p.timelinePlayers[0].get(),
-                    SIGNAL(audioOffsetChanged(double)),
-                    p.audioTool,
-                    SLOT(setAudioOffset(double)));
-            }
-
-            p.timelinePlayers = timelinePlayers;
-
-            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
-            {
-                connect(
-                    p.timelinePlayers[0].get(),
-                    SIGNAL(speedChanged(double)),
-                    SLOT(_speedCallback(double)));
-                connect(
-                    p.timelinePlayers[0].get(),
-                    SIGNAL(playbackChanged(tl::timeline::Playback)),
-                    SLOT(_playbackCallback(tl::timeline::Playback)));
-                connect(
-                    p.timelinePlayers[0].get(),
-                    SIGNAL(currentTimeChanged(const otime::RationalTime&)),
-                    SLOT(_currentTimeCallback(const otime::RationalTime&)));
-                connect(
-                    p.timelinePlayers[0].get(),
-                    SIGNAL(audioOffsetChanged(double)),
-                    p.audioTool,
-                    SLOT(setAudioOffset(double)));
-            }
-
-            _timelinePlayersUpdate();
-            _widgetUpdate();
-        }
-
         void MainWindow::closeEvent(QCloseEvent*)
         {
             TLRENDER_P();
@@ -881,6 +823,7 @@ namespace tl
             if (value && !p.secondaryWindow)
             {
                 p.secondaryWindow = new SecondaryWindow(p.app);
+                p.secondaryWindow->viewport()->setBackgroundOptions(p.app->viewportModel()->getBackgroundOptions());
                 auto colorModel = p.app->colorModel();
                 p.secondaryWindow->viewport()->setColorConfigOptions(colorModel->getColorConfigOptions());
                 p.secondaryWindow->viewport()->setLUTOptions(colorModel->getLUTOptions());
@@ -960,17 +903,49 @@ namespace tl
             p.app->audioModel()->setVolume(value / static_cast<float>(sliderSteps));
         }
 
-        void MainWindow::_timelinePlayersUpdate()
+        void MainWindow::_playersUpdate(const QVector<QSharedPointer<qt::TimelinePlayer> >& timelinePlayers)
         {
             TLRENDER_P();
-            p.playbackActions->setTimelinePlayers(p.timelinePlayers);
-            p.frameActions->setTimelinePlayers(p.timelinePlayers);
-            p.timelineViewport->setTimelinePlayers(p.timelinePlayers);
-            if (p.secondaryWindow)
+            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
             {
-                p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
+                disconnect(
+                    p.timelinePlayers[0].get(),
+                    SIGNAL(speedChanged(double)),
+                    this,
+                    SLOT(_speedCallback(double)));
+                disconnect(
+                    p.timelinePlayers[0].get(),
+                    SIGNAL(playbackChanged(tl::timeline::Playback)),
+                    this,
+                    SLOT(_playbackCallback(tl::timeline::Playback)));
+                disconnect(
+                    p.timelinePlayers[0].get(),
+                    SIGNAL(currentTimeChanged(const otime::RationalTime&)),
+                    this,
+                    SLOT(_currentTimeCallback(const otime::RationalTime&)));
             }
-            p.app->outputDevice()->setTimelinePlayers(p.timelinePlayers);
+
+            p.timelinePlayers = timelinePlayers;
+
+            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
+            {
+                connect(
+                    p.timelinePlayers[0].get(),
+                    SIGNAL(speedChanged(double)),
+                    SLOT(_speedCallback(double)));
+                connect(
+                    p.timelinePlayers[0].get(),
+                    SIGNAL(playbackChanged(tl::timeline::Playback)),
+                    SLOT(_playbackCallback(tl::timeline::Playback)));
+                connect(
+                    p.timelinePlayers[0].get(),
+                    SIGNAL(currentTimeChanged(const otime::RationalTime&)),
+                    SLOT(_currentTimeCallback(const otime::RationalTime&)));
+            }
+
+            p.timelineViewport->setTimelinePlayers(p.timelinePlayers);
+
+            _widgetUpdate();
         }
 
         void MainWindow::_widgetUpdate()
@@ -1027,9 +1002,10 @@ namespace tl
             p.viewActions->actions()["Frame"]->setChecked(
                 p.timelineViewport->hasFrameView());
 
-            auto colorModel = p.app->colorModel();
+            auto viewportModel = p.app->viewportModel();
             p.timelineViewport->setBackgroundOptions(
-                p.app->viewportModel()->getBackgroundOptions());
+                viewportModel->getBackgroundOptions());
+            auto colorModel = p.app->colorModel();
             p.timelineViewport->setColorConfigOptions(
                 colorModel->getColorConfigOptions());
             p.timelineViewport->setLUTOptions(colorModel->getLUTOptions());
@@ -1073,11 +1049,6 @@ namespace tl
                 p.timelinePlayers[0]->ioInfo() :
                 io::Info());
 
-            p.audioTool->setAudioOffset(
-                (!p.timelinePlayers.empty() && p.timelinePlayers[0])
-                ? p.timelinePlayers[0]->audioOffset() :
-                0.0);
-
             std::string infoLabel;
             std::string infoToolTip;
             if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
@@ -1092,6 +1063,7 @@ namespace tl
 
             if (p.secondaryWindow)
             {
+                p.secondaryWindow->viewport()->setBackgroundOptions(viewportModel->getBackgroundOptions());
                 p.secondaryWindow->viewport()->setColorConfigOptions(colorModel->getColorConfigOptions());
                 p.secondaryWindow->viewport()->setLUTOptions(colorModel->getLUTOptions());
                 p.secondaryWindow->viewport()->setImageOptions(imageOptions);

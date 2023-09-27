@@ -831,12 +831,7 @@ namespace tl
             }
 
             p.activeFiles = items;
-
             activePlayers = _activePlayers();
-            if (p.mainWindow)
-            {
-                p.mainWindow->setTimelinePlayers(activePlayers);
-            }
             QSharedPointer<qt::TimelinePlayer> first;
             if (!activePlayers.empty())
             {
@@ -856,9 +851,12 @@ namespace tl
                         nullptr);
                 }
             }
+            p.outputDevice->setTimelinePlayers(activePlayers);
 
             _cacheUpdate();
             _audioUpdate();
+
+            Q_EMIT activePlayersChanged(activePlayers);
         }
 
         QVector<QSharedPointer<qt::TimelinePlayer> > App::_activePlayers() const

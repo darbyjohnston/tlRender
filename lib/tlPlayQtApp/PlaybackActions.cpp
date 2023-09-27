@@ -264,6 +264,14 @@ namespace tl
                         _p->timelinePlayers[0]->setSpeed(speed > 0.F ? speed : _p->timelinePlayers[0]->defaultSpeed());
                     }
                 });
+
+            connect(
+                app,
+                &App::activePlayersChanged,
+                [this](const QVector<QSharedPointer<qt::TimelinePlayer> >& value)
+                {
+                    _playersUpdate(value);
+                });
         }
 
         PlaybackActions::~PlaybackActions()
@@ -284,7 +292,35 @@ namespace tl
             return _p->speedMenu.get();
         }
 
-        void PlaybackActions::setTimelinePlayers(const QVector<QSharedPointer<qt::TimelinePlayer> >& timelinePlayers)
+        void PlaybackActions::_playbackCallback(timeline::Playback value)
+        {
+            TLRENDER_P();
+            const QSignalBlocker blocker(p.actionGroups["Playback"]);
+            for (auto action : p.actionGroups["Playback"]->actions())
+            {
+                if (action->data().value<timeline::Playback>() == value)
+                {
+                    action->setChecked(true);
+                    break;
+                }
+            }
+        }
+
+        void PlaybackActions::_loopCallback(timeline::Loop value)
+        {
+            TLRENDER_P();
+            const QSignalBlocker blocker(p.actionGroups["Loop"]);
+            for (auto action : p.actionGroups["Loop"]->actions())
+            {
+                if (action->data().value<timeline::Loop>() == value)
+                {
+                    action->setChecked(true);
+                    break;
+                }
+            }
+        }
+
+        void PlaybackActions::_playersUpdate(const QVector<QSharedPointer<qt::TimelinePlayer> >& timelinePlayers)
         {
             TLRENDER_P();
             if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
@@ -316,34 +352,6 @@ namespace tl
             }
 
             _actionsUpdate();
-        }
-
-        void PlaybackActions::_playbackCallback(timeline::Playback value)
-        {
-            TLRENDER_P();
-            const QSignalBlocker blocker(p.actionGroups["Playback"]);
-            for (auto action : p.actionGroups["Playback"]->actions())
-            {
-                if (action->data().value<timeline::Playback>() == value)
-                {
-                    action->setChecked(true);
-                    break;
-                }
-            }
-        }
-
-        void PlaybackActions::_loopCallback(timeline::Loop value)
-        {
-            TLRENDER_P();
-            const QSignalBlocker blocker(p.actionGroups["Loop"]);
-            for (auto action : p.actionGroups["Loop"]->actions())
-            {
-                if (action->data().value<timeline::Loop>() == value)
-                {
-                    action->setChecked(true);
-                    break;
-                }
-            }
         }
 
         void PlaybackActions::_actionsUpdate()

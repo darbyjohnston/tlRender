@@ -37,9 +37,7 @@ namespace tl
             Q_OBJECT
 
         public:
-            MessagesDockWidget(
-                MessagesTool*,
-                QWidget* parent = nullptr);
+            MessagesDockWidget(MessagesTool*, QWidget* parent = nullptr);
         };
     }
 }

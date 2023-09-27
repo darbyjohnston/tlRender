@@ -6,6 +6,8 @@
 
 #include <tlPlayQtApp/IToolWidget.h>
 
+#include <tlQt/TimelinePlayer.h>
+
 #include <QDockWidget>
 
 namespace tl
@@ -18,17 +20,15 @@ namespace tl
             Q_OBJECT
 
         public:
-            AudioOffsetWidget(QWidget* parent = nullptr);
+            AudioOffsetWidget(App*, QWidget* parent = nullptr);
 
             virtual ~AudioOffsetWidget();
 
-        public Q_SLOTS:
-            void setAudioOffset(double);
-
-        Q_SIGNALS:
-            void audioOffsetChanged(double);
+        private Q_SLOTS:
+            void _offsetCallback(double);
 
         private:
+            void _playersUpdate(const QVector<QSharedPointer<qt::TimelinePlayer> >&);
             void _offsetUpdate();
 
             TLRENDER_PRIVATE();
@@ -43,12 +43,6 @@ namespace tl
             AudioTool(App*, QWidget* parent = nullptr);
 
             virtual ~AudioTool();
-
-        public Q_SLOTS:
-            void setAudioOffset(double);
-
-        Q_SIGNALS:
-            void audioOffsetChanged(double);
 
         private:
             TLRENDER_PRIVATE();

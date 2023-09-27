@@ -6,6 +6,8 @@
 
 #include <tlPlayQtApp/DockTitleBar.h>
 
+#include <tlPlayQtApp/App.h>
+
 #include <tlQtWidget/FloatEditSlider.h>
 
 #include <QAction>
@@ -17,11 +19,14 @@ namespace tl
     {
         struct AudioOffsetWidget::Private
         {
+            QVector<QSharedPointer<qt::TimelinePlayer> > timelinePlayers;
+
             double offset = 0.0;
+
             qtwidget::FloatEditSlider* slider = nullptr;
         };
 
-        AudioOffsetWidget::AudioOffsetWidget(QWidget* parent) :
+        AudioOffsetWidget::AudioOffsetWidget(App* app, QWidget* parent) :
             QWidget(parent),
             _p(new Private)
         {
@@ -37,19 +42,54 @@ namespace tl
             setLayout(layout);
 
             connect(
+                app,
+                &App::activePlayersChanged,
+                [this](const QVector<QSharedPointer<qt::TimelinePlayer> >& value)
+                {
+                    _playersUpdate(value);
+                });
+
+            connect(
                 p.slider,
                 &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
                     _p->offset = value;
-                    Q_EMIT audioOffsetChanged(_p->offset);
+                    if (!_p->timelinePlayers.empty() && _p->timelinePlayers[0])
+                    {
+                        _p->timelinePlayers[0]->setAudioOffset(value);
+                    }
                 });
         }
 
         AudioOffsetWidget::~AudioOffsetWidget()
         {}
 
-        void AudioOffsetWidget::setAudioOffset(double value)
+        void AudioOffsetWidget::_playersUpdate(const QVector<QSharedPointer<qt::TimelinePlayer> >& value)
+        {
+            TLRENDER_P();
+            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
+            {
+                disconnect(
+                    p.timelinePlayers[0].get(),
+                    SIGNAL(audioOffsetChanged(double)),
+                    this,
+                    SLOT(_offsetCallback(double)));
+            }
+
+            p.timelinePlayers = value;
+
+            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
+            {
+                connect(
+                    p.timelinePlayers[0].get(),
+                    SIGNAL(audioOffsetChanged(double)),
+                    this,
+                    SLOT(_offsetCallback(double)));
+            }
+        }
+
+        void AudioOffsetWidget::_offsetCallback(double value)
         {
             TLRENDER_P();
             p.offset = value;
@@ -76,25 +116,14 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.offsetWidget = new AudioOffsetWidget;
+            p.offsetWidget = new AudioOffsetWidget(app);
 
             addBellows(tr("Sync Offset"), p.offsetWidget);
             addStretch();
-
-            connect(
-                p.offsetWidget,
-                SIGNAL(audioOffsetChanged(double)),
-                SIGNAL(audioOffsetChanged(double)));
         }
 
         AudioTool::~AudioTool()
         {}
-
-        void AudioTool::setAudioOffset(double value)
-        {
-            TLRENDER_P();
-            p.offsetWidget->setAudioOffset(value);
-        }
 
         AudioDockWidget::AudioDockWidget(
             AudioTool* audioTool,

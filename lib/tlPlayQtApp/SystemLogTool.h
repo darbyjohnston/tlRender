@@ -37,9 +37,7 @@ namespace tl
             Q_OBJECT
 
         public:
-            SystemLogDockWidget(
-                SystemLogTool*,
-                QWidget* parent = nullptr);
+            SystemLogDockWidget(SystemLogTool*, QWidget* parent = nullptr);
         };
     }
 }

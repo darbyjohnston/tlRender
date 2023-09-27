@@ -98,6 +98,10 @@ namespace tl
             //! Open a file with separate audio dialog.
             void openSeparateAudioDialog();
 
+        Q_SIGNALS:
+            //! This signal is emitted when the active players are changed.
+            void activePlayersChanged(const QVector<QSharedPointer<qt::TimelinePlayer> >&);
+
         private Q_SLOTS:
             void _filesCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
             void _activeCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);

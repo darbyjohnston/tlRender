@@ -51,6 +51,14 @@ namespace tl
             {
                 resize(1280, 720);
             }
+
+            connect(
+                app,
+                &App::activePlayersChanged,
+                [this](const QVector<QSharedPointer<qt::TimelinePlayer> >& value)
+                {
+                    _p->viewport->setTimelinePlayers(value);
+                });
         }
 
         SecondaryWindow::~SecondaryWindow()

@@ -34,10 +34,8 @@ namespace tl
             //! Get the menu.
             QMenu* menu() const;
 
-            //! Set the timeline players.
-            void setTimelinePlayers(const QVector<QSharedPointer<qt::TimelinePlayer> >&);
-
         private:
+            void _playersUpdate(const QVector<QSharedPointer<qt::TimelinePlayer> >&);
             void _actionsUpdate();
 
             TLRENDER_PRIVATE();

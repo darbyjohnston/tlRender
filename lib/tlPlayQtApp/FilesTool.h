@@ -22,9 +22,7 @@ namespace tl
             Q_OBJECT
 
         public:
-            FilesTool(
-                App*,
-                QWidget* parent = nullptr);
+            FilesTool(App*, QWidget* parent = nullptr);
 
             virtual ~FilesTool();
 
@@ -44,9 +42,7 @@ namespace tl
             Q_OBJECT
 
         public:
-            FilesDockWidget(
-                FilesTool*,
-                QWidget* parent = nullptr);
+            FilesDockWidget(FilesTool*, QWidget* parent = nullptr);
         };
     }
 }

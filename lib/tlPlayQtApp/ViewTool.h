@@ -50,9 +50,7 @@ namespace tl
             Q_OBJECT
 
         public:
-            ViewDockWidget(
-                ViewTool*,
-                QWidget* parent = nullptr);
+            ViewDockWidget(ViewTool*, QWidget* parent = nullptr);
         };
     }
 }

@@ -36,9 +36,7 @@ namespace tl
             Q_OBJECT
 
         public:
-            DevicesDockWidget(
-                DevicesTool*,
-                QWidget* parent = nullptr);
+            DevicesDockWidget(DevicesTool*, QWidget* parent = nullptr);
         };
     }
 }

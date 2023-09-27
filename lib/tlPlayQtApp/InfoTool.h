@@ -41,9 +41,7 @@ namespace tl
             Q_OBJECT
 
         public:
-            InfoDockWidget(
-                InfoTool*,
-                QWidget* parent = nullptr);
+            InfoDockWidget(InfoTool*, QWidget* parent = nullptr);
         };
     }
 }

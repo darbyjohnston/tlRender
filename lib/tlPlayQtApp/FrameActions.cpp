@@ -17,8 +17,6 @@ namespace tl
     {
         struct FrameActions::Private
         {
-            App* app = nullptr;
-
             QVector<QSharedPointer<qt::TimelinePlayer> > timelinePlayers;
 
             QMap<QString, QAction*> actions;
@@ -32,8 +30,6 @@ namespace tl
             _p(new Private)
         {
             TLRENDER_P();
-
-            p.app = app;
 
             p.actions["Start"] = new QAction(parent);
             p.actions["Start"]->setText(tr("Go To Start"));
@@ -227,6 +223,14 @@ namespace tl
                         _p->timelinePlayers[0]->resetOutPoint();
                     }
                 });
+
+            connect(
+                app,
+                &App::activePlayersChanged,
+                [this](const QVector<QSharedPointer<qt::TimelinePlayer> >& value)
+                {
+                    _playersUpdate(value);
+                });
         }
 
         FrameActions::~FrameActions()
@@ -242,7 +246,7 @@ namespace tl
             return _p->menu.get();
         }
 
-        void FrameActions::setTimelinePlayers(const QVector<QSharedPointer<qt::TimelinePlayer> >& timelinePlayers)
+        void FrameActions::_playersUpdate(const QVector<QSharedPointer<qt::TimelinePlayer> >& timelinePlayers)
         {
             TLRENDER_P();
             p.timelinePlayers = timelinePlayers;

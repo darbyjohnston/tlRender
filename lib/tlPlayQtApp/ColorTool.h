@@ -132,9 +132,7 @@ namespace tl
             Q_OBJECT
 
         public:
-            ColorDockWidget(
-                ColorTool*,
-                QWidget* parent = nullptr);
+            ColorDockWidget(ColorTool*, QWidget* parent = nullptr);
         };
     }
 }
