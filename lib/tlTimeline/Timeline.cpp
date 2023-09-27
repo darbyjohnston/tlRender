@@ -17,28 +17,6 @@ namespace tl
 {
     namespace timeline
     {
-        std::vector<std::string> getExtensions(
-            int types,
-            const std::shared_ptr<system::Context>& context)
-        {
-            std::vector<std::string> out;
-            //! \todo Get extensions for the Python adapters?
-            if (types & static_cast<int>(io::FileType::Movie))
-            {
-                out.push_back(".otio");
-                out.push_back(".otioz");
-            }
-            if (auto ioSystem = context->getSystem<io::System>())
-            {
-                for (const auto& plugin : ioSystem->getPlugins())
-                {
-                    const auto& extensions = plugin->getExtensions(types);
-                    out.insert(out.end(), extensions.begin(), extensions.end());
-                }
-            }
-            return out;
-        }
-
         TLRENDER_ENUM_IMPL(
             FileSequenceAudio,
             "None",

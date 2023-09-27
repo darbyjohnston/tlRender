@@ -12,6 +12,11 @@ namespace tl
 {
     namespace timeline
     {
+        //! Get the timeline file extensions.
+        std::vector<std::string> getExtensions(
+            int types,
+            const std::shared_ptr<system::Context>&);
+
         //! Convert frames to ranges.
         std::vector<otime::TimeRange> toRanges(std::vector<otime::RationalTime>);
 

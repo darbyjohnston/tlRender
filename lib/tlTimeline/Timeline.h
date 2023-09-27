@@ -18,11 +18,6 @@ namespace tl
     //! Timelines.
     namespace timeline
     {
-        //! Get the timeline file extensions.
-        std::vector<std::string> getExtensions(
-            int types,
-            const std::shared_ptr<system::Context>&);
-
         //! File sequence.
         enum class FileSequenceAudio
         {

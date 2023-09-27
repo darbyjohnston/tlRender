@@ -5,6 +5,7 @@
 #include <tlTimelineTest/TimelineTest.h>
 
 #include <tlTimeline/Timeline.h>
+#include <tlTimeline/Util.h>
 
 #include <tlIO/System.h>
 
@@ -33,6 +34,7 @@ namespace tl
         void TimelineTest::run()
         {
             _enums();
+            _util();
             _transitions();
             _videoData();
             _create();
@@ -43,6 +45,20 @@ namespace tl
         void TimelineTest::_enums()
         {
             _enum<Transition>("Transition", getTransitionEnums);
+        }
+
+        void TimelineTest::_util()
+        {
+            for (const auto& i : getExtensions(
+                static_cast<int>(io::FileType::Movie) |
+                static_cast<int>(io::FileType::Sequence) |
+                static_cast<int>(io::FileType::Audio),
+                _context))
+            {
+                std::stringstream ss;
+                ss << "Timeline extension: " << i;
+                _print(ss.str());
+            }
         }
 
         void TimelineTest::_transitions()
@@ -118,17 +134,6 @@ namespace tl
 
         void TimelineTest::_timeline()
         {
-            for (const auto& i : getExtensions(
-                static_cast<int>(io::FileType::Movie) |
-                static_cast<int>(io::FileType::Sequence) |
-                static_cast<int>(io::FileType::Audio),
-                _context))
-            {
-                std::stringstream ss;
-                ss << "Timeline extension: " << i;
-                _print(ss.str());
-            }
-
             // Write an OTIO timeline.
             auto otioClip = new otio::Clip;
             otioClip->set_media_reference(new otio::ImageSequenceReference(
