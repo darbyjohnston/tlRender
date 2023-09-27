@@ -129,11 +129,11 @@ namespace tl
                     "Audio file name."),
                 app::CmdLineValueOption<std::string>::create(
                     p.options.compareFileName,
-                    { "-compare", "-b" },
+                    { "-b" },
                     "A/B comparison \"B\" file name."),
                 app::CmdLineValueOption<timeline::CompareMode>::create(
                     p.options.compareOptions.mode,
-                    { "-compareMode", "-c" },
+                    { "-compare", "-c" },
                     "A/B comparison mode.",
                     string::Format("{0}").arg(p.options.compareOptions.mode),
                     string::join(timeline::getCompareModeLabels(), ", ")),
