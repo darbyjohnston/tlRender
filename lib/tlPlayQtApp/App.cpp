@@ -13,6 +13,7 @@
 #include <tlQtWidget/Init.h>
 #include <tlQtWidget/FileBrowserSystem.h>
 #include <tlQtWidget/Style.h>
+#include <tlQtWidget/Util.h>
 
 #include <tlQt/ContextObject.h>
 #include <tlQt/MetaTypes.h>
@@ -25,6 +26,7 @@
 #include <tlPlay/AudioModel.h>
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/FilesModel.h>
+#include <tlPlay/ViewportModel.h>
 #include <tlPlay/Util.h>
 
 #include <tlTimeline/Util.h>
@@ -86,6 +88,7 @@ namespace tl
             std::vector<std::shared_ptr<play::FilesModelItem> > activeFiles;
             QVector<QSharedPointer<qt::TimelinePlayer> > players;
             std::shared_ptr<ui::RecentFilesModel> recentFilesModel;
+            std::shared_ptr<play::ViewportModel> viewportModel;
             std::shared_ptr<play::ColorModel> colorModel;
             QScopedPointer<qt::OutputDevice> outputDevice;
             bool deviceActive = false;
@@ -97,6 +100,7 @@ namespace tl
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
             std::shared_ptr<observer::ListObserver<int> > layersObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
             std::shared_ptr<observer::ValueObserver<DevicesModelData> > devicesObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
@@ -311,14 +315,6 @@ namespace tl
             p.timeObject.reset(new qt::TimeObject(p.timeUnitsModel));
 
             p.settingsObject.reset(new SettingsObject(p.options.resetSettings, p.timeObject.get()));
-            p.settingsObject->setDefaultValue("Timeline/Editable", false);
-            p.settingsObject->setDefaultValue("Timeline/EditAssociatedClips", true);
-            p.settingsObject->setDefaultValue("Timeline/FrameView", true);
-            p.settingsObject->setDefaultValue("Timeline/StopOnScrub", false);
-            p.settingsObject->setDefaultValue("Timeline/Thumbnails", true);
-            p.settingsObject->setDefaultValue("Timeline/ThumbnailsSize", 100);
-            p.settingsObject->setDefaultValue("Timeline/Transitions", false);
-            p.settingsObject->setDefaultValue("Timeline/Markers", false);
             p.settingsObject->setDefaultValue("Cache/Size", 4);
             p.settingsObject->setDefaultValue(
                 "Cache/ReadAhead",
@@ -332,6 +328,25 @@ namespace tl
             p.settingsObject->setDefaultValue("FileSequence/AudioFileName", "");
             p.settingsObject->setDefaultValue("FileSequence/AudioDirectory", "");
             p.settingsObject->setDefaultValue("FileSequence/MaxDigits", 9);
+            timeline::BackgroundOptions backgroundOptions;
+            p.settingsObject->setDefaultValue("Viewport/Background/Type",
+                static_cast<int>(backgroundOptions.type));
+            p.settingsObject->setDefaultValue("Viewport/Background/SolidColor",
+                qtwidget::toQt(backgroundOptions.solidColor));
+            p.settingsObject->setDefaultValue("Viewport/Background/CheckersColor0",
+                qtwidget::toQt(backgroundOptions.checkersColor0));
+            p.settingsObject->setDefaultValue("Viewport/Background/CheckersColor1",
+                qtwidget::toQt(backgroundOptions.checkersColor1));
+            p.settingsObject->setDefaultValue("Viewport/Background/CheckersSize",
+                qtwidget::toQt(backgroundOptions.checkersSize));
+            p.settingsObject->setDefaultValue("Timeline/Editable", false);
+            p.settingsObject->setDefaultValue("Timeline/EditAssociatedClips", true);
+            p.settingsObject->setDefaultValue("Timeline/FrameView", true);
+            p.settingsObject->setDefaultValue("Timeline/StopOnScrub", false);
+            p.settingsObject->setDefaultValue("Timeline/Thumbnails", true);
+            p.settingsObject->setDefaultValue("Timeline/ThumbnailsSize", 100);
+            p.settingsObject->setDefaultValue("Timeline/Transitions", false);
+            p.settingsObject->setDefaultValue("Timeline/Markers", false);
             p.settingsObject->setDefaultValue(
                 "Performance/TimerMode",
                 static_cast<int>(timeline::PlayerOptions().timerMode));
@@ -373,6 +388,19 @@ namespace tl
                 recent.push_back(file::Path(i.toUtf8().data()));
             }
             p.recentFilesModel->setRecent(recent);
+
+            p.viewportModel = play::ViewportModel::create(context);
+            backgroundOptions.type = static_cast<timeline::Background>(
+                p.settingsObject->value("Viewport/Background/Type").toInt());
+            backgroundOptions.solidColor = qtwidget::fromQt(
+                p.settingsObject->value("Viewport/Background/SolidColor").value<QColor>());
+            backgroundOptions.checkersColor0 = qtwidget::fromQt(
+                p.settingsObject->value("Viewport/Background/CheckersColor0").value<QColor>());
+            backgroundOptions.checkersColor1 = qtwidget::fromQt(
+                p.settingsObject->value("Viewport/Background/CheckersColor1").value<QColor>());
+            backgroundOptions.checkersSize = qtwidget::fromQt(
+                p.settingsObject->value("Viewport/Background/CheckersSize").toSize());
+            p.viewportModel->setBackgroundOptions(backgroundOptions);
 
             p.colorModel = play::ColorModel::create(context);
             p.colorModel->setColorConfigOptions(p.options.colorConfigOptions);
@@ -464,6 +492,22 @@ namespace tl
                             _p->players[i]->setVideoLayer(value[i]);
                         }
                     }
+                });
+
+            p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
+                p.viewportModel->observeBackgroundOptions(),
+                [this](const timeline::BackgroundOptions& value)
+                {
+                    _p->settingsObject->setValue("Viewport/Background/Type",
+                        static_cast<int>(value.type));
+                    _p->settingsObject->setValue("Viewport/Background/SolidColor",
+                        qtwidget::toQt(value.solidColor));
+                    _p->settingsObject->setValue("Viewport/Background/CheckersColor0",
+                        qtwidget::toQt(value.checkersColor0));
+                    _p->settingsObject->setValue("Viewport/Background/CheckersColor1",
+                        qtwidget::toQt(value.checkersColor1));
+                    _p->settingsObject->setValue("Viewport/Background/CheckersSize",
+                        qtwidget::toQt(value.checkersSize));
                 });
 
             p.devicesObserver = observer::ValueObserver<DevicesModelData>::create(
@@ -613,6 +657,11 @@ namespace tl
             return _p->recentFilesModel;
         }
 
+        const std::shared_ptr<play::ViewportModel>& App::viewportModel() const
+        {
+            return _p->viewportModel;
+        }
+
         const std::shared_ptr<play::ColorModel>& App::colorModel() const
         {
             return _p->colorModel;
@@ -671,7 +720,7 @@ namespace tl
 
         void App::openSeparateAudioDialog()
         {
-            auto dialog = std::make_unique<OpenSeparateAudioDialog>(_context);
+            QScopedPointer<OpenSeparateAudioDialog> dialog(new OpenSeparateAudioDialog(_context));
             if (QDialog::Accepted == dialog->exec())
             {
                 open(dialog->videoFileName(), dialog->audioFileName());

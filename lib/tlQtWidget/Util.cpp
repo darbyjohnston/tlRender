@@ -8,6 +8,21 @@ namespace tl
 {
     namespace qtwidget
     {
+        QSize toQt(const math::Size2i& value)
+        {
+            return QSize(value.w, value.h);
+        }
+
+        math::Size2i fromQt(const QSize& value)
+        {
+            return math::Size2i(value.width(), value.height());
+        }
+
+        QColor toQt(const image::Color4f& value)
+        {
+            return QColor::fromRgbF(value.r, value.g, value.b, value.a);
+        }
+
         image::Color4f fromQt(const QColor& value)
         {
             return image::Color4f(

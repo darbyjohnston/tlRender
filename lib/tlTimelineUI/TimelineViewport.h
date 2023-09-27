@@ -6,37 +6,13 @@
 
 #include <tlUI/IWidget.h>
 
+#include <tlTimeline/BackgroundOptions.h>
 #include <tlTimeline/Player.h>
 
 namespace tl
 {
     namespace timelineui
     {
-        //! Viewport background type.
-        enum class ViewportBackground
-        {
-            Solid,
-            Checkers,
-
-            Count,
-            First = Solid
-        };
-        TLRENDER_ENUM(ViewportBackground);
-        TLRENDER_ENUM_SERIALIZE(ViewportBackground);
-
-        //! Viewport background options.
-        struct ViewportBackgroundOptions
-        {
-            ViewportBackground type           = ViewportBackground::Solid;
-            image::Color4f     solidColor     = image::Color4f(0.F, 0.F, 0.F);
-            image::Color4f     checkersColor0 = image::Color4f(1.F, 1.F, 1.F);
-            image::Color4f     checkersColor1 = image::Color4f(0.F, 0.F, 0.F);
-            math::Size2i       checkersSize   = math::Size2i(100, 100);
-
-            bool operator == (const ViewportBackgroundOptions&) const;
-            bool operator != (const ViewportBackgroundOptions&) const;
-        };
-
         //! Timeline viewport.
         class TimelineViewport : public ui::IWidget
         {
@@ -58,7 +34,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the background options.
-            void setBackgroundOptions(const ViewportBackgroundOptions&);
+            void setBackgroundOptions(const timeline::BackgroundOptions&);
 
             //! Set the color configuration options.
             void setColorConfigOptions(const timeline::ColorConfigOptions&);
@@ -137,14 +113,5 @@ namespace tl
 
             TLRENDER_PRIVATE();
         };
-
-        //! \name Serialize
-        ///@{
-
-        void to_json(nlohmann::json&, const ViewportBackgroundOptions&);
-
-        void from_json(const nlohmann::json&, ViewportBackgroundOptions&);
-
-        ///@}
     }
 }

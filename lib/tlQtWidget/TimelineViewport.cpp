@@ -4,6 +4,8 @@
 
 #include <tlQtWidget/TimelineViewport.h>
 
+#include <tlUI/DrawUtil.h>
+
 #include <tlTimeline/GLRender.h>
 
 #include <tlGL/Init.h>
@@ -25,6 +27,7 @@ namespace tl
         struct TimelineViewport::Private
         {
             std::weak_ptr<system::Context> context;
+            timeline::BackgroundOptions backgroundOptions;
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
             std::vector<timeline::ImageOptions> imageOptions;
@@ -76,6 +79,15 @@ namespace tl
 
         TimelineViewport::~TimelineViewport()
         {}
+
+        void TimelineViewport::setBackgroundOptions(const timeline::BackgroundOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.backgroundOptions)
+                return;
+            p.backgroundOptions = value;
+            update();
+        }
 
         void TimelineViewport::setColorConfigOptions(const timeline::ColorConfigOptions& value)
         {
@@ -337,10 +349,10 @@ namespace tl
                 _frameView();
             }
 
-            const auto renderSize = _renderSize();
+            const auto viewportSize = _viewportSize();
             try
             {
-                if (renderSize.isValid())
+                if (viewportSize.isValid())
                 {
                     gl::OffscreenBufferOptions offscreenBufferOptions;
                     offscreenBufferOptions.colorType = gl::OffscreenColorDefault;
@@ -350,9 +362,9 @@ namespace tl
                     }
                     offscreenBufferOptions.depth = gl::OffscreenDepth::_24;
                     offscreenBufferOptions.stencil = gl::OffscreenStencil::_8;
-                    if (gl::doCreate(p.buffer, renderSize, offscreenBufferOptions))
+                    if (gl::doCreate(p.buffer, viewportSize, offscreenBufferOptions))
                     {
-                        p.buffer = gl::OffscreenBuffer::create(renderSize, offscreenBufferOptions);
+                        p.buffer = gl::OffscreenBuffer::create(viewportSize, offscreenBufferOptions);
                     }
                 }
                 else
@@ -364,11 +376,41 @@ namespace tl
                 {
                     gl::OffscreenBufferBinding binding(p.buffer);
                     p.render->begin(
-                        renderSize,
+                        viewportSize,
                         p.colorConfigOptions,
-                        p.lutOptions); 
+                        p.lutOptions);
+                    switch (p.backgroundOptions.type)
+                    {
+                    case timeline::Background::Solid:
+                        p.render->clearViewport(
+                            p.backgroundOptions.solidColor);
+                        break;
+                    case timeline::Background::Checkers:
+                        p.render->clearViewport(image::Color4f(0.F, 0.F, 0.F));
+                        p.render->drawColorMesh(
+                            ui::checkers(
+                                math::Box2i(0, 0, viewportSize.w, viewportSize.h),
+                                p.backgroundOptions.checkersColor0,
+                                p.backgroundOptions.checkersColor1,
+                                p.backgroundOptions.checkersSize),
+                            math::Vector2i(),
+                            image::Color4f(1.F, 1.F, 1.F));
+                        break;
+                    default: break;
+                    }
                     if (!p.videoData.empty())
                     {
+                        math::Matrix4x4f vm;
+                        vm = vm * math::translate(math::Vector3f(p.viewPos.x, p.viewPos.y, 0.F));
+                        vm = vm * math::scale(math::Vector3f(p.viewZoom, p.viewZoom, 1.F));
+                        const auto pm = math::ortho(
+                            0.F,
+                            static_cast<float>(viewportSize.w),
+                            0.F,
+                            static_cast<float>(viewportSize.h),
+                            -1.F,
+                            1.F);
+                        p.render->setTransform(pm * vm);
                         p.render->drawVideo(
                             p.videoData,
                             timeline::getBoxes(p.compareOptions.mode, p.timelineSizes),
@@ -390,7 +432,6 @@ namespace tl
                 }
             }
 
-            const auto viewportSize = _viewportSize();
             glViewport(
                 0,
                 0,
@@ -402,22 +443,20 @@ namespace tl
             if (p.buffer)
             {
                 p.shader->bind();
-                math::Matrix4x4f vm;
-                vm = vm * math::translate(math::Vector3f(p.viewPos.x, p.viewPos.y, 0.F));
-                vm = vm * math::scale(math::Vector3f(p.viewZoom, p.viewZoom, 1.F));
-                const auto pm = math::ortho(
-                    0.F,
-                    static_cast<float>(viewportSize.w),
-                    0.F,
-                    static_cast<float>(viewportSize.h),
-                    -1.F,
-                    1.F);
-                p.shader->setUniform("transform.mvp", pm * vm);
+                p.shader->setUniform(
+                    "transform.mvp",
+                    math::ortho(
+                        0.F,
+                        static_cast<float>(viewportSize.w),
+                        static_cast<float>(viewportSize.h),
+                        0.F,
+                        -1.F,
+                        1.F));
                 
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, p.buffer->getColorID());
 
-                const auto mesh = geom::box(math::Box2i(0, 0, renderSize.w, renderSize.h));
+                const auto mesh = geom::box(math::Box2i(0, 0, viewportSize.w, viewportSize.h));
                 if (!p.vbo)
                 {
                     p.vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos2_F32_UV_U16);
@@ -465,8 +504,7 @@ namespace tl
                 const float devicePixelRatio = window()->devicePixelRatio();
                 p.mouseMode = Private::MouseMode::View;
                 p.mousePress.x = event->x() * devicePixelRatio;
-                p.mousePress.y = height() * devicePixelRatio - 1 -
-                    event->y() * devicePixelRatio;
+                p.mousePress.y = event->y() * devicePixelRatio;
                 p.viewPosMousePress = p.viewPos;
             }
             else if (Qt::LeftButton == event->button() && event->modifiers() & Qt::AltModifier)
@@ -474,8 +512,7 @@ namespace tl
                 const float devicePixelRatio = window()->devicePixelRatio();
                 p.mouseMode = Private::MouseMode::Wipe;
                 p.mousePress.x = event->x() * devicePixelRatio;
-                p.mousePress.y = height() * devicePixelRatio - 1 -
-                    event->y() * devicePixelRatio;
+                p.mousePress.y = event->y() * devicePixelRatio;
             }
         }
 
@@ -490,8 +527,7 @@ namespace tl
             TLRENDER_P();
             const float devicePixelRatio = window()->devicePixelRatio();
             p.mousePos.x = event->x() * devicePixelRatio;
-            p.mousePos.y = height() * devicePixelRatio - 1 -
-                event->y() * devicePixelRatio;
+            p.mousePos.y = event->y() * devicePixelRatio;
             switch (p.mouseMode)
             {
             case Private::MouseMode::View:
@@ -510,7 +546,7 @@ namespace tl
                         const auto& imageInfo = ioInfo.video[0];
                         p.compareOptions.wipeCenter.x = (p.mousePos.x - p.viewPos.x) / p.viewZoom /
                             static_cast<float>(imageInfo.size.w * imageInfo.size.pixelAspectRatio);
-                        p.compareOptions.wipeCenter.y = 1.F - (p.mousePos.y - p.viewPos.y) / p.viewZoom /
+                        p.compareOptions.wipeCenter.y = (p.mousePos.y - p.viewPos.y) / p.viewZoom /
                             static_cast<float>(imageInfo.size.h);
                         update();
                         Q_EMIT compareOptionsChanged(p.compareOptions);

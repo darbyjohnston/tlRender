@@ -1,6 +1,8 @@
 set(HEADERS
     Audio.h
     AudioInline.h
+    BackgroundOptions.h
+    BackgroundOptionsInline.h
     ColorConfigOptions.h
     ColorConfigOptionsInline.h
     CompareOptions.h
@@ -39,6 +41,7 @@ list(APPEND PRIVATE_HEADERS
     GLRenderPrivate.h)
 
 set(SOURCE
+    BackgroundOptions.cpp
     ColorConfigOptions.cpp
     CompareOptions.cpp
     DisplayOptions.cpp

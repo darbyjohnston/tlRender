@@ -11,16 +11,14 @@ namespace tl
         struct ViewportModel::Private
         {
             std::weak_ptr<system::Context> context;
-            std::shared_ptr<observer::Value<timelineui::ViewportBackgroundOptions> > backgroundOptions;
+            std::shared_ptr<observer::Value<timeline::BackgroundOptions> > backgroundOptions;
         };
 
         void ViewportModel::_init(const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
-
             p.context = context;
-
-            p.backgroundOptions = observer::Value<timelineui::ViewportBackgroundOptions>::create();
+            p.backgroundOptions = observer::Value<timeline::BackgroundOptions>::create();
         }
 
         ViewportModel::ViewportModel() :
@@ -37,17 +35,17 @@ namespace tl
             return out;
         }
 
-        const timelineui::ViewportBackgroundOptions& ViewportModel::getBackgroundOptions() const
+        const timeline::BackgroundOptions& ViewportModel::getBackgroundOptions() const
         {
             return _p->backgroundOptions->get();
         }
 
-        std::shared_ptr<observer::IValue<timelineui::ViewportBackgroundOptions> > ViewportModel::observeBackgroundOptions() const
+        std::shared_ptr<observer::IValue<timeline::BackgroundOptions> > ViewportModel::observeBackgroundOptions() const
         {
             return _p->backgroundOptions;
         }
 
-        void ViewportModel::setBackgroundOptions(const timelineui::ViewportBackgroundOptions& value)
+        void ViewportModel::setBackgroundOptions(const timeline::BackgroundOptions& value)
         {
             _p->backgroundOptions->setIfChanged(value);
         }

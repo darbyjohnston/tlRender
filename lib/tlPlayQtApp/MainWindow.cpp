@@ -26,6 +26,7 @@
 #include <tlPlayQtApp/TimelineActions.h>
 #include <tlPlayQtApp/ToolActions.h>
 #include <tlPlayQtApp/ViewActions.h>
+#include <tlPlayQtApp/ViewTool.h>
 #include <tlPlayQtApp/WindowActions.h>
 
 #include <tlQtWidget/Spacer.h>
@@ -103,6 +104,7 @@ namespace tl
             QComboBox* timeUnitsComboBox = nullptr;
             QSlider* volumeSlider = nullptr;
             FilesTool* filesTool = nullptr;
+            ViewTool* viewTool = nullptr;
             ColorTool* colorTool = nullptr;
             InfoTool* infoTool = nullptr;
             AudioTool* audioTool = nullptr;
@@ -119,6 +121,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
             std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > colorConfigOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
@@ -298,12 +301,19 @@ namespace tl
             p.windowActions->menu()->addAction(timelineDockWidget->toggleViewAction());
             p.windowActions->menu()->addAction(bottomToolBar->toggleViewAction());
 
-            p.filesTool = new FilesTool(p.fileActions->actions(), app);
+            p.filesTool = new FilesTool(app);
             auto filesDockWidget = new FilesDockWidget(p.filesTool);
             filesDockWidget->hide();
             p.toolActions->menu()->addAction(filesDockWidget->toggleViewAction());
             toolsToolBar->addAction(filesDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, filesDockWidget);
+
+            p.viewTool = new ViewTool(app);
+            auto viewDockWidget = new ViewDockWidget(p.viewTool);
+            viewDockWidget->hide();
+            p.toolActions->menu()->addAction(viewDockWidget->toggleViewAction());
+            toolsToolBar->addAction(viewDockWidget->toggleViewAction());
+            addDockWidget(Qt::RightDockWidgetArea, viewDockWidget);
 
             p.colorTool = new ColorTool(app);
             auto colorDockWidget = new ColorDockWidget(p.colorTool);
@@ -391,6 +401,13 @@ namespace tl
             p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
                 app->filesModel()->observeCompareOptions(),
                 [this](const timeline::CompareOptions&)
+                {
+                    _widgetUpdate();
+                });
+
+            p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
+                app->viewportModel()->observeBackgroundOptions(),
+                [this](const timeline::BackgroundOptions&)
                 {
                     _widgetUpdate();
                 });
@@ -1007,10 +1024,14 @@ namespace tl
                 }
             }
 
-            p.viewActions->actions()["Frame"]->setChecked(p.timelineViewport->hasFrameView());
+            p.viewActions->actions()["Frame"]->setChecked(
+                p.timelineViewport->hasFrameView());
 
             auto colorModel = p.app->colorModel();
-            p.timelineViewport->setColorConfigOptions(colorModel->getColorConfigOptions());
+            p.timelineViewport->setBackgroundOptions(
+                p.app->viewportModel()->getBackgroundOptions());
+            p.timelineViewport->setColorConfigOptions(
+                colorModel->getColorConfigOptions());
             p.timelineViewport->setLUTOptions(colorModel->getLUTOptions());
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
@@ -1021,7 +1042,8 @@ namespace tl
             }
             p.timelineViewport->setImageOptions(imageOptions);
             p.timelineViewport->setDisplayOptions(displayOptions);
-            p.timelineViewport->setCompareOptions(p.app->filesModel()->getCompareOptions());
+            p.timelineViewport->setCompareOptions(
+                p.app->filesModel()->getCompareOptions());
 
             p.timelineWidget->setPlayer(
                 (!p.timelinePlayers.empty() && p.timelinePlayers[0]) ?

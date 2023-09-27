@@ -711,15 +711,15 @@ namespace tl
                 [this, appWeak](const std::string&)
                 {
                     TLRENDER_P();
-            if (auto app = appWeak.lock())
-            {
-                auto settings = app->getSettings();
-                {
-                    bool value = false;
-                    settings->getValue("Misc/ToolTipsEnabled", value);
-                    p.toolTipsEnabledCheckBox->setChecked(value);
-                }
-            }
+                    if (auto app = appWeak.lock())
+                    {
+                        auto settings = app->getSettings();
+                        {
+                            bool value = false;
+                            settings->getValue("Misc/ToolTipsEnabled", value);
+                            p.toolTipsEnabledCheckBox->setChecked(value);
+                        }
+                    }
                 });
 
             p.toolTipsEnabledCheckBox->setCheckedCallback(

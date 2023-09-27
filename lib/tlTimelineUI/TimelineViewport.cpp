@@ -17,30 +17,9 @@ namespace tl
 {
     namespace timelineui
     {
-        TLRENDER_ENUM_IMPL(
-            ViewportBackground,
-            "Solid",
-            "Checkers");
-        TLRENDER_ENUM_SERIALIZE_IMPL(ViewportBackground);
-
-        bool ViewportBackgroundOptions::operator == (const ViewportBackgroundOptions& other) const
-        {
-            return
-                type == other.type &&
-                solidColor == other.solidColor &&
-                checkersColor0 == other.checkersColor0 &&
-                checkersColor1 == other.checkersColor1 &&
-                checkersSize == other.checkersSize;
-        }
-
-        bool ViewportBackgroundOptions::operator != (const ViewportBackgroundOptions& other) const
-        {
-            return !(*this == other);
-        }
-
         struct TimelineViewport::Private
         {
-            ViewportBackgroundOptions backgroundOptions;
+            timeline::BackgroundOptions backgroundOptions;
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
             timeline::RenderOptions renderOptions;
@@ -107,7 +86,7 @@ namespace tl
             return out;
         }
 
-        void TimelineViewport::setBackgroundOptions(const ViewportBackgroundOptions& value)
+        void TimelineViewport::setBackgroundOptions(const timeline::BackgroundOptions& value)
         {
             TLRENDER_P();
             if (value == p.backgroundOptions)
@@ -359,11 +338,11 @@ namespace tl
                         1.F));
                     switch (p.backgroundOptions.type)
                     {
-                    case ViewportBackground::Solid:
+                    case timeline::Background::Solid:
                         event.render->clearViewport(
                             p.backgroundOptions.solidColor);
                         break;
-                    case ViewportBackground::Checkers:
+                    case timeline::Background::Checkers:
                         event.render->clearViewport(image::Color4f(0.F, 0.F, 0.F));
                         event.render->drawColorMesh(
                             ui::checkers(
@@ -376,23 +355,26 @@ namespace tl
                         break;
                     default: break;
                     }
-                    math::Matrix4x4f vm;
-                    vm = vm * math::translate(math::Vector3f(p.viewPos.x, p.viewPos.y, 0.F));
-                    vm = vm * math::scale(math::Vector3f(p.viewZoom, p.viewZoom, 1.F));
-                    const auto pm = math::ortho(
-                        0.F,
-                        static_cast<float>(g.w()),
-                        0.F,
-                        static_cast<float>(g.h()),
-                        -1.F,
-                        1.F);
-                    event.render->setTransform(pm * vm);
-                    event.render->drawVideo(
-                        p.videoData,
-                        timeline::getBoxes(p.compareOptions.mode, p.timelineSizes),
-                        p.imageOptions,
-                        p.displayOptions,
-                        p.compareOptions);
+                    if (!p.videoData.empty())
+                    {
+                        math::Matrix4x4f vm;
+                        vm = vm * math::translate(math::Vector3f(p.viewPos.x, p.viewPos.y, 0.F));
+                        vm = vm * math::scale(math::Vector3f(p.viewZoom, p.viewZoom, 1.F));
+                        const auto pm = math::ortho(
+                            0.F,
+                            static_cast<float>(g.w()),
+                            0.F,
+                            static_cast<float>(g.h()),
+                            -1.F,
+                            1.F);
+                        event.render->setTransform(pm * vm);
+                        event.render->drawVideo(
+                            p.videoData,
+                            timeline::getBoxes(p.compareOptions.mode, p.timelineSizes),
+                            p.imageOptions,
+                            p.displayOptions,
+                            p.compareOptions);
+                    }
                 }
             }
 
@@ -587,27 +569,6 @@ namespace tl
             p.videoData[index] = value;
             p.renderBuffer = true;
             _updates |= ui::Update::Draw;
-        }
-
-        void to_json(nlohmann::json& json, const ViewportBackgroundOptions& in)
-        {
-            json = nlohmann::json
-            {
-                { "type", in.type },
-                { "solidColor", in.solidColor },
-                { "checkersColor0", in.checkersColor0 },
-                { "checkersColor1", in.checkersColor1 },
-                { "checkersSize", in.checkersSize },
-            };
-        }
-
-        void from_json(const nlohmann::json& json, ViewportBackgroundOptions& out)
-        {
-            json.at("type").get_to(out.type);
-            json.at("solidColor").get_to(out.solidColor);
-            json.at("checkersColor0").get_to(out.checkersColor0);
-            json.at("checkersColor1").get_to(out.checkersColor1);
-            json.at("checkersSize").get_to(out.checkersSize);
         }
     }
 }

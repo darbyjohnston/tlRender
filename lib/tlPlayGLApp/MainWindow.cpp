@@ -149,7 +149,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timelineui::ViewportBackgroundOptions> > viewportBackgroundOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > colorConfigOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
@@ -544,9 +544,9 @@ namespace tl
                     _viewportUpdate();
                 });
 
-            p.viewportBackgroundOptionsObserver = observer::ValueObserver<timelineui::ViewportBackgroundOptions>::create(
+            p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
                 app->getViewportModel()->observeBackgroundOptions(),
-                [this](const timelineui::ViewportBackgroundOptions&)
+                [this](const timeline::BackgroundOptions&)
                 {
                     _viewportUpdate();
                 });

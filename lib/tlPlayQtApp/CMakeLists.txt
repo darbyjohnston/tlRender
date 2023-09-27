@@ -27,6 +27,7 @@ set(HEADERS
     TimelineActions.h
     ToolActions.h
     ViewActions.h
+    ViewTool.h
     WindowActions.h)
 
 set(SOURCE
@@ -58,6 +59,7 @@ set(SOURCE
     TimelineActions.cpp
     ToolActions.cpp
     ViewActions.cpp
+    ViewTool.cpp
     WindowActions.cpp)
 
 if(TLRENDER_QT6)

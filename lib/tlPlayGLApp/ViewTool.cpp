@@ -31,7 +31,7 @@ namespace tl
             std::shared_ptr<ui::IntEditSlider> checkersSizeSlider;
             std::shared_ptr<ui::VerticalLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<timelineui::ViewportBackgroundOptions> > optionsObservers;
+            std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > optionsObservers;
         };
 
         void BackgroundWidget::_init(
@@ -43,7 +43,7 @@ namespace tl
             TLRENDER_P();
 
             p.typeComboBox = ui::ComboBox::create(
-                timelineui::getViewportBackgroundLabels(),
+                timeline::getBackgroundLabels(),
                 context);
 
             p.solidColorSwatch = ui::ColorSwatch::create(context);
@@ -77,9 +77,9 @@ namespace tl
             p.checkersSizeSlider->setParent(gridLayout);
             gridLayout->setGridPos(p.checkersSizeSlider, 2, 1);
 
-            p.optionsObservers = observer::ValueObserver<timelineui::ViewportBackgroundOptions>::create(
+            p.optionsObservers = observer::ValueObserver<timeline::BackgroundOptions>::create(
                 app->getViewportModel()->observeBackgroundOptions(),
-                [this](const timelineui::ViewportBackgroundOptions& value)
+                [this](const timeline::BackgroundOptions& value)
                 {
                     _optionsUpdate(value);
                 });
@@ -91,7 +91,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getViewportModel()->getBackgroundOptions();
-                        options.type = static_cast<timelineui::ViewportBackground>(value);
+                        options.type = static_cast<timeline::Background>(value);
                         app->getViewportModel()->setBackgroundOptions(options);
                     }
                 });
@@ -171,7 +171,7 @@ namespace tl
             _sizeHint = _p->layout->getSizeHint();
         }
 
-        void BackgroundWidget::_optionsUpdate(const timelineui::ViewportBackgroundOptions& value)
+        void BackgroundWidget::_optionsUpdate(const timeline::BackgroundOptions& value)
         {
             TLRENDER_P();
             p.typeComboBox->setCurrentIndex(static_cast<int>(value.type));

@@ -1,5 +1,8 @@
 set(HEADERS
     BellowsWidget.h
+    ColorDialog.h
+    ColorSwatch.h
+    ColorWidget.h
     FileBrowserSystem.h
     FileWidget.h
     FloatEditSlider.h
@@ -21,6 +24,9 @@ set(PRIVATE_HEADERS
 set(SOURCE
     BellowsPrivate.cpp
     BellowsWidget.cpp
+    ColorDialog.cpp
+    ColorSwatch.cpp
+    ColorWidget.cpp
     FileBrowserSystem.cpp
     FileWidget.cpp
     FloatEditSlider.cpp

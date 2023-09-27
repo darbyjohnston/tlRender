@@ -319,7 +319,7 @@ namespace tl
             p.settings->setDefaultValue("Files/RecentMax", 10);
             p.settings->setDefaultValue("Window/Size", _options.windowSize);
             p.settings->setDefaultValue("Viewport/Background",
-                timelineui::ViewportBackgroundOptions());
+                timeline::BackgroundOptions());
             p.settings->setDefaultValue("Audio/Volume", 1.F);
             p.settings->setDefaultValue("Audio/Mute", false);
             p.settings->setDefaultValue("Cache/Size", p.cacheSize);
@@ -350,7 +350,7 @@ namespace tl
             // Initialize the models.
             p.filesModel = play::FilesModel::create(context);
             p.viewportModel = play::ViewportModel::create(context);
-            timelineui::ViewportBackgroundOptions viewportBackgroundOptions;
+            timeline::BackgroundOptions viewportBackgroundOptions;
             p.settings->getValue("Viewport/Background", viewportBackgroundOptions);
             p.viewportModel->setBackgroundOptions(viewportBackgroundOptions);
             p.colorModel = play::ColorModel::create(context);

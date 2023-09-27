@@ -6,7 +6,7 @@
 
 #include <tlPlayGLApp/ViewTool.h>
 
-#include <tlTimelineUI/TimelineViewport.h>
+#include <tlTimeline/BackgroundOptions.h>
 
 namespace tl
 {
@@ -36,7 +36,7 @@ namespace tl
             void sizeHintEvent(const ui::SizeHintEvent&) override;
 
         private:
-            void _optionsUpdate(const timelineui::ViewportBackgroundOptions&);
+            void _optionsUpdate(const timeline::BackgroundOptions&);
 
             TLRENDER_PRIVATE();
         };

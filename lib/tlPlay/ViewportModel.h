@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include <tlTimelineUI/TimelineViewport.h>
+#include <tlTimeline/BackgroundOptions.h>
+
+#include <tlCore/ValueObserver.h>
 
 namespace tl
 {
@@ -32,13 +34,13 @@ namespace tl
             static std::shared_ptr<ViewportModel> create(const std::shared_ptr<system::Context>&);
 
             //! Get the timeline viewport background options.
-            const timelineui::ViewportBackgroundOptions& getBackgroundOptions() const;
+            const timeline::BackgroundOptions& getBackgroundOptions() const;
 
             //! Observer the timeline viewport background options.
-            std::shared_ptr<observer::IValue<timelineui::ViewportBackgroundOptions> > observeBackgroundOptions() const;
+            std::shared_ptr<observer::IValue<timeline::BackgroundOptions> > observeBackgroundOptions() const;
 
             //! Set the timeline viewport background options.
-            void setBackgroundOptions(const timelineui::ViewportBackgroundOptions&);
+            void setBackgroundOptions(const timeline::BackgroundOptions&);
 
         private:
             TLRENDER_PRIVATE();
