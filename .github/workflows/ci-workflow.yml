@@ -29,30 +29,6 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Update
-      run: sudo apt-get update
-
-    - name: Install lcov
-      if: env.TLRENDER_GCOV == 'ON'
-      run: sudo apt-get install lcov
-
-    - name: Install OpenGL dev
-      run: sudo apt-get install xorg-dev libglu1-mesa-dev mesa-common-dev
-
-    - name: Install ALSA dev
-      run: sudo apt-get install libasound2-dev
-
-    - name: Install PulseAudio dev
-      run: sudo apt-get install libpulse-dev
-
-    - name: Install Python dev
-      if: env.TLRENDER_PYTHON == 'ON'
-      run: sudo apt-get install python3.8-dev
-
-    - name: Install Qt dev
-      if: env.TLRENDER_QT5 == 'ON'
-      run: sudo apt-get install qtdeclarative5-dev libqt5quick5 qtbase5-dev libqt5svg5-dev qtchooser qt5-qmake qtbase5-dev-tools
-
     - name: Setup environment
       run: |
         echo "$PWD/build/install/bin" >> $GITHUB_PATH
@@ -61,42 +37,13 @@ jobs:
 
     - name: Build tlRender
       run: |
-        mkdir build
-        cd build
-        cmake ../etc/SuperBuild \
-          -DCMAKE_BUILD_TYPE=Debug \
-          -DCMAKE_INSTALL_PREFIX=$PWD/install \
-          -DCMAKE_PREFIX_PATH=$PWD/install \
-          -DTLRENDER_MMAP=$TLRENDER_MMAP \
-          -DTLRENDER_PYTHON=$TLRENDER_PYTHON \
-          -DTLRENDER_GLFW=$TLRENDER_GLFW \
-          -DTLRENDER_OCIO=$TLRENDER_OCIO \
-          -DTLRENDER_AUDIO=$TLRENDER_AUDIO \
-          -DTLRENDER_JPEG=$TLRENDER_JPEG \
-          -DTLRENDER_TIFF=$TLRENDER_TIFF \
-          -DTLRENDER_STB=$TLRENDER_STB \
-          -DTLRENDER_PNG=$TLRENDER_PNG \
-          -DTLRENDER_EXR=$TLRENDER_EXR \
-          -DTLRENDER_FFMPEG=$TLRENDER_FFMPEG \
-          -DTLRENDER_QT5=$TLRENDER_QT5 \
-          -DTLRENDER_PROGRAMS=$TLRENDER_PROGRAMS \
-          -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
-          -DTLRENDER_TESTS=$TLRENDER_TESTS \
-          -DTLRENDER_GCOV=$TLRENDER_GCOV
-        cmake --build . -j 4 --config Debug
-
-    - name: Run tests
-      run: |
-        cd build
-        cd tlRender/src/tlRender-build
-        ctest --rerun-failed --output-on-failure
+        bash etc/Linux/gha-ubuntu-latest.sh
     
     - name: Code coverage
       if: env.TLRENDER_GCOV == 'ON'
       run: |
-        cd build
-        cd tlRender/src/tlRender-build
-        sh ../../../../etc/Linux/lcov.sh
+        cd build/tlRender/src/tlRender-build
+        bash ../../../../etc/Linux/lcov.sh
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
