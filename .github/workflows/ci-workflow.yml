@@ -7,7 +7,23 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      TLRENDER_MMAP: ON
+      TLRENDER_PYTHON: OFF
+      TLRENDER_GLFW: ON
+      TLRENDER_OCIO: ON
+      TLRENDER_AUDIO: ON
+      TLRENDER_JPEG: ON
+      TLRENDER_TIFF: ON
+      TLRENDER_STB: ON
+      TLRENDER_PNG: ON
+      TLRENDER_EXR: ON
+      TLRENDER_FFMPEG: ON
+      TLRENDER_USD: OFF
+      TLRENDER_NFD: OFF
       TLRENDER_QT5: ON
+      TLRENDER_PROGRAMS: ON
+      TLRENDER_EXAMPLES: ON
+      TLRENDER_TESTS: ON
       TLRENDER_GCOV: ON
 
     steps:
@@ -61,6 +77,7 @@ jobs:
       TLRENDER_USD: OFF
       TLRENDER_NFD: OFF
       TLRENDER_QT5: OFF
+      TLRENDER_TESTS: ON
 
     steps:
     - uses: actions/checkout@v3
@@ -87,7 +104,21 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      TLRENDER_MMAP: ON
+      TLRENDER_PYTHON: OFF
+      TLRENDER_GLFW: ON
+      TLRENDER_OCIO: ON
+      TLRENDER_AUDIO: ON
+      TLRENDER_JPEG: ON
+      TLRENDER_TIFF: ON
+      TLRENDER_STB: ON
+      TLRENDER_PNG: ON
+      TLRENDER_EXR: ON
+      TLRENDER_FFMPEG: ON
       TLRENDER_USD: ON
+      TLRENDER_NFD: OFF
+      TLRENDER_QT5: ON
+      TLRENDER_PROGRAMS: ON
       TLRENDER_EXAMPLES: OFF
       TLRENDER_TESTS: OFF
 
@@ -132,6 +163,7 @@ jobs:
       TLRENDER_PNG: ON
       TLRENDER_EXR: ON
       TLRENDER_FFMPEG: ON
+      TLRENDER_USD: OFF
       TLRENDER_NFD: OFF
       TLRENDER_QT5: OFF
       TLRENDER_PROGRAMS: ON
@@ -250,6 +282,7 @@ jobs:
       TLRENDER_PNG: ON
       TLRENDER_EXR: ON
       TLRENDER_FFMPEG: OFF
+      TLRENDER_USD: OFF
       TLRENDER_NFD: OFF
       TLRENDER_QT5: OFF
       TLRENDER_PROGRAMS: ON
