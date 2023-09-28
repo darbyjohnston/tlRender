@@ -7,21 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      TLRENDER_MMAP: ON
-      TLRENDER_PYTHON: OFF
-      TLRENDER_GLFW: ON
-      TLRENDER_OCIO: ON
-      TLRENDER_AUDIO: ON
-      TLRENDER_JPEG: ON
-      TLRENDER_TIFF: ON
-      TLRENDER_STB: ON
-      TLRENDER_PNG: ON
-      TLRENDER_EXR: ON
-      TLRENDER_FFMPEG: ON
       TLRENDER_QT5: ON
-      TLRENDER_PROGRAMS: ON
-      TLRENDER_EXAMPLES: ON
-      TLRENDER_TESTS: ON
       TLRENDER_GCOV: ON
 
     steps:
@@ -37,7 +23,13 @@ jobs:
 
     - name: Build tlRender
       run: |
-        bash etc/Linux/gha-ubuntu-latest.sh
+        bash etc/Linux/linux-build-gha.sh Debug
+
+    - name: Run tests
+      run: |
+        cd build
+        cd tlRender/src/tlRender-build
+        ctest --rerun-failed --output-on-failure
     
     - name: Code coverage
       if: env.TLRENDER_GCOV == 'ON'
@@ -66,23 +58,14 @@ jobs:
       TLRENDER_PNG: OFF
       TLRENDER_EXR: OFF
       TLRENDER_FFMPEG: OFF
+      TLRENDER_USD: OFF
       TLRENDER_NFD: OFF
       TLRENDER_QT5: OFF
-      TLRENDER_PROGRAMS: ON
-      TLRENDER_EXAMPLES: ON
-      TLRENDER_TESTS: ON
-      TLRENDER_GCOV: OFF
 
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
-
-    - name: Update
-      run: sudo apt-get update
-
-    - name: Install OpenGL dev
-      run: sudo apt-get install xorg-dev libglu1-mesa-dev mesa-common-dev
       
     - name: Setup environment
       run: |
@@ -92,30 +75,7 @@ jobs:
 
     - name: Build tlRender
       run: |
-        mkdir build
-        cd build
-        cmake ../etc/SuperBuild \
-          -DCMAKE_BUILD_TYPE=Debug \
-          -DCMAKE_INSTALL_PREFIX=$PWD/install \
-          -DCMAKE_PREFIX_PATH=$PWD/install \
-          -DTLRENDER_MMAP=$TLRENDER_MMAP \
-          -DTLRENDER_PYTHON=$TLRENDER_PYTHON \
-          -DTLRENDER_GLFW=$TLRENDER_GLFW \
-          -DTLRENDER_OCIO=$TLRENDER_OCIO \
-          -DTLRENDER_AUDIO=$TLRENDER_AUDIO \
-          -DTLRENDER_JPEG=$TLRENDER_JPEG \
-          -DTLRENDER_TIFF=$TLRENDER_TIFF \
-          -DTLRENDER_STB=$TLRENDER_STB \
-          -DTLRENDER_PNG=$TLRENDER_PNG \
-          -DTLRENDER_EXR=$TLRENDER_EXR \
-          -DTLRENDER_FFMPEG=$TLRENDER_FFMPEG \
-          -DTLRENDER_NFD=$TLRENDER_NFD \
-          -DTLRENDER_QT5=$TLRENDER_QT5 \
-          -DTLRENDER_PROGRAMS=$TLRENDER_PROGRAMS \
-          -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
-          -DTLRENDER_TESTS=$TLRENDER_TESTS \
-          -DTLRENDER_GCOV=$TLRENDER_GCOV
-        cmake --build . -j 4 --config Debug
+        bash etc/Linux/linux-build-gha.sh Debug
 
     - name: Run tests
       run: |
@@ -136,18 +96,6 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Update
-      run: sudo apt-get update
-
-    - name: Install OpenGL dev
-      run: sudo apt-get install xorg-dev libglu1-mesa-dev mesa-common-dev
-
-    - name: Install ALSA dev
-      run: sudo apt-get install libasound2-dev
-
-    - name: Install PulseAudio dev
-      run: sudo apt-get install libpulse-dev
-
     - name: Setup environment
       run: |
         echo "$PWD/build/install/bin" >> $GITHUB_PATH
@@ -156,16 +104,7 @@ jobs:
 
     - name: Build tlRender
       run: |
-        mkdir build
-        cd build
-        cmake ../etc/SuperBuild \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_INSTALL_PREFIX=$PWD/install \
-          -DCMAKE_PREFIX_PATH=$PWD/install \
-          -DTLRENDER_USD=$TLRENDER_USD \
-          -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
-          -DTLRENDER_TESTS=$TLRENDER_TESTS
-        cmake --build . -j 4 --config Release
+        bash etc/Linux/linux-build-gha.sh Release
 
     - name: Package
       run: |

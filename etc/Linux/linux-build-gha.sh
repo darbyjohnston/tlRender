@@ -2,6 +2,8 @@
 
 set -x
 
+BUILD_TYPE=$1
+
 # Update packages
 sudo apt-get update
 
@@ -14,11 +16,12 @@ fi
 # Install OpenGL dev
 sudo apt-get install xorg-dev libglu1-mesa-dev mesa-common-dev
 
-# Install ALSA dev
-sudo apt-get install libasound2-dev
-
-# Install PulseAudio dev
-sudo apt-get install libpulse-dev
+# Install ALSA and PulseAudio dev
+if [[ $TLRENDER_AUDIO = "ON" ]]
+then
+    sudo apt-get install libasound2-dev
+    sudo apt-get install libpulse-dev
+fi
 
 # Install Python dev
 if [[ $TLRENDER_PYTHON = "ON" ]]
@@ -36,7 +39,7 @@ fi
 mkdir build
 cd build
 cmake ../etc/SuperBuild \
-    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
     -DCMAKE_INSTALL_PREFIX=$PWD/install \
     -DCMAKE_PREFIX_PATH=$PWD/install \
     -DTLRENDER_MMAP=$TLRENDER_MMAP \
@@ -50,13 +53,10 @@ cmake ../etc/SuperBuild \
     -DTLRENDER_PNG=$TLRENDER_PNG \
     -DTLRENDER_EXR=$TLRENDER_EXR \
     -DTLRENDER_FFMPEG=$TLRENDER_FFMPEG \
+    -DTLRENDER_USD=$TLRENDER_USD \
     -DTLRENDER_QT5=$TLRENDER_QT5 \
     -DTLRENDER_PROGRAMS=$TLRENDER_PROGRAMS \
     -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
     -DTLRENDER_TESTS=$TLRENDER_TESTS \
     -DTLRENDER_GCOV=$TLRENDER_GCOV
-cmake --build . -j 4 --config Debug
-
-# Run tests
-cd tlRender/src/tlRender-build
-ctest --rerun-failed --output-on-failure
+cmake --build . -j 4 --config $BUILD_TYPE
