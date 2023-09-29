@@ -268,7 +268,6 @@ jobs:
       TLRENDER_PROGRAMS: ON
       TLRENDER_EXAMPLES: ON
       TLRENDER_TESTS: ON
-      TLRENDER_GCOV: OFF
 
     steps:
     - uses: actions/checkout@v3
@@ -283,30 +282,7 @@ jobs:
     - name: Build tlRender
       shell: cmd
       run: |
-        mkdir build
-        cd build
-        cmake ..\etc\SuperBuild ^
-          -DCMAKE_BUILD_TYPE=Debug ^
-          -DCMAKE_INSTALL_PREFIX=install ^
-          -DCMAKE_PREFIX_PATH=install ^
-          -DTLRENDER_MMAP=%TLRENDER_MMAP% ^
-          -DTLRENDER_PYTHON=%TLRENDER_PYTHON% ^
-          -DTLRENDER_GLFW=%TLRENDER_GLFW% ^
-          -DTLRENDER_OCIO=%TLRENDER_OCIO% ^
-          -DTLRENDER_AUDIO=%TLRENDER_AUDIO% ^
-          -DTLRENDER_JPEG=%TLRENDER_JPEG% ^
-          -DTLRENDER_TIFF=%TLRENDER_TIFF% ^
-          -DTLRENDER_STB=%TLRENDER_STB% ^
-          -DTLRENDER_PNG=%TLRENDER_PNG% ^
-          -DTLRENDER_EXR=%TLRENDER_EXR% ^
-          -DTLRENDER_FFMPEG=%TLRENDER_FFMPEG% ^
-          -DTLRENDER_NFD=%TLRENDER_NFD% ^
-          -DTLRENDER_QT5=%TLRENDER_QT5% ^
-          -DTLRENDER_PROGRAMS=%TLRENDER_PROGRAMS% ^
-          -DTLRENDER_EXAMPLES=%TLRENDER_EXAMPLES% ^
-          -DTLRENDER_TESTS=%TLRENDER_TESTS% ^
-          -DTLRENDER_GCOV=%TLRENDER_GCOV%
-        cmake --build . -j 4 --config Debug
+        etc\Windows\windows-build-gha.bat Debug
 
     - name: Run tests
       shell: cmd
@@ -314,7 +290,6 @@ jobs:
         cd build
         cd tlRender\src\tlRender-build
         tests\tltest\Debug\tltest
-        #ctest --rerun-failed --output-on-failure
 
   windows-package:
     runs-on: windows-latest
@@ -324,8 +299,21 @@ jobs:
     # \todo USD has errors in the boost build with windows-latest
     # \todo USD has errors in the MaterialX build with windows-2019
     env:
+      TLRENDER_MMAP: ON
+      TLRENDER_PYTHON: OFF
+      TLRENDER_GLFW: ON
+      TLRENDER_OCIO: ON
+      TLRENDER_AUDIO: ON
+      TLRENDER_JPEG: ON
+      TLRENDER_TIFF: ON
+      TLRENDER_STB: ON
+      TLRENDER_PNG: ON
+      TLRENDER_EXR: ON
       TLRENDER_FFMPEG: OFF
       TLRENDER_USD: OFF
+      TLRENDER_NFD: OFF
+      TLRENDER_QT5: OFF
+      TLRENDER_PROGRAMS: ON
       TLRENDER_EXAMPLES: OFF
       TLRENDER_TESTS: OFF
 
@@ -342,17 +330,7 @@ jobs:
     - name: Build tlRender
       shell: cmd
       run: |
-        mkdir build
-        cd build
-        cmake ..\etc\SuperBuild ^
-          -DCMAKE_BUILD_TYPE=Release ^
-          -DCMAKE_INSTALL_PREFIX=install ^
-          -DCMAKE_PREFIX_PATH=install ^
-          -DTLRENDER_FFMPEG=${{ env.TLRENDER_FFMPEG }} ^
-          -DTLRENDER_USD=${{ env.TLRENDER_USD }} ^
-          -DTLRENDER_EXAMPLES=${{ env.TLRENDER_EXAMPLES }} ^
-          -DTLRENDER_TESTS=${{ env.TLRENDER_TESTS }}
-        cmake --build . -j 4 --config Release
+        etc\Windows\windows-build-gha.bat Release
 
     - name: Package
       shell: cmd
