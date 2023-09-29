@@ -7,7 +7,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      TLRENDER_MMAP: ON
       TLRENDER_PYTHON: OFF
       TLRENDER_GLFW: ON
       TLRENDER_OCIO: ON
@@ -38,8 +37,7 @@ jobs:
         echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
 
     - name: Build tlRender
-      run: |
-        bash etc/Linux/linux-build-gha.sh Debug
+      run: bash etc/Linux/linux-build-gha.sh Debug
 
     - name: Run tests
       run: |
@@ -63,7 +61,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      TLRENDER_MMAP: OFF
       TLRENDER_PYTHON: OFF
       TLRENDER_GLFW: OFF
       TLRENDER_OCIO: OFF
@@ -91,8 +88,7 @@ jobs:
         echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
 
     - name: Build tlRender
-      run: |
-        bash etc/Linux/linux-build-gha.sh Debug
+      run: bash etc/Linux/linux-build-gha.sh Debug
 
     - name: Run tests
       run: |
@@ -104,7 +100,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      TLRENDER_MMAP: ON
       TLRENDER_PYTHON: OFF
       TLRENDER_GLFW: ON
       TLRENDER_OCIO: ON
@@ -134,14 +129,13 @@ jobs:
         echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
 
     - name: Build tlRender
-      run: |
-        bash etc/Linux/linux-build-gha.sh Release
+      run: bash etc/Linux/linux-build-gha.sh Release
 
     - name: Package
       run: |
         cd build
         cd tlRender/src/tlRender-build
-        cmake --build . -j 4 --config Release --target package
+        cmake --build . -j 4 --target package
 
     - uses: actions/upload-artifact@v3
       with:
@@ -152,7 +146,6 @@ jobs:
     runs-on: macos-latest
 
     env:
-      TLRENDER_MMAP: ON
       TLRENDER_PYTHON: OFF
       TLRENDER_GLFW: ON
       TLRENDER_OCIO: ON
@@ -200,7 +193,6 @@ jobs:
     runs-on: macos-latest
 
     env:
-      TLRENDER_MMAP: ON
       TLRENDER_PYTHON: OFF
       TLRENDER_GLFW: ON
       TLRENDER_OCIO: ON
@@ -240,7 +232,7 @@ jobs:
       run: |
         cd build
         cd tlRender/src/tlRender-build
-        cmake --build . -j 4 --config Release --target package
+        cmake --build . -j 4 --target package
 
     - uses: actions/upload-artifact@v3
       with:
@@ -251,7 +243,6 @@ jobs:
     runs-on: windows-latest
 
     env:
-      TLRENDER_MMAP: ON
       TLRENDER_PYTHON: OFF
       TLRENDER_GLFW: ON
       TLRENDER_OCIO: ON
@@ -281,8 +272,7 @@ jobs:
         
     - name: Build tlRender
       shell: cmd
-      run: |
-        etc\Windows\windows-build-gha.bat Debug
+      run: etc\Windows\windows-build-gha.bat Debug
 
     - name: Run tests
       shell: cmd
@@ -299,7 +289,6 @@ jobs:
     # \todo USD has errors in the boost build with windows-latest
     # \todo USD has errors in the MaterialX build with windows-2019
     env:
-      TLRENDER_MMAP: ON
       TLRENDER_PYTHON: OFF
       TLRENDER_GLFW: ON
       TLRENDER_OCIO: ON
@@ -337,7 +326,7 @@ jobs:
       run: |
         cd build
         cd tlRender\src\tlRender-build
-        cmake --build . -j 4 --config Release --target package
+        cmake --build . -j 4 --target package
 
     - uses: actions/upload-artifact@v3
       with:

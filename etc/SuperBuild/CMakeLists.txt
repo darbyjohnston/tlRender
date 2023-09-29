@@ -8,7 +8,6 @@ endif()
 project(tlRender-SuperBuild)
 
 # Build options.
-set(TLRENDER_MMAP TRUE CACHE BOOL "Enable memory-mapped file I/O")
 set(TLRENDER_PYTHON FALSE CACHE BOOL "Enable Python support (for OTIO Python adapters)")
 set(TLRENDER_API "GL_4_1" CACHE STRING "Graphics API (GL_4_1, GL_4_1_Debug, GLES_2)")
 set(TLRENDER_GLFW TRUE CACHE BOOL "Enable support for GLFW")

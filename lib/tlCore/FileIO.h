@@ -41,14 +41,6 @@ namespace tl
         TLRENDER_ENUM(ReadType);
         TLRENDER_ENUM_SERIALIZE(ReadType);
 
-        //! Default file reading type.
-        constexpr ReadType readTypeDefault =
-#if defined(TLRENDER_MMAP)
-            ReadType::MemoryMapped;
-#else // TLRENDER_MMAP
-            ReadType::Normal;
-#endif // TLRENDER_MMAP
-
         //! Read files from memory.
         struct MemoryRead
         {
@@ -77,7 +69,7 @@ namespace tl
             static std::shared_ptr<FileIO> create(
                 const std::string& fileName,
                 Mode,
-                ReadType = readTypeDefault);
+                ReadType = ReadType::MemoryMapped);
 
             //! Create a read-only file I/O object from memory.
             static std::shared_ptr<FileIO> create(

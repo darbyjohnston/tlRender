@@ -24,7 +24,6 @@ project(
 #-------------------------------------------------------------------------------
 # Build options
 
-set(TLRENDER_MMAP TRUE CACHE BOOL "Enable memory-mapped file I/O")
 set(TLRENDER_PYTHON FALSE CACHE BOOL "Enable Python support (for OTIO Python adapters)")
 set(TLRENDER_API "GL_4_1" CACHE STRING "Graphics API (GL_4_1, GL_4_1_Debug, GLES_2)")
 set(TLRENDER_GLFW TRUE CACHE BOOL "Enable support for GLFW")
@@ -59,9 +58,6 @@ set(TLRENDER_GPROF FALSE CACHE BOOL "Enable gprof code profiling")
 list(PREPEND CMAKE_MODULE_PATH
     ${PROJECT_SOURCE_DIR}/cmake/Modules)
 
-if(TLRENDER_MMAP)
-    add_definitions(-DTLRENDER_MMAP)
-endif()
 if(TLRENDER_PYTHON)
     add_definitions(-DTLRENDER_PYTHON)
 endif()
