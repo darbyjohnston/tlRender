@@ -187,7 +187,7 @@ jobs:
     - name: Build tlRender
       run: |
         export DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH
-        bash etc/Linux/macos-build-gha.sh Debug
+        bash etc/macOS/macos-build-gha.sh Debug
 
     - name: Run tests
       run: |
@@ -234,7 +234,7 @@ jobs:
     - name: Build tlRender
       run: |
         export DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH
-        bash etc/Linux/macos-build-gha.sh Release
+        bash etc/macOS/macos-build-gha.sh Release
 
     - name: Package
       run: |
