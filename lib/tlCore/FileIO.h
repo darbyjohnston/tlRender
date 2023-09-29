@@ -29,6 +29,26 @@ namespace tl
         TLRENDER_ENUM(Mode);
         TLRENDER_ENUM_SERIALIZE(Mode);
 
+        //! File reading type.
+        enum class ReadType
+        {
+            Normal,
+            MemoryMapped,
+
+            Count,
+            First = Normal
+        };
+        TLRENDER_ENUM(ReadType);
+        TLRENDER_ENUM_SERIALIZE(ReadType);
+
+        //! Default file reading type.
+        constexpr ReadType readTypeDefault =
+#if defined(TLRENDER_MMAP)
+            ReadType::MemoryMapped;
+#else // TLRENDER_MMAP
+            ReadType::Normal;
+#endif // TLRENDER_MMAP
+
         //! Read files from memory.
         struct MemoryRead
         {
@@ -56,7 +76,8 @@ namespace tl
             //! Create a new file I/O object.
             static std::shared_ptr<FileIO> create(
                 const std::string& fileName,
-                Mode);
+                Mode,
+                ReadType = readTypeDefault);
 
             //! Create a read-only file I/O object from memory.
             static std::shared_ptr<FileIO> create(
@@ -163,7 +184,7 @@ namespace tl
             ///@}
 
         private:
-            void _open(const std::string& fileName, Mode);
+            void _open(const std::string& fileName, Mode, ReadType);
             bool _close(std::string* error = nullptr);
 
             TLRENDER_PRIVATE();

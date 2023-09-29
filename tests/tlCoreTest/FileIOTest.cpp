@@ -72,28 +72,31 @@ namespace tl
                 io->writeF32(f);
                 io.reset();
 
-                io = FileIO::create(fileName, Mode::Read);
-                int8_t   _i8 = 0;
-                uint8_t  _u8 = 0;
-                int16_t  _i16 = 0;
-                uint16_t _u16 = 0;
-                int32_t  _i32 = 0;
-                uint32_t _u32 = 0;
-                float    _f = 0.F;
-                io->read8(&_i8);
-                io->readU8(&_u8);
-                io->read16(&_i16);
-                io->readU16(&_u16);
-                io->read32(&_i32);
-                io->readU32(&_u32);
-                io->readF32(&_f);
-                TLRENDER_ASSERT(i8 == _i8);
-                TLRENDER_ASSERT(u8 == _u8);
-                TLRENDER_ASSERT(i16 == _i16);
-                TLRENDER_ASSERT(u16 == _u16);
-                TLRENDER_ASSERT(i32 == _i32);
-                TLRENDER_ASSERT(u32 == _u32);
-                TLRENDER_ASSERT(f == _f);
+                for (auto readType : getReadTypeEnums())
+                {
+                    io = FileIO::create(fileName, Mode::Read, readType);
+                    int8_t   _i8 = 0;
+                    uint8_t  _u8 = 0;
+                    int16_t  _i16 = 0;
+                    uint16_t _u16 = 0;
+                    int32_t  _i32 = 0;
+                    uint32_t _u32 = 0;
+                    float    _f = 0.F;
+                    io->read8(&_i8);
+                    io->readU8(&_u8);
+                    io->read16(&_i16);
+                    io->readU16(&_u16);
+                    io->read32(&_i32);
+                    io->readU32(&_u32);
+                    io->readF32(&_f);
+                    TLRENDER_ASSERT(i8 == _i8);
+                    TLRENDER_ASSERT(u8 == _u8);
+                    TLRENDER_ASSERT(i16 == _i16);
+                    TLRENDER_ASSERT(u16 == _u16);
+                    TLRENDER_ASSERT(i32 == _i32);
+                    TLRENDER_ASSERT(u32 == _u32);
+                    TLRENDER_ASSERT(f == _f);
+                }
             }
             {
                 auto io = FileIO::create("大平原", Mode::Write);
@@ -114,12 +117,15 @@ namespace tl
                 io->write(_text2);
                 io.reset();
 
-                io = FileIO::create(fileName, Mode::Read);
-                std::string buf = readContents(io);
-                _print(buf);
-                TLRENDER_ASSERT((_text + " " + _text2) == buf);
-                io->setPos(0);
-                TLRENDER_ASSERT(0 == io->getPos());
+                for (auto readType : getReadTypeEnums())
+                {
+                    io = FileIO::create(fileName, Mode::Read, readType);
+                    std::string buf = readContents(io);
+                    _print(buf);
+                    TLRENDER_ASSERT((_text + " " + _text2) == buf);
+                    io->setPos(0);
+                    TLRENDER_ASSERT(0 == io->getPos());
+                }
             }
             {
                 const std::string fileName = Path(createTempDir(), _fileName).get();
@@ -130,14 +136,17 @@ namespace tl
                         _text + " " + _text2
                     });
 
-                auto io = FileIO::create(fileName, Mode::Read);
-                char buf[string::cBufferSize];
-                readWord(io, buf);
-                _print(buf);
-                TLRENDER_ASSERT(_text == buf);
-                readWord(io, buf);
-                _print(buf);
-                TLRENDER_ASSERT(_text2 == buf);
+                for (auto readType : getReadTypeEnums())
+                {
+                    auto io = FileIO::create(fileName, Mode::Read, readType);
+                    char buf[string::cBufferSize];
+                    readWord(io, buf);
+                    _print(buf);
+                    TLRENDER_ASSERT(_text == buf);
+                    readWord(io, buf);
+                    _print(buf);
+                    TLRENDER_ASSERT(_text2 == buf);
+                }
             }
             {
                 const std::string fileName = Path(createTempDir(), _fileName).get();
@@ -145,14 +154,17 @@ namespace tl
                 io->write(_text + "\n" + _text2);
                 io.reset();
 
-                io = FileIO::create(fileName, Mode::Read);
-                char buf[string::cBufferSize];
-                readLine(io, buf);
-                _print(buf);
-                TLRENDER_ASSERT(_text == buf);
-                readLine(io, buf);
-                _print(buf);
-                TLRENDER_ASSERT(_text2 == buf);
+                for (auto readType : getReadTypeEnums())
+                {
+                    io = FileIO::create(fileName, Mode::Read, readType);
+                    char buf[string::cBufferSize];
+                    readLine(io, buf);
+                    _print(buf);
+                    TLRENDER_ASSERT(_text == buf);
+                    readLine(io, buf);
+                    _print(buf);
+                    TLRENDER_ASSERT(_text2 == buf);
+                }
             }
             {
                 const std::string fileName = Path(createTempDir(), _fileName).get();
@@ -186,25 +198,28 @@ namespace tl
                 p[3] = 3;
                 io->writeU32(u32);
                 io.reset();
-                for (auto mode : { Mode::Read, Mode::ReadWrite })
+                for (auto readType : getReadTypeEnums())
                 {
-                    io = FileIO::create(fileName, mode);
-                    io->setEndianConversion(false);
-                    uint32_t _u32 = 0;
-                    io->readU32(&_u32);
-                    uint8_t* p2 = reinterpret_cast<uint8_t*>(&_u32);
-                    TLRENDER_ASSERT(p[0] == p2[3]);
-                    TLRENDER_ASSERT(p[1] == p2[2]);
-                    TLRENDER_ASSERT(p[2] == p2[1]);
-                    TLRENDER_ASSERT(p[3] == p2[0]);
-                    io->setEndianConversion(true);
-                    io->setPos(0);
-                    io->readU32(&_u32);
-                    TLRENDER_ASSERT(p[0] == p2[0]);
-                    TLRENDER_ASSERT(p[1] == p2[1]);
-                    TLRENDER_ASSERT(p[2] == p2[2]);
-                    TLRENDER_ASSERT(p[3] == p2[3]);
-                    io.reset();
+                    for (auto mode : { Mode::Read, Mode::ReadWrite })
+                    {
+                        io = FileIO::create(fileName, mode, readType);
+                        io->setEndianConversion(false);
+                        uint32_t _u32 = 0;
+                        io->readU32(&_u32);
+                        uint8_t* p2 = reinterpret_cast<uint8_t*>(&_u32);
+                        TLRENDER_ASSERT(p[0] == p2[3]);
+                        TLRENDER_ASSERT(p[1] == p2[2]);
+                        TLRENDER_ASSERT(p[2] == p2[1]);
+                        TLRENDER_ASSERT(p[3] == p2[0]);
+                        io->setEndianConversion(true);
+                        io->setPos(0);
+                        io->readU32(&_u32);
+                        TLRENDER_ASSERT(p[0] == p2[0]);
+                        TLRENDER_ASSERT(p[1] == p2[1]);
+                        TLRENDER_ASSERT(p[2] == p2[2]);
+                        TLRENDER_ASSERT(p[3] == p2[3]);
+                        io.reset();
+                    }
                 }
             }
 

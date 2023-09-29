@@ -96,6 +96,7 @@ namespace tl
 
             std::string    fileName;
             Mode           mode = Mode::First;
+            ReadType       readType = ReadType::First;
             size_t         pos = 0;
             size_t         size = 0;
             bool           endianConversion = false;
@@ -122,6 +123,7 @@ namespace tl
             auto out = std::shared_ptr<FileIO>(new FileIO);
             out->_p->fileName = fileName;
             out->_p->mode = Mode::Read;
+            out->_p->readType = ReadType::Normal;
             out->_p->size = memory.size;
             out->_p->memoryStart = memory.p;
             out->_p->memoryEnd = memory.p + memory.size;
@@ -152,7 +154,7 @@ namespace tl
                 {
                     throw std::runtime_error(getErrorMessage(ErrorType::OpenTemp, fileName));
                 }
-                out->_open(fileName, Mode::ReadWrite);
+                out->_open(fileName, Mode::ReadWrite, ReadType::Normal);
             }
             else
             {
@@ -321,7 +323,10 @@ namespace tl
             p.size = std::max(p.pos, p.size);
         }
 
-        void FileIO::_open(const std::string& fileName, Mode mode)
+        void FileIO::_open(
+            const std::string& fileName,
+            Mode mode,
+            ReadType readType)
         {
             TLRENDER_P();
 
@@ -380,6 +385,7 @@ namespace tl
             }
             p.fileName = fileName;
             p.mode = mode;
+            p.readType = readType;
             p.pos = 0;
             struct _stati64 info;
             memset(&info, 0, sizeof(struct _stati64));
@@ -390,9 +396,10 @@ namespace tl
             }
             p.size = info.st_size;
 
-#if defined(TLRENDER_MMAP)
             // Memory mapping.
-            if (Mode::Read == p.mode && p.size > 0)
+            if (ReadType::MemoryMapped == p.readType &&
+                Mode::Read == p.mode &&
+                p.size > 0)
             {
                 p.mMap = CreateFileMapping(p.f, 0, PAGE_READONLY, 0, 0, 0);
                 if (!p.mMap)
@@ -411,7 +418,6 @@ namespace tl
                 p.memoryEnd = p.memoryStart + p.size;
                 p.memoryP = p.memoryStart;
             }
-#endif // TLRENDER_MMAP
         }
 
         bool FileIO::_close(std::string* error)
@@ -422,7 +428,6 @@ namespace tl
 
             p.fileName = std::string();
 
-#if defined(TLRENDER_MMAP)
             if (p.mMap)
             {
                 if (p.memoryStart)
@@ -452,7 +457,6 @@ namespace tl
             }
             p.memoryEnd = nullptr;
             p.memoryP = nullptr;
-#endif // TLRENDER_MMAP
 
             if (p.f != INVALID_HANDLE_VALUE)
             {

@@ -110,6 +110,7 @@ namespace tl
 			
 			std::string    fileName;
 			Mode           mode = Mode::First;
+            ReadType       readType = ReadType::First;
 			size_t         pos = 0;
 			size_t         size = 0;
 			bool           endianConversion = false;
@@ -136,6 +137,7 @@ namespace tl
             auto out = std::shared_ptr<FileIO>(new FileIO);
             out->_p->fileName = fileName;
             out->_p->mode = Mode::Read;
+            out->_p->readType = ReadType::Normal;
             out->_p->size = memory.size;
             out->_p->memoryStart = memory.p;
             out->_p->memoryEnd = memory.p + memory.size;
@@ -168,6 +170,7 @@ namespace tl
 			}
 		    out->_p->fileName = std::string(buf.data());
 			out->_p->mode     = Mode::ReadWrite;
+            out->_p->readType = ReadType::Normal;
 			out->_p->pos      = 0;
 			out->_p->size     = info.st_size;
 			
@@ -336,7 +339,10 @@ namespace tl
 			p.size = std::max(p.pos, p.size);
 		}
 
-		void FileIO::_open(const std::string& fileName, Mode mode)
+		void FileIO::_open(
+            const std::string& fileName,
+            Mode mode,
+            ReadType readType)
 		{
 			TLRENDER_P();
 			
@@ -379,12 +385,14 @@ namespace tl
 			}
 			p.fileName = fileName;
 			p.mode     = mode;
+            p.readType = readType;
 			p.pos      = 0;
 			p.size     = info.st_size;
 
-#if defined(TLRENDER_MMAP)
 			// Memory mapping.
-			if (Mode::Read == p.mode && p.size > 0)
+			if (ReadType::MemoryMapped == p.readType &&
+                Mode::Read == p.mode &&
+                p.size > 0)
 			{
 				p.mMap = mmap(0, p.size, PROT_READ, MAP_SHARED, p.f, 0);
 				madvise(p.mMap, p.size, MADV_SEQUENTIAL | MADV_SEQUENTIAL);
@@ -396,7 +404,6 @@ namespace tl
 				p.memoryEnd   = p.memoryStart + p.size;
 				p.memoryP     = p.memoryStart;
 			}
-#endif // TLRENDER_MMAP
 		}
 
 		bool FileIO::_close(std::string* error)

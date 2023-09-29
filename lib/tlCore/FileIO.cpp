@@ -23,10 +23,19 @@ namespace tl
             "Append");
         TLRENDER_ENUM_SERIALIZE_IMPL(Mode);
 
-        std::shared_ptr<FileIO> FileIO::create(const std::string& fileName, Mode mode)
+        TLRENDER_ENUM_IMPL(
+            ReadType,
+            "Normal",
+            "MemoryMapped");
+        TLRENDER_ENUM_SERIALIZE_IMPL(ReadType);
+
+        std::shared_ptr<FileIO> FileIO::create(
+            const std::string& fileName,
+            Mode mode,
+            ReadType readType)
         {
             auto out = std::shared_ptr<FileIO>(new FileIO);
-            out->_open(fileName, mode);
+            out->_open(fileName, mode, readType);
             return out;
         }
 
