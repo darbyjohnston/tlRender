@@ -278,7 +278,8 @@ jobs:
     - name: Setup environment
       shell: cmd
       run: |
-        echo "$pwd\build\install\bin;$pwd\build\install\lib;$env:path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+        #echo "$pwd\build\install\bin;$pwd\build\install\lib;$env:path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+        echo "$pwd\build\install\bin;$pwd\build\install\lib;$env:path" >> $GITHUB_PATH
         
     - name: Build tlRender
       shell: cmd
