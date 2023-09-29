@@ -276,37 +276,40 @@ jobs:
         submodules: recursive
 
     - name: Setup environment
+      shell: cmd
       run: |
         echo "$pwd\build\install\bin;$pwd\build\install\lib;$env:path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
         
     - name: Build tlRender
+      shell: cmd
       run: |
         mkdir build
         cd build
-        cmake ..\etc\SuperBuild `
-          -DCMAKE_BUILD_TYPE=Debug `
-          -DCMAKE_INSTALL_PREFIX=install `
-          -DCMAKE_PREFIX_PATH=install `
-          -DTLRENDER_MMAP=${{ env.TLRENDER_MMAP }} `
-          -DTLRENDER_PYTHON=${{ env.TLRENDER_PYTHON }} `
-          -DTLRENDER_GLFW=${{ env.TLRENDER_GLFW }} `
-          -DTLRENDER_OCIO=${{ env.TLRENDER_OCIO }} `
-          -DTLRENDER_AUDIO=${{ env.TLRENDER_AUDIO }} `
-          -DTLRENDER_JPEG=${{ env.TLRENDER_JPEG }} `
-          -DTLRENDER_TIFF=${{ env.TLRENDER_TIFF }} `
-          -DTLRENDER_STB=${{ env.TLRENDER_STB }} `
-          -DTLRENDER_PNG=${{ env.TLRENDER_PNG }} `
-          -DTLRENDER_EXR=${{ env.TLRENDER_EXR }} `
-          -DTLRENDER_FFMPEG=${{ env.TLRENDER_FFMPEG }} `
-          -DTLRENDER_NFD=${{ env.TLRENDER_NFD }} `
-          -DTLRENDER_QT5=${{ env.TLRENDER_QT5 }} `
-          -DTLRENDER_PROGRAMS=${{ env.TLRENDER_PROGRAMS }} `
-          -DTLRENDER_EXAMPLES=${{ env.TLRENDER_EXAMPLES }} `
-          -DTLRENDER_TESTS=${{ env.TLRENDER_TESTS }} `
-          -DTLRENDER_GCOV=${{ env.TLRENDER_GCOV }}
+        cmake ..\etc\SuperBuild ^
+          -DCMAKE_BUILD_TYPE=Debug ^
+          -DCMAKE_INSTALL_PREFIX=install ^
+          -DCMAKE_PREFIX_PATH=install ^
+          -DTLRENDER_MMAP=%TLRENDER_MMAP% ^
+          -DTLRENDER_PYTHON=%TLRENDER_PYTHON% ^
+          -DTLRENDER_GLFW=%TLRENDER_GLFW% ^
+          -DTLRENDER_OCIO=%TLRENDER_OCIO% ^
+          -DTLRENDER_AUDIO=%TLRENDER_AUDIO% ^
+          -DTLRENDER_JPEG=%TLRENDER_JPEG% ^
+          -DTLRENDER_TIFF=%TLRENDER_TIFF% ^
+          -DTLRENDER_STB=%TLRENDER_STB% ^
+          -DTLRENDER_PNG=%TLRENDER_PNG% ^
+          -DTLRENDER_EXR=%TLRENDER_EXR% ^
+          -DTLRENDER_FFMPEG=%TLRENDER_FFMPEG% ^
+          -DTLRENDER_NFD=%TLRENDER_NFD% ^
+          -DTLRENDER_QT5=%TLRENDER_QT5% ^
+          -DTLRENDER_PROGRAMS=%TLRENDER_PROGRAMS% ^
+          -DTLRENDER_EXAMPLES=%TLRENDER_EXAMPLES% ^
+          -DTLRENDER_TESTS=%TLRENDER_TESTS% ^
+          -DTLRENDER_GCOV=%TLRENDER_GCOV%
         cmake --build . -j 4 --config Debug
 
     - name: Run tests
+      shell: cmd
       run: |
         cd build
         cd tlRender\src\tlRender-build
