@@ -233,6 +233,12 @@ namespace tl
                 TLRENDER_ASSERT(Box2f(0.F, 1.F, 2.F, 3.F) == Box2f(0.F, 1.F, 2.F, 3.F));
                 TLRENDER_ASSERT(Box2f(0.F, 1.F, 2.F, 3.F) != Box2f(3.F, 2.F, 1.F, 0.F));
             }
+            {
+                const auto b = Box2i(0, 1, 2, 3) * 2.F;
+                TLRENDER_ASSERT(b == Box2i(0, 2, 3, 5));
+                const auto b2 = Box2f(0.F, 1.F, 2.F, 3.F) * 2.F;
+                TLRENDER_ASSERT(b2 == Box2f(0.F, 2.F, 4.F, 6.F));
+            }
         }
 
         void BoxTest::_serialize()

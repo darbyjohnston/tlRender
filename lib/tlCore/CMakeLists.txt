@@ -1,8 +1,8 @@
 set(HEADERS
     Assert.h
     Audio.h
-    AudioConvert.h
     AudioInline.h
+    AudioResample.h
     AudioSystem.h
     Box.h
     BoxInline.h
@@ -67,7 +67,7 @@ set(HEADERS
 set(SOURCE
     Assert.cpp
     Audio.cpp
-    AudioConvert.cpp
+    AudioResample.cpp
     AudioSystem.cpp
     Box.cpp
     Color.cpp

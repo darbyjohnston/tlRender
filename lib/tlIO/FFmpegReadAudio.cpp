@@ -469,7 +469,7 @@ namespace tl
 
         void ReadAudio::bufferCopy(uint8_t* out, size_t sampleCount)
         {
-            audio::copy(_buffer, out, sampleCount);
+            audio::move(_buffer, out, sampleCount);
         }
 
         int ReadAudio::_decode(const otime::RationalTime& currentTime)

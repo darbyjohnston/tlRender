@@ -208,8 +208,8 @@ namespace tl
         //! Get the total sample count from a list of audio data.
         size_t getSampleCount(const std::list<std::shared_ptr<audio::Audio> >&);
 
-        //! Copy audio data.
-        void copy(
+        //! Move audio data.
+        void move(
             std::list<std::shared_ptr<Audio> >& in,
             uint8_t* out,
             size_t byteCount);

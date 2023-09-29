@@ -10,23 +10,23 @@ namespace tl
 {
     namespace audio
     {
-        //! Convert audio data.
-        class AudioConvert
+        //! Resample audio data.
+        class AudioResample
         {
-            TLRENDER_NON_COPYABLE(AudioConvert);
+            TLRENDER_NON_COPYABLE(AudioResample);
 
         protected:
             void _init(
                 const audio::Info& input,
                 const audio::Info& output);
 
-            AudioConvert();
+            AudioResample();
 
         public:
-            ~AudioConvert();
+            ~AudioResample();
 
-            //! Create a new converter.
-            static std::shared_ptr<AudioConvert> create(
+            //! Create a new resampler.
+            static std::shared_ptr<AudioResample> create(
                 const audio::Info& input,
                 const audio::Info& ouput);
 
@@ -36,10 +36,10 @@ namespace tl
             //! Get the output audio information.
             const audio::Info& getOutputInfo() const;
 
-            //! Convert audio data.
-            std::shared_ptr<Audio> convert(const std::shared_ptr<Audio>&);
+            //! Resample audio data.
+            std::shared_ptr<Audio> process(const std::shared_ptr<Audio>&);
 
-            //! Flush the converter.
+            //! Flush any remaining data.
             void flush();
 
         private:

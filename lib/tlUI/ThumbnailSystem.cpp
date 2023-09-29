@@ -12,7 +12,7 @@
 #include <tlGL/GLFWWindow.h>
 #include <tlGL/OffscreenBuffer.h>
 
-#include <tlCore/AudioConvert.h>
+#include <tlCore/AudioResample.h>
 #include <tlCore/LRUCache.h>
 #include <tlCore/StringFormat.h>
 
@@ -715,11 +715,11 @@ namespace tl
                                 auto audioData = read->readAudio(timeRange).get();
                                 if (audioData.audio)
                                 {
-                                    auto convert = audio::AudioConvert::create(
+                                    auto resample = audio::AudioResample::create(
                                         audioData.audio->getInfo(),
                                         audio::Info(1, audio::DataType::F32, audioData.audio->getSampleRate()));
-                                    const auto convertedAudio = convert->convert(audioData.audio);
-                                    mesh = audioMesh(convertedAudio, request->size);
+                                    const auto resampledAudio = resample->process(audioData.audio);
+                                    mesh = audioMesh(resampledAudio, request->size);
                                 }
                             }
                         }

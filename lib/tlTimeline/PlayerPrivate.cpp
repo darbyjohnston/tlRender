@@ -439,23 +439,23 @@ namespace tl
             {
             case Playback::Forward:
             {
-                // Flush the audio converter and buffer when the RtAudio
+                // Flush the audio resampler and buffer when the RtAudio
                 // playback is reset.
                 if (reset)
                 {
-                    if (p->audioThread.convert)
+                    if (p->audioThread.resample)
                     {
-                        p->audioThread.convert->flush();
+                        p->audioThread.resample->flush();
                     }
                     p->audioThread.buffer.clear();
                     p->audioThread.rtAudioCurrentFrame = 0;
                 }
 
-                // Create the audio converter.
-                if (!p->audioThread.convert ||
-                    (p->audioThread.convert && p->audioThread.convert->getInputInfo() != p->ioInfo.audio))
+                // Create the audio resampler.
+                if (!p->audioThread.resample ||
+                    (p->audioThread.resample && p->audioThread.resample->getInputInfo() != p->ioInfo.audio))
                 {
-                    p->audioThread.convert = audio::AudioConvert::create(
+                    p->audioThread.resample = audio::AudioResample::create(
                         p->ioInfo.audio,
                         p->audioThread.info);
                 }
@@ -525,9 +525,9 @@ namespace tl
                             p->ioInfo.audio.channelCount,
                             p->ioInfo.audio.dataType);
 
-                        if (p->audioThread.convert)
+                        if (p->audioThread.resample)
                         {
-                            p->audioThread.buffer.push_back(p->audioThread.convert->convert(tmp));
+                            p->audioThread.buffer.push_back(p->audioThread.resample->process(tmp));
                         }
 
                         offset += size;
@@ -541,7 +541,7 @@ namespace tl
                     }
                 }
 
-                // Copy audio data to RtAudio.
+                // Send audio data to RtAudio.
                 const auto now = std::chrono::steady_clock::now();
                 if (speed == p->timeline->getTimeRange().duration().rate() &&
                     !externalTime &&
@@ -549,7 +549,7 @@ namespace tl
                     now >= muteTimeout &&
                     nFrames <= getSampleCount(p->audioThread.buffer))
                 {
-                    audio::copy(
+                    audio::move(
                         p->audioThread.buffer,
                         reinterpret_cast<uint8_t*>(outputBuffer),
                         nFrames);

@@ -6,7 +6,7 @@
 
 #include <tlTimeline/Player.h>
 
-#include <tlCore/AudioConvert.h>
+#include <tlCore/AudioResample.h>
 #include <tlCore/LRUCache.h>
 
 #if defined(TLRENDER_AUDIO)
@@ -134,7 +134,7 @@ namespace tl
             struct AudioThread
             {
                 audio::Info info;
-                std::shared_ptr<audio::AudioConvert> convert;
+                std::shared_ptr<audio::AudioResample> resample;
                 std::list<std::shared_ptr<audio::Audio> > buffer;
                 std::shared_ptr<audio::Audio> silence;
                 size_t rtAudioCurrentFrame = 0;

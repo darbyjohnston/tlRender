@@ -5,6 +5,7 @@
 #include <tlCoreTest/AudioTest.h>
 
 #include <tlCore/Assert.h>
+#include <tlCore/AudioResample.h>
 #include <tlCore/AudioSystem.h>
 
 #include <cstring>
@@ -33,7 +34,8 @@ namespace tl
             _mix();
             _convert();
             _interleave();
-            _copy();
+            _move();
+            _resample();
         }
 
         void AudioTest::_enums()
@@ -68,6 +70,8 @@ namespace tl
         {
             {
                 const Info info(2, DataType::S16, 44100);
+                TLRENDER_ASSERT(info == info);
+                TLRENDER_ASSERT(info != Info());
                 auto audio = Audio::create(info, 1000);
                 audio->zero();
                 TLRENDER_ASSERT(audio->getInfo() == info);
@@ -350,7 +354,7 @@ namespace tl
             _interleaveT<DataType::F64, double>();
         }
 
-        void AudioTest::_copy()
+        void AudioTest::_move()
         {
             {
                 const Info info(2, DataType::S16, 10);
@@ -366,9 +370,10 @@ namespace tl
                     list.push_back(item);
                 }
 
-                copy(list, data.data(), 10);
+                move(list, data.data(), 10);
 
                 TLRENDER_ASSERT(list.empty());
+                TLRENDER_ASSERT(0 == getSampleCount(list));
                 audio::S16_T* p = reinterpret_cast<audio::S16_T*>(data.data());
                 for (size_t i = 0; i < 10; ++i)
                 {
@@ -390,7 +395,7 @@ namespace tl
                     list.push_back(item);
                 }
 
-                copy(list, data.data(), 10);
+                move(list, data.data(), 10);
 
                 TLRENDER_ASSERT(list.empty());
                 audio::S16_T* p = reinterpret_cast<audio::S16_T*>(data.data());
@@ -420,9 +425,10 @@ namespace tl
                     list.push_back(item);
                 }
 
-                copy(list, data.data(), 10);
+                move(list, data.data(), 10);
 
                 TLRENDER_ASSERT(5 == list.size());
+                TLRENDER_ASSERT(5 == getSampleCount(list));
                 audio::S16_T* p = reinterpret_cast<audio::S16_T*>(data.data());
                 for (size_t i = 0; i < 10; ++i)
                 {
@@ -447,9 +453,10 @@ namespace tl
                     list.push_back(item);
                 }
 
-                copy(list, data.data(), 10);
+                move(list, data.data(), 10);
 
                 TLRENDER_ASSERT(2 == list.size());
+                TLRENDER_ASSERT(6 == getSampleCount(list));
                 TLRENDER_ASSERT(2 == list.front()->getSampleCount());
                 TLRENDER_ASSERT(10 == reinterpret_cast<audio::S16_T*>(list.front()->getData())[0]);
                 TLRENDER_ASSERT(11 == reinterpret_cast<audio::S16_T*>(list.front()->getData())[2]);
@@ -459,6 +466,24 @@ namespace tl
                     TLRENDER_ASSERT(i == p[i * 2]);
                     TLRENDER_ASSERT(i == p[i * 2 + 1]);
                 }
+            }
+        }
+
+        void AudioTest::_resample()
+        {
+            {
+                const Info a(2, DataType::S16, 44100);
+                const Info b(1, DataType::S16, 44100);
+                auto r = AudioResample::create(a, b);
+                TLRENDER_ASSERT(a == r->getInputInfo());
+                TLRENDER_ASSERT(b == r->getOutputInfo());
+                auto in = Audio::create(a, 44100);
+                auto out = r->process(in);
+#if defined(TLRENDER_FFMPEG)
+                TLRENDER_ASSERT(b == out->getInfo());
+                TLRENDER_ASSERT(44100 == out->getSampleCount());
+#endif // TLRENDER_FFMPEG
+                r->flush();
             }
         }
     }

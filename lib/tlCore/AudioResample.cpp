@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlCore/AudioConvert.h>
+#include <tlCore/AudioResample.h>
 
 #if defined(TLRENDER_FFMPEG)
 extern "C"
@@ -34,7 +34,7 @@ namespace tl
 #endif // TLRENDER_FFMPEG
         }
 
-        struct AudioConvert::Private
+        struct AudioResample::Private
         {
             audio::Info inputInfo;
             audio::Info outputInfo;
@@ -43,7 +43,7 @@ namespace tl
 #endif // TLRENDER_FFMPEG
         };
 
-        void AudioConvert::_init(
+        void AudioResample::_init(
             const audio::Info& inputInfo,
             const audio::Info& outputInfo)
         {
@@ -77,11 +77,11 @@ namespace tl
 #endif // TLRENDER_FFMPEG
         }
 
-        AudioConvert::AudioConvert() :
+        AudioResample::AudioResample() :
             _p(new Private())
         {}
 
-        AudioConvert::~AudioConvert()
+        AudioResample::~AudioResample()
         {
             TLRENDER_P();
 #if defined(TLRENDER_FFMPEG)
@@ -92,26 +92,26 @@ namespace tl
 #endif // TLRENDER_FFMPEG
         }
 
-        std::shared_ptr<AudioConvert> AudioConvert::create(
+        std::shared_ptr<AudioResample> AudioResample::create(
             const audio::Info& inputInfo,
             const audio::Info& outputInfo)
         {
-            auto out = std::shared_ptr<AudioConvert>(new AudioConvert);
+            auto out = std::shared_ptr<AudioResample>(new AudioResample);
             out->_init(inputInfo, outputInfo);
             return out;
         }
 
-        const audio::Info& AudioConvert::getInputInfo() const
+        const audio::Info& AudioResample::getInputInfo() const
         {
             return _p->inputInfo;
         }
 
-        const audio::Info& AudioConvert::getOutputInfo() const
+        const audio::Info& AudioResample::getOutputInfo() const
         {
             return _p->outputInfo;
         }
 
-        std::shared_ptr<Audio> AudioConvert::convert(const std::shared_ptr<Audio>& value)
+        std::shared_ptr<Audio> AudioResample::process(const std::shared_ptr<Audio>& value)
         {
             TLRENDER_P();
             std::shared_ptr<Audio> out;
@@ -139,7 +139,7 @@ namespace tl
             return out;
         }
 
-        void AudioConvert::flush()
+        void AudioResample::flush()
         {
             TLRENDER_P();
 #if defined(TLRENDER_FFMPEG)

@@ -382,7 +382,7 @@ namespace tl
             return out;
         }
 
-        void copy(std::list<std::shared_ptr<Audio> >& in, uint8_t* out, size_t sampleCount)
+        void move(std::list<std::shared_ptr<Audio> >& in, uint8_t* out, size_t sampleCount)
         {
             size_t size = 0;
             while (!in.empty() && (size + in.front()->getSampleCount() <= sampleCount))

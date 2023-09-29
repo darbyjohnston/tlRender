@@ -6,7 +6,7 @@
 
 #include <tlDevice/BMDUtil.h>
 
-#include <tlCore/AudioConvert.h>
+#include <tlCore/AudioResample.h>
 #include <tlCore/Context.h>
 #include <tlCore/StringFormat.h>
 
@@ -284,7 +284,7 @@ namespace tl
                 timeline::Playback playback = timeline::Playback::Stop;
                 otime::RationalTime startTime = time::invalidTime;
                 size_t samplesOffset = 0;
-                std::shared_ptr<audio::AudioConvert> convert;
+                std::shared_ptr<audio::AudioResample> resample;
             };
             AudioThread audioThread;
         };
@@ -519,34 +519,34 @@ namespace tl
             //std::cout << "audio start time: " << p.audioThread.startTime << std::endl;
             //std::cout << "audio samples offset: " << p.audioThread.samplesOffset << std::endl;
 
-            // Flush the audio converter and BMD buffer when the playback
+            // Flush the audio resampler and BMD buffer when the playback
             // is reset.
             if (0 == p.audioThread.samplesOffset)
             {
-                if (p.audioThread.convert)
+                if (p.audioThread.resample)
                 {
-                    p.audioThread.convert->flush();
+                    p.audioThread.resample->flush();
                 }
                 p.dlOutput->FlushBufferedAudioSamples();
             }
 
-            // Create the audio converter.
+            // Create the audio resampler.
             audio::Info inputInfo;
             if (!audioDataList.empty() &&
                 !audioDataList[0].layers.empty() &&
                 audioDataList[0].layers[0].audio)
             {
                 inputInfo = audioDataList[0].layers[0].audio->getInfo();
-                if (!p.audioThread.convert ||
-                    (p.audioThread.convert && p.audioThread.convert->getInputInfo() != inputInfo))
+                if (!p.audioThread.resample ||
+                    (p.audioThread.resample && p.audioThread.resample->getInputInfo() != inputInfo))
                 {
-                    p.audioThread.convert = audio::AudioConvert::create(inputInfo, p.audioInfo);
+                    p.audioThread.resample = audio::AudioResample::create(inputInfo, p.audioInfo);
                 }
             }
 
             // Copy audio data to BMD.
             if (timeline::Playback::Forward == p.audioThread.playback &&
-                p.audioThread.convert)
+                p.audioThread.resample)
             {
                 int64_t frame =
                     p.audioThread.startTime.rescaled_to(inputInfo.sampleRate).value() -
@@ -605,10 +605,10 @@ namespace tl
                         inputInfo.channelCount,
                         inputInfo.dataType);
 
-                    auto convertedAudio = p.audioThread.convert->convert(tmpAudio);
+                    auto resampledAudio = p.audioThread.resample->process(tmpAudio);
                     p.dlOutput->ScheduleAudioSamples(
-                        convertedAudio->getData(),
-                        convertedAudio->getSampleCount(),
+                        resampledAudio->getData(),
+                        resampledAudio->getSampleCount(),
                         0,
                         0,
                         nullptr);
