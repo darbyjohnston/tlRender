@@ -27,11 +27,22 @@ namespace tl
 
         void TextureTest::run()
         {
-            auto window = GLFWWindow::create(
-                "TextureTest",
-                math::Size2i(1, 1),
-                _context,
-                static_cast<int>(GLFWWindowOptions::MakeCurrent));
+            std::shared_ptr<GLFWWindow> window;
+            try
+            {
+                window = GLFWWindow::create(
+                    "TextureTest",
+                    math::Size2i(1, 1),
+                    _context,
+                    static_cast<int>(GLFWWindowOptions::MakeCurrent));
+            }
+            catch (const std::exception& e)
+            {
+                _printError(e.what());
+            }
+            if (window)
+            {
+            }
         }
     }
 }

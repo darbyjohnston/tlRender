@@ -27,14 +27,25 @@ namespace tl
 
         void MeshTest::run()
         {
-            auto window = GLFWWindow::create(
-                "MeshTest",
-                math::Size2i(1, 1),
-                _context,
-                static_cast<int>(GLFWWindowOptions::MakeCurrent));
-            _enums();
-            _convert();
-            _mesh();
+            std::shared_ptr<GLFWWindow> window;
+            try
+            {
+                window = GLFWWindow::create(
+                    "MeshTest",
+                    math::Size2i(1, 1),
+                    _context,
+                    static_cast<int>(GLFWWindowOptions::MakeCurrent));
+            }
+            catch (const std::exception& e)
+            {
+                _printError(e.what());
+            }
+            if (window)
+            {
+                _enums();
+                _convert();
+                _mesh();
+            }
         }
 
         void MeshTest::_enums()
