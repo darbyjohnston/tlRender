@@ -309,6 +309,12 @@ namespace tl
             glfwSwapBuffers(_p->glfwWindow);
         }
 
+        void GLFWWindow::setSizeCallback(
+            const std::function<void(const math::Size2i)>& value)
+        {
+            _p->sizeCallback = value;
+        }
+
         void GLFWWindow::setFrameBufferSizeCallback(
             const std::function<void(const math::Size2i)>& value)
         {
