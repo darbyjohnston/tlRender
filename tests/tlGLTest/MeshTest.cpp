@@ -27,11 +27,11 @@ namespace tl
 
         void MeshTest::run()
         {
-            auto window = gl::GLFWWindow::create(
-                "gl_tests::MeshTest",
+            auto window = GLFWWindow::create(
+                "MeshTest",
                 math::Size2i(1, 1),
                 _context,
-                static_cast<int>(gl::GLFWWindowOptions::MakeCurrent));
+                static_cast<int>(GLFWWindowOptions::MakeCurrent));
             _enums();
             _convert();
             _mesh();
@@ -68,24 +68,56 @@ namespace tl
                     VBOType::Pos3_F32_Color_U8
                 })
             {
-                auto data = convert(geom::sphere(10.F, 10, 10), type);
+                auto mesh = geom::sphere(10.F, 10, 10);
+                auto data = convert(mesh, type);
                 TLRENDER_ASSERT(!data.empty());
             }
         }
 
         void MeshTest::_mesh()
         {
-            auto vbo = VBO::create(4, VBOType::Pos2_F32);
-            TLRENDER_ASSERT(4 == vbo->getSize());
-            TLRENDER_ASSERT(VBOType::Pos2_F32 == vbo->getType());
-            TLRENDER_ASSERT(vbo->getID());
-            auto mesh = geom::box(math::Box2f(0.F, 1.F, 2.F, 3.F));
-            auto data = convert(mesh, VBOType::Pos2_F32);
-            vbo->copy(data);
-            auto vao = VAO::create(VBOType::Pos2_F32, vbo->getID());
-            TLRENDER_ASSERT(vao->getID());
-            vao->bind();
-            vao->draw(GL_TRIANGLES, 0, 4);
+            for (auto type : {
+                    VBOType::Pos2_F32,
+                    VBOType::Pos2_F32_UV_U16,
+                    VBOType::Pos2_F32_Color_F32
+                })
+            {
+                auto mesh = geom::box(math::Box2f(0.F, 1.F, 2.F, 3.F));
+                auto data = convert(mesh, type);
+                auto vbo = VBO::create(mesh.v.size(), type);
+                TLRENDER_ASSERT(mesh.v.size() == vbo->getSize());
+                TLRENDER_ASSERT(type == vbo->getType());
+                TLRENDER_ASSERT(vbo->getID());
+                vbo->copy(data);
+                vbo->copy(data, 0, 1);
+                auto vao = VAO::create(type, vbo->getID());
+                TLRENDER_ASSERT(vao->getID());
+                vao->bind();
+                vao->draw(GL_TRIANGLES, 0, vbo->getSize());
+            }
+            for (auto type : {
+                    VBOType::Pos3_F32,
+                    VBOType::Pos3_F32_UV_U16,
+                    VBOType::Pos3_F32_UV_U16_Normal_U10,
+                    VBOType::Pos3_F32_UV_U16_Normal_U10_Color_U8,
+                    VBOType::Pos3_F32_UV_F32_Normal_F32,
+                    VBOType::Pos3_F32_UV_F32_Normal_F32_Color_F32,
+                    VBOType::Pos3_F32_Color_U8
+                })
+            {
+                auto mesh = geom::sphere(10.F, 10, 10);
+                auto data = convert(mesh, type);
+                auto vbo = VBO::create(mesh.v.size(), type);
+                TLRENDER_ASSERT(mesh.v.size() == vbo->getSize());
+                TLRENDER_ASSERT(type == vbo->getType());
+                TLRENDER_ASSERT(vbo->getID());
+                vbo->copy(data);
+                vbo->copy(data, 0, 1);
+                auto vao = VAO::create(type, vbo->getID());
+                TLRENDER_ASSERT(vao->getID());
+                vao->bind();
+                vao->draw(GL_TRIANGLES, 0, vbo->getSize());
+            }
         }
     }
 }

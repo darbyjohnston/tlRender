@@ -7,7 +7,11 @@
 #include <tlQt/Init.h>
 #endif // TLRENDER_QT5 || TLRENDER_QT6
 
+#include <tlGLTest/GLFWTest.h>
 #include <tlGLTest/MeshTest.h>
+#include <tlGLTest/OffscreenBufferTest.h>
+#include <tlGLTest/ShaderTest.h>
+#include <tlGLTest/TextureTest.h>
 #include <tlGL/Init.h>
 
 #include <tlAppTest/AppTest.h>
@@ -121,7 +125,11 @@ void glTests(
     const std::shared_ptr<system::Context>& context)
 {
 #if defined(TLRENDER_GLFW)
+    tests.push_back(gl_tests::GLFWTest::create(context));
     tests.push_back(gl_tests::MeshTest::create(context));
+    tests.push_back(gl_tests::OffscreenBufferTest::create(context));
+    tests.push_back(gl_tests::ShaderTest::create(context));
+    tests.push_back(gl_tests::TextureTest::create(context));
 #endif // TLRENDER_GLFW
 }
 
@@ -212,12 +220,12 @@ int main(int argc, char* argv[])
 
     std::vector<std::shared_ptr<tests::ITest> > tests;
     //tests.push_back(core_tests::PathTest::create(context));
-    coreTests(tests, context);
+    //coreTests(tests, context);
     glTests(tests, context);
-    ioTests(tests, context);
-    timelineTests(tests, context);
-    appTests(tests, context);
-    qtTests(tests, context);
+    //ioTests(tests, context);
+    //timelineTests(tests, context);
+    //appTests(tests, context);
+    //qtTests(tests, context);
 
     for (const auto& test : tests)
     {

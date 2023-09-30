@@ -1,8 +1,16 @@
 set(HEADERS
-    MeshTest.h)
+    GLFWTest.h
+    MeshTest.h
+    OffscreenBufferTest.h
+    ShaderTest.h
+    TextureTest.h)
 
 set(SOURCE
-    MeshTest.cpp)
+    GLFWTest.cpp
+    MeshTest.cpp
+    OffscreenBufferTest.cpp
+    ShaderTest.cpp
+    TextureTest.cpp)
 
 add_library(tlGLTest ${SOURCE} ${HEADERS})
 target_link_libraries(tlGLTest tlTestLib tlGL)
