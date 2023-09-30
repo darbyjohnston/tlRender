@@ -6,7 +6,10 @@ namespace tl
 {
     namespace geom
     {
-        inline Vertex2::Vertex2()
+        inline Vertex2::Vertex2() :
+            v(0),
+            t(0),
+            c(0)
         {}
 
         inline Vertex2::Vertex2(size_t v, size_t t, size_t c) :
@@ -15,7 +18,11 @@ namespace tl
             c(c)
         {}
 
-        inline Vertex3::Vertex3()
+        inline Vertex3::Vertex3() :
+            v(0),
+            t(0),
+            n(0),
+            c(0)
         {}
 
         inline Vertex3::Vertex3(size_t v, size_t t, size_t n, size_t c) :

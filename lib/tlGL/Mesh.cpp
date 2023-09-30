@@ -6,8 +6,10 @@
 
 #include <tlGL/GL.h>
 
+#include <tlCore/Error.h>
 #include <tlCore/Math.h>
 #include <tlCore/Mesh.h>
+#include <tlCore/String.h>
 
 #include <array>
 
@@ -15,6 +17,20 @@ namespace tl
 {
     namespace gl
     {
+        TLRENDER_ENUM_IMPL(
+            VBOType,
+            "Pos2_F32",
+            "Pos2_F32_UV_U16",
+            "Pos2_F32_Color_F32",
+            "Pos3_F32",
+            "Pos3_F32_UV_U16",
+            "Pos3_F32_UV_U16_Normal_U10",
+            "Pos3_F32_UV_U16_Normal_U10_Color_U8",
+            "Pos3_F32_UV_F32_Normal_F32",
+            "Pos3_F32_UV_F32_Normal_F32_Color_F32",
+            "Pos3_F32_Color_U8");
+        TLRENDER_ENUM_SERIALIZE_IMPL(VBOType);
+
         namespace
         {
             struct PackedNormal

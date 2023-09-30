@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlCore/Mesh.h>
 #include <tlCore/Range.h>
 #include <tlCore/Util.h>
 
@@ -37,6 +38,8 @@ namespace tl
             Count,
             First = Pos2_F32
         };
+        TLRENDER_ENUM(VBOType);
+        TLRENDER_ENUM_SERIALIZE(VBOType);
 
         //! Get the number of bytes used to store vertex buffer object types.
         std::size_t getByteCount(VBOType);
@@ -44,13 +47,13 @@ namespace tl
         //! Convert a triangle mesh to vertex buffer data.
         std::vector<uint8_t> convert(
             const geom::TriangleMesh2& mesh,
-            gl::VBOType                type,
-            const math::SizeTRange&    range);
+            gl::VBOType                type);
 
         //! Convert a triangle mesh to vertex buffer data.
         std::vector<uint8_t> convert(
             const geom::TriangleMesh2& mesh,
-            gl::VBOType                type);
+            gl::VBOType                type,
+            const math::SizeTRange& range);
 
         //! Convert a triangle mesh to vertex buffer data.
         std::vector<uint8_t> convert(
