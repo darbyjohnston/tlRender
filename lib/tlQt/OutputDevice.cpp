@@ -606,7 +606,7 @@ namespace tl
                     {
                         const math::Size2i renderSize = timeline::getRenderSize(_p->compareOptions.mode, sizes);
                         gl::OffscreenBufferOptions offscreenBufferOptions;
-                        offscreenBufferOptions.colorType = gl::OffscreenColorDefault;
+                        offscreenBufferOptions.colorType = gl::offscreenColorDefault;
                         if (!displayOptions.empty())
                         {
                             offscreenBufferOptions.colorFilters = displayOptions[0].imageFilters;

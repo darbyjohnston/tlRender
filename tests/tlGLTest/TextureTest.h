@@ -19,6 +19,9 @@ namespace tl
             static std::shared_ptr<TextureTest> create(const std::shared_ptr<system::Context>&);
 
             void run() override;
+
+        private:
+            void _texture();
         };
     }
 }

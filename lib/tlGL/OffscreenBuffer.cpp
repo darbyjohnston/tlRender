@@ -7,6 +7,9 @@
 #include <tlGL/GL.h>
 #include <tlGL/Texture.h>
 
+#include <tlCore/Error.h>
+#include <tlCore/String.h>
+
 #include <array>
 #include <sstream>
 
@@ -14,6 +17,29 @@ namespace tl
 {
     namespace gl
     {
+        TLRENDER_ENUM_IMPL(
+            OffscreenDepth,
+            "None",
+            "16",
+            "24",
+            "32");
+        TLRENDER_ENUM_SERIALIZE_IMPL(OffscreenDepth);
+
+        TLRENDER_ENUM_IMPL(
+            OffscreenStencil,
+            "None",
+            "8");
+        TLRENDER_ENUM_SERIALIZE_IMPL(OffscreenStencil);
+
+        TLRENDER_ENUM_IMPL(
+            OffscreenSampling,
+            "None",
+            "2",
+            "4",
+            "8",
+            "16");
+        TLRENDER_ENUM_SERIALIZE_IMPL(OffscreenSampling);
+
         namespace
         {
             enum class Error

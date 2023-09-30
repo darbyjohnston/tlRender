@@ -282,7 +282,7 @@ namespace tl
                     // The data has been added to the atlas.
                     p.id = p.id + 1;
                     node->id = p.id;
-                    p.textures[node->textureIndex]->copy(*image, node->box.min.x + p.border, node->box.min.y + p.border);
+                    p.textures[node->textureIndex]->copy(image, node->box.min.x + p.border, node->box.min.y + p.border);
                     p.cache[node->id] = node;
                     p.toTextureAtlasItem(node, out);
                     return node->id;
@@ -331,7 +331,7 @@ namespace tl
                         //p.textures[node2->texture]->copy(zero, node2->box.min);
 
                         p.textures[node2->textureIndex]->copy(
-                            *image,
+                            image,
                             node2->box.min.x + p.border,
                             node2->box.min.y + p.border);
                         p.cache[node2->id] = node2;

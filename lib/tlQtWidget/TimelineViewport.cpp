@@ -355,7 +355,7 @@ namespace tl
                 if (viewportSize.isValid())
                 {
                     gl::OffscreenBufferOptions offscreenBufferOptions;
-                    offscreenBufferOptions.colorType = gl::OffscreenColorDefault;
+                    offscreenBufferOptions.colorType = gl::offscreenColorDefault;
                     if (!p.displayOptions.empty())
                     {
                         offscreenBufferOptions.colorFilters = p.displayOptions[0].imageFilters;

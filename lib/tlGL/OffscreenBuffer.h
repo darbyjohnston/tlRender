@@ -15,9 +15,9 @@ namespace tl
     {
         //! Default offscreen buffer color type.
 #if defined(TLRENDER_API_GL_4_1)
-        const image::PixelType OffscreenColorDefault = image::PixelType::RGBA_F32;
+        const image::PixelType offscreenColorDefault = image::PixelType::RGBA_F32;
 #elif defined(TLRENDER_API_GLES_2)
-        const image::PixelType OffscreenColorDefault = image::PixelType::RGBA_U8;
+        const image::PixelType offscreenColorDefault = image::PixelType::RGBA_U8;
 #endif // TLRENDER_API_GL_4_1
 
         //! Offscreen buffer depth size.
@@ -31,12 +31,14 @@ namespace tl
             Count,
             First = None
         };
+        TLRENDER_ENUM(OffscreenDepth);
+        TLRENDER_ENUM_SERIALIZE(OffscreenDepth);
 
         //! Default offscreen buffer color type.
 #if defined(TLRENDER_API_GL_4_1)
-        const OffscreenDepth OffscreenDepthDefault = OffscreenDepth::_16;
+        const OffscreenDepth offscreenDepthDefault = OffscreenDepth::_16;
 #elif defined(TLRENDER_API_GLES_2)
-        const OffscreenDepth OffscreenDepthDefault = OffscreenDepth::_24;
+        const OffscreenDepth offscreenDepthDefault = OffscreenDepth::_24;
 #endif // TLRENDER_API_GL_4_1
 
         //! Offscreen buffer stencil size.
@@ -48,6 +50,8 @@ namespace tl
             Count,
             First = None
         };
+        TLRENDER_ENUM(OffscreenStencil);
+        TLRENDER_ENUM_SERIALIZE(OffscreenStencil);
 
         //! Offscreen buffer multisampling.
         enum class OffscreenSampling
@@ -61,6 +65,8 @@ namespace tl
             Count,
             First = None
         };
+        TLRENDER_ENUM(OffscreenSampling);
+        TLRENDER_ENUM_SERIALIZE(OffscreenSampling);
 
         //! Offscreen buffer options.
         struct OffscreenBufferOptions

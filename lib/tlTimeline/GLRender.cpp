@@ -125,7 +125,7 @@ namespace tl
             }
             default:
                 glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                textures[0]->copy(*image);
+                textures[0]->copy(image);
                 break;
             }
         }

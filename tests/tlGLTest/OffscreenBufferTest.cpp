@@ -27,21 +27,71 @@ namespace tl
 
         void OffscreenBufferTest::run()
         {
-            auto window = GLFWWindow::create(
-                "OffscreenBufferTest",
-                math::Size2i(1, 1),
-                _context,
-                static_cast<int>(GLFWWindowOptions::MakeCurrent));
-            _enums();
-            _buffer();
+            std::shared_ptr<GLFWWindow> window;
+            try
+            {
+                window = GLFWWindow::create(
+                    "OffscreenBufferTest",
+                    math::Size2i(1, 1),
+                    _context,
+                    static_cast<int>(GLFWWindowOptions::MakeCurrent));
+            }
+            catch (const std::exception& e)
+            {
+                _printError(e.what());
+            }
+            if (window)
+            {
+                _enums();
+                _buffer();
+            }
         }
 
         void OffscreenBufferTest::_enums()
         {
+            _enum<OffscreenDepth>("OffscreenDepth", getOffscreenDepthEnums);
+            _enum<OffscreenStencil>("OffscreenStencil", getOffscreenStencilEnums);
+            _enum<OffscreenSampling>("OffscreenSampling", getOffscreenSamplingEnums);
         }
 
         void OffscreenBufferTest::_buffer()
         {
+            {
+                OffscreenBufferOptions options;
+                options.colorType = offscreenColorDefault;
+                TLRENDER_ASSERT(options == options);
+                TLRENDER_ASSERT(options != OffscreenBufferOptions());
+            }
+            {
+                OffscreenBufferOptions options;
+                options.colorType = offscreenColorDefault;
+                options.depth = OffscreenDepth::_24;
+                options.stencil = OffscreenStencil::_8;
+                options.sampling = OffscreenSampling::None;
+                const math::Size2i size(100, 200);
+                auto buffer = OffscreenBuffer::create(size, options);
+                TLRENDER_ASSERT(buffer->getSize() == size);
+                TLRENDER_ASSERT(buffer->getWidth() == size.w);
+                TLRENDER_ASSERT(buffer->getHeight() == size.h);
+                TLRENDER_ASSERT(buffer->getOptions() == options);
+                TLRENDER_ASSERT(buffer->getID());
+                TLRENDER_ASSERT(buffer->getColorID());
+                buffer->bind();
+            }
+            {
+                OffscreenBufferOptions options;
+                options.colorType = offscreenColorDefault;
+                options.sampling = OffscreenSampling::_2;
+                const math::Size2i size(100, 200);
+                auto buffer = OffscreenBuffer::create(size, options);
+                TLRENDER_ASSERT(buffer->getSize() == size);
+                TLRENDER_ASSERT(buffer->getWidth() == size.w);
+                TLRENDER_ASSERT(buffer->getHeight() == size.h);
+                TLRENDER_ASSERT(buffer->getOptions() == options);
+                TLRENDER_ASSERT(buffer->getID());
+                TLRENDER_ASSERT(buffer->getColorID());
+                buffer->bind();
+            }
         }
     }
 }

@@ -313,7 +313,7 @@ namespace tl
 
                 const math::Size2i size = g.getSize();
                 gl::OffscreenBufferOptions options;
-                options.colorType = gl::OffscreenColorDefault;
+                options.colorType = gl::offscreenColorDefault;
 #if defined(TLRENDER_API_GL_4_1)
                 options.depth = gl::OffscreenDepth::_24;
                 options.stencil = gl::OffscreenStencil::_8;

@@ -42,6 +42,34 @@ namespace tl
             }
             if (window)
             {
+                _texture();
+            }
+        }
+
+        void TextureTest::_texture()
+        {
+            {
+                TextureOptions options;
+                options.pbo = true;
+                TLRENDER_ASSERT(options == options);
+                TLRENDER_ASSERT(options != TextureOptions());
+            }
+            {
+                const image::Info info(100, 200, image::PixelType::RGBA_U8);
+                TextureOptions options;
+                auto texture = Texture::create(info, options);
+                TLRENDER_ASSERT(texture->getID());
+                TLRENDER_ASSERT(texture->getInfo() == info);
+                TLRENDER_ASSERT(texture->getSize() == info.size);
+                TLRENDER_ASSERT(texture->getWidth() == info.size.w);
+                TLRENDER_ASSERT(texture->getHeight() == info.size.h);
+                TLRENDER_ASSERT(texture->getPixelType() == info.pixelType);
+                auto image = image::Image::create(info);
+                texture->copy(image);
+                auto image2 = image::Image::create(50, 100, image::PixelType::RGBA_U8);
+                texture->copy(image2, 50, 100);
+                texture->copy(image->getData(), info);
+                texture->bind();
             }
         }
     }

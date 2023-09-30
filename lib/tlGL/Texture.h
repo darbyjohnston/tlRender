@@ -26,6 +26,9 @@ namespace tl
         {
             timeline::ImageFilters filters;
             bool pbo = false;
+
+            bool operator == (const TextureOptions&) const;
+            bool operator != (const TextureOptions&) const;
         };
 
         //! Get the OpenGL texture filter.
@@ -60,6 +63,12 @@ namespace tl
             //! Get the size.
             const image::Size& getSize() const;
 
+            //! Get the width.
+            int getWidth() const;
+
+            //! Get the height.
+            int getHeight() const;
+
             //! Get the pixel type.
             image::PixelType getPixelType() const;
 
@@ -67,9 +76,9 @@ namespace tl
             //! Copy image data to the texture.
             ///@{
 
-            void copy(const image::Image&);
+            void copy(const std::shared_ptr<image::Image>&);
+            void copy(const std::shared_ptr<image::Image>&, int x, int y);
             void copy(const uint8_t*, const image::Info&);
-            void copy(const image::Image&, uint16_t x, uint16_t y);
 
             ///@}
 
