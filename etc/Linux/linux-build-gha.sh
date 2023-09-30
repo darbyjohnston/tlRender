@@ -15,7 +15,7 @@ fi
 
 # Install OpenGL support
 sudo apt-get install xorg-dev libglu1-mesa-dev mesa-common-dev mesa-utils xvfb
-xvfb-run glxinfo
+glxinfo
 
 # Install ALSA and PulseAudio support
 if [[ $TLRENDER_AUDIO = "ON" ]]
