@@ -49,6 +49,7 @@ namespace tl
                 
                 void tick() override
                 {
+                    ISystem::tick();
                     std::stringstream ss;
                     ss << "Tick: " << _ticks;
                     _log(ss.str());

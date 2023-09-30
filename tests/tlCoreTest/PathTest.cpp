@@ -28,6 +28,22 @@ namespace tl
 
         void PathTest::run()
         {
+            _enums();
+            _path();
+            _util();
+        }
+
+        void PathTest::_enums()
+        {
+            _enum<UserPath>("UserPath", getUserPathEnums);
+            for (auto i : getUserPathEnums())
+            {
+                _print(string::Format("{0}: {1}").arg(getLabel(i)).arg(getUserPath(i)));
+            }
+        }
+
+        void PathTest::_path()
+        {
             {
                 PathOptions a;
                 PathOptions b;
@@ -138,9 +154,32 @@ namespace tl
                 b = Path("/tmp");
                 TLRENDER_ASSERT(a != b);
             }
+        }
+
+        void PathTest::_util()
+        {
             {
-                const auto drives = getDrives();
-                _print(string::Format("Drives: {0}").arg(string::join(drives, ", ")));
+                TLRENDER_ASSERT(isPathSeparator('/'));
+                TLRENDER_ASSERT(isPathSeparator('\\'));
+            }
+            {
+                std::string path = appendSeparator(std::string());
+                TLRENDER_ASSERT(path.empty());
+                path = appendSeparator(std::string("/"));
+                TLRENDER_ASSERT("/" == path);
+                TLRENDER_ASSERT("/tmp/" == appendSeparator(std::string("/tmp")));
+                TLRENDER_ASSERT("/tmp/" == appendSeparator(std::string("/tmp/")));
+            }
+            {
+                std::string path = getParent("/usr/tmp");
+                TLRENDER_ASSERT("/usr" == path);
+                path = getParent("/tmp");
+                TLRENDER_ASSERT("/" == path);
+                path = getParent("a/b");
+                TLRENDER_ASSERT("a" == path);
+            }
+            {
+                _print(string::Format("Drives: {0}").arg(string::join(getDrives(), " ")));
             }
         }
     }

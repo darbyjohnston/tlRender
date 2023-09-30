@@ -39,6 +39,7 @@ namespace tl
         void FileIOTest::_enums()
         {
             _enum<Mode>("Mode", getModeEnums);
+            _enum<ReadType>("ReadType", getReadTypeEnums);
         }
         
         void FileIOTest::_tests()

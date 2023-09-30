@@ -233,7 +233,7 @@ namespace tl
                 startSeparator = value[0];
             }
             auto v = string::split(value, pathSeparators);
-            if (v.size() > 1)
+            if (startSeparator || v.size() > 1)
             {
                 v.pop_back();
             }

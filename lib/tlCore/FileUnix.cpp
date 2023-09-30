@@ -30,6 +30,11 @@ namespace tl
 			memset(&info, 0, sizeof(_STAT));
 			return 0 == _STAT_FNC(fileName.c_str(), &info);
 		}
+        
+        bool rm(const std::string& fileName)
+        {
+            return 0 == ::remove(fileName.c_str());
+        }
 
         bool mkdir(const std::string& fileName)
         {
@@ -39,11 +44,6 @@ namespace tl
         bool rmdir(const std::string& fileName)
         {
             return 0 == ::rmdir(fileName.c_str());
-        }
-        
-        bool rm(const std::string& fileName)
-        {
-            return 0 == ::remove(fileName.c_str());
         }
 
         std::string getCWD()

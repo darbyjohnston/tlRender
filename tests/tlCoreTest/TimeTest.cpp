@@ -5,7 +5,9 @@
 #include <tlCoreTest/TimeTest.h>
 
 #include <tlCore/Assert.h>
+#include <tlCore/StringFormat.h>
 #include <tlCore/Time.h>
+#include <tlCore/Timer.h>
 
 #include <sstream>
 
@@ -31,6 +33,7 @@ namespace tl
             _util();
             _keycode();
             _timecode();
+            _timer();
             _serialize();
         }
         
@@ -73,6 +76,14 @@ namespace tl
                     otime::RationalTime(1.0, 1.0));
                 TLRENDER_ASSERT(a == b);
                 TLRENDER_ASSERT(!compareExact(a, b));
+            }
+            {
+                TLRENDER_ASSERT(round(otime::RationalTime(0.5, 1.0)) ==
+                    otime::RationalTime(1.0, 1.0));
+                TLRENDER_ASSERT(floor(otime::RationalTime(0.5, 1.0)) ==
+                    otime::RationalTime(0.0, 1.0));
+                TLRENDER_ASSERT(ceil(otime::RationalTime(0.5, 1.0)) ==
+                    otime::RationalTime(1.0, 1.0));
             }
         }
         
@@ -320,6 +331,45 @@ namespace tl
             }
             catch (const std::exception&)
             {}
+        }
+
+        void TimeTest::_timer()
+        {
+            auto timer = Timer::create(_context);
+            TLRENDER_ASSERT(!timer->isRepeating());
+            timer->setRepeating(true);
+            TLRENDER_ASSERT(timer->isRepeating());
+            size_t count = 0;
+            timer->start(
+                std::chrono::milliseconds(100),
+                [this, timer, &count]
+                {
+                    _print(string::Format("Timeout: {0}").arg(count));
+                    ++count;
+                    if (3 == count)
+                    {
+                        timer->stop();
+                    }
+                });
+            TLRENDER_ASSERT(timer->isActive());
+            TLRENDER_ASSERT(std::chrono::milliseconds(100) == timer->getTimeout());
+            while (timer->isActive())
+            {
+                _context->tick();
+            }
+            timer->setRepeating(false);
+            timer->start(
+                std::chrono::milliseconds(100),
+                [this](
+                    const std::chrono::steady_clock::time_point&,
+                    const std::chrono::microseconds& ms)
+                {
+                    _print(string::Format("Timeout: {0} microseconds").arg(ms.count()));
+                });
+            while (timer->isActive())
+            {
+                _context->tick();
+            }
         }
 
         void TimeTest::_serialize()

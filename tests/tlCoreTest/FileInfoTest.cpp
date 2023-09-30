@@ -5,6 +5,7 @@
 #include <tlCoreTest/FileInfoTest.h>
 
 #include <tlCore/Assert.h>
+#include <tlCore/File.h>
 #include <tlCore/FileIO.h>
 #include <tlCore/FileInfo.h>
 
@@ -29,15 +30,18 @@ namespace tl
         void FileInfoTest::run()
         {
             _enums();
-            _tests();
+            _ctors();
+            _list();
+            _serialize();
         }
 
         void FileInfoTest::_enums()
         {
             _enum<Type>("Type", getTypeEnums);
+            _enum<ListSort>("ListSort", getListSortEnums);
         }
 
-        void FileInfoTest::_tests()
+        void FileInfoTest::_ctors()
         {
             {
                 const FileInfo f;
@@ -54,19 +58,57 @@ namespace tl
                 TLRENDER_ASSERT(0 == f.getSize());
                 TLRENDER_ASSERT(f.getPermissions() != 0);
                 TLRENDER_ASSERT(f.getTime() != 0);
-                TLRENDER_ASSERT(0 == remove(path.get().c_str()));
+                rm(path.get());
+            }
+        }
+
+        void FileInfoTest::_list()
+        {
+            {
+                ListOptions options;
+                options.sort = ListSort::Time;
+                TLRENDER_ASSERT(options == options);
+                TLRENDER_ASSERT(options != ListOptions());
+            }
+            std::vector<ListOptions> optionsList;
+            for (auto sort : getListSortEnums())
+            {
+                ListOptions options;
+                options.sort = sort;
+                optionsList.push_back(options);
             }
             {
-                const Path path("tmp");
-                const FileInfo f(path);
+                ListOptions options;
+                options.reverseSort = true;
+                optionsList.push_back({ options });
             }
+            {
+                ListOptions options;
+                options.sortDirectoriesFirst = false;
+                optionsList.push_back({ options });
+            }
+            {
+                ListOptions options;
+                options.sequence = false;
+                optionsList.push_back({ options });
+            }
+            for (const auto& options : optionsList)
             {
                 std::vector<FileInfo> list;
-                file::list(".", list);
-                for (const auto& i : list)
-                {
-                    _print(i.getPath().get());
-                }
+                file::list(".", list, options);
+            }
+        }
+
+        void FileInfoTest::_serialize()
+        {
+            {
+                ListOptions options;
+                options.sort = ListSort::Time;
+                nlohmann::json json;
+                to_json(json, options);
+                ListOptions options2;
+                from_json(json, options2);
+                TLRENDER_ASSERT(options == options2);
             }
         }
     }

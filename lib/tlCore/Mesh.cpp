@@ -78,7 +78,7 @@ namespace tl
             return out;
         }
 
-        TriangleMesh3 createSphere(
+        TriangleMesh3 sphere(
             float radius,
             size_t xResolution,
             size_t yResolution)

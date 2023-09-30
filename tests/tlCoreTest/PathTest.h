@@ -19,6 +19,11 @@ namespace tl
             static std::shared_ptr<PathTest> create(const std::shared_ptr<system::Context>&);
 
             void run() override;
+
+        private:
+            void _enums();
+            void _path();
+            void _util();
         };
     }
 }

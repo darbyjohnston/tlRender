@@ -98,6 +98,14 @@ namespace tl
                 TLRENDER_ASSERT(r == r2);
             }
             {
+                const DoubleRange r(1.0, 10.0);
+                nlohmann::json json;
+                to_json(json, r);
+                DoubleRange r2;
+                from_json(json, r2);
+                TLRENDER_ASSERT(r == r2);
+            }
+            {
                 const IntRange r(1, 10);
                 std::stringstream ss;
                 ss << r;
@@ -142,6 +150,23 @@ namespace tl
             try
             {
                 FloatRange r;
+                std::stringstream ss("...");
+                ss >> r;
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
+            {
+                const DoubleRange r(1.0, 10.0);
+                std::stringstream ss;
+                ss << r;
+                DoubleRange r2;
+                ss >> r2;
+                TLRENDER_ASSERT(r == r2);
+            }
+            try
+            {
+                DoubleRange r;
                 std::stringstream ss("...");
                 ss >> r;
                 TLRENDER_ASSERT(false);

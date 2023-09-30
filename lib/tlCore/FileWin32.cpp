@@ -28,6 +28,11 @@ namespace tl
             return 0 == _STAT_FNC(string::toWide(fileName).c_str(), &info);
         }
 
+        bool rm(const std::string& fileName)
+        {
+            return 0 == _wremove(string::toWide(fileName).c_str());
+        }
+
         bool mkdir(const std::string& fileName)
         {
             return 0 == _wmkdir(string::toWide(fileName).c_str());
@@ -36,12 +41,6 @@ namespace tl
         bool rmdir(const std::string& fileName)
         {
             return 0 == _wrmdir(string::toWide(fileName).c_str());
-        }
-        
-        bool rm(const std::string& fileName)
-        {
-            //! \todo Implement me.
-            return false;
         }
 
         std::string getCWD()

@@ -6,6 +6,7 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/String.h>
+#include <tlCore/StringFormat.h>
 
 #include <iostream>
 #include <sstream>
@@ -142,15 +143,20 @@ namespace tl
         void StringTest::_compare()
         {
             {
+                TLRENDER_ASSERT(!compare("abc", "ABC"));
                 TLRENDER_ASSERT(compare("abc", "ABC", Compare::CaseInsensitive));
             }
             {
+                TLRENDER_ASSERT(!contains("abc", "C"));
                 TLRENDER_ASSERT(contains("abc", "C", Compare::CaseInsensitive));
             }
         }
 
         void StringTest::_convert()
         {
+            {
+                _print(string::Format("{0}/{1}").arg(getLabel(true)).arg(getLabel(false)));
+            }
             {
                 int value = 0;
                 char buf[] = "1234";

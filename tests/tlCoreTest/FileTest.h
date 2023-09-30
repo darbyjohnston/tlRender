@@ -21,6 +21,7 @@ namespace tl
             void run() override;
 
         private:
+            void _file();
             void _dir();
             void _temp();
         };

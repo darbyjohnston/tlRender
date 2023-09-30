@@ -6,9 +6,8 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/File.h>
-#include <tlCore/OS.h>
-
-#include <sstream>
+#include <tlCore/FileIO.h>
+#include <tlCore/StringFormat.h>
 
 using namespace tl::file;
 
@@ -27,8 +26,19 @@ namespace tl
 
         void FileTest::run()
         {
+            _file();
             _dir();
             _temp();
+        }
+
+        void FileTest::_file()
+        {
+            const std::string fileName = "File Test";
+            {
+                FileIO::create(fileName, Mode::Write);
+            }
+            TLRENDER_ASSERT(exists(fileName));
+            TLRENDER_ASSERT(rm(fileName));
         }
 
         void FileTest::_dir()
@@ -42,6 +52,9 @@ namespace tl
                 TLRENDER_ASSERT(r);
                 r = rmdir("File Test");
                 TLRENDER_ASSERT(!r);
+            }
+            {
+                _print(string::Format("CWD: {0}").arg(getCWD()));
             }
         }
 

@@ -26,6 +26,7 @@ namespace tl
             void _util();
             void _keycode();
             void _timecode();
+            void _timer();
             void _serialize();
         };
     }

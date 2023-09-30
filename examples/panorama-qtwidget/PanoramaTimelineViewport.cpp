@@ -92,7 +92,7 @@ namespace tl
                 try
                 {
                     // Create the sphere mesh.
-                    _sphereMesh = geom::createSphere(10.F, 100, 100);
+                    _sphereMesh = geom::sphere(10.F, 100, 100);
                     auto vboData = convert(
                         _sphereMesh,
                         gl::VBOType::Pos3_F32_UV_U16,

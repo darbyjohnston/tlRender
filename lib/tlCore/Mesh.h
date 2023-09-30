@@ -81,7 +81,7 @@ namespace tl
             const math::Vector2f& v1);
 
         //! Create a sphere triangle mesh.
-        TriangleMesh3 createSphere(
+        TriangleMesh3 sphere(
             float radius,
             size_t xResolution,
             size_t yResolution);
