@@ -4,6 +4,8 @@
 
 #include <tlGLTest/MeshTest.h>
 
+#include <tlGL/GLFWWindow.h>
+
 namespace tl
 {
     namespace gl_tests
@@ -19,6 +21,11 @@ namespace tl
 
         void MeshTest::run()
         {
+            auto window = gl::GLFWWindow::create(
+                "gl_tests::MeshTest",
+                math::Size2i(1, 1),
+                _context,
+                static_cast<int>(gl::GLFWWindowOptions::MakeCurrent));
         }
     }
 }

@@ -43,7 +43,7 @@ jobs:
       run: |
         cd build
         cd tlRender/src/tlRender-build
-        ctest --rerun-failed --output-on-failure
+        xvfb-run tests/tltest/tltest
     
     - name: Code coverage
       if: env.TLRENDER_GCOV == 'ON'
@@ -94,7 +94,7 @@ jobs:
       run: |
         cd build
         cd tlRender/src/tlRender-build
-        ctest --rerun-failed --output-on-failure
+        xvfb-run tests/tltest/tltest
 
   linux-package:
     runs-on: ubuntu-latest
