@@ -36,6 +36,9 @@ namespace tl
         {
             _enum<dpx::Version>("Version", dpx::getVersionEnums);
             _enum<dpx::Endian>("Endian", dpx::getEndianEnums);
+            _enum<dpx::Orient>("Orient", dpx::getOrientEnums);
+            _enum<dpx::Transfer>("Transfer", dpx::getTransferEnums);
+            _enum<dpx::Components>("Components", dpx::getComponentsEnums);
         }
 
         namespace
@@ -72,6 +75,8 @@ namespace tl
                     memory.push_back(file::MemoryRead(memoryData.data(), memoryData.size()));
                 }
                 auto read = plugin->read(path, memory);
+                const auto ioInfo = read->getInfo().get();
+                TLRENDER_ASSERT(!ioInfo.video.empty());
                 const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
                 TLRENDER_ASSERT(videoData.image);                             TLRENDER_ASSERT(videoData.image);
                 TLRENDER_ASSERT(videoData.image->getSize() == image->getSize());
@@ -121,6 +126,43 @@ namespace tl
 
             const image::Tags tags =
             {
+                { "Time", "1:00PM 2023/10/01" },
+                { "Creator", "Charlie" },
+                { "Project", "Nap Time" },
+                { "Copyright", "Copyright (c) 2023 Charlie" },
+                { "Source Offset", "1 2" },
+                { "Source Center", "3 4" },
+                { "Source Size", "5 6" },
+                { "Source File", "zzz.png" },
+                { "Source Time", "1:00PM 2023/10/01" },
+                { "Source Input Device", "Lunch" },
+                { "Source Input Serial", "0123456789" },
+                { "Source Border", "7 8 9 10" },
+                { "Source Pixel Aspect", "11 12" },
+                { "Source Scan Size", "13 14" },
+                { "Keycode", "15 16 17 18 19" },
+                { "Film Format", "Vista Vision" },
+                { "Film Frame", "20" },
+                { "Film Sequence", "21" },
+                { "Film Hold", "22" },
+                { "Film Frame Rate", "24" },
+                { "Film Shutter", "180" },
+                { "Film Frame ID", "25" },
+                { "Film Slate", "Slate" },
+                { "Timecode", "01:00:00:00" },
+                { "TV Interlace", "26" },
+                { "TV Field", "27" },
+                { "TV Video Signal", "28" },
+                { "TV Sample Rate", "29" },
+                { "TV Frame Rate", "30" },
+                { "TV Time Offset", "31" },
+                { "TV Gamma", "32" },
+                { "TV Black Level", "33" },
+                { "TV Black Gain", "34" },
+                { "TV Breakpoint", "35" },
+                { "TV White Level", "36" },
+                { "TV Integration Times", "37" },
+                { "Timecode", "38" }
             };
             const std::vector<std::string> fileNames =
             {

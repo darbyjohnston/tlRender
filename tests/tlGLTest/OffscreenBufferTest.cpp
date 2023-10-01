@@ -124,6 +124,13 @@ namespace tl
                 {
                     math::Size2i(100, 200),
                     offscreenColorDefault,
+                    OffscreenDepth::_32,
+                    OffscreenStencil::_8,
+                    OffscreenSampling::None
+                },
+                {
+                    math::Size2i(100, 200),
+                    offscreenColorDefault,
                     OffscreenDepth::None,
                     OffscreenStencil::None,
                     OffscreenSampling::_2

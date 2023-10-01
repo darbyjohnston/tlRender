@@ -89,6 +89,8 @@ namespace tl
                     memory.push_back(file::MemoryRead(memoryData.data(), memoryData.size()));
                 }
                 auto read = plugin->read(path, memory);
+                const auto ioInfo = read->getInfo().get();
+                TLRENDER_ASSERT(!ioInfo.video.empty());
                 for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
                 {
                     const auto videoData = read->readVideo(otime::RationalTime(i, 24.0)).get();

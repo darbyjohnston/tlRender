@@ -41,6 +41,7 @@ namespace tl
             "TopBottomRightLeft",
             "BottomTopLeftRight",
             "BottomTopRightLeft");
+        TLRENDER_ENUM_SERIALIZE_IMPL(Orient);
 
         TLRENDER_ENUM_IMPL(
             Transfer,
@@ -57,12 +58,14 @@ namespace tl
             "PAL",
             "Z",
             "ZHomogeneous");
+        TLRENDER_ENUM_SERIALIZE_IMPL(Transfer);
 
         TLRENDER_ENUM_IMPL(
             Components,
             "Pack",
             "TypeA",
             "TypeB");
+        TLRENDER_ENUM_SERIALIZE_IMPL(Components);
 
         namespace
         {
@@ -214,7 +217,7 @@ namespace tl
                     arg("Bad magic number"));
             }
 
-            // Read the reset of the header.
+            // Read the rest of the header.
             io->read(&out.image, sizeof(Header::Image));
             io->read(&out.source, sizeof(Header::Source));
             io->read(&out.film, sizeof(Header::Film));

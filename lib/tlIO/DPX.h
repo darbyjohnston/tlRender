@@ -66,6 +66,7 @@ namespace tl
             First = LeftRightTopBottom
         };
         TLRENDER_ENUM(Orient);
+        TLRENDER_ENUM_SERIALIZE(Orient);
 
         //! DPX channel descriptors.
         enum class Descriptor
@@ -116,6 +117,7 @@ namespace tl
             First = User
         };
         TLRENDER_ENUM(Transfer);
+        TLRENDER_ENUM_SERIALIZE(Transfer);
 
         //! DPX colorimetric information for version 1.0.
         enum class Colorimetric_1_0
@@ -156,6 +158,7 @@ namespace tl
             First = Pack
         };
         TLRENDER_ENUM(Components);
+        TLRENDER_ENUM_SERIALIZE(Components);
 
         //! DPX header.
         struct Header
