@@ -77,11 +77,28 @@ namespace tl
                 TLRENDER_ASSERT(buffer->getID());
                 TLRENDER_ASSERT(buffer->getColorID());
                 buffer->bind();
+                TLRENDER_ASSERT(!doCreate(buffer, size, options));
             }
+            for (auto depth : getOffscreenDepthEnums())
             {
                 OffscreenBufferOptions options;
                 options.colorType = offscreenColorDefault;
-                options.sampling = OffscreenSampling::_2;
+                options.depth = depth;
+                const math::Size2i size(100, 200);
+                auto buffer = OffscreenBuffer::create(size, options);
+                TLRENDER_ASSERT(buffer->getSize() == size);
+                TLRENDER_ASSERT(buffer->getWidth() == size.w);
+                TLRENDER_ASSERT(buffer->getHeight() == size.h);
+                TLRENDER_ASSERT(buffer->getOptions() == options);
+                TLRENDER_ASSERT(buffer->getID());
+                TLRENDER_ASSERT(buffer->getColorID());
+                buffer->bind();
+            }
+            for (auto sampling : getOffscreenSamplingEnums())
+            {
+                OffscreenBufferOptions options;
+                options.colorType = offscreenColorDefault;
+                options.sampling = sampling;
                 const math::Size2i size(100, 200);
                 auto buffer = OffscreenBuffer::create(size, options);
                 TLRENDER_ASSERT(buffer->getSize() == size);

@@ -72,89 +72,54 @@ namespace tl
                 return out;
             }
 
-            GLenum getBufferInternalFormat(OffscreenDepth value)
+            GLenum getBufferInternalFormat(OffscreenDepth depth, OffscreenStencil stencil)
             {
                 GLenum out = GL_NONE;
-                switch (value)
+                switch (depth)
                 {
+                case OffscreenDepth::None:
+                    switch (stencil)
+                    {
+                    case OffscreenStencil::_8:
+                        out = GL_STENCIL_INDEX8;
+                        break;
+                    default:
+                        break;
+                    }
+                    break;
                 case OffscreenDepth::_16:
                     out = GL_DEPTH_COMPONENT16;
                     break;
 #if defined(TLRENDER_API_GL_4_1)
                 case OffscreenDepth::_24:
-                    out = GL_DEPTH_COMPONENT24;
+                    switch (stencil)
+                    {
+                    case OffscreenStencil::None:
+                        out = GL_DEPTH_COMPONENT24;
+                        break;
+                    case OffscreenStencil::_8:
+                        out = GL_DEPTH24_STENCIL8;
+                        break;
+                    default: break;
+                    }
                     break;
                 case OffscreenDepth::_32:
-                    out = GL_DEPTH_COMPONENT32F;
+                    switch (stencil)
+                    {
+                    case OffscreenStencil::None:
+                        out = GL_DEPTH_COMPONENT32F;
+                        break;
+                    case OffscreenStencil::_8:
+                        out = GL_DEPTH32F_STENCIL8;
+                        break;
+                    default: break;
+                    }
                     break;
 #endif // TLRENDER_API_GL_4_1
                 default: break;
                 }
                 return out;
             }
-        }
-
-        GLenum getBufferInternalFormat(OffscreenStencil value)
-        {
-            GLenum out = GL_NONE;
-            switch (value)
-            {
-            case OffscreenStencil::_8:
-                out = GL_STENCIL_INDEX8;
-                break;
-            default:
-                break;
-            }
-            return out;
-        }
-
-        GLenum getBufferInternalFormat(OffscreenDepth depth, OffscreenStencil stencil)
-        {
-            GLenum out = GL_NONE;
-            switch (depth)
-            {
-            case OffscreenDepth::None:
-                switch (stencil)
-                {
-                case OffscreenStencil::_8:
-                    out = GL_STENCIL_INDEX8;
-                    break;
-                default:
-                    break;
-                }
-                break;
-            case OffscreenDepth::_16:
-                out = GL_DEPTH_COMPONENT16;
-                break;
-#if defined(TLRENDER_API_GL_4_1)
-            case OffscreenDepth::_24:
-                switch (stencil)
-                {
-                case OffscreenStencil::None:
-                    out = GL_DEPTH_COMPONENT24;
-                    break;
-                case OffscreenStencil::_8:
-                    out = GL_DEPTH24_STENCIL8;
-                    break;
-                default: break;
-                }
-                break;
-            case OffscreenDepth::_32:
-                switch (stencil)
-                {
-                case OffscreenStencil::None:
-                    out = GL_DEPTH_COMPONENT32F;
-                    break;
-                case OffscreenStencil::_8:
-                    out = GL_DEPTH32F_STENCIL8;
-                    break;
-                default: break;
-                }
-                break;
-#endif // TLRENDER_API_GL_4_1
-            default: break;
-            }
-            return out;
         }
 
         bool OffscreenBufferOptions::operator == (const OffscreenBufferOptions& other) const

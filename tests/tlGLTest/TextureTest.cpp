@@ -54,9 +54,11 @@ namespace tl
                 TLRENDER_ASSERT(options == options);
                 TLRENDER_ASSERT(options != TextureOptions());
             }
+            for (bool pbo : { false, true })
             {
                 const image::Info info(100, 200, image::PixelType::RGBA_U8);
                 TextureOptions options;
+                options.pbo = pbo;
                 auto texture = Texture::create(info, options);
                 TLRENDER_ASSERT(texture->getID());
                 TLRENDER_ASSERT(texture->getInfo() == info);
