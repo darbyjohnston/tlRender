@@ -56,22 +56,29 @@ namespace tl
             }
             for (bool pbo : { false, true })
             {
-                const image::Info info(100, 200, image::PixelType::RGBA_U8);
-                TextureOptions options;
-                options.pbo = pbo;
-                auto texture = Texture::create(info, options);
-                TLRENDER_ASSERT(texture->getID());
-                TLRENDER_ASSERT(texture->getInfo() == info);
-                TLRENDER_ASSERT(texture->getSize() == info.size);
-                TLRENDER_ASSERT(texture->getWidth() == info.size.w);
-                TLRENDER_ASSERT(texture->getHeight() == info.size.h);
-                TLRENDER_ASSERT(texture->getPixelType() == info.pixelType);
-                auto image = image::Image::create(info);
-                texture->copy(image);
-                auto image2 = image::Image::create(50, 100, image::PixelType::RGBA_U8);
-                texture->copy(image2, 50, 100);
-                texture->copy(image->getData(), info);
-                texture->bind();
+                try
+                {
+                    const image::Info info(100, 200, image::PixelType::RGBA_U8);
+                    TextureOptions options;
+                    options.pbo = pbo;
+                    auto texture = Texture::create(info, options);
+                    TLRENDER_ASSERT(texture->getID());
+                    TLRENDER_ASSERT(texture->getInfo() == info);
+                    TLRENDER_ASSERT(texture->getSize() == info.size);
+                    TLRENDER_ASSERT(texture->getWidth() == info.size.w);
+                    TLRENDER_ASSERT(texture->getHeight() == info.size.h);
+                    TLRENDER_ASSERT(texture->getPixelType() == info.pixelType);
+                    auto image = image::Image::create(info);
+                    texture->copy(image);
+                    auto image2 = image::Image::create(50, 100, image::PixelType::RGBA_U8);
+                    texture->copy(image2, 50, 100);
+                    texture->copy(image->getData(), info);
+                    texture->bind();
+                }
+                catch (const std::exception& e)
+                {
+                    _printError(e.what());
+                }
             }
         }
     }

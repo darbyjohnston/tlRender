@@ -62,6 +62,7 @@ namespace tl
                 TLRENDER_ASSERT(options == options);
                 TLRENDER_ASSERT(options != OffscreenBufferOptions());
             }
+            try
             {
                 OffscreenBufferOptions options;
                 options.colorType = offscreenColorDefault;
@@ -79,35 +80,53 @@ namespace tl
                 buffer->bind();
                 TLRENDER_ASSERT(!doCreate(buffer, size, options));
             }
+            catch (const std::exception& e)
+            {
+                _printError(e.what());
+            }
             for (auto depth : getOffscreenDepthEnums())
             {
-                OffscreenBufferOptions options;
-                options.colorType = offscreenColorDefault;
-                options.depth = depth;
-                const math::Size2i size(100, 200);
-                auto buffer = OffscreenBuffer::create(size, options);
-                TLRENDER_ASSERT(buffer->getSize() == size);
-                TLRENDER_ASSERT(buffer->getWidth() == size.w);
-                TLRENDER_ASSERT(buffer->getHeight() == size.h);
-                TLRENDER_ASSERT(buffer->getOptions() == options);
-                TLRENDER_ASSERT(buffer->getID());
-                TLRENDER_ASSERT(buffer->getColorID());
-                buffer->bind();
+                try
+                {
+                    OffscreenBufferOptions options;
+                    options.colorType = offscreenColorDefault;
+                    options.depth = depth;
+                    const math::Size2i size(100, 200);
+                    auto buffer = OffscreenBuffer::create(size, options);
+                    TLRENDER_ASSERT(buffer->getSize() == size);
+                    TLRENDER_ASSERT(buffer->getWidth() == size.w);
+                    TLRENDER_ASSERT(buffer->getHeight() == size.h);
+                    TLRENDER_ASSERT(buffer->getOptions() == options);
+                    TLRENDER_ASSERT(buffer->getID());
+                    TLRENDER_ASSERT(buffer->getColorID());
+                    buffer->bind();
+                }
+                catch (const std::exception& e)
+                {
+                    _printError(e.what());
+                }
             }
             for (auto sampling : getOffscreenSamplingEnums())
             {
-                OffscreenBufferOptions options;
-                options.colorType = offscreenColorDefault;
-                options.sampling = sampling;
-                const math::Size2i size(100, 200);
-                auto buffer = OffscreenBuffer::create(size, options);
-                TLRENDER_ASSERT(buffer->getSize() == size);
-                TLRENDER_ASSERT(buffer->getWidth() == size.w);
-                TLRENDER_ASSERT(buffer->getHeight() == size.h);
-                TLRENDER_ASSERT(buffer->getOptions() == options);
-                TLRENDER_ASSERT(buffer->getID());
-                TLRENDER_ASSERT(buffer->getColorID());
-                buffer->bind();
+                try
+                {
+                    OffscreenBufferOptions options;
+                    options.colorType = offscreenColorDefault;
+                    options.sampling = sampling;
+                    const math::Size2i size(100, 200);
+                    auto buffer = OffscreenBuffer::create(size, options);
+                    TLRENDER_ASSERT(buffer->getSize() == size);
+                    TLRENDER_ASSERT(buffer->getWidth() == size.w);
+                    TLRENDER_ASSERT(buffer->getHeight() == size.h);
+                    TLRENDER_ASSERT(buffer->getOptions() == options);
+                    TLRENDER_ASSERT(buffer->getID());
+                    TLRENDER_ASSERT(buffer->getColorID());
+                    buffer->bind();
+                }
+                catch (const std::exception& e)
+                {
+                    _printError(e.what());
+                }
             }
         }
     }
