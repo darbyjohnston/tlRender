@@ -62,27 +62,117 @@ namespace tl
                 TLRENDER_ASSERT(options == options);
                 TLRENDER_ASSERT(options != OffscreenBufferOptions());
             }
-            try
+            struct TestData
             {
-                OffscreenBufferOptions options;
-                options.colorType = offscreenColorDefault;
-                options.depth = OffscreenDepth::_24;
-                options.stencil = OffscreenStencil::_8;
-                options.sampling = OffscreenSampling::None;
-                const math::Size2i size(100, 200);
-                auto buffer = OffscreenBuffer::create(size, options);
-                TLRENDER_ASSERT(buffer->getSize() == size);
-                TLRENDER_ASSERT(buffer->getWidth() == size.w);
-                TLRENDER_ASSERT(buffer->getHeight() == size.h);
-                TLRENDER_ASSERT(buffer->getOptions() == options);
-                TLRENDER_ASSERT(buffer->getID());
-                TLRENDER_ASSERT(buffer->getColorID());
-                buffer->bind();
-                TLRENDER_ASSERT(!doCreate(buffer, size, options));
-            }
-            catch (const std::exception& e)
+                math::Size2i size;
+                image::PixelType colorType = image::PixelType::None;
+                OffscreenDepth depth = OffscreenDepth::None;
+                OffscreenStencil stencil = OffscreenStencil::None;
+                OffscreenSampling sampling = OffscreenSampling::None;
+            };
+            const std::vector<TestData> dataList =
             {
-                _printError(e.what());
+                {
+                    math::Size2i(0, 0),
+                    image::PixelType::None,
+                    OffscreenDepth::None,
+                    OffscreenStencil::None,
+                    OffscreenSampling::None
+                },
+                {
+                    math::Size2i(100, 200),
+                    offscreenColorDefault,
+                    OffscreenDepth::None,
+                    OffscreenStencil::None,
+                    OffscreenSampling::None
+                },
+                {
+                    math::Size2i(100, 200),
+                    offscreenColorDefault,
+                    OffscreenDepth::_16,
+                    OffscreenStencil::None,
+                    OffscreenSampling::None
+                },
+                {
+                    math::Size2i(100, 200),
+                    offscreenColorDefault,
+                    OffscreenDepth::_24,
+                    OffscreenStencil::None,
+                    OffscreenSampling::None
+                },
+                {
+                    math::Size2i(100, 200),
+                    offscreenColorDefault,
+                    OffscreenDepth::_32,
+                    OffscreenStencil::None,
+                    OffscreenSampling::None
+                },
+                {
+                    math::Size2i(100, 200),
+                    offscreenColorDefault,
+                    OffscreenDepth::None,
+                    OffscreenStencil::_8,
+                    OffscreenSampling::None
+                },
+                {
+                    math::Size2i(100, 200),
+                    offscreenColorDefault,
+                    OffscreenDepth::_24,
+                    OffscreenStencil::_8,
+                    OffscreenSampling::None
+                },
+                {
+                    math::Size2i(100, 200),
+                    offscreenColorDefault,
+                    OffscreenDepth::None,
+                    OffscreenStencil::None,
+                    OffscreenSampling::_2
+                },
+                {
+                    math::Size2i(100, 200),
+                    offscreenColorDefault,
+                    OffscreenDepth::None,
+                    OffscreenStencil::None,
+                    OffscreenSampling::_4
+                },
+                {
+                    math::Size2i(100, 200),
+                    offscreenColorDefault,
+                    OffscreenDepth::None,
+                    OffscreenStencil::None,
+                    OffscreenSampling::_8
+                },
+                {
+                    math::Size2i(100, 200),
+                    offscreenColorDefault,
+                    OffscreenDepth::None,
+                    OffscreenStencil::None,
+                    OffscreenSampling::_16
+                }
+            };
+            for (const auto& data : dataList)
+            {
+                try
+                {
+                    OffscreenBufferOptions options;
+                    options.colorType = data.colorType;
+                    options.depth = data.depth;
+                    options.stencil = data.stencil;
+                    options.sampling = data.sampling;
+                    auto buffer = OffscreenBuffer::create(data.size, options);
+                    TLRENDER_ASSERT(buffer->getSize() == data.size);
+                    TLRENDER_ASSERT(buffer->getWidth() == data.size.w);
+                    TLRENDER_ASSERT(buffer->getHeight() == data.size.h);
+                    TLRENDER_ASSERT(buffer->getOptions() == options);
+                    TLRENDER_ASSERT(buffer->getID());
+                    TLRENDER_ASSERT(buffer->getColorID());
+                    buffer->bind();
+                    TLRENDER_ASSERT(!doCreate(buffer, data.size, options));
+                }
+                catch (const std::exception& e)
+                {
+                    _printError(e.what());
+                }
             }
             for (auto depth : getOffscreenDepthEnums())
             {

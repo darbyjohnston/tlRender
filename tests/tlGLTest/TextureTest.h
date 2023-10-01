@@ -22,6 +22,7 @@ namespace tl
 
         private:
             void _texture();
+            void _textureAtlas();
         };
     }
 }

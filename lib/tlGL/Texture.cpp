@@ -237,40 +237,41 @@ namespace tl
         {
             TLRENDER_P();
             p.info = info;
-            if (p.info.isValid())
+            if (!p.info.isValid())
             {
-#if defined(TLRENDER_API_GL_4_1)
-                if (options.pbo &&
-                    1 == p.info.layout.alignment &&
-                    memory::getEndian() == p.info.layout.endian)
-                {
-                    glGenBuffers(1, &p.pbo);
-                    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, p.pbo);
-                    glBufferData(
-                        GL_PIXEL_UNPACK_BUFFER,
-                        image::getDataByteCount(p.info),
-                        NULL,
-                        GL_STREAM_DRAW);
-                    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-                }
-#endif // TLRENDER_API_GL_4_1
-                glGenTextures(1, &p.id);
-                glBindTexture(GL_TEXTURE_2D, p.id);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, getTextureFilter(options.filters.minify));
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, getTextureFilter(options.filters.magnify));
-                glTexImage2D(
-                    GL_TEXTURE_2D,
-                    0,
-                    getTextureInternalFormat(p.info.pixelType),
-                    p.info.size.w,
-                    p.info.size.h,
-                    0,
-                    getTextureFormat(p.info.pixelType),
-                    getTextureType(p.info.pixelType),
-                    NULL);
+                throw std::runtime_error("Invalid texture");
             }
+#if defined(TLRENDER_API_GL_4_1)
+            if (options.pbo &&
+                1 == p.info.layout.alignment &&
+                memory::getEndian() == p.info.layout.endian)
+            {
+                glGenBuffers(1, &p.pbo);
+                glBindBuffer(GL_PIXEL_UNPACK_BUFFER, p.pbo);
+                glBufferData(
+                    GL_PIXEL_UNPACK_BUFFER,
+                    image::getDataByteCount(p.info),
+                    NULL,
+                    GL_STREAM_DRAW);
+                glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+            }
+#endif // TLRENDER_API_GL_4_1
+            glGenTextures(1, &p.id);
+            glBindTexture(GL_TEXTURE_2D, p.id);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, getTextureFilter(options.filters.minify));
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, getTextureFilter(options.filters.magnify));
+            glTexImage2D(
+                GL_TEXTURE_2D,
+                0,
+                getTextureInternalFormat(p.info.pixelType),
+                p.info.size.w,
+                p.info.size.h,
+                0,
+                getTextureFormat(p.info.pixelType),
+                getTextureType(p.info.pixelType),
+                NULL);
         }
 
         Texture::Texture() :

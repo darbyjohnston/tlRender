@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlCore/Color.h>
 #include <tlCore/Matrix.h>
 #include <tlCore/Util.h>
 #include <tlCore/Vector.h>
@@ -14,11 +15,6 @@
 
 namespace tl
 {
-    namespace image
-    {
-        class Color4f;
-    }
-
     namespace gl
     {
         //! OpenGL shader.
