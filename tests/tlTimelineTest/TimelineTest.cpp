@@ -11,6 +11,7 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/File.h>
+#include <tlCore/StringFormat.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/externalReference.h>
@@ -206,6 +207,10 @@ namespace tl
 #endif // TLRENDER_FFMPEG
 
             // Test timelines.
+            for (const auto& path : getPaths(file::Path("."), file::PathOptions(), _context))
+            {
+                _print(string::Format("Path: {0}").arg(path.get()));
+            }
             {
                 auto timeline = Timeline::create(fileName, _context);
                 TLRENDER_ASSERT(timeline->getTimeline());
