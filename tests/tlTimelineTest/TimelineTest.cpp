@@ -13,9 +13,9 @@
 #include <tlCore/File.h>
 
 #include <opentimelineio/clip.h>
-#include <opentimelineio/timeline.h>
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/imageSequenceReference.h>
+#include <opentimelineio/timeline.h>
 
 using namespace tl::timeline;
 

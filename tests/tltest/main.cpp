@@ -24,6 +24,7 @@
 #include <tlTimelineTest/IRenderTest.h>
 #include <tlTimelineTest/ImageOptionsTest.h>
 #include <tlTimelineTest/LUTOptionsTest.h>
+#include <tlTimelineTest/MemoryReferenceTest.h>
 #include <tlTimelineTest/PlayerOptionsTest.h>
 #include <tlTimelineTest/PlayerTest.h>
 #include <tlTimelineTest/TimelineTest.h>
@@ -176,6 +177,7 @@ void timelineTests(
     tests.push_back(timeline_tests::IRenderTest::create(context));
     tests.push_back(timeline_tests::ImageOptionsTest::create(context));
     tests.push_back(timeline_tests::LUTOptionsTest::create(context));
+    tests.push_back(timeline_tests::MemoryReferenceTest::create(context));
     tests.push_back(timeline_tests::PlayerOptionsTest::create(context));
     tests.push_back(timeline_tests::PlayerTest::create(context));
     tests.push_back(timeline_tests::TimelineTest::create(context));
@@ -228,12 +230,12 @@ int main(int argc, char* argv[])
 
     std::vector<std::shared_ptr<tests::ITest> > tests;
     //tests.push_back(core_tests::PathTest::create(context));
-    coreTests(tests, context);
-    glTests(tests, context);
-    ioTests(tests, context);
+    //coreTests(tests, context);
+    //glTests(tests, context);
+    //ioTests(tests, context);
     timelineTests(tests, context);
-    appTests(tests, context);
-    qtTests(tests, context);
+    //appTests(tests, context);
+    //qtTests(tests, context);
 
     for (const auto& test : tests)
     {

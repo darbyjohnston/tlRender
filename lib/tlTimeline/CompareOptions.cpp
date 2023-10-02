@@ -131,7 +131,7 @@ namespace tl
                 }
                 break;
             default:
-                for (size_t i = 0; i < count; ++i)
+                for (size_t i = 0; i < std::min(count, static_cast<size_t>(2)); ++i)
                 {
                     out.push_back(math::Box2i(
                         0,

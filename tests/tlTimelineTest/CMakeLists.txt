@@ -6,6 +6,7 @@ set(HEADERS
     IRenderTest.h
     ImageOptionsTest.h
     LUTOptionsTest.h
+    MemoryReferenceTest.h
     PlayerOptionsTest.h
     PlayerTest.h
     TimelineTest.h
@@ -19,6 +20,7 @@ set(SOURCE
     IRenderTest.cpp
     ImageOptionsTest.cpp
     LUTOptionsTest.cpp
+    MemoryReferenceTest.cpp
     PlayerOptionsTest.cpp
     PlayerTest.cpp
     TimelineTest.cpp

@@ -39,6 +39,8 @@ namespace tl
                 const std::vector<image::Size> sizes =
                 {
                     image::Size(1920, 1080),
+                    image::Size(1920 / 2, 1080 / 2),
+                    image::Size(1920 / 2, 1080 / 2),
                     image::Size(1920 / 2, 1080 / 2)
                 };
 
@@ -74,11 +76,13 @@ namespace tl
                 TLRENDER_ASSERT(math::Size2i(1920, 1080 * 2) == renderSize);
 
                 boxes = getBoxes(CompareMode::Tile, sizes);
-                TLRENDER_ASSERT(2 == boxes.size());
+                TLRENDER_ASSERT(4 == boxes.size());
                 TLRENDER_ASSERT(math::Box2i(0, 0, 1920, 1080) == boxes[0]);
-                TLRENDER_ASSERT(math::Box2i(0, 1080, 1920, 1080) == boxes[1]);
+                TLRENDER_ASSERT(math::Box2i(1920, 0, 1920, 1080) == boxes[1]);
+                TLRENDER_ASSERT(math::Box2i(0, 1080, 1920, 1080) == boxes[2]);
+                TLRENDER_ASSERT(math::Box2i(1920, 1080, 1920, 1080) == boxes[3]);
                 renderSize = getRenderSize(CompareMode::Tile, sizes);
-                TLRENDER_ASSERT(math::Size2i(1920, 1080 * 2) == renderSize);
+                TLRENDER_ASSERT(math::Size2i(1920 * 2, 1080 * 2) == renderSize);
             }
         }
     }
