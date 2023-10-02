@@ -47,13 +47,6 @@ namespace tl
             bool operator != (const PlayerCacheOptions&) const;
         };
 
-        //! Get an external time from a source time.
-        otime::RationalTime getExternalTime(
-            const otime::RationalTime& sourceTime,
-            const otime::TimeRange& sourceTimeRange,
-            const otime::TimeRange& externalTimeRange,
-            ExternalTimeMode);
-
         //! Timeline player options.
         struct PlayerOptions
         {
@@ -81,6 +74,13 @@ namespace tl
             bool operator == (const PlayerOptions&) const;
             bool operator != (const PlayerOptions&) const;
         };
+
+        //! Get an external time from a source time.
+        otime::RationalTime getExternalTime(
+            const otime::RationalTime& sourceTime,
+            const otime::TimeRange& sourceTimeRange,
+            const otime::TimeRange& externalTimeRange,
+            ExternalTimeMode);
     }
 }
 

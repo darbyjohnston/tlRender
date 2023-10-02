@@ -6,7 +6,6 @@
 
 #include <tlPlayQtApp/DevicesModel.h>
 #include <tlPlayQtApp/MainWindow.h>
-#include <tlPlayQtApp/MemoryTimeline.h>
 #include <tlPlayQtApp/OpenSeparateAudioDialog.h>
 #include <tlPlayQtApp/SettingsObject.h>
 
@@ -786,7 +785,7 @@ namespace tl
                             timeline::create(items[i]->path, items[i]->audioPath, _context, options);
                         if (0)
                         {
-                            createMemoryTimeline(
+                            timeline::toMemoryReferences(
                                 otioTimeline,
                                 items[i]->path.getDirectory(),
                                 options.pathOptions);

@@ -15,7 +15,6 @@ set(HEADERS
     InfoTool.h
     InfoModel.h
     MainWindow.h
-    MemoryTimeline.h
     MessagesTool.h
     OpenSeparateAudioDialog.h
     PlaybackActions.h
@@ -47,7 +46,6 @@ set(SOURCE
     InfoTool.cpp
     InfoModel.cpp
     MainWindow.cpp
-    MemoryTimeline.cpp
     MessagesTool.cpp
     OpenSeparateAudioDialog.cpp
     PlaybackActions.cpp

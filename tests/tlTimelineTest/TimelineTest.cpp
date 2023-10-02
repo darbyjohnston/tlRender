@@ -187,8 +187,25 @@ namespace tl
                 write->writeVideo(otime::RationalTime(i, 24.0), image);
             }
 
-            // Create a timeline from the OTIO timeline.
-            auto timeline = Timeline::create(fileName, _context);
+            // Test timelines.
+            {
+                auto timeline = Timeline::create(fileName, _context);
+                _timeline(fileName, imageInfo, timeline);
+            }
+            {
+                const file::Path path(fileName);
+                auto otioTimeline = timeline::create(path, _context);
+                toMemoryReferences(otioTimeline, path.getDirectory());
+                auto timeline = timeline::Timeline::create(otioTimeline, _context);
+                _timeline(fileName, imageInfo, timeline);
+            }
+        }
+
+        void TimelineTest::_timeline(
+            const std::string& fileName,
+            const image::Info& imageInfo,
+            const std::shared_ptr<timeline::Timeline>& timeline)
+        {
             TLRENDER_ASSERT(timeline->getTimeline());
             TLRENDER_ASSERT(fileName == timeline->getPath().get());
             TLRENDER_ASSERT(Options() == timeline->getOptions());

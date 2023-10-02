@@ -42,6 +42,30 @@ namespace tl
                 TLRENDER_ASSERT(v == v);
                 TLRENDER_ASSERT(v != PlayerOptions());
             }
+            {
+                const auto time = getExternalTime(
+                    otime::RationalTime(0.0, 24.0),
+                    otime::TimeRange(
+                        otime::RationalTime(0.0, 24.0),
+                        otime::RationalTime(24.0, 24.0)),
+                    otime::TimeRange(
+                        otime::RationalTime(0.0, 24.0),
+                        otime::RationalTime(24.0, 24.0)),
+                    ExternalTimeMode::Absolute);
+                TLRENDER_ASSERT(time == otime::RationalTime(0.0, 24.0));
+            }
+            {
+                const auto time = getExternalTime(
+                    otime::RationalTime(0.0, 24.0),
+                    otime::TimeRange(
+                        otime::RationalTime(0.0, 24.0),
+                        otime::RationalTime(24.0, 24.0)),
+                    otime::TimeRange(
+                        otime::RationalTime(24.0, 24.0),
+                        otime::RationalTime(24.0, 24.0)),
+                    ExternalTimeMode::Relative);
+                TLRENDER_ASSERT(time == otime::RationalTime(24.0, 24.0));
+            }
         }
     }
 }

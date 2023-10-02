@@ -71,6 +71,12 @@ namespace tl
         std::vector<file::MemoryRead> getMemoryRead(
             const otio::MediaReference*);
 
+        //! Convert media references to memory references for testing.
+        void toMemoryReferences(
+            otio::Timeline*,
+            const std::string& directory,
+            const file::PathOptions& = file::PathOptions());
+
         //! Transform track time to video media time.
         otime::RationalTime toVideoMediaTime(
             const otime::RationalTime&,
