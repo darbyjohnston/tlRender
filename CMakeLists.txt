@@ -78,6 +78,7 @@ if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
 endif()
 
 if(TLRENDER_TESTS)
+    add_definitions(-DTLRENDER_SAMPLE_DATA="${CMAKE_CURRENT_SOURCE_DIR}/etc/SampleData")
     set(CTEST_OUTPUT_ON_FAILURE ON)
     enable_testing()
 endif()

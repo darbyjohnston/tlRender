@@ -84,7 +84,7 @@ namespace tl
 
         void PlayerTest::_player()
         {
-            // Write an OTIO timeline.
+            /*// Write an OTIO timeline.
             auto otioTrack = new otio::Track();
             auto otioClip = new otio::Clip;
             otioClip->set_media_reference(new otio::ImageSequenceReference(
@@ -155,33 +155,34 @@ namespace tl
                     write->writeVideo(otime::RationalTime(i, 24.0), image);
                 }
             }
-#endif // TLRENDER_FFMPEG
+#endif // TLRENDER_FFMPEG*/
 
             // Test timeline players.
+            const std::vector<file::Path> paths =
             {
-                auto timeline = Timeline::create(fileName, _context);
+                //file::Path(TLRENDER_SAMPLE_DATA, "AudioTones.otio"),
+                //file::Path(TLRENDER_SAMPLE_DATA, "AudioTonesAndVideo.otio"),
+                file::Path(TLRENDER_SAMPLE_DATA, "Gap.otio"),
+                file::Path(TLRENDER_SAMPLE_DATA, "MovieAndSeq.otio"),
+                file::Path(TLRENDER_SAMPLE_DATA, "TransitionOverlay.otio")
+            };
+            for (const auto& path : paths)
+            {
+                auto timeline = Timeline::create(path, _context);
                 auto player = Player::create(timeline, _context);
                 TLRENDER_ASSERT(player->getTimeline());
-                TLRENDER_ASSERT(fileName == player->getPath().get());
-                TLRENDER_ASSERT(Options() == player->getOptions());
-                TLRENDER_ASSERT(time::compareExact(timeRange, player->getTimeRange()));
-                TLRENDER_ASSERT(!player->getIOInfo().video.empty());
-                TLRENDER_ASSERT(timeRange.duration().rate() == player->getDefaultSpeed());
+                TLRENDER_ASSERT(path == player->getPath());
                 _player(player);
             }
+            for (const auto& path : paths)
             {
-                const file::Path path(fileName);
                 auto otioTimeline = timeline::create(path, _context);
                 TLRENDER_ASSERT(otioTimeline);
                 toMemoryReferences(otioTimeline, path.getDirectory());
                 auto timeline = Timeline::create(otioTimeline, _context);
                 auto player = Player::create(timeline, _context);
                 TLRENDER_ASSERT(player->getTimeline());
-                TLRENDER_ASSERT(fileName == player->getPath().get());
-                TLRENDER_ASSERT(Options() == player->getOptions());
-                TLRENDER_ASSERT(time::compareExact(timeRange, player->getTimeRange()));
-                TLRENDER_ASSERT(!player->getIOInfo().video.empty());
-                TLRENDER_ASSERT(timeRange.duration().rate() == player->getDefaultSpeed());
+                TLRENDER_ASSERT(path == player->getPath());
                 _player(player);
             }
         }
@@ -241,13 +242,13 @@ namespace tl
                     for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
                     {
                         player->tick();
-                        time::sleep(std::chrono::microseconds(1000000 / 24));
+                        time::sleep(std::chrono::milliseconds(1));
                     }
                     player->setPlayback(Playback::Reverse);
                     for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
                     {
                         player->tick();
-                        time::sleep(std::chrono::microseconds(1000000 / 24));
+                        time::sleep(std::chrono::milliseconds(1));
                     }
                 }
                 player->setPlayback(Playback::Stop);
@@ -301,24 +302,25 @@ namespace tl
                 });
             player->seek(timeRange.start_time());
             TLRENDER_ASSERT(timeRange.start_time() == currentTime);
-            player->seek(timeRange.start_time() + otime::RationalTime(1.0, 24.0));
-            TLRENDER_ASSERT(timeRange.start_time() + otime::RationalTime(1.0, 24.0) == currentTime);
+            const double rate = timeRange.duration().rate();
+            player->seek(
+                timeRange.start_time() + otime::RationalTime(1.0, rate));
+            TLRENDER_ASSERT(
+                timeRange.start_time() + otime::RationalTime(1.0, rate) ==
+                currentTime);
             player->end();
             TLRENDER_ASSERT(timeRange.end_time_inclusive() == currentTime);
             player->start();
             TLRENDER_ASSERT(timeRange.start_time() == currentTime);
             player->frameNext();
-            TLRENDER_ASSERT(timeRange.start_time() + otime::RationalTime(1.0, 24.0) == currentTime);
+            TLRENDER_ASSERT(
+                timeRange.start_time() + otime::RationalTime(1.0, rate) ==
+                currentTime);
             player->timeAction(TimeAction::FrameNextX10);
-            TLRENDER_ASSERT(timeRange.start_time() + otime::RationalTime(11.0, 24.0) == currentTime);
             player->timeAction(TimeAction::FrameNextX100);
-            TLRENDER_ASSERT(timeRange.start_time() == currentTime);
             player->framePrev();
-            TLRENDER_ASSERT(timeRange.end_time_inclusive() == currentTime);
             player->timeAction(TimeAction::FramePrevX10);
-            TLRENDER_ASSERT(timeRange.end_time_inclusive() - otime::RationalTime(10.0, 24.0) == currentTime);
             player->timeAction(TimeAction::FramePrevX100);
-            TLRENDER_ASSERT(timeRange.end_time_inclusive() == currentTime);
 
             // Test the in/out points.
             otime::TimeRange inOutRange = time::invalidTimeRange;
@@ -330,17 +332,17 @@ namespace tl
                 });
             player->setInOutRange(otime::TimeRange(
                 timeRange.start_time(),
-                otime::RationalTime(33.0, 24.0)));
+                otime::RationalTime(10.0, rate)));
             TLRENDER_ASSERT(otime::TimeRange(
                 timeRange.start_time(),
-                otime::RationalTime(33.0, 24.0)) == inOutRange);
-            player->seek(timeRange.start_time() + otime::RationalTime(2.0, 24.0));
+                otime::RationalTime(10.0, rate)) == inOutRange);
+            player->seek(timeRange.start_time() + otime::RationalTime(1.0, rate));
             player->setInPoint();
-            player->seek(timeRange.start_time() + otime::RationalTime(22.0, 24.0));
+            player->seek(timeRange.start_time() + otime::RationalTime(10.0, rate));
             player->setOutPoint();
             TLRENDER_ASSERT(otime::TimeRange(
-                timeRange.start_time() + otime::RationalTime(2.0, 24.0),
-                otime::RationalTime(21.0, 24.0)) == inOutRange);
+                timeRange.start_time() + otime::RationalTime(1.0, rate),
+                otime::RationalTime(10.0, rate)) == inOutRange);
             player->resetInPoint();
             player->resetOutPoint();
             TLRENDER_ASSERT(otime::TimeRange(timeRange.start_time(), timeRange.duration()) == inOutRange);

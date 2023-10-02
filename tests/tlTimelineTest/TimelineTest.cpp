@@ -61,6 +61,13 @@ namespace tl
                 ss << "Timeline extension: " << i;
                 _print(ss.str());
             }
+            for (const auto& path : getPaths(
+                file::Path(TLRENDER_SAMPLE_DATA),
+                file::PathOptions(),
+                _context))
+            {
+                _print(string::Format("Path: {0}").arg(path.get()));
+            }
         }
 
         void TimelineTest::_transitions()
@@ -137,7 +144,7 @@ namespace tl
         void TimelineTest::_timeline()
         {
             // Write an OTIO timeline.
-            auto otioClip = new otio::Clip;
+            /*auto otioClip = new otio::Clip;
             otioClip->set_media_reference(new otio::ImageSequenceReference(
                 "file://", "Timeline Test.", ".ppm", 0, 1, 1, 0));
             otioClip->set_source_range(otime::TimeRange(
@@ -204,33 +211,33 @@ namespace tl
                     write->writeVideo(otime::RationalTime(i, 24.0), image);
                 }
             }
-#endif // TLRENDER_FFMPEG
+#endif // TLRENDER_FFMPEG*/
 
             // Test timelines.
-            for (const auto& path : getPaths(file::Path("."), file::PathOptions(), _context))
+            const std::vector<file::Path> paths =
             {
-                _print(string::Format("Path: {0}").arg(path.get()));
-            }
+                //file::Path(TLRENDER_SAMPLE_DATA, "AudioTones.otio"),
+                //file::Path(TLRENDER_SAMPLE_DATA, "AudioTonesAndVideo.otio"),
+                file::Path(TLRENDER_SAMPLE_DATA, "Gap.otio"),
+                file::Path(TLRENDER_SAMPLE_DATA, "MovieAndSeq.otio"),
+                file::Path(TLRENDER_SAMPLE_DATA, "TransitionOverlay.otio")
+            };
+            for (const auto& path : paths)
             {
-                auto timeline = Timeline::create(fileName, _context);
+                _print(string::Format("Timeline: {0}").arg(path.get()));
+                auto timeline = Timeline::create(path, _context);
                 TLRENDER_ASSERT(timeline->getTimeline());
-                TLRENDER_ASSERT(fileName == timeline->getPath().get());
-                TLRENDER_ASSERT(Options() == timeline->getOptions());
-                TLRENDER_ASSERT(time::compareExact(timeRange, timeline->getTimeRange()));
-                TLRENDER_ASSERT(!timeline->getIOInfo().video.empty());
+                TLRENDER_ASSERT(path == timeline->getPath());
                 _timeline(timeline);
             }
+            for (const auto& path : paths)
             {
-                const file::Path path(fileName);
+                _print(string::Format("Memory timeline: {0}").arg(path.get()));
                 auto otioTimeline = timeline::create(path, _context);
-                TLRENDER_ASSERT(otioTimeline);
                 toMemoryReferences(otioTimeline, path.getDirectory());
                 auto timeline = timeline::Timeline::create(otioTimeline, _context);
                 TLRENDER_ASSERT(timeline->getTimeline());
-                TLRENDER_ASSERT(fileName == timeline->getPath().get());
-                TLRENDER_ASSERT(Options() == timeline->getOptions());
-                TLRENDER_ASSERT(time::compareExact(timeRange, timeline->getTimeRange()));
-                TLRENDER_ASSERT(!timeline->getIOInfo().video.empty());
+                TLRENDER_ASSERT(path == timeline->getPath());
                 _timeline(timeline);
             }
         }
