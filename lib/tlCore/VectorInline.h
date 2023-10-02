@@ -59,25 +59,55 @@ namespace tl
         template<typename T>
         inline void Vector2<T>::zero()
         {
-            x = T(0);
-            y = T(0);
+            x = y = T(0);
         }
 
         template<typename T>
         inline void Vector3<T>::zero()
         {
-            x = T(0);
-            y = T(0);
-            z = T(0);
+            x = y = z = T(0);
         }
 
         template<typename T>
         inline void Vector4<T>::zero()
         {
-            x = T(0);
-            y = T(0);
-            z = T(0);
-            w = T(0);
+            x = y = z = w = T(0);
+        }
+
+        template<typename T>
+        constexpr T Vector2<T>::operator [] (int index) const
+        {
+            return 0 == index ? x : y;
+        }
+
+        template<typename T>
+        T& Vector2<T>::operator [] (int index)
+        {
+            return 0 == index ? x : y;
+        }
+
+        template<typename T>
+        constexpr T Vector3<T>::operator [] (int index) const
+        {
+            return 0 == index ? x : (1 == index ? y : z);
+        }
+
+        template<typename T>
+        T& Vector3<T>::operator [] (int index)
+        {
+            return 0 == index ? x : (1 == index ? y : z);
+        }
+
+        template<typename T>
+        constexpr T Vector4<T>::operator [] (int index) const
+        {
+            return 0 == index ? x : (1 == index ? y : (2 == index ? z : w));
+        }
+
+        template<typename T>
+        T& Vector4<T>::operator [] (int index)
+        {
+            return 0 == index ? x : (1 == index ? y : (2 == index ? z : w));
         }
 
         template<typename T>

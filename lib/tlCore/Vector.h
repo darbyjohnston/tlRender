@@ -28,6 +28,9 @@ namespace tl
 
             void zero();
 
+            constexpr T operator [] (int) const;
+            T& operator [] (int);
+
             ///@}
 
             constexpr bool operator == (const Vector2<T>&) const;
@@ -50,6 +53,9 @@ namespace tl
             ///@{
 
             void zero();
+
+            constexpr T operator [] (int) const;
+            T& operator [] (int);
 
             ///@}
 
@@ -74,6 +80,9 @@ namespace tl
             ///@{
 
             void zero();
+
+            constexpr T operator [] (int) const;
+            T& operator [] (int);
 
             ///@}
 

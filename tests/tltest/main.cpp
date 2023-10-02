@@ -18,9 +18,13 @@
 #include <tlAppTest/CmdLineTest.h>
 
 #include <tlTimelineTest/ColorConfigOptionsTest.h>
+#include <tlTimelineTest/CompareOptionsTest.h>
+#include <tlTimelineTest/DisplayOptionsTest.h>
 #include <tlTimelineTest/EditTest.h>
 #include <tlTimelineTest/IRenderTest.h>
+#include <tlTimelineTest/ImageOptionsTest.h>
 #include <tlTimelineTest/LUTOptionsTest.h>
+#include <tlTimelineTest/PlayerOptionsTest.h>
 #include <tlTimelineTest/PlayerTest.h>
 #include <tlTimelineTest/TimelineTest.h>
 #include <tlTimelineTest/UtilTest.h>
@@ -167,8 +171,12 @@ void timelineTests(
     const std::shared_ptr<system::Context>& context)
 {
     tests.push_back(timeline_tests::ColorConfigOptionsTest::create(context));
+    tests.push_back(timeline_tests::CompareOptionsTest::create(context));
+    tests.push_back(timeline_tests::DisplayOptionsTest::create(context));
     tests.push_back(timeline_tests::IRenderTest::create(context));
+    tests.push_back(timeline_tests::ImageOptionsTest::create(context));
     tests.push_back(timeline_tests::LUTOptionsTest::create(context));
+    tests.push_back(timeline_tests::PlayerOptionsTest::create(context));
     tests.push_back(timeline_tests::PlayerTest::create(context));
     tests.push_back(timeline_tests::TimelineTest::create(context));
     tests.push_back(timeline_tests::UtilTest::create(context));

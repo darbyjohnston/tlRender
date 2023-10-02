@@ -71,25 +71,6 @@ namespace tl
         }
 
         template<typename T>
-        inline Matrix3x3<T> Matrix3x3<T>::operator * (const Matrix3x3<T>& value) const
-        {
-            Matrix3x3<T> out;
-            for (int i = 0; i < 3; ++i)
-            {
-                for (int j = 0; j < 3; ++j)
-                {
-                    float tmp = 0.F;
-                    for (int k = 0; k < 3; ++k)
-                    {
-                        tmp += value.e[i * 3 + k] * e[k * 3 + j];
-                    }
-                    out.e[i * 3 + j] = tmp;
-                }
-            }
-            return out;
-        }
-
-        template<typename T>
         constexpr bool Matrix4x4<T>::operator == (const Matrix4x4<T>& other) const
         {
             return
@@ -115,25 +96,6 @@ namespace tl
         constexpr bool Matrix4x4<T>::operator != (const Matrix4x4<T>& other) const
         {
             return !(*this == other);
-        }
-
-        template<typename T>
-        inline Matrix4x4<T> Matrix4x4<T>::operator * (const Matrix4x4<T>& value) const
-        {
-            Matrix4x4<T> out;
-            for (int i = 0; i < 4; ++i)
-            {
-                for (int j = 0; j < 4; ++j)
-                {
-                    float tmp = 0.F;
-                    for (int k = 0; k < 4; ++k)
-                    {
-                        tmp += value.e[i * 4 + k] * e[k * 4 + j];
-                    }
-                    out.e[i * 4 + j] = tmp;
-                }
-            }
-            return out;
         }
 
         template<typename T>
@@ -220,6 +182,86 @@ namespace tl
                 T(0), f,    T(0), T(0),
                 T(0), T(0), b,    T(-1),
                 T(0), T(0), c,    T(0));
+        }
+
+        template<typename T>
+        inline Matrix3x3<T> operator * (const Matrix3x3<T>& a, const Matrix3x3<T>& b)
+        {
+            Matrix3x3<T> out;
+            for (int i = 0; i < 3; ++i)
+            {
+                for (int j = 0; j < 3; ++j)
+                {
+                    float tmp = 0.F;
+                    for (int k = 0; k < 3; ++k)
+                    {
+                        tmp += b.e[i * 3 + k] * a.e[k * 3 + j];
+                    }
+                    out.e[i * 3 + j] = tmp;
+                }
+            }
+            return out;
+        }
+
+        template<typename T>
+        inline Vector2<T> operator * (const Matrix3x3<T>& a, const Vector2<T>& v)
+        {
+            Vector2<T> out;
+            for (int i = 0; i < 2; ++i)
+            {
+                for (int j = 0; j < 2; ++j)
+                {
+                    out[i] += a.e[i * 3 + j] * v[j];
+                }
+            }
+            return out;
+        }
+
+        template<typename T>
+        inline Matrix4x4<T> operator * (const Matrix4x4<T>& a, const Matrix4x4<T>& b)
+        {
+            Matrix4x4<T> out;
+            for (int i = 0; i < 4; ++i)
+            {
+                for (int j = 0; j < 4; ++j)
+                {
+                    float tmp = 0.F;
+                    for (int k = 0; k < 4; ++k)
+                    {
+                        tmp += b.e[i * 4 + k] * a.e[k * 4 + j];
+                    }
+                    out.e[i * 4 + j] = tmp;
+                }
+            }
+            return out;
+        }
+
+        template<typename T>
+        inline Vector3<T> operator * (const Matrix4x4<T>& a, const Vector3<T>& v)
+        {
+            Vector3<T> out;
+            for (int i = 0; i < 3; ++i)
+            {
+                for (int j = 0; j < 3; ++j)
+                {
+                    out[i] += a.e[i * 4 + j] * v[j];
+                }
+            }
+            return out;
+        }
+
+        template<typename T>
+        inline Vector4<T> operator * (const Matrix4x4<T>& a, const Vector4<T>& v)
+        {
+            Vector4<T> out;
+            for (int i = 0; i < 4; ++i)
+            {
+                for (int j = 0; j < 4; ++j)
+                {
+                    out[i] += a.e[i * 4 + j] * v[j];
+                }
+            }
+            return out;
         }
     };
 }

@@ -25,8 +25,6 @@ namespace tl
 
             constexpr bool operator == (const Matrix3x3<T>&) const;
             constexpr bool operator != (const Matrix3x3<T>&) const;
-
-            inline Matrix3x3<T> operator * (const Matrix3x3<T>&) const;
         };
 
         //! 4x4 matrix.
@@ -45,8 +43,6 @@ namespace tl
 
             constexpr bool operator == (const Matrix4x4<T>&) const;
             constexpr bool operator != (const Matrix4x4<T>&) const;
-
-            Matrix4x4<T> operator * (const Matrix4x4<T>&) const;
         };
 
         //! 3x3 floating point matrix.
@@ -54,6 +50,9 @@ namespace tl
 
         //! 4x4 floating point matrix.
         typedef Matrix4x4<float> Matrix4x4f;
+
+        //! \name Matrices
+        ///@{
 
         //! Create a translation matrix.
         template<typename T>
@@ -82,6 +81,28 @@ namespace tl
         //! Create a perspective matrix.
         template<typename T>
         constexpr Matrix4x4<T> perspective(T fov, T aspect, T nearClip, T farClip);
+
+        ///@}
+
+        //! \name Operators
+        ///@{
+
+        template<typename T>
+        Matrix3x3<T> operator * (const Matrix3x3<T>&, const Matrix3x3<T>&);
+
+        template<typename T>
+        Vector2<T> operator * (const Matrix3x3<T>&, const Vector2<T>&);
+
+        template<typename T>
+        Matrix4x4<T> operator * (const Matrix4x4<T>&, const Matrix4x4<T>&);
+
+        template<typename T>
+        Vector3<T> operator * (const Matrix4x4<T>&, const Vector3<T>&);
+
+        template<typename T>
+        Vector4<T> operator * (const Matrix4x4<T>&, const Vector4<T>&);
+
+        ///@}
 
         //! \name Serialize
         ///@{

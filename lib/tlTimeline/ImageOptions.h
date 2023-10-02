@@ -60,7 +60,7 @@ namespace tl
         //! Image filters.
         struct ImageFilters
         {
-            ImageFilter minify = ImageFilter::Linear;
+            ImageFilter minify  = ImageFilter::Linear;
             ImageFilter magnify = ImageFilter::Linear;
 
             bool operator == (const ImageFilters&) const;
@@ -70,8 +70,8 @@ namespace tl
         //! Image options.
         struct ImageOptions
         {
-            InputVideoLevels videoLevels = InputVideoLevels::FromFile;
-            AlphaBlend       alphaBlend = AlphaBlend::Straight;
+            InputVideoLevels videoLevels  = InputVideoLevels::FromFile;
+            AlphaBlend       alphaBlend   = AlphaBlend::Straight;
             ImageFilters     imageFilters;
 
             bool operator == (const ImageOptions&) const;

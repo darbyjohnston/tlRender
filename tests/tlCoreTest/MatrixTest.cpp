@@ -39,14 +39,38 @@ namespace tl
                 TLRENDER_ASSERT(a != b);
             }
             {
+                TLRENDER_ASSERT(translate(Vector3f(1.F, 2.F, 3.F)) != Matrix4x4f());
+                TLRENDER_ASSERT(rotateX(90.F) != Matrix4x4f());
+                TLRENDER_ASSERT(rotateY(90.F) != Matrix4x4f());
+                TLRENDER_ASSERT(rotateZ(90.F) != Matrix4x4f());
+                TLRENDER_ASSERT(scale(Vector3f(1.F, 2.F, 3.F)) != Matrix4x4f());
+                TLRENDER_ASSERT(ortho(-1.F, -1.F, 1.F, 1.F, -1.F, 1.F) != Matrix4x4f());
+                TLRENDER_ASSERT(perspective(90.F, 1.F, .1F, 10000.F) != Matrix4x4f());
+            }
+            {
                 Matrix3x3f a;
                 Matrix3x3f b;
                 TLRENDER_ASSERT(a * b == Matrix3x3f());
             }
             {
+                Matrix3x3f a;
+                Vector2f b(1.F, 2.F);
+                TLRENDER_ASSERT(a * b == b);
+            }
+            {
                 Matrix4x4f a;
                 Matrix4x4f b;
                 TLRENDER_ASSERT(a * b == Matrix4x4f());
+            }
+            {
+                Matrix4x4f a;
+                Vector3f b(1.F, 2.F, 3.F);
+                TLRENDER_ASSERT(a * b == b);
+            }
+            {
+                Matrix4x4f a;
+                Vector4f b(1.F, 2.F, 3.F, 4.F);
+                TLRENDER_ASSERT(a * b == b);
             }
             {
                 const Matrix3x3f m;
