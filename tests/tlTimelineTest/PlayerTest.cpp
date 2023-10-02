@@ -237,15 +237,17 @@ namespace tl
                     });
                 for (const auto& loop : getLoopEnums())
                 {
+                    player->seek(timeRange.start_time());
                     player->setLoop(loop);
                     player->setPlayback(Playback::Forward);
-                    for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
+                    for (size_t i = 0; i < timeRange.duration().rate(); ++i)
                     {
                         player->tick();
                         time::sleep(std::chrono::milliseconds(1));
                     }
+                    player->seek(timeRange.start_time());
                     player->setPlayback(Playback::Reverse);
-                    for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
+                    for (size_t i = 0; i < timeRange.duration().rate(); ++i)
                     {
                         player->tick();
                         time::sleep(std::chrono::milliseconds(1));

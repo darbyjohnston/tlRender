@@ -41,7 +41,6 @@ namespace tl
             _videoData();
             _create();
             _timeline();
-            _imageSequence();
         }
 
         void TimelineTest::_enums()
@@ -247,25 +246,25 @@ namespace tl
             // Get video from the timeline.
             const otime::TimeRange& timeRange = timeline->getTimeRange();
             std::vector<timeline::VideoData> videoData;
-            std::vector<std::future<timeline::VideoData> > futures;
+            std::vector<std::future<timeline::VideoData> > videoFutures;
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
-                futures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0)));
+                videoFutures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0)));
             }
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
-                futures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), 1));
+                videoFutures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), 1));
             }
             while (videoData.size() < static_cast<size_t>(timeRange.duration().value()) * 2)
             {
-                auto i = futures.begin();
-                while (i != futures.end())
+                auto i = videoFutures.begin();
+                while (i != videoFutures.end())
                 {
                     if (i->valid() &&
                         i->wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                     {
                         videoData.push_back(i->get());
-                        i = futures.erase(i);
+                        i = videoFutures.erase(i);
                     }
                     else
                     {
@@ -273,34 +272,20 @@ namespace tl
                     }
                 }
             }
-            TLRENDER_ASSERT(futures.empty());
+            TLRENDER_ASSERT(videoFutures.empty());
 
             // Cancel requests.
             videoData.clear();
-            futures.clear();
+            videoFutures.clear();
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
-                futures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0)));
+                videoFutures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0)));
             }
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
-                futures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), 1));
+                videoFutures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), 1));
             }
             timeline->cancelRequests();
-        }
-
-        void TimelineTest::_imageSequence()
-        {
-            //! \bug This uses the image sequence created by _timeline().
-            auto timeline = Timeline::create("Timeline Test.0.ppm", _context);
-            {
-                std::stringstream ss;
-                ss << timeline->getTimeRange().duration();
-                _print(ss.str());
-            }
-            TLRENDER_ASSERT(
-                otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)) ==
-                timeline->getTimeRange());
         }
     }
 }
