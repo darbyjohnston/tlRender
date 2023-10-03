@@ -324,6 +324,58 @@ namespace tl
         }
 
         void TimelineTest::_separateAudio()
-        {}
+        {
+            {
+                Options options;
+                options.fileSequenceAudio = FileSequenceAudio::None;
+                auto timeline = Timeline::create(
+                    file::Path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg"),
+                    _context,
+                    options);
+                const file::Path& path = timeline->getPath();
+                const file::Path& audioPath = timeline->getAudioPath();
+                TLRENDER_ASSERT(audioPath.isEmpty());
+                _print(string::Format("{0}: {1}").arg(path.get()).arg(audioPath.get()));
+            }
+            {
+                Options options;
+                options.fileSequenceAudio = FileSequenceAudio::BaseName;
+                auto timeline = Timeline::create(
+                    file::Path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg"),
+                    _context,
+                    options);
+                const file::Path& path = timeline->getPath();
+                const file::Path& audioPath = timeline->getAudioPath();
+                TLRENDER_ASSERT(!audioPath.isEmpty());
+                _print(string::Format("{0}: {1}").arg(path.get()).arg(audioPath.get()));
+            }
+            {
+                Options options;
+                options.fileSequenceAudio = FileSequenceAudio::FileName;
+                options.fileSequenceAudioFileName = file::Path(
+                    TLRENDER_SAMPLE_DATA, "AudioToneStereo.wav").get();
+                auto timeline = Timeline::create(
+                    file::Path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg"),
+                    _context,
+                    options);
+                const file::Path& path = timeline->getPath();
+                const file::Path& audioPath = timeline->getAudioPath();
+                TLRENDER_ASSERT(!audioPath.isEmpty());
+                _print(string::Format("{0}: {1}").arg(path.get()).arg(audioPath.get()));
+            }
+            {
+                Options options;
+                options.fileSequenceAudio = FileSequenceAudio::Directory;
+                options.fileSequenceAudioDirectory = "";
+                auto timeline = Timeline::create(
+                    file::Path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg"),
+                    _context,
+                    options);
+                const file::Path& path = timeline->getPath();
+                const file::Path& audioPath = timeline->getAudioPath();
+                TLRENDER_ASSERT(!audioPath.isEmpty());
+                _print(string::Format("{0}: {1}").arg(path.get()).arg(audioPath.get()));
+            }
+        }
     }
 }
