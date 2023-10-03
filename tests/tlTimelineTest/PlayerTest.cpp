@@ -10,6 +10,7 @@
 #include <tlIO/System.h>
 
 #include <tlCore/Assert.h>
+#include <tlCore/StringFormat.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/externalReference.h>
@@ -38,6 +39,7 @@ namespace tl
             _enums();
             _loop();
             _player();
+            _externalTime();
         }
 
         void PlayerTest::_enums()
@@ -96,6 +98,7 @@ namespace tl
             };
             for (const auto& path : paths)
             {
+                _print(string::Format("Timeline: {0}").arg(path.get()));
                 auto timeline = Timeline::create(path, _context);
                 auto player = Player::create(timeline, _context);
                 TLRENDER_ASSERT(player->getTimeline());
@@ -104,6 +107,7 @@ namespace tl
             }
             for (const auto& path : paths)
             {
+                _print(string::Format("Memory timeline: {0}").arg(path.get()));
                 auto otioTimeline = timeline::create(path, _context);
                 TLRENDER_ASSERT(otioTimeline);
                 toMemoryReferences(otioTimeline, path.getDirectory());
@@ -117,87 +121,36 @@ namespace tl
 
         void PlayerTest::_player(const std::shared_ptr<timeline::Player>& player)
         {
-            const otime::TimeRange& timeRange = player->getTimeRange();
             const file::Path& audioPath = player->getAudioPath();
             const PlayerOptions& playerOptions = player->getPlayerOptions();
             const Options options = player->getOptions();
+            const otime::TimeRange& timeRange = player->getTimeRange();
             const io::Info& ioInfo = player->getIOInfo();
-
-            // Test frames.
-            struct FrameOptions
+            const double defaultSpeed = player->getDefaultSpeed();
+            double speed = player->getSpeed();
+            _print(string::Format("Audio path: {0}").arg(audioPath.get()));
+            _print(string::Format("Time range: {0}").arg(timeRange));
+            if (!ioInfo.video.empty())
             {
-                uint16_t layer = 0;
-                PlayerCacheOptions cache;
-                size_t requestCount = 16;
-                size_t requestTimeout = 1;
-            };
-            FrameOptions frameOptions2;
-            frameOptions2.layer = 1;
-            frameOptions2.cache.readAhead = otime::RationalTime(1.0, 24.0);
-            frameOptions2.cache.readBehind = otime::RationalTime(0.0, 1.0);
-            for (const auto options : std::vector<FrameOptions>({ FrameOptions(), frameOptions2 }))
-            {
-                player->setCacheOptions(options.cache);
-                TLRENDER_ASSERT(options.cache == player->observeCacheOptions()->get());
-                auto currentVideoObserver = observer::ValueObserver<timeline::VideoData>::create(
-                    player->observeCurrentVideo(),
-                    [this](const timeline::VideoData& value)
-                    {
-                        std::stringstream ss;
-                        ss << "Video time: " << value.time;
-                        _print(ss.str());
-                    });
-                auto currentAudioObserver = observer::ListObserver<timeline::AudioData>::create(
-                    player->observeCurrentAudio(),
-                    [this](const std::vector<timeline::AudioData>& value)
-                    {
-                        for (const auto& i : value)
-                        {
-                            std::stringstream ss;
-                            ss << "Audio time: " << i.seconds;
-                            _print(ss.str());
-                        }
-                    });
-                auto cacheInfoObserver = observer::ValueObserver<PlayerCacheInfo>::create(
-                    player->observeCacheInfo(),
-                    [this](const PlayerCacheInfo& value)
-                    {
-                        {
-                            std::stringstream ss;
-                            ss << "Video/audio cached frames: " << value.videoFrames.size() << "/" << value.audioFrames.size();
-                            _print(ss.str());
-                        }
-                    });
-                for (const auto& loop : getLoopEnums())
-                {
-                    player->seek(timeRange.start_time());
-                    player->setLoop(loop);
-                    player->setPlayback(Playback::Forward);
-                    for (size_t i = 0; i < timeRange.duration().rate(); ++i)
-                    {
-                        player->tick();
-                        time::sleep(std::chrono::milliseconds(1));
-                    }
-                    player->seek(timeRange.start_time());
-                    player->setPlayback(Playback::Reverse);
-                    for (size_t i = 0; i < timeRange.duration().rate(); ++i)
-                    {
-                        player->tick();
-                        time::sleep(std::chrono::milliseconds(1));
-                    }
-                }
-                player->setPlayback(Playback::Stop);
+                _print(string::Format("Video: {0}").arg(ioInfo.video.size()));
             }
+            if (ioInfo.audio.isValid())
+            {
+                _print(string::Format("Audio: {0} {1} {2}").
+                    arg(ioInfo.audio.channelCount).
+                    arg(ioInfo.audio.dataType).
+                    arg(ioInfo.audio.sampleRate));
+            }
+            _print(string::Format("Default speed: {0}").arg(defaultSpeed));
+            _print(string::Format("Speed: {0}").arg(speed));
 
             // Test the playback speed.
-            double speed = player->getSpeed();
             auto speedObserver = observer::ValueObserver<double>::create(
                 player->observeSpeed(),
                 [&speed](double value)
                 {
                     speed = value;
                 });
-            const double defaultSpeed = player->getDefaultSpeed();
             const double doubleSpeed = defaultSpeed * 2.0;
             player->setSpeed(doubleSpeed);
             TLRENDER_ASSERT(doubleSpeed == speed);
@@ -290,6 +243,147 @@ namespace tl
             player->resetInPoint();
             player->resetOutPoint();
             TLRENDER_ASSERT(otime::TimeRange(timeRange.start_time(), timeRange.duration()) == inOutRange);
+
+            // Test the video layer.
+            size_t videoLayer = 0;
+            auto videoLayerObserver = observer::ValueObserver<size_t>::create(
+                player->observeVideoLayer(),
+                [&videoLayer](size_t value)
+                {
+                    videoLayer = value;
+                });
+            player->setVideoLayer(1);
+            TLRENDER_ASSERT(1 == player->getVideoLayer());
+            TLRENDER_ASSERT(1 == videoLayer);
+            player->setVideoLayer(0);
+
+            // Test audio.
+            float volume = 1.F;
+            auto volumeObserver = observer::ValueObserver<float>::create(
+                player->observeVolume(),
+                [&volume](float value)
+                {
+                    volume = value;
+                });
+            player->setVolume(.5F);
+            TLRENDER_ASSERT(.5F == player->getVolume());
+            TLRENDER_ASSERT(.5F == volume);
+            player->setVolume(1.F);
+            bool mute = false;
+            auto muteObserver = observer::ValueObserver<bool>::create(
+                player->observeMute(),
+                [&mute](bool value)
+                {
+                    mute = value;
+                });
+            player->setMute(true);
+            TLRENDER_ASSERT(player->isMuted());
+            TLRENDER_ASSERT(mute);
+            player->setMute(false);
+            double audioOffset = 0.0;
+            auto audioOffsetObserver = observer::ValueObserver<double>::create(
+                player->observeAudioOffset(),
+                [&audioOffset](double value)
+                {
+                    audioOffset = value;
+                });
+            player->setAudioOffset(0.5);
+            TLRENDER_ASSERT(0.5 == player->getAudioOffset());
+            TLRENDER_ASSERT(0.5 == audioOffset);
+            player->setAudioOffset(0.0);
+            
+            // Test frames.
+            struct FrameOptions
+            {
+                PlayerCacheOptions cache;
+            };
+            FrameOptions frameOptions2;
+            frameOptions2.cache.readAhead = otime::RationalTime(0.0, 1.0);
+            frameOptions2.cache.readBehind = otime::RationalTime(0.0, 1.0);
+            for (const auto frameOptions : std::vector<FrameOptions>({ FrameOptions(), frameOptions2 }))
+            {
+                PlayerCacheOptions cacheOptions;
+                auto cacheOptionsObserver = observer::ValueObserver<PlayerCacheOptions>::create(
+                    player->observeCacheOptions(),
+                    [&cacheOptions](const PlayerCacheOptions& value)
+                    {
+                        cacheOptions = value;
+                    });
+                player->setCacheOptions(frameOptions.cache);
+                TLRENDER_ASSERT(frameOptions.cache == player->getCacheOptions());
+                TLRENDER_ASSERT(frameOptions.cache == cacheOptions);
+
+                auto currentVideoObserver = observer::ValueObserver<timeline::VideoData>::create(
+                    player->observeCurrentVideo(),
+                    [this](const timeline::VideoData& value)
+                    {
+                        std::stringstream ss;
+                        ss << "Video time: " << value.time;
+                        _print(ss.str());
+                    });
+                auto currentAudioObserver = observer::ListObserver<timeline::AudioData>::create(
+                    player->observeCurrentAudio(),
+                    [this](const std::vector<timeline::AudioData>& value)
+                    {
+                        for (const auto& i : value)
+                        {
+                            std::stringstream ss;
+                            ss << "Audio time: " << i.seconds;
+                            _print(ss.str());
+                        }
+                    });
+                auto cacheInfoObserver = observer::ValueObserver<PlayerCacheInfo>::create(
+                    player->observeCacheInfo(),
+                    [this](const PlayerCacheInfo& value)
+                    {
+                        {
+                            std::stringstream ss;
+                            ss << "Video/audio cached frames: " << value.videoFrames.size() << "/" << value.audioFrames.size();
+                            _print(ss.str());
+                        }
+                    });
+
+                for (const auto& loop : getLoopEnums())
+                {
+                    player->seek(timeRange.start_time());
+                    player->setLoop(loop);
+                    player->setPlayback(Playback::Forward);
+                    for (size_t i = 0; i < timeRange.duration().rate(); ++i)
+                    {
+                        player->tick();
+                        time::sleep(std::chrono::milliseconds(1));
+                    }
+                    player->seek(timeRange.start_time());
+                    player->setPlayback(Playback::Reverse);
+                    for (size_t i = 0; i < timeRange.duration().rate(); ++i)
+                    {
+                        player->tick();
+                        time::sleep(std::chrono::milliseconds(1));
+                    }
+                }
+                player->setPlayback(Playback::Stop);
+                player->clearCache();
+            }
+        }
+
+        void PlayerTest::_externalTime()
+        {
+            const file::Path path(TLRENDER_SAMPLE_DATA, "MultipleClips.otio");
+            auto timeline = Timeline::create(path, _context);
+            auto player = Player::create(timeline, _context);
+            const otime::TimeRange& timeRange = player->getTimeRange();
+
+            const file::Path path2(TLRENDER_SAMPLE_DATA, "SingleClip.otio");
+            auto timeline2 = Timeline::create(path2, _context);
+            auto player2 = Player::create(timeline2, _context);
+            player2->setExternalTime(player);
+
+            player->setPlayback(Playback::Forward);
+            for (size_t i = 0; i < timeRange.duration().rate(); ++i)
+            {
+                player->tick();
+                time::sleep(std::chrono::milliseconds(1));
+            }
         }
     }
 }
