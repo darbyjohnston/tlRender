@@ -99,24 +99,38 @@ namespace tl
             };
             for (const auto& path : paths)
             {
-                _print(string::Format("Timeline: {0}").arg(path.get()));
-                auto timeline = Timeline::create(path, _context);
-                auto player = Player::create(timeline, _context);
-                TLRENDER_ASSERT(player->getTimeline());
-                TLRENDER_ASSERT(path == player->getPath());
-                _player(player);
+                try
+                {
+                    _print(string::Format("Timeline: {0}").arg(path.get()));
+                    auto timeline = Timeline::create(path, _context);
+                    auto player = Player::create(timeline, _context);
+                    TLRENDER_ASSERT(player->getTimeline());
+                    TLRENDER_ASSERT(path == player->getPath());
+                    _player(player);
+                }
+                catch (const std::exception& e)
+                {
+                    _printError(e.what());
+                }
             }
             for (const auto& path : paths)
             {
-                _print(string::Format("Memory timeline: {0}").arg(path.get()));
-                auto otioTimeline = timeline::create(path, _context);
-                TLRENDER_ASSERT(otioTimeline);
-                toMemoryReferences(otioTimeline, path.getDirectory());
-                auto timeline = Timeline::create(otioTimeline, _context);
-                auto player = Player::create(timeline, _context);
-                TLRENDER_ASSERT(player->getTimeline());
-                TLRENDER_ASSERT(path == player->getPath());
-                _player(player);
+                try
+                {
+                    _print(string::Format("Memory timeline: {0}").arg(path.get()));
+                    auto otioTimeline = timeline::create(path, _context);
+                    TLRENDER_ASSERT(otioTimeline);
+                    toMemoryReferences(otioTimeline, path.getDirectory());
+                    auto timeline = Timeline::create(otioTimeline, _context);
+                    auto player = Player::create(timeline, _context);
+                    TLRENDER_ASSERT(player->getTimeline());
+                    TLRENDER_ASSERT(path == player->getPath());
+                    _player(player);
+                }
+                catch (const std::exception& e)
+                {
+                    _printError(e.what());
+                }
             }
         }
 
