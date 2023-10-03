@@ -73,7 +73,7 @@
                                     "value": 0
                                 }
                             },
-                            "target_url": "BART_2021-02-07.wav"
+                            "target_url": "Seq/BART_2021-02-07.wav"
                         },
                         "source_range": {
                             "OTIO_SCHEMA": "TimeRange.1",
