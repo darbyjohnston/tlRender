@@ -274,9 +274,37 @@ namespace tl
             }
             TLRENDER_ASSERT(videoFutures.empty());
 
+            // Get audio from the timeline.
+            std::vector<timeline::AudioData> audioData;
+            std::vector<std::future<timeline::AudioData> > audioFutures;
+            for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().rescaled_to(1.0).value()); ++i)
+            {
+                audioFutures.push_back(timeline->getAudio(i));
+            }
+            while (audioData.size() < static_cast<size_t>(timeRange.duration().rescaled_to(1.0).value()))
+            {
+                auto i = audioFutures.begin();
+                while (i != audioFutures.end())
+                {
+                    if (i->valid() &&
+                        i->wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                    {
+                        audioData.push_back(i->get());
+                        i = audioFutures.erase(i);
+                    }
+                    else
+                    {
+                        ++i;
+                    }
+                }
+            }
+            TLRENDER_ASSERT(audioFutures.empty());
+
             // Cancel requests.
             videoData.clear();
             videoFutures.clear();
+            audioData.clear();
+            audioFutures.clear();
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
                 videoFutures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0)));
@@ -284,6 +312,10 @@ namespace tl
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
                 videoFutures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), 1));
+            }
+            for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().rescaled_to(1.0).value()); ++i)
+            {
+                audioFutures.push_back(timeline->getAudio(i));
             }
             timeline->cancelRequests();
         }
