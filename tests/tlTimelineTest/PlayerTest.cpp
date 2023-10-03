@@ -105,7 +105,7 @@ namespace tl
                     auto timeline = Timeline::create(path, _context);
                     auto player = Player::create(timeline, _context);
                     TLRENDER_ASSERT(player->getTimeline());
-                    TLRENDER_ASSERT(path == player->getPath());
+                    TLRENDER_ASSERT(path.get() == player->getPath().get());
                     _player(player);
                 }
                 catch (const std::exception& e)
@@ -124,7 +124,7 @@ namespace tl
                     auto timeline = Timeline::create(otioTimeline, _context);
                     auto player = Player::create(timeline, _context);
                     TLRENDER_ASSERT(player->getTimeline());
-                    TLRENDER_ASSERT(path == player->getPath());
+                    TLRENDER_ASSERT(path.get() == player->getPath().get());
                     _player(player);
                 }
                 catch (const std::exception& e)
