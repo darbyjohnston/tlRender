@@ -84,79 +84,6 @@ namespace tl
 
         void PlayerTest::_player()
         {
-            /*// Write an OTIO timeline.
-            auto otioTrack = new otio::Track();
-            auto otioClip = new otio::Clip;
-            otioClip->set_media_reference(new otio::ImageSequenceReference(
-                "", "PlayerTest.", ".ppm", 0, 1, 1, 0));
-            otioClip->set_source_range(otime::TimeRange(
-                otime::RationalTime(0.0, 24.0),
-                otime::RationalTime(24.0, 24.0)));
-            otioTrack->append_child(otioClip);
-
-            otioClip = new otio::Clip;
-            otioClip->set_media_reference(new otio::ImageSequenceReference(
-                "", "PlayerTest.", ".ppm", 0, 1, 1, 0));
-            otioClip->set_source_range(otime::TimeRange(
-                otime::RationalTime(0.0, 24.0),
-                otime::RationalTime(24.0, 24.0)));
-            otioTrack->append_child(otioClip);
-
-#if defined(TLRENDER_FFMPEG)
-            otioClip = new otio::Clip;
-            otioClip->set_media_reference(new otio::ExternalReference(
-                "PlayerTest.mov"));
-            otioClip->set_source_range(otime::TimeRange(
-                otime::RationalTime(0.0, 24.0),
-                otime::RationalTime(24.0, 24.0)));
-            otioTrack->append_child(otioClip);
-#endif // TLRENDER_FFMPEG
-
-            auto otioStack = new otio::Stack;
-            otioStack->append_child(otioTrack);
-            otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(
-                new otio::Timeline);
-            otioTimeline->set_tracks(otioStack);
-            otioTimeline->set_global_start_time(otime::RationalTime(10.0, 24.0));
-            const std::string fileName("PlayerTest.otio");
-            otioTimeline->to_json_file(fileName);
-
-            // Write the media files.
-            otime::TimeRange timeRange(
-                otime::RationalTime(10.0, 24.0),
-                otioTrack->available_range().duration());
-            {
-                image::Info imageInfo(16, 16, image::PixelType::RGB_U8);
-                imageInfo.layout.endian = memory::Endian::MSB;
-                const auto image = image::Image::create(imageInfo);
-                io::Info ioInfo;
-                ioInfo.video.push_back(imageInfo);
-                ioInfo.videoTime = otime::TimeRange(
-                    otime::RationalTime(0.0, 24.0),
-                    otime::RationalTime(24.0, 24.0));
-                auto write = _context->getSystem<io::System>()->write(file::Path("PlayerTest.0.ppm"), ioInfo);
-                for (size_t i = 0; i < static_cast<size_t>(ioInfo.videoTime.duration().value()); ++i)
-                {
-                    write->writeVideo(otime::RationalTime(i, 24.0), image);
-                }
-            }
-#if defined(TLRENDER_FFMPEG)
-            {
-                image::Info imageInfo(16, 16, image::PixelType::RGB_U8);
-                const auto image = image::Image::create(imageInfo);
-                io::Info ioInfo;
-                ioInfo.video.push_back(imageInfo);
-                ioInfo.videoTime = otime::TimeRange(
-                    otime::RationalTime(0.0, 24.0),
-                    otime::RationalTime(24.0, 24.0));
-                auto write = _context->getSystem<io::System>()->write(file::Path("PlayerTest.mov"), ioInfo);
-                for (size_t i = 0; i < static_cast<size_t>(ioInfo.videoTime.duration().value()); ++i)
-                {
-                    write->writeVideo(otime::RationalTime(i, 24.0), image);
-                }
-            }
-#endif // TLRENDER_FFMPEG*/
-
             // Test timeline players.
             const std::vector<file::Path> paths =
             {
@@ -164,7 +91,8 @@ namespace tl
                 //file::Path(TLRENDER_SAMPLE_DATA, "AudioTonesAndVideo.otio"),
                 file::Path(TLRENDER_SAMPLE_DATA, "Gap.otio"),
                 file::Path(TLRENDER_SAMPLE_DATA, "MovieAndSeq.otio"),
-                file::Path(TLRENDER_SAMPLE_DATA, "TransitionOverlay.otio")
+                file::Path(TLRENDER_SAMPLE_DATA, "TransitionOverlay.otio"),
+                file::Path(TLRENDER_SAMPLE_DATA, "SingleClip.otioz")
             };
             for (const auto& path : paths)
             {
@@ -189,8 +117,13 @@ namespace tl
 
         void PlayerTest::_player(const std::shared_ptr<timeline::Player>& player)
         {
-            // Test frames.
             const otime::TimeRange& timeRange = player->getTimeRange();
+            const file::Path& audioPath = player->getAudioPath();
+            const PlayerOptions& playerOptions = player->getPlayerOptions();
+            const Options options = player->getOptions();
+            const io::Info& ioInfo = player->getIOInfo();
+
+            // Test frames.
             struct FrameOptions
             {
                 uint16_t layer = 0;
@@ -257,7 +190,7 @@ namespace tl
             }
 
             // Test the playback speed.
-            double speed = 24.0;
+            double speed = player->getSpeed();
             auto speedObserver = observer::ValueObserver<double>::create(
                 player->observeSpeed(),
                 [&speed](double value)
@@ -278,8 +211,8 @@ namespace tl
                 {
                     playback = value;
                 });
-            player->setLoop(Loop::Loop);
             player->setPlayback(Playback::Forward);
+            TLRENDER_ASSERT(Playback::Forward == player->getPlayback());
             TLRENDER_ASSERT(Playback::Forward == playback);
 
             // Test the playback loop mode.
@@ -291,6 +224,7 @@ namespace tl
                     loop = value;
                 });
             player->setLoop(Loop::Once);
+            TLRENDER_ASSERT(Loop::Once == player->getLoop());
             TLRENDER_ASSERT(Loop::Once == loop);
 
             // Test the current time.
@@ -303,6 +237,7 @@ namespace tl
                     currentTime = value;
                 });
             player->seek(timeRange.start_time());
+            TLRENDER_ASSERT(timeRange.start_time() == player->getCurrentTime());
             TLRENDER_ASSERT(timeRange.start_time() == currentTime);
             const double rate = timeRange.duration().rate();
             player->seek(
@@ -323,6 +258,10 @@ namespace tl
             player->framePrev();
             player->timeAction(TimeAction::FramePrevX10);
             player->timeAction(TimeAction::FramePrevX100);
+            player->timeAction(TimeAction::JumpForward1s);
+            player->timeAction(TimeAction::JumpForward10s);
+            player->timeAction(TimeAction::JumpBack1s);
+            player->timeAction(TimeAction::JumpBack10s);
 
             // Test the in/out points.
             otime::TimeRange inOutRange = time::invalidTimeRange;
@@ -335,6 +274,9 @@ namespace tl
             player->setInOutRange(otime::TimeRange(
                 timeRange.start_time(),
                 otime::RationalTime(10.0, rate)));
+            TLRENDER_ASSERT(otime::TimeRange(
+                timeRange.start_time(),
+                otime::RationalTime(10.0, rate)) == player->getInOutRange());
             TLRENDER_ASSERT(otime::TimeRange(
                 timeRange.start_time(),
                 otime::RationalTime(10.0, rate)) == inOutRange);
