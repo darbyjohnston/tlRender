@@ -94,7 +94,8 @@ namespace tl
                 file::Path(TLRENDER_SAMPLE_DATA, "Gap.otio"),
                 file::Path(TLRENDER_SAMPLE_DATA, "MovieAndSeq.otio"),
                 file::Path(TLRENDER_SAMPLE_DATA, "TransitionOverlay.otio"),
-                file::Path(TLRENDER_SAMPLE_DATA, "SingleClip.otioz")
+                file::Path(TLRENDER_SAMPLE_DATA, "SingleClip.otioz"),
+                file::Path(TLRENDER_SAMPLE_DATA, "SingleClipSeq.otioz")
             };
             for (const auto& path : paths)
             {
