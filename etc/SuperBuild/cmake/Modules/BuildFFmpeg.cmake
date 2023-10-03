@@ -37,6 +37,10 @@ else()
         --disable-bzlib
         --disable-coreimage
         --disable-iconv
+        --disable-libxcb
+        --disable-libxcb-shm
+        --disable-libxcb-xfixes
+        --disable-libxcb-shape
         --disable-lzma
         --disable-metal
         --disable-sndio
@@ -44,6 +48,7 @@ else()
         --disable-sdl2
         --disable-securetransport
         --disable-vulkan
+        --disable-xlib
         --disable-zlib
         --disable-amf
         --disable-audiotoolbox
@@ -64,13 +69,8 @@ else()
         ${FFmpeg_OBJCFLAGS}
         ${FFmpeg_LDFLAGS}
         --x86asmexe=${CMAKE_INSTALL_PREFIX}/bin/nasm)
-    if(UNIX)
-        list(APPEND FFmpeg_CONFIGURE_ARGS
-            --disable-libxcb
-            --disable-libxcb-shm
-            --disable-libxcb-xfixes
-            --disable-libxcb-shape
-            --disable-xlib)
+    if(TLRENDER_NET)
+        list(APPEND FFmpeg_CONFIGURE_ARGS --enable-mbedtls)
     endif()
     if(FFmpeg_SHARED_LIBS)
         list(APPEND FFmpeg_CONFIGURE_ARGS

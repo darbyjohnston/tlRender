@@ -11,6 +11,7 @@ project(tlRender-SuperBuild)
 set(TLRENDER_PYTHON FALSE CACHE BOOL "Enable Python support (for OTIO Python adapters)")
 set(TLRENDER_API "GL_4_1" CACHE STRING "Graphics API (GL_4_1, GL_4_1_Debug, GLES_2)")
 set(TLRENDER_GLFW TRUE CACHE BOOL "Enable support for GLFW")
+set(TLRENDER_NET FALSE CACHE BOOL "Enable network support")
 set(TLRENDER_OCIO TRUE CACHE BOOL "Enable support for OpenColorIO")
 set(TLRENDER_AUDIO TRUE CACHE BOOL "Enable support for audio")
 set(TLRENDER_JPEG TRUE CACHE BOOL "Enable support for JPEG")
@@ -38,7 +39,7 @@ set(TLRENDER_GCOV FALSE CACHE BOOL "Enable gcov code coverage")
 set(TLRENDER_GPROF FALSE CACHE BOOL "Enable gprof code profiling")
 
 # Configure.
-list(PREPEND CMAKE_MODULE_PATH
+set(CMAKE_MODULE_PATH
     ${PROJECT_SOURCE_DIR}/../../cmake/Modules
     ${PROJECT_SOURCE_DIR}/cmake/Modules)
 if(NOT CMAKE_CXX_STANDARD)
@@ -89,6 +90,9 @@ list(APPEND TLRENDER_EXTERNAL_DEPS freetype)
 find_package(OpenGL REQUIRED)
 if(TLRENDER_GLFW)
     list(APPEND TLRENDER_EXTERNAL_DEPS glfw3)
+endif()
+if(TLRENDER_NET)
+    list(APPEND TLRENDER_EXTERNAL_DEPS MbedTLS)
 endif()
 if(TLRENDER_OCIO AND NOT "${TLRENDER_API}" STREQUAL "GLES_2")
     list(APPEND TLRENDER_EXTERNAL_DEPS yaml-cpp)

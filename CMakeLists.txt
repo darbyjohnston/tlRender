@@ -27,6 +27,7 @@ project(
 set(TLRENDER_PYTHON FALSE CACHE BOOL "Enable Python support (for OTIO Python adapters)")
 set(TLRENDER_API "GL_4_1" CACHE STRING "Graphics API (GL_4_1, GL_4_1_Debug, GLES_2)")
 set(TLRENDER_GLFW TRUE CACHE BOOL "Enable support for GLFW")
+set(TLRENDER_NET FALSE CACHE BOOL "Enable network support")
 set(TLRENDER_OCIO TRUE CACHE BOOL "Enable support for OpenColorIO")
 set(TLRENDER_AUDIO TRUE CACHE BOOL "Enable support for audio")
 set(TLRENDER_JPEG TRUE CACHE BOOL "Enable support for JPEG I/O")
@@ -55,7 +56,7 @@ set(TLRENDER_GPROF FALSE CACHE BOOL "Enable gprof code profiling")
 #-------------------------------------------------------------------------------
 # Internal configuration
 
-list(PREPEND CMAKE_MODULE_PATH
+set(CMAKE_MODULE_PATH
     ${PROJECT_SOURCE_DIR}/cmake/Modules)
 
 if(TLRENDER_PYTHON)
@@ -135,7 +136,7 @@ find_package(nlohmann_json REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(minizip REQUIRED)
 find_package(OTIO REQUIRED)
-find_package(Freetype)
+find_package(freetype)
 
 # GLFW dependency
 if(TLRENDER_GLFW)
