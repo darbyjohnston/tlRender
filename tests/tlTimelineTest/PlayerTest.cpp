@@ -89,8 +89,8 @@ namespace tl
             // Test timeline players.
             const std::vector<file::Path> paths =
             {
-                //file::Path(TLRENDER_SAMPLE_DATA, "AudioTones.otio"),
-                //file::Path(TLRENDER_SAMPLE_DATA, "AudioTonesAndVideo.otio"),
+                file::Path(TLRENDER_SAMPLE_DATA, "BART_2021-02-07.m4v"),
+                file::Path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg"),
                 file::Path(TLRENDER_SAMPLE_DATA, "Gap.otio"),
                 file::Path(TLRENDER_SAMPLE_DATA, "MovieAndSeq.otio"),
                 file::Path(TLRENDER_SAMPLE_DATA, "TransitionOverlay.otio"),
