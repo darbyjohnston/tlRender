@@ -137,11 +137,6 @@ namespace tl
                     context->log("tl::timeline::Player", ss.str(), log::Type::Error);
                 }
             }
-            if (!p.thread.rtAudio)
-            {
-                p.thread.running = false;
-                return;
-            }
 #endif
             p.thread.running = true;
             p.thread.thread = std::thread(
@@ -154,7 +149,7 @@ namespace tl
 #if defined(TLRENDER_AUDIO)
                         // Initialize audio.
                         auto audioSystem = context->getSystem<audio::System>();
-                        if (!audioSystem->getDevices().empty())
+                        if (p.thread.rtAudio && !audioSystem->getDevices().empty())
                         {
                             p.audioThread.info = audioSystem->getDefaultOutputInfo();
                             if (p.audioThread.info.channelCount > 0 &&
