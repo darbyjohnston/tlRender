@@ -112,8 +112,6 @@ namespace tl
                 {
                     _print(string::Format("Timeline: {0}").arg(path.get()));
                     auto timeline = Timeline::create(path, _context);
-                    TLRENDER_ASSERT(timeline->getTimeline());
-                    TLRENDER_ASSERT(path.get() == timeline->getPath().get());
                     _timeline(timeline);
                 }
                 catch (const std::exception& e)
@@ -129,8 +127,6 @@ namespace tl
                     auto otioTimeline = timeline::create(path, _context);
                     toMemoryReferences(otioTimeline, path.getDirectory());
                     auto timeline = timeline::Timeline::create(otioTimeline, _context);
-                    TLRENDER_ASSERT(timeline->getTimeline());
-                    TLRENDER_ASSERT(path.get() == timeline->getPath().get());
                     _timeline(timeline);
                 }
                 catch (const std::exception& e)

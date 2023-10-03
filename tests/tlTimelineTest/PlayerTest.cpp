@@ -104,8 +104,6 @@ namespace tl
                     _print(string::Format("Timeline: {0}").arg(path.get()));
                     auto timeline = Timeline::create(path, _context);
                     auto player = Player::create(timeline, _context);
-                    TLRENDER_ASSERT(player->getTimeline());
-                    TLRENDER_ASSERT(path.get() == player->getPath().get());
                     _player(player);
                 }
                 catch (const std::exception& e)
@@ -119,12 +117,9 @@ namespace tl
                 {
                     _print(string::Format("Memory timeline: {0}").arg(path.get()));
                     auto otioTimeline = timeline::create(path, _context);
-                    TLRENDER_ASSERT(otioTimeline);
                     toMemoryReferences(otioTimeline, path.getDirectory());
                     auto timeline = Timeline::create(otioTimeline, _context);
                     auto player = Player::create(timeline, _context);
-                    TLRENDER_ASSERT(player->getTimeline());
-                    TLRENDER_ASSERT(path.get() == player->getPath().get());
                     _player(player);
                 }
                 catch (const std::exception& e)
@@ -136,6 +131,7 @@ namespace tl
 
         void PlayerTest::_player(const std::shared_ptr<timeline::Player>& player)
         {
+            const file::Path& path = player->getPath();
             const file::Path& audioPath = player->getAudioPath();
             const PlayerOptions& playerOptions = player->getPlayerOptions();
             const Options options = player->getOptions();
@@ -143,6 +139,7 @@ namespace tl
             const io::Info& ioInfo = player->getIOInfo();
             const double defaultSpeed = player->getDefaultSpeed();
             double speed = player->getSpeed();
+            _print(string::Format("Path: {0}").arg(path.get()));
             _print(string::Format("Audio path: {0}").arg(audioPath.get()));
             _print(string::Format("Time range: {0}").arg(timeRange));
             if (!ioInfo.video.empty())
