@@ -333,6 +333,11 @@ namespace tl
         Player::~Player()
         {
             TLRENDER_P();
+            p.thread.running = false;
+            if (p.thread.thread.joinable())
+            {
+                p.thread.thread.join();
+            }
 #if defined(TLRENDER_AUDIO)
             if (p.thread.rtAudio && p.thread.rtAudio->isStreamOpen())
             {
@@ -347,11 +352,6 @@ namespace tl
                 }
             }
 #endif // TLRENDER_AUDIO
-            p.thread.running = false;
-            if (p.thread.thread.joinable())
-            {
-                p.thread.thread.join();
-            }
         }
 
         std::shared_ptr<Player> Player::create(
