@@ -230,12 +230,12 @@ int main(int argc, char* argv[])
 
     std::vector<std::shared_ptr<tests::ITest> > tests;
     //tests.push_back(timeline_tests::PlayerTest::create(context));
-    //coreTests(tests, context);
-    //glTests(tests, context);
+    coreTests(tests, context);
+    glTests(tests, context);
     ioTests(tests, context);
-    //timelineTests(tests, context);
-    //appTests(tests, context);
-    //qtTests(tests, context);
+    timelineTests(tests, context);
+    appTests(tests, context);
+    qtTests(tests, context);
 
     for (const auto& test : tests)
     {
