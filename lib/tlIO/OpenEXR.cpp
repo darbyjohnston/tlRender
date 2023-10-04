@@ -919,7 +919,35 @@ namespace tl
 
         void writeTags(const image::Tags& tags, double speed, Imf::Header& header)
         {
-            auto i = tags.find("Chromaticities");
+            // Mulipart attributes.
+            auto i = tags.find("Name");
+            if (i != tags.end())
+            {
+                header.setName(i->second);
+            }
+            i = tags.find("Type");
+            if (i != tags.end())
+            {
+                header.setType(i->second);
+            }
+            i = tags.find("Version");
+            if (i != tags.end())
+            {
+                header.setVersion(std::stoi(i->second));
+            }
+            i = tags.find("Chunk Count");
+            if (i != tags.end())
+            {
+                header.setChunkCount(std::stoi(i->second));
+            }
+            i = tags.find("View");
+            if (i != tags.end())
+            {
+                header.setView(i->second);
+            }
+
+            // Standard attributes.
+            i = tags.find("Chromaticities");
             if (i != tags.end())
             {
                 std::stringstream ss(i->second);
@@ -1002,6 +1030,11 @@ namespace tl
             {
                 addIsoSpeed(header, std::stof(i->second));
             }
+            i = tags.find("Environment Map");
+            if (i != tags.end())
+            {
+                addEnvmap(header, static_cast<Imf::Envmap>(std::stoi(i->second)));
+            }
             i = tags.find("Keycode");
             if (i != tags.end())
             {
@@ -1019,6 +1052,11 @@ namespace tl
                 uint32_t timecode = 0;
                 time::stringToTimecode(i->second, timecode);
                 addTimeCode(header, timecode);
+            }
+            i = tags.find("Wrap Modes");
+            if (i != tags.end())
+            {
+                addWrapmodes(header, i->second);
             }
             const auto speedRational = time::toRational(speed);
             addFramesPerSecond(

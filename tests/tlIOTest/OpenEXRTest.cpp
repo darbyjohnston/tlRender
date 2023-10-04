@@ -27,6 +27,18 @@ namespace tl
             return std::shared_ptr<OpenEXRTest>(new OpenEXRTest(context));
         }
 
+        void OpenEXRTest::run()
+        {
+            _enums();
+            _io();
+        }
+
+        void OpenEXRTest::_enums()
+        {
+            _enum<exr::ChannelGrouping>("ChannelGrouping", exr::getChannelGroupingEnums);
+            _enum<exr::Compression>("Compression", exr::getCompressionEnums);
+        }
+
         namespace
         {
             void write(
@@ -53,14 +65,19 @@ namespace tl
             {
                 std::vector<uint8_t> memoryData;
                 std::vector<file::MemoryRead> memory;
+                std::shared_ptr<io::IRead> read;
                 if (memoryIO)
                 {
                     auto fileIO = file::FileIO::create(path.get(), file::Mode::Read);
                     memoryData.resize(fileIO->getSize());
                     fileIO->read(memoryData.data(), memoryData.size());
                     memory.push_back(file::MemoryRead(memoryData.data(), memoryData.size()));
+                    read = plugin->read(path, memory);
                 }
-                auto read = plugin->read(path, memory);
+                else
+                {
+                    read = plugin->read(path);
+                }
                 const auto ioInfo = read->getInfo().get();
                 TLRENDER_ASSERT(!ioInfo.video.empty());
                 const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
@@ -106,12 +123,17 @@ namespace tl
             }
         }
 
-        void OpenEXRTest::run()
+        void OpenEXRTest::_io()
         {
             auto plugin = _context->getSystem<System>()->getPlugin<exr::Plugin>();
 
             const image::Tags tags =
             {
+                { "Name", "Name" },
+                { "Type", "scanlineimage" },
+                { "Version", "1" },
+                { "Chunk Count", "1" },
+                { "View", "View" },
                 { "Chromaticities", "1.2 2.3 3.4 4.5 5.6 6.7 7.8 8.9" },
                 { "White Luminance", "1.2" },
                 { "X Density", "1.2" },
@@ -126,8 +148,10 @@ namespace tl
                 { "Exposure Time", "1.2" },
                 { "Aperture", "1.2" },
                 { "ISO Speed", "1.2" },
+                { "Environment Map", "1" },
                 { "Keycode", "1:2:3:4:5" },
-                { "Timecode", "01:02:03:04" }
+                { "Timecode", "01:02:03:04" },
+                { "Wrap Modes", "Wrap Modes" }
             };
             const std::vector<std::string> fileNames =
             {

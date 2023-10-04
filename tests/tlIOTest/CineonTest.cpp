@@ -64,14 +64,19 @@ namespace tl
             {
                 std::vector<uint8_t> memoryData;
                 std::vector<file::MemoryRead> memory;
+                std::shared_ptr<io::IRead> read;
                 if (memoryIO)
                 {
                     auto fileIO = file::FileIO::create(path.get(), file::Mode::Read);
                     memoryData.resize(fileIO->getSize());
                     fileIO->read(memoryData.data(), memoryData.size());
                     memory.push_back(file::MemoryRead(memoryData.data(), memoryData.size()));
+                    read = plugin->read(path, memory);
                 }
-                auto read = plugin->read(path, memory);
+                else
+                {
+                    read = plugin->read(path);
+                }
                 const auto ioInfo = read->getInfo().get();
                 TLRENDER_ASSERT(!ioInfo.video.empty());
                 const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
