@@ -139,6 +139,14 @@ namespace tl
             return p.audio.get(_getKey(fileName, timeRange), audioData);
         }
 
+        void Cache::clear()
+        {
+            TLRENDER_P();
+            std::unique_lock<std::mutex> lock(p.mutex);
+            p.video.clear();
+            p.audio.clear();
+        }
+
         std::string Cache::_getKey(
             const std::string& fileName,
             const otime::RationalTime& time,

@@ -144,7 +144,8 @@ namespace tl
 
         void FFmpegTest::_io()
         {
-            auto plugin = _context->getSystem<System>()->getPlugin<ffmpeg::Plugin>();
+            auto system = _context->getSystem<System>();
+            auto plugin = system->getPlugin<ffmpeg::Plugin>();
 
             const image::Tags tags =
             {
@@ -195,7 +196,9 @@ namespace tl
                                 {
                                     write(plugin, image, path, imageInfo, tags, duration);
                                     read(plugin, image, path, memoryIO, tags, duration);
+                                    system->getCache()->clear();
                                     readError(plugin, image, path, memoryIO);
+                                    system->getCache()->clear();
                                 }
                                 catch (const std::exception& e)
                                 {

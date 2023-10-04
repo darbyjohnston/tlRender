@@ -113,7 +113,8 @@ namespace tl
 
         void TIFFTest::run()
         {
-            auto plugin = _context->getSystem<System>()->getPlugin<tiff::Plugin>();
+            auto system = _context->getSystem<System>();
+            auto plugin = system->getPlugin<tiff::Plugin>();
 
             const image::Tags tags =
             {
@@ -164,7 +165,9 @@ namespace tl
                                 {
                                     write(plugin, image, path, imageInfo, tags);
                                     read(plugin, image, path, memoryIO, tags);
+                                    system->getCache()->clear();
                                     readError(plugin, image, path, memoryIO);
+                                    system->getCache()->clear();
                                 }
                                 catch (const std::exception& e)
                                 {

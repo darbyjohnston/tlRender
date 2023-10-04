@@ -107,7 +107,8 @@ namespace tl
 
         void SGITest::_io()
         {
-            auto plugin = _context->getSystem<System>()->getPlugin<sgi::Plugin>();
+            auto system = _context->getSystem<System>();
+            auto plugin = system->getPlugin<sgi::Plugin>();
 
             const std::vector<std::string> fileNames =
             {
@@ -150,7 +151,9 @@ namespace tl
                                 {
                                     write(plugin, image, path, imageInfo);
                                     read(plugin, image, path, memoryIO);
+                                    system->getCache()->clear();
                                     readError(plugin, image, path, memoryIO);
+                                    system->getCache()->clear();
                                 }
                                 catch (const std::exception& e)
                                 {

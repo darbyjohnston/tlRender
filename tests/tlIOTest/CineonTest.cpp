@@ -124,7 +124,8 @@ namespace tl
 
         void CineonTest::_io()
         {
-            auto plugin = _context->getSystem<System>()->getPlugin<cineon::Plugin>();
+            auto system = _context->getSystem<System>();
+            auto plugin = system->getPlugin<cineon::Plugin>();
 
             const image::Tags tags =
             {
@@ -186,7 +187,9 @@ namespace tl
                                 {
                                     write(plugin, image, path, imageInfo, tags);
                                     read(plugin, image, path, memoryIO, tags);
+                                    system->getCache()->clear();
                                     readError(plugin, image, path, memoryIO);
+                                    system->getCache()->clear();
                                 }
                                 catch (const std::exception& e)
                                 {

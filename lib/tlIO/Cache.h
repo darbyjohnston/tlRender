@@ -75,6 +75,9 @@ namespace tl
                 const otime::TimeRange&,
                 AudioData&) const;
 
+            //! Clear the cache.
+            void clear();
+
         private:
             std::string _getKey(
                 const std::string& fileName,

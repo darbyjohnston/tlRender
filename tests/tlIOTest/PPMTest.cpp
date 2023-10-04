@@ -114,7 +114,8 @@ namespace tl
 
         void PPMTest::_io()
         {
-            auto plugin = _context->getSystem<System>()->getPlugin<ppm::Plugin>();
+            auto system = _context->getSystem<System>();
+            auto plugin = system->getPlugin<ppm::Plugin>();
 
             const std::vector<std::string> fileNames =
             {
@@ -166,7 +167,9 @@ namespace tl
                                     {
                                         write(plugin, image, path, imageInfo, options);
                                         read(plugin, image, path, memoryIO);
+                                        system->getCache()->clear();
                                         readError(plugin, image, path, memoryIO);
+                                        system->getCache()->clear();
                                     }
                                     catch (const std::exception& e)
                                     {
