@@ -138,6 +138,7 @@ namespace tl
                 }
             }
 #endif
+            p.log(context);
             p.thread.running = true;
             p.thread.thread = std::thread(
                 [this]
@@ -188,7 +189,6 @@ namespace tl
 
                     p.thread.cacheTimer = std::chrono::steady_clock::now();
                     p.thread.logTimer = std::chrono::steady_clock::now();
-
                     while (p.thread.running)
                     {
                         // Get mutex protected values.

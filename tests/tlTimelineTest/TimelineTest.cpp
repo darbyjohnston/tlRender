@@ -100,9 +100,8 @@ namespace tl
             {
                 file::Path(TLRENDER_SAMPLE_DATA, "BART_2021-02-07.m4v"),
                 file::Path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg"),
-                file::Path(TLRENDER_SAMPLE_DATA, "Gap.otio"),
                 file::Path(TLRENDER_SAMPLE_DATA, "MovieAndSeq.otio"),
-                file::Path(TLRENDER_SAMPLE_DATA, "TransitionOverlay.otio"),
+                file::Path(TLRENDER_SAMPLE_DATA, "TransitionGap.otio"),
                 file::Path(TLRENDER_SAMPLE_DATA, "SingleClip.otioz"),
                 file::Path(TLRENDER_SAMPLE_DATA, "SingleClipSeq.otioz")
             };

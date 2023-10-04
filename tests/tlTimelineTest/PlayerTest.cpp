@@ -91,9 +91,8 @@ namespace tl
             {
                 file::Path(TLRENDER_SAMPLE_DATA, "BART_2021-02-07.m4v"),
                 file::Path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg"),
-                file::Path(TLRENDER_SAMPLE_DATA, "Gap.otio"),
                 file::Path(TLRENDER_SAMPLE_DATA, "MovieAndSeq.otio"),
-                file::Path(TLRENDER_SAMPLE_DATA, "TransitionOverlay.otio"),
+                file::Path(TLRENDER_SAMPLE_DATA, "TransitionGap.otio"),
                 file::Path(TLRENDER_SAMPLE_DATA, "SingleClip.otioz"),
                 file::Path(TLRENDER_SAMPLE_DATA, "SingleClipSeq.otioz")
             };
@@ -102,7 +101,7 @@ namespace tl
                 try
                 {
                     _print(string::Format("Timeline: {0}").arg(path.get()));
-                    auto timeline = Timeline::create(path, _context);
+                    auto timeline = Timeline::create(path.get(), _context);
                     auto player = Player::create(timeline, _context);
                     _player(player);
                 }
@@ -305,14 +304,6 @@ namespace tl
             player->setAudioOffset(0.0);
             
             // Test frames.
-            struct FrameOptions
-            {
-                PlayerCacheOptions cache;
-            };
-            FrameOptions frameOptions2;
-            frameOptions2.cache.readAhead = otime::RationalTime(0.0, 1.0);
-            frameOptions2.cache.readBehind = otime::RationalTime(0.0, 1.0);
-            for (const auto frameOptions : std::vector<FrameOptions>({ FrameOptions(), frameOptions2 }))
             {
                 PlayerCacheOptions cacheOptions;
                 auto cacheOptionsObserver = observer::ValueObserver<PlayerCacheOptions>::create(
@@ -321,9 +312,9 @@ namespace tl
                     {
                         cacheOptions = value;
                     });
-                player->setCacheOptions(frameOptions.cache);
-                TLRENDER_ASSERT(frameOptions.cache == player->getCacheOptions());
-                TLRENDER_ASSERT(frameOptions.cache == cacheOptions);
+                cacheOptions.readAhead = otime::RationalTime(1.0, 1.0);
+                player->setCacheOptions(cacheOptions);
+                TLRENDER_ASSERT(cacheOptions == player->getCacheOptions());
 
                 auto currentVideoObserver = observer::ValueObserver<timeline::VideoData>::create(
                     player->observeCurrentVideo(),
@@ -360,14 +351,26 @@ namespace tl
                     player->seek(timeRange.start_time());
                     player->setLoop(loop);
                     player->setPlayback(Playback::Forward);
-                    for (size_t i = 0; i < timeRange.duration().rate(); ++i)
+                    for (size_t i = 0; i < 30; ++i)
+                    {
+                        player->tick();
+                        time::sleep(std::chrono::milliseconds(1));
+                    }
+                    player->seek(timeRange.end_time_inclusive());
+                    for (size_t i = 0; i < 30; ++i)
+                    {
+                        player->tick();
+                        time::sleep(std::chrono::milliseconds(1));
+                    }
+                    player->setPlayback(Playback::Reverse);
+                    player->seek(timeRange.end_time_inclusive());
+                    for (size_t i = 0; i < 30; ++i)
                     {
                         player->tick();
                         time::sleep(std::chrono::milliseconds(1));
                     }
                     player->seek(timeRange.start_time());
-                    player->setPlayback(Playback::Reverse);
-                    for (size_t i = 0; i < timeRange.duration().rate(); ++i)
+                    for (size_t i = 0; i < 30; ++i)
                     {
                         player->tick();
                         time::sleep(std::chrono::milliseconds(1));
