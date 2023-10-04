@@ -224,7 +224,6 @@ namespace tl
                 options.fileSequenceAudio = FileSequenceAudio::None;
                 auto timeline = Timeline::create(path, _context, options);
                 const file::Path& audioPath = timeline->getAudioPath();
-                TLRENDER_ASSERT(audioPath.isEmpty());
                 _print(string::Format("Audio path: {0}").arg(audioPath.get()));
             }
             catch (const std::exception& e)
@@ -239,7 +238,6 @@ namespace tl
                 options.fileSequenceAudio = FileSequenceAudio::BaseName;
                 auto timeline = Timeline::create(path, _context, options);
                 const file::Path& audioPath = timeline->getAudioPath();
-                TLRENDER_ASSERT(!audioPath.isEmpty());
                 _print(string::Format("Audio path: {0}").arg(audioPath.get()));
             }
             catch (const std::exception& e)
@@ -259,7 +257,6 @@ namespace tl
                     _context,
                     options);
                 const file::Path& audioPath = timeline->getAudioPath();
-                TLRENDER_ASSERT(!audioPath.isEmpty());
                 _print(string::Format("Audio path: {0}").arg(audioPath.get()));
             }
             catch (const std::exception& e)
@@ -275,7 +272,6 @@ namespace tl
                 options.fileSequenceAudioDirectory = "";
                 auto timeline = Timeline::create(path, _context, options);
                 const file::Path& audioPath = timeline->getAudioPath();
-                TLRENDER_ASSERT(!audioPath.isEmpty());
                 _print(string::Format("Audio path: {0}").arg(audioPath.get()));
             }
             catch (const std::exception& e)
