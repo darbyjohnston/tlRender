@@ -351,30 +351,46 @@ namespace tl
                     player->seek(timeRange.start_time());
                     player->setLoop(loop);
                     player->setPlayback(Playback::Forward);
-                    for (size_t i = 0; i < 30; ++i)
+                    auto t = std::chrono::steady_clock::now();
+                    std::chrono::duration<float> diff;
+                    do
                     {
                         player->tick();
-                        time::sleep(std::chrono::milliseconds(1));
-                    }
+                        time::sleep(std::chrono::milliseconds(10));
+                        const auto t2 = std::chrono::steady_clock::now();
+                        diff = t2 - t;
+                    } while (diff.count() < 1.F);
+
                     player->seek(timeRange.end_time_inclusive());
-                    for (size_t i = 0; i < 30; ++i)
+                    t = std::chrono::steady_clock::now();
+                    do
                     {
                         player->tick();
-                        time::sleep(std::chrono::milliseconds(1));
-                    }
+                        time::sleep(std::chrono::milliseconds(10));
+                        const auto t2 = std::chrono::steady_clock::now();
+                        diff = t2 - t;
+                    } while (diff.count() < 1.F);
+
                     player->setPlayback(Playback::Reverse);
                     player->seek(timeRange.end_time_inclusive());
-                    for (size_t i = 0; i < 30; ++i)
+                    t = std::chrono::steady_clock::now();
+                    do
                     {
                         player->tick();
-                        time::sleep(std::chrono::milliseconds(1));
-                    }
+                        time::sleep(std::chrono::milliseconds(10));
+                        const auto t2 = std::chrono::steady_clock::now();
+                        diff = t2 - t;
+                    } while (diff.count() < 1.F);
+
                     player->seek(timeRange.start_time());
-                    for (size_t i = 0; i < 30; ++i)
+                    t = std::chrono::steady_clock::now();
+                    do
                     {
                         player->tick();
-                        time::sleep(std::chrono::milliseconds(1));
-                    }
+                        time::sleep(std::chrono::milliseconds(10));
+                        const auto t2 = std::chrono::steady_clock::now();
+                        diff = t2 - t;
+                    } while (diff.count() < 1.F);
                 }
                 player->setPlayback(Playback::Stop);
                 player->clearCache();
