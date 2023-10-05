@@ -14,6 +14,7 @@
 #include <ImfFramesPerSecond.h>
 #include <ImfIntAttribute.h>
 #include <ImfStandardAttributes.h>
+#include <ImfStdIO.h>
 #include <ImfThreading.h>
 
 #include <array>
@@ -391,59 +392,6 @@ namespace tl
 
         namespace
         {
-            const std::vector<std::string> knownAttributes =
-            {
-                // Predefined attributes.
-                "displayWindow",
-                "dataWindow",
-                "pixelAspectRatio",
-                "screenWindowCenter",
-                "screenWindowWidth",
-                "channels",
-                "lineOrder",
-                "compression",
-
-                // Multipart attributes.
-                "name",
-                "type",
-                "version",
-                "chunkCount",
-                "view",
-
-                // Tile description.
-                "tileDescription",
-
-                // Standard attributes.
-                "chromaticities",
-                "whiteLuminance",
-                "adoptedNeutral",
-                "renderingTransform",
-                "lookModTransform",
-                "xDensity",
-                "owner",
-                "comments",
-                "capDate",
-                "utcOffset",
-                "longitude",
-                "latitude",
-                "altitude",
-                "focus",
-                "expTime",
-                "aperture",
-                "isoSpeed",
-                "envMap",
-                "keyCode",
-                "timeCode",
-                "wrapModes",
-                "framesPerSecond",
-                "multiView",
-                "worldToCamera",
-                "worldToNDC",
-                "deepImageState",
-                "originalDataWindow",
-                "dwaCompressionLevel"
-            };
-
             template<typename T>
             std::string serialize(const T& value)
             {
@@ -453,16 +401,10 @@ namespace tl
             }
 
             template<typename T>
-            std::string serialize(const std::vector<T>& value)
+            void deserialize(const std::string& s, T& value)
             {
-                std::vector<std::string> list;
-                for (const auto& i : value)
-                {
-                    std::stringstream ss;
-                    ss << serialize(i);
-                    list.push_back(ss.str());
-                }
-                return string::join(list, " ");
+                std::stringstream ss(s);
+                ss >> value;
             }
 
             template<typename T>
@@ -473,125 +415,96 @@ namespace tl
                 return ss.str();
             }
 
-            template<typename T>
-            std::string serialize(const Imath::Vec3<T>& value)
+            template<>
+            void deserialize(const std::string& s, Imath::V2f& value)
             {
-                std::stringstream ss;
-                ss << value.x << " " << value.y << " " << value.z;
-                return ss.str();
+                std::stringstream ss(s);
+                ss >> value.x;
+                ss >> value.y;
             }
 
             template<typename T>
             std::string serialize(const Imath::Box<Imath::Vec2<T> >& value)
             {
                 std::stringstream ss;
-                ss << value.min.x << " " << value.min.y << " " <<
-                    value.max.x << " " << value.max.y;
+                ss << value.min.x << " " <<
+                    value.min.y << " " <<
+                    value.max.x << " " <<
+                    value.max.y;
                 return ss.str();
+            }
+
+            template<>
+            void deserialize(const std::string& s, Imath::Box2i& value)
+            {
+                std::stringstream ss(s);
+                ss >> value.min.x;
+                ss >> value.min.y;
+                ss >> value.max.x;
+                ss >> value.max.y;
             }
 
             template<typename T>
-            std::string serialize(const Imath::Box<Imath::Vec3<T> >& value)
+            std::string serialize(const Imath::Matrix44<T>& value)
+            {
+                std::vector<std::string> s;
+                for (size_t j = 0; j < 4; ++j)
+                {
+                    for (size_t i = 0; i < 4; ++i)
+                    {
+                        s.push_back(string::Format("{0}").arg(value.x[j][i]));
+                    }
+                }
+                return string::join(s, ' ');
+            }
+
+            template<>
+            void deserialize(const std::string& s, Imath::M44f& value)
+            {
+                std::stringstream ss(s);
+                for (size_t j = 0; j < 4; ++j)
+                {
+                    for (size_t i = 0; i < 4; ++i)
+                    {
+                        ss >> value.x[j][i];
+                    }
+                }
+            }
+
+            template<>
+            std::string serialize(const Imf::TileDescription& value)
             {
                 std::stringstream ss;
-                ss << value.min.x << " " << value.min.y << " " << value.min.z << " " <<
-                    value.max.x << " " << value.max.y << " " << value.max.z;
+                ss << value.xSize << " " <<
+                    value.ySize << " " <<
+                    value.mode << " " <<
+                    value.roundingMode;
                 return ss.str();
-            }
-
-            template<>
-            std::string serialize(const Imf::Compression& value)
-            {
-                const std::vector<std::string> text =
-                {
-                    "None",
-                    "RLE",
-                    "ZIPS",
-                    "ZIP",
-                    "PIZ",
-                    "PXR24",
-                    "B44",
-                    "B44A",
-                    "DWAA",
-                    "DWAB"
-                };
-                return text[value];
-            }
-
-            template<>
-            std::string serialize(const Imf::LineOrder& value)
-            {
-                const std::vector<std::string> text =
-                {
-                    "Increasing Y",
-                    "Decreasing Y",
-                    "Random Y"
-                };
-                return text[value];
-            }
-
-            template<>
-            std::string serialize(const Imf::LevelMode& value)
-            {
-                const std::vector<std::string> text =
-                {
-                    "One Level",
-                    "Mipmap Levels",
-                    "Ripmap Levels"
-                };
-                return text[value];
-            }
-
-            template<>
-            std::string serialize(const Imf::LevelRoundingMode& value)
-            {
-                const std::vector<std::string> text =
-                {
-                    "Round Down",
-                    "Round Up"
-                };
-                return text[value];
-            }
-
-            template<>
-            std::string serialize(const Imf::DeepImageState& value)
-            {
-                const std::vector<std::string> text =
-                {
-                    "Messy",
-                    "Sorted",
-                    "Non Overlapping",
-                    "Tidy"
-                };
-                return text[value];
-            }
-
-            template<>
-            std::string serialize(const Imf::TimeCode& value)
-            {
-                return time::timecodeToString(value.timeAndFlags());
-            }
-
-            template<>
-            std::string serialize(const Imf::KeyCode& value)
-            {
-                return time::keycodeToString(
-                    value.filmMfcCode(),
-                    value.filmType(),
-                    value.prefix(),
-                    value.count(),
-                    value.perfOffset());
             }
 
             template<>
             std::string serialize(const Imf::Chromaticities& value)
             {
                 std::stringstream ss;
-                ss << serialize(value.red) << " ";
-                ss << serialize(value.green) << " ";
-                ss << serialize(value.blue) << " ";
-                ss << serialize(value.white);
+                ss << value.red.x << " " << value.red.y << " " <<
+                    value.green.x << " " << value.green.y << " " <<
+                    value.blue.x << " " << value.blue.y << " " <<
+                    value.white.x << " " << value.white.y;
                 return ss.str();
+            }
+
+            template<>
+            void deserialize(const std::string& s, Imf::Chromaticities& value)
+            {
+                std::stringstream ss(s);
+                ss >> value.red.x;
+                ss >> value.red.y;
+                ss >> value.green.x;
+                ss >> value.green.y;
+                ss >> value.blue.x;
+                ss >> value.blue.y;
+                ss >> value.white.x;
+                ss >> value.white.y;
             }
 
             template<>
@@ -601,6 +514,149 @@ namespace tl
                 ss << value.n << " " << value.d;
                 return ss.str();
             }
+
+            template<>
+            void deserialize(const std::string& s, Imf::Rational& value)
+            {
+                std::stringstream ss(s);
+                ss >> value.n;
+                ss >> value.d;
+            }
+
+            template<>
+            std::string serialize(const Imf::KeyCode& value)
+            {
+                return string::Format("{0}:{1}:{2}:{3}:{4}:{5}:{6}").
+                    arg(value.filmMfcCode()).
+                    arg(value.filmType()).
+                    arg(value.prefix()).
+                    arg(value.count()).
+                    arg(value.perfOffset()).
+                    arg(value.perfsPerFrame()).
+                    arg(value.perfsPerCount());
+            }
+
+            template<>
+            void deserialize(const std::string& s, Imf::KeyCode& value)
+            {
+                auto split = string::split(s, ':');
+                if (split.size() != 7)
+                {
+                    throw error::ParseError();
+                }
+                value.setFilmMfcCode(std::atoi(split[0].c_str()));
+                value.setFilmType(std::atoi(split[1].c_str()));
+                value.setPrefix(std::atoi(split[2].c_str()));
+                value.setCount(std::atoi(split[3].c_str()));
+                value.setPerfOffset(std::atoi(split[4].c_str()));
+                value.setPerfsPerFrame(std::atoi(split[5].c_str()));
+                value.setPerfsPerCount(std::atoi(split[6].c_str()));
+            }
+
+            template<>
+            std::string serialize(const Imf::TimeCode& value)
+            {
+                return string::Format("{0}:{1}:{2}:{3}").
+                    arg(value.hours(), 2, '0').
+                    arg(value.minutes(), 2, '0').
+                    arg(value.seconds(), 2, '0').
+                    arg(value.frame(), 2, '0');
+            }
+
+            template<>
+            void deserialize(const std::string& s, Imf::TimeCode& value)
+            {
+                auto split = string::split(s, ':');
+                if (split.size() != 4)
+                {
+                    throw error::ParseError();
+                }
+                value.setHours(std::atoi(split[0].c_str()));
+                value.setMinutes(std::atoi(split[1].c_str()));
+                value.setSeconds(std::atoi(split[2].c_str()));
+                value.setFrame(std::atoi(split[3].c_str()));
+            }
+
+            template<>
+            std::string serialize(const Imf::Envmap& value)
+            {
+                std::stringstream ss;
+                ss << value;
+                return ss.str();
+            }
+
+            template<>
+            void deserialize(const std::string& s, Imf::Envmap& value)
+            {
+                std::stringstream ss(s);
+                int tmp = 0;
+                ss >> tmp;
+                value = static_cast<Imf::Envmap>(tmp);
+            }
+
+            template<>
+            std::string serialize(const Imf::StringVector& value)
+            {
+                std::stringstream ss;
+                for (const auto& i : value)
+                {
+                    ss << std::string(string::Format("{0}:{1}").arg(i.size()).arg(i));
+                }
+                return ss.str();
+            }
+
+            template<>
+            void deserialize(const std::string& s, Imf::StringVector& value)
+            {
+                std::string tmp = s;
+                while (!tmp.empty())
+                {
+                    auto split = string::split(tmp, ':');
+                    if (split.size() < 2)
+                    {
+                        throw error::ParseError();
+                    }
+                    int size = std::atoi(split[0].c_str());
+                    split.erase(split.begin());
+                    tmp = string::join(split, ':');
+                    value.push_back(tmp.substr(0, size));
+                    tmp.erase(0, size);
+                }
+            }
+
+            template<>
+            std::string serialize(const Imf::DeepImageState& value)
+            {
+                std::stringstream ss;
+                ss << value;
+                return ss.str();
+            }
+
+            template<>
+            void deserialize(const std::string& s, Imf::DeepImageState& value)
+            {
+                std::stringstream ss(s);
+                int tmp = 0;
+                ss >> tmp;
+                value = static_cast<Imf::DeepImageState>(tmp);
+            }
+
+#define TLRENDER_SERIALIZE_STD_ATTR(NAME, NAME_LOWER) \
+    if (has##NAME(header)) \
+    { \
+        tags[#NAME] = serialize(NAME_LOWER##Attribute(header).value()); \
+    }
+
+#define TLRENDER_DESERIALIZE_STD_ATTR(NAME, TYPE) \
+    { \
+        auto i = tags.find(#NAME); \
+        if (i != tags.end()) \
+        { \
+            TYPE v; \
+            deserialize(i->second, v); \
+            add##NAME(header, v); \
+        } \
+    }
 
         } // namespace
 
@@ -648,420 +704,123 @@ namespace tl
             // Tile description.
             if (header.hasTileDescription())
             {
-                const auto& value = header.tileDescription();
-                {
-                    std::stringstream ss;
-                    ss << value.xSize << " " << value.ySize;
-                    tags["Tile Size"] = ss.str();
-                }
-                tags["Tile Level Mode"] = serialize(value.mode);
-                tags["Tile Level Rounding Mode"] = serialize(value.roundingMode);
+                tags["Tile"] = serialize(header.tileDescription());
             }
 
             // Standard attributes.
-            if (hasChromaticities(header))
-            {
-                tags["Chromaticities"] = serialize(chromaticitiesAttribute(header).value());
-            }
-            if (hasWhiteLuminance(header))
-            {
-                tags["White Luminance"] = serialize(whiteLuminanceAttribute(header).value());
-            }
-            if (hasAdoptedNeutral(header))
-            {
-                tags["Adopted Neutral"] = serialize(adoptedNeutralAttribute(header).value());
-            }
-            if (hasRenderingTransform(header))
-            {
-                tags["Rendering Transform"] = renderingTransformAttribute(header).value();
-            }
-            if (hasLookModTransform(header))
-            {
-                tags["Look Modification Transform"] = lookModTransformAttribute(header).value();
-            }
-            if (hasXDensity(header))
-            {
-                tags["X Density"] = serialize(xDensityAttribute(header).value());
-            }
-            if (hasOwner(header))
-            {
-                tags["Owner"] = ownerAttribute(header).value();
-            }
-            if (hasComments(header))
-            {
-                tags["Comments"] = commentsAttribute(header).value();
-            }
-            if (hasCapDate(header))
-            {
-                tags["Capture Date"] = capDateAttribute(header).value();
-            }
-            if (hasUtcOffset(header))
-            {
-                tags["UTC Offset"] = serialize(utcOffsetAttribute(header).value());
-            }
-            if (hasLongitude(header))
-            {
-                tags["Longitude"] = serialize(longitudeAttribute(header).value());
-            }
-            if (hasLatitude(header))
-            {
-                tags["Latitude"] = serialize(latitudeAttribute(header).value());
-            }
-            if (hasAltitude(header))
-            {
-                tags["Altitude"] = serialize(altitudeAttribute(header).value());
-            }
-            if (hasFocus(header))
-            {
-                tags["Focus"] = serialize(focusAttribute(header).value());
-            }
-            if (hasExpTime(header))
-            {
-                tags["Exposure Time"] = serialize(expTimeAttribute(header).value());
-            }
-            if (hasAperture(header))
-            {
-                tags["Aperture"] = serialize(apertureAttribute(header).value());
-            }
-            if (hasIsoSpeed(header))
-            {
-                tags["ISO Speed"] = serialize(isoSpeedAttribute(header).value());
-            }
-            if (hasEnvmap(header))
-            {
-                tags["Environment Map"] = serialize(envmapAttribute(header).value());
-            }
-            if (hasKeyCode(header))
-            {
-                tags["Keycode"] = serialize(keyCodeAttribute(header).value());
-            }
-            if (hasTimeCode(header))
-            {
-                tags["Timecode"] = serialize(timeCodeAttribute(header).value());
-            }
-            if (hasWrapmodes(header))
-            {
-                tags["Wrap Modes"] = wrapmodesAttribute(header).value();
-            }
-            if (hasFramesPerSecond(header))
-            {
-                const Imf::Rational data = framesPerSecondAttribute(header).value();
-                tags["Frame Per Second"] = string::Format("{0}").arg(data.n / static_cast<double>(data.d));
-            }
-            if (hasMultiView(header))
-            {
-                tags["Multi-View"] = serialize(multiViewAttribute(header).value());
-            }
-            if (hasWorldToCamera(header))
-            {
-                tags["World To Camera"] = serialize(worldToCameraAttribute(header).value());
-            }
-            if (hasWorldToNDC(header))
-            {
-                tags["World To NDC"] = serialize(worldToNDCAttribute(header).value());
-            }
-            if (hasDeepImageState(header))
-            {
-                tags["Deep Image State"] = serialize(deepImageStateAttribute(header).value());
-            }
-            if (hasOriginalDataWindow(header))
-            {
-                tags["Original Data Window"] = serialize(originalDataWindowAttribute(header).value());
-            }
-            if (Imf::DWAA_COMPRESSION == header.compression() ||
-                Imf::DWAB_COMPRESSION == header.compression())
-            {
-                tags["DWA Compression Level"] = serialize(header.dwaCompressionLevel());
-            }
-
-            // Other attributes.
-            for (auto i = header.begin(); i != header.end(); ++i)
-            {
-                const auto j = std::find(knownAttributes.begin(), knownAttributes.end(), i.name());
-                if (j == knownAttributes.end())
-                {
-                    if ("string" == std::string(i.attribute().typeName()))
-                    {
-                        if (const auto ta = header.findTypedAttribute<Imf::StringAttribute>(i.name()))
-                        {
-                            tags[i.name()] =  ta->value();
-                        }
-                    }
-                    else if ("stringVector" == std::string(i.attribute().typeName()))
-                    {
-                        if (const auto ta = header.findTypedAttribute<Imf::StringVectorAttribute>(i.name()))
-                        {
-                            tags[i.name()] = serialize(ta->value());
-                        }
-                    }
-                    else if ("int" == std::string(i.attribute().typeName()))
-                    {
-                        if (const auto ta = header.findTypedAttribute<Imf::IntAttribute>(i.name()))
-                        {
-                            tags[i.name()] = serialize(ta->value());
-                        }
-                    }
-                    else if ("float" == std::string(i.attribute().typeName()))
-                    {
-                        if (const auto ta = header.findTypedAttribute<Imf::FloatAttribute>(i.name()))
-                        {
-                            tags[i.name()] = serialize(ta->value());
-                        }
-                    }
-                    else if ("floatVector" == std::string(i.attribute().typeName()))
-                    {
-                        if (const auto ta = header.findTypedAttribute<Imf::FloatVectorAttribute>(i.name()))
-                        {
-                            tags[i.name()] = serialize(ta->value());
-                        }
-                    }
-                    else if ("double" == std::string(i.attribute().typeName()))
-                    {
-                        if (const auto ta = header.findTypedAttribute<Imf::DoubleAttribute>(i.name()))
-                        {
-                            tags[i.name()] = serialize(ta->value());
-                        }
-                    }
-                    else if ("v2i" == std::string(i.attribute().typeName()))
-                    {
-                        if (const auto ta = header.findTypedAttribute<Imf::V2iAttribute>(i.name()))
-                        {
-                            tags[i.name()] = serialize(ta->value());
-                        }
-                    }
-                    else if ("v2f" == std::string(i.attribute().typeName()))
-                    {
-                        if (const auto ta = header.findTypedAttribute<Imf::V2fAttribute>(i.name()))
-                        {
-                            tags[i.name()] = serialize(ta->value());
-                        }
-                    }
-                    else if ("v2d" == std::string(i.attribute().typeName()))
-                    {
-                        if (const auto ta = header.findTypedAttribute<Imf::V2dAttribute>(i.name()))
-                        {
-                            tags[i.name()] = serialize(ta->value());
-                        }
-                    }
-                    else if ("v3i" == std::string(i.attribute().typeName()))
-                    {
-                        if (const auto ta = header.findTypedAttribute<Imf::V3iAttribute>(i.name()))
-                        {
-                            tags[i.name()] = serialize(ta->value());
-                        }
-                    }
-                    else if ("v3f" == std::string(i.attribute().typeName()))
-                    {
-                        if (const auto ta = header.findTypedAttribute<Imf::V3fAttribute>(i.name()))
-                        {
-                            tags[i.name()] = serialize(ta->value());
-                        }
-                    }
-                    else if ("v3d" == std::string(i.attribute().typeName()))
-                    {
-                        if (const auto ta = header.findTypedAttribute<Imf::V3dAttribute>(i.name()))
-                        {
-                            tags[i.name()] = serialize(ta->value());
-                        }
-                    }
-                    else if ("box2i" == std::string(i.attribute().typeName()))
-                    {
-                        if (const auto ta = header.findTypedAttribute<Imf::Box2iAttribute>(i.name()))
-                        {
-                            tags[i.name()] = serialize(ta->value());
-                        }
-                    }
-                    else if ("box2f" == std::string(i.attribute().typeName()))
-                    {
-                        if (const auto ta = header.findTypedAttribute<Imf::Box2fAttribute>(i.name()))
-                        {
-                            tags[i.name()] = serialize(ta->value());
-                        }
-                    }
-                    else if ("m33f" == std::string(i.attribute().typeName()))
-                    {
-                        if (const auto ta = header.findTypedAttribute<Imf::M33fAttribute>(i.name()))
-                        {
-                            tags[i.name()] = serialize(ta->value());
-                        }
-                    }
-                    else if ("m33d" == std::string(i.attribute().typeName()))
-                    {
-                        if (const auto ta = header.findTypedAttribute<Imf::M33dAttribute>(i.name()))
-                        {
-                            tags[i.name()] = serialize(ta->value());
-                        }
-                    }
-                    else if ("m44f" == std::string(i.attribute().typeName()))
-                    {
-                        if (const auto ta = header.findTypedAttribute<Imf::M44fAttribute>(i.name()))
-                        {
-                            tags[i.name()] = serialize(ta->value());
-                        }
-                    }
-                    else if ("m44d" == std::string(i.attribute().typeName()))
-                    {
-                        if (const auto ta = header.findTypedAttribute<Imf::M44dAttribute>(i.name()))
-                        {
-                            tags[i.name()] = serialize(ta->value());
-                        }
-                    }
-                    else if ("rational" == std::string(i.attribute().typeName()))
-                    {
-                        if (const auto ta = header.findTypedAttribute<Imf::RationalAttribute>(i.name()))
-                        {
-                            tags[i.name()] = serialize(ta->value());
-                        }
-                    }
-                }
-            }
+            TLRENDER_SERIALIZE_STD_ATTR(AdoptedNeutral, adoptedNeutral);
+            TLRENDER_SERIALIZE_STD_ATTR(Altitude, altitude);
+            TLRENDER_SERIALIZE_STD_ATTR(Aperture, aperture);
+            TLRENDER_SERIALIZE_STD_ATTR(AscFramingDecisionList, ascFramingDecisionList);
+            TLRENDER_SERIALIZE_STD_ATTR(CameraCCTSetting, cameraCCTSetting);
+            TLRENDER_SERIALIZE_STD_ATTR(CameraColorBalance, cameraColorBalance);
+            TLRENDER_SERIALIZE_STD_ATTR(CameraFirmwareVersion, cameraFirmwareVersion);
+            TLRENDER_SERIALIZE_STD_ATTR(CameraLabel, cameraLabel);
+            TLRENDER_SERIALIZE_STD_ATTR(CameraMake, cameraMake);
+            TLRENDER_SERIALIZE_STD_ATTR(CameraModel, cameraModel);
+            TLRENDER_SERIALIZE_STD_ATTR(CameraSerialNumber, cameraSerialNumber);
+            TLRENDER_SERIALIZE_STD_ATTR(CameraTintSetting, cameraTintSetting);
+            TLRENDER_SERIALIZE_STD_ATTR(CameraUuid, cameraUuid);
+            TLRENDER_SERIALIZE_STD_ATTR(CapDate, capDate);
+            TLRENDER_SERIALIZE_STD_ATTR(CaptureRate, captureRate);
+            TLRENDER_SERIALIZE_STD_ATTR(Chromaticities, chromaticities);
+            TLRENDER_SERIALIZE_STD_ATTR(Comments, comments);
+            TLRENDER_SERIALIZE_STD_ATTR(DeepImageState, deepImageState);
+            TLRENDER_SERIALIZE_STD_ATTR(EffectiveFocalLength, effectiveFocalLength);
+            TLRENDER_SERIALIZE_STD_ATTR(Envmap, envmap);
+            TLRENDER_SERIALIZE_STD_ATTR(EntrancePupilOffset, entrancePupilOffset);
+            TLRENDER_SERIALIZE_STD_ATTR(ExpTime, expTime);
+            TLRENDER_SERIALIZE_STD_ATTR(Focus, focus);
+            TLRENDER_SERIALIZE_STD_ATTR(FramesPerSecond, framesPerSecond);
+            TLRENDER_SERIALIZE_STD_ATTR(ImageCounter, imageCounter);
+            TLRENDER_SERIALIZE_STD_ATTR(IsoSpeed, isoSpeed);
+            TLRENDER_SERIALIZE_STD_ATTR(KeyCode, keyCode);
+            TLRENDER_SERIALIZE_STD_ATTR(Latitude, latitude);
+            TLRENDER_SERIALIZE_STD_ATTR(LensFirmwareVersion, lensFirmwareVersion);
+            TLRENDER_SERIALIZE_STD_ATTR(LensMake, lensMake);
+            TLRENDER_SERIALIZE_STD_ATTR(LensModel, lensModel);
+            TLRENDER_SERIALIZE_STD_ATTR(LensSerialNumber, lensSerialNumber);
+            TLRENDER_SERIALIZE_STD_ATTR(Longitude, longitude);
+            TLRENDER_SERIALIZE_STD_ATTR(MultiView, multiView);
+            TLRENDER_SERIALIZE_STD_ATTR(NominalFocalLength, nominalFocalLength);
+            TLRENDER_SERIALIZE_STD_ATTR(OriginalDataWindow, originalDataWindow);
+            TLRENDER_SERIALIZE_STD_ATTR(Owner, owner);
+            TLRENDER_SERIALIZE_STD_ATTR(PinholeFocalLength, pinholeFocalLength);
+            TLRENDER_SERIALIZE_STD_ATTR(ReelName, reelName);
+            TLRENDER_SERIALIZE_STD_ATTR(SensorAcquisitionRectangle, sensorAcquisitionRectangle);
+            TLRENDER_SERIALIZE_STD_ATTR(SensorOverallDimensions, sensorOverallDimensions);
+            TLRENDER_SERIALIZE_STD_ATTR(SensorPhotositePitch, sensorPhotositePitch);
+            TLRENDER_SERIALIZE_STD_ATTR(ShutterAngle, shutterAngle);
+            TLRENDER_SERIALIZE_STD_ATTR(TStop, tStop);
+            TLRENDER_SERIALIZE_STD_ATTR(TimeCode, timeCode);
+            TLRENDER_SERIALIZE_STD_ATTR(UtcOffset, utcOffset);
+            TLRENDER_SERIALIZE_STD_ATTR(WhiteLuminance, whiteLuminance);
+            TLRENDER_SERIALIZE_STD_ATTR(WorldToCamera, worldToCamera);
+            TLRENDER_SERIALIZE_STD_ATTR(WorldToNDC, worldToNDC);
+            TLRENDER_SERIALIZE_STD_ATTR(Wrapmodes, wrapmodes);
+            TLRENDER_SERIALIZE_STD_ATTR(XDensity, xDensity);
         }
 
         void writeTags(const image::Tags& tags, double speed, Imf::Header& header)
         {
-            // Mulipart attributes.
-            auto i = tags.find("Name");
-            if (i != tags.end())
-            {
-                header.setName(i->second);
-            }
-            i = tags.find("Type");
-            if (i != tags.end())
-            {
-                header.setType(i->second);
-            }
-            i = tags.find("Version");
-            if (i != tags.end())
-            {
-                header.setVersion(std::stoi(i->second));
-            }
-            i = tags.find("Chunk Count");
-            if (i != tags.end())
-            {
-                header.setChunkCount(std::stoi(i->second));
-            }
-            i = tags.find("View");
-            if (i != tags.end())
-            {
-                header.setView(i->second);
-            }
-
             // Standard attributes.
-            i = tags.find("Chromaticities");
-            if (i != tags.end())
+            TLRENDER_DESERIALIZE_STD_ATTR(AdoptedNeutral, Imath::V2f);
+            TLRENDER_DESERIALIZE_STD_ATTR(Altitude, float);
+            TLRENDER_DESERIALIZE_STD_ATTR(Aperture, float);
+            TLRENDER_DESERIALIZE_STD_ATTR(AscFramingDecisionList, std::string);
+            TLRENDER_DESERIALIZE_STD_ATTR(CameraCCTSetting, float);
+            TLRENDER_DESERIALIZE_STD_ATTR(CameraColorBalance, Imath::V2f);
+            TLRENDER_DESERIALIZE_STD_ATTR(CameraFirmwareVersion, std::string);
+            TLRENDER_DESERIALIZE_STD_ATTR(CameraLabel, std::string);
+            TLRENDER_DESERIALIZE_STD_ATTR(CameraMake, std::string);
+            TLRENDER_DESERIALIZE_STD_ATTR(CameraModel, std::string);
+            TLRENDER_DESERIALIZE_STD_ATTR(CameraSerialNumber, std::string);
+            TLRENDER_DESERIALIZE_STD_ATTR(CameraTintSetting, float);
+            TLRENDER_DESERIALIZE_STD_ATTR(CameraUuid, std::string);
+            TLRENDER_DESERIALIZE_STD_ATTR(CapDate, std::string);
+            TLRENDER_DESERIALIZE_STD_ATTR(CaptureRate, Imf::Rational);
+            TLRENDER_DESERIALIZE_STD_ATTR(Chromaticities, Imf::Chromaticities);
+            TLRENDER_DESERIALIZE_STD_ATTR(Comments, std::string);
+            TLRENDER_DESERIALIZE_STD_ATTR(DeepImageState, Imf::DeepImageState);
+            TLRENDER_DESERIALIZE_STD_ATTR(EffectiveFocalLength, float);
+            TLRENDER_DESERIALIZE_STD_ATTR(EntrancePupilOffset, float);
+            TLRENDER_DESERIALIZE_STD_ATTR(Envmap, Imf::Envmap);
+            TLRENDER_DESERIALIZE_STD_ATTR(ExpTime, float);
+            TLRENDER_DESERIALIZE_STD_ATTR(Focus, float);
+            TLRENDER_DESERIALIZE_STD_ATTR(FramesPerSecond, Imf::Rational);
+            TLRENDER_DESERIALIZE_STD_ATTR(ImageCounter, int);
+            TLRENDER_DESERIALIZE_STD_ATTR(IsoSpeed, float);
+            TLRENDER_DESERIALIZE_STD_ATTR(KeyCode, Imf::KeyCode);
+            TLRENDER_DESERIALIZE_STD_ATTR(Latitude, float);
+            TLRENDER_DESERIALIZE_STD_ATTR(LensFirmwareVersion, std::string);
+            TLRENDER_DESERIALIZE_STD_ATTR(LensMake, std::string);
+            TLRENDER_DESERIALIZE_STD_ATTR(LensModel, std::string);
+            TLRENDER_DESERIALIZE_STD_ATTR(LensSerialNumber, std::string);
+            TLRENDER_DESERIALIZE_STD_ATTR(Longitude, float);
+            TLRENDER_DESERIALIZE_STD_ATTR(MultiView, Imf::StringVector);
+            TLRENDER_DESERIALIZE_STD_ATTR(NominalFocalLength, float);
+            TLRENDER_DESERIALIZE_STD_ATTR(OriginalDataWindow, Imath::Box2i);
+            TLRENDER_DESERIALIZE_STD_ATTR(Owner, std::string);
+            TLRENDER_DESERIALIZE_STD_ATTR(PinholeFocalLength, float);
+            TLRENDER_DESERIALIZE_STD_ATTR(ReelName, std::string);
+            TLRENDER_DESERIALIZE_STD_ATTR(SensorAcquisitionRectangle, Imath::Box2i);
+            TLRENDER_DESERIALIZE_STD_ATTR(SensorCenterOffset, Imath::V2f);
+            TLRENDER_DESERIALIZE_STD_ATTR(SensorPhotositePitch, float);
+            TLRENDER_DESERIALIZE_STD_ATTR(ShutterAngle, float);
+            TLRENDER_DESERIALIZE_STD_ATTR(TStop, float);
+            TLRENDER_DESERIALIZE_STD_ATTR(TimeCode, Imf::TimeCode);
+            TLRENDER_DESERIALIZE_STD_ATTR(UtcOffset, float);
+            TLRENDER_DESERIALIZE_STD_ATTR(WhiteLuminance, float);
+            TLRENDER_DESERIALIZE_STD_ATTR(WorldToCamera, Imath::M44f);
+            TLRENDER_DESERIALIZE_STD_ATTR(WorldToNDC, Imath::M44f);
+            TLRENDER_DESERIALIZE_STD_ATTR(Wrapmodes, std::string);
+            TLRENDER_DESERIALIZE_STD_ATTR(XDensity, float);
             {
-                std::stringstream ss(i->second);
-                std::vector<Imath::V2f> chromaticities;
-                chromaticities.resize(8);
-                for (size_t i = 0; i < 4; ++i)
-                {
-                    ss >> chromaticities[i].x;
-                    ss >> chromaticities[i].y;
-                }
-                addChromaticities(header,
-                    Imf::Chromaticities(
-                        chromaticities[0],
-                        chromaticities[1],
-                        chromaticities[2],
-                        chromaticities[3]));
+                const auto speedRational = time::toRational(speed);
+                addFramesPerSecond(
+                    header,
+                    Imf::Rational(speedRational.first, speedRational.second));
             }
-            i = tags.find("White Luminance");
-            if (i != tags.end())
-            {
-                addWhiteLuminance(header, std::stof(i->second));
-            }
-            i = tags.find("X Density");
-            if (i != tags.end())
-            {
-                addXDensity(header, std::stof(i->second));
-            }
-            i = tags.find("Owner");
-            if (i != tags.end())
-            {
-                addOwner(header, i->second);
-            }
-            i = tags.find("Comments");
-            if (i != tags.end())
-            {
-                addComments(header, i->second);
-            }
-            i = tags.find("Capture Date");
-            if (i != tags.end())
-            {
-                addCapDate(header, i->second);
-            }
-            i = tags.find("UTC Offset");
-            if (i != tags.end())
-            {
-                addUtcOffset(header, std::stof(i->second));
-            }
-            i = tags.find("Longitude");
-            if (i != tags.end())
-            {
-                addLongitude(header, std::stof(i->second));
-            }
-            i = tags.find("Latitude");
-            if (i != tags.end())
-            {
-                addLatitude(header, std::stof(i->second));
-            }
-            i = tags.find("Altitude");
-            if (i != tags.end())
-            {
-                addAltitude(header, std::stof(i->second));
-            }
-            i = tags.find("Focus");
-            if (i != tags.end())
-            {
-                addFocus(header, std::stof(i->second));
-            }
-            i = tags.find("Exposure Time");
-            if (i != tags.end())
-            {
-                addExpTime(header, std::stof(i->second));
-            }
-            i = tags.find("Aperture");
-            if (i != tags.end())
-            {
-                addAperture(header, std::stof(i->second));
-            }
-            i = tags.find("ISO Speed");
-            if (i != tags.end())
-            {
-                addIsoSpeed(header, std::stof(i->second));
-            }
-            i = tags.find("Environment Map");
-            if (i != tags.end())
-            {
-                addEnvmap(header, static_cast<Imf::Envmap>(std::stoi(i->second)));
-            }
-            i = tags.find("Keycode");
-            if (i != tags.end())
-            {
-                int id = 0;
-                int type = 0;
-                int prefix = 0;
-                int count = 0;
-                int offset = 0;
-                time::stringToKeycode(i->second, id, type, prefix, count, offset);
-                addKeyCode(header, Imf::KeyCode(id, type, prefix, count, offset));
-            }
-            i = tags.find("Timecode");
-            if (i != tags.end())
-            {
-                uint32_t timecode = 0;
-                time::stringToTimecode(i->second, timecode);
-                addTimeCode(header, timecode);
-            }
-            i = tags.find("Wrap Modes");
-            if (i != tags.end())
-            {
-                addWrapmodes(header, i->second);
-            }
-            const auto speedRational = time::toRational(speed);
-            addFramesPerSecond(
-                header,
-                Imf::Rational(speedRational.first, speedRational.second));
         }
 
         math::Box2i fromImath(const Imath::Box2i& value)

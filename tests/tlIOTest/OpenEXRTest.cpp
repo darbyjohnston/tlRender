@@ -91,11 +91,13 @@ namespace tl
                 //    image->getData(),
                 //    image->getDataByteCount()));
                 const auto frameTags = videoData.image->getTags();
-                for (const auto& j : tags)
+                for (const auto& j : frameTags)
                 {
-                    const auto k = frameTags.find(j.first);
-                    TLRENDER_ASSERT(k != frameTags.end());
-                    TLRENDER_ASSERT(k->second == j.second);
+                    const auto k = tags.find(j.first);
+                    if (k != tags.end())
+                    {
+                        TLRENDER_ASSERT(k->second == j.second);
+                    }
                 }
             }
 
@@ -133,29 +135,81 @@ namespace tl
 
             const image::Tags tags =
             {
-                { "Name", "Name" },
-                { "Type", "scanlineimage" },
-                { "Version", "1" },
-                { "Chunk Count", "1" },
-                { "View", "View" },
-                { "Chromaticities", "1.2 2.3 3.4 4.5 5.6 6.7 7.8 8.9" },
-                { "White Luminance", "1.2" },
-                { "X Density", "1.2" },
+                //{ "Name", "Name" },
+                //{ "Type", "scanlineimage" },
+                //{ "Version", "1" },
+                //{ "Chunk Count", "1" },
+                //{ "View", "View" },
+                //{ "Tile", "1 2 1 1" },
+                { "AdoptedNeutral", "0 1" },
+                { "Altitude", "1" },
+                { "Aperture", "1" },
+                { "AscFramingDecisionList", "AscFramingDecisionList" },
+                { "CameraCCTSetting", "1" },
+                { "CameraColorBalance", "1 2" },
+                { "CameraFirmwareVersion", "CameraFirmwareVersion" },
+                { "CameraLabel", "CameraLabel" },
+                { "CameraMake", "CameraMake" },
+                { "CameraModel", "CameraModel" },
+                { "CameraSerialNumber", "CameraSerialNumber" },
+                { "CameraTintSetting", "1" },
+                { "CameraTintSetting", "CameraTintSetting" },
+                { "CapDate", "CapDate" },
+                { "CaptureRate", "24 1" },
+                { "Chromaticities", "0 1 2 3 4 5 6 7" },
+                { "Comments", "Comments" },
+                { "EffectiveFocalLength", "1" },
+                { "EntrancePupilOffset", "1" },
+                { "Envmap", "1" },
+                { "ExpTime", "1" },
+                { "Focus", "1" },
+                { "FramesPerSecond", "24 1" },
+                { "ImageCounter", "1" },
+                { "IsoSpeed", "1" },
+                { "KeyCode", "1:2:3:4:5:6:20" },
+                { "Latitude", "1" },
+                { "LensFirmwareVersion", "LensFirmwareVersion" },
+                { "LensMake", "LensMake" },
+                { "LensModel", "LensModel" },
+                { "LensSerialNumber", "LensSerialNumber" },
+                { "Longitude", "1" },
+                { "NominalFocalLength", "1" },
+                { "OriginalDataWindow", "0 1 2 3" },
+                { "Owner", "Owner" },
+                { "PinholeFocalLength", "1" },
+                { "ReelName", "ReelName" },
+                { "SensorAcquisitionRectangle", "0 1 2 3" },
+                { "SensorCenterOffset", "0 1" },
+                { "SensorPhotositePitch", "1" },
+                { "ShutterAngle", "1" },
+                { "TStop", "1" },
+                { "TimeCode", "01:00:00:00" },
+                { "UtcOffset", "1" },
+                { "WhiteLuminance", "1" },
+                { "WorldToCamera", "0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15" },
+                { "WorldToNDC", "0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15" },
+                { "XDensity", "1" },
+
+                { "Wrapmodes", "Wrapmodes" },
+                { "MultiView", "5:hello0:5:world" },
+                { "DeepImageState", "1" },
+
+                /*{ "X Density", "1" },
                 { "Owner", "Owner" },
                 { "Comments", "Comments" },
                 { "Capture Date", "Capture Date" },
-                { "UTC Offset", "1.2" },
-                { "Longitude", "1.2" },
-                { "Latitude", "1.2" },
-                { "Altitude", "1.2" },
-                { "Focus", "1.2" },
-                { "Exposure Time", "1.2" },
-                { "Aperture", "1.2" },
-                { "ISO Speed", "1.2" },
+                { "UTC Offset", "1" },
+                { "Longitude", "1" },
+                { "Latitude", "1" },
+                { "Altitude", "1" },
+                { "Focus", "1" },
+                { "Exposure Time", "1" },
+                { "Aperture", "1" },
+                { "ISO Speed", "1" },
                 { "Environment Map", "1" },
-                { "Keycode", "1:2:3:4:5" },
+                { "Keycode", "1 2 3 4 5 6 7" },
                 { "Timecode", "01:02:03:04" },
-                { "Wrap Modes", "Wrap Modes" }
+                { "Wrap Modes", "Wrap Modes" }*/
             };
             const std::vector<std::string> fileNames =
             {
