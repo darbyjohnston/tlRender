@@ -144,7 +144,6 @@ namespace tl
                     const std::weak_ptr<log::System>& logSystemWeak)
                 {
                     // Open the file.
-                    // \bug https://lists.aswf.io/g/openexr-dev/message/43
                     if (memory)
                     {
                         _s.reset(new IStream(fileName.c_str(), memory->p, memory->size));
