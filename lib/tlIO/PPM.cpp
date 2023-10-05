@@ -169,7 +169,7 @@ namespace tl
             default: break;
             }
             Data data = Data::Binary;
-            auto option = options.find("ppm/Data");
+            auto option = options.find("PPM/Data");
             if (option != options.end())
             {
                 std::stringstream ss(option->second);

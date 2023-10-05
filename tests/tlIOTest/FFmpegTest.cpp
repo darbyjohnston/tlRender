@@ -58,13 +58,14 @@ namespace tl
                 const file::Path& path,
                 const image::Info& imageInfo,
                 const image::Tags& tags,
-                const otime::RationalTime& duration)
+                const otime::RationalTime& duration,
+                const Options& options)
             {
                 Info info;
                 info.video.push_back(imageInfo);
                 info.videoTime = otime::TimeRange(otime::RationalTime(0.0, 24.0), duration);
                 info.tags = tags;
-                auto write = plugin->write(path, info);
+                auto write = plugin->write(path, info, options);
                 for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
                 {
                     write->writeVideo(otime::RationalTime(i, 24.0), image);
@@ -77,7 +78,8 @@ namespace tl
                 const file::Path& path,
                 bool memoryIO,
                 const image::Tags& tags,
-                const otime::RationalTime& duration)
+                const otime::RationalTime& duration,
+                const Options& options)
             {
                 std::vector<uint8_t> memoryData;
                 std::vector<file::MemoryRead> memory;
@@ -88,11 +90,11 @@ namespace tl
                     memoryData.resize(fileIO->getSize());
                     fileIO->read(memoryData.data(), memoryData.size());
                     memory.push_back(file::MemoryRead(memoryData.data(), memoryData.size()));
-                    read = plugin->read(path, memory);
+                    read = plugin->read(path, memory, options);
                 }
                 else
                 {
-                    read = plugin->read(path);
+                    read = plugin->read(path, options);
                 }
                 const auto ioInfo = read->getInfo().get();
                 TLRENDER_ASSERT(!ioInfo.video.empty());
@@ -119,7 +121,8 @@ namespace tl
                 const std::shared_ptr<io::IPlugin>& plugin,
                 const std::shared_ptr<image::Image>& image,
                 const file::Path& path,
-                bool memoryIO)
+                bool memoryIO,
+                const Options& options)
             {
                 {
                     auto fileIO = file::FileIO::create(path.get(), file::Mode::Read);
@@ -136,7 +139,7 @@ namespace tl
                     fileIO->read(memoryData.data(), memoryData.size());
                     memory.push_back(file::MemoryRead(memoryData.data(), memoryData.size()));
                 }
-                auto read = plugin->read(path, memory);
+                auto read = plugin->read(path, memory, options);
                 //! \bug This causes the test to hang.
                 //const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
             }
@@ -169,6 +172,22 @@ namespace tl
                 image::Size(16, 16),
                 image::Size(0, 0)
             };
+            const std::vector<std::pair<std::string, std::string> > options =
+            {
+                { "FFmpeg/YUVToRGBConversion", "1" },
+                { "FFmpeg/ThreadCount", "1" },
+                { "FFmpeg/RequestTimeout", "1" },
+                { "FFmpeg/VideoBufferSize", "1" },
+                { "FFmpeg/AudioBufferSize", "1/1" },
+                { "FFmpeg/WriteProfile", "None" },
+                { "FFmpeg/WriteProfile", "H264" },
+                { "FFmpeg/WriteProfile", "ProRes" },
+                { "FFmpeg/WriteProfile", "ProRes_Proxy" },
+                { "FFmpeg/WriteProfile", "ProRes_LT" },
+                { "FFmpeg/WriteProfile", "ProRes_HQ" },
+                { "FFmpeg/WriteProfile", "ProRes_4444" },
+                { "FFmpeg/WriteProfile", "ProRes_XQ" }
+            };
 
             for (const auto& fileName : fileNames)
             {
@@ -178,31 +197,36 @@ namespace tl
                     {
                         for (const auto& pixelType : image::getPixelTypeEnums())
                         {
-                            const auto imageInfo = plugin->getWriteInfo(image::Info(size, pixelType));
-                            if (imageInfo.isValid())
+                            for (const auto& option : options)
                             {
-                                file::Path path;
+                                Options options;
+                                options[option.first] = option.second;
+                                const auto imageInfo = plugin->getWriteInfo(image::Info(size, pixelType));
+                                if (imageInfo.isValid())
                                 {
-                                    std::stringstream ss;
-                                    ss << fileName << '_' << size << '_' << pixelType << ".mp4";
-                                    _print(ss.str());
-                                    path = file::Path(ss.str());
-                                }
-                                auto image = image::Image::create(imageInfo);
-                                image->zero();
-                                image->setTags(tags);
-                                const otime::RationalTime duration(24.0, 24.0);
-                                try
-                                {
-                                    write(plugin, image, path, imageInfo, tags, duration);
-                                    read(plugin, image, path, memoryIO, tags, duration);
-                                    system->getCache()->clear();
-                                    readError(plugin, image, path, memoryIO);
-                                    system->getCache()->clear();
-                                }
-                                catch (const std::exception& e)
-                                {
-                                    _printError(e.what());
+                                    file::Path path;
+                                    {
+                                        std::stringstream ss;
+                                        ss << fileName << '_' << size << '_' << pixelType << ".mp4";
+                                        _print(ss.str());
+                                        path = file::Path(ss.str());
+                                    }
+                                    auto image = image::Image::create(imageInfo);
+                                    image->zero();
+                                    image->setTags(tags);
+                                    const otime::RationalTime duration(24.0, 24.0);
+                                    try
+                                    {
+                                        write(plugin, image, path, imageInfo, tags, duration, options);
+                                        read(plugin, image, path, memoryIO, tags, duration, options);
+                                        system->getCache()->clear();
+                                        readError(plugin, image, path, memoryIO, options);
+                                        system->getCache()->clear();
+                                    }
+                                    catch (const std::exception& e)
+                                    {
+                                        _printError(e.what());
+                                    }
                                 }
                             }
                         }

@@ -185,7 +185,7 @@ namespace tl
         {
             ISequenceWrite::_init(path, info, options, logSystem);
 
-            auto option = options.find("jpeg/Quality");
+            auto option = options.find("JPEG/Quality");
             if (option != options.end())
             {
                 std::stringstream ss(option->second);

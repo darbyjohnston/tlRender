@@ -51,7 +51,19 @@ namespace tl
             info.tags = image->getTags();
 
             Version version = Version::_2_0;
+            auto i = _options.find("DPX/Version");
+            if (i != _options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> version;
+            }
             Endian endian = Endian::Auto;
+            i = _options.find("DPX/Endian");
+            if (i != _options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> endian;
+            }
             Transfer transfer = Transfer::FilmPrint;
             write(io, info, version, endian, transfer);
 

@@ -34,13 +34,14 @@ namespace tl
                 const std::shared_ptr<image::Image>& image,
                 const file::Path& path,
                 const image::Info& imageInfo,
-                const image::Tags& tags)
+                const image::Tags& tags,
+                const Options& options)
             {
                 Info info;
                 info.video.push_back(imageInfo);
                 info.videoTime = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
                 info.tags = tags;
-                auto write = plugin->write(path, info);
+                auto write = plugin->write(path, info, options);
                 write->writeVideo(otime::RationalTime(0.0, 24.0), image);
             }
 
@@ -49,7 +50,8 @@ namespace tl
                 const std::shared_ptr<image::Image>& image,
                 const file::Path& path,
                 bool memoryIO,
-                const image::Tags& tags)
+                const image::Tags& tags,
+                const Options& options)
             {
                 std::vector<uint8_t> memoryData;
                 std::vector<file::MemoryRead> memory;
@@ -60,11 +62,11 @@ namespace tl
                     memoryData.resize(fileIO->getSize());
                     fileIO->read(memoryData.data(), memoryData.size());
                     memory.push_back(file::MemoryRead(memoryData.data(), memoryData.size()));
-                    read = plugin->read(path, memory);
+                    read = plugin->read(path, memory, options);
                 }
                 else
                 {
-                    read = plugin->read(path);
+                    read = plugin->read(path, options);
                 }
                 const auto ioInfo = read->getInfo().get();
                 TLRENDER_ASSERT(!ioInfo.video.empty());
@@ -84,7 +86,8 @@ namespace tl
                 const std::shared_ptr<io::IPlugin>& plugin,
                 const std::shared_ptr<image::Image>& image,
                 const file::Path& path,
-                bool memoryIO)
+                bool memoryIO,
+                const Options& options)
             {
                 {
                     auto fileIO = file::FileIO::create(path.get(), file::Mode::Read);
@@ -101,7 +104,7 @@ namespace tl
                     fileIO->read(memoryData.data(), memoryData.size());
                     memory.push_back(file::MemoryRead(memoryData.data(), memoryData.size()));
                 }
-                auto read = plugin->read(path, memory);
+                auto read = plugin->read(path, memory, options);
                 const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
             }
         }
@@ -131,6 +134,11 @@ namespace tl
                 image::Size(1, 1),
                 image::Size(0, 0)
             };
+            const std::vector<std::pair<std::string, std::string> > options =
+            {
+                { "JPEG/Quality", "90" },
+                { "JPEG/Quality", "60" }
+            };
 
             for (const auto& fileName : fileNames)
             {
@@ -140,30 +148,35 @@ namespace tl
                     {
                         for (const auto& pixelType : image::getPixelTypeEnums())
                         {
-                            const auto imageInfo = plugin->getWriteInfo(image::Info(size, pixelType));
-                            if (imageInfo.isValid())
+                            for (const auto& option : options)
                             {
-                                file::Path path;
+                                Options options;
+                                options[option.first] = option.second;
+                                const auto imageInfo = plugin->getWriteInfo(image::Info(size, pixelType));
+                                if (imageInfo.isValid())
                                 {
-                                    std::stringstream ss;
-                                    ss << fileName << '_' << size << '_' << pixelType << ".0.jpg";
-                                    _print(ss.str());
-                                    path = file::Path(ss.str());
-                                }
-                                auto image = image::Image::create(imageInfo);
-                                image->zero();
-                                image->setTags(tags);
-                                try
-                                {
-                                    write(plugin, image, path, imageInfo, tags);
-                                    read(plugin, image, path, memoryIO, tags);
-                                    system->getCache()->clear();
-                                    readError(plugin, image, path, memoryIO);
-                                    system->getCache()->clear();
-                                }
-                                catch (const std::exception& e)
-                                {
-                                    _printError(e.what());
+                                    file::Path path;
+                                    {
+                                        std::stringstream ss;
+                                        ss << fileName << '_' << size << '_' << pixelType << ".0.jpg";
+                                        _print(ss.str());
+                                        path = file::Path(ss.str());
+                                    }
+                                    auto image = image::Image::create(imageInfo);
+                                    image->zero();
+                                    image->setTags(tags);
+                                    try
+                                    {
+                                        write(plugin, image, path, imageInfo, tags, options);
+                                        read(plugin, image, path, memoryIO, tags, options);
+                                        system->getCache()->clear();
+                                        readError(plugin, image, path, memoryIO, options);
+                                        system->getCache()->clear();
+                                    }
+                                    catch (const std::exception& e)
+                                    {
+                                        _printError(e.what());
+                                    }
                                 }
                             }
                         }
