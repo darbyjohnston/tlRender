@@ -8,6 +8,7 @@
 
 #include <tlIO/System.h>
 
+#include <tlCore/Assert.h>
 #include <tlCore/FileInfo.h>
 #include <tlCore/StringFormat.h>
 
@@ -76,37 +77,92 @@ namespace tl
             return out;
         }
 
-        std::vector<otime::TimeRange> loop(
+        std::vector<otime::TimeRange> loopCache(
             const otime::TimeRange& value,
-            const otime::TimeRange& range)
+            const otime::TimeRange& range,
+            CacheDirection direction)
         {
             std::vector<otime::TimeRange> out;
-            if (value.duration() >= range.duration())
+            const otime::RationalTime min = std::min(value.duration(), range.duration());
+            switch (direction)
             {
-                out.push_back(range);
-            }
-            else if (value.start_time() >= range.start_time() &&
-                value.end_time_inclusive() <= range.end_time_inclusive())
-            {
-                out.push_back(value);
-            }
-            else if (value.start_time() < range.start_time())
-            {
-                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
-                    range.end_time_exclusive() - (range.start_time() - value.start_time()),
-                    range.end_time_inclusive()));
-                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
-                    range.start_time(),
-                    value.end_time_inclusive()));
-            }
-            else if (value.end_time_inclusive() > range.end_time_inclusive())
-            {
-                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
-                    value.start_time(),
-                    range.end_time_inclusive()));
-                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
-                    range.start_time(),
-                    range.start_time() + (value.end_time_inclusive() - range.end_time_exclusive())));
+            case CacheDirection::Forward:
+                if (value.start_time() < range.start_time())
+                {
+                    const otime::TimeRange a(range.start_time(), min);
+                    TLRENDER_ASSERT(a.duration() == min);
+                    out.push_back(a);
+                }
+                else if (value.start_time() > range.end_time_inclusive())
+                {
+                    const otime::TimeRange a(range.end_time_exclusive() - min, min);
+                    TLRENDER_ASSERT(a.duration() == min);
+                    out.push_back(a);
+                }
+                else if (value.end_time_inclusive() > range.end_time_exclusive())
+                {
+                    const otime::TimeRange clamped(value.start_time(), min);
+                    const otime::TimeRange a = otime::TimeRange::range_from_start_end_time_inclusive(
+                        clamped.start_time(),
+                        range.end_time_inclusive());
+                    const otime::TimeRange b = otime::TimeRange(
+                        range.start_time(),
+                        clamped.duration() - a.duration());
+                    TLRENDER_ASSERT(a.duration() + b.duration() == min);
+                    if (a.duration().value() > 0.0)
+                    {
+                        out.push_back(a);
+                    }
+                    if (b.duration().value() > 0.0)
+                    {
+                        out.push_back(b);
+                    }
+                }
+                else
+                {
+                    out.push_back(value);
+                }
+                break;
+            case CacheDirection::Reverse:
+                if (value.end_time_inclusive() > range.end_time_inclusive())
+                {
+                    const otime::TimeRange a(range.end_time_exclusive() - min, min);
+                    out.push_back(a);
+                    TLRENDER_ASSERT(a.duration() == min);
+                }
+                else if (value.end_time_inclusive() < range.start_time())
+                {
+                    const otime::TimeRange a(range.start_time(), min);
+                    out.push_back(a);
+                    TLRENDER_ASSERT(a.duration() == min);
+                }
+                else if (value.start_time() < range.start_time())
+                {
+                    const otime::TimeRange clamped = otime::TimeRange::range_from_start_end_time_inclusive(
+                        value.end_time_exclusive() - min,
+                        value.end_time_inclusive());
+                    const otime::TimeRange a = otime::TimeRange::range_from_start_end_time_inclusive(
+                        range.start_time(),
+                        clamped.end_time_inclusive());
+                    const otime::TimeRange b = otime::TimeRange::range_from_start_end_time_inclusive(
+                        range.end_time_exclusive() - (clamped.duration() - a.duration()),
+                        range.end_time_inclusive());
+                    TLRENDER_ASSERT(a.duration() + b.duration() == min);
+                    if (a.duration().value() > 0.0)
+                    {
+                        out.push_back(a);
+                    }
+                    if (b.duration().value() > 0.0)
+                    {
+                        out.push_back(b);
+                    }
+                }
+                else
+                {
+                    out.push_back(value);
+                }
+                break;
+            default: break;
             }
             return out;
         }

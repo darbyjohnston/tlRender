@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlTimeline/Timeline.h>
+#include <tlTimeline/Player.h>
 
 #include <opentimelineio/mediaReference.h>
 
@@ -21,10 +21,18 @@ namespace tl
             const otime::TimeRange&,
             bool* looped = nullptr);
 
-        //! Loop a range.
-        std::vector<otime::TimeRange> loop(
+        //! Cache direction.
+        enum class CacheDirection
+        {
+            Forward,
+            Reverse
+        };
+
+        //! Loop the cache time range.
+        std::vector<otime::TimeRange> loopCache(
             const otime::TimeRange&,
-            const otime::TimeRange&);
+            const otime::TimeRange&,
+            CacheDirection);
 
         //! Get the root (highest parent).
         const otio::Composable* getRoot(const otio::Composable*);
