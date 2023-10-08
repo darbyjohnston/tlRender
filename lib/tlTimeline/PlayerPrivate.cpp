@@ -131,7 +131,10 @@ namespace tl
             }
             //std::cout << "in out range: " << inOutRange << std::endl;
             //std::cout << "video range: " << videoRange << std::endl;
-            const auto videoRanges = timeline::loop(videoRange, inOutRange);
+            const auto videoRanges = timeline::loopCache(
+                videoRange,
+                inOutRange,
+                cacheDirection);
             //for (const auto& i : videoRanges)
             //{
             //    std::cout << "video ranges: " << i << std::endl;
@@ -168,7 +171,10 @@ namespace tl
                 inOutRange.end_time_inclusive() + audioOffsetAhead).
                     clamped(timeRange);
             //std::cout << "in out audio range: " << inOutAudioRange << std::endl;
-            const auto audioRanges = timeline::loop(audioRange, inOutAudioRange);
+            const auto audioRanges = timeline::loopCache(
+                audioRange,
+                inOutAudioRange,
+                cacheDirection);
 
             // Remove old video from the cache.
             auto videoCacheIt = thread.videoDataCache.begin();
@@ -227,21 +233,49 @@ namespace tl
             {
                 for (const auto& range : videoRanges)
                 {
-                    const auto start = range.start_time();
-                    const auto end = range.end_time_exclusive();
-                    const auto inc = otime::RationalTime(1.0, range.duration().rate());
-                    for (auto time = start; time < end; time += inc)
+                    switch (cacheDirection)
                     {
-                        const auto i = thread.videoDataCache.find(time);
-                        if (i == thread.videoDataCache.end())
+                    case CacheDirection::Forward:
+                    {
+                        const auto start = range.start_time();
+                        const auto end = range.end_time_inclusive();
+                        const auto inc = otime::RationalTime(1.0, range.duration().rate());
+                        for (auto time = start; time <= end; time += inc)
                         {
-                            const auto j = thread.videoDataRequests.find(time);
-                            if (j == thread.videoDataRequests.end())
+                            const auto i = thread.videoDataCache.find(time);
+                            if (i == thread.videoDataCache.end())
                             {
-                                //std::cout << this << " video request: " << time << std::endl;
-                                thread.videoDataRequests[time] = timeline->getVideo(time, videoLayer);
+                                const auto j = thread.videoDataRequests.find(time);
+                                if (j == thread.videoDataRequests.end())
+                                {
+                                    //std::cout << this << " video request: " << time << std::endl;
+                                    thread.videoDataRequests[time] = timeline->getVideo(time, videoLayer);
+                                }
                             }
                         }
+                        break;
+                    }
+                    case CacheDirection::Reverse:
+                    {
+                        const auto start = range.end_time_inclusive();
+                        const auto end = range.start_time();
+                        const auto inc = otime::RationalTime(1.0, range.duration().rate());
+                        for (auto time = start; time >= end; time -= inc)
+                        {
+                            const auto i = thread.videoDataCache.find(time);
+                            if (i == thread.videoDataCache.end())
+                            {
+                                const auto j = thread.videoDataRequests.find(time);
+                                if (j == thread.videoDataRequests.end())
+                                {
+                                    //std::cout << this << " video request: " << time << std::endl;
+                                    thread.videoDataRequests[time] = timeline->getVideo(time, videoLayer);
+                                }
+                            }
+                        }
+                        break;
+                    }
+                    default: break;
                     }
                 }
             }
@@ -276,9 +310,21 @@ namespace tl
                         }
                     }
                 }
-                for (auto i : requests)
+                switch (cacheDirection)
                 {
-                    thread.audioDataRequests[i.first] = timeline->getAudio(i.second);
+                case CacheDirection::Forward:
+                    for (auto i = requests.begin(); i != requests.end(); ++i)
+                    {
+                        thread.audioDataRequests[i->first] = timeline->getAudio(i->second);
+                    }
+                    break;
+                case CacheDirection::Reverse:
+                    for (auto i = requests.rbegin(); i != requests.rend(); ++i)
+                    {
+                        thread.audioDataRequests[i->first] = timeline->getAudio(i->second);
+                    }
+                    break;
+                default: break;
                 }
                 /*if (!requests.empty())
                 {

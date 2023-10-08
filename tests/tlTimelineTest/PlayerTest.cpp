@@ -60,27 +60,64 @@ namespace tl
                 TLRENDER_ASSERT(otime::RationalTime(23.0, 24.0) == loop(otime::RationalTime(-1.0, 24.0), timeRange));
             }
             {
-                const otime::TimeRange timeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0));
-                auto ranges = loop(otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)), timeRange);
+                auto ranges = loopCache(
+                    otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)),
+                    otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)),
+                    CacheDirection::Forward);
                 TLRENDER_ASSERT(1 == ranges.size());
-                TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)) == ranges[0]);
-                ranges = loop(otime::TimeRange(otime::RationalTime(-10.0, 24.0), otime::RationalTime(34.0, 24.0)), timeRange);
+                TLRENDER_ASSERT(ranges[0] == otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)));
+
+                ranges = loopCache(
+                    otime::TimeRange(otime::RationalTime(24.0, 24.0), otime::RationalTime(12.0, 24.0)),
+                    otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)),
+                    CacheDirection::Forward);
                 TLRENDER_ASSERT(1 == ranges.size());
-                TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)) == ranges[0]);
-                ranges = loop(otime::TimeRange(otime::RationalTime(-10.0, 24.0), otime::RationalTime(20.0, 24.0)), timeRange);
+                TLRENDER_ASSERT(ranges[0] == otime::TimeRange(otime::RationalTime(12.0, 24.0), otime::RationalTime(12.0, 24.0)));
+
+                ranges = loopCache(
+                    otime::TimeRange(otime::RationalTime(-12.0, 24.0), otime::RationalTime(12.0, 24.0)),
+                    otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)),
+                    CacheDirection::Forward);
+                TLRENDER_ASSERT(1 == ranges.size());
+                TLRENDER_ASSERT(ranges[0] == otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(12.0, 24.0)));
+
+                ranges = loopCache(
+                    otime::TimeRange(otime::RationalTime(10.0, 24.0), otime::RationalTime(48.0, 24.0)),
+                    otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)),
+                    CacheDirection::Forward);
                 TLRENDER_ASSERT(2 == ranges.size());
-                TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(14.0, 24.0), otime::RationalTime(10.0, 24.0)) == ranges[0]);
-                TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(10.0, 24.0)) == ranges[1]);
-                ranges = loop(otime::TimeRange(otime::RationalTime(10.0, 24.0), otime::RationalTime(20.0, 24.0)), timeRange);
-                TLRENDER_ASSERT(2 == ranges.size());
-                TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(10.0, 24.0), otime::RationalTime(14.0, 24.0)) == ranges[0]);
-                TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(6.0, 24.0)) == ranges[1]);
+                TLRENDER_ASSERT(ranges[0] == otime::TimeRange(otime::RationalTime(10.0, 24.0), otime::RationalTime(14.0, 24.0)));
+                TLRENDER_ASSERT(ranges[1] == otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(10.0, 24.0)));
             }
             {
-                const otime::TimeRange timeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
-                auto ranges = loop(otime::TimeRange(otime::RationalTime(-1.0, 24.0), otime::RationalTime(2.0, 24.0)), timeRange);
+                auto ranges = loopCache(
+                    otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)),
+                    otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)),
+                    CacheDirection::Reverse);
                 TLRENDER_ASSERT(1 == ranges.size());
-                TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0)) == ranges[0]);
+                TLRENDER_ASSERT(ranges[0] == otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)));
+
+                ranges = loopCache(
+                    otime::TimeRange(otime::RationalTime(24.0, 24.0), otime::RationalTime(12.0, 24.0)),
+                    otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)),
+                    CacheDirection::Reverse);
+                TLRENDER_ASSERT(1 == ranges.size());
+                TLRENDER_ASSERT(ranges[0] == otime::TimeRange(otime::RationalTime(12.0, 24.0), otime::RationalTime(12.0, 24.0)));
+
+                ranges = loopCache(
+                    otime::TimeRange(otime::RationalTime(-12.0, 24.0), otime::RationalTime(12.0, 24.0)),
+                    otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)),
+                    CacheDirection::Reverse);
+                TLRENDER_ASSERT(1 == ranges.size());
+                TLRENDER_ASSERT(ranges[0] == otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(12.0, 24.0)));
+
+                ranges = loopCache(
+                    otime::TimeRange(otime::RationalTime(-10.0, 24.0), otime::RationalTime(24.0, 24.0)),
+                    otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)),
+                    CacheDirection::Reverse);
+                TLRENDER_ASSERT(2 == ranges.size());
+                TLRENDER_ASSERT(ranges[0] == otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(14.0, 24.0)));
+                TLRENDER_ASSERT(ranges[1] == otime::TimeRange(otime::RationalTime(14.0, 24.0), otime::RationalTime(10.0, 24.0)));
             }
         }
 

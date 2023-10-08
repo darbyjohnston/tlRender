@@ -6,6 +6,8 @@
 
 #include <tlTimeline/Player.h>
 
+#include <tlTimeline/Util.h>
+
 #include <tlCore/AudioResample.h>
 #include <tlCore/LRUCache.h>
 
@@ -21,12 +23,6 @@ namespace tl
 {
     namespace timeline
     {
-        enum class CacheDirection
-        {
-            Forward,
-            Reverse
-        };
-
         struct Player::Private
         {
             otime::RationalTime loopPlayback(const otime::RationalTime&);
