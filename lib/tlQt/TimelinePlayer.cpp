@@ -23,7 +23,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::Loop> > loopObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
             std::shared_ptr<observer::ValueObserver<otime::TimeRange> > inOutRangeObserver;
-            std::shared_ptr<observer::ValueObserver<size_t> > videoLayerObserver;
+            std::shared_ptr<observer::ValueObserver<io::Options> > ioOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::VideoData> > currentVideoObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
@@ -76,11 +76,11 @@ namespace tl
                     Q_EMIT inOutRangeChanged(value);
                 });
 
-            p.videoLayerObserver = observer::ValueObserver<size_t>::create(
-                p.player->observeVideoLayer(),
-                [this](size_t value)
+            p.ioOptionsObserver = observer::ValueObserver<io::Options>::create(
+                p.player->observeIOOptions(),
+                [this](const io::Options& value)
                 {
-                    Q_EMIT videoLayerChanged(value);
+                    Q_EMIT ioOptionsChanged(value);
                 });
 
             p.currentVideoObserver = observer::ValueObserver<timeline::VideoData>::create(
@@ -224,9 +224,9 @@ namespace tl
             return _p->player->observeInOutRange()->get();
         }
 
-        int TimelinePlayer::videoLayer() const
+        const io::Options& TimelinePlayer::ioOptions() const
         {
-            return _p->player->observeVideoLayer()->get();
+            return _p->player->observeIOOptions()->get();
         }
 
         const timeline::VideoData& TimelinePlayer::currentVideo() const
@@ -357,9 +357,9 @@ namespace tl
             _p->player->resetOutPoint();
         }
 
-        void TimelinePlayer::setVideoLayer(int value)
+        void TimelinePlayer::setIOOptions(const io::Options& value)
         {
-            _p->player->setVideoLayer(math::clamp(value, 0, static_cast<int>(std::numeric_limits<uint16_t>::max())));
+            _p->player->setIOOptions(value);
         }
 
         void TimelinePlayer::setVolume(float value)

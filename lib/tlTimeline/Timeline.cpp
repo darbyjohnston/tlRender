@@ -233,12 +233,14 @@ namespace tl
             return _p->ioInfo;
         }
 
-        std::future<VideoData> Timeline::getVideo(const otime::RationalTime& time, uint16_t videoLayer)
+        std::future<VideoData> Timeline::getVideo(
+            const otime::RationalTime& time,
+            const io::Options& options)
         {
             TLRENDER_P();
             auto request = std::make_shared<Private::VideoRequest>();
             request->time = time;
-            request->videoLayer = videoLayer;
+            request->options = options;
             auto future = request->promise.get_future();
             bool valid = false;
             {
@@ -260,11 +262,14 @@ namespace tl
             return future;
         }
 
-        std::future<AudioData> Timeline::getAudio(double seconds)
+        std::future<AudioData> Timeline::getAudio(
+            double seconds,
+            const io::Options& options)
         {
             TLRENDER_P();
             auto request = std::make_shared<Private::AudioRequest>();
             request->seconds = seconds;
+            request->options = options;
             auto future = request->promise.get_future();
             bool valid = false;
             {

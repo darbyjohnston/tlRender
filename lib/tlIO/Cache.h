@@ -42,37 +42,40 @@ namespace tl
             void addVideo(
                 const std::string& fileName,
                 const otime::RationalTime&,
-                uint16_t layer,
+                const Options&,
                 const VideoData&);
 
             //! Get whether the cache contains video.
             bool containsVideo(
                 const std::string& fileName,
                 const otime::RationalTime&,
-                uint16_t layer) const;
+                const Options&) const;
 
             //! Get video.
             bool getVideo(
                 const std::string& fileName,
                 const otime::RationalTime&,
-                uint16_t layer,
+                const Options&,
                 VideoData&) const;
 
             //! Add audio to the cache.
             void addAudio(
                 const std::string& fileName,
                 const otime::TimeRange&,
+                const Options&,
                 const AudioData&);
 
             //! Get whether the cache contains audio.
             bool containsAudio(
                 const std::string& fileName,
-                const otime::TimeRange&) const;
+                const otime::TimeRange&,
+                const Options&) const;
 
             //! Get audio from the cache.
             bool getAudio(
                 const std::string& fileName,
                 const otime::TimeRange&,
+                const Options&,
                 AudioData&) const;
 
             //! Clear the cache.
@@ -82,11 +85,12 @@ namespace tl
             std::string _getKey(
                 const std::string& fileName,
                 const otime::RationalTime&,
-                uint16_t layer) const;
+                const Options&) const;
 
             std::string _getKey(
                 const std::string& fileName,
-                const otime::TimeRange&) const;
+                const otime::TimeRange&,
+                const Options&) const;
 
             void _maxUpdate();
 

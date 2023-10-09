@@ -5,6 +5,7 @@
 #include <tlIO/Cache.h>
 
 #include <tlCore/LRUCache.h>
+#include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
 #include <mutex>
@@ -73,11 +74,11 @@ namespace tl
         void Cache::addVideo(
             const std::string& fileName,
             const otime::RationalTime& time,
-            uint16_t layer,
+            const Options& options,
             const VideoData& videoData)
         {
             TLRENDER_P();
-            const std::string key = _getKey(fileName, time, layer);
+            const std::string key = _getKey(fileName, time, options);
             std::unique_lock<std::mutex> lock(p.mutex);
             p.video.add(
                 key,
@@ -88,21 +89,21 @@ namespace tl
         bool Cache::containsVideo(
             const std::string& fileName,
             const otime::RationalTime& time,
-            uint16_t layer) const
+            const Options& options) const
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
-            return p.video.contains(_getKey(fileName, time, layer));
+            return p.video.contains(_getKey(fileName, time, options));
         }
 
         bool Cache::getVideo(
             const std::string& fileName,
             const otime::RationalTime& time,
-            uint16_t layer,
+            const Options& options,
             VideoData& videoData) const
         {
             TLRENDER_P();
-            const std::string key = _getKey(fileName, time, layer);
+            const std::string key = _getKey(fileName, time, options);
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.video.get(key, videoData);
         }
@@ -110,33 +111,36 @@ namespace tl
         void Cache::addAudio(
             const std::string& fileName,
             const otime::TimeRange& timeRange,
+            const Options& options,
             const AudioData& audioData)
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.audio.add(
-                _getKey(fileName, timeRange),
+                _getKey(fileName, timeRange, options),
                 audioData,
                 audioData.audio ? audioData.audio->getByteCount() : 1);
         }
 
         bool Cache::containsAudio(
             const std::string& fileName,
-            const otime::TimeRange& timeRange) const
+            const otime::TimeRange& timeRange,
+            const Options& options) const
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
-            return p.audio.contains(_getKey(fileName, timeRange));
+            return p.audio.contains(_getKey(fileName, timeRange, options));
         }
 
         bool Cache::getAudio(
             const std::string& fileName,
             const otime::TimeRange& timeRange,
+            const Options& options,
             AudioData& audioData) const
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
-            return p.audio.get(_getKey(fileName, timeRange), audioData);
+            return p.audio.get(_getKey(fileName, timeRange, options), audioData);
         }
 
         void Cache::clear()
@@ -150,21 +154,31 @@ namespace tl
         std::string Cache::_getKey(
             const std::string& fileName,
             const otime::RationalTime& time,
-            uint16_t layer) const
+            const Options& options) const
         {
-            return string::Format("{0}_{1}_{2}").
-                arg(fileName).
-                arg(time).
-                arg(layer);
+            std::vector<std::string> s;
+            s.push_back(fileName);
+            s.push_back(string::Format("{0}").arg(time));
+            for (const auto& i : options)
+            {
+                s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
+            }
+            return string::join(s, ';');
         }
 
         std::string Cache::_getKey(
             const std::string& fileName,
-            const otime::TimeRange& timeRange) const
+            const otime::TimeRange& timeRange,
+            const Options& options) const
         {
-            return string::Format("{0}_{1}").
-                arg(fileName).
-                arg(timeRange);
+            std::vector<std::string> s;
+            s.push_back(fileName);
+            s.push_back(string::Format("{0}").arg(timeRange));
+            for (const auto& i : options)
+            {
+                s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
+            }
+            return string::join(s, ';');
         }
 
         void Cache::_maxUpdate()

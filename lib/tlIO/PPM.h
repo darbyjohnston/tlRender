@@ -88,7 +88,7 @@ namespace tl
                 const std::string& fileName,
                 const file::MemoryRead*,
                 const otime::RationalTime&,
-                uint16_t layer) override;
+                const io::Options&) override;
         };
 
         //! PPM writer.
@@ -117,7 +117,8 @@ namespace tl
             void _writeVideo(
                 const std::string& fileName,
                 const otime::RationalTime&,
-                const std::shared_ptr<image::Image>&) override;
+                const std::shared_ptr<image::Image>&,
+                const io::Options&) override;
 
         private:
             Data _data = Data::Binary;

@@ -119,7 +119,7 @@ namespace tl
                         string::Format("{0}").arg(_options.ffmpegThreadCount)),
 #endif // TLRENDER_FFMPEG
 #if defined(TLRENDER_USD)
-                    app::CmdLineValueOption<size_t>::create(
+                    app::CmdLineValueOption<int>::create(
                         _options.usdRenderWidth,
                         { "-usdRenderWidth" },
                         "USD render width.",

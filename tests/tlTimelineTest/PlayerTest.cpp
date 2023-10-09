@@ -292,18 +292,20 @@ namespace tl
             player->resetOutPoint();
             TLRENDER_ASSERT(otime::TimeRange(timeRange.start_time(), timeRange.duration()) == inOutRange);
 
-            // Test the video layer.
-            size_t videoLayer = 0;
-            auto videoLayerObserver = observer::ValueObserver<size_t>::create(
-                player->observeVideoLayer(),
-                [&videoLayer](size_t value)
+            // Test the I/O options.
+            io::Options ioOptions;
+            auto ioOptionsObserver = observer::ValueObserver<io::Options>::create(
+                player->observeIOOptions(),
+                [&ioOptions](const io::Options& value)
                 {
-                    videoLayer = value;
+                    ioOptions = value;
                 });
-            player->setVideoLayer(1);
-            TLRENDER_ASSERT(1 == player->getVideoLayer());
-            TLRENDER_ASSERT(1 == videoLayer);
-            player->setVideoLayer(0);
+            io::Options ioOptions2;
+            ioOptions2["Layer"] = "1";
+            player->setIOOptions(ioOptions2);
+            TLRENDER_ASSERT(ioOptions2 == player->getIOOptions());
+            TLRENDER_ASSERT(ioOptions2 == ioOptions);
+            player->setIOOptions({});
 
             // Test audio.
             float volume = 1.F;

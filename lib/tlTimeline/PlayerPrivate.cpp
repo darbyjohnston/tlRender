@@ -103,7 +103,7 @@ namespace tl
         void Player::Private::cacheUpdate(
             const otime::RationalTime& currentTime,
             const otime::TimeRange& inOutRange,
-            size_t videoLayer,
+            const io::Options& ioOptions,
             double audioOffset,
             CacheDirection cacheDirection,
             const PlayerCacheOptions& cacheOptions)
@@ -249,7 +249,7 @@ namespace tl
                                 if (j == thread.videoDataRequests.end())
                                 {
                                     //std::cout << this << " video request: " << time << std::endl;
-                                    thread.videoDataRequests[time] = timeline->getVideo(time, videoLayer);
+                                    thread.videoDataRequests[time] = timeline->getVideo(time, ioOptions);
                                 }
                             }
                         }
@@ -269,7 +269,7 @@ namespace tl
                                 if (j == thread.videoDataRequests.end())
                                 {
                                     //std::cout << this << " video request: " << time << std::endl;
-                                    thread.videoDataRequests[time] = timeline->getVideo(time, videoLayer);
+                                    thread.videoDataRequests[time] = timeline->getVideo(time, ioOptions);
                                 }
                             }
                         }
@@ -315,13 +315,13 @@ namespace tl
                 case CacheDirection::Forward:
                     for (auto i = requests.begin(); i != requests.end(); ++i)
                     {
-                        thread.audioDataRequests[i->first] = timeline->getAudio(i->second);
+                        thread.audioDataRequests[i->first] = timeline->getAudio(i->second, ioOptions);
                     }
                     break;
                 case CacheDirection::Reverse:
                     for (auto i = requests.rbegin(); i != requests.rend(); ++i)
                     {
-                        thread.audioDataRequests[i->first] = timeline->getAudio(i->second);
+                        thread.audioDataRequests[i->first] = timeline->getAudio(i->second, ioOptions);
                     }
                     break;
                 default: break;
@@ -629,13 +629,13 @@ namespace tl
             // Get mutex protected values.
             otime::RationalTime currentTime = time::invalidTime;
             otime::TimeRange inOutRange = time::invalidTimeRange;
-            size_t videoLayer = 0;
+            io::Options ioOptions = timeline->getOptions().ioOptions;
             PlayerCacheInfo cacheInfo;
             {
                 std::unique_lock<std::mutex> lock(mutex.mutex);
                 currentTime = mutex.currentTime;
                 inOutRange = mutex.inOutRange;
-                videoLayer = mutex.videoLayer;
+                ioOptions = io::merge(mutex.ioOptions, ioOptions);
                 cacheInfo = mutex.cacheInfo;
             }
             size_t audioDataCacheSize = 0;
@@ -689,13 +689,19 @@ namespace tl
                 }
             }
 
+            std::vector<std::string> ioOptionStrings;
+            for (const auto& i : ioOptions)
+            {
+                ioOptionStrings.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
+            }
+
             auto logSystem = context->getLogSystem();
             logSystem->print(id, string::Format(
                 "\n"
                 "    Path: {0}\n"
                 "    Current time: {1}\n"
                 "    In/out range: {2}\n"
-                "    Video layer: {3}\n"
+                "    I/O options: {3}\n"
                 "    Cache: {4} read ahead, {5} read behind\n"
                 "    Video: {6} requests, {7} cached\n"
                 "    Audio: {8} requests, {9} cached\n"
@@ -706,7 +712,7 @@ namespace tl
                 arg(timeline->getPath().get()).
                 arg(currentTime).
                 arg(inOutRange).
-                arg(videoLayer).
+                arg(string::join(ioOptionStrings, ", ")).
                 arg(cacheOptions->get().readAhead).
                 arg(cacheOptions->get().readBehind).
                 arg(thread.videoDataRequests.size()).

@@ -84,37 +84,37 @@ namespace tl
             if (changed)
             {
                 RenderOptions renderOptions;
-                auto i = _options.find("usd/renderWidth");
+                auto i = _options.find("USD/renderWidth");
                 if (i != _options.end())
                 {
                     std::stringstream ss(i->second);
                     ss >> renderOptions.renderWidth;
                 }
-                i = _options.find("usd/complexity");
+                i = _options.find("USD/complexity");
                 if (i != _options.end())
                 {
                     std::stringstream ss(i->second);
                     ss >> renderOptions.complexity;
                 }
-                i = _options.find("usd/drawMode");
+                i = _options.find("USD/drawMode");
                 if (i != _options.end())
                 {
                     std::stringstream ss(i->second);
                     ss >> renderOptions.drawMode;
                 }
-                i = _options.find("usd/enableLighting");
+                i = _options.find("USD/enableLighting");
                 if (i != _options.end())
                 {
                     std::stringstream ss(i->second);
                     ss >> renderOptions.enableLighting;
                 }
-                i = _options.find("usd/stageCacheCount");
+                i = _options.find("USD/stageCacheCount");
                 if (i != _options.end())
                 {
                     std::stringstream ss(i->second);
                     ss >> renderOptions.stageCacheCount;
                 }
-                i = _options.find("usd/diskCacheByteCount");
+                i = _options.find("USD/diskCacheByteCount");
                 if (i != _options.end())
                 {
                     std::stringstream ss(i->second);

@@ -222,17 +222,22 @@ namespace tl
 
             ///@}
 
-            //! \name Video
+            //! \name I/O
             ///@{
 
-            //! Get the current video layer.
-            size_t getVideoLayer() const;
-            
-            //! Observe the current video layer.
-            std::shared_ptr<observer::IValue<size_t> > observeVideoLayer() const;
+            //! Get the I/O options.
+            const io::Options& getIOOptions() const;
 
-            //! Set the current video layer.
-            void setVideoLayer(size_t);
+            //! Observe the I/O options.
+            std::shared_ptr<observer::IValue<io::Options> > observeIOOptions() const;
+
+            //! Set the I/O options.
+            void setIOOptions(const io::Options&);
+
+            ///@}
+
+            //! \name Video
+            ///@{
 
             //! Observe the current video data.
             std::shared_ptr<observer::IValue<VideoData> > observeCurrentVideo() const;

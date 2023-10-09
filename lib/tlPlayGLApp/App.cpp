@@ -54,12 +54,12 @@ namespace tl
                 timeline::ColorConfigOptions colorConfigOptions;
                 timeline::LUTOptions lutOptions;
 #if defined(TLRENDER_USD)
-                size_t usdRenderWidth = usd::RenderOptions().renderWidth;
-                float usdComplexity = usd::RenderOptions().complexity;
-                usd::DrawMode usdDrawMode = usd::RenderOptions().drawMode;
-                bool usdEnableLighting = usd::RenderOptions().enableLighting;
-                size_t usdStageCache = usd::RenderOptions().stageCacheCount;
-                size_t usdDiskCache = usd::RenderOptions().diskCacheByteCount / memory::gigabyte;
+                int usdRenderWidth = 1920;
+                float usdComplexity = 1.F;
+                usd::DrawMode usdDrawMode = usd::DrawMode::ShadedSmooth;
+                bool usdEnableLighting = true;
+                size_t usdStageCache = 10;
+                size_t usdDiskCache = 0;
 #endif // TLRENDER_USD
                 std::string logFileName;
                 bool resetSettings = false;
@@ -204,7 +204,7 @@ namespace tl
                     string::Format("{0}").arg(p.options.lutOptions.order),
                     string::join(timeline::getLUTOrderLabels(), ", ")),
 #if defined(TLRENDER_USD)
-                app::CmdLineValueOption<size_t>::create(
+                app::CmdLineValueOption<int>::create(
                     p.options.usdRenderWidth,
                     { "-usdRenderWidth" },
                     "USD render width.",
@@ -413,7 +413,9 @@ namespace tl
                     {
                         if (auto player = _p->players[i])
                         {
-                            player->setVideoLayer(value[i]);
+                            io::Options ioOptions;
+                            ioOptions["Layer"] = string::Format("{0}").arg(value[i]);
+                            player->setIOOptions(ioOptions);
                         }
                     }
                 });

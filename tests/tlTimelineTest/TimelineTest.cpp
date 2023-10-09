@@ -145,9 +145,11 @@ namespace tl
             {
                 videoFutures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0)));
             }
+            io::Options ioOptions;
+            ioOptions["Layer"] = "1";
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
-                videoFutures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), 1));
+                videoFutures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), ioOptions));
             }
             while (videoData.size() < static_cast<size_t>(timeRange.duration().value()) * 2)
             {
@@ -205,7 +207,7 @@ namespace tl
             }
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
-                videoFutures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), 1));
+                videoFutures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), ioOptions));
             }
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().rescaled_to(1.0).value()); ++i)
             {

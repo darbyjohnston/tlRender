@@ -49,12 +49,12 @@ namespace tl
             int ffmpegThreadCount = ffmpeg::threadCount;
 #endif // TLRENDER_FFMPEG
 #if defined(TLRENDER_USD)
-            size_t usdRenderWidth = usd::RenderOptions().renderWidth;
-            float usdComplexity = usd::RenderOptions().complexity;
-            usd::DrawMode usdDrawMode = usd::RenderOptions().drawMode;
-            bool usdEnableLighting = usd::RenderOptions().enableLighting;
-            size_t usdStageCache = usd::RenderOptions().stageCacheCount;
-            size_t usdDiskCache = usd::RenderOptions().diskCacheByteCount / memory::gigabyte;
+            int usdRenderWidth = 1920;
+            float usdComplexity = 1.F;
+            usd::DrawMode usdDrawMode = usd::DrawMode::ShadedSmooth;
+            bool usdEnableLighting = true;
+            size_t usdStageCache = 10;
+            size_t usdDiskCache = 0;
 #endif // TLRENDER_USD
         };
 

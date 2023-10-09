@@ -38,7 +38,7 @@ namespace tl
                 VideoRequest(VideoRequest&&) = default;
 
                 otime::RationalTime time = time::invalidTime;
-                uint16_t layer = 0;
+                Options options;
                 std::promise<VideoData> promise;
 
                 std::string fileName;

@@ -230,10 +230,17 @@ namespace tl
                 io::VideoData read(
                     const std::string& fileName,
                     const otime::RationalTime& time,
-                    uint16_t layer)
+                    const io::Options& options)
                 {
                     io::VideoData out;
-                    layer = std::min(static_cast<size_t>(layer), _info.video.size() - 1);
+                    int layer = 0;
+                    const auto i = options.find("Layer");
+                    if (i != options.end())
+                    {
+                        layer = std::min(
+                            std::atoi(i->second.c_str()),
+                            static_cast<int>(_info.video.size()) - 1);
+                    }
                     image::Info imageInfo = _info.video[layer];
                     out.image = image::Image::create(imageInfo);
                     out.image->setTags(_info.tags);
@@ -387,9 +394,9 @@ namespace tl
             const std::string& fileName,
             const file::MemoryRead* memory,
             const otime::RationalTime& time,
-            uint16_t layer)
+            const io::Options& options)
         {
-            return File(fileName, memory, _channelGrouping, _logSystem).read(fileName, time, layer);
+            return File(fileName, memory, _channelGrouping, _logSystem).read(fileName, time, options);
         }
     }
 }

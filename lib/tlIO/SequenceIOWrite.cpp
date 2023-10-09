@@ -54,9 +54,10 @@ namespace tl
 
         void ISequenceWrite::writeVideo(
             const otime::RationalTime& time,
-            const std::shared_ptr<image::Image>& image)
+            const std::shared_ptr<image::Image>& image,
+            const Options& options)
         {
-            _writeVideo(_path.get(static_cast<int>(time.value())), time, image);
+            _writeVideo(_path.get(static_cast<int>(time.value())), time, image, options);
         }
     }
 }

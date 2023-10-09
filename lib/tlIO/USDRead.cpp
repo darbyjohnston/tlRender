@@ -55,10 +55,12 @@ namespace tl
             return p.render->getInfo(p.id, _path);
         }
         
-        std::future<io::VideoData> Read::readVideo(const otime::RationalTime& time, uint16_t layer)
+        std::future<io::VideoData> Read::readVideo(
+            const otime::RationalTime& time,
+            const io::Options& options)
         {
             TLRENDER_P();
-            return p.render->render(p.id, _path, time, layer);
+            return p.render->render(p.id, _path, time, options);
         }
         
         void Read::cancelRequests()

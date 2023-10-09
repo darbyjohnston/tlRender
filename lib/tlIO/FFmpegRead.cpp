@@ -272,11 +272,12 @@ namespace tl
 
         std::future<io::VideoData> Read::readVideo(
             const otime::RationalTime& time,
-            uint16_t)
+            const io::Options& options)
         {
             TLRENDER_P();
             auto request = std::make_shared<Private::VideoRequest>();
             request->time = time;
+            request->options = options;
             auto future = request->promise.get_future();
             bool valid = false;
             {
@@ -298,11 +299,14 @@ namespace tl
             return future;
         }
 
-        std::future<io::AudioData> Read::readAudio(const otime::TimeRange& timeRange)
+        std::future<io::AudioData> Read::readAudio(
+            const otime::TimeRange& timeRange,
+            const io::Options& options)
         {
             TLRENDER_P();
             auto request = std::make_shared<Private::AudioRequest>();
             request->timeRange = timeRange;
+            request->options = options;
             auto future = request->promise.get_future();
             bool valid = false;
             {
@@ -372,7 +376,7 @@ namespace tl
                 io::VideoData videoData;
                 if (videoRequest &&
                     _cache &&
-                    _cache->getVideo(_path.get(), videoRequest->time, 0, videoData))
+                    _cache->getVideo(_path.get(), videoRequest->time, videoRequest->options, videoData))
                 {
                     videoRequest->promise.set_value(videoData);
                     videoRequest.reset();
@@ -407,7 +411,7 @@ namespace tl
                     
                     if (_cache)
                     {
-                        _cache->addVideo(_path.get(), videoRequest->time, 0, data);
+                        _cache->addVideo(_path.get(), videoRequest->time, videoRequest->options, data);
                     }
 
                     p.videoThread.currentTime += otime::RationalTime(1.0, p.info.videoTime.duration().rate());
@@ -479,12 +483,12 @@ namespace tl
                 }
 
                 // Check the cache.
-                io::AudioData data;
+                io::AudioData audioData;
                 if (request &&
                     _cache &&
-                    _cache->getAudio(_path.get(), request->timeRange, data))
+                    _cache->getAudio(_path.get(), request->timeRange, request->options, audioData))
                 {
-                    request->promise.set_value(data);
+                    request->promise.set_value(audioData);
                     request.reset();
                 }
 
@@ -515,26 +519,26 @@ namespace tl
                 // Handle request.
                 if (request)
                 {
-                    io::AudioData data;
-                    data.time = request->timeRange.start_time();
-                    data.audio = audio::Audio::create(p.info.audio, request->timeRange.duration().value());
-                    data.audio->zero();
+                    io::AudioData audioData;
+                    audioData.time = request->timeRange.start_time();
+                    audioData.audio = audio::Audio::create(p.info.audio, request->timeRange.duration().value());
+                    audioData.audio->zero();
                     if (intersects)
                     {
                         size_t offset = 0;
-                        if (data.time < p.info.audioTime.start_time())
+                        if (audioData.time < p.info.audioTime.start_time())
                         {
-                            offset = (p.info.audioTime.start_time() - data.time).value();
+                            offset = (p.info.audioTime.start_time() - audioData.time).value();
                         }
                         p.readAudio->bufferCopy(
-                            data.audio->getData() + offset * p.info.audio.getByteCount(),
-                            data.audio->getSampleCount() - offset);
+                            audioData.audio->getData() + offset * p.info.audio.getByteCount(),
+                            audioData.audio->getSampleCount() - offset);
                     }
-                    request->promise.set_value(data);
+                    request->promise.set_value(audioData);
 
                     if (_cache)
                     {
-                        _cache->addAudio(_path.get(), request->timeRange, data);
+                        _cache->addAudio(_path.get(), request->timeRange, request->options, audioData);
                     }
 
                     p.audioThread.currentTime += request->timeRange.duration();

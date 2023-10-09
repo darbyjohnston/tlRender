@@ -55,6 +55,7 @@ namespace tl
                 int64_t id = -1;
                 file::Path path;
                 otime::RationalTime time = time::invalidTime;
+                io::Options options;
                 std::promise<io::VideoData> promise;
             };
             
@@ -231,13 +232,14 @@ namespace tl
             int64_t id,
             const file::Path& path,
             const otime::RationalTime& time,
-            uint16_t layer)
+            const io::Options& options)
         {
             TLRENDER_P();
             auto request = std::make_shared<Private::Request>();
             request->id = id;
             request->path = path;
             request->time = time;
+            request->options = options;
             auto future = request->promise.get_future();
             bool valid = false;
             {
@@ -549,7 +551,7 @@ namespace tl
                 io::VideoData videoData;
                 if (request &&
                     p.cache &&
-                    p.cache->getVideo(request->path.get(), request->time, 0, videoData))
+                    p.cache->getVideo(request->path.get(), request->time, request->options, videoData))
                 {
                     request->promise.set_value(videoData);
                     request.reset();
@@ -595,7 +597,7 @@ namespace tl
 
                         if (p.cache)
                         {
-                            p.cache->addVideo(fileName, request->time, 0, videoData);
+                            p.cache->addVideo(fileName, request->time, request->options, videoData);
                         }
 
                         request.reset();
@@ -778,7 +780,7 @@ namespace tl
 
                     if (p.cache)
                     {
-                        p.cache->addVideo(fileName, request->time, 0, videoData);
+                        p.cache->addVideo(fileName, request->time, request->options, videoData);
                     }
                 }
 

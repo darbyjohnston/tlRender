@@ -87,7 +87,7 @@ namespace tl
             const std::string& fileName,
             const file::MemoryRead* memory,
             const otime::RationalTime& time,
-            uint16_t layer)
+            const io::Options&)
         {
             io::VideoData out;
             out.time = time;

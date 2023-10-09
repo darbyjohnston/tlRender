@@ -160,10 +160,14 @@ namespace tl
             ///@{
 
             //! Get video data.
-            std::future<VideoData> getVideo(const otime::RationalTime&, uint16_t layer = 0);
+            std::future<VideoData> getVideo(
+                const otime::RationalTime&,
+                const io::Options& = io::Options());
 
             //! Get audio data.
-            std::future<AudioData> getAudio(double seconds);
+            std::future<AudioData> getAudio(
+                double seconds,
+                const io::Options& = io::Options());
 
             //! Cancel requests.
             void cancelRequests();

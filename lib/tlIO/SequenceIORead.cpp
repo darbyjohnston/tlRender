@@ -126,13 +126,13 @@ namespace tl
 
         std::future<VideoData> ISequenceRead::readVideo(
             const otime::RationalTime& time,
-            uint16_t layer)
+            const Options& options)
         {
             TLRENDER_P();
             auto request = std::make_shared<Private::VideoRequest>();
             request->fileName = _path.get();
             request->time = time;
-            request->layer = layer;
+            request->options = merge(options, _options);
             auto future = request->promise.get_future();
             bool valid = false;
             {
@@ -218,7 +218,7 @@ namespace tl
                         _cache->getVideo(
                         request->fileName,
                         request->time,
-                        request->layer,
+                        request->options,
                         videoData))
                     {
                         //std::cout << "cache: " << request->fileName << " " <<
@@ -241,10 +241,10 @@ namespace tl
                         }
                         const std::string fileName = request->fileName;
                         const otime::RationalTime time = request->time;
-                        const uint16_t layer = request->layer;
+                        const Options options = request->options;
                         request->future = std::async(
                             std::launch::async,
-                            [this, seq, fileName, time, layer]
+                            [this, seq, fileName, time, options]
                             {
                                 VideoData out;
                                 try
@@ -257,7 +257,7 @@ namespace tl
                                             fileName,
                                             memoryIndex >= 0 && memoryIndex < _memory.size() ? &_memory[memoryIndex] : nullptr,
                                             time,
-                                            layer);
+                                            options);
                                     }
                                 }
                                 catch (const std::exception&)
@@ -290,7 +290,7 @@ namespace tl
                             _cache->addVideo(
                                 _path.get(),
                                 (*requestIt)->time,
-                                (*requestIt)->layer,
+                                (*requestIt)->options,
                                 videoData);
                         }
 

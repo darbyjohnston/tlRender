@@ -101,8 +101,12 @@ namespace tl
                 const std::weak_ptr<log::System>&);
 
             std::future<io::Info> getInfo() override;
-            std::future<io::VideoData> readVideo(const otime::RationalTime&, uint16_t layer = 0) override;
-            std::future<io::AudioData> readAudio(const otime::TimeRange&) override;
+            std::future<io::VideoData> readVideo(
+                const otime::RationalTime&,
+                const io::Options& = io::Options()) override;
+            std::future<io::AudioData> readAudio(
+                const otime::TimeRange&,
+                const io::Options& = io::Options()) override;
             void cancelRequests() override;
 
         private:
@@ -138,7 +142,8 @@ namespace tl
 
             void writeVideo(
                 const otime::RationalTime&,
-                const std::shared_ptr<image::Image>&) override;
+                const std::shared_ptr<image::Image>&,
+                const io::Options& = io::Options()) override;
 
         private:
             void _encodeVideo(AVFrame*);

@@ -74,10 +74,14 @@ namespace tl
             virtual std::future<Info> getInfo() = 0;
 
             //! Read video data.
-            virtual std::future<VideoData> readVideo(const otime::RationalTime&, uint16_t layer = 0);
+            virtual std::future<VideoData> readVideo(
+                const otime::RationalTime&,
+                const Options& = Options());
 
             //! Read audio data.
-            virtual std::future<AudioData> readAudio(const otime::TimeRange&);
+            virtual std::future<AudioData> readAudio(
+                const otime::TimeRange&,
+                const Options& = Options());
 
             //! Cancel pending requests.
             virtual void cancelRequests() = 0;
@@ -104,7 +108,8 @@ namespace tl
             //! Write video data.
             virtual void writeVideo(
                 const otime::RationalTime&,
-                const std::shared_ptr<image::Image>&) = 0;
+                const std::shared_ptr<image::Image>&,
+                const Options& = Options()) = 0;
 
         protected:
             Info _info;

@@ -159,6 +159,7 @@ namespace tl
             struct VideoRequest
             {
                 otime::RationalTime time = time::invalidTime;
+                io::Options options;
                 std::promise<io::VideoData> promise;
             };
             struct VideoMutex
@@ -183,6 +184,7 @@ namespace tl
             struct AudioRequest
             {
                 otime::TimeRange timeRange = time::invalidTimeRange;
+                io::Options options;
                 std::promise<io::AudioData> promise;
             };
             struct AudioMutex

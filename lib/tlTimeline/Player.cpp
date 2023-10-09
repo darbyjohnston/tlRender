@@ -97,7 +97,7 @@ namespace tl
                 playerOptions.currentTime :
                 p.timeline->getTimeRange().start_time());
             p.inOutRange = observer::Value<otime::TimeRange>::create(p.timeline->getTimeRange());
-            p.videoLayer = observer::Value<size_t>::create();
+            p.ioOptions = observer::Value<io::Options>::create();
             p.currentVideoData = observer::Value<VideoData>::create();
             p.volume = observer::Value<float>::create(1.F);
             p.mute = observer::Value<bool>::create(false);
@@ -195,7 +195,7 @@ namespace tl
                         Playback playback = Playback::Stop;
                         otime::RationalTime currentTime = time::invalidTime;
                         otime::TimeRange inOutRange = time::invalidTimeRange;
-                        size_t videoLayer = 0;
+                        io::Options ioOptions;
                         double audioOffset = 0.0;
                         bool clearRequests = false;
                         bool clearCache = false;
@@ -206,7 +206,7 @@ namespace tl
                             playback = p.mutex.playback;
                             currentTime = p.mutex.currentTime;
                             inOutRange = p.mutex.inOutRange;
-                            videoLayer = p.mutex.videoLayer;
+                            ioOptions = p.mutex.ioOptions;
                             audioOffset = p.mutex.audioOffset;
                             clearRequests = p.mutex.clearRequests;
                             p.mutex.clearRequests = false;
@@ -242,7 +242,7 @@ namespace tl
                         p.cacheUpdate(
                             currentTime,
                             inOutRange,
-                            videoLayer,
+                            ioOptions,
                             audioOffset,
                             cacheDirection,
                             cacheOptions);
@@ -751,23 +751,23 @@ namespace tl
                 p.timeline->getTimeRange().end_time_inclusive()));
         }
 
-        size_t Player::getVideoLayer() const
+        const io::Options& Player::getIOOptions() const
         {
-            return _p->videoLayer->get();
+            return _p->ioOptions->get();
         }
 
-        std::shared_ptr<observer::IValue<size_t> > Player::observeVideoLayer() const
+        std::shared_ptr<observer::IValue<io::Options> > Player::observeIOOptions() const
         {
-            return _p->videoLayer;
+            return _p->ioOptions;
         }
 
-        void Player::setVideoLayer(size_t layer)
+        void Player::setIOOptions(const io::Options& value)
         {
             TLRENDER_P();
-            if (p.videoLayer->setIfChanged(layer))
+            if (p.ioOptions->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                p.mutex.videoLayer = layer;
+                p.mutex.ioOptions = value;
                 p.mutex.clearRequests = true;
                 p.mutex.clearCache = true;
             }

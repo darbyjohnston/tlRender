@@ -47,10 +47,10 @@ namespace tl
                 WRITE setInOutRange
                 NOTIFY inOutRangeChanged)
             Q_PROPERTY(
-                int videoLayer
-                READ videoLayer
-                WRITE setVideoLayer
-                NOTIFY videoLayerChanged)
+                tl::io::Options ioOptions
+                READ ioOptions
+                WRITE setIOOptions
+                NOTIFY ioOptionsChanged)
             Q_PROPERTY(
                 tl::timeline::VideoData
                 currentVideo
@@ -164,11 +164,16 @@ namespace tl
 
             ///@}
 
-            //! \name Video
+            //! \name I/O
             ///@{
 
-            //! Get the current video layer.
-            int videoLayer() const;
+            //! Get the I/O options.
+            const io::Options& ioOptions() const;
+
+            ///@}
+
+            //! \name Video
+            ///@{
 
             //! Get the current video data.
             const timeline::VideoData& currentVideo() const;
@@ -273,11 +278,11 @@ namespace tl
 
             ///@}
 
-            //! \name Video
+            //! \name I/O
             ///@{
 
-            //! Set the current video layer.
-            void setVideoLayer(int);
+            //! Set the I/O optoins.
+            void setIOOptions(const tl::io::Options&);
 
             ///@}
 
@@ -324,11 +329,16 @@ namespace tl
 
             ///@}
 
-            //! \name Video
+            //! \name I/O
             ///@{
 
-            //! This signal is emitted when the current video layer is changed.
-            void videoLayerChanged(int);
+            //! This signal is emitted when the I/O options are changed.
+            void ioOptionsChanged(const tl::io::Options&);
+
+            ///@}
+
+            //! \name Video
+            ///@{
 
             //! This signal is emitted when the current video data is changed.
             void currentVideoChanged(const tl::timeline::VideoData&);

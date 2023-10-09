@@ -17,6 +17,21 @@ namespace tl
 {
     namespace usd
     {
+        //! USD renderer options.
+        struct RenderOptions
+        {
+            int      renderWidth = 1920;
+            float    complexity = 1.F;
+            DrawMode drawMode = DrawMode::ShadedSmooth;
+            bool     enableLighting = true;
+            bool     sRGB = true;
+            size_t   stageCacheCount = 10;
+            size_t   diskCacheByteCount = 0;
+
+            bool operator == (const RenderOptions&) const;
+            bool operator != (const RenderOptions&) const;
+        };
+
         //! USD renderer.
         class Render : public std::enable_shared_from_this<Render>
         {
@@ -48,7 +63,7 @@ namespace tl
                 int64_t id,
                 const file::Path& path,
                 const otime::RationalTime& time,
-                uint16_t layer = 0);
+                const io::Options&);
 
             //! Cancel requests.
             void cancelRequests(int64_t id);

@@ -24,27 +24,12 @@ namespace tl
             GeomOnly,
             GeomFlat,
             GeomSmooth,
-            
+
             Count,
             First = Points
         };
         TLRENDER_ENUM(DrawMode);
         TLRENDER_ENUM_SERIALIZE(DrawMode);
-        
-        //! USD renderer options.
-        struct RenderOptions
-        {
-            size_t   renderWidth        = 1920;
-            float    complexity         = 1.F;
-            DrawMode drawMode           = DrawMode::ShadedSmooth;
-            bool     enableLighting     = true;
-            bool     sRGB               = true;
-            size_t   stageCacheCount    = 10;
-            size_t   diskCacheByteCount = 0;
-            
-            bool operator == (const RenderOptions&) const;
-            bool operator != (const RenderOptions&) const;
-        };
         
         //! USD reader.
         class Read : public io::IRead
@@ -74,7 +59,9 @@ namespace tl
                 const std::weak_ptr<log::System>&);
 
             std::future<io::Info> getInfo() override;
-            std::future<io::VideoData> readVideo(const otime::RationalTime&, uint16_t layer = 0) override;
+            std::future<io::VideoData> readVideo(
+                const otime::RationalTime&,
+                const io::Options&) override;
             void cancelRequests() override;
 
         private:
