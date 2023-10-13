@@ -616,11 +616,7 @@ namespace tl
             const file::Path& path,
             const io::Options& options)
         {
-            return Read::create(
-                path,
-                io::merge(options, _options),
-                _cache,
-                _logSystem);
+            return Read::create(path, options, _cache, _logSystem);
         }
 
         std::shared_ptr<io::IRead> Plugin::read(
@@ -628,12 +624,7 @@ namespace tl
             const std::vector<file::MemoryRead>& memory,
             const io::Options& options)
         {
-            return Read::create(
-                path,
-                memory,
-                io::merge(options, _options),
-                _cache,
-                _logSystem);
+            return Read::create(path, memory, options, _cache, _logSystem);
         }
 
         image::Info Plugin::getWriteInfo(
@@ -664,7 +655,7 @@ namespace tl
                 throw std::runtime_error(string::Format("{0}: {1}").
                     arg(path.get()).
                     arg("Unsupported video"));
-            return Write::create(path, info, io::merge(options, _options), _logSystem);
+            return Write::create(path, info, options, _logSystem);
         }
     }
 }

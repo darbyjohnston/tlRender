@@ -17,21 +17,6 @@ namespace tl
 {
     namespace usd
     {
-        //! USD renderer options.
-        struct RenderOptions
-        {
-            int      renderWidth = 1920;
-            float    complexity = 1.F;
-            DrawMode drawMode = DrawMode::ShadedSmooth;
-            bool     enableLighting = true;
-            bool     sRGB = true;
-            size_t   stageCacheCount = 10;
-            size_t   diskCacheByteCount = 0;
-
-            bool operator == (const RenderOptions&) const;
-            bool operator != (const RenderOptions&) const;
-        };
-
         //! USD renderer.
         class Render : public std::enable_shared_from_this<Render>
         {
@@ -49,9 +34,6 @@ namespace tl
             static std::shared_ptr<Render> create(
                 const std::shared_ptr<io::Cache>&,
                 const std::weak_ptr<log::System>&);
-
-            //! Set render options.
-            void setRenderOptions(const RenderOptions&);
             
             //! Get information.
             std::future<io::Info> getInfo(

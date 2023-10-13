@@ -121,11 +121,6 @@ namespace tl
             return out;
         }
 
-        void IPlugin::setOptions(const Options& options)
-        {
-            _options = options;
-        }
-
         bool IPlugin::_isWriteCompatible(const image::Info& info, const Options& options) const
         {
             return info.pixelType != image::PixelType::None && info == getWriteInfo(info, options);

@@ -21,23 +21,6 @@ namespace tl
             "GeomFlat",
             "GeomSmooth");
         TLRENDER_ENUM_SERIALIZE_IMPL(DrawMode);
-        
-        bool RenderOptions::operator == (const RenderOptions& other) const
-        {
-            return
-                renderWidth == other.renderWidth &&
-                complexity == other.complexity &&
-                drawMode == other.drawMode &&
-                enableLighting == other.enableLighting &&
-                sRGB == other.sRGB &&
-                stageCacheCount == other.stageCacheCount &&
-                diskCacheByteCount == other.diskCacheByteCount;
-        }
-        
-        bool RenderOptions::operator != (const RenderOptions& other) const
-        {
-            return !(*this == other);
-        }
 
         struct Plugin::Private
         {
@@ -75,54 +58,6 @@ namespace tl
             out->_init(cache, logSystem);
             return out;
         }
-        
-        void Plugin::setOptions(const io::Options& value)
-        {
-            const bool changed = value != _options;
-            IPlugin::setOptions(value);
-            TLRENDER_P();
-            if (changed)
-            {
-                RenderOptions renderOptions;
-                auto i = _options.find("USD/renderWidth");
-                if (i != _options.end())
-                {
-                    std::stringstream ss(i->second);
-                    ss >> renderOptions.renderWidth;
-                }
-                i = _options.find("USD/complexity");
-                if (i != _options.end())
-                {
-                    std::stringstream ss(i->second);
-                    ss >> renderOptions.complexity;
-                }
-                i = _options.find("USD/drawMode");
-                if (i != _options.end())
-                {
-                    std::stringstream ss(i->second);
-                    ss >> renderOptions.drawMode;
-                }
-                i = _options.find("USD/enableLighting");
-                if (i != _options.end())
-                {
-                    std::stringstream ss(i->second);
-                    ss >> renderOptions.enableLighting;
-                }
-                i = _options.find("USD/stageCacheCount");
-                if (i != _options.end())
-                {
-                    std::stringstream ss(i->second);
-                    ss >> renderOptions.stageCacheCount;
-                }
-                i = _options.find("USD/diskCacheByteCount");
-                if (i != _options.end())
-                {
-                    std::stringstream ss(i->second);
-                    ss >> renderOptions.diskCacheByteCount;
-                }
-                p.render->setRenderOptions(renderOptions);
-            }
-        }
 
         std::shared_ptr<io::IRead> Plugin::read(
             const file::Path& path,
@@ -130,13 +65,7 @@ namespace tl
         {
             TLRENDER_P();
             ++(p.id);
-            return Read::create(
-                p.id,
-                p.render,
-                path,
-                io::merge(options, _options),
-                _cache,
-                _logSystem);
+            return Read::create(p.id, p.render, path, options, _cache, _logSystem);
         }
         
         std::shared_ptr<io::IRead> Plugin::read(
@@ -146,13 +75,7 @@ namespace tl
         {
             TLRENDER_P();
             ++(p.id);
-            return Read::create(
-                p.id,
-                p.render,
-                path,
-                io::merge(options, _options),
-                _cache,
-                _logSystem);
+            return Read::create(p.id, p.render, path, options, _cache, _logSystem);
         }
         
         image::Info Plugin::getWriteInfo(

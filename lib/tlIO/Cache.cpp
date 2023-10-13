@@ -78,7 +78,7 @@ namespace tl
             const VideoData& videoData)
         {
             TLRENDER_P();
-            const std::string key = _getKey(fileName, time, options);
+            const std::string key = getCacheKey(fileName, time, options);
             std::unique_lock<std::mutex> lock(p.mutex);
             p.video.add(
                 key,
@@ -93,7 +93,7 @@ namespace tl
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
-            return p.video.contains(_getKey(fileName, time, options));
+            return p.video.contains(getCacheKey(fileName, time, options));
         }
 
         bool Cache::getVideo(
@@ -103,7 +103,7 @@ namespace tl
             VideoData& videoData) const
         {
             TLRENDER_P();
-            const std::string key = _getKey(fileName, time, options);
+            const std::string key = getCacheKey(fileName, time, options);
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.video.get(key, videoData);
         }
@@ -117,7 +117,7 @@ namespace tl
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.audio.add(
-                _getKey(fileName, timeRange, options),
+                getCacheKey(fileName, timeRange, options),
                 audioData,
                 audioData.audio ? audioData.audio->getByteCount() : 1);
         }
@@ -129,7 +129,7 @@ namespace tl
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
-            return p.audio.contains(_getKey(fileName, timeRange, options));
+            return p.audio.contains(getCacheKey(fileName, timeRange, options));
         }
 
         bool Cache::getAudio(
@@ -140,7 +140,7 @@ namespace tl
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
-            return p.audio.get(_getKey(fileName, timeRange, options), audioData);
+            return p.audio.get(getCacheKey(fileName, timeRange, options), audioData);
         }
 
         void Cache::clear()
@@ -151,10 +151,18 @@ namespace tl
             p.audio.clear();
         }
 
-        std::string Cache::_getKey(
+        void Cache::_maxUpdate()
+        {
+            TLRENDER_P();
+            std::unique_lock<std::mutex> lock(p.mutex);
+            p.video.setMax(p.max * .9F);
+            p.audio.setMax(p.max * .1F);
+        }
+
+        std::string getCacheKey(
             const std::string& fileName,
             const otime::RationalTime& time,
-            const Options& options) const
+            const Options& options)
         {
             std::vector<std::string> s;
             s.push_back(fileName);
@@ -166,10 +174,10 @@ namespace tl
             return string::join(s, ';');
         }
 
-        std::string Cache::_getKey(
+        std::string getCacheKey(
             const std::string& fileName,
             const otime::TimeRange& timeRange,
-            const Options& options) const
+            const Options& options)
         {
             std::vector<std::string> s;
             s.push_back(fileName);
@@ -179,14 +187,6 @@ namespace tl
                 s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
             }
             return string::join(s, ';');
-        }
-
-        void Cache::_maxUpdate()
-        {
-            TLRENDER_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            p.video.setMax(p.max * .9F);
-            p.audio.setMax(p.max * .1F);
         }
     }
 }

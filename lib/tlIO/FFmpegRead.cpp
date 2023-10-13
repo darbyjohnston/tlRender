@@ -277,7 +277,7 @@ namespace tl
             TLRENDER_P();
             auto request = std::make_shared<Private::VideoRequest>();
             request->time = time;
-            request->options = options;
+            request->options = io::merge(options, _options);
             auto future = request->promise.get_future();
             bool valid = false;
             {
@@ -306,7 +306,7 @@ namespace tl
             TLRENDER_P();
             auto request = std::make_shared<Private::AudioRequest>();
             request->timeRange = timeRange;
-            request->options = options;
+            request->options = io::merge(options, _options);
             auto future = request->promise.get_future();
             bool valid = false;
             {

@@ -60,7 +60,7 @@ namespace tl
             const io::Options& options)
         {
             TLRENDER_P();
-            return p.render->render(p.id, _path, time, options);
+            return p.render->render(p.id, _path, time, io::merge(options, _options));
         }
         
         void Read::cancelRequests()

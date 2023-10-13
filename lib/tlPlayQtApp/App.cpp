@@ -60,14 +60,17 @@ namespace tl
                 otime::TimeRange inOutRange = time::invalidTimeRange;
                 timeline::ColorConfigOptions colorConfigOptions;
                 timeline::LUTOptions lutOptions;
+
 #if defined(TLRENDER_USD)
                 int usdRenderWidth = 1920;
                 float usdComplexity = 1.F;
                 usd::DrawMode usdDrawMode = usd::DrawMode::ShadedSmooth;
                 bool usdEnableLighting = true;
+                bool usdSRGB = true;
                 size_t usdStageCache = 10;
                 size_t usdDiskCache = 0;
 #endif // TLRENDER_USD
+
                 std::string logFileName;
                 bool resetSettings = false;
             };
@@ -220,14 +223,19 @@ namespace tl
                     app::CmdLineValueOption<usd::DrawMode>::create(
                         p.options.usdDrawMode,
                         { "-usdDrawMode" },
-                        "USD render draw mode.",
+                        "USD draw mode.",
                         string::Format("{0}").arg(p.options.usdDrawMode),
                         string::join(usd::getDrawModeLabels(), ", ")),
                     app::CmdLineValueOption<bool>::create(
                         p.options.usdEnableLighting,
                         { "-usdEnableLighting" },
-                        "USD render enable lighting setting.",
+                        "USD enable lighting.",
                         string::Format("{0}").arg(p.options.usdEnableLighting)),
+                    app::CmdLineValueOption<bool>::create(
+                        p.options.usdSRGB,
+                        { "-usdSRGB" },
+                        "USD enable sRGB color space.",
+                        string::Format("{0}").arg(p.options.usdSRGB)),
                     app::CmdLineValueOption<size_t>::create(
                         p.options.usdStageCache,
                         { "-usdStageCache" },
@@ -271,43 +279,6 @@ namespace tl
             setStyleSheet(qtwidget::styleSheet());
             qtwidget::initFonts(context);
 
-            // Set I/O options.
-            io::Options ioOptions;
-#if defined(TLRENDER_USD)
-            {
-                std::stringstream ss;
-                ss << p.options.usdRenderWidth;
-                ioOptions["USD/renderWidth"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << p.options.usdComplexity;
-                ioOptions["USD/complexity"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << p.options.usdDrawMode;
-                ioOptions["USD/drawMode"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << p.options.usdEnableLighting;
-                ioOptions["USD/enableLighting"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << p.options.usdStageCache;
-                ioOptions["USD/stageCacheCount"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << p.options.usdDiskCache * memory::gigabyte;
-                ioOptions["USD/diskCacheByteCount"] = ss.str();
-            }
-#endif // TLRENDER_USD
-            auto ioSystem = context->getSystem<io::System>();
-            ioSystem->setOptions(ioOptions);
-
             // Create models and objects.
             p.contextObject.reset(new qt::ContextObject(context));
             p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
@@ -327,6 +298,9 @@ namespace tl
             p.settingsObject->setDefaultValue("FileSequence/AudioFileName", "");
             p.settingsObject->setDefaultValue("FileSequence/AudioDirectory", "");
             p.settingsObject->setDefaultValue("FileSequence/MaxDigits", 9);
+            p.settingsObject->setDefaultValue("SequenceIO/ThreadCount", 16);
+            p.settingsObject->setDefaultValue("FFmpeg/YUVToRGBConversion", false);
+            p.settingsObject->setDefaultValue("FFmpeg/ThreadCount", 0);
             timeline::BackgroundOptions backgroundOptions;
             p.settingsObject->setDefaultValue("Viewport/Background/Type",
                 static_cast<int>(backgroundOptions.type));
@@ -354,9 +328,6 @@ namespace tl
                 static_cast<int>(timeline::PlayerOptions().audioBufferFrameCount));
             p.settingsObject->setDefaultValue("Performance/VideoRequestCount", 16);
             p.settingsObject->setDefaultValue("Performance/AudioRequestCount", 16);
-            p.settingsObject->setDefaultValue("Performance/SequenceThreadCount", 16);
-            p.settingsObject->setDefaultValue("Performance/FFmpegYUVToRGBConversion", false);
-            p.settingsObject->setDefaultValue("Performance/FFmpegThreadCount", 0);
             p.settingsObject->setDefaultValue("Misc/ToolTipsEnabled", true);
             connect(
                 p.settingsObject.get(),
@@ -774,12 +745,7 @@ namespace tl
                             "Performance/VideoRequestCount").toInt();
                         options.audioRequestCount = p.settingsObject->value(
                             "Performance/AudioRequestCount").toInt();
-                        options.ioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").
-                            arg(p.settingsObject->value("Performance/SequenceThreadCount").toInt());
-                        options.ioOptions["FFmpeg/YUVToRGBConversion"] = string::Format("{0}").
-                            arg(p.settingsObject->value("Performance/FFmpegYUVToRGBConversion").toBool());
-                        options.ioOptions["FFmpeg/ThreadCount"] = string::Format("{0}").
-                            arg(p.settingsObject->value("Performance/FFmpegThreadCount").toInt());
+                        options.ioOptions = _ioOptions();
                         options.pathOptions.maxNumberDigits =
                             p.settingsObject->value("FileSequence/MaxDigits").toInt();
                         auto otioTimeline = items[i]->audioPath.isEmpty() ?
@@ -819,6 +785,62 @@ namespace tl
 
             p.files = items;
             p.players = players;
+        }
+
+        io::Options App::_ioOptions() const
+        {
+            TLRENDER_P();
+            io::Options out;
+
+            out["SequenceIO/ThreadCount"] = string::Format("{0}").
+                arg(p.settingsObject->value("SequenceIO/ThreadCount").toInt());
+
+#if defined(TLRENDER_FFMPEG)
+            out["FFmpeg/YUVToRGBConversion"] = string::Format("{0}").
+                arg(p.settingsObject->value("FFmpeg/YUVToRGBConversion").toBool());
+            out["FFmpeg/ThreadCount"] = string::Format("{0}").
+                arg(p.settingsObject->value("FFmpeg/ThreadCount").toInt());
+#endif // TLRENDER_FFMPEG
+
+#if defined(TLRENDER_USD)
+            {
+                std::stringstream ss;
+                ss << p.options.usdRenderWidth;
+                out["USD/renderWidth"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << p.options.usdComplexity;
+                out["USD/complexity"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << p.options.usdDrawMode;
+                out["USD/drawMode"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << p.options.usdEnableLighting;
+                out["USD/enableLighting"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << p.options.usdSRGB;
+                out["USD/sRGB"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << p.options.usdStageCache;
+                out["USD/stageCacheCount"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << p.options.usdDiskCache * memory::gigabyte;
+                out["USD/diskCacheByteCount"] = ss.str();
+            }
+#endif // TLRENDER_USD
+
+            return out;
         }
 
         void App::_activeCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >& items)

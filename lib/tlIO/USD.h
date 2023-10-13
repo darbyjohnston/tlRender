@@ -84,7 +84,6 @@ namespace tl
                 const std::shared_ptr<io::Cache>&,
                 const std::weak_ptr<log::System>&);
             
-            void setOptions(const io::Options&) override;
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
                 const io::Options& = io::Options()) override;

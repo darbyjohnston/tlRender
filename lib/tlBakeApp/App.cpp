@@ -132,14 +132,19 @@ namespace tl
                     app::CmdLineValueOption<usd::DrawMode>::create(
                         _options.usdDrawMode,
                         { "-usdDrawMode" },
-                        "USD render draw mode.",
+                        "USD draw mode.",
                         string::Format("{0}").arg(_options.usdDrawMode),
                         string::join(usd::getDrawModeLabels(), ", ")),
                     app::CmdLineValueOption<bool>::create(
                         _options.usdEnableLighting,
                         { "-usdEnableLighting" },
-                        "USD render enable lighting setting.",
+                        "USD enable lighting.",
                         string::Format("{0}").arg(_options.usdEnableLighting)),
+                    app::CmdLineValueOption<bool>::create(
+                        _options.usdSRGB,
+                        { "-usdSRGB" },
+                        "USD enable sRGB color space.",
+                        string::Format("{0}").arg(_options.usdSRGB)),
                     app::CmdLineValueOption<size_t>::create(
                         _options.usdStageCache,
                         { "-usdStageCache" },
@@ -152,76 +157,6 @@ namespace tl
                         string::Format("{0}").arg(_options.usdDiskCache)),
 #endif // TLRENDER_USD
                 });
-
-            // Set I/O options.
-            io::Options ioOptions;
-            {
-                std::stringstream ss;
-                ss << _options.sequenceDefaultSpeed;
-                ioOptions["SequenceIO/DefaultSpeed"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << _options.sequenceThreadCount;
-                ioOptions["SequenceIO/ThreadCount"] = ss.str();
-            }
-#if defined(TLRENDER_EXR)
-            {
-                std::stringstream ss;
-                ss << _options.exrCompression;
-                ioOptions["OpenEXR/Compression"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << _options.exrDWACompressionLevel;
-                ioOptions["OpenEXR/DWACompressionLevel"] = ss.str();
-            }
-#endif // TLRENDER_EXR
-#if defined(TLRENDER_FFMPEG)
-            if (!_options.ffmpegWriteProfile.empty())
-            {
-                ioOptions["FFmpeg/WriteProfile"] = _options.ffmpegWriteProfile;
-            }
-            {
-                std::stringstream ss;
-                ss << _options.ffmpegThreadCount;
-                ioOptions["FFmpeg/ThreadCount"] = ss.str();
-            }
-#endif // TLRENDER_FFMPEG
-#if defined(TLRENDER_USD)
-            {
-                std::stringstream ss;
-                ss << _options.usdRenderWidth;
-                ioOptions["USD/renderWidth"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << _options.usdComplexity;
-                ioOptions["USD/complexity"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << _options.usdDrawMode;
-                ioOptions["USD/drawMode"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << _options.usdEnableLighting;
-                ioOptions["USD/enableLighting"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << _options.usdStageCache;
-                ioOptions["USD/stageCacheCount"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << _options.usdDiskCache * memory::gigabyte;
-                ioOptions["USD/diskCacheByteCount"] = ss.str();
-            }
-#endif // TLRENDER_USD
-            auto ioSystem = context->getSystem<io::System>();
-            ioSystem->setOptions(ioOptions);
         }
 
         App::App()
@@ -253,7 +188,9 @@ namespace tl
                     static_cast<int>(gl::GLFWWindowOptions::MakeCurrent));
 
                 // Read the timeline.
-                _timeline = timeline::Timeline::create(_input, _context);
+                timeline::Options options;
+                options.ioOptions = _getIOOptions();
+                _timeline = timeline::Timeline::create(_input, _context, options);
                 _timeRange = _timeline->getTimeRange();
                 _print(string::Format("Timeline range: {0}-{1}").
                     arg(_timeRange.start_time().value()).
@@ -331,6 +268,86 @@ namespace tl
             }
 
             return _exit;
+        }
+
+        io::Options App::_getIOOptions() const
+        {
+            io::Options out;
+            {
+                std::stringstream ss;
+                ss << _options.sequenceDefaultSpeed;
+                out["SequenceIO/DefaultSpeed"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << _options.sequenceThreadCount;
+                out["SequenceIO/ThreadCount"] = ss.str();
+            }
+
+#if defined(TLRENDER_EXR)
+            {
+                std::stringstream ss;
+                ss << _options.exrCompression;
+                out["OpenEXR/Compression"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << _options.exrDWACompressionLevel;
+                out["OpenEXR/DWACompressionLevel"] = ss.str();
+            }
+#endif // TLRENDER_EXR
+
+#if defined(TLRENDER_FFMPEG)
+            if (!_options.ffmpegWriteProfile.empty())
+            {
+                out["FFmpeg/WriteProfile"] = _options.ffmpegWriteProfile;
+            }
+            {
+                std::stringstream ss;
+                ss << _options.ffmpegThreadCount;
+                out["FFmpeg/ThreadCount"] = ss.str();
+            }
+#endif // TLRENDER_FFMPEG
+
+#if defined(TLRENDER_USD)
+            {
+                std::stringstream ss;
+                ss << _options.usdRenderWidth;
+                out["USD/renderWidth"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << _options.usdComplexity;
+                out["USD/complexity"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << _options.usdDrawMode;
+                out["USD/drawMode"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << _options.usdEnableLighting;
+                out["USD/enableLighting"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << _options.usdSRGB;
+                out["USD/sRGB"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << _options.usdStageCache;
+                out["USD/stageCacheCount"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << _options.usdDiskCache * memory::gigabyte;
+                out["USD/diskCacheByteCount"] = ss.str();
+            }
+#endif // TLRENDER_USD
+
+            return out;
         }
 
         void App::_tick()

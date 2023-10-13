@@ -12,7 +12,9 @@
 #include <tlUI/CheckBox.h>
 #include <tlUI/ComboBox.h>
 #include <tlUI/DoubleEdit.h>
+#include <tlUI/FloatEditSlider.h>
 #include <tlUI/GridLayout.h>
+#include <tlUI/IntEdit.h>
 #include <tlUI/IntEdit.h>
 #include <tlUI/Label.h>
 #include <tlUI/LineEdit.h>
@@ -20,6 +22,10 @@
 #include <tlUI/RowLayout.h>
 #include <tlUI/ScrollWidget.h>
 #include <tlUI/ToolButton.h>
+
+#if defined(TLRENDER_USD)
+#include <tlIO/USD.h>
+#endif // TLRENDER_USD
 
 #include <tlCore/StringFormat.h>
 
@@ -164,6 +170,7 @@ namespace tl
             std::shared_ptr<ui::LineEdit> audioFileNameEdit;
             std::shared_ptr<ui::LineEdit> audioDirectoryEdit;
             std::shared_ptr<ui::IntEdit> maxDigitsEdit;
+            std::shared_ptr<ui::IntEdit> threadsEdit;
             std::shared_ptr<ui::GridLayout> layout;
 
             std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
@@ -187,6 +194,9 @@ namespace tl
 
             p.maxDigitsEdit = ui::IntEdit::create(context);
 
+            p.threadsEdit = ui::IntEdit::create(context);
+            p.threadsEdit->setRange(math::IntRange(1, 64));
+
             p.layout = ui::GridLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
             p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
@@ -206,6 +216,10 @@ namespace tl
             p.layout->setGridPos(label, 3, 0);
             p.maxDigitsEdit->setParent(p.layout);
             p.layout->setGridPos(p.maxDigitsEdit, 3, 1);
+            label = ui::Label::create("I/O threads:", context, p.layout);
+            p.layout->setGridPos(label, 4, 0);
+            p.threadsEdit->setParent(p.layout);
+            p.layout->setGridPos(p.threadsEdit, 4, 1);
 
             auto appWeak = std::weak_ptr<App>(app);
             p.settingsObserver = observer::ValueObserver<std::string>::create(
@@ -236,6 +250,11 @@ namespace tl
                             settings->getValue("FileSequence/MaxDigits", value);
                             p.maxDigitsEdit->setValue(value);
                         }
+                        {
+                            int value = 0;
+                            settings->getValue("SequenceIO/ThreadCount", value);
+                            p.threadsEdit->setValue(value);
+                        }
                     }
                 });
 
@@ -247,6 +266,42 @@ namespace tl
                         app->getSettings()->setValue(
                             "FileSequence/Audio",
                             static_cast<timeline::FileSequenceAudio>(value));
+                    }
+                });
+
+            p.audioFileNameEdit->setTextCallback(
+                [appWeak](const std::string& value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue("FileSequence/AudioFileName", value);
+                    }
+                });
+
+            p.audioDirectoryEdit->setTextCallback(
+                [appWeak](const std::string& value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue("FileSequence/AudioDirectory", value);
+                    }
+                });
+
+            p.maxDigitsEdit->setCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue("FileSequence/MaxDigits", value);
+                    }
+                });
+
+            p.threadsEdit->setCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue("SequenceIO/ThreadCount", value);
                     }
                 });
         }
@@ -279,6 +334,332 @@ namespace tl
             IWidget::sizeHintEvent(event);
             _sizeHint = _p->layout->getSizeHint();
         }
+
+#if defined(TLRENDER_FFMPEG)
+        struct FFmpegSettingsWidget::Private
+        {
+            std::shared_ptr<ui::CheckBox> yuvToRGBCheckBox;
+            std::shared_ptr<ui::IntEdit> threadsEdit;
+            std::shared_ptr<ui::GridLayout> layout;
+
+            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+        };
+
+        void FFmpegSettingsWidget::_init(
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            IWidget::_init("tl::play_gl::FFmpegSettingsWidget", context, parent);
+            TLRENDER_P();
+
+            p.yuvToRGBCheckBox = ui::CheckBox::create(context);
+
+            p.threadsEdit = ui::IntEdit::create(context);
+            p.threadsEdit->setRange(math::IntRange(0, 64));
+
+            p.layout = ui::GridLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            auto label = ui::Label::create("YUV to RGB conversion:", context, p.layout);
+            p.layout->setGridPos(label, 0, 0);
+            p.yuvToRGBCheckBox->setParent(p.layout);
+            p.layout->setGridPos(p.yuvToRGBCheckBox, 0, 1);
+            label = ui::Label::create("I/O threads:", context, p.layout);
+            p.layout->setGridPos(label, 1, 0);
+            p.threadsEdit->setParent(p.layout);
+            p.layout->setGridPos(p.threadsEdit, 1, 1);
+
+            auto appWeak = std::weak_ptr<App>(app);
+            p.settingsObserver = observer::ValueObserver<std::string>::create(
+                app->getSettings()->observeValues(),
+                [this, appWeak](const std::string&)
+                {
+                    TLRENDER_P();
+                    if (auto app = appWeak.lock())
+                    {
+                        auto settings = app->getSettings();
+                        {
+                            bool value = false;
+                            settings->getValue("FFmpeg/YUVToRGBConversion", value);
+                            p.yuvToRGBCheckBox->setChecked(value);
+                        }
+                        {
+                            int value = 0;
+                            settings->getValue("FFmpeg/ThreadCount", value);
+                            p.threadsEdit->setValue(value);
+                        }
+                    }
+                });
+
+            p.yuvToRGBCheckBox->setCheckedCallback(
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue(
+                            "FFmpeg/YUVToRGBConversion",
+                            value);
+                    }
+                });
+
+            p.threadsEdit->setCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue(
+                            "FFmpeg/ThreadCount",
+                            value);
+                    }
+                });
+        }
+
+        FFmpegSettingsWidget::FFmpegSettingsWidget() :
+            _p(new Private)
+        {}
+
+        FFmpegSettingsWidget::~FFmpegSettingsWidget()
+        {}
+
+        std::shared_ptr<FFmpegSettingsWidget> FFmpegSettingsWidget::create(
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            auto out = std::shared_ptr<FFmpegSettingsWidget>(new FFmpegSettingsWidget);
+            out->_init(app, context, parent);
+            return out;
+        }
+
+        void FFmpegSettingsWidget::setGeometry(const math::Box2i& value)
+        {
+            IWidget::setGeometry(value);
+            _p->layout->setGeometry(value);
+        }
+
+        void FFmpegSettingsWidget::sizeHintEvent(const ui::SizeHintEvent& event)
+        {
+            IWidget::sizeHintEvent(event);
+            _sizeHint = _p->layout->getSizeHint();
+        }
+#endif // TLRENDER_FFMPEG
+
+#if defined(TLRENDER_USD)
+        struct USDSettingsWidget::Private
+        {
+            std::shared_ptr<ui::IntEdit> renderWidthEdit;
+            std::shared_ptr<ui::FloatEditSlider> complexitySlider;
+            std::shared_ptr<ui::ComboBox> drawModeComboBox;
+            std::shared_ptr<ui::CheckBox> lightingCheckBox;
+            std::shared_ptr<ui::CheckBox> sRGBCheckBox;
+            std::shared_ptr<ui::IntEdit> stageCacheEdit;
+            std::shared_ptr<ui::IntEdit> diskCacheEdit;
+            std::shared_ptr<ui::GridLayout> layout;
+
+            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+        };
+
+        void USDSettingsWidget::_init(
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            IWidget::_init("tl::play_gl::USDSettingsWidget", context, parent);
+            TLRENDER_P();
+
+            p.renderWidthEdit = ui::IntEdit::create(context);
+            p.renderWidthEdit->setRange(math::IntRange(1, 8192));
+
+            p.complexitySlider = ui::FloatEditSlider::create(context);
+
+            p.drawModeComboBox = ui::ComboBox::create(usd::getDrawModeLabels(), context);
+
+            p.lightingCheckBox = ui::CheckBox::create(context);
+
+            p.sRGBCheckBox = ui::CheckBox::create(context);
+
+            p.stageCacheEdit = ui::IntEdit::create(context);
+            p.stageCacheEdit->setRange(math::IntRange(0, 10));
+
+            p.diskCacheEdit = ui::IntEdit::create(context);
+            p.diskCacheEdit->setRange(math::IntRange(0, 1024));
+
+            p.layout = ui::GridLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            auto label = ui::Label::create("Render width:", context, p.layout);
+            p.layout->setGridPos(label, 0, 0);
+            p.renderWidthEdit->setParent(p.layout);
+            p.layout->setGridPos(p.renderWidthEdit, 0, 1);
+            label = ui::Label::create("Render complexity:", context, p.layout);
+            p.layout->setGridPos(label, 1, 0);
+            p.complexitySlider->setParent(p.layout);
+            p.layout->setGridPos(p.complexitySlider, 1, 1);
+            label = ui::Label::create("Draw mode:", context, p.layout);
+            p.layout->setGridPos(label, 2, 0);
+            p.drawModeComboBox->setParent(p.layout);
+            p.layout->setGridPos(p.drawModeComboBox, 2, 1);
+            label = ui::Label::create("Enable lighting:", context, p.layout);
+            p.layout->setGridPos(label, 3, 0);
+            p.lightingCheckBox->setParent(p.layout);
+            p.layout->setGridPos(p.lightingCheckBox, 3, 1);
+            label = ui::Label::create("Enable sRGB color space:", context, p.layout);
+            p.layout->setGridPos(label, 4, 0);
+            p.sRGBCheckBox->setParent(p.layout);
+            p.layout->setGridPos(p.sRGBCheckBox, 4, 1);
+            label = ui::Label::create("Stage cache size:", context, p.layout);
+            p.layout->setGridPos(label, 5, 0);
+            p.stageCacheEdit->setParent(p.layout);
+            p.layout->setGridPos(p.stageCacheEdit, 5, 1);
+            label = ui::Label::create("Disk cache size (GB):", context, p.layout);
+            p.layout->setGridPos(label, 6, 0);
+            p.diskCacheEdit->setParent(p.layout);
+            p.layout->setGridPos(p.diskCacheEdit, 6, 1);
+
+            auto appWeak = std::weak_ptr<App>(app);
+            p.settingsObserver = observer::ValueObserver<std::string>::create(
+                app->getSettings()->observeValues(),
+                [this, appWeak](const std::string&)
+                {
+                    TLRENDER_P();
+                    if (auto app = appWeak.lock())
+                    {
+                        auto settings = app->getSettings();
+                        {
+                            int value = 1920;
+                            settings->getValue("USD/renderWidth", value);
+                            p.renderWidthEdit->setValue(value);
+                        }
+                        {
+                            float value = 1.F;
+                            settings->getValue("USD/complexity", value);
+                            p.complexitySlider->setValue(value);
+                        }
+                        {
+                            usd::DrawMode value = usd::DrawMode::ShadedSmooth;
+                            settings->getValue("USD/drawMode", value);
+                            p.drawModeComboBox->setCurrentIndex(static_cast<int>(value));
+                        }
+                        {
+                            bool value = true;
+                            settings->getValue("USD/enableLighting", value);
+                            p.lightingCheckBox->setChecked(value);
+                        }
+                        {
+                            bool value = true;
+                            settings->getValue("USD/sRGB", value);
+                            p.sRGBCheckBox->setChecked(value);
+                        }
+                        {
+                            size_t value = 10;
+                            settings->getValue("USD/stageCacheCount", value);
+                            p.stageCacheEdit->setValue(value);
+                        }
+                        {
+                            size_t value = 0;
+                            settings->getValue("USD/diskCacheByteCount", value);
+                            p.diskCacheEdit->setValue(value / memory::gigabyte);
+                        }
+                    }
+                });
+
+            p.renderWidthEdit->setCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue("USD/renderWidth", value);
+                    }
+                });
+
+            p.complexitySlider->setCallback(
+                [appWeak](float value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue("USD/complexity", value);
+                    }
+                });
+
+            p.drawModeComboBox->setIndexCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        const usd::DrawMode drawMode = static_cast<usd::DrawMode>(value);
+                        app->getSettings()->setValue("USD/drawMode", drawMode);
+                    }
+                });
+
+            p.lightingCheckBox->setCheckedCallback(
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue("USD/enableLighting", value);
+                    }
+                });
+
+            p.sRGBCheckBox->setCheckedCallback(
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue("USD/sRGB", value);
+                    }
+                });
+
+            p.stageCacheEdit->setCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue("USD/stageCacheCount", value);
+                    }
+                });
+
+            p.diskCacheEdit->setCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getSettings()->setValue(
+                            "USD/diskCacheByteCount",
+                            value * memory::gigabyte);
+                    }
+                });
+        }
+
+        USDSettingsWidget::USDSettingsWidget() :
+            _p(new Private)
+        {}
+
+        USDSettingsWidget::~USDSettingsWidget()
+        {}
+
+        std::shared_ptr<USDSettingsWidget> USDSettingsWidget::create(
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            auto out = std::shared_ptr<USDSettingsWidget>(new USDSettingsWidget);
+            out->_init(app, context, parent);
+            return out;
+        }
+
+        void USDSettingsWidget::setGeometry(const math::Box2i& value)
+        {
+            IWidget::setGeometry(value);
+            _p->layout->setGeometry(value);
+        }
+
+        void USDSettingsWidget::sizeHintEvent(const ui::SizeHintEvent& event)
+        {
+            IWidget::sizeHintEvent(event);
+            _sizeHint = _p->layout->getSizeHint();
+        }
+#endif // TLRENDER_USD
 
         struct FileBrowserSettingsWidget::Private
         {
@@ -368,9 +749,6 @@ namespace tl
             std::shared_ptr<ui::IntEdit> audioBufferFramesEdit;
             std::shared_ptr<ui::IntEdit> videoRequestsEdit;
             std::shared_ptr<ui::IntEdit> audioRequestsEdit;
-            std::shared_ptr<ui::IntEdit> sequenceThreadsEdit;
-            std::shared_ptr<ui::CheckBox> ffmpegYUVtoRGBCheckBox;
-            std::shared_ptr<ui::IntEdit> ffmpegThreadsEdit;
             std::shared_ptr<ui::VerticalLayout> layout;
 
             std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
@@ -398,50 +776,61 @@ namespace tl
             p.audioRequestsEdit = ui::IntEdit::create(context);
             p.audioRequestsEdit->setRange(math::IntRange(1, 64));
 
-            p.sequenceThreadsEdit = ui::IntEdit::create(context);
-            p.sequenceThreadsEdit->setRange(math::IntRange(1, 64));
-
-            p.ffmpegYUVtoRGBCheckBox = ui::CheckBox::create(context);
-
-            p.ffmpegThreadsEdit = ui::IntEdit::create(context);
-            p.ffmpegThreadsEdit->setRange(math::IntRange(0, 64));
-
             p.layout = ui::VerticalLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
             p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
             auto label = ui::Label::create("Changes are applied to new files.", context, p.layout);
-            auto griLayout = ui::GridLayout::create(context, p.layout);
-            griLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            label = ui::Label::create("Timer mode:", context, griLayout);
-            griLayout->setGridPos(label, 0, 0);
-            p.timerComboBox->setParent(griLayout);
-            griLayout->setGridPos(p.timerComboBox, 0, 1);
-            label = ui::Label::create("Audio buffer frames:", context, griLayout);
-            griLayout->setGridPos(label, 1, 0);
-            p.audioBufferFramesEdit->setParent(griLayout);
-            griLayout->setGridPos(p.audioBufferFramesEdit, 1, 1);
-            label = ui::Label::create("Video requests:", context, griLayout);
-            griLayout->setGridPos(label, 2, 0);
-            p.videoRequestsEdit->setParent(griLayout);
-            griLayout->setGridPos(p.videoRequestsEdit, 2, 1);
-            label = ui::Label::create("Audio requests:", context, griLayout);
-            griLayout->setGridPos(label, 3, 0);
-            p.audioRequestsEdit->setParent(griLayout);
-            griLayout->setGridPos(p.audioRequestsEdit, 3, 1);
-            label = ui::Label::create("Sequence I/O threads:", context, griLayout);
-            griLayout->setGridPos(label, 4, 0);
-            p.sequenceThreadsEdit->setParent(griLayout);
-            griLayout->setGridPos(p.sequenceThreadsEdit, 4, 1);
-            label = ui::Label::create("FFmpeg YUV to RGB conversion:", context, griLayout);
-            griLayout->setGridPos(label, 5, 0);
-            p.ffmpegYUVtoRGBCheckBox->setParent(griLayout);
-            griLayout->setGridPos(p.ffmpegYUVtoRGBCheckBox, 5, 1);
-            label = ui::Label::create("FFmpeg I/O threads:", context, griLayout);
-            griLayout->setGridPos(label, 6, 0);
-            p.ffmpegThreadsEdit->setParent(griLayout);
-            griLayout->setGridPos(p.ffmpegThreadsEdit, 6, 1);
+            auto gridLayout = ui::GridLayout::create(context, p.layout);
+            gridLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            label = ui::Label::create("Timer mode:", context, gridLayout);
+            gridLayout->setGridPos(label, 0, 0);
+            p.timerComboBox->setParent(gridLayout);
+            gridLayout->setGridPos(p.timerComboBox, 0, 1);
+            label = ui::Label::create("Audio buffer frames:", context, gridLayout);
+            gridLayout->setGridPos(label, 1, 0);
+            p.audioBufferFramesEdit->setParent(gridLayout);
+            gridLayout->setGridPos(p.audioBufferFramesEdit, 1, 1);
+            label = ui::Label::create("Video requests:", context, gridLayout);
+            gridLayout->setGridPos(label, 2, 0);
+            p.videoRequestsEdit->setParent(gridLayout);
+            gridLayout->setGridPos(p.videoRequestsEdit, 2, 1);
+            label = ui::Label::create("Audio requests:", context, gridLayout);
+            gridLayout->setGridPos(label, 3, 0);
+            p.audioRequestsEdit->setParent(gridLayout);
+            gridLayout->setGridPos(p.audioRequestsEdit, 3, 1);
 
             auto appWeak = std::weak_ptr<App>(app);
+            p.settingsObserver = observer::ValueObserver<std::string>::create(
+                app->getSettings()->observeValues(),
+                [this, appWeak](const std::string&)
+                {
+                    TLRENDER_P();
+                    if (auto app = appWeak.lock())
+                    {
+                        auto settings = app->getSettings();
+                        {
+                            timeline::TimerMode value = timeline::TimerMode::First;
+                            settings->getValue("Performance/TimerMode", value);
+                            p.timerComboBox->setCurrentIndex(static_cast<int>(value));
+                        }
+                        {
+                            int value = 0;
+                            settings->getValue("Performance/AudioBufferFrameCount", value);
+                            p.audioBufferFramesEdit->setValue(value);
+                        }
+                        {
+                            int value = 0;
+                            settings->getValue("Performance/VideoRequestCount", value);
+                            p.videoRequestsEdit->setValue(value);
+                        }
+                        {
+                            int value = 0;
+                            settings->getValue("Performance/AudioRequestCount", value);
+                            p.audioRequestsEdit->setValue(value);
+                        }
+                    }
+                });
+
             p.timerComboBox->setIndexCallback(
                 [appWeak](int value)
                 {
@@ -483,85 +872,6 @@ namespace tl
                         app->getSettings()->setValue(
                             "Performance/AudioRequestCount",
                             value);
-                    }
-                });
-
-            p.sequenceThreadsEdit->setCallback(
-                [appWeak](int value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue(
-                            "Performance/SequenceThreadCount",
-                            value);
-                    }
-                });
-
-            p.ffmpegYUVtoRGBCheckBox->setCheckedCallback(
-                [appWeak](bool value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue(
-                            "Performance/FFmpegYUVToRGBConversion",
-                            value);
-                    }
-                });
-
-            p.ffmpegThreadsEdit->setCallback(
-                [appWeak](int value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue(
-                            "Performance/FFmpegThreadCount",
-                            value);
-                    }
-                });
-
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
-                app->getSettings()->observeValues(),
-                [this, appWeak](const std::string&)
-                {
-                    TLRENDER_P();
-                    if (auto app = appWeak.lock())
-                    {
-                        auto settings = app->getSettings();
-                        {
-                            timeline::TimerMode value = timeline::TimerMode::First;
-                            settings->getValue("Performance/TimerMode", value);
-                            p.timerComboBox->setCurrentIndex(static_cast<int>(value));
-                        }
-                        {
-                            int value = 0;
-                            settings->getValue("Performance/AudioBufferFrameCount", value);
-                            p.audioBufferFramesEdit->setValue(value);
-                        }
-                        {
-                            int value = 0;
-                            settings->getValue("Performance/VideoRequestCount", value);
-                            p.videoRequestsEdit->setValue(value);
-                        }
-                        {
-                            int value = 0;
-                            settings->getValue("Performance/AudioRequestCount", value);
-                            p.audioRequestsEdit->setValue(value);
-                        }
-                        {
-                            int value = 0;
-                            settings->getValue("Performance/SequenceThreadCount", value);
-                            p.sequenceThreadsEdit->setValue(value);
-                        }
-                        {
-                            bool value = false;
-                            settings->getValue("Performance/FFmpegYUVToRGBConversion", value);
-                            p.ffmpegYUVtoRGBCheckBox->setChecked(value);
-                        }
-                        {
-                            int value = 0;
-                            settings->getValue("Performance/FFmpegThreadCount", value);
-                            p.ffmpegThreadsEdit->setValue(value);
-                        }
                     }
                 });
         }
@@ -643,8 +953,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        StylePalette stylePalette = static_cast<StylePalette>(value);
-                        app->getStyle()->setColorRoles(getStylePalette(stylePalette));
+                        const StylePalette stylePalette = static_cast<StylePalette>(value);
                         app->getSettings()->setValue("Style/Palette", stylePalette);
                     }
                 });
@@ -783,6 +1092,12 @@ namespace tl
 
             auto cacheWidget = CacheSettingsWidget::create(app, context);
             auto fileSequenceWidget = FileSequenceSettingsWidget::create(app, context);
+#if defined(TLRENDER_FFMPEG)
+            auto ffmpegWidget = FFmpegSettingsWidget::create(app, context);
+#endif // TLRENDER_FFMPEG
+#if defined(TLRENDER_USD)
+            auto usdWidget = USDSettingsWidget::create(app, context);
+#endif // TLRENDER_USD
             auto fileBrowserWidget = FileBrowserSettingsWidget::create(app, context);
             auto performanceWidget = PerformanceSettingsWidget::create(app, context);
             auto styleWidget = StyleSettingsWidget::create(app, context);
@@ -793,6 +1108,14 @@ namespace tl
             bellows->setWidget(cacheWidget);
             bellows = ui::Bellows::create("File Sequences", context, vLayout);
             bellows->setWidget(fileSequenceWidget);
+#if defined(TLRENDER_FFMPEG)
+            bellows = ui::Bellows::create("FFmpeg", context, vLayout);
+            bellows->setWidget(ffmpegWidget);
+#endif // TLRENDER_USD
+#if defined(TLRENDER_USD)
+            bellows = ui::Bellows::create("USD", context, vLayout);
+            bellows->setWidget(usdWidget);
+#endif // TLRENDER_USD
             bellows = ui::Bellows::create("File Browser", context, vLayout);
             bellows->setWidget(fileBrowserWidget);
             bellows = ui::Bellows::create("Performance", context, vLayout);

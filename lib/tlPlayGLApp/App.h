@@ -92,13 +92,22 @@ namespace tl
             void _tick() override;
 
         private:
-            void _filesCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
-            void _activeCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
+            void _fileLogInit(const std::string&);
+            void _settingsInit(const std::string&);
+            void _modelsInit();
+            void _observersInit();
+            void _inputFilesInit();
+            void _mainWindowInit();
 
+            io::Options _getIOOptions() const;
             std::vector<std::shared_ptr<timeline::Player> > _getActivePlayers() const;
             otime::RationalTime _getCacheReadAhead() const;
             otime::RationalTime _getCacheReadBehind() const;
 
+            void _filesCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
+            void _activeCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
+
+            void _settingsUpdate(const std::string&);
             void _cacheUpdate();
             void _audioUpdate();
 

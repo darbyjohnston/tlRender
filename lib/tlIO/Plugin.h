@@ -141,9 +141,6 @@ namespace tl
                 static_cast<int>(FileType::Sequence) |
                 static_cast<int>(FileType::Audio)) const;
 
-            //! Set the plugin options.
-            virtual void setOptions(const Options&);
-
             //! Create a reader for the given path.
             virtual std::shared_ptr<IRead> read(
                 const file::Path&,
@@ -169,7 +166,6 @@ namespace tl
         protected:
             bool _isWriteCompatible(const image::Info&, const Options&) const;
 
-            Options _options;
             std::shared_ptr<Cache> _cache;
             std::weak_ptr<log::System> _logSystem;
 

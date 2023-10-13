@@ -82,19 +82,21 @@ namespace tl
             void clear();
 
         private:
-            std::string _getKey(
-                const std::string& fileName,
-                const otime::RationalTime&,
-                const Options&) const;
-
-            std::string _getKey(
-                const std::string& fileName,
-                const otime::TimeRange&,
-                const Options&) const;
-
             void _maxUpdate();
 
             TLRENDER_PRIVATE();
         };
+
+        //! Get a cache key.
+        std::string getCacheKey(
+            const std::string& fileName,
+            const otime::RationalTime&,
+            const Options&);
+
+        //! Get a cache key.
+        std::string getCacheKey(
+            const std::string& fileName,
+            const otime::TimeRange&,
+            const Options&);
     }
 }

@@ -629,13 +629,13 @@ namespace tl
             // Get mutex protected values.
             otime::RationalTime currentTime = time::invalidTime;
             otime::TimeRange inOutRange = time::invalidTimeRange;
-            io::Options ioOptions = timeline->getOptions().ioOptions;
+            io::Options ioOptions;
             PlayerCacheInfo cacheInfo;
             {
                 std::unique_lock<std::mutex> lock(mutex.mutex);
                 currentTime = mutex.currentTime;
                 inOutRange = mutex.inOutRange;
-                ioOptions = io::merge(mutex.ioOptions, ioOptions);
+                ioOptions = mutex.ioOptions;
                 cacheInfo = mutex.cacheInfo;
             }
             size_t audioDataCacheSize = 0;

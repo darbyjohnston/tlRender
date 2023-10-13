@@ -68,6 +68,66 @@ namespace tl
             TLRENDER_PRIVATE();
         };
 
+#if defined(TLRENDER_FFMPEG)
+        //! FFmpeg settings widget.
+        class FFmpegSettingsWidget : public ui::IWidget
+        {
+            TLRENDER_NON_COPYABLE(FFmpegSettingsWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent);
+
+            FFmpegSettingsWidget();
+
+        public:
+            virtual ~FFmpegSettingsWidget();
+
+            static std::shared_ptr<FFmpegSettingsWidget> create(
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            void setGeometry(const math::Box2i&) override;
+            void sizeHintEvent(const ui::SizeHintEvent&) override;
+
+        private:
+            TLRENDER_PRIVATE();
+        };
+#endif // TLRENDER_FFMPEG
+
+#if defined(TLRENDER_USD)
+        //! USD settings widget.
+        class USDSettingsWidget : public ui::IWidget
+        {
+            TLRENDER_NON_COPYABLE(USDSettingsWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent);
+
+            USDSettingsWidget();
+
+        public:
+            virtual ~USDSettingsWidget();
+
+            static std::shared_ptr<USDSettingsWidget> create(
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            void setGeometry(const math::Box2i&) override;
+            void sizeHintEvent(const ui::SizeHintEvent&) override;
+
+        private:
+            TLRENDER_PRIVATE();
+        };
+#endif // TLRENDER_USD
+
         //! File browser settings widget.
         class FileBrowserSettingsWidget : public ui::IWidget
         {

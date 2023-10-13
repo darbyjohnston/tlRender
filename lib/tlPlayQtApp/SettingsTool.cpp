@@ -322,11 +322,11 @@ namespace tl
             p.audioRequestCountSpinBox->setValue(
                 settingsObject->value("Performance/AudioRequestCount").toInt());
             p.sequenceThreadCountSpinBox->setValue(
-                settingsObject->value("Performance/SequenceThreadCount").toInt());
+                settingsObject->value("SequenceIO/ThreadCount").toInt());
             p.ffmpegYUVToRGBConversionCheckBox->setChecked(
-                settingsObject->value("Performance/FFmpegYUVToRGBConversion").toBool());
+                settingsObject->value("FFmpeg/YUVToRGBConversion").toBool());
             p.ffmpegThreadCountSpinBox->setValue(
-                settingsObject->value("Performance/FFmpegThreadCount").toInt());
+                settingsObject->value("FFmpeg/ThreadCount").toInt());
 
             connect(
                 p.timerModeComboBox,
@@ -365,7 +365,7 @@ namespace tl
                 QOverload<int>::of(&QSpinBox::valueChanged),
                 [settingsObject](int value)
                 {
-                    settingsObject->setValue("Performance/SequenceThreadCount", value);
+                    settingsObject->setValue("SequenceIO/ThreadCount", value);
                 });
 
             connect(
@@ -373,7 +373,7 @@ namespace tl
                 &QCheckBox::toggled,
                 [settingsObject](bool value)
                 {
-                    settingsObject->setValue("Performance/FFmpegYUVToRGBConversion", value);
+                    settingsObject->setValue("FFmpeg/YUVToRGBConversion", value);
                 });
 
             connect(
@@ -381,7 +381,7 @@ namespace tl
                 QOverload<int>::of(&QSpinBox::valueChanged),
                 [settingsObject](int value)
                 {
-                    settingsObject->setValue("Performance/FFmpegThreadCount", value);
+                    settingsObject->setValue("FFmpeg/ThreadCount", value);
                 });
 
             connect(
@@ -409,17 +409,17 @@ namespace tl
                         QSignalBlocker signalBlocker(_p->audioRequestCountSpinBox);
                         _p->audioRequestCountSpinBox->setValue(value.toInt());
                     }
-                    else if (name == "Performance/SequenceThreadCount")
+                    else if (name == "SequenceIO/ThreadCount")
                     {
                         QSignalBlocker signalBlocker(_p->sequenceThreadCountSpinBox);
                         _p->sequenceThreadCountSpinBox->setValue(value.toInt());
                     }
-                    else if (name == "Performance/FFmpegYUVToRGBConversion")
+                    else if (name == "FFmpeg/YUVToRGBConversion")
                     {
                         QSignalBlocker signalBlocker(_p->ffmpegYUVToRGBConversionCheckBox);
                         _p->ffmpegYUVToRGBConversionCheckBox->setChecked(value.toInt());
                     }
-                    else if (name == "Performance/FFmpegThreadCount")
+                    else if (name == "FFmpeg/ThreadCount")
                     {
                         QSignalBlocker signalBlocker(_p->ffmpegThreadCountSpinBox);
                         _p->ffmpegThreadCountSpinBox->setValue(value.toInt());

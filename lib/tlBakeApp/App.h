@@ -40,19 +40,23 @@ namespace tl
             timeline::LUTOptions lutOptions;
             float sequenceDefaultSpeed = io::sequenceDefaultSpeed;
             int sequenceThreadCount = io::sequenceThreadCount;
+
 #if defined(TLRENDER_EXR)
             exr::Compression exrCompression = exr::Compression::ZIP;
             float exrDWACompressionLevel = 45.F;
 #endif // TLRENDER_EXR
+
 #if defined(TLRENDER_FFMPEG)
             std::string ffmpegWriteProfile;
             int ffmpegThreadCount = ffmpeg::threadCount;
 #endif // TLRENDER_FFMPEG
+
 #if defined(TLRENDER_USD)
             int usdRenderWidth = 1920;
             float usdComplexity = 1.F;
             usd::DrawMode usdDrawMode = usd::DrawMode::ShadedSmooth;
             bool usdEnableLighting = true;
+            bool usdSRGB = true;
             size_t usdStageCache = 10;
             size_t usdDiskCache = 0;
 #endif // TLRENDER_USD
@@ -81,6 +85,8 @@ namespace tl
             int run();
 
         private:
+            io::Options _getIOOptions() const;
+
             void _tick();
             void _printProgress();
 

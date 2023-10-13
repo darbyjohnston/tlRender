@@ -28,9 +28,6 @@ namespace tl
             //! Create a new system.
             static std::shared_ptr<System> create(const std::shared_ptr<system::Context>&);
 
-            //! Set the plugin options.
-            void setOptions(const Options&);
-
             //! Get the list of plugins.
             const std::vector<std::shared_ptr<IPlugin> >& getPlugins() const;
             
@@ -46,6 +43,9 @@ namespace tl
 
             //! Get a plugin for the given path.
             std::shared_ptr<IPlugin> getPlugin(const file::Path&) const;
+
+            //! Get the plugin names.
+            const std::vector<std::string>& getNames() const;
 
             //! Get the supported file extensions.
             std::set<std::string> getExtensions(int types =

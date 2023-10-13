@@ -6,8 +6,10 @@
 
 #include <tlApp/IApp.h>
 
-#include <tlTimeline/IRender.h>
 #include <tlTimeline/TimeUnits.h>
+#include <tlTimeline/IRender.h>
+
+#include <tlIO/IO.h>
 
 #include <QApplication>
 #include <QSharedPointer>
@@ -107,6 +109,7 @@ namespace tl
             void _activeCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
 
         private:
+            io::Options _ioOptions() const;
             QVector<QSharedPointer<qt::TimelinePlayer> > _activePlayers() const;
             otime::RationalTime _cacheReadAhead() const;
             otime::RationalTime _cacheReadBehind() const;

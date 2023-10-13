@@ -10,8 +10,11 @@ namespace tl
     {
         Options merge(const Options& a, const Options& b)
         {
-            Options out = a;
-            out.insert(b.begin(), b.end());
+            Options out = b;
+            for (const auto& i : a)
+            {
+                out[i.first] = i.second;
+            }
             return out;
         }
     }

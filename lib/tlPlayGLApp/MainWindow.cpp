@@ -168,7 +168,7 @@ namespace tl
             setBackgroundRole(ui::ColorRole::Window);
 
             p.app = app;
-                
+
             auto settings = app->getSettings();
             WindowOptions windowOptions;
             settings->setDefaultValue("Window/Options", windowOptions);
@@ -546,8 +546,12 @@ namespace tl
 
             p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
                 app->getViewportModel()->observeBackgroundOptions(),
-                [this](const timeline::BackgroundOptions&)
+                [this](const timeline::BackgroundOptions& value)
                 {
+                    if (auto settings = _p->settings.lock())
+                    {
+                        settings->setValue("Viewport/Background", value);
+                    }
                     _viewportUpdate();
                 });
 
@@ -596,8 +600,8 @@ namespace tl
             TLRENDER_P();
             if (auto settings = p.settings.lock())
             {
-                settings->setValue("Window/Options",
-                    p.windowOptions->get());
+                settings->setValue("Window/Size", _geometry.getSize());
+                settings->setValue("Window/Options", p.windowOptions->get());
                 settings->setValue("Timeline/Editable",
                     p.timelineWidget->isEditable());
                 const auto& timelineItemOptions = p.timelineWidget->getItemOptions();
