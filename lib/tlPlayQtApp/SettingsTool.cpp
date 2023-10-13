@@ -10,6 +10,10 @@
 
 #include <tlQt/MetaTypes.h>
 
+#if defined(TLRENDER_USD)
+#include <tlIO/USD.h>
+#endif // TLRENDER_USD
+
 #include <QAction>
 #include <QBoxLayout>
 #include <QCheckBox>
@@ -115,6 +119,7 @@ namespace tl
             QLineEdit* audioFileName = nullptr;
             QLineEdit* audioDirectory = nullptr;
             QSpinBox* maxDigitsSpinBox = nullptr;
+            QSpinBox* threadCountSpinBox = nullptr;
         };
 
         FileSequenceSettingsWidget::FileSequenceSettingsWidget(SettingsObject* settingsObject, QWidget* parent) :
@@ -136,11 +141,15 @@ namespace tl
             p.maxDigitsSpinBox = new QSpinBox;
             p.maxDigitsSpinBox->setRange(0, 255);
 
+            p.threadCountSpinBox = new QSpinBox;
+            p.threadCountSpinBox->setRange(1, 64);
+
             auto layout = new QFormLayout;
             layout->addRow(tr("Audio:"), p.audioComboBox);
             layout->addRow(tr("Audio file name:"), p.audioFileName);
             layout->addRow(tr("Audio directory:"), p.audioDirectory);
             layout->addRow(tr("Maximum digits:"), p.maxDigitsSpinBox);
+            layout->addRow(tr("I/O threads:"), p.threadCountSpinBox);
             setLayout(layout);
 
             p.audioComboBox->setCurrentIndex(
@@ -151,6 +160,8 @@ namespace tl
                 settingsObject->value("FileSequence/AudioDirectory").toString());
             p.maxDigitsSpinBox->setValue(
                 settingsObject->value("FileSequence/MaxDigits").toInt());
+            p.threadCountSpinBox->setValue(
+                settingsObject->value("SequenceIO/ThreadCount").toInt());
 
             connect(
                 p.audioComboBox,
@@ -185,6 +196,14 @@ namespace tl
                 });
 
             connect(
+                p.threadCountSpinBox,
+                QOverload<int>::of(&QSpinBox::valueChanged),
+                [settingsObject](int value)
+                {
+                    settingsObject->setValue("SequenceIO/ThreadCount", value);
+                });
+
+            connect(
                 settingsObject,
                 &SettingsObject::valueChanged,
                 [this](const QString& name, const QVariant& value)
@@ -209,11 +228,132 @@ namespace tl
                         QSignalBlocker signalBlocker(_p->maxDigitsSpinBox);
                         _p->maxDigitsSpinBox->setValue(value.toInt());
                     }
+                    else if (name == "SequenceIO/ThreadCount")
+                    {
+                        QSignalBlocker signalBlocker(_p->threadCountSpinBox);
+                        _p->threadCountSpinBox->setValue(value.toInt());
+                    }
                 });
         }
 
         FileSequenceSettingsWidget::~FileSequenceSettingsWidget()
         {}
+
+#if defined(TLRENDER_FFMPEG)
+        struct FFmpegSettingsWidget::Private
+        {
+            QCheckBox* yuvToRGBConversionCheckBox = nullptr;
+            QSpinBox* threadCountSpinBox = nullptr;
+        };
+
+        FFmpegSettingsWidget::FFmpegSettingsWidget(SettingsObject * settingsObject, QWidget * parent) :
+            QWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
+
+            p.yuvToRGBConversionCheckBox = new QCheckBox;
+
+            p.threadCountSpinBox = new QSpinBox;
+            p.threadCountSpinBox->setRange(0, 64);
+
+            auto layout = new QFormLayout;
+            layout->addRow(tr("YUV to RGB conversion:"), p.yuvToRGBConversionCheckBox);
+            layout->addRow(tr("I/O threads:"), p.threadCountSpinBox);
+            setLayout(layout);
+
+            p.yuvToRGBConversionCheckBox->setChecked(
+                settingsObject->value("FFmpeg/YUVToRGBConversion").toBool());
+            p.threadCountSpinBox->setValue(
+                settingsObject->value("FFmpeg/ThreadCount").toInt());
+
+            connect(
+                p.yuvToRGBConversionCheckBox,
+                &QCheckBox::toggled,
+                [settingsObject](bool value)
+                {
+                    settingsObject->setValue("FFmpeg/YUVToRGBConversion", value);
+                });
+
+            connect(
+                p.threadCountSpinBox,
+                QOverload<int>::of(&QSpinBox::valueChanged),
+                [settingsObject](int value)
+                {
+                    settingsObject->setValue("FFmpeg/ThreadCount", value);
+                });
+
+            connect(
+                settingsObject,
+                &SettingsObject::valueChanged,
+                [this](const QString& name, const QVariant& value)
+                {
+                    if (name == "FFmpeg/YUVToRGBConversion")
+                    {
+                        QSignalBlocker signalBlocker(_p->yuvToRGBConversionCheckBox);
+                        _p->yuvToRGBConversionCheckBox->setChecked(value.toInt());
+                    }
+                    else if (name == "FFmpeg/ThreadCount")
+                    {
+                        QSignalBlocker signalBlocker(_p->threadCountSpinBox);
+                        _p->threadCountSpinBox->setValue(value.toInt());
+                    }
+                });
+        }
+
+        FFmpegSettingsWidget::~FFmpegSettingsWidget()
+        {}
+#endif // TLRENDER_FFMPEG
+
+#if defined(TLRENDER_USD)
+        struct USDSettingsWidget::Private
+        {
+            QComboBox* drawModeComboBox = nullptr;
+        };
+
+        USDSettingsWidget::USDSettingsWidget(SettingsObject * settingsObject, QWidget * parent) :
+            QWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
+
+            p.drawModeComboBox = new QComboBox;
+            for (const auto& i : usd::getDrawModeLabels())
+            {
+                p.drawModeComboBox->addItem(QString::fromUtf8(i.c_str()));
+            }
+
+            auto layout = new QFormLayout;
+            layout->addRow(tr("Draw mode:"), p.drawModeComboBox);
+            setLayout(layout);
+
+            p.drawModeComboBox->setCurrentIndex(
+                settingsObject->value("USD/drawMode").toInt());
+
+            connect(
+                p.drawModeComboBox,
+                QOverload<int>::of(&QComboBox::activated),
+                [settingsObject](int value)
+                {
+                    settingsObject->setValue("USD/drawMode", value);
+                });
+
+            connect(
+                settingsObject,
+                &SettingsObject::valueChanged,
+                [this](const QString& name, const QVariant& value)
+                {
+                    if (name == "USD/drawMode")
+                    {
+                        QSignalBlocker signalBlocker(_p->drawModeComboBox);
+                        _p->drawModeComboBox->setCurrentIndex(value.toInt());
+                    }
+                });
+        }
+
+        USDSettingsWidget::~USDSettingsWidget()
+        {}
+#endif // TLRENDER_USD
 
         struct FileBrowserSettingsWidget::Private
         {
@@ -266,9 +406,6 @@ namespace tl
             QSpinBox* audioBufferFrameCountSpinBox = nullptr;
             QSpinBox* videoRequestCountSpinBox = nullptr;
             QSpinBox* audioRequestCountSpinBox = nullptr;
-            QSpinBox* sequenceThreadCountSpinBox = nullptr;
-            QCheckBox* ffmpegYUVToRGBConversionCheckBox = nullptr;
-            QSpinBox* ffmpegThreadCountSpinBox = nullptr;
         };
 
         PerformanceSettingsWidget::PerformanceSettingsWidget(SettingsObject* settingsObject, QWidget* parent) :
@@ -292,14 +429,6 @@ namespace tl
             p.audioRequestCountSpinBox = new QSpinBox;
             p.audioRequestCountSpinBox->setRange(1, 64);
 
-            p.sequenceThreadCountSpinBox = new QSpinBox;
-            p.sequenceThreadCountSpinBox->setRange(1, 64);
-
-            p.ffmpegYUVToRGBConversionCheckBox = new QCheckBox;
-
-            p.ffmpegThreadCountSpinBox = new QSpinBox;
-            p.ffmpegThreadCountSpinBox->setRange(0, 64);
-
             auto layout = new QFormLayout;
             auto label = new QLabel(tr("Changes are applied to new files."));
             label->setWordWrap(true);
@@ -308,9 +437,6 @@ namespace tl
             layout->addRow(tr("Audio buffer frames:"), p.audioBufferFrameCountSpinBox);
             layout->addRow(tr("Video requests:"), p.videoRequestCountSpinBox);
             layout->addRow(tr("Audio requests:"), p.audioRequestCountSpinBox);
-            layout->addRow(tr("Sequence I/O threads:"), p.sequenceThreadCountSpinBox);
-            layout->addRow(tr("FFmpeg YUV to RGB conversion:"), p.ffmpegYUVToRGBConversionCheckBox);
-            layout->addRow(tr("FFmpeg I/O threads:"), p.ffmpegThreadCountSpinBox);
             setLayout(layout);
 
             p.timerModeComboBox->setCurrentIndex(
@@ -321,12 +447,6 @@ namespace tl
                 settingsObject->value("Performance/VideoRequestCount").toInt());
             p.audioRequestCountSpinBox->setValue(
                 settingsObject->value("Performance/AudioRequestCount").toInt());
-            p.sequenceThreadCountSpinBox->setValue(
-                settingsObject->value("SequenceIO/ThreadCount").toInt());
-            p.ffmpegYUVToRGBConversionCheckBox->setChecked(
-                settingsObject->value("FFmpeg/YUVToRGBConversion").toBool());
-            p.ffmpegThreadCountSpinBox->setValue(
-                settingsObject->value("FFmpeg/ThreadCount").toInt());
 
             connect(
                 p.timerModeComboBox,
@@ -361,30 +481,6 @@ namespace tl
                 });
 
             connect(
-                p.sequenceThreadCountSpinBox,
-                QOverload<int>::of(&QSpinBox::valueChanged),
-                [settingsObject](int value)
-                {
-                    settingsObject->setValue("SequenceIO/ThreadCount", value);
-                });
-
-            connect(
-                p.ffmpegYUVToRGBConversionCheckBox,
-                &QCheckBox::toggled,
-                [settingsObject](bool value)
-                {
-                    settingsObject->setValue("FFmpeg/YUVToRGBConversion", value);
-                });
-
-            connect(
-                p.ffmpegThreadCountSpinBox,
-                QOverload<int>::of(&QSpinBox::valueChanged),
-                [settingsObject](int value)
-                {
-                    settingsObject->setValue("FFmpeg/ThreadCount", value);
-                });
-
-            connect(
                 settingsObject,
                 &SettingsObject::valueChanged,
                 [this](const QString& name, const QVariant& value)
@@ -408,21 +504,6 @@ namespace tl
                     {
                         QSignalBlocker signalBlocker(_p->audioRequestCountSpinBox);
                         _p->audioRequestCountSpinBox->setValue(value.toInt());
-                    }
-                    else if (name == "SequenceIO/ThreadCount")
-                    {
-                        QSignalBlocker signalBlocker(_p->sequenceThreadCountSpinBox);
-                        _p->sequenceThreadCountSpinBox->setValue(value.toInt());
-                    }
-                    else if (name == "FFmpeg/YUVToRGBConversion")
-                    {
-                        QSignalBlocker signalBlocker(_p->ffmpegYUVToRGBConversionCheckBox);
-                        _p->ffmpegYUVToRGBConversionCheckBox->setChecked(value.toInt());
-                    }
-                    else if (name == "FFmpeg/ThreadCount")
-                    {
-                        QSignalBlocker signalBlocker(_p->ffmpegThreadCountSpinBox);
-                        _p->ffmpegThreadCountSpinBox->setValue(value.toInt());
                     }
                 });
         }
@@ -481,6 +562,12 @@ namespace tl
             auto settingsObject = app->settingsObject();
             addBellows(tr("Cache"), new CacheSettingsWidget(settingsObject));
             addBellows(tr("File Sequences"), new FileSequenceSettingsWidget(settingsObject));
+#if defined(TLRENDER_FFMPEG)
+            addBellows(tr("FFmpeg"), new FFmpegSettingsWidget(settingsObject));
+#endif // TLRENDER_FFMPEG
+#if defined(TLRENDER_USD)
+            addBellows(tr("USD"), new USDSettingsWidget(settingsObject));
+#endif // TLRENDER_USD
             addBellows(tr("File Browser"), new FileBrowserSettingsWidget(settingsObject));
             addBellows(tr("Performance"), new PerformanceSettingsWidget(settingsObject));
             addBellows(tr("Miscellaneous"), new MiscSettingsWidget(settingsObject));

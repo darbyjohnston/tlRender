@@ -22,6 +22,7 @@ namespace tl
         class AudioModel;
         class ColorModel;
         class FilesModel;
+        class Settings;
         class ViewportModel;
     }
 
@@ -29,7 +30,6 @@ namespace tl
     namespace play_gl
     {
         class MainWindow;
-        class Settings;
         class ToolsModel;
 
         //! Application.
@@ -64,7 +64,7 @@ namespace tl
             void openSeparateAudioDialog();
 
             //! Get the settings.
-            const std::shared_ptr<Settings>& getSettings() const;
+            const std::shared_ptr<play::Settings>& getSettings() const;
 
             //! Get the files model.
             const std::shared_ptr<play::FilesModel>& getFilesModel() const;

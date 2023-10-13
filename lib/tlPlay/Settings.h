@@ -17,11 +17,11 @@ namespace tl
         class Context;
     }
 
-    namespace play_gl
+    namespace play
     {
         class App;
 
-        //! Audio tool.
+        //! Settings.
         class Settings : public std::enable_shared_from_this<Settings>
         {
             TLRENDER_NON_COPYABLE(Settings);
@@ -71,4 +71,4 @@ namespace tl
     }
 }
 
-#include <tlPlayGLApp/SettingsInline.h>
+#include <tlPlay/SettingsInline.h>

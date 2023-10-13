@@ -5,7 +5,6 @@
 #include <tlPlayGLApp/AudioPopup.h>
 
 #include <tlPlayGLApp/App.h>
-#include <tlPlayGLApp/Settings.h>
 
 #include <tlPlay/AudioModel.h>
 

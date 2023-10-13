@@ -44,6 +44,37 @@ namespace tl
             TLRENDER_PRIVATE();
         };
 
+#if defined(TLRENDER_FFMPEG)
+        //! FFmpeg settings widget.
+        class FFmpegSettingsWidget : public QWidget
+        {
+            Q_OBJECT
+
+        public:
+            FFmpegSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
+
+            virtual ~FFmpegSettingsWidget();
+
+        private:
+            TLRENDER_PRIVATE();
+        };
+#endif // TLRENDER_FFMPEG
+
+#if defined(TLRENDER_USD)
+        //! USD settings widget.
+        class USDSettingsWidget : public QWidget
+        {
+            Q_OBJECT
+
+        public:
+            USDSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
+
+            virtual ~USDSettingsWidget();
+
+        private:
+            TLRENDER_PRIVATE();
+        };
+
         //! File browser settings widget.
         class FileBrowserSettingsWidget : public QWidget
         {
@@ -57,6 +88,7 @@ namespace tl
         private:
             TLRENDER_PRIVATE();
         };
+#endif // TLRENDER_USD
 
         //! Performance settings widget.
         class PerformanceSettingsWidget : public QWidget

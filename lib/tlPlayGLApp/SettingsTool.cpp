@@ -5,8 +5,9 @@
 #include <tlPlayGLApp/SettingsTool.h>
 
 #include <tlPlayGLApp/App.h>
-#include <tlPlayGLApp/Settings.h>
 #include <tlPlayGLApp/Style.h>
+
+#include <tlPlay/Settings.h>
 
 #include <tlUI/Bellows.h>
 #include <tlUI/CheckBox.h>

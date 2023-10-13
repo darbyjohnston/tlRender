@@ -20,7 +20,6 @@
 #include <tlPlayGLApp/PlaybackMenu.h>
 #include <tlPlayGLApp/RenderActions.h>
 #include <tlPlayGLApp/RenderMenu.h>
-#include <tlPlayGLApp/Settings.h>
 #include <tlPlayGLApp/SpeedPopup.h>
 #include <tlPlayGLApp/TimelineActions.h>
 #include <tlPlayGLApp/TimelineMenu.h>
@@ -37,6 +36,7 @@
 
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/Info.h>
+#include <tlPlay/Settings.h>
 #include <tlPlay/ViewportModel.h>
 
 #include <tlTimelineUI/TimelineViewport.h>
@@ -87,7 +87,7 @@ namespace tl
         struct MainWindow::Private
         {
             std::weak_ptr<App> app;
-            std::weak_ptr<Settings> settings;
+            std::weak_ptr<play::Settings> settings;
             std::shared_ptr<observer::Value<WindowOptions> > windowOptions;
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             std::shared_ptr<ui::DoubleModel> speedModel;

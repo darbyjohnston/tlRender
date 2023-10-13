@@ -4,7 +4,7 @@
 
 namespace tl
 {
-    namespace play_gl
+    namespace play
     {
         template<typename T>
         inline void Settings::getValue(const std::string& key, T& out) const

@@ -6,13 +6,13 @@
 
 #include <tlPlayGLApp/MainWindow.h>
 #include <tlPlayGLApp/SeparateAudioDialog.h>
-#include <tlPlayGLApp/Settings.h>
 #include <tlPlayGLApp/Style.h>
 #include <tlPlayGLApp/Tools.h>
 
 #include <tlPlay/AudioModel.h>
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/FilesModel.h>
+#include <tlPlay/Settings.h>
 #include <tlPlay/ViewportModel.h>
 #include <tlPlay/Util.h>
 
@@ -75,7 +75,7 @@ namespace tl
             Options options;
             std::shared_ptr<file::FileLogSystem> fileLogSystem;
             std::string settingsFileName;
-            std::shared_ptr<Settings> settings;
+            std::shared_ptr<play::Settings> settings;
             io::Options ioOptions;
             size_t cacheSize = 4;
             timeline::PlayerCacheOptions playerCacheOptions;
@@ -345,7 +345,7 @@ namespace tl
             }
         }
 
-        const std::shared_ptr<Settings>& App::getSettings() const
+        const std::shared_ptr<play::Settings>& App::getSettings() const
         {
             return _p->settings;
         }
@@ -419,7 +419,7 @@ namespace tl
         void App::_settingsInit(const std::string& settingsFileName)
         {
             TLRENDER_P();
-            p.settings = Settings::create(_context);
+            p.settings = play::Settings::create(_context);
             if (!p.options.settingsFileName.empty())
             {
                 p.settingsFileName = p.options.settingsFileName;
@@ -449,8 +449,10 @@ namespace tl
             p.settings->setDefaultValue("FileSequence/AudioDirectory", std::string());
             p.settings->setDefaultValue("FileSequence/MaxDigits", 9);
             p.settings->setDefaultValue("SequenceIO/ThreadCount", 16);
+#if defined(TLRENDER_FFMPEG)
             p.settings->setDefaultValue("FFmpeg/YUVToRGBConversion", false);
             p.settings->setDefaultValue("FFmpeg/ThreadCount", 0);
+#endif // TLRENDER_FFMPEG
 #if defined(TLRENDER_USD)
             p.settings->setDefaultValue("USD/renderWidth", p.options.usdRenderWidth);
             p.settings->setDefaultValue("USD/complexity", p.options.usdComplexity);

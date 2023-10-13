@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayGLApp/Settings.h>
+#include <tlPlay/Settings.h>
 
 #include <tlCore/Context.h>
 #include <tlCore/File.h>
@@ -14,7 +14,7 @@
 
 namespace tl
 {
-    namespace play_gl
+    namespace play
     {
         void Settings::_init(
             const std::shared_ptr<system::Context>& context)
@@ -61,7 +61,7 @@ namespace tl
                     if (auto context = _context.lock())
                     {
                         context->log(
-                            "tl::play_gl::Settings",
+                            "tl::play::Settings",
                             string::Format("Cannot read settings file: {0}: {1}").
                             arg(fileName).
                             arg(e.what()),
@@ -84,7 +84,7 @@ namespace tl
                 if (auto context = _context.lock())
                 {
                     context->log(
-                        "tl::play_gl::Settings",
+                        "tl::play::Settings",
                         string::Format("Cannot write settings file: {0}: {1}").
                             arg(fileName).
                             arg(e.what()),
