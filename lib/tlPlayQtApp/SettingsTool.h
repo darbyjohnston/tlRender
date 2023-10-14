@@ -72,6 +72,7 @@ namespace tl
         private:
             TLRENDER_PRIVATE();
         };
+#endif // TLRENDER_USD
 
         //! File browser settings widget.
         class FileBrowserSettingsWidget : public QWidget
@@ -86,7 +87,6 @@ namespace tl
         private:
             TLRENDER_PRIVATE();
         };
-#endif // TLRENDER_USD
 
         //! Performance settings widget.
         class PerformanceSettingsWidget : public QWidget
