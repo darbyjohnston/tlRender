@@ -1,4 +1,5 @@
 set(HEADERS
+    App.h
     AudioModel.h
     ColorConfigModel.h
     ColorModel.h
@@ -10,6 +11,7 @@ set(HEADERS
     ViewportModel.h)
 
 set(SOURCE
+    App.cpp
     AudioModel.cpp
     ColorConfigModel.cpp
     ColorModel.cpp
