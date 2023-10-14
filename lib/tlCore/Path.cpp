@@ -142,6 +142,8 @@ namespace tl
         bool Path::sequence(const Path& value) const
         {
             return
+                !_number.empty() &&
+                !value._number.empty() &&
                 _directory == value._directory &&
                 _baseName == value._baseName &&
                 (_padding == value._padding || _padding == value._numberDigits) &&

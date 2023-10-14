@@ -31,6 +31,7 @@ namespace tl
         {
             _enums();
             _ctors();
+            _sequence();
             _list();
             _serialize();
         }
@@ -59,6 +60,48 @@ namespace tl
                 TLRENDER_ASSERT(f.getPermissions() != 0);
                 TLRENDER_ASSERT(f.getTime() != 0);
                 rm(path.get());
+            }
+        }
+
+        void FileInfoTest::_sequence()
+        {
+            {
+                FileInfo f(Path("test.0.exr"));
+                f.sequence(FileInfo(Path("test.1.exr")));
+                f.sequence(FileInfo(Path("test.2.exr")));
+                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(0, 2));
+            }
+            {
+                FileInfo f(Path("test.0.exr"));
+                f.sequence(FileInfo(Path("test.0001.exr")));
+                f.sequence(FileInfo(Path("test.0002.exr")));
+                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(0, 0));
+            }
+            {
+                FileInfo f(Path("test.0000.exr"));
+                f.sequence(FileInfo(Path("test.1.exr")));
+                f.sequence(FileInfo(Path("test.2.exr")));
+                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(0, 0));
+            }
+            {
+                FileInfo f(Path("test.0.exr"));
+                f.sequence(FileInfo(Path("test.exr")));
+                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(0, 0));
+            }
+            {
+                FileInfo f(Path("test.1.exr"));
+                f.sequence(FileInfo(Path("test.exr")));
+                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(1, 1));
+            }
+            {
+                FileInfo f(Path("test.exr"));
+                f.sequence(FileInfo(Path("test3.exr")));
+                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(0, 0));
+            }
+            {
+                FileInfo f(Path("test3.exr"));
+                f.sequence(FileInfo(Path("test.exr")));
+                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(3, 3));
             }
         }
 

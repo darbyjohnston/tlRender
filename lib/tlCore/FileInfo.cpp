@@ -33,14 +33,19 @@ namespace tl
 
         void FileInfo::sequence(const FileInfo& value)
         {
-            math::IntRange sequence = _path.getSequence();
-            const math::IntRange& otherSequence = value.getPath().getSequence();
-            sequence.expand(otherSequence.getMin());
-            sequence.expand(otherSequence.getMax());
-            _path.setSequence(sequence);
-            _size += value._size;
-            _permissions = std::min(_permissions, value._permissions);
-            _time = std::max(_time, value._time);
+            if (!_path.getNumber().empty() &&
+                !value._path.getNumber().empty() &&
+                _path.getPadding() == value._path.getPadding())
+            {
+                math::IntRange sequence = _path.getSequence();
+                const math::IntRange& otherSequence = value._path.getSequence();
+                sequence.expand(otherSequence.getMin());
+                sequence.expand(otherSequence.getMax());
+                _path.setSequence(sequence);
+                _size += value._size;
+                _permissions = std::min(_permissions, value._permissions);
+                _time = std::max(_time, value._time);
+            }
         }
 
         TLRENDER_ENUM_IMPL(

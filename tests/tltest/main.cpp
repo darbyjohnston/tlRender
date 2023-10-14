@@ -229,7 +229,7 @@ int main(int argc, char* argv[])
     context->tick();
 
     std::vector<std::shared_ptr<tests::ITest> > tests;
-    //tests.push_back(timeline_tests::PlayerTest::create(context));
+    //tests.push_back(core_tests::FileInfoTest::create(context));
     coreTests(tests, context);
     glTests(tests, context);
     ioTests(tests, context);

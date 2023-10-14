@@ -23,6 +23,7 @@ namespace tl
         private:
             void _enums();
             void _ctors();
+            void _sequence();
             void _list();
             void _serialize();
         };
