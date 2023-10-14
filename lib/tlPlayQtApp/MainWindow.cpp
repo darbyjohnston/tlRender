@@ -20,7 +20,6 @@
 #include <tlPlayQtApp/PlaybackActions.h>
 #include <tlPlayQtApp/RenderActions.h>
 #include <tlPlayQtApp/SecondaryWindow.h>
-#include <tlPlayQtApp/SettingsObject.h>
 #include <tlPlayQtApp/SettingsTool.h>
 #include <tlPlayQtApp/SystemLogTool.h>
 #include <tlPlayQtApp/TimelineActions.h>
@@ -28,6 +27,12 @@
 #include <tlPlayQtApp/ViewActions.h>
 #include <tlPlayQtApp/ViewTool.h>
 #include <tlPlayQtApp/WindowActions.h>
+
+#include <tlPlay/AudioModel.h>
+#include <tlPlay/ColorModel.h>
+#include <tlPlay/FilesModel.h>
+#include <tlPlay/Info.h>
+#include <tlPlay/Settings.h>
 
 #include <tlQtWidget/Spacer.h>
 #include <tlQtWidget/TimeLabel.h>
@@ -37,11 +42,6 @@
 #include <tlQtWidget/Util.h>
 
 #include <tlQt/OutputDevice.h>
-
-#include <tlPlay/AudioModel.h>
-#include <tlPlay/ColorModel.h>
-#include <tlPlay/FilesModel.h>
-#include <tlPlay/Info.h>
 
 #include <tlCore/File.h>
 
@@ -140,8 +140,45 @@ namespace tl
 
             p.app = app;
 
+            auto settings = app->settings();
+            settings->setDefaultValue("MainWindow/Size", math::Size2i(1920, 1080));
+            settings->setDefaultValue("MainWindow/FloatOnTop", false);
+            settings->setDefaultValue("MainWindow/SecondaryFloatOnTop", false);
+            settings->setDefaultValue("Timeline/Editable", true);
+            settings->setDefaultValue("Timeline/EditAssociatedClips",
+                timelineui::ItemOptions().editAssociatedClips);
+            settings->setDefaultValue("Timeline/FrameView", true);
+            settings->setDefaultValue("Timeline/StopOnScrub", true);
+            settings->setDefaultValue("Timeline/Thumbnails",
+                timelineui::ItemOptions().thumbnails);
+            settings->setDefaultValue("Timeline/ThumbnailsSize",
+                timelineui::ItemOptions().thumbnailHeight);
+            settings->setDefaultValue("Timeline/Transitions",
+                timelineui::ItemOptions().showTransitions);
+            settings->setDefaultValue("Timeline/Markers",
+                timelineui::ItemOptions().showMarkers);
+
             setFocusPolicy(Qt::StrongFocus);
             setAcceptDrops(true);
+
+            auto context = app->getContext();
+            p.timelineViewport = new qtwidget::TimelineViewport(context);
+
+            p.timelineWidget = new qtwidget::TimelineWidget(
+                ui::Style::create(context),
+                app->timeUnitsModel(),
+                context);
+            p.timelineWidget->setEditable(settings->getValue<bool>("Timeline/Editable"));
+            p.timelineWidget->setFrameView(settings->getValue<bool>("Timeline/FrameView"));
+            p.timelineWidget->setScrollBarsVisible(false);
+            p.timelineWidget->setStopOnScrub(settings->getValue<bool>("Timeline/StopOnScrub"));
+            timelineui::ItemOptions itemOptions;
+            itemOptions.editAssociatedClips = settings->getValue<bool>("Timeline/EditAssociatedClips");
+            itemOptions.thumbnails = settings->getValue<bool>("Timeline/Thumbnails");
+            itemOptions.thumbnailHeight = settings->getValue<int>("Timeline/ThumbnailsSize");
+            itemOptions.showTransitions = settings->getValue<bool>("Timeline/Transitions");
+            itemOptions.showMarkers = settings->getValue<bool>("Timeline/Markers");
+            p.timelineWidget->setItemOptions(itemOptions);
 
             p.fileActions = new FileActions(app, this);
             p.compareActions = new CompareActions(app, this);
@@ -150,7 +187,7 @@ namespace tl
             p.renderActions = new RenderActions(app, this);
             p.playbackActions = new PlaybackActions(app, this);
             p.frameActions = new FrameActions(app, this);
-            p.timelineActions = new TimelineActions(app, this);
+            p.timelineActions = new TimelineActions(this, this);
             p.audioActions = new AudioActions(app, this);
             p.toolActions = new ToolActions(app, this);
 
@@ -223,15 +260,8 @@ namespace tl
             toolsToolBar->setFloatable(false);
             addToolBar(Qt::TopToolBarArea, toolsToolBar);
 
-            auto context = app->getContext();
-            p.timelineViewport = new qtwidget::TimelineViewport(context);
             setCentralWidget(p.timelineViewport);
 
-            p.timelineWidget = new qtwidget::TimelineWidget(
-                ui::Style::create(context),
-                app->timeUnitsModel(),
-                context);
-            p.timelineWidget->setScrollBarsVisible(false);
             auto timelineDockWidget = new QDockWidget;
             timelineDockWidget->setObjectName("Timeline");
             timelineDockWidget->setWindowTitle(tr("Timeline"));
@@ -406,7 +436,7 @@ namespace tl
 
             p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
                 app->viewportModel()->observeBackgroundOptions(),
-                [this](const timeline::BackgroundOptions&)
+                [this](const timeline::BackgroundOptions& value)
                 {
                     _widgetUpdate();
                 });
@@ -667,89 +697,18 @@ namespace tl
                         static_cast<int>(value));
                 });
 
-            connect(
-                app->settingsObject(),
-                &SettingsObject::valueChanged,
-                [this](const QString& name, const QVariant& value)
-                {
-                    if ("Timeline/Editable" == name)
-                    {
-                        _p->timelineWidget->setEditable(value.toBool());
-                    }
-                    else if ("Timeline/EditAssociatedClips" == name)
-                    {
-                        auto itemOptions = _p->timelineWidget->itemOptions();
-                        itemOptions.editAssociatedClips = value.toBool();
-                        _p->timelineWidget->setItemOptions(itemOptions);
-                    }
-                    else if ("Timeline/FrameView" == name)
-                    {
-                        _p->timelineWidget->setFrameView(value.toBool());
-                    }
-                    else if ("Timeline/StopOnScrub" == name)
-                    {
-                        _p->timelineWidget->setStopOnScrub(value.toBool());
-                    }
-                    else if ("Timeline/Thumbnails" == name)
-                    {
-                        auto itemOptions = _p->timelineWidget->itemOptions();
-                        itemOptions.thumbnails = value.toBool();
-                        _p->timelineWidget->setItemOptions(itemOptions);
-                    }
-                    else if ("Timeline/ThumbnailsSize" == name)
-                    {
-                        auto itemOptions = _p->timelineWidget->itemOptions();
-                        itemOptions.thumbnailHeight = value.toInt();
-                        itemOptions.waveformHeight = itemOptions.thumbnailHeight / 2;
-                        _p->timelineWidget->setItemOptions(itemOptions);
-                    }
-                    else if ("Timeline/Transitions" == name)
-                    {
-                        auto itemOptions = _p->timelineWidget->itemOptions();
-                        itemOptions.showTransitions = value.toBool();
-                        _p->timelineWidget->setItemOptions(itemOptions);
-                    }
-                    else if ("Timeline/Markers" == name)
-                    {
-                        auto itemOptions = _p->timelineWidget->itemOptions();
-                        itemOptions.showMarkers = value.toBool();
-                        _p->timelineWidget->setItemOptions(itemOptions);
-                    }
-                });
-
-            auto settingsObject = app->settingsObject();
-            settingsObject->setDefaultValue("MainWindow/geometry", QByteArray());
-            auto ba = settingsObject->value("MainWindow/geometry").toByteArray();
-            if (!ba.isEmpty())
-            {
-                restoreGeometry(ba);
-            }
-            else
-            {
-                resize(1280, 720);
-            }
-            settingsObject->setDefaultValue("MainWindow/windowState", QByteArray());
-            ba = settingsObject->value("MainWindow/windowState").toByteArray();
-            if (!ba.isEmpty())
-            {
-                restoreState(ba);
-            }
-            settingsObject->setDefaultValue("MainWindow/FloatOnTop", false);
-            p.floatOnTop = settingsObject->value("MainWindow/FloatOnTop").toBool();
+            const math::Size2i windowSize = settings->getValue<math::Size2i>("MainWindow/Size");
+            resize(windowSize.w, windowSize.h);
+            p.floatOnTop = settings->getValue<bool>("MainWindow/FloatOnTop");
             if (p.floatOnTop)
             {
                 setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
-            }
-            else
-            {
-                setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint);
             }
             {
                 QSignalBlocker blocker(p.windowActions->actions()["FloatOnTop"]);
                 p.windowActions->actions()["FloatOnTop"]->setChecked(p.floatOnTop);
             }
-            settingsObject->setDefaultValue("MainWindow/SecondaryFloatOnTop", false);
-            p.secondaryFloatOnTop = settingsObject->value("MainWindow/SecondaryFloatOnTop").toBool();
+            p.secondaryFloatOnTop = settings->getValue<bool>("MainWindow/SecondaryFloatOnTop");
             {
                 QSignalBlocker blocker(p.windowActions->actions()["SecondaryFloatOnTop"]);
                 p.windowActions->actions()["SecondaryFloatOnTop"]->setChecked(p.secondaryFloatOnTop);
@@ -759,15 +718,41 @@ namespace tl
         MainWindow::~MainWindow()
         {
             TLRENDER_P();
-            auto settingsObject = p.app->settingsObject();
-            settingsObject->setValue("MainWindow/geometry", saveGeometry());
-            settingsObject->setValue("MainWindow/windowState", saveState());
-            settingsObject->setValue("MainWindow/FloatOnTop", p.floatOnTop);
-            settingsObject->setValue("MainWindow/SecondaryFloatOnTop", p.secondaryFloatOnTop);
+            auto settings = p.app->settings();
+            settings->setValue("MainWindow/Size", math::Size2i(width(), height()));
+            settings->setValue("MainWindow/FloatOnTop", p.floatOnTop);
+            settings->setValue("MainWindow/SecondaryFloatOnTop", p.secondaryFloatOnTop);
+            settings->setValue("Timeline/Editable",
+                p.timelineWidget->isEditable());
+            const auto& timelineItemOptions = p.timelineWidget->itemOptions();
+            settings->setValue("Timeline/EditAssociatedClips",
+                timelineItemOptions.editAssociatedClips);
+            settings->setValue("Timeline/FrameView",
+                p.timelineWidget->hasFrameView());
+            settings->setValue("Timeline/StopOnScrub",
+                p.timelineWidget->hasStopOnScrub());
+            settings->setValue("Timeline/Thumbnails",
+                timelineItemOptions.thumbnails);
+            settings->setValue("Timeline/ThumbnailsSize",
+                timelineItemOptions.thumbnailHeight);
+            settings->setValue("Timeline/Transitions",
+                timelineItemOptions.showTransitions);
+            settings->setValue("Timeline/Markers",
+                timelineItemOptions.showMarkers);
             if (p.secondaryWindow)
             {
                 p.secondaryWindow->close();
             }
+        }
+
+        qtwidget::TimelineWidget* MainWindow::timelineWidget() const
+        {
+            return _p->timelineWidget;
+        }
+
+        qtwidget::TimelineViewport* MainWindow::timelineViewport() const
+        {
+            return _p->timelineViewport;
         }
 
         void MainWindow::closeEvent(QCloseEvent*)
@@ -1025,18 +1010,6 @@ namespace tl
                 (!p.timelinePlayers.empty() && p.timelinePlayers[0]) ?
                 p.timelinePlayers[0]->player() :
                 nullptr);
-            auto settingsObject = p.app->settingsObject();
-            p.timelineWidget->setEditable(settingsObject->value("Timeline/Editable").toBool());
-            p.timelineWidget->setFrameView(settingsObject->value("Timeline/FrameView").toBool());
-            p.timelineWidget->setStopOnScrub(settingsObject->value("Timeline/StopOnScrub").toBool());
-            auto itemOptions = p.timelineWidget->itemOptions();
-            itemOptions.editAssociatedClips = settingsObject->value("Timeline/EditAssociatedClips").toBool();
-            itemOptions.thumbnails = settingsObject->value("Timeline/Thumbnails").toBool();
-            itemOptions.thumbnailHeight = settingsObject->value("Timeline/ThumbnailsSize").toInt();
-            itemOptions.waveformHeight = itemOptions.thumbnailHeight / 2;
-            itemOptions.showTransitions = settingsObject->value("Timeline/Transitions").toBool();
-            itemOptions.showMarkers = settingsObject->value("Timeline/Markers").toBool();
-            p.timelineWidget->setItemOptions(itemOptions);
 
             {
                 const QSignalBlocker blocker(p.volumeSlider);

@@ -7,7 +7,8 @@
 #include <tlPlayQtApp/DevicesModel.h>
 #include <tlPlayQtApp/MainWindow.h>
 #include <tlPlayQtApp/OpenSeparateAudioDialog.h>
-#include <tlPlayQtApp/SettingsObject.h>
+
+#include <tlPlay/Settings.h>
 
 #include <tlQtWidget/Init.h>
 #include <tlQtWidget/FileBrowserSystem.h>
@@ -73,18 +74,19 @@ namespace tl
 
                 std::string logFileName;
                 bool resetSettings = false;
+                std::string settingsFileName;
             };
         }
 
         struct App::Private
         {
             Options options;
-
             QScopedPointer<qt::ContextObject> contextObject;
             std::shared_ptr<file::FileLogSystem> fileLogSystem;
+            std::string settingsFileName;
+            std::shared_ptr<play::Settings> settings;
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             QScopedPointer<qt::TimeObject> timeObject;
-            QScopedPointer<SettingsObject> settingsObject;
             std::shared_ptr<play::FilesModel> filesModel;
             std::vector<std::shared_ptr<play::FilesModelItem> > files;
             std::vector<std::shared_ptr<play::FilesModelItem> > activeFiles;
@@ -102,11 +104,11 @@ namespace tl
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
             std::shared_ptr<observer::ListObserver<int> > layersObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
             std::shared_ptr<observer::ValueObserver<DevicesModelData> > devicesObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ValueObserver<double> > syncOffsetObserver;
+            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
         };
 
         App::App(
@@ -256,6 +258,11 @@ namespace tl
                         p.options.resetSettings,
                         { "-resetSettings" },
                         "Reset settings to defaults."),
+                    app::CmdLineValueOption<std::string>::create(
+                        p.options.settingsFileName,
+                        { "-settings" },
+                        "Settings file name.",
+                        string::Format("{0}").arg(settingsFileName)),
                 });
             const int exitCode = getExit();
             if (exitCode != 0)
@@ -264,14 +271,6 @@ namespace tl
                 return;
             }
 
-            // Initialize the file log.
-            if (!p.options.logFileName.empty())
-            {
-                logFileName = p.options.logFileName;
-            }
-            p.fileLogSystem = file::FileLogSystem::create(logFileName, context);
-
-            // Initialize Qt.
             setOrganizationName("tlRender");
             setApplicationName(QString::fromUtf8(appName.c_str()));
             setStyle("Fusion");
@@ -279,329 +278,24 @@ namespace tl
             setStyleSheet(qtwidget::styleSheet());
             qtwidget::initFonts(context);
 
-            // Create models and objects.
-            p.contextObject.reset(new qt::ContextObject(context));
-            p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
-            p.timeObject.reset(new qt::TimeObject(p.timeUnitsModel));
-
-            p.settingsObject.reset(new SettingsObject(p.options.resetSettings, p.timeObject.get()));
-            p.settingsObject->setDefaultValue("Cache/Size", 4);
-            p.settingsObject->setDefaultValue(
-                "Cache/ReadAhead",
-                timeline::PlayerCacheOptions().readAhead.value());
-            p.settingsObject->setDefaultValue(
-                "Cache/ReadBehind",
-                timeline::PlayerCacheOptions().readBehind.value());
-            p.settingsObject->setDefaultValue(
-                "FileSequence/Audio",
-                static_cast<int>(timeline::FileSequenceAudio::BaseName));
-            p.settingsObject->setDefaultValue("FileSequence/AudioFileName", "");
-            p.settingsObject->setDefaultValue("FileSequence/AudioDirectory", "");
-            p.settingsObject->setDefaultValue("FileSequence/MaxDigits", 9);
-            p.settingsObject->setDefaultValue("SequenceIO/ThreadCount", 16);
-            p.settingsObject->setDefaultValue("FFmpeg/YUVToRGBConversion", false);
-            p.settingsObject->setDefaultValue("FFmpeg/ThreadCount", 0);
-            timeline::BackgroundOptions backgroundOptions;
-            p.settingsObject->setDefaultValue("Viewport/Background/Type",
-                static_cast<int>(backgroundOptions.type));
-            p.settingsObject->setDefaultValue("Viewport/Background/SolidColor",
-                qtwidget::toQt(backgroundOptions.solidColor));
-            p.settingsObject->setDefaultValue("Viewport/Background/CheckersColor0",
-                qtwidget::toQt(backgroundOptions.checkersColor0));
-            p.settingsObject->setDefaultValue("Viewport/Background/CheckersColor1",
-                qtwidget::toQt(backgroundOptions.checkersColor1));
-            p.settingsObject->setDefaultValue("Viewport/Background/CheckersSize",
-                qtwidget::toQt(backgroundOptions.checkersSize));
-            p.settingsObject->setDefaultValue("Timeline/Editable", false);
-            p.settingsObject->setDefaultValue("Timeline/EditAssociatedClips", true);
-            p.settingsObject->setDefaultValue("Timeline/FrameView", true);
-            p.settingsObject->setDefaultValue("Timeline/StopOnScrub", false);
-            p.settingsObject->setDefaultValue("Timeline/Thumbnails", true);
-            p.settingsObject->setDefaultValue("Timeline/ThumbnailsSize", 100);
-            p.settingsObject->setDefaultValue("Timeline/Transitions", false);
-            p.settingsObject->setDefaultValue("Timeline/Markers", false);
-            p.settingsObject->setDefaultValue(
-                "Performance/TimerMode",
-                static_cast<int>(timeline::PlayerOptions().timerMode));
-            p.settingsObject->setDefaultValue(
-                "Performance/AudioBufferFrameCount",
-                static_cast<int>(timeline::PlayerOptions().audioBufferFrameCount));
-            p.settingsObject->setDefaultValue("Performance/VideoRequestCount", 16);
-            p.settingsObject->setDefaultValue("Performance/AudioRequestCount", 16);
-            p.settingsObject->setDefaultValue("Misc/ToolTipsEnabled", true);
-            connect(
-                p.settingsObject.get(),
-                &SettingsObject::valueChanged,
-                [this](const QString& name, const QVariant& value)
-                {
-                    if ("Cache/Size" == name ||
-                        "Cache/ReadAhead" == name ||
-                        "Cache/ReadBehind" == name)
-                    {
-                        _cacheUpdate();
-                    }
-                    else if ("FileBrowser/NativeFileDialog")
-                    {
-                        if (auto fileBrowserSystem = getContext()->getSystem<qtwidget::FileBrowserSystem>())
-                        {
-                            fileBrowserSystem->setNativeFileDialog(value.toBool());
-                        }
-                    }
-                });
-
-            p.filesModel = play::FilesModel::create(context);
-
-            p.recentFilesModel = ui::RecentFilesModel::create(context);
-            std::vector<file::Path> recent;
-            for (const auto& i : p.settingsObject->recentFiles())
-            {
-                recent.push_back(file::Path(i.toUtf8().data()));
-            }
-            p.recentFilesModel->setRecent(recent);
-
-            p.viewportModel = play::ViewportModel::create(context);
-            backgroundOptions.type = static_cast<timeline::Background>(
-                p.settingsObject->value("Viewport/Background/Type").toInt());
-            backgroundOptions.solidColor = qtwidget::fromQt(
-                p.settingsObject->value("Viewport/Background/SolidColor").value<QColor>());
-            backgroundOptions.checkersColor0 = qtwidget::fromQt(
-                p.settingsObject->value("Viewport/Background/CheckersColor0").value<QColor>());
-            backgroundOptions.checkersColor1 = qtwidget::fromQt(
-                p.settingsObject->value("Viewport/Background/CheckersColor1").value<QColor>());
-            backgroundOptions.checkersSize = qtwidget::fromQt(
-                p.settingsObject->value("Viewport/Background/CheckersSize").toSize());
-            p.viewportModel->setBackgroundOptions(backgroundOptions);
-
-            p.colorModel = play::ColorModel::create(context);
-            p.colorModel->setColorConfigOptions(p.options.colorConfigOptions);
-            p.colorModel->setLUTOptions(p.options.lutOptions);
-
-            p.outputDevice.reset(new qt::OutputDevice(context));
-            connect(
-                p.outputDevice.get(),
-                &qt::OutputDevice::deviceActiveChanged,
-                [this](bool value)
-                {
-                    _p->deviceActive = value;
-                    _audioUpdate();
-                });
-            /*connect(
-                p.outputDevice.get(),
-                &qt::OutputDevice::sizeChanged,
-                [this](const math::Size2i& value)
-                {
-                    std::cout << "output device size: " << value << std::endl;
-                });
-            connect(
-                p.outputDevice,
-                &qt::OutputDevice::frameRateChanged,
-                [this](const otime::RationalTime& value)
-                {
-                    std::cout << "output device frame rate: " << value << std::endl;
-                });*/
-            p.settingsObject->setDefaultValue(
-                "Devices/HDRMode",
-                static_cast<int>(device::HDRMode::FromFile));
-            p.devicesModel = DevicesModel::create(context);
-            p.devicesModel->setDeviceIndex(
-                p.settingsObject->value("Devices/DeviceIndex").toInt());
-            p.devicesModel->setDisplayModeIndex(
-                p.settingsObject->value("Devices/DisplayModeIndex").toInt());
-            p.devicesModel->setPixelTypeIndex(
-                p.settingsObject->value("Devices/PixelTypeIndex").toInt());
-            p.devicesModel->setDeviceEnabled(
-                p.settingsObject->value("Devices/DeviceEnabled").toBool());
-            p.devicesModel->setHDRMode(static_cast<device::HDRMode>(
-                p.settingsObject->value("Devices/HDRMode").toInt()));
-            std::string s = p.settingsObject->value("Devices/HDRData").toString().toUtf8().data();
-            if (!s.empty())
-            {
-                auto json = nlohmann::json::parse(s);
-                image::HDRData hdrData;
-                try
-                {
-                    from_json(json, hdrData);
-                }
-                catch (const std::exception&)
-                {}
-                p.devicesModel->setHDRData(hdrData);
-            }
-
-            p.settingsObject->setDefaultValue("FileBrowser/NativeFileDialog", true);
-            if (auto fileBrowserSystem = _context->getSystem<qtwidget::FileBrowserSystem>())
-            {
-                fileBrowserSystem->setNativeFileDialog(
-                    p.settingsObject->value("FileBrowser/NativeFileDialog").toBool());
-                fileBrowserSystem->setPath(
-                    p.settingsObject->value("FileBrowser/Path").toString().toUtf8().data());
-            }
-
-            p.audioModel = play::AudioModel::create(context);
-
-            // Create observers.
-            p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
-                p.filesModel->observeFiles(),
-                [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
-                {
-                    _filesCallback(value);
-                });
-            p.activeObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
-                p.filesModel->observeActive(),
-                [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
-                {
-                    _activeCallback(value);
-                });
-            p.layersObserver = observer::ListObserver<int>::create(
-                p.filesModel->observeLayers(),
-                [this](const std::vector<int>& value)
-                {
-                    for (size_t i = 0; i < value.size() && i < _p->players.size(); ++i)
-                    {
-                        if (_p->players[i])
-                        {
-                            io::Options ioOptions;
-                            ioOptions["Layer"] = string::Format("{0}").arg(value[i]);
-                            _p->players[i]->setIOOptions(ioOptions);
-                        }
-                    }
-                });
-
-            p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
-                p.viewportModel->observeBackgroundOptions(),
-                [this](const timeline::BackgroundOptions& value)
-                {
-                    _p->settingsObject->setValue("Viewport/Background/Type",
-                        static_cast<int>(value.type));
-                    _p->settingsObject->setValue("Viewport/Background/SolidColor",
-                        qtwidget::toQt(value.solidColor));
-                    _p->settingsObject->setValue("Viewport/Background/CheckersColor0",
-                        qtwidget::toQt(value.checkersColor0));
-                    _p->settingsObject->setValue("Viewport/Background/CheckersColor1",
-                        qtwidget::toQt(value.checkersColor1));
-                    _p->settingsObject->setValue("Viewport/Background/CheckersSize",
-                        qtwidget::toQt(value.checkersSize));
-                });
-
-            p.devicesObserver = observer::ValueObserver<DevicesModelData>::create(
-                p.devicesModel->observeData(),
-                [this](const DevicesModelData& value)
-                {
-                    const device::PixelType pixelType = value.pixelTypeIndex >= 0 &&
-                        value.pixelTypeIndex < value.pixelTypes.size() ?
-                        value.pixelTypes[value.pixelTypeIndex] :
-                        device::PixelType::None;
-                    _p->outputDevice->setDevice(
-                        value.deviceIndex - 1,
-                        value.displayModeIndex - 1,
-                        pixelType);
-                    _p->outputDevice->setDeviceEnabled(value.deviceEnabled);
-                    _p->outputDevice->setHDR(value.hdrMode, value.hdrData);
-                });
-
-            p.volumeObserver = observer::ValueObserver<float>::create(
-                p.audioModel->observeVolume(),
-                [this](float)
-                {
-                    _audioUpdate();
-                });
-            p.muteObserver = observer::ValueObserver<bool>::create(
-                p.audioModel->observeMute(),
-                [this](bool)
-                {
-                    _audioUpdate();
-                });
-            p.syncOffsetObserver = observer::ValueObserver<double>::create(
-                p.audioModel->observeSyncOffset(),
-                [this](double)
-                {
-                    _audioUpdate();
-                });
-
-            // Create the main window.
-            p.mainWindow.reset(new MainWindow(this));
-
-            // Open the input files.
-            if (!p.options.fileName.empty())
-            {
-                if (!p.options.compareFileName.empty())
-                {
-                    open(QString::fromUtf8(p.options.compareFileName.c_str()));
-                    p.filesModel->setCompareOptions(p.options.compareOptions);
-                    p.filesModel->setB(0, true);
-                }
-
-                open(
-                    QString::fromUtf8(p.options.fileName.c_str()),
-                    QString::fromUtf8(p.options.audioFileName.c_str()));
-
-                if (!p.players.empty() && p.players[0])
-                {
-                    if (p.options.speed > 0.0)
-                    {
-                        p.players[0]->setSpeed(p.options.speed);
-                    }
-                    if (time::isValid(p.options.inOutRange))
-                    {
-                        p.players[0]->setInOutRange(p.options.inOutRange);
-                        p.players[0]->seek(p.options.inOutRange.start_time());
-                    }
-                    if (time::isValid(p.options.seek))
-                    {
-                        p.players[0]->seek(p.options.seek);
-                    }
-                    p.players[0]->setLoop(p.options.loop);
-                    p.players[0]->setPlayback(p.options.playback);
-                }
-            }
-
-            p.mainWindow->show();
+            _fileLogInit(logFileName);
+            _settingsInit(settingsFileName);
+            _modelsInit();
+            _observersInit();
+            _inputFilesInit();
+            _mainWindowInit();
         }
 
         App::~App()
         {
             TLRENDER_P();
-            p.mainWindow.reset();
-            if (p.settingsObject)
+            p.settings->setValue("Files/RecentMax", p.recentFilesModel->getRecentMax());
+            std::vector<std::string> recentFiles;
+            for (const auto& i : p.recentFilesModel->getRecent())
             {
-                QList<QString> recent;
-                for (const auto& i : p.recentFilesModel->getRecent())
-                {
-                    recent.push_back(QString::fromUtf8(i.get().c_str()));
-                }
-                p.settingsObject->setRecentFiles(recent);
-
-                if (auto fileBrowserSystem = _context->getSystem<qtwidget::FileBrowserSystem>())
-                {
-                    p.settingsObject->setValue(
-                        "FileBrowser/Path",
-                        QString::fromUtf8(fileBrowserSystem->getPath().c_str()));
-                }
-
-                if (p.devicesModel)
-                {
-                    const auto& deviceData = p.devicesModel->observeData()->get();
-                    p.settingsObject->setValue(
-                        "Devices/DeviceIndex",
-                        deviceData.deviceIndex);
-                    p.settingsObject->setValue(
-                        "Devices/DisplayModeIndex",
-                        deviceData.displayModeIndex);
-                    p.settingsObject->setValue(
-                        "Devices/PixelTypeIndex",
-                        deviceData.pixelTypeIndex);
-                    p.settingsObject->setValue(
-                        "Devices/DeviceEnabled",
-                        deviceData.deviceEnabled);
-                    p.settingsObject->setValue(
-                        "Devices/HDRMode",
-                        static_cast<int>(deviceData.hdrMode));
-                    nlohmann::json json;
-                    to_json(json, deviceData.hdrData);
-                    p.settingsObject->setValue(
-                        "Devices/HDRData",
-                        QString::fromUtf8(json.dump().c_str()));
-                }
+                recentFiles.push_back(i.get());
             }
+            p.settings->setValue("Files/Recent", recentFiles);
         }
 
         const std::shared_ptr<timeline::TimeUnitsModel>& App::timeUnitsModel() const
@@ -614,9 +308,9 @@ namespace tl
             return _p->timeObject.get();
         }
 
-        SettingsObject* App::settingsObject() const
+        const std::shared_ptr<play::Settings>& App::settings() const
         {
-            return _p->settingsObject.get();
+            return _p->settings;
         }
 
         const std::shared_ptr<play::FilesModel>& App::filesModel() const
@@ -654,16 +348,18 @@ namespace tl
             return _p->audioModel;
         }
 
+        MainWindow* App::mainWindow() const
+        {
+            return _p->mainWindow.get();
+        }
+
         void App::open(const QString& fileName, const QString& audioFileName)
         {
             TLRENDER_P();
             file::PathOptions pathOptions;
-            pathOptions.maxNumberDigits = p.settingsObject->value(
-                "FileSequence/MaxDigits").toInt();
-            for (const auto& path : timeline::getPaths(
-                file::Path(fileName.toUtf8().data()),
-                pathOptions,
-                _context))
+            pathOptions.maxNumberDigits = p.settings->getValue<size_t>("FileSequence/MaxDigits");
+            for (const auto& path :
+                timeline::getPaths(file::Path(fileName.toUtf8().data()), pathOptions, _context))
             {
                 auto item = std::make_shared<play::FilesModelItem>();
                 item->path = path;
@@ -735,19 +431,19 @@ namespace tl
                     try
                     {
                         timeline::Options options;
-                        options.fileSequenceAudio = p.settingsObject->value(
-                            "FileSequence/Audio").value<timeline::FileSequenceAudio>();
-                        options.fileSequenceAudioFileName = p.settingsObject->value(
-                            "FileSequence/AudioFileName").toString().toUtf8().data();
-                        options.fileSequenceAudioDirectory = p.settingsObject->value(
-                            "FileSequence/AudioDirectory").toString().toUtf8().data();
-                        options.videoRequestCount = p.settingsObject->value(
-                            "Performance/VideoRequestCount").toInt();
-                        options.audioRequestCount = p.settingsObject->value(
-                            "Performance/AudioRequestCount").toInt();
+                        options.fileSequenceAudio =
+                            p.settings->getValue<timeline::FileSequenceAudio>("FileSequence/Audio");
+                        options.fileSequenceAudioFileName =
+                            p.settings->getValue<std::string>("FileSequence/AudioFileName");
+                        options.fileSequenceAudioDirectory =
+                            p.settings->getValue<std::string>("FileSequence/AudioDirectory");
+                        options.videoRequestCount =
+                            p.settings->getValue<size_t>("Performance/VideoRequestCount");
+                        options.audioRequestCount =
+                            p.settings->getValue<size_t>("Performance/AudioRequestCount");
                         options.ioOptions = _ioOptions();
                         options.pathOptions.maxNumberDigits =
-                            p.settingsObject->value("FileSequence/MaxDigits").toInt();
+                            p.settings->getValue<size_t>("FileSequence/MaxDigits");
                         auto otioTimeline = items[i]->audioPath.isEmpty() ?
                             timeline::create(items[i]->path, _context, options) :
                             timeline::create(items[i]->path, items[i]->audioPath, _context, options);
@@ -764,10 +460,10 @@ namespace tl
                         timeline::PlayerOptions playerOptions;
                         playerOptions.cache.readAhead = time::invalidTime;
                         playerOptions.cache.readBehind = time::invalidTime;
-                        playerOptions.timerMode = p.settingsObject->value(
-                            "Performance/TimerMode").value<timeline::TimerMode>();
-                        playerOptions.audioBufferFrameCount = p.settingsObject->value(
-                            "Performance/AudioBufferFrameCount").toInt();
+                        playerOptions.timerMode =
+                            p.settings->getValue<timeline::TimerMode>("Performance/TimerMode");
+                        playerOptions.audioBufferFrameCount =
+                            p.settings->getValue<size_t>("Performance/AudioBufferFrameCount");
                         auto player = timeline::Player::create(timeline, _context, playerOptions);
                         players[i].reset(new qt::TimelinePlayer(player, _context, this));
 
@@ -785,62 +481,6 @@ namespace tl
 
             p.files = items;
             p.players = players;
-        }
-
-        io::Options App::_ioOptions() const
-        {
-            TLRENDER_P();
-            io::Options out;
-
-            out["SequenceIO/ThreadCount"] = string::Format("{0}").
-                arg(p.settingsObject->value("SequenceIO/ThreadCount").toInt());
-
-#if defined(TLRENDER_FFMPEG)
-            out["FFmpeg/YUVToRGBConversion"] = string::Format("{0}").
-                arg(p.settingsObject->value("FFmpeg/YUVToRGBConversion").toBool());
-            out["FFmpeg/ThreadCount"] = string::Format("{0}").
-                arg(p.settingsObject->value("FFmpeg/ThreadCount").toInt());
-#endif // TLRENDER_FFMPEG
-
-#if defined(TLRENDER_USD)
-            {
-                std::stringstream ss;
-                ss << p.options.usdRenderWidth;
-                out["USD/renderWidth"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << p.options.usdComplexity;
-                out["USD/complexity"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << p.options.usdDrawMode;
-                out["USD/drawMode"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << p.options.usdEnableLighting;
-                out["USD/enableLighting"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << p.options.usdSRGB;
-                out["USD/sRGB"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << p.options.usdStageCache;
-                out["USD/stageCacheCount"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << p.options.usdDiskCache * memory::gigabyte;
-                out["USD/diskCacheByteCount"] = ss.str();
-            }
-#endif // TLRENDER_USD
-
-            return out;
         }
 
         void App::_activeCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >& items)
@@ -882,6 +522,287 @@ namespace tl
             Q_EMIT activePlayersChanged(activePlayers);
         }
 
+        void App::_fileLogInit(const std::string& logFileName)
+        {
+            TLRENDER_P();
+            std::string logFileName2 = logFileName;
+            if (!p.options.logFileName.empty())
+            {
+                logFileName2 = p.options.logFileName;
+            }
+            p.fileLogSystem = file::FileLogSystem::create(logFileName2, _context);
+        }
+
+        void App::_settingsInit(const std::string& settingsFileName)
+        {
+            TLRENDER_P();
+            if (!p.options.settingsFileName.empty())
+            {
+                p.settingsFileName = p.options.settingsFileName;
+            }
+            else
+            {
+                p.settingsFileName = settingsFileName;
+            }
+            p.settings = play::Settings::create(
+                p.settingsFileName,
+                p.options.resetSettings,
+                _context);
+            p.settings->setDefaultValue("Files/RecentMax", 10);
+            p.settings->setDefaultValue("Cache/Size", 4);
+            p.settings->setDefaultValue("Cache/ReadAhead", 2.0);
+            p.settings->setDefaultValue("Cache/ReadBehind", 0.5);
+            p.settings->setDefaultValue("FileSequence/Audio",
+                timeline::FileSequenceAudio::BaseName);
+            p.settings->setDefaultValue("FileSequence/AudioFileName", std::string());
+            p.settings->setDefaultValue("FileSequence/AudioDirectory", std::string());
+            p.settings->setDefaultValue("FileSequence/MaxDigits", 9);
+            p.settings->setDefaultValue("SequenceIO/ThreadCount", 16);
+#if defined(TLRENDER_FFMPEG)
+            p.settings->setDefaultValue("FFmpeg/YUVToRGBConversion", false);
+            p.settings->setDefaultValue("FFmpeg/ThreadCount", 0);
+#endif // TLRENDER_FFMPEG
+#if defined(TLRENDER_USD)
+            p.settings->setDefaultValue("USD/renderWidth", p.options.usdRenderWidth);
+            p.settings->setDefaultValue("USD/complexity", p.options.usdComplexity);
+            p.settings->setDefaultValue("USD/drawMode", p.options.usdDrawMode);
+            p.settings->setDefaultValue("USD/enableLighting", p.options.usdEnableLighting);
+            p.settings->setDefaultValue("USD/sRGB", p.options.usdSRGB);
+            p.settings->setDefaultValue("USD/stageCacheCount", p.options.usdStageCache);
+            p.settings->setDefaultValue("USD/diskCacheByteCount", p.options.usdDiskCache);
+#endif // TLRENDER_USD
+            p.settings->setDefaultValue("FileBrowser/NativeFileDialog", true);
+            p.settings->setDefaultValue("Performance/TimerMode",
+                timeline::PlayerOptions().timerMode);
+            p.settings->setDefaultValue("Performance/AudioBufferFrameCount",
+                timeline::PlayerOptions().audioBufferFrameCount);
+            p.settings->setDefaultValue("Performance/VideoRequestCount", 16);
+            p.settings->setDefaultValue("Performance/AudioRequestCount", 16);
+            p.settings->setDefaultValue("Misc/ToolTipsEnabled", true);
+        }
+
+        void App::_modelsInit()
+        {
+            TLRENDER_P();
+
+            p.contextObject.reset(new qt::ContextObject(_context));
+
+            p.timeUnitsModel = timeline::TimeUnitsModel::create(_context);
+
+            p.timeObject.reset(new qt::TimeObject(p.timeUnitsModel));
+
+            p.filesModel = play::FilesModel::create(_context);
+
+            p.recentFilesModel = ui::RecentFilesModel::create(_context);
+
+            p.viewportModel = play::ViewportModel::create(p.settings, _context);
+
+            p.colorModel = play::ColorModel::create(_context);
+            p.colorModel->setColorConfigOptions(p.options.colorConfigOptions);
+            p.colorModel->setLUTOptions(p.options.lutOptions);
+
+            p.outputDevice.reset(new qt::OutputDevice(_context));
+            connect(
+                p.outputDevice.get(),
+                &qt::OutputDevice::deviceActiveChanged,
+                [this](bool value)
+                {
+                    _p->deviceActive = value;
+                    _audioUpdate();
+                });
+            /*connect(
+                p.outputDevice.get(),
+                &qt::OutputDevice::sizeChanged,
+                [this](const math::Size2i& value)
+                {
+                    std::cout << "output device size: " << value << std::endl;
+                });
+            connect(
+                p.outputDevice,
+                &qt::OutputDevice::frameRateChanged,
+                [this](const otime::RationalTime& value)
+                {
+                    std::cout << "output device frame rate: " << value << std::endl;
+                });*/
+            p.devicesModel = DevicesModel::create(p.settings, _context);
+
+            p.audioModel = play::AudioModel::create(p.settings, _context);
+        }
+
+        void App::_observersInit()
+        {
+            TLRENDER_P();
+
+            p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+                p.filesModel->observeFiles(),
+                [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
+                {
+                    _filesCallback(value);
+                });
+            p.activeObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+                p.filesModel->observeActive(),
+                [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
+                {
+                    _activeCallback(value);
+                });
+            p.layersObserver = observer::ListObserver<int>::create(
+                p.filesModel->observeLayers(),
+                [this](const std::vector<int>& value)
+                {
+                    for (size_t i = 0; i < value.size() && i < _p->players.size(); ++i)
+                    {
+                        if (_p->players[i])
+                        {
+                            io::Options ioOptions;
+                            ioOptions["Layer"] = string::Format("{0}").arg(value[i]);
+                            _p->players[i]->setIOOptions(ioOptions);
+                        }
+                    }
+                });
+
+            p.devicesObserver = observer::ValueObserver<DevicesModelData>::create(
+                p.devicesModel->observeData(),
+                [this](const DevicesModelData& value)
+                {
+                    const device::PixelType pixelType = value.pixelTypeIndex >= 0 &&
+                        value.pixelTypeIndex < value.pixelTypes.size() ?
+                        value.pixelTypes[value.pixelTypeIndex] :
+                        device::PixelType::None;
+                    _p->outputDevice->setDevice(
+                        value.deviceIndex - 1,
+                        value.displayModeIndex - 1,
+                        pixelType);
+                    _p->outputDevice->setDeviceEnabled(value.deviceEnabled);
+                    _p->outputDevice->setHDR(value.hdrMode, value.hdrData);
+                });
+
+            p.volumeObserver = observer::ValueObserver<float>::create(
+                p.audioModel->observeVolume(),
+                [this](float)
+                {
+                    _audioUpdate();
+                });
+            p.muteObserver = observer::ValueObserver<bool>::create(
+                p.audioModel->observeMute(),
+                [this](bool)
+                {
+                    _audioUpdate();
+                });
+            p.syncOffsetObserver = observer::ValueObserver<double>::create(
+                p.audioModel->observeSyncOffset(),
+                [this](double)
+                {
+                    _audioUpdate();
+                });
+
+            p.settingsObserver = observer::ValueObserver<std::string>::create(
+                p.settings->observeValues(),
+                [this](const std::string& name)
+                {
+                    _settingsUpdate(name);
+                });
+        }
+
+        void App::_inputFilesInit()
+        {
+            TLRENDER_P();
+            if (!p.options.fileName.empty())
+            {
+                if (!p.options.compareFileName.empty())
+                {
+                    open(QString::fromUtf8(p.options.compareFileName.c_str()));
+                    p.filesModel->setCompareOptions(p.options.compareOptions);
+                    p.filesModel->setB(0, true);
+                }
+
+                open(
+                    QString::fromUtf8(p.options.fileName.c_str()),
+                    QString::fromUtf8(p.options.audioFileName.c_str()));
+
+                if (!p.players.empty() && p.players[0])
+                {
+                    if (p.options.speed > 0.0)
+                    {
+                        p.players[0]->setSpeed(p.options.speed);
+                    }
+                    if (time::isValid(p.options.inOutRange))
+                    {
+                        p.players[0]->setInOutRange(p.options.inOutRange);
+                        p.players[0]->seek(p.options.inOutRange.start_time());
+                    }
+                    if (time::isValid(p.options.seek))
+                    {
+                        p.players[0]->seek(p.options.seek);
+                    }
+                    p.players[0]->setLoop(p.options.loop);
+                    p.players[0]->setPlayback(p.options.playback);
+                }
+            }
+        }
+
+        void App::_mainWindowInit()
+        {
+            TLRENDER_P();
+            p.mainWindow.reset(new MainWindow(this));
+            p.mainWindow->show();
+        }
+
+        io::Options App::_ioOptions() const
+        {
+            TLRENDER_P();
+            io::Options out;
+
+            out["SequenceIO/ThreadCount"] = string::Format("{0}").
+                arg(p.settings->getValue<int>("SequenceIO/ThreadCount"));
+
+#if defined(TLRENDER_FFMPEG)
+            out["FFmpeg/YUVToRGBConversion"] = string::Format("{0}").
+                arg(p.settings->getValue<bool>("FFmpeg/YUVToRGBConversion"));
+            out["FFmpeg/ThreadCount"] = string::Format("{0}").
+                arg(p.settings->getValue<int>("FFmpeg/ThreadCount"));
+#endif // TLRENDER_FFMPEG
+
+#if defined(TLRENDER_USD)
+            {
+                std::stringstream ss;
+                ss << p.settings->getValue<int>("USD/renderWidth");
+                out["USD/renderWidth"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << p.settings->getValue<float>("USD/complexity");
+                out["USD/complexity"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << p.settings->getValue<usd::DrawMode>("USD/drawMode");
+                out["USD/drawMode"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << p.settings->getValue<bool>("USD/enableLighting");
+                out["USD/enableLighting"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << p.settings->getValue<bool>("USD/sRGB");
+                out["USD/sRGB"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << p.settings->getValue<size_t>("USD/stageCacheCount");
+                out["USD/stageCacheCount"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << p.settings->getValue<size_t>("USD/diskCacheByteCount");
+                out["USD/diskCacheByteCount"] = ss.str();
+            }
+#endif // TLRENDER_USD
+
+            return out;
+        }
+
         QVector<QSharedPointer<qt::TimelinePlayer> > App::_activePlayers() const
         {
             TLRENDER_P();
@@ -905,8 +826,9 @@ namespace tl
         {
             TLRENDER_P();
             const size_t activeCount = p.filesModel->observeActive()->getSize();
+            const double readAhead = p.settings->getValue<double>("Cache/ReadAhead");
             return otime::RationalTime(
-                p.settingsObject->value("Cache/ReadAhead").toDouble() / static_cast<double>(activeCount),
+                activeCount > 0 ? (readAhead / static_cast<double>(activeCount)) : 0.0,
                 1.0);
         }
 
@@ -914,9 +836,65 @@ namespace tl
         {
             TLRENDER_P();
             const size_t activeCount = p.filesModel->observeActive()->getSize();
+            const double readBehind = p.settings->getValue<double>("Cache/ReadBehind");
             return otime::RationalTime(
-                p.settingsObject->value("Cache/ReadBehind").toDouble() / static_cast<double>(activeCount),
+                activeCount > 0 ? (readBehind / static_cast<double>(activeCount)) : 0.0,
                 1.0);
+        }
+
+        void App::_settingsUpdate(const std::string& name)
+        {
+            TLRENDER_P();
+            const auto split = string::split(name, '/');
+            if (!split.empty() || name.empty())
+            {
+                auto ioSystem = _context->getSystem<io::System>();
+                const auto& names = ioSystem->getNames();
+                bool match = false;
+                if (!split.empty())
+                {
+                    match = std::find(names.begin(), names.end(), split[0]) != names.end();
+                }
+                if (match || name.empty())
+                {
+                    const auto ioOptions = _ioOptions();
+                    for (const auto& player : p.players)
+                    {
+                        if (player)
+                        {
+                            player->setIOOptions(ioOptions);
+                        }
+                    }
+                }
+            }
+            if ("Cache/Size" == name ||
+                "Cache/ReadAhead" == name ||
+                "Cache/ReadBehind" == name ||
+                name.empty())
+            {
+                _cacheUpdate();
+            }
+            if ("FileBrowser/NativeFileDialog" == name || name.empty())
+            {
+                auto fileBrowserSystem = _context->getSystem<qtwidget::FileBrowserSystem>();
+                fileBrowserSystem->setNativeFileDialog(
+                    p.settings->getValue<bool>("FileBrowser/NativeFileDialog"));
+            }
+            if ("Files/RecentMax" == name || name.empty())
+            {
+                p.recentFilesModel->setRecentMax(
+                    p.settings->getValue<int>("Files/RecentMax"));
+            }
+            if ("Files/Recent" == name || name.empty())
+            {
+                std::vector<file::Path> recentPaths;
+                for (const auto& recentFile :
+                    p.settings->getValue<std::vector<std::string> >("Files/Recent"))
+                {
+                    recentPaths.push_back(file::Path(recentFile));
+                }
+                p.recentFilesModel->setRecent(recentPaths);
+            }
         }
 
         void App::_cacheUpdate()
@@ -928,7 +906,7 @@ namespace tl
             // Update the I/O cache.
             auto ioSystem = _context->getSystem<io::System>();
             ioSystem->getCache()->setMax(
-                p.settingsObject->value("Cache/Size").toInt() * memory::gigabyte);
+                p.settings->getValue<size_t>("Cache/Size") * memory::gigabyte);
 
             // Update inactive players.
             timeline::PlayerCacheOptions cacheOptions;

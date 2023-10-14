@@ -20,7 +20,6 @@ set(HEADERS
     PlaybackActions.h
     RenderActions.h
     SecondaryWindow.h
-    SettingsObject.h
     SettingsTool.h
     SystemLogTool.h
     TimelineActions.h
@@ -51,7 +50,6 @@ set(SOURCE
     PlaybackActions.cpp
     RenderActions.cpp
     SecondaryWindow.cpp
-    SettingsObject.cpp
     SettingsTool.cpp
     SystemLogTool.cpp
     TimelineActions.cpp

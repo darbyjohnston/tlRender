@@ -87,7 +87,7 @@ namespace tl
         struct MainWindow::Private
         {
             std::weak_ptr<App> app;
-            std::weak_ptr<play::Settings> settings;
+            std::shared_ptr<play::Settings> settings;
             std::shared_ptr<observer::Value<WindowOptions> > windowOptions;
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             std::shared_ptr<ui::DoubleModel> speedModel;
@@ -169,38 +169,24 @@ namespace tl
 
             p.app = app;
 
-            auto settings = app->getSettings();
-            WindowOptions windowOptions;
-            settings->setDefaultValue("Window/Options", windowOptions);
-            settings->getValue("Window/Options", windowOptions);
-            bool editable = true;
-            settings->setDefaultValue("Timeline/Editable", editable);
-            settings->getValue("Timeline/Editable", editable);
-            timelineui::ItemOptions itemOptions;
-            settings->setDefaultValue("Timeline/EditAssociatedClips", itemOptions.editAssociatedClips);
-            settings->getValue("Timeline/EditAssociatedClips", itemOptions.editAssociatedClips);
-            bool frameView = true;
-            settings->setDefaultValue("Timeline/FrameView", frameView);
-            settings->getValue("Timeline/FrameView", frameView);
-            bool stopOnScrub = true;
-            settings->setDefaultValue("Timeline/StopOnScrub", stopOnScrub);
-            settings->getValue("Timeline/FrameView", stopOnScrub);
-            settings->setDefaultValue("Timeline/Thumbnails",
-                itemOptions.thumbnails);
-            settings->getValue("Timeline/Thumbnails", itemOptions.thumbnails);
-            settings->setDefaultValue("Timeline/ThumbnailsSize",
-                itemOptions.thumbnailHeight);
-            settings->getValue("Timeline/ThumbnailsSize", itemOptions.thumbnailHeight);
-            settings->setDefaultValue("Timeline/Transitions",
-                itemOptions.showTransitions);
-            settings->getValue("Timeline/Transitions", itemOptions.showTransitions);
-            settings->setDefaultValue("Timeline/Markers",
-                itemOptions.showMarkers);
-            settings->getValue("Timeline/Markers", itemOptions.showMarkers);
-            p.settings = settings;
+            p.settings = app->getSettings();
+            p.settings->setDefaultValue("Window/Options", WindowOptions());
+            p.settings->setDefaultValue("Timeline/Editable", true);
+            p.settings->setDefaultValue("Timeline/EditAssociatedClips",
+                timelineui::ItemOptions().editAssociatedClips);
+            p.settings->setDefaultValue("Timeline/FrameView", true);
+            p.settings->setDefaultValue("Timeline/StopOnScrub", true);
+            p.settings->setDefaultValue("Timeline/Thumbnails",
+                timelineui::ItemOptions().thumbnails);
+            p.settings->setDefaultValue("Timeline/ThumbnailsSize",
+                timelineui::ItemOptions().thumbnailHeight);
+            p.settings->setDefaultValue("Timeline/Transitions",
+                timelineui::ItemOptions().showTransitions);
+            p.settings->setDefaultValue("Timeline/Markers",
+                timelineui::ItemOptions().showMarkers);
 
             p.windowOptions = observer::Value<WindowOptions>::create(
-                windowOptions);
+                p.settings->getValue<WindowOptions>("Window/Options"));
 
             p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
 
@@ -212,10 +198,16 @@ namespace tl
             p.timelineViewport = timelineui::TimelineViewport::create(context);
 
             p.timelineWidget = timelineui::TimelineWidget::create(p.timeUnitsModel, context);
-            p.timelineWidget->setEditable(editable);
-            p.timelineWidget->setFrameView(frameView);
+            p.timelineWidget->setEditable(p.settings->getValue<bool>("Timeline/Editable"));
+            p.timelineWidget->setFrameView(p.settings->getValue<bool>("Timeline/FrameView"));
             p.timelineWidget->setScrollBarsVisible(false);
-            p.timelineWidget->setStopOnScrub(stopOnScrub);
+            p.timelineWidget->setStopOnScrub(p.settings->getValue<bool>("Timeline/StopOnScrub"));
+            timelineui::ItemOptions itemOptions;
+            itemOptions.editAssociatedClips = p.settings->getValue<bool>("Timeline/EditAssociatedClips");
+            itemOptions.thumbnails = p.settings->getValue<bool>("Timeline/Thumbnails");
+            itemOptions.thumbnailHeight = p.settings->getValue<int>("Timeline/ThumbnailsSize");
+            itemOptions.showTransitions = p.settings->getValue<bool>("Timeline/Transitions");
+            itemOptions.showMarkers = p.settings->getValue<bool>("Timeline/Markers");
             p.timelineWidget->setItemOptions(itemOptions);
 
             p.fileActions = FileActions::create(app, context);
@@ -546,12 +538,8 @@ namespace tl
 
             p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
                 app->getViewportModel()->observeBackgroundOptions(),
-                [this](const timeline::BackgroundOptions& value)
+                [this](const timeline::BackgroundOptions&)
                 {
-                    if (auto settings = _p->settings.lock())
-                    {
-                        settings->setValue("Viewport/Background", value);
-                    }
                     _viewportUpdate();
                 });
 
@@ -598,28 +586,25 @@ namespace tl
         MainWindow::~MainWindow()
         {
             TLRENDER_P();
-            if (auto settings = p.settings.lock())
-            {
-                settings->setValue("Window/Size", _geometry.getSize());
-                settings->setValue("Window/Options", p.windowOptions->get());
-                settings->setValue("Timeline/Editable",
-                    p.timelineWidget->isEditable());
-                const auto& timelineItemOptions = p.timelineWidget->getItemOptions();
-                settings->setValue("Timeline/EditAssociatedClips",
-                    timelineItemOptions.editAssociatedClips);
-                settings->setValue("Timeline/FrameView",
-                    p.timelineWidget->hasFrameView());
-                settings->setValue("Timeline/StopOnScrub",
-                    p.timelineWidget->hasStopOnScrub());
-                settings->setValue("Timeline/Thumbnails",
-                    timelineItemOptions.thumbnails);
-                settings->setValue("Timeline/ThumbnailsSize",
-                    timelineItemOptions.thumbnailHeight);
-                settings->setValue("Timeline/Transitions",
-                    timelineItemOptions.showTransitions);
-                settings->setValue("Timeline/Markers",
-                    timelineItemOptions.showMarkers);
-            }
+            p.settings->setValue("Window/Size", _geometry.getSize());
+            p.settings->setValue("Window/Options", p.windowOptions->get());
+            p.settings->setValue("Timeline/Editable",
+                p.timelineWidget->isEditable());
+            const auto& timelineItemOptions = p.timelineWidget->getItemOptions();
+            p.settings->setValue("Timeline/EditAssociatedClips",
+                timelineItemOptions.editAssociatedClips);
+            p.settings->setValue("Timeline/FrameView",
+                p.timelineWidget->hasFrameView());
+            p.settings->setValue("Timeline/StopOnScrub",
+                p.timelineWidget->hasStopOnScrub());
+            p.settings->setValue("Timeline/Thumbnails",
+                timelineItemOptions.thumbnails);
+            p.settings->setValue("Timeline/ThumbnailsSize",
+                timelineItemOptions.thumbnailHeight);
+            p.settings->setValue("Timeline/Transitions",
+                timelineItemOptions.showTransitions);
+            p.settings->setValue("Timeline/Markers",
+                timelineItemOptions.showMarkers);
         }
 
         std::shared_ptr<MainWindow> MainWindow::create(

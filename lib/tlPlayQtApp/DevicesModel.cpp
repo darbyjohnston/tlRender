@@ -4,6 +4,8 @@
 
 #include <tlPlayQtApp/DevicesModel.h>
 
+#include <tlPlay/Settings.h>
+
 #include <tlDevice/IDeviceSystem.h>
 
 #include <tlCore/Context.h>
@@ -32,6 +34,7 @@ namespace tl
 
         struct DevicesModel::Private
         {
+            std::shared_ptr<play::Settings> settings;
             std::vector<device::DeviceInfo> deviceInfo;
             int deviceIndex = 0;
             int displayModeIndex = 0;
@@ -44,9 +47,35 @@ namespace tl
             std::shared_ptr<observer::ListObserver<device::DeviceInfo> > deviceInfoObserver;
         };
 
-        void DevicesModel::_init(const std::shared_ptr<system::Context>& context)
+        void DevicesModel::_init(
+            const std::shared_ptr<play::Settings>& settings,
+            const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
+
+            p.settings = settings;
+            p.settings->setDefaultValue("Devices/DeviceIndex", p.deviceIndex);
+            p.deviceIndex = p.settings->getValue<int>("Devices/DeviceIndex");
+            p.settings->setDefaultValue("Devices/DisplayModeIndex", p.displayModeIndex);
+            p.displayModeIndex = p.settings->getValue<int>("Devices/DisplayModeIndex");
+            p.settings->setDefaultValue("Devices/PixelTypeIndex", p.pixelTypeIndex);
+            p.pixelTypeIndex = p.settings->getValue<int>("Devices/PixelTypeIndex");
+            p.settings->setDefaultValue("Devices/DeviceEnabled", p.deviceEnabled);
+            p.deviceEnabled = p.settings->getValue<bool>("Devices/DeviceEnabled");
+            p.settings->setDefaultValue("Devices/HDRMode", p.hdrMode);
+            p.hdrMode = p.settings->getValue<device::HDRMode>("Devices/HDRMode");
+            p.settings->setDefaultValue("Devices/HDRData", p.hdrData);
+            std::string hdrData = p.settings->getValue<std::string>("Devices/HDRData");
+            if (!hdrData.empty())
+            {
+                auto json = nlohmann::json::parse(hdrData);
+                try
+                {
+                    from_json(json, p.hdrData);
+                }
+                catch (const std::exception&)
+                {}
+            }
 
             p.data = observer::Value<DevicesModelData>::create();
 
@@ -69,12 +98,22 @@ namespace tl
         {}
 
         DevicesModel::~DevicesModel()
-        {}
+        {
+            TLRENDER_P();
+            p.settings->setValue("Devices/DeviceIndex", p.deviceIndex);
+            p.settings->setValue("Devices/DisplayModeIndex", p.displayModeIndex);
+            p.settings->setValue("Devices/PixelTypeIndex", p.pixelTypeIndex);
+            p.settings->setValue("Devices/DeviceEnabled", p.deviceEnabled);
+            p.settings->setValue("Devices/HDRMode", p.hdrMode);
+            p.settings->setValue("Devices/HDRData", p.hdrData);
+        }
 
-        std::shared_ptr<DevicesModel> DevicesModel::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<DevicesModel> DevicesModel::create(
+            const std::shared_ptr<play::Settings>& settings,
+            const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<DevicesModel>(new DevicesModel);
-            out->_init(context);
+            out->_init(settings, context);
             return out;
         }
 

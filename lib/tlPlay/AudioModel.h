@@ -19,13 +19,17 @@ namespace tl
 
     namespace play
     {
+        class Settings;
+
         //! Audio model.
         class AudioModel : public std::enable_shared_from_this<AudioModel>
         {
             TLRENDER_NON_COPYABLE(AudioModel);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(
+                const std::shared_ptr<Settings>&,
+                const std::shared_ptr<system::Context>&);
 
             AudioModel();
 
@@ -33,7 +37,9 @@ namespace tl
             ~AudioModel();
 
             //! Create a new model.
-            static std::shared_ptr<AudioModel> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<AudioModel> create(
+                const std::shared_ptr<Settings>&,
+                const std::shared_ptr<system::Context>&);
 
             //! Get the volume.
             float getVolume() const;

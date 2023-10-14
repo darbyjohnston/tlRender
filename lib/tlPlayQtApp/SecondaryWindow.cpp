@@ -5,7 +5,8 @@
 #include <tlPlayQtApp/SecondaryWindow.h>
 
 #include <tlPlayQtApp/App.h>
-#include <tlPlayQtApp/SettingsObject.h>
+
+#include <tlPlay/Settings.h>
 
 #include <tlQtWidget/TimelineViewport.h>
 
@@ -41,8 +42,11 @@ namespace tl
             layout->addWidget(p.viewport);
             setLayout(layout);
 
-            app->settingsObject()->setDefaultValue("SecondaryWindow/geometry", QByteArray());
-            auto ba = app->settingsObject()->value("SecondaryWindow/geometry").toByteArray();
+            auto settings = app->settings();
+            std::string geometry;
+            settings->setDefaultValue("SecondaryWindow/geometry", geometry);
+            geometry = settings->getValue<std::string>("SecondaryWindow/geometry");
+            auto ba = QByteArray::fromStdString(geometry);
             if (!ba.isEmpty())
             {
                 restoreGeometry(ba);
@@ -63,7 +67,7 @@ namespace tl
 
         SecondaryWindow::~SecondaryWindow()
         {
-            _p->app->settingsObject()->setValue("SecondaryWindow/geometry", saveGeometry());
+            _p->app->settings()->setValue("SecondaryWindow/geometry", saveGeometry().toStdString());
         }
 
         qtwidget::TimelineViewport* SecondaryWindow::viewport() const

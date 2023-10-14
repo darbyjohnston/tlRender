@@ -58,6 +58,8 @@ namespace tl
             //! Get the item options.
             const timelineui::ItemOptions& itemOptions() const;
 
+            QSize minimumSizeHint() const override;
+
         public Q_SLOTS:
             //! Set whether the timeline is editable.
             void setEditable(bool);

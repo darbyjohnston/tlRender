@@ -27,7 +27,10 @@ namespace tl
             TLRENDER_NON_COPYABLE(Settings);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(
+                const std::string fileName,
+                bool reset,
+                const std::shared_ptr<system::Context>&);
 
             Settings();
 
@@ -36,11 +39,13 @@ namespace tl
 
             //! Create a new settings.
             static std::shared_ptr<Settings> create(
+                const std::string fileName,
+                bool reset,
                 const std::shared_ptr<system::Context>&);
 
             //! Get a value.
             template<typename T>
-            void getValue(const std::string&, T&) const;
+            T getValue(const std::string&) const;
 
             //! Observe value changes.
             std::shared_ptr<observer::IValue<std::string> > observeValues() const;
@@ -56,14 +61,12 @@ namespace tl
             //! Reset the settings to defaults.
             void reset();
 
-            //! Read the values from a file.
-            void read(const std::string&);
-
-            //! Write the value to a file.
-            void write(const std::string&);
-
         private:
+            void _read();
+            void _write();
+
             std::weak_ptr<system::Context> _context;
+            std::string _fileName;
             nlohmann::json _defaultValues;
             nlohmann::json _values;
             std::shared_ptr<observer::Value<std::string> > _observer;

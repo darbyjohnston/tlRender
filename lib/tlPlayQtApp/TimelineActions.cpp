@@ -4,8 +4,9 @@
 
 #include <tlPlayQtApp/TimelineActions.h>
 
-#include <tlPlayQtApp/App.h>
-#include <tlPlayQtApp/SettingsObject.h>
+#include <tlPlayQtApp/MainWindow.h>
+
+#include <tlQtWidget/TimelineWidget.h>
 
 #include <tlQt/MetaTypes.h>
 #include <tlQt/TimeObject.h>
@@ -18,7 +19,7 @@ namespace tl
     {
         struct TimelineActions::Private
         {
-            App* app = nullptr;
+            MainWindow* mainWindow = nullptr;
 
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
@@ -26,13 +27,13 @@ namespace tl
             QScopedPointer<QMenu> menu;
         };
 
-        TimelineActions::TimelineActions(App* app, QObject* parent) :
+        TimelineActions::TimelineActions(MainWindow* mainWindow, QObject* parent) :
             QObject(parent),
             _p(new Private)
         {
             TLRENDER_P();
 
-            p.app = app;
+            p.mainWindow = mainWindow;
 
             p.actions["Editable"] = new QAction(parent);
             p.actions["Editable"]->setCheckable(true);
@@ -100,66 +101,81 @@ namespace tl
             connect(
                 p.actions["Editable"],
                 &QAction::toggled,
-                [app](bool value)
+                [mainWindow](bool value)
                 {
-                    app->settingsObject()->setValue("Timeline/Editable", value);
+                    mainWindow->timelineWidget()->setEditable(value);
                 });
 
             connect(
                 p.actions["EditAssociatedClips"],
                 &QAction::toggled,
-                [app](bool value)
+                [mainWindow](bool value)
                 {
-                    app->settingsObject()->setValue("Timeline/EditAssociatedClips", value);
+                    auto timelineWidget = mainWindow->timelineWidget();
+                    auto itemOptions = timelineWidget->itemOptions();
+                    itemOptions.editAssociatedClips = value;
+                    timelineWidget->setItemOptions(itemOptions);
                 });
 
             connect(
                 p.actions["FrameView"],
                 &QAction::toggled,
-                [app](bool value)
+                [mainWindow](bool value)
                 {
-                    app->settingsObject()->setValue("Timeline/FrameView", value);
+                    mainWindow->timelineWidget()->setFrameView(value);
                 });
 
             connect(
                 p.actions["StopOnScrub"],
                 &QAction::toggled,
-                [app](bool value)
+                [mainWindow](bool value)
                 {
-                    app->settingsObject()->setValue("Timeline/StopOnScrub", value);
+                    mainWindow->timelineWidget()->setStopOnScrub(value);
                 });
 
             connect(
                 p.actions["Thumbnails"],
                 &QAction::toggled,
-                [app](bool value)
+                [mainWindow](bool value)
                 {
-                    app->settingsObject()->setValue("Timeline/Thumbnails", value);
+                    auto timelineWidget = mainWindow->timelineWidget();
+                    auto itemOptions = timelineWidget->itemOptions();
+                    itemOptions.thumbnails = value;
+                    timelineWidget->setItemOptions(itemOptions);
                 });
 
             connect(
                 p.actionGroups["ThumbnailsSize"],
                 &QActionGroup::triggered,
-                [app](QAction* action)
+                [mainWindow](QAction* action)
                 {
                     const int value = action->data().toInt();
-                    app->settingsObject()->setValue("Timeline/ThumbnailsSize", value);
+                    auto timelineWidget = mainWindow->timelineWidget();
+                    auto itemOptions = timelineWidget->itemOptions();
+                    itemOptions.thumbnailHeight = value;
+                    timelineWidget->setItemOptions(itemOptions);
                 });
 
             connect(
                 p.actions["Transitions"],
                 &QAction::toggled,
-                [app](bool value)
+                [mainWindow](bool value)
                 {
-                    app->settingsObject()->setValue("Timeline/Transitions", value);
+                    auto timelineWidget = mainWindow->timelineWidget();
+                    auto itemOptions = timelineWidget->itemOptions();
+                    itemOptions.showTransitions = value;
+                    timelineWidget->setItemOptions(itemOptions);
                 });
 
             connect(
                 p.actions["Markers"],
                 &QAction::toggled,
-                [app](bool value)
+                [mainWindow](bool value)
                 {
-                    app->settingsObject()->setValue("Timeline/Markers", value);
+                    auto timelineWidget = mainWindow->timelineWidget();
+                    auto itemOptions = timelineWidget->itemOptions();
+                    itemOptions.showMarkers = value;
+                    timelineWidget->setItemOptions(itemOptions);
                 });
         }
 
@@ -182,37 +198,37 @@ namespace tl
             {
                 QSignalBlocker blocker(p.actions["Editable"]);
                 p.actions["Editable"]->setChecked(
-                    p.app->settingsObject()->value("Timeline/Editable").toBool());
+                    p.mainWindow->timelineWidget()->isEditable());
             }
             {
                 QSignalBlocker blocker(p.actions["EditAssociatedClips"]);
-                p.actions["EditAssociatedClips"]->setChecked(
-                    p.app->settingsObject()->value("Timeline/EditAssociatedClips").toBool());
+                const auto itemOptions = p.mainWindow->timelineWidget()->itemOptions();
+                p.actions["EditAssociatedClips"]->setChecked(itemOptions.editAssociatedClips);
             }
             {
                 QSignalBlocker blocker(p.actions["FrameView"]);
                 p.actions["FrameView"]->setChecked(
-                    p.app->settingsObject()->value("Timeline/FrameView").toBool());
+                    p.mainWindow->timelineWidget()->hasFrameView());
             }
             {
                 QSignalBlocker blocker(p.actions["StopOnScrub"]);
                 p.actions["StopOnScrub"]->setChecked(
-                    p.app->settingsObject()->value("Timeline/StopOnScrub").toBool());
+                    p.mainWindow->timelineWidget()->hasStopOnScrub());
             }
             {
                 QSignalBlocker blocker(p.actions["Thumbnails"]);
-                p.actions["Thumbnails"]->setChecked(
-                    p.app->settingsObject()->value("Timeline/Thumbnails").toBool());
+                const auto itemOptions = p.mainWindow->timelineWidget()->itemOptions();
+                p.actions["Thumbnails"]->setChecked(itemOptions.thumbnails);
             }
             {
                 QSignalBlocker blocker(p.actionGroups["ThumbnailsSize"]);
                 p.actions["ThumbnailsSize/Small"]->setChecked(false);
                 p.actions["ThumbnailsSize/Medium"]->setChecked(false);
                 p.actions["ThumbnailsSize/Large"]->setChecked(false);
+                const auto itemOptions = p.mainWindow->timelineWidget()->itemOptions();
                 for (auto action : p.actionGroups["ThumbnailsSize"]->actions())
                 {
-                    if (action->data().toInt() ==
-                        p.app->settingsObject()->value("Timeline/ThumbnailsSize").toInt())
+                    if (action->data().toInt() == itemOptions.thumbnailHeight)
                     {
                         action->setChecked(true);
                         break;
@@ -221,13 +237,13 @@ namespace tl
             }
             {
                 QSignalBlocker blocker(p.actions["Transitions"]);
-                p.actions["Transitions"]->setChecked(
-                    p.app->settingsObject()->value("Timeline/Transitions").toBool());
+                const auto itemOptions = p.mainWindow->timelineWidget()->itemOptions();
+                p.actions["Transitions"]->setChecked(itemOptions.showTransitions);
             }
             {
                 QSignalBlocker blocker(p.actions["Markers"]);
-                p.actions["Markers"]->setChecked(
-                    p.app->settingsObject()->value("Timeline/Markers").toBool());
+                const auto itemOptions = p.mainWindow->timelineWidget()->itemOptions();
+                p.actions["Markers"]->setChecked(itemOptions.showMarkers);
             }
         }
     }

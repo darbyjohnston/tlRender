@@ -4,6 +4,8 @@
 
 #include <tlPlay/AudioModel.h>
 
+#include <tlPlay/Settings.h>
+
 #include <tlCore/Math.h>
 
 namespace tl
@@ -12,17 +14,29 @@ namespace tl
     {
         struct AudioModel::Private
         {
+            std::shared_ptr<Settings> settings;
             std::shared_ptr<observer::Value<float> > volume;
             std::shared_ptr<observer::Value<bool> > mute;
             std::shared_ptr<observer::Value<double> > syncOffset;
         };
 
-        void AudioModel::_init(const std::shared_ptr<system::Context>& context)
+        void AudioModel::_init(
+            const std::shared_ptr<Settings>& settings,
+            const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
 
-            p.volume = observer::Value<float>::create(1.F);
-            p.mute = observer::Value<bool>::create(false);
+            p.settings = settings;
+
+            p.settings->setDefaultValue("Audio/Volume", 1.F);
+            p.volume = observer::Value<float>::create(
+                p.settings->getValue<float>("Audio/Volume"));
+
+            p.settings->setDefaultValue("Audio/Mute", false);
+            p.mute = observer::Value<bool>::create(
+                p.settings->getValue<bool>("Audio/Mute"));
+
+            double offset = 0.0;
             p.syncOffset = observer::Value<double>::create(0.0);
         }
 
@@ -33,10 +47,12 @@ namespace tl
         AudioModel::~AudioModel()
         {}
 
-        std::shared_ptr<AudioModel> AudioModel::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<AudioModel> AudioModel::create(
+            const std::shared_ptr<Settings>& settings,
+            const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<AudioModel>(new AudioModel);
-            out->_init(context);
+            out->_init(settings, context);
             return out;
         }
 
@@ -53,6 +69,7 @@ namespace tl
         void AudioModel::setVolume(float value)
         {
             const float tmp = math::clamp(value, 0.F, 1.F);
+            _p->settings->setValue("Audio/Volume", tmp);
             _p->volume->setIfChanged(tmp);
         }
 
@@ -78,6 +95,7 @@ namespace tl
 
         void AudioModel::setMute(bool value)
         {
+            _p->settings->setValue("Audio/Mute", value);
             _p->mute->setIfChanged(value);
         }
 

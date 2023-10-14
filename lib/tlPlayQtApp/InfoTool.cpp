@@ -7,7 +7,6 @@
 #include <tlPlayQtApp/App.h>
 #include <tlPlayQtApp/DockTitleBar.h>
 #include <tlPlayQtApp/InfoModel.h>
-#include <tlPlayQtApp/SettingsObject.h>
 
 #include <tlQtWidget/SearchWidget.h>
 
@@ -27,8 +26,6 @@ namespace tl
     {
         struct InfoTool::Private
         {
-            App* app = nullptr;
-
             TagsModel* tagsModel = nullptr;
             QSortFilterProxyModel* tagsProxyModel = nullptr;
 
@@ -41,8 +38,6 @@ namespace tl
             _p(new Private)
         {
             TLRENDER_P();
-
-            p.app = app;
 
             p.tagsModel = new TagsModel(this);
             p.tagsProxyModel = new QSortFilterProxyModel(this);
@@ -76,23 +71,10 @@ namespace tl
                 SIGNAL(searchChanged(const QString&)),
                 p.tagsProxyModel,
                 SLOT(setFilterFixedString(const QString&)));
-
-            auto settingsObject = app->settingsObject();
-            settingsObject->setDefaultValue("InfoTool/TagsHeader", QByteArray());
-            auto ba = settingsObject->value("InfoTool/TagsHeader").toByteArray();
-            if (!ba.isEmpty())
-            {
-                p.tagsView->header()->restoreState(ba);
-            }
         }
 
         InfoTool::~InfoTool()
-        {
-            TLRENDER_P();
-            p.app->settingsObject()->setValue(
-                "InfoTool/TagsHeader",
-                p.tagsView->header()->saveState());
-        }
+        {}
 
         void InfoTool::setInfo(const io::Info& value)
         {

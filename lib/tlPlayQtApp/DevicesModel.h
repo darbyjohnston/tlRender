@@ -14,6 +14,11 @@
 
 namespace tl
 {
+    namespace play
+    {
+        class Settings;
+    }
+
     namespace system
     {
         class Context;
@@ -44,14 +49,19 @@ namespace tl
             TLRENDER_NON_COPYABLE(DevicesModel);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(
+                const std::shared_ptr<play::Settings>&,
+                const std::shared_ptr<system::Context>&);
+
             DevicesModel();
 
         public:
             ~DevicesModel();
 
             //! Create a new device model.
-            static std::shared_ptr<DevicesModel> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<DevicesModel> create(
+                const std::shared_ptr<play::Settings>&,
+                const std::shared_ptr<system::Context>&);
 
             //! Observe the model data.
             std::shared_ptr<observer::IValue<DevicesModelData> > observeData() const;

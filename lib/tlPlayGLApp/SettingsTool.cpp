@@ -36,6 +36,8 @@ namespace tl
     {
         struct CacheSettingsWidget::Private
         {
+            std::shared_ptr<play::Settings> settings;
+
             std::shared_ptr<ui::IntEdit> cacheSize;
             std::shared_ptr<ui::DoubleEdit> readAhead;
             std::shared_ptr<ui::DoubleEdit> readBehind;
@@ -51,6 +53,8 @@ namespace tl
         {
             IWidget::_init("tl::play_gl::CacheSettingsWidget", context, parent);
             TLRENDER_P();
+
+            p.settings = app->getSettings();
 
             p.cacheSize = ui::IntEdit::create(context);
             p.cacheSize->setRange(math::IntRange(0, 1024));
@@ -81,58 +85,44 @@ namespace tl
             p.readBehind->setParent(p.layout);
             p.layout->setGridPos(p.readBehind, 2, 1);
 
-            auto appWeak = std::weak_ptr<App>(app);
-            p.cacheSize->setCallback(
-                [appWeak](double value)
+            p.settingsObserver = observer::ValueObserver<std::string>::create(
+                app->getSettings()->observeValues(),
+                [this](const std::string& name)
                 {
-                    if (auto app = appWeak.lock())
+                    TLRENDER_P();
+                    if ("Cache/Size" == name || name.empty())
                     {
-                        app->getSettings()->setValue("Cache/Size", value);
+                        p.cacheSize->setValue(
+                            p.settings->getValue<int>("Cache/Size"));
                     }
+                    if ("Cache/ReadAhead" == name || name.empty())
+                    {
+                        p.readAhead->setValue(
+                            p.settings->getValue<double>("Cache/ReadAhead"));
+                    }
+                    if ("Cache/ReadBehind" == name || name.empty())
+                    {
+                        p.readBehind->setValue(
+                            p.settings->getValue<double>("Cache/ReadBehind"));
+                    }
+                });
+
+            p.cacheSize->setCallback(
+                [this](double value)
+                {
+                    _p->settings->setValue("Cache/Size", value);
                 });
 
             p.readAhead->setCallback(
-                [appWeak](double value)
+                [this](double value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue("Cache/ReadAhead", value);
-                    }
+                    _p->settings->setValue("Cache/ReadAhead", value);
                 });
 
             p.readBehind->setCallback(
-                [appWeak](double value)
+                [this](double value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue("Cache/ReadBehind", value);
-                    }
-                });
-
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
-                app->getSettings()->observeValues(),
-                [this, appWeak](const std::string&)
-                {
-                    TLRENDER_P();
-                    if (auto app = appWeak.lock())
-                    {
-                        auto settings = app->getSettings();
-                        {
-                            int value = 0;
-                            settings->getValue<int>("Cache/Size", value);
-                            p.cacheSize->setValue(value);
-                        }
-                        {
-                            double value = 0.0;
-                            settings->getValue<double>("Cache/ReadAhead", value);
-                            p.readAhead->setValue(value);
-                        }
-                        {
-                            double value = 0.0;
-                            settings->getValue<double>("Cache/ReadBehind", value);
-                            p.readBehind->setValue(value);
-                        }
-                    }
+                    _p->settings->setValue("Cache/ReadBehind", value);
                 });
         }
 
@@ -167,6 +157,8 @@ namespace tl
 
         struct FileSequenceSettingsWidget::Private
         {
+            std::shared_ptr<play::Settings> settings;
+
             std::shared_ptr<ui::ComboBox> audioComboBox;
             std::shared_ptr<ui::LineEdit> audioFileNameEdit;
             std::shared_ptr<ui::LineEdit> audioDirectoryEdit;
@@ -184,6 +176,8 @@ namespace tl
         {
             IWidget::_init("tl::play_gl::FileSequenceSettingsWidget", context, parent);
             TLRENDER_P();
+
+            p.settings = app->getSettings();
 
             p.audioComboBox = ui::ComboBox::create(
                 timeline::getFileSequenceAudioLabels(),
@@ -222,88 +216,68 @@ namespace tl
             p.threadsEdit->setParent(p.layout);
             p.layout->setGridPos(p.threadsEdit, 4, 1);
 
-            auto appWeak = std::weak_ptr<App>(app);
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
-                [this, appWeak](const std::string&)
+                [this](const std::string& name)
                 {
                     TLRENDER_P();
-                    if (auto app = appWeak.lock())
+                    if ("FileSequence/Audio" == name || name.empty())
                     {
-                        auto settings = app->getSettings();
-                        {
-                            timeline::FileSequenceAudio value = timeline::FileSequenceAudio::First;
-                            settings->getValue("FileSequence/Audio", value);
-                            p.audioComboBox->setCurrentIndex(static_cast<int>(value));
-                        }
-                        {
-                            std::string value;
-                            settings->getValue("FileSequence/AudioFileName", value);
-                            p.audioFileNameEdit->setText(value);
-                        }
-                        {
-                            std::string value;
-                            settings->getValue("FileSequence/AudioDirectory", value);
-                            p.audioDirectoryEdit->setText(value);
-                        }
-                        {
-                            int value = 0;
-                            settings->getValue("FileSequence/MaxDigits", value);
-                            p.maxDigitsEdit->setValue(value);
-                        }
-                        {
-                            int value = 0;
-                            settings->getValue("SequenceIO/ThreadCount", value);
-                            p.threadsEdit->setValue(value);
-                        }
+                        p.audioComboBox->setCurrentIndex(static_cast<int>(
+                            p.settings->getValue<timeline::FileSequenceAudio>("FileSequence/Audio")));
+                    }
+                    if ("FileSequence/AudioFileName" == name || name.empty())
+                    {
+                        p.audioFileNameEdit->setText(
+                            p.settings->getValue<std::string>("FileSequence/AudioFileName"));
+                    }
+                    if ("FileSequence/AudioDirectory" == name || name.empty())
+                    {
+                        p.audioDirectoryEdit->setText(
+                            p.settings->getValue<std::string>("FileSequence/AudioDirectory"));
+                    }
+                    if ("FileSequence/MaxDigits" == name || name.empty())
+                    {
+                        p.maxDigitsEdit->setValue(
+                            p.settings->getValue<size_t>("FileSequence/MaxDigits"));
+                    }
+                    if ("FileSequence/ThreadCount" == name || name.empty())
+                    {
+                        p.threadsEdit->setValue(
+                            p.settings->getValue<size_t>("SequenceIO/ThreadCount"));
                     }
                 });
 
             p.audioComboBox->setIndexCallback(
-                [appWeak](int value)
+                [this](int value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue(
-                            "FileSequence/Audio",
-                            static_cast<timeline::FileSequenceAudio>(value));
-                    }
+                    _p->settings->setValue(
+                        "FileSequence/Audio",
+                        static_cast<timeline::FileSequenceAudio>(value));
                 });
 
             p.audioFileNameEdit->setTextCallback(
-                [appWeak](const std::string& value)
+                [this](const std::string& value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue("FileSequence/AudioFileName", value);
-                    }
+                    _p->settings->setValue("FileSequence/AudioFileName", value);
                 });
 
             p.audioDirectoryEdit->setTextCallback(
-                [appWeak](const std::string& value)
+                [this](const std::string& value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue("FileSequence/AudioDirectory", value);
-                    }
+                    _p->settings->setValue("FileSequence/AudioDirectory", value);
                 });
 
             p.maxDigitsEdit->setCallback(
-                [appWeak](int value)
+                [this](int value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue("FileSequence/MaxDigits", value);
-                    }
+                    _p->settings->setValue("FileSequence/MaxDigits", value);
                 });
 
             p.threadsEdit->setCallback(
-                [appWeak](int value)
+                [this](int value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue("SequenceIO/ThreadCount", value);
-                    }
+                    _p->settings->setValue("SequenceIO/ThreadCount", value);
                 });
         }
 
@@ -339,6 +313,8 @@ namespace tl
 #if defined(TLRENDER_FFMPEG)
         struct FFmpegSettingsWidget::Private
         {
+            std::shared_ptr<play::Settings> settings;
+
             std::shared_ptr<ui::CheckBox> yuvToRGBCheckBox;
             std::shared_ptr<ui::IntEdit> threadsEdit;
             std::shared_ptr<ui::GridLayout> layout;
@@ -353,6 +329,8 @@ namespace tl
         {
             IWidget::_init("tl::play_gl::FFmpegSettingsWidget", context, parent);
             TLRENDER_P();
+
+            p.settings = app->getSettings();
 
             p.yuvToRGBCheckBox = ui::CheckBox::create(context);
 
@@ -371,48 +349,33 @@ namespace tl
             p.threadsEdit->setParent(p.layout);
             p.layout->setGridPos(p.threadsEdit, 1, 1);
 
-            auto appWeak = std::weak_ptr<App>(app);
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
-                [this, appWeak](const std::string&)
+                [this](const std::string& name)
                 {
                     TLRENDER_P();
-                    if (auto app = appWeak.lock())
+                    if ("FFmpeg/YUVToRGBConversion" == name || name.empty())
                     {
-                        auto settings = app->getSettings();
-                        {
-                            bool value = false;
-                            settings->getValue("FFmpeg/YUVToRGBConversion", value);
-                            p.yuvToRGBCheckBox->setChecked(value);
-                        }
-                        {
-                            int value = 0;
-                            settings->getValue("FFmpeg/ThreadCount", value);
-                            p.threadsEdit->setValue(value);
-                        }
+                        p.yuvToRGBCheckBox->setChecked(
+                            p.settings->getValue<bool>("FFmpeg/YUVToRGBConversion"));
+                    }
+                    if ("FFmpeg/ThreadCount" == name || name.empty())
+                    {
+                        p.threadsEdit->setValue(
+                            p.settings->getValue<size_t>("FFmpeg/ThreadCount"));
                     }
                 });
 
             p.yuvToRGBCheckBox->setCheckedCallback(
-                [appWeak](bool value)
+                [this](bool value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue(
-                            "FFmpeg/YUVToRGBConversion",
-                            value);
-                    }
+                    _p->settings->setValue("FFmpeg/YUVToRGBConversion", value);
                 });
 
             p.threadsEdit->setCallback(
-                [appWeak](int value)
+                [this](int value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue(
-                            "FFmpeg/ThreadCount",
-                            value);
-                    }
+                    _p->settings->setValue("FFmpeg/ThreadCount", value);
                 });
         }
 
@@ -449,6 +412,8 @@ namespace tl
 #if defined(TLRENDER_USD)
         struct USDSettingsWidget::Private
         {
+            std::shared_ptr<play::Settings> settings;
+
             std::shared_ptr<ui::IntEdit> renderWidthEdit;
             std::shared_ptr<ui::FloatEditSlider> complexitySlider;
             std::shared_ptr<ui::ComboBox> drawModeComboBox;
@@ -468,6 +433,8 @@ namespace tl
         {
             IWidget::_init("tl::play_gl::USDSettingsWidget", context, parent);
             TLRENDER_P();
+
+            p.settings = app->getSettings();
 
             p.renderWidthEdit = ui::IntEdit::create(context);
             p.renderWidthEdit->setRange(math::IntRange(1, 8192));
@@ -518,117 +485,89 @@ namespace tl
             p.diskCacheEdit->setParent(p.layout);
             p.layout->setGridPos(p.diskCacheEdit, 6, 1);
 
-            auto appWeak = std::weak_ptr<App>(app);
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
-                [this, appWeak](const std::string&)
+                [this](const std::string& name)
                 {
                     TLRENDER_P();
-                    if (auto app = appWeak.lock())
+                    if ("USD/renderWidth" == name || name.empty())
                     {
-                        auto settings = app->getSettings();
-                        {
-                            int value = 1920;
-                            settings->getValue("USD/renderWidth", value);
-                            p.renderWidthEdit->setValue(value);
-                        }
-                        {
-                            float value = 1.F;
-                            settings->getValue("USD/complexity", value);
-                            p.complexitySlider->setValue(value);
-                        }
-                        {
-                            usd::DrawMode value = usd::DrawMode::ShadedSmooth;
-                            settings->getValue("USD/drawMode", value);
-                            p.drawModeComboBox->setCurrentIndex(static_cast<int>(value));
-                        }
-                        {
-                            bool value = true;
-                            settings->getValue("USD/enableLighting", value);
-                            p.lightingCheckBox->setChecked(value);
-                        }
-                        {
-                            bool value = true;
-                            settings->getValue("USD/sRGB", value);
-                            p.sRGBCheckBox->setChecked(value);
-                        }
-                        {
-                            size_t value = 10;
-                            settings->getValue("USD/stageCacheCount", value);
-                            p.stageCacheEdit->setValue(value);
-                        }
-                        {
-                            size_t value = 0;
-                            settings->getValue("USD/diskCacheByteCount", value);
-                            p.diskCacheEdit->setValue(value / memory::gigabyte);
-                        }
+                        p.renderWidthEdit->setValue(
+                            p.settings->getValue<int>("USD/renderWidth"));
+                    }
+                    if ("USD/complexity" == name || name.empty())
+                    {
+                        p.complexitySlider->setValue(
+                            p.settings->getValue<float>("USD/complexity"));
+                    }
+                    if ("USD/drawMode" == name || name.empty())
+                    {
+                        p.drawModeComboBox->setCurrentIndex(static_cast<int>(
+                            p.settings->getValue<usd::DrawMode>("USD/drawMode")));
+                    }
+                    if ("USD/enableLighting" == name || name.empty())
+                    {
+                        p.lightingCheckBox->setChecked(
+                            p.settings->getValue<bool>("USD/enableLighting"));
+                    }
+                    if ("USD/sRGB" == name || name.empty())
+                    {
+                        p.sRGBCheckBox->setChecked(
+                            p.settings->getValue<bool>("USD/sRGB"));
+                    }
+                    if ("USD/stageCacheCount" == name || name.empty())
+                    {
+                        p.stageCacheEdit->setValue(
+                            p.settings->getValue<size_t>("USD/stageCacheCount"));
+                    }
+                    if ("USD/diskCacheByteCount" == name || name.empty())
+                    {
+                        p.diskCacheEdit->setValue(
+                            p.settings->getValue<size_t>("USD/diskCacheByteCount") / memory::gigabyte);
                     }
                 });
 
             p.renderWidthEdit->setCallback(
-                [appWeak](int value)
+                [this](int value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue("USD/renderWidth", value);
-                    }
+                    _p->settings->setValue("USD/renderWidth", value);
                 });
 
             p.complexitySlider->setCallback(
-                [appWeak](float value)
+                [this](float value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue("USD/complexity", value);
-                    }
+                    _p->settings->setValue("USD/complexity", value);
                 });
 
             p.drawModeComboBox->setIndexCallback(
-                [appWeak](int value)
+                [this](int value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        const usd::DrawMode drawMode = static_cast<usd::DrawMode>(value);
-                        app->getSettings()->setValue("USD/drawMode", drawMode);
-                    }
+                    const usd::DrawMode drawMode = static_cast<usd::DrawMode>(value);
+                    _p->settings->setValue("USD/drawMode", drawMode);
                 });
 
             p.lightingCheckBox->setCheckedCallback(
-                [appWeak](bool value)
+                [this](bool value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue("USD/enableLighting", value);
-                    }
+                    _p->settings->setValue("USD/enableLighting", value);
                 });
 
             p.sRGBCheckBox->setCheckedCallback(
-                [appWeak](bool value)
+                [this](bool value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue("USD/sRGB", value);
-                    }
+                    _p->settings->setValue("USD/sRGB", value);
                 });
 
             p.stageCacheEdit->setCallback(
-                [appWeak](int value)
+                [this](int value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue("USD/stageCacheCount", value);
-                    }
+                    _p->settings->setValue("USD/stageCacheCount", value);
                 });
 
             p.diskCacheEdit->setCallback(
-                [appWeak](int value)
+                [this](int value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue(
-                            "USD/diskCacheByteCount",
-                            value * memory::gigabyte);
-                    }
+                    _p->settings->setValue("USD/diskCacheByteCount", value * memory::gigabyte);
                 });
         }
 
@@ -664,6 +603,8 @@ namespace tl
 
         struct FileBrowserSettingsWidget::Private
         {
+            std::shared_ptr<play::Settings> settings;
+
             std::shared_ptr<ui::CheckBox> nativeFileDialogCheckBox;
             std::shared_ptr<ui::GridLayout> layout;
 
@@ -678,6 +619,8 @@ namespace tl
             IWidget::_init("tl::play_gl::FileBrowserSettingsWidget", context, parent);
             TLRENDER_P();
 
+            p.settings = app->getSettings();
+
             p.nativeFileDialogCheckBox = ui::CheckBox::create(context);
 
             p.layout = ui::GridLayout::create(context, shared_from_this());
@@ -688,30 +631,22 @@ namespace tl
             p.nativeFileDialogCheckBox->setParent(p.layout);
             p.layout->setGridPos(p.nativeFileDialogCheckBox, 0, 1);
 
-            auto appWeak = std::weak_ptr<App>(app);
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
-                [this, appWeak](const std::string&)
+                [this](const std::string& name)
                 {
                     TLRENDER_P();
-                    if (auto app = appWeak.lock())
+                    if ("FileBrowser/NativeFileDialog" == name || name.empty())
                     {
-                        auto settings = app->getSettings();
-                        {
-                            bool value = false;
-                            settings->getValue("FileBrowser/NativeFileDialog", value);
-                            p.nativeFileDialogCheckBox->setChecked(value);
-                        }
+                        p.nativeFileDialogCheckBox->setChecked(
+                            p.settings->getValue<bool>("FileBrowser/NativeFileDialog"));
                     }
                 });
 
             p.nativeFileDialogCheckBox->setCheckedCallback(
-                [appWeak](bool value)
+                [this](bool value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue("FileBrowser/NativeFileDialog", value);
-                    }
+                    _p->settings->setValue("FileBrowser/NativeFileDialog", value);
                 });
         }
 
@@ -746,6 +681,8 @@ namespace tl
 
         struct PerformanceSettingsWidget::Private
         {
+            std::shared_ptr<play::Settings> settings;
+
             std::shared_ptr<ui::ComboBox> timerComboBox;
             std::shared_ptr<ui::IntEdit> audioBufferFramesEdit;
             std::shared_ptr<ui::IntEdit> videoRequestsEdit;
@@ -762,6 +699,8 @@ namespace tl
         {
             IWidget::_init("tl::play_gl::PerformanceSettingsWidget", context, parent);
             TLRENDER_P();
+
+            p.settings = app->getSettings();
 
             p.timerComboBox = ui::ComboBox::create(
                 timeline::getTimerModeLabels(), context);
@@ -800,80 +739,57 @@ namespace tl
             p.audioRequestsEdit->setParent(gridLayout);
             gridLayout->setGridPos(p.audioRequestsEdit, 3, 1);
 
-            auto appWeak = std::weak_ptr<App>(app);
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
-                [this, appWeak](const std::string&)
+                [this](const std::string& name)
                 {
                     TLRENDER_P();
-                    if (auto app = appWeak.lock())
+                    if ("Performance/TimerMode" == name || name.empty())
                     {
-                        auto settings = app->getSettings();
-                        {
-                            timeline::TimerMode value = timeline::TimerMode::First;
-                            settings->getValue("Performance/TimerMode", value);
-                            p.timerComboBox->setCurrentIndex(static_cast<int>(value));
-                        }
-                        {
-                            int value = 0;
-                            settings->getValue("Performance/AudioBufferFrameCount", value);
-                            p.audioBufferFramesEdit->setValue(value);
-                        }
-                        {
-                            int value = 0;
-                            settings->getValue("Performance/VideoRequestCount", value);
-                            p.videoRequestsEdit->setValue(value);
-                        }
-                        {
-                            int value = 0;
-                            settings->getValue("Performance/AudioRequestCount", value);
-                            p.audioRequestsEdit->setValue(value);
-                        }
+                        p.timerComboBox->setCurrentIndex(static_cast<int>(
+                            p.settings->getValue<timeline::TimerMode>("Performance/TimerMode")));
+                    }
+                    if ("Performance/AudioBufferFrameCount" == name || name.empty())
+                    {
+                        p.audioBufferFramesEdit->setValue(
+                            p.settings->getValue<size_t>("Performance/AudioBufferFrameCount"));
+                    }
+                    if ("Performance/VideoRequestCount" == name || name.empty())
+                    {
+                        p.videoRequestsEdit->setValue(
+                            p.settings->getValue<size_t>("Performance/VideoRequestCount"));
+                    }
+                    if ("Performance/AudioRequestCount" == name || name.empty())
+                    {
+                        p.audioRequestsEdit->setValue(
+                            p.settings->getValue<size_t>("Performance/AudioRequestCount"));
                     }
                 });
 
             p.timerComboBox->setIndexCallback(
-                [appWeak](int value)
+                [this](int value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue(
-                            "Performance/TimerMode",
-                            static_cast<timeline::TimerMode>(value));
-                    }
+                    _p->settings->setValue(
+                        "Performance/TimerMode",
+                        static_cast<timeline::TimerMode>(value));
                 });
 
             p.audioBufferFramesEdit->setCallback(
-                [appWeak](int value)
+                [this](int value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue(
-                            "Performance/AudioBufferFrameCount",
-                            value);
-                    }
+                    _p->settings->setValue("Performance/AudioBufferFrameCount", value);
                 });
 
             p.videoRequestsEdit->setCallback(
-                [appWeak](int value)
+                [this](int value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue(
-                            "Performance/VideoRequestCount",
-                            value);
-                    }
+                    _p->settings->setValue("Performance/VideoRequestCount", value);
                 });
 
             p.audioRequestsEdit->setCallback(
-                [appWeak](int value)
+                [this](int value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue(
-                            "Performance/AudioRequestCount",
-                            value);
-                    }
+                    _p->settings->setValue("Performance/AudioRequestCount", value);
                 });
         }
 
@@ -908,6 +824,8 @@ namespace tl
 
         struct StyleSettingsWidget::Private
         {
+            std::shared_ptr<play::Settings> settings;
+
             std::shared_ptr<ui::ComboBox> paletteComboBox;
             std::shared_ptr<ui::GridLayout> layout;
 
@@ -922,6 +840,8 @@ namespace tl
             IWidget::_init("tl::play_gl::StyleSettingsWidget", context, parent);
             TLRENDER_P();
 
+            p.settings = app->getSettings();
+
             p.paletteComboBox = ui::ComboBox::create(getStylePaletteLabels(), context);
 
             p.layout = ui::GridLayout::create(context, shared_from_this());
@@ -932,31 +852,23 @@ namespace tl
             p.paletteComboBox->setParent(p.layout);
             p.layout->setGridPos(p.paletteComboBox, 0, 1);
 
-            auto appWeak = std::weak_ptr<App>(app);
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
-                [this, appWeak](const std::string&)
+                [this](const std::string& name)
                 {
                     TLRENDER_P();
-                    if (auto app = appWeak.lock())
+                    if ("Style/Palette" == name || name.empty())
                     {
-                        auto settings = app->getSettings();
-                        {
-                            StylePalette value = StylePalette::First;
-                            settings->getValue("Style/Palette", value);
-                            p.paletteComboBox->setCurrentIndex(static_cast<int>(value));
-                        }
+                        p.paletteComboBox->setCurrentIndex(static_cast<int>(
+                            p.settings->getValue<StylePalette>("Style/Palette")));
                     }
                 });
 
             p.paletteComboBox->setIndexCallback(
-                [appWeak](int value)
+                [this](int value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        const StylePalette stylePalette = static_cast<StylePalette>(value);
-                        app->getSettings()->setValue("Style/Palette", stylePalette);
-                    }
+                    const StylePalette stylePalette = static_cast<StylePalette>(value);
+                    _p->settings->setValue("Style/Palette", stylePalette);
                 });
         }
 
@@ -991,6 +903,8 @@ namespace tl
 
         struct MiscSettingsWidget::Private
         {
+            std::shared_ptr<play::Settings> settings;
+
             std::shared_ptr<ui::CheckBox> toolTipsEnabledCheckBox;
             std::shared_ptr<ui::GridLayout> layout;
 
@@ -1005,6 +919,8 @@ namespace tl
             IWidget::_init("tl::play_gl::MiscSettingsWidget", context, parent);
             TLRENDER_P();
 
+            p.settings = app->getSettings();
+
             p.toolTipsEnabledCheckBox = ui::CheckBox::create(context);
 
             p.layout = ui::GridLayout::create(context, shared_from_this());
@@ -1015,30 +931,22 @@ namespace tl
             p.toolTipsEnabledCheckBox->setParent(p.layout);
             p.layout->setGridPos(p.toolTipsEnabledCheckBox, 1, 1);
 
-            auto appWeak = std::weak_ptr<App>(app);
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
-                [this, appWeak](const std::string&)
+                [this](const std::string& name)
                 {
                     TLRENDER_P();
-                    if (auto app = appWeak.lock())
+                    if ("Misc/ToolTipsEnabled" == name || name.empty())
                     {
-                        auto settings = app->getSettings();
-                        {
-                            bool value = false;
-                            settings->getValue("Misc/ToolTipsEnabled", value);
-                            p.toolTipsEnabledCheckBox->setChecked(value);
-                        }
+                        p.toolTipsEnabledCheckBox->setChecked(
+                            p.settings->getValue<bool>("Misc/ToolTipsEnabled"));
                     }
                 });
 
             p.toolTipsEnabledCheckBox->setCheckedCallback(
-                [appWeak](bool value)
+                [this](bool value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getSettings()->setValue("Misc/ToolTipsEnabled", value);
-                    }
+                    _p->settings->setValue("Misc/ToolTipsEnabled", value);
                 });
         }
 

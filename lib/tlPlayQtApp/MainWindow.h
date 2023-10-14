@@ -10,6 +10,12 @@
 
 namespace tl
 {
+    namespace qtwidget
+    {
+        class TimelineWidget;
+        class TimelineViewport;
+    }
+
     namespace play_qt
     {
         class App;
@@ -23,6 +29,12 @@ namespace tl
             MainWindow(App*, QWidget* parent = nullptr);
 
             virtual ~MainWindow();
+
+            //! Get the timeline widget;
+            qtwidget::TimelineWidget* timelineWidget() const;
+
+            //! Get the timeline viewport;
+            qtwidget::TimelineViewport* timelineViewport() const;
 
         protected:
             void closeEvent(QCloseEvent*) override;

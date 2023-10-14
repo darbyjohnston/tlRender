@@ -7,8 +7,9 @@ namespace tl
     namespace play
     {
         template<typename T>
-        inline void Settings::getValue(const std::string& key, T& out) const
+        inline T Settings::getValue(const std::string& key) const
         {
+            T out;
             if (_values.contains(key))
             {
                 try
@@ -18,6 +19,7 @@ namespace tl
                 catch (const std::exception&)
                 {}
             }
+            return out;
         }
 
         template<typename T>

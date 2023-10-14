@@ -17,13 +17,17 @@ namespace tl
 
     namespace play
     {
+        class Settings;
+
         //! Viewport model.
         class ViewportModel : public std::enable_shared_from_this<ViewportModel>
         {
             TLRENDER_NON_COPYABLE(ViewportModel);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(
+                const std::shared_ptr<Settings>&,
+                const std::shared_ptr<system::Context>&);
 
             ViewportModel();
 
@@ -31,7 +35,9 @@ namespace tl
             ~ViewportModel();
 
             //! Create a new model.
-            static std::shared_ptr<ViewportModel> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<ViewportModel> create(
+                const std::shared_ptr<Settings>&,
+                const std::shared_ptr<system::Context>&);
 
             //! Get the timeline viewport background options.
             const timeline::BackgroundOptions& getBackgroundOptions() const;

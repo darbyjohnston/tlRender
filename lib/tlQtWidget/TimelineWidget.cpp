@@ -115,7 +115,6 @@ namespace tl
             //surfaceFormat.setStencilBufferSize(8);
             //setFormat(surfaceFormat);
 
-            setMinimumSize(16, 16);
             setMouseTracking(true);
             setFocusPolicy(Qt::StrongFocus);
 
@@ -203,6 +202,11 @@ namespace tl
         const timelineui::ItemOptions& TimelineWidget::itemOptions() const
         {
             return _p->timelineWidget->getItemOptions();
+        }
+
+        QSize TimelineWidget::minimumSizeHint() const
+        {
+            return QSize(150, 150);
         }
 
         void TimelineWidget::setEditable(bool value)

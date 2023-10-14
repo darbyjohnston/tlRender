@@ -16,7 +16,7 @@ namespace tl
 {
     namespace play_qt
     {
-        class App;
+        class MainWindow;
 
         //! Timeline actions.
         class TimelineActions : public QObject
@@ -24,7 +24,7 @@ namespace tl
             Q_OBJECT
 
         public:
-            TimelineActions(App*, QObject* parent = nullptr);
+            TimelineActions(MainWindow*, QObject* parent = nullptr);
 
             virtual ~TimelineActions();
 
