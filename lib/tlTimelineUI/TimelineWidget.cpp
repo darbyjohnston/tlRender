@@ -160,10 +160,14 @@ namespace tl
         {
             TLRENDER_P();
             p.scrollWidget->setScrollPos(math::Vector2i());
-            p.scale = _getTimelineScale();
-            _setItemScale();
-            _updates |= ui::Update::Size;
-            _updates |= ui::Update::Draw;
+            const float scale = _getTimelineScale();
+            if (scale != p.scale)
+            {
+                p.scale = scale;
+                _setItemScale();
+                _updates |= ui::Update::Size;
+                _updates |= ui::Update::Draw;
+            }
         }
 
         bool TimelineWidget::hasFrameView() const
