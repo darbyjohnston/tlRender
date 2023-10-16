@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <stdint.h>
 
 namespace tl
 {
