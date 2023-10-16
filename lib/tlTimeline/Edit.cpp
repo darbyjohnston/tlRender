@@ -70,38 +70,36 @@ namespace tl
             }
         }
 
-        otio::SerializableObject::Retainer<otio::Timeline> insert(
+        otio::SerializableObject::Retainer<otio::Timeline> move(
             const otio::SerializableObject::Retainer<otio::Timeline>& timeline,
-            const std::vector<InsertData>& inserts)
+            const std::vector<MoveData>& moves)
         {
             const std::string s = timeline->to_json_string();
             otio::SerializableObject::Retainer<otio::Timeline> out(
                 dynamic_cast<otio::Timeline*>(otio::Timeline::from_json_string(s)));
 
-            for (const auto& insert : inserts)
+            for (const auto& move : moves)
             {
-                const int oldIndex = getIndex(insert.composable);
-                const int oldTrackIndex = getIndex(insert.composable->parent());
-                if (oldIndex != -1 &&
-                    oldTrackIndex != -1 &&
-                    insert.trackIndex >= 0 &&
-                    insert.trackIndex < out->tracks()->children().size())
+                if (move.fromTrack >= 0 &&
+                    move.fromTrack < out->tracks()->children().size() &&
+                    move.toTrack >= 0 &&
+                    move.toTrack < out->tracks()->children().size())
                 {
-                    int insertIndex = insert.insertIndex;
-                    if (oldTrackIndex == insert.trackIndex && oldIndex < insertIndex)
+                    int toIndex = move.toIndex;
+                    if (move.fromTrack == move.toTrack && move.fromIndex < toIndex)
                     {
-                        --insertIndex;
+                        --toIndex;
                     }
                     if (auto track = otio::dynamic_retainer_cast<otio::Track>(
-                        out->tracks()->children()[oldTrackIndex]))
+                        out->tracks()->children()[move.fromTrack]))
                     {
-                        auto child = track->children()[oldIndex];
-                        track->remove_child(oldIndex);
+                        auto child = track->children()[move.fromIndex];
+                        track->remove_child(move.fromIndex);
 
                         if (auto track = otio::dynamic_retainer_cast<otio::Track>(
-                            out->tracks()->children()[insert.trackIndex]))
+                            out->tracks()->children()[move.toTrack]))
                         {
-                            track->insert_child(insertIndex, child);
+                            track->insert_child(toIndex, child);
                         }
                     }
                 }

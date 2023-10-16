@@ -532,16 +532,16 @@ namespace tl
             if (!p.mouse.items.empty() && p.mouse.currentDropTarget != -1)
             {
                 const auto& dropTarget = p.mouse.dropTargets[p.mouse.currentDropTarget];
-                std::vector<timeline::InsertData> insertData;
+                std::vector<timeline::MoveData> moveData;
                 for (const auto& item : p.mouse.items)
                 {
                     const int track = dropTarget.track + (item->track - p.mouse.items[0]->track);
-                    insertData.push_back({ item->p->getComposable(), track, dropTarget.index });
+                    moveData.push_back({ item->track, item->index, track, dropTarget.index });
                     item->p->setVisible(false);
                 }
-                auto otioTimeline = insert(
+                auto otioTimeline = timeline::move(
                     p.player->getTimeline()->getTimeline().value,
-                    insertData);
+                    moveData);
                 p.player->getTimeline()->setTimeline(otioTimeline);
             }
             p.mouse.items.clear();

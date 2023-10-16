@@ -49,10 +49,10 @@ namespace tl
 
         void EditTest::run()
         {
-            _insert();
+            _move();
         }
 
-        void EditTest::_insert()
+        void EditTest::_move()
         {
             {
                 otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(new otio::Timeline);
@@ -65,16 +65,19 @@ namespace tl
                         otime::RationalTime(0.0, 24.0),
                         otime::RationalTime(24.0, 24.0))));
 
-                InsertData insertData;
-                insertData.composable = getChild(otioTimeline, 0, 0);
-                insertData.trackIndex = 0;
-                insertData.insertIndex = 0;
-                auto otioTimeline2 = insert(otioTimeline, { insertData });
+                MoveData moveData;
+                moveData.fromTrack = 0;
+                moveData.fromIndex = 0;
+                moveData.toTrack = 0;
+                moveData.toIndex = 0;
+                auto otioTimeline2 = move(otioTimeline, { moveData });
                 TLRENDER_ASSERT("Video 0" == getChild(otioTimeline2, 0, 0)->name());
 
-                insertData.composable = getChild(otioTimeline2, 0, 0);
-                insertData.insertIndex = 1;
-                auto otioTimeline3 = insert(otioTimeline2, { insertData });
+                moveData.fromTrack = 0;
+                moveData.fromIndex = 0;
+                moveData.toTrack = 0;
+                moveData.toIndex = 1;
+                auto otioTimeline3 = move(otioTimeline2, { moveData });
                 TLRENDER_ASSERT("Video 0" == getChild(otioTimeline3, 0, 0)->name());
             }
             {
@@ -94,17 +97,20 @@ namespace tl
                         otime::RationalTime(0.0, 24.0),
                         otime::RationalTime(24.0, 24.0))));
 
-                InsertData insertData;
-                insertData.composable = getChild(otioTimeline, 0, 0);
-                insertData.trackIndex = 0;
-                insertData.insertIndex = 2;
-                auto otioTimeline2 = insert(otioTimeline, { insertData });
+                MoveData moveData;
+                moveData.fromTrack = 0;
+                moveData.fromIndex = 0;
+                moveData.toTrack = 0;
+                moveData.toIndex = 2;
+                auto otioTimeline2 = move(otioTimeline, { moveData });
                 TLRENDER_ASSERT("Video 1" == getChild(otioTimeline2, 0, 0)->name());
                 TLRENDER_ASSERT("Video 0" == getChild(otioTimeline2, 0, 1)->name());
 
-                insertData.composable = getChild(otioTimeline2, 0, 1);
-                insertData.insertIndex = 0;
-                auto otioTimeline3 = insert(otioTimeline2, { insertData });
+                moveData.fromTrack = 0;
+                moveData.fromIndex = 1;
+                moveData.toTrack = 0;
+                moveData.toIndex = 0;
+                auto otioTimeline3 = move(otioTimeline2, { moveData });
                 TLRENDER_ASSERT("Video 0" == getChild(otioTimeline3, 0, 0)->name());
                 TLRENDER_ASSERT("Video 1" == getChild(otioTimeline3, 0, 1)->name());
             }
@@ -131,18 +137,21 @@ namespace tl
                         otime::RationalTime(0.0, 24.0),
                         otime::RationalTime(24.0, 24.0))));
 
-                InsertData insertData;
-                insertData.composable = getChild(otioTimeline, 0, 2);
-                insertData.trackIndex = 0;
-                insertData.insertIndex = 0;
-                auto otioTimeline2 = insert(otioTimeline, { insertData });
+                MoveData moveData;
+                moveData.fromTrack = 0;
+                moveData.fromIndex = 2;
+                moveData.toTrack = 0;
+                moveData.toIndex = 0;
+                auto otioTimeline2 = move(otioTimeline, { moveData });
                 TLRENDER_ASSERT("Video 2" == getChild(otioTimeline2, 0, 0)->name());
                 TLRENDER_ASSERT("Video 0" == getChild(otioTimeline2, 0, 1)->name());
                 TLRENDER_ASSERT("Video 1" == getChild(otioTimeline2, 0, 2)->name());
 
-                insertData.composable = getChild(otioTimeline2, 0, 1);
-                insertData.insertIndex = 3;
-                auto otioTimeline3 = insert(otioTimeline2, { insertData });
+                moveData.fromTrack = 0;
+                moveData.fromIndex = 1;
+                moveData.toTrack = 0;
+                moveData.toIndex = 3;
+                auto otioTimeline3 = move(otioTimeline2, { moveData });
                 TLRENDER_ASSERT("Video 2" == getChild(otioTimeline3, 0, 0)->name());
                 TLRENDER_ASSERT("Video 1" == getChild(otioTimeline3, 0, 1)->name());
                 TLRENDER_ASSERT("Video 0" == getChild(otioTimeline3, 0, 2)->name());
@@ -190,10 +199,10 @@ namespace tl
                         otime::RationalTime(0.0, 48000.0),
                         otime::RationalTime(48000.0, 48000.0))));
 
-                std::vector<InsertData> insertData;
-                insertData.push_back({ getChild(otioTimeline, 0, 2), 0, 0 });
-                insertData.push_back({ getChild(otioTimeline, 1, 2), 1, 0 });
-                auto otioTimeline2 = insert(otioTimeline, insertData);
+                std::vector<MoveData> moveData;
+                moveData.push_back({ 0, 2, 0, 0 });
+                moveData.push_back({ 1, 2, 1, 0 });
+                auto otioTimeline2 = move(otioTimeline, moveData);
                 TLRENDER_ASSERT("Video 2" == getChild(otioTimeline2, 0, 0)->name());
                 TLRENDER_ASSERT("Video 0" == getChild(otioTimeline2, 0, 1)->name());
                 TLRENDER_ASSERT("Video 1" == getChild(otioTimeline2, 0, 2)->name());
@@ -201,10 +210,10 @@ namespace tl
                 TLRENDER_ASSERT("Audio 0" == getChild(otioTimeline2, 1, 1)->name());
                 TLRENDER_ASSERT("Audio 1" == getChild(otioTimeline2, 1, 2)->name());
 
-                insertData.clear();
-                insertData.push_back({ getChild(otioTimeline, 0, 1), 0, 3 });
-                insertData.push_back({ getChild(otioTimeline, 1, 1), 1, 3 });
-                auto otioTimeline3 = insert(otioTimeline2, insertData);
+                moveData.clear();
+                moveData.push_back({ 0, 1, 0, 3 });
+                moveData.push_back({ 1, 1, 1, 3 });
+                auto otioTimeline3 = move(otioTimeline2, moveData);
                 TLRENDER_ASSERT("Video 2" == getChild(otioTimeline3, 0, 0)->name());
                 TLRENDER_ASSERT("Video 1" == getChild(otioTimeline3, 0, 1)->name());
                 TLRENDER_ASSERT("Video 0" == getChild(otioTimeline3, 0, 2)->name());
@@ -225,16 +234,19 @@ namespace tl
                 otioTrack = new otio::Track("Video", otio::nullopt, otio::Track::Kind::video);
                 otioTimeline->tracks()->append_child(otioTrack);
 
-                InsertData insertData;
-                insertData.composable = getChild(otioTimeline, 0, 0);
-                insertData.trackIndex = 1;
-                insertData.insertIndex = 0;
-                auto otioTimeline2 = insert(otioTimeline, { insertData });
+                MoveData moveData;
+                moveData.fromTrack = 0;
+                moveData.fromIndex = 0;
+                moveData.toTrack = 1;
+                moveData.toIndex = 0;
+                auto otioTimeline2 = move(otioTimeline, { moveData });
                 TLRENDER_ASSERT("Video 0" == getChild(otioTimeline2, 1, 0)->name());
 
-                insertData.composable = getChild(otioTimeline2, 1, 0);
-                insertData.trackIndex = 0;
-                auto otioTimeline3 = insert(otioTimeline2, { insertData });
+                moveData.fromTrack = 1;
+                moveData.fromIndex = 0;
+                moveData.toTrack = 0;
+                moveData.toIndex = 0;
+                auto otioTimeline3 = move(otioTimeline2, { moveData });
                 TLRENDER_ASSERT("Video 0" == getChild(otioTimeline3, 0, 0)->name());
             }
         }
