@@ -74,10 +74,13 @@ namespace tl
                                 -1);
                         }
                     });
-                p.actions[labels[i]]->toolTip = string::Format(toolTips[i]).
-                    arg(ui::getLabel(
-                        p.actions[labels[i]]->shortcut,
-                        p.actions[labels[i]]->shortcutModifiers));
+                if (!toolTips[i].empty())
+                {
+                    p.actions[labels[i]]->toolTip = string::Format(toolTips[i]).
+                        arg(ui::getLabel(
+                            p.actions[labels[i]]->shortcut,
+                            p.actions[labels[i]]->shortcutModifiers));
+                }
             }
         }
 
