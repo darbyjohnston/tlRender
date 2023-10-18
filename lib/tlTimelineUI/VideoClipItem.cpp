@@ -10,6 +10,7 @@
 #include <tlTimeline/RenderUtil.h>
 #include <tlTimeline/Util.h>
 
+#include <tlCore/Assert.h>
 #include <tlCore/StringFormat.h>
 
 namespace tl
@@ -18,7 +19,6 @@ namespace tl
     {
         struct VideoClipItem::Private
         {
-            otio::SerializableObject::Retainer<otio::Clip> clip;
             file::Path path;
             std::vector<file::MemoryRead> memoryRead;
             std::weak_ptr<ui::ThumbnailSystem> thumbnailSystem;
@@ -59,7 +59,6 @@ namespace tl
                 parent);
             TLRENDER_P();
 
-            p.clip = clip;
             p.path = path;
             p.memoryRead = timeline::getMemoryRead(clip->media_reference());
             p.thumbnailSystem = context->getSystem<ui::ThumbnailSystem>();
@@ -91,11 +90,6 @@ namespace tl
             auto out = std::shared_ptr<VideoClipItem>(new VideoClipItem);
             out->_init(clip, scale, options, itemData, context, parent);
             return out;
-        }
-
-        const otio::SerializableObject::Retainer<otio::Clip>& VideoClipItem::getClip() const
-        {
-            return _p->clip;
         }
 
         void VideoClipItem::setScale(double value)
@@ -264,7 +258,8 @@ namespace tl
                             _timeRange.duration().rate()));
                         const otime::RationalTime mediaTime = timeline::toVideoMediaTime(
                             time,
-                            p.clip,
+                            _timeRange,
+                            _trimmedRange,
                             p.ioInfo->videoTime.duration().rate());
 
                         const auto i = _data->thumbnails.find(_getThumbnailKey(mediaTime));

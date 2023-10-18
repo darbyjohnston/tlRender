@@ -5,8 +5,10 @@
 #include <tlTimelineTest/EditTest.h>
 
 #include <tlTimeline/Edit.h>
+#include <tlTimeline/Util.h>
 
 #include <tlCore/Assert.h>
+#include <tlCore/Path.h>
 #include <tlCore/StringFormat.h>
 
 #include <opentimelineio/clip.h>
@@ -248,6 +250,12 @@ namespace tl
                 moveData.toIndex = 0;
                 auto otioTimeline3 = move(otioTimeline2, { moveData });
                 TLRENDER_ASSERT("Video 0" == getChild(otioTimeline3, 0, 0)->name());
+            }
+            {
+                std::string fileName = file::Path(TLRENDER_SAMPLE_DATA, "Gap.otio").get();
+                otio::SerializableObject::Retainer<otio::Timeline> timeline(
+                    dynamic_cast<otio::Timeline*>(otio::Timeline::from_json_file(fileName)));
+                writeOTIOZ("Gap.otioz", timeline, TLRENDER_SAMPLE_DATA);
             }
         }
     }

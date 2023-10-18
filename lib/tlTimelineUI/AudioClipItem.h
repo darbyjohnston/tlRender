@@ -38,9 +38,6 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Get the associated clip.
-            const otio::SerializableObject::Retainer<otio::Clip>& getClip() const;
-
             void setScale(double) override;
             void setOptions(const ItemOptions&) override;
 

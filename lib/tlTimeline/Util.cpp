@@ -16,6 +16,11 @@
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/imageSequenceReference.h>
 
+#include <mz.h>
+#include <mz_strm.h>
+#include <mz_zip.h>
+#include <mz_zip_rw.h>
+
 namespace tl
 {
     namespace timeline
@@ -493,32 +498,244 @@ namespace tl
 
         otime::RationalTime toVideoMediaTime(
             const otime::RationalTime& time,
-            const otio::Clip* clip,
+            const otime::TimeRange& trimmedRangeInParent,
+            const otime::TimeRange& trimmedRange,
             double rate)
         {
-            otime::RationalTime clipTime;
-            if (auto parent = clip->parent())
-            {
-                clipTime = parent->transformed_time(time, clip);
-            }
-            const auto mediaTime = time::round(clipTime.rescaled_to(rate));
-            return mediaTime;
+            otime::RationalTime out =
+                time - trimmedRangeInParent.start_time() + trimmedRange.start_time();
+            out = time::round(out.rescaled_to(rate));
+            return out;
         }
 
         otime::TimeRange toAudioMediaTime(
             const otime::TimeRange& timeRange,
-            const otio::Clip* clip,
+            const otime::TimeRange& trimmedRangeInParent,
+            const otime::TimeRange& trimmedRange,
             double sampleRate)
         {
-            otime::TimeRange clipRange;
-            if (auto parent = clip->parent())
+            otime::TimeRange out = otime::TimeRange(
+                timeRange.start_time() - trimmedRangeInParent.start_time() + trimmedRange.start_time(),
+                timeRange.duration());
+            out = otime::TimeRange(
+                time::round(out.start_time().rescaled_to(sampleRate)),
+                time::round(out.duration().rescaled_to(sampleRate)));
+            return out;
+        }
+
+        namespace
+        {
+            class OTIOZWriter
             {
-                clipRange = parent->transformed_time_range(timeRange, clip);
+            public:
+                OTIOZWriter(
+                    const std::string& fileName,
+                    const otio::SerializableObject::Retainer<otio::Timeline>&,
+                    const std::string& directory = std::string());
+
+                ~OTIOZWriter();
+
+            private:
+                void _addCompressed(
+                    const std::string& content,
+                    const std::string& fileNameInZip);
+                void _addUncompressed(
+                    const std::string& fileName,
+                    const std::string& fileNameInZip);
+
+                static std::string _getMediaFileName(
+                    const std::string& url,
+                    const std::string& directory);
+                static std::string _getFileNameInZip(const std::string& url);
+                static std::string _normzalizePathSeparators(const std::string&);
+                static bool _isFileNameAbsolute(const std::string&);
+
+                void* _writer = nullptr;
+            };
+
+            OTIOZWriter::OTIOZWriter(
+                const std::string& fileName,
+                const otio::SerializableObject::Retainer<otio::Timeline>& timeline,
+                const std::string& directory)
+            {
+                // Copy the timeline.
+                otio::SerializableObject::Retainer<otio::Timeline> timelineCopy(
+                    dynamic_cast<otio::Timeline*>(
+                        otio::Timeline::from_json_string(timeline->to_json_string())));
+
+                // Find the media references.
+                std::map<std::string, std::string> mediaFilesNames;
+                std::string directoryTmp = _normzalizePathSeparators(directory);
+                if (!directoryTmp.empty() && directoryTmp.back() != '/')
+                {
+                    directoryTmp += '/';
+                }
+                for (const auto& clip : timelineCopy->clip_if())
+                {
+                    if (auto ref = dynamic_cast<otio::ExternalReference*>(clip->media_reference()))
+                    {
+                        const std::string& url = ref->target_url();
+                        const std::string mediaFileName = _getMediaFileName(url, directoryTmp);
+                        const std::string fileNameInZip = _getFileNameInZip(url);
+                        mediaFilesNames[mediaFileName] = fileNameInZip;
+                        ref->set_target_url(fileNameInZip);
+                    }
+                }
+
+                // Open the output file.
+                mz_zip_writer_create(&_writer);
+                if (!_writer)
+                {
+                    throw std::runtime_error("Cannot create writer");
+                }
+                int32_t err = mz_zip_writer_open_file(_writer, fileName.c_str(), 0, 0);
+                if (err != MZ_OK)
+                {
+                    throw std::runtime_error("Cannot open output file");
+                }
+
+                // Add the content and version files.
+                _addCompressed(timelineCopy->to_json_string(), "content.otio");
+                _addCompressed("1.0.0", "version.txt");
+
+                // Add the media files.
+                for (const auto& i : mediaFilesNames)
+                {
+                    _addUncompressed(i.first, i.second);
+                }
+
+                // Close the file.
+                err = mz_zip_writer_close(_writer);
+                if (err != MZ_OK)
+                {
+                    throw std::runtime_error("Cannot close output file");
+                }
             }
-            const otime::TimeRange mediaRange(
-                time::round(clipRange.start_time().rescaled_to(sampleRate)),
-                time::round(clipRange.duration().rescaled_to(sampleRate)));
-            return mediaRange;
+
+            OTIOZWriter::~OTIOZWriter()
+            {
+                if (_writer)
+                {
+                    mz_zip_writer_delete(&_writer);
+                }
+            }
+
+            void OTIOZWriter::_addCompressed(
+                const std::string& content,
+                const std::string& fileNameInZip)
+            {
+                mz_zip_file fileInfo;
+                memset(&fileInfo, 0, sizeof(mz_zip_file));
+                mz_zip_writer_set_compress_level(_writer, MZ_COMPRESS_LEVEL_NORMAL);
+                fileInfo.compression_method = MZ_COMPRESS_METHOD_DEFLATE;
+                fileInfo.filename = fileNameInZip.c_str();
+                int32_t err = mz_zip_writer_add_buffer(
+                    _writer,
+                    (void*)content.c_str(),
+                    content.size(),
+                    &fileInfo);
+                if (err != MZ_OK)
+                {
+                    throw std::runtime_error("Cannot add file");
+                }
+            }
+
+            void OTIOZWriter::_addUncompressed(
+                const std::string& fileName,
+                const std::string& fileNameInZip)
+            {
+                mz_zip_writer_set_compress_method(
+                    _writer,
+                    MZ_COMPRESS_METHOD_STORE);
+                int32_t err = mz_zip_writer_add_file(
+                    _writer,
+                    fileName.c_str(),
+                    fileNameInZip.c_str());
+                if (err != MZ_OK)
+                {
+                    throw std::runtime_error("Cannot add file: " + fileName);
+                }
+            }
+
+            std::string OTIOZWriter::_getFileNameInZip(const std::string& url)
+            {                
+                std::string::size_type r = url.rfind('/');
+                if (std::string::npos == r)
+                {
+                    r = url.rfind('\\');
+                }
+                const std::string fileName =
+                    std::string::npos == r ?
+                    url :
+                    url.substr(r);
+                return "media/" + fileName;
+            }
+
+            std::string OTIOZWriter::_getMediaFileName(
+                const std::string& url,
+                const std::string& directory)
+            {
+                std::string fileName = url;
+                if ("file://" == fileName.substr(7))
+                {
+                    fileName.erase(0, 7);
+                }
+                if (!_isFileNameAbsolute(fileName))
+                {
+                    fileName = directory + fileName;
+                }
+                return fileName;
+            }
+
+            std::string OTIOZWriter::_normzalizePathSeparators(const std::string& fileName)
+            {
+                std::string out = fileName;
+                for (size_t i = 0; i < out.size(); ++i)
+                {
+                    if ('\\' == out[i])
+                    {
+                        out[i] = '/';
+                    }
+                }
+                return out;
+            }
+
+            bool OTIOZWriter::_isFileNameAbsolute(const std::string& fileName)
+            {
+                bool out = false;
+                if (!fileName.empty() && '/' == fileName[0])
+                {
+                    out = true;
+                }
+                else if (!fileName.empty() && '\\' == fileName[0])
+                {
+                    out = true;
+                }
+                else if (fileName.size() >= 2 &&
+                    (fileName[0] >= 'A' && fileName[0] <= 'Z' ||
+                        fileName[0] >= 'a' && fileName[0] <= 'z') &&
+                    ':' == fileName[1])
+                {
+                    out = true;
+                }
+                return out;
+            }
+        }
+
+        bool writeOTIOZ(
+            const std::string& fileName,
+            const otio::SerializableObject::Retainer<otio::Timeline>& timeline,
+            const std::string& directory)
+        {
+            bool out = false;
+            try
+            {
+                OTIOZWriter(fileName, timeline, directory);
+                out = true;
+            }
+            catch (const std::exception&)
+            {}
+            return out;
         }
     }
 }

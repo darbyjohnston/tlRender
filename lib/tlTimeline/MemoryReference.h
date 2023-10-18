@@ -165,17 +165,21 @@ namespace tl
             };
 
             ZipMemoryReference(
-                const std::shared_ptr<file::FileIO>& fileIO = nullptr,
+                const std::shared_ptr<file::FileIO>& file_io = nullptr,
                 const std::string& target_url = std::string(),
                 const uint8_t* memory = nullptr,
                 size_t memory_size = 0,
                 const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
                 const otio::AnyDictionary& metadata = otio::AnyDictionary());
 
+            const std::shared_ptr<file::FileIO>& file_io() const noexcept;
+
+            void set_file_io(const std::shared_ptr<file::FileIO>&);
+
         protected:
             virtual ~ZipMemoryReference();
 
-            std::shared_ptr<file::FileIO> _fileIO;
+            std::shared_ptr<file::FileIO> _file_io;
         };
 
         //! Zip file memory sequence reference for .otioz support.
@@ -189,17 +193,21 @@ namespace tl
             };
 
             ZipMemorySequenceReference(
-                const std::shared_ptr<file::FileIO>& fileIO = nullptr,
+                const std::shared_ptr<file::FileIO>& file_io = nullptr,
                 const std::string& target_url = std::string(),
                 const std::vector<const uint8_t*>& memory = {},
                 const std::vector<size_t> memory_sizes = {},
                 const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
                 const otio::AnyDictionary& metadata = otio::AnyDictionary());
 
+            const std::shared_ptr<file::FileIO>& file_io() const noexcept;
+
+            void set_file_io(const std::shared_ptr<file::FileIO>&);
+
         protected:
             virtual ~ZipMemorySequenceReference();
 
-            std::shared_ptr<file::FileIO> _fileIO;
+            std::shared_ptr<file::FileIO> _file_io;
         };
     }
 }

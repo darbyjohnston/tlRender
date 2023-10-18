@@ -386,37 +386,6 @@ namespace tl
                     event.accept = true;
                     setFrameView(true);
                     break;
-                /*case ui::Key::E:
-                {
-                    event.accept = true;
-                    if (p.player)
-                    {
-                        otio::ErrorStatus error;
-                        auto json = p.player->getTimeline()->getTimeline()->to_json_string(&error);
-                        otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(
-                            dynamic_cast<otio::Timeline*>(otio::Timeline::from_json_string(json)));
-                        auto videoTracks = otioTimeline->video_tracks();
-                        if (!videoTracks.empty())
-                        {
-                            const auto children = videoTracks[0]->children();
-                            std::vector<otio::Composable*> childrenTmp;
-                            for (const auto& child : children)
-                            {
-                                childrenTmp.push_back(child.value);
-                            }
-                            videoTracks[0]->clear_children();
-                            if (children.size() > 1)
-                            {
-                                auto child = childrenTmp[1];
-                                childrenTmp[1] = childrenTmp[0];
-                                childrenTmp[0] = child;
-                                videoTracks[0]->set_children(childrenTmp, &error);
-                            }
-                        }
-                        p.player->getTimeline()->setTimeline(otioTimeline);
-                    }
-                    break;
-                }*/
                 default: break;
                 }
             }

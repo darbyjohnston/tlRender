@@ -82,7 +82,7 @@ namespace tl
             p.context = context;
             p.options = options;
             p.otioTimeline = otioTimeline;
-            const auto i = otioTimeline->metadata().find("tl::timeline");
+            const auto i = otioTimeline->metadata().find("tlRender");
             if (i != otioTimeline->metadata().end())
             {
                 try

@@ -497,11 +497,13 @@ namespace tl
             std::future<io::VideoData> out;
             io::Options optionsMerged = io::merge(options, this->options.ioOptions);
             ReadCacheItem item = getRead(clip, optionsMerged);
-            if (item.read)
+            const auto timeRangeOpt = clip->trimmed_range_in_parent();
+            if (item.read && timeRangeOpt.has_value())
             {
                 const auto mediaTime = timeline::toVideoMediaTime(
                     time,
-                    clip,
+                    timeRangeOpt.value(),
+                    clip->trimmed_range(),
                     item.ioInfo.videoTime.duration().rate());
                 out = item.read->readVideo(mediaTime, optionsMerged);
             }
@@ -516,11 +518,13 @@ namespace tl
             std::future<io::AudioData> out;
             io::Options optionsMerged = io::merge(options, this->options.ioOptions);
             ReadCacheItem item = getRead(clip, optionsMerged);
-            if (item.read)
+            const auto timeRangeOpt = clip->trimmed_range_in_parent();
+            if (item.read && timeRangeOpt.has_value())
             {
                 const auto mediaRange = timeline::toAudioMediaTime(
                     timeRange,
-                    clip,
+                    timeRangeOpt.value(),
+                    clip->trimmed_range(),
                     item.ioInfo.audio.sampleRate);
                 out = item.read->readAudio(mediaRange, optionsMerged);
             }

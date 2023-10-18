@@ -13,7 +13,11 @@ namespace tl
 {
     namespace timeline
     {
-        //! Move data.
+        //! Copy the given timeline.
+        otio::SerializableObject::Retainer<otio::Timeline> copy(
+            const otio::SerializableObject::Retainer<otio::Timeline>&);
+
+        //! Move items data.
         struct MoveData
         {
             int fromTrack = 0;
@@ -22,7 +26,7 @@ namespace tl
             int toIndex   = 0;
         };
 
-        //! Move the given items.
+        //! Move items in the timeline.
         otio::SerializableObject::Retainer<otio::Timeline> move(
             const otio::SerializableObject::Retainer<otio::Timeline>&,
             const std::vector<MoveData>&);

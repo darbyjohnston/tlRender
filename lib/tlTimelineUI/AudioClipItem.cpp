@@ -10,6 +10,7 @@
 #include <tlTimeline/RenderUtil.h>
 #include <tlTimeline/Util.h>
 
+#include <tlCore/Assert.h>
 #include <tlCore/StringFormat.h>
 
 namespace tl
@@ -18,7 +19,6 @@ namespace tl
     {
         struct AudioClipItem::Private
         {
-            otio::SerializableObject::Retainer<otio::Clip> clip;
             file::Path path;
             std::vector<file::MemoryRead> memoryRead;
             std::weak_ptr<ui::ThumbnailSystem> thumbnailSystem;
@@ -59,7 +59,6 @@ namespace tl
                 parent);
             TLRENDER_P();
 
-            p.clip = clip;
             p.path = path;
             p.memoryRead = timeline::getMemoryRead(clip->media_reference());
             p.thumbnailSystem = context->getSystem<ui::ThumbnailSystem>();
@@ -91,11 +90,6 @@ namespace tl
             auto out = std::shared_ptr<AudioClipItem>(new AudioClipItem);
             out->_init(clip, scale, options, itemData, context, parent);
             return out;
-        }
-
-        const otio::SerializableObject::Retainer<otio::Clip>& AudioClipItem::getClip() const
-        {
-            return _p->clip;
         }
 
         void AudioClipItem::setScale(double value)
@@ -270,7 +264,8 @@ namespace tl
                             _timeRange.duration().rate()));
                         const otime::TimeRange mediaRange = timeline::toAudioMediaTime(
                             otime::TimeRange::range_from_start_end_time(time, time2),
-                            p.clip,
+                            _timeRange,
+                            _trimmedRange,
                             p.ioInfo->audio.sampleRate);
 
                         const auto i = _data->waveforms.find(_getWaveformKey(mediaRange));

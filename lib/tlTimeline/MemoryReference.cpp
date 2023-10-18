@@ -160,31 +160,51 @@ namespace tl
         }
 
         ZipMemoryReference::ZipMemoryReference(
-            const std::shared_ptr<file::FileIO>& fileIO,
+            const std::shared_ptr<file::FileIO>& file_io,
             const std::string& target_url,
             const uint8_t* memory,
             size_t memory_size,
             const otio::optional<otio::TimeRange>& available_range,
             const otio::AnyDictionary& metadata) :
             RawMemoryReference(target_url, memory, memory_size, available_range, metadata),
-            _fileIO(fileIO)
+            _file_io(file_io)
         {}
 
         ZipMemoryReference::~ZipMemoryReference()
         {}
 
+        const std::shared_ptr<file::FileIO>& ZipMemoryReference::file_io() const noexcept
+        {
+            return _file_io;
+        }
+
+        void ZipMemoryReference::set_file_io(const std::shared_ptr<file::FileIO>& file_io)
+        {
+            _file_io = file_io;
+        }
+
         ZipMemorySequenceReference::ZipMemorySequenceReference(
-            const std::shared_ptr<file::FileIO>& fileIO,
+            const std::shared_ptr<file::FileIO>& file_io,
             const std::string& target_url,
             const std::vector<const uint8_t*>& memory,
             const std::vector<size_t> memory_sizes,
             const otio::optional<otio::TimeRange>& available_range,
             const otio::AnyDictionary& metadata) :
             RawMemorySequenceReference(target_url, memory, memory_sizes, available_range, metadata),
-            _fileIO(fileIO)
+            _file_io(file_io)
         {}
 
         ZipMemorySequenceReference::~ZipMemorySequenceReference()
         {}
+
+        const std::shared_ptr<file::FileIO>& ZipMemorySequenceReference::file_io() const noexcept
+        {
+            return _file_io;
+        }
+
+        void ZipMemorySequenceReference::set_file_io(const std::shared_ptr<file::FileIO>&file_io)
+        {
+            _file_io = file_io;
+        }
     }
 }

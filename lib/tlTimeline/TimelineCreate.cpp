@@ -17,7 +17,7 @@
 #include <opentimelineio/imageSequenceReference.h>
 
 #include <mz.h>
-#include "mz_strm.h"
+#include <mz_strm.h>
 #include <mz_zip.h>
 #include <mz_zip_rw.h>
 
@@ -575,7 +575,7 @@ namespace tl
             otio::AnyDictionary dict;
             dict["path"] = path.get();
             dict["audioPath"] = audioPath.get();
-            out->metadata()["tl::timeline"] = dict;
+            out->metadata()["tlRender"] = dict;
 
             return out;
         }

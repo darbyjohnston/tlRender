@@ -120,10 +120,14 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
+            const otime::TimeRange timeRange = player->getTimeRange();
+            const otime::TimeRange trimmedRange(
+                otime::RationalTime(0.0, timeRange.duration().rate()),
+                timeRange.duration());
             IItem::_init(
                 "tl::timelineui::TimelineItem",
-                stack.value,
-                player->getTimeRange(),
+                timeRange,
+                trimmedRange,
                 scale,
                 options,
                 itemData,

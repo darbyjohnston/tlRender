@@ -7,6 +7,7 @@
 #include <tlTimeline/Player.h>
 
 #include <opentimelineio/mediaReference.h>
+#include <opentimelineio/timeline.h>
 
 namespace tl
 {
@@ -88,14 +89,22 @@ namespace tl
         //! Transform track time to video media time.
         otime::RationalTime toVideoMediaTime(
             const otime::RationalTime&,
-            const otio::Clip*,
+            const otime::TimeRange& trimmedRangeInParent,
+            const otime::TimeRange& trimmedRange,
             double rate);
 
         //! Transform track time to audio media time.
         otime::TimeRange toAudioMediaTime(
             const otime::TimeRange&,
-            const otio::Clip*,
+            const otime::TimeRange& trimmedRangeInParent,
+            const otime::TimeRange& trimmedRange,
             double sampleRate);
+
+        //! Write a timeline to an .otioz file.
+        bool writeOTIOZ(
+            const std::string& fileName,
+            const otio::SerializableObject::Retainer<otio::Timeline>&,
+            const std::string& directory = std::string());
     }
 }
 

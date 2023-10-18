@@ -106,8 +106,8 @@ namespace tl
 
         void IItem::_init(
             const std::string& objectName,
-            const otio::SerializableObject::Retainer<otio::Composable>& composable,
             const otime::TimeRange& timeRange,
+            const otime::TimeRange& trimmedRange,
             double scale,
             const ItemOptions& options,
             const std::shared_ptr<ItemData>& data,
@@ -118,9 +118,9 @@ namespace tl
             TLRENDER_P();
 
             _timeRange = timeRange;
+            _trimmedRange = trimmedRange;
             _scale = scale;
             _options = options;
-            _composable = composable;
             _data = data;
 
             p.timeUnitsObserver = observer::ValueObserver<bool>::create(
@@ -137,11 +137,6 @@ namespace tl
 
         IItem::~IItem()
         {}
-
-        const otio::SerializableObject::Retainer<otio::Composable>& IItem::getComposable() const
-        {
-            return _composable;
-        }
 
         const otime::TimeRange& IItem::getTimeRange() const
         {
