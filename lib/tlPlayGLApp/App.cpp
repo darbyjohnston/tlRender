@@ -250,7 +250,7 @@ namespace tl
                 _context);
             p.settings->setDefaultValue("Files/RecentMax", 10);
             p.settings->setDefaultValue("Window/Size", _options.windowSize);
-            p.settings->setDefaultValue("Cache/Size", 4);
+            p.settings->setDefaultValue("Cache/Size", 1);
             p.settings->setDefaultValue("Cache/ReadAhead", 2.0);
             p.settings->setDefaultValue("Cache/ReadBehind", 0.5);
             p.settings->setDefaultValue("FileSequence/Audio",

@@ -16,7 +16,7 @@ namespace tl
     {
         struct Cache::Private
         {
-            size_t max = 4 * memory::gigabyte;
+            size_t max = memory::gigabyte;
             memory::LRUCache<std::string, VideoData> video;
             memory::LRUCache<std::string, AudioData> audio;
             std::mutex mutex;
