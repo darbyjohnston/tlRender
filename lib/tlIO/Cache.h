@@ -51,7 +51,7 @@ namespace tl
                 const otime::RationalTime&,
                 const Options&) const;
 
-            //! Get video.
+            //! Get video from the cache.
             bool getVideo(
                 const std::string& fileName,
                 const otime::RationalTime&,

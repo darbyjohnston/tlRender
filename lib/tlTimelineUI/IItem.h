@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlUI/IWidget.h>
+#include <tlUI/ThumbnailSystem.h>
 
 #include <tlTimeline/TimeUnits.h>
 #include <tlTimeline/Timeline.h>

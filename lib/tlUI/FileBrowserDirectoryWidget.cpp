@@ -18,6 +18,7 @@ namespace tl
             std::string path;
             FileBrowserOptions options;
             std::vector<file::FileInfo> fileInfos;
+            std::shared_ptr<ThumbnailGenerator> thumbnailGenerator;
             std::vector<std::shared_ptr<Button> > buttons;
             std::map<std::shared_ptr<Button>, size_t> buttonToIndex;
             std::shared_ptr<ButtonGroup> buttonGroup;
@@ -39,6 +40,8 @@ namespace tl
             TLRENDER_P();
 
             setBackgroundRole(ColorRole::Base);
+            
+            p.thumbnailGenerator = ThumbnailGenerator::create(context);
 
             p.buttonGroup = ButtonGroup::create(ButtonGroupType::Click, context);
 
@@ -230,7 +233,11 @@ namespace tl
                     }
                     if (keep)
                     {
-                        auto button = Button::create(fileInfo, p.options, context);
+                        auto button = Button::create(
+                            fileInfo,
+                            p.options,
+                            p.thumbnailGenerator,
+                            context);
                         button->setParent(p.layout);
                         p.buttons.push_back(button);
                         p.buttonToIndex[button] = i;

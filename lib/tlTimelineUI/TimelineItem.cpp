@@ -29,6 +29,7 @@ namespace tl
             timeline::PlayerCacheInfo cacheInfo;
             bool editable = false;
             bool stopOnScrub = true;
+            std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator;
 
             struct Track
             {
@@ -139,6 +140,8 @@ namespace tl
             _setMousePress(true, 0, 0);
 
             p.player = player;
+            
+            p.thumbnailGenerator = ui::ThumbnailGenerator::create(context);
 
             const auto otioTimeline = p.player->getTimeline()->getTimeline();
             int trackIndex = 0;
@@ -187,6 +190,7 @@ namespace tl
                                     scale,
                                     options,
                                     itemData,
+                                    p.thumbnailGenerator,
                                     context,
                                     shared_from_this()));
                                 break;
@@ -196,6 +200,7 @@ namespace tl
                                     scale,
                                     options,
                                     itemData,
+                                    p.thumbnailGenerator,
                                     context,
                                     shared_from_this()));
                                 break;

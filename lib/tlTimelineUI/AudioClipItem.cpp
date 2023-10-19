@@ -5,7 +5,6 @@
 #include <tlTimelineUI/AudioClipItem.h>
 
 #include <tlUI/DrawUtil.h>
-#include <tlUI/ThumbnailSystem.h>
 
 #include <tlTimeline/RenderUtil.h>
 #include <tlTimeline/Util.h>
@@ -21,7 +20,7 @@ namespace tl
         {
             file::Path path;
             std::vector<file::MemoryRead> memoryRead;
-            std::weak_ptr<ui::ThumbnailSystem> thumbnailSystem;
+            std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator;
 
             struct SizeData
             {
@@ -40,6 +39,7 @@ namespace tl
             double scale,
             const ItemOptions& options,
             const std::shared_ptr<ItemData>& itemData,
+            const std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -61,7 +61,7 @@ namespace tl
 
             p.path = path;
             p.memoryRead = timeline::getMemoryRead(clip->media_reference());
-            p.thumbnailSystem = context->getSystem<ui::ThumbnailSystem>();
+            p.thumbnailGenerator = thumbnailGenerator;
 
             const auto i = itemData->info.find(path.get());
             if (i != itemData->info.end())
@@ -76,6 +76,7 @@ namespace tl
 
         AudioClipItem::~AudioClipItem()
         {
+            TLRENDER_P();
             _cancelRequests();
         }
 
@@ -84,11 +85,12 @@ namespace tl
             double scale,
             const ItemOptions& options,
             const std::shared_ptr<ItemData>& itemData,
+            const std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<AudioClipItem>(new AudioClipItem);
-            out->_init(clip, scale, options, itemData, context, parent);
+            out->_init(clip, scale, options, itemData, thumbnailGenerator, context, parent);
             return out;
         }
 
@@ -227,18 +229,17 @@ namespace tl
             const math::Box2i clipRect = _getClipRect(
                 drawRect,
                 _options.clipRectScale);
-            auto thumbnailSystem = p.thumbnailSystem.lock();
             if (g.intersects(clipRect))
             {
-                if (!p.ioInfo && !p.infoRequest.future.valid() && thumbnailSystem)
+                if (!p.ioInfo && !p.infoRequest.future.valid())
                 {
-                    p.infoRequest = thumbnailSystem->getInfo(
+                    p.infoRequest = p.thumbnailGenerator->getInfo(
                         p.path,
                         p.memoryRead);
                 }
             }
 
-            if (_options.waveformWidth > 0 && p.ioInfo && thumbnailSystem)
+            if (_options.waveformWidth > 0 && p.ioInfo)
             {
                 const int w = _sizeHint.w;
                 for (int x = 0; x < w; x += _options.waveformWidth)
@@ -284,7 +285,7 @@ namespace tl
                             const auto j = p.waveformRequests.find(mediaRange.start_time());
                             if (j == p.waveformRequests.end())
                             {
-                                p.waveformRequests[mediaRange.start_time()] = thumbnailSystem->getWaveform(
+                                p.waveformRequests[mediaRange.start_time()] = p.thumbnailGenerator->getWaveform(
                                     p.path,
                                     p.memoryRead,
                                     box.getSize(),
@@ -299,21 +300,18 @@ namespace tl
         void AudioClipItem::_cancelRequests()
         {
             TLRENDER_P();
-            if (auto thumbnailSystem = p.thumbnailSystem.lock())
+            std::vector<uint64_t> ids;
+            if (p.infoRequest.future.valid())
             {
-                std::vector<uint64_t> ids;
-                if (p.infoRequest.future.valid())
-                {
-                    ids.push_back(p.infoRequest.id);
-                    p.infoRequest = ui::InfoRequest();
-                }
-                for (const auto& i : p.waveformRequests)
-                {
-                    ids.push_back(i.second.id);
-                }
-                p.waveformRequests.clear();
-                thumbnailSystem->cancelRequests(ids);
+                ids.push_back(p.infoRequest.id);
+                p.infoRequest = ui::InfoRequest();
             }
+            for (const auto& i : p.waveformRequests)
+            {
+                ids.push_back(i.second.id);
+            }
+            p.waveformRequests.clear();
+            p.thumbnailGenerator->cancelRequests(ids);
         }
     }
 }

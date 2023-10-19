@@ -316,7 +316,12 @@ namespace tl
             std::vector<std::shared_ptr<IMemoryData> > memoryData;
             for (const auto& clip : timeline->clip_if())
             {
-                if (auto ref = dynamic_cast<RawMemoryReference*>(clip->media_reference()))
+                if (auto ref = dynamic_cast<ZipMemoryReference*>(clip->media_reference()))
+                {
+                    ref->metadata()["tlRender"] = static_cast<int64_t>(memoryData.size());
+                    memoryData.push_back(ZipMemoryData::create(ref));
+                }
+                else if (auto ref = dynamic_cast<RawMemoryReference*>(clip->media_reference()))
                 {
                     ref->metadata()["tlRender"] = static_cast<int64_t>(memoryData.size());
                     memoryData.push_back(RawMemoryData::create(ref));
@@ -325,6 +330,11 @@ namespace tl
                 {
                     ref->metadata()["tlRender"] = static_cast<int64_t>(memoryData.size());
                     memoryData.push_back(SharedMemoryData::create(ref));
+                }
+                else if (auto ref = dynamic_cast<ZipMemorySequenceReference*>(clip->media_reference()))
+                {
+                    ref->metadata()["tlRender"] = static_cast<int64_t>(memoryData.size());
+                    memoryData.push_back(ZipMemorySequenceData::create(ref));
                 }
                 else if (auto ref = dynamic_cast<RawMemorySequenceReference*>(clip->media_reference()))
                 {
@@ -335,16 +345,6 @@ namespace tl
                 {
                     ref->metadata()["tlRender"] = static_cast<int64_t>(memoryData.size());
                     memoryData.push_back(SharedMemorySequenceData::create(ref));
-                }
-                else if (auto ref = dynamic_cast<ZipMemoryReference*>(clip->media_reference()))
-                {
-                    ref->metadata()["tlRender"] = static_cast<int64_t>(memoryData.size());
-                    memoryData.push_back(ZipMemoryData::create(ref));
-                }
-                else if (auto ref = dynamic_cast<ZipMemorySequenceReference*>(clip->media_reference()))
-                {
-                    ref->metadata()["tlRender"] = static_cast<int64_t>(memoryData.size());
-                    memoryData.push_back(ZipMemorySequenceData::create(ref));
                 }
             }
 
