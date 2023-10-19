@@ -10,14 +10,14 @@ namespace tl
     {
         struct RecentFilesModel::Private
         {
-            size_t recentMax = 10;
+            std::shared_ptr<observer::Value<size_t> > recentMax;
             std::shared_ptr<observer::List<file::Path> > recent;
         };
 
         void RecentFilesModel::_init(const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
-
+            p.recentMax = observer::Value<size_t>::create(10);
             p.recent = observer::List<file::Path>::create();
         }
 
@@ -38,23 +38,28 @@ namespace tl
 
         size_t RecentFilesModel::getRecentMax() const
         {
+            return _p->recentMax->get();
+        }
+
+        std::shared_ptr<observer::IValue<size_t> > RecentFilesModel::observeRecentMax() const
+        {
             return _p->recentMax;
         }
 
         void RecentFilesModel::setRecentMax(size_t value)
         {
             TLRENDER_P();
-            if (p.recentMax == value)
-                return;
-            p.recentMax = value;
-            if (p.recent->getSize() > p.recentMax)
+            if (p.recentMax->setIfChanged(value))
             {
-                auto recent = p.recent->get();
-                while (recent.size() > p.recentMax)
+                if (p.recent->getSize() > p.recentMax->get())
                 {
-                    recent.erase(recent.begin());
+                    auto recent = p.recent->get();
+                    while (recent.size() > p.recentMax->get())
+                    {
+                        recent.erase(recent.begin());
+                    }
+                    p.recent->setIfChanged(recent);
                 }
-                p.recent->setIfChanged(recent);
             }
         }
 
@@ -72,7 +77,7 @@ namespace tl
         {
             TLRENDER_P();
             auto recent = value;
-            while (recent.size() > p.recentMax)
+            while (recent.size() > p.recentMax->get())
             {
                 recent.erase(recent.begin());
             }
@@ -96,7 +101,7 @@ namespace tl
                 }
             }
             recent.push_back(value);
-            while (recent.size() > p.recentMax)
+            while (recent.size() > p.recentMax->get())
             {
                 recent.erase(recent.begin());
             }

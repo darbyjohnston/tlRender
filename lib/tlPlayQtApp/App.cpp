@@ -70,14 +70,16 @@ namespace tl
 
             QScopedPointer<MainWindow> mainWindow;
 
+            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
             std::shared_ptr<observer::ListObserver<int> > layersObserver;
+            std::shared_ptr<observer::ValueObserver<size_t> > recentFilesMaxObserver;
+            std::shared_ptr<observer::ListObserver<file::Path> > recentFilesObserver;
             std::shared_ptr<observer::ValueObserver<DevicesModelData> > devicesObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ValueObserver<double> > syncOffsetObserver;
-            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
         };
 
         App::App(
@@ -122,16 +124,7 @@ namespace tl
         }
 
         App::~App()
-        {
-            TLRENDER_P();
-            p.settings->setValue("Files/RecentMax", p.recentFilesModel->getRecentMax());
-            std::vector<std::string> recentFiles;
-            for (const auto& i : p.recentFilesModel->getRecent())
-            {
-                recentFiles.push_back(i.get());
-            }
-            p.settings->setValue("Files/Recent", recentFiles);
-        }
+        {}
 
         const std::shared_ptr<timeline::TimeUnitsModel>& App::timeUnitsModel() const
         {
@@ -468,6 +461,13 @@ namespace tl
         {
             TLRENDER_P();
 
+            p.settingsObserver = observer::ValueObserver<std::string>::create(
+                p.settings->observeValues(),
+                [this](const std::string& name)
+                {
+                    _settingsUpdate(name);
+                });
+
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 p.filesModel->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
@@ -493,6 +493,24 @@ namespace tl
                             _p->players[i]->setIOOptions(ioOptions);
                         }
                     }
+                });
+
+            p.recentFilesMaxObserver = observer::ValueObserver<size_t>::create(
+                p.recentFilesModel->observeRecentMax(),
+                [this](size_t value)
+                {
+                    _p->settings->setValue("Files/RecentMax", value);
+                });
+            p.recentFilesObserver = observer::ListObserver<file::Path>::create(
+                p.recentFilesModel->observeRecent(),
+                [this](const std::vector<file::Path>& value)
+                {
+                    std::vector<std::string> fileNames;
+                    for (const auto& i : value)
+                    {
+                        fileNames.push_back(i.get());
+                    }
+                    _p->settings->setValue("Files/Recent", fileNames);
                 });
 
             p.devicesObserver = observer::ValueObserver<DevicesModelData>::create(
@@ -528,13 +546,6 @@ namespace tl
                 [this](double)
                 {
                     _audioUpdate();
-                });
-
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
-                p.settings->observeValues(),
-                [this](const std::string& name)
-                {
-                    _settingsUpdate(name);
                 });
         }
 
