@@ -33,7 +33,6 @@ namespace tl
             _ctors();
             _sequence();
             _list();
-            _serialize();
         }
 
         void FileInfoTest::_enums()
@@ -113,6 +112,63 @@ namespace tl
                 TLRENDER_ASSERT(options == options);
                 TLRENDER_ASSERT(options != ListOptions());
             }
+            
+            std::string tmp = createTempDir();
+            mkdir(file::Path(tmp, "dir").get());
+            FileIO::create(file::Path(tmp, "file.txt").get(), Mode::Write);
+            FileIO::create(file::Path(tmp, "render.1.exr").get(), Mode::Write);
+            FileIO::create(file::Path(tmp, "render.2.exr").get(), Mode::Write);
+            FileIO::create(file::Path(tmp, "render.3.exr").get(), Mode::Write);
+            FileIO::create(file::Path(tmp, "render.1.tif").get(), Mode::Write);
+            FileIO::create(file::Path(tmp, "render.2.tif").get(), Mode::Write);
+            FileIO::create(file::Path(tmp, "render.3.tif").get(), Mode::Write);
+            FileIO::create(file::Path(tmp, "render.0001.tif").get(), Mode::Write);
+            FileIO::create(file::Path(tmp, "render.0002.tif").get(), Mode::Write);
+            FileIO::create(file::Path(tmp, "render.0003.tif").get(), Mode::Write);
+            FileIO::create(file::Path(tmp, "movie.1.mov").get(), Mode::Write);
+            FileIO::create(file::Path(tmp, "movie.2.mov").get(), Mode::Write);
+            
+            {
+                std::vector<FileInfo> list;
+                ListOptions options;
+                options.sequence = true;
+                options.sequenceExtensions = { ".exr", ".tif" };
+                file::list(tmp, list, options);
+                TLRENDER_ASSERT(7 == list.size());
+                for (size_t i = 0; i < list.size(); ++i)
+                {
+                    const auto& path = list[i].getPath();
+                    if ("render." == path.getBaseName())
+                    {
+                        TLRENDER_ASSERT(path.isSequence());
+                        TLRENDER_ASSERT(path.getSequence() == math::IntRange(1, 3));
+                    }
+                }
+                for (const auto i : { "movie.1.mov", "movie.2.mov" })
+                {
+                    const auto j = std::find_if(
+                        list.begin(),
+                        list.end(),
+                        [i](const FileInfo& value)
+                        {
+                            return i == value.getPath().get(-1, false);
+                        });
+                    TLRENDER_ASSERT(j != list.end());
+                }
+                
+                options.sequence = false;
+                file::list(tmp, list, options);
+                TLRENDER_ASSERT(13 == list.size());
+                for (size_t i = 0; i < list.size(); ++i)
+                {
+                    const auto& path = list[i].getPath();
+                    if ("render." == path.getBaseName())
+                    {
+                        TLRENDER_ASSERT(!path.isSequence());
+                    }
+                }
+            }
+            
             std::vector<ListOptions> optionsList;
             for (auto sort : getListSortEnums())
             {
@@ -138,20 +194,7 @@ namespace tl
             for (const auto& options : optionsList)
             {
                 std::vector<FileInfo> list;
-                file::list(".", list, options);
-            }
-        }
-
-        void FileInfoTest::_serialize()
-        {
-            {
-                ListOptions options;
-                options.sort = ListSort::Time;
-                nlohmann::json json;
-                to_json(json, options);
-                ListOptions options2;
-                from_json(json, options2);
-                TLRENDER_ASSERT(options == options2);
+                file::list(tmp, list, options);
             }
         }
     }

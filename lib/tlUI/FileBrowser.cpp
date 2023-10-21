@@ -13,7 +13,9 @@ namespace tl
             return
                 search == other.search &&
                 extension == other.extension &&
-                list == other.list &&
+                sort == other.sort &&
+                reverseSort == other.reverseSort &&
+                sequence == other.sequence &&
                 thumbnails == other.thumbnails &&
                 thumbnailHeight == other.thumbnailHeight;
         }
@@ -92,13 +94,15 @@ namespace tl
 
         void to_json(nlohmann::json& json, const FileBrowserOptions& value)
         {
-            nlohmann::json list;
-            to_json(list, value.list);
             json =
             {
                 { "search", value.search },
                 { "extension", value.extension },
-                { "list", list }
+                { "sort", value.sort },
+                { "reverseSort", value.reverseSort },
+                { "sequence", value.sequence },
+                { "thumbnails", value.thumbnails },
+                { "thumbnailHeight", value.thumbnailHeight }
             };
         }
 
@@ -106,7 +110,11 @@ namespace tl
         {
             json.at("search").get_to(value.search);
             json.at("extension").get_to(value.extension);
-            from_json(json.at("list"), value.list);
+            json.at("sort").get_to(value.sort);
+            json.at("reverseSort").get_to(value.reverseSort);
+            json.at("sequence").get_to(value.sequence);
+            json.at("thumbnails").get_to(value.thumbnails);
+            json.at("thumbnailHeight").get_to(value.thumbnailHeight);
         }
     }
 }

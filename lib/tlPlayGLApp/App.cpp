@@ -103,7 +103,15 @@ namespace tl
         {}
 
         App::~App()
-        {}
+        {
+            TLRENDER_P();
+            if (p.settings)
+            {
+                auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>();
+                p.settings->setValue("FileBrowser/Path", fileBrowserSystem->getPath());
+                p.settings->setValue("FileBrowser/Options", fileBrowserSystem->getOptions());
+            }
+        }
 
         std::shared_ptr<App> App::create(
             const std::vector<std::string>& argv,
@@ -288,6 +296,7 @@ namespace tl
         void App::_modelsInit()
         {
             TLRENDER_P();
+            
             p.filesModel = play::FilesModel::create(_context);
 
             p.viewportModel = play::ViewportModel::create(p.settings, _context);
@@ -696,8 +705,8 @@ namespace tl
             if ("FileBrowser/Options" == name || name.empty())
             {
                 auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>();
-                fileBrowserSystem->setOptions(
-                    p.settings->getValue<ui::FileBrowserOptions>("FileBrowser/Options"));
+                auto options = p.settings->getValue<ui::FileBrowserOptions>("FileBrowser/Options");
+                fileBrowserSystem->setOptions(options);
             }
             if ("FileBrowser/NativeFileDialog" == name || name.empty())
             {

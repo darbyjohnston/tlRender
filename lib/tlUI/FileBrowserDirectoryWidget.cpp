@@ -7,6 +7,8 @@
 #include <tlUI/ButtonGroup.h>
 #include <tlUI/RowLayout.h>
 
+#include <tlIO/System.h>
+
 #include <tlCore/String.h>
 
 namespace tl
@@ -208,9 +210,16 @@ namespace tl
             p.buttons.clear();
             p.buttonToIndex.clear();
             p.buttonGroup->clearButtons();
-            file::list(p.path, p.fileInfos, p.options.list);
             if (auto context = _context.lock())
             {
+                file::ListOptions listOptions;
+                listOptions.sort = p.options.sort;
+                listOptions.reverseSort = p.options.reverseSort;
+                listOptions.sequence = p.options.sequence;
+                auto ioSystem = context->getSystem<io::System>();
+                listOptions.sequenceExtensions = ioSystem->getExtensions(
+                    static_cast<int>(io::FileType::Sequence));
+                file::list(p.path, p.fileInfos, listOptions);
                 for (size_t i = 0; i < p.fileInfos.size(); ++i)
                 {
                     const file::FileInfo& fileInfo = p.fileInfos[i];

@@ -18,11 +18,13 @@ namespace tl
         //! File browser options.
         struct FileBrowserOptions
         {
-            std::string search;
-            std::string extension;
-            file::ListOptions list;
-            bool thumbnails = true;
-            int thumbnailHeight = 100;
+            std::string    search;
+            std::string    extension;
+            file::ListSort sort            = file::ListSort::Name;
+            bool           reverseSort     = false;
+            bool           sequence        = true;
+            bool           thumbnails      = true;
+            int            thumbnailHeight = 100;
 
             bool operator == (const FileBrowserOptions&) const;
             bool operator != (const FileBrowserOptions&) const;

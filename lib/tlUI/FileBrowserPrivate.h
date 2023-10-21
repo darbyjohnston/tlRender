@@ -156,6 +156,8 @@ namespace tl
             const FileBrowserOptions& getOptions() const;
 
             void setOptions(const FileBrowserOptions&);
+            
+            void setOptionsCallback(const std::function<void(const FileBrowserOptions&)>&);
 
             void setRecentFilesModel(const std::shared_ptr<RecentFilesModel>&);
 
@@ -164,6 +166,7 @@ namespace tl
 
         private:
             void _pathUpdate();
+            void _optionsUpdate();
 
             TLRENDER_PRIVATE();
         };

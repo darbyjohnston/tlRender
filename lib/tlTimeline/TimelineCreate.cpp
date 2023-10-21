@@ -383,6 +383,7 @@ namespace tl
                         // Check for other files in the sequence.
                         std::vector<file::FileInfo> list;
                         file::ListOptions listOptions;
+                        listOptions.sequenceExtensions = { path.getExtension() };
                         listOptions.maxNumberDigits = options.pathOptions.maxNumberDigits;
                         file::list(path.getDirectory(), list, listOptions);
                         const auto i = std::find_if(
