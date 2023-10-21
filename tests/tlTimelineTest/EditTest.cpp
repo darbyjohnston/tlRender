@@ -256,6 +256,29 @@ namespace tl
                 otio::SerializableObject::Retainer<otio::Timeline> timeline(
                     dynamic_cast<otio::Timeline*>(otio::Timeline::from_json_file(fileName)));
                 writeOTIOZ("Gap.otioz", timeline, TLRENDER_SAMPLE_DATA);
+
+                auto otioTimeline = timeline::create(file::Path("Gap.otioz"), _context);
+
+                const std::string video0 = getChild(otioTimeline, 0, 0)->name();
+                const std::string video1 = getChild(otioTimeline, 0, 1)->name();
+                const std::string video2 = getChild(otioTimeline, 0, 2)->name();
+
+                MoveData moveData;
+                moveData.fromTrack = 0;
+                moveData.fromIndex = 0;
+                moveData.toTrack = 0;
+                moveData.toIndex = 2;
+                auto otioTimeline2 = move(otioTimeline, { moveData });
+                TLRENDER_ASSERT(video1 == getChild(otioTimeline2, 0, 0)->name());
+                TLRENDER_ASSERT(video0 == getChild(otioTimeline2, 0, 1)->name());
+
+                moveData.fromTrack = 0;
+                moveData.fromIndex = 1;
+                moveData.toTrack = 0;
+                moveData.toIndex = 0;
+                auto otioTimeline3 = move(otioTimeline2, { moveData });
+                TLRENDER_ASSERT(video0 == getChild(otioTimeline3, 0, 0)->name());
+                TLRENDER_ASSERT(video1 == getChild(otioTimeline3, 0, 1)->name());
             }
         }
     }
