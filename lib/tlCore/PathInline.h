@@ -48,6 +48,17 @@ namespace tl
             return _sequence;
         }
 
+        inline bool Path::sequence(const Path& value) const
+        {
+            return
+                !_number.empty() &&
+                !value._number.empty() &&
+                _directory == value._directory &&
+                _baseName == value._baseName &&
+                (_padding == value._padding || _padding == value._numberDigits) &&
+                _extension == value._extension;
+        }
+
         inline bool Path::isSequence() const
         {
             return _sequence.getMin() != _sequence.getMax();
@@ -56,6 +67,31 @@ namespace tl
         inline const std::string& Path::getExtension() const
         {
             return _extension;
+        }
+        
+        inline bool Path::isEmpty() const
+        {
+            return
+                _directory.empty() &&
+                _baseName.empty() &&
+                _number.empty() &&
+                _extension.empty();
+        }
+
+        inline bool Path::operator == (const Path& other) const
+        {
+            return
+                _directory == other._directory &&
+                _baseName == other._baseName &&
+                _number == other._number &&
+                _sequence == other._sequence &&
+                _padding == other._padding &&
+                _extension == other._extension;
+        }
+
+        inline bool Path::operator != (const Path& other) const
+        {
+            return !(*this == other);
         }
     }
 }

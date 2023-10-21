@@ -14,68 +14,6 @@ namespace tl
     {
         namespace
         {
-            int getIndex(const otio::SerializableObject::Retainer<otio::Composable>& composable)
-            {
-                int out = -1;
-                if (composable && composable->parent())
-                {
-                    const auto& children = composable->parent()->children();
-                    for (int i = 0; i < children.size(); ++i)
-                    {
-                        if (composable == children[i].value)
-                        {
-                            out = i;
-                            break;
-                        }
-                    }
-                }
-                return out;
-            }
-
-            otio::SerializableObject::Retainer<otio::Composable> getPrevSibling(
-                const otio::SerializableObject::Retainer<otio::Composable>& value)
-            {
-                otio::SerializableObject::Retainer<otio::Composable> out;
-                if (auto parent = value->parent())
-                {
-                    const auto& children = parent->children();
-                    for (size_t i = 1; i < children.size(); ++i)
-                    {
-                        if (children[i].value == value.value)
-                        {
-                            out = children[i - 1];
-                            break;
-                        }
-                    }
-                }
-                return out;
-            }
-
-            otio::SerializableObject::Retainer<otio::Composable> getNextSibling(
-                const otio::SerializableObject::Retainer<otio::Composable>& value)
-            {
-                otio::SerializableObject::Retainer<otio::Composable> out;
-                if (auto parent = value->parent())
-                {
-                    const auto& children = parent->children();
-                    if (!children.empty())
-                    {
-                        for (size_t i = 0; i < children.size() - 1; ++i)
-                        {
-                            if (children[i].value == value.value)
-                            {
-                                out = children[i + 1];
-                                break;
-                            }
-                        }
-                    }
-                }
-                return out;
-            }
-        }
-
-        namespace
-        {
             class IMemoryData
             {
             protected:

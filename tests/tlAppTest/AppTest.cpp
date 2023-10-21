@@ -89,26 +89,32 @@ namespace tl
                     const std::vector<std::string>& args,
                     const std::shared_ptr<system::Context>& context)
                 {
-                    auto inputArg = CmdLineValueArg<file::Type>::create(
-                        _input,
-                        "input",
-                        "This is help for the input argument.");
-                    auto outputArg = CmdLineValueArg<std::string>::create(
-                        _output,
-                        "output",
-                        "This is help for the output argument.",
-                        true);
-                    auto option = CmdLineValueOption<int>::create(
-                        _option,
-                        { "-option" },
-                        "This is the help for the option.");
                     IApp::_init(
                         args,
                         context,
                         "test",
                         "Test application.",
-                        { inputArg, outputArg },
-                        { option });
+                        {
+                            CmdLineValueArg<file::Type>::create(
+                                _input,
+                                "input",
+                                "This is help for the input argument."),
+                            CmdLineValueArg<std::string>::create(
+                                _output,
+                                "output",
+                                "This is help for the output argument.",
+                                true)
+                        },
+                        {
+                            CmdLineValueOption<int>::create(
+                                _intOption,
+                                { "-int" },
+                                "This is the help for the option."),
+                            CmdLineValueOption<file::ListSort>::create(
+                                _listSortOption,
+                                { "-listSort", "-ls" },
+                                "This is the help for the option.")
+                        });
                     
                     _log("Log test");
                     
@@ -125,10 +131,16 @@ namespace tl
                     return out;
                 }
                 
+                file::Type getInput() const { return _input; }
+                const std::string& getOutput() const { return _output; }
+                int getIntOption() const { return _intOption; }
+                file::ListSort getListSortOption() const { return _listSortOption; }
+                
             private:
                 file::Type _input = file::Type::First;
                 std::string _output;
-                int _option = 0;
+                int _intOption = 0;
+                file::ListSort _listSortOption = file::ListSort::First;
             };
         }
 
@@ -144,8 +156,26 @@ namespace tl
                 TLRENDER_ASSERT(1 == app->getExit());
             }
             {
-                auto app = App::create({ "app", "Directory", "-log" }, _context);
-                for (size_t i = 0; i < 10; ++i)
+                auto app = App::create(
+                    {
+                        "app",
+                        "directory",
+                        "output",
+                        "-int",
+                        "10",
+                        "-listSort",
+                        "Extension"
+                     },
+                    _context);
+                TLRENDER_ASSERT(0 == app->getExit());
+                TLRENDER_ASSERT(file::Type::Directory == app->getInput());
+                TLRENDER_ASSERT("output" == app->getOutput());
+                TLRENDER_ASSERT(10 == app->getIntOption());
+                TLRENDER_ASSERT(file::ListSort::Extension == app->getListSortOption());
+            }
+            {
+                auto app = App::create({ "app", "directory", "-log" }, _context);
+                for (size_t i = 0; i < 3; ++i)
                 {
                     _context->log(
                         "AppTest::_app",
@@ -164,7 +194,14 @@ namespace tl
             {}
             try
             {
-                auto app = App::create({ "app", "input", "output", "-option" }, _context);
+                auto app = App::create({ "app", "input", "-int" }, _context);
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
+            try
+            {
+                auto app = App::create({ "app", "input", "-listSort" }, _context);
                 TLRENDER_ASSERT(false);
             }
             catch (const std::exception&)

@@ -7,6 +7,7 @@
 #include <tlTimeline/Util.h>
 
 #include <tlCore/Assert.h>
+#include <tlCore/FileInfo.h>
 
 #include <opentimelineio/clip.h>
 
@@ -30,6 +31,7 @@ namespace tl
             _enums();
             _ranges();
             _util();
+            _otioz();
         }
 
         void UtilTest::_enums()
@@ -141,6 +143,23 @@ namespace tl
                 VideoData b;
                 b.time = otime::RationalTime(1.0, 24.0);
                 TLRENDER_ASSERT(isTimeEqual(a, b));
+            }
+        }
+        
+        void UtilTest::_otioz()
+        {
+            std::vector<file::FileInfo> list;
+            file::list(TLRENDER_SAMPLE_DATA, list);
+            for (const auto& entry : list)
+            {
+                if (".otio" == entry.getPath().getExtension())
+                {
+                    otio::SerializableObject::Retainer<otio::Timeline> timeline(
+                        dynamic_cast<otio::Timeline*>(otio::Timeline::from_json_file(entry.getPath().get())));
+                    file::Path outputPath = entry.getPath();
+                    outputPath.setExtension(".otioz");
+                    writeOTIOZ(outputPath.get(-1, false), timeline, TLRENDER_SAMPLE_DATA);
+                }
             }
         }
     }

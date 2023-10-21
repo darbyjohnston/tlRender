@@ -59,12 +59,21 @@ namespace tl
 
             //! Get the directory.
             const std::string& getDirectory() const;
+            
+            //! Set the directory.
+            void setDirectory(const std::string&);
 
             //! Get the base name.
             const std::string& getBaseName() const;
+            
+            //! Set the base name.
+            void setBaseName(const std::string&);
 
             //! Get the number.
             const std::string& getNumber() const;
+            
+            //! Set the number.
+            void setNumber(const std::string&);
 
             //! Get the number zero padding.
             uint8_t getPadding() const;
@@ -75,7 +84,7 @@ namespace tl
             //! Set the number sequence.
             void setSequence(const math::IntRange&);
 
-            //! Get whether this path has a sequence.
+            //! Get whether this path is a sequence.
             bool isSequence() const;
 
             //! Get whether the given path is part of this sequence.
@@ -86,6 +95,9 @@ namespace tl
 
             //! Get the extension.
             const std::string& getExtension() const;
+            
+            //! Set the extension.
+            void setExtension(const std::string&);
 
             //! Is the path empty?
             bool isEmpty() const;
@@ -97,6 +109,8 @@ namespace tl
             bool operator != (const Path&) const;
 
         private:
+            void _numberUpdate();
+            
             std::string _directory;
             std::string _baseName;
             std::string _number;
