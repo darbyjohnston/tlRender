@@ -16,7 +16,10 @@
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/imageSequenceReference.h>
 
+#include <ctime>
+
 #include <mz.h>
+#include <mz_os.h>
 #include <mz_strm.h>
 #include <mz_zip.h>
 #include <mz_zip_rw.h>
@@ -595,8 +598,8 @@ namespace tl
                 }
 
                 // Add the content and version files.
-                _addCompressed(timelineCopy->to_json_string(), "content.otio");
                 _addCompressed("1.0.0", "version.txt");
+                _addCompressed(timelineCopy->to_json_string(), "content.otio");
 
                 // Add the media files.
                 for (const auto& i : mediaFilesNames)
@@ -627,6 +630,9 @@ namespace tl
                 mz_zip_file fileInfo;
                 memset(&fileInfo, 0, sizeof(mz_zip_file));
                 mz_zip_writer_set_compress_level(_writer, MZ_COMPRESS_LEVEL_NORMAL);
+                fileInfo.version_madeby = MZ_VERSION_MADEBY;
+                fileInfo.flag = MZ_ZIP_FLAG_UTF8;
+                fileInfo.modified_date = std::time(nullptr);
                 fileInfo.compression_method = MZ_COMPRESS_METHOD_DEFLATE;
                 fileInfo.filename = fileNameInZip.c_str();
                 int32_t err = mz_zip_writer_add_buffer(
@@ -644,6 +650,24 @@ namespace tl
                 const std::string& fileName,
                 const std::string& fileNameInZip)
             {
+                /*auto fileIO = file::FileIO::create(fileName, file::Mode::Read);
+                std::vector<uint8_t> buf(fileIO->getSize());
+                fileIO->read(buf.data(), buf.size());
+                mz_zip_file fileInfo;
+                memset(&fileInfo, 0, sizeof(mz_zip_file));
+                fileInfo.version_madeby = MZ_VERSION_MADEBY;
+                fileInfo.modified_date = std::time(nullptr);
+                fileInfo.compression_method = MZ_COMPRESS_METHOD_STORE;
+                fileInfo.filename = fileNameInZip.c_str();
+                int32_t err = mz_zip_writer_add_buffer(
+                    _writer,
+                    (void*)buf.data(),
+                    buf.size(),
+                    &fileInfo);
+                if (err != MZ_OK)
+                {
+                    throw std::runtime_error("Cannot add file");
+                }*/
                 mz_zip_writer_set_compress_method(
                     _writer,
                     MZ_COMPRESS_METHOD_STORE);

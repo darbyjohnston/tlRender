@@ -168,7 +168,23 @@ namespace tl
             const otio::AnyDictionary& metadata) :
             RawMemoryReference(target_url, memory, memory_size, available_range, metadata),
             _file_io(file_io)
-        {}
+        {
+            /*for (size_t i = 0; i < 100; ++i)
+            {
+                std::cout << int(memory[i]) << " ";
+            }
+            std::cout << std::endl;
+            std::cout << std::endl;
+            auto fileIO = file::FileIO::create("/dev/tlRender/tlRender/etc/SampleData/BART_2021-02-07.m4v", file::Mode::Read);
+            uint8_t u8 = 0;
+            for (size_t i = 0; i < 100; ++i)
+            {
+                fileIO->readU8(&u8);
+                std::cout << i << ": " << int(u8) << std::endl;
+            }
+            std::cout << std::endl;
+            std::cout << "-------------------" << std::endl;*/
+        }
 
         ZipMemoryReference::~ZipMemoryReference()
         {}
