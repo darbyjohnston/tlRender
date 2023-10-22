@@ -451,11 +451,10 @@ namespace tl
             // Recursively iterate over all clips in the timeline.
             for (auto clip : otioTimeline->children_if<otio::Clip>())
             {
-                if (auto externalReference =
-                    dynamic_cast<otio::ExternalReference*>(clip->media_reference()))
+                if (auto ref = dynamic_cast<otio::ExternalReference*>(clip->media_reference()))
                 {
                     // Get the external reference path.
-                    const auto path = timeline::getPath(externalReference->target_url(), directory, pathOptions);
+                    const auto path = getPath(ref->target_url(), directory, pathOptions);
 
                     // Read the external reference into memory.
                     auto fileIO = file::FileIO::create(path.get(), file::Mode::Read);
@@ -466,59 +465,58 @@ namespace tl
                     {
                     case ToMemoryReference::Shared:
                     {
-                        auto memory = std::make_shared<timeline::MemoryReferenceData>();
+                        auto memory = std::make_shared<MemoryReferenceData>();
                         memory->resize(size);
                         fileIO->read(memory->data(), size);
-                        clip->set_media_reference(new timeline::SharedMemoryReference(
-                            externalReference->target_url(),
+                        clip->set_media_reference(new SharedMemoryReference(
+                            ref->target_url(),
                             memory,
                             clip->available_range(),
-                            externalReference->metadata()));
+                            ref->metadata()));
                         break;
                     }
                     case ToMemoryReference::Raw:
                         uint8_t* memory = new uint8_t [size];
                         fileIO->read(memory, size);
-                        clip->set_media_reference(new timeline::RawMemoryReference(
-                            externalReference->target_url(),
+                        clip->set_media_reference(new RawMemoryReference(
+                            ref->target_url(),
                             memory,
                             size,
                             clip->available_range(),
-                            externalReference->metadata()));
+                            ref->metadata()));
                         break;
                     }
                 }
-                else if (auto imageSequenceRefence =
-                    dynamic_cast<otio::ImageSequenceReference*>(clip->media_reference()))
+                else if (auto ref = dynamic_cast<otio::ImageSequenceReference*>(
+                    clip->media_reference()))
                 {
                     // Get the image sequence reference path.
-                    int padding = imageSequenceRefence->frame_zero_padding();
-                    std::string number;
+                    const int padding = ref->frame_zero_padding();
                     std::stringstream ss;
-                    ss << imageSequenceRefence->target_url_base() <<
-                        imageSequenceRefence->name_prefix() <<
-                        std::setfill('0') << std::setw(padding) << imageSequenceRefence->start_frame() <<
-                        imageSequenceRefence->name_suffix();
-                    const auto path = timeline::getPath(ss.str(), directory, pathOptions);
+                    ss << ref->target_url_base() <<
+                        ref->name_prefix() <<
+                        std::setfill('0') << std::setw(padding) << ref->start_frame() <<
+                        ref->name_suffix();
+                    const auto path = getPath(ss.str(), directory, pathOptions);
 
                     // Read the image sequence reference into memory.
-                    std::vector<std::shared_ptr<timeline::MemoryReferenceData> > sharedMemoryList;
+                    std::vector<std::shared_ptr<MemoryReferenceData> > sharedMemoryList;
                     std::vector<const uint8_t*> rawMemoryList;
                     std::vector<size_t> rawMemorySizeList;
                     const auto range = clip->trimmed_range();
                     for (
-                        int64_t frame = imageSequenceRefence->start_frame();
-                        frame < imageSequenceRefence->start_frame() + range.duration().value();
+                        int64_t frame = ref->start_frame();
+                        frame < ref->start_frame() + range.duration().value();
                         ++frame)
                     {
-                        const auto& fileName = path.get(frame);
+                        const auto fileName = path.get(frame);
                         auto fileIO = file::FileIO::create(fileName, file::Mode::Read);
                         const size_t size = fileIO->getSize();
                         switch (toMemoryReference)
                         {
                         case ToMemoryReference::Shared:
                         {
-                            auto memory = std::make_shared<timeline::MemoryReferenceData>();
+                            auto memory = std::make_shared<MemoryReferenceData>();
                             memory->resize(size);
                             fileIO->read(memory->data(), size);
                             sharedMemoryList.push_back(memory);
@@ -541,19 +539,19 @@ namespace tl
                     switch (toMemoryReference)
                     {
                     case ToMemoryReference::Shared:
-                        clip->set_media_reference(new timeline::SharedMemorySequenceReference(
+                        clip->set_media_reference(new SharedMemorySequenceReference(
                             path.get(),
                             sharedMemoryList,
                             clip->available_range(),
-                            imageSequenceRefence->metadata()));
+                            ref->metadata()));
                         break;
                     case ToMemoryReference::Raw:
-                        clip->set_media_reference(new timeline::RawMemorySequenceReference(
+                        clip->set_media_reference(new RawMemorySequenceReference(
                             path.get(),
                             rawMemoryList,
                             rawMemorySizeList,
                             clip->available_range(),
-                            imageSequenceRefence->metadata()));
+                            ref->metadata()));
                         break;
                     default: break;
                     }
@@ -644,6 +642,27 @@ namespace tl
                         const std::string fileNameInZip = _getFileNameInZip(url);
                         mediaFilesNames[mediaFileName] = fileNameInZip;
                         ref->set_target_url(fileNameInZip);
+                    }
+                    else if (auto ref = dynamic_cast<otio::ImageSequenceReference*>(clip->media_reference()))
+                    {
+                        const int padding = ref->frame_zero_padding();
+                        std::stringstream ss;
+                        ss << ref->target_url_base() <<
+                            ref->name_prefix() <<
+                            std::setfill('0') << std::setw(padding) << ref->start_frame() <<
+                            ref->name_suffix();
+                        const file::Path path(_getMediaFileName(ss.str(), directoryTmp));
+                        const auto range = clip->trimmed_range();
+                        for (
+                            int64_t frame = ref->start_frame();
+                            frame < ref->start_frame() + range.duration().value();
+                            ++frame)
+                        {
+                            const std::string mediaFileName = path.get(frame);
+                            const std::string fileNameInZip = _getFileNameInZip(mediaFileName);
+                            mediaFilesNames[mediaFileName] = fileNameInZip;
+                        }
+                        ref->set_target_url_base(_getFileNameInZip(ref->target_url_base()));
                     }
                 }
 
@@ -753,7 +772,7 @@ namespace tl
                 const std::string fileName =
                     std::string::npos == r ?
                     url :
-                    url.substr(r);
+                    url.substr(r + 1);
                 return "media/" + fileName;
             }
 
