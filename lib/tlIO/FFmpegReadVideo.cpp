@@ -253,13 +253,6 @@ namespace tl
                     _avOutputPixelFormat = AV_PIX_FMT_RGBA;
                     _info.pixelType = image::PixelType::RGBA_U8;
                     // }
-                    // else
-                    // {
-                    //     //! \todo Use the _info.layout.endian field instead of
-                    //     //! converting endianness.
-                    //     _avOutputPixelFormat = AV_PIX_FMT_YUV444P16LE;
-                    //     _info.pixelType = image::PixelType::YUV_444P_U16;
-                    // }
                     break;
                 case AV_PIX_FMT_YUVA444P10BE:
                 case AV_PIX_FMT_YUVA444P10LE:
@@ -270,15 +263,8 @@ namespace tl
                     //! \todo Support these formats natively.
                     // if (options.yuvToRGBConversion)
                     // {
-                        _avOutputPixelFormat = AV_PIX_FMT_RGBA64LE;
+                        _avOutputPixelFormat = AV_PIX_FMT_RGBA64;
                         _info.pixelType = image::PixelType::RGBA_U16;
-                    // }
-                    // else
-                    // {
-                    //     //! \todo Use the _info.layout.endian field instead of
-                    //     //! converting endianness.
-                    //     _avOutputPixelFormat = AV_PIX_FMT_YUV444P16LE;
-                    //     _info.pixelType = image::PixelType::YUV_444P_U16;
                     // }
                     break;
                 default:
