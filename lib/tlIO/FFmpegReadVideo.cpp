@@ -248,11 +248,8 @@ namespace tl
                 case AV_PIX_FMT_YUVA422P:
                 case AV_PIX_FMT_YUVA444P:
                     //! \todo Support these formats natively.
-                    // if (options.yuvToRGBConversion)
-                    // {
                     _avOutputPixelFormat = AV_PIX_FMT_RGBA;
                     _info.pixelType = image::PixelType::RGBA_U8;
-                    // }
                     break;
                 case AV_PIX_FMT_YUVA444P10BE:
                 case AV_PIX_FMT_YUVA444P10LE:
@@ -261,11 +258,8 @@ namespace tl
                 case AV_PIX_FMT_YUVA444P16BE:
                 case AV_PIX_FMT_YUVA444P16LE:
                     //! \todo Support these formats natively.
-                    // if (options.yuvToRGBConversion)
-                    // {
-                        _avOutputPixelFormat = AV_PIX_FMT_RGBA64;
-                        _info.pixelType = image::PixelType::RGBA_U16;
-                    // }
+                    _avOutputPixelFormat = AV_PIX_FMT_RGBA64;
+                    _info.pixelType = image::PixelType::RGBA_U16;
                     break;
                 default:
                     if (options.yuvToRGBConversion)
