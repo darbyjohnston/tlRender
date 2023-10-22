@@ -231,12 +231,6 @@ namespace tl
                 case AV_PIX_FMT_YUV444P12LE:
                 case AV_PIX_FMT_YUV444P16BE:
                 case AV_PIX_FMT_YUV444P16LE:
-                case AV_PIX_FMT_YUVA444P10BE:
-                case AV_PIX_FMT_YUVA444P10LE:
-                case AV_PIX_FMT_YUVA444P12BE:
-                case AV_PIX_FMT_YUVA444P12LE:
-                case AV_PIX_FMT_YUVA444P16BE:
-                case AV_PIX_FMT_YUVA444P16LE:
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB48;
@@ -249,6 +243,29 @@ namespace tl
                         _avOutputPixelFormat = AV_PIX_FMT_YUV444P16LE;
                         _info.pixelType = image::PixelType::YUV_444P_U16;
                     }
+                    break;
+                case AV_PIX_FMT_YUVA420P:
+                case AV_PIX_FMT_YUVA422P:
+                case AV_PIX_FMT_YUVA444P:
+                    //! \todo Support these formats natively.
+                    // if (options.yuvToRGBConversion)
+                    // {
+                    _avOutputPixelFormat = AV_PIX_FMT_RGBA;
+                    _info.pixelType = image::PixelType::RGBA_U8;
+                    // }
+                    break;
+                case AV_PIX_FMT_YUVA444P10BE:
+                case AV_PIX_FMT_YUVA444P10LE:
+                case AV_PIX_FMT_YUVA444P12BE:
+                case AV_PIX_FMT_YUVA444P12LE:
+                case AV_PIX_FMT_YUVA444P16BE:
+                case AV_PIX_FMT_YUVA444P16LE:
+                    //! \todo Support these formats natively.
+                    // if (options.yuvToRGBConversion)
+                    // {
+                        _avOutputPixelFormat = AV_PIX_FMT_RGBA64;
+                        _info.pixelType = image::PixelType::RGBA_U16;
+                    // }
                     break;
                 default:
                     if (options.yuvToRGBConversion)
