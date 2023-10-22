@@ -9,7 +9,9 @@
 #include <tlIO/System.h>
 
 #include <tlCore/Assert.h>
+#include <tlCore/Error.h>
 #include <tlCore/FileInfo.h>
+#include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
 #include <opentimelineio/clip.h>
@@ -106,6 +108,12 @@ namespace tl
             }
             return out;
         }
+
+        TLRENDER_ENUM_IMPL(
+            CacheDirection,
+            "Forward",
+            "Reverse");
+        TLRENDER_ENUM_SERIALIZE_IMPL(CacheDirection);
 
         std::vector<otime::TimeRange> loopCache(
             const otime::TimeRange& value,
@@ -428,9 +436,16 @@ namespace tl
             return out;
         }
 
+        TLRENDER_ENUM_IMPL(
+            ToMemoryReference,
+            "Shared",
+            "Raw");
+        TLRENDER_ENUM_SERIALIZE_IMPL(ToMemoryReference);
+
         void toMemoryReferences(
             otio::Timeline* otioTimeline,
             const std::string& directory,
+            ToMemoryReference toMemoryReference,
             const file::PathOptions& pathOptions)
         {
             // Recursively iterate over all clips in the timeline.
@@ -442,20 +457,36 @@ namespace tl
                     // Get the external reference path.
                     const auto path = timeline::getPath(externalReference->target_url(), directory, pathOptions);
 
-                    // Read the external reference media into memory.
+                    // Read the external reference into memory.
                     auto fileIO = file::FileIO::create(path.get(), file::Mode::Read);
                     const size_t size = fileIO->getSize();
-                    auto memory = std::make_shared<timeline::MemoryReferenceData>();
-                    memory->resize(size);
-                    fileIO->read(memory->data(), size);
 
                     // Replace the external reference with a memory reference.
-                    auto memoryReference = new timeline::SharedMemoryReference(
-                        externalReference->target_url(),
-                        memory,
-                        clip->available_range(),
-                        externalReference->metadata());
-                    clip->set_media_reference(memoryReference);
+                    switch (toMemoryReference)
+                    {
+                    case ToMemoryReference::Shared:
+                    {
+                        auto memory = std::make_shared<timeline::MemoryReferenceData>();
+                        memory->resize(size);
+                        fileIO->read(memory->data(), size);
+                        clip->set_media_reference(new timeline::SharedMemoryReference(
+                            externalReference->target_url(),
+                            memory,
+                            clip->available_range(),
+                            externalReference->metadata()));
+                        break;
+                    }
+                    case ToMemoryReference::Raw:
+                        uint8_t* memory = new uint8_t [size];
+                        fileIO->read(memory, size);
+                        clip->set_media_reference(new timeline::RawMemoryReference(
+                            externalReference->target_url(),
+                            memory,
+                            size,
+                            clip->available_range(),
+                            externalReference->metadata()));
+                        break;
+                    }
                 }
                 else if (auto imageSequenceRefence =
                     dynamic_cast<otio::ImageSequenceReference*>(clip->media_reference()))
@@ -470,8 +501,10 @@ namespace tl
                         imageSequenceRefence->name_suffix();
                     const auto path = timeline::getPath(ss.str(), directory, pathOptions);
 
-                    // Read the image sequence reference media into memory.
-                    std::vector<std::shared_ptr<timeline::MemoryReferenceData> > memoryList;
+                    // Read the image sequence reference into memory.
+                    std::vector<std::shared_ptr<timeline::MemoryReferenceData> > sharedMemoryList;
+                    std::vector<const uint8_t*> rawMemoryList;
+                    std::vector<size_t> rawMemorySizeList;
                     const auto range = clip->trimmed_range();
                     for (
                         int64_t frame = imageSequenceRefence->start_frame();
@@ -481,20 +514,49 @@ namespace tl
                         const auto& fileName = path.get(frame);
                         auto fileIO = file::FileIO::create(fileName, file::Mode::Read);
                         const size_t size = fileIO->getSize();
-                        auto memory = std::make_shared<timeline::MemoryReferenceData>();
-                        memory->resize(size);
-                        fileIO->read(memory->data(), size);
-                        memoryList.push_back(memory);
+                        switch (toMemoryReference)
+                        {
+                        case ToMemoryReference::Shared:
+                        {
+                            auto memory = std::make_shared<timeline::MemoryReferenceData>();
+                            memory->resize(size);
+                            fileIO->read(memory->data(), size);
+                            sharedMemoryList.push_back(memory);
+                            break;
+                        }
+                        case ToMemoryReference::Raw:
+                        {
+                            auto memory = new uint8_t [size];
+                            fileIO->read(memory, size);
+                            rawMemoryList.push_back(memory);
+                            rawMemorySizeList.push_back(size);
+                            break;
+                        }
+                        default: break;
+                        }
                     }
 
                     // Replace the image sequence reference with a memory
                     // sequence reference.
-                    auto memorySequenceReference = new timeline::SharedMemorySequenceReference(
-                        path.get(),
-                        memoryList,
-                        clip->available_range(),
-                        imageSequenceRefence->metadata());
-                    clip->set_media_reference(memorySequenceReference);
+                    switch (toMemoryReference)
+                    {
+                    case ToMemoryReference::Shared:
+                        clip->set_media_reference(new timeline::SharedMemorySequenceReference(
+                            path.get(),
+                            sharedMemoryList,
+                            clip->available_range(),
+                            imageSequenceRefence->metadata()));
+                        break;
+                    case ToMemoryReference::Raw:
+                        clip->set_media_reference(new timeline::RawMemorySequenceReference(
+                            path.get(),
+                            rawMemoryList,
+                            rawMemorySizeList,
+                            clip->available_range(),
+                            imageSequenceRefence->metadata()));
+                        break;
+                    default: break;
+                    }
                 }
             }
         }

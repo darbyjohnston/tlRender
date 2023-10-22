@@ -280,6 +280,7 @@ namespace tl
                             timeline::toMemoryReferences(
                                 otioTimeline,
                                 items[i]->path.getDirectory(),
+                                timeline::ToMemoryReference::Shared,
                                 options.pathOptions);
                         }
                         auto timeline = timeline::Timeline::create(otioTimeline, _context, options);

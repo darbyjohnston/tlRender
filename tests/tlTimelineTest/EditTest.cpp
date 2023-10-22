@@ -5,6 +5,7 @@
 #include <tlTimelineTest/EditTest.h>
 
 #include <tlTimeline/Edit.h>
+#include <tlTimeline/MemoryReference.h>
 #include <tlTimeline/Util.h>
 
 #include <tlCore/Assert.h>
@@ -253,37 +254,60 @@ namespace tl
             }
             for (const auto otio : { "SingleClip.otio", "SingleClipSeq.otio" })
             {
-                auto otioTimeline = timeline::create(
-                    file::Path(TLRENDER_SAMPLE_DATA, otio),
-                    _context);
-                auto track = dynamic_cast<otio::Track*>(otioTimeline->tracks()->children()[0].value);
-                track->append_child(new otio::Clip(
-                    "Video",
-                    nullptr,
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 30.0),
-                        otime::RationalTime(30.0, 30.0))));
-                toMemoryReferences(otioTimeline.value, TLRENDER_SAMPLE_DATA);
+                for (const auto toMemoryReference : { ToMemoryReference::Shared, ToMemoryReference::Raw })
+                {
+                    auto otioTimeline = timeline::create(
+                        file::Path(TLRENDER_SAMPLE_DATA, otio),
+                        _context);
+                    auto track = dynamic_cast<otio::Track*>(otioTimeline->tracks()->children()[0].value);
+                    track->append_child(new otio::Clip(
+                        "Video",
+                        nullptr,
+                        otime::TimeRange(
+                            otime::RationalTime(0.0, 30.0),
+                            otime::RationalTime(30.0, 30.0))));
+                    toMemoryReferences(otioTimeline.value, TLRENDER_SAMPLE_DATA, toMemoryReference);
 
-                const std::string video0 = getChild(otioTimeline, 0, 0)->name();
-                const std::string video1 = getChild(otioTimeline, 0, 1)->name();
+                    const std::string video0 = getChild(otioTimeline, 0, 0)->name();
+                    const std::string video1 = getChild(otioTimeline, 0, 1)->name();
 
-                MoveData moveData;
-                moveData.fromTrack = 0;
-                moveData.fromIndex = 0;
-                moveData.toTrack = 0;
-                moveData.toIndex = 2;
-                auto otioTimeline2 = move(otioTimeline, { moveData });
-                TLRENDER_ASSERT(video1 == getChild(otioTimeline2, 0, 0)->name());
-                TLRENDER_ASSERT(video0 == getChild(otioTimeline2, 0, 1)->name());
+                    MoveData moveData;
+                    moveData.fromTrack = 0;
+                    moveData.fromIndex = 0;
+                    moveData.toTrack = 0;
+                    moveData.toIndex = 2;
+                    auto otioTimeline2 = move(otioTimeline, { moveData });
+                    TLRENDER_ASSERT(video1 == getChild(otioTimeline2, 0, 0)->name());
+                    TLRENDER_ASSERT(video0 == getChild(otioTimeline2, 0, 1)->name());
 
-                moveData.fromTrack = 0;
-                moveData.fromIndex = 1;
-                moveData.toTrack = 0;
-                moveData.toIndex = 0;
-                auto otioTimeline3 = move(otioTimeline2, { moveData });
-                TLRENDER_ASSERT(video0 == getChild(otioTimeline3, 0, 0)->name());
-                TLRENDER_ASSERT(video1 == getChild(otioTimeline3, 0, 1)->name());
+                    moveData.fromTrack = 0;
+                    moveData.fromIndex = 1;
+                    moveData.toTrack = 0;
+                    moveData.toIndex = 0;
+                    auto otioTimeline3 = move(otioTimeline2, { moveData });
+                    TLRENDER_ASSERT(video0 == getChild(otioTimeline3, 0, 0)->name());
+                    TLRENDER_ASSERT(video1 == getChild(otioTimeline3, 0, 1)->name());
+                    
+                    if (ToMemoryReference::Raw == toMemoryReference)
+                    {
+                        for (const auto clip : otioTimeline->clip_if())
+                        {
+                            if (const auto ref = dynamic_cast<RawMemoryReference*>(clip->media_reference()))
+                            {
+                                delete [] ref->memory();
+                                ref->set_memory(nullptr, 0);
+                            }
+                            else if (const auto ref = dynamic_cast<RawMemorySequenceReference*>(clip->media_reference()))
+                            {
+                                for (const auto& memory : ref->memory())
+                                {
+                                    delete [] memory;
+                                }
+                                ref->set_memory({}, {});
+                            }
+                        }
+                    }
+                }
             }
             for (const auto otioz : { "SingleClip.otioz", "SingleClipSeq.otioz" })
             {

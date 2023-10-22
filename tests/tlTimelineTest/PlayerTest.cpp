@@ -153,7 +153,7 @@ namespace tl
                 {
                     _print(string::Format("Memory timeline: {0}").arg(path.get()));
                     auto otioTimeline = timeline::create(path, _context);
-                    toMemoryReferences(otioTimeline, path.getDirectory());
+                    toMemoryReferences(otioTimeline, path.getDirectory(), ToMemoryReference::Shared);
                     auto timeline = Timeline::create(otioTimeline, _context);
                     auto player = Player::create(timeline, _context);
                     _player(player);
