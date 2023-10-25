@@ -1,6 +1,9 @@
 include(ExternalProject)
 
-set(FFmpeg_DEPS ZLIB NASM)
+set(FFmpeg_DEPS NASM)
+if(TLRENDER_NET)
+    list(APPEND FFmpeg_DEPS OpenSSL)
+endif()
 
 set(FFmpeg_SHARED_LIBS ON)
 set(FFmpeg_DEBUG OFF)
@@ -8,10 +11,11 @@ set(FFmpeg_DEBUG OFF)
 if(WIN32)
     # See the directions for building FFmpeg on Windows in "docs/build_windows.html".
 else()
-    set(FFmpeg_CFLAGS)
-    set(FFmpeg_CXXFLAGS)
-    set(FFmpeg_OBJCFLAGS)
-    set(FFmpeg_LDFLAGS)
+    set(FFmpeg_CFLAGS "--extra-cflags=-I${CMAKE_INSTALL_PREFIX}/include")
+    set(FFmpeg_CXXFLAGS "--extra-cxxflags=-I${CMAKE_INSTALL_PREFIX}")
+    set(FFmpeg_OBJCFLAGS "")
+    set(FFmpeg_LDFLAGS "--extra-ldflags=-L${CMAKE_INSTALL_PREFIX}/lib")
+    set(FFmpeg_LDFLAGS "--extra-ldflags=-L${CMAKE_INSTALL_PREFIX}/lib64")
     if(APPLE AND CMAKE_OSX_DEPLOYMENT_TARGET)
         list(APPEND FFmpeg_CFLAGS "--extra-cflags=-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
         list(APPEND FFmpeg_CXXFLAGS "--extra-cxxflags=-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
@@ -63,6 +67,7 @@ else()
         --disable-vaapi
         --disable-vdpau
         --disable-videotoolbox
+        --enable-openssl
         --enable-pic
         ${FFmpeg_CFLAGS}
         ${FFmpeg_CXXFLAGS}
@@ -70,7 +75,7 @@ else()
         ${FFmpeg_LDFLAGS}
         --x86asmexe=${CMAKE_INSTALL_PREFIX}/bin/nasm)
     if(TLRENDER_NET)
-        list(APPEND FFmpeg_CONFIGURE_ARGS --enable-mbedtls)
+        list(APPEND FFmpeg_CONFIGURE_ARGS --enable-openssl)
     endif()
     if(FFmpeg_SHARED_LIBS)
         list(APPEND FFmpeg_CONFIGURE_ARGS

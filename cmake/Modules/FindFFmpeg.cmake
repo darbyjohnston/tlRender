@@ -19,12 +19,9 @@
 #
 # * FFmpeg
 
-find_package(ZLIB REQUIRED)
-
 find_path(FFmpeg_INCLUDE_DIR NAMES libavcodec/avcodec.h)
 set(FFmpeg_INCLUDE_DIRS
-    ${FFmpeg_INCLUDE_DIR}
-    ${ZLIB_INCLUDE_DIRS})
+    ${FFmpeg_INCLUDE_DIR})
 
 find_library(FFmpeg_avcodec_LIBRARY NAMES avcodec)
 find_library(FFmpeg_avdevice_LIBRARY NAMES avdevice)
@@ -40,8 +37,12 @@ set(FFmpeg_LIBRARIES
     ${FFmpeg_avutil_LIBRARY}
     ${FFmpeg_avfilter_LIBRARY}
     ${FFmpeg_swresample_LIBRARY}
-    ${FFmpeg_avdevice_LIBRARY}
-    ${ZLIB_LIBRARIES})
+    ${FFmpeg_avdevice_LIBRARY})
+if(TLRENDER_NET)
+    find_package(OpenSSL REQUIRED)
+    list(APPEND FFmpeg_INCLUDE_DIRS ${OPENSSL_INCLUDE_DIR})
+    list(APPEND FFmpeg_LIBRARIES ${OPENSSL_LIBRARIES})
+endif()
 if(APPLE)
     list(APPEND FFmpeg_LIBRARIES
         "-framework Security"
@@ -98,7 +99,7 @@ if(FFmpeg_FOUND AND NOT TARGET FFmpeg::avcodec)
     add_library(FFmpeg::avcodec UNKNOWN IMPORTED)
     set_target_properties(FFmpeg::avcodec PROPERTIES
         IMPORTED_LOCATION "${FFmpeg_avcodec_LIBRARY}"
-        INTERFACE_LINK_LIBRARIES "FFmpeg::swresample;FFmpeg::avutil;ZLIB")
+        INTERFACE_LINK_LIBRARIES "FFmpeg::swresample;FFmpeg::avutil")
 endif()
 if(FFmpeg_FOUND AND NOT TARGET FFmpeg::avfilter)
     add_library(FFmpeg::avfilter UNKNOWN IMPORTED)
@@ -108,7 +109,7 @@ if(FFmpeg_FOUND AND NOT TARGET FFmpeg::avfilter)
 endif()
 if(FFmpeg_FOUND AND NOT TARGET FFmpeg::avformat)
     add_library(FFmpeg::avformat UNKNOWN IMPORTED)
-    set(FFmpeg_avformat_LINK_LIBRARIES FFmpeg::avcodec FFmpeg::swresample FFmpeg::avutil ZLIB)
+    set(FFmpeg_avformat_LINK_LIBRARIES FFmpeg::avcodec FFmpeg::swresample FFmpeg::avutil)
     if(${CMAKE_HOST_SYSTEM_PROCESSOR} MATCHES "arm" AND NOT APPLE)
        list(APPEND FFmpeg_avformat_LINK_LIBRARIES atomic)
     endif()
