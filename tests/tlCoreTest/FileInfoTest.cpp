@@ -102,6 +102,16 @@ namespace tl
                 f.sequence(FileInfo(Path("test.exr")));
                 TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(3, 3));
             }
+            {
+                FileInfo f(Path("test0999.exr"));
+                f.sequence(FileInfo(Path("test1000.exr")));
+                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(999, 1000));
+            }
+            {
+                FileInfo f(Path("0001.exr"));
+                f.sequence(FileInfo(Path("7800.exr")));
+                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(1, 7800));
+            }
         }
 
         void FileInfoTest::_list()
