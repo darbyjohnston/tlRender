@@ -35,7 +35,8 @@ namespace tl
         {
             if (!_path.getNumber().empty() &&
                 !value._path.getNumber().empty() &&
-                _path.getPadding() == value._path.getPadding())
+                (_path.getPadding() == value._path.getPadding() ||
+                 _path.getPadding() == value._path.getNumber().size()))
             {
                 math::IntRange sequence = _path.getSequence();
                 const math::IntRange& otherSequence = value._path.getSequence();
