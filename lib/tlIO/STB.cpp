@@ -28,6 +28,7 @@ namespace tl
                 {
                     { ".tga", io::FileType::Sequence },
                     { ".bmp", io::FileType::Sequence },
+                    { ".hdr", io::FileType::Sequence },
                     { ".psd", io::FileType::Sequence },
                 },
                 cache,
@@ -60,6 +61,7 @@ namespace tl
             case image::PixelType::LA_U8:
             case image::PixelType::RGB_U8:
             case image::PixelType::RGBA_U8:
+            case image::PixelType::RGB_F32:
                 out.pixelType = info.pixelType;
                 break;
             default: break;

@@ -26,11 +26,13 @@ namespace tl
                     const auto& info = image->getInfo();
                     const int comp = image::getChannelCount(info.pixelType);
                     const size_t bytes = image::getBitDepth(info.pixelType) / 8;
-                    if (bytes > 1)
-                        throw std::runtime_error(string::Format("{0}: {1}").
-                            arg(fileName).
-                            arg("Unsupported image depth"));
-                    
+                    if (bytes != 1 && bytes != 4)
+                        throw std::runtime_error(
+                            string::Format("{0}: {1} - Bytes {2}.")
+                                .arg(fileName)
+                                .arg("Unsupported image depth")
+                                .arg(bytes));
+
                     stbi_flip_vertically_on_write(1);
     
                     file::Path path(fileName);
@@ -53,6 +55,15 @@ namespace tl
                         res = stbi_write_bmp(
                             fileName.c_str(), info.size.w, info.size.h, comp,
                             image->getData());
+                    }
+                    else if (string::compare(
+                        ext,
+                        ".hdr",
+                        string::Compare::CaseInsensitive))
+                    {
+                        res = stbi_write_hdr(
+                            fileName.c_str(), info.size.w, info.size.h, comp,
+                            reinterpret_cast<float*>(image->getData()));
                     }
                     else
                     {
