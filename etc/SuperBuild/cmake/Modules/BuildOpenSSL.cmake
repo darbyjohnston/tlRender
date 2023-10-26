@@ -3,6 +3,8 @@ include(ExternalProject)
 set(OpenSSL_GIT_REPOSITORY "https://github.com/openssl/openssl.git")
 set(OpenSSL_GIT_TAG "openssl-3.1.4")
 
+# \todo If these args are changed they also need to be updated in:
+# "\etc\Windows\build_ffmpeg_wsl.sh"
 set(OpenSSL_CONFIGURE_ARGS
     --prefix=${CMAKE_INSTALL_PREFIX}
     --openssldir=${CMAKE_INSTALL_PREFIX}

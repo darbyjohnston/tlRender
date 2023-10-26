@@ -11,6 +11,8 @@ set(FFmpeg_DEBUG OFF)
 if(WIN32)
     # See the directions for building FFmpeg on Windows in "docs/build_windows.html".
 else()
+    # \todo If these args are changed they also need to be updated in:
+    # "\etc\Windows\build_ffmpeg_wsl.sh"
     set(FFmpeg_CFLAGS "--extra-cflags=-I${CMAKE_INSTALL_PREFIX}/include")
     set(FFmpeg_CXXFLAGS "--extra-cxxflags=-I${CMAKE_INSTALL_PREFIX}/include")
     set(FFmpeg_OBJCFLAGS "--extra-objcflags=-I${CMAKE_INSTALL_PREFIX}/include")
@@ -67,7 +69,6 @@ else()
         --disable-vaapi
         --disable-vdpau
         --disable-videotoolbox
-        --enable-openssl
         --enable-pic
         ${FFmpeg_CFLAGS}
         ${FFmpeg_CXXFLAGS}

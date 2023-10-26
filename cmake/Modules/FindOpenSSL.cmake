@@ -20,8 +20,8 @@ set(OpenSSL_VERSION "3.1.4")
 find_path(OpenSSL_INCLUDE_DIR NAMES openssl/ssl.h)
 set(OpenSSL_INCLUDE_DIRS ${OpenSSL_INCLUDE_DIR})
 
-find_library(OpenSSL_SSL_LIBRARY NAMES ssl PATH_SUFFIXES lib64)
-find_library(OpenSSL_Crypto_LIBRARY NAMES crypto PATH_SUFFIXES lib64)
+find_library(OpenSSL_SSL_LIBRARY NAMES ssl libssl PATH_SUFFIXES lib64)
+find_library(OpenSSL_Crypto_LIBRARY NAMES crypto libcrypto PATH_SUFFIXES lib64)
 set(OpenSSL_LIBRARIES ${OpenSSL_SSL_LIBRARY} ${OpenSSL_Crypto_LIBRARY})
 
 include(FindPackageHandleStandardArgs)
