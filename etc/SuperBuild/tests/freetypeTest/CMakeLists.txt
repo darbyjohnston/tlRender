@@ -1,8 +1,8 @@
-find_package(freetype REQUIRED)
+find_package(Freetype REQUIRED)
 
 set(source main.cpp)
 
-add_executable(freetypeTest ${header} ${source})
-target_link_libraries(freetypeTest Freetype::Freetype ZLIB)
+add_executable(FreetypeTest ${header} ${source})
+target_link_libraries(FreetypeTest Freetype::Freetype ZLIB)
 
-add_test(freetypeTest freetypeTest)
+add_test(FreetypeTest FreetypeTest)

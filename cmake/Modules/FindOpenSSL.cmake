@@ -3,8 +3,12 @@
 # This module defines the following variables:
 #
 # * OpenSSL_VERSION
+# * OPENSSL_VERSION
 # * OpenSSL_INCLUDE_DIRS
+# * OPENSSL_INCLUDE_DIRS
 # * OpenSSL_LIBRARIES
+# * OPENSSL_LIBRARIES
+# * OPENSSL_VERSION
 #
 # This module defines the following imported targets:
 #
@@ -16,20 +20,24 @@
 # * OpenSSL
 
 set(OpenSSL_VERSION "3.1.4")
+set(OPENSSL_VERSION ${OpenSSL_VERSION})
 
 find_path(OpenSSL_INCLUDE_DIR NAMES openssl/ssl.h)
 set(OpenSSL_INCLUDE_DIRS ${OpenSSL_INCLUDE_DIR})
+set(OPENSSL_INCLUDE_DIR ${OpenSSL_INCLUDE_DIR})
+set(OPENSSL_INCLUDE_DIRS ${OpenSSL_INCLUDE_DIRS})
 
 find_library(OpenSSL_SSL_LIBRARY NAMES ssl libssl PATH_SUFFIXES lib64)
 find_library(OpenSSL_Crypto_LIBRARY NAMES crypto libcrypto PATH_SUFFIXES lib64)
 set(OpenSSL_LIBRARIES ${OpenSSL_SSL_LIBRARY} ${OpenSSL_Crypto_LIBRARY})
+set(OPENSSL_LIBRARIES ${OpenSSL_LIBRARIES})
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
     OpenSSL
     REQUIRED_VARS OpenSSL_INCLUDE_DIR OpenSSL_SSL_LIBRARY OpenSSL_Crypto_LIBRARY
     VERSION_VAR OpenSSL_VERSION)
-mark_as_advanced(OpenSSL_INCLUDE_DIR OpenSSL_SSL_LIBRARY OpenSSL_Crypto_LIBRARY)
+mark_as_advanced(OpenSSL_INCLUDE_DIR OpenSSL_SSL_LIBRARY OpenSSL_Crypto_LIBRARY OPENSSL_INCLUDE_DIR)
 
 if(OpenSSL_FOUND AND NOT TARGET OpenSSL::SSL)
     add_library(OpenSSL::SSL UNKNOWN IMPORTED)

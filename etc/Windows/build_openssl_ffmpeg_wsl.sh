@@ -1,5 +1,20 @@
 #!/bin/sh
 
+wget https://github.com/openssl/openssl/archive/refs/tags/openssl-3.1.4.tar.gz
+tar xvf openssl-3.1.4.tar.gz
+cd openssl-openssl-3.1.4
+./Configure \
+    --prefix=$1 \
+    --openssldir=$1 \
+    no-zlib \
+    mingw64 --cross-compile-prefix=x86_64-w64-mingw32-
+make -j
+make -j install
+# \bug Rename the files
+cp $1/lib64/libssl.dll.a $1/lib64/libssl.lib
+cp $1/lib64/libcrypto.dll.a $1/lib64/libcrypto.lib
+cd ..
+
 wget https://ffmpeg.org/releases/ffmpeg-6.0.tar.bz2
 tar xvf ffmpeg-6.0.tar.bz2
 cd ffmpeg-6.0
@@ -45,6 +60,7 @@ cd ffmpeg-6.0
     --disable-vaapi \
     --disable-vdpau \
     --disable-videotoolbox \
+    --enable-openssl \
     --enable-pic \
     --arch=x86_64 \
     --cross-prefix=x86_64-w64-mingw32- \

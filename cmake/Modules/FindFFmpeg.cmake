@@ -81,7 +81,8 @@ if(FFmpeg_FOUND AND NOT TARGET FFmpeg::avutil)
     set_target_properties(FFmpeg::avutil PROPERTIES
         IMPORTED_LOCATION "${FFmpeg_avutil_LIBRARY}"
         INTERFACE_COMPILE_DEFINITIONS FFmpeg_FOUND
-        INTERFACE_INCLUDE_DIRECTORIES "${FFmpeg_INCLUDE_DIR}")
+        INTERFACE_INCLUDE_DIRECTORIES "${FFmpeg_INCLUDE_DIR}"
+        INTERFACE_LINK_LIBRARIES "OpenSSL")
 endif()
 if(FFmpeg_FOUND AND NOT TARGET FFmpeg::swresample)
     add_library(FFmpeg::swresample UNKNOWN IMPORTED)
