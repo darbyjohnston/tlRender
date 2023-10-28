@@ -77,12 +77,16 @@ mark_as_advanced(
     FFmpeg_swscale_LIBRARY)
 
 if(FFmpeg_FOUND AND NOT TARGET FFmpeg::avutil)
+    set(FFmpeg_avutil_INTERFACE_LINK_LIBRARIES)
+    if(TLRENDER_NET)
+        list(APPEND FFmpeg_avutil_INTERFACE_LINK_LIBRARIES OpenSSL
+    endif()
     add_library(FFmpeg::avutil UNKNOWN IMPORTED)
     set_target_properties(FFmpeg::avutil PROPERTIES
         IMPORTED_LOCATION "${FFmpeg_avutil_LIBRARY}"
         INTERFACE_COMPILE_DEFINITIONS FFmpeg_FOUND
         INTERFACE_INCLUDE_DIRECTORIES "${FFmpeg_INCLUDE_DIR}"
-        INTERFACE_LINK_LIBRARIES "OpenSSL")
+        INTERFACE_LINK_LIBRARIES "${FFmpeg_avutil_INTERFACE_LINK_LIBRARIES}")
 endif()
 if(FFmpeg_FOUND AND NOT TARGET FFmpeg::swresample)
     add_library(FFmpeg::swresample UNKNOWN IMPORTED)
