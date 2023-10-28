@@ -79,7 +79,7 @@ mark_as_advanced(
 if(FFmpeg_FOUND AND NOT TARGET FFmpeg::avutil)
     set(FFmpeg_avutil_INTERFACE_LINK_LIBRARIES)
     if(TLRENDER_NET)
-        list(APPEND FFmpeg_avutil_INTERFACE_LINK_LIBRARIES OpenSSL
+        list(APPEND FFmpeg_avutil_INTERFACE_LINK_LIBRARIES OpenSSL)
     endif()
     add_library(FFmpeg::avutil UNKNOWN IMPORTED)
     set_target_properties(FFmpeg::avutil PROPERTIES
