@@ -9,10 +9,11 @@ set(FFmpeg_SHARED_LIBS ON)
 set(FFmpeg_DEBUG OFF)
 
 if(WIN32)
-    # See the directions for building FFmpeg on Windows in "docs/build_windows.html".
+    # See the directions for building FFmpeg on Windows in "README.md".
 else()
     # \todo If these args are changed they also need to be updated in:
     # "\etc\Windows\build_ffmpeg_wsl.sh"
+    # "\etc\Windows\build_openssl_ffmpeg_wsl.sh"
     set(FFmpeg_CFLAGS "--extra-cflags=-I${CMAKE_INSTALL_PREFIX}/include")
     set(FFmpeg_CXXFLAGS "--extra-cxxflags=-I${CMAKE_INSTALL_PREFIX}/include")
     set(FFmpeg_OBJCFLAGS "--extra-objcflags=-I${CMAKE_INSTALL_PREFIX}/include")
