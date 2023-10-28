@@ -78,8 +78,6 @@ Required dependencies:
 Optional dependencies:
 * [GLFW](https://www.glfw.org/)
 * [OpenSSL](https://www.openssl.org)
-* [libssh2](https://libssh2.org)
-* [Curl](https://curl.se)
 * [OpenColorIO](https://github.com/AcademySoftwareFoundation/OpenColorIO)
 * [RtAudio](https://github.com/thestk/rtaudio)
 * [libsamplerate](https://github.com/libsndfile/libsamplerate)
