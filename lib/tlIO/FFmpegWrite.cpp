@@ -315,8 +315,8 @@ namespace tl
             case image::PixelType::L_U8:
             case image::PixelType::L_U16:
             case image::PixelType::RGB_U8:
-            case image::PixelType::RGBA_U8:
             case image::PixelType::RGB_U16:
+            case image::PixelType::RGBA_U8:
             case image::PixelType::RGBA_U16:
             {
                 const size_t channelCount = image::getChannelCount(info.pixelType);
