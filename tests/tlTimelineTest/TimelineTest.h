@@ -24,12 +24,14 @@ namespace tl
 
         private:
             void _enums();
+            void _options();
             void _util();
             void _transitions();
             void _videoData();
             void _timeline();
             void _timeline(const std::shared_ptr<timeline::Timeline>&);
             void _separateAudio();
+            void _setTimeline();
         };
     }
 }

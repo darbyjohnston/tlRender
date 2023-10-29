@@ -36,37 +36,31 @@ namespace tl
         void TimelineTest::run()
         {
             _enums();
+            _options();
             _util();
             _transitions();
             _videoData();
             _timeline();
             _separateAudio();
+            _setTimeline();
         }
 
         void TimelineTest::_enums()
         {
+            _enum<FileSequenceAudio>("FileSequenceAudio", getFileSequenceAudioEnums);
             _enum<Transition>("Transition", getTransitionEnums);
+        }
+
+        void TimelineTest::_options()
+        {
+            Options a;
+            a.fileSequenceAudio = FileSequenceAudio::Directory;
+            TLRENDER_ASSERT(a == a);
+            TLRENDER_ASSERT(a != Options());
         }
 
         void TimelineTest::_util()
         {
-            for (const auto& i : getExtensions(
-                static_cast<int>(io::FileType::Movie) |
-                static_cast<int>(io::FileType::Sequence) |
-                static_cast<int>(io::FileType::Audio),
-                _context))
-            {
-                std::stringstream ss;
-                ss << "Timeline extension: " << i;
-                _print(ss.str());
-            }
-            for (const auto& path : getPaths(
-                file::Path(TLRENDER_SAMPLE_DATA),
-                file::PathOptions(),
-                _context))
-            {
-                _print(string::Format("Path: {0}").arg(path.get()));
-            }
         }
 
         void TimelineTest::_transitions()
@@ -222,6 +216,30 @@ namespace tl
             try
             {
                 const file::Path path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg");
+                const file::Path audioPath(TLRENDER_SAMPLE_DATA, "BART_2021-02-07.m4v");
+                auto timeline = Timeline::create(path.get(), audioPath.get(), _context);
+                TLRENDER_ASSERT(path == timeline->getPath());
+                TLRENDER_ASSERT(audioPath == timeline->getAudioPath());
+            }
+            catch (const std::exception& e)
+            {
+                _printError(e.what());
+            }
+            try
+            {
+                const file::Path path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg");
+                const file::Path audioPath(TLRENDER_SAMPLE_DATA, "BART_2021-02-07.m4v");
+                auto timeline = Timeline::create(path, audioPath, _context);
+                TLRENDER_ASSERT(path == timeline->getPath());
+                TLRENDER_ASSERT(audioPath == timeline->getAudioPath());
+            }
+            catch (const std::exception& e)
+            {
+                _printError(e.what());
+            }
+            try
+            {
+                const file::Path path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg");
                 _print(string::Format("Path: {0}").arg(path.get()));
                 Options options;
                 options.fileSequenceAudio = FileSequenceAudio::None;
@@ -286,6 +304,18 @@ namespace tl
                 _printError(e.what());
             }
 #endif // TLRENDER_FFMPEG
+        }
+
+        void TimelineTest::_setTimeline()
+        {
+            auto timeline = Timeline::create(
+                file::Path(TLRENDER_SAMPLE_DATA, "SingleClip.otio"),
+                _context);
+            auto otioTimeline = timeline::create(
+                file::Path(TLRENDER_SAMPLE_DATA, "SingleClipSeq.otio"),
+                _context);
+            timeline->setTimeline(otioTimeline);
+            TLRENDER_ASSERT(otioTimeline.value == timeline->getTimeline().value);
         }
     }
 }

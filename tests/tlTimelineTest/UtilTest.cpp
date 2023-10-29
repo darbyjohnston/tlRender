@@ -8,6 +8,7 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/FileInfo.h>
+#include <tlCore/StringFormat.h>
 
 #include <opentimelineio/clip.h>
 
@@ -29,6 +30,7 @@ namespace tl
         void UtilTest::run()
         {
             _enums();
+            _extensions();
             _ranges();
             _util();
             _otioz();
@@ -36,7 +38,29 @@ namespace tl
 
         void UtilTest::_enums()
         {
-            _enum<FileSequenceAudio>("FileSequenceAudio", getFileSequenceAudioEnums);
+            _enum<CacheDirection>("CacheDirection", getCacheDirectionEnums);
+            _enum<ToMemoryReference>("ToMemoryReference", getToMemoryReferenceEnums);
+        }
+
+        void UtilTest::_extensions()
+        {
+            for (const auto& i : getExtensions(
+                static_cast<int>(io::FileType::Movie) |
+                static_cast<int>(io::FileType::Sequence) |
+                static_cast<int>(io::FileType::Audio),
+                _context))
+            {
+                std::stringstream ss;
+                ss << "Timeline extension: " << i;
+                _print(ss.str());
+            }
+            for (const auto& path : getPaths(
+                file::Path(TLRENDER_SAMPLE_DATA),
+                file::PathOptions(),
+                _context))
+            {
+                _print(string::Format("Path: {0}").arg(path.get()));
+            }
         }
 
         void UtilTest::_ranges()

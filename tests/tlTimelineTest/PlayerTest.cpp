@@ -447,6 +447,7 @@ namespace tl
             auto timeline2 = Timeline::create(path2, _context);
             auto player2 = Player::create(timeline2, _context);
             player2->setExternalTime(player);
+            player2->setExternalTime(player);
 
             player->setPlayback(Playback::Forward);
             for (size_t i = 0; i < timeRange.duration().rate(); ++i)
@@ -454,6 +455,8 @@ namespace tl
                 player->tick();
                 time::sleep(std::chrono::milliseconds(1));
             }
+
+            player2->setExternalTime(nullptr);
         }
     }
 }
