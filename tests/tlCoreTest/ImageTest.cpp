@@ -200,6 +200,12 @@ namespace tl
                 TLRENDER_ASSERT(static_cast<const Image*>(image.get())->getData());
             }
             {
+                auto image = Image::create(Size(1, 2), PixelType::L_U8);
+                TLRENDER_ASSERT(image->getWidth() == 1);
+                TLRENDER_ASSERT(image->getHeight() == 2);
+                TLRENDER_ASSERT(image->getPixelType() == PixelType::L_U8);
+            }
+            {
                 auto image = Image::create(1, 2, PixelType::L_U8);
                 TLRENDER_ASSERT(image->getWidth() == 1);
                 TLRENDER_ASSERT(image->getHeight() == 2);

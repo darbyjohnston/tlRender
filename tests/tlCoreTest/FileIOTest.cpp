@@ -275,6 +275,8 @@ namespace tl
             {
                 auto io = FileIO::create(std::string(), file::Mode::Write);
                 uint8_t buf[16];
+                //! \todo This does not get tested since FileIO::create throws
+                //! an exception.
                 io->write(buf, 16, 1);
                 TLRENDER_ASSERT(false);
             }
@@ -286,6 +288,8 @@ namespace tl
             try
             {
                 auto io = FileIO::create(std::string(), file::Mode::Write);
+                //! \todo This does not get tested since FileIO::create throws
+                //! an exception.
                 io->setPos(16);
                 TLRENDER_ASSERT(false);
             }
@@ -297,6 +301,8 @@ namespace tl
             try
             {
                 auto io = FileIO::create(std::string(), file::Mode::Write);
+                //! \todo This does not get tested since FileIO::create throws
+                //! an exception.
                 io->seek(16);
                 TLRENDER_ASSERT(false);
             }

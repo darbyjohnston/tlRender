@@ -471,17 +471,23 @@ namespace tl
 
         void AudioTest::_resample()
         {
+            for (auto dataType : getDataTypeEnums())
             {
-                const Info a(2, DataType::S16, 44100);
-                const Info b(1, DataType::S16, 44100);
+                if (DataType::S8 == dataType)
+                    continue;
+                const Info a(2, dataType, 44100);
+                const Info b(1, dataType, 44100);
                 auto r = AudioResample::create(a, b);
                 TLRENDER_ASSERT(a == r->getInputInfo());
                 TLRENDER_ASSERT(b == r->getOutputInfo());
                 auto in = Audio::create(a, 44100);
                 auto out = r->process(in);
 #if defined(TLRENDER_FFMPEG)
-                TLRENDER_ASSERT(b == out->getInfo());
-                TLRENDER_ASSERT(44100 == out->getSampleCount());
+                if (dataType != DataType::None)
+                {
+                    TLRENDER_ASSERT(b == out->getInfo());
+                    TLRENDER_ASSERT(44100 == out->getSampleCount());
+                }
 #endif // TLRENDER_FFMPEG
                 r->flush();
             }

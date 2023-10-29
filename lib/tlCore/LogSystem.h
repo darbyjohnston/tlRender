@@ -31,6 +31,7 @@ namespace tl
             Type type = Type::Message;
 
             bool operator == (const Item&) const;
+            bool operator != (const Item&) const;
         };
 
         //! String conversion options.

@@ -67,6 +67,7 @@
 #include <tlCoreTest/ImageTest.h>
 #include <tlCoreTest/LRUCacheTest.h>
 #include <tlCoreTest/ListObserverTest.h>
+#include <tlCoreTest/LogSystemTest.h>
 #include <tlCoreTest/MapObserverTest.h>
 #include <tlCoreTest/MathTest.h>
 #include <tlCoreTest/MatrixTest.h>
@@ -109,6 +110,7 @@ void coreTests(
     tests.push_back(core_tests::ImageTest::create(context));
     tests.push_back(core_tests::LRUCacheTest::create(context));
     tests.push_back(core_tests::ListObserverTest::create(context));
+    tests.push_back(core_tests::LogSystemTest::create(context));
     tests.push_back(core_tests::MapObserverTest::create(context));
     tests.push_back(core_tests::MathTest::create(context));
     tests.push_back(core_tests::MatrixTest::create(context));

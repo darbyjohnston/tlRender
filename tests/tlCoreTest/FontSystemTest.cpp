@@ -6,8 +6,7 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/FontSystem.h>
-
-#include <sstream>
+#include <tlCore/StringFormat.h>
 
 using namespace tl::image;
 
@@ -26,6 +25,16 @@ namespace tl
 
         void FontSystemTest::run()
         {
+            for (const auto& font :
+                {
+                    "NotoMono-Regular",
+                    "NotoSans-Regular",
+                    "NotoSans-Bold"
+                })
+            {
+                auto data = getFontData(font);
+                TLRENDER_ASSERT(!data.empty());
+            }
             {
                 const FontInfo fi;
                 TLRENDER_ASSERT("NotoSans-Regular" == fi.family);
@@ -67,9 +76,11 @@ namespace tl
                 GlyphInfo b(1, FontInfo("NotoMono-Regular", 14));
                 TLRENDER_ASSERT(a < b);
             }
+            auto fontSystem = _context->getSystem<image::FontSystem>();
+            for (auto fontSize : { 14, 0 })
             {
-                auto fontSystem = _context->getSystem<image::FontSystem>();
-                FontInfo fi("NotoMono-Regular", 14);
+                _print(string::Format("Font size: {0}").arg(fontSize));
+                FontInfo fi("NotoMono-Regular", fontSize);
                 auto fm = fontSystem->getMetrics(fi);
                 std::vector<std::string> text =
                 {
@@ -85,24 +96,16 @@ namespace tl
                 };
                 for (size_t i = 0; i < text.size(); ++i)
                 {
-                    {
-                        std::stringstream ss;
-                        ss << "Text: " << text[i];
-                        _print(ss.str());
-                    }
-                    const auto size = fontSystem->getSize(text[i], fi, maxLineWidth[i]);
-                    {
-                        std::stringstream ss;
-                        ss << "Size: " << size;
-                        _print(ss.str());
-                    }
+                    _print(string::Format("Text: {0}").arg(text[i]));
+                    const math::Size2i size = fontSystem->getSize(text[i], fi, maxLineWidth[i]);
+                    _print(string::Format("Size: {0}").arg(size));
                     const auto boxes = fontSystem->getBox(text[i], fi, maxLineWidth[i]);
                     TLRENDER_ASSERT(text[i].size() == boxes.size());
                     for (size_t j = 0; j < text[i].size(); ++j)
                     {
-                        std::stringstream ss;
-                        ss << "Box '" << text[i][j] << "': " << boxes[j];
-                        _print(ss.str());
+                        _print(string::Format("Box '{0}': {1}").
+                            arg(text[i][j]).
+                            arg(boxes[j]));
                     }
                     const auto glyphs = fontSystem->getGlyphs(text[i], fi);
                     TLRENDER_ASSERT(text[i].size() == glyphs.size());
@@ -113,20 +116,14 @@ namespace tl
                         {
                             size = glyphs[j]->image->getSize();
                         }
-                        std::stringstream ss;
-                        ss << "Glyph '" << text[i][j] << "' size: " << size;
-                        _print(ss.str());
+                        _print(string::Format("Glyph '{0}': {1}").
+                            arg(text[i][j]).
+                            arg(size));
                     }
-                    {
-                        std::stringstream ss;
-                        ss << "Glyph cache size: " << fontSystem->getGlyphCacheSize();
-                        _print(ss.str());
-                    }
-                    {
-                        std::stringstream ss;
-                        ss << "Glyph cache percentage: " << fontSystem->getGlyphCachePercentage();
-                        _print(ss.str());
-                    }
+                    _print(string::Format("Glyph cache size: {0}").
+                        arg(fontSystem->getGlyphCacheSize()));
+                    _print(string::Format("Glyph cache percentage: {0}%").
+                        arg(fontSystem->getGlyphCachePercentage()));
                 }
             }
         }

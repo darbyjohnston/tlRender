@@ -12,6 +12,7 @@ set(HEADERS
     ImageTest.h
     LRUCacheTest.h
     ListObserverTest.h
+    LogSystemTest.h
     MapObserverTest.h
     MathTest.h
     MatrixTest.h
@@ -41,6 +42,7 @@ set(SOURCE
     ImageTest.cpp
     LRUCacheTest.cpp
     ListObserverTest.cpp
+    LogSystemTest.cpp
     MapObserverTest.cpp
     MathTest.cpp
     MatrixTest.cpp

@@ -22,6 +22,11 @@ namespace tl
                 type == other.type;
         }
 
+        bool Item::operator != (const Item& other) const
+        {
+            return !(*this == other);
+        }
+
         std::string toString(const Item& item, size_t options)
         {
             std::stringstream ss;
