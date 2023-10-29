@@ -471,10 +471,15 @@ namespace tl
 
         void AudioTest::_resample()
         {
-            for (auto dataType : getDataTypeEnums())
+            for (auto dataType :
+                {
+                    DataType::S16,
+                    DataType::S32,
+                    DataType::F32,
+                    DataType::F64,
+                    DataType::None
+                })
             {
-                if (DataType::S8 == dataType)
-                    continue;
                 const Info a(2, dataType, 44100);
                 const Info b(1, dataType, 44100);
                 auto r = AudioResample::create(a, b);
