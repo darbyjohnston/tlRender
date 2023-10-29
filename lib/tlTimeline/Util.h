@@ -36,8 +36,8 @@ namespace tl
             Count,
             First = Forward
         };
-        TLRENDER_ENUM(FileSequenceAudio);
-        TLRENDER_ENUM_SERIALIZE(FileSequenceAudio);
+        TLRENDER_ENUM(CacheDirection);
+        TLRENDER_ENUM_SERIALIZE(CacheDirection);
 
         //! Loop the cache time range.
         std::vector<otime::TimeRange> loopCache(
