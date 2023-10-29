@@ -52,6 +52,7 @@ namespace tl
                     lines[i].insert(0, string::Format("{0}: ").arg(i));
                 }
                 lines.push_back(infoLog);
+                //std::cout << string::join(lines, '\n') << std::endl;
                 throw std::runtime_error(string::join(lines, '\n'));
             }
 
@@ -77,6 +78,7 @@ namespace tl
                     lines[i].insert(0, string::Format("{0}: ").arg(i));
                 }
                 lines.push_back(infoLog);
+                //std::cout << string::join(lines, '\n') << std::endl;
                 throw std::runtime_error(string::join(lines, '\n'));
             }
 

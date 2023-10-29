@@ -270,11 +270,17 @@ namespace tl
             }
             if (p.depthStencilID)
             {
+                const GLenum attachment =
+                    p.options.stencil != OffscreenStencil::None ?
+#if defined(TLRENDER_API_GL_4_1)
+                    GL_DEPTH_STENCIL_ATTACHMENT :
+#elif defined(TLRENDER_API_GLES_2)
+                    GL_STENCIL_ATTACHMENT :
+#endif // TLRENDER_API_GL_4_1
+                    GL_DEPTH_ATTACHMENT;
                 glFramebufferRenderbuffer(
                     GL_FRAMEBUFFER,
-                    p.options.stencil != OffscreenStencil::None ?
-                        GL_DEPTH_STENCIL_ATTACHMENT :
-                        GL_DEPTH_ATTACHMENT,
+                    attachment,
                     GL_RENDERBUFFER,
                     p.depthStencilID);
             }

@@ -302,7 +302,7 @@ namespace tl
                             0,
                             GLsizei(p.frameBufferSize.w),
                             GLsizei(p.frameBufferSize.h));
-                        glClearColor(1.F, 0.F, 0.F, 0.F);
+                        glClearColor(0.F, 0.F, 0.F, 0.F);
                         glClear(GL_COLOR_BUFFER_BIT);
 #if defined(TLRENDER_API_GL_4_1)
                         glBindFramebuffer(
@@ -325,18 +325,18 @@ namespace tl
                             try
                             {
                                 const std::string vertexSource =
-                                    "precision mediump int;\n"
                                     "precision mediump float;\n"
                                     "\n"
                                     "attribute vec3 vPos;\n"
                                     "attribute vec2 vTexture;\n"
-                                    "\n"
                                     "varying vec2 fTexture;\n"
                                     "\n"
-                                    "uniform struct Transform\n"
+                                    "struct Transform\n"
                                     "{\n"
                                     "    mat4 mvp;\n"
-                                    "} transform;\n"
+                                    "};\n"
+                                    "\n"
+                                    "uniform Transform transform;\n"
                                     "\n"
                                     "void main()\n"
                                     "{\n"
@@ -344,7 +344,6 @@ namespace tl
                                     "    fTexture = vTexture;\n"
                                     "}\n";
                                 const std::string fragmentSource =
-                                    "precision mediump int;\n"
                                     "precision mediump float;\n"
                                     "\n"
                                     "varying vec2 fTexture;\n"
@@ -353,8 +352,7 @@ namespace tl
                                     "\n"
                                     "void main()\n"
                                     "{\n"
-                                    //"    gl_FragColor = texture2D(textureSampler, fTexture);\n"
-                                    "    gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
+                                    "    gl_FragColor = texture2D(textureSampler, fTexture);\n"
                                     "}\n";
                                 p.shader = gl::Shader::create(vertexSource, fragmentSource);
                             }
@@ -366,16 +364,18 @@ namespace tl
                         }
                         if (p.shader)
                         {
+                            glBindFramebuffer(GL_FRAMEBUFFER, 0);
                             glDisable(GL_BLEND);
                             glDisable(GL_SCISSOR_TEST);
 
                             p.shader->bind();
-                            p.shader->setUniform("transform.mvp",
+                            p.shader->setUniform(
+                                "transform.mvp",
                                 math::ortho(
                                     0.F,
                                     static_cast<float>(p.frameBufferSize.w),
-                                    static_cast<float>(p.frameBufferSize.h),
                                     0.F,
+                                    static_cast<float>(p.frameBufferSize.h),
                                     -1.F,
                                     1.F));
                             p.shader->setUniform("textureSampler", 0);
@@ -390,11 +390,11 @@ namespace tl
                                 p.frameBufferSize.h));
                             auto vboData = gl::convert(
                                 mesh,
-                                gl::VBOType::Pos3_F32_UV_U16,
+                                gl::VBOType::Pos2_F32_UV_U16,
                                 math::SizeTRange(0, mesh.triangles.size() - 1));
-                            auto vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos3_F32_UV_U16);
+                            auto vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos2_F32_UV_U16);
                             vbo->copy(vboData);
-                            auto vao = gl::VAO::create(gl::VBOType::Pos3_F32_UV_U16, vbo->getID());
+                            auto vao = gl::VAO::create(gl::VBOType::Pos2_F32_UV_U16, vbo->getID());
                             vao->bind();
                             vao->draw(GL_TRIANGLES, 0, mesh.triangles.size() * 3);
                         }
