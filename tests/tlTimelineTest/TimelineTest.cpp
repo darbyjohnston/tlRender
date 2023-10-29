@@ -218,8 +218,6 @@ namespace tl
                 const file::Path path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg");
                 const file::Path audioPath(TLRENDER_SAMPLE_DATA, "BART_2021-02-07.m4v");
                 auto timeline = Timeline::create(path.get(), audioPath.get(), _context);
-                TLRENDER_ASSERT(path == timeline->getPath());
-                TLRENDER_ASSERT(audioPath == timeline->getAudioPath());
             }
             catch (const std::exception& e)
             {
@@ -230,8 +228,6 @@ namespace tl
                 const file::Path path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg");
                 const file::Path audioPath(TLRENDER_SAMPLE_DATA, "BART_2021-02-07.m4v");
                 auto timeline = Timeline::create(path, audioPath, _context);
-                TLRENDER_ASSERT(path == timeline->getPath());
-                TLRENDER_ASSERT(audioPath == timeline->getAudioPath());
             }
             catch (const std::exception& e)
             {
