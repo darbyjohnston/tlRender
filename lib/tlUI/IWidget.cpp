@@ -173,6 +173,16 @@ namespace tl
             _updates |= Update::Draw;
         }
 
+        void IWidget::setAlign(HAlign hAlign, VAlign vAlign)
+        {
+            if (hAlign == _hAlign && vAlign == _vAlign)
+                return;
+            _hAlign = hAlign;
+            _vAlign = vAlign;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
+        }
+
         void IWidget::setGeometry(const math::Box2i& value)
         {
             if (value == _geometry)
