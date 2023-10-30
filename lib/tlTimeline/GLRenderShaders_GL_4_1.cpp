@@ -57,7 +57,7 @@ namespace tl
                 "\n"
                 "in vec3 vPos;\n"
                 "in vec4 vColor;\n"
-                "out vec4 abcColor;\n"
+                "out vec4 fColor;\n"
                 "\n"
                 "struct Transform\n"
                 "{\n"
@@ -69,7 +69,7 @@ namespace tl
                 "void main()\n"
                 "{\n"
                 "    gl_Position = transform.mvp * vec4(vPos, 1.0);\n"
-                "    abcColor = vColor;\n"
+                "    fColor = vColor;\n"
                 "}\n";
         }
 
@@ -78,7 +78,7 @@ namespace tl
             return
                 "#version 410\n"
                 "\n"
-                "in vec4 abcColor;\n"
+                "in vec4 fColor;\n"
                 "out vec4 fColor;\n"
                 "\n"
                 "uniform vec4 color;\n"
@@ -86,7 +86,7 @@ namespace tl
                 "void main()\n"
                 "{\n"
                 "\n"
-                "    fColor = abcColor * color;\n"
+                "    fColor = fColor * color;\n"
                 "}\n";
         }
 
