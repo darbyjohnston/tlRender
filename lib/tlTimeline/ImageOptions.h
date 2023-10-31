@@ -73,6 +73,7 @@ namespace tl
             InputVideoLevels videoLevels  = InputVideoLevels::FromFile;
             AlphaBlend       alphaBlend   = AlphaBlend::Straight;
             ImageFilters     imageFilters;
+            bool             cache        = true;
 
             bool operator == (const ImageOptions&) const;
             bool operator != (const ImageOptions&) const;

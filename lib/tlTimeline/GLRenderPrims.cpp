@@ -292,8 +292,19 @@ namespace tl
             ++(p.currentStats.images);
 
             const auto& info = image->getInfo();
-            auto textures = p.textureBuffers.get(info, imageOptions.imageFilters);
-            copyTextures(image, textures);
+            std::vector<std::shared_ptr<gl::Texture> > textures;
+            if (!imageOptions.cache)
+            {
+                textures = getTextures(info, imageOptions.imageFilters);
+                copyTextures(image, textures);
+            }
+            else if (!p.textureCache.get(image.get(), textures))
+            {
+                textures = getTextures(info, imageOptions.imageFilters);
+                copyTextures(image, textures);
+                p.textureCache.add(image.get(), textures, image->getDataByteCount());
+            }
+            setActiveTextures(info, textures);
 
             p.shaders["image"]->bind();
             p.shaders["image"]->setUniform("color", color);
@@ -348,8 +359,6 @@ namespace tl
                 p.vaos["image"]->bind();
                 p.vaos["image"]->draw(GL_TRIANGLES, 0, p.vbos["image"]->getSize());
             }
-
-            p.textureBuffers.add(info, imageOptions.imageFilters, textures);
         }
     }
 }

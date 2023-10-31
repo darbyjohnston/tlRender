@@ -11,7 +11,7 @@ namespace tl
             return
                 clear == other.clear &&
                 clearColor == other.clearColor &&
-                textureBuffersSize == other.textureBuffersSize;
+                textureCacheByteCount == other.textureCacheByteCount;
         }
 
         inline bool RenderOptions::operator != (const RenderOptions& other) const

@@ -12,6 +12,8 @@
 #include <tlGL/Texture.h>
 #include <tlGL/TextureAtlas.h>
 
+#include <tlCore/LRUCache.h>
+
 #if defined(TLRENDER_OCIO)
 #include <OpenColorIO/OpenColorIO.h>
 #endif // TLRENDER_OCIO
@@ -41,40 +43,20 @@ namespace tl
             LUTOrder);
         std::string differenceFragmentSource();
 
+        std::vector<std::shared_ptr<gl::Texture> > getTextures(
+            const image::Info&,
+            const ImageFilters&,
+            size_t offset = 0);
+
         void copyTextures(
             const std::shared_ptr<image::Image>&,
             const std::vector<std::shared_ptr<gl::Texture> >&,
             size_t offset = 0);
 
-        class TextureBuffers
-        {
-        public:
-            void setSize(size_t);
-
-            std::vector<std::shared_ptr<gl::Texture> > get(
-                const image::Info&,
-                const ImageFilters&,
-                size_t offset = 0);
-
-            void add(
-                const image::Info&,
-                const ImageFilters&,
-                const std::vector<std::shared_ptr<gl::Texture> >&);
-
-        private:
-            void _update();
-
-            size_t _size = 6;
-
-            struct TextureData
-            {
-                image::Info info;
-                ImageFilters imageFilters;
-                std::vector<std::shared_ptr<gl::Texture> > texture;
-            };
-
-            std::list<TextureData> _buffers;
-        };
+        void setActiveTextures(
+            const image::Info& info,
+            const std::vector<std::shared_ptr<gl::Texture> >&,
+            size_t offset = 0);
 
 #if defined(TLRENDER_OCIO)
         struct OCIOTexture
@@ -136,7 +118,7 @@ namespace tl
 
             std::map<std::string, std::shared_ptr<gl::Shader> > shaders;
             std::map<std::string, std::shared_ptr<gl::OffscreenBuffer> > buffers;
-            TextureBuffers textureBuffers;
+            memory::LRUCache<void*, std::vector<std::shared_ptr<gl::Texture> > > textureCache;
             std::shared_ptr<gl::TextureAtlas> glyphTextureAtlas;
             std::map<image::GlyphInfo, gl::TextureAtlasID> glyphIDs;
             std::map<std::string, std::shared_ptr<gl::VBO> > vbos;

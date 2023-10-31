@@ -23,7 +23,8 @@ namespace tl
             return
                 videoLevels == other.videoLevels &&
                 alphaBlend == other.alphaBlend &&
-                imageFilters == other.imageFilters;
+                imageFilters == other.imageFilters &&
+                cache == other.cache;
         }
 
         inline bool ImageOptions::operator != (const ImageOptions& other) const
