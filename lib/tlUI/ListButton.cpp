@@ -16,13 +16,15 @@ namespace tl
 
             struct SizeData
             {
+                bool sizeInit = true;
                 int margin = 0;
                 int margin2 = 0;
                 int spacing = 0;
                 int border = 0;
+
+                bool textInit = true;
                 image::FontInfo fontInfo;
                 image::FontMetrics fontMetrics;
-                bool textInit = true;
                 math::Size2i textSize;
             };
             SizeData size;
@@ -76,6 +78,7 @@ namespace tl
             if (value == p.labelMarginRole)
                 return;
             p.labelMarginRole = value;
+            p.size.sizeInit = true;
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
@@ -88,7 +91,8 @@ namespace tl
             if (changed)
             {
                 p.size.textInit = true;
-                p.draw.glyphs.clear();
+                _updates |= Update::Size;
+                _updates |= Update::Draw;
             }
         }
 
@@ -100,33 +104,38 @@ namespace tl
             if (changed)
             {
                 p.size.textInit = true;
-                p.draw.glyphs.clear();
+                _updates |= Update::Size;
+                _updates |= Update::Draw;
             }
         }
 
         void ListButton::sizeHintEvent(const SizeHintEvent& event)
         {
+            const bool displayScaleChanged = event.displayScale != _displayScale;
             IButton::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, _displayScale);
-            p.size.margin2 = event.style->getSizeRole(p.labelMarginRole, _displayScale);
-            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, _displayScale);
-            p.size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
+            if (displayScaleChanged || p.size.sizeInit)
+            {
+                p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, _displayScale);
+                p.size.margin2 = event.style->getSizeRole(p.labelMarginRole, _displayScale);
+                p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, _displayScale);
+                p.size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
+            }
+            if (displayScaleChanged || p.size.textInit || p.size.sizeInit)
+            {
+                p.size.fontInfo = event.style->getFontRole(_fontRole, _displayScale);
+                p.size.fontMetrics = event.fontSystem->getMetrics(
+                    event.style->getFontRole(_fontRole, _displayScale));
+                p.size.textSize = event.fontSystem->getSize(_text, p.size.fontInfo);
+                p.draw.glyphs.clear();
+            }
+            p.size.sizeInit = false;
+            p.size.textInit = false;
 
             _sizeHint = math::Size2i();
             if (!_text.empty())
             {
-                p.size.fontMetrics = event.fontSystem->getMetrics(
-                    event.style->getFontRole(_fontRole, _displayScale));
-                const auto fontInfo = event.style->getFontRole(_fontRole, _displayScale);
-                if (fontInfo != p.size.fontInfo || p.size.textInit)
-                {
-                    p.size.fontInfo = fontInfo;
-                    p.size.textInit = false;
-                    p.size.textSize = event.fontSystem->getSize(_text, fontInfo);
-                    p.draw.glyphs.clear();
-                }
                 _sizeHint.w = p.size.textSize.w + p.size.margin2 * 2;
                 _sizeHint.h = p.size.fontMetrics.lineHeight + p.size.margin * 2;
             }

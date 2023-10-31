@@ -22,10 +22,12 @@ namespace tl
 
             struct SizeData
             {
+                bool sizeInit = true;
                 int margin = 0;
+
+                bool textInit = true;
                 image::FontInfo fontInfo;
                 image::FontMetrics fontMetrics;
-                bool textInit = true;
                 math::Size2i textSize;
             };
             SizeData size;
@@ -100,6 +102,7 @@ namespace tl
             if (value == p.marginRole)
                 return;
             p.marginRole = value;
+            p.size.sizeInit = true;
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
@@ -118,21 +121,23 @@ namespace tl
 
         void Label::sizeHintEvent(const SizeHintEvent& event)
         {
+            const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(p.marginRole, _displayScale);
-
-            p.size.fontMetrics = event.fontSystem->getMetrics(
-                event.style->getFontRole(p.fontRole, _displayScale));
-            const auto fontInfo = event.style->getFontRole(p.fontRole, _displayScale);
-            if (fontInfo != p.size.fontInfo || p.size.textInit)
+            if (displayScaleChanged || p.size.sizeInit)
             {
-                p.size.fontInfo = fontInfo;
-                p.size.textInit = false;
-                p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
+                p.size.margin = event.style->getSizeRole(p.marginRole, _displayScale);
+            }
+            if (displayScaleChanged || p.size.textInit || p.size.sizeInit)
+            {
+                p.size.fontInfo = event.style->getFontRole(p.fontRole, _displayScale);
+                p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
+                p.size.textSize = event.fontSystem->getSize(p.text, p.size.fontInfo);
                 p.draw.glyphs.clear();
             }
+            p.size.sizeInit = false;
+            p.size.textInit = false;
 
             _sizeHint.w =
                 p.size.textSize.w +

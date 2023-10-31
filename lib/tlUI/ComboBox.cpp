@@ -139,9 +139,12 @@ namespace tl
 
             struct SizeData
             {
+                bool sizeInit = true;
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
+
+                bool textInit = true;
                 image::FontInfo fontInfo;
                 image::FontMetrics fontMetrics;
                 math::Size2i textSize;
@@ -208,7 +211,7 @@ namespace tl
             p.iconInit = true;
             p.iconFuture = std::future<std::shared_ptr<image::Image> >();
             p.iconImage.reset();
-            p.draw.glyphs.clear();
+            p.size.textInit = true;
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
@@ -240,7 +243,7 @@ namespace tl
             p.iconInit = true;
             p.iconFuture = std::future<std::shared_ptr<image::Image> >();
             p.iconImage.reset();
-            p.draw.glyphs.clear();
+            p.size.textInit = true;
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
@@ -261,7 +264,7 @@ namespace tl
             if (value == p.fontRole)
                 return;
             p.fontRole = value;
-            p.draw.glyphs.clear();
+            p.size.textInit = true;
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
@@ -311,27 +314,34 @@ namespace tl
 
         void ComboBox::sizeHintEvent(const SizeHintEvent& event)
         {
+            const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, _displayScale);
-            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, _displayScale);
-            p.size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
-
-            p.size.fontMetrics = event.fontSystem->getMetrics(
-                event.style->getFontRole(p.fontRole, _displayScale));
-            auto fontInfo = event.style->getFontRole(p.fontRole, _displayScale);
-            p.size.fontInfo = fontInfo;
-            p.size.textSize = math::Size2i();
-            for (const auto& i : p.items)
+            if (displayScaleChanged || p.size.sizeInit)
             {
-                if (!i.text.empty())
-                {
-                    const math::Size2i textSize = event.fontSystem->getSize(i.text, fontInfo);
-                    p.size.textSize.w = std::max(p.size.textSize.w, textSize.w);
-                    p.size.textSize.h = std::max(p.size.textSize.h, textSize.h);
-                }
+                p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, _displayScale);
+                p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, _displayScale);
+                p.size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
             }
+            if (displayScaleChanged || p.size.textInit || p.size.sizeInit)
+            {
+                p.size.fontInfo = event.style->getFontRole(p.fontRole, _displayScale);
+                p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
+                p.size.textSize = math::Size2i();
+                for (const auto& i : p.items)
+                {
+                    if (!i.text.empty())
+                    {
+                        const math::Size2i textSize = event.fontSystem->getSize(i.text, p.size.fontInfo);
+                        p.size.textSize.w = std::max(p.size.textSize.w, textSize.w);
+                        p.size.textSize.h = std::max(p.size.textSize.h, textSize.h);
+                    }
+                }
+                p.draw.glyphs.clear();
+            }
+            p.size.sizeInit = false;
+            p.size.textInit = false;
 
             _sizeHint.w = p.size.textSize.w + p.size.margin * 2;
             _sizeHint.h = p.size.fontMetrics.lineHeight;
