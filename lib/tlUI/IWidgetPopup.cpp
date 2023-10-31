@@ -222,8 +222,8 @@ namespace tl
         {
             IPopup::sizeHintEvent(event);
             TLRENDER_P();
-            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
-            p.size.shadow = event.style->getSizeRole(SizeRole::Shadow, event.displayScale);
+            p.size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
+            p.size.shadow = event.style->getSizeRole(SizeRole::Shadow, _displayScale);
         }
 
         void IWidgetPopup::drawEvent(

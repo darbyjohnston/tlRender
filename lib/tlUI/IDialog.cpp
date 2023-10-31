@@ -102,9 +102,9 @@ namespace tl
         {
             IPopup::sizeHintEvent(event);
             TLRENDER_P();
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginDialog, event.displayScale);
-            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
-            p.size.shadow = event.style->getSizeRole(SizeRole::Shadow, event.displayScale);
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginDialog, _displayScale);
+            p.size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
+            p.size.shadow = event.style->getSizeRole(SizeRole::Shadow, _displayScale);
         }
 
         void IDialog::drawEvent(

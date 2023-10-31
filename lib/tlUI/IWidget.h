@@ -270,6 +270,7 @@ namespace tl
             std::weak_ptr<system::Context> _context;
             std::string _objectName;
             ColorRole _backgroundRole = ColorRole::None;
+            float _displayScale = 1.F;
             int _updates = 0;
             std::weak_ptr<IWidget> _parent;
             std::weak_ptr<EventLoop> _eventLoop;

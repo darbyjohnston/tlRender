@@ -128,10 +128,11 @@ namespace tl
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(p.marginRole, event.displayScale);
-            p.size.fontMetrics = event.getFontMetrics(p.fontRole);
+            p.size.margin = event.style->getSizeRole(p.marginRole, _displayScale);
+            p.size.fontMetrics = event.fontSystem->getMetrics(
+                event.style->getFontRole(p.fontRole, _displayScale));
 
-            auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+            auto fontInfo = event.style->getFontRole(p.fontRole, _displayScale);
             p.size.fontInfo = fontInfo;
             p.size.textSize = event.fontSystem->getSize(p.text, fontInfo);
             p.size.formatSize = event.fontSystem->getSize(p.format, fontInfo);

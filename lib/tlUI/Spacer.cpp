@@ -54,10 +54,10 @@ namespace tl
             switch (p.orientation)
             {
             case Orientation::Horizontal:
-                _sizeHint.w = event.style->getSizeRole(p.spacingRole, event.displayScale);
+                _sizeHint.w = event.style->getSizeRole(p.spacingRole, _displayScale);
                 break;
             case Orientation::Vertical:
-                _sizeHint.h = event.style->getSizeRole(p.spacingRole, event.displayScale);
+                _sizeHint.h = event.style->getSizeRole(p.spacingRole, _displayScale);
                 break;
             default: break;
             }

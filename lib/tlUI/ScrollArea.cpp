@@ -177,9 +177,9 @@ namespace tl
             TLRENDER_P();
 
             p.size.border = p.border ?
-                event.style->getSizeRole(SizeRole::Border, event.displayScale) :
+                event.style->getSizeRole(SizeRole::Border, _displayScale) :
                 0;
-            const int sa = event.style->getSizeRole(SizeRole::ScrollArea, event.displayScale);
+            const int sa = event.style->getSizeRole(SizeRole::ScrollArea, _displayScale);
 
             _sizeHint = math::Size2i();
             for (const auto& child : _children)

@@ -658,8 +658,7 @@ namespace tl
             TickEvent event(
                 p.style,
                 p.iconLibrary,
-                p.fontSystem,
-                p.displayScale);
+                p.fontSystem);
             for (const auto& i : p.topLevelWidgets)
             {
                 if (auto widget = i.lock())
@@ -840,8 +839,7 @@ namespace tl
                 p.style,
                 p.iconLibrary,
                 render,
-                p.fontSystem,
-                p.displayScale);
+                p.fontSystem);
             event.render->setClipRectEnabled(true);
             for (const auto& i : p.topLevelWidgets)
             {

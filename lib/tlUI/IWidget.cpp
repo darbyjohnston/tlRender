@@ -269,8 +269,9 @@ namespace tl
             _parentsEnabled = parentsEnabled;
         }
 
-        void IWidget::sizeHintEvent(const SizeHintEvent&)
+        void IWidget::sizeHintEvent(const SizeHintEvent& event)
         {
+            _displayScale = event.displayScale;
             _updates &= ~static_cast<int>(Update::Size);
         }
 

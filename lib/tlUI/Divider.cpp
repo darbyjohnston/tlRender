@@ -46,7 +46,7 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             _sizeHint.w = _sizeHint.h =
-                event.style->getSizeRole(SizeRole::Border, event.displayScale);
+                event.style->getSizeRole(SizeRole::Border, _displayScale);
         }
     }
 }

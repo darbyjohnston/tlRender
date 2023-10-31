@@ -111,7 +111,7 @@ namespace tl
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(p.marginRole, event.displayScale);
+            p.size.margin = event.style->getSizeRole(p.marginRole, _displayScale);
 
             _sizeHint = math::Size2i();
             for (const auto& child : _children)

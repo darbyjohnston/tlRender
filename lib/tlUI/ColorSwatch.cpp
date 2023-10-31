@@ -92,9 +92,8 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
-            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
-            _sizeHint.w = _sizeHint.h =
-                event.style->getSizeRole(p.sizeRole, event.displayScale);
+            p.size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
+            _sizeHint.w = _sizeHint.h = event.style->getSizeRole(p.sizeRole, _displayScale);
         }
 
         void ColorSwatch::drawEvent(

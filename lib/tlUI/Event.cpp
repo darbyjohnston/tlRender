@@ -26,77 +26,39 @@ namespace tl
         TickEvent::TickEvent(
             const std::shared_ptr<Style>&               style,
             const std::shared_ptr<IconLibrary>&         iconLibrary,
-            const std::shared_ptr<image::FontSystem>& fontSystem,
-            float                                       displayScale) :
+            const std::shared_ptr<image::FontSystem>& fontSystem) :
             style(style),
             iconLibrary(iconLibrary),
-            fontSystem(fontSystem),
-            displayScale(displayScale)
+            fontSystem(fontSystem)
         {}
 
         SizeHintEvent::SizeHintEvent()
         {}
 
         SizeHintEvent::SizeHintEvent(
-            const std::shared_ptr<Style>&                   style,
-            const std::shared_ptr<IconLibrary>&             iconLibrary,
-            const std::shared_ptr<image::FontSystem>&     fontSystem,
-            float                                           displayScale) :
+            const std::shared_ptr<Style>&             style,
+            const std::shared_ptr<IconLibrary>&       iconLibrary,
+            const std::shared_ptr<image::FontSystem>& fontSystem,
+            float                                     displayScale) :
             style(style),
             iconLibrary(iconLibrary),
             fontSystem(fontSystem),
             displayScale(displayScale)
-        {
-            for (auto i : getFontRoleEnums())
-            {
-                fontMetrics[i] = fontSystem->getMetrics(
-                    style->getFontRole(i, displayScale));
-            }
-        }
-
-        image::FontMetrics SizeHintEvent::getFontMetrics(FontRole role) const
-        {
-            image::FontMetrics out;
-            const auto i = fontMetrics.find(role);
-            if (i != fontMetrics.end())
-            {
-                out = i->second;
-            }
-            return out;
-        }
+        {}
 
         DrawEvent::DrawEvent()
         {}
 
         DrawEvent::DrawEvent(
-            const std::shared_ptr<Style>&                   style,
-            const std::shared_ptr<IconLibrary>&             iconLibrary,
-            const std::shared_ptr<timeline::IRender>&       render,
-            const std::shared_ptr<image::FontSystem>&     fontSystem,
-            float                                           displayScale) :
+            const std::shared_ptr<Style>&             style,
+            const std::shared_ptr<IconLibrary>&       iconLibrary,
+            const std::shared_ptr<timeline::IRender>& render,
+            const std::shared_ptr<image::FontSystem>& fontSystem) :
             style(style),
             iconLibrary(iconLibrary),
             render(render),
-            fontSystem(fontSystem),
-            displayScale(displayScale)
-        {
-            for (auto i : getFontRoleEnums())
-            {
-                fontMetrics[i] = fontSystem->getMetrics(
-                    style->getFontRole(i, displayScale));
-            }
-        }
-
-        image::FontMetrics DrawEvent::getFontMetrics(FontRole role) const
-        {
-            image::FontMetrics out;
-            const auto i = fontMetrics.find(role);
-            if (i != fontMetrics.end())
-            {
-                out = i->second;
-            }
-            return out;
-        }
+            fontSystem(fontSystem)
+        {}
 
         DragAndDropData::~DragAndDropData()
         {}

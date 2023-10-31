@@ -273,9 +273,9 @@ namespace tl
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
             TLRENDER_P();
-            if (event.displayScale != p.iconScale)
+            if (_displayScale != p.iconScale)
             {
-                p.iconScale = event.displayScale;
+                p.iconScale = _displayScale;
                 p.iconInit = true;
                 p.iconFuture = std::future<std::shared_ptr<image::Image> >();
                 p.iconImage.reset();
@@ -286,7 +286,7 @@ namespace tl
             if (!p.icon.empty() && p.iconInit)
             {
                 p.iconInit = false;
-                p.iconFuture = event.iconLibrary->request(p.icon, event.displayScale);
+                p.iconFuture = event.iconLibrary->request(p.icon, _displayScale);
             }
             if (p.iconFuture.valid() &&
                 p.iconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
@@ -298,7 +298,7 @@ namespace tl
             if (p.arrowIconInit)
             {
                 p.arrowIconInit = false;
-                p.arrowIconFuture = event.iconLibrary->request("MenuArrow", event.displayScale);
+                p.arrowIconFuture = event.iconLibrary->request("MenuArrow", _displayScale);
             }
             if (p.arrowIconFuture.valid() &&
                 p.arrowIconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
@@ -314,12 +314,13 @@ namespace tl
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);
-            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
-            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, _displayScale);
+            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, _displayScale);
+            p.size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
 
-            p.size.fontMetrics = event.getFontMetrics(p.fontRole);
-            auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+            p.size.fontMetrics = event.fontSystem->getMetrics(
+                event.style->getFontRole(p.fontRole, _displayScale));
+            auto fontInfo = event.style->getFontRole(p.fontRole, _displayScale);
             p.size.fontInfo = fontInfo;
             p.size.textSize = math::Size2i();
             for (const auto& i : p.items)

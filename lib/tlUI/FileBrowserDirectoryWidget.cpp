@@ -163,7 +163,7 @@ namespace tl
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.spacing = event.style->getSizeRole(SizeRole::Spacing, event.displayScale);
+            p.size.spacing = event.style->getSizeRole(SizeRole::Spacing, _displayScale);
 
             std::vector<int> columns;
             for (const auto& button : p.buttons)

@@ -91,8 +91,8 @@ namespace tl
             {
                 IWidget::sizeHintEvent(event);
                 TLRENDER_P();
-                p.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
-                p.dragLength = event.style->getSizeRole(ui::SizeRole::DragLength, event.displayScale);
+                p.border = event.style->getSizeRole(ui::SizeRole::Border, _displayScale);
+                p.dragLength = event.style->getSizeRole(ui::SizeRole::DragLength, _displayScale);
                 _sizeHint = p.label->getSizeHint();
             }
 

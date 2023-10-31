@@ -109,16 +109,17 @@ namespace tl
             IButton::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);
-            p.size.margin2 = event.style->getSizeRole(p.labelMarginRole, event.displayScale);
-            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
-            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, _displayScale);
+            p.size.margin2 = event.style->getSizeRole(p.labelMarginRole, _displayScale);
+            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, _displayScale);
+            p.size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
 
             _sizeHint = math::Size2i();
             if (!_text.empty())
             {
-                p.size.fontMetrics = event.getFontMetrics(_fontRole);
-                const auto fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
+                p.size.fontMetrics = event.fontSystem->getMetrics(
+                    event.style->getFontRole(_fontRole, _displayScale));
+                const auto fontInfo = event.style->getFontRole(_fontRole, _displayScale);
                 if (fontInfo != p.size.fontInfo || p.size.textInit)
                 {
                     p.size.fontInfo = fontInfo;

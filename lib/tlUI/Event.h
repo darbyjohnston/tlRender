@@ -38,13 +38,11 @@ namespace tl
             TickEvent(
                 const std::shared_ptr<Style>&             style,
                 const std::shared_ptr<IconLibrary>&       iconLibrary,
-                const std::shared_ptr<image::FontSystem>& fontSystem,
-                float                                     displayScale);
+                const std::shared_ptr<image::FontSystem>& fontSystem);
 
             std::shared_ptr<Style>             style;
             std::shared_ptr<IconLibrary>       iconLibrary;
             std::shared_ptr<image::FontSystem> fontSystem;
-            float                              displayScale = 1.F;
         };
 
         //! Size hint event.
@@ -57,13 +55,10 @@ namespace tl
                 const std::shared_ptr<image::FontSystem>& fontSystem,
                 float                                     displayScale);
 
-            std::shared_ptr<Style>                 style;
-            std::shared_ptr<IconLibrary>           iconLibrary;
-            std::shared_ptr<image::FontSystem>     fontSystem;
-            std::map<FontRole, image::FontMetrics> fontMetrics;
-            float                                  displayScale = 1.F;
-
-            image::FontMetrics getFontMetrics(FontRole) const;
+            std::shared_ptr<Style>             style;
+            std::shared_ptr<IconLibrary>       iconLibrary;
+            std::shared_ptr<image::FontSystem> fontSystem;
+            float                              displayScale = 1.F;
         };
 
         //! Draw event.
@@ -74,17 +69,12 @@ namespace tl
                 const std::shared_ptr<Style>&             style,
                 const std::shared_ptr<IconLibrary>&       iconLibrary,
                 const std::shared_ptr<timeline::IRender>& render,
-                const std::shared_ptr<image::FontSystem>& fontSystem,
-                float                                     displayScale);
+                const std::shared_ptr<image::FontSystem>& fontSystem);
 
-            std::shared_ptr<Style>                 style;
-            std::shared_ptr<IconLibrary>           iconLibrary;
-            std::shared_ptr<timeline::IRender>     render;
-            std::shared_ptr<image::FontSystem>     fontSystem;
-            std::map<FontRole, image::FontMetrics> fontMetrics;
-            float                                  displayScale = 1.F;
-
-            image::FontMetrics getFontMetrics(FontRole) const;
+            std::shared_ptr<Style>             style;
+            std::shared_ptr<IconLibrary>       iconLibrary;
+            std::shared_ptr<timeline::IRender> render;
+            std::shared_ptr<image::FontSystem> fontSystem;
         };
 
         //! Drag and drop data.

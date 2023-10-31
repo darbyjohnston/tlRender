@@ -349,13 +349,13 @@ namespace tl
             IItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, event.displayScale);
-            p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
-            p.size.handle = event.style->getSizeRole(ui::SizeRole::Handle, event.displayScale);
+            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, _displayScale);
+            p.size.border = event.style->getSizeRole(ui::SizeRole::Border, _displayScale);
+            p.size.handle = event.style->getSizeRole(ui::SizeRole::Handle, _displayScale);
 
             p.size.fontInfo = image::FontInfo(
                 _options.monoFont,
-                _options.fontSize * event.displayScale);
+                _options.fontSize * _displayScale);
             p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
 
             int tracksHeight = 0;

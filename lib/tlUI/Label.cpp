@@ -121,10 +121,11 @@ namespace tl
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(p.marginRole, event.displayScale);
+            p.size.margin = event.style->getSizeRole(p.marginRole, _displayScale);
 
-            p.size.fontMetrics = event.getFontMetrics(p.fontRole);
-            const auto fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
+            p.size.fontMetrics = event.fontSystem->getMetrics(
+                event.style->getFontRole(p.fontRole, _displayScale));
+            const auto fontInfo = event.style->getFontRole(p.fontRole, _displayScale);
             if (fontInfo != p.size.fontInfo || p.size.textInit)
             {
                 p.size.fontInfo = fontInfo;

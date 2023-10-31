@@ -89,12 +89,12 @@ namespace tl
             IItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, event.displayScale);
-            p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
+            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, _displayScale);
+            p.size.border = event.style->getSizeRole(ui::SizeRole::Border, _displayScale);
 
             auto fontInfo = image::FontInfo(
                 _options.regularFont,
-                _options.fontSize * event.displayScale);
+                _options.fontSize * _displayScale);
             if (fontInfo != p.size.fontInfo || p.size.textUpdate)
             {
                 p.size.fontInfo = fontInfo;

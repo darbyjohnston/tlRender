@@ -162,7 +162,7 @@ namespace tl
         {
             IBasicItem::sizeHintEvent(event);
             TLRENDER_P();
-            p.size.dragLength = event.style->getSizeRole(ui::SizeRole::DragLength, event.displayScale);
+            p.size.dragLength = event.style->getSizeRole(ui::SizeRole::DragLength, _displayScale);
             if (_options.thumbnails)
             {
                 _sizeHint.h += _options.thumbnailHeight;

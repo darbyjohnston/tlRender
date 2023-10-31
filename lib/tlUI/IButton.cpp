@@ -155,9 +155,9 @@ namespace tl
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
             TLRENDER_P();
-            if (event.displayScale != p.iconScale)
+            if (_displayScale != p.iconScale)
             {
-                p.iconScale = event.displayScale;
+                p.iconScale = _displayScale;
                 p.iconInit = true;
                 p.iconFuture = std::future<std::shared_ptr<image::Image> >();
                 _iconImage.reset();
@@ -170,7 +170,7 @@ namespace tl
             if (!_icon.empty() && p.iconInit)
             {
                 p.iconInit = false;
-                p.iconFuture = event.iconLibrary->request(_icon, event.displayScale);
+                p.iconFuture = event.iconLibrary->request(_icon, _displayScale);
             }
             if (p.iconFuture.valid() &&
                 p.iconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
@@ -182,7 +182,7 @@ namespace tl
             if (!_checkedIcon.empty() && p.checkedIconInit)
             {
                 p.checkedIconInit = false;
-                p.checkedIconFuture = event.iconLibrary->request(_checkedIcon, event.displayScale);
+                p.checkedIconFuture = event.iconLibrary->request(_checkedIcon, _displayScale);
             }
             if (p.checkedIconFuture.valid() &&
                 p.checkedIconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)

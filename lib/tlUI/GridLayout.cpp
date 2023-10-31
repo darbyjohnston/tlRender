@@ -222,8 +222,8 @@ namespace tl
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(p.marginRole, event.displayScale);
-            p.size.spacing = event.style->getSizeRole(p.spacingRole, event.displayScale);
+            p.size.margin = event.style->getSizeRole(p.marginRole, _displayScale);
+            p.size.spacing = event.style->getSizeRole(p.spacingRole, _displayScale);
 
             // Get size hints.
             std::vector<int> rowSizeHints;

@@ -62,11 +62,11 @@ namespace tl
             {
                 IWidget::sizeHintEvent(event);
                 TLRENDER_P();
-                p.margin = event.style->getSizeRole(ui::SizeRole::MarginLarge, event.displayScale);
+                p.margin = event.style->getSizeRole(ui::SizeRole::MarginLarge, _displayScale);
                 const std::string format = string::Format("{0}, {1}").
                     arg(ui::format(p.cellCount.x)).
                     arg(ui::format(p.cellCount.y));
-                const auto fontInfo = event.style->getFontRole(ui::FontRole::Label, event.displayScale);
+                const auto fontInfo = event.style->getFontRole(ui::FontRole::Label, _displayScale);
                 const math::Size2i textSize = event.fontSystem->getSize(format, fontInfo);
                 p.cellSize = textSize.w + p.margin * 2;
                 _sizeHint.w = p.cellCount.x * p.cellSize;
@@ -95,7 +95,7 @@ namespace tl
 
                 const math::Box2i& g = _geometry;
 
-                const auto fontInfo = event.style->getFontRole(ui::FontRole::Label, event.displayScale);
+                const auto fontInfo = event.style->getFontRole(ui::FontRole::Label, _displayScale);
                 const auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
                 for (int y = 0; y < p.cellCount.y; ++y)
                 {

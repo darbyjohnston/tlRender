@@ -135,14 +135,14 @@ namespace tl
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
-            p.size.handle = event.style->getSizeRole(SizeRole::Handle, event.displayScale);
+            p.size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
+            p.size.handle = event.style->getSizeRole(SizeRole::Handle, _displayScale);
 
-            auto fontInfo = event.style->getFontRole(FontRole::Label, event.displayScale);
+            auto fontInfo = event.style->getFontRole(FontRole::Label, _displayScale);
             p.size.fontMetrics = event.fontSystem->getMetrics(fontInfo);
 
             _sizeHint.w =
-                event.style->getSizeRole(SizeRole::Slider, event.displayScale) +
+                event.style->getSizeRole(SizeRole::Slider, _displayScale) +
                 p.size.border * 6;
             _sizeHint.h =
                 p.size.fontMetrics.lineHeight +

@@ -165,9 +165,9 @@ namespace tl
                 const TickEvent& event)
             {
                 IButton::tickEvent(parentsVisible, parentsEnabled, event);
-                if (event.displayScale != _iconScale)
+                if (_displayScale != _iconScale)
                 {
-                    _iconScale = event.displayScale;
+                    _iconScale = _displayScale;
                     _checkedIcon.init = true;
                     _checkedIcon.future = std::future<std::shared_ptr<image::Image> >();
                     _checkedIcon.image.reset();
@@ -181,7 +181,7 @@ namespace tl
                 if (!_checkedIcon.name.empty() && _checkedIcon.init)
                 {
                     _checkedIcon.init = false;
-                    _checkedIcon.future = event.iconLibrary->request(_checkedIcon.name, event.displayScale);
+                    _checkedIcon.future = event.iconLibrary->request(_checkedIcon.name, _displayScale);
                 }
                 if (_checkedIcon.future.valid() &&
                     _checkedIcon.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
@@ -193,7 +193,7 @@ namespace tl
                 if (!_uncheckedIcon.name.empty() && _uncheckedIcon.init)
                 {
                     _uncheckedIcon.init = false;
-                    _uncheckedIcon.future = event.iconLibrary->request(_uncheckedIcon.name, event.displayScale);
+                    _uncheckedIcon.future = event.iconLibrary->request(_uncheckedIcon.name, _displayScale);
                 }
                 if (_uncheckedIcon.future.valid() &&
                     _uncheckedIcon.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
@@ -205,7 +205,7 @@ namespace tl
                 if (!_subMenuIcon.name.empty() && _subMenuIcon.init)
                 {
                     _subMenuIcon.init = false;
-                    _subMenuIcon.future = event.iconLibrary->request(_subMenuIcon.name, event.displayScale);
+                    _subMenuIcon.future = event.iconLibrary->request(_subMenuIcon.name, _displayScale);
                 }
                 if (_subMenuIcon.future.valid() &&
                     _subMenuIcon.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
@@ -220,12 +220,13 @@ namespace tl
             {
                 IButton::sizeHintEvent(event);
 
-                _size.margin = event.style->getSizeRole(SizeRole::MarginInside, event.displayScale);
-                _size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, event.displayScale);
-                _size.border = event.style->getSizeRole(SizeRole::Border, event.displayScale);
+                _size.margin = event.style->getSizeRole(SizeRole::MarginInside, _displayScale);
+                _size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, _displayScale);
+                _size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
 
-                _size.fontMetrics = event.getFontMetrics(_fontRole);
-                auto fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
+                _size.fontMetrics = event.fontSystem->getMetrics(
+                    event.style->getFontRole(_fontRole, _displayScale));
+                auto fontInfo = event.style->getFontRole(_fontRole, _displayScale);
                 _size.fontInfo = fontInfo;
 
                 _sizeHint = math::Size2i();

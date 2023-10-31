@@ -282,7 +282,7 @@ namespace tl
         void TimelineViewport::sizeHintEvent(const ui::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            const int sa = event.style->getSizeRole(ui::SizeRole::ScrollArea, event.displayScale);
+            const int sa = event.style->getSizeRole(ui::SizeRole::ScrollArea, _displayScale);
             _sizeHint.w = sa;
             _sizeHint.h = sa;
         }
@@ -349,7 +349,7 @@ namespace tl
                                 math::Box2i(0, 0, g.w(), g.h()),
                                 p.backgroundOptions.checkersColor0,
                                 p.backgroundOptions.checkersColor1,
-                                p.backgroundOptions.checkersSize * event.displayScale),
+                                p.backgroundOptions.checkersSize * _displayScale),
                             math::Vector2i(),
                             image::Color4f(1.F, 1.F, 1.F));
                         break;
