@@ -131,10 +131,15 @@ namespace tl
             }
             //std::cout << "in out range: " << inOutRange << std::endl;
             //std::cout << "video range: " << videoRange << std::endl;
-            const auto videoRanges = timeline::loopCache(
+            auto videoRanges = timeline::loopCache(
                 videoRange,
                 inOutRange,
                 cacheDirection);
+            videoRanges.insert(
+                videoRanges.begin(),
+                otime::TimeRange(
+                    currentTime,
+                    otime::RationalTime(1.0, currentTime.rate())));
             //for (const auto& i : videoRanges)
             //{
             //    std::cout << "video ranges: " << i << std::endl;
