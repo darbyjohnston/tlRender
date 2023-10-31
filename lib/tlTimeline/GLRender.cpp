@@ -239,32 +239,32 @@ namespace tl
             }
         }
 
-        void TextureCache::setSize(size_t value)
+        void TextureBuffers::setSize(size_t value)
         {
             if (value == _size)
                 return;
             _size = value;
-            _cacheUpdate();
+            _update();
         }
 
-        std::vector<std::shared_ptr<gl::Texture> > TextureCache::get(
+        std::vector<std::shared_ptr<gl::Texture> > TextureBuffers::get(
             const image::Info& info,
             const ImageFilters& imageFilters,
             size_t offset)
         {
             std::vector<std::shared_ptr<gl::Texture> > out;
             const auto i = std::find_if(
-                _cache.begin(),
-                _cache.end(),
+                _buffers.begin(),
+                _buffers.end(),
                 [info, imageFilters](const TextureData& value)
                 {
                     return info == value.info &&
                         imageFilters == value.imageFilters;
                 });
-            if (i != _cache.end())
+            if (i != _buffers.end())
             {
                 out = i->texture;
-                _cache.erase(i);
+                _buffers.erase(i);
             }
             else
             {
@@ -273,20 +273,20 @@ namespace tl
             return out;
         }
 
-        void TextureCache::add(
+        void TextureBuffers::add(
             const image::Info& info,
             const ImageFilters& imageFilters,
             const std::vector<std::shared_ptr<gl::Texture> >& textures)
         {
-            _cache.push_front({ info, imageFilters, textures });
-            _cacheUpdate();
+            _buffers.push_front({ info, imageFilters, textures });
+            _update();
         }
 
-        void TextureCache::_cacheUpdate()
+        void TextureBuffers::_update()
         {
-            while (_cache.size() > _size)
+            while (_buffers.size() > _size)
             {
-                _cache.pop_back();
+                _buffers.pop_back();
             }
         }
 
@@ -361,7 +361,7 @@ namespace tl
             _setColorConfig(colorConfigOptions);
             _setLUT(lutOptions);
             p.renderOptions = renderOptions;
-            p.textureCache.setSize(renderOptions.textureCacheSize);
+            p.textureBuffers.setSize(renderOptions.textureBuffersSize);
 
             glEnable(GL_BLEND);
             glBlendEquation(GL_FUNC_ADD);

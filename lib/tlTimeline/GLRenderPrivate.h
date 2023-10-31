@@ -46,7 +46,7 @@ namespace tl
             const std::vector<std::shared_ptr<gl::Texture> >&,
             size_t offset = 0);
 
-        class TextureCache
+        class TextureBuffers
         {
         public:
             void setSize(size_t);
@@ -62,7 +62,7 @@ namespace tl
                 const std::vector<std::shared_ptr<gl::Texture> >&);
 
         private:
-            void _cacheUpdate();
+            void _update();
 
             size_t _size = 6;
 
@@ -73,7 +73,7 @@ namespace tl
                 std::vector<std::shared_ptr<gl::Texture> > texture;
             };
 
-            std::list<TextureData> _cache;
+            std::list<TextureData> _buffers;
         };
 
 #if defined(TLRENDER_OCIO)
@@ -136,7 +136,7 @@ namespace tl
 
             std::map<std::string, std::shared_ptr<gl::Shader> > shaders;
             std::map<std::string, std::shared_ptr<gl::OffscreenBuffer> > buffers;
-            TextureCache textureCache;
+            TextureBuffers textureBuffers;
             std::shared_ptr<gl::TextureAtlas> glyphTextureAtlas;
             std::map<image::GlyphInfo, gl::TextureAtlasID> glyphIDs;
             std::map<std::string, std::shared_ptr<gl::VBO> > vbos;

@@ -292,7 +292,7 @@ namespace tl
             ++(p.currentStats.images);
 
             const auto& info = image->getInfo();
-            auto textures = p.textureCache.get(info, imageOptions.imageFilters);
+            auto textures = p.textureBuffers.get(info, imageOptions.imageFilters);
             copyTextures(image, textures);
 
             p.shaders["image"]->bind();
@@ -349,7 +349,7 @@ namespace tl
                 p.vaos["image"]->draw(GL_TRIANGLES, 0, p.vbos["image"]->getSize());
             }
 
-            p.textureCache.add(info, imageOptions.imageFilters, textures);
+            p.textureBuffers.add(info, imageOptions.imageFilters, textures);
         }
     }
 }

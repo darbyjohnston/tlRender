@@ -19,8 +19,8 @@ namespace tl
             //! Clear color.
             image::Color4f clearColor;
 
-            //! Texture cache size.
-            size_t textureCacheSize = 6;
+            //! Texture buffers size.
+            size_t textureBuffersSize = 6;
 
             bool operator == (const RenderOptions&) const;
             bool operator != (const RenderOptions&) const;
