@@ -586,7 +586,12 @@ namespace tl
         MainWindow::~MainWindow()
         {
             TLRENDER_P();
-            p.settings->setValue("Window/Size", _geometry.getSize());
+            math::Size2i windowSize = _geometry.getSize();
+#if defined(__APPLE__)
+            //! \bug The window size needs to be scaled on macOS?
+            windowSize = windowSize / _displayScale;
+#endif // __APPLE__
+            p.settings->setValue("Window/Size", windowSize);
             p.settings->setValue("Window/Options", p.windowOptions->get());
             p.settings->setValue("Timeline/Editable",
                 p.timelineWidget->isEditable());
