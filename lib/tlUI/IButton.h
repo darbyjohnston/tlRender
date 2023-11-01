@@ -75,6 +75,7 @@ namespace tl
                 bool,
                 bool,
                 const TickEvent&) override;
+            void sizeHintEvent(const SizeHintEvent&) override;
             void mouseEnterEvent() override;
             void mouseLeaveEvent() override;
             void mousePressEvent(MouseClickEvent&) override;

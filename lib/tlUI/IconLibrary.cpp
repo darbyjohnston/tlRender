@@ -7,8 +7,9 @@
 #include <tlIO/PNG.h>
 #include <tlIO/System.h>
 
-#include <tlCore/StringFormat.h>
+#include <tlCore/Assert.h>
 #include <tlCore/LRUCache.h>
+#include <tlCore/StringFormat.h>
 
 namespace
 {
@@ -138,7 +139,7 @@ namespace tl
     {
         namespace
         {
-            const size_t requestCount = 10;
+            const size_t requestCount = 1;
         }
 
         struct IconLibrary::Private
@@ -163,7 +164,6 @@ namespace tl
             {
                 std::list<std::shared_ptr<Request> > requests;
                 bool stopped = false;
-                memory::LRUCache<CacheKey, std::shared_ptr<image::Image> > cache;
                 std::mutex mutex;
             };
             Mutex mutex;
@@ -171,6 +171,7 @@ namespace tl
             struct Thread
             {
                 std::shared_ptr<io::IPlugin> plugin;
+                memory::LRUCache<CacheKey, std::shared_ptr<image::Image> > cache;
                 std::condition_variable cv;
                 std::thread thread;
                 std::atomic<bool> running;
@@ -297,10 +298,9 @@ namespace tl
             p.iconData[std::make_pair("WindowFullScreen", 192)] = WindowFullScreen_192_png;
             p.iconData[std::make_pair("WindowSecondary", 192)] = WindowSecondary_192_png;
 
-            p.mutex.cache.setMax(1000);
-
             auto io = context->getSystem<io::System>();
             p.thread.plugin = io->getPlugin<png::Plugin>();
+            p.thread.cache.setMax(1000);
             p.thread.running = true;
             p.thread.thread = std::thread(
                 [this]
@@ -330,33 +330,46 @@ namespace tl
                             }
                         }
                         
-                        for (const auto& request : requests)
+                        auto i = requests.begin();
+                        while (i != requests.end())
                         {
                             int dpi = 96;
-                            if (request->displayScale >= 2.F)
+                            if ((*i)->displayScale >= 2.F)
                             {
                                 dpi = 192;
                             }
-                            const auto i = p.iconData.find(std::make_pair(request->name, dpi));
-                            if (i != p.iconData.end())
+
+                            std::shared_ptr<image::Image> image;
+                            if (p.thread.cache.get(std::make_pair((*i)->name, (*i)->displayScale), image))
                             {
-                                try
+                                (*i)->promise.set_value(image);
+                                i = requests.erase(i);
+                            }
+                            else
+                            {
+                                //std::cout << "icon request: " << (*i)->name << " " << dpi << std::endl;
+                                const auto j = p.iconData.find(std::make_pair((*i)->name, dpi));
+                                if (j != p.iconData.end())
                                 {
-                                    const std::string name = string::Format("{0}_{1}.png").
-                                        arg(request->name).
-                                        arg(dpi);
-                                    request->reader = p.thread.plugin->read(
-                                        file::Path(name),
-                                        { file::MemoryRead(i->second.data(), i->second.size()) });
-                                    if (request->reader)
+                                    try
                                     {
-                                        const auto ioInfo = request->reader->getInfo().get();
-                                        request->future = request->reader->readVideo(
-                                            ioInfo.videoTime.start_time());
+                                        const std::string name = string::Format("{0}_{1}.png").
+                                            arg((*i)->name).
+                                            arg(dpi);
+                                        (*i)->reader = p.thread.plugin->read(
+                                            file::Path(name),
+                                            { file::MemoryRead(j->second.data(), j->second.size()) });
+                                        if ((*i)->reader)
+                                        {
+                                            const auto ioInfo = (*i)->reader->getInfo().get();
+                                            (*i)->future = (*i)->reader->readVideo(
+                                                ioInfo.videoTime.start_time());
+                                        }
                                     }
+                                    catch (const std::exception&)
+                                    {}
                                 }
-                                catch (const std::exception&)
-                                {}
+                                ++i;
                             }
                         }
                         for (const auto& request : requests)
@@ -367,12 +380,9 @@ namespace tl
                                 image = request->future.get().image;
                             }
                             request->promise.set_value(image);
-                            {
-                                std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                                p.mutex.cache.add(
-                                    std::make_pair(request->name, request->displayScale),
-                                    image);
-                            }
+                            p.thread.cache.add(
+                                std::make_pair(request->name, request->displayScale),
+                                image);
                         }
                     }
                     {
@@ -415,25 +425,17 @@ namespace tl
             request->displayScale = displayScale;
             auto future = request->promise.get_future();
             bool valid = false;
-            std::shared_ptr<image::Image> cached;
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                if (!p.mutex.cache.get(std::make_pair(name, displayScale), cached))
+                if (!p.mutex.stopped)
                 {
-                    if (!p.mutex.stopped)
-                    {
-                        valid = true;
-                        p.mutex.requests.push_back(request);
-                    }
+                    valid = true;
+                    p.mutex.requests.push_back(request);
                 }
             }
             if (valid)
             {
                 p.thread.cv.notify_one();
-            }
-            else if (cached)
-            {
-                request->promise.set_value(cached);
             }
             else
             {

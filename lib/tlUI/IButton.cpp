@@ -155,34 +155,12 @@ namespace tl
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
             TLRENDER_P();
-            if (_displayScale != p.iconScale)
-            {
-                p.iconScale = _displayScale;
-                p.iconInit = true;
-                p.iconFuture = std::future<std::shared_ptr<image::Image> >();
-                _iconImage.reset();
-                p.checkedIconInit = true;
-                p.checkedIconFuture = std::future<std::shared_ptr<image::Image> >();
-                _checkedIconImage.reset();
-                _updates |= Update::Size;
-                _updates |= Update::Draw;
-            }
-            if (!_icon.empty() && p.iconInit)
-            {
-                p.iconInit = false;
-                p.iconFuture = event.iconLibrary->request(_icon, _displayScale);
-            }
             if (p.iconFuture.valid() &&
                 p.iconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
                 _iconImage = p.iconFuture.get();
                 _updates |= Update::Size;
                 _updates |= Update::Draw;
-            }
-            if (!_checkedIcon.empty() && p.checkedIconInit)
-            {
-                p.checkedIconInit = false;
-                p.checkedIconFuture = event.iconLibrary->request(_checkedIcon, _displayScale);
             }
             if (p.checkedIconFuture.valid() &&
                 p.checkedIconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
@@ -202,6 +180,32 @@ namespace tl
                     p.repeatClickInit = false;
                     p.repeatClickTimer = now;
                 }
+            }
+        }
+
+        void IButton::sizeHintEvent(const SizeHintEvent& event)
+        {
+            IWidget::sizeHintEvent(event);
+            TLRENDER_P();
+            if (_displayScale != p.iconScale)
+            {
+                p.iconScale = _displayScale;
+                p.iconInit = true;
+                p.iconFuture = std::future<std::shared_ptr<image::Image> >();
+                _iconImage.reset();
+                p.checkedIconInit = true;
+                p.checkedIconFuture = std::future<std::shared_ptr<image::Image> >();
+                _checkedIconImage.reset();
+            }
+            if (!_icon.empty() && p.iconInit)
+            {
+                p.iconInit = false;
+                p.iconFuture = event.iconLibrary->request(_icon, _displayScale);
+            }
+            if (!_checkedIcon.empty() && p.checkedIconInit)
+            {
+                p.checkedIconInit = false;
+                p.checkedIconFuture = event.iconLibrary->request(_checkedIcon, _displayScale);
             }
         }
 

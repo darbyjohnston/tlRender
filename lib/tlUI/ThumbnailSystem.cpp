@@ -708,12 +708,12 @@ namespace tl
                         }
                     }
                 }
-                if (infoRequestsSize || thumbnailRequestsSize || waveformRequestsSize)
+                /*if (infoRequestsSize || thumbnailRequestsSize || waveformRequestsSize)
                 {
-                    //std::cout << "info requests: " << infoRequestsSize << std::endl;
-                    //std::cout << "thumbnail requests: " << thumbnailRequestsSize << std::endl;
-                    //std::cout << "waveform requests: " << waveformRequestsSize << std::endl;
-                }
+                    std::cout << "info requests: " << infoRequestsSize << std::endl;
+                    std::cout << "thumbnail requests: " << thumbnailRequestsSize << std::endl;
+                    std::cout << "waveform requests: " << waveformRequestsSize << std::endl;
+                }*/
                                 
                 // Handle information requests.
                 for (const auto& infoRequest : infoRequests)
