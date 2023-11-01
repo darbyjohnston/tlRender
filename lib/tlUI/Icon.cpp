@@ -23,6 +23,7 @@ namespace tl
 
             struct SizeData
             {
+                bool sizeInit = true;
                 int margin = 0;
             };
             SizeData size;
@@ -115,10 +116,15 @@ namespace tl
 
         void Icon::sizeHintEvent(const SizeHintEvent& event)
         {
+            const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(p.marginRole, _displayScale);
+            if (displayScaleChanged || p.size.sizeInit)
+            {
+                p.size.margin = event.style->getSizeRole(p.marginRole, _displayScale);
+            }
+            p.size.sizeInit = false;
 
             _sizeHint = math::Size2i();
             if (p.iconImage)

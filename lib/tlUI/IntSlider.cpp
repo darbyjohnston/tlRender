@@ -16,6 +16,8 @@ namespace tl
 
             struct SizeData
             {
+                bool sizeInit = true;
+                int size = 0;
                 int border = 0;
                 int handle = 0;
                 image::FontMetrics fontMetrics;
@@ -132,17 +134,22 @@ namespace tl
 
         void IntSlider::sizeHintEvent(const SizeHintEvent& event)
         {
+            const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
-            p.size.handle = event.style->getSizeRole(SizeRole::Handle, _displayScale);
-
-            auto fontInfo = event.style->getFontRole(FontRole::Label, _displayScale);
-            p.size.fontMetrics = event.fontSystem->getMetrics(fontInfo);
+            if (displayScaleChanged || p.size.sizeInit)
+            {
+                p.size.size = event.style->getSizeRole(SizeRole::Slider, _displayScale);
+                p.size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
+                p.size.handle = event.style->getSizeRole(SizeRole::Handle, _displayScale);
+                auto fontInfo = event.style->getFontRole(FontRole::Label, _displayScale);
+                p.size.fontMetrics = event.fontSystem->getMetrics(fontInfo);
+            }
+            p.size.sizeInit = false;
 
             _sizeHint.w =
-                event.style->getSizeRole(SizeRole::Slider, _displayScale) +
+                p.size.size +
                 p.size.border * 6;
             _sizeHint.h =
                 p.size.fontMetrics.lineHeight +

@@ -92,6 +92,7 @@ namespace tl
 
             struct SizeData
             {
+                bool sizeInit = true;
                 int shadow = 0;
             };
             SizeData size;
@@ -245,9 +246,15 @@ namespace tl
 
         void IMenuPopup::sizeHintEvent(const SizeHintEvent& event)
         {
+            const bool displayScaleChanged = event.displayScale != _displayScale;
             IPopup::sizeHintEvent(event);
             TLRENDER_P();
-            p.size.shadow = event.style->getSizeRole(SizeRole::Shadow, _displayScale);
+
+            if (displayScaleChanged || p.size.sizeInit)
+            {
+                p.size.shadow = event.style->getSizeRole(SizeRole::Shadow, _displayScale);
+            }
+            p.size.sizeInit = false;
         }
 
         void IMenuPopup::drawEvent(

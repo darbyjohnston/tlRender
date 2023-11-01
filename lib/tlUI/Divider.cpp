@@ -8,6 +8,16 @@ namespace tl
 {
     namespace ui
     {
+        struct Divider::Private
+        {
+            struct SizeData
+            {
+                bool sizeInit = true;
+                int size = 0;
+            };
+            SizeData size;
+        };
+
         void Divider::_init(
             Orientation orientation,
             const std::shared_ptr<system::Context>& context,
@@ -26,7 +36,8 @@ namespace tl
             }
         }
 
-        Divider::Divider()
+        Divider::Divider() :
+            _p(new Private)
         {}
 
         Divider::~Divider()
@@ -44,9 +55,17 @@ namespace tl
 
         void Divider::sizeHintEvent(const SizeHintEvent& event)
         {
+            const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
-            _sizeHint.w = _sizeHint.h =
-                event.style->getSizeRole(SizeRole::Border, _displayScale);
+            TLRENDER_P();
+
+            if (displayScaleChanged || p.size.sizeInit)
+            {
+                p.size.size = event.style->getSizeRole(SizeRole::Border, _displayScale);
+            }
+            p.size.sizeInit = false;
+
+            _sizeHint.w = _sizeHint.h = p.size.size;
         }
     }
 }

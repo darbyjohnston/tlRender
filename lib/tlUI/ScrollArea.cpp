@@ -21,6 +21,8 @@ namespace tl
 
             struct SizeData
             {
+                bool sizeInit = true;
+                int size = 0;
                 int border = 0;
             };
             SizeData size;
@@ -173,13 +175,18 @@ namespace tl
 
         void ScrollArea::sizeHintEvent(const SizeHintEvent& event)
         {
+            const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.border = p.border ?
-                event.style->getSizeRole(SizeRole::Border, _displayScale) :
-                0;
-            const int sa = event.style->getSizeRole(SizeRole::ScrollArea, _displayScale);
+            if (displayScaleChanged || p.size.sizeInit)
+            {
+                p.size.size = event.style->getSizeRole(SizeRole::ScrollArea, _displayScale);
+                p.size.border = p.border ?
+                    event.style->getSizeRole(SizeRole::Border, _displayScale) :
+                    0;
+            }
+            p.size.sizeInit = false;
 
             _sizeHint = math::Size2i();
             for (const auto& child : _children)
@@ -191,14 +198,13 @@ namespace tl
             switch (p.scrollType)
             {
                 case ScrollType::Horizontal:
-                    _sizeHint.w = sa;
+                    _sizeHint.w = p.size.size;
                     break;
                 case ScrollType::Vertical:
-                    _sizeHint.h = sa;
+                    _sizeHint.h = p.size.size;
                     break;
                 case ScrollType::Both:
-                    _sizeHint.w = sa;
-                    _sizeHint.h = sa;
+                    _sizeHint.w = _sizeHint.h = p.size.size;
                     break;
                 default: break;
             }

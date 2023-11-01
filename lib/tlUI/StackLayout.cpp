@@ -15,6 +15,7 @@ namespace tl
 
             struct SizeData
             {
+                bool sizeInit = true;
                 int margin = 0;
             };
             SizeData size;
@@ -76,6 +77,7 @@ namespace tl
             if (value == p.marginRole)
                 return;
             p.marginRole = value;
+            p.size.sizeInit = true;
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
@@ -108,10 +110,15 @@ namespace tl
 
         void StackLayout::sizeHintEvent(const SizeHintEvent& event)
         {
+            const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(p.marginRole, _displayScale);
+            if (displayScaleChanged || p.size.sizeInit)
+            {
+                p.size.margin = event.style->getSizeRole(p.marginRole, _displayScale);
+            }
+            p.size.sizeInit = false;
 
             _sizeHint = math::Size2i();
             for (const auto& child : _children)

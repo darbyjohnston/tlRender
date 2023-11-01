@@ -46,9 +46,12 @@ namespace tl
 
             struct SizeData
             {
+                bool sizeInit = true;
                 int margin = 0;
                 int spacing = 0;
+                image::FontInfo fontInfo;
                 image::FontMetrics fontMetrics;
+
                 int pieDiameter = 0;
                 math::Vector2i textSize;
             };
@@ -118,6 +121,7 @@ namespace tl
             if (value == p.fontRole)
                 return;
             p.fontRole = value;
+            p.size.sizeInit = true;
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
@@ -134,24 +138,28 @@ namespace tl
 
         void PieChart::sizeHintEvent(const SizeHintEvent& event)
         {
+            const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, _displayScale);
-            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, _displayScale);
-            p.size.fontMetrics = event.fontSystem->getMetrics(
-                event.style->getFontRole(p.fontRole, _displayScale));
+            if (displayScaleChanged || p.size.sizeInit)
+            {
+                p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall, _displayScale);
+                p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall, _displayScale);
+                p.size.fontInfo = event.style->getFontRole(p.fontRole, _displayScale);
+                p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
+            }
+            p.size.sizeInit = false;
 
             // Create the percentage labels.
-            const auto fontInfo = event.style->getFontRole(p.fontRole, _displayScale);
             p.draw.percentageLabels.clear();
             int percentageWidthMax = 0;
             for (const auto& data : p.data)
             {
                 Private::DrawData::PercentageLabel label;
                 label.text = string::Format("{0}%").arg(data.percentage);
-                label.size = event.fontSystem->getSize(label.text, fontInfo);
-                label.glyphs = event.fontSystem->getGlyphs(label.text, fontInfo);
+                label.size = event.fontSystem->getSize(label.text, p.size.fontInfo);
+                label.glyphs = event.fontSystem->getGlyphs(label.text, p.size.fontInfo);
                 p.draw.percentageLabels.push_back(label);
                 percentageWidthMax = std::max(percentageWidthMax, label.size.w);
             }
@@ -203,9 +211,9 @@ namespace tl
             {
                 Private::DrawData::TextLabel label;
                 label.text = p.data[i].text;
-                label.size = event.fontSystem->getSize(label.text, fontInfo);
+                label.size = event.fontSystem->getSize(label.text, p.size.fontInfo);
                 label.pos.y = p.size.textSize.y;
-                label.glyphs = event.fontSystem->getGlyphs(label.text, fontInfo);
+                label.glyphs = event.fontSystem->getGlyphs(label.text, p.size.fontInfo);
                 label.color = p.data[i].color;
                 label.circleMesh = circle(math::Vector2i(r2 / 2, r2 / 2), r2 / 2, 60);
                 p.draw.textLabels.push_back(label);

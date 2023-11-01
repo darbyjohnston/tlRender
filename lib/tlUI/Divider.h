@@ -33,6 +33,9 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void sizeHintEvent(const SizeHintEvent&) override;
+
+        private:
+            TLRENDER_PRIVATE();
         };
     }
 }

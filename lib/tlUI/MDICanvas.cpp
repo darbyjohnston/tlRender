@@ -16,6 +16,8 @@ namespace tl
 
             struct SizeData
             {
+                bool sizeInit = true;
+                int size = 0;
                 int spacing = 0;
             };
             SizeData size;
@@ -200,12 +202,18 @@ namespace tl
 
         void MDICanvas::sizeHintEvent(const SizeHintEvent& event)
         {
+            const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
-            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingLarge, _displayScale);
-            const int sa = event.style->getSizeRole(SizeRole::ScrollArea, _displayScale);
-            _sizeHint.w = sa;
-            _sizeHint.h = sa;
+
+            if (displayScaleChanged || p.size.sizeInit)
+            {
+                p.size.size = event.style->getSizeRole(SizeRole::ScrollArea, _displayScale);
+                p.size.spacing = event.style->getSizeRole(SizeRole::SpacingLarge, _displayScale);
+            }
+            p.size.sizeInit = false;
+
+            _sizeHint.w = _sizeHint.h = p.size.size;
         }
 
         void MDICanvas::mouseMoveEvent(MouseMoveEvent& event)

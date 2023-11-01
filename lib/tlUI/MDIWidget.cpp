@@ -42,9 +42,11 @@ namespace tl
 
             struct SizeData
             {
+                bool sizeInit = true;
                 int border = 0;
                 int handle = 0;
                 int shadow = 0;
+
                 math::Box2i insideGeometry;
             };
             SizeData size;
@@ -211,11 +213,18 @@ namespace tl
 
         void MDIWidget::sizeHintEvent(const SizeHintEvent& event)
         {
+            const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
-            p.size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
-            p.size.handle = event.style->getSizeRole(SizeRole::Handle, _displayScale);
-            p.size.shadow = event.style->getSizeRole(SizeRole::Shadow, _displayScale);
+
+            if (displayScaleChanged || p.size.sizeInit)
+            {
+                p.size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
+                p.size.handle = event.style->getSizeRole(SizeRole::Handle, _displayScale);
+                p.size.shadow = event.style->getSizeRole(SizeRole::Shadow, _displayScale);
+            }
+            p.size.sizeInit = false;
+
             const int margin = std::max(p.size.handle, p.size.shadow);
             _sizeHint = p.layout->getSizeHint() + p.size.border * 2;
             _sizeHint.w += margin * 2;

@@ -40,12 +40,14 @@ namespace tl
 
             struct SizeData
             {
+                bool sizeInit = true;
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
+
+                bool textInit = true;
                 image::FontInfo fontInfo;
                 image::FontMetrics fontMetrics;
-                bool textInit = true;
                 std::vector<int> textWidths;
             };
             SizeData size;
@@ -199,31 +201,34 @@ namespace tl
 
         void Button::sizeHintEvent(const SizeHintEvent& event)
         {
+            const bool displayScaleChanged = event.displayScale != _displayScale;
             IButton::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, _displayScale);
-            p.size.spacing = event.style->getSizeRole(SizeRole::Spacing, _displayScale);
-            p.size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
+            if (displayScaleChanged || p.size.sizeInit)
+            {
+                p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, _displayScale);
+                p.size.spacing = event.style->getSizeRole(SizeRole::Spacing, _displayScale);
+                p.size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
+            }
+            if (displayScaleChanged || p.size.textInit || p.size.sizeInit)
+            {
+                p.size.fontInfo = event.style->getFontRole(_fontRole, _displayScale);
+                p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
+                p.size.textWidths.clear();
+                for (const auto& label : p.labels)
+                {
+                    p.size.textWidths.push_back(
+                        event.fontSystem->getSize(label, p.size.fontInfo).w);
+                }
+                p.draw.glyphs.clear();
+            }
+            p.size.sizeInit = false;
+            p.size.textInit = false;
 
             _sizeHint = math::Size2i();
             if (!p.labels.empty())
             {
-                p.size.fontMetrics = event.fontSystem->getMetrics(
-                    event.style->getFontRole(_fontRole, _displayScale));
-                const auto fontInfo = event.style->getFontRole(_fontRole, _displayScale);
-                if (fontInfo != p.size.fontInfo || p.size.textInit)
-                {
-                    p.size.fontInfo = fontInfo;
-                    p.size.textInit = false;
-                    p.size.textWidths.clear();
-                    for (const auto& label : p.labels)
-                    {
-                        p.size.textWidths.push_back(
-                            event.fontSystem->getSize(label, fontInfo).w);
-                    }
-                    p.draw.glyphs.clear();
-                }
                 _sizeHint.h = p.size.fontMetrics.lineHeight;
             }
             if (p.thumbnail.image)

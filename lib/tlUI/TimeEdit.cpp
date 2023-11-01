@@ -25,12 +25,6 @@ namespace tl
             std::shared_ptr<IncButtons> incButtons;
             std::shared_ptr<HorizontalLayout> layout;
 
-            struct SizeData
-            {
-                int margin = 0;
-            };
-            SizeData size;
-
             std::shared_ptr<observer::ValueObserver<timeline::TimeUnits> > timeUnitsObserver;
         };
 

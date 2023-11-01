@@ -18,6 +18,7 @@ namespace tl
             
             struct SizeData
             {
+                bool sizeInit = true;
                 int margin = 0;
                 int border = 0;
                 int shadow = 0;
@@ -100,11 +101,17 @@ namespace tl
 
         void IDialog::sizeHintEvent(const SizeHintEvent& event)
         {
+            const bool displayScaleChanged = event.displayScale != _displayScale;
             IPopup::sizeHintEvent(event);
             TLRENDER_P();
-            p.size.margin = event.style->getSizeRole(SizeRole::MarginDialog, _displayScale);
-            p.size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
-            p.size.shadow = event.style->getSizeRole(SizeRole::Shadow, _displayScale);
+
+            if (displayScaleChanged || p.size.sizeInit)
+            {
+                p.size.margin = event.style->getSizeRole(SizeRole::MarginDialog, _displayScale);
+                p.size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
+                p.size.shadow = event.style->getSizeRole(SizeRole::Shadow, _displayScale);
+            }
+            p.size.sizeInit = false;
         }
 
         void IDialog::drawEvent(

@@ -18,8 +18,11 @@ namespace tl
 
             struct SizeData
             {
+                bool sizeInit = true;
+                int size = 0;
                 int spacing = 0;
                 int handle = 0;
+
                 std::vector<math::Box2i> handleGeometry;
             };
             SizeData size;
@@ -84,6 +87,7 @@ namespace tl
             if (value == p.spacingRole)
                 return;
             p.spacingRole = value;
+            p.size.sizeInit = true;
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
@@ -173,15 +177,19 @@ namespace tl
 
         void Splitter::sizeHintEvent(const SizeHintEvent& event)
         {
+            const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.spacing = event.style->getSizeRole(p.spacingRole, _displayScale);
-            p.size.handle = event.style->getSizeRole(SizeRole::HandleSmall, _displayScale);
-            const int sa = event.style->getSizeRole(SizeRole::ScrollArea, _displayScale);
+            if (displayScaleChanged || p.size.sizeInit)
+            {
+                p.size.size = event.style->getSizeRole(SizeRole::ScrollArea, _displayScale);
+                p.size.spacing = event.style->getSizeRole(p.spacingRole, _displayScale);
+                p.size.handle = event.style->getSizeRole(SizeRole::HandleSmall, _displayScale);
+            }
+            p.size.sizeInit = false;
 
-            _sizeHint.w = sa;
-            _sizeHint.h = sa;
+            _sizeHint.w = _sizeHint.h = p.size.size;
         }
 
         void Splitter::drawEvent(

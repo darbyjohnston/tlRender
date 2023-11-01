@@ -12,6 +12,13 @@ namespace tl
         {
             Orientation orientation = Orientation::Horizontal;
             SizeRole spacingRole = SizeRole::Spacing;
+
+            struct SizeData
+            {
+                bool sizeInit = true;
+                int size = 0;
+            };
+            SizeData size;
         };
 
         void Spacer::_init(
@@ -43,21 +50,34 @@ namespace tl
 
         void Spacer::setSpacingRole(SizeRole value)
         {
-            _p->spacingRole = value;
+            TLRENDER_P();
+            if (value == p.spacingRole)
+                return;
+            p.spacingRole = value;
+            p.size.sizeInit = true;
+            _updates |= Update::Size;
         }
 
         void Spacer::sizeHintEvent(const SizeHintEvent& event)
         {
+            const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
+
+            if (displayScaleChanged || p.size.sizeInit)
+            {
+                p.size.size = event.style->getSizeRole(p.spacingRole, _displayScale);
+            }
+            p.size.sizeInit = false;
+
             _sizeHint = math::Size2i();
             switch (p.orientation)
             {
             case Orientation::Horizontal:
-                _sizeHint.w = event.style->getSizeRole(p.spacingRole, _displayScale);
+                _sizeHint.w = p.size.size;
                 break;
             case Orientation::Vertical:
-                _sizeHint.h = event.style->getSizeRole(p.spacingRole, _displayScale);
+                _sizeHint.h = p.size.size;
                 break;
             default: break;
             }
