@@ -32,6 +32,8 @@ namespace tl
         public:
             virtual ~IBasicItem() = 0;
 
+            void setOptions(const ItemOptions&) override;
+
             void sizeHintEvent(const ui::SizeHintEvent&) override;
             void clipEvent(const math::Box2i&, bool) override;
             void drawEvent(const math::Box2i&, const ui::DrawEvent&) override;

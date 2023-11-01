@@ -21,11 +21,13 @@ namespace tl
 
             struct SizeData
             {
+                bool sizeInit = true;
                 int margin = 0;
                 int border = 0;
+
+                bool textInit = true;
                 image::FontInfo fontInfo = image::FontInfo("", 0);
                 image::FontMetrics fontMetrics;
-                bool textUpdate = true;
                 math::Size2i labelSize;
                 math::Size2i durationSize;
                 std::vector<math::Size2i> markerSizes;
@@ -84,34 +86,48 @@ namespace tl
         IBasicItem::~IBasicItem()
         {}
 
+        void IBasicItem::setOptions(const ItemOptions& value)
+        {
+            const bool changed = value != _options;
+            IItem::setOptions(value);
+            TLRENDER_P();
+            if (changed)
+            {
+                _textUpdate();
+            }
+        }
+
         void IBasicItem::sizeHintEvent(const ui::SizeHintEvent& event)
         {
+            const bool displayScaleChanged = event.displayScale != _displayScale;
             IItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, _displayScale);
-            p.size.border = event.style->getSizeRole(ui::SizeRole::Border, _displayScale);
-
-            auto fontInfo = image::FontInfo(
-                _options.regularFont,
-                _options.fontSize * _displayScale);
-            if (fontInfo != p.size.fontInfo || p.size.textUpdate)
+            if (displayScaleChanged || p.size.sizeInit)
             {
-                p.size.fontInfo = fontInfo;
-                p.size.fontMetrics = event.fontSystem->getMetrics(fontInfo);
-                p.size.labelSize = event.fontSystem->getSize(p.label, fontInfo);
-                p.size.durationSize = event.fontSystem->getSize(p.durationLabel, fontInfo);
+                p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, _displayScale);
+                p.size.border = event.style->getSizeRole(ui::SizeRole::Border, _displayScale);
+            }
+            if (displayScaleChanged || p.size.textInit || p.size.sizeInit)
+            {
+                p.size.fontInfo = image::FontInfo(
+                    _options.regularFont,
+                    _options.fontSize * _displayScale);
+                p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
+                p.size.labelSize = event.fontSystem->getSize(p.label, p.size.fontInfo);
+                p.size.durationSize = event.fontSystem->getSize(p.durationLabel, p.size.fontInfo);
                 p.size.markerSizes.clear();
                 for (const auto& marker : p.markers)
                 {
                     p.size.markerSizes.push_back(
-                        event.fontSystem->getSize(marker.name, fontInfo));
+                        event.fontSystem->getSize(marker.name, p.size.fontInfo));
                 }
                 p.draw.labelGlyphs.clear();
                 p.draw.durationGlyphs.clear();
                 p.draw.markerGlyphs.clear();
             }
-            p.size.textUpdate = false;
+            p.size.sizeInit = false;
+            p.size.textInit = false;
 
             _sizeHint = math::Size2i(
                 _timeRange.duration().rescaled_to(1.0).value() * _scale,
@@ -288,8 +304,7 @@ namespace tl
         {
             TLRENDER_P();
             p.durationLabel = _getDurationLabel(_timeRange.duration());
-            p.size.textUpdate = true;
-            p.draw.durationGlyphs.clear();
+            p.size.textInit = true;
             _updates |= ui::Update::Size;
             _updates |= ui::Update::Draw;
         }

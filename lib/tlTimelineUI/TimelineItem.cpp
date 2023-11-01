@@ -45,11 +45,13 @@ namespace tl
 
             struct SizeData
             {
+                bool sizeInit = true;
                 int margin = 0;
                 int border = 0;
                 int handle = 0;
                 image::FontInfo fontInfo = image::FontInfo("", 0);
                 image::FontMetrics fontMetrics;
+
                 math::Vector2i scrollPos;
             };
             SizeData size;
@@ -284,6 +286,17 @@ namespace tl
             _p->stopOnScrub = value;
         }
 
+        void TimelineItem::setOptions(const ItemOptions& value)
+        {
+            const bool changed = value != _options;
+            IItem::setOptions(value);
+            TLRENDER_P();
+            if (changed)
+            {
+                p.size.sizeInit = true;
+            }
+        }
+
         void TimelineItem::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
@@ -346,17 +359,21 @@ namespace tl
 
         void TimelineItem::sizeHintEvent(const ui::SizeHintEvent& event)
         {
+            const bool displayScaleChanged = event.displayScale != _displayScale;
             IItem::sizeHintEvent(event);
             TLRENDER_P();
 
-            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, _displayScale);
-            p.size.border = event.style->getSizeRole(ui::SizeRole::Border, _displayScale);
-            p.size.handle = event.style->getSizeRole(ui::SizeRole::Handle, _displayScale);
-
-            p.size.fontInfo = image::FontInfo(
-                _options.monoFont,
-                _options.fontSize * _displayScale);
-            p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
+            if (displayScaleChanged || p.size.sizeInit)
+            {
+                p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, _displayScale);
+                p.size.border = event.style->getSizeRole(ui::SizeRole::Border, _displayScale);
+                p.size.handle = event.style->getSizeRole(ui::SizeRole::Handle, _displayScale);
+                p.size.fontInfo = image::FontInfo(
+                    _options.monoFont,
+                    _options.fontSize * _displayScale);
+                p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
+            }
+            p.size.sizeInit = false;
 
             int tracksHeight = 0;
             for (auto& track : p.tracks)

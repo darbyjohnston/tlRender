@@ -54,6 +54,8 @@ namespace tl
             //! Set whether playback stops when scrubbing.
             void setStopOnScrub(bool);
 
+            void setOptions(const ItemOptions&) override;
+
             void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
             void drawOverlayEvent(const math::Box2i&, const ui::DrawEvent&) override;

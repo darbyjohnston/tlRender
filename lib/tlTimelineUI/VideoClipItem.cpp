@@ -24,7 +24,9 @@ namespace tl
 
             struct SizeData
             {
+                bool sizeInit = true;
                 int dragLength = 0;
+
                 math::Box2i clipRect;
             };
             SizeData size;
@@ -160,9 +162,16 @@ namespace tl
 
         void VideoClipItem::sizeHintEvent(const ui::SizeHintEvent& event)
         {
+            const bool displayScaleChanged = event.displayScale != _displayScale;
             IBasicItem::sizeHintEvent(event);
             TLRENDER_P();
-            p.size.dragLength = event.style->getSizeRole(ui::SizeRole::DragLength, _displayScale);
+
+            if (displayScaleChanged || p.size.sizeInit)
+            {
+                p.size.dragLength = event.style->getSizeRole(ui::SizeRole::DragLength, _displayScale);
+            }
+            p.size.sizeInit = false;
+
             if (_options.thumbnails)
             {
                 _sizeHint.h += _options.thumbnailHeight;
