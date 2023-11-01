@@ -14,11 +14,6 @@
 
 namespace tl
 {
-    namespace play
-    {
-        class Settings;
-    }
-
     namespace system
     {
         class Context;
@@ -50,7 +45,6 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<play::Settings>&,
                 const std::shared_ptr<system::Context>&);
 
             DevicesModel();
@@ -60,7 +54,6 @@ namespace tl
 
             //! Create a new device model.
             static std::shared_ptr<DevicesModel> create(
-                const std::shared_ptr<play::Settings>&,
                 const std::shared_ptr<system::Context>&);
 
             //! Observe the model data.
