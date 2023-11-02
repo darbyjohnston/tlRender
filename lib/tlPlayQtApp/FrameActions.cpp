@@ -100,6 +100,7 @@ namespace tl
             p.menu->addSeparator();
             p.menu->addAction(p.actions["FocusCurrentFrame"]);
 
+            _playersUpdate(app->players());
             _actionsUpdate();
 
             connect(

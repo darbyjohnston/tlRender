@@ -146,6 +146,11 @@ namespace tl
             return _p->filesModel;
         }
 
+        const QVector<QSharedPointer<qt::TimelinePlayer> >& App::players() const
+        {
+            return _p->players;
+        }
+
         const std::shared_ptr<ui::RecentFilesModel>& App::recentFilesModel() const
         {
             return _p->recentFilesModel;

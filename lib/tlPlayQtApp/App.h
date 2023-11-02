@@ -73,6 +73,9 @@ namespace tl
             //! Get the files model.
             const std::shared_ptr<play::FilesModel>& filesModel() const;
 
+            //! Get the timeline players.
+            const QVector<QSharedPointer<qt::TimelinePlayer> >& players() const;
+
             //! Get the recent files model.
             const std::shared_ptr<ui::RecentFilesModel>& recentFilesModel() const;
 
