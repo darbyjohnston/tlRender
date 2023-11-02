@@ -36,6 +36,14 @@ namespace tl
             "ProRes_4444",
             "ProRes_XQ");
         TLRENDER_ENUM_SERIALIZE_IMPL(Profile);
+    
+        TLRENDER_ENUM_IMPL(
+            AudioCodec,
+            "None",
+            "AAC",
+            "AC3",
+            "True_HD");
+        TLRENDER_ENUM_SERIALIZE_IMPL(AudioCodec);
 
         AVRational swap(AVRational value)
         {
@@ -177,13 +185,30 @@ namespace tl
             IPlugin::_init(
                 "FFmpeg",
                 {
-                    { ".mov", io::FileType::Movie },
-                    { ".m4v", io::FileType::Movie },
-                    { ".mp4", io::FileType::Movie },
-                    { ".y4m", io::FileType::Movie },
-                    { ".mxf", io::FileType::Movie },
-                    { ".wmv", io::FileType::Movie },
+                    // Video Formats
                     { ".avi", io::FileType::Movie },
+                    { ".divx", io::FileType::Movie },
+                    { ".dv", io::FileType::Movie },
+                    { ".flv", io::FileType::Movie },
+                    { ".m4v", io::FileType::Movie },
+                    { ".mkv", io::FileType::Movie },
+                    { ".mov", io::FileType::Movie },
+                    { ".mp4", io::FileType::Movie },
+                    { ".mpg", io::FileType::Movie },
+                    { ".mpeg", io::FileType::Movie },
+                    { ".mpeg2", io::FileType::Movie },
+                    { ".mpeg3", io::FileType::Movie },
+                    { ".mpeg4", io::FileType::Movie },
+                    { ".mxf", io::FileType::Movie },
+                    { ".vp9", io::FileType::Movie },
+                    { ".y4m", io::FileType::Movie },
+                    { ".webm", io::FileType::Movie },
+                    { ".wmv", io::FileType::Movie },
+
+                    // Audio Formats
+                    { ".ogg", io::FileType::Audio },
+                    { ".opus", io::FileType::Audio },
+                    { ".vorbis", io::FileType::Audio },
                     { ".wav", io::FileType::Audio },
                     { ".mp3", io::FileType::Audio },
                     { ".aiff", io::FileType::Audio }

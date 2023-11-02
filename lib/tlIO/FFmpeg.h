@@ -12,6 +12,9 @@ extern "C"
 {
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
+
+struct AVCodecContext;
+struct AVStream;
 }
 
 namespace tl
@@ -36,6 +39,20 @@ namespace tl
         TLRENDER_ENUM(Profile);
         TLRENDER_ENUM_SERIALIZE(Profile);
 
+        //! Audio Codecs.
+        enum class AudioCodec
+        {
+            None,
+            AAC,
+            AC3,
+            True_HD,
+
+            Count
+        };
+        TLRENDER_ENUM(AudioCodec);
+        TLRENDER_ENUM_SERIALIZE(AudioCodec);
+
+        
         //! Number of threads.
         const size_t threadCount = 0;
 
@@ -144,9 +161,16 @@ namespace tl
                 const otime::RationalTime&,
                 const std::shared_ptr<image::Image>&,
                 const io::Options& = io::Options()) override;
+            
+            void writeAudio(
+                const otime::TimeRange&,
+                const std::shared_ptr<audio::Audio>&,
+                const io::Options& = io::Options()) override;
 
         private:
-            void _encodeVideo(AVFrame*);
+            void _encode(AVCodecContext*, const AVStream*,
+                         const AVFrame*, AVPacket*);
+            void _flushAudio();
 
             TLRENDER_PRIVATE();
         };

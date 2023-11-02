@@ -110,6 +110,12 @@ namespace tl
                 const otime::RationalTime&,
                 const std::shared_ptr<image::Image>&,
                 const Options& = Options()) = 0;
+            
+            //! Write video data.
+            virtual void writeAudio(
+                const otime::TimeRange&,
+                const std::shared_ptr<audio::Audio>&,
+                const Options& = Options()) {};
 
         protected:
             Info _info;
