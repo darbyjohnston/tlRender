@@ -220,7 +220,8 @@ namespace tl
                 }
 
                 // Sanity check on codecs and containers.
-                const std::string extension = path.getExtension();
+                const std::string extension =
+                    string::toLower(path.getExtension());
                 if (extension == ".wav")
                 {
                     if (avCodecID != AV_CODEC_ID_PCM_S16LE &&
