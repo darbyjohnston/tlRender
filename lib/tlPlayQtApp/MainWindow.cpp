@@ -407,6 +407,7 @@ namespace tl
 
             p.timelineViewport->setFocus();
 
+            _playersUpdate(app->players());
             _widgetUpdate();
 
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(

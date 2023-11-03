@@ -168,6 +168,7 @@ namespace tl
             p.speedMenu->addSeparator();
             p.speedMenu->addAction(p.actions["Speed/Default"]);
 
+            _playersUpdate(app->players());
             _actionsUpdate();
 
             connect(
