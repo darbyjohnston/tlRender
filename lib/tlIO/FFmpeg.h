@@ -46,6 +46,8 @@ namespace tl
             AAC,
             AC3,
             True_HD,
+            MP2,
+            PCM_S16LE,
 
             Count
         };

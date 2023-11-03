@@ -26,7 +26,7 @@ namespace tl
     {
         namespace
         {
-
+            
             AVSampleFormat toPlanarFormat(const enum AVSampleFormat s)
             {
                 switch(s)
@@ -69,6 +69,16 @@ namespace tl
                 
                 if (!codec->ch_layouts)
                 {
+                    if (channelCount == 2)
+                    {
+                        AVChannelLayout channel_layout = AV_CHANNEL_LAYOUT_STEREO;
+                        return av_channel_layout_copy(dst, &channel_layout);
+                    }
+                    else if (channelCount == 1)
+                    {
+                        AVChannelLayout channel_layout = AV_CHANNEL_LAYOUT_MONO;
+                        return av_channel_layout_copy(dst, &channel_layout);
+                    }
                     av_channel_layout_default(dst, channelCount);
                     return 0;
                 }
@@ -179,7 +189,14 @@ namespace tl
                 case AudioCodec::True_HD:
                     avCodecID = AV_CODEC_ID_TRUEHD;
                     break;
+                case AudioCodec::MP2:
+                    avCodecID = AV_CODEC_ID_MP2;
+                    break;
+                case AudioCodec::PCM_S16LE:
+                    avCodecID = AV_CODEC_ID_PCM_S16LE;
+                    break;
                 default:
+                {
                     const char* name = ss.str().c_str();
                     avCodec = const_cast<AVCodec*>(avcodec_find_encoder_by_name(name));
                     if (!avCodec)
@@ -192,6 +209,7 @@ namespace tl
                         }
                     }
                     break;
+                }
                 }
             }
                 
@@ -249,6 +267,12 @@ namespace tl
                             p.avAudioCodecContext->sample_fmt =
                                 AV_SAMPLE_FMT_FLTP;
                         }
+                        else if(checkSampleFormat(avCodec, AV_SAMPLE_FMT_S16))
+                        {
+                            p.avAudioPlanar = false;
+                            p.avAudioCodecContext->sample_fmt =
+                                AV_SAMPLE_FMT_S16;
+                        }
                         else
                         {
                             throw std::runtime_error(
@@ -276,6 +300,11 @@ namespace tl
 
                 p.sampleRate =
                     selectSampleRate(avCodec, info.audio.sampleRate);
+                if (p.sampleRate == 0)
+                    throw std::runtime_error(
+                        string::Format(
+                            "{0}: Could not select sample rate")
+                            .arg(p.fileName));
                     
                 char buf[256];
                 av_channel_layout_describe(
@@ -285,7 +314,7 @@ namespace tl
                 {
                     const audio::Info& input = info.audio;
                     audio::Info output(info.audio.channelCount,
-                                       audio::DataType::F32,
+                                       toAudioType(p.avAudioCodecContext->sample_fmt),
                                        p.sampleRate);
                     p.resample = audio::AudioResample::create(input, output);
                     
@@ -328,9 +357,6 @@ namespace tl
                 p.avAudioCodecContext->sample_rate = p.sampleRate;
                 p.avAudioCodecContext->time_base.num = 1;
                 p.avAudioCodecContext->time_base.den = p.sampleRate;
-
-                // This value may be changed once we open the codec
-                p.avAudioCodecContext->frame_size = p.sampleRate;
 
                 if ((p.avAudioCodecContext->block_align == 1 ||
                      p.avAudioCodecContext->block_align == 1152 ||
@@ -390,6 +416,11 @@ namespace tl
                         .arg(getErrorLabel(r)));
                 }
 
+                if (p.avAudioCodecContext->codec->capabilities &
+                    AV_CODEC_CAP_VARIABLE_FRAME_SIZE)
+                {
+                    p.avAudioCodecContext->frame_size = p.sampleRate;
+                }
                 p.avAudioFrame->nb_samples = p.avAudioCodecContext->frame_size;
                 p.avAudioFrame->format = p.avAudioCodecContext->sample_fmt;
                 p.avAudioFrame->sample_rate = p.sampleRate;
@@ -404,8 +435,7 @@ namespace tl
                         .arg(p.fileName)
                         .arg(getErrorLabel(r)));
                 }
-                
-                /* allocate the data buffers */
+
                 r = av_frame_get_buffer(p.avAudioFrame, 0);
                 if (r < 0)
                 {
@@ -733,6 +763,8 @@ namespace tl
             const io::Options&)
         {
             TLRENDER_P();
+            if (!p.avCodecContext)
+                return;
 
             const auto& info = image->getInfo();
             av_image_fill_arrays(
@@ -818,7 +850,6 @@ namespace tl
             if (timeRange.start_time().value() >=
                 p.totalSamples + p.audioStartSamples + fifoSize)
             {
-
                 // If this is the start of the saving, store the start time.
                 if (p.totalSamples == 0)
                 {
@@ -840,7 +871,6 @@ namespace tl
                     audio = audioResampled;
                 
                 uint8_t* data = audio->getData();
-
                 
                 // Allocate flatData pointers
                 const size_t channels = audio->getChannelCount();
@@ -970,7 +1000,7 @@ namespace tl
                             .arg(p.fileName));
                 }
 
-                packet->stream_index = stream->index; // Needed 
+                packet->stream_index = stream->index; // Needed
 
                 r = av_interleaved_write_frame(p.avFormatContext, packet);
                 if (r < 0)

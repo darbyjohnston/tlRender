@@ -10,6 +10,7 @@ set(HEADERS
     PluginInline.h
     SGI.h
     SequenceIO.h
+    STB.h
     System.h
     SystemInline.h)
 set(HEADERS_PRIVATE
@@ -32,6 +33,9 @@ set(SOURCE
     SGI.cpp
     SGIRead.cpp
     SGIWrite.cpp
+    STB.cpp
+    STBRead.cpp
+    STBWrite.cpp
     SequenceIORead.cpp
     SequenceIOWrite.cpp
     System.cpp)
@@ -67,11 +71,28 @@ if(TLRENDER_FFMPEG)
     list(APPEND SOURCE FFmpeg.cpp FFmpegRead.cpp FFmpegReadAudio.cpp
         FFmpegReadVideo.cpp FFmpegWrite.cpp)
     list(APPEND LIBRARIES_PRIVATE FFmpeg)
+    if(WIN32)
+	set_source_files_properties(FFmpegWrite.cpp
+	    PROPERTIES COMPILE_FLAGS -std:c++20)
+    endif()
 endif()
 if(TLRENDER_USD)
     list(APPEND HEADERS_PRIVATE USD.h USDPrivate.h)
     list(APPEND SOURCE USD.cpp USDRead.cpp USDRender.cpp)
     list(APPEND LIBRARIES_PRIVATE tf usd usdGeom usdImagingGL usdAppUtils hd)
+    if(NOT WIN32)
+	set_source_files_properties(USD.cpp
+	    PROPERTIES COMPILE_FLAGS -std=c++14)
+	set_source_files_properties(USDRead.cpp
+	    PROPERTIES COMPILE_FLAGS -std=c++14)
+	set_source_files_properties(USDRender.cpp
+	    PROPERTIES COMPILE_FLAGS -std=c++14)
+    endif()
+endif()
+if(TLRENDER_RAW)
+    list(APPEND HEADERS_PRIVATE RAW.h)
+    list(APPEND SOURCE RAW.cpp RAWRead.cpp)
+    list(APPEND LIBRARIES_PRIVATE LibRaw)
 endif()
 list(APPEND LIBRARIES tlGL)
 
