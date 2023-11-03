@@ -208,10 +208,11 @@ namespace tl
                     { ".wmv", io::FileType::Movie },
 
                     // Audio Formats
+                    { ".aiff", io::FileType::Audio },
+                    { ".mp3", io::FileType::Audio }
                     { ".opus", io::FileType::Audio },
                     { ".vorbis", io::FileType::Audio },
                     { ".wav", io::FileType::Audio },
-                    { ".mp3", io::FileType::Audio }
                 },
                 cache,
                 logSystem);
