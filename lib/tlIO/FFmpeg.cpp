@@ -44,6 +44,9 @@ namespace tl
             "AC3",
             "True_HD",
             "MP2",
+            "MP3",
+            "OPUS",
+            "VORBIS",
             "PCM_S16LE");
         TLRENDER_ENUM_SERIALIZE_IMPL(AudioCodec);
 
@@ -210,6 +213,7 @@ namespace tl
                     // Audio Formats
                     { ".aiff", io::FileType::Audio },
                     { ".mp3", io::FileType::Audio },
+                    { ".ogg", io::FileType::Audio },
                     { ".opus", io::FileType::Audio },
                     { ".vorbis", io::FileType::Audio },
                     { ".wav", io::FileType::Audio }
@@ -289,7 +293,8 @@ namespace tl
             const io::Info& info,
             const io::Options& options)
         {
-            if (info.video.empty() || (!info.video.empty() && !_isWriteCompatible(info.video[0], options)))
+            if (!info.video.empty() &&
+                !_isWriteCompatible(info.video[0], options))
                 throw std::runtime_error(string::Format("{0}: {1}").
                     arg(path.get()).
                     arg("Unsupported video"));

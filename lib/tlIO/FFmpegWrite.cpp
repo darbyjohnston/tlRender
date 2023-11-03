@@ -164,8 +164,14 @@ namespace tl
             {
                 throw std::runtime_error(string::Format("{0}: No video or audio").arg(p.fileName));
             }
-            
-            int r = avformat_alloc_output_context2(&p.avFormatContext, NULL, NULL, p.fileName.c_str());
+
+            int r = avformat_alloc_output_context2(
+                &p.avFormatContext, NULL, NULL, p.fileName.c_str());
+            if (r < 0)
+                throw std::runtime_error(
+                    string::Format(
+                        "{0}: Could not allocate output context")
+                    .arg(p.fileName));
             
             AVCodec* avCodec = nullptr;
             AVCodecID avCodecID = AV_CODEC_ID_AAC;
@@ -212,6 +218,88 @@ namespace tl
                     break;
                 }
                 }
+
+                // Sanity check on codecs and containers.
+                const std::string extension = path.getExtension();
+                if (extension == ".wav")
+                {
+                    if (avCodecID != AV_CODEC_ID_PCM_S16LE &&
+                        avCodecID != AV_CODEC_ID_MP3 &&
+                        avCodecID != AV_CODEC_ID_AAC)
+                    {
+                        if (auto logSystem = _logSystem.lock())
+                        {
+                            logSystem->print(
+                                "tl::io::ffmpeg::Plugin::Write",
+                                "Invalid codec for .wav, switching to AAC",
+                                log::Type::Error);
+                        }
+                        avCodecID = AV_CODEC_ID_AAC;
+                    }
+                }
+                else if (extension == ".aiff")
+                {
+                    if (avCodecID != AV_CODEC_ID_PCM_S16LE)
+                    {
+                        if (auto logSystem = _logSystem.lock())
+                        {
+                            logSystem->print(
+                                "tl::io::ffmpeg::Plugin::Write",
+                                "Invalid codec for .aiff, switching to PCM_S16LE",
+                                log::Type::Error);
+                        }
+                        avCodecID = AV_CODEC_ID_PCM_S16LE;
+                    }
+                }
+                else if (extension == ".mp3")
+                {
+                    if (avCodecID != AV_CODEC_ID_MP3)
+                    {
+                        if (auto logSystem = _logSystem.lock())
+                        {
+                            logSystem->print(
+                                "tl::io::ffmpeg::Plugin::Write",
+                                "Invalid codec for .mp3, switching to MP3 (needs libmp3lame)",
+                                log::Type::Error);
+                        }
+                        avCodecID = AV_CODEC_ID_MP3;
+                    }
+                }
+                else if (extension == ".opus")
+                {
+                    if (avCodecID != AV_CODEC_ID_OPUS)
+                    {
+                        if (auto logSystem = _logSystem.lock())
+                        {
+                            logSystem->print(
+                                "tl::io::ffmpeg::Plugin::Write",
+                                string::Format(
+                                    "Invalid codec for {0}, "
+                                    "switching to OPUS (needs libopus)")
+                                    .arg(extension),
+                                log::Type::Error);
+                        }
+                        avCodecID = AV_CODEC_ID_OPUS;
+                    }
+                }
+                else if (extension == ".vorbis" ||
+                         extension == ".ogg")
+                {
+                    if (avCodecID != AV_CODEC_ID_VORBIS)
+                    {
+                        if (auto logSystem = _logSystem.lock())
+                        {
+                            logSystem->print(
+                                "tl::io::ffmpeg::Plugin::Write",
+                                string::Format(
+                                    "Invalid codec for {0}, "
+                                    "switching to VORBIS (needs libvorbis)")
+                                    .arg(extension),
+                                log::Type::Error);
+                        }
+                        avCodecID = AV_CODEC_ID_VORBIS;
+                    }
+                }
             }
                 
             if (info.audio.isValid() && avCodecID != AV_CODEC_ID_NONE)
@@ -220,7 +308,7 @@ namespace tl
                     avCodec = const_cast<AVCodec*>(avcodec_find_encoder(avCodecID));
                 if (!avCodec)
                     throw std::runtime_error("Could not find audio encoder");
-                    
+                
                 p.avAudioStream = avformat_new_stream(p.avFormatContext,
                                                       avCodec);
                 if (!p.avAudioStream)
@@ -491,11 +579,7 @@ namespace tl
                     break;
                 default: break;
                 }
-
-                if (r < 0)
-                {
-                    throw std::runtime_error(string::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
-                }
+                
                 const AVCodec* avCodec = avcodec_find_encoder(avCodecID);
                 if (!avCodec)
                 {
@@ -538,13 +622,20 @@ namespace tl
                 r = avcodec_open2(p.avCodecContext, avCodec, NULL);
                 if (r < 0)
                 {
-                    throw std::runtime_error(string::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
+                    throw std::runtime_error(
+                        string::Format("{0}: avcodec_open2 - {1}")
+                            .arg(p.fileName)
+                            .arg(getErrorLabel(r)));
                 }
 
                 r = avcodec_parameters_from_context(p.avVideoStream->codecpar, p.avCodecContext);
                 if (r < 0)
                 {
-                    throw std::runtime_error(string::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
+                    throw std::runtime_error(
+                        string::Format(
+                            "{0}: avcodec_parameters_from_context - {1}")
+                            .arg(p.fileName)
+                            .arg(getErrorLabel(r)));
                 }
 
                 p.avVideoStream->time_base = { rational.second, rational.first };
@@ -578,20 +669,6 @@ namespace tl
                         p.videoStartTime = time::floor(time);
                     }
                 }
-            
-                //av_dump_format(p.avFormatContext, 0, p.fileName.c_str(), 1);
-
-                r = avio_open(&p.avFormatContext->pb, p.fileName.c_str(), AVIO_FLAG_WRITE);
-                if (r < 0)
-                {
-                    throw std::runtime_error(string::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
-                }
-
-                r = avformat_write_header(p.avFormatContext, NULL);
-                if (r < 0)
-                {
-                    throw std::runtime_error(string::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
-                }
 
                 p.avPacket = av_packet_alloc();
                 if (!p.avPacket)
@@ -610,7 +687,10 @@ namespace tl
                 r = av_frame_get_buffer(p.avFrame, 0);
                 if (r < 0)
                 {
-                    throw std::runtime_error(string::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
+                    throw std::runtime_error(
+                        string::Format("{0}: av_frame_get_buffer - {1}")
+                            .arg(p.fileName)
+                            .arg(getErrorLabel(r)));
                 }
 
                 p.avFrame2 = av_frame_alloc();
@@ -661,7 +741,33 @@ namespace tl
                     throw std::runtime_error(string::Format("{0}: Cannot initialize sws context").arg(p.fileName));
                 }
             }
+            
+            if (p.avFormatContext->nb_streams == 0)
+            {
+                throw std::runtime_error(
+                    string::Format("{0}: No video or audio streams.")
+                        .arg(p.fileName));
+            }
+                
+            //av_dump_format(p.avFormatContext, 0, p.fileName.c_str(), 1);
 
+            r = avio_open(&p.avFormatContext->pb, p.fileName.c_str(), AVIO_FLAG_WRITE);
+            if (r < 0)
+            {
+                throw std::runtime_error(string::Format("{0}: avio_open - {1}")
+                                             .arg(p.fileName)
+                                             .arg(getErrorLabel(r)));
+            }
+    
+            r = avformat_write_header(p.avFormatContext, NULL);
+            if (r < 0)
+            {
+                throw std::runtime_error(
+                    string::Format("{0}: avformat_write_header - {1}")
+                        .arg(p.fileName)
+                        .arg(getErrorLabel(r)));
+            }
+            
             p.opened = true;
         }
 
@@ -766,7 +872,7 @@ namespace tl
             TLRENDER_P();
             if (!p.avCodecContext)
                 return;
-
+            
             const auto& info = image->getInfo();
             av_image_fill_arrays(
                 p.avFrame2->data,
@@ -1000,6 +1106,7 @@ namespace tl
                         string::Format("{0}: Cannot receive packet")
                             .arg(p.fileName));
                 }
+
 
                 packet->stream_index = stream->index; // Needed
 
