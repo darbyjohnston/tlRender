@@ -197,7 +197,8 @@ namespace tl
                     break;
                 default:
                 {
-                    const char* name = ss.str().c_str();
+                    const std::string codec = ss.str();
+                    const char* name = codec.c_str();
                     avCodec = const_cast<AVCodec*>(avcodec_find_encoder_by_name(name));
                     if (!avCodec)
                     {
