@@ -342,6 +342,11 @@ namespace tl
                     }
                 }
 
+                if (p.avAudioPlanar)
+                    p.flatData.resize(channels);
+                else
+                    p.flatData.resize(1);
+                
                 r = selectChannelLayout(
                     avCodec, &p.avAudioCodecContext->ch_layout,
                     info.audio.channelCount);
@@ -944,12 +949,18 @@ namespace tl
                 uint8_t* data = audio->getData();
                 
                 // Allocate flatData pointers
-                const size_t channels = audio->getChannelCount();
-                const size_t stride = audio->getByteCount() / channels;
-                p.flatData.resize(channels);
-                for (size_t i = 0; i < channels; ++i)
+                if (p.avAudioPlanar)
                 {
-                    p.flatData[i] = data + i * stride;
+                    const size_t channels = audio->getChannelCount();
+                    const size_t stride = audio->getByteCount() / channels;
+                    for (size_t i = 0; i < channels; ++i)
+                    {
+                        p.flatData[i] = data + i * stride;
+                    }
+                }
+                else
+                {
+                    p.flatData[0] = data;
                 }
                 
                 const size_t sampleCount = audio->getSampleCount();
