@@ -45,11 +45,7 @@ namespace tl
             None,
             AAC,
             AC3,
-            True_HD,
-            MP2,
             MP3,
-            OPUS,
-            VORBIS,
             PCM_S16LE,
 
             Count

@@ -267,41 +267,6 @@ namespace tl
                         avCodecID = AV_CODEC_ID_MP3;
                     }
                 }
-                else if (extension == ".opus")
-                {
-                    if (avCodecID != AV_CODEC_ID_OPUS)
-                    {
-                        if (auto logSystem = _logSystem.lock())
-                        {
-                            logSystem->print(
-                                "tl::io::ffmpeg::Plugin::Write",
-                                string::Format(
-                                    "Invalid codec for {0}, "
-                                    "switching to OPUS (needs libopus)")
-                                    .arg(extension),
-                                log::Type::Error);
-                        }
-                        avCodecID = AV_CODEC_ID_OPUS;
-                    }
-                }
-                else if (extension == ".vorbis" ||
-                         extension == ".ogg")
-                {
-                    if (avCodecID != AV_CODEC_ID_VORBIS)
-                    {
-                        if (auto logSystem = _logSystem.lock())
-                        {
-                            logSystem->print(
-                                "tl::io::ffmpeg::Plugin::Write",
-                                string::Format(
-                                    "Invalid codec for {0}, "
-                                    "switching to VORBIS (needs libvorbis)")
-                                    .arg(extension),
-                                log::Type::Error);
-                        }
-                        avCodecID = AV_CODEC_ID_VORBIS;
-                    }
-                }
             }
                 
             if (info.audio.isValid() && avCodecID != AV_CODEC_ID_NONE)
