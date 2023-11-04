@@ -193,11 +193,8 @@ namespace tl
                 case AudioCodec::AC3:
                     avCodecID = AV_CODEC_ID_AC3;
                     break;
-                case AudioCodec::True_HD:
-                    avCodecID = AV_CODEC_ID_TRUEHD;
-                    break;
-                case AudioCodec::MP2:
-                    avCodecID = AV_CODEC_ID_MP2;
+                case AudioCodec::MP3:
+                    avCodecID = AV_CODEC_ID_MP3;
                     break;
                 case AudioCodec::PCM_S16LE:
                     avCodecID = AV_CODEC_ID_PCM_S16LE;
