@@ -47,8 +47,8 @@ namespace tl
             }
             
             //! Check that a given sample format is supported by the encoder
-            bool checkSampleFormat(
-                const AVCodec* codec, enum AVSampleFormat sample_fmt)
+            bool checkSampleFormat(const AVCodec* codec,
+                                   enum AVSampleFormat sample_fmt)
             {
                 const enum AVSampleFormat *p = codec->sample_fmts;
 
@@ -61,8 +61,8 @@ namespace tl
             }
 
             //! Select layout with equal or the highest channel count
-            int selectChannelLayout(
-                const AVCodec* codec, AVChannelLayout* dst, int channelCount)
+            int selectChannelLayout(const AVCodec* codec, AVChannelLayout* dst,
+                                    int channelCount)
             {
                 const AVChannelLayout *p, *best_ch_layout;
                 int best_nb_channels   = 0;
@@ -145,7 +145,8 @@ namespace tl
             int64_t audioStartSamples = 0;
             size_t  sampleRate = 0;
             std::shared_ptr<audio::AudioResample> resample;
-
+            std::vector<uint8_t*> flatData;
+            
             bool opened = false;
         };
 
@@ -983,15 +984,15 @@ namespace tl
                 // Allocate flatData pointers
                 const size_t channels = audio->getChannelCount();
                 const size_t stride = audio->getByteCount() / channels;
-                uint8_t** flatData = new uint8_t*[channels];
+                p.flatData.resize(channels);
                 for (size_t i = 0; i < channels; ++i)
                 {
-                    flatData[i] = data + i * stride;
+                    p.flatData[i] = data + i * stride;
                 }
                 
                 const size_t sampleCount = audio->getSampleCount();
                 r = av_audio_fifo_write(
-                    p.avAudioFifo, reinterpret_cast<void**>(flatData),
+                    p.avAudioFifo, reinterpret_cast<void**>(p.flatData.data()),
                     sampleCount);
                 if (r < 0)
                 {
