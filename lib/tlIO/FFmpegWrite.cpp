@@ -343,7 +343,7 @@ namespace tl
                 }
 
                 if (p.avAudioPlanar)
-                    p.flatData.resize(channels);
+                    p.flatData.resize(info.audio.channelCount);
                 else
                     p.flatData.resize(1);
                 
@@ -948,7 +948,6 @@ namespace tl
                 
                 uint8_t* data = audio->getData();
                 
-                // Allocate flatData pointers
                 if (p.avAudioPlanar)
                 {
                     const size_t channels = audio->getChannelCount();
