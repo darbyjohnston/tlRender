@@ -69,16 +69,6 @@ namespace tl
                 
                 if (!codec->ch_layouts)
                 {
-                    if (channelCount == 2)
-                    {
-                        AVChannelLayout channel_layout = AV_CHANNEL_LAYOUT_STEREO;
-                        return av_channel_layout_copy(dst, &channel_layout);
-                    }
-                    else if (channelCount == 1)
-                    {
-                        AVChannelLayout channel_layout = AV_CHANNEL_LAYOUT_MONO;
-                        return av_channel_layout_copy(dst, &channel_layout);
-                    }
                     av_channel_layout_default(dst, channelCount);
                     return 0;
                 }
