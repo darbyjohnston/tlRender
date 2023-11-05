@@ -1,10 +1,5 @@
 include(ExternalProject)
 
-set(Libssh2_DEPENDS ZLIB)
-if(NOT WIN32)
-    list(APPEND Libssh2_DEPENDS OpenSSL)
-endif()
-
 set(Libssh2_GIT_REPOSITORY "https://github.com/libssh2/libssh2.git")
 set(Libssh2_GIT_TAG "libssh2-1.11.0")
 
@@ -17,7 +12,7 @@ set(Libssh2_ARGS
 ExternalProject_Add(
     Libssh2
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/Libssh2
-    DEPENDS ${Libssh2_DEPENDS}
+    DEPENDS OpenSSL ZLIB
     GIT_REPOSITORY ${Libssh2_GIT_REPOSITORY}
     GIT_TAG ${Libssh2_GIT_TAG}
     PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different

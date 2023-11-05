@@ -48,7 +48,6 @@ Contents:
     * [Building Dependencies](#build-dependencies)
     * [Building on Linux](#building-on-linux)
     * [Building on macOS](#building-on-macos)
-    * [Building FFmpeg on Windows](#building-ffmpeg-on-windows)
     * [Building on Windows](#building-on-windows)
 
 
@@ -217,33 +216,11 @@ alias arm="env /usr/bin/arch -arm64 /bin/zsh --login"
 alias intel="env /usr/bin/arch -x86_64 /bin/zsh --login"
 ```
 
-## Building FFmpeg on Windows
-
-Most of the third party software that tlRender depends upon is built as part
-of the CMake super build, except for FFmpeg on Windows. Instead the Windows
-Subsystem for Linux (WSL) is used to compile FFmpeg as a separate step before
-the CMake super build.
-
-Enable the Windows Subsystem for Linux:
-
-* Open the Windows control panel and click on "Programs and Features"
-* Click on "Turn Windows features on or off" on the left side of the "Programs and Features" window
-* Check the "Windows Subsystem for Linux" item in the "Windows Features" window
-* Restart your computer
-
-Install Ubuntu from the Windows app store, then open a shell and install necessary software:
-```
-sudo apt update
-sudo apt install mingw-w64 yasm make unzip
-```
-
-Build FFmpeg, replacing $SOURCE_DIR and $BUILD_DIR with the same directories used in the
-"Building on Windows" section:
-```
-$SOURCE_DIR/etc/Windows/build_ffmpeg_wsl.sh $BUILD_DIR/install
-```
-
 ## Building on Windows
+
+Install MSYS2 (https://www.msys2.org) for compiling FFmpeg. The default install
+directory is "C:\msys64". If MSYS2 is installed in a different directory use the
+CMake variable TLRENDER_FFMPEG_MSYS2 to specify the directory.
 
 Clone the repository:
 ```

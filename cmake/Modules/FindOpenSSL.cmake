@@ -46,22 +46,28 @@ mark_as_advanced(
     OpenSSL_Crypto_LIBRARY
     OPENSSL_CRYPTO_LIBRARY)
 
+if(OpenSSL_FOUND AND NOT TARGET OpenSSL::Crypto)
+    set(OpenSSL_Crypto_INTERFACE_LINK_LIBRARIES)
+    if(WIN32)
+        list(APPEND OpenSSL_Crypto_INTERFACE_LINK_LIBRARIES Ws2_32 Crypt32)
+    endif()
+    add_library(OpenSSL::Crypto UNKNOWN IMPORTED)
+    set_target_properties(OpenSSL::Crypto PROPERTIES
+        IMPORTED_LOCATION "${OpenSSL_Crypto_LIBRARY}"
+        INTERFACE_COMPILE_DEFINITIONS OpenSSL_FOUND
+        INTERFACE_INCLUDE_DIRECTORIES "${OpenSSL_INCLUDE_DIR}"
+        INTERFACE_LINK_LIBRARIES "${OpenSSL_Crypto_INTERFACE_LINK_LIBRARIES}")
+endif()
 if(OpenSSL_FOUND AND NOT TARGET OpenSSL::SSL)
     add_library(OpenSSL::SSL UNKNOWN IMPORTED)
     set_target_properties(OpenSSL::SSL PROPERTIES
         IMPORTED_LOCATION "${OpenSSL_SSL_LIBRARY}"
         INTERFACE_COMPILE_DEFINITIONS OpenSSL_FOUND
-        INTERFACE_INCLUDE_DIRECTORIES "${OpenSSL_INCLUDE_DIR}")
-endif()
-if(OpenSSL_FOUND AND NOT TARGET OpenSSL::Crypto)
-    add_library(OpenSSL::Crypto UNKNOWN IMPORTED)
-    set_target_properties(OpenSSL::Crypto PROPERTIES
-        IMPORTED_LOCATION "${OpenSSL_Crypto_LIBRARY}"
-        INTERFACE_COMPILE_DEFINITIONS OpenSSL_FOUND
-        INTERFACE_INCLUDE_DIRECTORIES "${OpenSSL_INCLUDE_DIR}")
+        INTERFACE_INCLUDE_DIRECTORIES "${OpenSSL_INCLUDE_DIR}"
+        INTERFACE_LINK_LIBRARIES "OpenSSL::Crypto")
 endif()
 if(OpenSSL_FOUND AND NOT TARGET OpenSSL)
     add_library(OpenSSL INTERFACE)
-    target_link_libraries(OpenSSL INTERFACE OpenSSL::SSL OpenSSL::Crypto)
+    target_link_libraries(OpenSSL INTERFACE OpenSSL::SSL)
 endif()
 
