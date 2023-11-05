@@ -126,7 +126,7 @@ if(WIN32)
         -c "pacman -S diffutils make nasm --noconfirm && \
         ${FFmpeg_OPENSSL_COPY} \
         ./configure ${FFmpeg_CONFIGURE_ARGS_TMP}")
-    set(FFmpeg_BUILD ${FFmpeg_MSYS2} -c "make -j")
+    set(FFmpeg_BUILD ${FFmpeg_MSYS2} -c "make")
     set(FFmpeg_INSTALL ${FFmpeg_MSYS2} -c "make install")
 else()
     set(FFmpeg_CONFIGURE ./configure ${FFmpeg_CONFIGURE_ARGS})
