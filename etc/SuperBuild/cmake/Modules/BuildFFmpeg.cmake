@@ -1,5 +1,10 @@
 include(ExternalProject)
 
+if(WIN32)
+    # Build FFmpeg with MSYS2 on Windows.
+    find_package(Msys REQUIRED)
+endif()
+
 set(FFmpeg_DEPS)
 if(TLRENDER_NET)
     list(APPEND FFmpeg_DEPS OpenSSL)
@@ -97,12 +102,11 @@ if(FFmpeg_DEBUG)
         --assert-level=2)
 endif()
 if(WIN32)
-    # Build FFmpeg with MSYS2 on Windows.
     list(APPEND FFmpeg_CONFIGURE_ARGS
         --arch=x86_64
         --toolchain=msvc)
     set(FFmpeg_MSYS2
-        ${TLRENDER_FFMPEG_MSYS2}/msys2_shell.cmd
+        ${MSYS_CMD}
         -use-full-path
         -defterm
         -no-start

@@ -218,9 +218,7 @@ alias intel="env /usr/bin/arch -x86_64 /bin/zsh --login"
 
 ## Building on Windows
 
-Install MSYS2 (https://www.msys2.org) for compiling FFmpeg. The default install
-directory is "C:\msys64". If MSYS2 is installed in a different directory use the
-CMake variable TLRENDER_FFMPEG_MSYS2 to specify the directory.
+Install MSYS2 (https://www.msys2.org) for compiling FFmpeg.
 
 Clone the repository:
 ```
