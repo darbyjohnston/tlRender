@@ -143,7 +143,7 @@ jobs:
         path: build/tlRender/src/tlRender-build/tlRender-*.tar.gz
 
   macos-build:
-    runs-on: macos-latest
+    runs-on: macos-12
 
     env:
       TLRENDER_PYTHON: OFF
@@ -190,7 +190,7 @@ jobs:
         tests/tltest/tltest
 
   macos-package:
-    runs-on: macos-latest
+    runs-on: macos-12
 
     env:
       TLRENDER_PYTHON: OFF
@@ -268,7 +268,7 @@ jobs:
     - name: Setup environment
       shell: cmd
       run: |
-        echo "%CD%\build\install\bin;%CD%\build\install\lib" >> $GITHUB_PATH
+        echo "%CD%\build\install\bin;%CD%\build\install\lib" >> %GITHUB_PATH%
         
     - name: Build tlRender
       shell: cmd
@@ -278,9 +278,6 @@ jobs:
       shell: cmd
       run: |
         cd build
-        echo "--------------------------------------------------------------------------------"
-        echo %PATH%
-        tests\src\tests-build\FFmpegTest\Debug\FFmpegTest.exe
         cd tlRender\src\tlRender-build
         tests\tltest\Debug\tltest
 
@@ -316,7 +313,7 @@ jobs:
     - name: Setup environment
       shell: cmd
       run: |
-        echo "%CD%\build\install\bin;%CD%\build\install\lib" >> $GITHUB_PATH
+        echo "%CD%\build\install\bin;%CD%\build\install\lib" >> %GITHUB_PATH%
 
     - name: Build tlRender
       shell: cmd
