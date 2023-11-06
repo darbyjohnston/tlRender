@@ -247,5 +247,6 @@ int main(int argc, char* argv[])
         context->tick();
     }
 
+    std::cout << "Finished tests" << std::endl;
     return 0;
 }

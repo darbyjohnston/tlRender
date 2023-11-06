@@ -265,6 +265,7 @@ jobs:
       with:
         submodules: recursive
 
+    # \bug Any spaces before the ">>" will be considered part of the path.
     - name: Setup environment
       shell: cmd
       run: |
@@ -276,16 +277,6 @@ jobs:
       shell: cmd
       run: |
         etc\Windows\windows-build-gha.bat Debug
-        
-    - name: Debugging
-      shell: cmd
-      run: |
-        echo "--------------------------------------------------------------------------------"
-        echo PATH: %PATH%
-        echo CTEST_OUTPUT_ON_FAILURE: %CTEST_OUTPUT_ON_FAILURE%
-        echo "--------------------------------------------------------------------------------"
-        cd build
-        tests\src\tests-build\FFmpegTest\Debug\FFmpegTest.exe
 
     - name: Run tests
       shell: cmd
@@ -323,6 +314,7 @@ jobs:
       with:
         submodules: recursive
 
+    # \bug Any spaces before the ">>" will be considered part of the path.
     - name: Setup environment
       shell: cmd
       run: |
