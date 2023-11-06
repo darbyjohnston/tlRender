@@ -271,7 +271,8 @@ jobs:
     - name: Setup environment
       shell: cmd
       run: |
-        echo "%CD%\build\install\bin;%CD%\build\install\lib" >> %GITHUB_PATH%
+        echo "%CD%\build\install\bin" >> %GITHUB_PATH%
+        echo "%CD%\build\install\lib" >> %GITHUB_PATH%
         
     - name: Build tlRender
       shell: cmd
@@ -320,7 +321,8 @@ jobs:
     - name: Setup environment
       shell: cmd
       run: |
-        echo "%CD%\build\install\bin;%CD%\build\install\lib" >> %GITHUB_PATH%
+        echo "%CD%\build\install\bin" >> %GITHUB_PATH%
+        echo "%CD%\build\install\lib" >> %GITHUB_PATH%
 
     - name: Build tlRender
       shell: cmd
