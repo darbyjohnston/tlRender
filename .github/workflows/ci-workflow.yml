@@ -272,13 +272,14 @@ jobs:
       shell: cmd
       run: |
         echo "%CD%\build\install\bin;%CD%\build\install\lib" >> %GITHUB_PATH%
-        echo "--------------------------------------------------------------------------------"
-        echo %PATH%
-        echo "--------------------------------------------------------------------------------"
         
     - name: Build tlRender
       shell: cmd
-      run: etc\Windows\windows-build-gha.bat Debug
+      run: |
+        echo "--------------------------------------------------------------------------------"
+        echo %PATH%
+        echo "--------------------------------------------------------------------------------"
+        etc\Windows\windows-build-gha.bat Debug
 
     - name: Run tests
       shell: cmd
