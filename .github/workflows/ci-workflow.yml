@@ -222,6 +222,9 @@ jobs:
         echo "$PWD/build/install/bin" >> $GITHUB_PATH
         echo "DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
+        echo "--------------------------------------------------------------------------------"
+        python --version
+        echo "--------------------------------------------------------------------------------"
 
     - name: Build tlRender
       run: |
@@ -269,6 +272,9 @@ jobs:
       shell: cmd
       run: |
         echo "%CD%\build\install\bin;%CD%\build\install\lib" >> %GITHUB_PATH%
+        echo "--------------------------------------------------------------------------------"
+        echo %PATH%
+        echo "--------------------------------------------------------------------------------"
         
     - name: Build tlRender
       shell: cmd
