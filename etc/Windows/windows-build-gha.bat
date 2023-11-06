@@ -23,4 +23,3 @@ cmake ..\etc\SuperBuild ^
   -DTLRENDER_TESTS=%TLRENDER_TESTS% ^
   -DTLRENDER_GCOV=%TLRENDER_GCOV%
 cmake --build . -j 4 --config %BUILD_TYPE%
-tests\src\tests-build\FFmpegTest\Debug\FFmpegTest.exe
