@@ -35,6 +35,8 @@ jobs:
         echo "$PWD/build/install/bin" >> $GITHUB_PATH
         echo "LD_LIBRARY_PATH=$PWD/build/install/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
+        cmake --version
+        python --version
 
     - name: Build tlRender
       run: bash etc/Linux/linux-build-gha.sh Debug
@@ -86,6 +88,8 @@ jobs:
         echo "$PWD/build/install/bin" >> $GITHUB_PATH
         echo "LD_LIBRARY_PATH=$PWD/build/install/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
+        cmake --version
+        python --version
 
     - name: Build tlRender
       run: bash etc/Linux/linux-build-gha.sh Debug
@@ -127,6 +131,8 @@ jobs:
         echo "$PWD/build/install/bin" >> $GITHUB_PATH
         echo "LD_LIBRARY_PATH=$PWD/build/install/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
+        cmake --version
+        python --version
 
     - name: Build tlRender
       run: bash etc/Linux/linux-build-gha.sh Release
@@ -176,6 +182,8 @@ jobs:
         echo "$PWD/build/install/bin" >> $GITHUB_PATH
         echo "DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
+        cmake --version
+        python --version
 
     - name: Build tlRender
       run: |
@@ -222,6 +230,8 @@ jobs:
         echo "$PWD/build/install/bin" >> $GITHUB_PATH
         echo "DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
+        cmake --version
+        python --version
 
     - name: Build tlRender
       run: |
@@ -272,6 +282,8 @@ jobs:
         echo %CD%\build\install\bin>> %GITHUB_PATH%
         echo %CD%\build\install\lib>> %GITHUB_PATH%
         echo CTEST_OUTPUT_ON_FAILURE=1 >> %GITHUB_ENV%
+        cmake --version
+        python --version
         
     - name: Build tlRender
       shell: cmd
@@ -321,6 +333,8 @@ jobs:
         echo %CD%\build\install\bin>> %GITHUB_PATH%
         echo %CD%\build\install\lib>> %GITHUB_PATH%
         echo CTEST_OUTPUT_ON_FAILURE=1 >> %GITHUB_ENV%
+        cmake --version
+        python --version
 
     - name: Build tlRender
       shell: cmd
