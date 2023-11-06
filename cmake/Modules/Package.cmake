@@ -10,7 +10,6 @@ if(WIN32)
         set(FFMPEG_DLLS
             ${CMAKE_INSTALL_PREFIX}/bin/avcodec-60.dll
             ${CMAKE_INSTALL_PREFIX}/bin/avdevice-60.dll
-            ${CMAKE_INSTALL_PREFIX}/bin/avfilter-9.dll
             ${CMAKE_INSTALL_PREFIX}/bin/avformat-60.dll
             ${CMAKE_INSTALL_PREFIX}/bin/avutil-58.dll
             ${CMAKE_INSTALL_PREFIX}/bin/swresample-4.dll
@@ -81,7 +80,7 @@ if(WIN32)
             ${CMAKE_INSTALL_PREFIX}/bin/usd_usdProcImaging.dll
             ${CMAKE_INSTALL_PREFIX}/bin/usd_usdRender.dll
             ${CMAKE_INSTALL_PREFIX}/bin/usd_usdRi.dll
-            ${CMAKE_INSTALL_PREFIX}/bin/usd_usdRiImaging.dll
+            ${CMAKE_INSTALL_PREFIX}/bin/usd_usdRiPxrImaging.dll
             ${CMAKE_INSTALL_PREFIX}/bin/usd_usdShade.dll
             ${CMAKE_INSTALL_PREFIX}/bin/usd_usdSkel.dll
             ${CMAKE_INSTALL_PREFIX}/bin/usd_usdSkelImaging.dll
@@ -123,9 +122,6 @@ elseif(APPLE)
             ${CMAKE_INSTALL_PREFIX}/lib/libavdevice.60.1.100.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libavdevice.60.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libavdevice.dylib
-            ${CMAKE_INSTALL_PREFIX}/lib/libavfilter.9.3.100.dylib
-            ${CMAKE_INSTALL_PREFIX}/lib/libavfilter.9.dylib
-            ${CMAKE_INSTALL_PREFIX}/lib/libavfilter.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libavformat.60.3.100.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libavformat.60.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libavformat.dylib
@@ -240,7 +236,7 @@ elseif(APPLE)
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdProcImaging.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdRender.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdRi.dylib
-            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdRiImaging.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdRiPxrImaging.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdShade.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdSkel.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdSkelImaging.dylib
@@ -285,9 +281,6 @@ else()
             ${CMAKE_INSTALL_PREFIX}/lib/libavdevice.so
             ${CMAKE_INSTALL_PREFIX}/lib/libavdevice.so.60
             ${CMAKE_INSTALL_PREFIX}/lib/libavdevice.so.60.1.100
-            ${CMAKE_INSTALL_PREFIX}/lib/libavfilter.so
-            ${CMAKE_INSTALL_PREFIX}/lib/libavfilter.so.9
-            ${CMAKE_INSTALL_PREFIX}/lib/libavfilter.so.9.3.100
             ${CMAKE_INSTALL_PREFIX}/lib/libavformat.so
             ${CMAKE_INSTALL_PREFIX}/lib/libavformat.so.60
             ${CMAKE_INSTALL_PREFIX}/lib/libavformat.so.60.3.100
@@ -408,8 +401,8 @@ else()
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdProcImaging.so
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdProc.so
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdRender.so
-            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdRiImaging.so
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdRi.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdRiPxrImaging.so
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdShade.so
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdSkelImaging.so
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_usdSkel.so

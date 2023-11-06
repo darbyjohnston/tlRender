@@ -41,6 +41,8 @@ set(FFmpeg_CONFIGURE_ARGS
     --prefix=${CMAKE_INSTALL_PREFIX}
     --disable-programs
     --disable-doc
+    --disable-postproc
+    --disable-avfilter
     --disable-hwaccels
     --disable-devices
     --disable-filters
@@ -136,7 +138,6 @@ else()
         list(APPEND FFmpeg_INSTALL
             COMMAND install_name_tool -id @rpath/libavcodec.60.3.100.dylib ${CMAKE_INSTALL_PREFIX}/lib/libavcodec.60.dylib
             COMMAND install_name_tool -id @rpath/libavdevice.60.1.100.dylib ${CMAKE_INSTALL_PREFIX}/lib/libavdevice.60.dylib
-            COMMAND install_name_tool -id @rpath/libavfilter.9.3.100.dylib ${CMAKE_INSTALL_PREFIX}/lib/libavfilter.9.dylib
             COMMAND install_name_tool -id @rpath/libavformat.60.3.100.dylib ${CMAKE_INSTALL_PREFIX}/lib/libavformat.60.dylib
             COMMAND install_name_tool -id @rpath/libavutil.58.2.100.dylib ${CMAKE_INSTALL_PREFIX}/lib/libavutil.58.dylib
             COMMAND install_name_tool -id @rpath/libswresample.4.10.100.dylib ${CMAKE_INSTALL_PREFIX}/lib/libswresample.4.dylib
@@ -146,20 +147,12 @@ else()
                 -change ${CMAKE_INSTALL_PREFIX}/lib/libavutil.58.dylib @rpath/libavutil.58.dylib
                 ${CMAKE_INSTALL_PREFIX}/lib/libavcodec.60.3.100.dylib
             COMMAND install_name_tool
-                -change ${CMAKE_INSTALL_PREFIX}/lib/libavfilter.9.dylib @rpath/libavfilter.9.dylib
                 -change ${CMAKE_INSTALL_PREFIX}/lib/libswscale.7.dylib @rpath/libswscale.7.dylib
                 -change ${CMAKE_INSTALL_PREFIX}/lib/libavformat.60.dylib @rpath/libavformat.60.dylib
                 -change ${CMAKE_INSTALL_PREFIX}/lib/libavcodec.60.dylib @rpath/libavcodec.60.dylib
                 -change ${CMAKE_INSTALL_PREFIX}/lib/libswresample.4.dylib @rpath/libswresample.4.dylib
                 -change ${CMAKE_INSTALL_PREFIX}/lib/libavutil.58.dylib @rpath/libavutil.58.dylib
                 ${CMAKE_INSTALL_PREFIX}/lib/libavdevice.60.1.100.dylib
-            COMMAND install_name_tool
-                -change ${CMAKE_INSTALL_PREFIX}/lib/libswscale.7.dylib @rpath/libswscale.7.dylib
-                -change ${CMAKE_INSTALL_PREFIX}/lib/libavformat.60.dylib @rpath/libavformat.60.dylib
-                -change ${CMAKE_INSTALL_PREFIX}/lib/libavcodec.60.dylib @rpath/libavcodec.60.dylib
-                -change ${CMAKE_INSTALL_PREFIX}/lib/libswresample.4.dylib @rpath/libswresample.4.dylib
-                -change ${CMAKE_INSTALL_PREFIX}/lib/libavutil.58.dylib @rpath/libavutil.58.dylib
-                ${CMAKE_INSTALL_PREFIX}/lib/libavfilter.9.3.100.dylib
             COMMAND install_name_tool
                 -change ${CMAKE_INSTALL_PREFIX}/lib/libavcodec.60.dylib @rpath/libavcodec.60.dylib
                 -change ${CMAKE_INSTALL_PREFIX}/lib/libswresample.4.dylib @rpath/libswresample.4.dylib

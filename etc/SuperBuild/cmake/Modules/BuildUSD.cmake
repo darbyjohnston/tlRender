@@ -9,6 +9,9 @@ include(ExternalProject)
 
 set(USD_DEPS)
 
+set(USD_GIT_REPOSITORY https://github.com/PixarAnimationStudios/OpenUSD.git)
+set(USD_GIT_TAG v23.11)
+
 set(USD_ARGS)
 if(CMAKE_OSX_ARCHITECTURES)
     list(APPEND USD_ARGS --build-target ${CMAKE_OSX_ARCHITECTURES})
@@ -67,7 +70,7 @@ if(WIN32)
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdGeom.dll ${CMAKE_INSTALL_PREFIX}/bin
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdHydra.dll ${CMAKE_INSTALL_PREFIX}/bin
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdImaging.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdImagingGL.dll ${CMAKE_INSTALL_PREFIX}/bin
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdImagingGL.dll ${CMAKE_INSTALL_PREFIX}/bin    
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdLux.dll ${CMAKE_INSTALL_PREFIX}/bin
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdMedia.dll ${CMAKE_INSTALL_PREFIX}/bin
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdMtlx.dll ${CMAKE_INSTALL_PREFIX}/bin
@@ -76,7 +79,7 @@ if(WIN32)
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdProcImaging.dll ${CMAKE_INSTALL_PREFIX}/bin
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdRender.dll ${CMAKE_INSTALL_PREFIX}/bin
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdRi.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdRiImaging.dll ${CMAKE_INSTALL_PREFIX}/bin
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdRiPxrImaging.dll ${CMAKE_INSTALL_PREFIX}/bin
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdShade.dll ${CMAKE_INSTALL_PREFIX}/bin
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdSkel.dll ${CMAKE_INSTALL_PREFIX}/bin
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdSkelImaging.dll ${CMAKE_INSTALL_PREFIX}/bin
@@ -92,11 +95,9 @@ ExternalProject_Add(
     USD
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/USD
     DEPENDS ${USD_DEPS}
-    URL https://github.com/PixarAnimationStudios/OpenUSD/archive/refs/tags/v23.08.tar.gz
+    GIT_REPOSITORY ${USD_GIT_REPOSITORY}
+    GIT_TAG ${USD_GIT_TAG}
     CONFIGURE_COMMAND ""
-    PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CMAKE_CURRENT_SOURCE_DIR}/USD-patch/build_usd.py
-        ${CMAKE_CURRENT_BINARY_DIR}/USD/src/USD/build_scripts/build_usd.py
     BUILD_COMMAND ${TLRENDER_USD_PYTHON} build_scripts/build_usd.py ${USD_ARGS} ${CMAKE_INSTALL_PREFIX}
     BUILD_IN_SOURCE 1
     INSTALL_COMMAND "${USD_INSTALL_COMMAND}")
