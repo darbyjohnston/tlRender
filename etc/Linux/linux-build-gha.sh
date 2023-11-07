@@ -16,9 +16,12 @@ fi
 # Install OpenGL support
 if [[ $TLRENDER_X11 = "ON" ]]
 then
-    sudo apt-get install xorg-dev libglu1-mesa-dev mesa-common-dev mesa-utils xvfb
-    xvfb-run glxinfo
+    sudo apt-get install xorg-dev
 fi
+
+# Install OpenGL support
+sudo apt-get install libglu1-mesa-dev mesa-common-dev mesa-utils xvfb
+xvfb-run glxinfo
 
 # Install Wayland support
 if [[ $TLRENDER_WAYLAND = "ON" ]]
