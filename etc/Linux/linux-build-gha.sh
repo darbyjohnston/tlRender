@@ -14,11 +14,17 @@ then
 fi
 
 # Install OpenGL support
-sudo apt-get install xorg-dev libglu1-mesa-dev mesa-common-dev mesa-utils xvfb
-xvfb-run glxinfo
+if [[ $TLRENDER_X11 = "ON" ]]
+then
+    sudo apt-get install xorg-dev libglu1-mesa-dev mesa-common-dev mesa-utils xvfb
+    xvfb-run glxinfo
+fi
 
 # Install Wayland support
-sudo apt-get install libwayland-dev wayland-protocols libdbus-1-dev libxkbcommon-dev libegl-dev libgtk-3-dev
+if [[ $TLRENDER_WAYLAND = "ON" ]]
+then
+    sudo apt-get install libwayland-dev wayland-protocols libdbus-1-dev libxkbcommon-dev libegl-dev
+fi
 
 # Install ALSA and PulseAudio support
 if [[ $TLRENDER_AUDIO = "ON" ]]

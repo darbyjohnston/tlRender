@@ -6,9 +6,18 @@ set(glfw3_GIT_TAG 3eaf1255b29fdf5c2895856c7be7d7185ef2b241)
 
 set(glfw3_Linux_ARGS )
 if(UNIX AND NOT APPLE)
-    set(glfw3_Linux_ARGS
-	-DGLFW_BUILD_WAYLAND=ON
-	-DGLFW_BUILD_X11=ON )
+    if(NOT TLRENDER_X11 AND NOT TLRENDER_WAYLAND)
+	message(FATAL_ERROR "You must select one or both of TLRENDER_X11 "
+	    "and TLRENDER_WAYLAND")
+    endif()
+    if(TLRENDER_X11)
+	list(APPEND glfw3_Linux_ARGS
+	    -DGLFW_BUILD_X11=ON )
+    endif()
+    if(TLRENDER_WAYLAND)
+	list(APPEND glfw3_Linux_ARGS
+	    -DGLFW_BUILD_WAYLAND=ON)
+    endif()
 endif()
 
 set(glfw3_ARGS

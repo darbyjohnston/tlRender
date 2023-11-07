@@ -45,11 +45,8 @@ namespace tl
             int glfwRevision = 0;
             glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRevision);
             _log(string::Format("GLFW version: {0}.{1}.{2}").arg(glfwMajor).arg(glfwMinor).arg(glfwRevision));
-            
 #ifdef __linux__
             char* platform = getenv("GLFW_PLATFORM");
-            if (!platform)
-                platform = getenv("FLTK_BACKEND");
             if (!platform)
                 platform = getenv("XDG_SESSION_TYPE");
                       
