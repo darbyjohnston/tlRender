@@ -26,24 +26,32 @@ namespace tl
     {
         namespace
         {
-            
+
+            //! Return the equivalent planar format if available.
             AVSampleFormat toPlanarFormat(const enum AVSampleFormat s)
             {
+                enum AVSampleFormat out = s;
                 switch(s)
                 {
                 case AV_SAMPLE_FMT_U8:
-                    return AV_SAMPLE_FMT_U8P;
+                    out = AV_SAMPLE_FMT_U8P;
+                    break;
                 case AV_SAMPLE_FMT_S16:
-                    return AV_SAMPLE_FMT_S16P;
+                    out = AV_SAMPLE_FMT_S16P;
+                    break;
                 case AV_SAMPLE_FMT_S32:
-                    return AV_SAMPLE_FMT_S32P;
+                    out = AV_SAMPLE_FMT_S32P;
+                    break;
                 case AV_SAMPLE_FMT_FLT:
-                    return AV_SAMPLE_FMT_FLTP;
+                    out = AV_SAMPLE_FMT_FLTP;
+                    break;
                 case AV_SAMPLE_FMT_DBL:
-                    return AV_SAMPLE_FMT_DBLP;
+                    out = AV_SAMPLE_FMT_DBLP;
+                    break;
                 default:
-                    return s;
+                    break;
                 }
+                return out;
             }
             
             //! Check that a given sample format is supported by the encoder
@@ -52,60 +60,77 @@ namespace tl
             {
                 const enum AVSampleFormat *p = codec->sample_fmts;
 
-                while (*p != AV_SAMPLE_FMT_NONE) {
+                bool out = false;
+                while (*p != AV_SAMPLE_FMT_NONE)
+                {
                     if (*p == sample_fmt)
-                        return true;
+                    {
+                        out = true;
+                        break;
+                    }
                     p++;
                 }
-                return false;
+                return out;
             }
 
             //! Select layout with equal or the highest channel count
             int selectChannelLayout(const AVCodec* codec, AVChannelLayout* dst,
                                     int channelCount)
             {
-                const AVChannelLayout *p, *best_ch_layout;
+                const AVChannelLayout* p = nullptr;
+                const AVChannelLayout* best_ch_layout = nullptr;
                 int best_nb_channels   = 0;
-                
+
+                int out = 1;
                 if (!codec->ch_layouts)
                 {
                     av_channel_layout_default(dst, channelCount);
-                    return 0;
+                    out = 0;
                 }
-
-                p = codec->ch_layouts;
-                while (p->nb_channels) {
-                    int nb_channels = p->nb_channels;
-                    
-                    if (nb_channels > best_nb_channels) {
-                        best_ch_layout   = p;
-                        best_nb_channels = nb_channels;
+                else
+                {
+                    p = codec->ch_layouts;
+                    while (p->nb_channels)
+                    {
+                        int nb_channels = p->nb_channels;
+                        
+                        if (nb_channels > best_nb_channels)
+                        {
+                            best_ch_layout   = p;
+                            best_nb_channels = nb_channels;
+                        }
+                        p++;
                     }
-                    p++;
+                    out = av_channel_layout_copy(dst, best_ch_layout);
                 }
-                return av_channel_layout_copy(dst, best_ch_layout);
+                return out;
             }
             
             //! Return an equal or higher supported samplerate
             int selectSampleRate(const AVCodec* codec, const int sampleRate)
             {
-                const int *p;
-                int best_samplerate = 0;
-
+                int out = 0;
                 if (!codec->supported_samplerates)
-                    return 44100;
-
-                p = codec->supported_samplerates;
-                while (*p) {
-
-                    if (*p == sampleRate)
-                        return sampleRate;
-                    
-                    if (!best_samplerate || abs(44100 - *p) < abs(44100 - best_samplerate))
-                        best_samplerate = *p;
-                    p++;
+                {
+                    out = 44100;
                 }
-                return best_samplerate;
+                else
+                {
+                    const int* p = codec->supported_samplerates;
+                    while (*p)
+                    {
+                        if (*p == sampleRate)
+                        {
+                            out = sampleRate;
+                            break;
+                        }
+
+                        if (!out || abs(44100 - *p) < abs(44100 - out))
+                            out = *p;
+                        p++;
+                    }
+                }
+                return out;
             }
         }
         
