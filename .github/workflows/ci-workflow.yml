@@ -104,6 +104,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      CMAKE_CXX_STANDARD: 17
       TLRENDER_PYTHON: OFF
       TLRENDER_GLFW: ON
       TLRENDER_OCIO: ON
@@ -152,6 +153,7 @@ jobs:
     runs-on: macos-12
 
     env:
+      CMAKE_OSX_DEPLOYMENT_TARGET: 10.15
       TLRENDER_PYTHON: OFF
       TLRENDER_GLFW: ON
       TLRENDER_OCIO: ON
@@ -169,7 +171,6 @@ jobs:
       TLRENDER_EXAMPLES: ON
       TLRENDER_TESTS: ON
       TLRENDER_GCOV: OFF
-      CMAKE_OSX_DEPLOYMENT_TARGET: 10.15
 
     steps:
     - uses: actions/checkout@v3
@@ -203,6 +204,8 @@ jobs:
     runs-on: macos-12
 
     env:
+      CMAKE_CXX_STANDARD: 17
+      CMAKE_OSX_DEPLOYMENT_TARGET: 10.15
       TLRENDER_PYTHON: OFF
       TLRENDER_GLFW: ON
       TLRENDER_OCIO: ON
@@ -219,7 +222,6 @@ jobs:
       TLRENDER_PROGRAMS: ON
       TLRENDER_EXAMPLES: OFF
       TLRENDER_TESTS: OFF
-      CMAKE_OSX_DEPLOYMENT_TARGET: 10.15
 
     steps:
     - uses: actions/checkout@v3
@@ -325,6 +327,7 @@ jobs:
       TLRENDER_PROGRAMS: ON
       TLRENDER_EXAMPLES: OFF
       TLRENDER_TESTS: OFF
+      CMAKE_CXX_STANDARD: 17
 
     steps:
     - uses: actions/checkout@v3
