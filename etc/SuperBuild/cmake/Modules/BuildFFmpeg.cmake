@@ -346,7 +346,13 @@ if(WIN32)
         ${FFmpeg_OPENSSL_COPY} \
         ./configure ${FFmpeg_CONFIGURE_ARGS_TMP}")
     set(FFmpeg_BUILD ${FFmpeg_MSYS2} -c "make")
-    set(FFmpeg_INSTALL ${FFmpeg_MSYS2} -c "make install")
+    set(FFmpeg_INSTALL ${FFmpeg_MSYS2} -c "make install"
+        COMMAND ${FFmpeg_MSYS2} -c "mv ${CMAKE_INSTALL_PREFIX}/bin/avcodec.lib ${CMAKE_INSTALL_PREFIX}/lib"
+        COMMAND ${FFmpeg_MSYS2} -c "mv ${CMAKE_INSTALL_PREFIX}/bin/avdevice.lib ${CMAKE_INSTALL_PREFIX}/lib"
+        COMMAND ${FFmpeg_MSYS2} -c "mv ${CMAKE_INSTALL_PREFIX}/bin/avformat.lib ${CMAKE_INSTALL_PREFIX}/lib"
+        COMMAND ${FFmpeg_MSYS2} -c "mv ${CMAKE_INSTALL_PREFIX}/bin/avutil.lib ${CMAKE_INSTALL_PREFIX}/lib"
+        COMMAND ${FFmpeg_MSYS2} -c "mv ${CMAKE_INSTALL_PREFIX}/bin/swresample.lib ${CMAKE_INSTALL_PREFIX}/lib"
+        COMMAND ${FFmpeg_MSYS2} -c "mv ${CMAKE_INSTALL_PREFIX}/bin/swscale.lib ${CMAKE_INSTALL_PREFIX}/lib")
 else()
     set(FFmpeg_CONFIGURE ./configure ${FFmpeg_CONFIGURE_ARGS})
     set(FFmpeg_BUILD make)
