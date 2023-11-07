@@ -19,8 +19,8 @@ if(WIN32)
     
     if(TLRENDER_USD)
         set(BOOST_DLLS
-            ${CMAKE_INSTALL_PREFIX}/bin/boost_atomic-vc143-mt-x64-1_78.dll
-            ${CMAKE_INSTALL_PREFIX}/bin/boost_regex-vc143-mt-x64-1_78.dll)
+            ${CMAKE_INSTALL_PREFIX}/bin/boost_atomic-vc143-mt-x64-1_76.dll
+            ${CMAKE_INSTALL_PREFIX}/bin/boost_regex-vc143-mt-x64-1_76.dll)
         set(MATERIALX_DLLS
             ${CMAKE_INSTALL_PREFIX}/bin/MaterialXCore.dll
             ${CMAKE_INSTALL_PREFIX}/bin/MaterialXFormat.dll
@@ -186,9 +186,9 @@ elseif(APPLE)
             ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc_proxy.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc_proxy_debug.dylib)
         set(OSD_DYLIBS
-            ${CMAKE_INSTALL_PREFIX}/lib/libosdCPU.3.5.0.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libosdCPU.3.5.1.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libosdCPU.dylib
-            ${CMAKE_INSTALL_PREFIX}/lib/libosdGPU.3.5.0.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libosdGPU.3.5.1.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libosdGPU.dylib)
         set(USD_DYLIBS
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_ar.dylib
@@ -299,13 +299,9 @@ else()
     if(TLRENDER_USD)
         set(BOOST_LIBS
             ${CMAKE_INSTALL_PREFIX}/lib/libboost_atomic.so
-            ${CMAKE_INSTALL_PREFIX}/lib/libboost_atomic.so.1
-            ${CMAKE_INSTALL_PREFIX}/lib/libboost_atomic.so.1.70
-            ${CMAKE_INSTALL_PREFIX}/lib/libboost_atomic.so.1.70.0
+            ${CMAKE_INSTALL_PREFIX}/lib/libboost_atomic.so.1.76.0
             ${CMAKE_INSTALL_PREFIX}/lib/libboost_regex.so
-            ${CMAKE_INSTALL_PREFIX}/lib/libboost_regex.so.1
-            ${CMAKE_INSTALL_PREFIX}/lib/libboost_regex.so.1.70
-            ${CMAKE_INSTALL_PREFIX}/lib/libboost_regex.so.1.70.0)
+            ${CMAKE_INSTALL_PREFIX}/lib/libboost_regex.so.1.76.0)
         set(MATERIALX_LIBS
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXCore.so
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXCore.so.1
@@ -355,9 +351,9 @@ else()
             ${CMAKE_INSTALL_PREFIX}/lib/libtbb.so.2)
         set(OSD_LIBS
             ${CMAKE_INSTALL_PREFIX}/lib/libosdCPU.so
-            ${CMAKE_INSTALL_PREFIX}/lib/libosdCPU.so.3.5.0
+            ${CMAKE_INSTALL_PREFIX}/lib/libosdCPU.so.3.5.1
             ${CMAKE_INSTALL_PREFIX}/lib/libosdGPU.so
-            ${CMAKE_INSTALL_PREFIX}/lib/libosdGPU.so.3.5.0)
+            ${CMAKE_INSTALL_PREFIX}/lib/libosdGPU.so.3.5.1)
         set(USD_LIBS
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_arch.so
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_ar.so

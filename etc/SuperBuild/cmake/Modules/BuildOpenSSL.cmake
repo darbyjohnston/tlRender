@@ -24,7 +24,6 @@ else()
         ./Configure
         --prefix=${CMAKE_INSTALL_PREFIX}
         --openssldir=${CMAKE_INSTALL_PREFIX}
-        no-docs
         no-external-tests
         no-tests
         no-unit-test)
