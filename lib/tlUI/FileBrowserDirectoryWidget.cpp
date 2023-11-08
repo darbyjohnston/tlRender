@@ -226,7 +226,7 @@ namespace tl
                     bool keep = true;
                     if (!p.options.search.empty())
                     {
-                        const std::string fileName = fileInfo.getPath().get(-1, false);
+                        const std::string fileName = fileInfo.getPath().get(-1, file::PathType::FileName);
                         keep = string::contains(
                             fileName,
                             p.options.search,

@@ -161,7 +161,7 @@ namespace tl
                         list.end(),
                         [i](const FileInfo& value)
                         {
-                            return i == value.getPath().get(-1, false);
+                            return i == value.getPath().get(-1, PathType::FileName);
                         });
                     TLRENDER_ASSERT(j != list.end());
                 }

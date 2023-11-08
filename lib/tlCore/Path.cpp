@@ -22,22 +22,22 @@ namespace tl
         {}
 
         Path::Path(
-            const std::string& value,
+            const std::string& fileName,
             const PathOptions& options)
         {
-            if (!value.empty())
+            if (!fileName.empty())
             {
                 // Find the extension.
-                const size_t size = value.size();
+                const size_t size = fileName.size();
                 size_t i = size - 1;
-                for (; i > 0 && value[i] != '.' && !isPathSeparator(value[i]); --i)
+                for (; i > 0 && fileName[i] != '.' && !isPathSeparator(fileName[i]); --i)
                     ;
                 if (i > 0 &&
-                    '.' == value[i] &&
-                    '.' != value[i - 1] &&
-                    !isPathSeparator(value[i - 1]))
+                    '.' == fileName[i] &&
+                    '.' != fileName[i - 1] &&
+                    !isPathSeparator(fileName[i - 1]))
                 {
-                    _extension = value.substr(i, size - i);
+                    _extension = fileName.substr(i, size - i);
                 }
                 else
                 {
@@ -46,13 +46,12 @@ namespace tl
 
                 // Find the number.
                 size_t j = i;
-                for (; i > 0 && value[i - 1] >= '0' && value[i - 1] <= '9'; --i)
+                for (; i > 0 && fileName[i - 1] >= '0' && fileName[i - 1] <= '9'; --i)
                     ;
-                if (value[i] >= '0' && value[i] <= '9' &&
+                if (fileName[i] >= '0' && fileName[i] <= '9' &&
                     (j - i) <= options.maxNumberDigits)
                 {
-                    _number = value.substr(i, j - i);
-                    _numberUpdate();
+                    _number = fileName.substr(i, j - i);
                 }
                 else
                 {
@@ -61,19 +60,86 @@ namespace tl
 
                 // Find the directory.
                 j = i;
-                for (; i > 0 && !isPathSeparator(value[i]); --i)
+                for (; i > 0 && !isPathSeparator(fileName[i]); --i)
                     ;
                 size_t k = 0;
-                if (isPathSeparator(value[i]))
+                if (isPathSeparator(fileName[i]))
                 {
-                    _directory = value.substr(0, i + 1);
+                    // Find the protocol.
+                    size_t l = i;
+                    for (; l > 0 && fileName[l] != ':'; --l)
+                        ;
+                    if (':' == fileName[l] &&
+                        4 == l &&
+                        'f' == fileName[0] &&
+                        'i' == fileName[1] &&
+                        'l' == fileName[2] &&
+                        'e' == fileName[3] &&
+                        l < size - 4 &&
+                        '/' == fileName[l + 1] &&
+                        '/' == fileName[l + 2] &&
+                        '/' == fileName[l + 3])
+                    {
+                        _protocol = fileName.substr(0, l + 3);
+                        l += 3;
+                    }
+                    else if (':' == fileName[l] &&
+                        4 == l &&
+                        'f' == fileName[0] &&
+                        'i' == fileName[1] &&
+                        'l' == fileName[2] &&
+                        'e' == fileName[3] &&
+                        l < size - 3 &&
+                        '/' == fileName[l + 1] &&
+                        '/' == fileName[l + 2])
+                    {
+                        _protocol = fileName.substr(0, l + 2);
+                        l += 2;
+                    }
+                    else if (':' == fileName[l] &&
+                        4 == l &&
+                        'f' == fileName[0] &&
+                        'i' == fileName[1] &&
+                        'l' == fileName[2] &&
+                        'e' == fileName[3] &&
+                        l < size - 2 &&
+                        '/' == fileName[l + 1])
+                    {
+                        _protocol = fileName.substr(0, l + 1);
+                        l += 1;
+                    }
+                    else if (
+                        ':' == fileName[l] &&
+                        4 == l &&
+                        'f' == fileName[0] &&
+                        'i' == fileName[1] &&
+                        'l' == fileName[2] &&
+                        'e' == fileName[3])
+                    {
+                        _protocol = fileName.substr(0, l + 1);
+                    }
+                    else if (':' == fileName[l] &&
+                        l > 1 &&
+                        l < size - 3 &&
+                        '/' == fileName[l + 1] &&
+                        '/' == fileName[l + 2])
+                    {
+                        _protocol = fileName.substr(0, l + 3);
+                        l += 3;
+                    }
+                    else
+                    {
+                        l = 0;
+                    }
+
+                    _directory = fileName.substr(l, (i - l) + 1);
                     k = i + 1;
                 }
 
                 // Find the base name.
                 if (k < j)
                 {
-                    _baseName = value.substr(k, j - k);
+                    _baseName = fileName.substr(k, j - k);
                 }
 
                 // Special case for Windows drive letters.
@@ -85,7 +151,20 @@ namespace tl
                 {
                     _directory.swap(_baseName);
                 }
+
+                _protocolUpdate();
+                _numberUpdate();
             }
+        }
+
+        Path::Path(
+            const std::string& directory,
+            const std::string& fileName,
+            const PathOptions& options) :
+            Path(appendSeparator(directory) + fileName, options)
+        {
+            _protocolUpdate();
+            _numberUpdate();
         }
 
         Path::Path(
@@ -93,27 +172,30 @@ namespace tl
             const std::string& baseName,
             const std::string& number,
             uint8_t padding,
-            const std::string& extension) :
+            const std::string& extension,
+            const std::string& protocol) :
+            _protocol(protocol),
             _directory(directory),
             _baseName(baseName),
             _number(number),
             _padding(padding),
             _extension(extension)
-        {}
+        {
+            _protocolUpdate();
+            _numberUpdate();
+        }
 
-        Path::Path(
-            const std::string& directory,
-            const std::string& value,
-            const PathOptions& options) :
-            Path(appendSeparator(directory) + value, options)
-        {}
-
-        std::string Path::get(int number, bool directory) const
+        std::string Path::get(int number, PathType type) const
         {
             std::stringstream ss;
-            if (directory)
+            switch (type)
             {
+            case PathType::Full:
+                ss << _protocol;
+            case PathType::Path:
                 ss << _directory;
+                break;
+            default: break;
             }
             ss << _baseName;
             if (number != -1)
@@ -127,7 +209,15 @@ namespace tl
             ss << _extension;
             return ss.str();
         }
-        
+
+        void Path::setProtocol(const std::string& value)
+        {
+            if (value == _protocol)
+                return;
+            _protocol = value;
+            _protocolUpdate();
+        }
+
         void Path::setDirectory(const std::string& value)
         {
             _directory = value;
@@ -181,6 +271,18 @@ namespace tl
                 return true;
             }
             return false;
+        }
+
+        void Path::_protocolUpdate()
+        {
+            if (!_protocol.empty())
+            {
+                const auto i = _protocol.find_first_of(':');
+                if (i != std::string::npos)
+                {
+                    _protocolName = _protocol.substr(0, i + 1);
+                }
+            }
         }
         
         void Path::_numberUpdate()

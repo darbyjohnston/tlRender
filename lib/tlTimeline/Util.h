@@ -66,9 +66,6 @@ namespace tl
             const file::PathOptions&,
             const std::shared_ptr<system::Context>&);
 
-        //! Remove a "file://" prefix.
-        std::string removeFileURLPrefix(const std::string&);
-
         //! Get an absolute path.
         file::Path getPath(
             const std::string& url,

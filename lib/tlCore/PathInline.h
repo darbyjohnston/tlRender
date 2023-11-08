@@ -23,6 +23,21 @@ namespace tl
             return !(*this == other);
         }
 
+        inline const std::string& Path::getProtocol() const
+        {
+            return _protocol;
+        }
+
+        inline const std::string& Path::getProtocolName() const
+        {
+            return _protocolName;
+        }
+
+        inline bool Path::isFileProtocol() const
+        {
+            return _protocolName.empty() || "file:" == _protocolName;
+        }
+
         inline const std::string& Path::getDirectory() const
         {
             return _directory;

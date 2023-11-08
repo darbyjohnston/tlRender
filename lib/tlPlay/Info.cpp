@@ -14,7 +14,7 @@ namespace tl
         std::string infoLabel(const file::Path& path, const io::Info& info)
         {
             std::vector<std::string> s;
-            s.push_back(string::elide(path.get(-1, false)));
+            s.push_back(string::elide(path.get(-1, file::PathType::FileName)));
             if (!info.video.empty())
             {
                 s.push_back(std::string(

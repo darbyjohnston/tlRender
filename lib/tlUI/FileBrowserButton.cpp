@@ -89,7 +89,7 @@ namespace tl
             }
 
             // File name.
-            p.labels.push_back(fileInfo.getPath().get(-1, false));
+            p.labels.push_back(fileInfo.getPath().get(-1, file::PathType::FileName));
 
             // File sequence.
             if (fileInfo.getPath().isSequence())

@@ -108,7 +108,7 @@ namespace tl
                 for (size_t i = 0; i < value.size(); ++i)
                 {
                     auto action = std::make_shared<ui::Action>(
-                        value[i]->path.get(-1, false),
+                        value[i]->path.get(-1, file::PathType::FileName),
                         [this, i]
                         {
                             close();

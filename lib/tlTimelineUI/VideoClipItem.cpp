@@ -50,7 +50,7 @@ namespace tl
                 itemData->directory,
                 itemData->options.pathOptions);
             IBasicItem::_init(
-                !clip->name().empty() ? clip->name() : path.get(-1, false),
+                !clip->name().empty() ? clip->name() : path.get(-1, file::PathType::FileName),
                 ui::ColorRole::VideoClip,
                 "tl::timelineui::VideoClipItem",
                 clip.value,

@@ -301,39 +301,15 @@ namespace tl
             return out;
         }
 
-        namespace
-        {
-            const std::vector<std::string> fileURLPrefixes =
-            {
-                "file:////",
-                "file:///",
-                "file://"
-            };
-        }
-
-        std::string removeFileURLPrefix(const std::string& value)
-        {
-            std::string out = value;
-            for (const auto& prefix :fileURLPrefixes)
-            {
-                if (0 == out.compare(0, prefix.size(), prefix))
-                {
-                    out.replace(0, prefix.size(), "");
-                    break;
-                }
-            }
-            return out;
-        }
-
         file::Path getPath(
             const std::string& url,
             const std::string& directory,
             const file::PathOptions& options)
         {
-            file::Path out = file::Path(removeFileURLPrefix(url), options);
-            if (!out.isAbsolute())
+            file::Path out(url);
+            if (out.isFileProtocol() && !out.isAbsolute())
             {
-                out = file::Path(directory, out.get(), options);
+                out.setDirectory(file::appendSeparator(directory) + out.getDirectory());
             }
             return out;
         }

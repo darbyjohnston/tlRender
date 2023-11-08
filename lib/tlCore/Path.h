@@ -26,7 +26,7 @@ namespace tl
         const char pathSeparator = '/';
 #endif // _WINDOWS
 
-        //! File system path options.
+        //! Path options.
         struct PathOptions
         {
             size_t maxNumberDigits = 9;
@@ -35,27 +35,50 @@ namespace tl
             constexpr bool operator != (const PathOptions&) const;
         };
 
-        //! File system path.
+        //! Path types.
+        enum class PathType
+        {
+            Full,
+            Path,
+            FileName
+        };
+
+        //! File path.
         class Path
         {
         public:
             Path();
             explicit Path(
-                const std::string&,
+                const std::string& fileName,
                 const PathOptions& = PathOptions());
             Path(
-                const std::string&,
-                const std::string&,
+                const std::string& directory,
+                const std::string& fileName,
                 const PathOptions& = PathOptions());
             Path(
                 const std::string& directory,
                 const std::string& baseName,
                 const std::string& number,
                 uint8_t padding,
-                const std::string& extension);
+                const std::string& extension,
+                const std::string& protocol = std::string());
 
             //! Get the path.
-            std::string get(int number = -1, bool directory = true) const;
+            std::string get(
+                int number = -1,
+                PathType = PathType::Full) const;
+
+            //! Get the protocol.
+            const std::string& getProtocol() const;
+
+            //! Get the protocol name.
+            const std::string& getProtocolName() const;
+
+            //! Get whether the protocol is "file:".
+            bool isFileProtocol() const;
+
+            //! Set the protocol.
+            void setProtocol(const std::string&);
 
             //! Get the directory.
             const std::string& getDirectory() const;
@@ -109,8 +132,11 @@ namespace tl
             bool operator != (const Path&) const;
 
         private:
+            void _protocolUpdate();
             void _numberUpdate();
-            
+
+            std::string _protocol;
+            std::string _protocolName;
             std::string _directory;
             std::string _baseName;
             std::string _number;

@@ -191,7 +191,7 @@ namespace tl
 
                 for (auto recent : p.recent)
                 {
-                    const std::string label = recent.get(-1, false);
+                    const std::string label = recent.get(-1, file::PathType::FileName);
                     _createButton(label, context, p.layouts["Recent"]);
                     p.paths.push_back(recent.getDirectory());
                 }

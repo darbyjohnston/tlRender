@@ -246,7 +246,7 @@ namespace tl
                     for (const auto& item : value)
                     {
                         auto label = ui::Label::create(context);
-                        std::string s = string::elide(item->path.get(-1, false));
+                        std::string s = string::elide(item->path.get(-1, file::PathType::FileName));
                         label->setText(s);
                         label->setMarginRole(ui::SizeRole::MarginSmall);
                         label->setHStretch(ui::Stretch::Expanding);

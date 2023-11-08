@@ -230,8 +230,8 @@ namespace tl
                         if (auto externalReference =
                             dynamic_cast<otio::ExternalReference*>(clip->media_reference()))
                         {
-                            const std::string mediaFileName = removeFileURLPrefix(
-                                externalReference->target_url());
+                            const std::string mediaFileName = file::Path(
+                                externalReference->target_url()).get();
 
                             int32_t err = mz_zip_reader_locate_entry(zipReader.reader, mediaFileName.c_str(), 0);
                             if (err != MZ_OK)
@@ -270,8 +270,8 @@ namespace tl
                                 number < imageSequenceReference->number_of_images_in_sequence();
                                 ++number)
                             {
-                                const std::string mediaFileName = removeFileURLPrefix(
-                                    imageSequenceReference->target_url_for_image_number(number));
+                                const std::string mediaFileName = file::Path(
+                                    imageSequenceReference->target_url_for_image_number(number)).get();
 
                                 int32_t err = mz_zip_reader_locate_entry(zipReader.reader, mediaFileName.c_str(), 0);
                                 if (err != MZ_OK)
@@ -437,7 +437,9 @@ namespace tl
                         if (isSequence)
                         {
                             auto mediaReference = new otio::ImageSequenceReference(
-                                std::string(),
+                                path.isFileProtocol() ?
+                                    std::string() :
+                                    (path.getProtocol() + path.getDirectory()),
                                 path.getBaseName(),
                                 path.getExtension(),
                                 info.videoTime.start_time().value(),
@@ -450,7 +452,7 @@ namespace tl
                         else
                         {
                             videoClip->set_media_reference(new otio::ExternalReference(
-                                path.get(-1, false),
+                                path.get(-1, path.isFileProtocol() ? file::PathType::FileName : file::PathType::Full),
                                 info.videoTime));
                         }
                         videoTrack = new otio::Track("Video", otio::nullopt, otio::Track::Kind::video);
@@ -478,7 +480,7 @@ namespace tl
                             auto audioClip = new otio::Clip;
                             audioClip->set_source_range(audioInfo.audioTime);
                             audioClip->set_media_reference(new otio::ExternalReference(
-                                audioPath.get(-1, false),
+                                audioPath.get(-1, path.isFileProtocol() ? file::PathType::FileName : file::PathType::Full),
                                 audioInfo.audioTime));
 
                             audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
@@ -499,7 +501,7 @@ namespace tl
                         auto audioClip = new otio::Clip;
                         audioClip->set_source_range(info.audioTime);
                         audioClip->set_media_reference(new otio::ExternalReference(
-                            path.get(-1, false),
+                            path.get(-1, path.isFileProtocol() ? file::PathType::FileName : file::PathType::Full),
                             info.audioTime));
 
                         audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);

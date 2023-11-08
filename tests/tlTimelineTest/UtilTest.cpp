@@ -182,7 +182,10 @@ namespace tl
                         dynamic_cast<otio::Timeline*>(otio::Timeline::from_json_file(entry.getPath().get())));
                     file::Path outputPath = entry.getPath();
                     outputPath.setExtension(".otioz");
-                    writeOTIOZ(outputPath.get(-1, false), timeline, TLRENDER_SAMPLE_DATA);
+                    writeOTIOZ(
+                        outputPath.get(-1, file::PathType::FileName),
+                        timeline,
+                        TLRENDER_SAMPLE_DATA);
                 }
             }
         }

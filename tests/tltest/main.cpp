@@ -232,7 +232,8 @@ int main(int argc, char* argv[])
     context->tick();
 
     std::vector<std::shared_ptr<tests::ITest> > tests;
-    //tests.push_back(timeline_tests::EditTest::create(context));
+    //tests.push_back(core_tests::PathTest::create(context));
+    //tests.push_back(timeline_tests::TimelineTest::create(context));
     coreTests(tests, context);
     glTests(tests, context);
     ioTests(tests, context);

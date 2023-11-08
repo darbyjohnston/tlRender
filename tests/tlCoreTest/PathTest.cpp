@@ -70,15 +70,20 @@ namespace tl
                 TLRENDER_ASSERT(path.get() == "\\tmp\\file.txt");
             }
             {
-                TLRENDER_ASSERT(Path("/tmp/", "render.", "0001", 4, ".exr").get() ==
-                    "/tmp/render.0001.exr");
-                TLRENDER_ASSERT(Path("/tmp/", "render.", "0001", 4, ".exr").get(2) ==
-                    "/tmp/render.0002.exr");
+                std::string fileName = Path("tmp/", "render.", "0001", 4, ".exr", "http://").get();
+                TLRENDER_ASSERT(fileName == "http://tmp/render.0001.exr");
+                fileName = Path("tmp/", "render.", "0001", 4, ".exr", "http://").get(2);
+                TLRENDER_ASSERT(fileName == "http://tmp/render.0002.exr");
+                fileName = Path("tmp/", "render.", "0001", 4, ".exr", "http://").get(2, PathType::Path);
+                TLRENDER_ASSERT(fileName == "tmp/render.0002.exr");
+                fileName = Path("tmp/", "render.", "0001", 4, ".exr", "http://").get(2, PathType::FileName);
+                TLRENDER_ASSERT(fileName == "render.0002.exr");
             }
             {
                 struct Data
                 {
                     std::string fileName;
+                    std::string protocol;
                     std::string directory;
                     std::string baseName;
                     std::string number;
@@ -87,35 +92,40 @@ namespace tl
                 };
                 const std::vector<Data> data =
                 {
-                    { "", "", "", "", 0, "" },
-                    { "f", "", "f", "", 0, "" },
-                    { "file", "", "file", "", 0, "" },
-                    { "file.txt", "", "file", "", 0, ".txt" },
-                    { "/tmp/file.txt", "/tmp/", "file", "", 0, ".txt" },
-                    { "/tmp/render.1.exr", "/tmp/", "render.", "1", 0, ".exr" },
-                    { "/tmp/render.0001.exr", "/tmp/", "render.", "0001", 4, ".exr" },
-                    { "/tmp/render0001.exr", "/tmp/", "render", "0001", 4, ".exr" },
-                    { ".", "", ".", "", 0, "" },
-                    { "..", "", "..", "", 0, "" },
-                    { "/.", "/", ".", "", 0, "" },
-                    { "./", "./", "", "", 0, "" },
-                    { ".dotfile", "", ".dotfile", "", 0, "" },
-                    { "/tmp/.dotfile", "/tmp/", ".dotfile", "", 0, "" },
-                    { "/tmp/.dotdir/.dotfile", "/tmp/.dotdir/", ".dotfile", "", 0, "" },
-                    { "0", "", "", "0", 0, "" },
-                    { "0001", "", "", "0001", 4, "" },
-                    { "/tmp/0001", "/tmp/", "", "0001", 4, "" },
-                    { "/tmp/0001.exr", "/tmp/", "", "0001", 4, ".exr" },
-                    { "0001.exr", "", "", "0001", 4, ".exr" },
-                    { "1.exr", "", "", "1", 0, ".exr" },
-                    { "C:", "C:", "", "", 0, "" },
-                    { "C:/", "C:/", "", "", 0, "" },
-                    { "C:/tmp/file.txt", "C:/tmp/", "file", "", 0, ".txt" }
+                    {"", "", "", "", "", 0, ""},
+                    { "f", "", "", "f", "", 0, "" },
+                    { "file", "", "", "file", "", 0, "" },
+                    { "file.txt", "", "", "file", "", 0, ".txt" },
+                    { "/tmp/file.txt", "", "/tmp/", "file", "", 0, ".txt" },
+                    { "/tmp/render.1.exr", "", "/tmp/", "render.", "1", 0, ".exr" },
+                    { "/tmp/render.0001.exr", "", "/tmp/", "render.", "0001", 4, ".exr" },
+                    { "/tmp/render0001.exr", "", "/tmp/", "render", "0001", 4, ".exr" },
+                    { ".", "", "", ".", "", 0, "" },
+                    { "..", "", "", "..", "", 0, "" },
+                    { "/.", "", "/", ".", "", 0, "" },
+                    { "./", "", "./", "", "", 0, "" },
+                    { ".dotfile", "", "", ".dotfile", "", 0, "" },
+                    { "/tmp/.dotfile", "", "/tmp/", ".dotfile", "", 0, "" },
+                    { "/tmp/.dotdir/.dotfile", "", "/tmp/.dotdir/", ".dotfile", "", 0, "" },
+                    { "0", "", "", "", "0", 0, "" },
+                    { "0001", "", "", "", "0001", 4, "" },
+                    { "/tmp/0001", "", "/tmp/", "", "0001", 4, "" },
+                    { "/tmp/0001.exr", "", "/tmp/", "", "0001", 4, ".exr" },
+                    { "0001.exr", "", "", "", "0001", 4, ".exr" },
+                    { "1.exr", "", "", "", "1", 0, ".exr" },
+                    { "C:", "", "C:", "", "", 0, "" },
+                    { "C:/", "", "C:/", "", "", 0, "" },
+                    { "C:/tmp/file.txt", "", "C:/tmp/", "file", "", 0, ".txt" },
+                    { "file:/tmp/render.1.exr", "file:", "/tmp/", "render.", "1", 0, ".exr" },
+                    { "file://tmp/render.1.exr", "file:/", "/tmp/", "render.", "1", 0, ".exr"},
+                    { "file:///tmp/render.1.exr", "file://", "/tmp/", "render.", "1", 0, ".exr" },
+                    { "http://tmp/render.1.exr", "http://", "tmp/", "render.", "1", 0, ".exr"}
                 };
                 for (const auto& i : data)
                 {
                     const Path path(i.fileName);
                     TLRENDER_ASSERT(i.fileName == path.get());
+                    TLRENDER_ASSERT(i.protocol == path.getProtocol());
                     TLRENDER_ASSERT(i.directory == path.getDirectory());
                     TLRENDER_ASSERT(i.baseName == path.getBaseName());
                     TLRENDER_ASSERT(i.number == path.getNumber());
@@ -156,16 +166,24 @@ namespace tl
             }
             {
                 Path a("/tmp/render.1.exr");
+                a.setProtocol("file://");
+                TLRENDER_ASSERT("file://" == a.getProtocol());
+                TLRENDER_ASSERT("file:" == a.getProtocolName());
+                TLRENDER_ASSERT(a.get() == "file:///tmp/render.1.exr");
                 a.setDirectory("/usr/tmp/");
-                TLRENDER_ASSERT(a.get() == "/usr/tmp/render.1.exr");
+                TLRENDER_ASSERT("/usr/tmp/" == a.getDirectory());
+                TLRENDER_ASSERT(a.get() == "file:///usr/tmp/render.1.exr");
                 a.setBaseName("comp.");
-                TLRENDER_ASSERT(a.get() == "/usr/tmp/comp.1.exr");
+                TLRENDER_ASSERT("comp." == a.getBaseName());
+                TLRENDER_ASSERT(a.get() == "file:///usr/tmp/comp.1.exr");
                 a.setNumber("0010");
-                TLRENDER_ASSERT(a.get() == "/usr/tmp/comp.0010.exr");
+                TLRENDER_ASSERT("0010" == a.getNumber());
+                TLRENDER_ASSERT(a.get() == "file:///usr/tmp/comp.0010.exr");
                 TLRENDER_ASSERT(a.getPadding() == 4);
                 TLRENDER_ASSERT(a.getSequence() == math::IntRange(10, 10));
                 a.setExtension(".tif");
-                TLRENDER_ASSERT(a.get() == "/usr/tmp/comp.0010.tif");
+                TLRENDER_ASSERT(".tif" == a.getExtension());
+                TLRENDER_ASSERT(a.get() == "file:///usr/tmp/comp.0010.tif");
             }
         }
 

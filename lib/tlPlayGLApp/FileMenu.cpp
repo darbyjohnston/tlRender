@@ -159,7 +159,7 @@ namespace tl
             for (size_t i = 0; i < value.size(); ++i)
             {
                 auto item = std::make_shared<ui::Action>(
-                    value[i]->path.get(-1, false),
+                    value[i]->path.get(-1, file::PathType::FileName),
                     [this, i]
                     {
                         close();
@@ -247,7 +247,7 @@ namespace tl
                     if (j != p.extensions.end())
                     {
                         auto item = std::make_shared<ui::Action>(
-                            path.get(-1, false),
+                            path.get(-1, file::PathType::FileName),
                             [this, path]
                             {
                                 if (auto app = _p->app.lock())
