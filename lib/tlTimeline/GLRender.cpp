@@ -429,12 +429,12 @@ namespace tl
                 if (p.colorConfigData && p.colorConfigData->shaderDesc)
                 {
                     colorConfigDef = p.colorConfigData->shaderDesc->getShaderText();
-                    colorConfig = "fColor = colorConfigFunc(fColor);";
+                    colorConfig = "outColor = colorConfigFunc(outColor);";
                 }
                 if (p.lutData && p.lutData->shaderDesc)
                 {
                     lutDef = p.lutData->shaderDesc->getShaderText();
-                    lut = "fColor = lutFunc(fColor);";
+                    lut = "outColor = lutFunc(outColor);";
                 }
 #endif // TLRENDER_OCIO
                 const std::string source = displayFragmentSource(
