@@ -251,15 +251,12 @@ namespace tl
                                 try
                                 {
                                     const int64_t frame = time.value();
-                                    if (!seq || (seq && frame >= _startFrame && frame <= _endFrame))
-                                    {
-                                        const int64_t memoryIndex = seq ? (frame - _startFrame) : 0;
-                                        out = _readVideo(
-                                            fileName,
-                                            memoryIndex >= 0 && memoryIndex < _memory.size() ? &_memory[memoryIndex] : nullptr,
-                                            time,
-                                            options);
-                                    }
+                                    const int64_t memoryIndex = seq ? (frame - _startFrame) : 0;
+                                    out = _readVideo(
+                                        fileName,
+                                        memoryIndex >= 0 && memoryIndex < _memory.size() ? &_memory[memoryIndex] : nullptr,
+                                        time,
+                                        options);
                                 }
                                 catch (const std::exception&)
                                 {
