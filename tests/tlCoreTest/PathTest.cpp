@@ -117,7 +117,7 @@ namespace tl
                     { "C:/", "", "C:/", "", "", 0, "" },
                     { "C:/tmp/file.txt", "", "C:/tmp/", "file", "", 0, ".txt" },
                     { "file:/tmp/render.1.exr", "file:", "/tmp/", "render.", "1", 0, ".exr" },
-                    { "file://tmp/render.1.exr", "file:/", "/tmp/", "render.", "1", 0, ".exr"},
+                    { "file://tmp/render.1.exr", "file://", "tmp/", "render.", "1", 0, ".exr"},
                     { "file:///tmp/render.1.exr", "file://", "/tmp/", "render.", "1", 0, ".exr" },
                     { "http://tmp/render.1.exr", "http://", "tmp/", "render.", "1", 0, ".exr"}
                 };

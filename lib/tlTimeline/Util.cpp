@@ -270,7 +270,7 @@ namespace tl
                 file::ListOptions listOptions;
                 listOptions.maxNumberDigits = pathOptions.maxNumberDigits;
                 std::vector<file::FileInfo> list;
-                file::list(path.get(), list, listOptions);
+                file::list(path.get(-1, file::PathType::Path), list, listOptions);
                 for (const auto& fileInfo : list)
                 {
                     const file::Path& path = fileInfo.getPath();

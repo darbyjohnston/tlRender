@@ -93,8 +93,8 @@ namespace tl
                         '/' == fileName[l + 1] &&
                         '/' == fileName[l + 2])
                     {
-                        _protocol = fileName.substr(0, l + 2);
-                        l += 2;
+                        _protocol = fileName.substr(0, l + 3);
+                        l += 3;
                     }
                     else if (':' == fileName[l] &&
                         4 == l &&
@@ -282,6 +282,10 @@ namespace tl
                 {
                     _protocolName = _protocol.substr(0, i + 1);
                 }
+            }
+            else
+            {
+                _protocolName = std::string();
             }
         }
         

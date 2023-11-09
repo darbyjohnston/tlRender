@@ -64,7 +64,7 @@ namespace tl
                     try
                     {
                         p.info = _getInfo(
-                            path.get(), 
+                            path.get(-1, file::PathType::Path),
                             !_memory.empty() ? &_memory[0] : nullptr);
                         p.addTags(p.info);
                         _thread();
@@ -130,7 +130,7 @@ namespace tl
         {
             TLRENDER_P();
             auto request = std::make_shared<Private::VideoRequest>();
-            request->fileName = _path.get();
+            request->fileName = _path.get(-1, file::PathType::Path);
             request->time = time;
             request->options = merge(options, _options);
             auto future = request->promise.get_future();
@@ -232,11 +232,13 @@ namespace tl
                         if (!_path.getNumber().empty())
                         {
                             seq = true;
-                            request->fileName = _path.get(static_cast<int>(request->time.value()));
+                            request->fileName = _path.get(
+                                static_cast<int>(request->time.value()),
+                                file::PathType::Path);
                         }
                         else
                         {
-                            request->fileName = _path.get();
+                            request->fileName = _path.get(-1, file::PathType::Path);
                         }
                         const std::string fileName = request->fileName;
                         const otime::RationalTime time = request->time;
@@ -287,7 +289,7 @@ namespace tl
                         if (_cache)
                         {
                             const std::string cacheKey = Cache::getVideoKey(
-                                _path.get(),
+                                (*requestIt)->fileName,
                                 (*requestIt)->time,
                                 (*requestIt)->options);
                             _cache->addVideo(cacheKey, videoData);

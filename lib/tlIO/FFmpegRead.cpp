@@ -133,7 +133,10 @@ namespace tl
                     TLRENDER_P();
                     try
                     {
-                        p.readVideo = std::make_shared<ReadVideo>(path.get(), _memory, p.options);
+                        p.readVideo = std::make_shared<ReadVideo>(
+                            path.get(-1, path.isFileProtocol() ? file::PathType::Path : file::PathType::Full),
+                            _memory,
+                            p.options);
                         const auto& videoInfo = p.readVideo->getInfo();
                         if (videoInfo.isValid())
                         {
@@ -142,7 +145,11 @@ namespace tl
                             p.info.tags = p.readVideo->getTags();
                         }
 
-                        p.readAudio = std::make_shared<ReadAudio>(path.get(), _memory, p.info.videoTime.duration().rate(), p.options);
+                        p.readAudio = std::make_shared<ReadAudio>(
+                            path.get(-1, path.isFileProtocol() ? file::PathType::Path : file::PathType::Full),
+                            _memory,
+                            p.info.videoTime.duration().rate(),
+                            p.options);
                         p.info.audio = p.readAudio->getInfo();
                         p.info.audioTime = p.readAudio->getTimeRange();
                         for (const auto& tag : p.readAudio->getTags())
