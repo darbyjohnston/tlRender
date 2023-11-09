@@ -20,7 +20,10 @@ namespace tl
             image::Color4f clearColor;
 
             //! Texture cache byte count.
-            size_t textureCacheByteCount = memory::gigabyte / 4;
+            //!
+            //! \bug Temporarily disable the texture cache until we determine
+            //! why some textures are getting mixed up.
+            size_t textureCacheByteCount = 0;
 
             bool operator == (const RenderOptions&) const;
             bool operator != (const RenderOptions&) const;
