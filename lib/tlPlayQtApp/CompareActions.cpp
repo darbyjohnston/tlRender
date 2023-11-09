@@ -234,8 +234,10 @@ namespace tl
             {
                 auto action = new QAction(this);
                 action->setCheckable(true);
-                action->setChecked(std::find(bIndexes.begin(), bIndexes.end(), i) != bIndexes.end());
-                action->setText(QString::fromUtf8(files[i]->path.get(-1, false).c_str()));
+                action->setChecked(
+                    std::find(bIndexes.begin(), bIndexes.end(), i) != bIndexes.end());
+                action->setText(QString::fromUtf8(
+                    files[i]->path.get(-1, file::PathType::FileName).c_str()));
                 p.actionGroups["B"]->addAction(action);
                 p.bMenu->addAction(action);
             }

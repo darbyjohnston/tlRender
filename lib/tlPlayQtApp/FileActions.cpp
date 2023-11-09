@@ -276,7 +276,7 @@ namespace tl
             for (auto i = value.rbegin(); i != value.rend(); ++i)
             {
                 auto action = new QAction(this);
-                const QString label = QString::fromUtf8(i->get(-1, false).c_str());
+                const QString label = QString::fromUtf8(i->get(-1, file::PathType::FileName).c_str());
                 action->setText(QString("%1").arg(label));
                 const QString fileName = QString::fromUtf8(i->get().c_str());
                 action->setData(fileName);
@@ -310,7 +310,8 @@ namespace tl
                 auto action = new QAction(this);
                 action->setCheckable(true);
                 action->setChecked(i == aIndex);
-                action->setText(QString::fromUtf8(files[i]->path.get(-1, false).c_str()));
+                action->setText(QString::fromUtf8(
+                    files[i]->path.get(-1, file::PathType::FileName).c_str()));
                 p.actionGroups["Current"]->addAction(action);
                 p.currentMenu->addAction(action);
             }

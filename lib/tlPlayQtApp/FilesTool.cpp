@@ -196,7 +196,7 @@ namespace tl
                 auto item = p.items[i];
 
                 auto label = new QLabel;
-                std::string s = string::elide(item->path.get(-1, false));
+                std::string s = string::elide(item->path.get(-1, file::PathType::FileName));
                 label->setText(QString::fromUtf8(s.c_str()));
                 label->setToolTip(QString::fromUtf8(item->path.get().c_str()));
                 label->setContentsMargins(0, 0, 5, 0);
