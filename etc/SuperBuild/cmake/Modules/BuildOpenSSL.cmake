@@ -17,7 +17,7 @@ if(WIN32)
         no-external-tests
         no-tests
         no-unit-test)
-    set(OpenSSL_BUILD nmake install)
+    set(OpenSSL_BUILD nmake)
     set(OpenSSL_INSTALL nmake install)
 else()
     set(OpenSSL_CONFIGURE
@@ -27,7 +27,7 @@ else()
         no-external-tests
         no-tests
         no-unit-test)
-    set(OpenSSL_BUILD make install)
+    set(OpenSSL_BUILD make)
     set(OpenSSL_INSTALL make install)
 endif()
 
