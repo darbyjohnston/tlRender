@@ -242,9 +242,9 @@ namespace tl
                     {
                         for (const auto& otioChild : otioTrack->children())
                         {
-                            if (auto otioClip = dynamic_cast<otio::Clip*>(otioChild.value))
+                            if (auto otioItem = dynamic_cast<otio::Item*>(otioChild.value))
                             {
-                                const auto rangeOptional = otioClip->trimmed_range_in_parent();
+                                const auto rangeOptional = otioItem->trimmed_range_in_parent();
                                 if (rangeOptional.has_value())
                                 {
                                     const otime::TimeRange clipTimeRange(
@@ -255,7 +255,25 @@ namespace tl
                                     const otime::TimeRange requestTimeRange = otime::TimeRange(
                                         otime::RationalTime(start, 1.0),
                                         otime::RationalTime(1.0, 1.0));
-                                    if (requestTimeRange.intersects(clipTimeRange))
+                                    otime::TimeRange transitionRange = clipTimeRange;
+                                    
+                                    otio::ErrorStatus errorStatus;
+                                    const auto neighbors = otioTrack->neighbors_of(otioItem, &errorStatus);
+                                    if (auto otioTransition = dynamic_cast<otio::Transition*>(neighbors.first.value))
+                                    {
+                                        const auto inOffset = otioTransition->in_offset().rescaled_to(1.0);
+                                        transitionRange = otime::TimeRange(transitionRange.start_time() - inOffset,
+                                                                           transitionRange.duration() + inOffset);
+                                    }
+                                        
+                                    if (auto otioTransition = dynamic_cast<otio::Transition*>(neighbors.second.value))
+                                    {
+                                        const auto outOffset = otioTransition->out_offset().rescaled_to(1.0);
+                                        transitionRange = otime::TimeRange(transitionRange.start_time(),
+                                                                           transitionRange.duration() + outOffset);
+                                    }
+                                    
+                                    if (requestTimeRange.intersects(transitionRange))
                                     {
                                         AudioLayerData audioData;
                                         audioData.seconds = request->seconds;
@@ -263,15 +281,46 @@ namespace tl
                                         //! result we expect?
                                         //audioData.timeRange = requestTimeRange.clamped(clipTimeRange);
                                         const double start = std::max(
-                                            clipTimeRange.start_time().value(),
+                                            transitionRange.start_time().value(),
                                             requestTimeRange.start_time().value());
                                         const double end = std::min(
-                                            clipTimeRange.start_time().value() + clipTimeRange.duration().value(),
+                                            transitionRange.start_time().value() + transitionRange.duration().value(),
                                             requestTimeRange.start_time().value() + requestTimeRange.duration().value());
                                         audioData.timeRange = otime::TimeRange(
                                             otime::RationalTime(start, 1.0),
                                             otime::RationalTime(end - start, 1.0));
-                                        audioData.audio = readAudio(otioClip, audioData.timeRange, request->options);
+                                        
+                                        if (auto otioClip = dynamic_cast<otio::Clip*>(otioItem))
+                                        {
+                                            audioData.audio = readAudio(otioClip, audioData.timeRange, request->options);
+                                        }
+                                        
+                                        if (auto otioTransition = dynamic_cast<otio::Transition*>(neighbors.second.value))
+                                        {
+                                            const auto pad = otime::RationalTime(1.0, 1.0);
+                                            const auto inOffset = otioTransition->in_offset().rescaled_to(1.0);
+                                            const auto outOffset = otioTransition->out_offset().rescaled_to(1.0);
+                                            auto transitionRange = otime::TimeRange(clipTimeRange.end_time_inclusive() - inOffset,
+                                                                                    inOffset + outOffset + pad);
+                                            if (audioData.timeRange.intersects(transitionRange))  
+                                            {
+                                                audioData.clipTimeRange = clipTimeRange;
+                                                audioData.outTransition = otioTransition;
+                                            }
+                                        }
+                                    
+                                        if (auto otioTransition = dynamic_cast<otio::Transition*>(neighbors.first.value))
+                                        {
+                                            const auto outOffset = otioTransition->out_offset().rescaled_to(1.0);
+                                            const auto inOffset = otioTransition->in_offset().rescaled_to(1.0);
+                                            auto transitionRange = otime::TimeRange(clipTimeRange.start_time() - inOffset,
+                                                                                    outOffset + inOffset);
+                                            if (audioData.timeRange.intersects(transitionRange))
+                                            {
+                                                audioData.clipTimeRange = clipTimeRange;
+                                                audioData.inTransition = otioTransition;
+                                            }
+                                        }
                                         request->layerData.push_back(std::move(audioData));
                                     }
                                 }
@@ -363,6 +412,9 @@ namespace tl
                                 if (audioData.audio)
                                 {
                                     layer.audio = padAudioToOneSecond(audioData.audio, j.seconds, j.timeRange);
+                                    layer.clipTimeRange = j.clipTimeRange;
+                                    layer.inTransition = j.inTransition;
+                                    layer.outTransition = j.outTransition;
                                 }
                             }
                             data.layers.push_back(layer);
@@ -432,6 +484,8 @@ namespace tl
                         if (i.audio.valid())
                         {
                             layer.audio = i.audio.get().audio;
+                            layer.inTransition = i.inTransition;
+                            layer.outTransition = i.outTransition;
                         }
                         data.layers.push_back(layer);
                     }
@@ -460,6 +514,18 @@ namespace tl
                     const auto memoryRead = getMemoryRead(clip->media_reference());
                     io::Options options = ioOptions;
                     options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(timeRange.duration().rate());
+                    otio::ErrorStatus error;
+                    otime::RationalTime startTime = time::invalidTime;
+                    const otime::TimeRange availableRange = clip->available_range(&error);
+                    if (!otio::is_error(error))
+                    {
+                        startTime = availableRange.start_time();
+                    }
+                    else if (clip->source_range().has_value())
+                    {
+                        startTime = clip->source_range().value().start_time();
+                    }
+                    options["FFmpeg/StartTime"] = string::Format("{0}").arg(startTime);
                     const auto ioSystem = context->getSystem<io::System>();
                     out.read = ioSystem->read(path, memoryRead, options);
                     if (out.read)

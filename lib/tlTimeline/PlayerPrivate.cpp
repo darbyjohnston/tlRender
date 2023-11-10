@@ -12,6 +12,14 @@ namespace tl
 {
     namespace timeline
     {
+        namespace
+        {
+            inline float fadeValue(double sample, double in, double out)
+            {
+                return (sample - in) / (out - in);
+            }
+        }
+        
         otime::RationalTime Player::Private::loopPlayback(const otime::RationalTime& time)
         {
             otime::RationalTime out = time;
@@ -110,10 +118,11 @@ namespace tl
         {
             // Get the video ranges to be cached.
             const otime::TimeRange& timeRange = timeline->getTimeRange();
-            const otime::RationalTime readAheadRescaled =
+            otime::RationalTime readAheadRescaled =
                 time::floor(cacheOptions.readAhead.rescaled_to(timeRange.duration().rate()));
-            const otime::RationalTime readBehindRescaled =
+            otime::RationalTime readBehindRescaled =
                 time::floor(cacheOptions.readBehind.rescaled_to(timeRange.duration().rate()));
+            
             otime::TimeRange videoRange = time::invalidTimeRange;
             switch (cacheDirection)
             {
@@ -466,6 +475,8 @@ namespace tl
                 externalTime = p->mutex.externalTime;
             }
             double speed = 0.0;
+            double defaultSpeed = 0.0;
+            double speedMultiplier = 1.0F;
             float volume = 1.F;
             bool mute = false;
             std::chrono::steady_clock::time_point muteTimeout;
@@ -473,6 +484,8 @@ namespace tl
             {
                 std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
                 speed = p->audioMutex.speed;
+                defaultSpeed = p->audioMutex.defaultSpeed;
+                speedMultiplier = defaultSpeed / speed;
                 volume = p->audioMutex.volume;
                 mute = p->audioMutex.mute;
                 muteTimeout = p->audioMutex.muteTimeout;
@@ -489,6 +502,7 @@ namespace tl
             switch (playback)
             {
             case Playback::Forward:
+            case Playback::Reverse:
             {
                 // Flush the audio resampler and buffer when the RtAudio
                 // playback is reset.
@@ -500,36 +514,78 @@ namespace tl
                     }
                     p->audioThread.buffer.clear();
                     p->audioThread.rtAudioCurrentFrame = 0;
+                    p->audioThread.backwardsSize =
+                        std::numeric_limits<size_t>::max();
                 }
 
+                const size_t infoSampleRate = p->ioInfo.audio.sampleRate;
+                const size_t threadSampleRate = p->audioThread.info.sampleRate *
+                                                speedMultiplier;
+                    
+                
+                auto audioInfo = p->audioThread.info;
+                audioInfo.sampleRate = threadSampleRate;
                 // Create the audio resampler.
                 if (!p->audioThread.resample ||
-                    (p->audioThread.resample && p->audioThread.resample->getInputInfo() != p->ioInfo.audio))
+                    (p->audioThread.resample &&
+                     p->audioThread.resample->getInputInfo() !=
+                         p->ioInfo.audio) ||
+                    (p->audioThread.resample &&
+                     p->audioThread.resample->getOutputInfo() !=
+                         audioInfo))
                 {
                     p->audioThread.resample = audio::AudioResample::create(
                         p->ioInfo.audio,
-                        p->audioThread.info);
+                        audioInfo);
                 }
 
                 // Fill the audio buffer.
                 if (p->ioInfo.audio.sampleRate > 0 &&
                     playbackStartTime != time::invalidTime)
                 {
+                    const bool backwards = playback == Playback::Reverse;
+                    if (!p->audioThread.silence)
+                    {
+                        p->audioThread.silence = audio::Audio::create(audioInfo, infoSampleRate);
+                        p->audioThread.silence->zero();
+                    }
+                    
                     const int64_t playbackStartFrame =
-                        playbackStartTime.rescaled_to(p->ioInfo.audio.sampleRate).value() -
-                        p->timeline->getTimeRange().start_time().rescaled_to(p->ioInfo.audio.sampleRate).value() -
-                        otime::RationalTime(audioOffset, 1.0).rescaled_to(p->ioInfo.audio.sampleRate).value();;
-                    int64_t frame = playbackStartFrame +
-                        otime::RationalTime(
-                            p->audioThread.rtAudioCurrentFrame + audio::getSampleCount(p->audioThread.buffer),
-                            p->audioThread.info.sampleRate).rescaled_to(p->ioInfo.audio.sampleRate).value();
-                    int64_t seconds = p->ioInfo.audio.sampleRate > 0 ? (frame / p->ioInfo.audio.sampleRate) : 0;
-                    int64_t offset = frame - seconds * p->ioInfo.audio.sampleRate;
+                        playbackStartTime.rescaled_to(infoSampleRate).value() -
+                        p->timeline->getTimeRange().start_time().rescaled_to(infoSampleRate).value() -
+                        otime::RationalTime(audioOffset, 1.0).rescaled_to(infoSampleRate).value();
+                    int64_t frame = playbackStartFrame;
+                    auto timeOffset = otime::RationalTime(
+                        p->audioThread.rtAudioCurrentFrame +
+                        audio::getSampleCount(p->audioThread.buffer),
+                        threadSampleRate).rescaled_to(infoSampleRate);
+
+                    const int64_t maxOffset = infoSampleRate;
+                    const int64_t frameOffset = timeOffset.value();
+
+                    if (backwards)
+                    {
+                        frame -= frameOffset;
+                    }
+                    else
+                    {
+                        frame += frameOffset;
+                    }
+
+                    
+                    
+                    int64_t seconds = infoSampleRate > 0 ? (frame / infoSampleRate) : 0;
+                    int64_t offset = frame - seconds * infoSampleRate;
+
+                    
+
+                    // std::cout << "frame:       " << frame   << std::endl;
+                    // std::cout << "seconds:     " << seconds << std::endl;
+                    // std::cout << "offset:      " << offset  << std::endl;
                     while (audio::getSampleCount(p->audioThread.buffer) < nFrames)
                     {
-                        //std::cout << "frame: " << frame << std::endl;
-                        //std::cout << "seconds: " << seconds << std::endl;
-                        //std::cout << "offset: " << offset << std::endl;
+                        // std::cout << "\tseconds: " << seconds << std::endl;
+                        // std::cout << "\toffset:  " << offset << std::endl;
                         AudioData audioData;
                         {
                             std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
@@ -539,32 +595,115 @@ namespace tl
                                 audioData = j->second;
                             }
                         }
-                        if (!p->audioThread.silence)
-                        {
-                            p->audioThread.silence = audio::Audio::create(p->ioInfo.audio, p->ioInfo.audio.sampleRate);
-                            p->audioThread.silence->zero();
-                        }
+
+                        std::vector<float> volumeScale;
+                        volumeScale.reserve(audioData.layers.size());
+                        std::vector<std::shared_ptr<audio::Audio> > audios;
                         std::vector<const uint8_t*> audioDataP;
+                        const size_t dataOffset = offset * p->ioInfo.audio.getByteCount();
+                        const auto rate = timeOffset.rate();
+                        const auto sample = seconds * rate + offset;
+                        const auto currentTime = otime::RationalTime(sample, rate).rescaled_to(1.0);
                         for (const auto& layer : audioData.layers)
                         {
+                            float volumeMultiplier = 1.F;
                             if (layer.audio && layer.audio->getInfo() == p->ioInfo.audio)
                             {
-                                audioDataP.push_back(
-                                    layer.audio->getData() +
-                                    (offset * p->ioInfo.audio.getByteCount()));
+                                auto audio = layer.audio;
+                                
+                                if (layer.inTransition)
+                                {
+                                    const auto& clipTimeRange = layer.clipTimeRange;
+                                    const auto& range = otime::TimeRange(clipTimeRange.start_time().rescaled_to(rate),
+                                                                         clipTimeRange.duration().rescaled_to(rate));
+                                    const auto  inOffset = layer.inTransition->in_offset().value();
+                                    const auto outOffset = layer.inTransition->out_offset().value();
+                                    const auto fadeInBegin = range.start_time().value() - inOffset;
+                                    const auto fadeInEnd   = range.start_time().value() + outOffset;
+                                    if (sample > fadeInBegin)
+                                    {
+                                        if (sample < fadeInEnd)
+                                        {
+                                            volumeMultiplier = fadeValue(sample,
+                                                                         range.start_time().value() - inOffset - 1.0,
+                                                                         range.start_time().value() + outOffset);
+                                            volumeMultiplier = std::min(1.F, volumeMultiplier);
+                                            // std::cerr << currentTime << " layer=" << layerCount << " " << " FADE IN  ";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        volumeMultiplier = 0.F;
+                                    }
+                                }
+                                
+                                if (layer.outTransition)
+                                {
+                                    const auto& clipTimeRange = layer.clipTimeRange;
+                                    const auto& range = otime::TimeRange(clipTimeRange.start_time().rescaled_to(rate),
+                                                                         clipTimeRange.duration().rescaled_to(rate));
+                            
+                                    const auto  inOffset = layer.outTransition->in_offset().value();
+                                    const auto outOffset = layer.outTransition->out_offset().value();
+                                    const auto fadeOutBegin = range.end_time_inclusive().value() - inOffset;
+                                    const auto fadeOutEnd   = range.end_time_inclusive().value() + outOffset;
+                                    if (sample > fadeOutBegin)
+                                    {
+                                        if (sample < fadeOutEnd)
+                                        {
+                                            volumeMultiplier = 1.F - fadeValue(sample,
+                                                                               range.end_time_inclusive().value() - inOffset,
+                                                                               range.end_time_inclusive().value() + outOffset + 1.0);
+                                        }
+                                        else
+                                        {
+                                            volumeMultiplier = 0.F;
+                                        }
+                                        // std::cerr << currentTime << " layer=" << layerCount << " " << " FADE OUT ";
+                                    }
+                                }
+                                
+                                
+                                if (backwards)
+                                {
+                                    auto tmp = audio::Audio::create(p->ioInfo.audio, infoSampleRate);
+                                    tmp->zero();
+
+                                    std::memcpy(tmp->getData(), audio->getData(), audio->getByteCount());
+                                    audio = tmp;
+                                    audios.push_back(audio);
+                                }
+                                audioDataP.push_back(audio->getData() + dataOffset);
+                                // std::cerr << "volume=" << volumeMultiplier << std::endl;
+                                volumeScale.push_back(volumeMultiplier);
                             }
                         }
                         if (audioDataP.empty())
                         {
+                            volumeScale.push_back(0.F);
                             audioDataP.push_back(
-                                p->audioThread.silence->getData() +
-                                (offset * p->ioInfo.audio.getByteCount()));
+                                p->audioThread.silence->getData() + dataOffset);
                         }
 
-                        const size_t size = std::min(
+                        size_t size = std::min(
                             p->playerOptions.audioBufferFrameCount,
-                            static_cast<size_t>(p->ioInfo.audio.sampleRate - offset));
-                        //std::cout << "size: " << size << std::endl;
+                            static_cast<size_t>(maxOffset - offset));
+                        
+                        if (backwards)
+                        {
+                            if ( p->audioThread.backwardsSize < size )
+                            {
+                                size = p->audioThread.backwardsSize;
+                            }
+                            
+                            audio::reverse(
+                                const_cast<uint8_t**>(audioDataP.data()),
+                                audioDataP.size(),
+                                size,
+                                p->ioInfo.audio.channelCount,
+                                p->ioInfo.audio.dataType);
+                        }
+
                         auto tmp = audio::Audio::create(p->ioInfo.audio, size);
                         tmp->zero();
                         audio::mix(
@@ -572,6 +711,7 @@ namespace tl
                             audioDataP.size(),
                             tmp->getData(),
                             volume,
+                            volumeScale,
                             size,
                             p->ioInfo.audio.channelCount,
                             p->ioInfo.audio.dataType);
@@ -581,21 +721,39 @@ namespace tl
                             p->audioThread.buffer.push_back(p->audioThread.resample->process(tmp));
                         }
 
-                        offset += size;
-                        if (offset >= p->ioInfo.audio.sampleRate)
+                        if (backwards)
                         {
-                            offset -= p->ioInfo.audio.sampleRate;
-                            seconds += 1;
+                            offset -= size;
+                            if (offset < 0)
+                            {
+                                seconds -= 1;
+                                if (speedMultiplier < 1.0)
+                                    offset += ( maxOffset * speedMultiplier );
+                                else
+                                    offset += maxOffset;
+                                p->audioThread.backwardsSize = static_cast<size_t>(maxOffset - offset);
+                            }
+                            else
+                            {
+                                p->audioThread.backwardsSize = size;
+                            }
+                        }
+                        else
+                        {
+                            offset += size;
+                            if (offset >= maxOffset)
+                            {
+                                offset -= maxOffset;
+                                seconds += 1;
+                            }
                         }
 
-                        //std::cout << std::endl;
                     }
                 }
 
                 // Send audio data to RtAudio.
                 const auto now = std::chrono::steady_clock::now();
-                if (speed == p->timeline->getTimeRange().duration().rate() &&
-                    !externalTime &&
+                if (!externalTime &&
                     !mute &&
                     now >= muteTimeout &&
                     nFrames <= getSampleCount(p->audioThread.buffer))
@@ -611,10 +769,6 @@ namespace tl
 
                 break;
             }
-            case Playback::Reverse:
-                // Update the audio frame.
-                p->audioThread.rtAudioCurrentFrame += nFrames;
-                break;
             default: break;
             }
 

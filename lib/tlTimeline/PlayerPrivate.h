@@ -103,6 +103,7 @@ namespace tl
             struct AudioMutex
             {
                 double speed = 0.0;
+                double defaultSpeed = 0.0;
                 float volume = 1.F;
                 bool mute = false;
                 std::chrono::steady_clock::time_point muteTimeout;
@@ -134,6 +135,7 @@ namespace tl
                 std::list<std::shared_ptr<audio::Audio> > buffer;
                 std::shared_ptr<audio::Audio> silence;
                 size_t rtAudioCurrentFrame = 0;
+                size_t backwardsSize = std::numeric_limits<size_t>::max();
             };
             AudioThread audioThread;
         };

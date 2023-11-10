@@ -178,12 +178,21 @@ namespace tl
         //! \name Utility
         ///@{
 
+        //! Reverse audio sources in place.
+        void reverse(
+            uint8_t** inOut,
+            size_t          inCount,
+            size_t          sampleCount,
+            uint8_t         channelCount,
+            DataType        dataType);
+        
         //! Mix audio sources.
         void mix(
             const uint8_t** in,
             size_t          inCount,
             uint8_t*        out,
             float           volume,
+            const std::vector<float>& volumeScale,
             size_t          sampleCount,
             size_t          channelCount,
             DataType        dataType);

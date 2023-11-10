@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <opentimelineio/transition.h>
+
 #include <tlIO/IO.h>
 
 namespace tl
@@ -15,6 +17,10 @@ namespace tl
         {
             std::shared_ptr<audio::Audio> audio;
 
+            otime::TimeRange  clipTimeRange;
+            otio::Transition* inTransition = nullptr;
+            otio::Transition* outTransition = nullptr;
+            
             bool operator == (const AudioLayer&) const;
             bool operator != (const AudioLayer&) const;
         };

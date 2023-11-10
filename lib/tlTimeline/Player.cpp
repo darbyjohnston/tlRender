@@ -123,6 +123,7 @@ namespace tl
             p.mutex.cacheOptions = p.cacheOptions->get();
             p.mutex.cacheInfo = p.cacheInfo->get();
             p.audioMutex.speed = p.speed->get();
+            p.audioMutex.defaultSpeed = p.speed->get();
 #if defined(TLRENDER_AUDIO)
             try
             {
