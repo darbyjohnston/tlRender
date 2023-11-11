@@ -298,11 +298,11 @@ namespace tl
                 textures = getTextures(info, imageOptions.imageFilters);
                 copyTextures(image, textures);
             }
-            else if (!p.textureCache.get(image.get(), textures))
+            else if (!p.textureCache.get(image, textures))
             {
                 textures = getTextures(info, imageOptions.imageFilters);
                 copyTextures(image, textures);
-                p.textureCache.add(image.get(), textures, image->getDataByteCount());
+                p.textureCache.add(image, textures, image->getDataByteCount());
             }
             setActiveTextures(info, textures);
 
