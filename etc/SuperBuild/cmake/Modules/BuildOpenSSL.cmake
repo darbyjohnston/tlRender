@@ -27,6 +27,9 @@ elseif(APPLE)
         no-external-tests
         no-tests
         no-unit-test)
+    if(NOT BUILD_SHARED_LIBS)
+        list(APPEND OpenSSL_CONFIGURE no-shared)
+    endif()
     if(CMAKE_OSX_DEPLOYMENT_TARGET)
         list(APPEND OpenSSL_CONFIGURE -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET})
     endif()
@@ -40,6 +43,9 @@ else()
         no-external-tests
         no-tests
         no-unit-test)
+    if(NOT BUILD_SHARED_LIBS)
+        list(APPEND OpenSSL_CONFIGURE no-shared)
+    endif()
     set(OpenSSL_BUILD make)
     set(OpenSSL_INSTALL make install)
 endif()
