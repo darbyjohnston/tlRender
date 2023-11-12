@@ -318,6 +318,7 @@ namespace tl
                 options.depth = gl::OffscreenDepth::_24;
                 options.stencil = gl::OffscreenStencil::_8;
 #elif defined(TLRENDER_API_GLES_2)
+                options.stencil = gl::OffscreenStencil::_8;
 #endif // TLRENDER_API_GL_4_1
                 if (gl::doCreate(p.buffer, size, options))
                 {

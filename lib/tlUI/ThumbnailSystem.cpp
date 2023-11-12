@@ -802,7 +802,7 @@ namespace tl
                                     size.w = size.h * info.video[0].size.getAspect();
                                 }
                                 gl::OffscreenBufferOptions options;
-                                options.colorType = image::PixelType::RGB_F32;
+                                options.colorType = image::PixelType::RGBA_U8;
                                 if (gl::doCreate(buffer, size, options))
                                 {
                                     buffer = gl::OffscreenBuffer::create(size, options);
