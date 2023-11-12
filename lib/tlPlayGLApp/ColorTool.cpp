@@ -51,6 +51,10 @@ namespace tl
         {
             ui::IWidget::_init("tl::play_gl::ColorConfigWidget", context, parent);
             TLRENDER_P();
+            
+#if !defined(TLRENDER_OCIO)
+            setEnabled(false);
+#endif // TLRENDER_OCIO
 
             p.colorConfigModel = play::ColorConfigModel::create(context);
 
@@ -222,6 +226,10 @@ namespace tl
         {
             ui::IWidget::_init("tl::play_gl::LUTWidget", context, parent);
             TLRENDER_P();
+            
+#if !defined(TLRENDER_OCIO)
+            setEnabled(false);
+#endif // TLRENDER_OCIO
 
             p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
 

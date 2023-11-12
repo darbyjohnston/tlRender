@@ -48,6 +48,10 @@ namespace tl
             _p(new Private)
         {
             TLRENDER_P();
+            
+#if !defined(TLRENDER_OCIO)
+            setEnabled(false);
+#endif // TLRENDER_OCIO
 
             p.colorConfigModel = play::ColorConfigModel::create(app->getContext());
 
@@ -245,6 +249,10 @@ namespace tl
             _p(new Private)
         {
             TLRENDER_P();
+            
+#if !defined(TLRENDER_OCIO)
+            setEnabled(false);
+#endif // TLRENDER_OCIO
 
             QStringList extensions;
             for (const auto& i : timeline::getLUTFormatExtensions())
