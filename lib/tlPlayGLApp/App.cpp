@@ -48,6 +48,7 @@ namespace tl
             std::shared_ptr<play::ViewportModel> viewportModel;
             std::shared_ptr<play::ColorModel> colorModel;
             bool deviceActive = false;
+            audio::Info audioInfo;
             std::shared_ptr<play::AudioModel> audioModel;
             std::shared_ptr<ToolsModel> toolsModel;
 
@@ -305,6 +306,10 @@ namespace tl
             p.colorModel->setColorConfigOptions(p.options.colorConfigOptions);
             p.colorModel->setLUTOptions(p.options.lutOptions);
 
+            if (auto audioSystem = _context->getSystem<audio::System>())
+            {
+                p.audioInfo = audioSystem->getDefaultOutputInfo();
+            }
             p.audioModel = play::AudioModel::create(p.settings, _context);
 
             p.toolsModel = ToolsModel::create();
@@ -463,6 +468,12 @@ namespace tl
 #if defined(TLRENDER_FFMPEG)
             out["FFmpeg/YUVToRGBConversion"] = string::Format("{0}").
                 arg(p.settings->getValue<bool>("FFmpeg/YUVToRGBConversion"));
+            out["FFmpeg/AudioChannelCount"] = string::Format("{0}").
+                arg(p.audioInfo.channelCount);
+            out["FFmpeg/AudioDataType"] = string::Format("{0}").
+                arg(p.audioInfo.dataType);
+            out["FFmpeg/AudioSampleRate"] = string::Format("{0}").
+                arg(p.audioInfo.sampleRate);
             out["FFmpeg/ThreadCount"] = string::Format("{0}").
                 arg(p.settings->getValue<int>("FFmpeg/ThreadCount"));
 #endif // TLRENDER_FFMPEG
