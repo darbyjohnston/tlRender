@@ -112,10 +112,13 @@ namespace tl
             {
                 if (auto otioTrack = dynamic_cast<const otio::Track*>(i.value))
                 {
-                    if (otio::Track::Kind::video == otioTrack->kind())
+                    if (otio::Track::Kind::audio == otioTrack->kind())
                     {
-                        if (p.getVideoInfo(otioTrack))
+                        if (p.getAudioInfo(otioTrack))
                         {
+                            p.options.ioOptions["FFmpeg/AudioChannelCount"] = string::Format("{0}").arg(p.ioInfo.audio.channelCount);
+                            p.options.ioOptions["FFmpeg/AudioDataType"] = string::Format("{0}").arg(p.ioInfo.audio.dataType);
+                            p.options.ioOptions["FFmpeg/AudioSampleRate"] = string::Format("{0}").arg(p.ioInfo.audio.sampleRate);
                             break;
                         }
                     }
@@ -125,13 +128,10 @@ namespace tl
             {
                 if (auto otioTrack = dynamic_cast<const otio::Track*>(i.value))
                 {
-                    if (otio::Track::Kind::audio == otioTrack->kind())
+                    if (otio::Track::Kind::video == otioTrack->kind())
                     {
-                        if (p.getAudioInfo(otioTrack))
+                        if (p.getVideoInfo(otioTrack))
                         {
-                            p.options.ioOptions["FFmpeg/AudioChannelCount"] = string::Format("{0}").arg(p.ioInfo.audio.channelCount);
-                            p.options.ioOptions["FFmpeg/AudioDataType"] = string::Format("{0}").arg(p.ioInfo.audio.dataType);
-                            p.options.ioOptions["FFmpeg/AudioSampleRate"] = string::Format("{0}").arg(p.ioInfo.audio.sampleRate);
                             break;
                         }
                     }

@@ -120,17 +120,6 @@ namespace tl
                 }
 
                 const size_t fileChannelCount = _avCodecParameters[_avStream]->ch_layout.nb_channels;
-                switch (fileChannelCount)
-                {
-                case 1:
-                case 2:
-                case 6:
-                case 7:
-                case 8: break;
-                default:
-                    throw std::runtime_error(string::Format("{0}: Unsupported audio channels").arg(fileName));
-                    break;
-                }
                 const audio::DataType fileDataType = toAudioType(static_cast<AVSampleFormat>(
                     _avCodecParameters[_avStream]->format));
                 if (audio::DataType::None == fileDataType)
