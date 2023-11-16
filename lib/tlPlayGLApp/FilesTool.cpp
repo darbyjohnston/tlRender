@@ -12,6 +12,7 @@
 #include <tlUI/FloatEditSlider.h>
 #include <tlUI/GridLayout.h>
 #include <tlUI/Label.h>
+#include <tlUI/ListButton.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/ScrollWidget.h>
 #include <tlUI/ToolButton.h>
@@ -24,7 +25,7 @@ namespace tl
         {
             std::shared_ptr<ui::ButtonGroup> aButtonGroup;
             std::shared_ptr<ui::ButtonGroup> bButtonGroup;
-            std::map<std::shared_ptr<play::FilesModelItem>, std::shared_ptr<ui::ToolButton> > aButtons;
+            std::map<std::shared_ptr<play::FilesModelItem>, std::shared_ptr<ui::ListButton> > aButtons;
             std::map<std::shared_ptr<play::FilesModelItem>, std::shared_ptr<ui::ToolButton> > bButtons;
             std::vector<std::shared_ptr<ui::ComboBox> > layerComboBoxes;
             std::shared_ptr<ui::FloatEditSlider> wipeXSlider;
@@ -245,23 +246,16 @@ namespace tl
                     size_t row = 0;
                     for (const auto& item : value)
                     {
-                        auto label = ui::Label::create(context);
+                        auto aButton = ui::ListButton::create(context);
                         std::string s = string::elide(item->path.get(-1, file::PathType::FileName));
-                        label->setText(s);
-                        label->setMarginRole(ui::SizeRole::MarginSmall);
-                        label->setHStretch(ui::Stretch::Expanding);
-                        label->setToolTip(item->path.get());
-                        label->setParent(p.widgetLayout);
-                        p.widgetLayout->setGridPos(label, row, 0);
-
-                        auto aButton = ui::ToolButton::create(context);
-                        aButton->setText("A");
+                        aButton->setText(s);
                         aButton->setChecked(item == a);
-                        aButton->setToolTip("Set the A file");
+                        aButton->setHStretch(ui::Stretch::Expanding);
+                        aButton->setToolTip(item->path.get());
                         p.aButtons[item] = aButton;
                         p.aButtonGroup->addButton(aButton);
                         aButton->setParent(p.widgetLayout);
-                        p.widgetLayout->setGridPos(aButton, row, 1);
+                        p.widgetLayout->setGridPos(aButton, row, 0);
 
                         auto bButton = ui::ToolButton::create(context);
                         bButton->setText("B");
@@ -271,7 +265,7 @@ namespace tl
                         p.bButtons[item] = bButton;
                         p.bButtonGroup->addButton(bButton);
                         bButton->setParent(p.widgetLayout);
-                        p.widgetLayout->setGridPos(bButton, row, 2);
+                        p.widgetLayout->setGridPos(bButton, row, 1);
 
                         auto layerComboBox = ui::ComboBox::create(context);
                         layerComboBox->setItems(item->videoLayers);
@@ -279,7 +273,7 @@ namespace tl
                         layerComboBox->setToolTip("Set the current layer");
                         p.layerComboBoxes.push_back(layerComboBox);
                         layerComboBox->setParent(p.widgetLayout);
-                        p.widgetLayout->setGridPos(layerComboBox, row, 3);
+                        p.widgetLayout->setGridPos(layerComboBox, row, 2);
 
                         layerComboBox->setIndexCallback(
                             [appWeak, item](int value)

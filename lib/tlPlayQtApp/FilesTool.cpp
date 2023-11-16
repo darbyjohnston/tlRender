@@ -27,11 +27,11 @@ namespace tl
             App* app = nullptr;
             std::vector<std::shared_ptr<play::FilesModelItem> > items;
 
-            std::vector<QLabel*> labels;
             std::vector<QToolButton*> aButtons;
             std::vector<QToolButton*> bButtons;
             std::vector<QComboBox*> layerComboBoxes;
             QGridLayout* itemsLayout = nullptr;
+            QLabel* noFilesOpenLabel = nullptr;
             qtwidget::FloatEditSlider* wipeXSlider = nullptr;
             qtwidget::FloatEditSlider* wipeYSlider = nullptr;
             qtwidget::FloatEditSlider* wipeRotationSlider = nullptr;
@@ -166,11 +166,6 @@ namespace tl
         {
             TLRENDER_P();
 
-            for (auto i : p.labels)
-            {
-                delete i;
-            }
-            p.labels.clear();
             for (auto i : p.aButtons)
             {
                 delete i;
@@ -186,6 +181,8 @@ namespace tl
                 delete i;
             }
             p.layerComboBoxes.clear();
+            delete p.noFilesOpenLabel;
+            p.noFilesOpenLabel = nullptr;
 
             p.items = items;
 
@@ -195,19 +192,14 @@ namespace tl
             {
                 auto item = p.items[i];
 
-                auto label = new QLabel;
-                std::string s = string::elide(item->path.get(-1, file::PathType::FileName));
-                label->setText(QString::fromUtf8(s.c_str()));
-                label->setToolTip(QString::fromUtf8(item->path.get().c_str()));
-                label->setContentsMargins(0, 0, 5, 0);
-                p.labels.push_back(label);
-
                 auto aButton = new QToolButton;
-                aButton->setText("A");
+                std::string s = string::elide(item->path.get(-1, file::PathType::FileName));
+                aButton->setText(QString::fromUtf8(s.c_str()));
                 aButton->setCheckable(true);
                 aButton->setChecked(item == a);
                 aButton->setAutoRaise(true);
-                aButton->setToolTip("Set the A file");
+                aButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+                aButton->setToolTip(QString::fromUtf8(item->path.get().c_str()));
                 p.aButtons.push_back(aButton);
 
                 auto bButton = new QToolButton;
@@ -228,10 +220,9 @@ namespace tl
                 layerComboBox->setToolTip("Set the current layer");
                 p.layerComboBoxes.push_back(layerComboBox);
 
-                p.itemsLayout->addWidget(label, i, 0);
-                p.itemsLayout->addWidget(aButton, i, 1);
-                p.itemsLayout->addWidget(bButton, i, 2);
-                p.itemsLayout->addWidget(layerComboBox, i, 3);
+                p.itemsLayout->addWidget(aButton, i, 0);
+                p.itemsLayout->addWidget(bButton, i, 1);
+                p.itemsLayout->addWidget(layerComboBox, i, 2);
 
                 connect(
                     aButton,
@@ -256,6 +247,11 @@ namespace tl
                     {
                         _p->app->filesModel()->setLayer(item, value);
                     });
+            }
+            if (p.items.empty())
+            {
+                p.noFilesOpenLabel = new QLabel("No files open");
+                p.itemsLayout->addWidget(p.noFilesOpenLabel, 0, 0);
             }
         }
 

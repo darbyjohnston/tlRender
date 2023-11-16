@@ -276,7 +276,7 @@ namespace tl
             for (auto i = value.rbegin(); i != value.rend(); ++i)
             {
                 auto action = new QAction(this);
-                const QString label = QString::fromUtf8(i->get(-1, file::PathType::FileName).c_str());
+                const QString label = QString::fromUtf8(i->get().c_str());
                 action->setText(QString("%1").arg(label));
                 const QString fileName = QString::fromUtf8(i->get().c_str());
                 action->setData(fileName);

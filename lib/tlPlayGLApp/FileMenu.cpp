@@ -247,7 +247,7 @@ namespace tl
                     if (j != p.extensions.end())
                     {
                         auto item = std::make_shared<ui::Action>(
-                            path.get(-1, file::PathType::FileName),
+                            path.get(),
                             [this, path]
                             {
                                 if (auto app = _p->app.lock())
