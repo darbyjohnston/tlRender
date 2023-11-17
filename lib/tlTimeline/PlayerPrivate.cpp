@@ -512,6 +512,7 @@ namespace tl
                     {
                         p->audioThread.resample->flush();
                     }
+                    p->audioThread.silence.reset();
                     p->audioThread.buffer.clear();
                     p->audioThread.rtAudioCurrentFrame = 0;
                     p->audioThread.backwardsSize =
@@ -681,8 +682,7 @@ namespace tl
                         if (audioDataP.empty())
                         {
                             volumeScale.push_back(0.F);
-                            audioDataP.push_back(
-                                p->audioThread.silence->getData() + dataOffset);
+                            audioDataP.push_back(p->audioThread.silence->getData());
                         }
 
                         size_t size = std::min(
