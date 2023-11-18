@@ -11,6 +11,7 @@
 
 #include <QAction>
 #include <QBoxLayout>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QFormLayout>
 #include <QGridLayout>
@@ -27,7 +28,7 @@ namespace tl
             App* app = nullptr;
             std::vector<std::shared_ptr<play::FilesModelItem> > items;
 
-            std::vector<QToolButton*> aButtons;
+            std::vector<QCheckBox*> aButtons;
             std::vector<QToolButton*> bButtons;
             std::vector<QComboBox*> layerComboBoxes;
             QGridLayout* itemsLayout = nullptr;
@@ -192,12 +193,11 @@ namespace tl
             {
                 auto item = p.items[i];
 
-                auto aButton = new QToolButton;
+                auto aButton = new QCheckBox;
                 std::string s = string::elide(item->path.get(-1, file::PathType::FileName));
                 aButton->setText(QString::fromUtf8(s.c_str()));
                 aButton->setCheckable(true);
                 aButton->setChecked(item == a);
-                aButton->setAutoRaise(true);
                 aButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
                 aButton->setToolTip(QString::fromUtf8(item->path.get().c_str()));
                 p.aButtons.push_back(aButton);

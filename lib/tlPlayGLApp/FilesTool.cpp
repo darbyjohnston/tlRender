@@ -8,11 +8,11 @@
 
 #include <tlUI/Bellows.h>
 #include <tlUI/ButtonGroup.h>
+#include <tlUI/CheckBox.h>
 #include <tlUI/ComboBox.h>
 #include <tlUI/FloatEditSlider.h>
 #include <tlUI/GridLayout.h>
 #include <tlUI/Label.h>
-#include <tlUI/ListButton.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/ScrollWidget.h>
 #include <tlUI/ToolButton.h>
@@ -25,7 +25,7 @@ namespace tl
         {
             std::shared_ptr<ui::ButtonGroup> aButtonGroup;
             std::shared_ptr<ui::ButtonGroup> bButtonGroup;
-            std::map<std::shared_ptr<play::FilesModelItem>, std::shared_ptr<ui::ListButton> > aButtons;
+            std::map<std::shared_ptr<play::FilesModelItem>, std::shared_ptr<ui::CheckBox> > aButtons;
             std::map<std::shared_ptr<play::FilesModelItem>, std::shared_ptr<ui::ToolButton> > bButtons;
             std::vector<std::shared_ptr<ui::ComboBox> > layerComboBoxes;
             std::shared_ptr<ui::FloatEditSlider> wipeXSlider;
@@ -246,7 +246,7 @@ namespace tl
                     size_t row = 0;
                     for (const auto& item : value)
                     {
-                        auto aButton = ui::ListButton::create(context);
+                        auto aButton = ui::CheckBox::create(context);
                         std::string s = string::elide(item->path.get(-1, file::PathType::FileName));
                         aButton->setText(s);
                         aButton->setChecked(item == a);
