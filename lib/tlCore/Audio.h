@@ -136,8 +136,8 @@ namespace tl
 
             //! Create new audio.
             static std::shared_ptr<Audio> create(
-                const Info&    info,
-                size_t         sampleCount);
+                const Info& info,
+                size_t      sampleCount);
 
             //! Get the audio information.
             const Info& getInfo() const;
