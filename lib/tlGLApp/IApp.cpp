@@ -241,11 +241,6 @@ namespace tl
                 p.iconLibrary,
                 p.clipboard,
                 _context);
-            p.eventLoop->setCapture(
-                [this](const math::Box2i& value)
-                {
-                    return _capture(value);
-                });
 
             // Initialize the renderer.
             p.render = timeline::GLRender::create(_context);
@@ -488,37 +483,6 @@ namespace tl
                 return;
             p.lutOptions = value;
             p.refresh = true;
-        }
-
-        std::shared_ptr<OffscreenBuffer> IApp::_capture(const math::Box2i& value)
-        {
-            TLRENDER_P();
-            std::shared_ptr<OffscreenBuffer> out;
-            try
-            {
-                OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.colorType = image::PixelType::RGBA_U8;
-                out = OffscreenBuffer::create(math::Size2i(value.w(), value.h()), offscreenBufferOptions);
-#if defined(TLRENDER_API_GL_4_1)
-                glBindFramebuffer(GL_READ_FRAMEBUFFER, p.offscreenBuffer->getID());
-                glBindFramebuffer(GL_DRAW_FRAMEBUFFER, out->getID());
-                glBlitFramebuffer(
-                    value.min.x,
-                    p.frameBufferSize.h - 1 - value.min.y,
-                    value.max.x,
-                    p.frameBufferSize.h - 1 - value.max.y,
-                    0,
-                    0,
-                    value.w(),
-                    value.h(),
-                    GL_COLOR_BUFFER_BIT,
-                    GL_LINEAR);
-                glBindFramebuffer(GL_FRAMEBUFFER, 0);
-#endif // TLRENDER_API_GL_4_1
-            }
-            catch (const std::exception&)
-            {}
-            return out;
         }
 
         void IApp::_drop(const std::vector<std::string>&)

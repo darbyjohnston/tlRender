@@ -6,7 +6,7 @@
 
 #include <tlUI/ToolTip.h>
 
-#include <tlGL/OffscreenBuffer.h>
+#include <tlTimeline/IRender.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -39,10 +39,9 @@ namespace tl
             std::weak_ptr<IWidget> keyPress;
             KeyEvent keyEvent;
             std::shared_ptr<DragAndDropData> dndData;
-            std::shared_ptr<gl::OffscreenBuffer> dndCursor;
+            std::shared_ptr<image::Image> dndCursor;
             math::Vector2i dndCursorHotspot;
             std::weak_ptr<IWidget> dndHover;
-            std::function<std::shared_ptr<gl::OffscreenBuffer>(const math::Box2i&)> capture;
             std::shared_ptr<ToolTip> toolTip;
             math::Vector2i toolTipPos;
             std::chrono::steady_clock::time_point toolTipTimer;
@@ -626,8 +625,8 @@ namespace tl
             _drawEvent(render);
             if (p.dndCursor)
             {
-                render->drawTexture(
-                    p.dndCursor->getColorID(),
+                render->drawImage(
+                    p.dndCursor,
                     math::Box2i(
                         p.cursorPos.x - p.dndCursorHotspot.x,
                         p.cursorPos.y - p.dndCursorHotspot.y,
@@ -636,19 +635,6 @@ namespace tl
                     image::Color4f(1.F, 1.F, 1.F));
             }
             _p->updates &= ~static_cast<int>(Update::Draw);
-        }
-
-        std::shared_ptr<gl::OffscreenBuffer> EventLoop::screenshot(
-            const std::shared_ptr<IWidget>& widget)
-        {
-            TLRENDER_P();
-            return p.capture ? p.capture(widget->getGeometry()) : nullptr;
-        }
-
-        void EventLoop::setCapture(const std::function<std::shared_ptr<gl::OffscreenBuffer>(
-            const math::Box2i&)>& value)
-        {
-            _p->capture = value;
         }
 
         void EventLoop::_tickEvent()

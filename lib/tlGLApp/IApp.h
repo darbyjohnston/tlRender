@@ -83,8 +83,6 @@ namespace tl
             void _setColorConfigOptions(const timeline::ColorConfigOptions&);
             void _setLUTOptions(const timeline::LUTOptions&);
 
-            std::shared_ptr<OffscreenBuffer> _capture(const math::Box2i&);
-
             virtual void _drop(const std::vector<std::string>&);
 
             virtual void _tick();

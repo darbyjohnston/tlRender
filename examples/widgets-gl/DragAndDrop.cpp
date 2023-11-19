@@ -159,7 +159,22 @@ namespace tl
                         if (auto eventLoop = getEventLoop().lock())
                         {
                             event.dndData = std::make_shared<DragAndDropData>(p.number);
-                            event.dndCursor = eventLoop->screenshot(shared_from_this());
+                            const int w = _geometry.w();
+                            const int h = _geometry.h();
+                            event.dndCursor = image::Image::create(
+                                w, h, image::PixelType::RGBA_U8);
+                            uint8_t* p = event.dndCursor->getData();
+                            for (int y = 0; y < h; ++y)
+                            {
+                                for (int x = 0; x < w; ++x)
+                                {
+                                    p[0] = 255;
+                                    p[1] = 255;
+                                    p[2] = 255;
+                                    p[3] = 63;
+                                    p += 4;
+                                }
+                            }
                             event.dndCursorHotspot = _mouse.pos - _geometry.min;
                         }
                     }

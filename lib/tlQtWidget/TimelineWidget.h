@@ -111,8 +111,6 @@ namespace tl
             bool event(QEvent*) override;
 
         private:
-            std::shared_ptr<gl::OffscreenBuffer> _capture(const math::Box2i&);
-
             int _toUI(int) const;
             math::Vector2i _toUI(const math::Vector2i&) const;
             int _fromUI(int) const;

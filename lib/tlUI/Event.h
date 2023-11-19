@@ -13,11 +13,6 @@
 
 namespace tl
 {
-    namespace gl
-    {
-        class OffscreenBuffer;
-    }
-
     namespace ui
     {
         class IWidget;
@@ -92,12 +87,12 @@ namespace tl
                 const math::Vector2i& pos,
                 const math::Vector2i& prev);
 
-            math::Vector2i                       pos;
-            math::Vector2i                       prev;
-            bool                                 accept = false;
-            std::shared_ptr<DragAndDropData>     dndData;
-            std::shared_ptr<gl::OffscreenBuffer> dndCursor;
-            math::Vector2i                       dndCursorHotspot;
+            math::Vector2i                   pos;
+            math::Vector2i                   prev;
+            bool                             accept = false;
+            std::shared_ptr<DragAndDropData> dndData;
+            std::shared_ptr<image::Image>    dndCursor;
+            math::Vector2i                   dndCursorHotspot;
         };
 
         //! Keyboard modifiers.
