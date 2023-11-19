@@ -1,0 +1,146 @@
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) 2021-2023 Darby Johnston
+// All rights reserved.
+
+#include <tlCore/AudioResample.h>
+
+#if defined(TLRENDER_FFMPEG)
+extern "C"
+{
+#include <samplerate.h>
+}
+#endif // TLRENDER_FFMPEG
+
+namespace tl
+{
+    namespace audio
+    {
+        namespace
+        {
+        }
+
+        struct AudioResample::Private
+        {
+            audio::Info inputInfo;
+            audio::Info outputInfo;
+            std::vector<float> audioData;
+            SRC_STATE* state = nullptr;
+        };
+
+        void AudioResample::_init(
+            const audio::Info& inputInfo,
+            const audio::Info& outputInfo)
+        {
+            TLRENDER_P();
+            p.inputInfo = inputInfo;
+            p.outputInfo = outputInfo;
+            if (p.inputInfo.isValid() && p.outputInfo.isValid())
+            {
+                int error = 0;
+                p.state = src_new(
+                    SRC_SINC_BEST_QUALITY,
+                    //SRC_LINEAR,
+                    inputInfo.channelCount,
+                    &error);
+            }
+        }
+
+        AudioResample::AudioResample() :
+            _p(new Private())
+        {}
+
+        AudioResample::~AudioResample()
+        {
+            TLRENDER_P();
+            if (p.state)
+            {
+                src_delete(p.state);
+            }
+        }
+
+        std::shared_ptr<AudioResample> AudioResample::create(
+            const audio::Info& inputInfo,
+            const audio::Info& outputInfo)
+        {
+            auto out = std::shared_ptr<AudioResample>(new AudioResample);
+            out->_init(inputInfo, outputInfo);
+            return out;
+        }
+
+        const audio::Info& AudioResample::getInputInfo() const
+        {
+            return _p->inputInfo;
+        }
+
+        const audio::Info& AudioResample::getOutputInfo() const
+        {
+            return _p->outputInfo;
+        }
+
+        std::shared_ptr<Audio> AudioResample::process(const std::shared_ptr<Audio>& value)
+        {
+            TLRENDER_P();
+            std::shared_ptr<Audio> out;
+            if (p.state && value)
+            {
+                const size_t ic = p.inputInfo.channelCount;
+                const size_t oc = p.outputInfo.channelCount;
+
+                auto converted = convert(value, DataType::F32);
+                size_t convertedSize =
+                    converted->getSampleCount() *
+                    converted->getChannelCount();
+
+                size_t audioDataSize = p.audioData.size();
+                p.audioData.resize(audioDataSize + convertedSize);
+                memcpy(
+                    p.audioData.data() + audioDataSize,
+                    converted->getData(),
+                    convertedSize * sizeof(float));
+                audioDataSize = p.audioData.size();
+
+                std::vector<float> outData;
+                outData.resize(audioDataSize);
+
+                SRC_DATA srcData;
+                srcData.data_in = p.audioData.data();
+                srcData.data_out = outData.data();
+                srcData.input_frames = outData.size() / ic;
+                srcData.output_frames = srcData.input_frames;
+                srcData.src_ratio = p.outputInfo.sampleRate / static_cast<double>(p.inputInfo.sampleRate);
+                srcData.end_of_input = 0;
+                src_process(p.state, &srcData);
+
+                if (srcData.input_frames_used > 0)
+                {
+                    p.audioData.erase(
+                        p.audioData.begin(),
+                        p.audioData.begin() + srcData.input_frames_used * ic);
+                }
+                outData.resize(srcData.output_frames_gen * ic);
+
+                out = Audio::create(oc, DataType::F32, p.outputInfo.sampleRate, outData.size() / ic);
+                float* inP = outData.data();
+                float* outP = reinterpret_cast<float*>(out->getData());
+                for (size_t i = 0; i < outData.size() / ic; ++i, inP += ic, outP += oc)
+                {
+                    for (size_t j = 0; j < ic && j < oc; ++j)
+                    {
+                        outP[j] = inP[j];
+                    }
+                }
+            }
+            return out;
+        }
+
+        void AudioResample::flush()
+        {
+            TLRENDER_P();
+            if (p.state)
+            {
+                p.audioData.clear();
+                src_reset(p.state);
+            }
+        }
+    }
+}

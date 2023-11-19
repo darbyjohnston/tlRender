@@ -62,7 +62,7 @@ namespace tl
                 auto inputIO = file::FileIO::create(_input, file::Mode::Read);
                 const size_t size = inputIO->getSize();
                 std::vector<uint8_t> data;
-                data.reserve(size);
+                data.resize(size);
                 inputIO->readU8(data.data(), size);
 
                 auto outputIO = file::FileIO::create(_output, file::Mode::Write);

@@ -278,7 +278,7 @@ namespace tl
             _dataByteCount = image::getDataByteCount(info);
             //! \bug Allocate a bit of extra space since FFmpeg sws_scale()
             //! seems to be reading past the end?
-            _data.reserve(_dataByteCount + 16);
+            _data.resize(_dataByteCount + 16);
         }
 
         Image::Image()
