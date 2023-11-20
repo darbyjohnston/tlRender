@@ -210,14 +210,14 @@ namespace tl
 
         void MessageDialogSystem::open(
             const std::string& text,
-            const std::shared_ptr<EventLoop>& eventLoop,
+            const std::shared_ptr<Window>& window,
             const std::function<void(bool)>& callback)
         {
             TLRENDER_P();
             if (auto context = _context.lock())
             {
                 p.dialog = MessageDialog::create(text, context);
-                p.dialog->open(eventLoop);
+                p.dialog->open(window);
                 p.dialog->setCallback(
                     [this, callback](bool value)
                     {

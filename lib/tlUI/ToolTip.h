@@ -19,7 +19,7 @@ namespace tl
             void _init(
                 const std::string& text,
                 const math::Vector2i& pos,
-                const std::shared_ptr<EventLoop>&,
+                const std::shared_ptr<Window>&,
                 const std::shared_ptr<system::Context>&);
 
             ToolTip();
@@ -31,7 +31,7 @@ namespace tl
             static std::shared_ptr<ToolTip> create(
                 const std::string& text,
                 const math::Vector2i& pos,
-                const std::shared_ptr<EventLoop>&,
+                const std::shared_ptr<Window>&,
                 const std::shared_ptr<system::Context>&);
 
             void close() override;

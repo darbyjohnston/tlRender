@@ -1054,24 +1054,21 @@ namespace tl
                 {
                     if (auto context = _context.lock())
                     {
-                        if (auto eventLoop = getEventLoop().lock())
+                        if (auto messageDialogSystem = context->getSystem<ui::MessageDialogSystem>())
                         {
-                            if (auto messageDialogSystem = context->getSystem<ui::MessageDialogSystem>())
-                            {
-                                messageDialogSystem->open(
-                                    "Reset preferences to default values?",
-                                    eventLoop,
-                                    [appWeak](bool value)
+                            messageDialogSystem->open(
+                                "Reset preferences to default values?",
+                                getWindow(),
+                                [appWeak](bool value)
+                                {
+                                    if (value)
                                     {
-                                        if (value)
+                                        if (auto app = appWeak.lock())
                                         {
-                                            if (auto app = appWeak.lock())
-                                            {
-                                                app->getSettings()->reset();
-                                            }
+                                            app->getSettings()->reset();
                                         }
-                                    });
-                            }
+                                    }
+                                });
                         }
                     }
                 });

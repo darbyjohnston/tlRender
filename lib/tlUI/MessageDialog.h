@@ -60,7 +60,7 @@ namespace tl
             //! Open the message dialog.
             void open(
                 const std::string& text,
-                const std::shared_ptr<EventLoop>&,
+                const std::shared_ptr<Window>&,
                 const std::function<void(bool)>&);
 
         private:

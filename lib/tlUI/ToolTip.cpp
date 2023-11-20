@@ -5,8 +5,8 @@
 #include <tlUI/ToolTip.h>
 
 #include <tlUI/DrawUtil.h>
-#include <tlUI/EventLoop.h>
 #include <tlUI/Label.h>
+#include <tlUI/Window.h>
 
 namespace tl
 {
@@ -31,7 +31,7 @@ namespace tl
         void ToolTip::_init(
             const std::string& text,
             const math::Vector2i& pos,
-            const std::shared_ptr<EventLoop>& eventLoop,
+            const std::shared_ptr<Window>& window,
             const std::shared_ptr<system::Context>& context)
         {
             IPopup::_init("tl::ui::ToolTip", context, nullptr);
@@ -44,7 +44,7 @@ namespace tl
             p.label->setTextRole(ColorRole::ToolTipText);
             p.label->setMarginRole(SizeRole::MarginSmall);
 
-            eventLoop->addWidget(shared_from_this());
+            setParent(window);
         }
 
         ToolTip::ToolTip() :
@@ -57,20 +57,17 @@ namespace tl
         std::shared_ptr<ToolTip> ToolTip::create(
             const std::string& text,
             const math::Vector2i& pos,
-            const std::shared_ptr<EventLoop>& eventLoop,
+            const std::shared_ptr<Window>& window,
             const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<ToolTip>(new ToolTip);
-            out->_init(text, pos, eventLoop, context);
+            out->_init(text, pos, window, context);
             return out;
         }
 
         void ToolTip::close()
         {
-            if (auto eventLoop = getEventLoop().lock())
-            {
-                eventLoop->removeWidget(shared_from_this());
-            }
+            setParent(nullptr);
         }
 
         void ToolTip::setGeometry(const math::Box2i& value)

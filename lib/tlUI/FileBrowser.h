@@ -85,11 +85,12 @@ namespace tl
             virtual ~FileBrowserSystem();
 
             //! Create a new system.
-            static std::shared_ptr<FileBrowserSystem> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<FileBrowserSystem> create(
+                const std::shared_ptr<system::Context>&);
 
             //! Open the file browser.
             void open(
-                const std::shared_ptr<EventLoop>&,
+                const std::shared_ptr<Window>&,
                 const std::function<void(const file::FileInfo&)>&);
 
             //! Get whether the native file dialog is used.

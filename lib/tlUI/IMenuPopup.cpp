@@ -5,8 +5,8 @@
 #include <tlUI/IMenuPopup.h>
 
 #include <tlUI/DrawUtil.h>
-#include <tlUI/EventLoop.h>
 #include <tlUI/ScrollWidget.h>
+#include <tlUI/Window.h>
 
 namespace tl
 {
@@ -122,13 +122,13 @@ namespace tl
         {}
 
         void IMenuPopup::open(
-            const std::shared_ptr<EventLoop>& eventLoop,
+            const std::shared_ptr<Window>& window,
             const math::Box2i& buttonGeometry)
         {
             TLRENDER_P();
             p.buttonGeometry = buttonGeometry;
             p.open = true;
-            eventLoop->addWidget(shared_from_this());
+            setParent(window);
         }
 
         bool IMenuPopup::isOpen() const
@@ -140,10 +140,7 @@ namespace tl
         {
             TLRENDER_P();
             p.open = false;
-            if (auto eventLoop = getEventLoop().lock())
-            {
-                eventLoop->removeWidget(shared_from_this());
-            }
+            setParent(nullptr);
             if (p.closeCallback)
             {
                 p.closeCallback();

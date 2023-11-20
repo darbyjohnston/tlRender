@@ -68,6 +68,12 @@ namespace tl
         }
 
         template<typename T>
+        inline bool Size2<T>::operator > (const Size2<T>& other) const
+        {
+            return std::tie(w, h) > std::tie(other.w, other.h);
+        }
+
+        template<typename T>
         inline Size2<T> operator + (const Size2<T>& a, const Size2<T>& b)
         {
             return Size2<T>(a.w + b.w, a.h + b.h);

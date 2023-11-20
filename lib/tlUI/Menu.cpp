@@ -592,10 +592,7 @@ namespace tl
                     {
                         if (!out->isOpen())
                         {
-                            if (auto eventLoop = getEventLoop().lock())
-                            {
-                                out->open(eventLoop, button->getGeometry());
-                            }
+                            out->open(getWindow(), button->getGeometry());
                         }
                         else
                         {

@@ -547,41 +547,38 @@ namespace tl
             takeKeyFocus();
             if (auto context = _context.lock())
             {
-                if (auto eventLoop = getEventLoop().lock())
+                if (!p.menu)
                 {
-                    if (!p.menu)
-                    {
-                        p.menu = ComboBoxMenu::create(p.items, context);
-                        p.menu->open(eventLoop, _geometry);
-                        auto weak = std::weak_ptr<ComboBox>(std::dynamic_pointer_cast<ComboBox>(shared_from_this()));
-                        p.menu->setCallback(
-                            [weak](int index)
+                    p.menu = ComboBoxMenu::create(p.items, context);
+                    p.menu->open(getWindow(), _geometry);
+                    auto weak = std::weak_ptr<ComboBox>(std::dynamic_pointer_cast<ComboBox>(shared_from_this()));
+                    p.menu->setCallback(
+                        [weak](int index)
+                        {
+                            if (auto widget = weak.lock())
                             {
-                                if (auto widget = weak.lock())
+                                widget->_p->menu->close();
+                                widget->_p->menu.reset();
+                                widget->takeKeyFocus();
+                                if (index != -1)
                                 {
-                                    widget->_p->menu->close();
-                                    widget->_p->menu.reset();
-                                    widget->takeKeyFocus();
-                                    if (index != -1)
-                                    {
-                                        widget->_commitIndex(index);
-                                    }
+                                    widget->_commitIndex(index);
                                 }
-                            });
-                        p.menu->setCloseCallback(
-                            [weak]
+                            }
+                        });
+                    p.menu->setCloseCallback(
+                        [weak]
+                        {
+                            if (auto widget = weak.lock())
                             {
-                                if (auto widget = weak.lock())
-                                {
-                                    widget->_p->menu.reset();
-                                }
-                            });
-                    }
-                    else
-                    {
-                        p.menu->close();
-                        p.menu.reset();
-                    }
+                                widget->_p->menu.reset();
+                            }
+                        });
+                }
+                else
+                {
+                    p.menu->close();
+                    p.menu.reset();
                 }
             }
         }

@@ -260,18 +260,63 @@ namespace tl
             p.fullScreen = value;
             if (p.fullScreen)
             {
-                glfwGetWindowSize(_p->glfwWindow, &p.restoreSize.w, &p.restoreSize.h);
-                GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
-                const GLFWvidmode* glfwVidmode = glfwGetVideoMode(glfwMonitor);
-                glfwGetWindowPos(p.glfwWindow, &p.pos.x, &p.pos.y);
-                glfwSetWindowMonitor(
-                    p.glfwWindow,
-                    glfwMonitor,
-                    0,
-                    0,
-                    glfwVidmode->width,
-                    glfwVidmode->height,
-                    glfwVidmode->refreshRate);
+                math::Vector2i windowPos;
+                math::Size2i windowSize;
+                glfwGetWindowPos(p.glfwWindow, &windowPos.x, &windowPos.y);
+                glfwGetWindowSize(_p->glfwWindow, &windowSize.w, &windowSize.h);
+                const math::Box2i windowBox(windowPos, windowSize);
+                p.pos = windowPos;
+                p.restoreSize = windowSize;
+
+                struct MonitorData
+                {
+                    int index = 0;
+                    int width = 0;
+                    int height = 0;
+                    int refreshRate = 0;
+                    math::Box2i intersect;
+                };
+                std::vector<MonitorData> monitorData;
+                int glfwMonitorsCount = 0;
+                GLFWmonitor** glfwMonitors = glfwGetMonitors(&glfwMonitorsCount);
+                for (int i = 0; i < glfwMonitorsCount; ++i)
+                {
+                    math::Vector2i monitorPos;
+                    glfwGetMonitorPos(glfwMonitors[i], &monitorPos.x, &monitorPos.y);
+                    const GLFWvidmode* glfwVidmode = glfwGetVideoMode(glfwMonitors[i]);
+                    const math::Box2i monitorBox(
+                        monitorPos.x,
+                        monitorPos.y,
+                        glfwVidmode->width,
+                        glfwVidmode->height);
+                    monitorData.push_back(
+                        {
+                            i,
+                            glfwVidmode->width,
+                            glfwVidmode->height,
+                            glfwVidmode->refreshRate,
+                            windowBox.intersect(monitorBox)
+                        });
+                }
+                std::sort(
+                    monitorData.begin(),
+                    monitorData.end(),
+                    [](const MonitorData& a, const MonitorData& b)
+                    {
+                        return a.intersect.getSize() > b.intersect.getSize();
+                    });
+
+                if (!monitorData.empty())
+                {
+                    glfwSetWindowMonitor(
+                        p.glfwWindow,
+                        glfwMonitors[monitorData.front().index],
+                        0,
+                        0,
+                        monitorData.front().width,
+                        monitorData.front().height,
+                        monitorData.front().refreshRate);
+                }
             }
             else
             {

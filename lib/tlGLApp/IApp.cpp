@@ -6,6 +6,7 @@
 
 #include <tlUI/EventLoop.h>
 #include <tlUI/IClipboard.h>
+#include <tlUI/Window.h>
 
 #include <tlTimeline/GLRender.h>
 
@@ -36,14 +37,6 @@ namespace tl
                 TLRENDER_NON_COPYABLE(Clipboard);
 
             public:
-                void _init(
-                    GLFWwindow* glfwWindow,
-                    const std::shared_ptr<system::Context>& context)
-                {
-                    IClipboard::_init(context);
-                    _glfwWindow = glfwWindow;
-                }
-
                 Clipboard()
                 {}
 
@@ -56,69 +49,59 @@ namespace tl
                     const std::shared_ptr<system::Context>& context)
                 {
                     auto out = std::shared_ptr<Clipboard>(new Clipboard);
-                    out->_init(glfwWindow, context);
+                    out->_init(context);
                     return out;
+                }
+
+                void setWindow(GLFWwindow* glfwWindow)
+                {
+                    _glfwWindow = glfwWindow;
                 }
 
                 std::string getText() const override
                 {
-                    return glfwGetClipboardString(_glfwWindow);
+                    return _glfwWindow ? glfwGetClipboardString(_glfwWindow) : std::string();
                 }
 
                 void setText(const std::string& value) override
                 {
-                    glfwSetClipboardString(_glfwWindow, value.c_str());
+                    if (_glfwWindow)
+                    {
+                        glfwSetClipboardString(_glfwWindow, value.c_str());
+                    }
                 }
 
             private:
                 GLFWwindow* _glfwWindow = nullptr;
             };
-
-            class Cursor
-            {
-            public:
-                Cursor(GLFWwindow*, GLFWcursor*);
-
-                ~Cursor();
-
-            private:
-                GLFWcursor* _cursor = nullptr;
-            };
-
-            Cursor::Cursor(GLFWwindow* window, GLFWcursor* cursor) :
-                _cursor(cursor)
-            {
-                glfwSetCursor(window, cursor);
-            }
-
-            Cursor::~Cursor()
-            {
-                glfwDestroyCursor(_cursor);
-            }
         }
 
         struct IApp::Private
         {
-            std::shared_ptr<gl::GLFWWindow> window;
-            std::shared_ptr<observer::Value<bool> > fullscreen;
-            std::shared_ptr<observer::Value<bool> > floatOnTop;
-            math::Size2i frameBufferSize;
-            math::Vector2f contentScale = math::Vector2f(1.F, 1.F);
+            struct WindowData
+            {
+                std::shared_ptr<gl::GLFWWindow> glfw;
+                std::shared_ptr<timeline::IRender> render;
+                std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
+                std::shared_ptr<observer::ValueObserver<math::Size2i> > sizeObserver;
+                std::shared_ptr<observer::ValueObserver<bool> > fullScreenObserver;
+                std::shared_ptr<observer::ValueObserver<bool> > floatOnTopObserver;
+            };
+            std::map<std::shared_ptr<ui::Window>, WindowData> windows;
+            std::shared_ptr<ui::Window> activeWindow;
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
-            bool refresh = false;
-            std::unique_ptr<Cursor> cursor;
 
             std::shared_ptr<ui::Style> style;
             std::shared_ptr<ui::IconLibrary> iconLibrary;
             std::shared_ptr<Clipboard> clipboard;
             int modifiers = 0;
             std::shared_ptr<ui::EventLoop> eventLoop;
-            std::shared_ptr<timeline::IRender> render;
-            std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
             std::shared_ptr<gl::Shader> shader;
-
+            bool refresh = false;
             bool running = true;
+
+            std::shared_ptr<observer::ListObserver<std::shared_ptr<ui::Window> > > windowsObserver;
         };
 
         void IApp::_init(
@@ -160,90 +143,23 @@ namespace tl
                 return;
             }
 
-            // Create observers.
-            p.fullscreen = observer::Value<bool>::create(false);
-            p.floatOnTop = observer::Value<bool>::create(false);
-
-            // Create the window.
-            p.window = gl::GLFWWindow::create(
-                cmdLineName,
-                _options.windowSize,
-                _context);
-            p.frameBufferSize = p.window->getFrameBufferSize();
-            p.contentScale = p.window->getContentScale();
-            p.window->setFrameBufferSizeCallback(
-                [this](const math::Size2i& value)
-                {
-                    _p->frameBufferSize = value;
-                });
-            p.window->setContentScaleCallback(
-                [this](const math::Vector2f& value)
-                {
-                    _p->contentScale = value;
-                });
-            p.window->setRefreshCallback(
-                [this]
-                {
-                    _p->refresh = true;
-                });
-            p.window->setCursorEnterCallback(
-                [this](bool value)
-                {
-                    _p->eventLoop->cursorEnter(value);
-                });
-            p.window->setCursorPosCallback(
-                [this](const math::Vector2f& value)
-                {
-                    math::Vector2i pos;
-#if defined(__APPLE__)
-                    //! \bug The mouse position needs to be scaled on macOS?
-                    pos.x = value.x * _p->contentScale.x;
-                    pos.y = value.y * _p->contentScale.y;
-#else // __APPLE__
-                    pos.x = value.x;
-                    pos.y = value.y;
-#endif // __APPLE__
-                    _p->eventLoop->cursorPos(pos);
-                });
-            p.window->setButtonCallback(
-                [this](int button, int action, int mods)
-                {
-                    _buttonCallback(button, action, mods);
-                });
-            p.window->setScrollCallback(
-                [this](const math::Vector2f& value)
-                {
-                    _scrollCallback(value);
-                });
-            p.window->setKeyCallback(
-                [this](int key, int scanCode, int action, int mods)
-                {
-                    _keyCallback(key, scanCode, action, mods);
-                });
-            p.window->setCharCallback(
-                [this](unsigned int value)
-                {
-                    _charCallback(value);
-                });
-            p.window->setDropCallback(
-                [this](int count, const char** fileNames)
-                {
-                    _dropCallback(count, fileNames);
-                });
-            setFullScreen(_options.fullscreen);
-
             // Initialize the user interface.
             p.style = ui::Style::create(_context);
             p.iconLibrary = ui::IconLibrary::create(_context);
-            p.clipboard = Clipboard::create(p.window->getGLFW(), _context);
+            p.clipboard = Clipboard::create(nullptr, _context);
             p.eventLoop = ui::EventLoop::create(
                 p.style,
                 p.iconLibrary,
                 p.clipboard,
                 _context);
 
-            // Initialize the renderer.
-            p.render = timeline::GLRender::create(_context);
+            // Create observers.
+            p.windowsObserver = observer::ListObserver<std::shared_ptr<ui::Window> >::create(
+                p.eventLoop->observeWindows(),
+                [this](const std::vector<std::shared_ptr<ui::Window> >& windows)
+                {
+                    _windowsUpdate(windows);
+                });
         }
 
         IApp::IApp() :
@@ -256,149 +172,15 @@ namespace tl
         int IApp::run()
         {
             TLRENDER_P();
-            if (0 == _exit)
+            while (0 == _exit && p.running && !p.windows.empty())
             {
-                // Start the main loop.
-                while (p.running && !p.window->shouldClose())
-                {
-                    glfwPollEvents();
-
-                    _context->tick();
-
-                    _tick();
-
-                    p.eventLoop->setDisplaySize(p.frameBufferSize);
-                    p.eventLoop->setDisplayScale(p.contentScale.x);
-                    p.eventLoop->tick();
-
-                    gl::OffscreenBufferOptions offscreenBufferOptions;
-                    offscreenBufferOptions.colorType = image::PixelType::RGBA_U8;
-                    if (gl::doCreate(p.offscreenBuffer, p.frameBufferSize, offscreenBufferOptions))
-                    {
-                        p.offscreenBuffer = gl::OffscreenBuffer::create(
-                            p.frameBufferSize,
-                            offscreenBufferOptions);
-                    }
-                    if ((p.eventLoop->hasDrawUpdate() || p.refresh) &&
-                        p.offscreenBuffer)
-                    {
-                        p.refresh = false;
-                        {
-                            gl::OffscreenBufferBinding binding(p.offscreenBuffer);
-                            p.render->begin(
-                                p.frameBufferSize,
-                                p.colorConfigOptions,
-                                p.lutOptions);
-                            p.eventLoop->draw(p.render);
-                            p.render->end();
-                        }
-                        glViewport(
-                            0,
-                            0,
-                            GLsizei(p.frameBufferSize.w),
-                            GLsizei(p.frameBufferSize.h));
-                        glClearColor(0.F, 0.F, 0.F, 0.F);
-                        glClear(GL_COLOR_BUFFER_BIT);
-#if defined(TLRENDER_API_GL_4_1)
-                        glBindFramebuffer(
-                            GL_READ_FRAMEBUFFER,
-                            p.offscreenBuffer->getID());
-                        glBlitFramebuffer(
-                            0,
-                            0,
-                            p.frameBufferSize.w,
-                            p.frameBufferSize.h,
-                            0,
-                            0,
-                            p.frameBufferSize.w,
-                            p.frameBufferSize.h,
-                            GL_COLOR_BUFFER_BIT,
-                            GL_LINEAR);
-#elif defined(TLRENDER_API_GLES_2)
-                        if (!p.shader)
-                        {
-                            try
-                            {
-                                const std::string vertexSource =
-                                    "precision mediump float;\n"
-                                    "\n"
-                                    "attribute vec3 vPos;\n"
-                                    "attribute vec2 vTexture;\n"
-                                    "varying vec2 fTexture;\n"
-                                    "\n"
-                                    "struct Transform\n"
-                                    "{\n"
-                                    "    mat4 mvp;\n"
-                                    "};\n"
-                                    "\n"
-                                    "uniform Transform transform;\n"
-                                    "\n"
-                                    "void main()\n"
-                                    "{\n"
-                                    "    gl_Position = transform.mvp * vec4(vPos, 1.0);\n"
-                                    "    fTexture = vTexture;\n"
-                                    "}\n";
-                                const std::string fragmentSource =
-                                    "precision mediump float;\n"
-                                    "\n"
-                                    "varying vec2 fTexture;\n"
-                                    "\n"
-                                    "uniform sampler2D textureSampler;\n"
-                                    "\n"
-                                    "void main()\n"
-                                    "{\n"
-                                    "    gl_FragColor = texture2D(textureSampler, fTexture);\n"
-                                    "}\n";
-                                p.shader = gl::Shader::create(vertexSource, fragmentSource);
-                            }
-                            catch (const std::exception& e)
-                            {
-                                _log(string::Format("Cannot compile shader: {0}").arg(e.what()),
-                                    log::Type::Error);
-                            }
-                        }
-                        if (p.shader)
-                        {
-                            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-                            glDisable(GL_BLEND);
-                            glDisable(GL_SCISSOR_TEST);
-
-                            p.shader->bind();
-                            p.shader->setUniform(
-                                "transform.mvp",
-                                math::ortho(
-                                    0.F,
-                                    static_cast<float>(p.frameBufferSize.w),
-                                    0.F,
-                                    static_cast<float>(p.frameBufferSize.h),
-                                    -1.F,
-                                    1.F));
-                            p.shader->setUniform("textureSampler", 0);
-
-                            glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
-                            glBindTexture(GL_TEXTURE_2D, p.offscreenBuffer->getColorID());
-
-                            auto mesh = geom::box(math::Box2i(
-                                0,
-                                0,
-                                p.frameBufferSize.w,
-                                p.frameBufferSize.h));
-                            auto vboData = gl::convert(
-                                mesh,
-                                gl::VBOType::Pos2_F32_UV_U16,
-                                math::SizeTRange(0, mesh.triangles.size() - 1));
-                            auto vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos2_F32_UV_U16);
-                            vbo->copy(vboData);
-                            auto vao = gl::VAO::create(gl::VBOType::Pos2_F32_UV_U16, vbo->getID());
-                            vao->bind();
-                            vao->draw(GL_TRIANGLES, 0, mesh.triangles.size() * 3);
-                        }
-#endif // TLRENDER_API_GL_4_1
-                        p.window->swap();
-                    }
-
-                    time::sleep(std::chrono::milliseconds(5));
-                }
+                glfwPollEvents();
+                _windowsClose();
+                _context->tick();
+                _tick();
+                p.eventLoop->tick();
+                _windowsDraw();
+                time::sleep(std::chrono::milliseconds(1));
             }
             return _exit;
         }
@@ -417,54 +199,6 @@ namespace tl
         const std::shared_ptr<ui::Style> IApp::getStyle() const
         {
             return _p->style;
-        }
-
-        math::Size2i IApp::getWindowSize() const
-        {
-            return _p->window->getSize();
-        }
-
-        void IApp::setWindowSize(const math::Size2i& value)
-        {
-            _p->window->setSize(value);
-        }
-
-        bool IApp::isFullScreen() const
-        {
-            return _p->fullscreen->get();
-        }
-
-        std::shared_ptr<observer::IValue<bool> > IApp::observeFullScreen() const
-        {
-            return _p->fullscreen;
-        }
-
-        void IApp::setFullScreen(bool value)
-        {
-            TLRENDER_P();
-            if (p.fullscreen->setIfChanged(value))
-            {
-                p.window->setFullScreen(value);
-            }
-        }
-
-        bool IApp::isFloatOnTop() const
-        {
-            return _p->floatOnTop->get();
-        }
-
-        std::shared_ptr<observer::IValue<bool> > IApp::observeFloatOnTop() const
-        {
-            return _p->floatOnTop;
-        }
-
-        void IApp::setFloatOnTop(bool value)
-        {
-            TLRENDER_P();
-            if (p.floatOnTop->setIfChanged(value))
-            {
-                p.window->setFloatOnTop(value);
-            }
         }
 
         void IApp::_setColorConfigOptions(const timeline::ColorConfigOptions& value)
@@ -514,19 +248,6 @@ namespace tl
                 }
                 return out;
             }
-        }
-
-        void IApp::_buttonCallback(int button, int action, int modifiers)
-        {
-            TLRENDER_P();
-            p.modifiers = modifiers;
-            p.eventLoop->mouseButton(button, GLFW_PRESS == action, fromGLFWModifiers(modifiers));
-        }
-
-        void IApp::_scrollCallback(const math::Vector2f& value)
-        {
-            TLRENDER_P();
-            p.eventLoop->scroll(value, fromGLFWModifiers(p.modifiers));
         }
 
         namespace
@@ -626,32 +347,7 @@ namespace tl
                 }
                 return out;
             }
-        }
 
-        void IApp::_keyCallback(int key, int scanCode, int action, int modifiers)
-        {
-            TLRENDER_P();
-            p.modifiers = modifiers;
-            switch (action)
-            {
-            case GLFW_PRESS:
-            case GLFW_REPEAT:
-                p.eventLoop->key(
-                    fromGLFWKey(key),
-                    true,
-                    fromGLFWModifiers(modifiers));
-                break;
-            case GLFW_RELEASE:
-                p.eventLoop->key(
-                    fromGLFWKey(key),
-                    false,
-                    fromGLFWModifiers(modifiers));
-                break;
-            }
-        }
-
-        namespace
-        {
 #if defined(_WINDOWS)
             //! \bug https://social.msdn.microsoft.com/Forums/vstudio/en-US/8f40dcd8-c67f-4eba-9134-a19b9178e481/vs-2015-rc-linker-stdcodecvt-error?forum=vcgeneral
             typedef unsigned int tl_char_t;
@@ -660,20 +356,352 @@ namespace tl
 #endif // _WINDOWS
         }
 
-        void IApp::_charCallback(unsigned int c)
+        void IApp::_windowsUpdate(const std::vector<std::shared_ptr<ui::Window> >& windows)
         {
-            std::wstring_convert<std::codecvt_utf8<tl_char_t>, tl_char_t> utf32Convert;
-            _p->eventLoop->text(utf32Convert.to_bytes(c));
+            TLRENDER_P();
+            for (const auto& window : windows)
+            {
+                const auto i = p.windows.find(window);
+                if (i == p.windows.end())
+                {
+                    auto glfwWindow = gl::GLFWWindow::create(
+                        _getCmdLineName(),
+                        _options.windowSize,
+                        _context);
+
+                    glfwWindow->setFrameBufferSizeCallback(
+                        [this, window](const math::Size2i& value)
+                        {
+                            _p->eventLoop->setWindowResolution(window, value);
+                        });
+                    glfwWindow->setContentScaleCallback(
+                        [this, window](const math::Vector2f& value)
+                        {
+                            _p->eventLoop->setWindowScale(window, value.x);
+                        });
+                    glfwWindow->setRefreshCallback(
+                        [this]
+                        {
+                            _p->refresh = true;
+                        });
+                    glfwWindow->setCursorEnterCallback(
+                        [this, window](bool value)
+                        {
+                            _setActiveWindow(value ? window : nullptr);
+                        });
+                    glfwWindow->setCursorPosCallback(
+                        [this, window](const math::Vector2f& value)
+                        {
+                            _setActiveWindow(window);
+
+                            math::Vector2i pos;
+#if defined(__APPLE__)
+                            //! \bug The mouse position needs to be scaled on macOS?
+                            pos.x = value.x * _p->contentScale.x;
+                            pos.y = value.y * _p->contentScale.y;
+#else // __APPLE__
+                            pos.x = value.x;
+                            pos.y = value.y;
+#endif // __APPLE__
+                            _p->eventLoop->cursorPos(window, pos);
+                        });
+                    glfwWindow->setButtonCallback(
+                        [this, window](int button, int action, int modifiers)
+                        {
+                            _p->modifiers = modifiers;
+                            _p->eventLoop->mouseButton(window, button, GLFW_PRESS == action, fromGLFWModifiers(modifiers));
+                        });
+                    glfwWindow->setScrollCallback(
+                        [this, window](const math::Vector2f& value)
+                        {
+                            _p->eventLoop->scroll(window, value, fromGLFWModifiers(_p->modifiers));
+                        });
+                    glfwWindow->setKeyCallback(
+                        [this, window](int key, int scanCode, int action, int modifiers)
+                        {
+                            TLRENDER_P();
+                            p.modifiers = modifiers;
+                            switch (action)
+                            {
+                            case GLFW_PRESS:
+                            case GLFW_REPEAT:
+                                p.eventLoop->key(
+                                    window,
+                                    fromGLFWKey(key),
+                                    true,
+                                    fromGLFWModifiers(modifiers));
+                                break;
+                            case GLFW_RELEASE:
+                                p.eventLoop->key(
+                                    window,
+                                    fromGLFWKey(key),
+                                    false,
+                                    fromGLFWModifiers(modifiers));
+                                break;
+                            }
+                        });
+                    glfwWindow->setCharCallback(
+                        [this, window](unsigned int c)
+                        {
+                            std::wstring_convert<std::codecvt_utf8<tl_char_t>, tl_char_t> utf32Convert;
+                            _p->eventLoop->text(window, utf32Convert.to_bytes(c));
+                        });
+                    glfwWindow->setDropCallback(
+                        [this, window](int count, const char** fileNames)
+                        {
+                            std::vector<std::string> tmp;
+                            for (int i = 0; i < count; ++i)
+                            {
+                                tmp.push_back(fileNames[i]);
+                            }
+                            _drop(tmp);
+                        });
+
+                    p.windows[window].glfw = glfwWindow;
+                    p.windows[window].sizeObserver = observer::ValueObserver<math::Size2i>::create(
+                        window->observeSize(),
+                        [glfwWindow](const math::Size2i& value)
+                        {
+                            glfwWindow->setSize(value);
+                        });
+                    p.windows[window].fullScreenObserver = observer::ValueObserver<bool>::create(
+                        window->observeFullScreen(),
+                        [glfwWindow](bool value)
+                        {
+                            glfwWindow->setFullScreen(value);
+                        });
+                    p.windows[window].floatOnTopObserver = observer::ValueObserver<bool>::create(
+                        window->observeFloatOnTop(),
+                        [glfwWindow](bool value)
+                        {
+                            glfwWindow->setFloatOnTop(value);
+                        });
+
+                    math::Size2i windowResolution;
+                    glfwGetFramebufferSize(
+                        glfwWindow->getGLFW(),
+                        &windowResolution.w,
+                        &windowResolution.h);
+                    math::Vector2f windowScale;
+                    glfwGetWindowContentScale(
+                        glfwWindow->getGLFW(),
+                        &windowScale.x,
+                        &windowScale.y);
+                    p.eventLoop->setWindowResolution(window, windowResolution);
+                    p.eventLoop->setWindowScale(window, windowScale.x);
+                }
+            }
+
+            auto i = p.windows.begin();
+            while (i != p.windows.end())
+            {
+                const auto j = std::find(windows.begin(), windows.end(), i->first);
+                if (j == windows.end())
+                {
+                    i = p.windows.erase(i);
+                }
+                else
+                {
+                    ++i;
+                }
+            }
         }
 
-        void IApp::_dropCallback(int count, const char** fileNames)
+        void IApp::_setActiveWindow(const std::shared_ptr<ui::Window>& window)
         {
-            std::vector<std::string> tmp;
-            for (int i = 0; i < count; ++i)
+            TLRENDER_P();
+            if (window == p.activeWindow)
+                return;
+
+            if (p.activeWindow)
             {
-                tmp.push_back(fileNames[i]);
+                _p->eventLoop->cursorEnter(p.activeWindow, false);
             }
-            _drop(tmp);
+
+            p.activeWindow = window;
+
+            if (p.activeWindow)
+            {
+                _p->eventLoop->cursorEnter(p.activeWindow, true);
+            }
+
+            const auto i = p.windows.find(window);
+            p.clipboard->setWindow(
+                i != p.windows.end() ?
+                i->second.glfw->getGLFW() :
+                nullptr);
+        }
+
+        void IApp::_windowsClose()
+        {
+            TLRENDER_P();
+            auto i = p.windows.begin();
+            while (i != p.windows.end())
+            {
+                if (i->second.glfw->shouldClose())
+                {
+                    auto window = i->first;
+                    i = p.windows.erase(i);
+                    p.eventLoop->removeWindow(window);
+                }
+                else
+                {
+                    ++i;
+                }
+            }
+        }
+
+        void IApp::_windowsDraw()
+        {
+            TLRENDER_P();
+            for (auto& i : p.windows)
+            {
+                if (p.eventLoop->hasDrawUpdate(i.first) || p.refresh)
+                {
+                    i.second.glfw->makeCurrent();
+
+                    if (!i.second.render)
+                    {
+                        i.second.render = timeline::GLRender::create(_context);
+                    }
+
+                    math::Size2i frameBufferSize;
+                    glfwGetFramebufferSize(
+                        i.second.glfw->getGLFW(),
+                        &frameBufferSize.w,
+                        &frameBufferSize.h);
+                    gl::OffscreenBufferOptions offscreenBufferOptions;
+                    offscreenBufferOptions.colorType = image::PixelType::RGBA_U8;
+                    if (gl::doCreate(
+                        i.second.offscreenBuffer,
+                        frameBufferSize,
+                        offscreenBufferOptions))
+                    {
+                        i.second.offscreenBuffer = gl::OffscreenBuffer::create(
+                            frameBufferSize,
+                            offscreenBufferOptions);
+                    }
+                    if (i.second.offscreenBuffer)
+                    {
+                        {
+                            gl::OffscreenBufferBinding binding(i.second.offscreenBuffer);
+                            i.second.render->begin(
+                                frameBufferSize,
+                                p.colorConfigOptions,
+                                p.lutOptions);
+                            p.eventLoop->draw(i.first, i.second.render);
+                            i.second.render->end();
+                        }
+                        glViewport(
+                            0,
+                            0,
+                            GLsizei(frameBufferSize.w),
+                            GLsizei(frameBufferSize.h));
+                        glClearColor(0.F, 0.F, 0.F, 0.F);
+                        glClear(GL_COLOR_BUFFER_BIT);
+#if defined(TLRENDER_API_GL_4_1)
+                        glBindFramebuffer(
+                            GL_READ_FRAMEBUFFER,
+                            i.second.offscreenBuffer->getID());
+                        glBlitFramebuffer(
+                            0,
+                            0,
+                            frameBufferSize.w,
+                            frameBufferSize.h,
+                            0,
+                            0,
+                            frameBufferSize.w,
+                            frameBufferSize.h,
+                            GL_COLOR_BUFFER_BIT,
+                            GL_LINEAR);
+#elif defined(TLRENDER_API_GLES_2)
+                        if (!p.shader)
+                        {
+                            try
+                            {
+                                const std::string vertexSource =
+                                    "precision mediump float;\n"
+                                    "\n"
+                                    "attribute vec3 vPos;\n"
+                                    "attribute vec2 vTexture;\n"
+                                    "varying vec2 fTexture;\n"
+                                    "\n"
+                                    "struct Transform\n"
+                                    "{\n"
+                                    "    mat4 mvp;\n"
+                                    "};\n"
+                                    "\n"
+                                    "uniform Transform transform;\n"
+                                    "\n"
+                                    "void main()\n"
+                                    "{\n"
+                                    "    gl_Position = transform.mvp * vec4(vPos, 1.0);\n"
+                                    "    fTexture = vTexture;\n"
+                                    "}\n";
+                                const std::string fragmentSource =
+                                    "precision mediump float;\n"
+                                    "\n"
+                                    "varying vec2 fTexture;\n"
+                                    "\n"
+                                    "uniform sampler2D textureSampler;\n"
+                                    "\n"
+                                    "void main()\n"
+                                    "{\n"
+                                    "    gl_FragColor = texture2D(textureSampler, fTexture);\n"
+                                    "}\n";
+                                p.shader = gl::Shader::create(vertexSource, fragmentSource);
+                            }
+                            catch (const std::exception& e)
+                            {
+                                _log(string::Format("Cannot compile shader: {0}").arg(e.what()),
+                                    log::Type::Error);
+                            }
+                        }
+                        if (p.shader)
+                        {
+                            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                            glDisable(GL_BLEND);
+                            glDisable(GL_SCISSOR_TEST);
+
+                            p.shader->bind();
+                            p.shader->setUniform(
+                                "transform.mvp",
+                                math::ortho(
+                                    0.F,
+                                    static_cast<float>(frameBufferSize.w),
+                                    0.F,
+                                    static_cast<float>(frameBufferSize.h),
+                                    -1.F,
+                                    1.F));
+                            p.shader->setUniform("textureSampler", 0);
+
+                            glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
+                            glBindTexture(GL_TEXTURE_2D, i.second.offscreenBuffer->getColorID());
+
+                            auto mesh = geom::box(math::Box2i(
+                                0,
+                                0,
+                                frameBufferSize.w,
+                                frameBufferSize.h));
+                            auto vboData = gl::convert(
+                                mesh,
+                                gl::VBOType::Pos2_F32_UV_U16,
+                                math::SizeTRange(0, mesh.triangles.size() - 1));
+                            auto vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos2_F32_UV_U16);
+                            vbo->copy(vboData);
+                            auto vao = gl::VAO::create(gl::VBOType::Pos2_F32_UV_U16, vbo->getID());
+                            vao->bind();
+                            vao->draw(GL_TRIANGLES, 0, mesh.triangles.size() * 3);
+                        }
+#endif // TLRENDER_API_GL_4_1
+
+                        i.second.glfw->swap();
+                    }
+
+                    i.second.glfw->doneCurrent();
+                }
+            }
+            p.refresh = false;
         }
     }
 }

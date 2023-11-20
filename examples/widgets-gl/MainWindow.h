@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlUI/IWidget.h>
+#include <tlUI/Window.h>
 
 namespace tl
 {
@@ -13,7 +13,7 @@ namespace tl
         namespace widgets_gl
         {
             //! Main window.
-            class MainWindow : public ui::IWidget
+            class MainWindow : public ui::Window
             {
                 TLRENDER_NON_COPYABLE(MainWindow);
 

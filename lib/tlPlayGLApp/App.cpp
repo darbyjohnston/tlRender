@@ -52,7 +52,11 @@ namespace tl
             std::shared_ptr<play::AudioModel> audioModel;
             std::shared_ptr<ToolsModel> toolsModel;
 
+            std::shared_ptr<observer::Value<bool> > fullScreen;
+            std::shared_ptr<observer::Value<bool> > floatOnTop;
             std::shared_ptr<MainWindow> mainWindow;
+            std::shared_ptr<observer::ValueObserver<bool> > fullScreenObserver;
+            std::shared_ptr<observer::ValueObserver<bool> > floatOnTopObserver;
             std::shared_ptr<SeparateAudioDialog> separateAudioDialog;
 
             std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
@@ -128,7 +132,7 @@ namespace tl
             TLRENDER_P();
             auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>();
             fileBrowserSystem->open(
-                getEventLoop(),
+                p.mainWindow,
                 [this](const file::FileInfo& value)
                 {
                     open(value.getPath());
@@ -139,7 +143,7 @@ namespace tl
         {
             TLRENDER_P();
             p.separateAudioDialog = SeparateAudioDialog::create(_context);
-            p.separateAudioDialog->open(getEventLoop());
+            p.separateAudioDialog->open(p.mainWindow);
             p.separateAudioDialog->setCallback(
                 [this](const file::Path& value, const file::Path& audio)
                 {
@@ -204,6 +208,16 @@ namespace tl
         const std::shared_ptr<ToolsModel>& App::getToolsModel() const
         {
             return _p->toolsModel;
+        }
+
+        std::shared_ptr<observer::IValue<bool> > App::observeFullScreen() const
+        {
+            return _p->fullScreen;
+        }
+
+        std::shared_ptr<observer::IValue<bool> > App::observeFloatOnTop() const
+        {
+            return _p->floatOnTop;
         }
 
         const std::shared_ptr<MainWindow>& App::getMainWindow() const
@@ -450,11 +464,29 @@ namespace tl
         void App::_mainWindowInit()
         {
             TLRENDER_P();
-            setWindowSize(p.settings->getValue<math::Size2i>("Window/Size"));
+
+            p.fullScreen = observer::Value<bool>::create(false);
+            p.floatOnTop = observer::Value<bool>::create(false);
+
             p.mainWindow = MainWindow::create(
                 std::dynamic_pointer_cast<App>(shared_from_this()),
                 _context);
-            getEventLoop()->addWidget(p.mainWindow);
+            p.mainWindow->resize(p.settings->getValue<math::Size2i>("Window/Size"));
+
+            p.fullScreenObserver = observer::ValueObserver<bool>::create(
+                p.mainWindow->observeFullScreen(),
+                [this](bool value)
+                {
+                    _p->fullScreen->setIfChanged(value);
+                });
+            p.floatOnTopObserver = observer::ValueObserver<bool>::create(
+                p.mainWindow->observeFloatOnTop(),
+                [this](bool value)
+                {
+                    _p->floatOnTop->setIfChanged(value);
+                });
+
+            getEventLoop()->addWindow(p.mainWindow);
         }
 
         io::Options App::_getIOOptions() const

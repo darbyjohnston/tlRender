@@ -37,9 +37,6 @@ namespace tl
                 static std::shared_ptr<App> create(
                     const std::vector<std::string>&,
                     const std::shared_ptr<system::Context>&);
-
-            private:
-                std::shared_ptr<MainWindow> _mainWindow;
             };
         }
     }

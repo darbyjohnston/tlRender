@@ -138,33 +138,30 @@ namespace tl
             TLRENDER_P();
             if (auto context = _context.lock())
             {
-                if (auto eventLoop = getEventLoop().lock())
+                if (!p.popup)
                 {
-                    if (!p.popup)
-                    {
-                        p.popup = ColorPopup::create(p.color, context);
-                        p.popup->open(eventLoop, getGeometry());
-                        p.popup->setCallback(
-                            [this](const image::Color4f& value)
+                    p.popup = ColorPopup::create(p.color, context);
+                    p.popup->open(getWindow(), getGeometry());
+                    p.popup->setCallback(
+                        [this](const image::Color4f& value)
+                        {
+                            _p->color = value;
+                            _updates |= Update::Draw;
+                            if (_p->callback)
                             {
-                                _p->color = value;
-                                _updates |= Update::Draw;
-                                if (_p->callback)
-                                {
-                                    _p->callback(value);
-                                }
-                            });
-                        p.popup->setCloseCallback(
-                            [this]
-                            {
-                                _p->popup.reset();
-                            });
-                    }
-                    else
-                    {
-                        p.popup->close();
-                        p.popup.reset();
-                    }
+                                _p->callback(value);
+                            }
+                        });
+                    p.popup->setCloseCallback(
+                        [this]
+                        {
+                            _p->popup.reset();
+                        });
+                }
+                else
+                {
+                    p.popup->close();
+                    p.popup.reset();
                 }
             }
         }

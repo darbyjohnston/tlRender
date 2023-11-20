@@ -5,6 +5,7 @@
 #include <tlPlayGLApp/WindowToolBar.h>
 
 #include <tlPlayGLApp/App.h>
+#include <tlPlayGLApp/MainWindow.h>
 
 #include <tlUI/RowLayout.h>
 #include <tlUI/ToolButton.h>
@@ -63,7 +64,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->setFullScreen(value);
+                        app->getMainWindow()->setFullScreen(value);
                     }
                 });
 

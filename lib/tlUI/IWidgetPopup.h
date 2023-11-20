@@ -28,7 +28,7 @@ namespace tl
 
             //! Open the popup.
             void open(
-                const std::shared_ptr<EventLoop>&,
+                const std::shared_ptr<Window>&,
                 const math::Box2i& buttonGeometry);
 
             //! Get whether the popup is open.

@@ -57,7 +57,7 @@ namespace tl
         }
 
         void FileBrowserSystem::open(
-            const std::shared_ptr<EventLoop>& eventLoop,
+            const std::shared_ptr<Window>& window,
             const std::function<void(const file::FileInfo&)>& callback)
         {
             TLRENDER_P();
@@ -86,7 +86,7 @@ namespace tl
                         p.fileBrowser->setRecentFilesModel(p.recentFilesModel);
                     }
                     p.fileBrowser->setOptions(p.options);
-                    p.fileBrowser->open(eventLoop);
+                    p.fileBrowser->open(window);
                     p.fileBrowser->setCallback(
                         [this, callback](const file::FileInfo& value)
                         {

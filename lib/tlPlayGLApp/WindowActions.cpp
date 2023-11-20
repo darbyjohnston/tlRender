@@ -35,7 +35,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->setFullScreen(value);
+                        app->getMainWindow()->setFullScreen(value);
                     }
                 });
             p.actions["FullScreen"]->toolTip = string::Format(
@@ -52,7 +52,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->setFloatOnTop(value);
+                        app->getMainWindow()->setFloatOnTop(value);
                     }
                 });
 

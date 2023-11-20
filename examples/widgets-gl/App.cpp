@@ -6,7 +6,7 @@
 
 #include "MainWindow.h"
 
-#include <tlUI/EventLoop.h>
+#include <tlUI/FileBrowser.h>
 
 namespace tl
 {
@@ -28,8 +28,11 @@ namespace tl
                     return;
                 }
 
-                _mainWindow = MainWindow::create(_context);
-                getEventLoop()->addWidget(_mainWindow);
+                auto fileBrowserSystem = context->getSystem<ui::FileBrowserSystem>();
+                fileBrowserSystem->setNativeFileDialog(false);
+
+                auto mainWindow = MainWindow::create(_context);
+                getEventLoop()->addWindow(mainWindow);
             }
 
             App::App()

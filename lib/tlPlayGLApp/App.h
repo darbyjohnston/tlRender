@@ -84,6 +84,12 @@ namespace tl
             //! Get the tools model.
             const std::shared_ptr<ToolsModel>& getToolsModel() const;
 
+            //! Observe whether the main window is in full screen mode.
+            std::shared_ptr<observer::IValue<bool> > observeFullScreen() const;
+
+            //! Observe whether the main window is floating on top.
+            std::shared_ptr<observer::IValue<bool> > observeFloatOnTop() const;
+
             //! Get the main window.
             const std::shared_ptr<MainWindow>& getMainWindow() const;
 

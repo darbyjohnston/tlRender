@@ -14,6 +14,7 @@ namespace tl
     namespace ui
     {
         class EventLoop;
+        class Window;
 
         //! Base class for widgets.
         class IWidget : public std::enable_shared_from_this<IWidget>
@@ -65,14 +66,14 @@ namespace tl
             //! Move the child widget to the back of the drawing order.
             void moveToBack(const std::shared_ptr<IWidget>&);
 
-            //! Get the top level widget.
-            std::shared_ptr<IWidget> getTopLevel();
-
-            //! Set the event loop.
-            void setEventLoop(const std::shared_ptr<EventLoop>&);
+            //! Get the window.
+            std::shared_ptr<Window> getWindow();
 
             //! Get the event loop.
             const std::weak_ptr<EventLoop>& getEventLoop();
+
+            //! Set the event loop.
+            void setEventLoop(const std::shared_ptr<EventLoop>&);
 
             ///@}
 

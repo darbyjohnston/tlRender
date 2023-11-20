@@ -131,22 +131,19 @@ namespace tl
             TLRENDER_P();
             if (auto context = _context.lock())
             {
-                if (auto eventLoop = getEventLoop().lock())
+                if (auto fileBrowserSystem = context->getSystem<FileBrowserSystem>())
                 {
-                    if (auto fileBrowserSystem = context->getSystem<FileBrowserSystem>())
-                    {
-                        fileBrowserSystem->open(
-                            eventLoop,
-                            [this](const file::FileInfo& value)
+                    fileBrowserSystem->open(
+                        getWindow(),
+                        [this](const file::FileInfo& value)
+                        {
+                            _p->path = value.getPath();
+                            _p->lineEdit->setText(_p->path.get());
+                            if (_p->callback)
                             {
-                                _p->path = value.getPath();
-                                _p->lineEdit->setText(_p->path.get());
-                                if (_p->callback)
-                                {
-                                    _p->callback(_p->path);
-                                }
-                            });
-                    }
+                                _p->callback(_p->path);
+                            }
+                        });
                 }
             }
         }

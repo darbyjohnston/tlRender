@@ -6,6 +6,8 @@
 
 #include <tlTimelineUI/TimelineViewport.h>
 
+#include <tlUI/Window.h>
+
 #include <tlTimeline/Player.h>
 
 namespace tl
@@ -38,7 +40,7 @@ namespace tl
         };
 
         //! Main window.
-        class MainWindow : public ui::IWidget
+        class MainWindow : public ui::Window
         {
             TLRENDER_NON_COPYABLE(MainWindow);
 

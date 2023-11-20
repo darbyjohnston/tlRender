@@ -46,6 +46,7 @@ namespace tl
             constexpr bool operator == (const Size2&) const;
             constexpr bool operator != (const Size2&) const;
             bool operator < (const Size2&) const;
+            bool operator > (const Size2&) const;
         };
 
         //! Two-dimensional integer size.

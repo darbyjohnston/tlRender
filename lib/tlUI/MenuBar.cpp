@@ -75,11 +75,8 @@ namespace tl
                             if (openMenu && menu != openMenu)
                             {
                                 openMenu->close();
-                                if (auto eventLoop = getEventLoop().lock())
-                                {
-                                    button->takeKeyFocus();
-                                    menu->open(eventLoop, button->getGeometry());
-                                }
+                                button->takeKeyFocus();
+                                menu->open(getWindow(), button->getGeometry());
                             }
                         }
                     });
@@ -88,10 +85,7 @@ namespace tl
                     {
                         if (!menu->isOpen())
                         {
-                            if (auto eventLoop = getEventLoop().lock())
-                            {
-                                menu->open(eventLoop, button->getGeometry());
-                            }
+                            menu->open(getWindow(), button->getGeometry());
                         }
                         else
                         {

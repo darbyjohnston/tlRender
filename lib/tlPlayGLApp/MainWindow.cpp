@@ -162,7 +162,7 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::play_gl::MainWindow", context, parent);
+            Window::_init(context, parent);
             TLRENDER_P();
 
             setBackgroundRole(ui::ColorRole::Window);
@@ -657,7 +657,7 @@ namespace tl
 
         void MainWindow::setGeometry(const math::Box2i& value)
         {
-            IWidget::setGeometry(value);
+            Window::setGeometry(value);
             _p->layout->setGeometry(value);
         }
 
@@ -738,7 +738,9 @@ namespace tl
                             p.players[0]->getDefaultSpeed() :
                             0.0;
                         p.speedPopup = SpeedPopup::create(defaultSpeed, context);
-                        p.speedPopup->open(eventLoop, p.speedButton->getGeometry());
+                        p.speedPopup->open(
+                            std::dynamic_pointer_cast<Window>(shared_from_this()),
+                            p.speedButton->getGeometry());
                         auto weak = std::weak_ptr<MainWindow>(std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
                         p.speedPopup->setCallback(
                             [weak](double value)
@@ -783,7 +785,9 @@ namespace tl
                         if (!p.audioPopup)
                         {
                             p.audioPopup = AudioPopup::create(app, context);
-                            p.audioPopup->open(eventLoop, p.audioButton->getGeometry());
+                            p.audioPopup->open(
+                                std::dynamic_pointer_cast<Window>(shared_from_this()),
+                                p.audioButton->getGeometry());
                             auto weak = std::weak_ptr<MainWindow>(std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
                             p.audioPopup->setCloseCallback(
                                 [weak]

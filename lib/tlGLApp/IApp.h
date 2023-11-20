@@ -7,11 +7,6 @@
 #include <tlUI/EventLoop.h>
 #include <tlUI/Style.h>
 
-#include <tlCore/Image.h>
-#include <tlCore/ValueObserver.h>
-
-struct GLFWwindow;
-
 namespace tl
 {
     //! OpenGL application support.
@@ -55,30 +50,6 @@ namespace tl
             //! Get the style.
             const std::shared_ptr<ui::Style> getStyle() const;
 
-            //! Get the window size.
-            math::Size2i getWindowSize() const;
-
-            //! Set the window size.
-            void setWindowSize(const math::Size2i&);
-
-            //! Get whether the window is in full screen mode.
-            bool isFullScreen() const;
-
-            //! Observe whether the window is in full screen mode.
-            std::shared_ptr<observer::IValue<bool> > observeFullScreen() const;
-
-            //! Set whether the window is in full screen mode.
-            void setFullScreen(bool);
-
-            //! Get whether the window is floating on top.
-            bool isFloatOnTop() const;
-
-            //! Observe whether the window is floating on top.
-            std::shared_ptr<observer::IValue<bool> > observeFloatOnTop() const;
-
-            //! Set whether the window is floating on top.
-            void setFloatOnTop(bool);
-
         protected:
             void _setColorConfigOptions(const timeline::ColorConfigOptions&);
             void _setLUTOptions(const timeline::LUTOptions&);
@@ -90,12 +61,11 @@ namespace tl
             Options _options;
 
         private:
-            void _buttonCallback(int, int, int);
-            void _scrollCallback(const math::Vector2f&);
-            void _keyCallback(int, int, int, int);
-            void _charCallback(unsigned int);
-            void _dropCallback(int, const char**);
-            
+            void _windowsUpdate(const std::vector<std::shared_ptr<ui::Window> >&);
+            void _setActiveWindow(const std::shared_ptr<ui::Window>&);
+            void _windowsClose();
+            void _windowsDraw();
+
             TLRENDER_PRIVATE();
         };
     }

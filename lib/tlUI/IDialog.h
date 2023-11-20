@@ -27,7 +27,7 @@ namespace tl
             virtual ~IDialog() = 0;
 
             //! Open the dialog.
-            void open(const std::shared_ptr<EventLoop>&);
+            void open(const std::shared_ptr<Window>&);
 
             //! Get whether the dialog is open.
             bool isOpen() const;

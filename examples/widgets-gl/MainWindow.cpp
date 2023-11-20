@@ -39,7 +39,7 @@ namespace tl
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                IWidget::_init("MainWindow", context, parent);
+                Window::_init(context, parent);
                 TLRENDER_P();
 
                 setBackgroundRole(ui::ColorRole::Window);
@@ -125,7 +125,7 @@ namespace tl
 
             void MainWindow::setGeometry(const math::Box2i& value)
             {
-                IWidget::setGeometry(value);
+                Window::setGeometry(value);
                 _p->layout->setGeometry(value);
             }
         }
