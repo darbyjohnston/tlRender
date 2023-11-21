@@ -5,7 +5,6 @@
 #include <tlUI/IWidget.h>
 
 #include <tlUI/EventLoop.h>
-#include <tlUI/Window.h>
 
 namespace tl
 {
@@ -106,7 +105,7 @@ namespace tl
             }
         }
 
-        std::shared_ptr<Window> IWidget::getWindow()
+        std::shared_ptr<IWidget> IWidget::getTopLevel()
         {
             std::shared_ptr<IWidget> out = shared_from_this();
             auto parent = out->_parent.lock();
@@ -115,12 +114,12 @@ namespace tl
                 out = parent;
                 parent = parent->_parent.lock();
             }
-            return std::dynamic_pointer_cast<Window>(out);
+            return out;
         }
 
         const std::weak_ptr<EventLoop>& IWidget::getEventLoop()
         {
-            return getWindow()->_eventLoop;
+            return getTopLevel()->_eventLoop;
         }
 
         void IWidget::setEventLoop(const std::shared_ptr<EventLoop>& value)

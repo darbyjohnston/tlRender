@@ -592,7 +592,7 @@ namespace tl
                     {
                         if (!out->isOpen())
                         {
-                            out->open(getWindow(), button->getGeometry());
+                            out->open(getTopLevel(), button->getGeometry());
                         }
                         else
                         {

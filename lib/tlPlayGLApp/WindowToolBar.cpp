@@ -51,7 +51,6 @@ namespace tl
             p.buttons["Secondary"]->setIcon(p.actions["Secondary"]->icon);
             p.buttons["Secondary"]->setCheckable(p.actions["Secondary"]->checkable);
             p.buttons["Secondary"]->setToolTip(p.actions["Secondary"]->toolTip);
-            p.buttons["Secondary"]->setEnabled(false);
 
             p.layout = ui::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ui::SizeRole::None);
@@ -65,6 +64,14 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         app->getMainWindow()->setFullScreen(value);
+                    }
+                });
+            p.buttons["Secondary"]->setCheckedCallback(
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getMainWindow()->setSecondaryWindow(value);
                     }
                 });
 

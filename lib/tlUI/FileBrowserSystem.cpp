@@ -57,7 +57,7 @@ namespace tl
         }
 
         void FileBrowserSystem::open(
-            const std::shared_ptr<Window>& window,
+            const std::shared_ptr<IWidget>& window,
             const std::function<void(const file::FileInfo&)>& callback)
         {
             TLRENDER_P();

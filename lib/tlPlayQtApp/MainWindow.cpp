@@ -161,6 +161,9 @@ namespace tl
             setFocusPolicy(Qt::StrongFocus);
             setAcceptDrops(true);
 
+            p.floatOnTop = settings->getValue<bool>("MainWindow/FloatOnTop");
+            p.secondaryFloatOnTop = settings->getValue<bool>("MainWindow/SecondaryFloatOnTop");
+
             auto context = app->getContext();
             p.timelineViewport = new qtwidget::TimelineViewport(context);
 
@@ -526,15 +529,7 @@ namespace tl
                 [this](bool value)
                 {
                     _p->floatOnTop = value;
-                    if (_p->floatOnTop)
-                    {
-                        setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
-                    }
-                    else
-                    {
-                        setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint);
-                    }
-                    show();
+                    _widgetUpdate();
                 });
             connect(
                 p.windowActions->actions()["Secondary"],
@@ -546,18 +541,7 @@ namespace tl
                 [this](bool value)
                 {
                     _p->secondaryFloatOnTop = value;
-                    if (_p->secondaryWindow)
-                    {
-                        if (_p->secondaryFloatOnTop)
-                        {
-                            _p->secondaryWindow->setWindowFlags(_p->secondaryWindow->windowFlags() | Qt::WindowStaysOnTopHint);
-                        }
-                        else
-                        {
-                            _p->secondaryWindow->setWindowFlags(_p->secondaryWindow->windowFlags() & ~Qt::WindowStaysOnTopHint);
-                        }
-                        _p->secondaryWindow->show();
-                    }
+                    _widgetUpdate();
                 });
 
             connect(
@@ -697,23 +681,6 @@ namespace tl
                     _p->timeUnitsComboBox->setCurrentIndex(
                         static_cast<int>(value));
                 });
-
-            const math::Size2i windowSize = settings->getValue<math::Size2i>("MainWindow/Size");
-            resize(windowSize.w, windowSize.h);
-            p.floatOnTop = settings->getValue<bool>("MainWindow/FloatOnTop");
-            if (p.floatOnTop)
-            {
-                setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
-            }
-            {
-                QSignalBlocker blocker(p.windowActions->actions()["FloatOnTop"]);
-                p.windowActions->actions()["FloatOnTop"]->setChecked(p.floatOnTop);
-            }
-            p.secondaryFloatOnTop = settings->getValue<bool>("MainWindow/SecondaryFloatOnTop");
-            {
-                QSignalBlocker blocker(p.windowActions->actions()["SecondaryFloatOnTop"]);
-                p.windowActions->actions()["SecondaryFloatOnTop"]->setChecked(p.secondaryFloatOnTop);
-            }
         }
 
         MainWindow::~MainWindow()
@@ -809,21 +776,9 @@ namespace tl
             if (value && !p.secondaryWindow)
             {
                 p.secondaryWindow = new SecondaryWindow(p.app);
-                p.secondaryWindow->viewport()->setBackgroundOptions(p.app->viewportModel()->getBackgroundOptions());
-                auto colorModel = p.app->colorModel();
-                p.secondaryWindow->viewport()->setColorConfigOptions(colorModel->getColorConfigOptions());
-                p.secondaryWindow->viewport()->setLUTOptions(colorModel->getLUTOptions());
-                std::vector<timeline::ImageOptions> imageOptions;
-                std::vector<timeline::DisplayOptions> displayOptions;
-                for (const auto& i : p.timelinePlayers)
-                {
-                    imageOptions.push_back(colorModel->getImageOptions());
-                    displayOptions.push_back(colorModel->getDisplayOptions());
-                }
-                p.secondaryWindow->viewport()->setImageOptions(imageOptions);
-                p.secondaryWindow->viewport()->setDisplayOptions(displayOptions);
-                p.secondaryWindow->viewport()->setCompareOptions(p.app->filesModel()->getCompareOptions());
                 p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
+
+                _widgetUpdate();
 
                 connect(
                     p.timelineViewport,
@@ -837,18 +792,10 @@ namespace tl
                     SLOT(setFrameView(bool)));
 
                 connect(
-                    p.secondaryWindow,
+                    p.secondaryWindow.get(),
                     SIGNAL(destroyed(QObject*)),
                     SLOT(_secondaryWindowDestroyedCallback()));
 
-                if (p.secondaryFloatOnTop)
-                {
-                    p.secondaryWindow->setWindowFlags(p.secondaryWindow->windowFlags() | Qt::WindowStaysOnTopHint);
-                }
-                else
-                {
-                    p.secondaryWindow->setWindowFlags(p.secondaryWindow->windowFlags() & ~Qt::WindowStaysOnTopHint);
-                }
                 p.secondaryWindow->show();
             }
             else if (!value && p.secondaryWindow)
@@ -931,12 +878,36 @@ namespace tl
 
             p.timelineViewport->setTimelinePlayers(p.timelinePlayers);
 
+            if (p.secondaryWindow)
+            {
+                p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
+            }
+
             _widgetUpdate();
         }
 
         void MainWindow::_widgetUpdate()
         {
             TLRENDER_P();
+
+            if (p.floatOnTop && !(windowFlags() & Qt::WindowStaysOnTopHint))
+            {
+                setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+                show();
+            }
+            else if (!p.floatOnTop && (windowFlags() & Qt::WindowStaysOnTopHint))
+            {
+                setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint);
+                show();
+            }
+            {
+                QSignalBlocker blocker(p.windowActions->actions()["FloatOnTop"]);
+                p.windowActions->actions()["FloatOnTop"]->setChecked(p.floatOnTop);
+            }
+            {
+                QSignalBlocker blocker(p.windowActions->actions()["SecondaryFloatOnTop"]);
+                p.windowActions->actions()["SecondaryFloatOnTop"]->setChecked(p.secondaryFloatOnTop);
+            }
 
             const auto& files = p.app->filesModel()->observeFiles()->get();
             const size_t count = files.size();
@@ -1037,6 +1008,16 @@ namespace tl
 
             if (p.secondaryWindow)
             {
+                if (p.secondaryFloatOnTop && !(p.secondaryWindow->windowFlags() & Qt::WindowStaysOnTopHint))
+                {
+                    p.secondaryWindow->setWindowFlags(p.secondaryWindow->windowFlags() | Qt::WindowStaysOnTopHint);
+                    p.secondaryWindow->show();
+                }
+                else if (!p.secondaryFloatOnTop && (p.secondaryWindow->windowFlags() & Qt::WindowStaysOnTopHint))
+                {
+                    p.secondaryWindow->setWindowFlags(p.secondaryWindow->windowFlags() & ~Qt::WindowStaysOnTopHint);
+                    p.secondaryWindow->show();
+                }
                 p.secondaryWindow->viewport()->setBackgroundOptions(viewportModel->getBackgroundOptions());
                 p.secondaryWindow->viewport()->setColorConfigOptions(colorModel->getColorConfigOptions());
                 p.secondaryWindow->viewport()->setLUTOptions(colorModel->getLUTOptions());

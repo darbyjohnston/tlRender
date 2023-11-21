@@ -61,8 +61,8 @@ namespace tl
             Options _options;
 
         private:
-            void _windowsUpdate(const std::vector<std::shared_ptr<ui::Window> >&);
-            void _setActiveWindow(const std::shared_ptr<ui::Window>&);
+            void _windowsUpdate(const std::vector<std::shared_ptr<ui::IWidget> >&);
+            void _setActiveWindow(const std::shared_ptr<ui::IWidget>&);
             void _windowsClose();
             void _windowsDraw();
 

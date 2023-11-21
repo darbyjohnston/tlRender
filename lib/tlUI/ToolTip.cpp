@@ -31,7 +31,7 @@ namespace tl
         void ToolTip::_init(
             const std::string& text,
             const math::Vector2i& pos,
-            const std::shared_ptr<Window>& window,
+            const std::shared_ptr<IWidget>& window,
             const std::shared_ptr<system::Context>& context)
         {
             IPopup::_init("tl::ui::ToolTip", context, nullptr);
@@ -57,7 +57,7 @@ namespace tl
         std::shared_ptr<ToolTip> ToolTip::create(
             const std::string& text,
             const math::Vector2i& pos,
-            const std::shared_ptr<Window>& window,
+            const std::shared_ptr<IWidget>& window,
             const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<ToolTip>(new ToolTip);

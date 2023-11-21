@@ -272,7 +272,7 @@ namespace tl
                 p.options.resetSettings,
                 _context);
             p.settings->setDefaultValue("Files/RecentMax", 10);
-            p.settings->setDefaultValue("Window/Size", _options.windowSize);
+            p.settings->setDefaultValue("Window/Size", math::Size2i(1920, 1080));
             p.settings->setDefaultValue("Cache/Size", 1);
             p.settings->setDefaultValue("Cache/ReadAhead", 2.0);
             p.settings->setDefaultValue("Cache/ReadBehind", 0.5);
@@ -465,13 +465,12 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.fullScreen = observer::Value<bool>::create(false);
+            p.fullScreen = observer::Value<bool>::create(_options.fullscreen);
             p.floatOnTop = observer::Value<bool>::create(false);
 
             p.mainWindow = MainWindow::create(
                 std::dynamic_pointer_cast<App>(shared_from_this()),
                 _context);
-            p.mainWindow->resize(p.settings->getValue<math::Size2i>("Window/Size"));
 
             p.fullScreenObserver = observer::ValueObserver<bool>::create(
                 p.mainWindow->observeFullScreen(),
@@ -486,7 +485,13 @@ namespace tl
                     _p->floatOnTop->setIfChanged(value);
                 });
 
-            getEventLoop()->addWindow(p.mainWindow);
+            getEventLoop()->addWidget(p.mainWindow);
+
+            p.mainWindow->resize(
+                _options.windowSize.isValid() ?
+                _options.windowSize :
+                p.settings->getValue<math::Size2i>("Window/Size"));
+            p.mainWindow->setFullScreen(_options.fullscreen);
         }
 
         io::Options App::_getIOOptions() const

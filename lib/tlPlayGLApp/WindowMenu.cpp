@@ -61,9 +61,7 @@ namespace tl
             addItem(p.actions["FloatOnTop"]);
             addDivider();
             addItem(p.actions["Secondary"]);
-            setItemEnabled(p.actions["Secondary"], false);
             addItem(p.actions["SecondaryFloatOnTop"]);
-            setItemEnabled(p.actions["SecondaryFloatOnTop"], false);
             addDivider();
             addItem(p.actions["FileToolBar"]);
             addItem(p.actions["CompareToolBar"]);

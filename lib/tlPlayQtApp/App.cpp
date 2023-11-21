@@ -616,6 +616,8 @@ namespace tl
         {
             TLRENDER_P();
             p.mainWindow.reset(new MainWindow(this));
+            const math::Size2i windowSize = p.settings->getValue<math::Size2i>("MainWindow/Size");
+            p.mainWindow->resize(windowSize.w, windowSize.h);
             p.mainWindow->show();
         }
 

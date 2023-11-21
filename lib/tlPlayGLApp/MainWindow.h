@@ -79,16 +79,18 @@ namespace tl
             //! Set the window options.
             void setWindowOptions(const WindowOptions&);
 
+            //! Set whether the secondary window is active.
+            void setSecondaryWindow(bool);
+
             void setGeometry(const math::Box2i&) override;
             void keyPressEvent(ui::KeyEvent&) override;
             void keyReleaseEvent(ui::KeyEvent&) override;
 
         private:
-            void _setPlayers(const std::vector<std::shared_ptr<timeline::Player> >&);
+            void _playersUpdate(const std::vector<std::shared_ptr<timeline::Player> >&);
             void _showSpeedPopup();
             void _showAudioPopup();
             void _windowOptionsUpdate();
-            void _viewportUpdate();
             void _statusUpdate(const std::vector<log::Item>&);
             void _infoUpdate();
 

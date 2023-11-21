@@ -11,7 +11,6 @@
 #include <tlUI/EventLoop.h>
 #include <tlUI/IClipboard.h>
 #include <tlUI/RowLayout.h>
-#include <tlUI/Window.h>
 
 #include <tlTimeline/GLRender.h>
 
@@ -85,7 +84,6 @@ namespace tl
             std::shared_ptr<ui::EventLoop> eventLoop;
             timelineui::ItemOptions itemOptions;
             std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
-            std::shared_ptr<ui::Window> window;
             std::shared_ptr<tl::gl::Shader> shader;
             std::shared_ptr<tl::gl::OffscreenBuffer> buffer;
             std::shared_ptr<gl::VBO> vbo;
@@ -130,9 +128,7 @@ namespace tl
                 context);
             p.timelineWidget = timelineui::TimelineWidget::create(timeUnitsModel, context);
             //p.timelineWidget->setScrollBarsVisible(false);
-            p.window = ui::Window::create(context);
-            p.timelineWidget->setParent(p.window);
-            p.eventLoop->addWindow(p.window);
+            p.eventLoop->addWidget(p.timelineWidget);
 
             _styleUpdate();
 
@@ -299,9 +295,9 @@ namespace tl
         {
             TLRENDER_P();
             
-            p.eventLoop->setWindowResolution(p.window, math::Size2i(_toUI(w), _toUI(h)));
+            p.eventLoop->setWidgetResolution(p.timelineWidget, math::Size2i(_toUI(w), _toUI(h)));
             const float devicePixelRatio = window()->devicePixelRatio();
-            p.eventLoop->setWindowScale(p.window, devicePixelRatio);
+            p.eventLoop->setWidgetScale(p.timelineWidget, devicePixelRatio);
             
             p.vao.reset();
             p.vbo.reset();
@@ -311,7 +307,7 @@ namespace tl
         {
             TLRENDER_P();
             const math::Size2i renderSize(_toUI(width()), _toUI(height()));
-            if (p.eventLoop->hasDrawUpdate(p.window))
+            if (p.eventLoop->hasDrawUpdate(p.timelineWidget))
             {
                 try
                 {
@@ -339,7 +335,7 @@ namespace tl
                             timeline::ColorConfigOptions(),
                             timeline::LUTOptions(),
                             renderOptions);
-                        p.eventLoop->draw(p.window, p.render);
+                        p.eventLoop->draw(p.timelineWidget, p.render);
                         p.render->end();
                     }
                 }
@@ -408,14 +404,14 @@ namespace tl
         {
             TLRENDER_P();
             event->accept();
-            p.eventLoop->cursorEnter(p.window, true);
+            p.eventLoop->cursorEnter(p.timelineWidget, true);
         }
 
         void TimelineWidget::leaveEvent(QEvent* event)
         {
             TLRENDER_P();
             event->accept();
-            p.eventLoop->cursorEnter(p.window, false);
+            p.eventLoop->cursorEnter(p.timelineWidget, false);
         }
 
         namespace
@@ -449,7 +445,6 @@ namespace tl
                 button = 0;
             }
             p.eventLoop->mouseButton(
-                p.window,
                 button,
                 true,
                 fromQtModifiers(event->modifiers()));
@@ -465,7 +460,6 @@ namespace tl
                 button = 1;
             }
             p.eventLoop->mouseButton(
-                p.window,
                 button,
                 false,
                 fromQtModifiers(event->modifiers()));
@@ -476,7 +470,6 @@ namespace tl
             TLRENDER_P();
             event->accept();
             p.eventLoop->cursorPos(
-                p.window,
                 math::Vector2i(_toUI(event->x()), _toUI(event->y())));
         }
 
@@ -488,7 +481,6 @@ namespace tl
             const float delta = event->angleDelta().y() / 8.F / 15.F;
             p.mouseWheelTimer = now;
             p.eventLoop->scroll(
-                p.window,
                 math::Vector2f(
                     event->angleDelta().x() / 8.F / 15.F,
                     event->angleDelta().y() / 8.F / 15.F),
@@ -595,7 +587,6 @@ namespace tl
         {
             TLRENDER_P();
             if (p.eventLoop->key(
-                p.window,
                 fromQtKey(event->key()),
                 true,
                 fromQtModifiers(event->modifiers())))
@@ -612,7 +603,6 @@ namespace tl
         {
             TLRENDER_P();
             if (p.eventLoop->key(
-                p.window,
                 fromQtKey(event->key()),
                 false,
                 fromQtModifiers(event->modifiers())))
@@ -629,7 +619,7 @@ namespace tl
         {
             TLRENDER_P();
             p.eventLoop->tick();
-            if (p.eventLoop->hasDrawUpdate(p.window))
+            if (p.eventLoop->hasDrawUpdate(p.timelineWidget))
             {
                 update();
             }

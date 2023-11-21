@@ -31,7 +31,7 @@ namespace tl
                 "WindowFullScreen",
                 ui::Key::U,
                 0,
-                [this, appWeak](bool value)
+                [appWeak](bool value)
                 {
                     if (auto app = appWeak.lock())
                     {
@@ -48,7 +48,7 @@ namespace tl
 
             p.actions["FloatOnTop"] = std::make_shared<ui::Action>(
                 "Float On Top",
-                [this, appWeak](bool value)
+                [appWeak](bool value)
                 {
                     if (auto app = appWeak.lock())
                     {
@@ -59,8 +59,14 @@ namespace tl
             p.actions["Secondary"] = std::make_shared<ui::Action>(
                 "Secondary",
                 "WindowSecondary",
-                [this](bool value)
+                ui::Key::Y,
+                0,
+                [appWeak](bool value)
                 {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getMainWindow()->setSecondaryWindow(value);
+                    }
                 });
             p.actions["Secondary"]->toolTip = string::Format(
                 "Toggle the secondary window\n"

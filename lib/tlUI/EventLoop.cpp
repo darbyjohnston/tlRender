@@ -5,7 +5,6 @@
 #include <tlUI/EventLoop.h>
 
 #include <tlUI/ToolTip.h>
-#include <tlUI/Window.h>
 
 #include <tlTimeline/IRender.h>
 
@@ -29,15 +28,15 @@ namespace tl
             std::shared_ptr<image::FontSystem> fontSystem;
             std::shared_ptr<IClipboard> clipboard;
 
-            std::shared_ptr<observer::List<std::shared_ptr<Window> > > windows;
-            std::shared_ptr<Window> activeWindow;
-            struct WindowData
+            std::shared_ptr<observer::List<std::shared_ptr<IWidget> > > widgets;
+            std::shared_ptr<IWidget> activeWidget;
+            struct WidgetData
             {
                 math::Size2i resolution;
                 float scale = 1.F;
                 int updates = 0;
             };
-            std::map<std::shared_ptr<Window>, WindowData> windowData;
+            std::map<std::shared_ptr<IWidget>, WidgetData> widgetData;
 
             math::Vector2i cursorPos;
             math::Vector2i cursorPosPrev;
@@ -78,7 +77,7 @@ namespace tl
             p.fontSystem = context->getSystem<image::FontSystem>();
             p.clipboard = clipboard;
 
-            p.windows = observer::List<std::shared_ptr<Window> >::create();
+            p.widgets = observer::List<std::shared_ptr<IWidget> >::create();
 
             p.logTimer = std::chrono::steady_clock::now();
 
@@ -86,10 +85,10 @@ namespace tl
                 p.style->observeChanged(),
                 [this](bool)
                 {
-                    for (auto window : _p->windows->get())
+                    for (auto widget : _p->widgets->get())
                     {
-                        _p->windowData[window].updates |= Update::Size;
-                        _p->windowData[window].updates |= Update::Draw;
+                        _p->widgetData[widget].updates |= Update::Size;
+                        _p->widgetData[widget].updates |= Update::Draw;
                     }
                 });
         }
@@ -112,30 +111,30 @@ namespace tl
             return out;
         }
 
-        void EventLoop::setWindowResolution(
-            const std::shared_ptr<Window>& window,
+        void EventLoop::setWidgetResolution(
+            const std::shared_ptr<IWidget>& widget,
             const math::Size2i& value)
         {
             TLRENDER_P();
-            auto i = p.windowData.find(window);
-            if (i != p.windowData.end() && value == i->second.resolution)
+            auto i = p.widgetData.find(widget);
+            if (i != p.widgetData.end() && value == i->second.resolution)
                 return;
-            p.windowData[window].resolution = value;
-            p.windowData[window].updates |= Update::Size;
-            p.windowData[window].updates |= Update::Draw;
+            p.widgetData[widget].resolution = value;
+            p.widgetData[widget].updates |= Update::Size;
+            p.widgetData[widget].updates |= Update::Draw;
         }
 
-        void EventLoop::setWindowScale(
-            const std::shared_ptr<Window>& window,
+        void EventLoop::setWidgetScale(
+            const std::shared_ptr<IWidget>& widget,
             float value)
         {
             TLRENDER_P();
-            auto i = p.windowData.find(window);
-            if (i != p.windowData.end() && value == i->second.scale)
+            auto i = p.widgetData.find(widget);
+            if (i != p.widgetData.end() && value == i->second.scale)
                 return;
-            p.windowData[window].scale = value;
-            p.windowData[window].updates |= Update::Size;
-            p.windowData[window].updates |= Update::Draw;
+            p.widgetData[widget].scale = value;
+            p.widgetData[widget].updates |= Update::Size;
+            p.widgetData[widget].updates |= Update::Draw;
         }
 
         void EventLoop::setKeyFocus(const std::shared_ptr<IWidget>& value)
@@ -146,43 +145,43 @@ namespace tl
             if (auto widget = p.keyFocus.lock())
             {
                 widget->keyFocusEvent(false);
-                p.windowData[widget->getWindow()].updates |= Update::Draw;
+                p.widgetData[widget->getTopLevel()].updates |= Update::Draw;
             }
             p.keyFocus = value;
             if (auto widget = p.keyFocus.lock())
             {
                 widget->keyFocusEvent(true);
-                p.windowData[widget->getWindow()].updates |= Update::Draw;
+                p.widgetData[widget->getTopLevel()].updates |= Update::Draw;
             }
         }
 
-        void EventLoop::addWindow(const std::shared_ptr<Window>& window)
+        void EventLoop::addWidget(const std::shared_ptr<IWidget>& widget)
         {
             TLRENDER_P();
-            window->setEventLoop(shared_from_this());
-            p.windows->pushBack(window);
-            p.windowData[window].updates |= Update::Size;
-            p.windowData[window].updates |= Update::Draw;
+            widget->setEventLoop(shared_from_this());
+            p.widgets->pushBack(widget);
+            p.widgetData[widget].updates |= Update::Size;
+            p.widgetData[widget].updates |= Update::Draw;
         }
 
-        void EventLoop::removeWindow(const std::shared_ptr<Window>& window)
+        void EventLoop::removeWidget(const std::shared_ptr<IWidget>& widget)
         {
             TLRENDER_P();
 
-            if (window == p.activeWindow)
+            if (widget == p.activeWidget)
             {
-                p.activeWindow.reset();
+                p.activeWidget.reset();
             }
             {
-                auto i = p.windowData.find(window);
-                if (i != p.windowData.end())
+                auto i = p.widgetData.find(widget);
+                if (i != p.widgetData.end())
                 {
-                    p.windowData.erase(i);
+                    p.widgetData.erase(i);
                 }
             }
             if (auto hover = p.hover.lock())
             {
-                if (hover->getWindow() == window)
+                if (hover->getTopLevel() == widget)
                 {
                     p.hover.reset();
                     hover->mouseLeaveEvent();
@@ -190,7 +189,7 @@ namespace tl
             }
             if (auto pressed = p.mousePress.lock())
             {
-                if (pressed->getWindow() == window)
+                if (pressed->getTopLevel() == widget)
                 {
                     p.mousePress.reset();
                     p.mouseClickEvent.pos = p.cursorPos;
@@ -200,7 +199,7 @@ namespace tl
             }
             if (auto focus = p.keyFocus.lock())
             {
-                if (focus->getWindow() == window)
+                if (focus->getTopLevel() == widget)
                 {
                     p.keyFocus.reset();
                     focus->keyFocusEvent(false);
@@ -208,7 +207,7 @@ namespace tl
             }
             if (auto keyPress = p.keyPress.lock())
             {
-                if (keyPress->getWindow() == window)
+                if (keyPress->getTopLevel() == widget)
                 {
                     p.keyPress.reset();
                     p.keyEvent.pos = p.cursorPos;
@@ -227,23 +226,22 @@ namespace tl
             }
             p.dndData.reset();
             p.dndCursor.reset();
-            _clipEvent(window, window->getGeometry(), true);
+            _clipEvent(widget, widget->getGeometry(), true);
 
-            window->setEventLoop(nullptr);
-            const size_t i = p.windows->indexOf(window);
+            widget->setEventLoop(nullptr);
+            const size_t i = p.widgets->indexOf(widget);
             if (i != observer::invalidListIndex)
             {
-                p.windows->removeItem(i);
+                p.widgets->removeItem(i);
             }
         }
 
-        std::shared_ptr<observer::IList<std::shared_ptr<Window> > > EventLoop::observeWindows() const
+        std::shared_ptr<observer::IList<std::shared_ptr<IWidget> > > EventLoop::observeWidgets() const
         {
-            return _p->windows;
+            return _p->widgets;
         }
 
         bool EventLoop::key(
-            const std::shared_ptr<Window>& window,
             Key key,
             bool press,
             int modifiers)
@@ -307,9 +305,7 @@ namespace tl
             return p.keyEvent.accept;
         }
 
-        void EventLoop::text(
-            const std::shared_ptr<Window>& window,
-            const std::string& value)
+        void EventLoop::text(const std::string& value)
         {
             TLRENDER_P();
             TextEvent event(value);
@@ -344,20 +340,18 @@ namespace tl
         }
 
         void EventLoop::cursorEnter(
-            const std::shared_ptr<Window>& window,
+            const std::shared_ptr<IWidget>& widget,
             bool enter)
         {
             TLRENDER_P();
-            p.activeWindow = enter ? window : nullptr;
+            p.activeWidget = enter ? widget : nullptr;
             if (!enter)
             {
                 _setHover(nullptr);
             }
         }
 
-        void EventLoop::cursorPos(
-            const std::shared_ptr<Window>& window,
-            const math::Vector2i& pos)
+        void EventLoop::cursorPos(const math::Vector2i& pos)
         {
             TLRENDER_P();
 
@@ -437,7 +431,7 @@ namespace tl
 
             if (widget && p.dndCursor)
             {
-                p.windowData[widget->getWindow()].updates |= Update::Draw;
+                p.widgetData[widget->getTopLevel()].updates |= Update::Draw;
             }
 
             if (math::length(p.cursorPos - p.toolTipPos) > toolTipDistance)
@@ -452,11 +446,7 @@ namespace tl
             }
         }
 
-        void EventLoop::mouseButton(
-            const std::shared_ptr<Window>& window,
-            int button,
-            bool press,
-            int modifiers)
+        void EventLoop::mouseButton(int button, bool press, int modifiers)
         {
             TLRENDER_P();
             p.mouseClickEvent.button = button;
@@ -509,7 +499,7 @@ namespace tl
                     }
                     p.dndData.reset();
                     p.dndCursor.reset();
-                    p.windowData[widget->getWindow()].updates |= Update::Draw;
+                    p.widgetData[widget->getTopLevel()].updates |= Update::Draw;
                 }
 
                 MouseMoveEvent event(
@@ -519,10 +509,7 @@ namespace tl
             }
         }
 
-        void EventLoop::scroll(
-            const std::shared_ptr<Window>& window,
-            const math::Vector2f& value,
-            int modifiers)
+        void EventLoop::scroll(const math::Vector2f& value, int modifiers)
         {
             TLRENDER_P();
             ScrollEvent event(value, modifiers, p.cursorPos);
@@ -550,30 +537,30 @@ namespace tl
 
             _tickEvent();
 
-            for (const auto& window : p.windows->get())
+            for (const auto& widget : p.widgets->get())
             {
-                if (_getSizeUpdate(window))
+                if (_getSizeUpdate(widget))
                 {
-                    p.windowData[window].updates |= Update::Size;
+                    p.widgetData[widget].updates |= Update::Size;
                 }
-                if (p.windowData[window].updates & Update::Size)
+                if (p.widgetData[widget].updates & Update::Size)
                 {
-                    _sizeHintEvent(window);
-                    const auto i = p.windowData.find(window);
-                    if (i != p.windowData.end())
+                    _sizeHintEvent(widget);
+                    const auto i = p.widgetData.find(widget);
+                    if (i != p.widgetData.end())
                     {
-                        window->setGeometry(math::Box2i(
+                        widget->setGeometry(math::Box2i(
                             0,
                             0,
                             i->second.resolution.w,
                             i->second.resolution.h));
                     }
-                    _clipEvent(window);
-                    p.windowData[window].updates &= ~static_cast<int>(Update::Size);
+                    _clipEvent(widget);
+                    p.widgetData[widget].updates &= ~static_cast<int>(Update::Size);
                 }
-                if (_getDrawUpdate(window))
+                if (_getDrawUpdate(widget))
                 {
-                    p.windowData[window].updates |= Update::Draw;
+                    p.widgetData[widget].updates |= Update::Draw;
                 }
             }
 
@@ -599,7 +586,7 @@ namespace tl
                         p.toolTip = ToolTip::create(
                             text,
                             p.cursorPos,
-                            widgets.front()->getWindow(),
+                            widgets.front()->getTopLevel(),
                             context);
                         p.toolTipPos = p.cursorPos;
                     }
@@ -645,17 +632,17 @@ namespace tl
             }
         }
 
-        bool EventLoop::hasDrawUpdate(const std::shared_ptr<Window>& window) const
+        bool EventLoop::hasDrawUpdate(const std::shared_ptr<IWidget>& widget) const
         {
-            return _p->windowData[window].updates & Update::Draw;
+            return _p->widgetData[widget].updates & Update::Draw;
         }
 
         void EventLoop::draw(
-            const std::shared_ptr<Window>& window,
+            const std::shared_ptr<IWidget>& widget,
             const std::shared_ptr<timeline::IRender>& render)
         {
             TLRENDER_P();
-            _drawEvent(window, render);
+            _drawEvent(widget, render);
             if (p.dndCursor)
             {
                 render->drawImage(
@@ -667,7 +654,7 @@ namespace tl
                         p.dndCursor->getHeight()),
                     image::Color4f(1.F, 1.F, 1.F));
             }
-            _p->windowData[window].updates &= ~static_cast<int>(Update::Draw);
+            _p->widgetData[widget].updates &= ~static_cast<int>(Update::Draw);
         }
 
         void EventLoop::_tickEvent()
@@ -678,12 +665,12 @@ namespace tl
                 p.style,
                 p.iconLibrary,
                 p.fontSystem);
-            for (const auto& window : p.windows->get())
+            for (const auto& widget : p.widgets->get())
             {
                 _tickEvent(
-                    window,
-                    window->isVisible(false),
-                    window->isEnabled(false),
+                    widget,
+                    widget->isVisible(false),
+                    widget->isEnabled(false),
                     event);
             }
         }
@@ -726,18 +713,18 @@ namespace tl
             return out;
         }
 
-        void EventLoop::_sizeHintEvent(const std::shared_ptr<Window>& window)
+        void EventLoop::_sizeHintEvent(const std::shared_ptr<IWidget>& widget)
         {
             TLRENDER_P();
-            const auto i = p.windowData.find(window);
-            if (i != p.windowData.end())
+            const auto i = p.widgetData.find(widget);
+            if (i != p.widgetData.end())
             {
                 SizeHintEvent event(
                     p.style,
                     p.iconLibrary,
                     p.fontSystem,
                     i->second.scale);
-                _sizeHintEvent(window, event);
+                _sizeHintEvent(widget, event);
             }
         }
 
@@ -752,13 +739,13 @@ namespace tl
             widget->sizeHintEvent(event);
         }
 
-        void EventLoop::_clipEvent(const std::shared_ptr<Window>& window)
+        void EventLoop::_clipEvent(const std::shared_ptr<IWidget>& widget)
         {
             TLRENDER_P();
             _clipEvent(
-                window,
-                window->getGeometry(),
-                !window->isVisible(false));
+                widget,
+                widget->getGeometry(),
+                !widget->isVisible(false));
         }
 
         void EventLoop::_clipEvent(
@@ -805,7 +792,7 @@ namespace tl
         }
 
         void EventLoop::_drawEvent(
-            const std::shared_ptr<Window>& window,
+            const std::shared_ptr<IWidget>& widget,
             const std::shared_ptr<timeline::IRender>& render)
         {
             TLRENDER_P();
@@ -815,11 +802,11 @@ namespace tl
                 render,
                 p.fontSystem);
             event.render->setClipRectEnabled(true);
-            const auto i = p.windowData.find(window);
-            if (i != p.windowData.end())
+            const auto i = p.widgetData.find(widget);
+            if (i != p.widgetData.end())
             {
                 _drawEvent(
-                    window,
+                    widget,
                     math::Box2i(0, 0, i->second.resolution.w, i->second.resolution.h),
                     event);
             }
@@ -860,9 +847,9 @@ namespace tl
         {
             TLRENDER_P();
             std::list<std::shared_ptr<IWidget> > out;
-            if (p.activeWindow)
+            if (p.activeWidget)
             {
-                _getUnderCursor(p.activeWindow, pos, out);
+                _getUnderCursor(p.activeWidget, pos, out);
             }
             return out;
         }
@@ -938,9 +925,9 @@ namespace tl
             TLRENDER_P();
             std::shared_ptr<IWidget> out;
             std::list<std::shared_ptr<IWidget> > widgets;
-            if (p.activeWindow)
+            if (p.activeWidget)
             {
-                _getKeyFocus(p.activeWindow, widgets);
+                _getKeyFocus(p.activeWidget, widgets);
             }
             if (!widgets.empty())
             {
@@ -970,9 +957,9 @@ namespace tl
             TLRENDER_P();
             std::shared_ptr<IWidget> out;
             std::list<std::shared_ptr<IWidget> > widgets;
-            if (p.activeWindow)
+            if (p.activeWidget)
             {
-                _getKeyFocus(p.activeWindow, widgets);
+                _getKeyFocus(p.activeWidget, widgets);
             }
             if (!widgets.empty())
             {

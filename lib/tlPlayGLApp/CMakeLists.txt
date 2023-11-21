@@ -25,6 +25,7 @@ set(HEADERS
     RenderMenu.h
     SeparateAudioDialog.h
     SpeedPopup.h
+    SecondaryWindow.h
     SettingsTool.h
     Style.h
     SystemLogTool.h
@@ -75,6 +76,7 @@ set(SOURCE
     SeparateAudioDialog.cpp
     SeparateAudioWidget.cpp
     SpeedPopup.cpp
+    SecondaryWindow.cpp
     SettingsTool.cpp
     Style.cpp
     SystemLogTool.cpp

@@ -20,6 +20,7 @@
 #include <tlPlayGLApp/PlaybackMenu.h>
 #include <tlPlayGLApp/RenderActions.h>
 #include <tlPlayGLApp/RenderMenu.h>
+#include <tlPlayGLApp/SecondaryWindow.h>
 #include <tlPlayGLApp/SpeedPopup.h>
 #include <tlPlayGLApp/TimelineActions.h>
 #include <tlPlayGLApp/TimelineMenu.h>
@@ -142,18 +143,19 @@ namespace tl
             std::shared_ptr<ui::HorizontalLayout> bottomLayout;
             std::shared_ptr<ui::HorizontalLayout> statusLayout;
             std::shared_ptr<ui::VerticalLayout> layout;
+            std::weak_ptr<SecondaryWindow> secondaryWindow;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playersObserver;
             std::shared_ptr<observer::ValueObserver<double> > speedObserver;
             std::shared_ptr<observer::ValueObserver<double> > speedObserver2;
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > colorConfigOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
         };
 
@@ -437,7 +439,6 @@ namespace tl
             p.infoLabel->setParent(p.statusLayout);
 
             _windowOptionsUpdate();
-            _viewportUpdate();
             _infoUpdate();
 
             auto appWeak = std::weak_ptr<App>(app);
@@ -516,7 +517,7 @@ namespace tl
                 app->observeActivePlayers(),
                 [this](const std::vector<std::shared_ptr<timeline::Player> >& value)
                 {
-                    _setPlayers(value);
+                    _playersUpdate(value);
                 });
 
             p.speedObserver2 = observer::ValueObserver<double>::create(
@@ -529,46 +530,46 @@ namespace tl
                     }
                 });
 
-            p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
-                app->getFilesModel()->observeCompareOptions(),
-                [this](const timeline::CompareOptions&)
-                {
-                    _viewportUpdate();
-                });
-
             p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
                 app->getViewportModel()->observeBackgroundOptions(),
-                [this](const timeline::BackgroundOptions&)
+                [this](const timeline::BackgroundOptions& value)
                 {
-                    _viewportUpdate();
+                    _p->timelineViewport->setBackgroundOptions(value);
                 });
 
             p.colorConfigOptionsObserver = observer::ValueObserver<timeline::ColorConfigOptions>::create(
                 app->getColorModel()->observeColorConfigOptions(),
-                [this](const timeline::ColorConfigOptions&)
+                [this](const timeline::ColorConfigOptions& value)
                 {
-                    _viewportUpdate();
+                    _p->timelineViewport->setColorConfigOptions(value);
                 });
 
             p.lutOptionsObserver = observer::ValueObserver<timeline::LUTOptions>::create(
                 app->getColorModel()->observeLUTOptions(),
-                [this](const timeline::LUTOptions&)
+                [this](const timeline::LUTOptions& value)
                 {
-                    _viewportUpdate();
+                    _p->timelineViewport->setLUTOptions(value);
                 });
 
             p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
                 app->getColorModel()->observeImageOptions(),
-                [this](const timeline::ImageOptions&)
+                [this](const timeline::ImageOptions& value)
                 {
-                    _viewportUpdate();
+                    _p->timelineViewport->setImageOptions({ value });
                 });
 
             p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
                 app->getColorModel()->observeDisplayOptions(),
-                [this](const timeline::DisplayOptions&)
+                [this](const timeline::DisplayOptions& value)
                 {
-                    _viewportUpdate();
+                    _p->timelineViewport->setDisplayOptions({ value });
+                });
+
+            p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
+                app->getFilesModel()->observeCompareOptions(),
+                [this](const timeline::CompareOptions& value)
+                {
+                    _p->timelineViewport->setCompareOptions(value);
                 });
 
             p.logObserver = observer::ListObserver<log::Item>::create(
@@ -655,6 +656,33 @@ namespace tl
             }
         }
 
+        void MainWindow::setSecondaryWindow(bool value)
+        {
+            TLRENDER_P();
+            if (value && p.secondaryWindow.expired())
+            {
+                if (auto context = _context.lock())
+                {
+                    if (auto app = p.app.lock())
+                    {
+                        if (auto eventLoop = getEventLoop().lock())
+                        {
+                            auto secondaryWindow = SecondaryWindow::create(app, context);
+                            eventLoop->addWidget(secondaryWindow);
+                            p.secondaryWindow = secondaryWindow;
+                        }
+                    }
+                }
+            }
+            else if (auto secondaryWindow = p.secondaryWindow.lock())
+            {
+                if (auto eventLoop = getEventLoop().lock())
+                {
+                    eventLoop->removeWidget(secondaryWindow);
+                }
+            }
+        }
+
         void MainWindow::setGeometry(const math::Box2i& value)
         {
             Window::setGeometry(value);
@@ -672,7 +700,7 @@ namespace tl
             event.accept = true;
         }
 
-        void MainWindow::_setPlayers(const std::vector<std::shared_ptr<timeline::Player> >& value)
+        void MainWindow::_playersUpdate(const std::vector<std::shared_ptr<timeline::Player> >& value)
         {
             TLRENDER_P();
 
@@ -844,27 +872,6 @@ namespace tl
 
             p.splitter->setSplit(windowOptions.splitter);
             p.splitter2->setSplit(windowOptions.splitter2);
-        }
-
-        void MainWindow::_viewportUpdate()
-        {
-            TLRENDER_P();
-            if (auto app = p.app.lock())
-            {
-                p.timelineViewport->setColorConfigOptions(
-                    app->getColorModel()->getColorConfigOptions());
-                p.timelineViewport->setLUTOptions(
-                    app->getColorModel()->getLUTOptions());
-                p.timelineViewport->setBackgroundOptions(
-                    app->getViewportModel()->getBackgroundOptions());
-                const auto& imageOptions = app->getColorModel()->getImageOptions();
-                p.timelineViewport->setImageOptions(
-                    { imageOptions });
-                p.timelineViewport->setDisplayOptions(
-                    { app->getColorModel()->getDisplayOptions() });
-                p.timelineViewport->setCompareOptions(
-                    app->getFilesModel()->getCompareOptions());
-            }
         }
 
         void MainWindow::_statusUpdate(const std::vector<log::Item>& value)

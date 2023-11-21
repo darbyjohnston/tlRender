@@ -87,8 +87,8 @@ namespace tl
                 std::shared_ptr<observer::ValueObserver<bool> > fullScreenObserver;
                 std::shared_ptr<observer::ValueObserver<bool> > floatOnTopObserver;
             };
-            std::map<std::shared_ptr<ui::Window>, WindowData> windows;
-            std::shared_ptr<ui::Window> activeWindow;
+            std::map<std::shared_ptr<ui::IWidget>, WindowData> windows;
+            std::shared_ptr<ui::IWidget> activeWindow;
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
 
@@ -101,7 +101,7 @@ namespace tl
             bool refresh = false;
             bool running = true;
 
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<ui::Window> > > windowsObserver;
+            std::shared_ptr<observer::ListObserver<std::shared_ptr<ui::IWidget> > > windowsObserver;
         };
 
         void IApp::_init(
@@ -154,9 +154,9 @@ namespace tl
                 _context);
 
             // Create observers.
-            p.windowsObserver = observer::ListObserver<std::shared_ptr<ui::Window> >::create(
-                p.eventLoop->observeWindows(),
-                [this](const std::vector<std::shared_ptr<ui::Window> >& windows)
+            p.windowsObserver = observer::ListObserver<std::shared_ptr<ui::IWidget> >::create(
+                p.eventLoop->observeWidgets(),
+                [this](const std::vector<std::shared_ptr<ui::IWidget> >& windows)
                 {
                     _windowsUpdate(windows);
                 });
@@ -356,7 +356,7 @@ namespace tl
 #endif // _WINDOWS
         }
 
-        void IApp::_windowsUpdate(const std::vector<std::shared_ptr<ui::Window> >& windows)
+        void IApp::_windowsUpdate(const std::vector<std::shared_ptr<ui::IWidget> >& windows)
         {
             TLRENDER_P();
             for (const auto& window : windows)
@@ -372,12 +372,12 @@ namespace tl
                     glfwWindow->setFrameBufferSizeCallback(
                         [this, window](const math::Size2i& value)
                         {
-                            _p->eventLoop->setWindowResolution(window, value);
+                            _p->eventLoop->setWidgetResolution(window, value);
                         });
                     glfwWindow->setContentScaleCallback(
                         [this, window](const math::Vector2f& value)
                         {
-                            _p->eventLoop->setWindowScale(window, value.x);
+                            _p->eventLoop->setWidgetScale(window, value.x);
                         });
                     glfwWindow->setRefreshCallback(
                         [this]
@@ -403,21 +403,21 @@ namespace tl
                             pos.x = value.x;
                             pos.y = value.y;
 #endif // __APPLE__
-                            _p->eventLoop->cursorPos(window, pos);
+                            _p->eventLoop->cursorPos(pos);
                         });
                     glfwWindow->setButtonCallback(
-                        [this, window](int button, int action, int modifiers)
+                        [this](int button, int action, int modifiers)
                         {
                             _p->modifiers = modifiers;
-                            _p->eventLoop->mouseButton(window, button, GLFW_PRESS == action, fromGLFWModifiers(modifiers));
+                            _p->eventLoop->mouseButton(button, GLFW_PRESS == action, fromGLFWModifiers(modifiers));
                         });
                     glfwWindow->setScrollCallback(
-                        [this, window](const math::Vector2f& value)
+                        [this](const math::Vector2f& value)
                         {
-                            _p->eventLoop->scroll(window, value, fromGLFWModifiers(_p->modifiers));
+                            _p->eventLoop->scroll(value, fromGLFWModifiers(_p->modifiers));
                         });
                     glfwWindow->setKeyCallback(
-                        [this, window](int key, int scanCode, int action, int modifiers)
+                        [this](int key, int scanCode, int action, int modifiers)
                         {
                             TLRENDER_P();
                             p.modifiers = modifiers;
@@ -426,14 +426,12 @@ namespace tl
                             case GLFW_PRESS:
                             case GLFW_REPEAT:
                                 p.eventLoop->key(
-                                    window,
                                     fromGLFWKey(key),
                                     true,
                                     fromGLFWModifiers(modifiers));
                                 break;
                             case GLFW_RELEASE:
                                 p.eventLoop->key(
-                                    window,
                                     fromGLFWKey(key),
                                     false,
                                     fromGLFWModifiers(modifiers));
@@ -441,13 +439,13 @@ namespace tl
                             }
                         });
                     glfwWindow->setCharCallback(
-                        [this, window](unsigned int c)
+                        [this](unsigned int c)
                         {
                             std::wstring_convert<std::codecvt_utf8<tl_char_t>, tl_char_t> utf32Convert;
-                            _p->eventLoop->text(window, utf32Convert.to_bytes(c));
+                            _p->eventLoop->text(utf32Convert.to_bytes(c));
                         });
                     glfwWindow->setDropCallback(
-                        [this, window](int count, const char** fileNames)
+                        [this](int count, const char** fileNames)
                         {
                             std::vector<std::string> tmp;
                             for (int i = 0; i < count; ++i)
@@ -458,7 +456,7 @@ namespace tl
                         });
 
                     p.windows[window].glfw = glfwWindow;
-                    p.windows[window].sizeObserver = observer::ValueObserver<math::Size2i>::create(
+                    /*p.windows[window].sizeObserver = observer::ValueObserver<math::Size2i>::create(
                         window->observeSize(),
                         [glfwWindow](const math::Size2i& value)
                         {
@@ -475,7 +473,7 @@ namespace tl
                         [glfwWindow](bool value)
                         {
                             glfwWindow->setFloatOnTop(value);
-                        });
+                        });*/
 
                     math::Size2i windowResolution;
                     glfwGetFramebufferSize(
@@ -487,8 +485,8 @@ namespace tl
                         glfwWindow->getGLFW(),
                         &windowScale.x,
                         &windowScale.y);
-                    p.eventLoop->setWindowResolution(window, windowResolution);
-                    p.eventLoop->setWindowScale(window, windowScale.x);
+                    p.eventLoop->setWidgetResolution(window, windowResolution);
+                    p.eventLoop->setWidgetScale(window, windowScale.x);
                 }
             }
 
@@ -507,7 +505,7 @@ namespace tl
             }
         }
 
-        void IApp::_setActiveWindow(const std::shared_ptr<ui::Window>& window)
+        void IApp::_setActiveWindow(const std::shared_ptr<ui::IWidget>& window)
         {
             TLRENDER_P();
             if (window == p.activeWindow)
@@ -542,7 +540,7 @@ namespace tl
                 {
                     auto window = i->first;
                     i = p.windows.erase(i);
-                    p.eventLoop->removeWindow(window);
+                    p.eventLoop->removeWidget(window);
                 }
                 else
                 {

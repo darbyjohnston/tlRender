@@ -66,8 +66,8 @@ namespace tl
             //! Move the child widget to the back of the drawing order.
             void moveToBack(const std::shared_ptr<IWidget>&);
 
-            //! Get the window.
-            std::shared_ptr<Window> getWindow();
+            //! Get the top level widget.
+            std::shared_ptr<IWidget> getTopLevel();
 
             //! Get the event loop.
             const std::weak_ptr<EventLoop>& getEventLoop();
