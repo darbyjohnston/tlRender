@@ -6,6 +6,7 @@
 
 #include <tlPlayGLApp/App.h>
 #include <tlPlayGLApp/MainWindow.h>
+#include <tlPlayGLApp/SecondaryWindow.h>
 
 namespace tl
 {
@@ -18,12 +19,14 @@ namespace tl
 
             std::shared_ptr<observer::ValueObserver<bool> > fullScreenObserver;
             std::shared_ptr<observer::ValueObserver<bool> > floatOnTopObserver;
+            std::shared_ptr<observer::ValueObserver<bool> > secondaryObserver;
             std::shared_ptr<observer::ValueObserver<WindowOptions> > optionsObserver;
         };
 
         void WindowMenu::_init(
             const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<MainWindow>& mainWindow,
+            const std::shared_ptr<SecondaryWindow>& secondaryWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -37,22 +40,16 @@ namespace tl
             auto appWeak = std::weak_ptr<App>(app);
             auto action = std::make_shared<ui::Action>(
                 "1280x720",
-                [this, appWeak]
+                [mainWindow]
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getMainWindow()->resize(math::Size2i(1280, 720));
-                    }
+                    mainWindow->setWindowSize(math::Size2i(1280, 720));
                 });
             p.resizeMenu->addItem(action);
             action = std::make_shared<ui::Action>(
                 "1920x1080",
-                [this, appWeak]
+                [mainWindow]
                 {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getMainWindow()->resize(math::Size2i(1920, 1080));
-                    }
+                    mainWindow->setWindowSize(math::Size2i(1920, 1080));
                 });
             p.resizeMenu->addItem(action);
 
@@ -73,17 +70,24 @@ namespace tl
             addItem(p.actions["StatusToolBar"]);
 
             p.fullScreenObserver = observer::ValueObserver<bool>::create(
-                app->observeFullScreen(),
+                mainWindow->observeFullScreen(),
                 [this](bool value)
                 {
                     setItemChecked(_p->actions["FullScreen"], value);
                 });
 
             p.floatOnTopObserver = observer::ValueObserver<bool>::create(
-                app->observeFloatOnTop(),
+                mainWindow->observeFloatOnTop(),
                 [this](bool value)
                 {
                     setItemChecked(_p->actions["FloatOnTop"], value);
+                });
+
+            p.secondaryObserver = observer::ValueObserver<bool>::create(
+                secondaryWindow->observeOpen(),
+                [this](bool value)
+                {
+                    setItemChecked(_p->actions["Secondary"], value);
                 });
 
             p.optionsObserver = observer::ValueObserver<WindowOptions>::create(
@@ -111,12 +115,13 @@ namespace tl
         std::shared_ptr<WindowMenu> WindowMenu::create(
             const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<MainWindow>& mainWindow,
+            const std::shared_ptr<SecondaryWindow>& secondaryWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<WindowMenu>(new WindowMenu);
-            out->_init(actions, mainWindow, app, context, parent);
+            out->_init(actions, mainWindow, secondaryWindow, app, context, parent);
             return out;
         }
 

@@ -14,6 +14,8 @@ namespace tl
     namespace play_gl
     {
         class App;
+        class MainWindow;
+        class SecondaryWindow;
 
         //! Window tool bar.
         class WindowToolBar : public ui::IWidget
@@ -23,6 +25,8 @@ namespace tl
         protected:
             void _init(
                 const std::map<std::string, std::shared_ptr<ui::Action> >&,
+                const std::shared_ptr<MainWindow>&,
+                const std::shared_ptr<SecondaryWindow>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
@@ -34,6 +38,8 @@ namespace tl
 
             static std::shared_ptr<WindowToolBar> create(
                 const std::map<std::string, std::shared_ptr<ui::Action> >&,
+                const std::shared_ptr<MainWindow>&,
+                const std::shared_ptr<SecondaryWindow>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

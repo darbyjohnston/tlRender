@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include <tlUI/IWidget.h>
+#include <tlUI/IWindow.h>
 
 namespace tl
 {
     namespace ui
     {
         //! Window.
-        class Window : public IWidget
+        class Window : public IWindow
         {
             TLRENDER_NON_COPYABLE(Window);
 
@@ -30,11 +30,20 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Observe the window size.
-            std::shared_ptr<observer::IValue<math::Size2i> > observeSize() const;
+            //! Observe whether the window is open.
+            std::shared_ptr<observer::IValue<bool> > observeOpen() const;
 
-            //! Resize the window.
-            void resize(const math::Size2i&);
+            //! Open the window.
+            void open(const std::shared_ptr<EventLoop>&);
+
+            //! Close the window.
+            void close();
+
+            //! Observe the window size.
+            std::shared_ptr<observer::IValue<math::Size2i> > observeWindowSize() const;
+
+            //! Set the window size.
+            void setWindowSize(const math::Size2i&);
 
             //! Get whether the window is in full screen mode.
             bool isFullScreen() const;

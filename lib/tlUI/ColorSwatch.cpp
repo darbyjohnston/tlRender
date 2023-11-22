@@ -141,7 +141,7 @@ namespace tl
                 if (!p.popup)
                 {
                     p.popup = ColorPopup::create(p.color, context);
-                    p.popup->open(getTopLevel(), getGeometry());
+                    p.popup->open(getWindow(), getGeometry());
                     p.popup->setCallback(
                         [this](const image::Color4f& value)
                         {

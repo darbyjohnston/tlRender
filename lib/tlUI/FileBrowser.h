@@ -90,7 +90,7 @@ namespace tl
 
             //! Open the file browser.
             void open(
-                const std::shared_ptr<IWidget>&,
+                const std::shared_ptr<IWindow>&,
                 const std::function<void(const file::FileInfo&)>&);
 
             //! Get whether the native file dialog is used.

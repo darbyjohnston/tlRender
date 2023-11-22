@@ -210,7 +210,7 @@ namespace tl
 
         void MessageDialogSystem::open(
             const std::string& text,
-            const std::shared_ptr<IWidget>& window,
+            const std::shared_ptr<IWindow>& window,
             const std::function<void(bool)>& callback)
         {
             TLRENDER_P();

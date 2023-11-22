@@ -20,7 +20,6 @@
 #include <tlPlayGLApp/PlaybackMenu.h>
 #include <tlPlayGLApp/RenderActions.h>
 #include <tlPlayGLApp/RenderMenu.h>
-#include <tlPlayGLApp/SecondaryWindow.h>
 #include <tlPlayGLApp/SpeedPopup.h>
 #include <tlPlayGLApp/TimelineActions.h>
 #include <tlPlayGLApp/TimelineMenu.h>
@@ -143,7 +142,6 @@ namespace tl
             std::shared_ptr<ui::HorizontalLayout> bottomLayout;
             std::shared_ptr<ui::HorizontalLayout> statusLayout;
             std::shared_ptr<ui::VerticalLayout> layout;
-            std::weak_ptr<SecondaryWindow> secondaryWindow;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playersObserver;
             std::shared_ptr<observer::ValueObserver<double> > speedObserver;
@@ -249,6 +247,7 @@ namespace tl
             p.windowMenu = WindowMenu::create(
                 p.windowActions->getActions(),
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                app->getSecondaryWindow(),
                 app,
                 context);
             p.viewMenu = ViewMenu::create(
@@ -304,6 +303,8 @@ namespace tl
                 context);
             p.windowToolBar = WindowToolBar::create(
                 p.windowActions->getActions(),
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                app->getSecondaryWindow(),
                 app,
                 context);
             p.viewToolBar = ViewToolBar::create(
@@ -653,33 +654,6 @@ namespace tl
             if (_p->windowOptions->setIfChanged(value))
             {
                 _windowOptionsUpdate();
-            }
-        }
-
-        void MainWindow::setSecondaryWindow(bool value)
-        {
-            TLRENDER_P();
-            if (value && p.secondaryWindow.expired())
-            {
-                if (auto context = _context.lock())
-                {
-                    if (auto app = p.app.lock())
-                    {
-                        if (auto eventLoop = getEventLoop().lock())
-                        {
-                            auto secondaryWindow = SecondaryWindow::create(app, context);
-                            eventLoop->addWidget(secondaryWindow);
-                            p.secondaryWindow = secondaryWindow;
-                        }
-                    }
-                }
-            }
-            else if (auto secondaryWindow = p.secondaryWindow.lock())
-            {
-                if (auto eventLoop = getEventLoop().lock())
-                {
-                    eventLoop->removeWidget(secondaryWindow);
-                }
             }
         }
 

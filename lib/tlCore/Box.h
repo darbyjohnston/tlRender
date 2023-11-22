@@ -18,6 +18,7 @@ namespace tl
         public:
             constexpr Box2();
             constexpr explicit Box2(const Vector2<T>&);
+            constexpr explicit Box2(const Size2<T>&);
             constexpr Box2(const Vector2<T>& min, const Vector2<T>& max);
             constexpr Box2(const Vector2<T>&, const Size2<T>&);
             constexpr Box2(T x, T y, T w, T h);

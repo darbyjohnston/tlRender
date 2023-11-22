@@ -65,6 +65,20 @@ namespace tl
                 TLRENDER_ASSERT(2.F == b.max.y);
             }
             {
+                const Box2i b(Size2i(2, 3));
+                TLRENDER_ASSERT(0 == b.min.x);
+                TLRENDER_ASSERT(0 == b.min.y);
+                TLRENDER_ASSERT(1 == b.max.x);
+                TLRENDER_ASSERT(2 == b.max.y);
+            }
+            {
+                const Box2f b(Size2f(2.F, 3.F));
+                TLRENDER_ASSERT(0.F == b.min.x);
+                TLRENDER_ASSERT(0.F == b.min.y);
+                TLRENDER_ASSERT(2.F == b.max.x);
+                TLRENDER_ASSERT(3.F == b.max.y);
+            }
+            {
                 const Box2i b(Vector2i(1, 2), Vector2i(3, 4));
                 TLRENDER_ASSERT(1 == b.min.x);
                 TLRENDER_ASSERT(2 == b.min.y);

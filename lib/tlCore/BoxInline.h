@@ -26,6 +26,16 @@ namespace tl
             max(value)
         {}
 
+        template<>
+        constexpr Box2<int>::Box2(const Size2<int>& size) :
+            max(size.w - 1, size.h - 1)
+        {}
+
+        template<>
+        constexpr Box2<float>::Box2(const Size2<float>& size) :
+            max(size.w, size.h)
+        {}
+
         template<typename T>
         constexpr Box2<T>::Box2(const Vector2<T>& min, const Vector2<T>& max) :
             min(min),

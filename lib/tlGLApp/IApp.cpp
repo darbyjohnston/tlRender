@@ -87,8 +87,8 @@ namespace tl
                 std::shared_ptr<observer::ValueObserver<bool> > fullScreenObserver;
                 std::shared_ptr<observer::ValueObserver<bool> > floatOnTopObserver;
             };
-            std::map<std::shared_ptr<ui::IWidget>, WindowData> windows;
-            std::shared_ptr<ui::IWidget> activeWindow;
+            std::map<std::shared_ptr<ui::IWindow>, WindowData> windows;
+            std::shared_ptr<ui::IWindow> activeWindow;
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
 
@@ -101,7 +101,7 @@ namespace tl
             bool refresh = false;
             bool running = true;
 
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<ui::IWidget> > > windowsObserver;
+            std::shared_ptr<observer::ListObserver<std::shared_ptr<ui::IWindow> > > windowsObserver;
         };
 
         void IApp::_init(
@@ -154,9 +154,9 @@ namespace tl
                 _context);
 
             // Create observers.
-            p.windowsObserver = observer::ListObserver<std::shared_ptr<ui::IWidget> >::create(
-                p.eventLoop->observeWidgets(),
-                [this](const std::vector<std::shared_ptr<ui::IWidget> >& windows)
+            p.windowsObserver = observer::ListObserver<std::shared_ptr<ui::IWindow> >::create(
+                p.eventLoop->observeWindows(),
+                [this](const std::vector<std::shared_ptr<ui::IWindow> >& windows)
                 {
                     _windowsUpdate(windows);
                 });
@@ -356,7 +356,7 @@ namespace tl
 #endif // _WINDOWS
         }
 
-        void IApp::_windowsUpdate(const std::vector<std::shared_ptr<ui::IWidget> >& windows)
+        void IApp::_windowsUpdate(const std::vector<std::shared_ptr<ui::IWindow> >& windows)
         {
             TLRENDER_P();
             for (const auto& window : windows)
@@ -372,12 +372,12 @@ namespace tl
                     glfwWindow->setFrameBufferSizeCallback(
                         [this, window](const math::Size2i& value)
                         {
-                            _p->eventLoop->setWidgetResolution(window, value);
+                            _p->eventLoop->setFrameBufferSize(window, value);
                         });
                     glfwWindow->setContentScaleCallback(
                         [this, window](const math::Vector2f& value)
                         {
-                            _p->eventLoop->setWidgetScale(window, value.x);
+                            _p->eventLoop->setDisplayScale(window, value.x);
                         });
                     glfwWindow->setRefreshCallback(
                         [this]
@@ -456,24 +456,28 @@ namespace tl
                         });
 
                     p.windows[window].glfw = glfwWindow;
-                    /*p.windows[window].sizeObserver = observer::ValueObserver<math::Size2i>::create(
-                        window->observeSize(),
-                        [glfwWindow](const math::Size2i& value)
-                        {
-                            glfwWindow->setSize(value);
-                        });
-                    p.windows[window].fullScreenObserver = observer::ValueObserver<bool>::create(
-                        window->observeFullScreen(),
-                        [glfwWindow](bool value)
-                        {
-                            glfwWindow->setFullScreen(value);
-                        });
-                    p.windows[window].floatOnTopObserver = observer::ValueObserver<bool>::create(
-                        window->observeFloatOnTop(),
-                        [glfwWindow](bool value)
-                        {
-                            glfwWindow->setFloatOnTop(value);
-                        });*/
+
+                    if (auto w = std::dynamic_pointer_cast<ui::Window>(window))
+                    {
+                        p.windows[window].sizeObserver = observer::ValueObserver<math::Size2i>::create(
+                            w->observeWindowSize(),
+                            [glfwWindow](const math::Size2i& value)
+                            {
+                                glfwWindow->setSize(value);
+                            });
+                        p.windows[window].fullScreenObserver = observer::ValueObserver<bool>::create(
+                            w->observeFullScreen(),
+                            [glfwWindow](bool value)
+                            {
+                                glfwWindow->setFullScreen(value);
+                            });
+                        p.windows[window].floatOnTopObserver = observer::ValueObserver<bool>::create(
+                            w->observeFloatOnTop(),
+                            [glfwWindow](bool value)
+                            {
+                                glfwWindow->setFloatOnTop(value);
+                            });
+                    }
 
                     math::Size2i windowResolution;
                     glfwGetFramebufferSize(
@@ -485,8 +489,8 @@ namespace tl
                         glfwWindow->getGLFW(),
                         &windowScale.x,
                         &windowScale.y);
-                    p.eventLoop->setWidgetResolution(window, windowResolution);
-                    p.eventLoop->setWidgetScale(window, windowScale.x);
+                    p.eventLoop->setFrameBufferSize(window, windowResolution);
+                    p.eventLoop->setDisplayScale(window, windowScale.x);
                 }
             }
 
@@ -505,7 +509,7 @@ namespace tl
             }
         }
 
-        void IApp::_setActiveWindow(const std::shared_ptr<ui::IWidget>& window)
+        void IApp::_setActiveWindow(const std::shared_ptr<ui::IWindow>& window)
         {
             TLRENDER_P();
             if (window == p.activeWindow)
@@ -538,9 +542,16 @@ namespace tl
             {
                 if (i->second.glfw->shouldClose())
                 {
-                    auto window = i->first;
+                    auto iwindow = i->first;
                     i = p.windows.erase(i);
-                    p.eventLoop->removeWidget(window);
+                    if (auto window = std::dynamic_pointer_cast<ui::Window>(iwindow))
+                    {
+                        window->close();
+                    }
+                    else
+                    {
+                        p.eventLoop->removeWindow(iwindow);
+                    }
                 }
                 else
                 {

@@ -4,13 +4,16 @@
 
 #include <tlUI/Window.h>
 
+#include <tlUI/EventLoop.h>
+
 namespace tl
 {
     namespace ui
     {
         struct Window::Private
         {
-            std::shared_ptr<observer::Value<math::Size2i> > size;
+            std::shared_ptr<observer::Value<bool> > open;
+            std::shared_ptr<observer::Value<math::Size2i> > windowSize;
             std::shared_ptr<observer::Value<bool> > fullScreen;
             std::shared_ptr<observer::Value<bool> > floatOnTop;
         };
@@ -19,9 +22,10 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::ui::Window", context, parent);
+            IWindow::_init("tl::ui::Window", context, parent);
             TLRENDER_P();
-            p.size = observer::Value<math::Size2i>::create(math::Size2i(1280, 720));
+            p.open = observer::Value<bool>::create(false);
+            p.windowSize = observer::Value<math::Size2i>::create(math::Size2i(1280, 720));
             p.fullScreen = observer::Value<bool>::create(false);
             p.floatOnTop = observer::Value<bool>::create(false);
         }
@@ -42,12 +46,34 @@ namespace tl
             return out;
         }
 
-        std::shared_ptr<observer::IValue<math::Size2i> > Window::observeSize() const
+        std::shared_ptr<observer::IValue<bool> > Window::observeOpen() const
         {
-            return _p->size;
+            return _p->open;
         }
 
-        void Window::resize(const math::Size2i& value)
+        void Window::open(const std::shared_ptr<EventLoop>& eventLoop)
+        {
+            eventLoop->addWindow(
+                std::dynamic_pointer_cast<IWindow>(shared_from_this()));
+            _p->open->setIfChanged(true);
+        }
+
+        void Window::close()
+        {
+            if (auto eventLoop = _eventLoop.lock())
+            {
+                eventLoop->removeWindow(
+                    std::dynamic_pointer_cast<IWindow>(shared_from_this()));
+                _p->open->setIfChanged(false);
+            }
+        }
+
+        std::shared_ptr<observer::IValue<math::Size2i> > Window::observeWindowSize() const
+        {
+            return _p->windowSize;
+        }
+
+        void Window::setWindowSize(const math::Size2i& value)
         {
             setGeometry(math::Box2i(_geometry.x(), _geometry.y(), value.w, value.h));
         }
@@ -84,12 +110,12 @@ namespace tl
 
         void Window::setGeometry(const math::Box2i& value)
         {
-            IWidget::setGeometry(value);
+            IWindow::setGeometry(value);
             for (const auto& i : _children)
             {
                 i->setGeometry(value);
             }
-            _p->size->setIfChanged(value.getSize());
+            _p->windowSize->setIfChanged(value.getSize());
         }
     }
 }

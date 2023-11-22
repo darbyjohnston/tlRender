@@ -10,6 +10,8 @@ namespace tl
 {
     namespace ui
     {
+        class IWindow;
+
         //! Base class for dialog widgets.
         class IDialog : public IPopup
         {
@@ -27,7 +29,7 @@ namespace tl
             virtual ~IDialog() = 0;
 
             //! Open the dialog.
-            void open(const std::shared_ptr<IWidget>&);
+            void open(const std::shared_ptr<IWindow>&);
 
             //! Get whether the dialog is open.
             bool isOpen() const;

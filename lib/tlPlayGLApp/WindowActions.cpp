@@ -6,6 +6,7 @@
 
 #include <tlPlayGLApp/App.h>
 #include <tlPlayGLApp/MainWindow.h>
+#include <tlPlayGLApp/SecondaryWindow.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -65,7 +66,14 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getMainWindow()->setSecondaryWindow(value);
+                        if (value)
+                        {
+                            app->getSecondaryWindow()->open(app->getEventLoop());
+                        }
+                        else
+                        {
+                            app->getSecondaryWindow()->close();
+                        }
                     }
                 });
             p.actions["Secondary"]->toolTip = string::Format(

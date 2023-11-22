@@ -41,7 +41,7 @@ namespace tl
         IDialog::~IDialog()
         {}
 
-        void IDialog::open(const std::shared_ptr<IWidget>& window)
+        void IDialog::open(const std::shared_ptr<IWindow>& window)
         {
             TLRENDER_P();
             p.open = true;

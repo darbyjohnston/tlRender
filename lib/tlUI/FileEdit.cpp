@@ -134,7 +134,7 @@ namespace tl
                 if (auto fileBrowserSystem = context->getSystem<FileBrowserSystem>())
                 {
                     fileBrowserSystem->open(
-                        getTopLevel(),
+                        getWindow(),
                         [this](const file::FileInfo& value)
                         {
                             _p->path = value.getPath();

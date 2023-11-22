@@ -550,7 +550,7 @@ namespace tl
                 if (!p.menu)
                 {
                     p.menu = ComboBoxMenu::create(p.items, context);
-                    p.menu->open(getTopLevel(), _geometry);
+                    p.menu->open(getWindow(), _geometry);
                     auto weak = std::weak_ptr<ComboBox>(std::dynamic_pointer_cast<ComboBox>(shared_from_this()));
                     p.menu->setCallback(
                         [weak](int index)

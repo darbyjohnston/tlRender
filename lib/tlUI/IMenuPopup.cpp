@@ -122,7 +122,7 @@ namespace tl
         {}
 
         void IMenuPopup::open(
-            const std::shared_ptr<IWidget>& window,
+            const std::shared_ptr<IWindow>& window,
             const math::Box2i& buttonGeometry)
         {
             TLRENDER_P();

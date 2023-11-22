@@ -1058,7 +1058,7 @@ namespace tl
                         {
                             messageDialogSystem->open(
                                 "Reset preferences to default values?",
-                                getTopLevel(),
+                                getWindow(),
                                 [appWeak](bool value)
                                 {
                                     if (value)

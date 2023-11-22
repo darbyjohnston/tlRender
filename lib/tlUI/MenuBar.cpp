@@ -76,7 +76,7 @@ namespace tl
                             {
                                 openMenu->close();
                                 button->takeKeyFocus();
-                                menu->open(getTopLevel(), button->getGeometry());
+                                menu->open(getWindow(), button->getGeometry());
                             }
                         }
                     });
@@ -85,7 +85,7 @@ namespace tl
                     {
                         if (!menu->isOpen())
                         {
-                            menu->open(getTopLevel(), button->getGeometry());
+                            menu->open(getWindow(), button->getGeometry());
                         }
                         else
                         {

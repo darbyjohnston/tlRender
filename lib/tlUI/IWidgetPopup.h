@@ -10,6 +10,8 @@ namespace tl
 {
     namespace ui
     {
+        class IWindow;
+
         //! Base class for popup widgets.
         class IWidgetPopup : public IPopup
         {
@@ -28,7 +30,7 @@ namespace tl
 
             //! Open the popup.
             void open(
-                const std::shared_ptr<IWidget>&,
+                const std::shared_ptr<IWindow>&,
                 const math::Box2i& buttonGeometry);
 
             //! Get whether the popup is open.

@@ -16,6 +16,7 @@ namespace tl
     namespace ui
     {
         class IClipboard;
+        class IWindow;
 
         //! Event loop.
         class EventLoop : public std::enable_shared_from_this<EventLoop>
@@ -41,24 +42,20 @@ namespace tl
                 const std::shared_ptr<IClipboard>&,
                 const std::shared_ptr<system::Context>&);
 
-            //! Add a widget.
-            void addWidget(const std::shared_ptr<IWidget>&);
+            //! Add a window.
+            void addWindow(const std::shared_ptr<IWindow>&);
 
-            //! Remove a widget.
-            void removeWidget(const std::shared_ptr<IWidget>&);
+            //! Remove a window.
+            void removeWindow(const std::shared_ptr<IWindow>&);
 
-            //! Observe the widgets.
-            std::shared_ptr<observer::IList<std::shared_ptr<IWidget> > > observeWidgets() const;
+            //! Observe the windows.
+            std::shared_ptr<observer::IList<std::shared_ptr<IWindow> > > observeWindows() const;
 
-            //! Set the widget resolution.
-            void setWidgetResolution(
-                const std::shared_ptr<IWidget>&,
-                const math::Size2i&);
+            //! Set the frame buffer size.
+            void setFrameBufferSize(const std::shared_ptr<IWindow>&, const math::Size2i&);
 
-            //! Set the widget scale.
-            void setWidgetScale(
-                const std::shared_ptr<IWidget>&,
-                float);
+            //! Set the display scale.
+            void setDisplayScale(const std::shared_ptr<IWindow>&, float);
 
             //! Set the key focus widget.
             void setKeyFocus(const std::shared_ptr<IWidget>&);
@@ -70,9 +67,7 @@ namespace tl
             void text(const std::string&);
 
             //! Handle the cursor entering and leaving.
-            void cursorEnter(
-                const std::shared_ptr<IWidget>&,
-                bool enter);
+            void cursorEnter(const std::shared_ptr<IWindow>&, bool enter);
 
             //! Handle the cursor position.
             void cursorPos(const math::Vector2i&);
@@ -90,11 +85,11 @@ namespace tl
             void tick();
 
             //! Get whether a draw update is needed.
-            bool hasDrawUpdate(const std::shared_ptr<IWidget>&) const;
+            bool hasDrawUpdate(const std::shared_ptr<IWindow>&) const;
 
             //! Draw the widget.
             void draw(
-                const std::shared_ptr<IWidget>&,
+                const std::shared_ptr<IWindow>&,
                 const std::shared_ptr<timeline::IRender>&);
 
         protected:
@@ -106,12 +101,12 @@ namespace tl
                 const TickEvent&);
 
             bool _getSizeUpdate(const std::shared_ptr<IWidget>&);
-            void _sizeHintEvent(const std::shared_ptr<IWidget>&);
+            void _sizeHintEvent(const std::shared_ptr<IWindow>&);
             void _sizeHintEvent(
                 const std::shared_ptr<IWidget>&,
                 const SizeHintEvent&);
 
-            void _clipEvent(const std::shared_ptr<IWidget>&);
+            void _clipEvent(const std::shared_ptr<IWindow>&);
             void _clipEvent(
                 const std::shared_ptr<IWidget>&,
                 const math::Box2i&,
@@ -119,7 +114,7 @@ namespace tl
 
             bool _getDrawUpdate(const std::shared_ptr<IWidget>&);
             void _drawEvent(
-                const std::shared_ptr<IWidget>&,
+                const std::shared_ptr<IWindow>&,
                 const std::shared_ptr<timeline::IRender>&);
             void _drawEvent(
                 const std::shared_ptr<IWidget>&,

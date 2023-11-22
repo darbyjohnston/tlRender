@@ -10,6 +10,7 @@
 
 #include <tlUI/EventLoop.h>
 #include <tlUI/IClipboard.h>
+#include <tlUI/IWindow.h>
 #include <tlUI/RowLayout.h>
 
 #include <tlTimeline/GLRender.h>
@@ -31,6 +32,42 @@ namespace tl
     {
         namespace
         {
+            class TimelineWindow : public ui::IWindow
+            {
+                TLRENDER_NON_COPYABLE(TimelineWindow);
+
+            public:
+                void _init(
+                    const std::shared_ptr<system::Context>& context)
+                {
+                    IWindow::_init("tl::qtwidget::TimelineWindow", context, nullptr);
+                }
+
+                TimelineWindow()
+                {}
+
+            public:
+                virtual ~TimelineWindow()
+                {}
+
+                static std::shared_ptr<TimelineWindow> create(
+                    const std::shared_ptr<system::Context>& context)
+                {
+                    auto out = std::shared_ptr<TimelineWindow>(new TimelineWindow);
+                    out->_init(context);
+                    return out;
+                }
+
+                void setGeometry(const math::Box2i& value) override
+                {
+                    IWindow::setGeometry(value);
+                    for (const auto& i : _children)
+                    {
+                        i->setGeometry(value);
+                    }
+                }
+            };
+
             class Clipboard : public ui::IClipboard
             {
                 TLRENDER_NON_COPYABLE(Clipboard);
@@ -84,6 +121,7 @@ namespace tl
             std::shared_ptr<ui::EventLoop> eventLoop;
             timelineui::ItemOptions itemOptions;
             std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
+            std::shared_ptr<TimelineWindow> timelineWindow;
             std::shared_ptr<tl::gl::Shader> shader;
             std::shared_ptr<tl::gl::OffscreenBuffer> buffer;
             std::shared_ptr<gl::VBO> vbo;
@@ -128,7 +166,9 @@ namespace tl
                 context);
             p.timelineWidget = timelineui::TimelineWidget::create(timeUnitsModel, context);
             //p.timelineWidget->setScrollBarsVisible(false);
-            p.eventLoop->addWidget(p.timelineWidget);
+            p.timelineWindow = TimelineWindow::create(context);
+            p.timelineWidget->setParent(p.timelineWindow);
+            p.eventLoop->addWindow(p.timelineWindow);
 
             _styleUpdate();
 
@@ -295,9 +335,9 @@ namespace tl
         {
             TLRENDER_P();
             
-            p.eventLoop->setWidgetResolution(p.timelineWidget, math::Size2i(_toUI(w), _toUI(h)));
+            p.eventLoop->setFrameBufferSize(p.timelineWindow, math::Size2i(_toUI(w), _toUI(h)));
             const float devicePixelRatio = window()->devicePixelRatio();
-            p.eventLoop->setWidgetScale(p.timelineWidget, devicePixelRatio);
+            p.eventLoop->setDisplayScale(p.timelineWindow, devicePixelRatio);
             
             p.vao.reset();
             p.vbo.reset();
@@ -307,7 +347,7 @@ namespace tl
         {
             TLRENDER_P();
             const math::Size2i renderSize(_toUI(width()), _toUI(height()));
-            if (p.eventLoop->hasDrawUpdate(p.timelineWidget))
+            if (p.eventLoop->hasDrawUpdate(p.timelineWindow))
             {
                 try
                 {
@@ -335,7 +375,7 @@ namespace tl
                             timeline::ColorConfigOptions(),
                             timeline::LUTOptions(),
                             renderOptions);
-                        p.eventLoop->draw(p.timelineWidget, p.render);
+                        p.eventLoop->draw(p.timelineWindow, p.render);
                         p.render->end();
                     }
                 }
@@ -404,14 +444,14 @@ namespace tl
         {
             TLRENDER_P();
             event->accept();
-            p.eventLoop->cursorEnter(p.timelineWidget, true);
+            p.eventLoop->cursorEnter(p.timelineWindow, true);
         }
 
         void TimelineWidget::leaveEvent(QEvent* event)
         {
             TLRENDER_P();
             event->accept();
-            p.eventLoop->cursorEnter(p.timelineWidget, false);
+            p.eventLoop->cursorEnter(p.timelineWindow, false);
         }
 
         namespace
@@ -619,7 +659,7 @@ namespace tl
         {
             TLRENDER_P();
             p.eventLoop->tick();
-            if (p.eventLoop->hasDrawUpdate(p.timelineWidget))
+            if (p.eventLoop->hasDrawUpdate(p.timelineWindow))
             {
                 update();
             }

@@ -79,9 +79,6 @@ namespace tl
             //! Set the window options.
             void setWindowOptions(const WindowOptions&);
 
-            //! Set whether the secondary window is active.
-            void setSecondaryWindow(bool);
-
             void setGeometry(const math::Box2i&) override;
             void keyPressEvent(ui::KeyEvent&) override;
             void keyReleaseEvent(ui::KeyEvent&) override;

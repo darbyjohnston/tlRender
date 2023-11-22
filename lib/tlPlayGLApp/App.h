@@ -30,6 +30,7 @@ namespace tl
     namespace play_gl
     {
         class MainWindow;
+        class SecondaryWindow;
         class ToolsModel;
 
         //! Application.
@@ -84,14 +85,11 @@ namespace tl
             //! Get the tools model.
             const std::shared_ptr<ToolsModel>& getToolsModel() const;
 
-            //! Observe whether the main window is in full screen mode.
-            std::shared_ptr<observer::IValue<bool> > observeFullScreen() const;
-
-            //! Observe whether the main window is floating on top.
-            std::shared_ptr<observer::IValue<bool> > observeFloatOnTop() const;
-
             //! Get the main window.
             const std::shared_ptr<MainWindow>& getMainWindow() const;
+
+            //! Get the secondary window.
+            const std::shared_ptr<SecondaryWindow>& getSecondaryWindow() const;
 
         protected:
             void _drop(const std::vector<std::string>&) override;
@@ -103,7 +101,7 @@ namespace tl
             void _modelsInit();
             void _observersInit();
             void _inputFilesInit();
-            void _mainWindowInit();
+            void _windowsInit();
 
             io::Options _getIOOptions() const;
             std::vector<std::shared_ptr<timeline::Player> > _getActivePlayers() const;

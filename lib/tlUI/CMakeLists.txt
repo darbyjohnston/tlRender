@@ -33,6 +33,7 @@ set(HEADERS
     IWidgetInline.h
     IWidgetOptions.h
     IWidgetPopup.h
+    IWindow.h
     IconLibrary.h
     Icon.h
     IncButtons.h
@@ -113,6 +114,7 @@ set(SOURCE
     IWidget.cpp
     IWidgetOptions.cpp
     IWidgetPopup.cpp
+    IWindow.cpp
     IconLibrary.cpp
     Icon.cpp
     IncButtons.cpp

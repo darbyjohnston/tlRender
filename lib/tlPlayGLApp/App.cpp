@@ -5,6 +5,7 @@
 #include <tlPlayGLApp/App.h>
 
 #include <tlPlayGLApp/MainWindow.h>
+#include <tlPlayGLApp/SecondaryWindow.h>
 #include <tlPlayGLApp/SeparateAudioDialog.h>
 #include <tlPlayGLApp/Style.h>
 #include <tlPlayGLApp/Tools.h>
@@ -52,11 +53,8 @@ namespace tl
             std::shared_ptr<play::AudioModel> audioModel;
             std::shared_ptr<ToolsModel> toolsModel;
 
-            std::shared_ptr<observer::Value<bool> > fullScreen;
-            std::shared_ptr<observer::Value<bool> > floatOnTop;
             std::shared_ptr<MainWindow> mainWindow;
-            std::shared_ptr<observer::ValueObserver<bool> > fullScreenObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > floatOnTopObserver;
+            std::shared_ptr<SecondaryWindow> secondaryWindow;
             std::shared_ptr<SeparateAudioDialog> separateAudioDialog;
 
             std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
@@ -65,6 +63,7 @@ namespace tl
             std::shared_ptr<observer::ListObserver<int> > layersObserver;
             std::shared_ptr<observer::ValueObserver<size_t> > recentFilesMaxObserver;
             std::shared_ptr<observer::ListObserver<file::Path> > recentFilesObserver;
+            std::shared_ptr<observer::ValueObserver<bool> > secondaryWindowObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > colorConfigOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
@@ -100,7 +99,7 @@ namespace tl
             _modelsInit();
             _observersInit();
             _inputFilesInit();
-            _mainWindowInit();
+            _windowsInit();
         }
 
         App::App() :
@@ -210,19 +209,14 @@ namespace tl
             return _p->toolsModel;
         }
 
-        std::shared_ptr<observer::IValue<bool> > App::observeFullScreen() const
-        {
-            return _p->fullScreen;
-        }
-
-        std::shared_ptr<observer::IValue<bool> > App::observeFloatOnTop() const
-        {
-            return _p->floatOnTop;
-        }
-
         const std::shared_ptr<MainWindow>& App::getMainWindow() const
         {
             return _p->mainWindow;
+        }
+
+        const std::shared_ptr<SecondaryWindow>& App::getSecondaryWindow() const
+        {
+            return _p->secondaryWindow;
         }
 
         void App::_drop(const std::vector<std::string>& value)
@@ -461,33 +455,19 @@ namespace tl
             }
         }
 
-        void App::_mainWindowInit()
+        void App::_windowsInit()
         {
             TLRENDER_P();
 
-            p.fullScreen = observer::Value<bool>::create(_options.fullscreen);
-            p.floatOnTop = observer::Value<bool>::create(false);
+            p.secondaryWindow = SecondaryWindow::create(
+                std::dynamic_pointer_cast<App>(shared_from_this()),
+                _context);
 
             p.mainWindow = MainWindow::create(
                 std::dynamic_pointer_cast<App>(shared_from_this()),
                 _context);
-
-            p.fullScreenObserver = observer::ValueObserver<bool>::create(
-                p.mainWindow->observeFullScreen(),
-                [this](bool value)
-                {
-                    _p->fullScreen->setIfChanged(value);
-                });
-            p.floatOnTopObserver = observer::ValueObserver<bool>::create(
-                p.mainWindow->observeFloatOnTop(),
-                [this](bool value)
-                {
-                    _p->floatOnTop->setIfChanged(value);
-                });
-
-            getEventLoop()->addWidget(p.mainWindow);
-
-            p.mainWindow->resize(
+            getEventLoop()->addWindow(p.mainWindow);
+            p.mainWindow->setWindowSize(
                 _options.windowSize.isValid() ?
                 _options.windowSize :
                 p.settings->getValue<math::Size2i>("Window/Size"));
