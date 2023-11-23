@@ -5,7 +5,6 @@
 #include <tlUI/MenuBar.h>
 
 #include <tlUI/DrawUtil.h>
-#include <tlUI/EventLoop.h>
 #include <tlUI/ListButton.h>
 #include <tlUI/RowLayout.h>
 
