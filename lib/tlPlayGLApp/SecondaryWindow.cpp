@@ -31,10 +31,9 @@ namespace tl
 
         void SecondaryWindow::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
-            const std::shared_ptr<IWidget>& parent)
+            const std::shared_ptr<system::Context>& context)
         {
-            Window::_init(context, parent);
+            Window::_init("tlplay-gl 2", context);
             TLRENDER_P();
 
             p.viewport = timelineui::TimelineViewport::create(context);
@@ -95,15 +94,22 @@ namespace tl
         {}
 
         SecondaryWindow::~SecondaryWindow()
-        {}
+        {
+            TLRENDER_P();
+            _makeCurrent();
+            auto i = std::find(_children.begin(), _children.end(), p.viewport);
+            if (i != _children.end())
+            {
+                _children.erase(i);
+            }
+        }
 
         std::shared_ptr<SecondaryWindow> SecondaryWindow::create(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
-            const std::shared_ptr<IWidget>& parent)
+            const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<SecondaryWindow>(new SecondaryWindow);
-            out->_init(app, context, parent);
+            out->_init(app, context);
             return out;
         }
     }

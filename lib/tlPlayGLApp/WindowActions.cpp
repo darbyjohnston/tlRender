@@ -6,7 +6,6 @@
 
 #include <tlPlayGLApp/App.h>
 #include <tlPlayGLApp/MainWindow.h>
-#include <tlPlayGLApp/SecondaryWindow.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -66,14 +65,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        if (value)
-                        {
-                            app->getSecondaryWindow()->open(app->getEventLoop());
-                        }
-                        else
-                        {
-                            app->getSecondaryWindow()->close();
-                        }
+                        app->setSecondaryWindow(value);
                     }
                 });
             p.actions["Secondary"]->toolTip = string::Format(
@@ -83,12 +75,6 @@ namespace tl
                 arg(ui::getLabel(
                     p.actions["Secondary"]->shortcut,
                     p.actions["Secondary"]->shortcutModifiers));
-
-            p.actions["SecondaryFloatOnTop"] = std::make_shared<ui::Action>(
-                "Secondary Float On Top",
-                [this](bool value)
-                {
-                });
 
             auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
             p.actions["FileToolBar"] = std::make_shared<ui::Action>(

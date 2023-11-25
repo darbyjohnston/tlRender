@@ -40,7 +40,7 @@ namespace tl
         class RecentFilesModel;
     }
 
-    //! "tlplay-qt" application.
+    //! tlplay-qt application.
     namespace play_qt
     {
         class DevicesModel;
@@ -76,6 +76,9 @@ namespace tl
             //! Get the timeline players.
             const QVector<QSharedPointer<qt::TimelinePlayer> >& players() const;
 
+            //! Get the active timeline players.
+            QVector<QSharedPointer<qt::TimelinePlayer> > activePlayers() const;
+
             //! Get the recent files model.
             const std::shared_ptr<ui::RecentFilesModel>& recentFilesModel() const;
 
@@ -107,13 +110,21 @@ namespace tl
             //! Open a file with separate audio dialog.
             void openSeparateAudioDialog();
 
+            //! Set whether the scondary window is active.
+            void setSecondaryWindow(bool);
+
         Q_SIGNALS:
             //! This signal is emitted when the active players are changed.
             void activePlayersChanged(const QVector<QSharedPointer<qt::TimelinePlayer> >&);
 
+            //! This signal is emitted when the secondary window active state is changed.
+            void secondaryWindowChanged(bool);
+
         private Q_SLOTS:
             void _filesCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
             void _activeCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
+            void _mainWindowDestroyedCallback();
+            void _secondaryWindowDestroyedCallback();
 
         private:
             void _fileLogInit(const std::string&);
@@ -121,10 +132,9 @@ namespace tl
             void _modelsInit();
             void _observersInit();
             void _inputFilesInit();
-            void _mainWindowInit();
+            void _windowsInit();
 
             io::Options _ioOptions() const;
-            QVector<QSharedPointer<qt::TimelinePlayer> > _activePlayers() const;
             otime::RationalTime _cacheReadAhead() const;
             otime::RationalTime _cacheReadBehind() const;
 

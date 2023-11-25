@@ -22,8 +22,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent);
+                const std::shared_ptr<system::Context>&);
 
             SecondaryWindow();
 
@@ -32,8 +31,7 @@ namespace tl
 
             static std::shared_ptr<SecondaryWindow> create(
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<system::Context>&);
 
         private:
             TLRENDER_PRIVATE();

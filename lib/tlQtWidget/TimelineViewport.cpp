@@ -78,7 +78,9 @@ namespace tl
         }
 
         TimelineViewport::~TimelineViewport()
-        {}
+        {
+            makeCurrent();
+        }
 
         void TimelineViewport::setBackgroundOptions(const timeline::BackgroundOptions& value)
         {

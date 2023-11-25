@@ -8,7 +8,6 @@
 
 #include <tlTimelineUI/TimelineWidget.h>
 
-#include <tlUI/EventLoop.h>
 #include <tlUI/IClipboard.h>
 #include <tlUI/IWindow.h>
 #include <tlUI/RowLayout.h>
@@ -56,6 +55,36 @@ namespace tl
                     auto out = std::shared_ptr<TimelineWindow>(new TimelineWindow);
                     out->_init(context);
                     return out;
+                }
+
+                bool key(ui::Key key, bool press, int modifiers)
+                {
+                    return _key(key, press, modifiers);
+                }
+
+                void text(const std::string& text)
+                {
+                    _text(text);
+                }
+
+                void cursorEnter(bool enter)
+                {
+                    _cursorEnter(enter);
+                }
+
+                void cursorPos(const math::Vector2i& value)
+                {
+                    _cursorPos(value);
+                }
+
+                void mouseButton(int button, bool press, int modifiers)
+                {
+                    _mouseButton(button, press, modifiers);
+                }
+
+                void scroll(const math::Vector2f& value, int modifiers)
+                {
+                    _scroll(value, modifiers);
                 }
 
                 void setGeometry(const math::Box2i& value) override
@@ -116,9 +145,9 @@ namespace tl
 
             std::shared_ptr<ui::Style> style;
             std::shared_ptr<ui::IconLibrary> iconLibrary;
+            std::shared_ptr<image::FontSystem> fontSystem;
             std::shared_ptr<Clipboard> clipboard;
             std::shared_ptr<timeline::IRender> render;
-            std::shared_ptr<ui::EventLoop> eventLoop;
             timelineui::ItemOptions itemOptions;
             std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
             std::shared_ptr<TimelineWindow> timelineWindow;
@@ -158,17 +187,13 @@ namespace tl
 
             p.style = style;
             p.iconLibrary = ui::IconLibrary::create(context);
+            p.fontSystem = context->getSystem<image::FontSystem>();
             p.clipboard = Clipboard::create(context);
-            p.eventLoop = ui::EventLoop::create(
-                p.style,
-                p.iconLibrary,
-                p.clipboard,
-                context);
             p.timelineWidget = timelineui::TimelineWidget::create(timeUnitsModel, context);
             //p.timelineWidget->setScrollBarsVisible(false);
             p.timelineWindow = TimelineWindow::create(context);
+            p.timelineWindow->setClipboard(p.clipboard);
             p.timelineWidget->setParent(p.timelineWindow);
-            p.eventLoop->addWindow(p.timelineWindow);
 
             _styleUpdate();
 
@@ -190,7 +215,10 @@ namespace tl
         }
 
         TimelineWidget::~TimelineWidget()
-        {}
+        {
+            TLRENDER_P();
+            makeCurrent();
+        }
 
         void TimelineWidget::setPlayer(const std::shared_ptr<timeline::Player>& player)
         {
@@ -335,10 +363,8 @@ namespace tl
         {
             TLRENDER_P();
             
-            p.eventLoop->setFrameBufferSize(p.timelineWindow, math::Size2i(_toUI(w), _toUI(h)));
-            const float devicePixelRatio = window()->devicePixelRatio();
-            p.eventLoop->setDisplayScale(p.timelineWindow, devicePixelRatio);
-            
+            p.timelineWindow->setGeometry(math::Box2i(0, 0, _toUI(w), _toUI(h)));
+
             p.vao.reset();
             p.vbo.reset();
         }
@@ -347,7 +373,7 @@ namespace tl
         {
             TLRENDER_P();
             const math::Size2i renderSize(_toUI(width()), _toUI(height()));
-            if (p.eventLoop->hasDrawUpdate(p.timelineWindow))
+            if (_getDrawUpdate(p.timelineWindow))
             {
                 try
                 {
@@ -375,7 +401,15 @@ namespace tl
                             timeline::ColorConfigOptions(),
                             timeline::LUTOptions(),
                             renderOptions);
-                        p.eventLoop->draw(p.timelineWindow, p.render);
+
+                        ui::DrawEvent drawEvent(
+                            p.style,
+                            p.iconLibrary,
+                            p.render,
+                            p.fontSystem);
+                        p.render->setClipRectEnabled(true);
+                        _drawEvent(p.timelineWindow, math::Box2i(renderSize), drawEvent);
+                        p.render->setClipRectEnabled(false);
                         p.render->end();
                     }
                 }
@@ -444,14 +478,14 @@ namespace tl
         {
             TLRENDER_P();
             event->accept();
-            p.eventLoop->cursorEnter(p.timelineWindow, true);
+            p.timelineWindow->cursorEnter(true);
         }
 
         void TimelineWidget::leaveEvent(QEvent* event)
         {
             TLRENDER_P();
             event->accept();
-            p.eventLoop->cursorEnter(p.timelineWindow, false);
+            p.timelineWindow->cursorEnter(false);
         }
 
         namespace
@@ -484,7 +518,7 @@ namespace tl
             {
                 button = 0;
             }
-            p.eventLoop->mouseButton(
+            p.timelineWindow->mouseButton(
                 button,
                 true,
                 fromQtModifiers(event->modifiers()));
@@ -499,7 +533,7 @@ namespace tl
             {
                 button = 1;
             }
-            p.eventLoop->mouseButton(
+            p.timelineWindow->mouseButton(
                 button,
                 false,
                 fromQtModifiers(event->modifiers()));
@@ -509,7 +543,7 @@ namespace tl
         {
             TLRENDER_P();
             event->accept();
-            p.eventLoop->cursorPos(
+            p.timelineWindow->cursorPos(
                 math::Vector2i(_toUI(event->x()), _toUI(event->y())));
         }
 
@@ -520,7 +554,7 @@ namespace tl
             const auto diff = std::chrono::duration<float>(now - p.mouseWheelTimer);
             const float delta = event->angleDelta().y() / 8.F / 15.F;
             p.mouseWheelTimer = now;
-            p.eventLoop->scroll(
+            p.timelineWindow->scroll(
                 math::Vector2f(
                     event->angleDelta().x() / 8.F / 15.F,
                     event->angleDelta().y() / 8.F / 15.F),
@@ -626,7 +660,7 @@ namespace tl
         void TimelineWidget::keyPressEvent(QKeyEvent* event)
         {
             TLRENDER_P();
-            if (p.eventLoop->key(
+            if (p.timelineWindow->key(
                 fromQtKey(event->key()),
                 true,
                 fromQtModifiers(event->modifiers())))
@@ -642,7 +676,7 @@ namespace tl
         void TimelineWidget::keyReleaseEvent(QKeyEvent* event)
         {
             TLRENDER_P();
-            if (p.eventLoop->key(
+            if (p.timelineWindow->key(
                 fromQtKey(event->key()),
                 false,
                 fromQtModifiers(event->modifiers())))
@@ -658,8 +692,27 @@ namespace tl
         void TimelineWidget::timerEvent(QTimerEvent*)
         {
             TLRENDER_P();
-            p.eventLoop->tick();
-            if (p.eventLoop->hasDrawUpdate(p.timelineWindow))
+
+            ui::TickEvent tickEvent(p.style, p.iconLibrary, p.fontSystem);
+            _tickEvent(p.timelineWindow, true, true, tickEvent);
+
+            if (_getSizeUpdate(p.timelineWindow))
+            {
+                const float devicePixelRatio = window()->devicePixelRatio();
+                ui::SizeHintEvent sizeHintEvent(
+                    p.style,
+                    p.iconLibrary,
+                    p.fontSystem,
+                    devicePixelRatio);
+                _sizeHintEvent(p.timelineWindow, sizeHintEvent);
+
+                const math::Box2i geometry(0, 0, _toUI(width()), _toUI(height()));
+                p.timelineWindow->setGeometry(geometry);
+
+                _clipEvent(p.timelineWindow, geometry, false);
+            }
+
+            if (_getDrawUpdate(p.timelineWindow))
             {
                 update();
             }
@@ -674,6 +727,126 @@ namespace tl
                 _styleUpdate();
             }
             return out;
+        }
+
+        void TimelineWidget::_tickEvent(
+            const std::shared_ptr<ui::IWidget>& widget,
+            bool visible,
+            bool enabled,
+            const ui::TickEvent& event)
+        {
+            TLRENDER_P();
+            const bool parentsVisible = visible && widget->isVisible(false);
+            const bool parentsEnabled = enabled && widget->isEnabled(false);
+            for (const auto& child : widget->getChildren())
+            {
+                _tickEvent(
+                    child,
+                    parentsVisible,
+                    parentsEnabled,
+                    event);
+            }
+            widget->tickEvent(visible, enabled, event);
+        }
+
+        bool TimelineWidget::_getSizeUpdate(const std::shared_ptr<ui::IWidget>& widget) const
+        {
+            bool out = widget->getUpdates() & ui::Update::Size;
+            if (out)
+            {
+                //std::cout << "Size update: " << widget->getObjectName() << std::endl;
+            }
+            else
+            {
+                for (const auto& child : widget->getChildren())
+                {
+                    out |= _getSizeUpdate(child);
+                }
+            }
+            return out;
+        }
+
+        void TimelineWidget::_sizeHintEvent(
+            const std::shared_ptr<ui::IWidget>& widget,
+            const ui::SizeHintEvent& event)
+        {
+            for (const auto& child : widget->getChildren())
+            {
+                _sizeHintEvent(child, event);
+            }
+            widget->sizeHintEvent(event);
+        }
+
+        void TimelineWidget::_clipEvent(
+            const std::shared_ptr<ui::IWidget>& widget,
+            const math::Box2i& clipRect,
+            bool clipped)
+        {
+            const math::Box2i& g = widget->getGeometry();
+            clipped |= !g.intersects(clipRect);
+            clipped |= !widget->isVisible(false);
+            const math::Box2i clipRect2 = g.intersect(clipRect);
+            widget->clipEvent(clipRect2, clipped);
+            const math::Box2i childrenClipRect =
+                widget->getChildrenClipRect().intersect(clipRect2);
+            for (const auto& child : widget->getChildren())
+            {
+                const math::Box2i& childGeometry = child->getGeometry();
+                _clipEvent(
+                    child,
+                    childGeometry.intersect(childrenClipRect),
+                    clipped);
+            }
+        }
+
+        bool TimelineWidget::_getDrawUpdate(const std::shared_ptr<ui::IWidget>& widget) const
+        {
+            bool out = false;
+            if (!widget->isClipped())
+            {
+                out = widget->getUpdates() & ui::Update::Draw;
+                if (out)
+                {
+                    //std::cout << "Draw update: " << widget->getObjectName() << std::endl;
+                }
+                else
+                {
+                    for (const auto& child : widget->getChildren())
+                    {
+                        out |= _getDrawUpdate(child);
+                    }
+                }
+            }
+            return out;
+        }
+
+        void TimelineWidget::_drawEvent(
+            const std::shared_ptr<ui::IWidget>& widget,
+            const math::Box2i& drawRect,
+            const ui::DrawEvent& event)
+        {
+            const math::Box2i& g = widget->getGeometry();
+            if (!widget->isClipped() && g.w() > 0 && g.h() > 0)
+            {
+                event.render->setClipRect(drawRect);
+                widget->drawEvent(drawRect, event);
+                const math::Box2i childrenClipRect =
+                    widget->getChildrenClipRect().intersect(drawRect);
+                event.render->setClipRect(childrenClipRect);
+                for (const auto& child : widget->getChildren())
+                {
+                    const math::Box2i& childGeometry = child->getGeometry();
+                    if (childGeometry.intersects(childrenClipRect))
+                    {
+                        _drawEvent(
+                            child,
+                            childGeometry.intersect(childrenClipRect),
+                            event);
+                    }
+                }
+                event.render->setClipRect(drawRect);
+                widget->drawOverlayEvent(drawRect, event);
+            }
         }
 
         int TimelineWidget::_toUI(int value) const

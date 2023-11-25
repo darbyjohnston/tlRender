@@ -13,7 +13,6 @@ namespace tl
 {
     namespace ui
     {
-        class EventLoop;
         class IWindow;
 
         //! Base class for widgets.
@@ -68,12 +67,6 @@ namespace tl
 
             //! Get the window.
             std::shared_ptr<IWindow> getWindow();
-
-            //! Get the event loop.
-            const std::weak_ptr<EventLoop>& getEventLoop();
-
-            //! Set the event loop.
-            void setEventLoop(const std::shared_ptr<EventLoop>&);
 
             ///@}
 
@@ -274,7 +267,6 @@ namespace tl
             float _displayScale = 1.F;
             int _updates = 0;
             std::weak_ptr<IWidget> _parent;
-            std::weak_ptr<EventLoop> _eventLoop;
             std::list<std::shared_ptr<IWidget> > _children;
             math::Size2i _sizeHint;
             Stretch _hStretch = Stretch::Fixed;

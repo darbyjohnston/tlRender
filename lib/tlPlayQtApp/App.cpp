@@ -7,12 +7,14 @@
 #include <tlPlayQtApp/DevicesModel.h>
 #include <tlPlayQtApp/MainWindow.h>
 #include <tlPlayQtApp/OpenSeparateAudioDialog.h>
+#include <tlPlayQtApp/SecondaryWindow.h>
 
 #include <tlPlay/Settings.h>
 
 #include <tlQtWidget/Init.h>
 #include <tlQtWidget/FileBrowserSystem.h>
 #include <tlQtWidget/Style.h>
+#include <tlQtWidget/TimelineViewport.h>
 #include <tlQtWidget/Util.h>
 
 #include <tlQt/ContextObject.h>
@@ -43,6 +45,9 @@
 #include <tlCore/StringFormat.h>
 #include <tlCore/Time.h>
 
+#include <QPointer>
+#include <QScreen>
+
 namespace tl
 {
     namespace play_qt
@@ -70,6 +75,8 @@ namespace tl
             std::shared_ptr<play::AudioModel> audioModel;
 
             QScopedPointer<MainWindow> mainWindow;
+            int secondaryWindowScreen = -1;
+            QScopedPointer<SecondaryWindow> secondaryWindow;
 
             std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
@@ -121,7 +128,7 @@ namespace tl
             _modelsInit();
             _observersInit();
             _inputFilesInit();
-            _mainWindowInit();
+            _windowsInit();
         }
 
         App::~App()
@@ -150,6 +157,25 @@ namespace tl
         const QVector<QSharedPointer<qt::TimelinePlayer> >& App::players() const
         {
             return _p->players;
+        }
+
+        QVector<QSharedPointer<qt::TimelinePlayer> > App::activePlayers() const
+        {
+            TLRENDER_P();
+            QVector<QSharedPointer<qt::TimelinePlayer> > out;
+            for (size_t i = 0; i < p.activeFiles.size(); ++i)
+            {
+                const auto j = std::find(
+                    p.files.begin(),
+                    p.files.end(),
+                    p.activeFiles[i]);
+                if (j != p.files.end())
+                {
+                    const auto k = j - p.files.begin();
+                    out.push_back(p.players[k]);
+                }
+            }
+            return out;
         }
 
         const std::shared_ptr<ui::RecentFilesModel>& App::recentFilesModel() const
@@ -227,6 +253,33 @@ namespace tl
             {
                 open(dialog->videoFileName(), dialog->audioFileName());
             }
+        }
+
+        void App::setSecondaryWindow(bool value)
+        {
+            TLRENDER_P();
+            auto screens = this->screens();
+            auto mainWindowScreen = p.mainWindow->screen();
+            screens.removeOne(mainWindowScreen);
+            if (value && !screens.isEmpty())
+            {
+                p.secondaryWindow.reset(new SecondaryWindow(this));
+                p.secondaryWindow->move(screens[0]->availableGeometry().topLeft());
+                p.secondaryWindow->setWindowState(
+                    p.secondaryWindow->windowState() ^ Qt::WindowFullScreen);
+
+                connect(
+                    p.secondaryWindow.get(),
+                    SIGNAL(destroyed(QObject*)),
+                    SLOT(_secondaryWindowDestroyedCallback()));
+
+                p.secondaryWindow->show();
+            }
+            else if (p.secondaryWindow)
+            {
+                p.secondaryWindow->close();
+            }
+            Q_EMIT secondaryWindowChanged(value);
         }
 
         void App::_filesCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >& items)
@@ -322,14 +375,14 @@ namespace tl
         {
             TLRENDER_P();
 
-            auto activePlayers = _activePlayers();
+            auto activePlayers = this->activePlayers();
             if (!activePlayers.empty() && activePlayers[0])
             {
                 activePlayers[0]->setPlayback(timeline::Playback::Stop);
             }
 
             p.activeFiles = items;
-            activePlayers = _activePlayers();
+            activePlayers = this->activePlayers();
             QSharedPointer<qt::TimelinePlayer> first;
             if (!activePlayers.empty())
             {
@@ -355,6 +408,23 @@ namespace tl
             _audioUpdate();
 
             Q_EMIT activePlayersChanged(activePlayers);
+        }
+
+        void App::_mainWindowDestroyedCallback()
+        {
+            TLRENDER_P();
+            p.mainWindow.take();
+            if (p.secondaryWindow)
+            {
+                p.secondaryWindow->close();
+            }
+        }
+
+        void App::_secondaryWindowDestroyedCallback()
+        {
+            TLRENDER_P();
+            p.secondaryWindow.take();
+            Q_EMIT secondaryWindowChanged(false);
         }
 
         void App::_fileLogInit(const std::string& logFileName)
@@ -612,13 +682,19 @@ namespace tl
             }
         }
 
-        void App::_mainWindowInit()
+        void App::_windowsInit()
         {
             TLRENDER_P();
+
             p.mainWindow.reset(new MainWindow(this));
             const math::Size2i windowSize = p.settings->getValue<math::Size2i>("MainWindow/Size");
             p.mainWindow->resize(windowSize.w, windowSize.h);
             p.mainWindow->show();
+
+            connect(
+                p.mainWindow.get(),
+                SIGNAL(destroyed(QObject*)),
+                SLOT(_mainWindowDestroyedCallback()));
         }
 
         io::Options App::_ioOptions() const
@@ -680,25 +756,6 @@ namespace tl
             }
 #endif // TLRENDER_USD
 
-            return out;
-        }
-
-        QVector<QSharedPointer<qt::TimelinePlayer> > App::_activePlayers() const
-        {
-            TLRENDER_P();
-            QVector<QSharedPointer<qt::TimelinePlayer> > out;
-            for (size_t i = 0; i < p.activeFiles.size(); ++i)
-            {
-                const auto j = std::find(
-                    p.files.begin(),
-                    p.files.end(),
-                    p.activeFiles[i]);
-                if (j != p.files.end())
-                {
-                    const auto k = j - p.files.begin();
-                    out.push_back(p.players[k]);
-                }
-            }
             return out;
         }
 
@@ -781,7 +838,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            const auto activePlayers = _activePlayers();
+            const auto activePlayers = this->activePlayers();
 
             // Update the I/O cache.
             auto ioSystem = _context->getSystem<io::System>();
@@ -836,7 +893,7 @@ namespace tl
             {
                 p.outputDevice->setVolume(volume);
                 p.outputDevice->setMute(mute);
-                const auto activePlayers = _activePlayers();
+                const auto activePlayers = this->activePlayers();
                 p.outputDevice->setAudioOffset(
                     (!activePlayers.empty() && activePlayers[0]) ?
                     activePlayers[0]->audioOffset() :

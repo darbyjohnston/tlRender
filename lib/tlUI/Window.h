@@ -17,8 +17,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent);
+                const std::string& name,
+                const std::shared_ptr<system::Context>&);
 
             Window();
 
@@ -27,23 +27,20 @@ namespace tl
 
             //! Create a new window.
             static std::shared_ptr<Window> create(
-                const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
-
-            //! Observe whether the window is open.
-            std::shared_ptr<observer::IValue<bool> > observeOpen() const;
-
-            //! Open the window.
-            void open(const std::shared_ptr<EventLoop>&);
-
-            //! Close the window.
-            void close();
+                const std::string& name,
+                const std::shared_ptr<system::Context>&);
 
             //! Observe the window size.
             std::shared_ptr<observer::IValue<math::Size2i> > observeWindowSize() const;
 
             //! Set the window size.
             void setWindowSize(const math::Size2i&);
+
+            //! Observe whether the window is visible.
+            std::shared_ptr<observer::IValue<bool> > observeVisible() const;
+
+            //! Get which screen the window is on.
+            int getScreen() const;
 
             //! Get whether the window is in full screen mode.
             bool isFullScreen() const;
@@ -52,7 +49,7 @@ namespace tl
             std::shared_ptr<observer::IValue<bool> > observeFullScreen() const;
 
             //! Set whether the window is in full screen mode.
-            void setFullScreen(bool);
+            void setFullScreen(bool, int screen = -1);
 
             //! Get whether the window is floating on top.
             bool isFloatOnTop() const;
@@ -63,9 +60,38 @@ namespace tl
             //! Set whether the window is floating on top.
             void setFloatOnTop(bool);
 
+            //! Observe when the window is closed.
+            std::shared_ptr<observer::IValue<bool> > observeClose() const;
+
             void setGeometry(const math::Box2i&) override;
+            void setVisible(bool) override;
+            void tickEvent(
+                bool parentsVisible,
+                bool parentsEnabled,
+                const TickEvent&) override;
+
+        protected:
+            void _makeCurrent();
+            void _doneCurrent();
 
         private:
+            void _tickEvent(
+                const std::shared_ptr<IWidget>&,
+                bool visible,
+                bool enabled,
+                const TickEvent&);
+
+            bool _getSizeUpdate(const std::shared_ptr<IWidget>&) const;
+            void _sizeHintEvent(
+                const std::shared_ptr<IWidget>&,
+                const SizeHintEvent&);
+
+            bool _getDrawUpdate(const std::shared_ptr<IWidget>&) const;
+            void _drawEvent(
+                const std::shared_ptr<IWidget>&,
+                const math::Box2i&,
+                const DrawEvent&);
+
             TLRENDER_PRIVATE();
         };
     }

@@ -72,6 +72,9 @@ namespace tl
             //! Show the window.
             void show();
 
+            //! Hide the window.
+            void hide();
+
             //! Make the OpenGL context current.
             void makeCurrent();
 
@@ -81,11 +84,14 @@ namespace tl
             //! Get whether the window should close.
             bool shouldClose() const;
 
+            //! Get which screen the window is on.
+            int getScreen() const;
+
             //! Get whether the window is in full screen mode.
             bool isFullScreen() const;
 
             //! Set whether the window is in full screen mode.
-            void setFullScreen(bool);
+            void setFullScreen(bool, int screen = -1);
 
             //! Get whether the window is floating on top.
             bool isFloatOnTop() const;

@@ -111,6 +111,28 @@ namespace tl
             bool event(QEvent*) override;
 
         private:
+            void _tickEvent(
+                const std::shared_ptr<ui::IWidget>&,
+                bool visible,
+                bool enabled,
+                const ui::TickEvent&);
+
+            bool _getSizeUpdate(const std::shared_ptr<ui::IWidget>&) const;
+            void _sizeHintEvent(
+                const std::shared_ptr<ui::IWidget>&,
+                const ui::SizeHintEvent&);
+
+            void _clipEvent(
+                const std::shared_ptr<ui::IWidget>&,
+                const math::Box2i&,
+                bool clipped);
+
+            bool _getDrawUpdate(const std::shared_ptr<ui::IWidget>&) const;
+            void _drawEvent(
+                const std::shared_ptr<ui::IWidget>&,
+                const math::Box2i&,
+                const ui::DrawEvent&);
+
             int _toUI(int) const;
             math::Vector2i _toUI(const math::Vector2i&) const;
             int _fromUI(int) const;

@@ -5,7 +5,6 @@
 #include <tlPlayGLApp/PlaybackActions.h>
 
 #include <tlPlayGLApp/App.h>
-#include <tlPlayGLApp/MainWindow.h>
 
 #include <tlTimelineUI/TimelineWidget.h>
 
@@ -22,7 +21,6 @@ namespace tl
         };
 
         void PlaybackActions::_init(
-            const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context)
         {
@@ -304,12 +302,11 @@ namespace tl
         {}
 
         std::shared_ptr<PlaybackActions> PlaybackActions::create(
-            const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<PlaybackActions>(new PlaybackActions);
-            out->_init(mainWindow, app, context);
+            out->_init(app, context);
             return out;
         }
 

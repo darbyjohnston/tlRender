@@ -159,10 +159,9 @@ namespace tl
 
         void MainWindow::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
-            const std::shared_ptr<IWidget>& parent)
+            const std::shared_ptr<system::Context>& context)
         {
-            Window::_init(context, parent);
+            Window::_init("tlplay-gl", context);
             TLRENDER_P();
 
             setBackgroundRole(ui::ColorRole::Window);
@@ -221,10 +220,7 @@ namespace tl
                 app,
                 context);
             p.renderActions = RenderActions::create(app, context);
-            p.playbackActions = PlaybackActions::create(
-                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
-                app,
-                context);
+            p.playbackActions = PlaybackActions::create(app, context);
             p.frameActions = FrameActions::create(
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
                 app,
@@ -247,7 +243,6 @@ namespace tl
             p.windowMenu = WindowMenu::create(
                 p.windowActions->getActions(),
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
-                app->getSecondaryWindow(),
                 app,
                 context);
             p.viewMenu = ViewMenu::create(
@@ -261,7 +256,6 @@ namespace tl
                 context);
             p.playbackMenu = PlaybackMenu::create(
                 p.playbackActions->getActions(),
-                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
                 app,
                 context);
             p.frameMenu = FrameMenu::create(
@@ -304,7 +298,6 @@ namespace tl
             p.windowToolBar = WindowToolBar::create(
                 p.windowActions->getActions(),
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
-                app->getSecondaryWindow(),
                 app,
                 context);
             p.viewToolBar = ViewToolBar::create(
@@ -612,15 +605,17 @@ namespace tl
                 timelineItemOptions.showTransitions);
             p.settings->setValue("Timeline/Markers",
                 timelineItemOptions.showMarkers);
+            _makeCurrent();
+            p.timelineViewport->setParent(nullptr);
+            p.timelineWidget->setParent(nullptr);
         }
 
         std::shared_ptr<MainWindow> MainWindow::create(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
-            const std::shared_ptr<IWidget>& parent)
+            const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<MainWindow>(new MainWindow);
-            out->_init(app, context, parent);
+            out->_init(app, context);
             return out;
         }
 
@@ -672,6 +667,18 @@ namespace tl
         void MainWindow::keyReleaseEvent(ui::KeyEvent& event)
         {
             event.accept = true;
+        }
+
+        void MainWindow::_drop(const std::vector<std::string>& value)
+        {
+            TLRENDER_P();
+            if (auto app = p.app.lock())
+            {
+                for (const auto& i : value)
+                {
+                    app->open(file::Path(i));
+                }
+            }
         }
 
         void MainWindow::_playersUpdate(const std::vector<std::shared_ptr<timeline::Player> >& value)
@@ -731,7 +738,7 @@ namespace tl
             TLRENDER_P();
             if (auto context = _context.lock())
             {
-                if (auto eventLoop = getEventLoop().lock())
+                if (auto window = std::dynamic_pointer_cast<IWindow>(shared_from_this()))
                 {
                     if (!p.speedPopup)
                     {
@@ -740,9 +747,7 @@ namespace tl
                             p.players[0]->getDefaultSpeed() :
                             0.0;
                         p.speedPopup = SpeedPopup::create(defaultSpeed, context);
-                        p.speedPopup->open(
-                            std::dynamic_pointer_cast<Window>(shared_from_this()),
-                            p.speedButton->getGeometry());
+                        p.speedPopup->open(window, p.speedButton->getGeometry());
                         auto weak = std::weak_ptr<MainWindow>(std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
                         p.speedPopup->setCallback(
                             [weak](double value)
@@ -782,14 +787,12 @@ namespace tl
             {
                 if (auto app = p.app.lock())
                 {
-                    if (auto eventLoop = getEventLoop().lock())
+                    if (auto window = std::dynamic_pointer_cast<IWindow>(shared_from_this()))
                     {
                         if (!p.audioPopup)
                         {
                             p.audioPopup = AudioPopup::create(app, context);
-                            p.audioPopup->open(
-                                std::dynamic_pointer_cast<Window>(shared_from_this()),
-                                p.audioButton->getGeometry());
+                            p.audioPopup->open(window, p.audioButton->getGeometry());
                             auto weak = std::weak_ptr<MainWindow>(std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
                             p.audioPopup->setCloseCallback(
                                 [weak]

@@ -5,7 +5,6 @@
 #include "DragAndDrop.h"
 
 #include <tlUI/DrawUtil.h>
-#include <tlUI/EventLoop.h>
 #include <tlUI/GridLayout.h>
 #include <tlUI/Label.h>
 
@@ -156,27 +155,24 @@ namespace tl
                     const float length = math::length(event.pos - _mouse.pressPos);
                     if (length > p.dragLength)
                     {
-                        if (auto eventLoop = getEventLoop().lock())
+                        event.dndData = std::make_shared<DragAndDropData>(p.number);
+                        const int w = _geometry.w();
+                        const int h = _geometry.h();
+                        event.dndCursor = image::Image::create(
+                            w, h, image::PixelType::RGBA_U8);
+                        uint8_t* p = event.dndCursor->getData();
+                        for (int y = 0; y < h; ++y)
                         {
-                            event.dndData = std::make_shared<DragAndDropData>(p.number);
-                            const int w = _geometry.w();
-                            const int h = _geometry.h();
-                            event.dndCursor = image::Image::create(
-                                w, h, image::PixelType::RGBA_U8);
-                            uint8_t* p = event.dndCursor->getData();
-                            for (int y = 0; y < h; ++y)
+                            for (int x = 0; x < w; ++x)
                             {
-                                for (int x = 0; x < w; ++x)
-                                {
-                                    p[0] = 255;
-                                    p[1] = 255;
-                                    p[2] = 255;
-                                    p[3] = 63;
-                                    p += 4;
-                                }
+                                p[0] = 255;
+                                p[1] = 255;
+                                p[2] = 255;
+                                p[3] = 63;
+                                p += 4;
                             }
-                            event.dndCursorHotspot = _mouse.pos - _geometry.min;
                         }
+                        event.dndCursorHotspot = _mouse.pos - _geometry.min;
                     }
                 }
             }

@@ -15,7 +15,7 @@ struct GLFWwindow;
 
 namespace tl
 {
-    //! "tlresource" application.
+    //! tlresource application.
     namespace resource
     {
         //! Application options.

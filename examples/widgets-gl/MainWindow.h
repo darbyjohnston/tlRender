@@ -18,9 +18,7 @@ namespace tl
                 TLRENDER_NON_COPYABLE(MainWindow);
 
             protected:
-                void _init(
-                    const std::shared_ptr<system::Context>&,
-                    const std::shared_ptr<IWidget>& parent);
+                void _init(const std::shared_ptr<system::Context>&);
 
                 MainWindow();
 
@@ -28,8 +26,7 @@ namespace tl
                 ~MainWindow();
 
                 static std::shared_ptr<MainWindow> create(
-                    const std::shared_ptr<system::Context>&,
-                    const std::shared_ptr<IWidget>& parent = nullptr);
+                    const std::shared_ptr<system::Context>&);
 
                 void setGeometry(const math::Box2i&) override;
 

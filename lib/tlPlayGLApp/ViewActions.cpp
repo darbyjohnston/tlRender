@@ -29,7 +29,7 @@ namespace tl
             p.actions["Frame"] = std::make_shared<ui::Action>(
                 "Frame",
                 "ViewFrame",
-                [this, mainWindowWeak](bool value)
+                [mainWindowWeak](bool value)
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
@@ -41,7 +41,7 @@ namespace tl
             p.actions["Zoom1To1"] = std::make_shared<ui::Action>(
                 "Zoom 1:1",
                 "ViewZoom1To1",
-                [this, mainWindowWeak]
+                [mainWindowWeak]
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {

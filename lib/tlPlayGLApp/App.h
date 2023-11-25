@@ -26,11 +26,10 @@ namespace tl
         class ViewportModel;
     }
 
-    //! "tlplay-gl" application.
+    //! tlplay-gl application.
     namespace play_gl
     {
         class MainWindow;
-        class SecondaryWindow;
         class ToolsModel;
 
         //! Application.
@@ -88,11 +87,13 @@ namespace tl
             //! Get the main window.
             const std::shared_ptr<MainWindow>& getMainWindow() const;
 
-            //! Get the secondary window.
-            const std::shared_ptr<SecondaryWindow>& getSecondaryWindow() const;
+            //! Observe whether the secondary window is active.
+            std::shared_ptr<observer::IValue<bool> > observeSecondaryWindow() const;
+
+            //! Set whether the secondary window is active.
+            void setSecondaryWindow(bool);
 
         protected:
-            void _drop(const std::vector<std::string>&) override;
             void _tick() override;
 
         private:

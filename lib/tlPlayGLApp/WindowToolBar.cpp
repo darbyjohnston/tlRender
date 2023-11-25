@@ -6,7 +6,6 @@
 
 #include <tlPlayGLApp/App.h>
 #include <tlPlayGLApp/MainWindow.h>
-#include <tlPlayGLApp/SecondaryWindow.h>
 
 #include <tlUI/RowLayout.h>
 #include <tlUI/ToolButton.h>
@@ -32,7 +31,6 @@ namespace tl
         void WindowToolBar::_init(
             const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<MainWindow>& mainWindow,
-            const std::shared_ptr<SecondaryWindow>& secondaryWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -61,28 +59,22 @@ namespace tl
             p.buttons["FullScreen"]->setParent(p.layout);
             p.buttons["Secondary"]->setParent(p.layout);
 
-            auto appWeak = std::weak_ptr<App>(app);
+            auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
             p.buttons["FullScreen"]->setCheckedCallback(
-                [appWeak](bool value)
+                [mainWindowWeak](bool value)
                 {
-                    if (auto app = appWeak.lock())
+                    if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        app->getMainWindow()->setFullScreen(value);
+                        mainWindow->setFullScreen(value);
                     }
                 });
+            auto appWeak = std::weak_ptr<App>(app);
             p.buttons["Secondary"]->setCheckedCallback(
                 [appWeak](bool value)
                 {
                     if (auto app = appWeak.lock())
                     {
-                        if (value)
-                        {
-                            app->getSecondaryWindow()->open(app->getEventLoop());
-                        }
-                        else
-                        {
-                            app->getSecondaryWindow()->close();
-                        }
+                        app->setSecondaryWindow(value);
                     }
                 });
 
@@ -101,7 +93,7 @@ namespace tl
                 });
 
             p.secondaryObserver = observer::ValueObserver<bool>::create(
-                secondaryWindow->observeOpen(),
+                app->observeSecondaryWindow(),
                 [this](bool value)
                 {
                     _p->buttons["Secondary"]->setChecked(value);
@@ -118,13 +110,12 @@ namespace tl
         std::shared_ptr<WindowToolBar> WindowToolBar::create(
             const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<MainWindow>& mainWindow,
-            const std::shared_ptr<SecondaryWindow>& secondaryWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<WindowToolBar>(new WindowToolBar);
-            out->_init(actions, mainWindow, secondaryWindow, app, context, parent);
+            out->_init(actions, mainWindow, app, context, parent);
             return out;
         }
 

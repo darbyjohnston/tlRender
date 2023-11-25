@@ -15,7 +15,6 @@ set(HEADERS
     DrawUtil.h
     DrivesModel.h
     Event.h
-    EventLoop.h
     FileBrowser.h
     FileEdit.h
     FloatEdit.h
@@ -92,7 +91,6 @@ set(SOURCE
     DrawUtil.cpp
     DrivesModel.cpp
     Event.cpp
-    EventLoop.cpp
     FileBrowser.cpp
     FileEdit.cpp
     FileBrowserButton.cpp

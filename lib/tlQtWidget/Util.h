@@ -9,6 +9,7 @@
 
 #include <QColor>
 #include <QSize>
+#include <QWidget>
 
 namespace tl
 {
@@ -25,5 +26,8 @@ namespace tl
 
         //! Convert from a Qt color.
         image::Color4f fromQt(const QColor&);
+
+        //! Set whether the window is floating on top.
+        void setFloatOnTop(bool, QWidget*);
     }
 }

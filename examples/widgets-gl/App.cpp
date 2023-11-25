@@ -31,8 +31,8 @@ namespace tl
                 auto fileBrowserSystem = context->getSystem<ui::FileBrowserSystem>();
                 fileBrowserSystem->setNativeFileDialog(false);
 
-                auto mainWindow = MainWindow::create(_context);
-                getEventLoop()->addWindow(mainWindow);
+                addWindow(MainWindow::create(_context));
+                addWindow(MainWindow::create(_context));
             }
 
             App::App()

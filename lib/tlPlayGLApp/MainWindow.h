@@ -47,8 +47,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent);
+                const std::shared_ptr<system::Context>&);
 
             MainWindow();
 
@@ -58,8 +57,7 @@ namespace tl
             //! Create a new main window.
             static std::shared_ptr<MainWindow> create(
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<system::Context>&);
 
             //! Get the timeline viewport.
             const std::shared_ptr<timelineui::TimelineViewport>& getTimelineViewport() const;
@@ -82,6 +80,9 @@ namespace tl
             void setGeometry(const math::Box2i&) override;
             void keyPressEvent(ui::KeyEvent&) override;
             void keyReleaseEvent(ui::KeyEvent&) override;
+
+        protected:
+            void _drop(const std::vector<std::string>&) override;
 
         private:
             void _playersUpdate(const std::vector<std::shared_ptr<timeline::Player> >&);

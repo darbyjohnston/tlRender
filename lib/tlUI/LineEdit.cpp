@@ -5,8 +5,8 @@
 #include <tlUI/LineEdit.h>
 
 #include <tlUI/DrawUtil.h>
-#include <tlUI/EventLoop.h>
 #include <tlUI/IClipboard.h>
+#include <tlUI/IWindow.h>
 #include <tlUI/LayoutUtil.h>
 
 #include <tlTimeline/RenderUtil.h>
@@ -485,13 +485,16 @@ namespace tl
                 {
                     if (p.selection.isValid())
                     {
-                        if (auto eventLoop = getEventLoop().lock())
+                        if (auto window = getWindow())
                         {
-                            const auto selection = p.selection.getSorted();
-                            const std::string text = p.text.substr(
-                                selection.first,
-                                selection.second - selection.first);
-                            eventLoop->getClipboard()->setText(text);
+                            if (auto clipboard = window->getClipboard())
+                            {
+                                const auto selection = p.selection.getSorted();
+                                const std::string text = p.text.substr(
+                                    selection.first,
+                                    selection.second - selection.first);
+                                clipboard->setText(text);
+                            }
                         }
                     }
                 }
@@ -499,29 +502,32 @@ namespace tl
             case Key::V:
                 if (event.modifiers & static_cast<int>(ui::KeyModifier::Control))
                 {
-                    if (auto eventLoop = getEventLoop().lock())
+                    if (auto window = getWindow())
                     {
-                        const std::string text = eventLoop->getClipboard()->getText();
-                        if (p.selection.isValid())
+                        if (auto clipboard = window->getClipboard())
                         {
-                            const auto selection = p.selection.getSorted();
-                            p.text.replace(
-                                selection.first,
-                                selection.second - selection.first,
-                                text);
-                            p.selection.clear();
-                            p.cursorPos = selection.first + text.size();
+                            const std::string text = clipboard->getText();
+                            if (p.selection.isValid())
+                            {
+                                const auto selection = p.selection.getSorted();
+                                p.text.replace(
+                                    selection.first,
+                                    selection.second - selection.first,
+                                    text);
+                                p.selection.clear();
+                                p.cursorPos = selection.first + text.size();
+                            }
+                            else
+                            {
+                                p.text.insert(p.cursorPos, text);
+                                p.cursorPos += text.size();
+                            }
+                            if (p.textChangedCallback)
+                            {
+                                p.textChangedCallback(p.text);
+                            }
+                            _textUpdate();
                         }
-                        else
-                        {
-                            p.text.insert(p.cursorPos, text);
-                            p.cursorPos += text.size();
-                        }
-                        if (p.textChangedCallback)
-                        {
-                            p.textChangedCallback(p.text);
-                        }
-                        _textUpdate();
                     }
                 }
                 break;
@@ -530,24 +536,27 @@ namespace tl
                 {
                     if (p.selection.isValid())
                     {
-                        if (auto eventLoop = getEventLoop().lock())
+                        if (auto window = getWindow())
                         {
-                            const auto selection = p.selection.getSorted();
-                            const std::string text = p.text.substr(
-                                selection.first,
-                                selection.second - selection.first);
-                            eventLoop->getClipboard()->setText(text);
-                            p.text.replace(
-                                selection.first,
-                                selection.second - selection.first,
-                                "");
-                            p.selection.clear();
-                            p.cursorPos = selection.first;
-                            if (p.textChangedCallback)
+                            if (auto clipboard = window->getClipboard())
                             {
-                                p.textChangedCallback(p.text);
+                                const auto selection = p.selection.getSorted();
+                                const std::string text = p.text.substr(
+                                    selection.first,
+                                    selection.second - selection.first);
+                                clipboard->setText(text);
+                                p.text.replace(
+                                    selection.first,
+                                    selection.second - selection.first,
+                                    "");
+                                p.selection.clear();
+                                p.cursorPos = selection.first;
+                                if (p.textChangedCallback)
+                                {
+                                    p.textChangedCallback(p.text);
+                                }
+                                _textUpdate();
                             }
-                            _textUpdate();
                         }
                     }
                 }

@@ -6,7 +6,6 @@
 
 #include <tlPlayGLApp/App.h>
 #include <tlPlayGLApp/MainWindow.h>
-#include <tlPlayGLApp/SecondaryWindow.h>
 
 namespace tl
 {
@@ -26,7 +25,6 @@ namespace tl
         void WindowMenu::_init(
             const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<MainWindow>& mainWindow,
-            const std::shared_ptr<SecondaryWindow>& secondaryWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -37,19 +35,25 @@ namespace tl
             p.actions = actions;
 
             p.resizeMenu = addSubMenu("Resize");
-            auto appWeak = std::weak_ptr<App>(app);
+            auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
             auto action = std::make_shared<ui::Action>(
                 "1280x720",
-                [mainWindow]
+                [mainWindowWeak]
                 {
-                    mainWindow->setWindowSize(math::Size2i(1280, 720));
+                    if (auto mainWindow = mainWindowWeak.lock())
+                    {
+                        mainWindow->setWindowSize(math::Size2i(1280, 720));
+                    }
                 });
             p.resizeMenu->addItem(action);
             action = std::make_shared<ui::Action>(
                 "1920x1080",
-                [mainWindow]
+                [mainWindowWeak]
                 {
-                    mainWindow->setWindowSize(math::Size2i(1920, 1080));
+                    if (auto mainWindow = mainWindowWeak.lock())
+                    {
+                        mainWindow->setWindowSize(math::Size2i(1920, 1080));
+                    }
                 });
             p.resizeMenu->addItem(action);
 
@@ -58,7 +62,6 @@ namespace tl
             addItem(p.actions["FloatOnTop"]);
             addDivider();
             addItem(p.actions["Secondary"]);
-            addItem(p.actions["SecondaryFloatOnTop"]);
             addDivider();
             addItem(p.actions["FileToolBar"]);
             addItem(p.actions["CompareToolBar"]);
@@ -84,7 +87,7 @@ namespace tl
                 });
 
             p.secondaryObserver = observer::ValueObserver<bool>::create(
-                secondaryWindow->observeOpen(),
+                app->observeSecondaryWindow(),
                 [this](bool value)
                 {
                     setItemChecked(_p->actions["Secondary"], value);
@@ -115,13 +118,12 @@ namespace tl
         std::shared_ptr<WindowMenu> WindowMenu::create(
             const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<MainWindow>& mainWindow,
-            const std::shared_ptr<SecondaryWindow>& secondaryWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<WindowMenu>(new WindowMenu);
-            out->_init(actions, mainWindow, secondaryWindow, app, context, parent);
+            out->_init(actions, mainWindow, app, context, parent);
             return out;
         }
 

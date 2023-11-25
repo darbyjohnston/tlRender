@@ -31,5 +31,19 @@ namespace tl
                 value.blueF(),
                 value.alphaF());
         }
+
+        void setFloatOnTop(bool value, QWidget* window)
+        {
+            if (value && !(window->windowFlags() & Qt::WindowStaysOnTopHint))
+            {
+                window->setWindowFlags(window->windowFlags() | Qt::WindowStaysOnTopHint);
+                window->show();
+            }
+            else if (!value && (window->windowFlags() & Qt::WindowStaysOnTopHint))
+            {
+                window->setWindowFlags(window->windowFlags() & ~Qt::WindowStaysOnTopHint);
+                window->show();
+            }
+        }
     }
 }

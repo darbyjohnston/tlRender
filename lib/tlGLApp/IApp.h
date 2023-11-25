@@ -4,11 +4,22 @@
 
 #include <tlApp/IApp.h>
 
-#include <tlUI/EventLoop.h>
-#include <tlUI/Style.h>
+#include <tlCore/Size.h>
 
 namespace tl
 {
+    namespace timeline
+    {
+        struct ColorConfigOptions;
+        struct LUTOptions;
+    }
+
+    namespace ui
+    {
+        class Style;
+        class Window;
+    }
+
     //! OpenGL application support.
     namespace gl
     {
@@ -44,27 +55,28 @@ namespace tl
             //! Exit the application.
             void exit(int = 0);
 
-            //! Get the event loop.
-            const std::shared_ptr<ui::EventLoop> getEventLoop() const;
-
             //! Get the style.
             const std::shared_ptr<ui::Style> getStyle() const;
+
+            //! Get the number of screens.
+            int getScreenCount() const;
+
+            //! Add a window.
+            void addWindow(const std::shared_ptr<ui::Window>&);
+
+            //! Remove a window.
+            void removeWindow(const std::shared_ptr<ui::Window>&);
 
         protected:
             void _setColorConfigOptions(const timeline::ColorConfigOptions&);
             void _setLUTOptions(const timeline::LUTOptions&);
-
-            virtual void _drop(const std::vector<std::string>&);
 
             virtual void _tick();
 
             Options _options;
 
         private:
-            void _windowsUpdate(const std::vector<std::shared_ptr<ui::IWindow> >&);
-            void _setActiveWindow(const std::shared_ptr<ui::IWindow>&);
-            void _windowsClose();
-            void _windowsDraw();
+            void _removeWindow(const std::shared_ptr<ui::Window>&);
 
             TLRENDER_PRIVATE();
         };

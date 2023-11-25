@@ -18,7 +18,6 @@
 #include <tlPlay/ViewportModel.h>
 #include <tlPlay/Util.h>
 
-#include <tlUI/EventLoop.h>
 #include <tlUI/FileBrowser.h>
 #include <tlUI/RecentFilesModel.h>
 
@@ -53,6 +52,7 @@ namespace tl
             std::shared_ptr<play::AudioModel> audioModel;
             std::shared_ptr<ToolsModel> toolsModel;
 
+            std::shared_ptr<observer::Value<bool> > secondaryWindowActive;
             std::shared_ptr<MainWindow> mainWindow;
             std::shared_ptr<SecondaryWindow> secondaryWindow;
             std::shared_ptr<SeparateAudioDialog> separateAudioDialog;
@@ -63,6 +63,7 @@ namespace tl
             std::shared_ptr<observer::ListObserver<int> > layersObserver;
             std::shared_ptr<observer::ValueObserver<size_t> > recentFilesMaxObserver;
             std::shared_ptr<observer::ListObserver<file::Path> > recentFilesObserver;
+            std::shared_ptr<observer::ValueObserver<bool> > mainWindowObserver;
             std::shared_ptr<observer::ValueObserver<bool> > secondaryWindowObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > colorConfigOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
@@ -214,16 +215,59 @@ namespace tl
             return _p->mainWindow;
         }
 
-        const std::shared_ptr<SecondaryWindow>& App::getSecondaryWindow() const
+        std::shared_ptr<observer::IValue<bool> > App::observeSecondaryWindow() const
         {
-            return _p->secondaryWindow;
+            return _p->secondaryWindowActive;
         }
 
-        void App::_drop(const std::vector<std::string>& value)
+        void App::setSecondaryWindow(bool value)
         {
-            for (const auto& i : value)
+            TLRENDER_P();
+            if (p.secondaryWindowActive->setIfChanged(value))
             {
-                open(file::Path(i));
+                if (value)
+                {
+                    std::vector<int> screens;
+                    for (int i = 0; i < getScreenCount(); ++i)
+                    {
+                        screens.push_back(i);
+                    }
+                    auto i = std::find(
+                        screens.begin(),
+                        screens.end(),
+                        p.mainWindow->getScreen());
+                    if (i != screens.end())
+                    {
+                        screens.erase(i);
+                    }
+                    if (!screens.empty())
+                    {
+                        p.secondaryWindow = SecondaryWindow::create(
+                            std::dynamic_pointer_cast<App>(shared_from_this()),
+                            _context);
+                        addWindow(p.secondaryWindow);
+                        p.secondaryWindow->setFullScreen(true, screens.front());
+                        p.secondaryWindow->setVisible(true);
+
+                        p.secondaryWindowObserver = observer::ValueObserver<bool>::create(
+                            p.secondaryWindow->observeClose(),
+                            [this](bool value)
+                            {
+                                if (value)
+                                {
+                                    _p->secondaryWindowActive->setIfChanged(false);
+                                    _p->secondaryWindow.reset();
+                                    _p->secondaryWindowObserver.reset();
+                                }
+                            });
+                    }
+                }
+                else
+                {
+                    removeWindow(p.secondaryWindow);
+                    p.secondaryWindow.reset();
+                    p.secondaryWindowObserver.reset();
+                }
             }
         }
 
@@ -459,19 +503,30 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.secondaryWindow = SecondaryWindow::create(
-                std::dynamic_pointer_cast<App>(shared_from_this()),
-                _context);
+            p.secondaryWindowActive = observer::Value<bool>::create(false);
 
             p.mainWindow = MainWindow::create(
                 std::dynamic_pointer_cast<App>(shared_from_this()),
                 _context);
-            getEventLoop()->addWindow(p.mainWindow);
+            addWindow(p.mainWindow);
             p.mainWindow->setWindowSize(
                 _options.windowSize.isValid() ?
                 _options.windowSize :
                 p.settings->getValue<math::Size2i>("Window/Size"));
             p.mainWindow->setFullScreen(_options.fullscreen);
+            p.mainWindow->setVisible(true);
+
+            p.mainWindowObserver = observer::ValueObserver<bool>::create(
+                p.mainWindow->observeClose(),
+                [this](bool value)
+                {
+                    if (value)
+                    {
+                        removeWindow(_p->secondaryWindow);
+                        _p->secondaryWindow.reset();
+                        _p->secondaryWindowObserver.reset();
+                    }
+                });
         }
 
         io::Options App::_getIOOptions() const

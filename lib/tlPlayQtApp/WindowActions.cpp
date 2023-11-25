@@ -69,10 +69,6 @@ namespace tl
             p.actions["Secondary"]->setShortcut(QKeySequence(Qt::Key_Y));
             p.actions["Secondary"]->setToolTip(tr("Toggle the secondary window"));
 
-            p.actions["SecondaryFloatOnTop"] = new QAction(this);
-            p.actions["SecondaryFloatOnTop"]->setCheckable(true);
-            p.actions["SecondaryFloatOnTop"]->setText(tr("Secondary Float On Top"));
-
             p.menu.reset(new QMenu);
             p.menu->setTitle(tr("&Window"));
             auto resizeMenu = p.menu->addMenu(tr("Resize"));
@@ -86,17 +82,28 @@ namespace tl
             p.menu->addAction(p.actions["FloatOnTop"]);
             p.menu->addSeparator();
             p.menu->addAction(p.actions["Secondary"]);
-            p.menu->addAction(p.actions["SecondaryFloatOnTop"]);
 
             _actionsUpdate();
 
             connect(
-                _p->actionGroups["Resize"],
+                p.actionGroups["Resize"],
                 &QActionGroup::triggered,
                 [this](QAction* action)
                 {
                     Q_EMIT resize(action->data().value<image::Size>());
                 });
+
+            connect(
+                p.actions["Secondary"],
+                &QAction::toggled,
+                app,
+                &App::setSecondaryWindow);
+
+            connect(
+                app,
+                &App::secondaryWindowChanged,
+                p.actions["Secondary"],
+                &QAction::setChecked);
         }
 
         WindowActions::~WindowActions()

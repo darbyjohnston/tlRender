@@ -37,15 +37,12 @@ namespace tl
             qtwidget::TimelineViewport* timelineViewport() const;
 
         protected:
-            void closeEvent(QCloseEvent*) override;
             void dragEnterEvent(QDragEnterEvent*) override;
             void dragMoveEvent(QDragMoveEvent*) override;
             void dragLeaveEvent(QDragLeaveEvent*) override;
             void dropEvent(QDropEvent*) override;
 
         private Q_SLOTS:
-            void _secondaryWindowCallback(bool);
-            void _secondaryWindowDestroyedCallback();
             void _speedCallback(double);
             void _playbackCallback(tl::timeline::Playback);
             void _currentTimeCallback(const otime::RationalTime&);

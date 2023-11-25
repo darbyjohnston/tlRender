@@ -4,7 +4,6 @@
 
 #include <tlUI/IWidget.h>
 
-#include <tlUI/EventLoop.h>
 #include <tlUI/IWindow.h>
 
 namespace tl
@@ -118,16 +117,6 @@ namespace tl
             return std::dynamic_pointer_cast<IWindow>(out);
         }
 
-        const std::weak_ptr<EventLoop>& IWidget::getEventLoop()
-        {
-            return getWindow()->_eventLoop;
-        }
-
-        void IWidget::setEventLoop(const std::shared_ptr<EventLoop>& value)
-        {
-            _eventLoop = value;
-        }
-
         void IWidget::setHStretch(Stretch value)
         {
             if (value == _hStretch)
@@ -238,9 +227,9 @@ namespace tl
 
         void IWidget::takeKeyFocus()
         {
-            if (auto eventLoop = getEventLoop().lock())
+            if (auto window = getWindow())
             {
-                eventLoop->setKeyFocus(shared_from_this());
+                window->setKeyFocus(shared_from_this());
             }
         }
 
@@ -248,9 +237,9 @@ namespace tl
         {
             if (_keyFocus)
             {
-                if (auto eventLoop = getEventLoop().lock())
+                if (auto window = getWindow())
                 {
-                    eventLoop->setKeyFocus(nullptr);
+                    window->setKeyFocus(nullptr);
                 }
             }
         }

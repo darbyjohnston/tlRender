@@ -19,7 +19,6 @@
 #include <tlPlayQtApp/MessagesTool.h>
 #include <tlPlayQtApp/PlaybackActions.h>
 #include <tlPlayQtApp/RenderActions.h>
-#include <tlPlayQtApp/SecondaryWindow.h>
 #include <tlPlayQtApp/SettingsTool.h>
 #include <tlPlayQtApp/SystemLogTool.h>
 #include <tlPlayQtApp/TimelineActions.h>
@@ -54,7 +53,6 @@
 #include <QMenuBar>
 #include <QMimeData>
 #include <QMouseEvent>
-#include <QPointer>
 #include <QSharedPointer>
 #include <QSlider>
 #include <QStatusBar>
@@ -81,7 +79,6 @@ namespace tl
 
             QVector<QSharedPointer<qt::TimelinePlayer> > timelinePlayers;
             bool floatOnTop = false;
-            bool secondaryFloatOnTop = false;
             image::VideoLevels outputVideoLevels;
 
             FileActions* fileActions = nullptr;
@@ -115,7 +112,6 @@ namespace tl
             QLabel* infoLabel = nullptr;
             QLabel* cacheLabel = nullptr;
             QStatusBar* statusBar = nullptr;
-            QPointer<SecondaryWindow> secondaryWindow;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
@@ -143,7 +139,6 @@ namespace tl
             auto settings = app->settings();
             settings->setDefaultValue("MainWindow/Size", math::Size2i(1920, 1080));
             settings->setDefaultValue("MainWindow/FloatOnTop", false);
-            settings->setDefaultValue("MainWindow/SecondaryFloatOnTop", false);
             settings->setDefaultValue("Timeline/Editable", true);
             settings->setDefaultValue("Timeline/EditAssociatedClips",
                 timelineui::ItemOptions().editAssociatedClips);
@@ -158,11 +153,11 @@ namespace tl
             settings->setDefaultValue("Timeline/Markers",
                 timelineui::ItemOptions().showMarkers);
 
+            setAttribute(Qt::WA_DeleteOnClose);
             setFocusPolicy(Qt::StrongFocus);
             setAcceptDrops(true);
 
             p.floatOnTop = settings->getValue<bool>("MainWindow/FloatOnTop");
-            p.secondaryFloatOnTop = settings->getValue<bool>("MainWindow/SecondaryFloatOnTop");
 
             auto context = app->getContext();
             p.timelineViewport = new qtwidget::TimelineViewport(context);
@@ -531,18 +526,6 @@ namespace tl
                     _p->floatOnTop = value;
                     _widgetUpdate();
                 });
-            connect(
-                p.windowActions->actions()["Secondary"],
-                SIGNAL(toggled(bool)),
-                SLOT(_secondaryWindowCallback(bool)));
-            connect(
-                p.windowActions->actions()["SecondaryFloatOnTop"],
-                &QAction::toggled,
-                [this](bool value)
-                {
-                    _p->secondaryFloatOnTop = value;
-                    _widgetUpdate();
-                });
 
             connect(
                 p.viewActions->actions()["Frame"],
@@ -689,7 +672,6 @@ namespace tl
             auto settings = p.app->settings();
             settings->setValue("MainWindow/Size", math::Size2i(width(), height()));
             settings->setValue("MainWindow/FloatOnTop", p.floatOnTop);
-            settings->setValue("MainWindow/SecondaryFloatOnTop", p.secondaryFloatOnTop);
             settings->setValue("Timeline/Editable",
                 p.timelineWidget->isEditable());
             const auto& timelineItemOptions = p.timelineWidget->itemOptions();
@@ -707,10 +689,6 @@ namespace tl
                 timelineItemOptions.showTransitions);
             settings->setValue("Timeline/Markers",
                 timelineItemOptions.showMarkers);
-            if (p.secondaryWindow)
-            {
-                p.secondaryWindow->close();
-            }
         }
 
         qtwidget::TimelineWidget* MainWindow::timelineWidget() const
@@ -721,15 +699,6 @@ namespace tl
         qtwidget::TimelineViewport* MainWindow::timelineViewport() const
         {
             return _p->timelineViewport;
-        }
-
-        void MainWindow::closeEvent(QCloseEvent*)
-        {
-            TLRENDER_P();
-            if (p.secondaryWindow)
-            {
-                p.secondaryWindow->close();
-            }
         }
 
         void MainWindow::dragEnterEvent(QDragEnterEvent* event)
@@ -767,49 +736,6 @@ namespace tl
                     const QString fileName = urlList[i].toLocalFile();
                     p.app->open(fileName);
                 }
-            }
-        }
-
-        void MainWindow::_secondaryWindowCallback(bool value)
-        {
-            TLRENDER_P();
-            if (value && !p.secondaryWindow)
-            {
-                p.secondaryWindow = new SecondaryWindow(p.app);
-                p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
-
-                _widgetUpdate();
-
-                connect(
-                    p.timelineViewport,
-                    SIGNAL(viewPosAndZoomChanged(const tl::math::Vector2i&, float)),
-                    p.secondaryWindow->viewport(),
-                    SLOT(setViewPosAndZoom(const tl::math::Vector2i&, float)));
-                connect(
-                    p.timelineViewport,
-                    SIGNAL(frameViewChanged(bool)),
-                    p.secondaryWindow->viewport(),
-                    SLOT(setFrameView(bool)));
-
-                connect(
-                    p.secondaryWindow.get(),
-                    SIGNAL(destroyed(QObject*)),
-                    SLOT(_secondaryWindowDestroyedCallback()));
-
-                p.secondaryWindow->show();
-            }
-            else if (!value && p.secondaryWindow)
-            {
-                p.secondaryWindow->close();
-            }
-        }
-
-        void MainWindow::_secondaryWindowDestroyedCallback()
-        {
-            TLRENDER_P();
-            {
-                QSignalBlocker blocker(p.windowActions->actions()["Secondary"]);
-                p.windowActions->actions()["Secondary"]->setChecked(false);
             }
         }
 
@@ -878,11 +804,6 @@ namespace tl
 
             p.timelineViewport->setTimelinePlayers(p.timelinePlayers);
 
-            if (p.secondaryWindow)
-            {
-                p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
-            }
-
             _widgetUpdate();
         }
 
@@ -890,24 +811,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            if (p.floatOnTop && !(windowFlags() & Qt::WindowStaysOnTopHint))
-            {
-                setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
-                show();
-            }
-            else if (!p.floatOnTop && (windowFlags() & Qt::WindowStaysOnTopHint))
-            {
-                setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint);
-                show();
-            }
-            {
-                QSignalBlocker blocker(p.windowActions->actions()["FloatOnTop"]);
-                p.windowActions->actions()["FloatOnTop"]->setChecked(p.floatOnTop);
-            }
-            {
-                QSignalBlocker blocker(p.windowActions->actions()["SecondaryFloatOnTop"]);
-                p.windowActions->actions()["SecondaryFloatOnTop"]->setChecked(p.secondaryFloatOnTop);
-            }
+            qtwidget::setFloatOnTop(p.floatOnTop, this);
 
             const auto& files = p.app->filesModel()->observeFiles()->get();
             const size_t count = files.size();
@@ -1005,26 +909,6 @@ namespace tl
             }
             p.infoLabel->setText(QString::fromUtf8(infoLabel.c_str()));
             p.infoLabel->setToolTip(QString::fromUtf8(infoToolTip.c_str()));
-
-            if (p.secondaryWindow)
-            {
-                if (p.secondaryFloatOnTop && !(p.secondaryWindow->windowFlags() & Qt::WindowStaysOnTopHint))
-                {
-                    p.secondaryWindow->setWindowFlags(p.secondaryWindow->windowFlags() | Qt::WindowStaysOnTopHint);
-                    p.secondaryWindow->show();
-                }
-                else if (!p.secondaryFloatOnTop && (p.secondaryWindow->windowFlags() & Qt::WindowStaysOnTopHint))
-                {
-                    p.secondaryWindow->setWindowFlags(p.secondaryWindow->windowFlags() & ~Qt::WindowStaysOnTopHint);
-                    p.secondaryWindow->show();
-                }
-                p.secondaryWindow->viewport()->setBackgroundOptions(viewportModel->getBackgroundOptions());
-                p.secondaryWindow->viewport()->setColorConfigOptions(colorModel->getColorConfigOptions());
-                p.secondaryWindow->viewport()->setLUTOptions(colorModel->getLUTOptions());
-                p.secondaryWindow->viewport()->setImageOptions(imageOptions);
-                p.secondaryWindow->viewport()->setDisplayOptions(displayOptions);
-                p.secondaryWindow->viewport()->setCompareOptions(p.app->filesModel()->getCompareOptions());
-            }
 
             p.app->outputDevice()->setColorConfigOptions(colorModel->getColorConfigOptions());
             p.app->outputDevice()->setLUTOptions(colorModel->getLUTOptions());

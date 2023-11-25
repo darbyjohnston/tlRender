@@ -5,7 +5,6 @@
 #include <tlPlayGLApp/PlaybackMenu.h>
 
 #include <tlPlayGLApp/App.h>
-#include <tlPlayGLApp/MainWindow.h>
 
 #include <tlTimelineUI/TimelineWidget.h>
 
@@ -15,7 +14,6 @@ namespace tl
     {
         struct PlaybackMenu::Private
         {
-            std::weak_ptr<MainWindow> mainWindow;
             std::shared_ptr<timeline::Player> player;
 
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
@@ -29,15 +27,12 @@ namespace tl
 
         void PlaybackMenu::_init(
             const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
-            const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
             TLRENDER_P();
-
-            p.mainWindow = mainWindow;
 
             p.actions = actions;
             addItem(p.actions["Stop"]);
@@ -87,13 +82,12 @@ namespace tl
 
         std::shared_ptr<PlaybackMenu> PlaybackMenu::create(
             const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
-            const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<PlaybackMenu>(new PlaybackMenu);
-            out->_init(actions, mainWindow, app, context, parent);
+            out->_init(actions, app, context, parent);
             return out;
         }
 

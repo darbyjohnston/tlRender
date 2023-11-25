@@ -27,24 +27,23 @@ namespace tl
         {
             TLRENDER_P();
 
-            auto appWeak = std::weak_ptr<App>(app);
+            auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
             p.actions["Editable"] = std::make_shared<ui::Action>(
                 "Editable",
-                [appWeak](bool value)
+                [mainWindowWeak](bool value)
                 {
-                    if (auto app = appWeak.lock())
+                    if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        app->getMainWindow()->getTimelineWidget()->setEditable(value);
+                        mainWindow->getTimelineWidget()->setEditable(value);
                     }
                 });
 
             p.actions["EditAssociatedClips"] = std::make_shared<ui::Action>(
                 "Edit Associated Clips",
-                [appWeak](bool value)
+                [mainWindowWeak](bool value)
                 {
-                    if (auto app = appWeak.lock())
+                    if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        auto mainWindow = app->getMainWindow();
                         auto options = mainWindow->getTimelineWidget()->getItemOptions();
                         options.editAssociatedClips = value;
                         mainWindow->getTimelineWidget()->setItemOptions(options);
@@ -53,31 +52,30 @@ namespace tl
 
             p.actions["FrameView"] = std::make_shared<ui::Action>(
                 "Frame Timeline View",
-                [appWeak](bool value)
+                [mainWindowWeak](bool value)
                 {
-                    if (auto app = appWeak.lock())
+                    if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        app->getMainWindow()->getTimelineWidget()->setFrameView(value);
+                        mainWindow->getTimelineWidget()->setFrameView(value);
                     }
                 });
 
             p.actions["StopOnScrub"] = std::make_shared<ui::Action>(
                 "Stop Playback When Scrubbing",
-                [appWeak](bool value)
+                [mainWindowWeak](bool value)
                 {
-                    if (auto app = appWeak.lock())
+                    if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        app->getMainWindow()->getTimelineWidget()->setStopOnScrub(value);
+                        mainWindow->getTimelineWidget()->setStopOnScrub(value);
                     }
                 });
 
             p.actions["Thumbnails"] = std::make_shared<ui::Action>(
                 "Thumbnails",
-                [appWeak](bool value)
+                [mainWindowWeak](bool value)
                 {
-                    if (auto app = appWeak.lock())
+                    if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        auto mainWindow = app->getMainWindow();
                         auto options = mainWindow->getTimelineWidget()->getItemOptions();
                         options.thumbnails = value;
                         mainWindow->getTimelineWidget()->setItemOptions(options);
@@ -86,11 +84,10 @@ namespace tl
 
             p.actions["Thumbnails100"] = std::make_shared<ui::Action>(
                 "Small",
-                [appWeak]
+                [mainWindowWeak]
                 {
-                    if (auto app = appWeak.lock())
+                    if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        auto mainWindow = app->getMainWindow();
                         auto options = mainWindow->getTimelineWidget()->getItemOptions();
                         options.thumbnailHeight = 100;
                         options.waveformHeight = options.thumbnailHeight / 2;
@@ -100,11 +97,10 @@ namespace tl
 
             p.actions["Thumbnails200"] = std::make_shared<ui::Action>(
                 "Medium",
-                [appWeak]
+                [mainWindowWeak]
                 {
-                    if (auto app = appWeak.lock())
+                    if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        auto mainWindow = app->getMainWindow();
                         auto options = mainWindow->getTimelineWidget()->getItemOptions();
                         options.thumbnailHeight = 200;
                         options.waveformHeight = options.thumbnailHeight / 2;
@@ -114,11 +110,10 @@ namespace tl
 
             p.actions["Thumbnails300"] = std::make_shared<ui::Action>(
                 "Large",
-                [appWeak]
+                [mainWindowWeak]
                 {
-                    if (auto app = appWeak.lock())
+                    if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        auto mainWindow = app->getMainWindow();
                         auto options = mainWindow->getTimelineWidget()->getItemOptions();
                         options.thumbnailHeight = 300;
                         options.waveformHeight = options.thumbnailHeight / 2;
@@ -128,11 +123,10 @@ namespace tl
 
             p.actions["Transitions"] = std::make_shared<ui::Action>(
                 "Transitions",
-                [appWeak](bool value)
+                [mainWindowWeak](bool value)
                 {
-                    if (auto app = appWeak.lock())
+                    if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        auto mainWindow = app->getMainWindow();
                         auto options = mainWindow->getTimelineWidget()->getItemOptions();
                         options.showTransitions = value;
                         mainWindow->getTimelineWidget()->setItemOptions(options);
@@ -141,11 +135,10 @@ namespace tl
 
             p.actions["Markers"] = std::make_shared<ui::Action>(
                 "Markers",
-                [appWeak](bool value)
+                [mainWindowWeak](bool value)
                 {
-                    if (auto app = appWeak.lock())
+                    if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        auto mainWindow = app->getMainWindow();
                         auto options = mainWindow->getTimelineWidget()->getItemOptions();
                         options.showMarkers = value;
                         mainWindow->getTimelineWidget()->setItemOptions(options);

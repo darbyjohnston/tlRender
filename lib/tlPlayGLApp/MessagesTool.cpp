@@ -5,7 +5,7 @@
 #include <tlPlayGLApp/MessagesTool.h>
 
 #include <tlUI/IClipboard.h>
-#include <tlUI/EventLoop.h>
+#include <tlUI/IWindow.h>
 #include <tlUI/Label.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/ScrollWidget.h>
@@ -73,12 +73,15 @@ namespace tl
             p.copyButton->setClickedCallback(
                 [this]
                 {
-                    if (auto eventLoop = getEventLoop().lock())
+                    if (auto window = getWindow())
                     {
-                        const std::string text = string::join(
-                            { std::begin(_p->messages), std::end(_p->messages) },
-                            '\n');
-                        eventLoop->getClipboard()->setText(text);
+                        if (auto clipboard = window->getClipboard())
+                        {
+                            const std::string text = string::join(
+                                { std::begin(_p->messages), std::end(_p->messages) },
+                                '\n');
+                            clipboard->setText(text);
+                        }
                     }
                 });
 

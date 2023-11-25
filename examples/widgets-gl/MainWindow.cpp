@@ -35,11 +35,9 @@ namespace tl
                 std::shared_ptr<ui::StackLayout> stackLayout;
             };
 
-            void MainWindow::_init(
-                const std::shared_ptr<system::Context>& context,
-                const std::shared_ptr<IWidget>& parent)
+            void MainWindow::_init(const std::shared_ptr<system::Context>& context)
             {
-                Window::_init(context, parent);
+                Window::_init("widgets-gl", context);
                 TLRENDER_P();
 
                 setBackgroundRole(ui::ColorRole::Window);
@@ -115,11 +113,10 @@ namespace tl
             {}
 
             std::shared_ptr<MainWindow> MainWindow::create(
-                const std::shared_ptr<system::Context>& context,
-                const std::shared_ptr<IWidget>& parent)
+                const std::shared_ptr<system::Context>& context)
             {
                 auto out = std::shared_ptr<MainWindow>(new MainWindow);
-                out->_init(context, parent);
+                out->_init(context);
                 return out;
             }
 

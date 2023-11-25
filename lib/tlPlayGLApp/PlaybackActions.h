@@ -11,7 +11,6 @@ namespace tl
     namespace play_gl
     {
         class App;
-        class MainWindow;
 
         //! Playback actions.
         class PlaybackActions : public std::enable_shared_from_this<PlaybackActions>
@@ -20,7 +19,6 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&);
 
@@ -30,7 +28,6 @@ namespace tl
             ~PlaybackActions();
 
             static std::shared_ptr<PlaybackActions> create(
-                const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&);
 
