@@ -222,8 +222,8 @@ namespace tl
                     math::Vector2i pos;
 #if defined(__APPLE__)
                     //! \bug The mouse position needs to be scaled on macOS?
-                    pos.x = value.x * _p->contentScale.x;
-                    pos.y = value.y * _p->contentScale.y;
+                    pos.x = value.x * _p->displayScale;
+                    pos.y = value.y * _p->displayScale;
 #else // __APPLE__
                     pos.x = value.x;
                     pos.y = value.y;
@@ -453,7 +453,7 @@ namespace tl
                             p.colorConfigOptions,
                             p.lutOptions);
 
-                        DrawEvent event(
+                        DrawEvent drawEvent(
                             event.style,
                             event.iconLibrary,
                             p.render,
@@ -462,7 +462,7 @@ namespace tl
                         _drawEvent(
                             shared_from_this(),
                             math::Box2i(p.frameBufferSize),
-                            event);
+                            drawEvent);
                         p.render->setClipRectEnabled(false);
                         p.render->end();
                     }

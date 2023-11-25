@@ -692,29 +692,32 @@ namespace tl
         void TimelineWidget::timerEvent(QTimerEvent*)
         {
             TLRENDER_P();
-
-            ui::TickEvent tickEvent(p.style, p.iconLibrary, p.fontSystem);
-            _tickEvent(p.timelineWindow, true, true, tickEvent);
-
-            if (_getSizeUpdate(p.timelineWindow))
+            //! \bug This guard is needed since the timer event can be called during destruction?
+            if (_p)
             {
-                const float devicePixelRatio = window()->devicePixelRatio();
-                ui::SizeHintEvent sizeHintEvent(
-                    p.style,
-                    p.iconLibrary,
-                    p.fontSystem,
-                    devicePixelRatio);
-                _sizeHintEvent(p.timelineWindow, sizeHintEvent);
+                ui::TickEvent tickEvent(p.style, p.iconLibrary, p.fontSystem);
+                _tickEvent(p.timelineWindow, true, true, tickEvent);
 
-                const math::Box2i geometry(0, 0, _toUI(width()), _toUI(height()));
-                p.timelineWindow->setGeometry(geometry);
+                if (_getSizeUpdate(p.timelineWindow))
+                {
+                    const float devicePixelRatio = window()->devicePixelRatio();
+                    ui::SizeHintEvent sizeHintEvent(
+                        p.style,
+                        p.iconLibrary,
+                        p.fontSystem,
+                        devicePixelRatio);
+                    _sizeHintEvent(p.timelineWindow, sizeHintEvent);
 
-                _clipEvent(p.timelineWindow, geometry, false);
-            }
+                    const math::Box2i geometry(0, 0, _toUI(width()), _toUI(height()));
+                    p.timelineWindow->setGeometry(geometry);
 
-            if (_getDrawUpdate(p.timelineWindow))
-            {
-                update();
+                    _clipEvent(p.timelineWindow, geometry, false);
+                }
+
+                if (_getDrawUpdate(p.timelineWindow))
+                {
+                    update();
+                }
             }
         }
 

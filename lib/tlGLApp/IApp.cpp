@@ -157,7 +157,7 @@ namespace tl
                 }
                 p.windowsToRemove.clear();
 
-                time::sleep(std::chrono::milliseconds(1));
+                time::sleep(std::chrono::milliseconds(5));
             }
             return _exit;
         }
