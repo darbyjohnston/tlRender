@@ -309,6 +309,7 @@ namespace tl
 
         void Window::setWindowSize(const math::Size2i& value)
         {
+            _p->glfwWindow->setSize(value);
             setGeometry(math::Box2i(_geometry.x(), _geometry.y(), value.w, value.h));
         }
 
