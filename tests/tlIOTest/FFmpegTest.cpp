@@ -169,7 +169,7 @@ namespace tl
             const std::vector<image::Size> sizes =
             {
                 image::Size(640, 480),
-                image::Size(16, 16),
+                image::Size(80, 60),
                 image::Size(0, 0)
             };
             const std::vector<std::pair<std::string, std::string> > options =
