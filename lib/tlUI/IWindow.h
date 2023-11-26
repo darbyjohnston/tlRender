@@ -33,6 +33,10 @@ namespace tl
             void setClipboard(const std::shared_ptr<IClipboard>&);
 
             void setVisible(bool) override;
+            void tickEvent(
+                bool parentsVisible,
+                bool parentsEnabled,
+                const TickEvent&) override;
             void drawOverlayEvent(const math::Box2i&, const DrawEvent&) override;
 
         protected:

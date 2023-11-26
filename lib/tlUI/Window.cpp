@@ -394,16 +394,8 @@ namespace tl
             bool parentsEnabled,
             const TickEvent& event)
         {
+            IWindow::tickEvent(parentsVisible, parentsEnabled, event);
             TLRENDER_P();
-
-            for (const auto& child : _children)
-            {
-                _tickEvent(
-                    child,
-                    isVisible(false),
-                    isEnabled(false),
-                    event);
-            }
 
             if (_getSizeUpdate(shared_from_this()))
             {
@@ -598,26 +590,6 @@ namespace tl
             {
                 p.glfwWindow->doneCurrent();
             }
-        }
-
-        void Window::_tickEvent(
-            const std::shared_ptr<IWidget>& widget,
-            bool visible,
-            bool enabled,
-            const TickEvent& event)
-        {
-            TLRENDER_P();
-            const bool parentsVisible = visible && widget->isVisible(false);
-            const bool parentsEnabled = enabled && widget->isEnabled(false);
-            for (const auto& child : widget->getChildren())
-            {
-                _tickEvent(
-                    child,
-                    parentsVisible,
-                    parentsEnabled,
-                    event);
-            }
-            widget->tickEvent(visible, enabled, event);
         }
 
         bool Window::_getSizeUpdate(const std::shared_ptr<IWidget>& widget) const

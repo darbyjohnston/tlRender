@@ -4,6 +4,8 @@
 
 #include <tlApp/IApp.h>
 
+#include <tlUI/Event.h>
+
 #include <tlCore/Size.h>
 
 namespace tl
@@ -72,6 +74,11 @@ namespace tl
             void _setLUTOptions(const timeline::LUTOptions&);
 
             virtual void _tick();
+            void _tickEvent(
+                const std::shared_ptr<ui::IWidget>&,
+                bool visible,
+                bool enabled,
+                const ui::TickEvent&);
 
             Options _options;
 

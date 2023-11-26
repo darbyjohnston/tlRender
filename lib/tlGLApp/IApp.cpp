@@ -145,7 +145,8 @@ namespace tl
                     p.fontSystem);
                 for (const auto& window : p.windows)
                 {
-                    window->tickEvent(
+                    _tickEvent(
+                        window,
                         window->isVisible(false),
                         window->isEnabled(false),
                         tickEvent);
@@ -219,6 +220,26 @@ namespace tl
 
         void IApp::_tick()
         {}
+
+        void IApp::_tickEvent(
+            const std::shared_ptr<ui::IWidget>&widget,
+            bool visible,
+            bool enabled,
+            const ui::TickEvent& event)
+        {
+            TLRENDER_P();
+            const bool parentsVisible = visible && widget->isVisible(false);
+            const bool parentsEnabled = enabled && widget->isEnabled(false);
+            for (const auto& child : widget->getChildren())
+            {
+                _tickEvent(
+                    child,
+                    parentsVisible,
+                    parentsEnabled,
+                    event);
+            }
+            widget->tickEvent(visible, enabled, event);
+        }
 
         void IApp::_removeWindow(const std::shared_ptr<ui::Window>&window)
         {

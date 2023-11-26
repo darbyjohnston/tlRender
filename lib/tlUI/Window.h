@@ -75,12 +75,6 @@ namespace tl
             void _doneCurrent();
 
         private:
-            void _tickEvent(
-                const std::shared_ptr<IWidget>&,
-                bool visible,
-                bool enabled,
-                const TickEvent&);
-
             bool _getSizeUpdate(const std::shared_ptr<IWidget>&) const;
             void _sizeHintEvent(
                 const std::shared_ptr<IWidget>&,
