@@ -409,7 +409,6 @@ namespace tl
                         event.style->getColorRole(enabled ?
                             ColorRole::Text :
                             ColorRole::TextDisabled));
-                    x += _size.margin + _size.textSize.w;
                 }
 
                 // Draw the shortcut.

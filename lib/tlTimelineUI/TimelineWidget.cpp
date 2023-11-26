@@ -411,7 +411,6 @@ namespace tl
         {
             TLRENDER_P();
             const int w = _geometry.w();
-            const int h = _geometry.h();
             const double zoomMin = _getTimelineScale();
             const double zoomMax = w;
             const double zoomClamped = math::clamp(zoomNew, zoomMin, zoomMax);

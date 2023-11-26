@@ -9,16 +9,65 @@ namespace tl
         template<typename T>
         inline T Settings::getValue(const std::string& key) const
         {
-            T out;
-            if (_values.contains(key))
+            T out = T();
+            try
             {
-                try
-                {
-                    out = _values.at(key);
-                }
-                catch (const std::exception&)
-                {}
+                out = _values.at(key);
             }
+            catch (const std::exception&)
+            {}
+            return out;
+        }
+
+        template<>
+        inline int Settings::getValue(const std::string& key) const
+        {
+            int out = 0;
+            try
+            {
+                out = _values.at(key);
+            }
+            catch (const std::exception&)
+            {}
+            return out;
+        }
+
+        template<>
+        inline float Settings::getValue(const std::string& key) const
+        {
+            float out = 0.F;
+            try
+            {
+                out = _values.at(key);
+            }
+            catch (const std::exception&)
+            {}
+            return out;
+        }
+
+        template<>
+        inline double Settings::getValue(const std::string& key) const
+        {
+            double out = 0.0;
+            try
+            {
+                out = _values.at(key);
+            }
+            catch (const std::exception&)
+            {}
+            return out;
+        }
+
+        template<>
+        inline size_t Settings::getValue(const std::string& key) const
+        {
+            size_t out = 0;
+            try
+            {
+                out = _values.at(key);
+            }
+            catch (const std::exception&)
+            {}
             return out;
         }
 

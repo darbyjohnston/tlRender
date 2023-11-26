@@ -142,7 +142,6 @@ namespace tl
             }
 
             // Check if any audio waveforms are finished.
-            const auto now = std::chrono::steady_clock::now();
             auto i = p.waveformRequests.begin();
             while (i != p.waveformRequests.end())
             {

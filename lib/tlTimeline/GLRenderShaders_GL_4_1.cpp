@@ -305,7 +305,6 @@ namespace tl
                 break;
             default: break;
             }
-            const bool swap = LUTOrder::PreColorConfig == lutOrder;
             return string::Format(
                 "#version 410\n"
                 "\n"

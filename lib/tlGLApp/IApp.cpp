@@ -176,7 +176,7 @@ namespace tl
         int IApp::getScreenCount() const
         {
             int glfwMonitorsCount = 0;
-            GLFWmonitor** glfwMonitors = glfwGetMonitors(&glfwMonitorsCount);
+            glfwGetMonitors(&glfwMonitorsCount);
             return glfwMonitorsCount;
         }
 

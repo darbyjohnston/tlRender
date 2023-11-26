@@ -448,7 +448,6 @@ namespace tl
                     event.style->getColorRole(enabled ?
                         ColorRole::Text :
                         ColorRole::TextDisabled));
-                x += p.size.textSize.w + p.size.margin * 2 + p.size.spacing;
             }
 
             if (p.arrowIconImage)

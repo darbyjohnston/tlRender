@@ -118,7 +118,7 @@ namespace tl
                     {
                     case Orientation::Horizontal:
                         size.h = g.h();
-                        if (Stretch::Expanding == child->getHStretch())
+                        if (expanding > 0 && Stretch::Expanding == child->getHStretch())
                         {
                             size.w += extra.first / expanding;
                             if (child == lastVisibleChild)
@@ -129,7 +129,7 @@ namespace tl
                         break;
                     case Orientation::Vertical:
                         size.w = g.w();
-                        if (Stretch::Expanding == child->getVStretch())
+                        if (expanding > 0 && Stretch::Expanding == child->getVStretch())
                         {
                             size.h += extra.second / expanding;
                             if (child == lastVisibleChild)

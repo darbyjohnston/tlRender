@@ -171,7 +171,7 @@ namespace tl
             const std::string& directory,
             const std::string& baseName,
             const std::string& number,
-            uint8_t padding,
+            size_t padding,
             const std::string& extension,
             const std::string& protocol) :
             _protocol(protocol),

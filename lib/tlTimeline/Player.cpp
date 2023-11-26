@@ -921,7 +921,7 @@ namespace tl
                 const otime::RationalTime currentTime = p.loopPlayback(
                     playbackStartTime +
                     time::floor(otime::RationalTime(seconds, 1.0).rescaled_to(timeRange.duration().rate())));
-                const double currentTimeDiff = abs(currentTime.value() - p.currentTime->get().value());
+                //const double currentTimeDiff = abs(currentTime.value() - p.currentTime->get().value());
                 if (p.currentTime->setIfChanged(currentTime))
                 {
                     //std::cout << "current time: " << p.currentTime->get() << " / " << currentTimeDiff << std::endl;

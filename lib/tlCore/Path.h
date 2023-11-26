@@ -59,7 +59,7 @@ namespace tl
                 const std::string& directory,
                 const std::string& baseName,
                 const std::string& number,
-                uint8_t padding,
+                size_t padding,
                 const std::string& extension,
                 const std::string& protocol = std::string());
 
@@ -99,7 +99,7 @@ namespace tl
             void setNumber(const std::string&);
 
             //! Get the number zero padding.
-            uint8_t getPadding() const;
+            size_t getPadding() const;
 
             //! Get the number sequence.
             const math::IntRange& getSequence() const;
@@ -141,9 +141,9 @@ namespace tl
             std::string _baseName;
             std::string _number;
             int _numberValue = 0;
-            int _numberDigits = 0;
+            size_t _numberDigits = 0;
             math::IntRange _sequence;
-            uint8_t _padding = 0;
+            size_t _padding = 0;
             std::string _extension;
         };
 

@@ -452,6 +452,7 @@ namespace tl
                         break;
                     }
                     case ToMemoryReference::Raw:
+                    {
                         uint8_t* memory = new uint8_t [size];
                         fileIO->read(memory, size);
                         clip->set_media_reference(new RawMemoryReference(
@@ -461,6 +462,8 @@ namespace tl
                             clip->available_range(),
                             ref->metadata()));
                         break;
+                    }
+                    default: break;
                     }
                 }
                 else if (auto ref = dynamic_cast<otio::ImageSequenceReference*>(

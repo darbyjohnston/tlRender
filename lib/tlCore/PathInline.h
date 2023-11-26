@@ -53,7 +53,7 @@ namespace tl
             return _number;
         }
 
-        inline uint8_t Path::getPadding() const
+        inline size_t Path::getPadding() const
         {
             return _padding;
         }
