@@ -5,7 +5,7 @@
 #include <tlUI/IDialog.h>
 
 #include <tlUI/DrawUtil.h>
-#include <tlUI/Window.h>
+#include <tlUI/IWindow.h>
 
 namespace tl
 {

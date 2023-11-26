@@ -1,8 +1,10 @@
 set(HEADERS
-    IApp.h)
+    IApp.h
+    Window.h)
 
 set(SOURCE
-    IApp.cpp)
+    IApp.cpp
+    Window.cpp)
 
 set(LIBRARIES tlApp tlUI)
 

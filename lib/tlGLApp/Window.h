@@ -8,10 +8,15 @@
 
 namespace tl
 {
-    namespace ui
+    namespace gl
+    {
+        class GLFWWindow;
+    }
+
+    namespace gl_app
     {
         //! Window.
-        class Window : public IWindow
+        class Window : public ui::IWindow
         {
             TLRENDER_NON_COPYABLE(Window);
 
@@ -63,12 +68,15 @@ namespace tl
             //! Observe when the window is closed.
             std::shared_ptr<observer::IValue<bool> > observeClose() const;
 
+            //! Get the GLFW window.
+            const std::shared_ptr<gl::GLFWWindow>& getGLFWWindow() const;
+
             void setGeometry(const math::Box2i&) override;
             void setVisible(bool) override;
             void tickEvent(
                 bool parentsVisible,
                 bool parentsEnabled,
-                const TickEvent&) override;
+                const ui::TickEvent&) override;
 
         protected:
             void _makeCurrent();
@@ -78,13 +86,13 @@ namespace tl
             bool _getSizeUpdate(const std::shared_ptr<IWidget>&) const;
             void _sizeHintEvent(
                 const std::shared_ptr<IWidget>&,
-                const SizeHintEvent&);
+                const ui::SizeHintEvent&);
 
             bool _getDrawUpdate(const std::shared_ptr<IWidget>&) const;
             void _drawEvent(
                 const std::shared_ptr<IWidget>&,
                 const math::Box2i&,
-                const DrawEvent&);
+                const ui::DrawEvent&);
 
             TLRENDER_PRIVATE();
         };

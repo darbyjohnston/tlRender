@@ -4,8 +4,11 @@
 
 #include <tlGLApp/IApp.h>
 
+#include <tlGLApp/Window.h>
+
 #include <tlUI/IClipboard.h>
-#include <tlUI/Window.h>
+
+#include <tlGL/GLFWWindow.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -14,7 +17,7 @@
 
 namespace tl
 {
-    namespace gl
+    namespace gl_app
     {
         namespace
         {
@@ -71,11 +74,12 @@ namespace tl
             std::shared_ptr<ui::IconLibrary> iconLibrary;
             std::shared_ptr<image::FontSystem> fontSystem;
             std::shared_ptr<Clipboard> clipboard;
-            std::vector<std::shared_ptr<ui::Window> > windows;
-            std::vector<std::shared_ptr<ui::Window> > windowsToRemove;
+            std::vector<std::shared_ptr<Window> > windows;
+            std::shared_ptr<Window> clipboardWindow;
+            std::vector<std::shared_ptr<Window> > windowsToRemove;
             bool running = true;
 
-            std::map<std::shared_ptr<ui::Window>, std::shared_ptr<observer::ValueObserver<bool> > > closeObservers;
+            std::map<std::shared_ptr<Window>, std::shared_ptr<observer::ValueObserver<bool> > > closeObservers;
         };
 
         void IApp::_init(
@@ -181,10 +185,15 @@ namespace tl
             return glfwMonitorsCount;
         }
 
-        void IApp::addWindow(const std::shared_ptr<ui::Window>& window)
+        void IApp::addWindow(const std::shared_ptr<Window>& window)
         {
             TLRENDER_P();
+            window->setClipboard(p.clipboard);
             p.windows.push_back(window);
+
+            p.clipboardWindow = window;
+            p.clipboard->setWindow(window->getGLFWWindow()->getGLFW());
+
             p.closeObservers[window] = observer::ValueObserver<bool>::create(
                 window->observeClose(),
                 [this, window](bool value)
@@ -196,7 +205,7 @@ namespace tl
                 });
         }
 
-        void IApp::removeWindow(const std::shared_ptr<ui::Window>& window)
+        void IApp::removeWindow(const std::shared_ptr<Window>& window)
         {
             TLRENDER_P();
             p.windowsToRemove.push_back(window);
@@ -241,19 +250,28 @@ namespace tl
             widget->tickEvent(visible, enabled, event);
         }
 
-        void IApp::_removeWindow(const std::shared_ptr<ui::Window>&window)
+        void IApp::_removeWindow(const std::shared_ptr<Window>&window)
         {
             TLRENDER_P();
             const auto i = std::find(p.windows.begin(), p.windows.end(), window);
             if (i != p.windows.end())
             {
-                (*i)->setClipboard(nullptr);
+                if (*i == p.clipboardWindow)
+                {
+                    p.clipboard->setWindow(nullptr);
+                    p.clipboardWindow.reset();
+                }
                 p.windows.erase(i);
             }
             const auto j = p.closeObservers.find(window);
             if (j != p.closeObservers.end())
             {
                 p.closeObservers.erase(j);
+            }
+            if (!p.clipboardWindow && !p.windows.empty())
+            {
+                p.clipboardWindow = p.windows.front();
+                p.clipboard->setWindow(p.clipboardWindow->getGLFWWindow()->getGLFW());
             }
         }
     }

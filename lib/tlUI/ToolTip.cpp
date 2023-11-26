@@ -5,8 +5,8 @@
 #include <tlUI/ToolTip.h>
 
 #include <tlUI/DrawUtil.h>
+#include <tlUI/IWindow.h>
 #include <tlUI/Label.h>
-#include <tlUI/Window.h>
 
 namespace tl
 {

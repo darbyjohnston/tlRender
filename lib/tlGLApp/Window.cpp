@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/Window.h>
+#include <tlGLApp/Window.h>
 
 #include <tlTimeline/GLRender.h>
 
@@ -21,7 +21,7 @@
 
 namespace tl
 {
-    namespace ui
+    namespace gl_app
     {
         namespace
         {
@@ -196,15 +196,15 @@ namespace tl
                 [this](const math::Size2i& value)
                 {
                     _p->frameBufferSize = value;
-                    _updates |= Update::Size;
-                    _updates |= Update::Draw;
+                    _updates |= ui::Update::Size;
+                    _updates |= ui::Update::Draw;
                 });
             p.glfwWindow->setContentScaleCallback(
                 [this](const math::Vector2f& value)
                 {
                     _p->displayScale = value.x;
-                    _updates |= Update::Size;
-                    _updates |= Update::Draw;
+                    _updates |= ui::Update::Size;
+                    _updates |= ui::Update::Draw;
                 });
             p.glfwWindow->setRefreshCallback(
                 [this]
@@ -362,6 +362,11 @@ namespace tl
             return _p->close;
         }
 
+        const std::shared_ptr<gl::GLFWWindow>& Window::getGLFWWindow() const
+        {
+            return _p->glfwWindow;
+        }
+
         void Window::setGeometry(const math::Box2i& value)
         {
             IWindow::setGeometry(value);
@@ -392,14 +397,14 @@ namespace tl
         void Window::tickEvent(
             bool parentsVisible,
             bool parentsEnabled,
-            const TickEvent& event)
+            const ui::TickEvent& event)
         {
             IWindow::tickEvent(parentsVisible, parentsEnabled, event);
             TLRENDER_P();
 
             if (_getSizeUpdate(shared_from_this()))
             {
-                SizeHintEvent sizeHintEvent(
+                ui::SizeHintEvent sizeHintEvent(
                     event.style,
                     event.iconLibrary,
                     event.fontSystem,
@@ -445,7 +450,7 @@ namespace tl
                             p.colorConfigOptions,
                             p.lutOptions);
 
-                        DrawEvent drawEvent(
+                        ui::DrawEvent drawEvent(
                             event.style,
                             event.iconLibrary,
                             p.render,
@@ -594,7 +599,7 @@ namespace tl
 
         bool Window::_getSizeUpdate(const std::shared_ptr<IWidget>& widget) const
         {
-            bool out = widget->getUpdates() & Update::Size;
+            bool out = widget->getUpdates() & ui::Update::Size;
             if (out)
             {
                 //std::cout << "Size update: " << widget->getObjectName() << std::endl;
@@ -611,7 +616,7 @@ namespace tl
 
         void Window::_sizeHintEvent(
             const std::shared_ptr<IWidget>& widget,
-            const SizeHintEvent& event)
+            const ui::SizeHintEvent& event)
         {
             for (const auto& child : widget->getChildren())
             {
@@ -625,7 +630,7 @@ namespace tl
             bool out = false;
             if (!widget->isClipped())
             {
-                out = widget->getUpdates() & Update::Draw;
+                out = widget->getUpdates() & ui::Update::Draw;
                 if (out)
                 {
                     //std::cout << "Draw update: " << widget->getObjectName() << std::endl;
@@ -644,7 +649,7 @@ namespace tl
         void Window::_drawEvent(
             const std::shared_ptr<IWidget>& widget,
             const math::Box2i& drawRect,
-            const DrawEvent& event)
+            const ui::DrawEvent& event)
         {
             const math::Box2i& g = widget->getGeometry();
             if (!widget->isClipped() && g.w() > 0 && g.h() > 0)

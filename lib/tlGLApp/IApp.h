@@ -19,12 +19,13 @@ namespace tl
     namespace ui
     {
         class Style;
-        class Window;
     }
 
     //! OpenGL application support.
-    namespace gl
+    namespace gl_app
     {
+        class Window;
+
         //! Application options.
         struct Options
         {
@@ -64,10 +65,10 @@ namespace tl
             int getScreenCount() const;
 
             //! Add a window.
-            void addWindow(const std::shared_ptr<ui::Window>&);
+            void addWindow(const std::shared_ptr<Window>&);
 
             //! Remove a window.
-            void removeWindow(const std::shared_ptr<ui::Window>&);
+            void removeWindow(const std::shared_ptr<Window>&);
 
         protected:
             void _setColorConfigOptions(const timeline::ColorConfigOptions&);
@@ -83,7 +84,7 @@ namespace tl
             Options _options;
 
         private:
-            void _removeWindow(const std::shared_ptr<ui::Window>&);
+            void _removeWindow(const std::shared_ptr<Window>&);
 
             TLRENDER_PRIVATE();
         };

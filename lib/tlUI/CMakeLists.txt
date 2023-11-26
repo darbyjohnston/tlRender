@@ -69,8 +69,7 @@ set(HEADERS
     TimeEdit.h
     TimeLabel.h
     ToolButton.h
-    ToolTip.h
-    Window.h)
+    ToolTip.h)
 set(HEADERS_PRIVATE
     FileBrowserPrivate.h)
 
@@ -148,8 +147,7 @@ set(SOURCE
     TimeEdit.cpp
     TimeLabel.cpp
     ToolButton.cpp
-    ToolTip.cpp
-    Window.cpp)
+    ToolTip.cpp)
 
 set(LIBRARIES_PRIVATE)
 if(TLRENDER_NFD)

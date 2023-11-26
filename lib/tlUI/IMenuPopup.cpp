@@ -5,8 +5,8 @@
 #include <tlUI/IMenuPopup.h>
 
 #include <tlUI/DrawUtil.h>
+#include <tlUI/IWindow.h>
 #include <tlUI/ScrollWidget.h>
-#include <tlUI/Window.h>
 
 namespace tl
 {

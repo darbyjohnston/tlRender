@@ -33,7 +33,7 @@ namespace tl
         class ToolsModel;
 
         //! Application.
-        class App : public gl::IApp
+        class App : public gl_app::IApp
         {
             TLRENDER_NON_COPYABLE(App);
 

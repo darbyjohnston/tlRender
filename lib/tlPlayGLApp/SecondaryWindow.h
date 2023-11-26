@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlUI/Window.h>
+#include <tlGLApp/Window.h>
 
 #include <tlTimeline/Player.h>
 
@@ -15,7 +15,7 @@ namespace tl
         class App;
 
         //! Secondary window.
-        class SecondaryWindow : public ui::Window
+        class SecondaryWindow : public gl_app::Window
         {
             TLRENDER_NON_COPYABLE(SecondaryWindow);
 
