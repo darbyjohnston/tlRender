@@ -28,6 +28,9 @@ namespace tl
 
             //! Close the popup.
             virtual void close() = 0;
+
+            void keyPressEvent(KeyEvent&) override;
+            void keyReleaseEvent(KeyEvent&) override;
         };
     }
 }

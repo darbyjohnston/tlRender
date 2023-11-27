@@ -91,6 +91,11 @@ namespace tl
                             menu->close();
                         }
                     });
+                menu->setCloseCallback(
+                    [button]
+                    {
+                        button->takeKeyFocus();
+                    });
                 _updates |= Update::Size;
                 _updates |= Update::Draw;
             }

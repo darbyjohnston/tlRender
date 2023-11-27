@@ -570,6 +570,7 @@ namespace tl
                             if (auto widget = weak.lock())
                             {
                                 widget->_p->menu.reset();
+                                widget->takeKeyFocus();
                             }
                         });
                 }

@@ -559,26 +559,29 @@ namespace tl
         {
             TLRENDER_P();
             std::shared_ptr<IWidget> out;
-            std::list<std::shared_ptr<IWidget> > widgets;
-            _getKeyFocus(shared_from_this(), widgets);
-            if (!widgets.empty())
+            if (!_children.empty())
             {
-                auto i = std::find(widgets.begin(), widgets.end(), value);
-                if (i != widgets.end())
+                std::list<std::shared_ptr<IWidget> > widgets;
+                _getKeyFocus(_children.back(), widgets);
+                if (!widgets.empty())
                 {
-                    ++i;
+                    auto i = std::find(widgets.begin(), widgets.end(), value);
                     if (i != widgets.end())
                     {
-                        out = *i;
+                        ++i;
+                        if (i != widgets.end())
+                        {
+                            out = *i;
+                        }
+                        else
+                        {
+                            out = widgets.front();
+                        }
                     }
-                    else
+                    if (!out)
                     {
                         out = widgets.front();
                     }
-                }
-                if (!out)
-                {
-                    out = widgets.front();
                 }
             }
             return out;
@@ -588,26 +591,29 @@ namespace tl
         {
             TLRENDER_P();
             std::shared_ptr<IWidget> out;
-            std::list<std::shared_ptr<IWidget> > widgets;
-            _getKeyFocus(shared_from_this(), widgets);
-            if (!widgets.empty())
+            if (!_children.empty())
             {
-                auto i = std::find(widgets.rbegin(), widgets.rend(), value);
-                if (i != widgets.rend())
+                std::list<std::shared_ptr<IWidget> > widgets;
+                _getKeyFocus(_children.back(), widgets);
+                if (!widgets.empty())
                 {
-                    ++i;
+                    auto i = std::find(widgets.rbegin(), widgets.rend(), value);
                     if (i != widgets.rend())
                     {
-                        out = *i;
+                        ++i;
+                        if (i != widgets.rend())
+                        {
+                            out = *i;
+                        }
+                        else
+                        {
+                            out = widgets.back();
+                        }
                     }
-                    else
+                    if (!out)
                     {
                         out = widgets.back();
                     }
-                }
-                if (!out)
-                {
-                    out = widgets.back();
                 }
             }
             return out;

@@ -46,6 +46,7 @@ namespace tl
             TLRENDER_P();
             p.open = true;
             setParent(window);
+            takeKeyFocus();
         }
 
         bool IDialog::isOpen() const

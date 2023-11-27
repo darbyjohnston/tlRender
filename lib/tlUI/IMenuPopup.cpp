@@ -129,6 +129,7 @@ namespace tl
             p.buttonGeometry = buttonGeometry;
             p.open = true;
             setParent(window);
+            takeKeyFocus();
         }
 
         bool IMenuPopup::isOpen() const

@@ -21,5 +21,22 @@ namespace tl
 
         IPopup::~IPopup()
         {}
+
+        void IPopup::keyPressEvent(KeyEvent & event)
+        {
+            if (0 == event.modifiers)
+            {
+                if (Key::Escape == event.key)
+                {
+                    event.accept = true;
+                    close();
+                }
+            }
+        }
+
+        void IPopup::keyReleaseEvent(KeyEvent & event)
+        {
+            event.accept = true;
+        }
     }
 }
