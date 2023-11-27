@@ -563,7 +563,7 @@ namespace tl
                 {
                     const int track = dropTarget.track + (item->track - p.mouse.items[0]->track);
                     moveData.push_back({ item->track, item->index, track, dropTarget.index });
-                    item->p->setVisible(false);
+                    item->p->hide();
                 }
                 auto otioTimeline = timeline::move(
                     p.player->getTimeline()->getTimeline().value,

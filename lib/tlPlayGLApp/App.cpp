@@ -247,7 +247,7 @@ namespace tl
                             _context);
                         addWindow(p.secondaryWindow);
                         p.secondaryWindow->setFullScreen(true, screens.front());
-                        p.secondaryWindow->setVisible(true);
+                        p.secondaryWindow->show();
 
                         p.secondaryWindowObserver = observer::ValueObserver<bool>::create(
                             p.secondaryWindow->observeClose(),
@@ -514,7 +514,7 @@ namespace tl
                 _options.windowSize :
                 p.settings->getValue<math::Size2i>("Window/Size"));
             p.mainWindow->setFullScreen(_options.fullscreen);
-            p.mainWindow->setVisible(true);
+            p.mainWindow->show();
 
             p.mainWindowObserver = observer::ValueObserver<bool>::create(
                 p.mainWindow->observeClose(),

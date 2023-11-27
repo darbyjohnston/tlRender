@@ -126,6 +126,12 @@ namespace tl
             //! Set whether the widget is visible.
             virtual void setVisible(bool);
 
+            //! Show the widget.
+            void show();
+
+            //! Hide the widget.
+            void hide();
+
             //! Is the widget clipped?
             bool isClipped() const;
 

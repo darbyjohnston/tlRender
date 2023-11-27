@@ -379,7 +379,7 @@ namespace tl
             p.infoLabel->setMarginRole(ui::SizeRole::MarginInside);
 
             p.toolsWidget = ToolsWidget::create(app, context);
-            p.toolsWidget->setVisible(false);
+            p.toolsWidget->hide();
 
             p.layout = ui::VerticalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ui::SizeRole::None);

@@ -33,7 +33,7 @@ namespace tl
 
                 auto mainWindow = MainWindow::create(_context);
                 addWindow(mainWindow);
-                mainWindow->setVisible(true);
+                mainWindow->show();
             }
 
             App::App()

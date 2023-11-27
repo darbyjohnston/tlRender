@@ -574,7 +574,7 @@ namespace tl
 
             if (p.glfwWindow->shouldClose())
             {
-                setVisible(false);
+                hide();
                 p.close->setAlways(true);
             }
         }

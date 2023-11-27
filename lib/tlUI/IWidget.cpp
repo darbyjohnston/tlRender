@@ -201,6 +201,16 @@ namespace tl
             _updates |= Update::Draw;
         }
 
+        void IWidget::show()
+        {
+            setVisible(true);
+        }
+
+        void IWidget::hide()
+        {
+            setVisible(false);
+        }
+
         math::Box2i IWidget::getChildrenClipRect() const
         {
             return _geometry;
