@@ -22,22 +22,35 @@ namespace tl
         {}
 
         Path::Path(
-            const std::string& fileName,
+            const std::string& value,
             const PathOptions& options)
         {
-            if (!fileName.empty())
+            if (!value.empty())
             {
-                // Find the extension.
-                const size_t size = fileName.size();
+                // Find the request.
+                const size_t size = value.size();
                 size_t i = size - 1;
-                for (; i > 0 && fileName[i] != '.' && !isPathSeparator(fileName[i]); --i)
+                for (; i > 0 && value[i] != '?'; --i)
+                    ;
+                if (i > 0 && '?' == value[i])
+                {
+                    _request = value.substr(i, size - i);
+                }
+                else
+                {
+                    i = size;
+                }
+
+                // Find the extension.
+                size_t j = i;
+                for (; i > 0 && value[i] != '.' && !isPathSeparator(value[i]); --i)
                     ;
                 if (i > 0 &&
-                    '.' == fileName[i] &&
-                    '.' != fileName[i - 1] &&
-                    !isPathSeparator(fileName[i - 1]))
+                    '.' == value[i] &&
+                    '.' != value[i - 1] &&
+                    !isPathSeparator(value[i - 1]))
                 {
-                    _extension = fileName.substr(i, size - i);
+                    _extension = value.substr(i, j - i);
                 }
                 else
                 {
@@ -45,13 +58,13 @@ namespace tl
                 }
 
                 // Find the number.
-                size_t j = i;
-                for (; i > 0 && fileName[i - 1] >= '0' && fileName[i - 1] <= '9'; --i)
+                j = i;
+                for (; i > 0 && value[i - 1] >= '0' && value[i - 1] <= '9'; --i)
                     ;
-                if (fileName[i] >= '0' && fileName[i] <= '9' &&
+                if (value[i] >= '0' && value[i] <= '9' &&
                     (j - i) <= options.maxNumberDigits)
                 {
-                    _number = fileName.substr(i, j - i);
+                    _number = value.substr(i, j - i);
                 }
                 else
                 {
@@ -60,71 +73,73 @@ namespace tl
 
                 // Find the directory.
                 j = i;
-                for (; i > 0 && !isPathSeparator(fileName[i]); --i)
+                for (; i > 0 && !isPathSeparator(value[i]); --i)
                     ;
                 size_t k = 0;
-                if (isPathSeparator(fileName[i]))
+                if (isPathSeparator(value[i]))
                 {
                     // Find the protocol.
+                    //
+                    //! \bug Should this be case-insensitive?
                     size_t l = i;
-                    for (; l > 0 && fileName[l] != ':'; --l)
+                    for (; l > 0 && value[l] != ':'; --l)
                         ;
-                    if (':' == fileName[l] &&
+                    if (':' == value[l] &&
                         4 == l &&
-                        'f' == fileName[0] &&
-                        'i' == fileName[1] &&
-                        'l' == fileName[2] &&
-                        'e' == fileName[3] &&
+                        'f' == value[0] &&
+                        'i' == value[1] &&
+                        'l' == value[2] &&
+                        'e' == value[3] &&
                         l < size - 4 &&
-                        '/' == fileName[l + 1] &&
-                        '/' == fileName[l + 2] &&
-                        '/' == fileName[l + 3])
+                        '/' == value[l + 1] &&
+                        '/' == value[l + 2] &&
+                        '/' == value[l + 3])
                     {
-                        _protocol = fileName.substr(0, l + 3);
+                        _protocol = value.substr(0, l + 3);
                         l += 3;
                     }
-                    else if (':' == fileName[l] &&
+                    else if (':' == value[l] &&
                         4 == l &&
-                        'f' == fileName[0] &&
-                        'i' == fileName[1] &&
-                        'l' == fileName[2] &&
-                        'e' == fileName[3] &&
+                        'f' == value[0] &&
+                        'i' == value[1] &&
+                        'l' == value[2] &&
+                        'e' == value[3] &&
                         l < size - 3 &&
-                        '/' == fileName[l + 1] &&
-                        '/' == fileName[l + 2])
+                        '/' == value[l + 1] &&
+                        '/' == value[l + 2])
                     {
-                        _protocol = fileName.substr(0, l + 3);
+                        _protocol = value.substr(0, l + 3);
                         l += 3;
                     }
-                    else if (':' == fileName[l] &&
+                    else if (':' == value[l] &&
                         4 == l &&
-                        'f' == fileName[0] &&
-                        'i' == fileName[1] &&
-                        'l' == fileName[2] &&
-                        'e' == fileName[3] &&
+                        'f' == value[0] &&
+                        'i' == value[1] &&
+                        'l' == value[2] &&
+                        'e' == value[3] &&
                         l < size - 2 &&
-                        '/' == fileName[l + 1])
+                        '/' == value[l + 1])
                     {
-                        _protocol = fileName.substr(0, l + 1);
+                        _protocol = value.substr(0, l + 1);
                         l += 1;
                     }
                     else if (
-                        ':' == fileName[l] &&
+                        ':' == value[l] &&
                         4 == l &&
-                        'f' == fileName[0] &&
-                        'i' == fileName[1] &&
-                        'l' == fileName[2] &&
-                        'e' == fileName[3])
+                        'f' == value[0] &&
+                        'i' == value[1] &&
+                        'l' == value[2] &&
+                        'e' == value[3])
                     {
-                        _protocol = fileName.substr(0, l + 1);
+                        _protocol = value.substr(0, l + 1);
                     }
-                    else if (':' == fileName[l] &&
+                    else if (':' == value[l] &&
                         l > 1 &&
                         l < size - 3 &&
-                        '/' == fileName[l + 1] &&
-                        '/' == fileName[l + 2])
+                        '/' == value[l + 1] &&
+                        '/' == value[l + 2])
                     {
-                        _protocol = fileName.substr(0, l + 3);
+                        _protocol = value.substr(0, l + 3);
                         l += 3;
                     }
                     else
@@ -132,17 +147,19 @@ namespace tl
                         l = 0;
                     }
 
-                    _directory = fileName.substr(l, (i - l) + 1);
+                    _directory = value.substr(l, (i - l) + 1);
                     k = i + 1;
                 }
 
                 // Find the base name.
                 if (k < j)
                 {
-                    _baseName = fileName.substr(k, j - k);
+                    _baseName = value.substr(k, j - k);
                 }
 
                 // Special case for Windows drive letters.
+                //
+                //! \bug Should this be case-insensitive?
                 if (_directory.empty() &&
                     2 == _baseName.size() &&
                     _baseName[0] >= 'A' &&
@@ -159,9 +176,9 @@ namespace tl
 
         Path::Path(
             const std::string& directory,
-            const std::string& fileName,
+            const std::string& value,
             const PathOptions& options) :
-            Path(appendSeparator(directory) + fileName, options)
+            Path(appendSeparator(directory) + value, options)
         {
             _protocolUpdate();
             _numberUpdate();
@@ -173,13 +190,15 @@ namespace tl
             const std::string& number,
             size_t padding,
             const std::string& extension,
-            const std::string& protocol) :
+            const std::string& protocol,
+            const std::string& request) :
             _protocol(protocol),
             _directory(directory),
             _baseName(baseName),
             _number(number),
             _padding(padding),
-            _extension(extension)
+            _extension(extension),
+            _request(request)
         {
             _protocolUpdate();
             _numberUpdate();
@@ -207,6 +226,7 @@ namespace tl
                 ss << _number;
             }
             ss << _extension;
+            ss << _request;
             return ss.str();
         }
 
@@ -258,6 +278,11 @@ namespace tl
             _extension = value;
         }
 
+        void Path::setRequest(const std::string& value)
+        {
+            _request = value;
+        }
+
         bool Path::isAbsolute() const
         {
             const std::size_t size = _directory.size();
@@ -280,7 +305,7 @@ namespace tl
                 const auto i = _protocol.find_first_of(':');
                 if (i != std::string::npos)
                 {
-                    _protocolName = _protocol.substr(0, i + 1);
+                    _protocolName = string::toLower(_protocol.substr(0, i + 1));
                 }
             }
             else

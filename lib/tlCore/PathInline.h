@@ -71,7 +71,8 @@ namespace tl
                 _directory == value._directory &&
                 _baseName == value._baseName &&
                 (_padding == value._padding || _padding == value._numberDigits) &&
-                _extension == value._extension;
+                _extension == value._extension &&
+                _request == value._request;
         }
 
         inline bool Path::isSequence() const
@@ -83,25 +84,34 @@ namespace tl
         {
             return _extension;
         }
+
+        inline const std::string& Path::getRequest() const
+        {
+            return _request;
+        }
         
         inline bool Path::isEmpty() const
         {
             return
+                _protocol.empty() &&
                 _directory.empty() &&
                 _baseName.empty() &&
                 _number.empty() &&
-                _extension.empty();
+                _extension.empty() &&
+                _request.empty();
         }
 
         inline bool Path::operator == (const Path& other) const
         {
             return
+                _protocol == other._protocol &&
                 _directory == other._directory &&
                 _baseName == other._baseName &&
                 _number == other._number &&
                 _sequence == other._sequence &&
                 _padding == other._padding &&
-                _extension == other._extension;
+                _extension == other._extension &&
+                _request == other._request;
         }
 
         inline bool Path::operator != (const Path& other) const

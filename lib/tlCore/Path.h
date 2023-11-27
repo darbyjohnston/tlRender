@@ -49,11 +49,11 @@ namespace tl
         public:
             Path();
             explicit Path(
-                const std::string& fileName,
+                const std::string&,
                 const PathOptions& = PathOptions());
             Path(
                 const std::string& directory,
-                const std::string& fileName,
+                const std::string&,
                 const PathOptions& = PathOptions());
             Path(
                 const std::string& directory,
@@ -61,7 +61,8 @@ namespace tl
                 const std::string& number,
                 size_t padding,
                 const std::string& extension,
-                const std::string& protocol = std::string());
+                const std::string& protocol = std::string(),
+                const std::string& request = std::string());
 
             //! Get the path.
             std::string get(
@@ -118,9 +119,15 @@ namespace tl
 
             //! Get the extension.
             const std::string& getExtension() const;
-            
+
             //! Set the extension.
             void setExtension(const std::string&);
+
+            //! Get the request.
+            const std::string& getRequest() const;
+
+            //! Set the request.
+            void setRequest(const std::string&);
 
             //! Is the path empty?
             bool isEmpty() const;
@@ -145,6 +152,7 @@ namespace tl
             math::IntRange _sequence;
             size_t _padding = 0;
             std::string _extension;
+            std::string _request;
         };
 
         //! Get whether the given character is a path separator.
