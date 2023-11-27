@@ -124,18 +124,5 @@ namespace tl
         {
             return _p->viewport;
         }
-
-        void SecondaryWindow::keyPressEvent(QKeyEvent* event)
-        {
-            if (Qt::Key_Escape == event->key())
-            {
-                event->accept();
-                close();
-            }
-            else
-            {
-                QWidget::keyPressEvent(event);
-            }
-        }
     }
 }

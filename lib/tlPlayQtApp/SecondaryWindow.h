@@ -34,9 +34,6 @@ namespace tl
             //! Get the viewport.
             qtwidget::TimelineViewport* viewport() const;
 
-        protected:
-            void keyPressEvent(QKeyEvent*) override;
-
         private:
             TLRENDER_PRIVATE();
         };
