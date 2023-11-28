@@ -361,10 +361,9 @@ namespace tl
             _printProgress();
 
             // Render the video.
-            _render->begin(
-                _renderSize,
-                _options.ocioOptions,
-                _options.lutOptions);
+            _render->begin(_renderSize);
+            _render->setOCIOOptions(_options.ocioOptions);
+            _render->setLUTOptions(_options.lutOptions);
             const auto videoData = _timeline->getVideo(_inputTime).get();
             _render->drawVideo(
                 { videoData },

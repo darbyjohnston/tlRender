@@ -396,12 +396,7 @@ namespace tl
                         gl::OffscreenBufferBinding binding(p.buffer);
                         timeline::RenderOptions renderOptions;
                         renderOptions.clearColor = p.style->getColorRole(ui::ColorRole::Window);
-                        p.render->begin(
-                            renderSize,
-                            timeline::OCIOOptions(),
-                            timeline::LUTOptions(),
-                            renderOptions);
-
+                        p.render->begin(renderSize, renderOptions);
                         ui::DrawEvent drawEvent(
                             p.style,
                             p.iconLibrary,

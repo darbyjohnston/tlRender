@@ -622,10 +622,9 @@ namespace tl
                         {
                             gl::OffscreenBufferBinding binding(offscreenBuffer);
 
-                            render->begin(
-                                renderSize,
-                                ocioOptions,
-                                lutOptions);
+                            render->begin(renderSize);
+                            render->setOCIOOptions(ocioOptions);
+                            render->setLUTOptions(lutOptions);
                             render->drawVideo(
                                 videoData,
                                 timeline::getBoxes(compareOptions.mode, sizes),

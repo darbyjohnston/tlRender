@@ -341,8 +341,6 @@ namespace tl
 
         void GLRender::begin(
             const math::Size2i& renderSize,
-            const OCIOOptions& ocioOptions,
-            const LUTOptions& lutOptions,
             const RenderOptions& renderOptions)
         {
             TLRENDER_P();
@@ -350,8 +348,6 @@ namespace tl
             p.timer = std::chrono::steady_clock::now();
 
             p.renderSize = renderSize;
-            _setOCIO(ocioOptions);
-            _setLUT(lutOptions);
             p.renderOptions = renderOptions;
             p.textureCache.setMax(renderOptions.textureCacheByteCount);
 
@@ -418,62 +414,7 @@ namespace tl
                     vertexSource(),
                     textureFragmentSource());
             }
-            if (!p.shaders["display"])
-            {
-                std::string ocioDef;
-                std::string ocio;
-                std::string lutDef;
-                std::string lut;
-
-#if defined(TLRENDER_OCIO)
-                if (p.ocioData && p.ocioData->shaderDesc)
-                {
-                    ocioDef = p.ocioData->shaderDesc->getShaderText();
-                    ocio = "outColor = ocioFunc(outColor);";
-                }
-                if (p.lutData && p.lutData->shaderDesc)
-                {
-                    lutDef = p.lutData->shaderDesc->getShaderText();
-                    lut = "outColor = lutFunc(outColor);";
-                }
-#endif // TLRENDER_OCIO
-                const std::string source = displayFragmentSource(
-                    ocioDef,
-                    ocio,
-                    lutDef,
-                    lut,
-                    p.lutOptions.order);
-                if (auto context = _context.lock())
-                {
-                    //context->log("tl::gl::GLRender", source);
-                    context->log("tl::gl::GLRender", "Creating display shader");
-                }
-                p.shaders["display"] = gl::Shader::create(vertexSource(), source);
-            }
-            p.shaders["display"]->bind();
-            size_t texturesOffset = 1;
-#if defined(TLRENDER_OCIO)
-            if (p.ocioData)
-            {
-                for (size_t i = 0; i < p.ocioData->textures.size(); ++i)
-                {
-                    p.shaders["display"]->setUniform(
-                        p.ocioData->textures[i].sampler,
-                        static_cast<int>(texturesOffset + i));
-                }
-                texturesOffset += p.ocioData->textures.size();
-            }
-            if (p.lutData)
-            {
-                for (size_t i = 0; i < p.lutData->textures.size(); ++i)
-                {
-                    p.shaders["display"]->setUniform(
-                        p.lutData->textures[i].sampler,
-                        static_cast<int>(texturesOffset + i));
-                }
-                texturesOffset += p.lutData->textures.size();
-            }
-#endif // TLRENDER_OCIO
+            _displayShader();
 
             p.vbos["rect"] = gl::VBO::create(2 * 3, gl::VBOType::Pos2_F32);
             p.vaos["rect"] = gl::VAO::create(p.vbos["rect"]->getType(), p.vbos["rect"]->getID());
@@ -689,7 +630,7 @@ namespace tl
 #endif // TLRENDER_OCIO
         }
 
-        void GLRender::_setOCIO(const OCIOOptions& value)
+        void GLRender::setOCIOOptions(const OCIOOptions& value)
         {
             TLRENDER_P();
             if (value == p.ocioOptions)
@@ -875,9 +816,10 @@ namespace tl
 #endif // TLRENDER_OCIO
 
             p.shaders["display"].reset();
+            _displayShader();
         }
 
-        void GLRender::_setLUT(const LUTOptions& value)
+        void GLRender::setLUTOptions(const LUTOptions& value)
         {
             TLRENDER_P();
             if (value == p.lutOptions)
@@ -1039,6 +981,69 @@ namespace tl
 #endif // TLRENDER_OCIO
 
             p.shaders["display"].reset();
+            _displayShader();
+        }
+
+        void GLRender::_displayShader()
+        {
+            TLRENDER_P();
+            if (!p.shaders["display"])
+            {
+                std::string ocioDef;
+                std::string ocio;
+                std::string lutDef;
+                std::string lut;
+
+#if defined(TLRENDER_OCIO)
+                if (p.ocioData && p.ocioData->shaderDesc)
+                {
+                    ocioDef = p.ocioData->shaderDesc->getShaderText();
+                    ocio = "outColor = ocioFunc(outColor);";
+                }
+                if (p.lutData && p.lutData->shaderDesc)
+                {
+                    lutDef = p.lutData->shaderDesc->getShaderText();
+                    lut = "outColor = lutFunc(outColor);";
+                }
+#endif // TLRENDER_OCIO
+                const std::string source = displayFragmentSource(
+                    ocioDef,
+                    ocio,
+                    lutDef,
+                    lut,
+                    p.lutOptions.order);
+                if (auto context = _context.lock())
+                {
+                    //context->log("tl::gl::GLRender", source);
+                    context->log("tl::gl::GLRender", "Creating display shader");
+                }
+                p.shaders["display"] = gl::Shader::create(vertexSource(), source);
+            }
+            p.shaders["display"]->bind();
+            p.shaders["display"]->setUniform("transform.mvp", p.transform);
+#if defined(TLRENDER_OCIO)
+            size_t texturesOffset = 1;
+            if (p.ocioData)
+            {
+                for (size_t i = 0; i < p.ocioData->textures.size(); ++i)
+                {
+                    p.shaders["display"]->setUniform(
+                        p.ocioData->textures[i].sampler,
+                        static_cast<int>(texturesOffset + i));
+                }
+                texturesOffset += p.ocioData->textures.size();
+            }
+            if (p.lutData)
+            {
+                for (size_t i = 0; i < p.lutData->textures.size(); ++i)
+                {
+                    p.shaders["display"]->setUniform(
+                        p.lutData->textures[i].sampler,
+                        static_cast<int>(texturesOffset + i));
+                }
+                texturesOffset += p.lutData->textures.size();
+            }
+#endif // TLRENDER_OCIO
         }
     }
 }

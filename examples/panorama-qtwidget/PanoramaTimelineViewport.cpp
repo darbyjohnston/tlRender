@@ -171,10 +171,9 @@ namespace tl
                     if (_buffer)
                     {
                         gl::OffscreenBufferBinding binding(_buffer);
-                        _render->begin(
-                            offscreenBufferSize,
-                            _ocioOptions,
-                            _lutOptions);
+                        _render->begin(offscreenBufferSize);
+                        _render->setOCIOOptions(_ocioOptions);
+                        _render->setLUTOptions(_lutOptions);
                         _render->drawVideo(
                             { _videoData },
                             { math::Box2i(0, 0, _videoSize.w, _videoSize.h) },

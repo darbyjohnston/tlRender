@@ -33,8 +33,6 @@ namespace tl
             //! Start a render.
             virtual void begin(
                 const math::Size2i&,
-                const OCIOOptions& = OCIOOptions(),
-                const LUTOptions& = LUTOptions(),
                 const RenderOptions& = RenderOptions()) = 0;
 
             //! Finish a render.
@@ -72,6 +70,12 @@ namespace tl
 
             //! Set the transformation matrix.
             virtual void setTransform(const math::Matrix4x4f&) = 0;
+
+            //! Set the OpenColorIO options.
+            virtual void setOCIOOptions(const OCIOOptions&) = 0;
+
+            //! Set the LUT options.
+            virtual void setLUTOptions(const LUTOptions&) = 0;
 
             //! Draw a rectangle.
             virtual void drawRect(

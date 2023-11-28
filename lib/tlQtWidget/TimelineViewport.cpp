@@ -377,10 +377,9 @@ namespace tl
                 if (p.buffer)
                 {
                     gl::OffscreenBufferBinding binding(p.buffer);
-                    p.render->begin(
-                        viewportSize,
-                        p.ocioOptions,
-                        p.lutOptions);
+                    p.render->begin(viewportSize);
+                    p.render->setOCIOOptions(p.ocioOptions);
+                    p.render->setLUTOptions(p.lutOptions);
                     switch (p.backgroundOptions.type)
                     {
                     case timeline::Background::Solid:

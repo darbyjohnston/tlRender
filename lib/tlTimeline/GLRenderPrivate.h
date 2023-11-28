@@ -107,6 +107,7 @@ namespace tl
             RenderOptions renderOptions;
 
 #if defined(TLRENDER_OCIO)
+            //! \todo Add a cache for OpenColorIO data.
             std::unique_ptr<OCIOData> ocioData;
             std::unique_ptr<OCIOLUTData> lutData;
 #endif // TLRENDER_OCIO

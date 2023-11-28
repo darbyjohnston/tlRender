@@ -285,10 +285,9 @@ namespace tl
                 // Render the video.
                 if (_renderDirty)
                 {
-                    _render->begin(
-                        _frameBufferSize,
-                        _options.ocioOptions,
-                        _options.lutOptions);
+                    _render->begin(_frameBufferSize);
+                    _render->setOCIOOptions(_options.ocioOptions);
+                    _render->setLUTOptions(_options.lutOptions);
                     _draw();
                     _render->end();
                     _window->swap();

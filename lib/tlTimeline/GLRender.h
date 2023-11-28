@@ -27,8 +27,6 @@ namespace tl
 
             void begin(
                 const math::Size2i&,
-                const OCIOOptions& = OCIOOptions(),
-                const LUTOptions& = LUTOptions(),
                 const RenderOptions& = RenderOptions()) override;
             void end() override;
 
@@ -43,6 +41,8 @@ namespace tl
             void setClipRect(const math::Box2i&) override;
             math::Matrix4x4f getTransform() const override;
             void setTransform(const math::Matrix4x4f&) override;
+            void setOCIOOptions(const OCIOOptions&) override;
+            void setLUTOptions(const LUTOptions&) override;
 
             void drawRect(
                 const math::Box2i&,
@@ -76,8 +76,8 @@ namespace tl
                 const CompareOptions& = CompareOptions()) override;
 
         private:
-            void _setOCIO(const OCIOOptions&);
-            void _setLUT(const LUTOptions&);
+            void _displayShader();
+
             void _drawVideoA(
                 const std::vector<VideoData>&,
                 const std::vector<math::Box2i>&,

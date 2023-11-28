@@ -356,6 +356,8 @@ namespace tl
                         break;
                     default: break;
                     }
+                    event.render->setOCIOOptions(p.ocioOptions);
+                    event.render->setLUTOptions(p.lutOptions);
                     if (!p.videoData.empty())
                     {
                         math::Matrix4x4f vm;
