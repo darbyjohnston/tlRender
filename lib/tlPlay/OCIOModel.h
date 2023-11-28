@@ -28,6 +28,8 @@ namespace tl
             size_t displayIndex = 0;
             std::vector<std::string> views;
             size_t viewIndex = 0;
+            std::vector<std::string> looks;
+            size_t lookIndex = 0;
 
             bool operator == (const OCIOModelData&) const;
             bool operator != (const OCIOModelData&) const;
@@ -72,6 +74,9 @@ namespace tl
 
             //! Set the view index.
             void setViewIndex(size_t);
+
+            //! Set the look index.
+            void setLookIndex(size_t);
 
         private:
             void _configUpdate();

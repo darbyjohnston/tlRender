@@ -29,7 +29,9 @@ namespace tl
                 displays == other.displays &&
                 displayIndex == other.displayIndex &&
                 views == other.views &&
-                viewIndex == other.viewIndex;
+                viewIndex == other.viewIndex &&
+                looks == other.looks &&
+                lookIndex == other.lookIndex;
         }
 
         bool OCIOModelData::operator != (const OCIOModelData& other) const
@@ -235,6 +237,22 @@ namespace tl
             }
         }
 
+        void OCIOModel::setLookIndex(size_t value)
+        {
+            TLRENDER_P();
+            const auto& looks = p.data->get().looks;
+            if (value >= 0 && value < looks.size())
+            {
+                auto options = p.options->get();
+                options.enabled = true;
+                options.look = value > 0 ? looks[value] : std::string();
+                if (p.options->setIfChanged(options))
+                {
+                    _configUpdate();
+                }
+            }
+        }
+
         void OCIOModel::_configUpdate()
         {
             TLRENDER_P();
@@ -277,6 +295,17 @@ namespace tl
                 if (j != data.views.end())
                 {
                     data.viewIndex = j - data.views.begin();
+                }
+
+                data.looks.push_back("None");
+                for (int i = 0; i < p.ocioConfig->getNumLooks(); ++i)
+                {
+                    data.looks.push_back(p.ocioConfig->getLookNameByIndex(i));
+                }
+                j = std::find(data.looks.begin(), data.looks.end(), options.look);
+                if (j != data.looks.end())
+                {
+                    data.lookIndex = j - data.looks.begin();
                 }
             }
 #endif // TLRENDER_OCIO

@@ -57,49 +57,63 @@ namespace tl
 
             p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
-            auto inputListModel = new OCIOInputListModel(p.ocioModel, this);
-            auto inputListProxyModel = new QSortFilterProxyModel(this);
-            inputListProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-            inputListProxyModel->setFilterKeyColumn(-1);
-            inputListProxyModel->setSourceModel(inputListModel);
+            auto inputModel = new OCIOInputModel(p.ocioModel, this);
+            auto inputProxyModel = new QSortFilterProxyModel(this);
+            inputProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+            inputProxyModel->setFilterKeyColumn(-1);
+            inputProxyModel->setSourceModel(inputModel);
 
-            auto displayListModel = new OCIODisplayListModel(p.ocioModel, this);
-            auto displayListProxyModel = new QSortFilterProxyModel(this);
-            displayListProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-            displayListProxyModel->setFilterKeyColumn(-1);
-            displayListProxyModel->setSourceModel(displayListModel);
+            auto displayModel = new OCIODisplayModel(p.ocioModel, this);
+            auto displayProxyModel = new QSortFilterProxyModel(this);
+            displayProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+            displayProxyModel->setFilterKeyColumn(-1);
+            displayProxyModel->setSourceModel(displayModel);
 
-            auto viewListModel = new OCIOViewListModel(p.ocioModel, this);
-            auto viewListProxyModel = new QSortFilterProxyModel(this);
-            viewListProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-            viewListProxyModel->setFilterKeyColumn(-1);
-            viewListProxyModel->setSourceModel(viewListModel);
+            auto viewModel = new OCIOViewModel(p.ocioModel, this);
+            auto viewProxyModel = new QSortFilterProxyModel(this);
+            viewProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+            viewProxyModel->setFilterKeyColumn(-1);
+            viewProxyModel->setSourceModel(viewModel);
+
+            auto lookModel = new OCIOLookModel(p.ocioModel, this);
+            auto lookProxyModel = new QSortFilterProxyModel(this);
+            lookProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+            lookProxyModel->setFilterKeyColumn(-1);
+            lookProxyModel->setSourceModel(lookModel);
 
             p.fileWidget = new qtwidget::FileWidget(app->getContext());
 
-            auto inputListView = new QListView;
-            inputListView->setAlternatingRowColors(true);
-            inputListView->setSelectionMode(QAbstractItemView::NoSelection);
-            inputListView->setModel(inputListProxyModel);
+            auto inputView = new QListView;
+            inputView->setAlternatingRowColors(true);
+            inputView->setSelectionMode(QAbstractItemView::NoSelection);
+            inputView->setModel(inputProxyModel);
 
             auto inputSearchWidget = new qtwidget::SearchWidget;
             inputSearchWidget->setContentsMargins(2, 2, 2, 2);
 
-            auto displayListView = new QListView;
-            displayListView->setAlternatingRowColors(true);
-            displayListView->setSelectionMode(QAbstractItemView::NoSelection);
-            displayListView->setModel(displayListProxyModel);
+            auto displayView = new QListView;
+            displayView->setAlternatingRowColors(true);
+            displayView->setSelectionMode(QAbstractItemView::NoSelection);
+            displayView->setModel(displayProxyModel);
 
             auto displaySearchWidget = new qtwidget::SearchWidget;
             displaySearchWidget->setContentsMargins(2, 2, 2, 2);
 
-            auto viewListView = new QListView;
-            viewListView->setAlternatingRowColors(true);
-            viewListView->setSelectionMode(QAbstractItemView::NoSelection);
-            viewListView->setModel(viewListProxyModel);
+            auto viewView = new QListView;
+            viewView->setAlternatingRowColors(true);
+            viewView->setSelectionMode(QAbstractItemView::NoSelection);
+            viewView->setModel(viewProxyModel);
 
             auto viewSearchWidget = new qtwidget::SearchWidget;
             viewSearchWidget->setContentsMargins(2, 2, 2, 2);
+
+            auto lookView = new QListView;
+            lookView->setAlternatingRowColors(true);
+            lookView->setSelectionMode(QAbstractItemView::NoSelection);
+            lookView->setModel(lookProxyModel);
+
+            auto lookSearchWidget = new qtwidget::SearchWidget;
+            lookSearchWidget->setContentsMargins(2, 2, 2, 2);
 
             auto formLayout = new QFormLayout;
             formLayout->addRow(p.enabledCheckBox);
@@ -110,7 +124,7 @@ namespace tl
             auto layout = new QVBoxLayout;
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
-            layout->addWidget(inputListView);
+            layout->addWidget(inputView);
             layout->addWidget(inputSearchWidget);
             widget->setLayout(layout);
             tabWidget->addTab(widget, tr("Input"));
@@ -118,7 +132,7 @@ namespace tl
             layout = new QVBoxLayout;
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
-            layout->addWidget(displayListView);
+            layout->addWidget(displayView);
             layout->addWidget(displaySearchWidget);
             widget->setLayout(layout);
             tabWidget->addTab(widget, tr("Display"));
@@ -126,10 +140,18 @@ namespace tl
             layout = new QVBoxLayout;
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
-            layout->addWidget(viewListView);
+            layout->addWidget(viewView);
             layout->addWidget(viewSearchWidget);
             widget->setLayout(layout);
             tabWidget->addTab(widget, tr("View"));
+            widget = new QWidget;
+            layout = new QVBoxLayout;
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(lookView);
+            layout->addWidget(lookSearchWidget);
+            widget->setLayout(layout);
+            tabWidget->addTab(widget, tr("Look"));
 
             layout = new QVBoxLayout;
             layout->addLayout(formLayout);
@@ -153,48 +175,63 @@ namespace tl
                 });
 
             connect(
-                inputListView,
+                inputView,
                 &QAbstractItemView::activated,
-                [this, inputListProxyModel](const QModelIndex& index)
+                [this, inputProxyModel](const QModelIndex& index)
                 {
-                    auto sourceIndex = inputListProxyModel->mapToSource(index);
+                    auto sourceIndex = inputProxyModel->mapToSource(index);
                     _p->ocioModel->setInputIndex(sourceIndex.row());
                 });
 
             connect(
                 inputSearchWidget,
                 SIGNAL(searchChanged(const QString&)),
-                inputListProxyModel,
+                inputProxyModel,
                 SLOT(setFilterFixedString(const QString&)));
 
             connect(
-                displayListView,
+                displayView,
                 &QAbstractItemView::activated,
-                [this, displayListProxyModel](const QModelIndex& index)
+                [this, displayProxyModel](const QModelIndex& index)
                 {
-                    auto sourceIndex = displayListProxyModel->mapToSource(index);
+                    auto sourceIndex = displayProxyModel->mapToSource(index);
                     _p->ocioModel->setDisplayIndex(sourceIndex.row());
                 });
 
             connect(
                 displaySearchWidget,
                 SIGNAL(searchChanged(const QString&)),
-                displayListProxyModel,
+                displayProxyModel,
                 SLOT(setFilterFixedString(const QString&)));
 
             connect(
-                viewListView,
+                viewView,
                 &QAbstractItemView::activated,
-                [this, viewListProxyModel](const QModelIndex& index)
+                [this, viewProxyModel](const QModelIndex& index)
                 {
-                    auto sourceIndex = viewListProxyModel->mapToSource(index);
+                    auto sourceIndex = viewProxyModel->mapToSource(index);
                     _p->ocioModel->setViewIndex(sourceIndex.row());
                 });
 
             connect(
                 viewSearchWidget,
                 SIGNAL(searchChanged(const QString&)),
-                viewListProxyModel,
+                viewProxyModel,
+                SLOT(setFilterFixedString(const QString&)));
+
+            connect(
+                lookView,
+                &QAbstractItemView::activated,
+                [this, lookProxyModel](const QModelIndex& index)
+                {
+                    auto sourceIndex = lookProxyModel->mapToSource(index);
+                    _p->ocioModel->setLookIndex(sourceIndex.row());
+                });
+
+            connect(
+                lookSearchWidget,
+                SIGNAL(searchChanged(const QString&)),
+                lookProxyModel,
                 SLOT(setFilterFixedString(const QString&)));
 
             p.optionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(

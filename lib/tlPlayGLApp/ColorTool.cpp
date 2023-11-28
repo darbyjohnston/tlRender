@@ -63,7 +63,7 @@ namespace tl
             p.fileEdit = ui::FileEdit::create(context);
 
             p.tabBar = ui::TabBar::create(context);
-            const std::vector<std::string> tabs = { "Input", "Display", "View" };
+            const std::vector<std::string> tabs = { "Input", "Display", "View", "Look" };
             p.tabBar->setTabs(tabs);
             for (const auto& tab : tabs)
             {
@@ -127,6 +127,8 @@ namespace tl
                     _p->listWidgets["Display"]->setCurrentItem(value.displayIndex);
                     _p->listWidgets["View"]->setItems(value.views);
                     _p->listWidgets["View"]->setCurrentItem(value.viewIndex);
+                    _p->listWidgets["Look"]->setItems(value.looks);
+                    _p->listWidgets["Look"]->setCurrentItem(value.lookIndex);
                 });
 
             p.tabBar->setCallback(
@@ -162,6 +164,11 @@ namespace tl
                 {
                     _p->ocioModel->setViewIndex(index);
                 });
+            p.listWidgets["Look"]->setCallback(
+                [this](int index)
+                {
+                    _p->ocioModel->setLookIndex(index);
+                });
 
             p.searchBoxes["Input"]->setCallback(
                 [this](const std::string& value)
@@ -177,6 +184,11 @@ namespace tl
                 [this](const std::string& value)
                 {
                     _p->listWidgets["View"]->setSearch(value);
+                });
+            p.searchBoxes["Look"]->setCallback(
+                [this](const std::string& value)
+                {
+                    _p->listWidgets["Look"]->setSearch(value);
                 });
         }
 
