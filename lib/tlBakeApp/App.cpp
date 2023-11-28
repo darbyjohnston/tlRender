@@ -57,21 +57,25 @@ namespace tl
                         std::string(),
                         string::join(image::getPixelTypeLabels(), ", ")),
                     app::CmdLineValueOption<std::string>::create(
-                        _options.colorConfigOptions.fileName,
-                        { "-colorConfig", "-cc" },
-                        "Color configuration file name (e.g., config.ocio)."),
+                        _options.ocioOptions.fileName,
+                        { "-ocio" },
+                        "OpenColorIO configuration file name (e.g., config.ocio)."),
                     app::CmdLineValueOption<std::string>::create(
-                        _options.colorConfigOptions.input,
-                        { "-colorInput", "-ci" },
-                        "Input color space."),
+                        _options.ocioOptions.input,
+                        { "-ocioInput" },
+                        "OpenColorIO input name."),
                     app::CmdLineValueOption<std::string>::create(
-                        _options.colorConfigOptions.display,
-                        { "-colorDisplay", "-cd" },
-                        "Display color space."),
+                        _options.ocioOptions.display,
+                        { "-ocioDisplay" },
+                        "OpenColorIO display name."),
                     app::CmdLineValueOption<std::string>::create(
-                        _options.colorConfigOptions.view,
-                        { "-colorView", "-cv" },
-                        "View color space."),
+                        _options.ocioOptions.view,
+                        { "-ocioView" },
+                        "OpenColorIO view name."),
+                    app::CmdLineValueOption<std::string>::create(
+                        _options.ocioOptions.look,
+                        { "-ocioLook" },
+                        "OpenColorIO look name."),
                     app::CmdLineValueOption<std::string>::create(
                         _options.lutOptions.fileName,
                         { "-lut" },
@@ -359,7 +363,7 @@ namespace tl
             // Render the video.
             _render->begin(
                 _renderSize,
-                _options.colorConfigOptions,
+                _options.ocioOptions,
                 _options.lutOptions);
             const auto videoData = _timeline->getVideo(_inputTime).get();
             _render->drawVideo(

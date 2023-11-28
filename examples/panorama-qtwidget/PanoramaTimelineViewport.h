@@ -36,8 +36,8 @@ namespace tl
                     const std::shared_ptr<system::Context>&,
                     QWidget* parent = nullptr);
 
-                //! Set the color configuration options.
-                void setColorConfigOptions(const timeline::ColorConfigOptions&);
+                //! Set the OpenColorIO options.
+                void setOCIOOptions(const timeline::OCIOOptions&);
 
                 //! Set the LUT options.
                 void setLUTOptions(const timeline::LUTOptions&);
@@ -60,7 +60,7 @@ namespace tl
 
             private:
                 std::weak_ptr<system::Context> _context;
-                timeline::ColorConfigOptions _colorConfigOptions;
+                timeline::OCIOOptions _ocioOptions;
                 timeline::LUTOptions _lutOptions;
                 timeline::ImageOptions _imageOptions;
                 qt::TimelinePlayer* _timelinePlayer = nullptr;

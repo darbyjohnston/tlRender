@@ -36,7 +36,7 @@ namespace tl
             otime::TimeRange inOutRange = time::invalidTimeRange;
             math::Size2i renderSize;
             image::PixelType outputPixelType = image::PixelType::None;
-            timeline::ColorConfigOptions colorConfigOptions;
+            timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
             float sequenceDefaultSpeed = io::sequenceDefaultSpeed;
             int sequenceThreadCount = io::sequenceThreadCount;

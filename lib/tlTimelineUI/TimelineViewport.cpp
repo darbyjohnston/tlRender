@@ -20,7 +20,7 @@ namespace tl
         struct TimelineViewport::Private
         {
             timeline::BackgroundOptions backgroundOptions;
-            timeline::ColorConfigOptions colorConfigOptions;
+            timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
             timeline::RenderOptions renderOptions;
             std::vector<timeline::ImageOptions> imageOptions;
@@ -96,12 +96,12 @@ namespace tl
             _updates |= ui::Update::Draw;
         }
 
-        void TimelineViewport::setColorConfigOptions(const timeline::ColorConfigOptions& value)
+        void TimelineViewport::setOCIOOptions(const timeline::OCIOOptions& value)
         {
             TLRENDER_P();
-            if (value == p.colorConfigOptions)
+            if (value == p.ocioOptions)
                 return;
-            p.colorConfigOptions = value;
+            p.ocioOptions = value;
             p.renderBuffer = true;
             _updates |= ui::Update::Draw;
         }

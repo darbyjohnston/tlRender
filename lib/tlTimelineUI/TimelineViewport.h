@@ -36,8 +36,8 @@ namespace tl
             //! Set the background options.
             void setBackgroundOptions(const timeline::BackgroundOptions&);
 
-            //! Set the color configuration options.
-            void setColorConfigOptions(const timeline::ColorConfigOptions&);
+            //! Set the OpenColorIO options.
+            void setOCIOOptions(const timeline::OCIOOptions&);
 
             //! Set the LUT options.
             void setLUTOptions(const timeline::LUTOptions&);

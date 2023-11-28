@@ -65,8 +65,6 @@ namespace tl
             std::shared_ptr<observer::ListObserver<file::Path> > recentFilesObserver;
             std::shared_ptr<observer::ValueObserver<bool> > mainWindowObserver;
             std::shared_ptr<observer::ValueObserver<bool> > secondaryWindowObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > colorConfigOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ValueObserver<double> > syncOffsetObserver;
@@ -355,7 +353,7 @@ namespace tl
             p.viewportModel = play::ViewportModel::create(p.settings, _context);
 
             p.colorModel = play::ColorModel::create(_context);
-            p.colorModel->setColorConfigOptions(p.options.colorConfigOptions);
+            p.colorModel->setOCIOOptions(p.options.ocioOptions);
             p.colorModel->setLUTOptions(p.options.lutOptions);
 
             if (auto audioSystem = _context->getSystem<audio::System>())
@@ -424,19 +422,6 @@ namespace tl
                         fileNames.push_back(i.get());
                     }
                     _p->settings->setValue("Files/Recent", fileNames);
-                });
-
-            p.colorConfigOptionsObserver = observer::ValueObserver<timeline::ColorConfigOptions>::create(
-                p.colorModel->observeColorConfigOptions(),
-                [this](const timeline::ColorConfigOptions& value)
-                {
-                    _setColorConfigOptions(value);
-                });
-            p.lutOptionsObserver = observer::ValueObserver<timeline::LUTOptions>::create(
-                p.colorModel->observeLUTOptions(),
-                [this](const timeline::LUTOptions& value)
-                {
-                    _setLUTOptions(value);
                 });
 
             p.volumeObserver = observer::ValueObserver<float>::create(

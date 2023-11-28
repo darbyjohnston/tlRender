@@ -29,7 +29,7 @@ namespace tl
                 timeline::Playback playback = timeline::Playback::Forward;
                 otime::RationalTime seek = time::invalidTime;
                 otime::TimeRange inOutRange = time::invalidTimeRange;
-                timeline::ColorConfigOptions colorConfigOptions;
+                timeline::OCIOOptions ocioOptions;
                 timeline::LUTOptions lutOptions;
             };
 

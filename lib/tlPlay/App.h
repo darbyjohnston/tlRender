@@ -7,8 +7,8 @@
 #include <tlApp/CmdLine.h>
 
 #include <tlTimeline/CompareOptions.h>
-#include <tlTimeline/ColorConfigOptions.h>
 #include <tlTimeline/LUTOptions.h>
+#include <tlTimeline/OCIOOptions.h>
 #include <tlTimeline/Player.h>
 
 #if defined(TLRENDER_USD)
@@ -31,7 +31,7 @@ namespace tl
             timeline::Loop loop = timeline::Loop::Loop;
             otime::RationalTime seek = time::invalidTime;
             otime::TimeRange inOutRange = time::invalidTimeRange;
-            timeline::ColorConfigOptions colorConfigOptions;
+            timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
 
 #if defined(TLRENDER_USD)

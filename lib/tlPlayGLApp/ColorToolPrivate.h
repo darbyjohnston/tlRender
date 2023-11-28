@@ -6,15 +6,15 @@
 
 #include <tlPlayGLApp/ColorTool.h>
 
-#include <tlPlay/ColorConfigModel.h>
+#include <tlPlay/OCIOModel.h>
 
 namespace tl
 {
     namespace play_gl
     {
-        class ColorConfigWidget : public ui::IWidget
+        class OCIOWidget : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(ColorConfigWidget);
+            TLRENDER_NON_COPYABLE(OCIOWidget);
 
         protected:
             void _init(
@@ -22,12 +22,12 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            ColorConfigWidget();
+            OCIOWidget();
 
         public:
-            virtual ~ColorConfigWidget();
+            virtual ~OCIOWidget();
 
-            static std::shared_ptr<ColorConfigWidget> create(
+            static std::shared_ptr<OCIOWidget> create(
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

@@ -59,7 +59,7 @@ namespace tl
             device::HDRMode hdrMode = device::HDRMode::FromFile;
             image::HDRData hdrData;
 
-            timeline::ColorConfigOptions colorConfigOptions;
+            timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;

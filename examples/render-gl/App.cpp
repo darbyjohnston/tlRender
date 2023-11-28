@@ -75,21 +75,25 @@ namespace tl
                         { "-inOutRange" },
                         "Set the in/out points range."),
                     app::CmdLineValueOption<std::string>::create(
-                        _options.colorConfigOptions.fileName,
-                        { "-colorConfig", "-cc" },
-                        "Color configuration file name (e.g., config.ocio)."),
+                        _options.ocioOptions.fileName,
+                        { "-ocio" },
+                        "OpenColorIO configuration file name (e.g., config.ocio)."),
                     app::CmdLineValueOption<std::string>::create(
-                        _options.colorConfigOptions.input,
-                        { "-colorInput", "-ci" },
-                        "Input color space."),
+                        _options.ocioOptions.input,
+                        { "-ocioInput" },
+                        "OpenColorIO input name."),
                     app::CmdLineValueOption<std::string>::create(
-                        _options.colorConfigOptions.display,
-                        { "-colorDisplay", "-cd" },
-                        "Display color space."),
+                        _options.ocioOptions.display,
+                        { "-ocioDisplay" },
+                        "OpenColorIO display name."),
                     app::CmdLineValueOption<std::string>::create(
-                        _options.colorConfigOptions.view,
-                        { "-colorView", "-cv" },
-                        "View color space."),
+                        _options.ocioOptions.view,
+                        { "-ocioView" },
+                        "OpenColorIO view name."),
+                    app::CmdLineValueOption<std::string>::create(
+                        _options.ocioOptions.look,
+                        { "-ocioLook" },
+                        "OpenColorIO look name."),
                     app::CmdLineValueOption<std::string>::create(
                         _options.lutOptions.fileName,
                         { "-lut" },
@@ -283,7 +287,7 @@ namespace tl
                 {
                     _render->begin(
                         _frameBufferSize,
-                        _options.colorConfigOptions,
+                        _options.ocioOptions,
                         _options.lutOptions);
                     _draw();
                     _render->end();

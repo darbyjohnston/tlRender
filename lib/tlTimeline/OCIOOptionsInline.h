@@ -6,7 +6,7 @@ namespace tl
 {
     namespace timeline
     {
-        inline bool ColorConfigOptions::operator == (const ColorConfigOptions& other) const
+        inline bool OCIOOptions::operator == (const OCIOOptions& other) const
         {
             return
                 enabled == other.enabled &&
@@ -17,7 +17,7 @@ namespace tl
                 look == other.look;
         }
 
-        inline bool ColorConfigOptions::operator != (const ColorConfigOptions& other) const
+        inline bool OCIOOptions::operator != (const OCIOOptions& other) const
         {
             return !(*this == other);
         }

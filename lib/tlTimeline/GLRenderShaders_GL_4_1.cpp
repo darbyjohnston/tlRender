@@ -283,24 +283,24 @@ namespace tl
         }
 
         std::string displayFragmentSource(
-            const std::string& colorConfigDef,
-            const std::string& colorConfig,
+            const std::string& ocioDef,
+            const std::string& ocio,
             const std::string& lutDef,
             const std::string& lut,
             LUTOrder lutOrder)
         {
             std::vector<std::string> args;
             args.push_back(videoLevels);
-            args.push_back(colorConfigDef);
+            args.push_back(ocioDef);
             args.push_back(lutDef);
             switch (lutOrder)
             {
             case LUTOrder::PreColorConfig:
                 args.push_back(lut);
-                args.push_back(colorConfig);
+                args.push_back(ocio);
                 break;
             case LUTOrder::PostColorConfig:
-                args.push_back(colorConfig);
+                args.push_back(ocio);
                 args.push_back(lut);
                 break;
             default: break;

@@ -161,7 +161,7 @@ namespace tl
             std::shared_ptr<observer::Value<bool> > fullScreen;
             std::shared_ptr<observer::Value<bool> > floatOnTop;
             std::shared_ptr<observer::Value<bool> > close;
-            timeline::ColorConfigOptions colorConfigOptions;
+            timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
 
             std::shared_ptr<gl::GLFWWindow> glfwWindow;
@@ -447,7 +447,7 @@ namespace tl
                         gl::OffscreenBufferBinding binding(p.offscreenBuffer);
                         p.render->begin(
                             p.frameBufferSize,
-                            p.colorConfigOptions,
+                            p.ocioOptions,
                             p.lutOptions);
 
                         ui::DrawEvent drawEvent(
@@ -595,6 +595,24 @@ namespace tl
             {
                 p.glfwWindow->doneCurrent();
             }
+        }
+
+        void Window::_setOCIOOptions(const timeline::OCIOOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.ocioOptions)
+                return;
+            p.ocioOptions = value;
+            _updates |= ui::Update::Draw;
+        }
+
+        void Window::_setLUTOptions(const timeline::LUTOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.lutOptions)
+                return;
+            p.lutOptions = value;
+            _updates |= ui::Update::Draw;
         }
 
         bool Window::_getSizeUpdate(const std::shared_ptr<IWidget>& widget) const

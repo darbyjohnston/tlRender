@@ -1,5 +1,4 @@
 set(HEADERS
-    ColorConfigOptionsTest.h
     CompareOptionsTest.h
     DisplayOptionsTest.h
     EditTest.h
@@ -7,13 +6,13 @@ set(HEADERS
     ImageOptionsTest.h
     LUTOptionsTest.h
     MemoryReferenceTest.h
+    OCIOOptionsTest.h
     PlayerOptionsTest.h
     PlayerTest.h
     TimelineTest.h
     UtilTest.h)
 
 set(SOURCE
-    ColorConfigOptionsTest.cpp
     CompareOptionsTest.cpp
     DisplayOptionsTest.cpp
     EditTest.cpp
@@ -21,6 +20,7 @@ set(SOURCE
     ImageOptionsTest.cpp
     LUTOptionsTest.cpp
     MemoryReferenceTest.cpp
+    OCIOOptionsTest.cpp
     PlayerOptionsTest.cpp
     PlayerTest.cpp
     TimelineTest.cpp

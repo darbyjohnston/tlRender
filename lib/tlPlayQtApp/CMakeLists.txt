@@ -2,7 +2,6 @@ set(HEADERS
     App.h
     AudioActions.h
     AudioTool.h
-    ColorConfigModel.h
     ColorTool.h
     CompareActions.h
     DevicesModel.h
@@ -16,6 +15,7 @@ set(HEADERS
     InfoModel.h
     MainWindow.h
     MessagesTool.h
+    OCIOModel.h
     OpenSeparateAudioDialog.h
     PlaybackActions.h
     RenderActions.h
@@ -32,7 +32,6 @@ set(SOURCE
     App.cpp
     AudioActions.cpp
     AudioTool.cpp
-    ColorConfigModel.cpp
     ColorTool.cpp
     CompareActions.cpp
     DevicesModel.cpp
@@ -46,6 +45,7 @@ set(SOURCE
     InfoModel.cpp
     MainWindow.cpp
     MessagesTool.cpp
+    OCIOModel.cpp
     OpenSeparateAudioDialog.cpp
     PlaybackActions.cpp
     RenderActions.cpp

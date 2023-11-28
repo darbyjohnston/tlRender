@@ -61,8 +61,8 @@ namespace tl
             //! Get whether the output device is active.
             bool isDeviceActive() const;
 
-            //! Set the color configuration options.
-            void setColorConfigOptions(const timeline::ColorConfigOptions&);
+            //! Set the OpenColorIO options.
+            void setOCIOOptions(const timeline::OCIOOptions&);
 
             //! Set the LUT options.
             void setLUTOptions(const timeline::LUTOptions&);

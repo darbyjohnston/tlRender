@@ -113,12 +113,12 @@ namespace tl
             return _p->deviceActive;
         }
 
-        void OutputDevice::setColorConfigOptions(const timeline::ColorConfigOptions& value)
+        void OutputDevice::setOCIOOptions(const timeline::OCIOOptions& value)
         {
             TLRENDER_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
-                p.colorConfigOptions = value;
+                p.ocioOptions = value;
             }
             p.cv.notify_one();
         }
@@ -417,7 +417,7 @@ namespace tl
             int displayModeIndex = -1;
             device::PixelType pixelType = device::PixelType::None;
             bool deviceEnabled = true;
-            timeline::ColorConfigOptions colorConfigOptions;
+            timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
@@ -462,7 +462,7 @@ namespace tl
                         lock,
                         p.timeout,
                         [this, deviceIndex, displayModeIndex, pixelType,
-                        deviceEnabled, colorConfigOptions, lutOptions, imageOptions,
+                        deviceEnabled, ocioOptions, lutOptions, imageOptions,
                         displayOptions, hdrMode, hdrData, compareOptions,
                         playback, currentTime, sizes, viewPos, viewZoom, frameView,
                         videoData, overlay, volume, mute, audioOffset, audioData]
@@ -472,7 +472,7 @@ namespace tl
                                 displayModeIndex != _p->displayModeIndex ||
                                 pixelType != _p->pixelType ||
                                 deviceEnabled != _p->deviceEnabled ||
-                                colorConfigOptions != _p->colorConfigOptions ||
+                                ocioOptions != _p->ocioOptions ||
                                 lutOptions != _p->lutOptions ||
                                 imageOptions != _p->imageOptions ||
                                 displayOptions != _p->displayOptions ||
@@ -508,7 +508,7 @@ namespace tl
 
                         doRender =
                             createDevice ||
-                            colorConfigOptions != p.colorConfigOptions ||
+                            ocioOptions != p.ocioOptions ||
                             lutOptions != p.lutOptions ||
                             imageOptions != p.imageOptions ||
                             displayOptions != p.displayOptions ||
@@ -521,7 +521,7 @@ namespace tl
                             frameView != p.frameView ||
                             videoData != p.videoData ||
                             overlay != p.overlay;
-                        colorConfigOptions = p.colorConfigOptions;
+                        ocioOptions = p.ocioOptions;
                         lutOptions = p.lutOptions;
                         imageOptions = p.imageOptions;
                         displayOptions = p.displayOptions;
@@ -624,7 +624,7 @@ namespace tl
 
                             render->begin(
                                 renderSize,
-                                colorConfigOptions,
+                                ocioOptions,
                                 lutOptions);
                             render->drawVideo(
                                 videoData,

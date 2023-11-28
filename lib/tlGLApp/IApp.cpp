@@ -67,9 +67,6 @@ namespace tl
 
         struct IApp::Private
         {
-            timeline::ColorConfigOptions colorConfigOptions;
-            timeline::LUTOptions lutOptions;
-
             std::shared_ptr<ui::Style> style;
             std::shared_ptr<ui::IconLibrary> iconLibrary;
             std::shared_ptr<image::FontSystem> fontSystem;
@@ -209,22 +206,6 @@ namespace tl
         {
             TLRENDER_P();
             p.windowsToRemove.push_back(window);
-        }
-
-        void IApp::_setColorConfigOptions(const timeline::ColorConfigOptions& value)
-        {
-            TLRENDER_P();
-            if (value == p.colorConfigOptions)
-                return;
-            p.colorConfigOptions = value;
-        }
-
-        void IApp::_setLUTOptions(const timeline::LUTOptions& value)
-        {
-            TLRENDER_P();
-            if (value == p.lutOptions)
-                return;
-            p.lutOptions = value;
         }
 
         void IApp::_tick()

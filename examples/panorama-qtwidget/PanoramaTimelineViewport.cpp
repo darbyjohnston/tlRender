@@ -29,27 +29,27 @@ namespace tl
                 setFormat(surfaceFormat);
             }
 
-            void PanoramaTimelineViewport::setColorConfigOptions(const timeline::ColorConfigOptions& colorConfigOptions)
+            void PanoramaTimelineViewport::setOCIOOptions(const timeline::OCIOOptions& value)
             {
-                if (colorConfigOptions == _colorConfigOptions)
+                if (value == _ocioOptions)
                     return;
-                _colorConfigOptions = colorConfigOptions;
+                _ocioOptions = value;
                 update();
             }
 
-            void PanoramaTimelineViewport::setLUTOptions(const timeline::LUTOptions& lutOptions)
+            void PanoramaTimelineViewport::setLUTOptions(const timeline::LUTOptions& value)
             {
-                if (lutOptions == _lutOptions)
+                if (value == _lutOptions)
                     return;
-                _lutOptions = lutOptions;
+                _lutOptions = value;
                 update();
             }
 
-            void PanoramaTimelineViewport::setImageOptions(const timeline::ImageOptions& imageOptions)
+            void PanoramaTimelineViewport::setImageOptions(const timeline::ImageOptions& value)
             {
-                if (imageOptions == _imageOptions)
+                if (value == _imageOptions)
                     return;
-                _imageOptions = imageOptions;
+                _imageOptions = value;
                 update();
             }
 
@@ -173,7 +173,7 @@ namespace tl
                         gl::OffscreenBufferBinding binding(_buffer);
                         _render->begin(
                             offscreenBufferSize,
-                            _colorConfigOptions,
+                            _ocioOptions,
                             _lutOptions);
                         _render->drawVideo(
                             { _videoData },

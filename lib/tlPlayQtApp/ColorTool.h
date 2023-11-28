@@ -6,7 +6,7 @@
 
 #include <tlPlayQtApp/IToolWidget.h>
 
-#include <tlPlay/ColorConfigModel.h>
+#include <tlPlay/OCIOModel.h>
 
 #include <tlQt/MetaTypes.h>
 
@@ -16,18 +16,18 @@ namespace tl
 {
     namespace play_qt
     {
-        //! Configuration widget.
-        class ConfigWidget : public QWidget
+        //! OpenColorIO widget.
+        class OCIOWidget : public QWidget
         {
             Q_OBJECT
 
         public:
-            ConfigWidget(App*, QWidget* parent = nullptr);
+            OCIOWidget(App*, QWidget* parent = nullptr);
 
-            virtual ~ConfigWidget();
+            virtual ~OCIOWidget();
 
         private:
-            void _widgetUpdate(const play::ColorConfigModelData&);
+            void _widgetUpdate(const play::OCIOModelData&);
 
             TLRENDER_PRIVATE();
         };
@@ -48,15 +48,15 @@ namespace tl
             TLRENDER_PRIVATE();
         };
 
-        //! Color controls widget.
-        class ColorControlsWidget : public QWidget
+        //! Color widget.
+        class ColorWidget : public QWidget
         {
             Q_OBJECT
 
         public:
-            ColorControlsWidget(App*, QWidget* parent = nullptr);
+            ColorWidget(App*, QWidget* parent = nullptr);
 
-            virtual ~ColorControlsWidget();
+            virtual ~ColorWidget();
 
         private:
             void _widgetUpdate(const timeline::DisplayOptions&);

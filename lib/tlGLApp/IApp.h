@@ -10,12 +10,6 @@
 
 namespace tl
 {
-    namespace timeline
-    {
-        struct ColorConfigOptions;
-        struct LUTOptions;
-    }
-
     namespace ui
     {
         class Style;
@@ -71,9 +65,6 @@ namespace tl
             void removeWindow(const std::shared_ptr<Window>&);
 
         protected:
-            void _setColorConfigOptions(const timeline::ColorConfigOptions&);
-            void _setLUTOptions(const timeline::LUTOptions&);
-
             virtual void _tick();
             void _tickEvent(
                 const std::shared_ptr<ui::IWidget>&,

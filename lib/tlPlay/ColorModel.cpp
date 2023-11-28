@@ -11,7 +11,7 @@ namespace tl
         struct ColorModel::Private
         {
             std::weak_ptr<system::Context> context;
-            std::shared_ptr<observer::Value<timeline::ColorConfigOptions> > colorConfigOptions;
+            std::shared_ptr<observer::Value<timeline::OCIOOptions> > ocioOptions;
             std::shared_ptr<observer::Value<timeline::LUTOptions> > lutOptions;
             std::shared_ptr<observer::Value<timeline::ImageOptions> > imageOptions;
             std::shared_ptr<observer::Value<timeline::DisplayOptions> > displayOptions;
@@ -23,7 +23,7 @@ namespace tl
 
             p.context = context;
 
-            p.colorConfigOptions = observer::Value<timeline::ColorConfigOptions>::create();
+            p.ocioOptions = observer::Value<timeline::OCIOOptions>::create();
             p.lutOptions = observer::Value<timeline::LUTOptions>::create();
             p.imageOptions = observer::Value<timeline::ImageOptions>::create();
             p.displayOptions = observer::Value<timeline::DisplayOptions>::create();
@@ -43,19 +43,19 @@ namespace tl
             return out;
         }
 
-        const timeline::ColorConfigOptions& ColorModel::getColorConfigOptions() const
+        const timeline::OCIOOptions& ColorModel::getOCIOOptions() const
         {
-            return _p->colorConfigOptions->get();
+            return _p->ocioOptions->get();
         }
 
-        std::shared_ptr<observer::IValue<timeline::ColorConfigOptions> > ColorModel::observeColorConfigOptions() const
+        std::shared_ptr<observer::IValue<timeline::OCIOOptions> > ColorModel::observeOCIOOptions() const
         {
-            return _p->colorConfigOptions;
+            return _p->ocioOptions;
         }
 
-        void ColorModel::setColorConfigOptions(const timeline::ColorConfigOptions& value)
+        void ColorModel::setOCIOOptions(const timeline::OCIOOptions& value)
         {
-            _p->colorConfigOptions->setIfChanged(value);
+            _p->ocioOptions->setIfChanged(value);
         }
 
         const timeline::LUTOptions& ColorModel::getLUTOptions() const

@@ -13,6 +13,12 @@ namespace tl
         class GLFWWindow;
     }
 
+    namespace timeline
+    {
+        struct LUTOptions;
+        struct OCIOOptions;
+    }
+
     namespace gl_app
     {
         //! Window.
@@ -81,6 +87,9 @@ namespace tl
         protected:
             void _makeCurrent();
             void _doneCurrent();
+
+            void _setOCIOOptions(const timeline::OCIOOptions&);
+            void _setLUTOptions(const timeline::LUTOptions&);
 
         private:
             bool _getSizeUpdate(const std::shared_ptr<IWidget>&) const;

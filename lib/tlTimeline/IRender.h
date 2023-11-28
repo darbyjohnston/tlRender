@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <tlTimeline/ColorConfigOptions.h>
 #include <tlTimeline/CompareOptions.h>
 #include <tlTimeline/LUTOptions.h>
+#include <tlTimeline/OCIOOptions.h>
 #include <tlTimeline/RenderOptions.h>
 #include <tlTimeline/Video.h>
 
@@ -33,7 +33,7 @@ namespace tl
             //! Start a render.
             virtual void begin(
                 const math::Size2i&,
-                const ColorConfigOptions& = ColorConfigOptions(),
+                const OCIOOptions& = OCIOOptions(),
                 const LUTOptions& = LUTOptions(),
                 const RenderOptions& = RenderOptions()) = 0;
 

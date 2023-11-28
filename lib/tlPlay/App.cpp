@@ -78,21 +78,25 @@ namespace tl
                     { "-inOutRange" },
                     "Set the in/out points range."),
                 app::CmdLineValueOption<std::string>::create(
-                    options.colorConfigOptions.fileName,
-                    { "-colorConfig", "-cc" },
-                    "Color configuration file name (e.g., config.ocio)."),
+                    options.ocioOptions.fileName,
+                    { "-ocio" },
+                    "OpenColorIO configuration file name (e.g., config.ocio)."),
                 app::CmdLineValueOption<std::string>::create(
-                    options.colorConfigOptions.input,
-                    { "-colorInput", "-ci" },
-                    "Input color space."),
+                    options.ocioOptions.input,
+                    { "-ocioInput" },
+                    "OpenColorIO input name."),
                 app::CmdLineValueOption<std::string>::create(
-                    options.colorConfigOptions.display,
-                    { "-colorDisplay", "-cd" },
-                    "Display color space."),
+                    options.ocioOptions.display,
+                    { "-ocioDisplay" },
+                    "OpenColorIO display name."),
                 app::CmdLineValueOption<std::string>::create(
-                    options.colorConfigOptions.view,
-                    { "-colorView", "-cv" },
-                    "View color space."),
+                    options.ocioOptions.view,
+                    { "-ocioView" },
+                    "OpenColorIO view name."),
+                app::CmdLineValueOption<std::string>::create(
+                    options.ocioOptions.look,
+                    { "-ocioLook" },
+                    "OpenColorIO look name."),
                 app::CmdLineValueOption<std::string>::create(
                     options.lutOptions.fileName,
                     { "-lut" },

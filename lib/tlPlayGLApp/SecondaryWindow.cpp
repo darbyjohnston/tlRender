@@ -22,7 +22,7 @@ namespace tl
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playersObserver;
             std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > colorConfigOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
@@ -53,11 +53,11 @@ namespace tl
                     _p->viewport->setBackgroundOptions(value);
                 });
 
-            p.colorConfigOptionsObserver = observer::ValueObserver<timeline::ColorConfigOptions>::create(
-                app->getColorModel()->observeColorConfigOptions(),
-                [this](const timeline::ColorConfigOptions& value)
+            p.ocioOptionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
+                app->getColorModel()->observeOCIOOptions(),
+                [this](const timeline::OCIOOptions& value)
                 {
-                    _p->viewport->setColorConfigOptions(value);
+                    _p->viewport->setOCIOOptions(value);
                 });
 
             p.lutOptionsObserver = observer::ValueObserver<timeline::LUTOptions>::create(

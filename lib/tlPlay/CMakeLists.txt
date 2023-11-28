@@ -1,10 +1,10 @@
 set(HEADERS
     App.h
     AudioModel.h
-    ColorConfigModel.h
     ColorModel.h
     FilesModel.h
     Info.h
+    OCIOModel.h
     Settings.h
     SettingsInline.h
     Util.h
@@ -13,10 +13,10 @@ set(HEADERS
 set(SOURCE
     App.cpp
     AudioModel.cpp
-    ColorConfigModel.cpp
     ColorModel.cpp
     FilesModel.cpp
     Info.cpp
+    OCIOModel.cpp
     Settings.cpp
     Util.cpp
     ViewportModel.cpp)

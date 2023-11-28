@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlPlay/ColorConfigModel.h>
+#include <tlPlay/OCIOModel.h>
 
 #include <QAbstractListModel>
 
@@ -12,17 +12,17 @@ namespace tl
 {
     namespace play_qt
     {
-        //! Color input list model.
-        class ColorInputListModel : public QAbstractListModel
+        //! OpenColorIO input list model.
+        class OCIOInputListModel : public QAbstractListModel
         {
             Q_OBJECT
 
         public:
-            ColorInputListModel(
-                const std::shared_ptr<play::ColorConfigModel>&,
+            OCIOInputListModel(
+                const std::shared_ptr<play::OCIOModel>&,
                 QObject* parent = nullptr);
 
-            virtual ~ColorInputListModel();
+            virtual ~OCIOInputListModel();
 
             int rowCount(const QModelIndex& parent = QModelIndex()) const override;
             QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
@@ -31,17 +31,17 @@ namespace tl
             TLRENDER_PRIVATE();
         };
 
-        //! Color display list model.
-        class ColorDisplayListModel : public QAbstractListModel
+        //! OpenColorIO display list model.
+        class OCIODisplayListModel : public QAbstractListModel
         {
             Q_OBJECT
 
         public:
-            ColorDisplayListModel(
-                const std::shared_ptr<play::ColorConfigModel>&,
+            OCIODisplayListModel(
+                const std::shared_ptr<play::OCIOModel>&,
                 QObject* parent = nullptr);
 
-            virtual ~ColorDisplayListModel();
+            virtual ~OCIODisplayListModel();
 
             int rowCount(const QModelIndex& parent = QModelIndex()) const override;
             QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
@@ -50,17 +50,17 @@ namespace tl
             TLRENDER_PRIVATE();
         };
 
-        //! Color view list model.
-        class ColorViewListModel : public QAbstractListModel
+        //! OpenColorIO view list model.
+        class OCIOViewListModel : public QAbstractListModel
         {
             Q_OBJECT
 
         public:
-            ColorViewListModel(
-                const std::shared_ptr<play::ColorConfigModel>&,
+            OCIOViewListModel(
+                const std::shared_ptr<play::OCIOModel>&,
                 QObject* parent = nullptr);
 
-            virtual ~ColorViewListModel();
+            virtual ~OCIOViewListModel();
 
             int rowCount(const QModelIndex& parent = QModelIndex()) const override;
             QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;

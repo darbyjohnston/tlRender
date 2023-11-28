@@ -7,9 +7,9 @@
 #include <tlQt/TimelinePlayer.h>
 
 #include <tlTimeline/BackgroundOptions.h>
-#include <tlTimeline/ColorConfigOptions.h>
 #include <tlTimeline/CompareOptions.h>
 #include <tlTimeline/LUTOptions.h>
+#include <tlTimeline/OCIOOptions.h>
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_1_Core>
@@ -37,8 +37,8 @@ namespace tl
             //! Set the background options.
             void setBackgroundOptions(const timeline::BackgroundOptions&);
 
-            //! Set the color configuration options.
-            void setColorConfigOptions(const timeline::ColorConfigOptions&);
+            //! Set the OpenColorIO options.
+            void setOCIOOptions(const timeline::OCIOOptions&);
 
             //! Set the LUT options.
             void setLUTOptions(const timeline::LUTOptions&);

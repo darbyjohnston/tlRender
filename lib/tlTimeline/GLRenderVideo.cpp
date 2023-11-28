@@ -755,16 +755,16 @@ namespace tl
                 glBindTexture(GL_TEXTURE_2D, p.buffers["video"]->getColorID());
                 size_t texturesOffset = 1;
 #if defined(TLRENDER_OCIO)
-                if (p.colorConfigData)
+                if (p.ocioData)
                 {
-                    for (size_t i = 0; i < p.colorConfigData->textures.size(); ++i)
+                    for (size_t i = 0; i < p.ocioData->textures.size(); ++i)
                     {
                         glActiveTexture(GL_TEXTURE0 + texturesOffset + i);
                         glBindTexture(
-                            p.colorConfigData->textures[i].type,
-                            p.colorConfigData->textures[i].id);
+                            p.ocioData->textures[i].type,
+                            p.ocioData->textures[i].id);
                     }
-                    texturesOffset += p.colorConfigData->textures.size();
+                    texturesOffset += p.ocioData->textures.size();
                 }
                 if (p.lutData)
                 {

@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayQtApp/ColorConfigModel.h>
+#include <tlPlayQtApp/OCIOModel.h>
 
 #include <QApplication>
 #include <QPalette>
@@ -11,24 +11,24 @@ namespace tl
 {
     namespace play_qt
     {
-        struct ColorInputListModel::Private
+        struct OCIOInputListModel::Private
         {
             std::vector<std::string> inputs;
             size_t inputIndex = 0;
-            std::shared_ptr<observer::ValueObserver<play::ColorConfigModelData> > dataObserver;
+            std::shared_ptr<observer::ValueObserver<play::OCIOModelData> > dataObserver;
         };
 
-        ColorInputListModel::ColorInputListModel(
-            const std::shared_ptr<play::ColorConfigModel>& colorConfigModel,
+        OCIOInputListModel::OCIOInputListModel(
+            const std::shared_ptr<play::OCIOModel>& ocioModel,
             QObject* parent) :
             QAbstractListModel(parent),
             _p(new Private)
         {
             TLRENDER_P();
 
-            p.dataObserver = observer::ValueObserver<play::ColorConfigModelData>::create(
-                colorConfigModel->observeData(),
-                [this](const play::ColorConfigModelData& value)
+            p.dataObserver = observer::ValueObserver<play::OCIOModelData>::create(
+                ocioModel->observeData(),
+                [this](const play::OCIOModelData& value)
                 {
                     beginResetModel();
                     _p->inputs = value.inputs;
@@ -37,15 +37,15 @@ namespace tl
                 });
         }
 
-        ColorInputListModel::~ColorInputListModel()
+        OCIOInputListModel::~OCIOInputListModel()
         {}
 
-        int ColorInputListModel::rowCount(const QModelIndex& parent) const
+        int OCIOInputListModel::rowCount(const QModelIndex& parent) const
         {
             return _p->inputs.size();
         }
 
-        QVariant ColorInputListModel::data(const QModelIndex& index, int role) const
+        QVariant OCIOInputListModel::data(const QModelIndex& index, int role) const
         {
             TLRENDER_P();
             QVariant out;
@@ -80,24 +80,24 @@ namespace tl
             return out;
         }
 
-        struct ColorDisplayListModel::Private
+        struct OCIODisplayListModel::Private
         {
             std::vector<std::string> displays;
             size_t displayIndex = 0;
-            std::shared_ptr<observer::ValueObserver<play::ColorConfigModelData> > dataObserver;
+            std::shared_ptr<observer::ValueObserver<play::OCIOModelData> > dataObserver;
         };
 
-        ColorDisplayListModel::ColorDisplayListModel(
-            const std::shared_ptr<play::ColorConfigModel>& colorConfigModel,
+        OCIODisplayListModel::OCIODisplayListModel(
+            const std::shared_ptr<play::OCIOModel>& ocioModel,
             QObject* parent) :
             QAbstractListModel(parent),
             _p(new Private)
         {
             TLRENDER_P();
 
-            p.dataObserver = observer::ValueObserver<play::ColorConfigModelData>::create(
-                colorConfigModel->observeData(),
-                [this](const play::ColorConfigModelData& value)
+            p.dataObserver = observer::ValueObserver<play::OCIOModelData>::create(
+                ocioModel->observeData(),
+                [this](const play::OCIOModelData& value)
                 {
                     beginResetModel();
                     _p->displays = value.displays;
@@ -106,15 +106,15 @@ namespace tl
                 });
         }
 
-        ColorDisplayListModel::~ColorDisplayListModel()
+        OCIODisplayListModel::~OCIODisplayListModel()
         {}
 
-        int ColorDisplayListModel::rowCount(const QModelIndex& parent) const
+        int OCIODisplayListModel::rowCount(const QModelIndex& parent) const
         {
             return _p->displays.size();
         }
 
-        QVariant ColorDisplayListModel::data(const QModelIndex& index, int role) const
+        QVariant OCIODisplayListModel::data(const QModelIndex& index, int role) const
         {
             TLRENDER_P();
             QVariant out;
@@ -149,24 +149,24 @@ namespace tl
             return out;
         }
 
-        struct ColorViewListModel::Private
+        struct OCIOViewListModel::Private
         {
             std::vector<std::string> views;
             size_t viewIndex = 0;
-            std::shared_ptr<observer::ValueObserver<play::ColorConfigModelData> > dataObserver;
+            std::shared_ptr<observer::ValueObserver<play::OCIOModelData> > dataObserver;
         };
 
-        ColorViewListModel::ColorViewListModel(
-            const std::shared_ptr<play::ColorConfigModel>& colorConfigModel,
+        OCIOViewListModel::OCIOViewListModel(
+            const std::shared_ptr<play::OCIOModel>& ocioModel,
             QObject* parent) :
             QAbstractListModel(parent),
             _p(new Private)
         {
             TLRENDER_P();
 
-            p.dataObserver = observer::ValueObserver<play::ColorConfigModelData>::create(
-                colorConfigModel->observeData(),
-                [this](const play::ColorConfigModelData& value)
+            p.dataObserver = observer::ValueObserver<play::OCIOModelData>::create(
+                ocioModel->observeData(),
+                [this](const play::OCIOModelData& value)
                 {
                     beginResetModel();
                     _p->views = value.views;
@@ -175,15 +175,15 @@ namespace tl
                 });
         }
 
-        ColorViewListModel::~ColorViewListModel()
+        OCIOViewListModel::~OCIOViewListModel()
         {}
 
-        int ColorViewListModel::rowCount(const QModelIndex& parent) const
+        int OCIOViewListModel::rowCount(const QModelIndex& parent) const
         {
             return _p->views.size();
         }
 
-        QVariant ColorViewListModel::data(const QModelIndex& index, int role) const
+        QVariant OCIOViewListModel::data(const QModelIndex& index, int role) const
         {
             TLRENDER_P();
             QVariant out;

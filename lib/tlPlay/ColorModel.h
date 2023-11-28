@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include <tlTimeline/ColorConfigOptions.h>
 #include <tlTimeline/DisplayOptions.h>
 #include <tlTimeline/ImageOptions.h>
 #include <tlTimeline/LUTOptions.h>
+#include <tlTimeline/OCIOOptions.h>
 
 #include <tlCore/ValueObserver.h>
 
@@ -36,14 +36,14 @@ namespace tl
             //! Create a new model.
             static std::shared_ptr<ColorModel> create(const std::shared_ptr<system::Context>&);
 
-            //! Get the color configuration options.
-            const timeline::ColorConfigOptions& getColorConfigOptions() const;
+            //! Get the OpenColorIO options.
+            const timeline::OCIOOptions& getOCIOOptions() const;
 
-            //! Observe the color configuration options.
-            std::shared_ptr<observer::IValue<timeline::ColorConfigOptions> > observeColorConfigOptions() const;
+            //! Observe the OpenColorIO options.
+            std::shared_ptr<observer::IValue<timeline::OCIOOptions> > observeOCIOOptions() const;
 
-            //! Set the color configuration options.
-            void setColorConfigOptions(const timeline::ColorConfigOptions&);
+            //! Set the OpenColorIO options.
+            void setOCIOOptions(const timeline::OCIOOptions&);
 
             //! Get the LUT options.
             const timeline::LUTOptions& getLUTOptions() const;

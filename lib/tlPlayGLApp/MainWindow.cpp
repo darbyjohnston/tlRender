@@ -153,7 +153,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
             std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > colorConfigOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
@@ -553,11 +553,11 @@ namespace tl
                     _p->timelineViewport->setBackgroundOptions(value);
                 });
 
-            p.colorConfigOptionsObserver = observer::ValueObserver<timeline::ColorConfigOptions>::create(
-                app->getColorModel()->observeColorConfigOptions(),
-                [this](const timeline::ColorConfigOptions& value)
+            p.ocioOptionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
+                app->getColorModel()->observeOCIOOptions(),
+                [this](const timeline::OCIOOptions& value)
                 {
-                    _p->timelineViewport->setColorConfigOptions(value);
+                    _p->timelineViewport->setOCIOOptions(value);
                 });
 
             p.lutOptionsObserver = observer::ValueObserver<timeline::LUTOptions>::create(

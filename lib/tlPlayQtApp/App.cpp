@@ -510,7 +510,7 @@ namespace tl
             p.viewportModel = play::ViewportModel::create(p.settings, _context);
 
             p.colorModel = play::ColorModel::create(_context);
-            p.colorModel->setColorConfigOptions(p.options.colorConfigOptions);
+            p.colorModel->setOCIOOptions(p.options.ocioOptions);
             p.colorModel->setLUTOptions(p.options.lutOptions);
 
             p.outputDevice.reset(new qt::OutputDevice(_context));

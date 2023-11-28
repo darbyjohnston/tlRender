@@ -27,9 +27,9 @@ namespace tl
 {
     namespace play_gl
     {
-        struct ColorConfigWidget::Private
+        struct OCIOWidget::Private
         {
-            std::shared_ptr<play::ColorConfigModel> colorConfigModel;
+            std::shared_ptr<play::OCIOModel> ocioModel;
 
             std::shared_ptr<ui::CheckBox> enabledCheckBox;
             std::shared_ptr<ui::FileEdit> fileEdit;
@@ -39,24 +39,24 @@ namespace tl
             std::shared_ptr<ui::StackLayout> tabLayout;
             std::shared_ptr<ui::VerticalLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > optionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > optionsObserver2;
-            std::shared_ptr<observer::ValueObserver<play::ColorConfigModelData> > dataObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > optionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > optionsObserver2;
+            std::shared_ptr<observer::ValueObserver<play::OCIOModelData> > dataObserver;
         };
 
-        void ColorConfigWidget::_init(
+        void OCIOWidget::_init(
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<ui::IWidget>& parent)
         {
-            ui::IWidget::_init("tl::play_gl::ColorConfigWidget", context, parent);
+            ui::IWidget::_init("tl::play_gl::OCIOWidget", context, parent);
             TLRENDER_P();
             
 #if !defined(TLRENDER_OCIO)
             setEnabled(false);
 #endif // TLRENDER_OCIO
 
-            p.colorConfigModel = play::ColorConfigModel::create(context);
+            p.ocioModel = play::OCIOModel::create(context);
 
             p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
 
@@ -95,29 +95,29 @@ namespace tl
                 p.searchBoxes[tab]->setParent(vLayout);
             }
 
-            p.optionsObserver = observer::ValueObserver<timeline::ColorConfigOptions>::create(
-                app->getColorModel()->observeColorConfigOptions(),
-                [this](const timeline::ColorConfigOptions& value)
+            p.optionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
+                app->getColorModel()->observeOCIOOptions(),
+                [this](const timeline::OCIOOptions& value)
                 {
                     _p->enabledCheckBox->setChecked(value.enabled);
                     _p->fileEdit->setPath(file::Path(value.fileName));
-                    _p->colorConfigModel->setConfigOptions(value);
+                    _p->ocioModel->setOptions(value);
                 });
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.optionsObserver2 = observer::ValueObserver<timeline::ColorConfigOptions>::create(
-                p.colorConfigModel->observeConfigOptions(),
-                [appWeak](const timeline::ColorConfigOptions& value)
+            p.optionsObserver2 = observer::ValueObserver<timeline::OCIOOptions>::create(
+                p.ocioModel->observeOptions(),
+                [appWeak](const timeline::OCIOOptions& value)
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getColorModel()->setColorConfigOptions(value);
+                        app->getColorModel()->setOCIOOptions(value);
                     }
                 });
 
-            p.dataObserver = observer::ValueObserver<play::ColorConfigModelData>::create(
-                p.colorConfigModel->observeData(),
-                [this](const play::ColorConfigModelData& value)
+            p.dataObserver = observer::ValueObserver<play::OCIOModelData>::create(
+                p.ocioModel->observeData(),
+                [this](const play::OCIOModelData& value)
                 {
                     _p->enabledCheckBox->setChecked(value.enabled);
                     _p->fileEdit->setPath(file::Path(value.fileName));
@@ -138,29 +138,29 @@ namespace tl
             p.enabledCheckBox->setCheckedCallback(
                 [this](bool value)
                 {
-                    _p->colorConfigModel->setEnabled(value);
+                    _p->ocioModel->setEnabled(value);
                 });
 
             p.fileEdit->setCallback(
                 [this](const file::Path& value)
                 {
-                    _p->colorConfigModel->setConfig(value.get());
+                    _p->ocioModel->setConfig(value.get());
                 });
 
             p.listWidgets["Input"]->setCallback(
                 [this](int index)
                 {
-                    _p->colorConfigModel->setInputIndex(index);
+                    _p->ocioModel->setInputIndex(index);
                 });
             p.listWidgets["Display"]->setCallback(
                 [this](int index)
                 {
-                    _p->colorConfigModel->setDisplayIndex(index);
+                    _p->ocioModel->setDisplayIndex(index);
                 });
             p.listWidgets["View"]->setCallback(
                 [this](int index)
                 {
-                    _p->colorConfigModel->setViewIndex(index);
+                    _p->ocioModel->setViewIndex(index);
                 });
 
             p.searchBoxes["Input"]->setCallback(
@@ -180,30 +180,30 @@ namespace tl
                 });
         }
 
-        ColorConfigWidget::ColorConfigWidget() :
+        OCIOWidget::OCIOWidget() :
             _p(new Private)
         {}
 
-        ColorConfigWidget::~ColorConfigWidget()
+        OCIOWidget::~OCIOWidget()
         {}
 
-        std::shared_ptr<ColorConfigWidget> ColorConfigWidget::create(
+        std::shared_ptr<OCIOWidget> OCIOWidget::create(
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            auto out = std::shared_ptr<ColorConfigWidget>(new ColorConfigWidget);
+            auto out = std::shared_ptr<OCIOWidget>(new OCIOWidget);
             out->_init(app, context, parent);
             return out;
         }
 
-        void ColorConfigWidget::setGeometry(const math::Box2i& value)
+        void OCIOWidget::setGeometry(const math::Box2i& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
         }
 
-        void ColorConfigWidget::sizeHintEvent(const ui::SizeHintEvent& value)
+        void OCIOWidget::sizeHintEvent(const ui::SizeHintEvent& value)
         {
             IWidget::sizeHintEvent(value);
             _sizeHint = _p->layout->getSizeHint();
@@ -943,7 +943,7 @@ namespace tl
 
         struct ColorTool::Private
         {
-            std::shared_ptr<ColorConfigWidget> colorConfigWidget;
+            std::shared_ptr<OCIOWidget> ocioWidget;
             std::shared_ptr<LUTWidget> lutWidget;
             std::shared_ptr<ColorWidget> colorWidget;
             std::shared_ptr<LevelsWidget> levelsWidget;
@@ -965,7 +965,7 @@ namespace tl
                 parent);
             TLRENDER_P();
 
-            p.colorConfigWidget = ColorConfigWidget::create(app, context);
+            p.ocioWidget = OCIOWidget::create(app, context);
             p.lutWidget = LUTWidget::create(app, context);
             p.colorWidget = ColorWidget::create(app, context);
             p.levelsWidget = LevelsWidget::create(app, context);
@@ -974,13 +974,13 @@ namespace tl
 
             auto layout = ui::VerticalLayout::create(context);
             layout->setSpacingRole(ui::SizeRole::None);
-            p.bellows["Config"] = ui::Bellows::create("Configuration", context);
-            p.bellows["Config"]->setParent(layout);
-            p.bellows["Config"]->setWidget(p.colorConfigWidget);
+            p.bellows["OCIO"] = ui::Bellows::create("OCIO", context);
+            p.bellows["OCIO"]->setParent(layout);
+            p.bellows["OCIO"]->setWidget(p.ocioWidget);
             p.bellows["LUT"] = ui::Bellows::create("LUT", context);
             p.bellows["LUT"]->setParent(layout);
             p.bellows["LUT"]->setWidget(p.lutWidget);
-            p.bellows["Color"] = ui::Bellows::create("Color Controls", context);
+            p.bellows["Color"] = ui::Bellows::create("Color", context);
             p.bellows["Color"]->setParent(layout);
             p.bellows["Color"]->setWidget(p.colorWidget);
             p.bellows["Levels"] = ui::Bellows::create("Levels", context);

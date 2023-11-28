@@ -398,7 +398,7 @@ namespace tl
                         renderOptions.clearColor = p.style->getColorRole(ui::ColorRole::Window);
                         p.render->begin(
                             renderSize,
-                            timeline::ColorConfigOptions(),
+                            timeline::OCIOOptions(),
                             timeline::LUTOptions(),
                             renderOptions);
 

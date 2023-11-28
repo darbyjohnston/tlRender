@@ -100,7 +100,6 @@ namespace tl
             qRegisterMetaType<timeline::AudioLayer>("tl::timeline::AudioLayer");
             qRegisterMetaType<timeline::Channels>("tl::timeline::Channels");
             qRegisterMetaType<timeline::Color>("tl::timeline::Color");
-            qRegisterMetaType<timeline::ColorConfigOptions>("tl::timeline::ColorConfigOptions");
             qRegisterMetaType<timeline::CompareMode>("tl::timeline::CompareMode");
             qRegisterMetaType<timeline::CompareOptions>("tl::timeline::CompareOptions");
             qRegisterMetaType<timeline::EXRDisplay>("tl::timeline::EXRDisplay");
@@ -111,6 +110,7 @@ namespace tl
             qRegisterMetaType<timeline::LUTOptions>("tl::timeline::LUTOptions");
             qRegisterMetaType<timeline::Levels>("tl::timeline::Levels");
             qRegisterMetaType<timeline::Loop>("tl::timeline::Loop");
+            qRegisterMetaType<timeline::OCIOOptions>("tl::timeline::OCIOOptions");
             qRegisterMetaType<timeline::Options>("tl::timeline::Options");
             qRegisterMetaType<timeline::Playback>("tl::timeline::Playback");
             qRegisterMetaType<timeline::PlayerCacheInfo>("tl::timeline::PlayerCacheInfo");

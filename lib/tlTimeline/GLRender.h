@@ -27,7 +27,7 @@ namespace tl
 
             void begin(
                 const math::Size2i&,
-                const ColorConfigOptions& = ColorConfigOptions(),
+                const OCIOOptions& = OCIOOptions(),
                 const LUTOptions& = LUTOptions(),
                 const RenderOptions& = RenderOptions()) override;
             void end() override;
@@ -76,7 +76,7 @@ namespace tl
                 const CompareOptions& = CompareOptions()) override;
 
         private:
-            void _setColorConfig(const ColorConfigOptions&);
+            void _setOCIO(const OCIOOptions&);
             void _setLUT(const LUTOptions&);
             void _drawVideoA(
                 const std::vector<VideoData>&,

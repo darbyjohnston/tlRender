@@ -36,8 +36,8 @@ namespace tl
         std::string textureFragmentSource();
         std::string imageFragmentSource();
         std::string displayFragmentSource(
-            const std::string& colorConfigDef,
-            const std::string& colorConfig,
+            const std::string& ocioDef,
+            const std::string& ocio,
             const std::string& lutDef,
             const std::string& lut,
             LUTOrder);
@@ -73,9 +73,9 @@ namespace tl
             unsigned    type = -1;
         };
 
-        struct OCIOColorConfigData
+        struct OCIOData
         {
-            ~OCIOColorConfigData();
+            ~OCIOData();
 
             OCIO::ConstConfigRcPtr config;
             OCIO::DisplayViewTransformRcPtr transform;
@@ -102,12 +102,12 @@ namespace tl
         struct GLRender::Private
         {
             math::Size2i renderSize;
-            ColorConfigOptions colorConfigOptions;
+            OCIOOptions ocioOptions;
             LUTOptions lutOptions;
             RenderOptions renderOptions;
 
 #if defined(TLRENDER_OCIO)
-            std::unique_ptr<OCIOColorConfigData> colorConfigData;
+            std::unique_ptr<OCIOData> ocioData;
             std::unique_ptr<OCIOLUTData> lutData;
 #endif // TLRENDER_OCIO
 

@@ -3,8 +3,6 @@ set(HEADERS
     AudioInline.h
     BackgroundOptions.h
     BackgroundOptionsInline.h
-    ColorConfigOptions.h
-    ColorConfigOptionsInline.h
     CompareOptions.h
     CompareOptionsInline.h
     DisplayOptions.h
@@ -17,6 +15,8 @@ set(HEADERS
     LUTOptions.h
     LUTOptionsInline.h
     MemoryReference.h
+    OCIOOptions.h
+    OCIOOptionsInline.h
     Player.h
     PlayerInline.h
     PlayerOptions.h
@@ -42,7 +42,6 @@ list(APPEND PRIVATE_HEADERS
 
 set(SOURCE
     BackgroundOptions.cpp
-    ColorConfigOptions.cpp
     CompareOptions.cpp
     DisplayOptions.cpp
     Edit.cpp
@@ -51,6 +50,7 @@ set(SOURCE
     Init.cpp
     LUTOptions.cpp
     MemoryReference.cpp
+    OCIOOptions.cpp
     Player.cpp
     PlayerOptions.cpp
     PlayerPrivate.cpp

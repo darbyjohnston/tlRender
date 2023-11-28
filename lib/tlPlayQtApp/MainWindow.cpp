@@ -7,7 +7,6 @@
 #include <tlPlayQtApp/App.h>
 #include <tlPlayQtApp/AudioActions.h>
 #include <tlPlayQtApp/AudioTool.h>
-#include <tlPlayQtApp/ColorConfigModel.h>
 #include <tlPlayQtApp/ColorTool.h>
 #include <tlPlayQtApp/CompareActions.h>
 #include <tlPlayQtApp/DevicesModel.h>
@@ -17,6 +16,7 @@
 #include <tlPlayQtApp/FrameActions.h>
 #include <tlPlayQtApp/InfoTool.h>
 #include <tlPlayQtApp/MessagesTool.h>
+#include <tlPlayQtApp/OCIOModel.h>
 #include <tlPlayQtApp/PlaybackActions.h>
 #include <tlPlayQtApp/RenderActions.h>
 #include <tlPlayQtApp/SettingsTool.h>
@@ -118,7 +118,7 @@ namespace tl
             std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > colorConfigOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
@@ -440,9 +440,9 @@ namespace tl
                     _widgetUpdate();
                 });
 
-            p.colorConfigOptionsObserver = observer::ValueObserver<timeline::ColorConfigOptions>::create(
-                app->colorModel()->observeColorConfigOptions(),
-                [this](const timeline::ColorConfigOptions&)
+            p.ocioOptionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
+                app->colorModel()->observeOCIOOptions(),
+                [this](const timeline::OCIOOptions&)
                 {
                     _widgetUpdate();
                 });
@@ -867,8 +867,7 @@ namespace tl
             p.timelineViewport->setBackgroundOptions(
                 viewportModel->getBackgroundOptions());
             auto colorModel = p.app->colorModel();
-            p.timelineViewport->setColorConfigOptions(
-                colorModel->getColorConfigOptions());
+            p.timelineViewport->setOCIOOptions(colorModel->getOCIOOptions());
             p.timelineViewport->setLUTOptions(colorModel->getLUTOptions());
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
@@ -910,7 +909,7 @@ namespace tl
             p.infoLabel->setText(QString::fromUtf8(infoLabel.c_str()));
             p.infoLabel->setToolTip(QString::fromUtf8(infoToolTip.c_str()));
 
-            p.app->outputDevice()->setColorConfigOptions(colorModel->getColorConfigOptions());
+            p.app->outputDevice()->setOCIOOptions(colorModel->getOCIOOptions());
             p.app->outputDevice()->setLUTOptions(colorModel->getLUTOptions());
             p.app->outputDevice()->setImageOptions(imageOptions);
             for (auto& i : displayOptions)
