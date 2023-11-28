@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: BSD-3-Clause
+// SPDX-License-Identifier: BSD-3-Clause
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
@@ -34,6 +35,7 @@
 #include <tlPlayGLApp/WindowMenu.h>
 #include <tlPlayGLApp/WindowToolBar.h>
 
+#include <tlPlay/AudioModel.h>
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/Info.h>
 #include <tlPlay/Settings.h>
@@ -51,6 +53,7 @@
 #include <tlUI/Menu.h>
 #include <tlUI/MenuBar.h>
 #include <tlUI/RowLayout.h>
+#include <tlUI/Spacer.h>
 #include <tlUI/Splitter.h>
 #include <tlUI/TimeEdit.h>
 #include <tlUI/TimeLabel.h>
@@ -125,13 +128,14 @@ namespace tl
             std::shared_ptr<ui::ButtonGroup> playbackButtonGroup;
             std::shared_ptr<ui::ButtonGroup> frameButtonGroup;
             std::shared_ptr<ui::TimeEdit> currentTimeEdit;
+            std::shared_ptr<ui::TimeLabel> durationLabel;
+            std::shared_ptr<ui::ComboBox> timeUnitsComboBox;
             std::shared_ptr<ui::DoubleEdit> speedEdit;
             std::shared_ptr<ui::ToolButton> speedButton;
             std::shared_ptr<SpeedPopup> speedPopup;
-            std::shared_ptr<ui::TimeLabel> durationLabel;
-            std::shared_ptr<ui::ComboBox> timeUnitsComboBox;
             std::shared_ptr<ui::ToolButton> audioButton;
             std::shared_ptr<AudioPopup> audioPopup;
+            std::shared_ptr<ui::ToolButton> muteButton;
             std::shared_ptr<ui::Label> statusLabel;
             std::shared_ptr<time::Timer> statusTimer;
             std::shared_ptr<ui::Label> infoLabel;
@@ -154,6 +158,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
         };
 
@@ -349,13 +354,8 @@ namespace tl
             p.currentTimeEdit = ui::TimeEdit::create(p.timeUnitsModel, context);
             p.currentTimeEdit->setToolTip("Current time");
 
-            p.speedEdit = ui::DoubleEdit::create(context, p.speedModel);
-            p.speedEdit->setToolTip("Current speed");
-            p.speedButton = ui::ToolButton::create("FPS", context);
-            p.speedButton->setIcon("MenuArrow");
-            p.speedButton->setToolTip("Speed menu");
-
             p.durationLabel = ui::TimeLabel::create(p.timeUnitsModel, context);
+            p.durationLabel->setFontRole(ui::FontRole::Mono);
             p.durationLabel->setMarginRole(ui::SizeRole::MarginInside);
             p.durationLabel->setToolTip("Duration");
 
@@ -365,9 +365,19 @@ namespace tl
                 static_cast<int>(p.timeUnitsModel->getTimeUnits()));
             p.timeUnitsComboBox->setToolTip("Time units");
 
+            p.speedEdit = ui::DoubleEdit::create(context, p.speedModel);
+            p.speedEdit->setToolTip("Current speed");
+            p.speedButton = ui::ToolButton::create("FPS", context);
+            p.speedButton->setIcon("MenuArrow");
+            p.speedButton->setToolTip("Speed menu");
+
             p.audioButton = ui::ToolButton::create(context);
             p.audioButton->setIcon("Volume");
             p.audioButton->setToolTip("Audio settings");
+            p.muteButton = ui::ToolButton::create(context);
+            p.muteButton->setCheckable(true);
+            p.muteButton->setIcon("Mute");
+            p.muteButton->setToolTip("Mute the audio");
 
             p.statusLabel = ui::Label::create(context);
             p.statusLabel->setHStretch(ui::Stretch::Expanding);
@@ -418,13 +428,17 @@ namespace tl
             frameNextButton->setParent(hLayout);
             timeEndButton->setParent(hLayout);
             p.currentTimeEdit->setParent(p.bottomLayout);
+            p.durationLabel->setParent(p.bottomLayout);
+            p.timeUnitsComboBox->setParent(p.bottomLayout);
             hLayout = ui::HorizontalLayout::create(context, p.bottomLayout);
             hLayout->setSpacingRole(ui::SizeRole::SpacingTool);
             p.speedEdit->setParent(hLayout);
             p.speedButton->setParent(hLayout);
-            p.durationLabel->setParent(p.bottomLayout);
-            p.timeUnitsComboBox->setParent(p.bottomLayout);
+            auto spacer = ui::Spacer::create(ui::Orientation::Horizontal, context);
+            spacer->setHStretch(ui::Stretch::Expanding);
+            spacer->setParent(p.bottomLayout);
             p.audioButton->setParent(p.bottomLayout);
+            p.muteButton->setParent(p.bottomLayout);
             p.dividers["Status"] = ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
             p.statusLayout = ui::HorizontalLayout::create(context, p.layout);
             p.statusLayout->setSpacingRole(ui::SizeRole::None);
@@ -506,6 +520,14 @@ namespace tl
                 {
                     _showAudioPopup();
                 });
+            p.muteButton->setCheckedCallback(
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getAudioModel()->setMute(value);
+                    }
+                });
 
             p.playersObserver = observer::ListObserver<std::shared_ptr<timeline::Player> >::create(
                 app->observeActivePlayers(),
@@ -564,6 +586,13 @@ namespace tl
                 [this](const timeline::CompareOptions& value)
                 {
                     _p->timelineViewport->setCompareOptions(value);
+                });
+
+            p.muteObserver = observer::ValueObserver<bool>::create(
+                app->getAudioModel()->observeMute(),
+                [this](bool value)
+                {
+                    _p->muteButton->setChecked(value);
                 });
 
             p.logObserver = observer::ListObserver<log::Item>::create(

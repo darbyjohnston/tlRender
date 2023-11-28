@@ -20,11 +20,9 @@ namespace tl
     {
         struct AudioPopup::Private
         {
-            std::shared_ptr<ui::ToolButton> muteButton;
             std::shared_ptr<ui::IntEditSlider> volumeSlider;
             std::shared_ptr<ui::HorizontalLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
         };
 
@@ -39,11 +37,6 @@ namespace tl
                 parent);
             TLRENDER_P();
 
-            p.muteButton = ui::ToolButton::create(context);
-            p.muteButton->setCheckable(true);
-            p.muteButton->setIcon("Mute");
-            p.muteButton->setToolTip("Mute the audio");
-
             p.volumeSlider = ui::IntEditSlider::create(context);
             p.volumeSlider->setRange(math::IntRange(0, 100));
             p.volumeSlider->setStep(1);
@@ -53,20 +46,10 @@ namespace tl
             p.layout = ui::HorizontalLayout::create(context);
             p.layout->setMarginRole(ui::SizeRole::MarginInside);
             p.layout->setSpacingRole(ui::SizeRole::SpacingTool);
-            p.muteButton->setParent(p.layout);
             p.volumeSlider->setParent(p.layout);
             setWidget(p.layout);
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.muteButton->setCheckedCallback(
-                [appWeak](bool value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getAudioModel()->setMute(value);
-                    }
-                });
-
             p.volumeSlider->setCallback(
                 [appWeak](int value)
                 {
@@ -74,13 +57,6 @@ namespace tl
                     {
                         app->getAudioModel()->setVolume(value / 100.F);
                     }
-                });
-
-            p.muteObserver = observer::ValueObserver<bool>::create(
-                app->getAudioModel()->observeMute(),
-                [this](bool value)
-                {
-                    _p->muteButton->setChecked(value);
                 });
 
             p.volumeObserver = observer::ValueObserver<float>::create(
