@@ -13,6 +13,8 @@ namespace tl
         class App;
 
         //! View tool.
+        //!
+        //! \todo Add a background grid.
         class ViewTool : public IToolWidget
         {
             TLRENDER_NON_COPYABLE(ViewTool);

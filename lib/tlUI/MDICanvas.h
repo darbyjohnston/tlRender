@@ -11,6 +11,8 @@ namespace tl
     namespace ui
     {
         //! MDI canvas.
+        //!
+        //! \todo Add support for maximizing MDI widgets.
         class MDICanvas : public IWidget
         {
             TLRENDER_NON_COPYABLE(MDICanvas);

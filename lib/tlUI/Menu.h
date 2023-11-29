@@ -12,6 +12,8 @@ namespace tl
     namespace ui
     {
         //! Menu.
+        //!
+        //! \todo Automatically open/close sub menus.
         class Menu : public IMenuPopup
         {
             TLRENDER_NON_COPYABLE(Menu);

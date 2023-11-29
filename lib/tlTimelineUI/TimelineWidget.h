@@ -12,7 +12,8 @@ namespace tl
     {
         //! Timeline widget.
         //! 
-        //! \tool Keep the current frame display inside widget geometry.
+        //! \tool Adjust the current frame label to stay visible on the right
+        //! side of the timeline widget.
         class TimelineWidget : public ui::IWidget
         {
             TLRENDER_NON_COPYABLE(TimelineWidget);

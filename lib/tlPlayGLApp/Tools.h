@@ -13,6 +13,9 @@ namespace tl
     namespace play_gl
     {
         //! Tools.
+        //!
+        //! \todo Add a color picker.
+        //! \todo Add a magnifier.
         enum class Tool
         {
             Files,

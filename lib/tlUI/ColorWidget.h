@@ -11,6 +11,10 @@ namespace tl
     namespace ui
     {
         //! Color widget.
+        //!
+        //! \todo Additional color modes like grayscale, hsv, etc.
+        //! \todo Add a palette for saving colors.
+        //! \todo Add support for displaying pixel types like U8, U16, etc.?
         class ColorWidget : public IWidget
         {
             TLRENDER_NON_COPYABLE(ColorWidget);

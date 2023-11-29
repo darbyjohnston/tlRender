@@ -13,6 +13,9 @@ namespace tl
         class App;
 
         //! File actions.
+        //!
+        //! \todo Add actions for opening the next/previous file in the
+        //! directory.
         class FileActions : public std::enable_shared_from_this<FileActions>
         {
             TLRENDER_NON_COPYABLE(FileActions);

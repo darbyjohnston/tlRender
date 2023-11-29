@@ -14,6 +14,8 @@ namespace tl
         class MainWindow;
 
         //! View actions.
+        //!
+        //! \todo Add an action for toggling the UI visibility.
         class ViewActions : public std::enable_shared_from_this<ViewActions>
         {
             TLRENDER_NON_COPYABLE(ViewActions);
