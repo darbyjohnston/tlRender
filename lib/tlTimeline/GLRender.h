@@ -6,24 +6,41 @@
 
 #include <tlTimeline/IRender.h>
 
+#include <tlGL/Texture.h>
+
+#include <tlCore/LRUCache.h>
+
 namespace tl
 {
     namespace timeline
     {
+        //! OpenGL texture cache.
+        typedef memory::LRUCache<
+            std::shared_ptr<image::Image>,
+            std::vector<std::shared_ptr<gl::Texture> > > GLTextureCache;
+
         //! OpenGL renderer.
         class GLRender : public IRender
         {
             TLRENDER_NON_COPYABLE(GLRender);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<GLTextureCache>&);
+
             GLRender();
 
         public:
             virtual ~GLRender();
 
             //! Create a new renderer.
-            static std::shared_ptr<GLRender> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<GLRender> create(
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<GLTextureCache>& = nullptr);
+
+            //! Get the texture cache.
+            const std::shared_ptr<GLTextureCache>& getTextureCache() const;
 
             void begin(
                 const math::Size2i&,

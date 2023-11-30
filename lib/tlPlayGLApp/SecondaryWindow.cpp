@@ -8,6 +8,7 @@
 
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/FilesModel.h>
+#include <tlPlay/Settings.h>
 #include <tlPlay/ViewportModel.h>
 
 #include <tlTimelineUI/TimelineViewport.h>
@@ -30,10 +31,12 @@ namespace tl
         };
 
         void SecondaryWindow::_init(
+            const std::shared_ptr<gl_app::Window>& window,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context)
         {
-            Window::_init("tlplay-gl 2", context);
+            const bool shareContexts = app->getSettings()->getValue<bool>("OpenGL/ShareContexts");
+            Window::_init("tlplay-gl 2", context, shareContexts ? window : nullptr);
             TLRENDER_P();
 
             p.viewport = timelineui::TimelineViewport::create(context);
@@ -105,11 +108,12 @@ namespace tl
         }
 
         std::shared_ptr<SecondaryWindow> SecondaryWindow::create(
+            const std::shared_ptr<gl_app::Window>& window,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<SecondaryWindow>(new SecondaryWindow);
-            out->_init(app, context);
+            out->_init(window, app, context);
             return out;
         }
     }

@@ -37,7 +37,8 @@ namespace tl
                 const std::string& name,
                 const math::Size2i&,
                 const std::shared_ptr<system::Context>&,
-                int options);
+                int options,
+                const std::shared_ptr<GLFWWindow>& share);
             
             GLFWWindow();
 
@@ -52,7 +53,8 @@ namespace tl
                 int options =
                     static_cast<int>(GLFWWindowOptions::Visible) |
                     static_cast<int>(GLFWWindowOptions::DoubleBuffer) |
-                    static_cast<int>(GLFWWindowOptions::MakeCurrent));
+                    static_cast<int>(GLFWWindowOptions::MakeCurrent),
+                const std::shared_ptr<GLFWWindow>& share = nullptr);
         
             //! Get the GLFW window pointer.
             GLFWwindow* getGLFW() const;

@@ -166,7 +166,7 @@ namespace tl
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context)
         {
-            Window::_init("tlplay-gl", context);
+            Window::_init("tlplay-gl", context, nullptr);
             TLRENDER_P();
 
             setBackgroundRole(ui::ColorRole::Window);

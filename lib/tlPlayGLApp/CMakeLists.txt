@@ -27,6 +27,7 @@ set(HEADERS
     SpeedPopup.h
     SecondaryWindow.h
     SettingsTool.h
+    SettingsToolPrivate.h
     Style.h
     SystemLogTool.h
     TimelineActions.h

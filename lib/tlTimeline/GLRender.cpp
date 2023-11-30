@@ -311,10 +311,18 @@ namespace tl
         }
 #endif // TLRENDER_OCIO
 
-        void GLRender::_init(const std::shared_ptr<system::Context>& context)
+        void GLRender::_init(
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<GLTextureCache>& textureCache)
         {
             IRender::_init(context);
             TLRENDER_P();
+
+            p.textureCache = textureCache;
+            if (!p.textureCache)
+            {
+                p.textureCache = std::make_shared<GLTextureCache>();
+            }
 
             p.glyphTextureAtlas = gl::TextureAtlas::create(
                 1,
@@ -332,11 +340,18 @@ namespace tl
         GLRender::~GLRender()
         {}
 
-        std::shared_ptr<GLRender> GLRender::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<GLRender> GLRender::create(
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<GLTextureCache>& textureCache)
         {
             auto out = std::shared_ptr<GLRender>(new GLRender);
-            out->_init(context);
+            out->_init(context, textureCache);
             return out;
+        }
+
+        const std::shared_ptr<GLTextureCache>& GLRender::getTextureCache() const
+        {
+            return _p->textureCache;
         }
 
         void GLRender::begin(
@@ -349,7 +364,7 @@ namespace tl
 
             p.renderSize = renderSize;
             p.renderOptions = renderOptions;
-            p.textureCache.setMax(renderOptions.textureCacheByteCount);
+            p.textureCache->setMax(renderOptions.textureCacheByteCount);
 
             glEnable(GL_BLEND);
             glBlendEquation(GL_FUNC_ADD);

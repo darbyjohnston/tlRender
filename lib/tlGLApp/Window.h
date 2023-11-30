@@ -23,7 +23,8 @@ namespace tl
         protected:
             void _init(
                 const std::string& name,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<Window>& share);
 
             Window();
 
@@ -33,7 +34,8 @@ namespace tl
             //! Create a new window.
             static std::shared_ptr<Window> create(
                 const std::string& name,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<Window>& share = nullptr);
 
             //! Observe the window size.
             std::shared_ptr<observer::IValue<math::Size2i> > observeWindowSize() const;

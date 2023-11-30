@@ -167,13 +167,15 @@ namespace tl
             float displayScale = 1.F;
             bool refresh = false;
             int modifiers = 0;
-            std::shared_ptr<timeline::IRender> render;
+            std::shared_ptr<timeline::GLTextureCache> textureCache;
+            std::shared_ptr<timeline::GLRender> render;
             std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
         };
 
         void Window::_init(
             const std::string& name,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<Window>& share)
         {
             IWindow::_init("tl::ui::Window", context, nullptr);
             TLRENDER_P();
@@ -189,7 +191,8 @@ namespace tl
                 p.windowSize->get(),
                 context,
                 static_cast<int>(gl::GLFWWindowOptions::DoubleBuffer) |
-                static_cast<int>(gl::GLFWWindowOptions::MakeCurrent));
+                static_cast<int>(gl::GLFWWindowOptions::MakeCurrent),
+                share ? share->getGLFWWindow() : nullptr);
             p.glfwWindow->setFrameBufferSizeCallback(
                 [this](const math::Size2i& value)
                 {
@@ -280,6 +283,11 @@ namespace tl
 
             p.frameBufferSize = p.glfwWindow->getFrameBufferSize();
             p.displayScale = p.glfwWindow->getContentScale().x;
+
+            if (share)
+            {
+                p.textureCache = share->_p->render->getTextureCache();
+            }
         }
 
         Window::Window() :
@@ -293,10 +301,11 @@ namespace tl
 
         std::shared_ptr<Window> Window::create(
             const std::string& name,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<Window>& share)
         {
             auto out = std::shared_ptr<Window>(new Window);
-            out->_init(name, context);
+            out->_init(name, context, share);
             return out;
         }
 
@@ -425,7 +434,9 @@ namespace tl
 
                 if (!p.render)
                 {
-                    p.render = timeline::GLRender::create(_context.lock());
+                    p.render = timeline::GLRender::create(
+                        _context.lock(),
+                        p.textureCache);
                 }
 
                 gl::OffscreenBufferOptions offscreenBufferOptions;

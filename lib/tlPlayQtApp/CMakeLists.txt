@@ -21,6 +21,7 @@ set(HEADERS
     RenderActions.h
     SecondaryWindow.h
     SettingsTool.h
+    SettingsToolPrivate.h
     SystemLogTool.h
     TimelineActions.h
     ToolActions.h

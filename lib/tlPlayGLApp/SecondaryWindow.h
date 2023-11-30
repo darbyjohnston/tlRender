@@ -21,6 +21,7 @@ namespace tl
 
         protected:
             void _init(
+                const std::shared_ptr<gl_app::Window>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&);
 
@@ -30,6 +31,7 @@ namespace tl
             virtual ~SecondaryWindow();
 
             static std::shared_ptr<SecondaryWindow> create(
+                const std::shared_ptr<gl_app::Window>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&);
 

@@ -241,6 +241,7 @@ namespace tl
                     if (!screens.empty())
                     {
                         p.secondaryWindow = SecondaryWindow::create(
+                            p.mainWindow,
                             std::dynamic_pointer_cast<App>(shared_from_this()),
                             _context);
                         addWindow(p.secondaryWindow);
@@ -307,21 +308,28 @@ namespace tl
                 p.settingsFileName,
                 p.options.resetSettings,
                 _context);
+
             p.settings->setDefaultValue("Files/RecentMax", 10);
+
             p.settings->setDefaultValue("Window/Size", math::Size2i(1920, 1080));
+
             p.settings->setDefaultValue("Cache/Size", 1);
             p.settings->setDefaultValue("Cache/ReadAhead", 2.0);
             p.settings->setDefaultValue("Cache/ReadBehind", 0.5);
+
             p.settings->setDefaultValue("FileSequence/Audio",
                 timeline::FileSequenceAudio::BaseName);
             p.settings->setDefaultValue("FileSequence/AudioFileName", std::string());
             p.settings->setDefaultValue("FileSequence/AudioDirectory", std::string());
             p.settings->setDefaultValue("FileSequence/MaxDigits", 9);
+
             p.settings->setDefaultValue("SequenceIO/ThreadCount", 16);
+
 #if defined(TLRENDER_FFMPEG)
             p.settings->setDefaultValue("FFmpeg/YUVToRGBConversion", false);
             p.settings->setDefaultValue("FFmpeg/ThreadCount", 0);
 #endif // TLRENDER_FFMPEG
+
 #if defined(TLRENDER_USD)
             p.settings->setDefaultValue("USD/renderWidth", p.options.usdRenderWidth);
             p.settings->setDefaultValue("USD/complexity", p.options.usdComplexity);
@@ -331,16 +339,22 @@ namespace tl
             p.settings->setDefaultValue("USD/stageCacheCount", p.options.usdStageCache);
             p.settings->setDefaultValue("USD/diskCacheByteCount", p.options.usdDiskCache);
 #endif // TLRENDER_USD
+
             p.settings->setDefaultValue("FileBrowser/NativeFileDialog", true);
             p.settings->setDefaultValue("FileBrowser/Path", file::getCWD());
             p.settings->setDefaultValue("FileBrowser/Options", ui::FileBrowserOptions());
+
             p.settings->setDefaultValue("Performance/TimerMode",
                 timeline::PlayerOptions().timerMode);
             p.settings->setDefaultValue("Performance/AudioBufferFrameCount",
                 timeline::PlayerOptions().audioBufferFrameCount);
             p.settings->setDefaultValue("Performance/VideoRequestCount", 16);
             p.settings->setDefaultValue("Performance/AudioRequestCount", 16);
+
+            p.settings->setDefaultValue("OpenGL/ShareContexts", true);
+
             p.settings->setDefaultValue("Style/Palette", StylePalette::First);
+
             p.settings->setDefaultValue("Misc/ToolTipsEnabled", true);
         }
 

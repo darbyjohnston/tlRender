@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayGLApp/SettingsTool.h>
+#include <tlPlayGLApp/SettingsToolPrivate.h>
 
 #include <tlPlayGLApp/App.h>
 #include <tlPlayGLApp/Style.h>
@@ -85,26 +85,13 @@ namespace tl
             p.readBehind->setParent(p.layout);
             p.layout->setGridPos(p.readBehind, 2, 1);
 
+            _settingsUpdate(std::string());
+
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
                 [this](const std::string& name)
                 {
-                    TLRENDER_P();
-                    if ("Cache/Size" == name || name.empty())
-                    {
-                        p.cacheSize->setValue(
-                            p.settings->getValue<int>("Cache/Size"));
-                    }
-                    if ("Cache/ReadAhead" == name || name.empty())
-                    {
-                        p.readAhead->setValue(
-                            p.settings->getValue<double>("Cache/ReadAhead"));
-                    }
-                    if ("Cache/ReadBehind" == name || name.empty())
-                    {
-                        p.readBehind->setValue(
-                            p.settings->getValue<double>("Cache/ReadBehind"));
-                    }
+                    _settingsUpdate(name);
                 });
 
             p.cacheSize->setCallback(
@@ -153,6 +140,26 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             _sizeHint = _p->layout->getSizeHint();
+        }
+
+        void CacheSettingsWidget::_settingsUpdate(const std::string& name)
+        {
+            TLRENDER_P();
+            if ("Cache/Size" == name || name.empty())
+            {
+                p.cacheSize->setValue(
+                    p.settings->getValue<int>("Cache/Size"));
+            }
+            if ("Cache/ReadAhead" == name || name.empty())
+            {
+                p.readAhead->setValue(
+                    p.settings->getValue<double>("Cache/ReadAhead"));
+            }
+            if ("Cache/ReadBehind" == name || name.empty())
+            {
+                p.readBehind->setValue(
+                    p.settings->getValue<double>("Cache/ReadBehind"));
+            }
         }
 
         struct FileSequenceSettingsWidget::Private
@@ -216,36 +223,13 @@ namespace tl
             p.threadsEdit->setParent(p.layout);
             p.layout->setGridPos(p.threadsEdit, 4, 1);
 
+            _settingsUpdate(std::string());
+
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
                 [this](const std::string& name)
                 {
-                    TLRENDER_P();
-                    if ("FileSequence/Audio" == name || name.empty())
-                    {
-                        p.audioComboBox->setCurrentIndex(static_cast<int>(
-                            p.settings->getValue<timeline::FileSequenceAudio>("FileSequence/Audio")));
-                    }
-                    if ("FileSequence/AudioFileName" == name || name.empty())
-                    {
-                        p.audioFileNameEdit->setText(
-                            p.settings->getValue<std::string>("FileSequence/AudioFileName"));
-                    }
-                    if ("FileSequence/AudioDirectory" == name || name.empty())
-                    {
-                        p.audioDirectoryEdit->setText(
-                            p.settings->getValue<std::string>("FileSequence/AudioDirectory"));
-                    }
-                    if ("FileSequence/MaxDigits" == name || name.empty())
-                    {
-                        p.maxDigitsEdit->setValue(
-                            p.settings->getValue<size_t>("FileSequence/MaxDigits"));
-                    }
-                    if ("FileSequence/ThreadCount" == name || name.empty())
-                    {
-                        p.threadsEdit->setValue(
-                            p.settings->getValue<size_t>("SequenceIO/ThreadCount"));
-                    }
+                    _settingsUpdate(name);
                 });
 
             p.audioComboBox->setIndexCallback(
@@ -310,6 +294,36 @@ namespace tl
             _sizeHint = _p->layout->getSizeHint();
         }
 
+        void FileSequenceSettingsWidget::_settingsUpdate(const std::string& name)
+        {
+            TLRENDER_P();
+            if ("FileSequence/Audio" == name || name.empty())
+            {
+                p.audioComboBox->setCurrentIndex(static_cast<int>(
+                    p.settings->getValue<timeline::FileSequenceAudio>("FileSequence/Audio")));
+            }
+            if ("FileSequence/AudioFileName" == name || name.empty())
+            {
+                p.audioFileNameEdit->setText(
+                    p.settings->getValue<std::string>("FileSequence/AudioFileName"));
+            }
+            if ("FileSequence/AudioDirectory" == name || name.empty())
+            {
+                p.audioDirectoryEdit->setText(
+                    p.settings->getValue<std::string>("FileSequence/AudioDirectory"));
+            }
+            if ("FileSequence/MaxDigits" == name || name.empty())
+            {
+                p.maxDigitsEdit->setValue(
+                    p.settings->getValue<size_t>("FileSequence/MaxDigits"));
+            }
+            if ("FileSequence/ThreadCount" == name || name.empty())
+            {
+                p.threadsEdit->setValue(
+                    p.settings->getValue<size_t>("SequenceIO/ThreadCount"));
+            }
+        }
+
 #if defined(TLRENDER_FFMPEG)
         struct FFmpegSettingsWidget::Private
         {
@@ -349,21 +363,13 @@ namespace tl
             p.threadsEdit->setParent(p.layout);
             p.layout->setGridPos(p.threadsEdit, 1, 1);
 
+            _settingsUpdate(std::string());
+
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
                 [this](const std::string& name)
                 {
-                    TLRENDER_P();
-                    if ("FFmpeg/YUVToRGBConversion" == name || name.empty())
-                    {
-                        p.yuvToRGBCheckBox->setChecked(
-                            p.settings->getValue<bool>("FFmpeg/YUVToRGBConversion"));
-                    }
-                    if ("FFmpeg/ThreadCount" == name || name.empty())
-                    {
-                        p.threadsEdit->setValue(
-                            p.settings->getValue<size_t>("FFmpeg/ThreadCount"));
-                    }
+                    _settingsUpdate(name);
                 });
 
             p.yuvToRGBCheckBox->setCheckedCallback(
@@ -407,6 +413,22 @@ namespace tl
             IWidget::sizeHintEvent(event);
             _sizeHint = _p->layout->getSizeHint();
         }
+
+        void FFmpegSettingsWidget::_settingsUpdate(const std::string& name)
+        {
+            TLRENDER_P();
+            if ("FFmpeg/YUVToRGBConversion" == name || name.empty())
+            {
+                p.yuvToRGBCheckBox->setChecked(
+                    p.settings->getValue<bool>("FFmpeg/YUVToRGBConversion"));
+            }
+            if ("FFmpeg/ThreadCount" == name || name.empty())
+            {
+                p.threadsEdit->setValue(
+                    p.settings->getValue<size_t>("FFmpeg/ThreadCount"));
+            }
+        }
+
 #endif // TLRENDER_FFMPEG
 
 #if defined(TLRENDER_USD)
@@ -485,46 +507,13 @@ namespace tl
             p.diskCacheEdit->setParent(p.layout);
             p.layout->setGridPos(p.diskCacheEdit, 6, 1);
 
+            _settingsUpdate(std::string());
+
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
                 [this](const std::string& name)
                 {
-                    TLRENDER_P();
-                    if ("USD/renderWidth" == name || name.empty())
-                    {
-                        p.renderWidthEdit->setValue(
-                            p.settings->getValue<int>("USD/renderWidth"));
-                    }
-                    if ("USD/complexity" == name || name.empty())
-                    {
-                        p.complexitySlider->setValue(
-                            p.settings->getValue<float>("USD/complexity"));
-                    }
-                    if ("USD/drawMode" == name || name.empty())
-                    {
-                        p.drawModeComboBox->setCurrentIndex(static_cast<int>(
-                            p.settings->getValue<usd::DrawMode>("USD/drawMode")));
-                    }
-                    if ("USD/enableLighting" == name || name.empty())
-                    {
-                        p.lightingCheckBox->setChecked(
-                            p.settings->getValue<bool>("USD/enableLighting"));
-                    }
-                    if ("USD/sRGB" == name || name.empty())
-                    {
-                        p.sRGBCheckBox->setChecked(
-                            p.settings->getValue<bool>("USD/sRGB"));
-                    }
-                    if ("USD/stageCacheCount" == name || name.empty())
-                    {
-                        p.stageCacheEdit->setValue(
-                            p.settings->getValue<size_t>("USD/stageCacheCount"));
-                    }
-                    if ("USD/diskCacheByteCount" == name || name.empty())
-                    {
-                        p.diskCacheEdit->setValue(
-                            p.settings->getValue<size_t>("USD/diskCacheByteCount") / memory::gigabyte);
-                    }
+                    _settingsUpdate(name);
                 });
 
             p.renderWidthEdit->setCallback(
@@ -599,6 +588,46 @@ namespace tl
             IWidget::sizeHintEvent(event);
             _sizeHint = _p->layout->getSizeHint();
         }
+
+        void USDSettingsWidget::_settingsUpdate(const std::string& name)
+        {
+            TLRENDER_P();
+            if ("USD/renderWidth" == name || name.empty())
+            {
+                p.renderWidthEdit->setValue(
+                    p.settings->getValue<int>("USD/renderWidth"));
+            }
+            if ("USD/complexity" == name || name.empty())
+            {
+                p.complexitySlider->setValue(
+                    p.settings->getValue<float>("USD/complexity"));
+            }
+            if ("USD/drawMode" == name || name.empty())
+            {
+                p.drawModeComboBox->setCurrentIndex(static_cast<int>(
+                    p.settings->getValue<usd::DrawMode>("USD/drawMode")));
+            }
+            if ("USD/enableLighting" == name || name.empty())
+            {
+                p.lightingCheckBox->setChecked(
+                    p.settings->getValue<bool>("USD/enableLighting"));
+            }
+            if ("USD/sRGB" == name || name.empty())
+            {
+                p.sRGBCheckBox->setChecked(
+                    p.settings->getValue<bool>("USD/sRGB"));
+            }
+            if ("USD/stageCacheCount" == name || name.empty())
+            {
+                p.stageCacheEdit->setValue(
+                    p.settings->getValue<size_t>("USD/stageCacheCount"));
+            }
+            if ("USD/diskCacheByteCount" == name || name.empty())
+            {
+                p.diskCacheEdit->setValue(
+                    p.settings->getValue<size_t>("USD/diskCacheByteCount") / memory::gigabyte);
+            }
+        }
 #endif // TLRENDER_USD
 
         struct FileBrowserSettingsWidget::Private
@@ -631,16 +660,13 @@ namespace tl
             p.nativeFileDialogCheckBox->setParent(p.layout);
             p.layout->setGridPos(p.nativeFileDialogCheckBox, 0, 1);
 
+            _settingsUpdate(std::string());
+
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
                 [this](const std::string& name)
                 {
-                    TLRENDER_P();
-                    if ("FileBrowser/NativeFileDialog" == name || name.empty())
-                    {
-                        p.nativeFileDialogCheckBox->setChecked(
-                            p.settings->getValue<bool>("FileBrowser/NativeFileDialog"));
-                    }
+                    _settingsUpdate(name);
                 });
 
             p.nativeFileDialogCheckBox->setCheckedCallback(
@@ -677,6 +703,16 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             _sizeHint = _p->layout->getSizeHint();
+        }
+
+        void FileBrowserSettingsWidget::_settingsUpdate(const std::string& name)
+        {
+            TLRENDER_P();
+            if ("FileBrowser/NativeFileDialog" == name || name.empty())
+            {
+                p.nativeFileDialogCheckBox->setChecked(
+                    p.settings->getValue<bool>("FileBrowser/NativeFileDialog"));
+            }
         }
 
         struct PerformanceSettingsWidget::Private
@@ -739,31 +775,13 @@ namespace tl
             p.audioRequestsEdit->setParent(gridLayout);
             gridLayout->setGridPos(p.audioRequestsEdit, 3, 1);
 
+            _settingsUpdate(std::string());
+
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
                 [this](const std::string& name)
                 {
-                    TLRENDER_P();
-                    if ("Performance/TimerMode" == name || name.empty())
-                    {
-                        p.timerComboBox->setCurrentIndex(static_cast<int>(
-                            p.settings->getValue<timeline::TimerMode>("Performance/TimerMode")));
-                    }
-                    if ("Performance/AudioBufferFrameCount" == name || name.empty())
-                    {
-                        p.audioBufferFramesEdit->setValue(
-                            p.settings->getValue<size_t>("Performance/AudioBufferFrameCount"));
-                    }
-                    if ("Performance/VideoRequestCount" == name || name.empty())
-                    {
-                        p.videoRequestsEdit->setValue(
-                            p.settings->getValue<size_t>("Performance/VideoRequestCount"));
-                    }
-                    if ("Performance/AudioRequestCount" == name || name.empty())
-                    {
-                        p.audioRequestsEdit->setValue(
-                            p.settings->getValue<size_t>("Performance/AudioRequestCount"));
-                    }
+                    _settingsUpdate(name);
                 });
 
             p.timerComboBox->setIndexCallback(
@@ -822,6 +840,119 @@ namespace tl
             _sizeHint = _p->layout->getSizeHint();
         }
 
+        void PerformanceSettingsWidget::_settingsUpdate(const std::string& name)
+        {
+            TLRENDER_P();
+            if ("Performance/TimerMode" == name || name.empty())
+            {
+                p.timerComboBox->setCurrentIndex(static_cast<int>(
+                    p.settings->getValue<timeline::TimerMode>("Performance/TimerMode")));
+            }
+            if ("Performance/AudioBufferFrameCount" == name || name.empty())
+            {
+                p.audioBufferFramesEdit->setValue(
+                    p.settings->getValue<size_t>("Performance/AudioBufferFrameCount"));
+            }
+            if ("Performance/VideoRequestCount" == name || name.empty())
+            {
+                p.videoRequestsEdit->setValue(
+                    p.settings->getValue<size_t>("Performance/VideoRequestCount"));
+            }
+            if ("Performance/AudioRequestCount" == name || name.empty())
+            {
+                p.audioRequestsEdit->setValue(
+                    p.settings->getValue<size_t>("Performance/AudioRequestCount"));
+            }
+        }
+
+        struct OpenGLSettingsWidget::Private
+        {
+            std::shared_ptr<play::Settings> settings;
+
+            std::shared_ptr<ui::CheckBox> shareContextsCheckBox;
+            std::shared_ptr<ui::VerticalLayout> layout;
+
+            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+        };
+
+        void OpenGLSettingsWidget::_init(
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            IWidget::_init("tl::play_gl::OpenGLSettingsWidget", context, parent);
+            TLRENDER_P();
+
+            p.settings = app->getSettings();
+
+            p.shareContextsCheckBox = ui::CheckBox::create(context);
+
+            p.layout = ui::VerticalLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            auto label = ui::Label::create("Changes are applied to new windows.", context, p.layout);
+            auto gridLayout = ui::GridLayout::create(context, p.layout);
+            gridLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            label = ui::Label::create("Share contexts:", context, gridLayout);
+            gridLayout->setGridPos(label, 0, 0);
+            p.shareContextsCheckBox->setParent(gridLayout);
+            gridLayout->setGridPos(p.shareContextsCheckBox, 0, 1);
+
+            _settingsUpdate(std::string());
+
+            p.settingsObserver = observer::ValueObserver<std::string>::create(
+                app->getSettings()->observeValues(),
+                [this](const std::string& name)
+                {
+                    _settingsUpdate(name);
+                });
+
+            p.shareContextsCheckBox->setCheckedCallback(
+                [this](bool value)
+                {
+                    _p->settings->setValue("OpenGL/ShareContexts", value);
+                });
+        }
+
+        OpenGLSettingsWidget::OpenGLSettingsWidget() :
+            _p(new Private)
+        {}
+
+        OpenGLSettingsWidget::~OpenGLSettingsWidget()
+        {}
+
+        std::shared_ptr<OpenGLSettingsWidget> OpenGLSettingsWidget::create(
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            auto out = std::shared_ptr<OpenGLSettingsWidget>(new OpenGLSettingsWidget);
+            out->_init(app, context, parent);
+            return out;
+        }
+
+        void OpenGLSettingsWidget::setGeometry(const math::Box2i& value)
+        {
+            IWidget::setGeometry(value);
+            _p->layout->setGeometry(value);
+        }
+
+        void OpenGLSettingsWidget::sizeHintEvent(const ui::SizeHintEvent& event)
+        {
+            IWidget::sizeHintEvent(event);
+            _sizeHint = _p->layout->getSizeHint();
+        }
+
+        void OpenGLSettingsWidget::_settingsUpdate(const std::string& name)
+        {
+            TLRENDER_P();
+            if ("OpenGL/ShareContexts" == name || name.empty())
+            {
+                p.shareContextsCheckBox->setChecked(
+                    p.settings->getValue<bool>("OpenGL/ShareContexts"));
+            }
+        }
+
         struct StyleSettingsWidget::Private
         {
             std::shared_ptr<play::Settings> settings;
@@ -852,16 +983,13 @@ namespace tl
             p.paletteComboBox->setParent(p.layout);
             p.layout->setGridPos(p.paletteComboBox, 0, 1);
 
+            _settingsUpdate(std::string());
+
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
                 [this](const std::string& name)
                 {
-                    TLRENDER_P();
-                    if ("Style/Palette" == name || name.empty())
-                    {
-                        p.paletteComboBox->setCurrentIndex(static_cast<int>(
-                            p.settings->getValue<StylePalette>("Style/Palette")));
-                    }
+                    _settingsUpdate(name);
                 });
 
             p.paletteComboBox->setIndexCallback(
@@ -901,6 +1029,16 @@ namespace tl
             _sizeHint = _p->layout->getSizeHint();
         }
 
+        void StyleSettingsWidget::_settingsUpdate(const std::string& name)
+        {
+            TLRENDER_P();
+            if ("Style/Palette" == name || name.empty())
+            {
+                p.paletteComboBox->setCurrentIndex(static_cast<int>(
+                    p.settings->getValue<StylePalette>("Style/Palette")));
+            }
+        }
+
         struct MiscSettingsWidget::Private
         {
             std::shared_ptr<play::Settings> settings;
@@ -931,16 +1069,13 @@ namespace tl
             p.toolTipsEnabledCheckBox->setParent(p.layout);
             p.layout->setGridPos(p.toolTipsEnabledCheckBox, 1, 1);
 
+            _settingsUpdate(std::string());
+
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
                 [this](const std::string& name)
                 {
-                    TLRENDER_P();
-                    if ("Misc/ToolTipsEnabled" == name || name.empty())
-                    {
-                        p.toolTipsEnabledCheckBox->setChecked(
-                            p.settings->getValue<bool>("Misc/ToolTipsEnabled"));
-                    }
+                    _settingsUpdate(name);
                 });
 
             p.toolTipsEnabledCheckBox->setCheckedCallback(
@@ -979,6 +1114,16 @@ namespace tl
             _sizeHint = _p->layout->getSizeHint();
         }
 
+        void MiscSettingsWidget::_settingsUpdate(const std::string& name)
+        {
+            TLRENDER_P();
+            if ("Misc/ToolTipsEnabled" == name || name.empty())
+            {
+                p.toolTipsEnabledCheckBox->setChecked(
+                    p.settings->getValue<bool>("Misc/ToolTipsEnabled"));
+            }
+        }
+
         struct SettingsTool::Private
         {
             std::shared_ptr<ui::ScrollWidget> scrollWidget;
@@ -1009,6 +1154,7 @@ namespace tl
 #endif // TLRENDER_USD
             auto fileBrowserWidget = FileBrowserSettingsWidget::create(app, context);
             auto performanceWidget = PerformanceSettingsWidget::create(app, context);
+            auto openGLWidget = OpenGLSettingsWidget::create(app, context);
             auto styleWidget = StyleSettingsWidget::create(app, context);
             auto miscWidget = MiscSettingsWidget::create(app, context);
             auto vLayout = ui::VerticalLayout::create(context);
@@ -1029,6 +1175,8 @@ namespace tl
             bellows->setWidget(fileBrowserWidget);
             bellows = ui::Bellows::create("Performance", context, vLayout);
             bellows->setWidget(performanceWidget);
+            bellows = ui::Bellows::create("OpenGL", context, vLayout);
+            bellows->setWidget(openGLWidget);
             bellows = ui::Bellows::create("Style", context, vLayout);
             bellows->setWidget(styleWidget);
             bellows = ui::Bellows::create("Miscellaneous", context, vLayout);

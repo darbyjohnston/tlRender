@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayQtApp/SettingsTool.h>
+#include <tlPlayQtApp/SettingsToolPrivate.h>
 
 #include <tlPlayQtApp/App.h>
 #include <tlPlayQtApp/DockTitleBar.h>
@@ -67,29 +67,13 @@ namespace tl
             layout->addRow(tr("Read behind (seconds):"), p.readBehindSpinBox);
             setLayout(layout);
 
+            _settingsUpdate(std::string());
+
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 p.settings->observeValues(),
                 [this](const std::string& name)
                 {
-                    TLRENDER_P();
-                    if ("Cache/Size" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.cacheSizeSpinBox);
-                        p.cacheSizeSpinBox->setValue(
-                            p.settings->getValue<int>("Cache/Size"));
-                    }
-                    if ("Cache/ReadAhead" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.readAheadSpinBox);
-                        p.readAheadSpinBox->setValue(
-                            p.settings->getValue<double>("Cache/ReadAhead"));
-                    }
-                    if ("Cache/ReadBehind" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.readBehindSpinBox);
-                        p.readBehindSpinBox->setValue(
-                            p.settings->getValue<double>("Cache/ReadBehind"));
-                    }
+                    _settingsUpdate(name);
                 });
 
             connect(
@@ -119,6 +103,29 @@ namespace tl
 
         CacheSettingsWidget::~CacheSettingsWidget()
         {}
+
+        void CacheSettingsWidget::_settingsUpdate(const std::string& name)
+        {
+            TLRENDER_P();
+            if ("Cache/Size" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.cacheSizeSpinBox);
+                p.cacheSizeSpinBox->setValue(
+                    p.settings->getValue<int>("Cache/Size"));
+            }
+            if ("Cache/ReadAhead" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.readAheadSpinBox);
+                p.readAheadSpinBox->setValue(
+                    p.settings->getValue<double>("Cache/ReadAhead"));
+            }
+            if ("Cache/ReadBehind" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.readBehindSpinBox);
+                p.readBehindSpinBox->setValue(
+                    p.settings->getValue<double>("Cache/ReadBehind"));
+            }
+        }
 
         struct FileSequenceSettingsWidget::Private
         {
@@ -165,41 +172,13 @@ namespace tl
             layout->addRow(tr("I/O threads:"), p.threadCountSpinBox);
             setLayout(layout);
 
+            _settingsUpdate(std::string());
+
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 p.settings->observeValues(),
                 [this](const std::string& name)
                 {
-                    TLRENDER_P();
-                    if ("FileSequence/Audio" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.audioComboBox);
-                        p.audioComboBox->setCurrentIndex(static_cast<int>(
-                            p.settings->getValue<timeline::FileSequenceAudio>("FileSequence/Audio")));
-                    }
-                    if ("FileSequence/AudioFileName" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.audioFileName);
-                        p.audioFileName->setText(QString::fromUtf8(
-                            p.settings->getValue<std::string>("FileSequence/AudioFileName").c_str()));
-                    }
-                    if ("FileSequence/AudioDirectory" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.audioDirectory);
-                        p.audioDirectory->setText(QString::fromUtf8(
-                            p.settings->getValue<std::string>("FileSequence/AudioDirectory").c_str()));
-                    }
-                    if ("FileSequence/MaxDigits" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.maxDigitsSpinBox);
-                        p.maxDigitsSpinBox->setValue(
-                            p.settings->getValue<int>("FileSequence/MaxDigits"));
-                    }
-                    if ("SequenceIO/ThreadCount" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.threadCountSpinBox);
-                        p.threadCountSpinBox->setValue(
-                            p.settings->getValue<int>("SequenceIO/ThreadCount"));
-                    }
+                    _settingsUpdate(name);
                 });
 
             connect(
@@ -252,6 +231,41 @@ namespace tl
         FileSequenceSettingsWidget::~FileSequenceSettingsWidget()
         {}
 
+        void FileSequenceSettingsWidget::_settingsUpdate(const std::string & name)
+        {
+            TLRENDER_P();
+            if ("FileSequence/Audio" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.audioComboBox);
+                p.audioComboBox->setCurrentIndex(static_cast<int>(
+                    p.settings->getValue<timeline::FileSequenceAudio>("FileSequence/Audio")));
+            }
+            if ("FileSequence/AudioFileName" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.audioFileName);
+                p.audioFileName->setText(QString::fromUtf8(
+                    p.settings->getValue<std::string>("FileSequence/AudioFileName").c_str()));
+            }
+            if ("FileSequence/AudioDirectory" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.audioDirectory);
+                p.audioDirectory->setText(QString::fromUtf8(
+                    p.settings->getValue<std::string>("FileSequence/AudioDirectory").c_str()));
+            }
+            if ("FileSequence/MaxDigits" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.maxDigitsSpinBox);
+                p.maxDigitsSpinBox->setValue(
+                    p.settings->getValue<int>("FileSequence/MaxDigits"));
+            }
+            if ("SequenceIO/ThreadCount" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.threadCountSpinBox);
+                p.threadCountSpinBox->setValue(
+                    p.settings->getValue<int>("SequenceIO/ThreadCount"));
+            }
+        }
+
 #if defined(TLRENDER_FFMPEG)
         struct FFmpegSettingsWidget::Private
         {
@@ -281,23 +295,13 @@ namespace tl
             layout->addRow(tr("I/O threads:"), p.threadCountSpinBox);
             setLayout(layout);
 
+            _settingsUpdate(std::string());
+
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 p.settings->observeValues(),
                 [this](const std::string& name)
                 {
-                    TLRENDER_P();
-                    if ("FFmpeg/YUVToRGBConversion" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.yuvToRGBConversionCheckBox);
-                        p.yuvToRGBConversionCheckBox->setChecked(
-                            p.settings->getValue<bool>("FFmpeg/YUVToRGBConversion"));
-                    }
-                    if ("FFmpeg/ThreadCount" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.threadCountSpinBox);
-                        p.threadCountSpinBox->setValue(
-                            p.settings->getValue<int>("FFmpeg/ThreadCount"));
-                    }
+                    _settingsUpdate(name);
                 });
 
             connect(
@@ -319,6 +323,23 @@ namespace tl
 
         FFmpegSettingsWidget::~FFmpegSettingsWidget()
         {}
+
+        void FFmpegSettingsWidget::_settingsUpdate(const std::string & name)
+        {
+            TLRENDER_P();
+            if ("FFmpeg/YUVToRGBConversion" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.yuvToRGBConversionCheckBox);
+                p.yuvToRGBConversionCheckBox->setChecked(
+                    p.settings->getValue<bool>("FFmpeg/YUVToRGBConversion"));
+            }
+            if ("FFmpeg/ThreadCount" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.threadCountSpinBox);
+                p.threadCountSpinBox->setValue(
+                    p.settings->getValue<int>("FFmpeg/ThreadCount"));
+            }
+        }
 #endif // TLRENDER_FFMPEG
 
 #if defined(TLRENDER_USD)
@@ -376,54 +397,13 @@ namespace tl
             layout->addRow(tr("Disk cache size (GB):"), p.diskCacheSpinBox);
             setLayout(layout);
 
+            _settingsUpdate(std::string());
+
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 p.settings->observeValues(),
                 [this](const std::string& name)
                 {
-                    TLRENDER_P();
-                    if ("USD/renderWidth" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.renderWidthSpinBox);
-                        p.renderWidthSpinBox->setValue(
-                            p.settings->getValue<int>("USD/renderWidth"));
-                    }
-                    if ("USD/complexity" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.complexitySlider);
-                        p.complexitySlider->setValue(
-                            p.settings->getValue<float>("USD/complexity"));
-                    }
-                    if ("USD/drawMode" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.drawModeComboBox);
-                        p.drawModeComboBox->setCurrentIndex(static_cast<int>(
-                            p.settings->getValue<usd::DrawMode>("USD/drawMode")));
-                    }
-                    if ("USD/enableLighting" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.lightingCheckBox);
-                        p.lightingCheckBox->setChecked(
-                            p.settings->getValue<bool>("USD/enableLighting"));
-                    }
-                    if ("USD/sRGB" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.sRGBCheckBox);
-                        p.sRGBCheckBox->setChecked(
-                            p.settings->getValue<bool>("USD/sRGB"));
-                    }
-                    if ("USD/stageCacheCount" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.stageCacheSpinBox);
-                        p.stageCacheSpinBox->setValue(
-                            p.settings->getValue<size_t>("USD/stageCacheCount"));
-                    }
-                    if ("USD/diskCacheByteCount" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.diskCacheSpinBox);
-                        p.diskCacheSpinBox->setValue(
-                            p.settings->getValue<size_t>("USD/diskCacheByteCount") /
-                            memory::gigabyte);
-                    }
+                    _settingsUpdate(name);
                 });
 
             connect(
@@ -487,6 +467,54 @@ namespace tl
 
         USDSettingsWidget::~USDSettingsWidget()
         {}
+
+        void USDSettingsWidget::_settingsUpdate(const std::string & name)
+        {
+            TLRENDER_P();
+            if ("USD/renderWidth" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.renderWidthSpinBox);
+                p.renderWidthSpinBox->setValue(
+                    p.settings->getValue<int>("USD/renderWidth"));
+            }
+            if ("USD/complexity" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.complexitySlider);
+                p.complexitySlider->setValue(
+                    p.settings->getValue<float>("USD/complexity"));
+            }
+            if ("USD/drawMode" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.drawModeComboBox);
+                p.drawModeComboBox->setCurrentIndex(static_cast<int>(
+                    p.settings->getValue<usd::DrawMode>("USD/drawMode")));
+            }
+            if ("USD/enableLighting" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.lightingCheckBox);
+                p.lightingCheckBox->setChecked(
+                    p.settings->getValue<bool>("USD/enableLighting"));
+            }
+            if ("USD/sRGB" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.sRGBCheckBox);
+                p.sRGBCheckBox->setChecked(
+                    p.settings->getValue<bool>("USD/sRGB"));
+            }
+            if ("USD/stageCacheCount" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.stageCacheSpinBox);
+                p.stageCacheSpinBox->setValue(
+                    p.settings->getValue<size_t>("USD/stageCacheCount"));
+            }
+            if ("USD/diskCacheByteCount" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.diskCacheSpinBox);
+                p.diskCacheSpinBox->setValue(
+                    p.settings->getValue<size_t>("USD/diskCacheByteCount") /
+                    memory::gigabyte);
+            }
+        }
 #endif // TLRENDER_USD
 
         struct FileBrowserSettingsWidget::Private
@@ -513,17 +541,13 @@ namespace tl
             layout->addRow(p.nativeFileDialogCheckBox);
             setLayout(layout);
 
+            _settingsUpdate(std::string());
+
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 p.settings->observeValues(),
                 [this](const std::string& name)
                 {
-                    TLRENDER_P();
-                    if ("FileBrowser/NativeFileDialog" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.nativeFileDialogCheckBox);
-                        p.nativeFileDialogCheckBox->setChecked(
-                            p.settings->getValue<bool>("FileBrowser/NativeFileDialog"));
-                    }
+                    _settingsUpdate(name);
                 });
 
             connect(
@@ -537,6 +561,17 @@ namespace tl
 
         FileBrowserSettingsWidget::~FileBrowserSettingsWidget()
         {}
+
+        void FileBrowserSettingsWidget::_settingsUpdate(const std::string & name)
+        {
+            TLRENDER_P();
+            if ("FileBrowser/NativeFileDialog" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.nativeFileDialogCheckBox);
+                p.nativeFileDialogCheckBox->setChecked(
+                    p.settings->getValue<bool>("FileBrowser/NativeFileDialog"));
+            }
+        }
 
         struct PerformanceSettingsWidget::Private
         {
@@ -583,35 +618,13 @@ namespace tl
             layout->addRow(tr("Audio requests:"), p.audioRequestCountSpinBox);
             setLayout(layout);
 
+            _settingsUpdate(std::string());
+
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 p.settings->observeValues(),
                 [this](const std::string& name)
                 {
-                    TLRENDER_P();
-                    if ("Performance/TimerMode" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.timerModeComboBox);
-                        p.timerModeComboBox->setCurrentIndex(static_cast<int>(
-                            p.settings->getValue<timeline::TimerMode>("Performance/TimerMode")));
-                    }
-                    if ("Performance/AudioBufferFrameCount" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.audioBufferFrameCountSpinBox);
-                        p.audioBufferFrameCountSpinBox->setValue(
-                            p.settings->getValue<int>("Performance/AudioBufferFrameCount"));
-                    }
-                    if ("Performance/VideoRequestCount" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.videoRequestCountSpinBox);
-                        p.videoRequestCountSpinBox->setValue(
-                            p.settings->getValue<int>("Performance/VideoRequestCount"));
-                    }
-                    if ("Performance/AudioRequestCount" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.audioRequestCountSpinBox);
-                        p.audioRequestCountSpinBox->setValue(
-                            p.settings->getValue<int>("Performance/AudioRequestCount"));
-                    }
+                    _settingsUpdate(name);
                 });
 
             connect(
@@ -652,6 +665,35 @@ namespace tl
         PerformanceSettingsWidget::~PerformanceSettingsWidget()
         {}
 
+        void PerformanceSettingsWidget::_settingsUpdate(const std::string & name)
+        {
+            TLRENDER_P();
+            if ("Performance/TimerMode" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.timerModeComboBox);
+                p.timerModeComboBox->setCurrentIndex(static_cast<int>(
+                    p.settings->getValue<timeline::TimerMode>("Performance/TimerMode")));
+            }
+            if ("Performance/AudioBufferFrameCount" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.audioBufferFrameCountSpinBox);
+                p.audioBufferFrameCountSpinBox->setValue(
+                    p.settings->getValue<int>("Performance/AudioBufferFrameCount"));
+            }
+            if ("Performance/VideoRequestCount" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.videoRequestCountSpinBox);
+                p.videoRequestCountSpinBox->setValue(
+                    p.settings->getValue<int>("Performance/VideoRequestCount"));
+            }
+            if ("Performance/AudioRequestCount" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.audioRequestCountSpinBox);
+                p.audioRequestCountSpinBox->setValue(
+                    p.settings->getValue<int>("Performance/AudioRequestCount"));
+            }
+        }
+
         struct MiscSettingsWidget::Private
         {
             std::shared_ptr<play::Settings> settings;
@@ -676,17 +718,13 @@ namespace tl
             layout->addRow(p.toolTipsCheckBox);
             setLayout(layout);
 
+            _settingsUpdate(std::string());
+
             p.settingsObserver = observer::ValueObserver<std::string>::create(
                 p.settings->observeValues(),
                 [this](const std::string& name)
                 {
-                    TLRENDER_P();
-                    if ("Misc/ToolTipsEnabled" == name || name.empty())
-                    {
-                        QSignalBlocker signalBlocker(p.toolTipsCheckBox);
-                        p.toolTipsCheckBox->setChecked(
-                            p.settings->getValue<bool>("Misc/ToolTipsEnabled"));
-                    }
+                    _settingsUpdate(name);
                 });
 
             connect(
@@ -700,6 +738,17 @@ namespace tl
 
         MiscSettingsWidget::~MiscSettingsWidget()
         {}
+
+        void MiscSettingsWidget::_settingsUpdate(const std::string & name)
+        {
+            TLRENDER_P();
+            if ("Misc/ToolTipsEnabled" == name || name.empty())
+            {
+                QSignalBlocker signalBlocker(p.toolTipsCheckBox);
+                p.toolTipsCheckBox->setChecked(
+                    p.settings->getValue<bool>("Misc/ToolTipsEnabled"));
+            }
+        }
 
         SettingsTool::SettingsTool(App* app, QWidget* parent) :
             IToolWidget(app, parent)

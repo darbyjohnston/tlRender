@@ -83,7 +83,8 @@ namespace tl
             const std::string& name,
             const math::Size2i& size,
             const std::shared_ptr<system::Context>& context,
-            int options)
+            int options,
+            const std::shared_ptr<GLFWWindow>& share)
         {
             TLRENDER_P();
 
@@ -110,7 +111,12 @@ namespace tl
             context->log(
                 "tl::gl::GLFWWindow",
                 string::Format("Create window: {0}").arg(size));
-            p.glfwWindow = glfwCreateWindow(size.w, size.h, name.c_str(), NULL, NULL);
+            p.glfwWindow = glfwCreateWindow(
+                size.w,
+                size.h,
+                name.c_str(),
+                nullptr,
+                share ? share->getGLFW() : nullptr);
             if (!p.glfwWindow)
             {
                 throw std::runtime_error("Cannot create window");
@@ -172,10 +178,11 @@ namespace tl
             const std::string& name,
             const math::Size2i& size,
             const std::shared_ptr<system::Context>& context,
-            int options)
+            int options,
+            const std::shared_ptr<GLFWWindow>& share)
         {
             auto out = std::shared_ptr<GLFWWindow>(new GLFWWindow);
-            out->_init(name, size, context, options);
+            out->_init(name, size, context, options, share);
             return out;
         }
 
@@ -344,7 +351,7 @@ namespace tl
             {
                 glfwSetWindowMonitor(
                     p.glfwWindow,
-                    NULL,
+                    nullptr,
                     p.pos.x,
                     p.pos.y,
                     p.restoreSize.w,

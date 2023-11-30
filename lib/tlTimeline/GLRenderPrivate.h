@@ -9,10 +9,7 @@
 #include <tlGL/Mesh.h>
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Shader.h>
-#include <tlGL/Texture.h>
 #include <tlGL/TextureAtlas.h>
-
-#include <tlCore/LRUCache.h>
 
 #if defined(TLRENDER_OCIO)
 #include <OpenColorIO/OpenColorIO.h>
@@ -119,7 +116,7 @@ namespace tl
 
             std::map<std::string, std::shared_ptr<gl::Shader> > shaders;
             std::map<std::string, std::shared_ptr<gl::OffscreenBuffer> > buffers;
-            memory::LRUCache<std::shared_ptr<image::Image>, std::vector<std::shared_ptr<gl::Texture> > > textureCache;
+            std::shared_ptr<GLTextureCache> textureCache;
             std::shared_ptr<gl::TextureAtlas> glyphTextureAtlas;
             std::map<image::GlyphInfo, gl::TextureAtlasID> glyphIDs;
             std::map<std::string, std::shared_ptr<gl::VBO> > vbos;
