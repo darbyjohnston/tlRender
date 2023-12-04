@@ -91,6 +91,9 @@ namespace tl
             void setViewPosAndZoomCallback(
                 const std::function<void(const math::Vector2i&, double)>&);
 
+            //! Set the dropped frames callback.
+            void setDroppedFramesCallback(const std::function<void(size_t)>&);
+
             void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
             void drawEvent(const math::Box2i&, const ui::DrawEvent&) override;
@@ -109,7 +112,9 @@ namespace tl
             math::Vector2i _viewportCenter() const;
             void _frameView();
 
-            void _videoDataCallback(const timeline::VideoData&, size_t);
+            void _droppedFramesUpdate(const otime::RationalTime&);
+
+            void _videoDataUpdate(const timeline::VideoData&, size_t);
 
             TLRENDER_PRIVATE();
         };

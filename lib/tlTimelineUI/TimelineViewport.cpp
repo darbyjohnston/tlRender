@@ -29,13 +29,23 @@ namespace tl
             std::function<void(timeline::CompareOptions)> compareCallback;
             std::vector<std::shared_ptr<timeline::Player> > players;
             std::vector<image::Size> timelineSizes;
+            std::vector<timeline::VideoData> videoData;
             math::Vector2i viewPos;
             double viewZoom = 1.0;
             std::shared_ptr<observer::Value<bool> > frameView;
             std::function<void(const math::Vector2i&, double)> viewPosAndZoomCallback;
+
+            struct DroppedFrames
+            {
+                bool init = true;
+                double frame = 0.0;
+                size_t count = 0;
+                std::function<void(size_t)> callback;
+            };
+            DroppedFrames droppedFrames;
             
+            bool doRender = false;
             std::shared_ptr<gl::OffscreenBuffer> buffer;
-            bool renderBuffer = false;
 
             enum class MouseMode
             {
@@ -50,7 +60,7 @@ namespace tl
             };
             MouseData mouse;
 
-            std::vector<timeline::VideoData> videoData;
+            std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
             std::vector<std::shared_ptr<observer::ValueObserver<timeline::VideoData> > > videoDataObservers;
         };
 
@@ -92,7 +102,7 @@ namespace tl
             if (value == p.backgroundOptions)
                 return;
             p.backgroundOptions = value;
-            p.renderBuffer = true;
+            p.doRender = true;
             _updates |= ui::Update::Draw;
         }
 
@@ -102,7 +112,7 @@ namespace tl
             if (value == p.ocioOptions)
                 return;
             p.ocioOptions = value;
-            p.renderBuffer = true;
+            p.doRender = true;
             _updates |= ui::Update::Draw;
         }
 
@@ -112,7 +122,7 @@ namespace tl
             if (value == p.lutOptions)
                 return;
             p.lutOptions = value;
-            p.renderBuffer = true;
+            p.doRender = true;
             _updates |= ui::Update::Draw;
         }
 
@@ -122,7 +132,7 @@ namespace tl
             if (value == p.imageOptions)
                 return;
             p.imageOptions = value;
-            p.renderBuffer = true;
+            p.doRender = true;
             _updates |= ui::Update::Draw;
         }
 
@@ -132,7 +142,7 @@ namespace tl
             if (value == p.displayOptions)
                 return;
             p.displayOptions = value;
-            p.renderBuffer = true;
+            p.doRender = true;
             _updates |= ui::Update::Draw;
         }
 
@@ -142,7 +152,7 @@ namespace tl
             if (value == p.compareOptions)
                 return;
             p.compareOptions = value;
-            p.renderBuffer = true;
+            p.doRender = true;
             _updates |= ui::Update::Draw;
         }
 
@@ -154,6 +164,8 @@ namespace tl
         void TimelineViewport::setPlayers(const std::vector<std::shared_ptr<timeline::Player> >& value)
         {
             TLRENDER_P();
+
+            p.playbackObserver.reset();
             p.videoDataObservers.clear();
 
             p.players = value;
@@ -172,18 +184,34 @@ namespace tl
             }
 
             p.videoData.clear();
-            p.renderBuffer = true;
+            p.doRender = true;
             _updates |= ui::Update::Draw;
             for (size_t i = 0; i < p.players.size(); ++i)
             {
                 if (p.players[i])
                 {
+                    if (0 == i)
+                    {
+                        p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
+                            p.players[i]->observePlayback(),
+                            [this](timeline::Playback value)
+                            {
+                                switch (value)
+                                {
+                                case timeline::Playback::Forward:
+                                case timeline::Playback::Reverse:
+                                    _p->droppedFrames.init = true;
+                                    break;
+                                default: break;
+                                }
+                            });
+                    }
                     p.videoDataObservers.push_back(
                         observer::ValueObserver<timeline::VideoData>::create(
                             p.players[i]->observeCurrentVideo(),
                             [this, i](const timeline::VideoData& value)
                             {
-                                _videoDataCallback(value, i);
+                                _videoDataUpdate(value, i);
                             }));
                 }
             }
@@ -206,7 +234,7 @@ namespace tl
                 return;
             p.viewPos = pos;
             p.viewZoom = zoom;
-            p.renderBuffer = true;
+            p.doRender = true;
             _updates |= ui::Update::Draw;
             if (p.viewPosAndZoomCallback)
             {
@@ -239,7 +267,7 @@ namespace tl
             TLRENDER_P();
             if (p.frameView->setIfChanged(value))
             {
-                p.renderBuffer = true;
+                p.doRender = true;
                 _updates |= ui::Update::Draw;
             }
         }
@@ -275,7 +303,7 @@ namespace tl
             TLRENDER_P();
             if (changed)
             {
-                p.renderBuffer = true;
+                p.doRender = true;
             }
         }
 
@@ -300,10 +328,9 @@ namespace tl
             }
 
             const math::Box2i& g = _geometry;
-
-            if (p.renderBuffer)
+            if (p.doRender)
             {
-                p.renderBuffer = false;
+                p.doRender = false;
 
                 const timeline::ViewportState viewportState(event.render);
                 const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
@@ -312,17 +339,21 @@ namespace tl
                 const timeline::RenderSizeState renderSizeState(event.render);
 
                 const math::Size2i size = g.getSize();
-                gl::OffscreenBufferOptions options;
-                options.colorType = gl::offscreenColorDefault;
-#if defined(TLRENDER_API_GL_4_1)
-                options.depth = gl::OffscreenDepth::_24;
-                options.stencil = gl::OffscreenStencil::_8;
-#elif defined(TLRENDER_API_GLES_2)
-                options.stencil = gl::OffscreenStencil::_8;
-#endif // TLRENDER_API_GL_4_1
-                if (gl::doCreate(p.buffer, size, options))
+                gl::OffscreenBufferOptions offscreenBufferOptions;
+                offscreenBufferOptions.colorType = gl::offscreenColorDefault;
+                if (!p.displayOptions.empty())
                 {
-                    p.buffer = gl::OffscreenBuffer::create(size, options);
+                    offscreenBufferOptions.colorFilters = p.displayOptions[0].imageFilters;
+                }
+#if defined(TLRENDER_API_GL_4_1)
+                offscreenBufferOptions.depth = gl::OffscreenDepth::_24;
+                offscreenBufferOptions.stencil = gl::OffscreenStencil::_8;
+#elif defined(TLRENDER_API_GLES_2)
+                offscreenBufferOptions.stencil = gl::OffscreenStencil::_8;
+#endif // TLRENDER_API_GL_4_1
+                if (gl::doCreate(p.buffer, size, offscreenBufferOptions))
+                {
+                    p.buffer = gl::OffscreenBuffer::create(size, offscreenBufferOptions);
                 }
                 if (p.buffer)
                 {
@@ -377,6 +408,8 @@ namespace tl
                             p.imageOptions,
                             p.displayOptions,
                             p.compareOptions);
+
+                        _droppedFramesUpdate(p.videoData[0].time);
                     }
                 }
             }
@@ -397,7 +430,7 @@ namespace tl
             case Private::MouseMode::View:
                 p.viewPos.x = p.mouse.viewPos.x + (event.pos.x - _mouse.pressPos.x);
                 p.viewPos.y = p.mouse.viewPos.y + (event.pos.y - _mouse.pressPos.y);
-                p.renderBuffer = true;
+                p.doRender = true;
                 _updates |= ui::Update::Draw;
                 if (p.viewPosAndZoomCallback)
                 {
@@ -417,7 +450,7 @@ namespace tl
                             static_cast<float>(imageInfo.size.w * imageInfo.size.pixelAspectRatio);
                         p.compareOptions.wipeCenter.y = (event.pos.y - _geometry.min.y - p.viewPos.y) / p.viewZoom /
                             static_cast<float>(imageInfo.size.h);
-                        p.renderBuffer = true;
+                        p.doRender = true;
                         _updates |= ui::Update::Draw;
                         if (p.compareCallback)
                         {
@@ -555,7 +588,34 @@ namespace tl
             }
         }
 
-        void TimelineViewport::_videoDataCallback(const timeline::VideoData& value, size_t index)
+        void TimelineViewport::_droppedFramesUpdate(const otime::RationalTime& value)
+        {
+            TLRENDER_P();
+            if (value != time::invalidTime && p.droppedFrames.init)
+            {
+                p.droppedFrames.init = false;
+                p.droppedFrames.count = 0;
+                if (p.droppedFrames.callback)
+                {
+                    p.droppedFrames.callback(p.droppedFrames.count);
+                }
+            }
+            else
+            {
+                const double frameDiff = value.value() - p.droppedFrames.frame;
+                if (std::abs(frameDiff) > 1.0)
+                {
+                    ++p.droppedFrames.count;
+                    if (p.droppedFrames.callback)
+                    {
+                        p.droppedFrames.callback(p.droppedFrames.count);
+                    }
+                }
+            }
+            p.droppedFrames.frame = value.value();
+        }
+
+        void TimelineViewport::_videoDataUpdate(const timeline::VideoData& value, size_t index)
         {
             TLRENDER_P();
             if (p.videoData.size() != p.players.size())
@@ -570,7 +630,7 @@ namespace tl
                 }
             }
             p.videoData[index] = value;
-            p.renderBuffer = true;
+            p.doRender = true;
             _updates |= ui::Update::Draw;
         }
     }

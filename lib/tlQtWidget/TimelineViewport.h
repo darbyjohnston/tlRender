@@ -93,8 +93,12 @@ namespace tl
             //! This signal is emitted when the frame view is changed.
             void frameViewChanged(bool);
 
+            //! This signal is emitted when the dropped frames count is changed.
+            void droppedFramesChanged(bool);
+
         private Q_SLOTS:
-            void _currentVideoCallback(const tl::timeline::VideoData&);
+            void _playbackUpdate(timeline::Playback);
+            void _videoDataUpdate(const tl::timeline::VideoData&);
 
         protected:
             void initializeGL() override;
@@ -117,6 +121,8 @@ namespace tl
             math::Size2i _renderSize() const;
             math::Vector2i _viewportCenter() const;
             void _frameView();
+
+            void _droppedFramesUpdate(const otime::RationalTime&);
 
             TLRENDER_PRIVATE();
         };
