@@ -351,7 +351,7 @@ namespace tl
                     if (auto context = p.context.lock())
                     {
                         context->log(
-                            "tl::qt::widget::TimelineWidget",
+                            "tl::qtwidget::TimelineWidget",
                             e.what(),
                             log::Type::Error);
                     }
@@ -413,7 +413,7 @@ namespace tl
                     if (auto context = p.context.lock())
                     {
                         context->log(
-                            "tl::qt::widget::TimelineWidget",
+                            "tl::qtwidget::TimelineWidget",
                             e.what(),
                             log::Type::Error);
                     }
