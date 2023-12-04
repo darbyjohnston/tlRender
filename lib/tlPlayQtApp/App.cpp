@@ -77,7 +77,6 @@ namespace tl
             QScopedPointer<qt::ToolTipsFilter> toolTipsFilter;
 
             QScopedPointer<MainWindow> mainWindow;
-            int secondaryWindowScreen = -1;
             QScopedPointer<SecondaryWindow> secondaryWindow;
 
             std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
@@ -260,15 +259,27 @@ namespace tl
         void App::setSecondaryWindow(bool value)
         {
             TLRENDER_P();
+            //! \bug macOS does not seem to like having an application with
+            //! normal and fullscreen windows.
+            QScreen* secondaryScreen = nullptr;
+#if !defined(__APPLE__)
             auto screens = this->screens();
             auto mainWindowScreen = p.mainWindow->screen();
             screens.removeOne(mainWindowScreen);
-            if (value && !screens.isEmpty())
+            if (!screens.isEmpty())
+            {
+                secondaryScreen = screens[0];
+            }
+#endif // __APPLE__
+            if (value)
             {
                 p.secondaryWindow.reset(new SecondaryWindow(this));
-                p.secondaryWindow->move(screens[0]->availableGeometry().topLeft());
-                p.secondaryWindow->setWindowState(
-                    p.secondaryWindow->windowState() ^ Qt::WindowFullScreen);
+                if (secondaryScreen)
+                {
+                    p.secondaryWindow->move(secondaryScreen->availableGeometry().topLeft());
+                    p.secondaryWindow->setWindowState(
+                        p.secondaryWindow->windowState() ^ Qt::WindowFullScreen);
+                }
 
                 connect(
                     p.secondaryWindow.get(),

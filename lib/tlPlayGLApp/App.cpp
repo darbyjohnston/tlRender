@@ -225,6 +225,10 @@ namespace tl
             {
                 if (value)
                 {
+                    //! \bug macOS does not seem to like having an application with
+                    //! normal and fullscreen windows.
+                    int secondaryScreen = -1;
+#if !defined(__APPLE__)
                     std::vector<int> screens;
                     for (int i = 0; i < getScreenCount(); ++i)
                     {
@@ -240,26 +244,31 @@ namespace tl
                     }
                     if (!screens.empty())
                     {
-                        p.secondaryWindow = SecondaryWindow::create(
-                            p.mainWindow,
-                            std::dynamic_pointer_cast<App>(shared_from_this()),
-                            _context);
-                        addWindow(p.secondaryWindow);
-                        p.secondaryWindow->setFullScreen(true, screens.front());
-                        p.secondaryWindow->show();
-
-                        p.secondaryWindowObserver = observer::ValueObserver<bool>::create(
-                            p.secondaryWindow->observeClose(),
-                            [this](bool value)
-                            {
-                                if (value)
-                                {
-                                    _p->secondaryWindowActive->setIfChanged(false);
-                                    _p->secondaryWindow.reset();
-                                    _p->secondaryWindowObserver.reset();
-                                }
-                            });
+                        secondaryScreen = screens.front();
                     }
+#endif // __APPLE__
+                    p.secondaryWindow = SecondaryWindow::create(
+                        p.mainWindow,
+                        std::dynamic_pointer_cast<App>(shared_from_this()),
+                        _context);
+                    addWindow(p.secondaryWindow);
+                    if (secondaryScreen != -1)
+                    {
+                        p.secondaryWindow->setFullScreen(true, secondaryScreen);
+                    }
+                    p.secondaryWindow->show();
+
+                    p.secondaryWindowObserver = observer::ValueObserver<bool>::create(
+                        p.secondaryWindow->observeClose(),
+                        [this](bool value)
+                        {
+                            if (value)
+                            {
+                                _p->secondaryWindowActive->setIfChanged(false);
+                                _p->secondaryWindow.reset();
+                                _p->secondaryWindowObserver.reset();
+                            }
+                        });
                 }
                 else
                 {
