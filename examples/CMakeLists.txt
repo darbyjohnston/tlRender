@@ -1,6 +1,7 @@
 if(TLRENDER_GLFW)
     add_subdirectory(test-patterns)
     add_subdirectory(render-gl)
+    add_subdirectory(simple-gl)
     add_subdirectory(widgets-gl)
 endif()
 if(TLRENDER_QT6 OR TLRENDER_QT5 AND NOT "${TLRENDER_API}" STREQUAL "GLES_2")
