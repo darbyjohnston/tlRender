@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlTimeline/CompareOptions.h>
+#include <tlTimeline/DisplayOptions.h>
 #include <tlTimeline/LUTOptions.h>
 #include <tlTimeline/OCIOOptions.h>
 #include <tlTimeline/RenderOptions.h>

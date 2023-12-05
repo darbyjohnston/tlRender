@@ -8,6 +8,7 @@
 
 #include <tlTimeline/BackgroundOptions.h>
 #include <tlTimeline/CompareOptions.h>
+#include <tlTimeline/DisplayOptions.h>
 #include <tlTimeline/LUTOptions.h>
 #include <tlTimeline/OCIOOptions.h>
 

@@ -26,8 +26,7 @@ namespace tl
         {
             return
                 time::compareExact(time, other.time) &&
-                layers == other.layers &&
-                displayOptions == other.displayOptions;
+                layers == other.layers;
         }
 
         inline bool VideoData::operator != (const VideoData& other) const

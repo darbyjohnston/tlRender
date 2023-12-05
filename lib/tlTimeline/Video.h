@@ -4,13 +4,11 @@
 
 #pragma once
 
-#include <tlTimeline/DisplayOptions.h>
+#include <tlTimeline/ImageOptions.h>
 #include <tlTimeline/Transition.h>
 
-#include <tlCore/Context.h>
+#include <tlCore/Image.h>
 #include <tlCore/Time.h>
-
-#include <opentimelineio/anyDictionary.h>
 
 namespace tl
 {
@@ -37,7 +35,6 @@ namespace tl
         {
             otime::RationalTime time = time::invalidTime;
             std::vector<VideoLayer> layers;
-            DisplayOptions displayOptions;
 
             bool operator == (const VideoData&) const;
             bool operator != (const VideoData&) const;
