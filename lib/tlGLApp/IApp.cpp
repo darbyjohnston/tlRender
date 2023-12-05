@@ -21,6 +21,8 @@ namespace tl
     {
         namespace
         {
+            const size_t tickTimeout = 5;
+
             class Clipboard : public ui::IClipboard
             {
                 TLRENDER_NON_COPYABLE(Clipboard);
@@ -136,30 +138,42 @@ namespace tl
             TLRENDER_P();
             while (0 == _exit && p.running && !p.windows.empty())
             {
+                const auto t0 = std::chrono::steady_clock::now();
+
                 glfwPollEvents();
+
+                // Tick the various objects.
                 _context->tick();
                 _tick();
-
                 ui::TickEvent tickEvent(
                     p.style,
                     p.iconLibrary,
                     p.fontSystem);
                 for (const auto& window : p.windows)
                 {
-                    _tickEvent(
+                    _tickRecursive(
                         window,
                         window->isVisible(false),
                         window->isEnabled(false),
                         tickEvent);
                 }
 
+                // Remove closed windows
                 for (const auto& window : p.windowsToRemove)
                 {
                     _removeWindow(window);
                 }
                 p.windowsToRemove.clear();
 
-                time::sleep(std::chrono::milliseconds(5));
+                // Sleep for a bit.
+                const auto t1 = std::chrono::steady_clock::now();
+                const std::chrono::duration<float> diff = t1 - t0;
+                const float diffClamped = math::clamp(
+                    diff.count() * 1000.F,
+                    0.F,
+                    static_cast<float>(tickTimeout));
+                const size_t sleep = tickTimeout - diffClamped;
+                time::sleep(std::chrono::milliseconds(sleep));
             }
             return _exit;
         }
@@ -211,7 +225,7 @@ namespace tl
         void IApp::_tick()
         {}
 
-        void IApp::_tickEvent(
+        void IApp::_tickRecursive(
             const std::shared_ptr<ui::IWidget>&widget,
             bool visible,
             bool enabled,
@@ -222,7 +236,7 @@ namespace tl
             const bool parentsEnabled = enabled && widget->isEnabled(false);
             for (const auto& child : widget->getChildren())
             {
-                _tickEvent(
+                _tickRecursive(
                     child,
                     parentsVisible,
                     parentsEnabled,

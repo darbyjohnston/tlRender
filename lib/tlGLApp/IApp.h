@@ -66,7 +66,8 @@ namespace tl
 
         protected:
             virtual void _tick();
-            void _tickEvent(
+
+            void _tickRecursive(
                 const std::shared_ptr<ui::IWidget>&,
                 bool visible,
                 bool enabled,
