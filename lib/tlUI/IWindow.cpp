@@ -117,7 +117,7 @@ namespace tl
                 }
                 p.dndData.reset();
                 p.dndCursor.reset();
-                _clipEvent(shared_from_this(), _geometry, true);
+                _clipEventRecursive(shared_from_this(), _geometry, true);
             }
         }
         
@@ -455,7 +455,7 @@ namespace tl
             }
         }
 
-        void IWindow::_clipEvent(
+        void IWindow::_clipEventRecursive(
             const std::shared_ptr<IWidget>& widget,
             const math::Box2i& clipRect,
             bool clipped)
@@ -463,14 +463,14 @@ namespace tl
             const math::Box2i& g = widget->getGeometry();
             clipped |= !g.intersects(clipRect);
             clipped |= !widget->isVisible(false);
-            const math::Box2i clipRect2 = g.intersect(clipRect);
-            widget->clipEvent(clipRect2, clipped);
+            const math::Box2i intersectedClipRect = g.intersect(clipRect);
+            widget->clipEvent(intersectedClipRect, clipped);
             const math::Box2i childrenClipRect =
-                widget->getChildrenClipRect().intersect(clipRect2);
+                widget->getChildrenClipRect().intersect(intersectedClipRect);
             for (const auto& child : widget->getChildren())
             {
                 const math::Box2i& childGeometry = child->getGeometry();
-                _clipEvent(
+                _clipEventRecursive(
                     child,
                     childGeometry.intersect(childrenClipRect),
                     clipped);

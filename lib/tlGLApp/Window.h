@@ -85,13 +85,13 @@ namespace tl
             void _doneCurrent();
 
         private:
-            bool _getSizeUpdate(const std::shared_ptr<IWidget>&) const;
-            void _sizeHintEvent(
+            bool _hasSizeUpdate(const std::shared_ptr<IWidget>&) const;
+            void _sizeHintEventRecursive(
                 const std::shared_ptr<IWidget>&,
                 const ui::SizeHintEvent&);
 
-            bool _getDrawUpdate(const std::shared_ptr<IWidget>&) const;
-            void _drawEvent(
+            bool _hasDrawUpdate(const std::shared_ptr<IWidget>&) const;
+            void _drawEventRecursive(
                 const std::shared_ptr<IWidget>&,
                 const math::Box2i&,
                 const ui::DrawEvent&);

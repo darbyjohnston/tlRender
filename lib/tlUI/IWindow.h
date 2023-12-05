@@ -47,7 +47,7 @@ namespace tl
             void _mouseButton(int button, bool press, int modifiers);
             void _scroll(const math::Vector2f&, int modifiers);
 
-            void _clipEvent(
+            void _clipEventRecursive(
                 const std::shared_ptr<IWidget>&,
                 const math::Box2i&,
                 bool clipped);
