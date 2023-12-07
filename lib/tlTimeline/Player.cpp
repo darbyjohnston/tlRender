@@ -98,7 +98,7 @@ namespace tl
                 p.timeline->getTimeRange().start_time());
             p.inOutRange = observer::Value<otime::TimeRange>::create(p.timeline->getTimeRange());
             p.ioOptions = observer::Value<io::Options>::create();
-            p.currentVideoData = observer::Value<VideoData>::create();
+            p.currentVideoData = observer::List<VideoData>::create();
             p.volume = observer::Value<float>::create(1.F);
             p.mute = observer::Value<bool>::create(false);
             p.audioOffset = observer::Value<double>::create(0.0);
@@ -651,53 +651,6 @@ namespace tl
             timeAction(TimeAction::FrameNext);
         }
 
-        void Player::setExternalTime(const std::shared_ptr<Player>& value)
-        {
-            TLRENDER_P();
-            if (value == p.externalTime.player)
-                return;
-            p.externalTime.player = value;
-            if (p.externalTime.player)
-            {
-                p.externalTime.timeRange = p.externalTime.player->getTimeRange();
-
-                auto weak = std::weak_ptr<Player>(shared_from_this());
-                p.externalTime.playbackObserver = observer::ValueObserver<Playback>::create(
-                    p.externalTime.player->observePlayback(),
-                    [weak](Playback value)
-                    {
-                        if (auto player = weak.lock())
-                        {
-                            player->setPlayback(value);
-                        }
-                    });
-                p.externalTime.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
-                    p.externalTime.player->observeCurrentTime(),
-                    [weak](const otime::RationalTime& value)
-                    {
-                        if (auto player = weak.lock())
-                        {
-                            const otime::RationalTime externalTime = getExternalTime(
-                                value,
-                                player->_p->externalTime.timeRange,
-                                player->getTimeRange(),
-                                player->_p->playerOptions.externalTimeMode);
-                            player->_p->currentTime->setIfChanged(externalTime);
-                        }
-                    });
-            }
-            else
-            {
-                p.externalTime.timeRange = time::invalidTimeRange;
-                p.externalTime.playbackObserver.reset();
-                p.externalTime.currentTimeObserver.reset();
-            }
-            {
-                std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                p.mutex.externalTime = p.externalTime.player.get();
-            }
-        }
-
         otime::TimeRange Player::getInOutRange() const
         {
             return _p->inOutRange->get();
@@ -751,6 +704,27 @@ namespace tl
                 p.timeline->getTimeRange().end_time_inclusive()));
         }
 
+        const std::vector<std::shared_ptr<Timeline> >& Player::getCompare() const
+        {
+            return _p->compare;
+        }
+
+        void Player::setCompare(const std::vector<std::shared_ptr<Timeline> >& value)
+        {
+            TLRENDER_P();
+            if (value == p.compare)
+                return;
+            p.compare = value;
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.clearRequests = true;
+                p.mutex.clearCache = true;
+            }
+        }
+
+        void Player::setCompareLayers(const std::vector<int>&)
+        {}
+
         const io::Options& Player::getIOOptions() const
         {
             return _p->ioOptions->get();
@@ -773,7 +747,7 @@ namespace tl
             }
         }
 
-        std::shared_ptr<observer::IValue<VideoData> > Player::observeCurrentVideo() const
+        std::shared_ptr<observer::IList<VideoData> > Player::observeCurrentVideo() const
         {
             return _p->currentVideoData;
         }
@@ -886,7 +860,7 @@ namespace tl
             // Calculate the current time.
             const auto& timeRange = p.timeline->getTimeRange();
             const auto playback = p.playback->get();
-            if (playback != Playback::Stop && !p.externalTime.player)
+            if (playback != Playback::Stop)
             {
                 const double timelineSpeed = timeRange.duration().rate();
                 const double speed = p.speed->get();
@@ -939,7 +913,7 @@ namespace tl
                 currentAudioData = p.mutex.currentAudioData;
                 cacheInfo = p.mutex.cacheInfo;
             }
-            p.currentVideoData->setIfChanged(currentVideoData);
+            p.currentVideoData->setIfChanged({ currentVideoData });
             p.currentAudioData->setIfChanged(currentAudioData);
             p.cacheInfo->setIfChanged(cacheInfo);
         }

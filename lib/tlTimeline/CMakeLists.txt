@@ -61,7 +61,8 @@ set(SOURCE
     TimelineCreate.cpp
     TimelinePrivate.cpp
     Transition.cpp
-    Util.cpp)
+    Util.cpp
+    Video.cpp)
 list(APPEND SOURCE
     GLRender.cpp
     GLRenderPrims.cpp

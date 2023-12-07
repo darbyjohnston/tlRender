@@ -19,7 +19,7 @@ namespace tl
     {
         struct AudioOffsetWidget::Private
         {
-            QVector<QSharedPointer<qt::TimelinePlayer> > timelinePlayers;
+            QSharedPointer<qt::TimelinePlayer> player;
 
             double offset = 0.0;
 
@@ -43,10 +43,10 @@ namespace tl
 
             connect(
                 app,
-                &App::activePlayersChanged,
-                [this](const QVector<QSharedPointer<qt::TimelinePlayer> >& value)
+                &App::playerChanged,
+                [this](const QSharedPointer<qt::TimelinePlayer>& value)
                 {
-                    _playersUpdate(value);
+                    _playerUpdate(value);
                 });
 
             connect(
@@ -55,9 +55,9 @@ namespace tl
                 [this](float value)
                 {
                     _p->offset = value;
-                    if (!_p->timelinePlayers.empty() && _p->timelinePlayers[0])
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->setAudioOffset(value);
+                        _p->player->setAudioOffset(value);
                     }
                 });
         }
@@ -65,24 +65,24 @@ namespace tl
         AudioOffsetWidget::~AudioOffsetWidget()
         {}
 
-        void AudioOffsetWidget::_playersUpdate(const QVector<QSharedPointer<qt::TimelinePlayer> >& value)
+        void AudioOffsetWidget::_playerUpdate(const QSharedPointer<qt::TimelinePlayer>& value)
         {
             TLRENDER_P();
-            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
+            if (p.player)
             {
                 disconnect(
-                    p.timelinePlayers[0].get(),
+                    p.player.get(),
                     SIGNAL(audioOffsetChanged(double)),
                     this,
                     SLOT(_offsetCallback(double)));
             }
 
-            p.timelinePlayers = value;
+            p.player = value;
 
-            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
+            if (p.player)
             {
                 connect(
-                    p.timelinePlayers[0].get(),
+                    p.player.get(),
                     SIGNAL(audioOffsetChanged(double)),
                     this,
                     SLOT(_offsetCallback(double)));

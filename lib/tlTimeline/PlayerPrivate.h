@@ -54,6 +54,7 @@ namespace tl
             PlayerOptions playerOptions;
             std::shared_ptr<Timeline> timeline;
             io::Info ioInfo;
+            std::vector<std::shared_ptr<Timeline> > compare;
 
             std::shared_ptr<observer::Value<double> > speed;
             std::shared_ptr<observer::Value<Playback> > playback;
@@ -61,7 +62,7 @@ namespace tl
             std::shared_ptr<observer::Value<otime::RationalTime> > currentTime;
             std::shared_ptr<observer::Value<otime::TimeRange> > inOutRange;
             std::shared_ptr<observer::Value<io::Options> > ioOptions;
-            std::shared_ptr<observer::Value<VideoData> > currentVideoData;
+            std::shared_ptr<observer::List<VideoData> > currentVideoData;
             std::shared_ptr<observer::Value<float> > volume;
             std::shared_ptr<observer::Value<bool> > mute;
             std::shared_ptr<observer::Value<double> > audioOffset;
@@ -70,22 +71,12 @@ namespace tl
             std::shared_ptr<observer::Value<PlayerCacheInfo> > cacheInfo;
             std::shared_ptr<observer::ValueObserver<bool> > timelineObserver;
 
-            struct ExternalTime
-            {
-                std::shared_ptr<Player> player;
-                otime::TimeRange timeRange = time::invalidTimeRange;
-                std::shared_ptr<observer::ValueObserver<Playback> > playbackObserver;
-                std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
-            };
-            ExternalTime externalTime;
-
             struct Mutex
             {
                 Playback playback = Playback::Stop;
                 otime::RationalTime playbackStartTime = time::invalidTime;
                 std::chrono::steady_clock::time_point playbackStartTimer;
                 otime::RationalTime currentTime = time::invalidTime;
-                bool externalTime = false;
                 otime::TimeRange inOutRange = time::invalidTimeRange;
                 io::Options ioOptions;
                 VideoData currentVideoData;

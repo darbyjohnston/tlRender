@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 
         // Create the timeline viewport.
         auto timelineViewport = new tl::qtwidget::TimelineViewport(context);
-        timelineViewport->setTimelinePlayers({ timelinePlayer });
+        timelineViewport->setTimelinePlayer(timelinePlayer);
         timelineViewport->setAttribute(Qt::WA_DeleteOnClose);
         timelineViewport->show();
 

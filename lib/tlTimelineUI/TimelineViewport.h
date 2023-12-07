@@ -54,8 +54,8 @@ namespace tl
             //! Set the comparison callback.
             void setCompareCallback(const std::function<void(timeline::CompareOptions)>&);
 
-            //! Set the timeline players.
-            void setPlayers(const std::vector<std::shared_ptr<timeline::Player> >&);
+            //! Set the timeline player.
+            void setPlayer(const std::shared_ptr<timeline::Player>&);
 
             //! Get the view position.
             const math::Vector2i& viewPos() const;
@@ -113,8 +113,6 @@ namespace tl
             void _frameView();
 
             void _droppedFramesUpdate(const otime::RationalTime&);
-
-            void _videoDataUpdate(const timeline::VideoData&, size_t);
 
             TLRENDER_PRIVATE();
         };

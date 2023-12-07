@@ -42,6 +42,9 @@ namespace tl
 
         //! Compare the time values of video data.
         bool isTimeEqual(const VideoData&, const VideoData&);
+
+        //! Compare the time values of video data.
+        bool isTimeEqual(const std::vector<VideoData>&, const std::vector<VideoData>&);
     }
 }
 

@@ -49,7 +49,7 @@ namespace tl
                 void setTimelinePlayer(qt::TimelinePlayer*);
 
             private Q_SLOTS:
-                void _currentVideoCallback(const tl::timeline::VideoData&);
+                void _currentVideoCallback(const std::vector<tl::timeline::VideoData>&);
 
             protected:
                 void initializeGL() override;
@@ -65,7 +65,7 @@ namespace tl
                 timeline::ImageOptions _imageOptions;
                 qt::TimelinePlayer* _timelinePlayer = nullptr;
                 image::Size _videoSize;
-                timeline::VideoData _videoData;
+                std::vector<timeline::VideoData> _videoData;
                 math::Vector2f _cameraRotation;
                 float _cameraFOV = 45.F;
                 geom::TriangleMesh3 _sphereMesh;

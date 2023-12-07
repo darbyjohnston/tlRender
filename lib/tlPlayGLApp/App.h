@@ -69,8 +69,8 @@ namespace tl
             //! Get the files model.
             const std::shared_ptr<play::FilesModel>& getFilesModel() const;
 
-            //! Observe the active timeline players.
-            std::shared_ptr<observer::IList<std::shared_ptr<timeline::Player> > > observeActivePlayers() const;
+            //! Observe the timeline player.
+            std::shared_ptr<observer::IValue<std::shared_ptr<timeline::Player> > > observePlayer() const;
 
             //! Get the viewport model.
             const std::shared_ptr<play::ViewportModel>& getViewportModel() const;
@@ -105,13 +105,13 @@ namespace tl
             void _windowsInit();
 
             io::Options _getIOOptions() const;
-            std::vector<std::shared_ptr<timeline::Player> > _getActivePlayers() const;
+            std::vector<std::shared_ptr<timeline::Timeline> > _getActiveTimelines() const;
             otime::RationalTime _getCacheReadAhead() const;
             otime::RationalTime _getCacheReadBehind() const;
 
-            void _filesCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
-            void _activeCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
-
+            void _filesUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
+            void _activeUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
+            void _layersUpdate(const std::vector<int>&);
             void _settingsUpdate(const std::string&);
             void _cacheUpdate();
             void _audioUpdate();

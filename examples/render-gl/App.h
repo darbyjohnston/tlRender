@@ -80,7 +80,7 @@ namespace tl
                 std::string _input;
                 Options _options;
 
-                std::vector<std::shared_ptr<timeline::Player> > _players;
+                std::shared_ptr<timeline::Player> _player;
                 std::vector<image::Size> _videoSizes;
 
                 std::shared_ptr<gl::GLFWWindow> _window;

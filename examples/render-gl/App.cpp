@@ -128,9 +128,8 @@ namespace tl
                 {
                     // Read the timelines.
                     auto timeline = timeline::Timeline::create(_input, _context);
-                    auto player = timeline::Player::create(timeline, _context);
-                    _players.push_back(player);
-                    auto ioInfo = player->getIOInfo();
+                    _player = timeline::Player::create(timeline, _context);
+                    auto ioInfo = _player->getIOInfo();
                     if (!ioInfo.video.empty())
                     {
                         _videoSizes.push_back(ioInfo.video[0].size);
@@ -141,10 +140,8 @@ namespace tl
                         timeline = timeline::Timeline::create(
                             _options.compareFileName,
                             _context);
-                        player = timeline::Player::create(timeline, _context);
-                        player->setExternalTime(_players[0]);
-                        _players.push_back(player);
-                        ioInfo = player->getIOInfo();
+                        _player->setCompare({ timeline });
+                        ioInfo = timeline->getIOInfo();
                         if (!ioInfo.video.empty())
                         {
                             _videoSizes.push_back(ioInfo.video[0].size);
@@ -188,14 +185,14 @@ namespace tl
                     _hud = _options.hud;
                     if (time::isValid(_options.inOutRange))
                     {
-                        _players[0]->setInOutRange(_options.inOutRange);
-                        _players[0]->seek(_options.inOutRange.start_time());
+                        _player->setInOutRange(_options.inOutRange);
+                        _player->seek(_options.inOutRange.start_time());
                     }
                     if (time::isValid(_options.seek))
                     {
-                        _players[0]->seek(_options.seek);
+                        _player->seek(_options.seek);
                     }
-                    _players[0]->setPlayback(_options.playback);
+                    _player->setPlayback(_options.playback);
                     _startTime = std::chrono::steady_clock::now();
                     while (_running && !_window->shouldClose())
                     {
@@ -228,21 +225,21 @@ namespace tl
                         break;
                     case GLFW_KEY_SPACE:
                         _playbackCallback(
-                            timeline::Playback::Stop == _players[0]->observePlayback()->get() ?
+                            timeline::Playback::Stop == _player->observePlayback()->get() ?
                             timeline::Playback::Forward :
                             timeline::Playback::Stop);
                         break;
                     case GLFW_KEY_HOME:
-                        _players[0]->start();
+                        _player->start();
                         break;
                     case GLFW_KEY_END:
-                        _players[0]->end();
+                        _player->end();
                         break;
                     case GLFW_KEY_LEFT:
-                        _players[0]->framePrev();
+                        _player->framePrev();
                         break;
                     case GLFW_KEY_RIGHT:
-                        _players[0]->frameNext();
+                        _player->frameNext();
                         break;
                     }
                 }
@@ -268,18 +265,12 @@ namespace tl
             {
                 // Update.
                 _context->tick();
-                for (const auto& player : _players)
+                _player->tick();
+                const auto& videoData = _player->observeCurrentVideo()->get();
+                if (!timeline::isTimeEqual(videoData, _videoData))
                 {
-                    player->tick();
-                }
-                for (size_t i = 0; i < _players.size(); ++i)
-                {
-                    const auto& videoData = _players[i]->observeCurrentVideo()->get();
-                    if (!timeline::isTimeEqual(videoData, _videoData[i]))
-                    {
-                        _videoData[i] = videoData;
-                        _renderDirty = true;
-                    }
+                    _videoData = videoData;
+                    _renderDirty = true;
                 }
 
                 // Render the video.
@@ -500,8 +491,8 @@ namespace tl
 
             void App::_playbackCallback(timeline::Playback value)
             {
-                _players[0]->setPlayback(value);
-                _log(string::Format("Playback: {0}").arg(_players[0]->observePlayback()->get()));
+                _player->setPlayback(value);
+                _log(string::Format("Playback: {0}").arg(_player->observePlayback()->get()));
             }
         }
     }

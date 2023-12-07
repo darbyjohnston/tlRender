@@ -17,13 +17,11 @@ namespace tl
         struct WindowToolBar::Private
         {
             std::weak_ptr<App> app;
-            std::shared_ptr<timeline::Player> player;
 
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::map<std::string, std::shared_ptr<ui::ToolButton> > buttons;
             std::shared_ptr<ui::HorizontalLayout> layout;
 
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playerObserver;
             std::shared_ptr<observer::ValueObserver<bool> > fullScreenObserver;
             std::shared_ptr<observer::ValueObserver<bool> > secondaryObserver;
         };
@@ -76,13 +74,6 @@ namespace tl
                     {
                         app->setSecondaryWindow(value);
                     }
-                });
-
-            p.playerObserver = observer::ListObserver<std::shared_ptr<timeline::Player> >::create(
-                app->observeActivePlayers(),
-                [this](const std::vector<std::shared_ptr<timeline::Player> >& value)
-                {
-                    _p->player = !value.empty() ? value[0] : nullptr;
                 });
 
             p.fullScreenObserver = observer::ValueObserver<bool>::create(

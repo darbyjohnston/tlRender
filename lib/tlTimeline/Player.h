@@ -191,9 +191,6 @@ namespace tl
             //! Go to the next frame.
             void frameNext();
 
-            //! Use the time from a separate timeline player.
-            void setExternalTime(const std::shared_ptr<Player>&);
-
             ///@}
 
             //! \name In/Out Points
@@ -222,6 +219,20 @@ namespace tl
 
             ///@}
 
+            //! \name Comparison
+            ///@{
+
+            //! Get the timelines to compare.
+            const std::vector<std::shared_ptr<Timeline> >& getCompare() const;
+
+            //! Set the timelines to compare.
+            void setCompare(const std::vector<std::shared_ptr<Timeline> >&);
+
+            //! Set the timeline layers to compare.
+            void setCompareLayers(const std::vector<int>&);
+
+            ///@}
+
             //! \name I/O
             ///@{
 
@@ -240,7 +251,7 @@ namespace tl
             ///@{
 
             //! Observe the current video data.
-            std::shared_ptr<observer::IValue<VideoData> > observeCurrentVideo() const;
+            std::shared_ptr<observer::IList<VideoData> > observeCurrentVideo() const;
 
             ///@}
 

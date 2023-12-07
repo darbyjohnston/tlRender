@@ -55,14 +55,14 @@ namespace tl
 
             void PanoramaTimelineViewport::setTimelinePlayer(qt::TimelinePlayer* timelinePlayer)
             {
-                _videoData = timeline::VideoData();
+                _videoData.clear();
                 if (_timelinePlayer)
                 {
                     disconnect(
                         _timelinePlayer,
-                        SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
+                        SIGNAL(currentVideoChanged(const std::vector<tl::timeline::VideoData>&)),
                         this,
-                        SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
+                        SLOT(_currentVideoCallback(const std::vector<tl::timeline::VideoData>&)));
                 }
                 _timelinePlayer = timelinePlayer;
                 if (_timelinePlayer)
@@ -72,13 +72,13 @@ namespace tl
                     _videoData = _timelinePlayer->currentVideo();
                     connect(
                         _timelinePlayer,
-                        SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
-                        SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
+                        SIGNAL(currentVideoChanged(const std::vector<tl::timeline::VideoData>&)),
+                        SLOT(_currentVideoCallback(const std::vector<tl::timeline::VideoData>&)));
                 }
                 update();
             }
 
-            void PanoramaTimelineViewport::_currentVideoCallback(const timeline::VideoData& value)
+            void PanoramaTimelineViewport::_currentVideoCallback(const std::vector<timeline::VideoData>& value)
             {
                 _videoData = value;
                 update();

@@ -24,7 +24,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
             std::shared_ptr<observer::ValueObserver<otime::TimeRange> > inOutRangeObserver;
             std::shared_ptr<observer::ValueObserver<io::Options> > ioOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::VideoData> > currentVideoObserver;
+            std::shared_ptr<observer::ListObserver<timeline::VideoData> > currentVideoObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ValueObserver<double> > audioOffsetObserver;
@@ -83,9 +83,9 @@ namespace tl
                     Q_EMIT ioOptionsChanged(value);
                 });
 
-            p.currentVideoObserver = observer::ValueObserver<timeline::VideoData>::create(
+            p.currentVideoObserver = observer::ListObserver<timeline::VideoData>::create(
                 p.player->observeCurrentVideo(),
-                [this](const timeline::VideoData& value)
+                [this](const std::vector<timeline::VideoData>& value)
                 {
                     Q_EMIT currentVideoChanged(value);
                 },
@@ -224,12 +224,27 @@ namespace tl
             return _p->player->observeInOutRange()->get();
         }
 
+        const std::vector<std::shared_ptr<timeline::Timeline> >& TimelinePlayer::compare() const
+        {
+            return _p->player->getCompare();
+        }
+
+        void TimelinePlayer::setCompare(const std::vector<std::shared_ptr<timeline::Timeline> >& value)
+        {
+            _p->player->setCompare(value);
+        }
+
+        void TimelinePlayer::setCompareLayers(const std::vector<int>& value)
+        {
+            _p->player->setCompareLayers(value);
+        }
+
         const io::Options& TimelinePlayer::ioOptions() const
         {
             return _p->player->observeIOOptions()->get();
         }
 
-        const timeline::VideoData& TimelinePlayer::currentVideo() const
+        const std::vector<timeline::VideoData>& TimelinePlayer::currentVideo() const
         {
             return _p->player->observeCurrentVideo()->get();
         }

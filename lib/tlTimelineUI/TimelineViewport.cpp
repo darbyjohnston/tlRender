@@ -27,7 +27,7 @@ namespace tl
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
             std::function<void(timeline::CompareOptions)> compareCallback;
-            std::vector<std::shared_ptr<timeline::Player> > players;
+            std::shared_ptr<timeline::Player> player;
             std::vector<image::Size> timelineSizes;
             std::vector<timeline::VideoData> videoData;
             math::Vector2i viewPos;
@@ -61,7 +61,7 @@ namespace tl
             MouseData mouse;
 
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
-            std::vector<std::shared_ptr<observer::ValueObserver<timeline::VideoData> > > videoDataObservers;
+            std::shared_ptr<observer::ListObserver<timeline::VideoData> > videoDataObserver;
         };
 
         void TimelineViewport::_init(
@@ -161,21 +161,26 @@ namespace tl
             _p->compareCallback = value;
         }
 
-        void TimelineViewport::setPlayers(const std::vector<std::shared_ptr<timeline::Player> >& value)
+        void TimelineViewport::setPlayer(const std::shared_ptr<timeline::Player>& value)
         {
             TLRENDER_P();
 
             p.playbackObserver.reset();
-            p.videoDataObservers.clear();
+            p.videoDataObserver.reset();
 
-            p.players = value;
+            p.player = value;
 
             p.timelineSizes.clear();
-            for (const auto& player : p.players)
+            if (p.player)
             {
-                if (player)
+                io::Info ioInfo = p.player->getIOInfo();
+                if (!ioInfo.video.empty())
                 {
-                    const auto& ioInfo = player->getIOInfo();
+                    p.timelineSizes.push_back(ioInfo.video[0].size);
+                }
+                for (const auto& compare : p.player->getCompare())
+                {
+                    ioInfo = compare->getIOInfo();
                     if (!ioInfo.video.empty())
                     {
                         p.timelineSizes.push_back(ioInfo.video[0].size);
@@ -184,37 +189,32 @@ namespace tl
             }
 
             p.videoData.clear();
+            if (p.player)
+            {
+                p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
+                    p.player->observePlayback(),
+                    [this](timeline::Playback value)
+                    {
+                        switch (value)
+                        {
+                        case timeline::Playback::Forward:
+                        case timeline::Playback::Reverse:
+                            _p->droppedFrames.init = true;
+                            break;
+                        default: break;
+                        }
+                    });
+                p.videoDataObserver = observer::ListObserver<timeline::VideoData>::create(
+                    p.player->observeCurrentVideo(),
+                    [this](const std::vector<timeline::VideoData>& value)
+                    {
+                        _p->videoData = value;
+                        _p->doRender = true;
+                        _updates |= ui::Update::Draw;
+                    });
+            }
             p.doRender = true;
             _updates |= ui::Update::Draw;
-            for (size_t i = 0; i < p.players.size(); ++i)
-            {
-                if (p.players[i])
-                {
-                    if (0 == i)
-                    {
-                        p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
-                            p.players[i]->observePlayback(),
-                            [this](timeline::Playback value)
-                            {
-                                switch (value)
-                                {
-                                case timeline::Playback::Forward:
-                                case timeline::Playback::Reverse:
-                                    _p->droppedFrames.init = true;
-                                    break;
-                                default: break;
-                                }
-                            });
-                    }
-                    p.videoDataObservers.push_back(
-                        observer::ValueObserver<timeline::VideoData>::create(
-                            p.players[i]->observeCurrentVideo(),
-                            [this, i](const timeline::VideoData& value)
-                            {
-                                _videoDataUpdate(value, i);
-                            }));
-                }
-            }
         }
 
         const math::Vector2i& TimelineViewport::viewPos() const
@@ -440,9 +440,9 @@ namespace tl
                 break;
             case Private::MouseMode::Wipe:
             {
-                if (!p.players.empty() && p.players[0])
+                if (p.player)
                 {
-                    const auto& ioInfo = p.players[0]->getIOInfo();
+                    const auto& ioInfo = p.player->getIOInfo();
                     if (!ioInfo.video.empty())
                     {
                         const auto& imageInfo = ioInfo.video[0];
@@ -505,10 +505,10 @@ namespace tl
             else if (event.modifiers & static_cast<int>(ui::KeyModifier::Control))
             {
                 event.accept = true;
-                if (!p.players.empty() && p.players[0])
+                if (!p.player)
                 {
-                    const otime::RationalTime t = p.players[0]->getCurrentTime();
-                    p.players[0]->seek(t + otime::RationalTime(event.value.y, t.rate()));
+                    const otime::RationalTime t = p.player->getCurrentTime();
+                    p.player->seek(t + otime::RationalTime(event.value.y, t.rate()));
                 }
             }
         }
@@ -613,25 +613,6 @@ namespace tl
                 }
             }
             p.droppedFrames.frame = value.value();
-        }
-
-        void TimelineViewport::_videoDataUpdate(const timeline::VideoData& value, size_t index)
-        {
-            TLRENDER_P();
-            if (p.videoData.size() != p.players.size())
-            {
-                p.videoData = std::vector<timeline::VideoData>(p.players.size());
-            }
-            for (size_t i = 0; i < p.videoData.size(); ++i)
-            {
-                if (!p.players[i]->getTimeRange().contains(p.videoData[i].time))
-                {
-                    p.videoData[i] = timeline::VideoData();
-                }
-            }
-            p.videoData[index] = value;
-            p.doRender = true;
-            _updates |= ui::Update::Draw;
         }
     }
 }

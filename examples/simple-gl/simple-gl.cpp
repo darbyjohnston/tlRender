@@ -43,7 +43,7 @@ namespace tl
                 addWindow(_window);
 
                 auto viewport = timelineui::TimelineViewport::create(context, _window);
-                viewport->setPlayers({ _player });
+                viewport->setPlayer({ _player });
 
                 _window->show();
             }

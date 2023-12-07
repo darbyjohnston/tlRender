@@ -28,7 +28,7 @@ namespace tl
             void _offsetCallback(double);
 
         private:
-            void _playersUpdate(const QVector<QSharedPointer<qt::TimelinePlayer> >&);
+            void _playerUpdate(const QSharedPointer<qt::TimelinePlayer>&);
             void _offsetUpdate();
 
             TLRENDER_PRIVATE();

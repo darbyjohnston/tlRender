@@ -36,10 +36,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto players = app->observeActivePlayers()->get();
-                        if (!players.empty() && players[0])
+                        if (auto player = app->observePlayer()->get())
                         {
-                            players[0]->setPlayback(timeline::Playback::Stop);
+                            player->setPlayback(timeline::Playback::Stop);
                         }
                     }
                 });
@@ -60,10 +59,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto players = app->observeActivePlayers()->get();
-                        if (!players.empty() && players[0])
+                        if (auto player = app->observePlayer()->get())
                         {
-                            players[0]->setPlayback(timeline::Playback::Forward);
+                            player->setPlayback(timeline::Playback::Forward);
                         }
                     }
                 });
@@ -84,10 +82,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto players = app->observeActivePlayers()->get();
-                        if (!players.empty() && players[0])
+                        if (auto player = app->observePlayer()->get())
                         {
-                            players[0]->setPlayback(timeline::Playback::Reverse);
+                            player->setPlayback(timeline::Playback::Reverse);
                         }
                     }
                 });
@@ -107,11 +104,10 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto players = app->observeActivePlayers()->get();
-                        if (!players.empty() && players[0])
+                        if (auto player = app->observePlayer()->get())
                         {
-                            const timeline::Playback playback = players[0]->observePlayback()->get();
-                            players[0]->setPlayback(
+                            const timeline::Playback playback = player->observePlayback()->get();
+                            player->setPlayback(
                                 timeline::Playback::Stop == playback ?
                                 _p->playbackPrev :
                                 timeline::Playback::Stop);
@@ -131,10 +127,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto players = app->observeActivePlayers()->get();
-                        if (!players.empty() && players[0])
+                        if (auto player = app->observePlayer()->get())
                         {
-                            players[0]->timeAction(timeline::TimeAction::JumpBack1s);
+                            player->timeAction(timeline::TimeAction::JumpBack1s);
                         }
                     }
                 });
@@ -147,10 +142,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto players = app->observeActivePlayers()->get();
-                        if (!players.empty() && players[0])
+                        if (auto player = app->observePlayer()->get())
                         {
-                            players[0]->timeAction(timeline::TimeAction::JumpBack10s);
+                            player->timeAction(timeline::TimeAction::JumpBack10s);
                         }
                     }
                 });
@@ -163,10 +157,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto players = app->observeActivePlayers()->get();
-                        if (!players.empty() && players[0])
+                        if (auto player = app->observePlayer()->get())
                         {
-                            players[0]->timeAction(timeline::TimeAction::JumpForward1s);
+                            player->timeAction(timeline::TimeAction::JumpForward1s);
                         }
                     }
                 });
@@ -179,10 +172,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto players = app->observeActivePlayers()->get();
-                        if (!players.empty() && players[0])
+                        if (auto player = app->observePlayer()->get())
                         {
-                            players[0]->timeAction(timeline::TimeAction::JumpForward10s);
+                            player->timeAction(timeline::TimeAction::JumpForward10s);
                         }
                     }
                 });
@@ -193,10 +185,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto players = app->observeActivePlayers()->get();
-                        if (!players.empty() && players[0])
+                        if (auto player = app->observePlayer()->get())
                         {
-                            players[0]->setLoop(timeline::Loop::Loop);
+                            player->setLoop(timeline::Loop::Loop);
                         }
                     }
                 });
@@ -207,10 +198,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto players = app->observeActivePlayers()->get();
-                        if (!players.empty() && players[0])
+                        if (auto player = app->observePlayer()->get())
                         {
-                            players[0]->setLoop(timeline::Loop::Once);
+                            player->setLoop(timeline::Loop::Once);
                         }
                     }
                 });
@@ -221,10 +211,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto players = app->observeActivePlayers()->get();
-                        if (!players.empty() && players[0])
+                        if (auto player = app->observePlayer()->get())
                         {
-                            players[0]->setLoop(timeline::Loop::PingPong);
+                            player->setLoop(timeline::Loop::PingPong);
                         }
                     }
                 });
@@ -237,10 +226,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto players = app->observeActivePlayers()->get();
-                        if (!players.empty() && players[0])
+                        if (auto player = app->observePlayer()->get())
                         {
-                            players[0]->setInPoint();
+                            player->setInPoint();
                         }
                     }
                 });
@@ -253,10 +241,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto players = app->observeActivePlayers()->get();
-                        if (!players.empty() && players[0])
+                        if (auto player = app->observePlayer()->get())
                         {
-                            players[0]->resetInPoint();
+                            player->resetInPoint();
                         }
                     }
                 });
@@ -269,10 +256,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto players = app->observeActivePlayers()->get();
-                        if (!players.empty() && players[0])
+                        if (auto player = app->observePlayer()->get())
                         {
-                            players[0]->setOutPoint();
+                            player->setOutPoint();
                         }
                     }
                 });
@@ -285,10 +271,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto players = app->observeActivePlayers()->get();
-                        if (!players.empty() && players[0])
+                        if (auto player = app->observePlayer()->get())
                         {
-                            players[0]->resetOutPoint();
+                            player->resetOutPoint();
                         }
                     }
                 });

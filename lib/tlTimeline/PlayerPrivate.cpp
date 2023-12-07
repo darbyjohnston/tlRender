@@ -457,13 +457,11 @@ namespace tl
             Playback playback = Playback::Stop;
             otime::RationalTime playbackStartTime = time::invalidTime;
             double audioOffset = 0.0;
-            bool externalTime = false;
             {
                 std::unique_lock<std::mutex> lock(p->mutex.mutex);
                 playback = p->mutex.playback;
                 playbackStartTime = p->mutex.playbackStartTime;
                 audioOffset = p->mutex.audioOffset;
-                externalTime = p->mutex.externalTime;
             }
             double speed = 0.0;
             float volume = 1.F;
@@ -595,7 +593,6 @@ namespace tl
                 // Send audio data to RtAudio.
                 const auto now = std::chrono::steady_clock::now();
                 if (speed == p->timeline->getTimeRange().duration().rate() &&
-                    !externalTime &&
                     !mute &&
                     now >= muteTimeout &&
                     nFrames <= getSampleCount(p->audioThread.buffer))
