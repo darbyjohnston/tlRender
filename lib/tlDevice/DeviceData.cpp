@@ -54,7 +54,9 @@ namespace tl
             _pixelType = pixelType;
             _time = time;
             _dataByteCount = device::getDataByteCount(_size, _pixelType);
-            _data.resize(_dataByteCount);
+            // Use reserve() instead of resize() which can be faster since it
+            // does not initialize the data.
+            _data.reserve(_dataByteCount);
         }
 
         PixelData::PixelData()

@@ -85,7 +85,9 @@ namespace tl
             _info = info;
             _sampleCount = sampleCount;
             const size_t byteCount = getByteCount();
-            _data.resize(byteCount);
+            // Use reserve() instead of resize() which can be faster since it
+            // does not initialize the data.
+            _data.reserve(byteCount);
         }
 
         Audio::Audio()
