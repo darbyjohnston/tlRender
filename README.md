@@ -120,7 +120,7 @@ Start the build:
 ```
 cmake --build . -j 4 --config Debug
 ```
-Try running the "tlplay-gl" application:
+Try running the *tlplay-gl* application:
 ```
 export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
 ./tlRender/src/tlRender-build/bin/tlplay-gl/tlplay-gl ../etc/SampleData/MultipleClips.otio
@@ -129,7 +129,8 @@ export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
 ### Building on Linux with Qt 6
 
 When running CMake with the super build script, add the Qt location to
-"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT6":
+*CMAKE_PREFIX_PATH* (place double quotes around the list of paths),
+and enable *TLRENDER_QT6*:
 ```
 cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/6.5.0/gcc_64" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Debug
 ```
@@ -137,7 +138,8 @@ cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=
 ### Building on Linux with Qt 5
 
 When running CMake with the super build script, add the Qt location to
-"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT5":
+*CMAKE_PREFIX_PATH* (place double quotes around the list of paths),
+and enable *TLRENDER_QT5*:
 ```
 cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/gcc_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Debug
 ```
@@ -178,7 +180,7 @@ Start the build:
 ```
 cmake --build . -j 4 --config Debug
 ```
-Try running the "tlplay-gl" application:
+Try running the *tlplay-gl* application:
 ```
 ./tlRender/src/tlRender-build/bin/tlplay-gl/tlplay-gl ../etc/SampleData/MultipleClips.otio
 ```
@@ -186,7 +188,8 @@ Try running the "tlplay-gl" application:
 ### Building on macOS with Qt 6
 
 When running CMake with the super build script add the Qt location to
-"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT6":
+*CMAKE_PREFIX_PATH* (place double quotes around the list of paths),
+and enable *TLRENDER_QT6*:
 ```
 cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/6.5.0/macos" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Debug
 ```
@@ -194,14 +197,15 @@ cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=
 ### Building on macOS with Qt 5
 
 When running CMake with the super build script add the Qt location to
-"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT5":
+*CMAKE_PREFIX_PATH* (place double quotes around the list of paths),
+and enable *TLRENDER_QT5*:
 ```
 cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/clang_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
 ### Notes for building on macOS
 
-The CMake variable "CMAKE_OSX_ARCHITECTURES" can be used to specify the build
+The CMake variable *CMAKE_OSX_ARCHITECTURES* can be used to specify the build
 architecture:
 ```
 -DCMAKE_OSX_ARCHITECTURES=x86_64
@@ -240,7 +244,7 @@ Start the build:
 ```
 cmake --build . -j 4 --config Debug
 ```
-Try running the "tlplay-gl" application:
+Try running the *tlplay-gl* application:
 ```
 set PATH=%CD%\install\bin;%PATH%
 .\tlRender\src\tlRender-build\bin\tlplay-gl\Debug\tlplay-gl ..\etc\SampleData\MultipleClips.otio
@@ -249,7 +253,8 @@ set PATH=%CD%\install\bin;%PATH%
 ### Building on Windows with Qt 6
 
 When running CMake with the super build script add the Qt location to
-"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT6":
+*CMAKE_PREFIX_PATH* (place double quotes around the list of paths),
+and enable *TLRENDER_QT6*:
 ```
 cmake ..\etc\SuperBuild -DCMAKE_INSTALL_PREFIX=%CD%\install -DCMAKE_PREFIX_PATH="%CD%\install;C:\Qt\6.5.0\msvc2019_64" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Debug
 ```
@@ -257,7 +262,8 @@ cmake ..\etc\SuperBuild -DCMAKE_INSTALL_PREFIX=%CD%\install -DCMAKE_PREFIX_PATH=
 ### Building on Windows with Qt 5
 
 When running CMake with the super build script add the Qt location to
-"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT5":
+*CMAKE_PREFIX_PATH* (place double quotes around the list of paths),
+and enable *TLRENDER_QT5*:
 ```
 cmake ..\etc\SuperBuild -DCMAKE_INSTALL_PREFIX=%CD%\install -DCMAKE_PREFIX_PATH="%CD%\install;C:\Qt\5.15.2\msvc2019_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Debug
 ```
