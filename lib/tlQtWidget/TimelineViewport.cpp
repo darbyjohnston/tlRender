@@ -373,6 +373,7 @@ namespace tl
         void TimelineViewport::resizeGL(int w, int h)
         {
             TLRENDER_P();
+            p.doRender = true;
             p.vao.reset();
             p.vbo.reset();
         }
