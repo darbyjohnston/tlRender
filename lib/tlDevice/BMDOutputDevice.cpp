@@ -652,6 +652,12 @@ namespace tl
 
         struct BMDOutputDevice::Private
         {
+            int deviceIndex = 0;
+            int displayModeIndex = 0;
+            PixelType pixelType = PixelType::None;
+            math::Size2i size;
+            otime::RationalTime frameRate;
+
             DLWrapper dl;
             DLConfigWrapper dlConfig;
             DLOutputWrapper dlOutput;
@@ -665,9 +671,11 @@ namespace tl
             PixelType pixelType,
             const std::shared_ptr<system::Context>& context)
         {
-            IOutputDevice::_init(deviceIndex, displayModeIndex, pixelType, context);
-
             TLRENDER_P();
+
+            p.deviceIndex = deviceIndex;
+            p.displayModeIndex = displayModeIndex;
+            p.pixelType = pixelType;
 
             std::string modelName;
             {
@@ -743,12 +751,12 @@ namespace tl
                     throw std::runtime_error("Display mode not found");
                 }
 
-                _size.w = dlDisplayMode.p->GetWidth();
-                _size.h = dlDisplayMode.p->GetHeight();
+                p.size.w = dlDisplayMode.p->GetWidth();
+                p.size.h = dlDisplayMode.p->GetHeight();
                 BMDTimeValue frameDuration;
                 BMDTimeScale frameTimescale;
                 dlDisplayMode.p->GetFrameRate(&frameDuration, &frameTimescale);
-                _frameRate = otime::RationalTime(frameDuration, frameTimescale);
+                p.frameRate = otime::RationalTime(frameDuration, frameTimescale);
                 p.audioInfo.channelCount = 2;
                 p.audioInfo.dataType = audio::DataType::S16;
                 p.audioInfo.sampleRate = 48000;
@@ -762,8 +770,8 @@ namespace tl
                         "    audio: {4} {5} {6}").
                     arg(deviceIndex).
                     arg(modelName).
-                    arg(_size).
-                    arg(_frameRate).
+                    arg(p.size).
+                    arg(p.frameRate).
                     arg(p.audioInfo.channelCount).
                     arg(p.audioInfo.dataType).
                     arg(p.audioInfo.sampleRate));
@@ -799,7 +807,7 @@ namespace tl
                 }
             }
 
-            p.dlOutputCallback.p = new DLOutputCallback(p.dlOutput.p, _size, _pixelType, _frameRate, p.audioInfo);
+            p.dlOutputCallback.p = new DLOutputCallback(p.dlOutput.p, p.size, p.pixelType, p.frameRate, p.audioInfo);
 
             if (p.dlOutput.p->SetScheduledFrameCompletionCallback(p.dlOutputCallback.p) != S_OK)
             {
@@ -833,6 +841,31 @@ namespace tl
             auto out = std::shared_ptr<BMDOutputDevice>(new BMDOutputDevice);
             out->_init(deviceIndex, displayModeIndex, pixelType, context);
             return out;
+        }
+
+        int BMDOutputDevice::getDeviceIndex() const
+        {
+            return _p->deviceIndex;
+        }
+
+        int BMDOutputDevice::getDisplayModeIndex() const
+        {
+            return _p->displayModeIndex;
+        }
+
+        PixelType BMDOutputDevice::getPixelType() const
+        {
+            return _p->pixelType;
+        }
+
+        const math::Size2i& BMDOutputDevice::getSize() const
+        {
+            return _p->size;
+        }
+
+        const otime::RationalTime& BMDOutputDevice::getFrameRate() const
+        {
+            return _p->frameRate;
         }
 
         void BMDOutputDevice::setPlayback(timeline::Playback value, const otime::RationalTime& time)

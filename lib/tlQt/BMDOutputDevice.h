@@ -8,7 +8,7 @@
 
 #include <tlTimeline/IRender.h>
 
-#include <tlDevice/DeviceData.h>
+#include <tlDevice/BMDDeviceData.h>
 
 #include <QImage>
 #include <QSharedPointer>
@@ -24,17 +24,17 @@ namespace tl
 
     namespace qt
     {
-        //! Output device.
-        class OutputDevice : public QThread
+        //! BMD output device.
+        class BMDOutputDevice : public QThread
         {
             Q_OBJECT
 
         public:
-            OutputDevice(
+            BMDOutputDevice(
                 const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
 
-            ~OutputDevice();
+            virtual ~BMDOutputDevice();
 
             //! Get the output device index. A value of -1 is returned if there
             //! is no output device.

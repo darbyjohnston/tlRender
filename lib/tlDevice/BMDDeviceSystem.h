@@ -4,14 +4,19 @@
 
 #pragma once
 
-#include <tlDevice/IDeviceSystem.h>
+#include <tlDevice/BMDDeviceData.h>
+
+#include <tlCore/ISystem.h>
+#include <tlCore/ListObserver.h>
 
 namespace tl
 {
     namespace device
     {
+        class BMDOutputDevice;
+
         //! BMD device system.
-        class BMDDeviceSystem : public IDeviceSystem
+        class BMDDeviceSystem : public system::ISystem
         {
             TLRENDER_NON_COPYABLE(BMDDeviceSystem);
 
@@ -26,11 +31,17 @@ namespace tl
             //! Create a new BMD device system.
             static std::shared_ptr<BMDDeviceSystem> create(const std::shared_ptr<system::Context>&);
 
-            virtual std::shared_ptr<IOutputDevice> createDevice(
+            //! Observe the device information.
+            std::shared_ptr<observer::IList<DeviceInfo> > observeDeviceInfo() const;
+
+            //! Create a new output device.
+            std::shared_ptr<BMDOutputDevice> createDevice(
                 int deviceIndex,
                 int displayModeIndex,
-                PixelType) override;
+                PixelType);
+
             void tick() override;
+            std::chrono::milliseconds getTickTime() const override;
 
         private:
             TLRENDER_PRIVATE();

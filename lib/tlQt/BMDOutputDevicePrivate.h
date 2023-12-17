@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <tlQt/OutputDevice.h>
+#include <tlQt/BMDOutputDevice.h>
 
-#include <tlDevice/IDeviceSystem.h>
+#include <tlDevice/BMDDeviceSystem.h>
 
 #include <tlGL/GL.h>
 
@@ -46,10 +46,10 @@ namespace tl
             GLuint _id = 0;
         };
 
-        struct OutputDevice::Private
+        struct BMDOutputDevice::Private
         {
             std::weak_ptr<system::Context> context;
-            std::weak_ptr<device::IDeviceSystem> deviceSystem;
+            std::weak_ptr<device::BMDDeviceSystem> deviceSystem;
 
             int deviceIndex = -1;
             int displayModeIndex = -1;

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlDevice/DeviceData.h>
+#include <tlDevice/BMDDeviceData.h>
 
 #include <tlGL/GL.h>
 

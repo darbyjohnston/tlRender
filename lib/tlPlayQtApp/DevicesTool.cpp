@@ -6,12 +6,16 @@
 
 #include <tlPlayQtApp/App.h>
 #include <tlPlayQtApp/DockTitleBar.h>
-#include <tlPlayQtApp/DevicesModel.h>
+#if defined(TLRENDER_BMD)
+#include <tlPlayQtApp/BMDDevicesModel.h>
+#endif // TLRENDER_BMD
 
 #include <tlQtWidget/FloatEditSlider.h>
 #include <tlQtWidget/Spacer.h>
 
-#include <tlQt/OutputDevice.h>
+#if defined(TLRENDER_BMD)
+#include <tlQt/BMDOutputDevice.h>
+#endif // TLRENDER_BMD
 
 #include <QAction>
 #include <QBoxLayout>
@@ -42,7 +46,8 @@ namespace tl
         struct DevicesTool::Private
         {
             App* app = nullptr;
-            std::shared_ptr<observer::ValueObserver<DevicesModelData> > dataObserver;
+#if defined(TLRENDER_BMD)
+            std::shared_ptr<observer::ValueObserver<BMDDevicesModelData> > dataObserver;
             QCheckBox* enabledCheckBox = nullptr;
             QComboBox* deviceComboBox = nullptr;
             QComboBox* displayModeComboBox = nullptr;
@@ -61,6 +66,7 @@ namespace tl
                 std::make_pair(nullptr, nullptr);
             qtwidget::FloatEditSlider* maxCLLSlider = nullptr;
             qtwidget::FloatEditSlider* maxFALLSlider = nullptr;
+#endif // TLRENDER_BMD
         };
 
         DevicesTool::DevicesTool(App* app, QWidget* parent) :
@@ -71,6 +77,7 @@ namespace tl
 
             p.app = app;
 
+#if defined(TLRENDER_BMD)
             p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
             p.deviceComboBox = new QComboBox;
@@ -153,7 +160,7 @@ namespace tl
                 &QCheckBox::toggled,
                 [this](bool value)
                 {
-                    _p->app->devicesModel()->setDeviceEnabled(value);
+                    _p->app->bmdDevicesModel()->setDeviceEnabled(value);
                 });
 
             connect(
@@ -161,7 +168,7 @@ namespace tl
                 QOverload<int>::of(&QComboBox::activated),
                 [this](int value)
                 {
-                    _p->app->devicesModel()->setDeviceIndex(value);
+                    _p->app->bmdDevicesModel()->setDeviceIndex(value);
                 });
 
             connect(
@@ -169,7 +176,7 @@ namespace tl
                 QOverload<int>::of(&QComboBox::activated),
                 [this](int value)
                 {
-                    _p->app->devicesModel()->setDisplayModeIndex(value);
+                    _p->app->bmdDevicesModel()->setDisplayModeIndex(value);
                 });
 
             connect(
@@ -177,7 +184,7 @@ namespace tl
                 QOverload<int>::of(&QComboBox::activated),
                 [this](int value)
                 {
-                    _p->app->devicesModel()->setPixelTypeIndex(value);
+                    _p->app->bmdDevicesModel()->setPixelTypeIndex(value);
                 });
 
             connect(
@@ -185,7 +192,7 @@ namespace tl
                 QOverload<int>::of(&QComboBox::activated),
                 [this](int value)
                 {
-                    _p->app->devicesModel()->setVideoLevels(static_cast<image::VideoLevels>(value));
+                    _p->app->bmdDevicesModel()->setVideoLevels(static_cast<image::VideoLevels>(value));
                 });
 
             connect(
@@ -193,7 +200,7 @@ namespace tl
                 QOverload<int>::of(&QComboBox::activated),
                 [this](int value)
                 {
-                    _p->app->devicesModel()->setHDRMode(static_cast<device::HDRMode>(value));
+                    _p->app->bmdDevicesModel()->setHDRMode(static_cast<device::HDRMode>(value));
                 });
 
             connect(
@@ -201,18 +208,18 @@ namespace tl
                 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 [this](double value)
                 {
-                    auto hdrData = _p->app->devicesModel()->observeData()->get().hdrData;
+                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
                     hdrData.redPrimaries.x = value;
-                    _p->app->devicesModel()->setHDRData(hdrData);
+                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
             connect(
                 p.redPrimariesSpinBoxes.second,
                 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 [this](double value)
                 {
-                    auto hdrData = _p->app->devicesModel()->observeData()->get().hdrData;
+                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
                     hdrData.redPrimaries.y = value;
-                    _p->app->devicesModel()->setHDRData(hdrData);
+                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
 
             connect(
@@ -220,18 +227,18 @@ namespace tl
                 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 [this](double value)
                 {
-                    auto hdrData = _p->app->devicesModel()->observeData()->get().hdrData;
+                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
                     hdrData.greenPrimaries.x = value;
-                    _p->app->devicesModel()->setHDRData(hdrData);
+                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
             connect(
                 p.greenPrimariesSpinBoxes.second,
                 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 [this](double value)
                 {
-                    auto hdrData = _p->app->devicesModel()->observeData()->get().hdrData;
+                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
                     hdrData.greenPrimaries.y = value;
-                    _p->app->devicesModel()->setHDRData(hdrData);
+                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
 
             connect(
@@ -239,18 +246,18 @@ namespace tl
                 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 [this](double value)
                 {
-                    auto hdrData = _p->app->devicesModel()->observeData()->get().hdrData;
+                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
                     hdrData.bluePrimaries.x = value;
-                    _p->app->devicesModel()->setHDRData(hdrData);
+                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
             connect(
                 p.bluePrimariesSpinBoxes.second,
                 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 [this](double value)
                 {
-                    auto hdrData = _p->app->devicesModel()->observeData()->get().hdrData;
+                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
                     hdrData.bluePrimaries.y = value;
-                    _p->app->devicesModel()->setHDRData(hdrData);
+                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
 
             connect(
@@ -258,18 +265,18 @@ namespace tl
                 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 [this](double value)
                 {
-                    auto hdrData = _p->app->devicesModel()->observeData()->get().hdrData;
+                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
                     hdrData.whitePrimaries.x = value;
-                    _p->app->devicesModel()->setHDRData(hdrData);
+                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
             connect(
                 p.whitePrimariesSpinBoxes.second,
                 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 [this](double value)
                 {
-                    auto hdrData = _p->app->devicesModel()->observeData()->get().hdrData;
+                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
                     hdrData.whitePrimaries.y = value;
-                    _p->app->devicesModel()->setHDRData(hdrData);
+                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
 
             connect(
@@ -277,18 +284,18 @@ namespace tl
                 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 [this](double value)
                 {
-                    auto hdrData = _p->app->devicesModel()->observeData()->get().hdrData;
+                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
                     hdrData.displayMasteringLuminance = math::FloatRange(value, hdrData.displayMasteringLuminance.getMax());
-                    _p->app->devicesModel()->setHDRData(hdrData);
+                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
             connect(
                 p.masteringLuminanceSpinBoxes.second,
                 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 [this](double value)
                 {
-                    auto hdrData = _p->app->devicesModel()->observeData()->get().hdrData;
+                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
                     hdrData.displayMasteringLuminance = math::FloatRange(hdrData.displayMasteringLuminance.getMin(), value);
-                    _p->app->devicesModel()->setHDRData(hdrData);
+                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
 
             connect(
@@ -296,23 +303,23 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
-                    auto hdrData = _p->app->devicesModel()->observeData()->get().hdrData;
+                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
                     hdrData.maxCLL = value;
-                    _p->app->devicesModel()->setHDRData(hdrData);
+                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
             connect(
                 p.maxFALLSlider,
                 &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
-                    auto hdrData = _p->app->devicesModel()->observeData()->get().hdrData;
+                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
                     hdrData.maxFALL = value;
-                    _p->app->devicesModel()->setHDRData(hdrData);
+                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
 
-            p.dataObserver = observer::ValueObserver<DevicesModelData>::create(
-                app->devicesModel()->observeData(),
-                [this](const DevicesModelData& value)
+            p.dataObserver = observer::ValueObserver<BMDDevicesModelData>::create(
+                app->bmdDevicesModel()->observeData(),
+                [this](const BMDDevicesModelData& value)
                 {
                     {
                         QSignalBlocker blocker(_p->enabledCheckBox);
@@ -428,6 +435,7 @@ namespace tl
                         _p->maxFALLSlider->setEnabled(device::HDRMode::Custom == value.hdrMode);
                     }
                 });
+#endif // TLRENDER_BMD
         }
 
         DevicesTool::~DevicesTool()

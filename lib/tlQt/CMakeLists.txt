@@ -2,21 +2,27 @@ set(HEADERS
     ContextObject.h
     Init.h
     MetaTypes.h
-    OutputDevice.h
     TimeObject.h
     TimelinePlayer.h
     ToolTipsFilter.h)
-set(PRIVATE_HEADERS
-    OutputDevicePrivate.h)
+set(PRIVATE_HEADERS)
 
 set(SOURCE
     ContextObject.cpp
     Init.cpp
-    OutputDevice.cpp
-    OutputDevicePrivate.cpp
     TimeObject.cpp
     TimelinePlayer.cpp
     ToolTipsFilter.cpp)
+
+if(TLRENDER_BMD)
+    list(APPEND HEADERS
+        BMDOutputDevice.h)
+    list(APPEND PRIVATE_HEADERS
+        BMDOutputDevicePrivate.h)
+    list(APPEND SOURCE
+        BMDOutputDevice.cpp
+        BMDOutputDevicePrivate.cpp)
+endif()
 
 set(LIBRARIES)
 if(TLRENDER_QT6)

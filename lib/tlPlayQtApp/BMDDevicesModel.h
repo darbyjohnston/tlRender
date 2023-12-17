@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlDevice/DeviceData.h>
+#include <tlDevice/BMDDeviceData.h>
 
 #include <tlCore/Image.h>
 #include <tlCore/ValueObserver.h>
@@ -21,8 +21,8 @@ namespace tl
 
     namespace play_qt
     {
-        //! Devices model data.
-        struct DevicesModelData
+        //! BMD devices model data.
+        struct BMDDevicesModelData
         {
             std::vector<std::string> devices;
             int deviceIndex = 0;
@@ -35,29 +35,29 @@ namespace tl
             device::HDRMode hdrMode = device::HDRMode::FromFile;
             image::HDRData hdrData;
 
-            bool operator == (const DevicesModelData&) const;
+            bool operator == (const BMDDevicesModelData&) const;
         };
 
-        //! Devices model.
-        class DevicesModel : public std::enable_shared_from_this<DevicesModel>
+        //! BMD devices model.
+        class BMDDevicesModel : public std::enable_shared_from_this<BMDDevicesModel>
         {
-            TLRENDER_NON_COPYABLE(DevicesModel);
+            TLRENDER_NON_COPYABLE(BMDDevicesModel);
 
         protected:
             void _init(
                 const std::shared_ptr<system::Context>&);
 
-            DevicesModel();
+            BMDDevicesModel();
 
         public:
-            ~DevicesModel();
+            ~BMDDevicesModel();
 
             //! Create a new device model.
-            static std::shared_ptr<DevicesModel> create(
+            static std::shared_ptr<BMDDevicesModel> create(
                 const std::shared_ptr<system::Context>&);
 
             //! Observe the model data.
-            std::shared_ptr<observer::IValue<DevicesModelData> > observeData() const;
+            std::shared_ptr<observer::IValue<BMDDevicesModelData> > observeData() const;
 
             //! Set the device index.
             void setDeviceIndex(int);

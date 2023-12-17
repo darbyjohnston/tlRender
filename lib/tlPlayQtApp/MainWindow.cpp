@@ -9,7 +9,6 @@
 #include <tlPlayQtApp/AudioTool.h>
 #include <tlPlayQtApp/ColorTool.h>
 #include <tlPlayQtApp/CompareActions.h>
-#include <tlPlayQtApp/DevicesModel.h>
 #include <tlPlayQtApp/DevicesTool.h>
 #include <tlPlayQtApp/FileActions.h>
 #include <tlPlayQtApp/FilesTool.h>
@@ -26,6 +25,9 @@
 #include <tlPlayQtApp/ViewActions.h>
 #include <tlPlayQtApp/ViewTool.h>
 #include <tlPlayQtApp/WindowActions.h>
+#if defined(TLRENDER_BMD)
+#include <tlPlayQtApp/BMDDevicesModel.h>
+#endif // TLRENDER_BMD
 
 #include <tlPlay/AudioModel.h>
 #include <tlPlay/ColorModel.h>
@@ -40,7 +42,9 @@
 #include <tlQtWidget/TimelineWidget.h>
 #include <tlQtWidget/Util.h>
 
-#include <tlQt/OutputDevice.h>
+#if defined(TLRENDER_BMD)
+#include <tlQt/BMDOutputDevice.h>
+#endif // TLRENDER_BMD
 
 #include <tlCore/File.h>
 
@@ -122,10 +126,12 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<DevicesModelData> > devicesModelObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
+#if defined(TLRENDER_BMD)
+            std::shared_ptr<observer::ValueObserver<BMDDevicesModelData> > bmdDevicesModelObserver;
+#endif // TLRENDER_BMD
         };
 
         MainWindow::MainWindow(App* app, QWidget* parent) :
@@ -465,14 +471,6 @@ namespace tl
                     _widgetUpdate();
                 });
 
-            p.devicesModelObserver = observer::ValueObserver<DevicesModelData>::create(
-                app->devicesModel()->observeData(),
-                [this](const DevicesModelData& value)
-                {
-                    _p->outputVideoLevels = value.videoLevels;
-                    _widgetUpdate();
-                });
-
             p.volumeObserver = observer::ValueObserver<float>::create(
                 app->audioModel()->observeVolume(),
                 [this](float)
@@ -503,6 +501,16 @@ namespace tl
                         }
                     }
                 });
+
+#if defined(TLRENDER_BMD)
+            p.bmdDevicesModelObserver = observer::ValueObserver<BMDDevicesModelData>::create(
+                app->bmdDevicesModel()->observeData(),
+                [this](const BMDDevicesModelData& value)
+                {
+                    _p->outputVideoLevels = value.videoLevels;
+                    _widgetUpdate();
+                });
+#endif // TLRENDER_BMD
 
             connect(
                 p.windowActions,
@@ -625,12 +633,13 @@ namespace tl
                 {
                     _p->app->filesModel()->setCompareOptions(value);
                 });
+#if defined(TLRENDER_BMD)
             connect(
                 p.timelineViewport,
                 &qtwidget::TimelineViewport::viewPosAndZoomChanged,
                 [this](const math::Vector2i& pos, float zoom)
                 {
-                    _p->app->outputDevice()->setView(
+                    _p->app->bmdOutputDevice()->setView(
                         pos,
                         zoom,
                         _p->timelineViewport->hasFrameView());
@@ -642,11 +651,12 @@ namespace tl
                 {
                     _p->viewActions->actions()["Frame"]->setChecked(value);
 
-                    _p->app->outputDevice()->setView(
+                    _p->app->bmdOutputDevice()->setView(
                         _p->timelineViewport->viewPos(),
                         _p->timelineViewport->viewZoom(),
                         value);
                 });
+#endif // TLRENDER_BMD
 
             connect(
                 app,
@@ -909,15 +919,17 @@ namespace tl
             p.infoLabel->setText(QString::fromUtf8(infoLabel.c_str()));
             p.infoLabel->setToolTip(QString::fromUtf8(infoToolTip.c_str()));
 
-            p.app->outputDevice()->setOCIOOptions(colorModel->getOCIOOptions());
-            p.app->outputDevice()->setLUTOptions(colorModel->getLUTOptions());
-            p.app->outputDevice()->setImageOptions(imageOptions);
+#if defined(TLRENDER_BMD)
+            p.app->bmdOutputDevice()->setOCIOOptions(colorModel->getOCIOOptions());
+            p.app->bmdOutputDevice()->setLUTOptions(colorModel->getLUTOptions());
+            p.app->bmdOutputDevice()->setImageOptions(imageOptions);
             for (auto& i : displayOptions)
             {
                 i.videoLevels = p.outputVideoLevels;
             }
-            p.app->outputDevice()->setDisplayOptions(displayOptions);
-            p.app->outputDevice()->setCompareOptions(p.app->filesModel()->getCompareOptions());
+            p.app->bmdOutputDevice()->setDisplayOptions(displayOptions);
+            p.app->bmdOutputDevice()->setCompareOptions(p.app->filesModel()->getCompareOptions());
+#endif // TLRENDER_BMD
         }
     }
 }

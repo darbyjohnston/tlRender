@@ -2,9 +2,9 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayQtApp/DevicesModel.h>
+#include <tlPlayQtApp/BMDDevicesModel.h>
 
-#include <tlDevice/IDeviceSystem.h>
+#include <tlDevice/BMDDeviceSystem.h>
 
 #include <tlCore/Context.h>
 
@@ -15,7 +15,7 @@ namespace tl
 {
     namespace play_qt
     {
-        bool DevicesModelData::operator == (const DevicesModelData& other) const
+        bool BMDDevicesModelData::operator == (const BMDDevicesModelData& other) const
         {
             return
                 devices == other.devices &&
@@ -30,7 +30,7 @@ namespace tl
                 hdrData == other.hdrData;
         }
 
-        struct DevicesModel::Private
+        struct BMDDevicesModel::Private
         {
             std::vector<device::DeviceInfo> deviceInfo;
             int deviceIndex = 0;
@@ -40,20 +40,20 @@ namespace tl
             image::VideoLevels videoLevels = image::VideoLevels::LegalRange;
             device::HDRMode hdrMode = device::HDRMode::FromFile;
             image::HDRData hdrData;
-            std::shared_ptr<observer::Value<DevicesModelData> > data;
+            std::shared_ptr<observer::Value<BMDDevicesModelData> > data;
             std::shared_ptr<observer::ListObserver<device::DeviceInfo> > deviceInfoObserver;
         };
 
-        void DevicesModel::_init(
+        void BMDDevicesModel::_init(
             const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
 
-            p.data = observer::Value<DevicesModelData>::create();
+            p.data = observer::Value<BMDDevicesModelData>::create();
 
             _update();
 
-            if (auto deviceSystem = context->getSystem<device::IDeviceSystem>())
+            if (auto deviceSystem = context->getSystem<device::BMDDeviceSystem>())
             {
                 p.deviceInfoObserver = observer::ListObserver<device::DeviceInfo>::create(
                     deviceSystem->observeDeviceInfo(),
@@ -65,27 +65,27 @@ namespace tl
             }
         }
 
-        DevicesModel::DevicesModel() :
+        BMDDevicesModel::BMDDevicesModel() :
             _p(new Private)
         {}
 
-        DevicesModel::~DevicesModel()
+        BMDDevicesModel::~BMDDevicesModel()
         {}
 
-        std::shared_ptr<DevicesModel> DevicesModel::create(
+        std::shared_ptr<BMDDevicesModel> BMDDevicesModel::create(
             const std::shared_ptr<system::Context>& context)
         {
-            auto out = std::shared_ptr<DevicesModel>(new DevicesModel);
+            auto out = std::shared_ptr<BMDDevicesModel>(new BMDDevicesModel);
             out->_init(context);
             return out;
         }
 
-        std::shared_ptr<observer::IValue<DevicesModelData> > DevicesModel::observeData() const
+        std::shared_ptr<observer::IValue<BMDDevicesModelData> > BMDDevicesModel::observeData() const
         {
             return _p->data;
         }
 
-        void DevicesModel::setDeviceIndex(int index)
+        void BMDDevicesModel::setDeviceIndex(int index)
         {
             TLRENDER_P();
             if (index == p.deviceIndex)
@@ -94,7 +94,7 @@ namespace tl
             _update();
         }
 
-        void DevicesModel::setDisplayModeIndex(int index)
+        void BMDDevicesModel::setDisplayModeIndex(int index)
         {
             TLRENDER_P();
             if (index == p.displayModeIndex)
@@ -103,7 +103,7 @@ namespace tl
             _update();
         }
 
-        void DevicesModel::setPixelTypeIndex(int index)
+        void BMDDevicesModel::setPixelTypeIndex(int index)
         {
             TLRENDER_P();
             if (index == p.pixelTypeIndex)
@@ -112,7 +112,7 @@ namespace tl
             _update();
         }
 
-        void DevicesModel::setDeviceEnabled(bool value)
+        void BMDDevicesModel::setDeviceEnabled(bool value)
         {
             TLRENDER_P();
             if (value == p.deviceEnabled)
@@ -121,7 +121,7 @@ namespace tl
             _update();
         }
 
-        void DevicesModel::setVideoLevels(image::VideoLevels value)
+        void BMDDevicesModel::setVideoLevels(image::VideoLevels value)
         {
             TLRENDER_P();
             if (value == p.videoLevels)
@@ -130,7 +130,7 @@ namespace tl
             _update();
         }
 
-        void DevicesModel::setHDRMode(device::HDRMode value)
+        void BMDDevicesModel::setHDRMode(device::HDRMode value)
         {
             TLRENDER_P();
             if (value == p.hdrMode)
@@ -139,7 +139,7 @@ namespace tl
             _update();
         }
 
-        void DevicesModel::setHDRData(const image::HDRData& value)
+        void BMDDevicesModel::setHDRData(const image::HDRData& value)
         {
             TLRENDER_P();
             if (value == p.hdrData)
@@ -148,11 +148,11 @@ namespace tl
             _update();
         }
 
-        void DevicesModel::_update()
+        void BMDDevicesModel::_update()
         {
             TLRENDER_P();
 
-            DevicesModelData data;
+            BMDDevicesModelData data;
 
             data.devices.push_back("None");
             for (const auto& i : p.deviceInfo)

@@ -1,14 +1,8 @@
 set(HEADERS
-    DeviceData.h
-    IDeviceSystem.h
-    IOutputDevice.h
     Init.h)
 set(HEADERS_PRIVATE)
 
 set(SOURCE
-    DeviceData.cpp
-    IDeviceSystem.cpp
-    IOutputDevice.cpp
     Init.cpp)
 
 set(INCLUDE_DIRS)
@@ -18,10 +12,12 @@ set(LIBRARIES_PRIVATE)
 if(TLRENDER_BMD)
 
     list(APPEND HEADERS_PRIVATE
+        BMDDeviceData.h
         BMDDeviceSystem.h
         BMDOutputDevice.h
         BMDUtil.h)
     list(APPEND SOURCE
+        BMDDeviceData.cpp
         BMDDeviceSystem.cpp
         BMDOutputDevice.cpp
         BMDUtil.cpp)

@@ -30,9 +30,11 @@ namespace tl
 
     namespace qt
     {
-        class OutputDevice;
         class TimeObject;
         class TimelinePlayer;
+#if defined(TLRENDER_BMD)
+        class BMDOutputDevice;
+#endif // TLRENDER_BMD
     }
 
     namespace ui
@@ -43,10 +45,12 @@ namespace tl
     //! tlplay-qt application.
     namespace play_qt
     {
-        class DevicesModel;
         class FilesAModel;
         class FilesBModel;
         class MainWindow;
+#if defined(TLRENDER_BMD)
+        class BMDDevicesModel;
+#endif // TLRENDER_BMD
 
         //! Application.
         class App : public QApplication, public app::IApp
@@ -88,17 +92,19 @@ namespace tl
             //! Get the color model.
             const std::shared_ptr<play::ColorModel>& colorModel() const;
 
-            //! Get the output device.
-            qt::OutputDevice* outputDevice() const;
-
-            //! Get the devices model.
-            const std::shared_ptr<DevicesModel>& devicesModel() const;
-
             //! Get the audio model.
             const std::shared_ptr<play::AudioModel>& audioModel() const;
 
             //! Get the main window.
             MainWindow* mainWindow() const;
+
+#if defined(TLRENDER_BMD)
+            //! Get the devices model.
+            const std::shared_ptr<BMDDevicesModel>& bmdDevicesModel() const;
+
+            //! Get the BMD output device.
+            qt::BMDOutputDevice* bmdOutputDevice() const;
+#endif // TLRENDER_BMD
 
         public Q_SLOTS:
             //! Open a file.

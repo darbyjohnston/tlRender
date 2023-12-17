@@ -29,17 +29,26 @@ namespace tl
     {
         struct BMDDeviceSystem::Private
         {
-            std::vector<DeviceInfo> deviceInfo;
+            std::weak_ptr<system::Context> context;
+            std::shared_ptr<observer::List<DeviceInfo> > deviceInfo;
+            struct Mutex
+            {
+                std::vector<DeviceInfo> deviceInfo;
+                std::mutex mutex;
+            };
+            Mutex mutex;
             std::thread thread;
-            std::mutex mutex;
             std::atomic<bool> running;
         };
 
         void BMDDeviceSystem::_init(const std::shared_ptr<system::Context>& context)
         {
-            IDeviceSystem::_init("tl::device::BMDDeviceSystem", context);
-
+            ISystem::_init("tl::device::BMDDeviceSystem", context);
             TLRENDER_P();
+
+            p.context = context;
+
+            p.deviceInfo = observer::List<DeviceInfo>::create();
 
             p.running = true;
             p.thread = std::thread(
@@ -151,9 +160,9 @@ namespace tl
                         }
 
                         {
-                            std::unique_lock<std::mutex> lock(p.mutex);
-                            log = deviceInfoList != p.deviceInfo;
-                            p.deviceInfo = deviceInfoList;
+                            std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                            log = deviceInfoList != p.mutex.deviceInfo;
+                            p.mutex.deviceInfo = deviceInfoList;
                         }
 
                         if (log)
@@ -216,12 +225,12 @@ namespace tl
             return out;
         }
 
-        std::shared_ptr<IOutputDevice> BMDDeviceSystem::createDevice(
+        std::shared_ptr<BMDOutputDevice> BMDDeviceSystem::createDevice(
             int deviceIndex,
             int displayModeIndex,
             PixelType pixelType)
         {
-            std::shared_ptr<IOutputDevice> out;
+            std::shared_ptr<BMDOutputDevice> out;
             if (deviceIndex != -1 &&
                 displayModeIndex != -1)
             {
@@ -233,15 +242,25 @@ namespace tl
             return out;
         }
 
+        std::shared_ptr<observer::IList<DeviceInfo> > BMDDeviceSystem::observeDeviceInfo() const
+        {
+            return _p->deviceInfo;
+        }
+
         void BMDDeviceSystem::tick()
         {
             TLRENDER_P();
             std::vector<DeviceInfo> deviceInfo;
             {
-                std::unique_lock<std::mutex> lock(p.mutex);
-                deviceInfo = p.deviceInfo;
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                deviceInfo = p.mutex.deviceInfo;
             }
-            _deviceInfo->setIfChanged(deviceInfo);
+            p.deviceInfo->setIfChanged(deviceInfo);
+        }
+
+        std::chrono::milliseconds BMDDeviceSystem::getTickTime() const
+        {
+            return std::chrono::milliseconds(1000);
         }
     }
 }

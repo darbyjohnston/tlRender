@@ -4,7 +4,6 @@ set(HEADERS
     AudioTool.h
     ColorTool.h
     CompareActions.h
-    DevicesModel.h
     DevicesTool.h
     DockTitleBar.h
     FileActions.h
@@ -35,7 +34,6 @@ set(SOURCE
     AudioTool.cpp
     ColorTool.cpp
     CompareActions.cpp
-    DevicesModel.cpp
     DevicesTool.cpp
     DockTitleBar.cpp
     FileActions.cpp
@@ -58,6 +56,13 @@ set(SOURCE
     ViewActions.cpp
     ViewTool.cpp
     WindowActions.cpp)
+
+if(TLRENDER_BMD)
+    list(APPEND HEADERS
+        BMDDevicesModel.h)
+    list(APPEND SOURCE
+        BMDDevicesModel.cpp)
+endif()
 
 if(TLRENDER_QT6)
     qt6_add_resources(SOURCE tlPlayQtApp.qrc)

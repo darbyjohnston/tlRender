@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlQt/OutputDevicePrivate.h>
+#include <tlQt/BMDOutputDevicePrivate.h>
 
 #include <tlTimeline/GLRender.h>
 
@@ -12,7 +12,7 @@
 #include <tlGL/Shader.h>
 #include <tlGL/Texture.h>
 
-#include <tlDevice/IOutputDevice.h>
+#include <tlDevice/BMDOutputDevice.h>
 
 #include <tlCore/Context.h>
 #include <tlCore/Mesh.h>
@@ -28,7 +28,7 @@ namespace tl
 {
     namespace qt
     {
-        OutputDevice::OutputDevice(
+        BMDOutputDevice::BMDOutputDevice(
             const std::shared_ptr<system::Context>& context,
             QObject* parent) :
             QThread(parent),
@@ -37,7 +37,7 @@ namespace tl
             TLRENDER_P();
 
             p.context = context;
-            p.deviceSystem = context->getSystem<device::IDeviceSystem>();
+            p.deviceSystem = context->getSystem<device::BMDDeviceSystem>();
 
             p.glContext.reset(new QOpenGLContext);
             QSurfaceFormat surfaceFormat;
@@ -57,29 +57,29 @@ namespace tl
             start();
         }
 
-        OutputDevice::~OutputDevice()
+        BMDOutputDevice::~BMDOutputDevice()
         {
             TLRENDER_P();
             p.running = false;
             wait();
         }
 
-        int OutputDevice::getDeviceIndex() const
+        int BMDOutputDevice::getDeviceIndex() const
         {
             return _p->deviceIndex;
         }
 
-        int OutputDevice::getDisplayModeIndex() const
+        int BMDOutputDevice::getDisplayModeIndex() const
         {
             return _p->displayModeIndex;
         }
 
-        device::PixelType OutputDevice::getPixelType() const
+        device::PixelType BMDOutputDevice::getPixelType() const
         {
             return _p->pixelType;
         }
 
-        void OutputDevice::setDevice(
+        void BMDOutputDevice::setDevice(
             int deviceIndex,
             int displayModeIndex,
             device::PixelType pixelType)
@@ -101,19 +101,19 @@ namespace tl
             }
         }
 
-        bool OutputDevice::isDeviceEnabled() const
+        bool BMDOutputDevice::isDeviceEnabled() const
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.deviceEnabled;
         }
 
-        bool OutputDevice::isDeviceActive() const
+        bool BMDOutputDevice::isDeviceActive() const
         {
             return _p->deviceActive;
         }
 
-        void OutputDevice::setOCIOOptions(const timeline::OCIOOptions& value)
+        void BMDOutputDevice::setOCIOOptions(const timeline::OCIOOptions& value)
         {
             TLRENDER_P();
             {
@@ -123,7 +123,7 @@ namespace tl
             p.cv.notify_one();
         }
 
-        void OutputDevice::setLUTOptions(const timeline::LUTOptions& value)
+        void BMDOutputDevice::setLUTOptions(const timeline::LUTOptions& value)
         {
             TLRENDER_P();
             {
@@ -133,7 +133,7 @@ namespace tl
             p.cv.notify_one();
         }
 
-        void OutputDevice::setImageOptions(const std::vector<timeline::ImageOptions>& value)
+        void BMDOutputDevice::setImageOptions(const std::vector<timeline::ImageOptions>& value)
         {
             TLRENDER_P();
             {
@@ -143,7 +143,7 @@ namespace tl
             p.cv.notify_one();
         }
 
-        void OutputDevice::setDisplayOptions(const std::vector<timeline::DisplayOptions>& value)
+        void BMDOutputDevice::setDisplayOptions(const std::vector<timeline::DisplayOptions>& value)
         {
             TLRENDER_P();
             {
@@ -153,7 +153,7 @@ namespace tl
             p.cv.notify_one();
         }
 
-        void OutputDevice::setHDR(device::HDRMode hdrMode, const image::HDRData& hdrData)
+        void BMDOutputDevice::setHDR(device::HDRMode hdrMode, const image::HDRData& hdrData)
         {
             TLRENDER_P();
             {
@@ -164,7 +164,7 @@ namespace tl
             p.cv.notify_one();
         }
 
-        void OutputDevice::setCompareOptions(const timeline::CompareOptions& value)
+        void BMDOutputDevice::setCompareOptions(const timeline::CompareOptions& value)
         {
             TLRENDER_P();
             {
@@ -174,7 +174,7 @@ namespace tl
             p.cv.notify_one();
         }
 
-        void OutputDevice::setTimelinePlayers(QVector<QSharedPointer<qt::TimelinePlayer> > value)
+        void BMDOutputDevice::setTimelinePlayers(QVector<QSharedPointer<qt::TimelinePlayer> > value)
         {
             TLRENDER_P();
             if (value == p.timelinePlayers)
@@ -262,7 +262,7 @@ namespace tl
             }
         }
 
-        void OutputDevice::setOverlay(QImage* qImage)
+        void BMDOutputDevice::setOverlay(QImage* qImage)
         {
             TLRENDER_P();
             std::shared_ptr<QImage> tmp;
@@ -284,7 +284,7 @@ namespace tl
             p.cv.notify_one();
         }
 
-        void OutputDevice::setDeviceEnabled(bool value)
+        void BMDOutputDevice::setDeviceEnabled(bool value)
         {
             TLRENDER_P();
             bool active = false;
@@ -301,7 +301,7 @@ namespace tl
             }
         }
 
-        void OutputDevice::setView(
+        void BMDOutputDevice::setView(
             const tl::math::Vector2i& pos,
             float                     zoom,
             bool                      frame)
@@ -316,7 +316,7 @@ namespace tl
             p.cv.notify_one();
         }
 
-        void OutputDevice::setVolume(float value)
+        void BMDOutputDevice::setVolume(float value)
         {
             TLRENDER_P();
             {
@@ -326,7 +326,7 @@ namespace tl
             p.cv.notify_one();
         }
 
-        void OutputDevice::setMute(bool value)
+        void BMDOutputDevice::setMute(bool value)
         {
             TLRENDER_P();
             {
@@ -336,7 +336,7 @@ namespace tl
             p.cv.notify_one();
         }
 
-        void OutputDevice::setAudioOffset(double value)
+        void BMDOutputDevice::setAudioOffset(double value)
         {
             TLRENDER_P();
             {
@@ -346,7 +346,7 @@ namespace tl
             p.cv.notify_one();
         }
 
-        void OutputDevice::_playbackCallback(tl::timeline::Playback value)
+        void BMDOutputDevice::_playbackCallback(tl::timeline::Playback value)
         {
             TLRENDER_P();
             if (qobject_cast<qt::TimelinePlayer*>(sender()) == p.timelinePlayers.front())
@@ -359,7 +359,7 @@ namespace tl
             }
         }
 
-        void OutputDevice::_currentTimeCallback(const otime::RationalTime& value)
+        void BMDOutputDevice::_currentTimeCallback(const otime::RationalTime& value)
         {
             TLRENDER_P();
             if (qobject_cast<qt::TimelinePlayer*>(sender()) == p.timelinePlayers.front())
@@ -372,7 +372,7 @@ namespace tl
             }
         }
 
-        void OutputDevice::_currentVideoCallback(const tl::timeline::VideoData& value)
+        void BMDOutputDevice::_currentVideoCallback(const tl::timeline::VideoData& value)
         {
             TLRENDER_P();
             const auto i = std::find(p.timelinePlayers.begin(), p.timelinePlayers.end(), sender());
@@ -387,7 +387,7 @@ namespace tl
             }
         }
 
-        void OutputDevice::_currentAudioCallback(const std::vector<tl::timeline::AudioData>& value)
+        void BMDOutputDevice::_currentAudioCallback(const std::vector<tl::timeline::AudioData>& value)
         {
             TLRENDER_P();
             if (qobject_cast<qt::TimelinePlayer*>(sender()) == p.timelinePlayers.front())
@@ -400,7 +400,7 @@ namespace tl
             }
         }
 
-        void OutputDevice::run()
+        void BMDOutputDevice::run()
         {
             TLRENDER_P();
 
@@ -437,7 +437,7 @@ namespace tl
             double audioOffset = 0.0;
             std::vector<timeline::AudioData> audioData;
 
-            std::shared_ptr<device::IOutputDevice> device;
+            std::shared_ptr<device::BMDOutputDevice> device;
             std::shared_ptr<tl::gl::Shader> shader;
             std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
             std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer2;
@@ -894,7 +894,7 @@ namespace tl
             glDeleteBuffers(pbo.size(), pbo.data());
         }
 
-        bool OutputDevice::_isDeviceActive() const
+        bool BMDOutputDevice::_isDeviceActive() const
         {
             TLRENDER_P();
             return
