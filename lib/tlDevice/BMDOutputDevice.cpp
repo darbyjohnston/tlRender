@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlDevice/BMDOutputDevice.h>
+#include <tlDevice/BMDOutputDevicePrivate.h>
 
 #include <tlDevice/BMDUtil.h>
 

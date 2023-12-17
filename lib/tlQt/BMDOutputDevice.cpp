@@ -556,20 +556,17 @@ namespace tl
                         pixelType != device::PixelType::None &&
                         deviceEnabled)
                     {
-                        if (auto deviceSystem = p.deviceSystem.lock())
+                        if (auto context = p.context.lock())
                         {
                             try
                             {
-                                device = deviceSystem->createDevice(deviceIndex, displayModeIndex, pixelType);
+                                device = device::BMDOutputDevice::create(deviceIndex, displayModeIndex, pixelType, context);
                                 deviceSize = device->getSize();
                                 deviceFrameRate = device->getFrameRate();
                             }
                             catch (const std::exception& e)
                             {
-                                if (auto context = p.context.lock())
-                                {
-                                    context->log("tl::qt::OutputDevice", e.what(), log::Type::Error);
-                                }
+                                context->log("tl::qt::OutputDevice", e.what(), log::Type::Error);
                             }
                         }
                     }

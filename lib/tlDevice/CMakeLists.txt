@@ -11,11 +11,13 @@ set(LIBRARIES_PRIVATE)
 
 if(TLRENDER_BMD)
 
-    list(APPEND HEADERS_PRIVATE
+    list(APPEND HEADERS
         BMDDeviceData.h
         BMDDeviceSystem.h
         BMDOutputDevice.h
         BMDUtil.h)
+    list(APPEND HEADERS_PRIVATE
+        BMDOutputDevicePrivate.h)
     list(APPEND SOURCE
         BMDDeviceData.cpp
         BMDDeviceSystem.cpp

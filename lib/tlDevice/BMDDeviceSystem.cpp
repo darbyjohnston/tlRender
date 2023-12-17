@@ -225,23 +225,6 @@ namespace tl
             return out;
         }
 
-        std::shared_ptr<BMDOutputDevice> BMDDeviceSystem::createDevice(
-            int deviceIndex,
-            int displayModeIndex,
-            PixelType pixelType)
-        {
-            std::shared_ptr<BMDOutputDevice> out;
-            if (deviceIndex != -1 &&
-                displayModeIndex != -1)
-            {
-                if (auto context = getContext().lock())
-                {
-                    out = BMDOutputDevice::create(deviceIndex, displayModeIndex, pixelType, context);
-                }
-            }
-            return out;
-        }
-
         std::shared_ptr<observer::IList<DeviceInfo> > BMDDeviceSystem::observeDeviceInfo() const
         {
             return _p->deviceInfo;

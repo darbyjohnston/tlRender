@@ -13,8 +13,6 @@ namespace tl
 {
     namespace device
     {
-        class BMDOutputDevice;
-
         //! BMD device system.
         class BMDDeviceSystem : public system::ISystem
         {
@@ -33,12 +31,6 @@ namespace tl
 
             //! Observe the device information.
             std::shared_ptr<observer::IList<DeviceInfo> > observeDeviceInfo() const;
-
-            //! Create a new output device.
-            std::shared_ptr<BMDOutputDevice> createDevice(
-                int deviceIndex,
-                int displayModeIndex,
-                PixelType);
 
             void tick() override;
             std::chrono::milliseconds getTickTime() const override;
