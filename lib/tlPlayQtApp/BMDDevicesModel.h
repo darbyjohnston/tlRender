@@ -31,6 +31,7 @@ namespace tl
             std::vector<device::PixelType> pixelTypes;
             int pixelTypeIndex = 0;
             bool deviceEnabled = true;
+            device::BoolOptions boolOptions;
             image::VideoLevels videoLevels = image::VideoLevels::LegalRange;
             device::HDRMode hdrMode = device::HDRMode::FromFile;
             image::HDRData hdrData;
@@ -70,6 +71,9 @@ namespace tl
 
             //! Set whether the device is enabled.
             void setDeviceEnabled(bool);
+
+            //! Set the boolean options.
+            void setBoolOptions(const device::BoolOptions&);
 
             //! Set the video levels.
             void setVideoLevels(image::VideoLevels);

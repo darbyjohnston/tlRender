@@ -52,6 +52,7 @@ namespace tl
             QComboBox* deviceComboBox = nullptr;
             QComboBox* displayModeComboBox = nullptr;
             QComboBox* pixelTypeComboBox = nullptr;
+            QCheckBox* _444SDIVideoOutputCheckBox = nullptr;
             QComboBox* videoLevelsComboBox = nullptr;
             QComboBox* hdrModeComboBox = nullptr;
             std::pair<QDoubleSpinBox*, QDoubleSpinBox*> redPrimariesSpinBoxes =
@@ -86,6 +87,8 @@ namespace tl
 
             p.pixelTypeComboBox = new QComboBox;
 
+            p._444SDIVideoOutputCheckBox = new QCheckBox(tr("444 SDI Video Output"));
+
             p.videoLevelsComboBox = new QComboBox;
 
             p.hdrModeComboBox = new QComboBox;
@@ -118,6 +121,7 @@ namespace tl
             layout->addRow(tr("Name:"), p.deviceComboBox);
             layout->addRow(tr("Display mode:"), p.displayModeComboBox);
             layout->addRow(tr("Pixel type:"), p.pixelTypeComboBox);
+            layout->addRow(p._444SDIVideoOutputCheckBox);
             layout->addRow(tr("Video levels:"), p.videoLevelsComboBox);
             auto widget = new QWidget;
             widget->setLayout(layout);
@@ -185,6 +189,16 @@ namespace tl
                 [this](int value)
                 {
                     _p->app->bmdDevicesModel()->setPixelTypeIndex(value);
+                });
+
+            connect(
+                p._444SDIVideoOutputCheckBox,
+                &QCheckBox::toggled,
+                [this](bool value)
+                {
+                    auto options = _p->app->bmdDevicesModel()->observeData()->get().boolOptions;
+                    options[device::Option::_444SDIVideoOutput] = value;
+                    _p->app->bmdDevicesModel()->setBoolOptions(options);
                 });
 
             connect(
@@ -353,6 +367,11 @@ namespace tl
                             _p->pixelTypeComboBox->addItem(QString::fromUtf8(ss.str().c_str()));
                         }
                         _p->pixelTypeComboBox->setCurrentIndex(value.pixelTypeIndex);
+                    }
+                    {
+                        QSignalBlocker blocker(_p->_444SDIVideoOutputCheckBox);
+                        const auto i = value.boolOptions.find(device::Option::_444SDIVideoOutput);
+                        _p->_444SDIVideoOutputCheckBox->setChecked(i != value.boolOptions.end() ? i->second : false);
                     }
                     {
                         QSignalBlocker blocker(_p->videoLevelsComboBox);

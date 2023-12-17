@@ -29,20 +29,25 @@ namespace tl
             "10BitRGBXLE");
         TLRENDER_ENUM_SERIALIZE_IMPL(PixelType);
 
-        size_t getDataByteCount(const math::Size2i& size, PixelType pixelType)
+        size_t getRowByteCount(int size, PixelType pixelType)
         {
             size_t out = 0;
             switch (pixelType)
             {
             case PixelType::_8BitBGRA:
-                out = (size.w * 32 / 8) * size.h;
+                out = size * 32 / 8;
                 break;
             case PixelType::_10BitRGBXLE:
-                out = ((size.w + 63) / 64) * 256 * size.h;
+                out = ((size + 63) / 64) * 256;
                 break;
             default: break;
             }
             return out;
+        }
+
+        size_t getDataByteCount(const math::Size2i& size, PixelType pixelType)
+        {
+            return getRowByteCount(size.w, pixelType) * size.h;
         }
 
         void PixelData::_init(
@@ -133,6 +138,12 @@ namespace tl
                 pixelTypes == other.pixelTypes &&
                 hdrMetaData == other.hdrMetaData;
         }
+        
+        TLRENDER_ENUM_IMPL(
+            Option,
+            "None",
+            "444SDIVideoOutput");
+        TLRENDER_ENUM_SERIALIZE_IMPL(Option);
 
         TLRENDER_ENUM_IMPL(
             HDRMode,

@@ -24,6 +24,7 @@ namespace tl
                 int deviceIndex,
                 int displayModeIndex,
                 PixelType,
+                const BoolOptions&,
                 const std::shared_ptr<system::Context>&);
 
             BMDOutputDevice();
@@ -36,6 +37,7 @@ namespace tl
                 int deviceIndex,
                 int displayModeIndex,
                 PixelType,
+                const BoolOptions&,
                 const std::shared_ptr<system::Context>&);
 
             //! Get the output device index. A value of -1 is returned if there
@@ -48,6 +50,9 @@ namespace tl
 
             //! Get the output device pixel type.
             PixelType getPixelType() const;
+
+            //! Get the boolean options.
+            const BoolOptions& getBoolOptions() const;
 
             //! Get the output device size.
             const math::Size2i& getSize() const;

@@ -38,6 +38,9 @@ namespace tl
         TLRENDER_ENUM(PixelType);
         TLRENDER_ENUM_SERIALIZE(PixelType);
 
+        //! Get the number of bytes used to store a row of pixel data.
+        size_t getRowByteCount(int, PixelType);
+
         //! Get the number of bytes used to store the pixel data.
         size_t getDataByteCount(const math::Size2i&, PixelType);
 
@@ -113,6 +116,21 @@ namespace tl
 
             bool operator == (const DeviceInfo&) const;
         };
+
+        //! Device options.
+        enum class Option
+        {
+            None,
+            _444SDIVideoOutput,
+
+            Count,
+            First = None
+        };
+        TLRENDER_ENUM(Option);
+        TLRENDER_ENUM_SERIALIZE(Option);
+
+        //! Device boolean options.
+        typedef std::map<Option, bool> BoolOptions;
 
         //! HDR mode.
         enum class HDRMode

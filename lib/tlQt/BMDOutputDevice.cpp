@@ -113,6 +113,23 @@ namespace tl
             return _p->deviceActive;
         }
 
+        device::BoolOptions BMDOutputDevice::getBoolOptions() const
+        {
+            TLRENDER_P();
+            std::unique_lock<std::mutex> lock(p.mutex);
+            return p.boolOptions;
+        }
+
+        void BMDOutputDevice::setBoolOptions(const device::BoolOptions& value)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.boolOptions = value;
+            }
+            p.cv.notify_one();
+        }
+
         void BMDOutputDevice::setOCIOOptions(const timeline::OCIOOptions& value)
         {
             TLRENDER_P();
@@ -416,6 +433,7 @@ namespace tl
             int deviceIndex = -1;
             int displayModeIndex = -1;
             device::PixelType pixelType = device::PixelType::None;
+            device::BoolOptions boolOptions;
             bool deviceEnabled = true;
             timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
@@ -461,8 +479,8 @@ namespace tl
                     if (p.cv.wait_for(
                         lock,
                         p.timeout,
-                        [this, deviceIndex, displayModeIndex, pixelType,
-                        deviceEnabled, ocioOptions, lutOptions, imageOptions,
+                        [this, deviceIndex, displayModeIndex, pixelType, deviceEnabled,
+                        boolOptions, ocioOptions, lutOptions, imageOptions,
                         displayOptions, hdrMode, hdrData, compareOptions,
                         playback, currentTime, sizes, viewPos, viewZoom, frameView,
                         videoData, overlay, volume, mute, audioOffset, audioData]
@@ -472,6 +490,7 @@ namespace tl
                                 displayModeIndex != _p->displayModeIndex ||
                                 pixelType != _p->pixelType ||
                                 deviceEnabled != _p->deviceEnabled ||
+                                boolOptions != _p->boolOptions ||
                                 ocioOptions != _p->ocioOptions ||
                                 lutOptions != _p->lutOptions ||
                                 imageOptions != _p->imageOptions ||
@@ -497,11 +516,13 @@ namespace tl
                             p.deviceIndex != deviceIndex ||
                             p.displayModeIndex != displayModeIndex ||
                             p.pixelType != pixelType ||
-                            p.deviceEnabled != deviceEnabled;
+                            p.deviceEnabled != deviceEnabled ||
+                            p.boolOptions != boolOptions;
                         deviceIndex = p.deviceIndex;
                         displayModeIndex = p.displayModeIndex;
                         pixelType = p.pixelType;
                         deviceEnabled = p.deviceEnabled;
+                        boolOptions = p.boolOptions;
 
                         playback = p.playback;
                         currentTime = p.currentTime;
@@ -560,7 +581,12 @@ namespace tl
                         {
                             try
                             {
-                                device = device::BMDOutputDevice::create(deviceIndex, displayModeIndex, pixelType, context);
+                                device = device::BMDOutputDevice::create(
+                                    deviceIndex,
+                                    displayModeIndex,
+                                    pixelType,
+                                    boolOptions,
+                                    context);
                                 deviceSize = device->getSize();
                                 deviceFrameRate = device->getFrameRate();
                             }

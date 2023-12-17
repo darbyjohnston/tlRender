@@ -61,6 +61,12 @@ namespace tl
             //! Get whether the output device is active.
             bool isDeviceActive() const;
 
+            //! Get the boolean options.
+            device::BoolOptions getBoolOptions() const;
+
+            //! Set the boolean options.
+            void setBoolOptions(const device::BoolOptions&);
+
             //! Set the OpenColorIO options.
             void setOCIOOptions(const timeline::OCIOOptions&);
 

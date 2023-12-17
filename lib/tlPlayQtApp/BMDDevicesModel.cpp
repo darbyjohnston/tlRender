@@ -25,6 +25,7 @@ namespace tl
                 pixelTypes == other.pixelTypes &&
                 pixelTypeIndex == other.pixelTypeIndex &&
                 deviceEnabled == other.deviceEnabled &&
+                boolOptions == other.boolOptions &&
                 videoLevels == other.videoLevels &&
                 hdrMode == other.hdrMode &&
                 hdrData == other.hdrData;
@@ -37,6 +38,7 @@ namespace tl
             int displayModeIndex = 0;
             int pixelTypeIndex = 0;
             bool deviceEnabled = true;
+            device::BoolOptions boolOptions;
             image::VideoLevels videoLevels = image::VideoLevels::LegalRange;
             device::HDRMode hdrMode = device::HDRMode::FromFile;
             image::HDRData hdrData;
@@ -121,6 +123,15 @@ namespace tl
             _update();
         }
 
+        void BMDDevicesModel::setBoolOptions(const device::BoolOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.boolOptions)
+                return;
+            p.boolOptions = value;
+            _update();
+        }
+
         void BMDDevicesModel::setVideoLevels(image::VideoLevels value)
         {
             TLRENDER_P();
@@ -182,6 +193,8 @@ namespace tl
             }
 
             data.deviceEnabled = p.deviceEnabled;
+
+            data.boolOptions = p.boolOptions;
 
             data.videoLevels = p.videoLevels;
 

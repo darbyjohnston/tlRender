@@ -655,6 +655,7 @@ namespace tl
             int deviceIndex = 0;
             int displayModeIndex = 0;
             PixelType pixelType = PixelType::None;
+            BoolOptions boolOptions;
             math::Size2i size;
             otime::RationalTime frameRate;
 
@@ -669,6 +670,7 @@ namespace tl
             int deviceIndex,
             int displayModeIndex,
             PixelType pixelType,
+            const BoolOptions& boolOptions,
             const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
@@ -676,6 +678,7 @@ namespace tl
             p.deviceIndex = deviceIndex;
             p.displayModeIndex = displayModeIndex;
             p.pixelType = pixelType;
+            p.boolOptions = boolOptions;
 
             std::string modelName;
             {
@@ -719,6 +722,21 @@ namespace tl
             if (p.dl.p->QueryInterface(IID_IDeckLinkConfiguration, (void**)&p.dlConfig) != S_OK)
             {
                 throw std::runtime_error("Configuration device not found");
+            }
+            for (const auto& option : boolOptions)
+            {
+                switch (option.first)
+                {
+                case Option::_444SDIVideoOutput:
+                    p.dlConfig.p->SetFlag(bmdDeckLinkConfig444SDIVideoOutput, option.second);
+                    break;
+                default: break;
+                }
+            }
+            {
+                BOOL value = 0;
+                p.dlConfig.p->GetFlag(bmdDeckLinkConfig444SDIVideoOutput, &value);
+                p.boolOptions[Option::_444SDIVideoOutput] = value;
             }
 
             if (p.dl.p->QueryInterface(IID_IDeckLinkOutput, (void**)&p.dlOutput) != S_OK)
@@ -836,10 +854,11 @@ namespace tl
             int deviceIndex,
             int displayModeIndex,
             PixelType pixelType,
+            const BoolOptions& boolOptions,
             const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<BMDOutputDevice>(new BMDOutputDevice);
-            out->_init(deviceIndex, displayModeIndex, pixelType, context);
+            out->_init(deviceIndex, displayModeIndex, pixelType, boolOptions, context);
             return out;
         }
 
@@ -856,6 +875,11 @@ namespace tl
         PixelType BMDOutputDevice::getPixelType() const
         {
             return _p->pixelType;
+        }
+
+        const BoolOptions& BMDOutputDevice::getBoolOptions() const
+        {
+            return _p->boolOptions;
         }
 
         const math::Size2i& BMDOutputDevice::getSize() const
