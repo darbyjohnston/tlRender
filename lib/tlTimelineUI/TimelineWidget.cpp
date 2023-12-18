@@ -160,7 +160,7 @@ namespace tl
         {
             TLRENDER_P();
             p.scrollWidget->setScrollPos(math::Vector2i());
-            const float scale = _getTimelineScale();
+            const double scale = _getTimelineScale();
             if (scale != p.scale)
             {
                 p.scale = scale;
