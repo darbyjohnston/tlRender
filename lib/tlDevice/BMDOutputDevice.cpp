@@ -337,7 +337,7 @@ namespace tl
                 if (p.dlOutput->CreateVideoFrame(
                     p.size.w,
                     p.size.h,
-                    p.size.w * 4,
+                    getRowByteCount(p.size.w, pixelType),
                     toBMD(pixelType),
                     bmdFrameFlagFlipVertical,
                     &dlVideoFrame.p) != S_OK)
