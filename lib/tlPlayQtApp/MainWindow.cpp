@@ -43,7 +43,7 @@
 #include <tlQtWidget/Util.h>
 
 #if defined(TLRENDER_BMD)
-#include <tlQt/BMDOutputDevice.h>
+#include <tlDevice/BMDOutputDevice.h>
 #endif // TLRENDER_BMD
 
 #include <tlCore/File.h>

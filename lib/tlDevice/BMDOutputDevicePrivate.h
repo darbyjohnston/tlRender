@@ -22,34 +22,102 @@ namespace tl
 {
     namespace device
     {
-        //! Decklink wrapper.
+        class DLIteratorWrapper
+        {
+        public:
+            ~DLIteratorWrapper() { if (p) p->Release(); }
+
+            IDeckLinkIterator* p = nullptr;
+        };
+
         class DLWrapper
         {
         public:
-            ~DLWrapper();
+            ~DLWrapper() { if (p) { p->Release(); } }
 
             IDeckLink* p = nullptr;
         };
 
-        //! Decklink configuration wrapper.
         class DLConfigWrapper
         {
         public:
-            ~DLConfigWrapper();
+            ~DLConfigWrapper() { if (p) { p->Release(); } }
 
             IDeckLinkConfiguration* p = nullptr;
         };
 
-        //! Decklink output wrapper.
+        class DLDisplayModeIteratorWrapper
+        {
+        public:
+            ~DLDisplayModeIteratorWrapper() { if (p) p->Release(); }
+
+            IDeckLinkDisplayModeIterator* p = nullptr;
+        };
+
+        class DLDisplayModeWrapper
+        {
+        public:
+            ~DLDisplayModeWrapper() { if (p) p->Release(); }
+
+            IDeckLinkDisplayMode* p = nullptr;
+        };
+
+        class DLVideoFrameWrapper
+        {
+        public:
+            ~DLVideoFrameWrapper() { if (p) p->Release(); }
+
+            IDeckLinkMutableVideoFrame* p = nullptr;
+        };
+
+        /*class DLHDRVideoFrame :
+            public IDeckLinkVideoFrame,
+            public IDeckLinkVideoFrameMetadataExtensions
+        {
+        public:
+            DLHDRVideoFrame(std::shared_ptr<IDeckLinkMutableVideoFrame>& frame, image::HDRData& hdrData) :
+                _frame(frame),
+                _hdrData(hdrData),
+                _refCount(1)
+            {}
+
+            virtual ~DLHDRVideoFrame() {}
+
+            HRESULT QueryInterface(REFIID iid, LPVOID* ppv) override;
+            ULONG AddRef(void) override;
+            ULONG Release(void) override;
+
+            long GetWidth(void) override { return _frame->GetWidth(); }
+            long GetHeight(void) override { return _frame->GetHeight(); }
+            long GetRowBytes(void) override { return _frame->GetRowBytes(); }
+            BMDPixelFormat GetPixelFormat(void) override { return _frame->GetPixelFormat(); }
+            BMDFrameFlags GetFlags(void) override { return _frame->GetFlags() | bmdFrameContainsHDRMetadata; }
+            HRESULT GetBytes(void** buffer) override { return _frame->GetBytes(buffer); }
+            HRESULT GetTimecode(BMDTimecodeFormat format, IDeckLinkTimecode** timecode) override { return _frame->GetTimecode(format, timecode); }
+            HRESULT GetAncillaryData(IDeckLinkVideoFrameAncillary** ancillary) override { return _frame->GetAncillaryData(ancillary); }
+
+            HRESULT GetInt(BMDDeckLinkFrameMetadataID metadataID, int64_t* value) override;
+            HRESULT GetFloat(BMDDeckLinkFrameMetadataID metadataID, double* value) override;
+            HRESULT GetFlag(BMDDeckLinkFrameMetadataID metadataID, BOOL* value) override;
+            HRESULT GetString(BMDDeckLinkFrameMetadataID metadataID, BSTR* value) override;
+            HRESULT GetBytes(BMDDeckLinkFrameMetadataID metadataID, void* buffer, uint32_t* bufferSize) override;
+
+            void UpdateHDRMetadata(const image::HDRData& metadata) { _hdrData = metadata; }
+
+        private:
+            std::shared_ptr<IDeckLinkMutableVideoFrame> _frame;
+            image::HDRData _hdrData;
+            std::atomic<ULONG> _refCount;
+        };*/
+
         class DLOutputWrapper
         {
         public:
-            ~DLOutputWrapper();
+            ~DLOutputWrapper() { if (p) { p->Release(); } }
 
             IDeckLinkOutput* p = nullptr;
         };
 
-        //! Decklink output callback.
         class DLOutputCallback :
             public IDeckLinkVideoOutputCallback,
             public IDeckLinkAudioOutputCallback
@@ -63,7 +131,9 @@ namespace tl
                 const audio::Info& audioInfo);
 
             void setPlayback(timeline::Playback, const otime::RationalTime&);
-            void setPixelData(const std::shared_ptr<device::PixelData>&);
+            void setVideo(
+                const std::shared_ptr<DLVideoFrameWrapper>&,
+                const otime::RationalTime&);
             void setVolume(float);
             void setMute(bool);
             void setAudioOffset(double);
@@ -82,11 +152,10 @@ namespace tl
             TLRENDER_PRIVATE();
         };
 
-        //! Decklink output callback wrapper.
         class DLOutputCallbackWrapper
         {
         public:
-            ~DLOutputCallbackWrapper();
+            ~DLOutputCallbackWrapper() { if (p) { p->Release(); } }
             
             DLOutputCallback* p = nullptr;
         };

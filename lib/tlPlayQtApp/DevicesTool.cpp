@@ -14,7 +14,7 @@
 #include <tlQtWidget/Spacer.h>
 
 #if defined(TLRENDER_BMD)
-#include <tlQt/BMDOutputDevice.h>
+#include <tlDevice/BMDOutputDevice.h>
 #endif // TLRENDER_BMD
 
 #include <QAction>

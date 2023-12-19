@@ -17,6 +17,13 @@
 
 namespace tl
 {
+    namespace device
+    {
+#if defined(TLRENDER_BMD)
+        class BMDOutputDevice;
+#endif // TLRENDER_BMD
+    }
+
     namespace play
     {
         struct FilesModelItem;
@@ -32,9 +39,6 @@ namespace tl
     {
         class TimeObject;
         class TimelinePlayer;
-#if defined(TLRENDER_BMD)
-        class BMDOutputDevice;
-#endif // TLRENDER_BMD
     }
 
     namespace ui
@@ -103,7 +107,7 @@ namespace tl
             const std::shared_ptr<BMDDevicesModel>& bmdDevicesModel() const;
 
             //! Get the BMD output device.
-            qt::BMDOutputDevice* bmdOutputDevice() const;
+            const std::shared_ptr<device::BMDOutputDevice>& bmdOutputDevice() const;
 #endif // TLRENDER_BMD
 
         public Q_SLOTS:

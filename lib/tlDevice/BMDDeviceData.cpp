@@ -45,91 +45,6 @@ namespace tl
             return out;
         }
 
-        size_t getDataByteCount(const math::Size2i& size, PixelType pixelType)
-        {
-            return getRowByteCount(size.w, pixelType) * size.h;
-        }
-
-        void PixelData::_init(
-            const math::Size2i& size,
-            PixelType pixelType,
-            const otime::RationalTime& time)
-        {
-            _size = size;
-            _pixelType = pixelType;
-            _time = time;
-            _dataByteCount = device::getDataByteCount(_size, _pixelType);
-            // Use reserve() instead of resize() which can be faster since it
-            // does not initialize the data.
-            _data.reserve(_dataByteCount);
-        }
-
-        PixelData::PixelData()
-        {}
-
-        PixelData::~PixelData()
-        {}
-
-        std::shared_ptr<PixelData> PixelData::create(
-            const math::Size2i& size,
-            PixelType pixelType,
-            const otime::RationalTime& time)
-        {
-            auto out = std::shared_ptr<PixelData>(new PixelData);
-            out->_init(size, pixelType, time);
-            return out;
-        }
-
-        const math::Size2i& PixelData::getSize() const
-        {
-            return _size;
-        }
-
-        PixelType PixelData::getPixelType() const
-        {
-            return _pixelType;
-        }
-
-        const otime::RationalTime& PixelData::getTime() const
-        {
-            return _time;
-        }
-
-        bool PixelData::isValid() const
-        {
-            return _size.isValid() && _pixelType != PixelType::None;
-        }
-
-        size_t PixelData::getDataByteCount() const
-        {
-            return _dataByteCount;
-        }
-
-        const uint8_t* PixelData::getData() const
-        {
-            return _data.data();
-        }
-
-        uint8_t* PixelData::getData()
-        {
-            return _data.data();
-        }
-
-        void PixelData::zero()
-        {
-            std::memset(_data.data(), 0, _dataByteCount);
-        }
-
-        const std::shared_ptr<image::HDRData>& PixelData::getHDRData() const
-        {
-            return _hdrData;
-        }
-
-        void PixelData::setHDRData(const std::shared_ptr<image::HDRData>& value)
-        {
-            _hdrData = value;
-        }
-
         bool DeviceInfo::operator == (const DeviceInfo& other) const
         {
             return
@@ -138,12 +53,31 @@ namespace tl
                 pixelTypes == other.pixelTypes &&
                 hdrMetaData == other.hdrMetaData;
         }
+
+        bool DeviceInfo::operator != (const DeviceInfo& other) const
+        {
+            return !(*this == other);
+        }
         
         TLRENDER_ENUM_IMPL(
             Option,
             "None",
             "444SDIVideoOutput");
         TLRENDER_ENUM_SERIALIZE_IMPL(Option);
+
+        bool DeviceConfig::operator == (const DeviceConfig& other) const
+        {
+            return
+                deviceIndex == other.deviceIndex &&
+                displayModeIndex == other.displayModeIndex &&
+                pixelType == other.pixelType &&
+                boolOptions == other.boolOptions;
+        }
+
+        bool DeviceConfig::operator != (const DeviceConfig& other) const
+        {
+            return !(*this == other);
+        }
 
         TLRENDER_ENUM_IMPL(
             HDRMode,

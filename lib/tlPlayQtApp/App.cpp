@@ -24,9 +24,6 @@
 #include <tlQt/TimeObject.h>
 #include <tlQt/TimelinePlayer.h>
 #include <tlQt/ToolTipsFilter.h>
-#if defined(TLRENDER_BMD)
-#include <tlQt/BMDOutputDevice.h>
-#endif // TLRENDER_BMD
 
 #include <tlUI/RecentFilesModel.h>
 
@@ -36,6 +33,10 @@
 #include <tlPlay/FilesModel.h>
 #include <tlPlay/ViewportModel.h>
 #include <tlPlay/Util.h>
+
+#if defined(TLRENDER_BMD)
+#include <tlDevice/BMDOutputDevice.h>
+#endif // TLRENDER_BMD
 
 #include <tlTimeline/Util.h>
 
@@ -80,8 +81,8 @@ namespace tl
             QScopedPointer<SecondaryWindow> secondaryWindow;
             bool bmdDeviceActive = false;
 #if defined(TLRENDER_BMD)
-            QScopedPointer<qt::BMDOutputDevice> bmdOutputDevice;
             std::shared_ptr<BMDDevicesModel> bmdDevicesModel;
+            std::shared_ptr<device::BMDOutputDevice> bmdOutputDevice;
 #endif // TLRENDER_BMD
 
             std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
@@ -94,6 +95,9 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ValueObserver<double> > syncOffsetObserver;
 #if defined(TLRENDER_BMD)
+            std::shared_ptr<observer::ValueObserver<bool> > bmdActiveObserver;
+            std::shared_ptr<observer::ValueObserver<math::Size2i> > bmdSizeObserver;
+            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > bmdFrameRateObserver;
             std::shared_ptr<observer::ValueObserver<BMDDevicesModelData> > bmdDevicesObserver;
 #endif // TLRENDER_BMD
         };
@@ -217,9 +221,9 @@ namespace tl
             return _p->bmdDevicesModel;
         }
 
-        qt::BMDOutputDevice* App::bmdOutputDevice() const
+        const std::shared_ptr<device::BMDOutputDevice>& App::bmdOutputDevice() const
         {
-            return _p->bmdOutputDevice.get();
+            return _p->bmdOutputDevice;
         }
 #endif // TLRENDER_BMD
 
@@ -425,7 +429,12 @@ namespace tl
                 }
             }
 #if defined(TLRENDER_BMD)
-            p.bmdOutputDevice->setTimelinePlayers(activePlayers);
+            std::vector<std::shared_ptr<timeline::Player> > activePlayers2;
+            for (const auto& player : activePlayers)
+            {
+                activePlayers2.push_back(player->player());
+            }
+            p.bmdOutputDevice->setPlayers(activePlayers2);
 #endif // TLRENDER_BMD
 
             _cacheUpdate();
@@ -558,35 +567,33 @@ namespace tl
             p.audioModel = play::AudioModel::create(p.settings, _context);
 
 #if defined(TLRENDER_BMD)
-            p.bmdOutputDevice.reset(new qt::BMDOutputDevice(_context));
-            if (0)
+            p.bmdOutputDevice = device::BMDOutputDevice::create(_context);
+            //! \todo BMD
+            /*if (0)
             {
                 QImage* bmdOverlayImage = new QImage(1920, 1080, QImage::Format_RGBA8888);
                 bmdOverlayImage->fill(QColor(0, 0, 255, 63));
                 p.bmdOutputDevice->setOverlay(bmdOverlayImage);
-            }
-            connect(
-                p.bmdOutputDevice.get(),
-                &qt::BMDOutputDevice::deviceActiveChanged,
+            }*/
+            p.bmdActiveObserver = observer::ValueObserver<bool>::create(
+                p.bmdOutputDevice->observeActive(),
                 [this](bool value)
                 {
                     _p->bmdDeviceActive = value;
                     _audioUpdate();
                 });
-            /*connect(
-                p.bmdOutputDevice.get(),
-                &qt::BMDOutputDevice::sizeChanged,
+            p.bmdSizeObserver = observer::ValueObserver<math::Size2i>::create(
+                p.bmdOutputDevice->observeSize(),
                 [this](const math::Size2i& value)
                 {
-                    std::cout << "output device size: " << value << std::endl;
+                    //std::cout << "output device size: " << value << std::endl;
                 });
-            connect(
-                p.bmdOutputDevice.get(),
-                &qt::BMDOutputDevice::frameRateChanged,
+            p.bmdFrameRateObserver = observer::ValueObserver<otime::RationalTime>::create(
+                p.bmdOutputDevice->observeFrameRate(),
                 [this](const otime::RationalTime& value)
                 {
-                    std::cout << "output device frame rate: " << value << std::endl;
-                });*/
+                    //std::cout << "output device frame rate: " << value << std::endl;
+                });
             p.bmdDevicesModel = BMDDevicesModel::create(_context); p.bmdDevicesModel->setDeviceIndex(
                 p.settings->getValue<int>("BMD/DeviceIndex"));
             p.bmdDevicesModel->setDisplayModeIndex(
@@ -699,16 +706,16 @@ namespace tl
                 [this](const BMDDevicesModelData& value)
                 {
                     TLRENDER_P();
-                    const device::PixelType pixelType = value.pixelTypeIndex >= 0 &&
+                    device::DeviceConfig config;
+                    config.deviceIndex = value.deviceIndex - 1;
+                    config.displayModeIndex = value.displayModeIndex - 1;
+                    config.pixelType = value.pixelTypeIndex >= 0 &&
                         value.pixelTypeIndex < value.pixelTypes.size() ?
                         value.pixelTypes[value.pixelTypeIndex] :
                         device::PixelType::None;
-                    p.bmdOutputDevice->setDevice(
-                        value.deviceIndex - 1,
-                        value.displayModeIndex - 1,
-                        pixelType);
-                    p.bmdOutputDevice->setDeviceEnabled(value.deviceEnabled);
-                    p.bmdOutputDevice->setBoolOptions(value.boolOptions);
+                    config.boolOptions = value.boolOptions;
+                    p.bmdOutputDevice->setConfig(config);
+                    p.bmdOutputDevice->setEnabled(value.deviceEnabled);
                     p.bmdOutputDevice->setHDR(value.hdrMode, value.hdrData);
 
                     p.settings->setValue("BMD/DeviceIndex", value.deviceIndex);
@@ -980,18 +987,6 @@ namespace tl
                     player->setMute(mute || p.bmdDeviceActive);
                 }
             }
-#if defined(TLRENDER_BMD)
-            if (p.bmdOutputDevice)
-            {
-                p.bmdOutputDevice->setVolume(volume);
-                p.bmdOutputDevice->setMute(mute);
-                const auto activePlayers = this->activePlayers();
-                p.bmdOutputDevice->setAudioOffset(
-                    (!activePlayers.empty() && activePlayers[0]) ?
-                    activePlayers[0]->audioOffset() :
-                    0.0);
-            }
-#endif // TLRENDER_BMD
         }
     }
 }

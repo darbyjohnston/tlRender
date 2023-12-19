@@ -7,7 +7,6 @@
 #include <tlTimeline/Video.h>
 
 #include <tlCore/HDR.h>
-#include <tlCore/Image.h>
 #include <tlCore/Size.h>
 #include <tlCore/Time.h>
 
@@ -41,69 +40,6 @@ namespace tl
         //! Get the number of bytes used to store a row of pixel data.
         size_t getRowByteCount(int, PixelType);
 
-        //! Get the number of bytes used to store the pixel data.
-        size_t getDataByteCount(const math::Size2i&, PixelType);
-
-        //! Pixel data.
-        class PixelData : public std::enable_shared_from_this<PixelData>
-        {
-            TLRENDER_NON_COPYABLE(PixelData);
-
-        protected:
-            void _init(
-                const math::Size2i&,
-                PixelType,
-                const otime::RationalTime&);
-            PixelData();
-
-        public:
-            ~PixelData();
-
-            //! Create new pixel data.
-            static std::shared_ptr<PixelData> create(
-                const math::Size2i&,
-                PixelType,
-                const otime::RationalTime&);
-
-            //! Get the pixel data size.
-            const math::Size2i& getSize() const;
-
-            //! Get the pixel type.
-            PixelType getPixelType() const;
-
-            //! Get the time.
-            const otime::RationalTime& getTime() const;
-
-            //! Is the pixel data valid?
-            bool isValid() const;
-
-            //! Get the number of bytes used to store the pixel data.
-            size_t getDataByteCount() const;
-
-            //! Get the pixel data.
-            const uint8_t* getData() const;
-
-            //! Get the pixel data.
-            uint8_t* getData();
-
-            //! Zero the pixel data.
-            void zero();
-
-            //! Get HDR data.
-            const std::shared_ptr<image::HDRData>& getHDRData() const;
-
-            //! Set HDR data.
-            void setHDRData(const std::shared_ptr<image::HDRData>&);
-
-        private:
-            math::Size2i _size;
-            PixelType _pixelType = PixelType::None;
-            otime::RationalTime _time;
-            size_t _dataByteCount = 0;
-            std::vector<uint8_t> _data;
-            std::shared_ptr<image::HDRData> _hdrData;
-        };
-
         //! Device information.
         struct DeviceInfo
         {
@@ -115,6 +51,7 @@ namespace tl
             size_t maxAudioChannels = 0;
 
             bool operator == (const DeviceInfo&) const;
+            bool operator != (const DeviceInfo&) const;
         };
 
         //! Device options.
@@ -131,6 +68,18 @@ namespace tl
 
         //! Device boolean options.
         typedef std::map<Option, bool> BoolOptions;
+
+        //! Device configuration.
+        struct DeviceConfig
+        {
+            int deviceIndex = -1;
+            int displayModeIndex = -1;
+            PixelType pixelType = PixelType::None;
+            BoolOptions boolOptions;
+
+            bool operator == (const DeviceConfig&) const;
+            bool operator != (const DeviceConfig&) const;
+        };
 
         //! HDR mode.
         enum class HDRMode

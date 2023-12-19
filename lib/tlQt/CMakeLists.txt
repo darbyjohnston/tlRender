@@ -14,16 +14,6 @@ set(SOURCE
     TimelinePlayer.cpp
     ToolTipsFilter.cpp)
 
-if(TLRENDER_BMD)
-    list(APPEND HEADERS
-        BMDOutputDevice.h)
-    list(APPEND PRIVATE_HEADERS
-        BMDOutputDevicePrivate.h)
-    list(APPEND SOURCE
-        BMDOutputDevice.cpp
-        BMDOutputDevicePrivate.cpp)
-endif()
-
 set(LIBRARIES)
 if(TLRENDER_QT6)
     list(APPEND LIBRARIES Qt6::Gui Qt6::OpenGL)

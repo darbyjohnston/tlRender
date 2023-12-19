@@ -17,230 +17,138 @@
 #include <mutex>
 #include <tuple>
 
+#if defined(_WINDOWS)
+#include <atlbase.h>
+#endif // _WINDOWS
+
 namespace tl
 {
     namespace device
     {
         namespace
         {
-            const size_t pixelDataMax = 3;
+            const size_t videoFramesMax = 3;
             //! \todo Should this be the same as
             //! timeline::PlayerOptions().audioBufferFrameCount?
             const size_t audioBufferCount = 3000;
-
-            class DLIteratorWrapper
-            {
-            public:
-                ~DLIteratorWrapper() { if (p) p->Release(); }
-
-                IDeckLinkIterator* p = nullptr;
-            };
-
-            class DLDisplayModeIteratorWrapper
-            {
-            public:
-                ~DLDisplayModeIteratorWrapper() { if (p) p->Release(); }
-
-                IDeckLinkDisplayModeIterator* p = nullptr;
-            };
-
-            class DLDisplayModeWrapper
-            {
-            public:
-                ~DLDisplayModeWrapper() { if (p) p->Release(); }
-
-                IDeckLinkDisplayMode* p = nullptr;
-            };
-
-            class DLVideoFrameWrapper
-            {
-            public:
-                ~DLVideoFrameWrapper() { if (p) p->Release(); }
-
-                IDeckLinkMutableVideoFrame* p = nullptr;
-            };
-
-            /*class DLHDRVideoFrame :
-                public IDeckLinkVideoFrame,
-                public IDeckLinkVideoFrameMetadataExtensions
-            {
-            public:
-                DLHDRVideoFrame(std::shared_ptr<IDeckLinkMutableVideoFrame>& frame, image::HDRData& hdrData) :
-                    _frame(frame),
-                    _hdrData(hdrData),
-                    _refCount(1)
-                {}
-
-                virtual ~DLHDRVideoFrame() {}
-
-                HRESULT QueryInterface(REFIID iid, LPVOID* ppv) override;
-                ULONG AddRef(void) override;
-                ULONG Release(void) override;
-
-                long GetWidth(void) override { return _frame->GetWidth(); }
-                long GetHeight(void) override { return _frame->GetHeight(); }
-                long GetRowBytes(void) override { return _frame->GetRowBytes(); }
-                BMDPixelFormat GetPixelFormat(void) override { return _frame->GetPixelFormat(); }
-                BMDFrameFlags GetFlags(void) override { return _frame->GetFlags() | bmdFrameContainsHDRMetadata; }
-                HRESULT GetBytes(void** buffer) override { return _frame->GetBytes(buffer); }
-                HRESULT GetTimecode(BMDTimecodeFormat format, IDeckLinkTimecode** timecode) override { return _frame->GetTimecode(format, timecode); }
-                HRESULT GetAncillaryData(IDeckLinkVideoFrameAncillary** ancillary) override { return _frame->GetAncillaryData(ancillary); }
-
-                HRESULT GetInt(BMDDeckLinkFrameMetadataID metadataID, int64_t* value) override;
-                HRESULT GetFloat(BMDDeckLinkFrameMetadataID metadataID, double* value) override;
-                HRESULT GetFlag(BMDDeckLinkFrameMetadataID metadataID, BOOL* value) override;
-                HRESULT GetString(BMDDeckLinkFrameMetadataID metadataID, BSTR* value) override;
-                HRESULT GetBytes(BMDDeckLinkFrameMetadataID metadataID, void* buffer, uint32_t* bufferSize) override;
-
-                void UpdateHDRMetadata(const image::HDRData& metadata) { _hdrData = metadata; }
-
-            private:
-                std::shared_ptr<IDeckLinkMutableVideoFrame> _frame;
-                image::HDRData _hdrData;
-                std::atomic<ULONG> _refCount;
-            };
-
-            HRESULT DLHDRVideoFrame::QueryInterface(REFIID iid, LPVOID* ppv)
-            {
-                IID iunknown = IID_IUnknown;
-                if (ppv == nullptr)
-                    return E_INVALIDARG;
-                if (memcmp(&iid, &iunknown, sizeof(REFIID)) == 0)
-                    *ppv = static_cast<IDeckLinkVideoFrame*>(this);
-                else if (memcmp(&iid, &IID_IDeckLinkVideoFrame, sizeof(REFIID)) == 0)
-                    *ppv = static_cast<IDeckLinkVideoFrame*>(this);
-                else if (memcmp(&iid, &IID_IDeckLinkVideoFrameMetadataExtensions, sizeof(REFIID)) == 0)
-                    *ppv = static_cast<IDeckLinkVideoFrameMetadataExtensions*>(this);
-                else
-                {
-                    *ppv = nullptr;
-                    return E_NOINTERFACE;
-                }
-                AddRef();
-                return S_OK;
-            }
-
-            ULONG DLHDRVideoFrame::AddRef(void)
-            {
-                return ++_refCount;
-            }
-
-            ULONG DLHDRVideoFrame::Release(void)
-            {
-                ULONG newRefValue = --_refCount;
-                if (newRefValue == 0)
-                    delete this;
-                return newRefValue;
-            }
-
-            HRESULT DLHDRVideoFrame::GetInt(BMDDeckLinkFrameMetadataID metadataID, int64_t* value)
-            {
-                HRESULT result = S_OK;
-                switch (metadataID)
-                {
-                case bmdDeckLinkFrameMetadataHDRElectroOpticalTransferFunc:
-                    *value = _hdrData.eotf;
-                    break;
-                case bmdDeckLinkFrameMetadataColorspace:
-                    *value = bmdColorspaceRec2020;
-                    break;
-                default:
-                    value = nullptr;
-                    result = E_INVALIDARG;
-                }
-                return result;
-            }
-
-            HRESULT DLHDRVideoFrame::GetFloat(BMDDeckLinkFrameMetadataID metadataID, double* value)
-            {
-                HRESULT result = S_OK;
-                switch (metadataID)
-                {
-                case bmdDeckLinkFrameMetadataHDRDisplayPrimariesRedX:
-                    *value = _hdrData.redPrimaries.x;
-                    break;
-                case bmdDeckLinkFrameMetadataHDRDisplayPrimariesRedY:
-                    *value = _hdrData.redPrimaries.y;
-                    break;
-                case bmdDeckLinkFrameMetadataHDRDisplayPrimariesGreenX:
-                    *value = _hdrData.greenPrimaries.x;
-                    break;
-                case bmdDeckLinkFrameMetadataHDRDisplayPrimariesGreenY:
-                    *value = _hdrData.greenPrimaries.y;
-                    break;
-                case bmdDeckLinkFrameMetadataHDRDisplayPrimariesBlueX:
-                    *value = _hdrData.bluePrimaries.x;
-                    break;
-                case bmdDeckLinkFrameMetadataHDRDisplayPrimariesBlueY:
-                    *value = _hdrData.bluePrimaries.y;
-                    break;
-                case bmdDeckLinkFrameMetadataHDRWhitePointX:
-                    *value = _hdrData.whitePrimaries.x;
-                    break;
-                case bmdDeckLinkFrameMetadataHDRWhitePointY:
-                    *value = _hdrData.whitePrimaries.y;
-                    break;
-                case bmdDeckLinkFrameMetadataHDRMaxDisplayMasteringLuminance:
-                    *value = _hdrData.displayMasteringLuminance.getMax();
-                    break;
-                case bmdDeckLinkFrameMetadataHDRMinDisplayMasteringLuminance:
-                    *value = _hdrData.displayMasteringLuminance.getMin();
-                    break;
-                case bmdDeckLinkFrameMetadataHDRMaximumContentLightLevel:
-                    *value = _hdrData.maxCLL;
-                    break;
-                case bmdDeckLinkFrameMetadataHDRMaximumFrameAverageLightLevel:
-                    *value = _hdrData.maxFALL;
-                    break;
-                default:
-                    value = nullptr;
-                    result = E_INVALIDARG;
-                }
-                return result;
-            }
-
-            HRESULT DLHDRVideoFrame::GetFlag(BMDDeckLinkFrameMetadataID, BOOL* value)
-            {
-                *value = false;
-                return E_INVALIDARG;
-            }
-
-            HRESULT DLHDRVideoFrame::GetString(BMDDeckLinkFrameMetadataID, BSTR* value)
-            {
-                *value = nullptr;
-                return E_INVALIDARG;
-            }
-
-            HRESULT	DLHDRVideoFrame::GetBytes(BMDDeckLinkFrameMetadataID metadataID, void* buffer, uint32_t* bufferSize)
-            {
-                *bufferSize = 0;
-                return E_INVALIDARG;
-            }*/
         }
 
-        DLWrapper::~DLWrapper()
+        /*HRESULT DLHDRVideoFrame::QueryInterface(REFIID iid, LPVOID* ppv)
         {
-            if (p)
+            IID iunknown = IID_IUnknown;
+            if (ppv == nullptr)
+                return E_INVALIDARG;
+            if (memcmp(&iid, &iunknown, sizeof(REFIID)) == 0)
+                *ppv = static_cast<IDeckLinkVideoFrame*>(this);
+            else if (memcmp(&iid, &IID_IDeckLinkVideoFrame, sizeof(REFIID)) == 0)
+                *ppv = static_cast<IDeckLinkVideoFrame*>(this);
+            else if (memcmp(&iid, &IID_IDeckLinkVideoFrameMetadataExtensions, sizeof(REFIID)) == 0)
+                *ppv = static_cast<IDeckLinkVideoFrameMetadataExtensions*>(this);
+            else
             {
-                p->Release();
+                *ppv = nullptr;
+                return E_NOINTERFACE;
             }
+            AddRef();
+            return S_OK;
         }
 
-        DLConfigWrapper::~DLConfigWrapper()
+        ULONG DLHDRVideoFrame::AddRef(void)
         {
-            if (p)
-            {
-                p->Release();
-            }
+            return ++_refCount;
         }
 
-        DLOutputWrapper::~DLOutputWrapper()
+        ULONG DLHDRVideoFrame::Release(void)
         {
-            if (p)
-            {
-                p->Release();
-            }
+            ULONG newRefValue = --_refCount;
+            if (newRefValue == 0)
+                delete this;
+            return newRefValue;
         }
+
+        HRESULT DLHDRVideoFrame::GetInt(BMDDeckLinkFrameMetadataID metadataID, int64_t* value)
+        {
+            HRESULT result = S_OK;
+            switch (metadataID)
+            {
+            case bmdDeckLinkFrameMetadataHDRElectroOpticalTransferFunc:
+                *value = _hdrData.eotf;
+                break;
+            case bmdDeckLinkFrameMetadataColorspace:
+                *value = bmdColorspaceRec2020;
+                break;
+            default:
+                value = nullptr;
+                result = E_INVALIDARG;
+            }
+            return result;
+        }
+
+        HRESULT DLHDRVideoFrame::GetFloat(BMDDeckLinkFrameMetadataID metadataID, double* value)
+        {
+            HRESULT result = S_OK;
+            switch (metadataID)
+            {
+            case bmdDeckLinkFrameMetadataHDRDisplayPrimariesRedX:
+                *value = _hdrData.redPrimaries.x;
+                break;
+            case bmdDeckLinkFrameMetadataHDRDisplayPrimariesRedY:
+                *value = _hdrData.redPrimaries.y;
+                break;
+            case bmdDeckLinkFrameMetadataHDRDisplayPrimariesGreenX:
+                *value = _hdrData.greenPrimaries.x;
+                break;
+            case bmdDeckLinkFrameMetadataHDRDisplayPrimariesGreenY:
+                *value = _hdrData.greenPrimaries.y;
+                break;
+            case bmdDeckLinkFrameMetadataHDRDisplayPrimariesBlueX:
+                *value = _hdrData.bluePrimaries.x;
+                break;
+            case bmdDeckLinkFrameMetadataHDRDisplayPrimariesBlueY:
+                *value = _hdrData.bluePrimaries.y;
+                break;
+            case bmdDeckLinkFrameMetadataHDRWhitePointX:
+                *value = _hdrData.whitePrimaries.x;
+                break;
+            case bmdDeckLinkFrameMetadataHDRWhitePointY:
+                *value = _hdrData.whitePrimaries.y;
+                break;
+            case bmdDeckLinkFrameMetadataHDRMaxDisplayMasteringLuminance:
+                *value = _hdrData.displayMasteringLuminance.getMax();
+                break;
+            case bmdDeckLinkFrameMetadataHDRMinDisplayMasteringLuminance:
+                *value = _hdrData.displayMasteringLuminance.getMin();
+                break;
+            case bmdDeckLinkFrameMetadataHDRMaximumContentLightLevel:
+                *value = _hdrData.maxCLL;
+                break;
+            case bmdDeckLinkFrameMetadataHDRMaximumFrameAverageLightLevel:
+                *value = _hdrData.maxFALL;
+                break;
+            default:
+                value = nullptr;
+                result = E_INVALIDARG;
+            }
+            return result;
+        }
+
+        HRESULT DLHDRVideoFrame::GetFlag(BMDDeckLinkFrameMetadataID, BOOL* value)
+        {
+            *value = false;
+            return E_INVALIDARG;
+        }
+
+        HRESULT DLHDRVideoFrame::GetString(BMDDeckLinkFrameMetadataID, BSTR* value)
+        {
+            *value = nullptr;
+            return E_INVALIDARG;
+        }
+
+        HRESULT	DLHDRVideoFrame::GetBytes(BMDDeckLinkFrameMetadataID metadataID, void* buffer, uint32_t* bufferSize)
+        {
+            *bufferSize = 0;
+            return E_INVALIDARG;
+        }*/
 
         struct DLOutputCallback::Private
         {
@@ -252,19 +160,22 @@ namespace tl
 
             std::atomic<size_t> refCount;
 
-            struct PixelDataMutex
+            struct VideoMutex
             {
-                std::list<std::shared_ptr<device::PixelData> > pixelData;
+                std::list<std::shared_ptr<DLVideoFrameWrapper> > videoFrames;
                 std::mutex mutex;
             };
-            PixelDataMutex pixelDataMutex;
+            VideoMutex videoMutex;
 
-            struct PixelDataThread
+            struct VideoThread
             {
-                std::shared_ptr<device::PixelData> pixelDataTmp;
+                std::shared_ptr<DLVideoFrameWrapper> videoFrame;
+#if defined(_WINDOWS)
+                CComPtr<IDeckLinkVideoConversion> frameConverter;
+#endif // _WINDOWS
                 uint64_t frameCount = 0;
             };
-            PixelDataThread pixelDataThread;
+            VideoThread videoThread;
 
             struct AudioMutex
             {
@@ -305,7 +216,15 @@ namespace tl
             p.frameRate = frameRate;
             p.audioInfo = audioInfo;
             p.refCount = 1;
-                
+
+#if defined(_WINDOWS)
+            HRESULT r = p.videoThread.frameConverter.CoCreateInstance(CLSID_CDeckLinkVideoConversion, nullptr, CLSCTX_ALL);
+            if (r != S_OK)
+            {
+                throw std::runtime_error("Cannot create video frame converter");
+            }
+#endif // _WINDOWS
+
             size_t videoPreroll = 3;
             IDeckLinkProfileAttributes* dlProfileAttributes = nullptr;
             if (dlOutput->QueryInterface(IID_IDeckLinkProfileAttributes, (void**)&dlProfileAttributes) == S_OK)
@@ -346,13 +265,13 @@ namespace tl
                 }
                 if (p.dlOutput->ScheduleVideoFrame(
                     dlVideoFrame.p,
-                    p.pixelDataThread.frameCount * p.frameRate.value(),
+                    p.videoThread.frameCount * p.frameRate.value(),
                     p.frameRate.value(),
                     p.frameRate.rate()) != S_OK)
                 {
                     throw std::runtime_error("Cannot schedule video frame");
                 }
-                p.pixelDataThread.frameCount = p.pixelDataThread.frameCount + 1;
+                p.videoThread.frameCount = p.videoThread.frameCount + 1;
             }
 
             p.dlOutput->StartScheduledPlayback(
@@ -374,29 +293,31 @@ namespace tl
             }
         }
 
-        void DLOutputCallback::setPixelData(const std::shared_ptr<device::PixelData>& value)
+        void DLOutputCallback::setVideo(
+            const std::shared_ptr<DLVideoFrameWrapper>& value,
+            const otime::RationalTime& time)
         {
             TLRENDER_P();
             {
-                std::unique_lock<std::mutex> lock(p.pixelDataMutex.mutex);
-                p.pixelDataMutex.pixelData.push_back(value);
-                while (p.pixelDataMutex.pixelData.size() > pixelDataMax)
+                std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
+                p.videoMutex.videoFrames.push_back(value);
+                while (p.videoMutex.videoFrames.size() > videoFramesMax)
                 {
-                    p.pixelDataMutex.pixelData.pop_front();
+                    p.videoMutex.videoFrames.pop_front();
                 }
             }
             {
                 std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
-                if (value->getTime() != p.audioMutex.currentTime)
+                if (time != p.audioMutex.currentTime)
                 {
                     const otime::RationalTime currentTimePlusOne(
                         p.audioMutex.currentTime.value() + 1.0,
                         p.audioMutex.currentTime.rate());
-                    if (value->getTime() != currentTimePlusOne)
+                    if (time != currentTimePlusOne)
                     {
-                        p.audioMutex.startTime = value->getTime();
+                        p.audioMutex.startTime = time;
                     }
-                    p.audioMutex.currentTime = value->getTime();
+                    p.audioMutex.currentTime = time;
                 }
             }
         }
@@ -457,30 +378,25 @@ namespace tl
         {
             TLRENDER_P();
             {
-                std::unique_lock<std::mutex> lock(p.pixelDataMutex.mutex);
-                if (!p.pixelDataMutex.pixelData.empty())
+                std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
+                if (!p.videoMutex.videoFrames.empty())
                 {
-                    p.pixelDataThread.pixelDataTmp = p.pixelDataMutex.pixelData.front();
-                    p.pixelDataMutex.pixelData.pop_front();
+                    p.videoThread.videoFrame = p.videoMutex.videoFrames.front();
+                    p.videoMutex.videoFrames.pop_front();
                 }
             }
-            if (p.pixelDataThread.pixelDataTmp)
+            if (p.videoThread.videoFrame)
             {
-                //std::cout << "video time: " <<
-                //    p.pixelDataThread.pixelDataTmp->getTime().rescaled_to(1.0) << std::endl;
-                void* dlFrame = nullptr;
-                dlVideoFrame->GetBytes((void**)&dlFrame);
-                memcpy(
-                    dlFrame,
-                    p.pixelDataThread.pixelDataTmp->getData(),
-                    p.pixelDataThread.pixelDataTmp->getDataByteCount());
+                p.videoThread.frameConverter->ConvertFrame(
+                    p.videoThread.videoFrame->p,
+                    dlVideoFrame);
             }
             p.dlOutput->ScheduleVideoFrame(
                 dlVideoFrame,
-                p.pixelDataThread.frameCount * p.frameRate.value(),
+                p.videoThread.frameCount * p.frameRate.value(),
                 p.frameRate.value(),
                 p.frameRate.rate());
-            p.pixelDataThread.frameCount += 1;
+            p.videoThread.frameCount += 1;
             //std::cout << "result: " << getOutputFrameCompletionResultLabel(dlResult) << std::endl;
             return S_OK;
         }
@@ -642,200 +558,42 @@ namespace tl
             return S_OK;
         }
 
-        DLOutputCallbackWrapper::~DLOutputCallbackWrapper()
-        {
-            if (p)
-            {
-                p->Release();
-            }
-        }
-
         struct BMDOutputDevice::Private
         {
-            int deviceIndex = 0;
-            int displayModeIndex = 0;
-            PixelType pixelType = PixelType::None;
-            BoolOptions boolOptions;
-            math::Size2i size;
-            otime::RationalTime frameRate;
+            std::weak_ptr<system::Context> context;
+            std::shared_ptr<observer::Value<DeviceConfig> > config;
+            std::shared_ptr<observer::Value<bool> > enabled;
+            std::shared_ptr<observer::Value<bool> > active;
+            std::shared_ptr<observer::Value<math::Size2i> > size;
+            std::shared_ptr<observer::Value<otime::RationalTime> > frameRate;
 
-            DLWrapper dl;
-            DLConfigWrapper dlConfig;
-            DLOutputWrapper dlOutput;
-            audio::Info audioInfo;
-            DLOutputCallbackWrapper dlOutputCallback;
+            struct DL
+            {
+                ~DL()
+                {
+                    dlOutput.p->StopScheduledPlayback(0, nullptr, 0);
+                    dlOutput.p->DisableVideoOutput();
+                    dlOutput.p->DisableAudioOutput();
+                }
+
+                DLWrapper dl;
+                DLConfigWrapper dlConfig;
+                DLOutputWrapper dlOutput;
+                audio::Info audioInfo;
+                DLOutputCallbackWrapper dlOutputCallback;
+            };
+            std::unique_ptr<DL> dl;
         };
 
-        void BMDOutputDevice::_init(
-            int deviceIndex,
-            int displayModeIndex,
-            PixelType pixelType,
-            const BoolOptions& boolOptions,
-            const std::shared_ptr<system::Context>& context)
+        void BMDOutputDevice::_init(const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
-
-            p.deviceIndex = deviceIndex;
-            p.displayModeIndex = displayModeIndex;
-            p.pixelType = pixelType;
-            p.boolOptions = boolOptions;
-
-            std::string modelName;
-            {
-                DLIteratorWrapper dlIterator;
-                if (GetDeckLinkIterator(&dlIterator.p) != S_OK)
-                {
-                    throw std::runtime_error("Cannot get iterator");
-                }
-
-                int count = 0;
-                while (dlIterator.p->Next(&p.dl.p) == S_OK)
-                {
-                    if (count == deviceIndex)
-                    {
-#if defined(__APPLE__)
-                        CFStringRef dlModelName;
-                        p.dl.p->GetModelName(&dlModelName);
-                        StringToStdString(dlModelName, modelName);
-                        CFRelease(dlModelName);
-#else // __APPLE__
-                        dlstring_t dlModelName;
-                        p.dl.p->GetModelName(&dlModelName);
-                        modelName = DlToStdString(dlModelName);
-                        DeleteString(dlModelName);
-#endif // __APPLE__
-
-                        break;
-                    }
-
-                    p.dl.p->Release();
-                    p.dl.p = nullptr;
-
-                    ++count;
-                }
-                if (!p.dl.p)
-                {
-                    throw std::runtime_error("Device not found");
-                }
-            }
-
-            if (p.dl.p->QueryInterface(IID_IDeckLinkConfiguration, (void**)&p.dlConfig) != S_OK)
-            {
-                throw std::runtime_error("Configuration device not found");
-            }
-            for (const auto& option : boolOptions)
-            {
-                switch (option.first)
-                {
-                case Option::_444SDIVideoOutput:
-                    p.dlConfig.p->SetFlag(bmdDeckLinkConfig444SDIVideoOutput, option.second);
-                    break;
-                default: break;
-                }
-            }
-            {
-                BOOL value = 0;
-                p.dlConfig.p->GetFlag(bmdDeckLinkConfig444SDIVideoOutput, &value);
-                p.boolOptions[Option::_444SDIVideoOutput] = value;
-            }
-
-            if (p.dl.p->QueryInterface(IID_IDeckLinkOutput, (void**)&p.dlOutput) != S_OK)
-            {
-                throw std::runtime_error("Output device not found");
-            }
-
-            {
-                DLDisplayModeIteratorWrapper dlDisplayModeIterator;
-                if (p.dlOutput.p->GetDisplayModeIterator(&dlDisplayModeIterator.p) != S_OK)
-                {
-                    throw std::runtime_error("Cannot get display mode iterator");
-                }
-                DLDisplayModeWrapper dlDisplayMode;
-                int count = 0;
-                while (dlDisplayModeIterator.p->Next(&dlDisplayMode.p) == S_OK)
-                {
-                    if (count == displayModeIndex)
-                    {
-                        break;
-                    }
-
-                    dlDisplayMode.p->Release();
-                    dlDisplayMode.p = nullptr;
-
-                    ++count;
-                }
-                if (!dlDisplayMode.p)
-                {
-                    throw std::runtime_error("Display mode not found");
-                }
-
-                p.size.w = dlDisplayMode.p->GetWidth();
-                p.size.h = dlDisplayMode.p->GetHeight();
-                BMDTimeValue frameDuration;
-                BMDTimeScale frameTimescale;
-                dlDisplayMode.p->GetFrameRate(&frameDuration, &frameTimescale);
-                p.frameRate = otime::RationalTime(frameDuration, frameTimescale);
-                p.audioInfo.channelCount = 2;
-                p.audioInfo.dataType = audio::DataType::S16;
-                p.audioInfo.sampleRate = 48000;
-
-                context->log(
-                    "tl::device::BMDOutputDevice",
-                    string::Format(
-                        "\n"
-                        "    #{0} {1}\n"
-                        "    video: {2} {3}\n"
-                        "    audio: {4} {5} {6}").
-                    arg(deviceIndex).
-                    arg(modelName).
-                    arg(p.size).
-                    arg(p.frameRate).
-                    arg(p.audioInfo.channelCount).
-                    arg(p.audioInfo.dataType).
-                    arg(p.audioInfo.sampleRate));
-
-                HRESULT r = p.dlOutput.p->EnableVideoOutput(
-                    dlDisplayMode.p->GetDisplayMode(),
-                    bmdVideoOutputFlagDefault);
-                switch (r)
-                {
-                case S_OK:
-                    break;
-                case E_ACCESSDENIED:
-                    throw std::runtime_error("Unable to access the hardware");
-                default:
-                    throw std::runtime_error("Cannot enable video output");
-                }
-
-                r = p.dlOutput.p->EnableAudioOutput(
-                    bmdAudioSampleRate48kHz,
-                    bmdAudioSampleType16bitInteger,
-                    p.audioInfo.channelCount,
-                    bmdAudioOutputStreamContinuous);
-                switch (r)
-                {
-                case S_OK:
-                    break;
-                case E_INVALIDARG:
-                    throw std::runtime_error("Invalid number of channels requested");
-                case E_ACCESSDENIED:
-                    throw std::runtime_error("Unable to access the hardware");
-                default:
-                    throw std::runtime_error("Cannot enable audio output");
-                }
-            }
-
-            p.dlOutputCallback.p = new DLOutputCallback(p.dlOutput.p, p.size, p.pixelType, p.frameRate, p.audioInfo);
-
-            if (p.dlOutput.p->SetScheduledFrameCompletionCallback(p.dlOutputCallback.p) != S_OK)
-            {
-                throw std::runtime_error("Cannot set video callback");
-            }
-
-            if (p.dlOutput.p->SetAudioCallback(p.dlOutputCallback.p) != S_OK)
-            {
-                throw std::runtime_error("Cannot set audio callback");
-            }
+            p.context = context;
+            p.config = observer::Value<DeviceConfig>::create();
+            p.enabled = observer::Value<bool>::create(false);
+            p.active = observer::Value<bool>::create(false);
+            p.size = observer::Value<math::Size2i>::create();
+            p.frameRate = observer::Value<otime::RationalTime>::create(time::invalidTime);
         }
 
         BMDOutputDevice::BMDOutputDevice() :
@@ -843,83 +601,318 @@ namespace tl
         {}
 
         BMDOutputDevice::~BMDOutputDevice()
-        {
-            TLRENDER_P();
-            p.dlOutput.p->StopScheduledPlayback(0, nullptr, 0);
-            p.dlOutput.p->DisableVideoOutput();
-            p.dlOutput.p->DisableAudioOutput();
-        }
+        {}
 
         std::shared_ptr<BMDOutputDevice> BMDOutputDevice::create(
-            int deviceIndex,
-            int displayModeIndex,
-            PixelType pixelType,
-            const BoolOptions& boolOptions,
             const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<BMDOutputDevice>(new BMDOutputDevice);
-            out->_init(deviceIndex, displayModeIndex, pixelType, boolOptions, context);
+            out->_init(context);
             return out;
         }
 
-        int BMDOutputDevice::getDeviceIndex() const
+        DeviceConfig BMDOutputDevice::getConfig() const
         {
-            return _p->deviceIndex;
+            return _p->config->get();
         }
 
-        int BMDOutputDevice::getDisplayModeIndex() const
+        std::shared_ptr<observer::IValue<DeviceConfig> > BMDOutputDevice::observeConfig() const
         {
-            return _p->displayModeIndex;
+            return _p->config;
         }
 
-        PixelType BMDOutputDevice::getPixelType() const
+        void BMDOutputDevice::setConfig(const DeviceConfig& value)
         {
-            return _p->pixelType;
+            TLRENDER_P();
+            if (p.config->setIfChanged(value))
+            {
+                p.dl.reset(p.enabled->get() ? new Private::DL : nullptr);
+                _deviceUpdate();
+            }
         }
 
-        const BoolOptions& BMDOutputDevice::getBoolOptions() const
+        bool BMDOutputDevice::isEnabled() const
         {
-            return _p->boolOptions;
+            return _p->enabled->get();
+        }
+
+        std::shared_ptr<observer::IValue<bool> > BMDOutputDevice::observeEnabled() const
+        {
+            return _p->enabled;
+        }
+
+        void BMDOutputDevice::setEnabled(bool value)
+        {
+            TLRENDER_P();
+            if (p.enabled->setIfChanged(value))
+            {
+                p.dl.reset(value ? new Private::DL : nullptr);
+                _deviceUpdate();
+            }
+        }
+
+        bool BMDOutputDevice::isActive() const
+        {
+            return _p->active->get();
+        }
+
+        std::shared_ptr<observer::IValue<bool> > BMDOutputDevice::observeActive() const
+        {
+            return _p->active;
         }
 
         const math::Size2i& BMDOutputDevice::getSize() const
+        {
+            return _p->size->get();
+        }
+
+        std::shared_ptr<observer::IValue<math::Size2i> > BMDOutputDevice::observeSize() const
         {
             return _p->size;
         }
 
         const otime::RationalTime& BMDOutputDevice::getFrameRate() const
         {
+            return _p->frameRate->get();
+        }
+
+        std::shared_ptr<observer::IValue<otime::RationalTime> > BMDOutputDevice::observeFrameRate() const
+        {
             return _p->frameRate;
         }
 
-        void BMDOutputDevice::setPlayback(timeline::Playback value, const otime::RationalTime& time)
+        void BMDOutputDevice::setView(
+            const tl::math::Vector2i& position,
+            float                     zoom,
+            bool                      frame)
         {
-            _p->dlOutputCallback.p->setPlayback(value, time);
+
         }
 
-        void BMDOutputDevice::setPixelData(const std::shared_ptr<device::PixelData>& value)
+        void BMDOutputDevice::setOCIOOptions(const timeline::OCIOOptions&)
         {
-            _p->dlOutputCallback.p->setPixelData(value);
+
         }
 
-        void BMDOutputDevice::setVolume(float value)
+        void BMDOutputDevice::setLUTOptions(const timeline::LUTOptions&)
         {
-            _p->dlOutputCallback.p->setVolume(value);
+
         }
 
-        void BMDOutputDevice::setMute(bool value)
+        void BMDOutputDevice::setImageOptions(const std::vector<timeline::ImageOptions>&)
         {
-            _p->dlOutputCallback.p->setMute(value);
+
         }
 
-        void BMDOutputDevice::setAudioOffset(double value)
+        void BMDOutputDevice::setDisplayOptions(const std::vector<timeline::DisplayOptions>&)
         {
-            _p->dlOutputCallback.p->setAudioOffset(value);
+
         }
 
-        void BMDOutputDevice::setAudioData(const std::vector<timeline::AudioData>& value)
+        void BMDOutputDevice::setHDR(device::HDRMode, const image::HDRData&)
         {
-            _p->dlOutputCallback.p->setAudioData(value);
+
+        }
+
+        void BMDOutputDevice::setCompareOptions(const timeline::CompareOptions&)
+        {
+
+        }
+
+        void BMDOutputDevice::setPlayers(const std::vector<std::shared_ptr<timeline::Player> >&)
+        {
+
+        }
+
+        void BMDOutputDevice::_deviceUpdate()
+        {
+            TLRENDER_P();
+            math::Size2i size;
+            otime::RationalTime frameRate = time::invalidTime;
+            if (p.dl)
+            {
+                try
+                {
+                    const DeviceConfig& config = p.config->get();
+                    std::string modelName;
+                    {
+                        DLIteratorWrapper dlIterator;
+                        if (GetDeckLinkIterator(&dlIterator.p) != S_OK)
+                        {
+                            throw std::runtime_error("Cannot get iterator");
+                        }
+
+                        int count = 0;
+                        while (dlIterator.p->Next(&p.dl->dl.p) == S_OK)
+                        {
+                            if (count == config.deviceIndex)
+                            {
+#if defined(__APPLE__)
+                                CFStringRef dlModelName;
+                                p.dl.p->GetModelName(&dlModelName);
+                                StringToStdString(dlModelName, modelName);
+                                CFRelease(dlModelName);
+#else // __APPLE__
+                                dlstring_t dlModelName;
+                                p.dl->dl.p->GetModelName(&dlModelName);
+                                modelName = DlToStdString(dlModelName);
+                                DeleteString(dlModelName);
+#endif // __APPLE__
+
+                                break;
+                            }
+
+                            p.dl->dl.p->Release();
+                            p.dl->dl.p = nullptr;
+
+                            ++count;
+                        }
+                        if (!p.dl->dl.p)
+                        {
+                            throw std::runtime_error("Device not found");
+                        }
+                    }
+
+                    if (p.dl->dl.p->QueryInterface(IID_IDeckLinkConfiguration, (void**)&p.dl->dlConfig) != S_OK)
+                    {
+                        throw std::runtime_error("Configuration device not found");
+                    }
+                    for (const auto& option : config.boolOptions)
+                    {
+                        switch (option.first)
+                        {
+                        case Option::_444SDIVideoOutput:
+                            p.dl->dlConfig.p->SetFlag(bmdDeckLinkConfig444SDIVideoOutput, option.second);
+                            break;
+                        default: break;
+                        }
+                    }
+                    /*if (0)
+                    {
+                        BOOL value = 0;
+                        p.dl->dlConfig.p->GetFlag(bmdDeckLinkConfig444SDIVideoOutput, &value);
+                    }*/
+
+                    if (p.dl->dl.p->QueryInterface(IID_IDeckLinkOutput, (void**)&p.dl->dlOutput) != S_OK)
+                    {
+                        throw std::runtime_error("Output device not found");
+                    }
+
+                    {
+                        DLDisplayModeIteratorWrapper dlDisplayModeIterator;
+                        if (p.dl->dlOutput.p->GetDisplayModeIterator(&dlDisplayModeIterator.p) != S_OK)
+                        {
+                            throw std::runtime_error("Cannot get display mode iterator");
+                        }
+                        DLDisplayModeWrapper dlDisplayMode;
+                        int count = 0;
+                        while (dlDisplayModeIterator.p->Next(&dlDisplayMode.p) == S_OK)
+                        {
+                            if (count == config.displayModeIndex)
+                            {
+                                break;
+                            }
+
+                            dlDisplayMode.p->Release();
+                            dlDisplayMode.p = nullptr;
+
+                            ++count;
+                        }
+                        if (!dlDisplayMode.p)
+                        {
+                            throw std::runtime_error("Display mode not found");
+                        }
+
+                        size.w = dlDisplayMode.p->GetWidth();
+                        size.h = dlDisplayMode.p->GetHeight();
+                        BMDTimeValue frameDuration;
+                        BMDTimeScale frameTimescale;
+                        dlDisplayMode.p->GetFrameRate(&frameDuration, &frameTimescale);
+                        frameRate = otime::RationalTime(frameDuration, frameTimescale);
+                        p.dl->audioInfo.channelCount = 2;
+                        p.dl->audioInfo.dataType = audio::DataType::S16;
+                        p.dl->audioInfo.sampleRate = 48000;
+
+                        if (auto context = p.context.lock())
+                        {
+                            context->log(
+                                "tl::device::BMDOutputDevice",
+                                string::Format(
+                                    "\n"
+                                    "    #{0} {1}\n"
+                                    "    video: {2} {3}\n"
+                                    "    audio: {4} {5} {6}").
+                                arg(config.deviceIndex).
+                                arg(modelName).
+                                arg(size).
+                                arg(frameRate).
+                                arg(p.dl->audioInfo.channelCount).
+                                arg(p.dl->audioInfo.dataType).
+                                arg(p.dl->audioInfo.sampleRate));
+                        }
+
+                        HRESULT r = p.dl->dlOutput.p->EnableVideoOutput(
+                            dlDisplayMode.p->GetDisplayMode(),
+                            bmdVideoOutputFlagDefault);
+                        switch (r)
+                        {
+                        case S_OK:
+                            break;
+                        case E_ACCESSDENIED:
+                            throw std::runtime_error("Unable to access the hardware");
+                        default:
+                            throw std::runtime_error("Cannot enable video output");
+                        }
+
+                        r = p.dl->dlOutput.p->EnableAudioOutput(
+                            bmdAudioSampleRate48kHz,
+                            bmdAudioSampleType16bitInteger,
+                            p.dl->audioInfo.channelCount,
+                            bmdAudioOutputStreamContinuous);
+                        switch (r)
+                        {
+                        case S_OK:
+                            break;
+                        case E_INVALIDARG:
+                            throw std::runtime_error("Invalid number of channels requested");
+                        case E_ACCESSDENIED:
+                            throw std::runtime_error("Unable to access the hardware");
+                        default:
+                            throw std::runtime_error("Cannot enable audio output");
+                        }
+                    }
+
+                    p.dl->dlOutputCallback.p = new DLOutputCallback(
+                        p.dl->dlOutput.p,
+                        size,
+                        config.pixelType,
+                        frameRate,
+                        p.dl->audioInfo);
+
+                    if (p.dl->dlOutput.p->SetScheduledFrameCompletionCallback(p.dl->dlOutputCallback.p) != S_OK)
+                    {
+                        throw std::runtime_error("Cannot set video callback");
+                    }
+
+                    if (p.dl->dlOutput.p->SetAudioCallback(p.dl->dlOutputCallback.p) != S_OK)
+                    {
+                        throw std::runtime_error("Cannot set audio callback");
+                    }
+                }
+                catch (const std::exception& e)
+                {
+                    if (auto context = p.context.lock())
+                    {
+                        context->log(
+                            "tl::device::BMDOutputDevice",
+                            e.what(),
+                            log::Type::Error);
+                    }
+                }
+            }
+            p.active->setIfChanged(p.dl&& p.dl->dlOutputCallback.p);
+            p.size->setIfChanged(size);
+            p.frameRate->setIfChanged(frameRate);
         }
     }
 }
