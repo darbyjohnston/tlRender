@@ -272,39 +272,25 @@ namespace tl
             const tl::math::Vector2i& position,
             float                     zoom,
             bool                      frame)
-        {
-
-        }
+        {}
 
         void BMDOutputDevice::setOCIOOptions(const timeline::OCIOOptions&)
-        {
-
-        }
+        {}
 
         void BMDOutputDevice::setLUTOptions(const timeline::LUTOptions&)
-        {
-
-        }
+        {}
 
         void BMDOutputDevice::setImageOptions(const std::vector<timeline::ImageOptions>&)
-        {
-
-        }
+        {}
 
         void BMDOutputDevice::setDisplayOptions(const std::vector<timeline::DisplayOptions>&)
-        {
-
-        }
+        {}
 
         void BMDOutputDevice::setHDR(device::HDRMode, const image::HDRData&)
-        {
-
-        }
+        {}
 
         void BMDOutputDevice::setCompareOptions(const timeline::CompareOptions&)
-        {
-
-        }
+        {}
 
         void BMDOutputDevice::setPlayers(const std::vector<std::shared_ptr<timeline::Player> >& value)
         {
@@ -321,25 +307,32 @@ namespace tl
 
             if (!p.players.empty() && p.players.front())
             {
+                auto weak = std::weak_ptr<BMDOutputDevice>(shared_from_this());
                 p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
                     p.players.front()->observePlayback(),
-                    [this](timeline::Playback value)
+                    [weak](timeline::Playback value)
                     {
+                        if (auto device = weak.lock())
                         {
-                            std::unique_lock<std::mutex> lock(_p->mutex.mutex);
-                            _p->mutex.playback = value;
+                            {
+                                std::unique_lock<std::mutex> lock(device->_p->mutex.mutex);
+                                device->_p->mutex.playback = value;
+                            }
+                            device->_p->thread.cv.notify_one();
                         }
-                        _p->thread.cv.notify_one();
                     });
                 p.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
                     p.players.front()->observeCurrentTime(),
-                    [this](const otime::RationalTime& value)
+                    [weak](const otime::RationalTime& value)
                     {
+                        if (auto device = weak.lock())
                         {
-                            std::unique_lock<std::mutex> lock(_p->mutex.mutex);
-                            _p->mutex.currentTime = value;
+                            {
+                                std::unique_lock<std::mutex> lock(device->_p->mutex.mutex);
+                                device->_p->mutex.currentTime = value;
+                            }
+                            device->_p->thread.cv.notify_one();
                         }
-                        _p->thread.cv.notify_one();
                     });
                 for (size_t i = 0; i < p.players.size(); ++i)
                 {
@@ -347,28 +340,34 @@ namespace tl
                     {
                         p.videoObservers.push_back(observer::ValueObserver<timeline::VideoData>::create(
                             p.players[i]->observeCurrentVideo(),
-                            [this, i](const timeline::VideoData& value)
+                            [weak, i](const timeline::VideoData& value)
                             {
+                                if (auto device = weak.lock())
                                 {
-                                    std::unique_lock<std::mutex> lock(_p->mutex.mutex);
-                                    if (i < _p->mutex.videoData.size())
                                     {
-                                        _p->mutex.videoData[i] = value;
+                                        std::unique_lock<std::mutex> lock(device->_p->mutex.mutex);
+                                        if (i < device->_p->mutex.videoData.size())
+                                        {
+                                            device->_p->mutex.videoData[i] = value;
+                                        }
                                     }
+                                    device->_p->thread.cv.notify_one();
                                 }
-                                _p->thread.cv.notify_one();
                             }));
                     }
                 }
                 p.audioObserver = observer::ListObserver<timeline::AudioData>::create(
                     p.players.front()->observeCurrentAudio(),
-                    [this](const std::vector<timeline::AudioData>& value)
+                    [weak](const std::vector<timeline::AudioData>& value)
                     {
+                        if (auto device = weak.lock())
                         {
-                            std::unique_lock<std::mutex> lock(_p->mutex.mutex);
-                            _p->mutex.audioData = value;
+                            {
+                                std::unique_lock<std::mutex> lock(device->_p->mutex.mutex);
+                                device->_p->mutex.audioData = value;
+                            }
+                            device->_p->thread.cv.notify_one();
                         }
-                        _p->thread.cv.notify_one();
                     });
             }
 
@@ -610,7 +609,6 @@ namespace tl
                             modelName = DlToStdString(dlModelName);
                             DeleteString(dlModelName);
 #endif // __APPLE__
-
                             break;
                         }
 
@@ -680,6 +678,8 @@ namespace tl
                     switch (config.pixelType)
                     {
                     case PixelType::_8BitBGRA:
+                    case PixelType::_10BitRGB:
+                    case PixelType::_10BitRGBX:
                     case PixelType::_10BitRGBXLE:
                         p.thread.pixelType = config.pixelType;
                         break;
@@ -687,9 +687,12 @@ namespace tl
                         p.thread.pixelType = PixelType::_8BitBGRA;
                         break;
                     case PixelType::_10BitYUV:
-                        p.thread.pixelType = PixelType::_10BitRGBXLE;
+                    case PixelType::_12BitRGB:
+                    case PixelType::_12BitRGBLE:
+                        p.thread.pixelType = PixelType::_10BitRGB;
                         break;
                     default:
+                        p.thread.pixelType = PixelType::None;
                         break;
                     }
                     BMDTimeValue frameDuration;
@@ -796,6 +799,10 @@ namespace tl
                     image::PixelType::RGBA_U8,
                     image::PixelType::RGBA_U8,
                     image::PixelType::RGB_U10,
+                    image::PixelType::RGB_U10,
+                    image::PixelType::RGB_U10,
+                    image::PixelType::RGB_U10,
+                    image::PixelType::RGB_U10,
                     image::PixelType::RGB_U10
                 };
                 return data[static_cast<size_t>(value)];
@@ -808,6 +815,10 @@ namespace tl
                     GL_NONE,
                     GL_BGRA,
                     GL_BGRA,
+                    GL_BGRA,
+                    GL_RGBA,
+                    GL_RGBA,
+                    GL_RGBA,
                     GL_RGBA,
                     GL_RGBA
                 };
@@ -821,6 +832,10 @@ namespace tl
                     GL_NONE,
                     GL_UNSIGNED_BYTE,
                     GL_UNSIGNED_BYTE,
+                    GL_UNSIGNED_INT_2_10_10_10_REV,
+                    GL_UNSIGNED_INT_10_10_10_2,
+                    GL_UNSIGNED_INT_10_10_10_2,
+                    GL_UNSIGNED_INT_10_10_10_2,
                     GL_UNSIGNED_INT_10_10_10_2,
                     GL_UNSIGNED_INT_10_10_10_2
                 };
@@ -835,6 +850,10 @@ namespace tl
                     4,
                     4,
                     256,
+                    256,
+                    256,
+                    256,
+                    256,
                     256
                 };
                 return data[static_cast<size_t>(value)];
@@ -844,6 +863,10 @@ namespace tl
             {
                 const std::array<GLint, static_cast<size_t>(device::PixelType::Count)> data =
                 {
+                    GL_FALSE,
+                    GL_FALSE,
+                    GL_FALSE,
+                    GL_FALSE,
                     GL_FALSE,
                     GL_FALSE,
                     GL_FALSE,
@@ -1022,6 +1045,7 @@ namespace tl
                             getReadPixelsFormat(p.thread.pixelType),
                             getReadPixelsType(p.thread.pixelType),
                             NULL);
+                        std::cout << "glGetTexImage" << std::endl;
                     }
                     else
                     {
@@ -1035,6 +1059,7 @@ namespace tl
                             getReadPixelsFormat(p.thread.pixelType),
                             getReadPixelsType(p.thread.pixelType),
                             NULL);
+                        std::cout << "glReadPixels" << std::endl;
                     }
 
                     ++(p.thread.pboIndex);

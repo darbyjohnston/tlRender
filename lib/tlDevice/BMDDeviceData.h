@@ -30,8 +30,12 @@ namespace tl
             None,
             _8BitBGRA,
             _8BitYUV,
+            _10BitRGB,
+            _10BitRGBX,
             _10BitRGBXLE,
             _10BitYUV,
+            _12BitRGB,
+            _12BitRGBLE,
 
             Count,
             First = None

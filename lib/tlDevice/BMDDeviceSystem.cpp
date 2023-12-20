@@ -150,8 +150,12 @@ namespace tl
 
                                 deviceInfo.pixelTypes.push_back(PixelType::_8BitBGRA);
                                 deviceInfo.pixelTypes.push_back(PixelType::_8BitYUV);
+                                deviceInfo.pixelTypes.push_back(PixelType::_10BitRGB);
+                                deviceInfo.pixelTypes.push_back(PixelType::_10BitRGBX);
                                 deviceInfo.pixelTypes.push_back(PixelType::_10BitRGBXLE);
                                 deviceInfo.pixelTypes.push_back(PixelType::_10BitYUV);
+                                deviceInfo.pixelTypes.push_back(PixelType::_12BitRGB);
+                                deviceInfo.pixelTypes.push_back(PixelType::_12BitRGBLE);
 
                                 deviceInfoList.push_back(deviceInfo);
                             }
