@@ -29,7 +29,9 @@ namespace tl
         {
             None,
             _8BitBGRA,
+            _8BitYUV,
             _10BitRGBXLE,
+            _10BitYUV,
 
             Count,
             First = None
@@ -39,6 +41,9 @@ namespace tl
 
         //! Get the number of bytes used to store a row of pixel data.
         size_t getRowByteCount(int, PixelType);
+
+        //! Get the number of bytes used to storepixel data.
+        size_t getDataByteCount(const math::Size2i&, PixelType);
 
         //! Device information.
         struct DeviceInfo

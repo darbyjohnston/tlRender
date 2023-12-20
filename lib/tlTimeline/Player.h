@@ -239,6 +239,9 @@ namespace tl
             //! \name Video
             ///@{
 
+            //! Get the current video data.
+            const VideoData& getCurrentVideo() const;
+
             //! Observe the current video data.
             std::shared_ptr<observer::IValue<VideoData> > observeCurrentVideo() const;
 
@@ -273,6 +276,9 @@ namespace tl
 
             //! Set the audio sync offset (in seconds).
             void setAudioOffset(double);
+
+            //! Get the current audio data.
+            const std::vector<AudioData>& getCurrentAudio() const;
 
             //! Observe the current audio data.
             std::shared_ptr<observer::IList<AudioData> > observeCurrentAudio() const;

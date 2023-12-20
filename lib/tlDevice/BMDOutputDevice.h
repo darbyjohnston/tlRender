@@ -92,8 +92,18 @@ namespace tl
             //! Set the timeline players.
             void setPlayers(const std::vector<std::shared_ptr<timeline::Player> >&);
 
+            //! Tick the output device.
+            void tick();
+
         private:
-            void _deviceUpdate();
+            void _run();
+            void _createDevice();
+            void _render(
+                const timeline::OCIOOptions&,
+                const timeline::LUTOptions&,
+                const std::vector<timeline::ImageOptions>&,
+                const std::vector<timeline::DisplayOptions>&,
+                const timeline::CompareOptions&);
 
             TLRENDER_PRIVATE();
         };

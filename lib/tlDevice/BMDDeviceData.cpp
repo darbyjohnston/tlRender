@@ -26,7 +26,9 @@ namespace tl
             PixelType,
             "None",
             "8BitBGRA",
-            "10BitRGBXLE");
+            "8BitYUV",
+            "10BitRGBXLE",
+            "10BitYUV");
         TLRENDER_ENUM_SERIALIZE_IMPL(PixelType);
 
         size_t getRowByteCount(int size, PixelType pixelType)
@@ -37,12 +39,23 @@ namespace tl
             case PixelType::_8BitBGRA:
                 out = size * 32 / 8;
                 break;
+            case PixelType::_8BitYUV:
+                out = size * 16 / 8;
+                break;
             case PixelType::_10BitRGBXLE:
                 out = ((size + 63) / 64) * 256;
+                break;
+            case PixelType::_10BitYUV:
+                out = ((size + 47) / 48) * 128;
                 break;
             default: break;
             }
             return out;
+        }
+
+        size_t getDataByteCount(const math::Size2i& size, PixelType pixelType)
+        {
+            return getRowByteCount(size.w, pixelType) * size.h;
         }
 
         bool DeviceInfo::operator == (const DeviceInfo& other) const

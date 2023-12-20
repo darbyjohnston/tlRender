@@ -18,7 +18,9 @@ namespace tl
             {
                 bmdFormatUnspecified,
                 bmdFormat8BitBGRA,
-                bmdFormat10BitRGBXLE
+                bmdFormat8BitYUV,
+                bmdFormat10BitRGBXLE,
+                bmdFormat10BitYUV
             };
             return data[static_cast<size_t>(value)];
         }

@@ -149,7 +149,9 @@ namespace tl
                                 dl->Release();
 
                                 deviceInfo.pixelTypes.push_back(PixelType::_8BitBGRA);
+                                deviceInfo.pixelTypes.push_back(PixelType::_8BitYUV);
                                 deviceInfo.pixelTypes.push_back(PixelType::_10BitRGBXLE);
+                                deviceInfo.pixelTypes.push_back(PixelType::_10BitYUV);
 
                                 deviceInfoList.push_back(deviceInfo);
                             }

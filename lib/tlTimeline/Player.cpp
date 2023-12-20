@@ -773,6 +773,11 @@ namespace tl
             }
         }
 
+        const VideoData& Player::getCurrentVideo() const
+        {
+            return _p->currentVideoData->get();
+        }
+
         std::shared_ptr<observer::IValue<VideoData> > Player::observeCurrentVideo() const
         {
             return _p->currentVideoData;
@@ -836,6 +841,11 @@ namespace tl
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                 p.mutex.audioOffset = value;
             }
+        }
+
+        const std::vector<AudioData>& Player::getCurrentAudio() const
+        {
+            return _p->currentAudioData->get();
         }
 
         std::shared_ptr<observer::IList<AudioData> > Player::observeCurrentAudio() const

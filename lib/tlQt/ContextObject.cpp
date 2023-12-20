@@ -10,6 +10,11 @@ namespace tl
 {
     namespace qt
     {
+        namespace
+        {
+            const size_t timeout = 5;
+        }
+
         struct ContextObject::Private
         {
             std::shared_ptr<system::Context> context;
@@ -23,7 +28,7 @@ namespace tl
         {
             _p->context = context;
 
-            startTimer(5, Qt::PreciseTimer);
+            startTimer(timeout, Qt::PreciseTimer);
         }
 
         ContextObject::~ContextObject()

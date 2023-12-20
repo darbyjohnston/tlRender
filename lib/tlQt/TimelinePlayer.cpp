@@ -231,7 +231,7 @@ namespace tl
 
         const timeline::VideoData& TimelinePlayer::currentVideo() const
         {
-            return _p->player->observeCurrentVideo()->get();
+            return _p->player->getCurrentVideo();
         }
 
         float TimelinePlayer::volume() const
@@ -251,7 +251,7 @@ namespace tl
 
         const std::vector<timeline::AudioData>& TimelinePlayer::currentAudio() const
         {
-            return _p->player->observeCurrentAudio()->get();
+            return _p->player->getCurrentAudio();
         }
 
         const timeline::PlayerCacheOptions& TimelinePlayer::cacheOptions() const

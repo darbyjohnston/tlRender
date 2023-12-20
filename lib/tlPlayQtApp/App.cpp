@@ -58,6 +58,11 @@ namespace tl
 {
     namespace play_qt
     {
+        namespace
+        {
+            const size_t timeout = 5;
+        }
+
         struct App::Private
         {
             play::Options options;
@@ -141,6 +146,8 @@ namespace tl
             _observersInit();
             _inputFilesInit();
             _windowsInit();
+
+            startTimer(timeout, Qt::PreciseTimer);
         }
 
         App::~App()
@@ -306,6 +313,14 @@ namespace tl
                 p.secondaryWindow->close();
             }
             Q_EMIT secondaryWindowChanged(value);
+        }
+
+        void App::timerEvent(QTimerEvent*)
+        {
+            TLRENDER_P();
+#if defined(TLRENDER_BMD)
+            p.bmdOutputDevice->tick();
+#endif // TLRENDER_BMD
         }
 
         void App::_filesCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >& items)

@@ -45,8 +45,7 @@ namespace tl
             TLRENDER_NON_COPYABLE(BMDDevicesModel);
 
         protected:
-            void _init(
-                const std::shared_ptr<system::Context>&);
+            void _init(const std::shared_ptr<system::Context>&);
 
             BMDDevicesModel();
 
