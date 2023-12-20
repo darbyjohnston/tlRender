@@ -42,9 +42,12 @@ namespace tl
             {
                 ~DL()
                 {
-                    dlOutput.p->StopScheduledPlayback(0, nullptr, 0);
-                    dlOutput.p->DisableVideoOutput();
-                    dlOutput.p->DisableAudioOutput();
+                    if (dlOutput.p)
+                    {
+                        dlOutput.p->StopScheduledPlayback(0, nullptr, 0);
+                        dlOutput.p->DisableVideoOutput();
+                        dlOutput.p->DisableAudioOutput();
+                    }
                 }
 
                 DLWrapper dl;
@@ -598,7 +601,7 @@ namespace tl
                         {
 #if defined(__APPLE__)
                             CFStringRef dlModelName;
-                            p.dl.p->GetModelName(&dlModelName);
+                            p.thread.dl->dl.p->GetModelName(&dlModelName);
                             StringToStdString(dlModelName, modelName);
                             CFRelease(dlModelName);
 #else // __APPLE__

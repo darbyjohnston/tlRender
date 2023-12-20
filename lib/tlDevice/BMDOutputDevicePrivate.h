@@ -159,5 +159,15 @@ namespace tl
             
             DLOutputCallback* p = nullptr;
         };
+
+        class DLFrameConversionWrapper
+        {
+        public:
+            ~DLFrameConversionWrapper() { if (p) p->Release(); }
+
+            IDeckLinkVideoConversion* operator -> () { return p; }
+
+            IDeckLinkVideoConversion* p = nullptr;
+        };
     }
 }

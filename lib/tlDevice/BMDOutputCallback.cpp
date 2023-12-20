@@ -46,6 +46,8 @@ namespace tl
                 std::shared_ptr<DLVideoFrameWrapper> videoFrame;
 #if defined(_WINDOWS)
                 CComPtr<IDeckLinkVideoConversion> frameConverter;
+#else // _WINDOWS
+                DLFrameConversionWrapper frameConverter;
 #endif // _WINDOWS
                 uint64_t frameCount = 0;
             };
@@ -94,6 +96,12 @@ namespace tl
 #if defined(_WINDOWS)
             HRESULT r = p.videoThread.frameConverter.CoCreateInstance(CLSID_CDeckLinkVideoConversion, nullptr, CLSCTX_ALL);
             if (r != S_OK)
+            {
+                throw std::runtime_error("Cannot create video frame converter");
+            }
+#else // _WINDOWS
+            p.videoThread.frameConverter.p = CreateVideoConversionInstance();
+            if (!p.videoThread.frameConverter.p)
             {
                 throw std::runtime_error("Cannot create video frame converter");
             }

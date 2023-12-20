@@ -319,7 +319,10 @@ namespace tl
         {
             TLRENDER_P();
 #if defined(TLRENDER_BMD)
-            p.bmdOutputDevice->tick();
+            if (_p && p.bmdOutputDevice)
+            {
+                p.bmdOutputDevice->tick();
+            }
 #endif // TLRENDER_BMD
         }
 
