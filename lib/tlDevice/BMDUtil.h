@@ -24,6 +24,9 @@ namespace tl
         //! Convert to BMD.
         BMDPixelFormat toBMD(PixelType);
 
+        //! Convert from BMD.
+        PixelType fromBMD(BMDPixelFormat);
+
         //! Get a label.
         std::string getVideoConnectionLabel(BMDVideoConnection);
 

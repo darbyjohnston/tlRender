@@ -29,6 +29,23 @@ namespace tl
             return data[static_cast<size_t>(value)];
         }
 
+        PixelType fromBMD(BMDPixelFormat value)
+        {
+            PixelType out = PixelType::None;
+            switch (value)
+            {
+            case bmdFormat8BitBGRA: out = PixelType::_8BitBGRA; break;
+            case bmdFormat8BitYUV: out = PixelType::_8BitYUV; break;
+            case bmdFormat10BitRGB: out = PixelType::_10BitRGB; break;
+            case bmdFormat10BitRGBX: out = PixelType::_10BitRGBX; break;
+            case bmdFormat10BitRGBXLE: out = PixelType::_10BitRGBXLE; break;
+            case bmdFormat10BitYUV: out = PixelType::_10BitYUV; break;
+            case bmdFormat12BitRGB: out = PixelType::_12BitRGB; break;
+            case bmdFormat12BitRGBLE: out = PixelType::_12BitRGBLE; break;
+            }
+            return out;
+        }
+
         std::string getVideoConnectionLabel(BMDVideoConnection value)
         {
             const std::array<std::string, 7> data =

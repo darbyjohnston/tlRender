@@ -852,7 +852,7 @@ namespace tl
                     256,
                     256,
                     256,
-                    256,
+                    128,
                     256,
                     256
                 };
@@ -866,8 +866,8 @@ namespace tl
                     GL_FALSE,
                     GL_FALSE,
                     GL_FALSE,
-                    GL_FALSE,
-                    GL_FALSE,
+                    GL_TRUE,
+                    GL_TRUE,
                     GL_FALSE,
                     GL_FALSE,
                     GL_FALSE,
@@ -1038,6 +1038,7 @@ namespace tl
                     if (0 == viewportSize.w % getReadPixelsAlign(p.thread.pixelType) &&
                         !getReadPixelsSwap(p.thread.pixelType))
                     {
+                        //std::cout << "BMDOutputDevice glGetTexImage" << std::endl;
                         glBindTexture(GL_TEXTURE_2D, p.thread.offscreenBuffer2->getColorID());
                         glGetTexImage(
                             GL_TEXTURE_2D,
@@ -1045,10 +1046,10 @@ namespace tl
                             getReadPixelsFormat(p.thread.pixelType),
                             getReadPixelsType(p.thread.pixelType),
                             NULL);
-                        std::cout << "glGetTexImage" << std::endl;
                     }
                     else
                     {
+                        //std::cout << "BMDOutputDevice glReadPixels" << std::endl;
                         glPixelStorei(GL_PACK_ALIGNMENT, getReadPixelsAlign(p.thread.pixelType));
                         glPixelStorei(GL_PACK_SWAP_BYTES, getReadPixelsSwap(p.thread.pixelType));
                         glReadPixels(
@@ -1059,7 +1060,6 @@ namespace tl
                             getReadPixelsFormat(p.thread.pixelType),
                             getReadPixelsType(p.thread.pixelType),
                             NULL);
-                        std::cout << "glReadPixels" << std::endl;
                     }
 
                     ++(p.thread.pboIndex);
