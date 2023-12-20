@@ -31,13 +31,14 @@ namespace tl
     {
         namespace
         {
+            const size_t timeout = 5;
+
             class TimelineWindow : public ui::IWindow
             {
                 TLRENDER_NON_COPYABLE(TimelineWindow);
 
             public:
-                void _init(
-                    const std::shared_ptr<system::Context>& context)
+                void _init(const std::shared_ptr<system::Context>& context)
                 {
                     IWindow::_init("tl::qtwidget::TimelineWindow", context, nullptr);
                 }
@@ -102,8 +103,7 @@ namespace tl
                 TLRENDER_NON_COPYABLE(Clipboard);
 
             public:
-                void _init(
-                    const std::shared_ptr<system::Context>& context)
+                void _init(const std::shared_ptr<system::Context>& context)
                 {
                     IClipboard::_init(context);
                 }
@@ -157,7 +157,7 @@ namespace tl
             std::shared_ptr<gl::VAO> vao;
             std::chrono::steady_clock::time_point mouseWheelTimer;
 
-            int timer = 0;
+            int timerId = 0;
 
             std::shared_ptr<observer::ValueObserver<bool> > editableObserver;
             std::shared_ptr<observer::ValueObserver<bool> > frameViewObserver;
@@ -211,13 +211,17 @@ namespace tl
                     Q_EMIT frameViewChanged(value);
                 });
 
-            p.timer = startTimer(10);
+            p.timerId = startTimer(timeout);
         }
 
         TimelineWidget::~TimelineWidget()
         {
             TLRENDER_P();
             makeCurrent();
+            if (p.timerId != 0)
+            {
+                killTimer(p.timerId);
+            }
         }
 
         void TimelineWidget::setPlayer(const std::shared_ptr<timeline::Player>& player)
@@ -687,32 +691,29 @@ namespace tl
         void TimelineWidget::timerEvent(QTimerEvent*)
         {
             TLRENDER_P();
-            //! \bug This guard is needed since the timer event can be called during destruction?
-            if (_p)
+
+            ui::TickEvent tickEvent(p.style, p.iconLibrary, p.fontSystem);
+            _tickEvent(p.timelineWindow, true, true, tickEvent);
+
+            if (_getSizeUpdate(p.timelineWindow))
             {
-                ui::TickEvent tickEvent(p.style, p.iconLibrary, p.fontSystem);
-                _tickEvent(p.timelineWindow, true, true, tickEvent);
+                const float devicePixelRatio = window()->devicePixelRatio();
+                ui::SizeHintEvent sizeHintEvent(
+                    p.style,
+                    p.iconLibrary,
+                    p.fontSystem,
+                    devicePixelRatio);
+                _sizeHintEvent(p.timelineWindow, sizeHintEvent);
 
-                if (_getSizeUpdate(p.timelineWindow))
-                {
-                    const float devicePixelRatio = window()->devicePixelRatio();
-                    ui::SizeHintEvent sizeHintEvent(
-                        p.style,
-                        p.iconLibrary,
-                        p.fontSystem,
-                        devicePixelRatio);
-                    _sizeHintEvent(p.timelineWindow, sizeHintEvent);
+                const math::Box2i geometry(0, 0, _toUI(width()), _toUI(height()));
+                p.timelineWindow->setGeometry(geometry);
 
-                    const math::Box2i geometry(0, 0, _toUI(width()), _toUI(height()));
-                    p.timelineWindow->setGeometry(geometry);
+                _clipEvent(p.timelineWindow, geometry, false);
+            }
 
-                    _clipEvent(p.timelineWindow, geometry, false);
-                }
-
-                if (_getDrawUpdate(p.timelineWindow))
-                {
-                    update();
-                }
+            if (_getDrawUpdate(p.timelineWindow))
+            {
+                update();
             }
         }
 

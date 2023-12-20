@@ -14,9 +14,15 @@ namespace tl
 {
     namespace qt
     {
+        namespace
+        {
+            const size_t timeout = 5;
+        }
+
         struct TimelinePlayer::Private
         {
             std::shared_ptr<timeline::Player> player;
+            int timerId = 0;
 
             std::shared_ptr<observer::ValueObserver<double> > speedObserver;
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
@@ -133,7 +139,7 @@ namespace tl
                     Q_EMIT cacheInfoChanged(value);
                 });
 
-            startTimer(5, Qt::PreciseTimer);
+            p.timerId = startTimer(timeout, Qt::PreciseTimer);
         }
 
         TimelinePlayer::TimelinePlayer(
@@ -147,7 +153,13 @@ namespace tl
         }
 
         TimelinePlayer::~TimelinePlayer()
-        {}
+        {
+            TLRENDER_P();
+            if (p.timerId != 0)
+            {
+                killTimer(p.timerId);
+            }
+        }
         
         const std::weak_ptr<system::Context>& TimelinePlayer::context() const
         {

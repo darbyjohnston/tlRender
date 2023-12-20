@@ -89,6 +89,7 @@ namespace tl
             std::shared_ptr<BMDDevicesModel> bmdDevicesModel;
             std::shared_ptr<device::BMDOutputDevice> bmdOutputDevice;
 #endif // TLRENDER_BMD
+            int timerId = 0;
 
             std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
@@ -147,11 +148,17 @@ namespace tl
             _inputFilesInit();
             _windowsInit();
 
-            startTimer(timeout, Qt::PreciseTimer);
+            p.timerId = startTimer(timeout, Qt::PreciseTimer);
         }
 
         App::~App()
-        {}
+        {
+            TLRENDER_P();
+            if (p.timerId != 0)
+            {
+                killTimer(p.timerId);
+            }
+        }
 
         const std::shared_ptr<timeline::TimeUnitsModel>& App::timeUnitsModel() const
         {
@@ -319,7 +326,7 @@ namespace tl
         {
             TLRENDER_P();
 #if defined(TLRENDER_BMD)
-            if (_p && p.bmdOutputDevice)
+            if (p.bmdOutputDevice)
             {
                 p.bmdOutputDevice->tick();
             }
