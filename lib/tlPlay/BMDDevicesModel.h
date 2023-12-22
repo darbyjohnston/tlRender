@@ -19,7 +19,7 @@ namespace tl
         class Context;
     }
 
-    namespace play_qt
+    namespace play
     {
         //! BMD devices model data.
         struct BMDDevicesModelData

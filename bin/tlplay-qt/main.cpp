@@ -4,6 +4,8 @@
 
 #include <tlPlayQtApp/App.h>
 
+#include <tlPlay/Init.h>
+
 #include <tlQtWidget/Init.h>
 
 #include <iostream>
@@ -28,6 +30,7 @@ int main(int argc, char* argv[])
 #if (QT_VERSION < QT_VERSION_CHECK(6, 5, 0))
         QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
+        tl::play::init(context);
         tl::play_qt::App app(argc, argv, context);
         if (0 == app.getExit())
         {

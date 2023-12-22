@@ -25,9 +25,6 @@
 #include <tlPlayQtApp/ViewActions.h>
 #include <tlPlayQtApp/ViewTool.h>
 #include <tlPlayQtApp/WindowActions.h>
-#if defined(TLRENDER_BMD)
-#include <tlPlayQtApp/BMDDevicesModel.h>
-#endif // TLRENDER_BMD
 
 #include <tlPlay/AudioModel.h>
 #include <tlPlay/ColorModel.h>
@@ -83,7 +80,6 @@ namespace tl
 
             QVector<QSharedPointer<qt::TimelinePlayer> > timelinePlayers;
             bool floatOnTop = false;
-            image::VideoLevels outputVideoLevels;
 
             FileActions* fileActions = nullptr;
             CompareActions* compareActions = nullptr;
@@ -129,9 +125,6 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
-#if defined(TLRENDER_BMD)
-            std::shared_ptr<observer::ValueObserver<BMDDevicesModelData> > bmdDevicesModelObserver;
-#endif // TLRENDER_BMD
         };
 
         MainWindow::MainWindow(App* app, QWidget* parent) :
@@ -502,16 +495,6 @@ namespace tl
                     }
                 });
 
-#if defined(TLRENDER_BMD)
-            p.bmdDevicesModelObserver = observer::ValueObserver<BMDDevicesModelData>::create(
-                app->bmdDevicesModel()->observeData(),
-                [this](const BMDDevicesModelData& value)
-                {
-                    _p->outputVideoLevels = value.videoLevels;
-                    _widgetUpdate();
-                });
-#endif // TLRENDER_BMD
-
             connect(
                 p.windowActions,
                 &WindowActions::resize,
@@ -633,16 +616,17 @@ namespace tl
                 {
                     _p->app->filesModel()->setCompareOptions(value);
                 });
-#if defined(TLRENDER_BMD)
             connect(
                 p.timelineViewport,
                 &qtwidget::TimelineViewport::viewPosAndZoomChanged,
-                [this](const math::Vector2i& pos, float zoom)
+                [this](const math::Vector2i& pos, double zoom)
                 {
+#if defined(TLRENDER_BMD)
                     _p->app->bmdOutputDevice()->setView(
                         pos,
                         zoom,
                         _p->timelineViewport->hasFrameView());
+#endif // TLRENDER_BMD
                 });
             connect(
                 p.timelineViewport,
@@ -650,13 +634,13 @@ namespace tl
                 [this](bool value)
                 {
                     _p->viewActions->actions()["Frame"]->setChecked(value);
-
+#if defined(TLRENDER_BMD)
                     _p->app->bmdOutputDevice()->setView(
                         _p->timelineViewport->viewPos(),
                         _p->timelineViewport->viewZoom(),
                         value);
-                });
 #endif // TLRENDER_BMD
+                });
 
             connect(
                 app,
@@ -918,18 +902,6 @@ namespace tl
             }
             p.infoLabel->setText(QString::fromUtf8(infoLabel.c_str()));
             p.infoLabel->setToolTip(QString::fromUtf8(infoToolTip.c_str()));
-
-#if defined(TLRENDER_BMD)
-            p.app->bmdOutputDevice()->setOCIOOptions(colorModel->getOCIOOptions());
-            p.app->bmdOutputDevice()->setLUTOptions(colorModel->getLUTOptions());
-            p.app->bmdOutputDevice()->setImageOptions(imageOptions);
-            for (auto& i : displayOptions)
-            {
-                i.videoLevels = p.outputVideoLevels;
-            }
-            p.app->bmdOutputDevice()->setDisplayOptions(displayOptions);
-            p.app->bmdOutputDevice()->setCompareOptions(p.app->filesModel()->getCompareOptions());
-#endif // TLRENDER_BMD
         }
     }
 }

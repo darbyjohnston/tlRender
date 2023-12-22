@@ -6,12 +6,13 @@
 
 #include <tlPlayQtApp/App.h>
 #include <tlPlayQtApp/DockTitleBar.h>
-#if defined(TLRENDER_BMD)
-#include <tlPlayQtApp/BMDDevicesModel.h>
-#endif // TLRENDER_BMD
 
 #include <tlQtWidget/FloatEditSlider.h>
 #include <tlQtWidget/Spacer.h>
+
+#if defined(TLRENDER_BMD)
+#include <tlPlay/BMDDevicesModel.h>
+#endif // TLRENDER_BMD
 
 #if defined(TLRENDER_BMD)
 #include <tlDevice/BMDOutputDevice.h>
@@ -47,7 +48,7 @@ namespace tl
         {
             App* app = nullptr;
 #if defined(TLRENDER_BMD)
-            std::shared_ptr<observer::ValueObserver<BMDDevicesModelData> > dataObserver;
+            std::shared_ptr<observer::ValueObserver<play::BMDDevicesModelData> > dataObserver;
             QCheckBox* enabledCheckBox = nullptr;
             QComboBox* deviceComboBox = nullptr;
             QComboBox* displayModeComboBox = nullptr;
@@ -331,9 +332,9 @@ namespace tl
                     _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
 
-            p.dataObserver = observer::ValueObserver<BMDDevicesModelData>::create(
+            p.dataObserver = observer::ValueObserver<play::BMDDevicesModelData>::create(
                 app->bmdDevicesModel()->observeData(),
-                [this](const BMDDevicesModelData& value)
+                [this](const play::BMDDevicesModelData& value)
                 {
                     {
                         QSignalBlocker blocker(_p->enabledCheckBox);

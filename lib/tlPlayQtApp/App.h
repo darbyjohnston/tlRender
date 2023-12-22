@@ -33,6 +33,9 @@ namespace tl
         class FilesModel;
         class Settings;
         class ViewportModel;
+#if defined(TLRENDER_BMD)
+        class BMDDevicesModel;
+#endif // TLRENDER_BMD
     }
 
     namespace qt
@@ -52,9 +55,6 @@ namespace tl
         class FilesAModel;
         class FilesBModel;
         class MainWindow;
-#if defined(TLRENDER_BMD)
-        class BMDDevicesModel;
-#endif // TLRENDER_BMD
 
         //! Application.
         class App : public QApplication, public app::IApp
@@ -103,8 +103,8 @@ namespace tl
             MainWindow* mainWindow() const;
 
 #if defined(TLRENDER_BMD)
-            //! Get the devices model.
-            const std::shared_ptr<BMDDevicesModel>& bmdDevicesModel() const;
+            //! Get the BMD devices model.
+            const std::shared_ptr<play::BMDDevicesModel>& bmdDevicesModel() const;
 
             //! Get the BMD output device.
             const std::shared_ptr<device::BMDOutputDevice>& bmdOutputDevice() const;
@@ -143,6 +143,7 @@ namespace tl
             void _fileLogInit(const std::string&);
             void _settingsInit(const std::string&);
             void _modelsInit();
+            void _devicesInit();
             void _observersInit();
             void _inputFilesInit();
             void _windowsInit();

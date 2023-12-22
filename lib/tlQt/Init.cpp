@@ -7,8 +7,6 @@
 #include <tlQt/MetaTypes.h>
 #include <tlQt/TimeObject.h>
 
-#include <tlDevice/Init.h>
-
 #include <tlCore/Context.h>
 #include <tlCore/Mesh.h>
 
@@ -22,7 +20,6 @@ namespace tl
             DefaultSurfaceFormat defaultSurfaceFormat,
             const std::shared_ptr<system::Context>& context)
         {
-            device::init(context);
             if (!context->getSystem<System>())
             {
                 context->addSystem(System::create(

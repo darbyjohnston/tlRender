@@ -4,7 +4,7 @@
 
 #include <tlPlayGLApp/App.h>
 
-#include <tlTimelineUI/Init.h>
+#include <tlPlay/Init.h>
 
 #include <iostream>
 
@@ -22,7 +22,7 @@ TLRENDER_MAIN()
     try
     {
         auto context = tl::system::Context::create();
-        tl::timelineui::init(context);
+        tl::play::init(context);
         auto app = tl::play_gl::App::create(tl::app::convert(argc, argv), context);
         r = app->run();
     }

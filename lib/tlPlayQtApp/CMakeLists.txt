@@ -57,13 +57,6 @@ set(SOURCE
     ViewTool.cpp
     WindowActions.cpp)
 
-if(TLRENDER_BMD)
-    list(APPEND HEADERS
-        BMDDevicesModel.h)
-    list(APPEND SOURCE
-        BMDDevicesModel.cpp)
-endif()
-
 if(TLRENDER_QT6)
     qt6_add_resources(SOURCE tlPlayQtApp.qrc)
 elseif(TLRENDER_QT5)

@@ -2,18 +2,15 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayQtApp/BMDDevicesModel.h>
+#include <tlPlay/BMDDevicesModel.h>
 
 #include <tlDevice/BMDDeviceSystem.h>
 
 #include <tlCore/Context.h>
 
-#include <QApplication>
-#include <QPalette>
-
 namespace tl
 {
-    namespace play_qt
+    namespace play
     {
         bool BMDDevicesModelData::operator == (const BMDDevicesModelData& other) const
         {

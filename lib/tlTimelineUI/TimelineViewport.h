@@ -78,6 +78,9 @@ namespace tl
             //! Set whether the view is framed automatically.
             void setFrameView(bool);
 
+            //! Set the view framed callback.
+            void setFrameViewCallback(const std::function<void(bool)>&);
+
             //! Set the view zoom to 1:1.
             void viewZoom1To1();
 

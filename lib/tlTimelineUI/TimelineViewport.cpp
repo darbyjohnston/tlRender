@@ -33,6 +33,7 @@ namespace tl
             math::Vector2i viewPos;
             double viewZoom = 1.0;
             std::shared_ptr<observer::Value<bool> > frameView;
+            std::function<void(bool)> frameViewCallback;
             std::function<void(const math::Vector2i&, double)> viewPosAndZoomCallback;
 
             struct DroppedFrames
@@ -267,9 +268,18 @@ namespace tl
             TLRENDER_P();
             if (p.frameView->setIfChanged(value))
             {
+                if (p.frameViewCallback)
+                {
+                    p.frameViewCallback(value);
+                }
                 p.doRender = true;
                 _updates |= ui::Update::Draw;
             }
+        }
+
+        void TimelineViewport::setFrameViewCallback(const std::function<void(bool)>& value)
+        {
+            _p->frameViewCallback = value;
         }
 
         void TimelineViewport::viewZoom1To1()

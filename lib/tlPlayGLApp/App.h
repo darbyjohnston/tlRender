@@ -10,6 +10,13 @@
 
 namespace tl
 {
+    namespace device
+    {
+#if defined(TLRENDER_BMD)
+        class BMDOutputDevice;
+#endif // TLRENDER_BMD
+    }
+
     namespace ui
     {
         class RecentFilesModel;
@@ -24,6 +31,9 @@ namespace tl
         class FilesModel;
         class Settings;
         class ViewportModel;
+#if defined(TLRENDER_BMD)
+        class BMDDevicesModel;
+#endif // TLRENDER_BMD
     }
 
     //! tlplay-gl application.
@@ -93,6 +103,14 @@ namespace tl
             //! Set whether the secondary window is active.
             void setSecondaryWindow(bool);
 
+#if defined(TLRENDER_BMD)
+            //! Get the BMD devices model.
+            const std::shared_ptr<play::BMDDevicesModel>& bmdDevicesModel() const;
+
+            //! Get the BMD output device.
+            const std::shared_ptr<device::BMDOutputDevice>& bmdOutputDevice() const;
+#endif // TLRENDER_BMD
+
         protected:
             void _tick() override;
 
@@ -100,6 +118,7 @@ namespace tl
             void _fileLogInit(const std::string&);
             void _settingsInit(const std::string&);
             void _modelsInit();
+            void _devicesInit();
             void _observersInit();
             void _inputFilesInit();
             void _windowsInit();

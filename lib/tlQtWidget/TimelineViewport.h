@@ -60,17 +60,17 @@ namespace tl
             const math::Vector2i& viewPos() const;
 
             //! Get the view zoom.
-            float viewZoom() const;
+            double viewZoom() const;
 
             //! Get whether the view is framed.
             bool hasFrameView() const;
 
         public Q_SLOTS:
             //! Set the view position and zoom.
-            void setViewPosAndZoom(const tl::math::Vector2i&, float);
+            void setViewPosAndZoom(const tl::math::Vector2i&, double);
 
             //! Set the view zoom.
-            void setViewZoom(float, const tl::math::Vector2i& focus = tl::math::Vector2i());
+            void setViewZoom(double, const tl::math::Vector2i& focus = tl::math::Vector2i());
 
             //! Frame the view.
             void setFrameView(bool);
@@ -89,7 +89,7 @@ namespace tl
             void compareOptionsChanged(const tl::timeline::CompareOptions&);
 
             //! This signal is emitted when the position and zoom change.
-            void viewPosAndZoomChanged(const tl::math::Vector2i&, float);
+            void viewPosAndZoomChanged(const tl::math::Vector2i&, double);
 
             //! This signal is emitted when the frame view is changed.
             void frameViewChanged(bool);

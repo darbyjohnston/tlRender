@@ -7,11 +7,11 @@
 #include <tlPlayQtApp/MainWindow.h>
 #include <tlPlayQtApp/OpenSeparateAudioDialog.h>
 #include <tlPlayQtApp/SecondaryWindow.h>
-#if defined(TLRENDER_BMD)
-#include <tlPlayQtApp/BMDDevicesModel.h>
-#endif // TLRENDER_BMD
 
 #include <tlPlay/Settings.h>
+#if defined(TLRENDER_BMD)
+#include <tlPlay/BMDDevicesModel.h>
+#endif // TLRENDER_BMD
 
 #include <tlQtWidget/Init.h>
 #include <tlQtWidget/FileBrowserSystem.h>
@@ -82,12 +82,15 @@ namespace tl
             audio::Info audioInfo;
             std::shared_ptr<play::AudioModel> audioModel;
             QScopedPointer<qt::ToolTipsFilter> toolTipsFilter;
+
             QScopedPointer<MainWindow> mainWindow;
             QScopedPointer<SecondaryWindow> secondaryWindow;
+
             bool bmdDeviceActive = false;
 #if defined(TLRENDER_BMD)
-            std::shared_ptr<BMDDevicesModel> bmdDevicesModel;
+            std::shared_ptr<play::BMDDevicesModel> bmdDevicesModel;
             std::shared_ptr<device::BMDOutputDevice> bmdOutputDevice;
+            image::VideoLevels bmdOutputVideoLevels;
 #endif // TLRENDER_BMD
             int timerId = 0;
 
@@ -101,10 +104,15 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ValueObserver<double> > syncOffsetObserver;
 #if defined(TLRENDER_BMD)
+            std::shared_ptr<observer::ValueObserver<play::BMDDevicesModelData> > bmdDevicesObserver;
             std::shared_ptr<observer::ValueObserver<bool> > bmdActiveObserver;
             std::shared_ptr<observer::ValueObserver<math::Size2i> > bmdSizeObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > bmdFrameRateObserver;
-            std::shared_ptr<observer::ValueObserver<BMDDevicesModelData> > bmdDevicesObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
 #endif // TLRENDER_BMD
         };
 
@@ -144,6 +152,7 @@ namespace tl
             _fileLogInit(logFileName);
             _settingsInit(settingsFileName);
             _modelsInit();
+            _devicesInit();
             _observersInit();
             _inputFilesInit();
             _windowsInit();
@@ -230,7 +239,7 @@ namespace tl
         }
 
 #if defined(TLRENDER_BMD)
-        const std::shared_ptr<BMDDevicesModel>& App::bmdDevicesModel() const
+        const std::shared_ptr<play::BMDDevicesModel>& App::bmdDevicesModel() const
         {
             return _p->bmdDevicesModel;
         }
@@ -453,6 +462,7 @@ namespace tl
                         nullptr);
                 }
             }
+
 #if defined(TLRENDER_BMD)
             std::vector<std::shared_ptr<timeline::Player> > activePlayers2;
             for (const auto& player : activePlayers)
@@ -526,18 +536,6 @@ namespace tl
 
             p.settings->setDefaultValue("SequenceIO/ThreadCount", 16);
 
-#if defined(TLRENDER_BMD)
-            BMDDevicesModelData bmdDevicesModelData;
-            p.settings->setDefaultValue("BMD/DeviceIndex", bmdDevicesModelData.deviceIndex);
-            p.settings->setDefaultValue("BMD/DisplayModeIndex", bmdDevicesModelData.displayModeIndex);
-            p.settings->setDefaultValue("BMD/PixelTypeIndex", bmdDevicesModelData.pixelTypeIndex);
-            p.settings->setDefaultValue("BMD/DeviceEnabled", bmdDevicesModelData.deviceEnabled);
-            const auto i = bmdDevicesModelData.boolOptions.find(device::Option::_444SDIVideoOutput);
-            p.settings->setDefaultValue("BMD/444SDIVideoOutput", i != bmdDevicesModelData.boolOptions.end() ? i->second : false);
-            p.settings->setDefaultValue("BMD/HDRMode", bmdDevicesModelData.hdrMode);
-            p.settings->setDefaultValue("BMD/HDRData", bmdDevicesModelData.hdrData);
-#endif // TLRENDER_BMD
-
 #if defined(TLRENDER_FFMPEG)
             p.settings->setDefaultValue("FFmpeg/YUVToRGBConversion", false);
             p.settings->setDefaultValue("FFmpeg/ThreadCount", 0);
@@ -552,6 +550,18 @@ namespace tl
             p.settings->setDefaultValue("USD/stageCacheCount", p.options.usdStageCache);
             p.settings->setDefaultValue("USD/diskCacheByteCount", p.options.usdDiskCache);
 #endif // TLRENDER_USD
+
+#if defined(TLRENDER_BMD)
+            play::BMDDevicesModelData bmdDevicesModelData;
+            p.settings->setDefaultValue("BMD/DeviceIndex", bmdDevicesModelData.deviceIndex);
+            p.settings->setDefaultValue("BMD/DisplayModeIndex", bmdDevicesModelData.displayModeIndex);
+            p.settings->setDefaultValue("BMD/PixelTypeIndex", bmdDevicesModelData.pixelTypeIndex);
+            p.settings->setDefaultValue("BMD/DeviceEnabled", bmdDevicesModelData.deviceEnabled);
+            const auto i = bmdDevicesModelData.boolOptions.find(device::Option::_444SDIVideoOutput);
+            p.settings->setDefaultValue("BMD/444SDIVideoOutput", i != bmdDevicesModelData.boolOptions.end() ? i->second : false);
+            p.settings->setDefaultValue("BMD/HDRMode", bmdDevicesModelData.hdrMode);
+            p.settings->setDefaultValue("BMD/HDRData", bmdDevicesModelData.hdrData);
+#endif // TLRENDER_BMD
 
             p.settings->setDefaultValue("FileBrowser/NativeFileDialog", true);
 
@@ -590,7 +600,11 @@ namespace tl
                 p.audioInfo = audioSystem->getDefaultOutputInfo();
             }
             p.audioModel = play::AudioModel::create(p.settings, _context);
+        }
 
+        void App::_devicesInit()
+        {
+            TLRENDER_P();
 #if defined(TLRENDER_BMD)
             p.bmdOutputDevice = device::BMDOutputDevice::create(_context);
             //! \todo BMD
@@ -600,26 +614,7 @@ namespace tl
                 bmdOverlayImage->fill(QColor(0, 0, 255, 63));
                 p.bmdOutputDevice->setOverlay(bmdOverlayImage);
             }*/
-            p.bmdActiveObserver = observer::ValueObserver<bool>::create(
-                p.bmdOutputDevice->observeActive(),
-                [this](bool value)
-                {
-                    _p->bmdDeviceActive = value;
-                    _audioUpdate();
-                });
-            p.bmdSizeObserver = observer::ValueObserver<math::Size2i>::create(
-                p.bmdOutputDevice->observeSize(),
-                [this](const math::Size2i& value)
-                {
-                    //std::cout << "output device size: " << value << std::endl;
-                });
-            p.bmdFrameRateObserver = observer::ValueObserver<otime::RationalTime>::create(
-                p.bmdOutputDevice->observeFrameRate(),
-                [this](const otime::RationalTime& value)
-                {
-                    //std::cout << "output device frame rate: " << value << std::endl;
-                });
-            p.bmdDevicesModel = BMDDevicesModel::create(_context); p.bmdDevicesModel->setDeviceIndex(
+            p.bmdDevicesModel = play::BMDDevicesModel::create(_context); p.bmdDevicesModel->setDeviceIndex(
                 p.settings->getValue<int>("BMD/DeviceIndex"));
             p.bmdDevicesModel->setDisplayModeIndex(
                 p.settings->getValue<int>("BMD/DisplayModeIndex"));
@@ -726,11 +721,12 @@ namespace tl
                 });
 
 #if defined(TLRENDER_BMD)
-            p.bmdDevicesObserver = observer::ValueObserver<BMDDevicesModelData>::create(
+            p.bmdDevicesObserver = observer::ValueObserver<play::BMDDevicesModelData>::create(
                 p.bmdDevicesModel->observeData(),
-                [this](const BMDDevicesModelData& value)
+                [this](const play::BMDDevicesModelData& value)
                 {
                     TLRENDER_P();
+
                     device::DeviceConfig config;
                     config.deviceIndex = value.deviceIndex - 1;
                     config.displayModeIndex = value.displayModeIndex - 1;
@@ -741,6 +737,15 @@ namespace tl
                     config.boolOptions = value.boolOptions;
                     p.bmdOutputDevice->setConfig(config);
                     p.bmdOutputDevice->setEnabled(value.deviceEnabled);
+                    p.bmdOutputVideoLevels = value.videoLevels;
+                    timeline::DisplayOptions displayOptions = p.colorModel->getDisplayOptions();
+                    displayOptions.videoLevels = p.bmdOutputVideoLevels;
+                    std::vector<timeline::DisplayOptions> displayOptionsList;
+                    for (const auto& player : p.players)
+                    {
+                        displayOptionsList.push_back(displayOptions);
+                    }
+                    p.bmdOutputDevice->setDisplayOptions(displayOptionsList);
                     p.bmdOutputDevice->setHDR(value.hdrMode, value.hdrData);
 
                     p.settings->setValue("BMD/DeviceIndex", value.deviceIndex);
@@ -751,6 +756,70 @@ namespace tl
                     p.settings->setValue("BMD/444SDIVideoOutput", i != value.boolOptions.end() ? i->second : false);
                     p.settings->setValue("BMD/HDRMode", value.hdrMode);
                     p.settings->setValue("BMD/HDRData", value.hdrData);
+                });
+
+            p.bmdActiveObserver = observer::ValueObserver<bool>::create(
+                p.bmdOutputDevice->observeActive(),
+                [this](bool value)
+                {
+                    _p->bmdDeviceActive = value;
+                    _audioUpdate();
+                });
+            p.bmdSizeObserver = observer::ValueObserver<math::Size2i>::create(
+                p.bmdOutputDevice->observeSize(),
+                [this](const math::Size2i& value)
+                {
+                    //std::cout << "output device size: " << value << std::endl;
+                });
+            p.bmdFrameRateObserver = observer::ValueObserver<otime::RationalTime>::create(
+                p.bmdOutputDevice->observeFrameRate(),
+                [this](const otime::RationalTime& value)
+                {
+                    //std::cout << "output device frame rate: " << value << std::endl;
+                });
+
+            p.ocioOptionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
+                p.colorModel->observeOCIOOptions(),
+                [this](const timeline::OCIOOptions& value)
+                {
+                    _p->bmdOutputDevice->setOCIOOptions(value);
+                });
+            p.lutOptionsObserver = observer::ValueObserver<timeline::LUTOptions>::create(
+                p.colorModel->observeLUTOptions(),
+                [this](const timeline::LUTOptions& value)
+                {
+                    _p->bmdOutputDevice->setLUTOptions(value);
+                });
+            p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
+                p.colorModel->observeImageOptions(),
+                [this](const timeline::ImageOptions& value)
+                {
+                    std::vector<timeline::ImageOptions> imageOptions;
+                    for (const auto& player : _p->players)
+                    {
+                        imageOptions.push_back(value);
+                    }
+                    _p->bmdOutputDevice->setImageOptions(imageOptions);
+                });
+            p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+                p.colorModel->observeDisplayOptions(),
+                [this](const timeline::DisplayOptions& value)
+                {
+                    timeline::DisplayOptions tmp = value;
+                    tmp.videoLevels = _p->bmdOutputVideoLevels;
+                    std::vector<timeline::DisplayOptions> displayOptions;
+                    for (const auto& player : _p->players)
+                    {
+                        displayOptions.push_back(tmp);
+                    }
+                    _p->bmdOutputDevice->setDisplayOptions(displayOptions);
+                });
+
+            p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
+                p.filesModel->observeCompareOptions(),
+                [this](const timeline::CompareOptions& value)
+                {
+                    _p->bmdOutputDevice->setCompareOptions(value);
                 });
 #endif // TLRENDER_BMD
         }

@@ -59,6 +59,10 @@
 #include <tlUI/TimeLabel.h>
 #include <tlUI/ToolButton.h>
 
+#if defined(TLRENDER_BMD)
+#include <tlDevice/BMDOutputDevice.h>
+#endif // TLRENDER_BMD
+
 #include <tlTimeline/TimeUnits.h>
 
 #include <tlCore/Timer.h>
@@ -458,6 +462,32 @@ namespace tl
                         app->getFilesModel()->setCompareOptions(value);
                     }
                 });
+            p.timelineViewport->setViewPosAndZoomCallback(
+                [this, appWeak](const math::Vector2i& pos, double zoom)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+#if defined(TLRENDER_BMD)
+                        app->bmdOutputDevice()->setView(
+                            pos,
+                            zoom,
+                            _p->timelineViewport->hasFrameView());
+#endif // TLRENDER_BMD
+                    }
+                });
+            p.timelineViewport->setFrameViewCallback(
+                [this, appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+#if defined(TLRENDER_BMD)
+                        app->bmdOutputDevice()->setView(
+                            _p->timelineViewport->viewPos(),
+                            _p->timelineViewport->viewZoom(),
+                            value);
+#endif // TLRENDER_BMD
+                    }
+                });
 
             p.currentTimeEdit->setCallback(
                 [this](const otime::RationalTime& value)
@@ -571,13 +601,23 @@ namespace tl
                 app->getColorModel()->observeImageOptions(),
                 [this](const timeline::ImageOptions& value)
                 {
-                    _p->timelineViewport->setImageOptions({ value });
+                    std::vector<timeline::ImageOptions> imageOptions;
+                    for (const auto& player : _p->players)
+                    {
+                        imageOptions.push_back(value);
+                    }
+                    _p->timelineViewport->setImageOptions(imageOptions);
                 });
 
             p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
                 app->getColorModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
+                    std::vector<timeline::DisplayOptions> displayOptions;
+                    for (const auto& player : _p->players)
+                    {
+                        displayOptions.push_back(value);
+                    }
                     _p->timelineViewport->setDisplayOptions({ value });
                 });
 

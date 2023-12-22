@@ -37,7 +37,7 @@ namespace tl
             std::vector<image::Size> timelineSizes;
             std::vector<timeline::VideoData> videoData;
             math::Vector2i viewPos;
-            float viewZoom = 1.F;
+            double viewZoom = 1.0;
             bool frameView = true;
 
             struct DroppedFrames
@@ -214,7 +214,7 @@ namespace tl
             return _p->viewPos;
         }
 
-        float TimelineViewport::viewZoom() const
+        double TimelineViewport::viewZoom() const
         {
             return _p->viewZoom;
         }
@@ -224,7 +224,7 @@ namespace tl
             return _p->frameView;
         }
 
-        void TimelineViewport::setViewPosAndZoom(const math::Vector2i& pos, float zoom)
+        void TimelineViewport::setViewPosAndZoom(const math::Vector2i& pos, double zoom)
         {
             TLRENDER_P();
             if (pos == p.viewPos && zoom == p.viewZoom)
@@ -237,7 +237,7 @@ namespace tl
             setFrameView(false);
         }
 
-        void TimelineViewport::setViewZoom(float zoom, const math::Vector2i& focus)
+        void TimelineViewport::setViewZoom(double zoom, const math::Vector2i& focus)
         {
             TLRENDER_P();
             math::Vector2i pos;
@@ -681,15 +681,15 @@ namespace tl
             TLRENDER_P();
             const math::Size2i viewportSize = _viewportSize();
             const math::Size2i renderSize = _renderSize();
-            float zoom = viewportSize.w / static_cast<float>(renderSize.w);
+            double zoom = viewportSize.w / static_cast<double>(renderSize.w);
             if (zoom * renderSize.h > viewportSize.h)
             {
-                zoom = viewportSize.h / static_cast<float>(renderSize.h);
+                zoom = viewportSize.h / static_cast<double>(renderSize.h);
             }
             const math::Vector2i c(renderSize.w / 2, renderSize.h / 2);
             const math::Vector2i viewPos(
-                viewportSize.w / 2.F - c.x * zoom,
-                viewportSize.h / 2.F - c.y * zoom);
+                viewportSize.w / 2.0 - c.x * zoom,
+                viewportSize.h / 2.0 - c.y * zoom);
             if (viewPos != p.viewPos || zoom != p.viewZoom)
             {
                 p.viewPos = viewPos;
