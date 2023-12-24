@@ -351,6 +351,9 @@ namespace tl
 #endif // TLRENDER_BMD
         }
 
+        DevicesTool::~DevicesTool()
+        {}
+
         DevicesDockWidget::DevicesDockWidget(
             DevicesTool* devicesTool,
             QWidget* parent)
