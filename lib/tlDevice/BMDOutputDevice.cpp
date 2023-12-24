@@ -994,32 +994,15 @@ namespace tl
                 void* dlFrame = nullptr;
                 dlVideoFrame->p->GetBytes((void**)&dlFrame);
 
-                if (0 == viewportSize.w % getReadPixelsAlign(p.thread.pixelType) &&
-                    !getReadPixelsSwap(p.thread.pixelType))
-                {
-                    //std::cout << "BMDOutputDevice glGetTexImage" << std::endl;
-                    glBindTexture(GL_TEXTURE_2D, p.thread.offscreenBuffer2->getColorID());
-                    glGetTexImage(
-                        GL_TEXTURE_2D,
-                        0,
-                        getReadPixelsFormat(p.thread.pixelType),
-                        getReadPixelsType(p.thread.pixelType),
-                        dlFrame);
-                }
-                else
-                {
-                    //std::cout << "BMDOutputDevice glReadPixels" << std::endl;
-                    glPixelStorei(GL_PACK_ALIGNMENT, getReadPixelsAlign(p.thread.pixelType));
-                    glPixelStorei(GL_PACK_SWAP_BYTES, getReadPixelsSwap(p.thread.pixelType));
-                    glReadPixels(
-                        0,
-                        0,
-                        viewportSize.w,
-                        viewportSize.h,
-                        getReadPixelsFormat(p.thread.pixelType),
-                        getReadPixelsType(p.thread.pixelType),
-                        dlFrame);
-                }
+                glPixelStorei(GL_PACK_ALIGNMENT, getReadPixelsAlign(p.thread.pixelType));
+                glPixelStorei(GL_PACK_SWAP_BYTES, getReadPixelsSwap(p.thread.pixelType));
+                glBindTexture(GL_TEXTURE_2D, p.thread.offscreenBuffer2->getColorID());
+                glGetTexImage(
+                    GL_TEXTURE_2D,
+                    0,
+                    getReadPixelsFormat(p.thread.pixelType),
+                    getReadPixelsType(p.thread.pixelType),
+                    dlFrame);
 
                 p.thread.dl->outputCallback.p->setVideo(
                     dlVideoFrame,
