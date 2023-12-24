@@ -38,6 +38,14 @@ namespace tl
             IDeckLink* p = nullptr;
         };
 
+        class DLStatusWrapper
+        {
+        public:
+            ~DLStatusWrapper() { if (p) { p->Release(); } }
+
+            IDeckLinkStatus* p = nullptr;
+        };
+
         class DLConfigWrapper
         {
         public:

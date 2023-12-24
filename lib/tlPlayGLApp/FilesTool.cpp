@@ -33,8 +33,6 @@ namespace tl
             std::shared_ptr<ui::FloatEditSlider> wipeRotationSlider;
             std::shared_ptr<ui::FloatEditSlider> overlaySlider;
             std::shared_ptr<ui::GridLayout> widgetLayout;
-            std::shared_ptr<ui::VerticalLayout> layout;
-            std::shared_ptr<ui::ScrollWidget> scrollWidget;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ValueObserver<std::shared_ptr<play::FilesModelItem> > > aObserver;
@@ -72,13 +70,14 @@ namespace tl
             p.overlaySlider = ui::FloatEditSlider::create(context);
             p.overlaySlider->setDefaultValue(.5F);
 
-            p.layout = ui::VerticalLayout::create(context);
-            p.layout->setSpacingRole(ui::SizeRole::None);
-            p.widgetLayout = ui::GridLayout::create(context, p.layout);
+            auto layout = ui::VerticalLayout::create(context);
+            layout->setSpacingRole(ui::SizeRole::None);
+
+            p.widgetLayout = ui::GridLayout::create(context, layout);
             p.widgetLayout->setMarginRole(ui::SizeRole::MarginInside);
             p.widgetLayout->setSpacingRole(ui::SizeRole::SpacingTool);
 
-            auto vLayout = ui::VerticalLayout::create(context, p.layout);
+            auto vLayout = ui::VerticalLayout::create(context, layout);
             vLayout->setSpacingRole(ui::SizeRole::None);
             auto bellows = ui::Bellows::create("Wipe", context, vLayout);
             auto gridLayout = ui::GridLayout::create(context);
@@ -104,9 +103,9 @@ namespace tl
             gridLayout->setGridPos(p.overlaySlider, 0, 0);
             bellows->setWidget(gridLayout);
 
-            p.scrollWidget = ui::ScrollWidget::create(context, ui::ScrollType::Both);
-            p.scrollWidget->setWidget(p.layout);
-            _setWidget(p.scrollWidget);
+            auto scrollWidget = ui::ScrollWidget::create(context, ui::ScrollType::Both);
+            scrollWidget->setWidget(layout);
+            _setWidget(scrollWidget);
 
             auto appWeak = std::weak_ptr<App>(app);
             p.aButtonGroup->setCheckedCallback(

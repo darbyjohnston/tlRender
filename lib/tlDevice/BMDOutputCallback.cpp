@@ -270,25 +270,12 @@ namespace tl
             if (p.videoThread.videoFrame)
             {
                 if (p.videoThread.videoFrame->p->GetPixelFormat() ==
-                    dlVideoFrame->GetPixelFormat())
+                    toBMD(p.pixelType))
                 {
-                    //std::cout << "BMDOutputCallback memcpy" << std::endl;
-                    void* srcFrame = nullptr;
-                    p.videoThread.videoFrame->p->GetBytes((void**)&srcFrame);
-                    void* dstFrame = nullptr;
-                    dlVideoFrame->GetBytes((void**)&dstFrame);
-                    memcpy(
-                        dstFrame,
-                        srcFrame,
-                        dlVideoFrame->GetRowBytes() * dlVideoFrame->GetHeight());
+                    dlVideoFrame = p.videoThread.videoFrame->p;
                 }
                 else
                 {
-                    //std::cout << "BMDOutputCallback convert: " <<
-                    //    fromBMD(p.videoThread.videoFrame->p->GetPixelFormat()) <<
-                    //    " -> " <<
-                    //    fromBMD(dlVideoFrame->GetPixelFormat()) <<
-                    //    std::endl;
                     p.videoThread.frameConverter->ConvertFrame(
                         p.videoThread.videoFrame->p,
                         dlVideoFrame);

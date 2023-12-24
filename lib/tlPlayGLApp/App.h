@@ -105,10 +105,10 @@ namespace tl
 
 #if defined(TLRENDER_BMD)
             //! Get the BMD devices model.
-            const std::shared_ptr<play::BMDDevicesModel>& bmdDevicesModel() const;
+            const std::shared_ptr<play::BMDDevicesModel>& getBMDDevicesModel() const;
 
             //! Get the BMD output device.
-            const std::shared_ptr<device::BMDOutputDevice>& bmdOutputDevice() const;
+            const std::shared_ptr<device::BMDOutputDevice>& getBMDOutputDevice() const;
 #endif // TLRENDER_BMD
 
         protected:

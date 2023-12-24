@@ -97,8 +97,13 @@ namespace tl
 
         private:
             void _run();
-            void _createDevice();
+            void _createDevice(
+                const device::DeviceConfig&,
+                bool& active,
+                math::Size2i& size,
+                otime::RationalTime& frameRate);
             void _render(
+                const device::DeviceConfig&,
                 const timeline::OCIOOptions&,
                 const timeline::LUTOptions&,
                 const std::vector<timeline::ImageOptions>&,

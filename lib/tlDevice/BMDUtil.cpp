@@ -78,21 +78,6 @@ namespace tl
 
         std::string getDisplayModeLabel(BMDDisplayMode value)
         {
-            const std::array<std::string, 7> data =
-            {
-                "Embedded",
-                "AESEBU",
-                "Analog",
-                "AnalogXLR",
-                "AnalogRCA",
-                "Microphone",
-                "Headphones"
-            };
-            return data[static_cast<size_t>(value)];
-        }
-
-        std::string getPixelFormatLabel(BMDPixelFormat value)
-        {
             const std::array<std::string, 111> data =
             {
                 "NTSC",
@@ -210,6 +195,26 @@ namespace tl
             return data[static_cast<size_t>(value)];
         }
 
+        std::string getPixelFormatLabel(BMDPixelFormat value)
+        {
+            const std::array<std::string, 111> data =
+            {
+                "bmdFormatUnspecified",
+                "bmdFormat8BitYUV",
+                "bmdFormat10BitYUV",
+                "bmdFormat8BitARGB",
+                "bmdFormat8BitBGRA",
+                "bmdFormat10BitRGB",
+                "bmdFormat12BitRGB",
+                "bmdFormat12BitRGBLE",
+                "bmdFormat10BitRGBXLE",
+                "bmdFormat10BitRGBX",
+                "bmdFormatH265",
+                "bmdFormatDNxHR"
+            };
+            return data[static_cast<size_t>(value)];
+        }
+
         std::string getOutputFrameCompletionResultLabel(BMDOutputFrameCompletionResult value)
         {
             const std::array<std::string, 4> data =
@@ -220,6 +225,91 @@ namespace tl
                 "Flushed"
             };
             return data[value];
+        }
+
+        image::PixelType getOffscreenType(device::PixelType value)
+        {
+            const std::array<image::PixelType, static_cast<size_t>(device::PixelType::Count)> data =
+            {
+                image::PixelType::None,
+                image::PixelType::RGBA_U8,
+                image::PixelType::RGBA_U8,
+                image::PixelType::RGB_U10,
+                image::PixelType::RGB_U10,
+                image::PixelType::RGB_U10,
+                image::PixelType::RGB_U10,
+                image::PixelType::RGB_U10,
+                image::PixelType::RGB_U10
+            };
+            return data[static_cast<size_t>(value)];
+        }
+
+        GLenum getReadPixelsFormat(device::PixelType value)
+        {
+            const std::array<GLenum, static_cast<size_t>(device::PixelType::Count)> data =
+            {
+                GL_NONE,
+                GL_BGRA,
+                GL_BGRA,
+                GL_BGRA,
+                GL_RGBA,
+                GL_RGBA,
+                GL_RGBA,
+                GL_RGBA,
+                GL_RGBA
+            };
+            return data[static_cast<size_t>(value)];
+        }
+
+        GLenum getReadPixelsType(device::PixelType value)
+        {
+            const std::array<GLenum, static_cast<size_t>(device::PixelType::Count)> data =
+            {
+                GL_NONE,
+                GL_UNSIGNED_BYTE,
+                GL_UNSIGNED_BYTE,
+                GL_UNSIGNED_INT_2_10_10_10_REV,
+                GL_UNSIGNED_INT_10_10_10_2,
+                GL_UNSIGNED_INT_10_10_10_2,
+                GL_UNSIGNED_INT_10_10_10_2,
+                GL_UNSIGNED_INT_10_10_10_2,
+                GL_UNSIGNED_INT_10_10_10_2
+            };
+            return data[static_cast<size_t>(value)];
+        }
+
+        GLint getReadPixelsAlign(device::PixelType value)
+        {
+            const std::array<GLint, static_cast<size_t>(device::PixelType::Count)> data =
+            {
+                0,
+                4,
+                4,
+                256,
+                256,
+                256,
+                128,
+                256,
+                256
+            };
+            return data[static_cast<size_t>(value)];
+        }
+
+        GLint getReadPixelsSwap(device::PixelType value)
+        {
+            const std::array<GLint, static_cast<size_t>(device::PixelType::Count)> data =
+            {
+                GL_FALSE,
+                GL_FALSE,
+                GL_FALSE,
+                GL_TRUE,
+                GL_TRUE,
+                GL_FALSE,
+                GL_FALSE,
+                GL_FALSE,
+                GL_FALSE
+            };
+            return data[static_cast<size_t>(value)];
         }
     }
 }

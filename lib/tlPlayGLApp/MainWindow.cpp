@@ -468,7 +468,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
 #if defined(TLRENDER_BMD)
-                        app->bmdOutputDevice()->setView(
+                        app->getBMDOutputDevice()->setView(
                             pos,
                             zoom,
                             _p->timelineViewport->hasFrameView());
@@ -481,7 +481,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
 #if defined(TLRENDER_BMD)
-                        app->bmdOutputDevice()->setView(
+                        app->getBMDOutputDevice()->setView(
                             _p->timelineViewport->viewPos(),
                             _p->timelineViewport->viewZoom(),
                             value);

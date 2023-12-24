@@ -8,7 +8,6 @@
 #include <tlPlayQtApp/DockTitleBar.h>
 
 #include <tlQtWidget/FloatEditSlider.h>
-#include <tlQtWidget/Spacer.h>
 
 #if defined(TLRENDER_BMD)
 #include <tlPlay/BMDDevicesModel.h>
@@ -32,23 +31,11 @@ namespace tl
 {
     namespace play_qt
     {
-        namespace
-        {
-            QDoubleSpinBox* createPrimariesSpinBox()
-            {
-                QDoubleSpinBox* out = new QDoubleSpinBox;
-                out = new QDoubleSpinBox;
-                out->setRange(0.0, 1.0);
-                out->setSingleStep(0.01);
-                return out;
-            }
-        }
-
         struct DevicesTool::Private
         {
             App* app = nullptr;
+
 #if defined(TLRENDER_BMD)
-            std::shared_ptr<observer::ValueObserver<play::BMDDevicesModelData> > dataObserver;
             QCheckBox* enabledCheckBox = nullptr;
             QComboBox* deviceComboBox = nullptr;
             QComboBox* displayModeComboBox = nullptr;
@@ -56,18 +43,13 @@ namespace tl
             QCheckBox* _444SDIVideoOutputCheckBox = nullptr;
             QComboBox* videoLevelsComboBox = nullptr;
             QComboBox* hdrModeComboBox = nullptr;
-            std::pair<QDoubleSpinBox*, QDoubleSpinBox*> redPrimariesSpinBoxes =
-                std::make_pair(nullptr, nullptr);
-            std::pair<QDoubleSpinBox*, QDoubleSpinBox*> greenPrimariesSpinBoxes =
-                std::make_pair(nullptr, nullptr);
-            std::pair<QDoubleSpinBox*, QDoubleSpinBox*> bluePrimariesSpinBoxes =
-                std::make_pair(nullptr, nullptr);
-            std::pair<QDoubleSpinBox*, QDoubleSpinBox*> whitePrimariesSpinBoxes =
-                std::make_pair(nullptr, nullptr);
+            std::vector<std::pair<QDoubleSpinBox*, QDoubleSpinBox*> > primariesSpinBoxes;
             std::pair<QDoubleSpinBox*, QDoubleSpinBox*> masteringLuminanceSpinBoxes =
                 std::make_pair(nullptr, nullptr);
             qtwidget::FloatEditSlider* maxCLLSlider = nullptr;
             qtwidget::FloatEditSlider* maxFALLSlider = nullptr;
+
+            std::shared_ptr<observer::ValueObserver<play::BMDDevicesModelData> > dataObserver;
 #endif // TLRENDER_BMD
         };
 
@@ -83,28 +65,25 @@ namespace tl
             p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
             p.deviceComboBox = new QComboBox;
-
             p.displayModeComboBox = new QComboBox;
-
             p.pixelTypeComboBox = new QComboBox;
 
-            p._444SDIVideoOutputCheckBox = new QCheckBox(tr("444 SDI Video Output"));
+            p._444SDIVideoOutputCheckBox = new QCheckBox(tr("444 SDI video output"));
 
             p.videoLevelsComboBox = new QComboBox;
 
             p.hdrModeComboBox = new QComboBox;
 
-            p.redPrimariesSpinBoxes.first = createPrimariesSpinBox();
-            p.redPrimariesSpinBoxes.second = createPrimariesSpinBox();
-
-            p.greenPrimariesSpinBoxes.first = createPrimariesSpinBox();
-            p.greenPrimariesSpinBoxes.second = createPrimariesSpinBox();
-
-            p.bluePrimariesSpinBoxes.first = createPrimariesSpinBox();
-            p.bluePrimariesSpinBoxes.second = createPrimariesSpinBox();
-
-            p.whitePrimariesSpinBoxes.first = createPrimariesSpinBox();
-            p.whitePrimariesSpinBoxes.second = createPrimariesSpinBox();
+            for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
+            {
+                auto min = new QDoubleSpinBox;
+                min->setRange(0.0, 1.0);
+                min->setSingleStep(0.01);
+                auto max = new QDoubleSpinBox;
+                max->setRange(0.0, 1.0);
+                max->setSingleStep(0.01);
+                p.primariesSpinBoxes.push_back(std::make_pair(min, max));
+            }
 
             p.masteringLuminanceSpinBoxes.first = new QDoubleSpinBox;
             p.masteringLuminanceSpinBoxes.first->setRange(0.0, 10000.0);
@@ -119,7 +98,7 @@ namespace tl
 
             auto layout = new QFormLayout;
             layout->addRow(p.enabledCheckBox);
-            layout->addRow(tr("Name:"), p.deviceComboBox);
+            layout->addRow(tr("Device:"), p.deviceComboBox);
             layout->addRow(tr("Display mode:"), p.displayModeComboBox);
             layout->addRow(tr("Pixel type:"), p.pixelTypeComboBox);
             layout->addRow(p._444SDIVideoOutputCheckBox);
@@ -130,25 +109,21 @@ namespace tl
 
             layout = new QFormLayout;
             layout->addRow(tr("Mode:"), p.hdrModeComboBox);
-            layout->addRow(new qtwidget::Spacer(Qt::Vertical));
+            const std::array<QString, image::HDRPrimaries::Count> primariesLabels =
+            {
+                tr("Red primaries:"),
+                tr("Green primaries:"),
+                tr("Blue primaries:"),
+                tr("White primaries:")
+            };
+            for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
+            {
+                auto hLayout = new QHBoxLayout;
+                hLayout->addWidget(p.primariesSpinBoxes[i].first);
+                hLayout->addWidget(p.primariesSpinBoxes[i].second);
+                layout->addRow(primariesLabels[i], hLayout);
+            }
             auto hLayout = new QHBoxLayout;
-            hLayout->addWidget(p.redPrimariesSpinBoxes.first);
-            hLayout->addWidget(p.redPrimariesSpinBoxes.second);
-            layout->addRow(tr("Red primaries:"), hLayout);
-            hLayout = new QHBoxLayout;
-            hLayout->addWidget(p.greenPrimariesSpinBoxes.first);
-            hLayout->addWidget(p.greenPrimariesSpinBoxes.second);
-            layout->addRow(tr("Green primaries:"), hLayout);
-            hLayout = new QHBoxLayout;
-            hLayout->addWidget(p.bluePrimariesSpinBoxes.first);
-            hLayout->addWidget(p.bluePrimariesSpinBoxes.second);
-            layout->addRow(tr("Blue primaries:"), hLayout);
-            hLayout = new QHBoxLayout;
-            hLayout->addWidget(p.whitePrimariesSpinBoxes.first);
-            hLayout->addWidget(p.whitePrimariesSpinBoxes.second);
-            layout->addRow(tr("White primaries:"), hLayout);
-            layout->addRow(new qtwidget::Spacer(Qt::Vertical));
-            hLayout = new QHBoxLayout;
             hLayout->addWidget(p.masteringLuminanceSpinBoxes.first);
             hLayout->addWidget(p.masteringLuminanceSpinBoxes.second);
             layout->addRow(tr("Mastering luminance:"), hLayout);
@@ -175,7 +150,6 @@ namespace tl
                 {
                     _p->app->bmdDevicesModel()->setDeviceIndex(value);
                 });
-
             connect(
                 p.displayModeComboBox,
                 QOverload<int>::of(&QComboBox::activated),
@@ -183,7 +157,6 @@ namespace tl
                 {
                     _p->app->bmdDevicesModel()->setDisplayModeIndex(value);
                 });
-
             connect(
                 p.pixelTypeComboBox,
                 QOverload<int>::of(&QComboBox::activated),
@@ -218,81 +191,27 @@ namespace tl
                     _p->app->bmdDevicesModel()->setHDRMode(static_cast<device::HDRMode>(value));
                 });
 
-            connect(
-                p.redPrimariesSpinBoxes.first,
-                QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-                [this](double value)
-                {
-                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
-                    hdrData.redPrimaries.x = value;
-                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
-                });
-            connect(
-                p.redPrimariesSpinBoxes.second,
-                QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-                [this](double value)
-                {
-                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
-                    hdrData.redPrimaries.y = value;
-                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
-                });
-
-            connect(
-                p.greenPrimariesSpinBoxes.first,
-                QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-                [this](double value)
-                {
-                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
-                    hdrData.greenPrimaries.x = value;
-                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
-                });
-            connect(
-                p.greenPrimariesSpinBoxes.second,
-                QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-                [this](double value)
-                {
-                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
-                    hdrData.greenPrimaries.y = value;
-                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
-                });
-
-            connect(
-                p.bluePrimariesSpinBoxes.first,
-                QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-                [this](double value)
-                {
-                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
-                    hdrData.bluePrimaries.x = value;
-                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
-                });
-            connect(
-                p.bluePrimariesSpinBoxes.second,
-                QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-                [this](double value)
-                {
-                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
-                    hdrData.bluePrimaries.y = value;
-                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
-                });
-
-            connect(
-                p.whitePrimariesSpinBoxes.first,
-                QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-                [this](double value)
-                {
-                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
-                    hdrData.whitePrimaries.x = value;
-                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
-                });
-            connect(
-                p.whitePrimariesSpinBoxes.second,
-                QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-                [this](double value)
-                {
-                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
-                    hdrData.whitePrimaries.y = value;
-                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
-                });
+            for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
+            {
+                connect(
+                    p.primariesSpinBoxes[i].first,
+                    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+                    [this, i](double value)
+                    {
+                        auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
+                        hdrData.primaries[i].x = value;
+                        _p->app->bmdDevicesModel()->setHDRData(hdrData);
+                    });
+                connect(
+                    p.primariesSpinBoxes[i].second,
+                    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+                    [this, i](double value)
+                    {
+                        auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
+                        hdrData.primaries[i].y = value;
+                        _p->app->bmdDevicesModel()->setHDRData(hdrData);
+                    });
+            }
 
             connect(
                 p.masteringLuminanceSpinBoxes.first,
@@ -336,130 +255,101 @@ namespace tl
                 app->bmdDevicesModel()->observeData(),
                 [this](const play::BMDDevicesModelData& value)
                 {
+                    TLRENDER_P();
                     {
-                        QSignalBlocker blocker(_p->enabledCheckBox);
-                        _p->enabledCheckBox->setChecked(value.deviceEnabled);
+                        QSignalBlocker blocker(p.enabledCheckBox);
+                        p.enabledCheckBox->setChecked(value.deviceEnabled);
                     }
                     {
-                        QSignalBlocker blocker(_p->deviceComboBox);
-                        _p->deviceComboBox->clear();
+                        QSignalBlocker blocker(p.deviceComboBox);
+                        p.deviceComboBox->clear();
                         for (const auto& i : value.devices)
                         {
-                            _p->deviceComboBox->addItem(QString::fromUtf8(i.c_str()));
+                            p.deviceComboBox->addItem(QString::fromUtf8(i.c_str()));
                         }
-                        _p->deviceComboBox->setCurrentIndex(value.deviceIndex);
+                        p.deviceComboBox->setCurrentIndex(value.deviceIndex);
                     }
                     {
-                        QSignalBlocker blocker(_p->displayModeComboBox);
-                        _p->displayModeComboBox->clear();
+                        QSignalBlocker blocker(p.displayModeComboBox);
+                        p.displayModeComboBox->clear();
                         for (const auto& i : value.displayModes)
                         {
-                            _p->displayModeComboBox->addItem(QString::fromUtf8(i.c_str()));
+                            p.displayModeComboBox->addItem(QString::fromUtf8(i.c_str()));
                         }
-                        _p->displayModeComboBox->setCurrentIndex(value.displayModeIndex);
+                        p.displayModeComboBox->setCurrentIndex(value.displayModeIndex);
                     }
                     {
-                        QSignalBlocker blocker(_p->pixelTypeComboBox);
-                        _p->pixelTypeComboBox->clear();
+                        QSignalBlocker blocker(p.pixelTypeComboBox);
+                        p.pixelTypeComboBox->clear();
                         for (const auto& i : value.pixelTypes)
                         {
                             std::stringstream ss;
                             ss << i;
-                            _p->pixelTypeComboBox->addItem(QString::fromUtf8(ss.str().c_str()));
+                            p.pixelTypeComboBox->addItem(QString::fromUtf8(ss.str().c_str()));
                         }
-                        _p->pixelTypeComboBox->setCurrentIndex(value.pixelTypeIndex);
+                        p.pixelTypeComboBox->setCurrentIndex(value.pixelTypeIndex);
                     }
                     {
-                        QSignalBlocker blocker(_p->_444SDIVideoOutputCheckBox);
+                        QSignalBlocker blocker(p._444SDIVideoOutputCheckBox);
                         const auto i = value.boolOptions.find(device::Option::_444SDIVideoOutput);
-                        _p->_444SDIVideoOutputCheckBox->setChecked(i != value.boolOptions.end() ? i->second : false);
+                        p._444SDIVideoOutputCheckBox->setChecked(i != value.boolOptions.end() ? i->second : false);
                     }
                     {
-                        QSignalBlocker blocker(_p->videoLevelsComboBox);
-                        _p->videoLevelsComboBox->clear();
+                        QSignalBlocker blocker(p.videoLevelsComboBox);
+                        p.videoLevelsComboBox->clear();
                         for (const auto& i : image::getVideoLevelsEnums())
                         {
                             std::stringstream ss;
                             ss << i;
-                            _p->videoLevelsComboBox->addItem(QString::fromUtf8(ss.str().c_str()));
+                            p.videoLevelsComboBox->addItem(QString::fromUtf8(ss.str().c_str()));
                         }
-                        _p->videoLevelsComboBox->setCurrentIndex(static_cast<int>(value.videoLevels));
+                        p.videoLevelsComboBox->setCurrentIndex(static_cast<int>(value.videoLevels));
                     }
                     {
-                        QSignalBlocker blocker(_p->hdrModeComboBox);
-                        _p->hdrModeComboBox->clear();
+                        QSignalBlocker blocker(p.hdrModeComboBox);
+                        p.hdrModeComboBox->clear();
                         for (const auto& i : device::getHDRModeLabels())
                         {
-                            _p->hdrModeComboBox->addItem(QString::fromUtf8(i.c_str()));
+                            p.hdrModeComboBox->addItem(QString::fromUtf8(i.c_str()));
                         }
-                        _p->hdrModeComboBox->setCurrentIndex(static_cast<int>(value.hdrMode));
+                        p.hdrModeComboBox->setCurrentIndex(static_cast<int>(value.hdrMode));
+                    }
+                    for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
+                    {
+                        {
+                            QSignalBlocker blocker(p.primariesSpinBoxes[i].first);
+                            p.primariesSpinBoxes[i].first->setValue(value.hdrData.primaries[i].x);
+                            p.primariesSpinBoxes[i].first->setEnabled(device::HDRMode::Custom == value.hdrMode);
+                        }
+                        {
+                            QSignalBlocker blocker(p.primariesSpinBoxes[i].second);
+                            p.primariesSpinBoxes[i].second->setValue(value.hdrData.primaries[i].y);
+                            p.primariesSpinBoxes[i].second->setEnabled(device::HDRMode::Custom == value.hdrMode);
+                        }
                     }
                     {
-                        QSignalBlocker blocker(_p->redPrimariesSpinBoxes.first);
-                        _p->redPrimariesSpinBoxes.first->setValue(value.hdrData.redPrimaries.x);
-                        _p->redPrimariesSpinBoxes.first->setEnabled(device::HDRMode::Custom == value.hdrMode);
+                        QSignalBlocker blocker(p.masteringLuminanceSpinBoxes.first);
+                        p.masteringLuminanceSpinBoxes.first->setValue(value.hdrData.displayMasteringLuminance.getMin());
+                        p.masteringLuminanceSpinBoxes.first->setEnabled(device::HDRMode::Custom == value.hdrMode);
                     }
                     {
-                        QSignalBlocker blocker(_p->redPrimariesSpinBoxes.second);
-                        _p->redPrimariesSpinBoxes.second->setValue(value.hdrData.redPrimaries.y);
-                        _p->redPrimariesSpinBoxes.second->setEnabled(device::HDRMode::Custom == value.hdrMode);
+                        QSignalBlocker blocker(p.masteringLuminanceSpinBoxes.second);
+                        p.masteringLuminanceSpinBoxes.second->setValue(value.hdrData.displayMasteringLuminance.getMax());
+                        p.masteringLuminanceSpinBoxes.second->setEnabled(device::HDRMode::Custom == value.hdrMode);
                     }
                     {
-                        QSignalBlocker blocker(_p->greenPrimariesSpinBoxes.first);
-                        _p->greenPrimariesSpinBoxes.first->setValue(value.hdrData.greenPrimaries.x);
-                        _p->greenPrimariesSpinBoxes.first->setEnabled(device::HDRMode::Custom == value.hdrMode);
+                        QSignalBlocker blocker(p.maxCLLSlider);
+                        p.maxCLLSlider->setValue(value.hdrData.maxCLL);
+                        p.maxCLLSlider->setEnabled(device::HDRMode::Custom == value.hdrMode);
                     }
                     {
-                        QSignalBlocker blocker(_p->greenPrimariesSpinBoxes.second);
-                        _p->greenPrimariesSpinBoxes.second->setValue(value.hdrData.greenPrimaries.y);
-                        _p->greenPrimariesSpinBoxes.second->setEnabled(device::HDRMode::Custom == value.hdrMode);
-                    }
-                    {
-                        QSignalBlocker blocker(_p->bluePrimariesSpinBoxes.first);
-                        _p->bluePrimariesSpinBoxes.first->setValue(value.hdrData.bluePrimaries.x);
-                        _p->bluePrimariesSpinBoxes.first->setEnabled(device::HDRMode::Custom == value.hdrMode);
-                    }
-                    {
-                        QSignalBlocker blocker(_p->bluePrimariesSpinBoxes.second);
-                        _p->bluePrimariesSpinBoxes.second->setValue(value.hdrData.bluePrimaries.y);
-                        _p->bluePrimariesSpinBoxes.second->setEnabled(device::HDRMode::Custom == value.hdrMode);
-                    }
-                    {
-                        QSignalBlocker blocker(_p->whitePrimariesSpinBoxes.first);
-                        _p->whitePrimariesSpinBoxes.first->setValue(value.hdrData.whitePrimaries.x);
-                        _p->whitePrimariesSpinBoxes.first->setEnabled(device::HDRMode::Custom == value.hdrMode);
-                    }
-                    {
-                        QSignalBlocker blocker(_p->whitePrimariesSpinBoxes.second);
-                        _p->whitePrimariesSpinBoxes.second->setValue(value.hdrData.whitePrimaries.y);
-                        _p->whitePrimariesSpinBoxes.second->setEnabled(device::HDRMode::Custom == value.hdrMode);
-                    }
-                    {
-                        QSignalBlocker blocker(_p->masteringLuminanceSpinBoxes.first);
-                        _p->masteringLuminanceSpinBoxes.first->setValue(value.hdrData.displayMasteringLuminance.getMin());
-                        _p->masteringLuminanceSpinBoxes.first->setEnabled(device::HDRMode::Custom == value.hdrMode);
-                    }
-                    {
-                        QSignalBlocker blocker(_p->masteringLuminanceSpinBoxes.second);
-                        _p->masteringLuminanceSpinBoxes.second->setValue(value.hdrData.displayMasteringLuminance.getMax());
-                        _p->masteringLuminanceSpinBoxes.second->setEnabled(device::HDRMode::Custom == value.hdrMode);
-                    }
-                    {
-                        QSignalBlocker blocker(_p->maxCLLSlider);
-                        _p->maxCLLSlider->setValue(value.hdrData.maxCLL);
-                        _p->maxCLLSlider->setEnabled(device::HDRMode::Custom == value.hdrMode);
-                    }
-                    {
-                        QSignalBlocker blocker(_p->maxFALLSlider);
-                        _p->maxFALLSlider->setValue(value.hdrData.maxFALL);
-                        _p->maxFALLSlider->setEnabled(device::HDRMode::Custom == value.hdrMode);
+                        QSignalBlocker blocker(p.maxFALLSlider);
+                        p.maxFALLSlider->setValue(value.hdrData.maxFALL);
+                        p.maxFALLSlider->setEnabled(device::HDRMode::Custom == value.hdrMode);
                     }
                 });
 #endif // TLRENDER_BMD
         }
-
-        DevicesTool::~DevicesTool()
-        {}
 
         DevicesDockWidget::DevicesDockWidget(
             DevicesTool* devicesTool,

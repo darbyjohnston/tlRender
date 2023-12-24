@@ -305,12 +305,12 @@ namespace tl
         }
 
 #if defined(TLRENDER_BMD)
-        const std::shared_ptr<play::BMDDevicesModel>& App::bmdDevicesModel() const
+        const std::shared_ptr<play::BMDDevicesModel>& App::getBMDDevicesModel() const
         {
             return _p->bmdDevicesModel;
         }
 
-        const std::shared_ptr<device::BMDOutputDevice>& App::bmdOutputDevice() const
+        const std::shared_ptr<device::BMDOutputDevice>& App::getBMDOutputDevice() const
         {
             return _p->bmdOutputDevice;
         }

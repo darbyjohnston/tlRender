@@ -41,5 +41,20 @@ namespace tl
 
         //! Get a label.
         std::string getOutputFrameCompletionResultLabel(BMDOutputFrameCompletionResult);
+
+        //! Get the offscreen buffer type.
+        image::PixelType getOffscreenType(device::PixelType);
+
+        //! Get the reead pixels format.
+        GLenum getReadPixelsFormat(device::PixelType);
+
+        //! Get the reead pixels type.
+        GLenum getReadPixelsType(device::PixelType);
+
+        //! Get the reead pixels alignment.
+        GLint getReadPixelsAlign(device::PixelType);
+
+        //! Get the reead pixels endian byte swap.
+        GLint getReadPixelsSwap(device::PixelType);
     }
 }

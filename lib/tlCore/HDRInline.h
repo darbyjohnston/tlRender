@@ -9,14 +9,11 @@ namespace tl
         inline bool HDRData::operator == (const HDRData& other) const
         {
             return
-                other.eotf == eotf &&
-                other.redPrimaries == redPrimaries &&
-                other.greenPrimaries == greenPrimaries &&
-                other.bluePrimaries == bluePrimaries &&
-                other.whitePrimaries == whitePrimaries &&
-                other.displayMasteringLuminance == displayMasteringLuminance &&
-                other.maxCLL == maxCLL &&
-                other.maxFALL == maxFALL;
+                eotf == other.eotf &&
+                primaries == other.primaries &&
+                displayMasteringLuminance == other.displayMasteringLuminance &&
+                maxCLL == other.maxCLL &&
+                maxFALL == other.maxFALL;
         }
 
         inline bool HDRData::operator != (const HDRData& other) const

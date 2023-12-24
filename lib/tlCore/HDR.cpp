@@ -4,19 +4,27 @@
 
 #include <tlCore/HDR.h>
 
+#include <tlCore/Error.h>
+#include <tlCore/String.h>
+
 namespace tl
 {
     namespace image
     {
+        TLRENDER_ENUM_IMPL(
+            HDRPrimaries,
+            "Red",
+            "Green",
+            "Blue",
+            "White");
+        TLRENDER_ENUM_SERIALIZE_IMPL(HDRPrimaries);
+
         void to_json(nlohmann::json& json, const HDRData& value)
         {
             json = nlohmann::json
             {
                 { "eotf", value.eotf },
-                { "redPrimaries", value.redPrimaries },
-                { "greenPrimaries", value.greenPrimaries },
-                { "bluePrimaries", value.bluePrimaries },
-                { "whitePrimaries", value.whitePrimaries },
+                { "primaries", value.primaries },
                 { "displayMasteringLuminance", value.displayMasteringLuminance },
                 { "maxCLL", value.maxCLL },
                 { "maxFALL", value.maxFALL }
@@ -26,10 +34,7 @@ namespace tl
         void from_json(const nlohmann::json& json, HDRData& value)
         {
             json.at("eotf").get_to(value.eotf);
-            json.at("redPrimaries").get_to(value.redPrimaries);
-            json.at("greenPrimaries").get_to(value.greenPrimaries);
-            json.at("bluePrimaries").get_to(value.bluePrimaries);
-            json.at("whitePrimaries").get_to(value.whitePrimaries);
+            json.at("primaries").get_to(value.primaries);
             json.at("displayMasteringLuminance").get_to(value.displayMasteringLuminance);
             json.at("maxCLL").get_to(value.maxCLL);
             json.at("maxFALL").get_to(value.maxFALL);
