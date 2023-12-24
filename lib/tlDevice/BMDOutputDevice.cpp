@@ -120,9 +120,6 @@ namespace tl
                 std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer2;
                 std::shared_ptr<gl::VBO> vbo;
                 std::shared_ptr<gl::VAO> vao;
-                std::array<GLuint, 1> pbo;
-                std::array<otime::RationalTime, 1> pboTime;
-                size_t pboIndex = 0;
                 std::condition_variable cv;
                 std::thread thread;
                 std::atomic<bool> running;
@@ -523,7 +520,6 @@ namespace tl
 
                 if (createDevice)
                 {
-                    glDeleteBuffers(p.thread.pbo.size(), p.thread.pbo.data());
                     p.thread.vao.reset();
                     p.thread.vbo.reset();
                     p.thread.offscreenBuffer2.reset();
@@ -538,19 +534,6 @@ namespace tl
                         {
                             p.thread.dl.reset(new DL);
                             _createDevice(config, active, size, frameRate);
-                            if (p.thread.dl->outputCallback.p)
-                            {
-                                glGenBuffers(p.thread.pbo.size(), p.thread.pbo.data());
-                                for (size_t i = 0; i < p.thread.pbo.size(); ++i)
-                                {
-                                    glBindBuffer(GL_PIXEL_PACK_BUFFER, p.thread.pbo[i]);
-                                    glBufferData(
-                                        GL_PIXEL_PACK_BUFFER,
-                                        device::getDataByteCount(p.thread.size, p.thread.pixelType),
-                                        NULL,
-                                        GL_STREAM_COPY);
-                                }
-                            }
                         }
                         catch (const std::exception& e)
                         {
@@ -605,7 +588,6 @@ namespace tl
                 }
             }
 
-            glDeleteBuffers(p.thread.pbo.size(), p.thread.pbo.data());
             p.thread.vao.reset();
             p.thread.vbo.reset();
             p.thread.offscreenBuffer2.reset();
@@ -983,8 +965,35 @@ namespace tl
                     p.thread.vao->draw(GL_TRIANGLES, 0, p.thread.vbo->getSize());
                 }
 
-                glBindBuffer(GL_PIXEL_PACK_BUFFER, p.thread.pbo[p.thread.pboIndex % p.thread.pbo.size()]);
-                p.thread.pboTime[p.thread.pboIndex % p.thread.pbo.size()] = !p.thread.videoData.empty() ? p.thread.videoData[0].time : time::invalidTime;
+                auto dlVideoFrame = std::make_shared<DLVideoFrameWrapper>();
+                if (p.thread.dl->output.p->CreateVideoFrame(
+                    viewportSize.w,
+                    viewportSize.h,
+                    getRowByteCount(viewportSize.w, p.thread.pixelType),
+                    toBMD(p.thread.pixelType),
+                    bmdFrameFlagFlipVertical,
+                    &dlVideoFrame->p) != S_OK)
+                {
+                    throw std::runtime_error("Cannot create video frame");
+                }
+                /*std::shared_ptr<image::HDRData> hdrDataP;
+                switch (p.thread.hdrMode)
+                {
+                case device::HDRMode::FromFile:
+                    if (!p.thread.videoData.empty())
+                    {
+                        hdrDataP = device::getHDRData(p.thread.videoData[0]);
+                    }
+                    break;
+                case device::HDRMode::Custom:
+                    hdrDataP.reset(new image::HDRData(p.thread.hdrData));
+                    break;
+                default: break;
+                }
+                pixelData->setHDRData(hdrDataP);*/
+                void* dlFrame = nullptr;
+                dlVideoFrame->p->GetBytes((void**)&dlFrame);
+
                 if (0 == viewportSize.w % getReadPixelsAlign(p.thread.pixelType) &&
                     !getReadPixelsSwap(p.thread.pixelType))
                 {
@@ -995,7 +1004,7 @@ namespace tl
                         0,
                         getReadPixelsFormat(p.thread.pixelType),
                         getReadPixelsType(p.thread.pixelType),
-                        NULL);
+                        dlFrame);
                 }
                 else
                 {
@@ -1009,57 +1018,12 @@ namespace tl
                         viewportSize.h,
                         getReadPixelsFormat(p.thread.pixelType),
                         getReadPixelsType(p.thread.pixelType),
-                        NULL);
+                        dlFrame);
                 }
 
-                ++(p.thread.pboIndex);
-                if (p.thread.pbo[p.thread.pboIndex % p.thread.pbo.size()])
-                {
-                    auto dlVideoFrame = std::make_shared<DLVideoFrameWrapper>();
-                    if (p.thread.dl->output.p->CreateVideoFrame(
-                        viewportSize.w,
-                        viewportSize.h,
-                        getRowByteCount(viewportSize.w, p.thread.pixelType),
-                        toBMD(p.thread.pixelType),
-                        bmdFrameFlagFlipVertical,
-                        &dlVideoFrame->p) != S_OK)
-                    {
-                        throw std::runtime_error("Cannot create video frame");
-                    }
-
-                    /*std::shared_ptr<image::HDRData> hdrDataP;
-                    switch (p.thread.hdrMode)
-                    {
-                    case device::HDRMode::FromFile:
-                        if (!p.thread.videoData.empty())
-                        {
-                            hdrDataP = device::getHDRData(p.thread.videoData[0]);
-                        }
-                        break;
-                    case device::HDRMode::Custom:
-                        hdrDataP.reset(new image::HDRData(p.thread.hdrData));
-                        break;
-                    default: break;
-                    }
-                    pixelData->setHDRData(hdrDataP);*/
-
-                    glBindBuffer(GL_PIXEL_PACK_BUFFER, p.thread.pbo[p.thread.pboIndex % p.thread.pbo.size()]);
-                    if (void* buffer = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY))
-                    {
-                        void* dlFrame = nullptr;
-                        dlVideoFrame->p->GetBytes((void**)&dlFrame);
-                        memcpy(
-                            dlFrame,
-                            buffer,
-                            getDataByteCount(viewportSize, p.thread.pixelType));
-                        glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-                    }
-                    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-
-                    p.thread.dl->outputCallback.p->setVideo(
-                        dlVideoFrame,
-                        p.thread.pboTime[p.thread.pboIndex % p.thread.pbo.size()]);
-                }
+                p.thread.dl->outputCallback.p->setVideo(
+                    dlVideoFrame,
+                    !p.thread.videoData.empty() ? p.thread.videoData[0].time : time::invalidTime);
             }
         }
     }
