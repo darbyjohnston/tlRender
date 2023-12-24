@@ -468,9 +468,16 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
 #if defined(TLRENDER_BMD)
-                        app->getBMDOutputDevice()->setView(
-                            pos,
-                            zoom,
+                        const math::Box2i& g = _p->timelineViewport->getGeometry();
+                        auto bmdOutputDevice = app->getBMDOutputDevice();
+                        const math::Size2i& bmdSize = bmdOutputDevice->getSize();
+                        const math::Vector2i bmdPos(
+                            pos.x / static_cast<float>(g.w()) * bmdSize.w,
+                            pos.y / static_cast<float>(g.h()) * bmdSize.h);
+                        double bmdZoom = zoom;
+                        bmdOutputDevice->setView(
+                            bmdPos,
+                            bmdZoom,
                             _p->timelineViewport->hasFrameView());
 #endif // TLRENDER_BMD
                     }
@@ -618,7 +625,7 @@ namespace tl
                     {
                         displayOptions.push_back(value);
                     }
-                    _p->timelineViewport->setDisplayOptions({ value });
+                    _p->timelineViewport->setDisplayOptions(displayOptions);
                 });
 
             p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(

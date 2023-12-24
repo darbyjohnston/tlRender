@@ -68,7 +68,7 @@ namespace tl
             //! Set the view.
             void setView(
                 const tl::math::Vector2i& position,
-                float                     zoom,
+                double                    zoom,
                 bool                      frame);
 
             //! Set the OpenColorIO options.

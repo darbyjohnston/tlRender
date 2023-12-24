@@ -91,7 +91,7 @@ namespace tl
                 image::HDRData hdrData;
                 timeline::CompareOptions compareOptions;
                 math::Vector2i viewPos;
-                float viewZoom = 1.F;
+                double viewZoom = 1.0;
                 bool frameView = true;
                 timeline::Playback playback = timeline::Playback::Stop;
                 otime::RationalTime currentTime = time::invalidTime;
@@ -110,7 +110,7 @@ namespace tl
                 device::HDRMode hdrMode = device::HDRMode::FromFile;
                 image::HDRData hdrData;
                 math::Vector2i viewPos;
-                float viewZoom = 1.F;
+                double viewZoom = 1.0;
                 bool frameView = true;
                 std::vector<image::Size> sizes;
                 std::vector<timeline::VideoData> videoData;
@@ -268,27 +268,79 @@ namespace tl
 
         void BMDOutputDevice::setView(
             const tl::math::Vector2i& position,
-            float                     zoom,
+            double                    zoom,
             bool                      frame)
-        {}
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.viewPos = position;
+                p.mutex.viewZoom = zoom;
+                p.mutex.frameView = frame;
+            }
+            p.thread.cv.notify_one();
+        }
 
-        void BMDOutputDevice::setOCIOOptions(const timeline::OCIOOptions&)
-        {}
+        void BMDOutputDevice::setOCIOOptions(const timeline::OCIOOptions& value)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.ocioOptions = value;
+            }
+            p.thread.cv.notify_one();
+        }
 
-        void BMDOutputDevice::setLUTOptions(const timeline::LUTOptions&)
-        {}
+        void BMDOutputDevice::setLUTOptions(const timeline::LUTOptions& value)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.lutOptions = value;
+            }
+            p.thread.cv.notify_one();
+        }
 
-        void BMDOutputDevice::setImageOptions(const std::vector<timeline::ImageOptions>&)
-        {}
+        void BMDOutputDevice::setImageOptions(const std::vector<timeline::ImageOptions>& value)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.imageOptions = value;
+            }
+            p.thread.cv.notify_one();
+        }
 
-        void BMDOutputDevice::setDisplayOptions(const std::vector<timeline::DisplayOptions>&)
-        {}
+        void BMDOutputDevice::setDisplayOptions(const std::vector<timeline::DisplayOptions>& value)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.displayOptions = value;
+            }
+            p.thread.cv.notify_one();
+        }
 
-        void BMDOutputDevice::setHDR(device::HDRMode, const image::HDRData&)
-        {}
+        void BMDOutputDevice::setHDR(device::HDRMode hdrMode, const image::HDRData& hdrData)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.hdrMode = hdrMode;
+                p.mutex.hdrData = hdrData;
+            }
+            p.thread.cv.notify_one();
+        }
 
-        void BMDOutputDevice::setCompareOptions(const timeline::CompareOptions&)
-        {}
+        void BMDOutputDevice::setCompareOptions(const timeline::CompareOptions& value)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.compareOptions = value;
+            }
+            p.thread.cv.notify_one();
+        }
 
         void BMDOutputDevice::setPlayers(const std::vector<std::shared_ptr<timeline::Player> >& value)
         {
@@ -864,17 +916,17 @@ namespace tl
 
             // Render the viewport.
             math::Vector2i viewPosTmp = p.thread.viewPos;
-            float viewZoomTmp = p.thread.viewZoom;
+            double viewZoomTmp = p.thread.viewZoom;
             if (p.thread.frameView)
             {
-                float zoom = viewportSize.w / static_cast<float>(renderSize.w);
+                double zoom = viewportSize.w / static_cast<double>(renderSize.w);
                 if (zoom * renderSize.h > viewportSize.h)
                 {
-                    zoom = viewportSize.h / static_cast<float>(renderSize.h);
+                    zoom = viewportSize.h / static_cast<double>(renderSize.h);
                 }
                 const math::Vector2i c(renderSize.w / 2, renderSize.h / 2);
-                viewPosTmp.x = viewportSize.w / 2.F - c.x * zoom;
-                viewPosTmp.y = viewportSize.h / 2.F - c.y * zoom;
+                viewPosTmp.x = viewportSize.w / 2.0 - c.x * zoom;
+                viewPosTmp.y = viewportSize.h / 2.0 - c.y * zoom;
                 viewZoomTmp = zoom;
             }
             if (!p.thread.shader)
@@ -940,7 +992,7 @@ namespace tl
                     -1.F,
                     1.F);
                 p.thread.shader->setUniform("transform.mvp", pm * vm);
-                p.thread.shader->setUniform("mirrorY", false);
+                p.thread.shader->setUniform("mirrorY", true);
 
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, p.thread.offscreenBuffer->getColorID());
@@ -971,7 +1023,8 @@ namespace tl
                     viewportSize.h,
                     getRowByteCount(viewportSize.w, p.thread.pixelType),
                     toBMD(p.thread.pixelType),
-                    bmdFrameFlagFlipVertical,
+                    //bmdFrameFlagFlipVertical,
+                    bmdFrameFlagDefault,
                     &dlVideoFrame->p) != S_OK)
                 {
                     throw std::runtime_error("Cannot create video frame");
@@ -991,9 +1044,9 @@ namespace tl
                 default: break;
                 }
                 pixelData->setHDRData(hdrDataP);*/
+
                 void* dlFrame = nullptr;
                 dlVideoFrame->p->GetBytes((void**)&dlFrame);
-
                 glPixelStorei(GL_PACK_ALIGNMENT, getReadPixelsAlign(p.thread.pixelType));
                 glPixelStorei(GL_PACK_SWAP_BYTES, getReadPixelsSwap(p.thread.pixelType));
                 glBindTexture(GL_TEXTURE_2D, p.thread.offscreenBuffer2->getColorID());
