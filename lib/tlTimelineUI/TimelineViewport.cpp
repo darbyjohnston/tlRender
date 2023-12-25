@@ -218,12 +218,12 @@ namespace tl
             }
         }
 
-        const math::Vector2i& TimelineViewport::viewPos() const
+        const math::Vector2i& TimelineViewport::getViewPos() const
         {
             return _p->viewPos;
         }
 
-        double TimelineViewport::viewZoom() const
+        double TimelineViewport::getViewZoom() const
         {
             return _p->viewZoom;
         }

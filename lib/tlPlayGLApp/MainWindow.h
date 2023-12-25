@@ -91,7 +91,7 @@ namespace tl
             void _windowOptionsUpdate();
             void _statusUpdate(const std::vector<log::Item>&);
             void _infoUpdate();
-            void _devicesUpdate();
+            void _devicesViewUpdate(const math::Vector2i& pos, double zoom, bool frame);
 
             TLRENDER_PRIVATE();
         };

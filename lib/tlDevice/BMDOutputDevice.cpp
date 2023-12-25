@@ -10,9 +10,7 @@
 
 #include <tlGL/GL.h>
 #include <tlGL/GLFWWindow.h>
-#include <tlGL/Mesh.h>
 #include <tlGL/OffscreenBuffer.h>
-#include <tlGL/Shader.h>
 #include <tlGL/Texture.h>
 
 #include <tlCore/AudioResample.h>
@@ -115,11 +113,7 @@ namespace tl
                 std::vector<image::Size> sizes;
                 std::vector<timeline::VideoData> videoData;
                 std::shared_ptr<timeline::IRender> render;
-                std::shared_ptr<tl::gl::Shader> shader;
                 std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
-                std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer2;
-                std::shared_ptr<gl::VBO> vbo;
-                std::shared_ptr<gl::VAO> vao;
                 std::condition_variable cv;
                 std::thread thread;
                 std::atomic<bool> running;
@@ -572,9 +566,6 @@ namespace tl
 
                 if (createDevice)
                 {
-                    p.thread.vao.reset();
-                    p.thread.vbo.reset();
-                    p.thread.offscreenBuffer2.reset();
                     p.thread.offscreenBuffer.reset();
                     p.thread.dl.reset();
                     if (enabled)
@@ -640,11 +631,7 @@ namespace tl
                 }
             }
 
-            p.thread.vao.reset();
-            p.thread.vbo.reset();
-            p.thread.offscreenBuffer2.reset();
             p.thread.offscreenBuffer.reset();
-            p.thread.shader.reset();
             p.thread.render.reset();
             p.thread.dl.reset();
         }
@@ -867,21 +854,22 @@ namespace tl
         {
             TLRENDER_P();
 
-            // Create the offscreen buffer for the video.
+            // Create the offscreen buffer.
             const math::Size2i renderSize = timeline::getRenderSize(
                 compareOptions.mode,
                 p.thread.sizes);
+            const math::Size2i viewportSize = p.thread.size;
             gl::OffscreenBufferOptions offscreenBufferOptions;
-            offscreenBufferOptions.colorType = gl::offscreenColorDefault;
+            offscreenBufferOptions.colorType = getOffscreenType(p.thread.pixelType);
             if (!displayOptions.empty())
             {
                 offscreenBufferOptions.colorFilters = displayOptions[0].imageFilters;
             }
             offscreenBufferOptions.depth = gl::OffscreenDepth::_24;
             offscreenBufferOptions.stencil = gl::OffscreenStencil::_8;
-            if (gl::doCreate(p.thread.offscreenBuffer, renderSize, offscreenBufferOptions))
+            if (gl::doCreate(p.thread.offscreenBuffer, viewportSize, offscreenBufferOptions))
             {
-                p.thread.offscreenBuffer = gl::OffscreenBuffer::create(renderSize, offscreenBufferOptions);
+                p.thread.offscreenBuffer = gl::OffscreenBuffer::create(viewportSize, offscreenBufferOptions);
             }
 
             // Render the video.
@@ -889,134 +877,49 @@ namespace tl
             {
                 gl::OffscreenBufferBinding binding(p.thread.offscreenBuffer);
 
-                p.thread.render->begin(renderSize);
+                p.thread.render->begin(viewportSize);
                 p.thread.render->setOCIOOptions(ocioOptions);
                 p.thread.render->setLUTOptions(lutOptions);
-                p.thread.render->drawVideo(
-                    p.thread.videoData,
-                    timeline::getBoxes(compareOptions.mode, p.thread.sizes),
-                    imageOptions,
-                    displayOptions,
-                    compareOptions);
-                p.thread.render->end();
-            }
 
-            // Create the offscreen buffer for the viewport.
-            const math::Size2i viewportSize = p.thread.size;
-            offscreenBufferOptions = gl::OffscreenBufferOptions();
-            offscreenBufferOptions.colorType = getOffscreenType(p.thread.pixelType);
-            if (!displayOptions.empty())
-            {
-                offscreenBufferOptions.colorFilters = displayOptions[0].imageFilters;
-            }
-            if (gl::doCreate(p.thread.offscreenBuffer2, viewportSize, offscreenBufferOptions))
-            {
-                p.thread.offscreenBuffer2 = gl::OffscreenBuffer::create(viewportSize, offscreenBufferOptions);
-            }
-
-            // Render the viewport.
-            math::Vector2i viewPosTmp = p.thread.viewPos;
-            double viewZoomTmp = p.thread.viewZoom;
-            if (p.thread.frameView)
-            {
-                double zoom = viewportSize.w / static_cast<double>(renderSize.w);
-                if (zoom * renderSize.h > viewportSize.h)
+                math::Vector2i viewPosTmp = p.thread.viewPos;
+                double viewZoomTmp = p.thread.viewZoom;
+                if (p.thread.frameView)
                 {
-                    zoom = viewportSize.h / static_cast<double>(renderSize.h);
+                    double zoom = viewportSize.w / static_cast<double>(renderSize.w);
+                    if (zoom * renderSize.h > viewportSize.h)
+                    {
+                        zoom = viewportSize.h / static_cast<double>(renderSize.h);
+                    }
+                    const math::Vector2i c(renderSize.w / 2, renderSize.h / 2);
+                    viewPosTmp.x = viewportSize.w / 2.0 - c.x * zoom;
+                    viewPosTmp.y = viewportSize.h / 2.0 - c.y * zoom;
+                    viewZoomTmp = zoom;
                 }
-                const math::Vector2i c(renderSize.w / 2, renderSize.h / 2);
-                viewPosTmp.x = viewportSize.w / 2.0 - c.x * zoom;
-                viewPosTmp.y = viewportSize.h / 2.0 - c.y * zoom;
-                viewZoomTmp = zoom;
-            }
-            if (!p.thread.shader)
-            {
-                const std::string vertexSource =
-                    "#version 410\n"
-                    "\n"
-                    "in vec3 vPos;\n"
-                    "in vec2 vTexture;\n"
-                    "out vec2 fTexture;\n"
-                    "\n"
-                    "uniform struct Transform\n"
-                    "{\n"
-                    "    mat4 mvp;\n"
-                    "} transform;\n"
-                    "\n"
-                    "void main()\n"
-                    "{\n"
-                    "    gl_Position = transform.mvp * vec4(vPos, 1.0);\n"
-                    "    fTexture = vTexture;\n"
-                    "}\n";
-                const std::string fragmentSource =
-                    "#version 410\n"
-                    "\n"
-                    "in vec2 fTexture;\n"
-                    "out vec4 fColor;\n"
-                    "\n"
-                    "uniform int       mirrorY;\n"
-                    "uniform sampler2D textureSampler;\n"
-                    "\n"
-                    "void main()\n"
-                    "{\n"
-                    "    vec2 t = fTexture;\n"
-                    "    if (1 == mirrorY)\n"
-                    "    {\n"
-                    "        t.y = 1.0 - t.y;\n"
-                    "    }\n"
-                    "    fColor = texture(textureSampler, t);\n"
-                    "}\n";
-                p.thread.shader = gl::Shader::create(vertexSource, fragmentSource);
-            }
-            if (p.thread.offscreenBuffer && p.thread.offscreenBuffer2)
-            {
-                gl::OffscreenBufferBinding binding(p.thread.offscreenBuffer2);
-
-                glViewport(
-                    0,
-                    0,
-                    GLsizei(viewportSize.w),
-                    GLsizei(viewportSize.h));
-                glClearColor(0.F, 0.F, 0.F, 0.F);
-                glClear(GL_COLOR_BUFFER_BIT);
-
-                p.thread.shader->bind();
                 math::Matrix4x4f vm;
                 vm = vm * math::translate(math::Vector3f(viewPosTmp.x, viewPosTmp.y, 0.F));
                 vm = vm * math::scale(math::Vector3f(viewZoomTmp, viewZoomTmp, 1.F));
-                auto pm = math::ortho(
+                const auto pm = math::ortho(
                     0.F,
                     static_cast<float>(viewportSize.w),
                     0.F,
                     static_cast<float>(viewportSize.h),
                     -1.F,
                     1.F);
-                p.thread.shader->setUniform("transform.mvp", pm * vm);
-                p.thread.shader->setUniform("mirrorY", true);
+                p.thread.render->setTransform(pm * vm);
 
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, p.thread.offscreenBuffer->getColorID());
+                p.thread.render->drawVideo(
+                    p.thread.videoData,
+                    timeline::getBoxes(compareOptions.mode, p.thread.sizes),
+                    imageOptions,
+                    displayOptions,
+                    compareOptions);
 
-                auto mesh = geom::box(math::Box2i(0, 0, renderSize.w, renderSize.h));
-                if (!p.thread.vbo)
-                {
-                    p.thread.vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos2_F32_UV_U16);
-                }
-                if (p.thread.vbo)
-                {
-                    p.thread.vbo->copy(convert(mesh, gl::VBOType::Pos2_F32_UV_U16));
-                }
+                p.thread.render->end();
+            }
 
-                if (!p.thread.vao && p.thread.vbo)
-                {
-                    p.thread.vao = gl::VAO::create(gl::VBOType::Pos2_F32_UV_U16, p.thread.vbo->getID());
-                }
-                if (p.thread.vao && p.thread.vbo)
-                {
-                    p.thread.vao->bind();
-                    p.thread.vao->draw(GL_TRIANGLES, 0, p.thread.vbo->getSize());
-                }
-
+            // Copy the render to the output device.
+            if (p.thread.offscreenBuffer)
+            {
                 auto dlVideoFrame = std::make_shared<DLVideoFrameWrapper>();
                 if (p.thread.dl->output.p->CreateVideoFrame(
                     viewportSize.w,
@@ -1049,7 +952,7 @@ namespace tl
                 dlVideoFrame->p->GetBytes((void**)&dlFrame);
                 glPixelStorei(GL_PACK_ALIGNMENT, getReadPixelsAlign(p.thread.pixelType));
                 glPixelStorei(GL_PACK_SWAP_BYTES, getReadPixelsSwap(p.thread.pixelType));
-                glBindTexture(GL_TEXTURE_2D, p.thread.offscreenBuffer2->getColorID());
+                glBindTexture(GL_TEXTURE_2D, p.thread.offscreenBuffer->getColorID());
                 glGetTexImage(
                     GL_TEXTURE_2D,
                     0,

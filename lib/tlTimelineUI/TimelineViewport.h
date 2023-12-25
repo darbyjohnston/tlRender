@@ -58,10 +58,10 @@ namespace tl
             void setPlayers(const std::vector<std::shared_ptr<timeline::Player> >&);
 
             //! Get the view position.
-            const math::Vector2i& viewPos() const;
+            const math::Vector2i& getViewPos() const;
 
             //! Get the view zoom.
-            double viewZoom() const;
+            double getViewZoom() const;
 
             //! Set the view position and zoom.
             void setViewPosAndZoom(const math::Vector2i&, double);

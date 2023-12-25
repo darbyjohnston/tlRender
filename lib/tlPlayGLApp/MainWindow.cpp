@@ -463,37 +463,20 @@ namespace tl
                     }
                 });
             p.timelineViewport->setViewPosAndZoomCallback(
-                [this, appWeak](const math::Vector2i& pos, double zoom)
+                [this](const math::Vector2i& pos, double zoom)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-#if defined(TLRENDER_BMD)
-                        const math::Box2i& g = _p->timelineViewport->getGeometry();
-                        auto bmdOutputDevice = app->getBMDOutputDevice();
-                        const math::Size2i& bmdSize = bmdOutputDevice->getSize();
-                        const math::Vector2i bmdPos(
-                            pos.x / static_cast<float>(g.w()) * bmdSize.w,
-                            pos.y / static_cast<float>(g.h()) * bmdSize.h);
-                        double bmdZoom = zoom;
-                        bmdOutputDevice->setView(
-                            bmdPos,
-                            bmdZoom,
-                            _p->timelineViewport->hasFrameView());
-#endif // TLRENDER_BMD
-                    }
+                    _devicesViewUpdate(
+                        pos,
+                        zoom,
+                        _p->timelineViewport->hasFrameView());
                 });
             p.timelineViewport->setFrameViewCallback(
-                [this, appWeak](bool value)
+                [this](bool value)
                 {
-                    if (auto app = appWeak.lock())
-                    {
-#if defined(TLRENDER_BMD)
-                        app->getBMDOutputDevice()->setView(
-                            _p->timelineViewport->viewPos(),
-                            _p->timelineViewport->viewZoom(),
-                            value);
-#endif // TLRENDER_BMD
-                    }
+                    _devicesViewUpdate(
+                        _p->timelineViewport->getViewPos(),
+                        _p->timelineViewport->getViewZoom(),
+                        value);
                 });
 
             p.currentTimeEdit->setCallback(
@@ -962,6 +945,27 @@ namespace tl
             }
             p.infoLabel->setText(text);
             p.infoLabel->setToolTip(toolTip);
+        }
+
+        void MainWindow::_devicesViewUpdate(const math::Vector2i& pos, double zoom, bool frame)
+        {
+            TLRENDER_P();
+#if defined(TLRENDER_BMD)
+            if (auto app = p.app.lock())
+            {
+                const math::Box2i& g = _p->timelineViewport->getGeometry();
+                auto bmdOutputDevice = app->getBMDOutputDevice();
+                const math::Size2i& bmdSize = bmdOutputDevice->getSize();
+                const math::Vector2i bmdPos(
+                    pos.x / static_cast<float>(g.w()) * bmdSize.w,
+                    pos.y / static_cast<float>(g.h()) * bmdSize.h);
+                const double bmdZoom = zoom / static_cast<double>(g.w()) * bmdSize.w;
+                bmdOutputDevice->setView(
+                    bmdPos,
+                    bmdZoom,
+                    _p->timelineViewport->hasFrameView());
+            }
+#endif // TLRENDER_BMD
         }
 
         void to_json(nlohmann::json& json, const WindowOptions& in)
