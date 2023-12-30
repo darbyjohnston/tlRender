@@ -467,22 +467,10 @@ namespace tl
             deviceBoolOptions[device::Option::_444SDIVideoOutput] =
                 p.settings->getValue<bool>("BMD/444SDIVideoOutput");
             p.bmdDevicesModel->setBoolOptions(deviceBoolOptions);
-            p.bmdDevicesModel->setHDRMode(static_cast<device::HDRMode>(
-                p.settings->getValue<int>("BMD/HDRMode")));
-            std::string s = p.settings->getValue<std::string>("BMD/HDRData");
-            if (!s.empty())
-            {
-                auto json = nlohmann::json::parse(s);
-                image::HDRData hdrData;
-                try
-                {
-                    from_json(json, hdrData);
-                }
-                catch (const std::exception&)
-                {
-                }
-                p.bmdDevicesModel->setHDRData(hdrData);
-            }
+            p.bmdDevicesModel->setHDRMode(
+                p.settings->getValue<device::HDRMode>("BMD/HDRMode"));
+            p.bmdDevicesModel->setHDRData(
+                p.settings->getValue<image::HDRData>("BMD/HDRData"));
 #endif // TLRENDER_BMD
         }
 
