@@ -956,10 +956,14 @@ namespace tl
                 const math::Box2i& g = _p->timelineViewport->getGeometry();
                 auto bmdOutputDevice = app->getBMDOutputDevice();
                 const math::Size2i& bmdSize = bmdOutputDevice->getSize();
-                const math::Vector2i bmdPos(
-                    pos.x / static_cast<float>(g.w()) * bmdSize.w,
-                    pos.y / static_cast<float>(g.h()) * bmdSize.h);
-                const double bmdZoom = zoom / static_cast<double>(g.w()) * bmdSize.w;
+                math::Vector2i bmdPos;
+                double bmdZoom = 1.0;
+                if (g.isValid() && bmdSize.isValid())
+                {
+                    bmdPos.x = pos.x / static_cast<float>(g.w()) * bmdSize.w;
+                    bmdPos.y = pos.y / static_cast<float>(g.h()) * bmdSize.h;
+                    bmdZoom = zoom / static_cast<double>(g.w()) * bmdSize.w;
+                }
                 bmdOutputDevice->setView(
                     bmdPos,
                     bmdZoom,

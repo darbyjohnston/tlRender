@@ -367,6 +367,7 @@ namespace tl
                     audioDataRequestsIt->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
                     auto audioData = audioDataRequestsIt->second.get();
+                    audioData.seconds = audioDataRequestsIt->first;
                     {
                         std::unique_lock<std::mutex> lock(audioMutex.mutex);
                         audioMutex.audioDataCache[audioDataRequestsIt->first] = audioData;

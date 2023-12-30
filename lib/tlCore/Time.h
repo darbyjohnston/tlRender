@@ -62,8 +62,14 @@ namespace tl
         //! Split a time range at into seconds.
         std::vector<otime::TimeRange> seconds(const otime::TimeRange&);
 
-        //! Sleep for the given time.
+        //! Sleep for a given time.
         void sleep(const std::chrono::microseconds&);
+
+        //! Sleep up to the given time.
+        void sleep(
+            const std::chrono::microseconds&,
+            const std::chrono::steady_clock::time_point& t0,
+            const std::chrono::steady_clock::time_point& t1);
 
         //! Convert a floating point rate to a rational.
         std::pair<int, int> toRational(double);

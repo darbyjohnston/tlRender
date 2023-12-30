@@ -21,7 +21,7 @@ namespace tl
     {
         namespace
         {
-            const size_t tickTimeout = 5;
+            const std::chrono::milliseconds tickTimeout(5);
 
             class Clipboard : public ui::IClipboard
             {
@@ -167,13 +167,7 @@ namespace tl
 
                 // Sleep for a bit.
                 const auto t1 = std::chrono::steady_clock::now();
-                const std::chrono::duration<float> diff = t1 - t0;
-                const float diffClamped = math::clamp(
-                    diff.count() * 1000.F,
-                    0.F,
-                    static_cast<float>(tickTimeout));
-                const size_t sleep = tickTimeout - diffClamped;
-                time::sleep(std::chrono::milliseconds(sleep));
+                time::sleep(tickTimeout, t0, t1);
             }
             return _exit;
         }

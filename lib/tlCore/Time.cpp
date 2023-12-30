@@ -5,6 +5,7 @@
 #include <tlCore/Time.h>
 
 #include <tlCore/Error.h>
+#include <tlCore/Math.h>
 #include <tlCore/String.h>
 
 #include <array>
@@ -54,6 +55,19 @@ namespace tl
                 }
             }
             return out;
+        }
+
+        void sleep(
+            const std::chrono::microseconds& value,
+            const std::chrono::steady_clock::time_point& t0,
+            const std::chrono::steady_clock::time_point& t1)
+        {
+            const std::chrono::duration<double> diff = t1 - t0;
+            const long long diffClamped = math::clamp(
+                static_cast<long long>(diff.count() * 1000000),
+                static_cast<long long>(0),
+                value.count());
+            time::sleep(std::chrono::microseconds(value.count() - diffClamped));
         }
 
         std::pair<int, int> toRational(double value)

@@ -410,7 +410,7 @@ namespace tl
                     _p->readVideo->process(p.videoThread.currentTime))
                     ;
 
-                // Video request.
+                // Handle request.
                 if (videoRequest)
                 {
                     io::VideoData data;

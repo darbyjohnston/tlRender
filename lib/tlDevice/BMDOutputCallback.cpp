@@ -50,6 +50,7 @@ namespace tl
                 DLFrameConversionWrapper frameConverter;
 #endif // _WINDOWS
                 uint64_t frameCount = 0;
+                std::chrono::steady_clock::time_point t;
             };
             VideoThread videoThread;
 
@@ -157,6 +158,8 @@ namespace tl
                 p.videoThread.frameCount = p.videoThread.frameCount + 1;
             }
 
+            p.videoThread.t = std::chrono::steady_clock::now();
+
             p.dlOutput->StartScheduledPlayback(
                 0,
                 p.frameRate.rate(),
@@ -246,7 +249,7 @@ namespace tl
 
         ULONG DLOutputCallback::Release()
         {
-            ULONG out = --_p->refCount;
+            const ULONG out = --_p->refCount;
             if (0 == out)
             {
                 delete this;
@@ -268,6 +271,7 @@ namespace tl
                     p.videoMutex.videoFrames.pop_front();
                 }
             }
+
             if (p.videoThread.videoFrame)
             {
                 if (p.videoThread.videoFrame->p->GetPixelFormat() ==
@@ -282,13 +286,20 @@ namespace tl
                         dlVideoFrame);
                 }
             }
+
             p.dlOutput->ScheduleVideoFrame(
                 dlVideoFrame,
                 p.videoThread.frameCount * p.frameRate.value(),
                 p.frameRate.value(),
                 p.frameRate.rate());
-            p.videoThread.frameCount += 1;
             //std::cout << "result: " << getOutputFrameCompletionResultLabel(dlResult) << std::endl;
+            p.videoThread.frameCount += 1;
+
+            const auto t = std::chrono::steady_clock::now();
+            const std::chrono::duration<double> diff = t - p.videoThread.t;
+            //std::cout << "diff: " << diff.count() * 1000 << std::endl;
+            p.videoThread.t = t;
+
             return S_OK;
         }
 
@@ -373,7 +384,7 @@ namespace tl
                     timeline::AudioData audioData;
                     for (const auto& i : audioDataList)
                     {
-                        if (seconds == i.seconds)
+                        if (seconds == static_cast<int64_t>(i.seconds))
                         {
                             audioData = i;
                             break;
