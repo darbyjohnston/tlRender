@@ -625,7 +625,9 @@ namespace tl
         void Player::Private::rtAudioErrorCallback(
             RtAudioError::Type type,
             const std::string& errorText)
-        {}
+        {
+            //std::cout << "RtAudio ERROR: " << errorText << std::endl;
+        }
 #endif // TLRENDER_AUDIO
 
         void Player::Private::log(const std::shared_ptr<system::Context>& context)
