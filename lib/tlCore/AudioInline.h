@@ -12,7 +12,10 @@ namespace tl
     {
         inline bool Info::isValid() const
         {
-            return dataType != DataType::None;
+            return
+                channelCount > 0 &&
+                dataType != DataType::None &&
+                sampleRate > 0;
         }
 
         inline size_t Info::getByteCount() const
