@@ -953,7 +953,7 @@ namespace tl
 #if defined(TLRENDER_BMD)
             if (auto app = p.app.lock())
             {
-                const math::Box2i& g = _p->timelineViewport->getGeometry();
+                const math::Box2i& g = p.timelineViewport->getGeometry();
                 auto bmdOutputDevice = app->getBMDOutputDevice();
                 const math::Size2i& bmdSize = bmdOutputDevice->getSize();
                 math::Vector2i bmdPos;
@@ -964,10 +964,7 @@ namespace tl
                     bmdPos.y = pos.y / static_cast<float>(g.h()) * bmdSize.h;
                     bmdZoom = zoom / static_cast<double>(g.w()) * bmdSize.w;
                 }
-                bmdOutputDevice->setView(
-                    bmdPos,
-                    bmdZoom,
-                    _p->timelineViewport->hasFrameView());
+                bmdOutputDevice->setView(bmdPos, bmdZoom, frame);
             }
 #endif // TLRENDER_BMD
         }

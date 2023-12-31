@@ -681,10 +681,14 @@ namespace tl
             TLRENDER_P();
             const math::Size2i viewportSize = _viewportSize();
             const math::Size2i renderSize = _renderSize();
-            double zoom = viewportSize.w / static_cast<double>(renderSize.w);
-            if (zoom * renderSize.h > viewportSize.h)
+            double zoom = 1.0;
+            if (renderSize.w > 0)
             {
-                zoom = viewportSize.h / static_cast<double>(renderSize.h);
+                zoom = viewportSize.w / static_cast<double>(renderSize.w);
+                if (renderSize.h > 0 && zoom * renderSize.h > viewportSize.h)
+                {
+                    zoom = viewportSize.h / static_cast<double>(renderSize.h);
+                }
             }
             const math::Vector2i c(renderSize.w / 2, renderSize.h / 2);
             const math::Vector2i viewPos(

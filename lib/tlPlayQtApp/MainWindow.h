@@ -50,6 +50,7 @@ namespace tl
 
         private:
             void _playersUpdate(const QVector<QSharedPointer<qt::TimelinePlayer> >&);
+            void _devicesViewUpdate(const math::Vector2i& pos, double zoom, bool frame);
             void _widgetUpdate();
 
             TLRENDER_PRIVATE();
