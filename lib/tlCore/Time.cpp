@@ -64,9 +64,9 @@ namespace tl
         {
             const std::chrono::duration<double> diff = t1 - t0;
             const long long diffClamped = math::clamp(
-                static_cast<long long>(diff.count() * 1000000),
-                static_cast<long long>(0),
-                value.count());
+                static_cast<int64_t>(diff.count() * 1000000),
+                static_cast<int64_t>(0),
+                static_cast<int64_t>(value.count()));
             time::sleep(std::chrono::microseconds(value.count() - diffClamped));
         }
 
