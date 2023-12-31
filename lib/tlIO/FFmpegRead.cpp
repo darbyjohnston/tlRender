@@ -84,9 +84,7 @@ namespace tl
             if (i != options.end())
             {
                 std::stringstream ss(i->second);
-                size_t channelCount = 0;
-                ss >> channelCount;
-                p.options.audioConvertInfo.channelCount = std::min(channelCount, static_cast<size_t>(255));
+                ss >> p.options.audioConvertInfo.channelCount;
             }
             i = options.find("FFmpeg/AudioDataType");
             if (i != options.end())
