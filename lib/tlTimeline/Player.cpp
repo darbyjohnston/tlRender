@@ -153,7 +153,9 @@ namespace tl
                         if (p.thread.rtAudio && !audioSystem->getDevices().empty())
                         {
                             p.audioThread.info = audioSystem->getDefaultOutputInfo();
-                            p.audioThread.info.channelCount = p.playerOptions.audioChannelCount;
+                            p.audioThread.info.channelCount = std::min(
+                                p.audioThread.info.channelCount,
+                                p.playerOptions.audioChannelCount);
                             if (p.audioThread.info.channelCount > 0 &&
                                 p.audioThread.info.dataType != audio::DataType::None &&
                                 p.audioThread.info.sampleRate > 0)
