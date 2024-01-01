@@ -145,14 +145,15 @@ namespace tl
                 {
                     TLRENDER_P();
 
+#if defined(TLRENDER_AUDIO)
                     if (auto context = getContext().lock())
                     {
-#if defined(TLRENDER_AUDIO)
                         // Initialize audio.
                         auto audioSystem = context->getSystem<audio::System>();
                         if (p.thread.rtAudio && !audioSystem->getDevices().empty())
                         {
                             p.audioThread.info = audioSystem->getDefaultOutputInfo();
+                            p.audioThread.info.channelCount = p.playerOptions.audioChannelCount;
                             if (p.audioThread.info.channelCount > 0 &&
                                 p.audioThread.info.dataType != audio::DataType::None &&
                                 p.audioThread.info.sampleRate > 0)
@@ -184,8 +185,8 @@ namespace tl
                                 }
                             }
                         }
-#endif // TLRENDER_AUDIO
                     }
+#endif // TLRENDER_AUDIO
 
                     p.thread.cacheTimer = std::chrono::steady_clock::now();
                     p.thread.logTimer = std::chrono::steady_clock::now();
