@@ -279,7 +279,6 @@ namespace tl
             case AV_LOG_ERROR:
             case AV_LOG_WARNING:
             case AV_LOG_INFO:
-            case AV_LOG_VERBOSE:
                 if (auto logSystem = _logSystemWeak.lock())
                 {
                     char buf[string::cBufferSize];
@@ -287,6 +286,7 @@ namespace tl
                     logSystem->print("tl::io::ffmpeg::Plugin", string::removeTrailingNewlines(buf));
                 }
                 break;
+            case AV_LOG_VERBOSE:
             default: break;
             }
         }
