@@ -141,7 +141,6 @@ namespace tl
                     p.size.h,
                     getRowByteCount(p.size.w, p.pixelType),
                     toBMD(p.pixelType),
-                    //bmdFrameFlagFlipVertical,
                     bmdFrameFlagDefault,
                     &dlVideoFrame.p) != S_OK)
                 {

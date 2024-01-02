@@ -17,8 +17,8 @@ namespace tl
         //! Display mode.
         struct DisplayMode
         {
-            std::string name;
-            math::Size2i size;
+            std::string         name;
+            math::Size2i        size;
             otime::RationalTime frameRate;
 
             bool operator == (const DisplayMode&) const;
@@ -52,12 +52,12 @@ namespace tl
         //! Device information.
         struct DeviceInfo
         {
-            std::string name;
+            std::string              name;
             std::vector<DisplayMode> displayModes;
-            std::vector<PixelType> pixelTypes;
-            size_t minVideoPreroll = 0;
-            bool hdrMetaData = false;
-            size_t maxAudioChannels = 0;
+            std::vector<PixelType>   pixelTypes;
+            size_t                   minVideoPreroll  = 0;
+            bool                     hdrMetaData      = false;
+            size_t                   maxAudioChannels = 0;
 
             bool operator == (const DeviceInfo&) const;
             bool operator != (const DeviceInfo&) const;
@@ -81,9 +81,9 @@ namespace tl
         //! Device configuration.
         struct DeviceConfig
         {
-            int deviceIndex = -1;
-            int displayModeIndex = -1;
-            PixelType pixelType = PixelType::None;
+            int         deviceIndex      = -1;
+            int         displayModeIndex = -1;
+            PixelType   pixelType        = PixelType::None;
             BoolOptions boolOptions;
 
             bool operator == (const DeviceConfig&) const;
@@ -107,3 +107,4 @@ namespace tl
         std::shared_ptr<image::HDRData> getHDRData(const timeline::VideoData&);
     }
 }
+

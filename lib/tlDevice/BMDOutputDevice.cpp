@@ -715,24 +715,18 @@ namespace tl
                     default: break;
                     }
                 }
-                /*if (0)
+                if (auto context = p.context.lock())
                 {
                     BOOL value = 0;
-                    p.dl->dlConfig.p->GetFlag(bmdDeckLinkConfig444SDIVideoOutput, &value);
-                }*/
+                    p.thread.dl->config.p->GetFlag(bmdDeckLinkConfig444SDIVideoOutput, &value);
+                    context->log(
+                        "tl::device::BMDOutputDevice",
+                        string::Format("444 SDI output: {0}").arg(value));
+                }
 
                 if (p.thread.dl->dl.p->QueryInterface(IID_IDeckLinkStatus, (void**)&p.thread.dl->status) != S_OK)
                 {
                     throw std::runtime_error("Cannot get status");
-                }
-                if (auto context = p.context.lock())
-                {
-                    //LONGLONG displayMode = 0;
-                    //p.thread.dl->dlStatus.p->GetInt(bmdDeckLinkStatusCurrentVideoOutputMode, &displayMode);
-                    //context->log(
-                    //    "tl::device::BMDOutputDevice",
-                    //    string::Format("Display mode: {0}").
-                    //        arg(getDisplayModeLabel(static_cast<BMDDisplayMode>(displayMode))));
                 }
 
                 if (p.thread.dl->dl.p->QueryInterface(IID_IDeckLinkOutput, (void**)&p.thread.dl->output) != S_OK)
@@ -970,7 +964,6 @@ namespace tl
                     viewportSize.h,
                     getRowByteCount(viewportSize.w, p.thread.outputPixelType),
                     toBMD(p.thread.outputPixelType),
-                    //bmdFrameFlagFlipVertical,
                     bmdFrameFlagDefault,
                     &dlVideoFrame->p) != S_OK)
                 {
