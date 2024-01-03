@@ -299,9 +299,9 @@ else()
     if(TLRENDER_USD)
         set(BOOST_LIBS
             ${CMAKE_INSTALL_PREFIX}/lib/libboost_atomic.so
-            ${CMAKE_INSTALL_PREFIX}/lib/libboost_atomic.so.1.78.0
+            ${CMAKE_INSTALL_PREFIX}/lib/libboost_atomic.so.1.76.0
             ${CMAKE_INSTALL_PREFIX}/lib/libboost_regex.so
-            ${CMAKE_INSTALL_PREFIX}/lib/libboost_regex.so.1.78.0)
+            ${CMAKE_INSTALL_PREFIX}/lib/libboost_regex.so.1.76.0)
         set(MATERIALX_LIBS
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXCore.so
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXCore.so.1
