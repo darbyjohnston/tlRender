@@ -59,8 +59,8 @@ namespace tl
             case bmdVideoConnectionComponent:       out = "Component";       break;
             case bmdVideoConnectionComposite:       out = "Composite";       break;
             case bmdVideoConnectionSVideo:          out = "SVideo";          break;
-            case bmdVideoConnectionEthernet:        out = "Ethernet";        break;
-            case bmdVideoConnectionOpticalEthernet: out = "OpticalEthernet"; break;
+            //case bmdVideoConnectionEthernet:        out = "Ethernet";        break;
+            //case bmdVideoConnectionOpticalEthernet: out = "OpticalEthernet"; break;
             default: break;
             };
             return out;
