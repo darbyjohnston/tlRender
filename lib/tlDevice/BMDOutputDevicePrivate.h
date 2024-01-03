@@ -27,37 +27,17 @@ namespace tl
         public:
             ~DLIteratorWrapper() { if (p) p->Release(); }
 
+            IDeckLinkIterator* operator -> () const { return p; }
+
             IDeckLinkIterator* p = nullptr;
-        };
-
-        class DLWrapper
-        {
-        public:
-            ~DLWrapper() { if (p) { p->Release(); } }
-
-            IDeckLink* p = nullptr;
-        };
-
-        class DLStatusWrapper
-        {
-        public:
-            ~DLStatusWrapper() { if (p) { p->Release(); } }
-
-            IDeckLinkStatus* p = nullptr;
-        };
-
-        class DLConfigWrapper
-        {
-        public:
-            ~DLConfigWrapper() { if (p) { p->Release(); } }
-
-            IDeckLinkConfiguration* p = nullptr;
         };
 
         class DLDisplayModeIteratorWrapper
         {
         public:
             ~DLDisplayModeIteratorWrapper() { if (p) p->Release(); }
+
+            IDeckLinkDisplayModeIterator* operator -> () const { return p; }
 
             IDeckLinkDisplayModeIterator* p = nullptr;
         };
@@ -67,6 +47,8 @@ namespace tl
         public:
             ~DLDisplayModeWrapper() { if (p) p->Release(); }
 
+            IDeckLinkDisplayMode* operator -> () const { return p; }
+
             IDeckLinkDisplayMode* p = nullptr;
         };
 
@@ -75,7 +57,19 @@ namespace tl
         public:
             ~DLVideoFrameWrapper() { if (p) p->Release(); }
 
+            IDeckLinkMutableVideoFrame* operator -> () const { return p; }
+
             IDeckLinkMutableVideoFrame* p = nullptr;
+        };
+
+        class DLFrameConversionWrapper
+        {
+        public:
+            ~DLFrameConversionWrapper() { if (p) p->Release(); }
+
+            IDeckLinkVideoConversion* operator -> () { return p; }
+
+            IDeckLinkVideoConversion* p = nullptr;
         };
 
         /*class DLHDRVideoFrame :
@@ -118,14 +112,6 @@ namespace tl
             std::atomic<ULONG> _refCount;
         };*/
 
-        class DLOutputWrapper
-        {
-        public:
-            ~DLOutputWrapper() { if (p) { p->Release(); } }
-
-            IDeckLinkOutput* p = nullptr;
-        };
-
         class DLOutputCallback :
             public IDeckLinkVideoOutputCallback,
             public IDeckLinkAudioOutputCallback
@@ -160,22 +146,41 @@ namespace tl
             TLRENDER_PRIVATE();
         };
 
-        class DLOutputCallbackWrapper
+        class DLWrapper
         {
         public:
-            ~DLOutputCallbackWrapper() { if (p) { p->Release(); } }
-            
-            DLOutputCallback* p = nullptr;
-        };
+            ~DLWrapper()
+            {
+                if (outputCallback)
+                {
+                    outputCallback->Release();
+                }
+                if (output)
+                {
+                    output->StopScheduledPlayback(0, nullptr, 0);
+                    output->DisableVideoOutput();
+                    output->DisableAudioOutput();
+                    output->Release();
+                }
+                if (status)
+                {
+                    status->Release();
+                }
+                if (config)
+                {
+                    config->Release();
+                }
+                if (p)
+                {
+                    p->Release();
+                }
+            }
 
-        class DLFrameConversionWrapper
-        {
-        public:
-            ~DLFrameConversionWrapper() { if (p) p->Release(); }
-
-            IDeckLinkVideoConversion* operator -> () { return p; }
-
-            IDeckLinkVideoConversion* p = nullptr;
+            IDeckLink* p = nullptr;
+            IDeckLinkConfiguration* config = nullptr;
+            IDeckLinkStatus* status = nullptr;
+            IDeckLinkOutput* output = nullptr;
+            DLOutputCallback* outputCallback = nullptr;
         };
     }
 }

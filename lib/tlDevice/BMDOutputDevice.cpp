@@ -35,26 +35,6 @@ namespace tl
         namespace
         {
             const std::chrono::milliseconds timeout(5);
-
-            struct DL
-            {
-                ~DL()
-                {
-                    if (output.p)
-                    {
-                        output.p->StopScheduledPlayback(0, nullptr, 0);
-                        output.p->DisableVideoOutput();
-                        output.p->DisableAudioOutput();
-                    }
-                }
-
-                DLWrapper dl;
-                DLConfigWrapper config;
-                DLStatusWrapper status;
-                DLOutputWrapper output;
-                audio::Info audioInfo;
-                DLOutputCallbackWrapper outputCallback;
-            };
         }
 
         struct BMDOutputDevice::Private
@@ -103,7 +83,8 @@ namespace tl
 
             struct Thread
             {
-                std::unique_ptr<DL> dl;
+                std::unique_ptr<DLWrapper> dl;
+
                 math::Size2i size;
                 PixelType outputPixelType = PixelType::None;
                 device::HDRMode hdrMode = device::HDRMode::FromFile;
@@ -114,6 +95,7 @@ namespace tl
                 otime::TimeRange timeRange = time::invalidTimeRange;
                 std::vector<image::Size> sizes;
                 std::vector<timeline::VideoData> videoData;
+
                 std::shared_ptr<timeline::IRender> render;
                 std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
                 GLuint pbo = 0;
@@ -589,7 +571,7 @@ namespace tl
                     {
                         try
                         {
-                            p.thread.dl.reset(new DL);
+                            p.thread.dl.reset(new DLWrapper);
                             _createDevice(config, active, size, frameRate);
                         }
                         catch (const std::exception& e)
@@ -643,18 +625,18 @@ namespace tl
                     }
                 }
 
-                if (p.thread.dl && p.thread.dl->outputCallback.p)
+                if (p.thread.dl && p.thread.dl->outputCallback)
                 {
-                    p.thread.dl->outputCallback.p->setPlayback(
+                    p.thread.dl->outputCallback->setPlayback(
                         playback,
                         currentTime - p.thread.timeRange.start_time());
                 }
-                if (p.thread.dl && p.thread.dl->outputCallback.p && audioChanged)
+                if (p.thread.dl && p.thread.dl->outputCallback && audioChanged)
                 {
-                    p.thread.dl->outputCallback.p->setAudioData(audioData);
+                    p.thread.dl->outputCallback->setAudioData(audioData);
                 }
 
-                if (p.thread.dl && p.thread.dl->output.p && p.thread.dl->outputCallback.p &&
+                if (p.thread.dl && p.thread.dl->output && p.thread.dl->outputCallback &&
                     doRender && p.thread.render)
                 {
                     _read();
@@ -696,36 +678,36 @@ namespace tl
                     }
 
                     int count = 0;
-                    while (dlIterator.p->Next(&p.thread.dl->dl.p) == S_OK)
+                    while (dlIterator->Next(&p.thread.dl->p) == S_OK)
                     {
                         if (count == config.deviceIndex)
                         {
 #if defined(__APPLE__)
                             CFStringRef dlModelName;
-                            p.thread.dl->dl.p->GetModelName(&dlModelName);
+                            p.thread.dl->p->GetModelName(&dlModelName);
                             StringToStdString(dlModelName, modelName);
                             CFRelease(dlModelName);
 #else // __APPLE__
                             dlstring_t dlModelName;
-                            p.thread.dl->dl.p->GetModelName(&dlModelName);
+                            p.thread.dl->p->GetModelName(&dlModelName);
                             modelName = DlToStdString(dlModelName);
                             DeleteString(dlModelName);
 #endif // __APPLE__
                             break;
                         }
 
-                        p.thread.dl->dl.p->Release();
-                        p.thread.dl->dl.p = nullptr;
+                        p.thread.dl->p->Release();
+                        p.thread.dl->p = nullptr;
 
                         ++count;
                     }
-                    if (!p.thread.dl->dl.p)
+                    if (!p.thread.dl->p)
                     {
                         throw std::runtime_error("Device not found");
                     }
                 }
 
-                if (p.thread.dl->dl.p->QueryInterface(IID_IDeckLinkConfiguration, (void**)&p.thread.dl->config) != S_OK)
+                if (p.thread.dl->p->QueryInterface(IID_IDeckLinkConfiguration, (void**)&p.thread.dl->config) != S_OK)
                 {
                     throw std::runtime_error("Cannot get configuration");
                 }
@@ -734,7 +716,7 @@ namespace tl
                     switch (option.first)
                     {
                     case Option::_444SDIVideoOutput:
-                        p.thread.dl->config.p->SetFlag(bmdDeckLinkConfig444SDIVideoOutput, option.second);
+                        p.thread.dl->config->SetFlag(bmdDeckLinkConfig444SDIVideoOutput, option.second);
                         break;
                     default: break;
                     }
@@ -742,38 +724,39 @@ namespace tl
                 if (auto context = p.context.lock())
                 {
                     BOOL value = 0;
-                    p.thread.dl->config.p->GetFlag(bmdDeckLinkConfig444SDIVideoOutput, &value);
+                    p.thread.dl->config->GetFlag(bmdDeckLinkConfig444SDIVideoOutput, &value);
                     context->log(
                         "tl::device::BMDOutputDevice",
                         string::Format("444 SDI output: {0}").arg(value));
                 }
 
-                if (p.thread.dl->dl.p->QueryInterface(IID_IDeckLinkStatus, (void**)&p.thread.dl->status) != S_OK)
+                if (p.thread.dl->p->QueryInterface(IID_IDeckLinkStatus, (void**)&p.thread.dl->status) != S_OK)
                 {
                     throw std::runtime_error("Cannot get status");
                 }
 
-                if (p.thread.dl->dl.p->QueryInterface(IID_IDeckLinkOutput, (void**)&p.thread.dl->output) != S_OK)
+                if (p.thread.dl->p->QueryInterface(IID_IDeckLinkOutput, (void**)&p.thread.dl->output) != S_OK)
                 {
                     throw std::runtime_error("Cannot get output");
                 }
 
+                const audio::Info audioInfo(2, audio::DataType::S16, 48000);
                 {
                     DLDisplayModeIteratorWrapper dlDisplayModeIterator;
-                    if (p.thread.dl->output.p->GetDisplayModeIterator(&dlDisplayModeIterator.p) != S_OK)
+                    if (p.thread.dl->output->GetDisplayModeIterator(&dlDisplayModeIterator.p) != S_OK)
                     {
                         throw std::runtime_error("Cannot get display mode iterator");
                     }
                     DLDisplayModeWrapper dlDisplayMode;
                     int count = 0;
-                    while (dlDisplayModeIterator.p->Next(&dlDisplayMode.p) == S_OK)
+                    while (dlDisplayModeIterator->Next(&dlDisplayMode.p) == S_OK)
                     {
                         if (count == config.displayModeIndex)
                         {
                             break;
                         }
 
-                        dlDisplayMode.p->Release();
+                        dlDisplayMode->Release();
                         dlDisplayMode.p = nullptr;
 
                         ++count;
@@ -783,16 +766,13 @@ namespace tl
                         throw std::runtime_error("Display mode not found");
                     }
 
-                    p.thread.size.w = dlDisplayMode.p->GetWidth();
-                    p.thread.size.h = dlDisplayMode.p->GetHeight();
+                    p.thread.size.w = dlDisplayMode->GetWidth();
+                    p.thread.size.h = dlDisplayMode->GetHeight();
                     p.thread.outputPixelType = getOutputType(config.pixelType);
                     BMDTimeValue frameDuration;
                     BMDTimeScale frameTimescale;
-                    dlDisplayMode.p->GetFrameRate(&frameDuration, &frameTimescale);
+                    dlDisplayMode->GetFrameRate(&frameDuration, &frameTimescale);
                     frameRate = otime::RationalTime(frameDuration, frameTimescale);
-                    p.thread.dl->audioInfo.channelCount = 2;
-                    p.thread.dl->audioInfo.dataType = audio::DataType::S16;
-                    p.thread.dl->audioInfo.sampleRate = 48000;
 
                     if (auto context = p.context.lock())
                     {
@@ -807,13 +787,13 @@ namespace tl
                             arg(modelName).
                             arg(p.thread.size).
                             arg(frameRate).
-                            arg(p.thread.dl->audioInfo.channelCount).
-                            arg(p.thread.dl->audioInfo.dataType).
-                            arg(p.thread.dl->audioInfo.sampleRate));
+                            arg(audioInfo.channelCount).
+                            arg(audioInfo.dataType).
+                            arg(audioInfo.sampleRate));
                     }
 
-                    HRESULT r = p.thread.dl->output.p->EnableVideoOutput(
-                        dlDisplayMode.p->GetDisplayMode(),
+                    HRESULT r = p.thread.dl->output->EnableVideoOutput(
+                        dlDisplayMode->GetDisplayMode(),
                         bmdVideoOutputFlagDefault);
                     switch (r)
                     {
@@ -825,10 +805,10 @@ namespace tl
                         throw std::runtime_error("Cannot enable video output");
                     }
 
-                    r = p.thread.dl->output.p->EnableAudioOutput(
+                    r = p.thread.dl->output->EnableAudioOutput(
                         bmdAudioSampleRate48kHz,
                         bmdAudioSampleType16bitInteger,
-                        p.thread.dl->audioInfo.channelCount,
+                        audioInfo.channelCount,
                         bmdAudioOutputStreamContinuous);
                     switch (r)
                     {
@@ -843,19 +823,19 @@ namespace tl
                     }
                 }
 
-                p.thread.dl->outputCallback.p = new DLOutputCallback(
-                    p.thread.dl->output.p,
+                p.thread.dl->outputCallback = new DLOutputCallback(
+                    p.thread.dl->output,
                     p.thread.size,
                     config.pixelType,
                     frameRate,
-                    p.thread.dl->audioInfo);
+                    audioInfo);
 
-                if (p.thread.dl->output.p->SetScheduledFrameCompletionCallback(p.thread.dl->outputCallback.p) != S_OK)
+                if (p.thread.dl->output->SetScheduledFrameCompletionCallback(p.thread.dl->outputCallback) != S_OK)
                 {
                     throw std::runtime_error("Cannot set video callback");
                 }
 
-                if (p.thread.dl->output.p->SetAudioCallback(p.thread.dl->outputCallback.p) != S_OK)
+                if (p.thread.dl->output->SetAudioCallback(p.thread.dl->outputCallback) != S_OK)
                 {
                     throw std::runtime_error("Cannot set audio callback");
                 }
@@ -953,7 +933,7 @@ namespace tl
             TLRENDER_P();
 
             auto dlVideoFrame = std::make_shared<DLVideoFrameWrapper>();
-            if (p.thread.dl->output.p->CreateVideoFrame(
+            if (p.thread.dl->output->CreateVideoFrame(
                 p.thread.size.w,
                 p.thread.size.h,
                 getRowByteCount(p.thread.size.w, p.thread.outputPixelType),
@@ -976,7 +956,7 @@ namespace tl
                 glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
             }
 
-            p.thread.dl->outputCallback.p->setVideo(
+            p.thread.dl->outputCallback->setVideo(
                 dlVideoFrame,
                 !p.thread.videoData.empty() ?
                 p.thread.videoData.front().time :

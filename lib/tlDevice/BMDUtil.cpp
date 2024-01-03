@@ -326,17 +326,18 @@ namespace tl
 
         GLint getReadPixelsAlign(device::PixelType value)
         {
+            //! \bug OpenGL only allows alignment values of 1, 2, 4, and 8.
             const std::array<GLint, static_cast<size_t>(device::PixelType::Count)> data =
             {
                 0,
                 4,
                 4,
-                256,
-                256,
-                256,
-                128,
-                256,
-                256
+                8, // 256,
+                8, // 256,
+                8, // 256,
+                8, // 128,
+                8, // 256,
+                8, // 256
             };
             return data[static_cast<size_t>(value)];
         }
