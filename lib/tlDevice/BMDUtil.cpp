@@ -249,6 +249,30 @@ namespace tl
             return out;
         }
 
+        device::PixelType getOutputType(device::PixelType value)
+        {
+            device::PixelType out = device::PixelType::None;
+            switch (value)
+            {
+            case PixelType::_8BitBGRA:
+            case PixelType::_10BitRGB:
+            case PixelType::_10BitRGBX:
+            case PixelType::_10BitRGBXLE:
+                out = value;
+                break;
+            case PixelType::_8BitYUV:
+                out = PixelType::_8BitBGRA;
+                break;
+            case PixelType::_10BitYUV:
+            case PixelType::_12BitRGB:
+            case PixelType::_12BitRGBLE:
+                out = PixelType::_10BitRGBXLE;
+                break;
+            default: break;
+            }
+            return out;
+        }
+
         image::PixelType getOffscreenType(device::PixelType value)
         {
             const std::array<image::PixelType, static_cast<size_t>(device::PixelType::Count)> data =

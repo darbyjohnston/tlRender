@@ -109,6 +109,7 @@ namespace tl
                 const std::vector<timeline::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
                 const timeline::CompareOptions&);
+            void _read();
 
             TLRENDER_PRIVATE();
         };

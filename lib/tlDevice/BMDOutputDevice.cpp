@@ -574,8 +574,14 @@ namespace tl
 
                 if (createDevice)
                 {
+                    if (p.thread.pbo != 0)
+                    {
+                        glDeleteBuffers(1, &p.thread.pbo);
+                        p.thread.pbo = 0;
+                    }
                     p.thread.offscreenBuffer.reset();
                     p.thread.dl.reset();
+
                     bool active = false;
                     math::Size2i size;
                     otime::RationalTime frameRate = time::invalidTime;
@@ -603,9 +609,17 @@ namespace tl
                         p.mutex.size = p.thread.size;
                         p.mutex.frameRate = frameRate;
                     }
+
+                    glGenBuffers(1, &p.thread.pbo);
+                    glBindBuffer(GL_PIXEL_PACK_BUFFER, p.thread.pbo);
+                    glBufferData(
+                        GL_PIXEL_PACK_BUFFER,
+                        device::getDataByteCount(p.thread.size, p.thread.outputPixelType),
+                        NULL,
+                        GL_STREAM_READ);
                 }
 
-                if (p.thread.dl && p.thread.dl->outputCallback.p && doRender && p.thread.render)
+                if (doRender && p.thread.render)
                 {
                     try
                     {
@@ -640,13 +654,23 @@ namespace tl
                     p.thread.dl->outputCallback.p->setAudioData(audioData);
                 }
 
+                if (p.thread.dl && p.thread.dl->output.p && p.thread.dl->outputCallback.p &&
+                    doRender && p.thread.render)
+                {
+                    _read();
+                }
+
                 const auto t1 = std::chrono::steady_clock::now();
                 const std::chrono::duration<double> diff = t1 - t;
                 //std::cout << "diff: " << diff.count() * 1000 << std::endl;
                 t = t1;
             }
 
-            glDeleteBuffers(1, &p.thread.pbo);
+            if (p.thread.pbo != 0)
+            {
+                glDeleteBuffers(1, &p.thread.pbo);
+                p.thread.pbo = 0;
+            }
             p.thread.offscreenBuffer.reset();
             p.thread.render.reset();
             p.thread.dl.reset();
@@ -688,18 +712,18 @@ namespace tl
                             DeleteString(dlModelName);
 #endif // __APPLE__
                             break;
-                }
+                        }
 
                         p.thread.dl->dl.p->Release();
                         p.thread.dl->dl.p = nullptr;
 
                         ++count;
-            }
+                    }
                     if (!p.thread.dl->dl.p)
                     {
                         throw std::runtime_error("Device not found");
                     }
-        }
+                }
 
                 if (p.thread.dl->dl.p->QueryInterface(IID_IDeckLinkConfiguration, (void**)&p.thread.dl->config) != S_OK)
                 {
@@ -761,26 +785,7 @@ namespace tl
 
                     p.thread.size.w = dlDisplayMode.p->GetWidth();
                     p.thread.size.h = dlDisplayMode.p->GetHeight();
-                    switch (config.pixelType)
-                    {
-                    case PixelType::_8BitBGRA:
-                    case PixelType::_10BitRGB:
-                    case PixelType::_10BitRGBX:
-                    case PixelType::_10BitRGBXLE:
-                        p.thread.outputPixelType = config.pixelType;
-                        break;
-                    case PixelType::_8BitYUV:
-                        p.thread.outputPixelType = PixelType::_8BitBGRA;
-                        break;
-                    case PixelType::_10BitYUV:
-                    case PixelType::_12BitRGB:
-                    case PixelType::_12BitRGBLE:
-                        p.thread.outputPixelType = PixelType::_10BitRGB;
-                        break;
-                    default:
-                        p.thread.outputPixelType = PixelType::None;
-                        break;
-                    }
+                    p.thread.outputPixelType = getOutputType(config.pixelType);
                     BMDTimeValue frameDuration;
                     BMDTimeScale frameTimescale;
                     dlDisplayMode.p->GetFrameRate(&frameDuration, &frameTimescale);
@@ -856,18 +861,6 @@ namespace tl
                 }
 
                 active = true;
-
-                if (p.thread.pbo != 0)
-                {
-                    glDeleteBuffers(1, &p.thread.pbo);
-                }
-                glGenBuffers(1, &p.thread.pbo);
-                glBindBuffer(GL_PIXEL_PACK_BUFFER, p.thread.pbo);
-                glBufferData(
-                    GL_PIXEL_PACK_BUFFER,
-                    device::getDataByteCount(p.thread.size, p.thread.outputPixelType),
-                    NULL,
-                    GL_STREAM_COPY);
             }
         }
 
@@ -885,7 +878,6 @@ namespace tl
             const math::Size2i renderSize = timeline::getRenderSize(
                 compareOptions.mode,
                 p.thread.sizes);
-            const math::Size2i viewportSize = p.thread.size;
             gl::OffscreenBufferOptions offscreenBufferOptions;
             offscreenBufferOptions.colorType = getOffscreenType(p.thread.outputPixelType);
             if (!displayOptions.empty())
@@ -894,9 +886,9 @@ namespace tl
             }
             offscreenBufferOptions.depth = gl::OffscreenDepth::_24;
             offscreenBufferOptions.stencil = gl::OffscreenStencil::_8;
-            if (gl::doCreate(p.thread.offscreenBuffer, viewportSize, offscreenBufferOptions))
+            if (gl::doCreate(p.thread.offscreenBuffer, p.thread.size, offscreenBufferOptions))
             {
-                p.thread.offscreenBuffer = gl::OffscreenBuffer::create(viewportSize, offscreenBufferOptions);
+                p.thread.offscreenBuffer = gl::OffscreenBuffer::create(p.thread.size, offscreenBufferOptions);
             }
 
             // Render the video.
@@ -904,7 +896,7 @@ namespace tl
             {
                 gl::OffscreenBufferBinding binding(p.thread.offscreenBuffer);
 
-                p.thread.render->begin(viewportSize);
+                p.thread.render->begin(p.thread.size);
                 p.thread.render->setOCIOOptions(ocioOptions);
                 p.thread.render->setLUTOptions(lutOptions);
 
@@ -912,14 +904,14 @@ namespace tl
                 double viewZoomTmp = p.thread.viewZoom;
                 if (p.thread.frameView)
                 {
-                    double zoom = viewportSize.w / static_cast<double>(renderSize.w);
-                    if (zoom * renderSize.h > viewportSize.h)
+                    double zoom = p.thread.size.w / static_cast<double>(renderSize.w);
+                    if (zoom * renderSize.h > p.thread.size.h)
                     {
-                        zoom = viewportSize.h / static_cast<double>(renderSize.h);
+                        zoom = p.thread.size.h / static_cast<double>(renderSize.h);
                     }
                     const math::Vector2i c(renderSize.w / 2, renderSize.h / 2);
-                    viewPosTmp.x = viewportSize.w / 2.0 - c.x * zoom;
-                    viewPosTmp.y = viewportSize.h / 2.0 - c.y * zoom;
+                    viewPosTmp.x = p.thread.size.w / 2.0 - c.x * zoom;
+                    viewPosTmp.y = p.thread.size.h / 2.0 - c.y * zoom;
                     viewZoomTmp = zoom;
                 }
                 math::Matrix4x4f vm;
@@ -927,9 +919,9 @@ namespace tl
                 vm = vm * math::scale(math::Vector3f(viewZoomTmp, viewZoomTmp, 1.F));
                 const auto pm = math::ortho(
                     0.F,
-                    static_cast<float>(viewportSize.w),
+                    static_cast<float>(p.thread.size.w),
                     0.F,
-                    static_cast<float>(viewportSize.h),
+                    static_cast<float>(p.thread.size.h),
                     -1.F,
                     1.F);
                 p.thread.render->setTransform(pm * vm);
@@ -942,11 +934,7 @@ namespace tl
                     compareOptions);
 
                 p.thread.render->end();
-            }
 
-            // Copy the render to the output device.
-            if (p.thread.offscreenBuffer)
-            {
                 glBindBuffer(GL_PIXEL_PACK_BUFFER, p.thread.pbo);
                 glPixelStorei(GL_PACK_ALIGNMENT, getReadPixelsAlign(p.thread.outputPixelType));
                 glPixelStorei(GL_PACK_SWAP_BYTES, getReadPixelsSwap(p.thread.outputPixelType));
@@ -956,38 +944,43 @@ namespace tl
                     0,
                     getReadPixelsFormat(p.thread.outputPixelType),
                     getReadPixelsType(p.thread.outputPixelType),
-                    nullptr);
-
-                auto dlVideoFrame = std::make_shared<DLVideoFrameWrapper>();
-                if (p.thread.dl->output.p->CreateVideoFrame(
-                    viewportSize.w,
-                    viewportSize.h,
-                    getRowByteCount(viewportSize.w, p.thread.outputPixelType),
-                    toBMD(p.thread.outputPixelType),
-                    bmdFrameFlagDefault,
-                    &dlVideoFrame->p) != S_OK)
-                {
-                    throw std::runtime_error("Cannot create video frame");
-                }
-                void* dlVideoFrameP = nullptr;
-                dlVideoFrame->p->GetBytes((void**)&dlVideoFrameP);
-                glBindBuffer(GL_PIXEL_PACK_BUFFER, p.thread.pbo);
-                if (void* pboP = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY))
-                {
-                    memcpy(
-                        dlVideoFrameP,
-                        pboP,
-                        getDataByteCount(viewportSize, p.thread.outputPixelType));
-                    glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-                }
-                glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-
-                p.thread.dl->outputCallback.p->setVideo(
-                    dlVideoFrame,
-                    !p.thread.videoData.empty() ?
-                        (p.thread.videoData[0].time - p.thread.timeRange.start_time()) :
-                    time::invalidTime);
+                    NULL);
             }
+        }
+
+        void BMDOutputDevice::_read()
+        {
+            TLRENDER_P();
+
+            auto dlVideoFrame = std::make_shared<DLVideoFrameWrapper>();
+            if (p.thread.dl->output.p->CreateVideoFrame(
+                p.thread.size.w,
+                p.thread.size.h,
+                getRowByteCount(p.thread.size.w, p.thread.outputPixelType),
+                toBMD(p.thread.outputPixelType),
+                bmdFrameFlagDefault,
+                &dlVideoFrame->p) != S_OK)
+            {
+                throw std::runtime_error("Cannot create video frame");
+            }
+            void* dlVideoFrameP = nullptr;
+            dlVideoFrame->p->GetBytes((void**)&dlVideoFrameP);
+
+            glBindBuffer(GL_PIXEL_PACK_BUFFER, p.thread.pbo);
+            if (void* pboP = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY))
+            {
+                memcpy(
+                    dlVideoFrameP,
+                    pboP,
+                    getDataByteCount(p.thread.size, p.thread.outputPixelType));
+                glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+            }
+
+            p.thread.dl->outputCallback.p->setVideo(
+                dlVideoFrame,
+                !p.thread.videoData.empty() ?
+                p.thread.videoData.front().time :
+                time::invalidTime);
         }
     }
 }

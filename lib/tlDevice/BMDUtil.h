@@ -42,6 +42,9 @@ namespace tl
         //! Get a label.
         std::string getOutputFrameCompletionResultLabel(BMDOutputFrameCompletionResult);
 
+        //! Get the output pixel type.
+        device::PixelType getOutputType(device::PixelType);
+
         //! Get the offscreen buffer type.
         image::PixelType getOffscreenType(device::PixelType);
 
