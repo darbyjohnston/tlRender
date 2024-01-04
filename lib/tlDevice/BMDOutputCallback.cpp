@@ -18,6 +18,7 @@ namespace tl
     {
         namespace
         {
+            const size_t videoPreroll = 3;
             const size_t videoFramesMax = 3;
             //! \todo Should this be the same as
             //! timeline::PlayerOptions().audioBufferFrameCount?
@@ -108,7 +109,6 @@ namespace tl
             }
 #endif // _WINDOWS
 
-            size_t videoPreroll = 3;
             IDeckLinkProfileAttributes* dlProfileAttributes = nullptr;
             if (dlOutput->QueryInterface(IID_IDeckLinkProfileAttributes, (void**)&dlProfileAttributes) == S_OK)
             {
@@ -122,12 +122,15 @@ namespace tl
             }
 
             p.dlOutput->BeginAudioPreroll();
-            /*std::vector<uint8_t> emptyAudio(
-                audioBufferChunkSize * audioChannelCount * audio::getByteCount(audioDataType), 0);
+            /*const size_t audioPrerollSamples = videoPreroll / 24.0 * audioInfo.sampleRate;
+            std::vector<uint8_t> emptyAudio(
+                audioPrerollSamples *
+                audioInfo.channelCount *
+                audio::getByteCount(audioInfo.dataType), 0);
             uint32_t audioSamplesWritten = 0;
             p.dlOutput->ScheduleAudioSamples(
                 emptyAudio.data(),
-                6000,
+                audioPrerollSamples,
                 0,
                 0,
                 nullptr);*/
@@ -165,7 +168,9 @@ namespace tl
                 1.0);
         }
 
-        void DLOutputCallback::setPlayback(timeline::Playback value, const otime::RationalTime& time)
+        void DLOutputCallback::setPlayback(
+            timeline::Playback value,
+            const otime::RationalTime& time)
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.audioMutex.mutex);

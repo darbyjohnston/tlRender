@@ -549,7 +549,9 @@ namespace tl
                         p.thread.sizes = p.mutex.sizes;
                         p.thread.videoData = p.mutex.videoData;
 
-                        audioChanged = audioData != p.mutex.audioData;
+                        audioChanged =
+                            createDevice ||
+                            audioData != p.mutex.audioData;
                         audioData = p.mutex.audioData;
                     }
                 }
@@ -943,9 +945,9 @@ namespace tl
             {
                 throw std::runtime_error("Cannot create video frame");
             }
+
             void* dlVideoFrameP = nullptr;
             dlVideoFrame->p->GetBytes((void**)&dlVideoFrameP);
-
             glBindBuffer(GL_PIXEL_PACK_BUFFER, p.thread.pbo);
             if (void* pboP = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY))
             {
@@ -959,7 +961,7 @@ namespace tl
             p.thread.dl->outputCallback->setVideo(
                 dlVideoFrame,
                 !p.thread.videoData.empty() ?
-                p.thread.videoData.front().time :
+                (p.thread.videoData.front().time - p.thread.timeRange.start_time()) :
                 time::invalidTime);
         }
     }

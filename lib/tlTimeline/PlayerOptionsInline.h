@@ -23,7 +23,6 @@ namespace tl
             return
                 cache == other.cache &&
                 timerMode == other.timerMode &&
-                audioChannelCount == other.audioChannelCount &&
                 audioBufferFrameCount == other.audioBufferFrameCount &&
                 muteTimeout == other.muteTimeout &&
                 sleepTimeout == other.sleepTimeout &&

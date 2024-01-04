@@ -56,9 +56,6 @@ namespace tl
             //! Timer mode.
             TimerMode timerMode = TimerMode::System;
 
-            //! Audio channel count.
-            size_t audioChannelCount = 2;
-
             //! Audio buffer frame count.
             size_t audioBufferFrameCount = 2048;
 
