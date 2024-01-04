@@ -76,6 +76,9 @@ namespace tl
                 otime::RationalTime currentTime = time::invalidTime;
                 std::vector<image::Size> sizes;
                 std::vector<timeline::VideoData> videoData;
+                float volume = 1.F;
+                bool mute = false;
+                double audioOffset = 0.0;
                 std::vector<timeline::AudioData> audioData;
                 std::mutex mutex;
             };
@@ -321,6 +324,36 @@ namespace tl
             p.thread.cv.notify_one();
         }
 
+        void BMDOutputDevice::setVolume(float value)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.volume = value;
+            }
+            p.thread.cv.notify_one();
+        }
+
+        void BMDOutputDevice::setMute(bool value)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.mute = value;
+            }
+            p.thread.cv.notify_one();
+        }
+
+        void BMDOutputDevice::setAudioOffset(double value)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.audioOffset = value;
+            }
+            p.thread.cv.notify_one();
+        }
+
         void BMDOutputDevice::setPlayers(const std::vector<std::shared_ptr<timeline::Player> >& value)
         {
             TLRENDER_P();
@@ -466,6 +499,9 @@ namespace tl
             timeline::CompareOptions compareOptions;
             timeline::Playback playback = timeline::Playback::Stop;
             otime::RationalTime currentTime = time::invalidTime;
+            float volume = 1.F;
+            bool mute = false;
+            double audioOffset = 0.0;
             std::vector<timeline::AudioData> audioData;
 
             if (auto context = p.context.lock())
@@ -479,7 +515,7 @@ namespace tl
                 bool createDevice = false;
                 bool doRender = false;
                 bool overlayChanged = false;
-                bool audioChanged = false;
+                bool audioDataChanged = false;
                 {
                     std::unique_lock<std::mutex> lock(p.mutex.mutex);
                     if (p.thread.cv.wait_for(
@@ -489,7 +525,7 @@ namespace tl
                         ocioOptions, lutOptions, imageOptions,
                         displayOptions, compareOptions,
                         playback, currentTime,
-                        audioData]
+                        volume, mute, audioOffset, audioData]
                         {
                             return
                                 config != _p->mutex.config ||
@@ -509,6 +545,9 @@ namespace tl
                                 currentTime != _p->mutex.currentTime ||
                                 _p->thread.sizes != _p->mutex.sizes ||
                                 _p->thread.videoData != _p->mutex.videoData ||
+                                volume != _p->mutex.volume ||
+                                mute != _p->mutex.mute ||
+                                audioOffset != _p->mutex.audioOffset ||
                                 audioData != _p->mutex.audioData;
                         }))
                     {
@@ -549,9 +588,12 @@ namespace tl
                         p.thread.sizes = p.mutex.sizes;
                         p.thread.videoData = p.mutex.videoData;
 
-                        audioChanged =
+                        audioDataChanged =
                             createDevice ||
                             audioData != p.mutex.audioData;
+                        volume = p.mutex.volume;
+                        mute = p.mutex.mute;
+                        audioOffset = p.mutex.audioOffset;
                         audioData = p.mutex.audioData;
                     }
                 }
@@ -633,7 +675,13 @@ namespace tl
                         playback,
                         currentTime - p.thread.timeRange.start_time());
                 }
-                if (p.thread.dl && p.thread.dl->outputCallback && audioChanged)
+                if (p.thread.dl && p.thread.dl->outputCallback)
+                {
+                    p.thread.dl->outputCallback->setVolume(volume);
+                    p.thread.dl->outputCallback->setMute(mute);
+                    p.thread.dl->outputCallback->setAudioOffset(audioOffset);
+                }
+                if (p.thread.dl && p.thread.dl->outputCallback && audioDataChanged)
                 {
                     p.thread.dl->outputCallback->setAudioData(audioData);
                 }

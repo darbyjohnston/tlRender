@@ -24,13 +24,7 @@ namespace tl
 
             virtual ~AudioOffsetWidget();
 
-        private Q_SLOTS:
-            void _offsetCallback(double);
-
         private:
-            void _playersUpdate(const QVector<QSharedPointer<qt::TimelinePlayer> >&);
-            void _offsetUpdate();
-
             TLRENDER_PRIVATE();
         };
 

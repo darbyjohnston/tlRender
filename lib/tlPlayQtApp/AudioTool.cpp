@@ -4,9 +4,10 @@
 
 #include <tlPlayQtApp/AudioTool.h>
 
+#include <tlPlayQtApp/App.h>
 #include <tlPlayQtApp/DockTitleBar.h>
 
-#include <tlPlayQtApp/App.h>
+#include <tlPlay/AudioModel.h>
 
 #include <tlQtWidget/FloatEditSlider.h>
 
@@ -19,11 +20,9 @@ namespace tl
     {
         struct AudioOffsetWidget::Private
         {
-            QVector<QSharedPointer<qt::TimelinePlayer> > timelinePlayers;
-
-            double offset = 0.0;
-
             qtwidget::FloatEditSlider* slider = nullptr;
+
+            std::shared_ptr<observer::ValueObserver<double> > syncOffsetObserver;
         };
 
         AudioOffsetWidget::AudioOffsetWidget(App* app, QWidget* parent) :
@@ -42,68 +41,24 @@ namespace tl
             setLayout(layout);
 
             connect(
-                app,
-                &App::activePlayersChanged,
-                [this](const QVector<QSharedPointer<qt::TimelinePlayer> >& value)
-                {
-                    _playersUpdate(value);
-                });
-
-            connect(
                 p.slider,
                 &qtwidget::FloatEditSlider::valueChanged,
-                [this](float value)
+                [app](float value)
                 {
-                    _p->offset = value;
-                    if (!_p->timelinePlayers.empty() && _p->timelinePlayers[0])
-                    {
-                        _p->timelinePlayers[0]->setAudioOffset(value);
-                    }
+                    app->audioModel()->setSyncOffset(value);
+                });
+
+            p.syncOffsetObserver = observer::ValueObserver<double>::create(
+                app->audioModel()->observeSyncOffset(),
+                [this](double value)
+                {
+                    QSignalBlocker signalBlocker(_p->slider);
+                    _p->slider->setValue(value);
                 });
         }
 
         AudioOffsetWidget::~AudioOffsetWidget()
         {}
-
-        void AudioOffsetWidget::_playersUpdate(const QVector<QSharedPointer<qt::TimelinePlayer> >& value)
-        {
-            TLRENDER_P();
-            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
-            {
-                disconnect(
-                    p.timelinePlayers[0].get(),
-                    SIGNAL(audioOffsetChanged(double)),
-                    this,
-                    SLOT(_offsetCallback(double)));
-            }
-
-            p.timelinePlayers = value;
-
-            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
-            {
-                connect(
-                    p.timelinePlayers[0].get(),
-                    SIGNAL(audioOffsetChanged(double)),
-                    this,
-                    SLOT(_offsetCallback(double)));
-            }
-        }
-
-        void AudioOffsetWidget::_offsetCallback(double value)
-        {
-            TLRENDER_P();
-            p.offset = value;
-            _offsetUpdate();
-        }
-
-        void AudioOffsetWidget::_offsetUpdate()
-        {
-            TLRENDER_P();
-            {
-                QSignalBlocker signalBlocker(p.slider);
-                p.slider->setValue(p.offset);
-            }
-        }
 
         struct AudioTool::Private
         {

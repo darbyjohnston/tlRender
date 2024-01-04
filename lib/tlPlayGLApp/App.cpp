@@ -1058,15 +1058,21 @@ namespace tl
             TLRENDER_P();
             const float volume = p.audioModel->getVolume();
             const bool mute = p.audioModel->isMuted();
+            const double audioOffset = p.audioModel->getSyncOffset();
             for (const auto& player : p.players)
             {
                 if (player)
                 {
                     player->setVolume(volume);
                     player->setMute(mute || p.bmdDeviceActive);
-                    player->setAudioOffset(p.audioModel->getSyncOffset());
+                    player->setAudioOffset(audioOffset);
                 }
             }
+#if defined(TLRENDER_BMD)
+            p.bmdOutputDevice->setVolume(volume);
+            p.bmdOutputDevice->setMute(mute);
+            p.bmdOutputDevice->setAudioOffset(audioOffset);
+#endif // TLRENDER_BMD
         }
     }
 }

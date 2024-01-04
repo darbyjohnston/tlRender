@@ -89,6 +89,15 @@ namespace tl
             //! Set the comparison options.
             void setCompareOptions(const timeline::CompareOptions&);
 
+            //! Set the volume.
+            void setVolume(float);
+
+            //! Set whether the audio is muted.
+            void setMute(bool);
+
+            //! Set the audio sync offset.
+            void setAudioOffset(double);
+
             //! Set the timeline players.
             void setPlayers(const std::vector<std::shared_ptr<timeline::Player> >&);
 
