@@ -48,16 +48,26 @@ namespace tl
         //! Get the offscreen buffer type.
         image::PixelType getOffscreenType(device::PixelType);
 
-        //! Get the reead pixels format.
-        GLenum getReadPixelsFormat(device::PixelType);
+        //! Get the pack pixels buffer size.
+        size_t getPackPixelsSize(const math::Size2i&, device::PixelType);
 
-        //! Get the reead pixels type.
-        GLenum getReadPixelsType(device::PixelType);
+        //! Get the pack pixels format.
+        GLenum getPackPixelsFormat(device::PixelType);
 
-        //! Get the reead pixels alignment.
-        GLint getReadPixelsAlign(device::PixelType);
+        //! Get the pack pixels type.
+        GLenum getPackPixelsType(device::PixelType);
 
-        //! Get the reead pixels endian byte swap.
-        GLint getReadPixelsSwap(device::PixelType);
+        //! Get the pack pixels alignment.
+        GLint getPackPixelsAlign(device::PixelType);
+
+        //! Get the pack pixels endian byte swap.
+        GLint getPackPixelsSwap(device::PixelType);
+
+        //! Copy the pack pixels.
+        void copyPackPixels(
+            const void*,
+            void*,
+            const math::Size2i&,
+            device::PixelType);
     }
 }

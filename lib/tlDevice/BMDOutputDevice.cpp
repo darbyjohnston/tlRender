@@ -12,6 +12,7 @@
 #include <tlGL/GLFWWindow.h>
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Texture.h>
+#include <tlGL/Util.h>
 
 #include <tlCore/AudioResample.h>
 #include <tlCore/Context.h>
@@ -65,7 +66,7 @@ namespace tl
                 timeline::LUTOptions lutOptions;
                 std::vector<timeline::ImageOptions> imageOptions;
                 std::vector<timeline::DisplayOptions> displayOptions;
-                device::HDRMode hdrMode = device::HDRMode::FromFile;
+                HDRMode hdrMode = HDRMode::FromFile;
                 image::HDRData hdrData;
                 timeline::CompareOptions compareOptions;
                 math::Vector2i viewPos;
@@ -90,7 +91,7 @@ namespace tl
 
                 math::Size2i size;
                 PixelType outputPixelType = PixelType::None;
-                device::HDRMode hdrMode = device::HDRMode::FromFile;
+                HDRMode hdrMode = HDRMode::FromFile;
                 image::HDRData hdrData;
                 math::Vector2i viewPos;
                 double viewZoom = 1.0;
@@ -303,7 +304,7 @@ namespace tl
             p.thread.cv.notify_one();
         }
 
-        void BMDOutputDevice::setHDR(device::HDRMode hdrMode, const image::HDRData& hdrData)
+        void BMDOutputDevice::setHDR(HDRMode hdrMode, const image::HDRData& hdrData)
         {
             TLRENDER_P();
             {
@@ -640,7 +641,7 @@ namespace tl
                     glBindBuffer(GL_PIXEL_PACK_BUFFER, p.thread.pbo);
                     glBufferData(
                         GL_PIXEL_PACK_BUFFER,
-                        device::getDataByteCount(p.thread.size, p.thread.outputPixelType),
+                        getPackPixelsSize(p.thread.size, p.thread.outputPixelType),
                         NULL,
                         GL_STREAM_READ);
                 }
@@ -709,7 +710,7 @@ namespace tl
         }
 
         void BMDOutputDevice::_createDevice(
-            const device::DeviceConfig& config,
+            const DeviceConfig& config,
             bool& active,
             math::Size2i& size,
             otime::RationalTime& frameRate)
@@ -895,7 +896,7 @@ namespace tl
         }
 
         void BMDOutputDevice::_render(
-            const device::DeviceConfig& config,
+            const DeviceConfig& config,
             const timeline::OCIOOptions& ocioOptions,
             const timeline::LUTOptions& lutOptions,
             const std::vector<timeline::ImageOptions>& imageOptions,
@@ -966,14 +967,14 @@ namespace tl
                 p.thread.render->end();
 
                 glBindBuffer(GL_PIXEL_PACK_BUFFER, p.thread.pbo);
-                glPixelStorei(GL_PACK_ALIGNMENT, getReadPixelsAlign(p.thread.outputPixelType));
-                glPixelStorei(GL_PACK_SWAP_BYTES, getReadPixelsSwap(p.thread.outputPixelType));
+                glPixelStorei(GL_PACK_ALIGNMENT, getPackPixelsAlign(p.thread.outputPixelType));
+                glPixelStorei(GL_PACK_SWAP_BYTES, getPackPixelsSwap(p.thread.outputPixelType));
                 glBindTexture(GL_TEXTURE_2D, p.thread.offscreenBuffer->getColorID());
                 glGetTexImage(
                     GL_TEXTURE_2D,
                     0,
-                    getReadPixelsFormat(p.thread.outputPixelType),
-                    getReadPixelsType(p.thread.outputPixelType),
+                    getPackPixelsFormat(p.thread.outputPixelType),
+                    getPackPixelsType(p.thread.outputPixelType),
                     NULL);
             }
         }
@@ -999,10 +1000,7 @@ namespace tl
             glBindBuffer(GL_PIXEL_PACK_BUFFER, p.thread.pbo);
             if (void* pboP = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY))
             {
-                memcpy(
-                    dlVideoFrameP,
-                    pboP,
-                    getDataByteCount(p.thread.size, p.thread.outputPixelType));
+                copyPackPixels(pboP, dlVideoFrameP, p.thread.size, p.thread.outputPixelType);
                 glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
             }
 

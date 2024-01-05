@@ -170,5 +170,21 @@ namespace tl
                 glDisable(_p->id);
             }
         }
+
+        std::string getErrorLabel(unsigned int value)
+        {
+            std::string out;
+            switch(value)
+            {
+            case GL_NO_ERROR: out = "GL_NO_ERROR"; break;
+            case GL_INVALID_ENUM: out = "GL_INVALID_ENUM"; break;
+            case GL_INVALID_VALUE: out = "GL_INVALID_VALUE"; break;
+            case GL_INVALID_OPERATION: out = "GL_INVALID_OPERATION"; break;
+            case GL_INVALID_FRAMEBUFFER_OPERATION: out = "GL_INVALID_FRAMEBUFFER_OPERATION"; break;
+            case GL_OUT_OF_MEMORY: out = "GL_OUT_OF_MEMORY"; break;
+            default: break;
+            }
+            return out;
+        }
     }
 }

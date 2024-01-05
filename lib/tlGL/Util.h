@@ -30,5 +30,8 @@ namespace tl
         private:
             TLRENDER_PRIVATE();
         };
+
+        //! Get an OpenGL error label.
+        std::string getErrorLabel(unsigned int);
     }
 }

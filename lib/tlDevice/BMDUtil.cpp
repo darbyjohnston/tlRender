@@ -264,9 +264,13 @@ namespace tl
                 out = PixelType::_8BitBGRA;
                 break;
             case PixelType::_10BitYUV:
-            case PixelType::_12BitRGB:
-            case PixelType::_12BitRGBLE:
                 out = PixelType::_10BitRGBXLE;
+                break;
+            case PixelType::_12BitRGB:
+                out = PixelType::_12BitRGB;
+                break;
+            case PixelType::_12BitRGBLE:
+                out = PixelType::_12BitRGBLE;
                 break;
             default: break;
             }
@@ -284,13 +288,35 @@ namespace tl
                 image::PixelType::RGB_U10,
                 image::PixelType::RGB_U10,
                 image::PixelType::RGB_U10,
-                image::PixelType::RGB_U10,
-                image::PixelType::RGB_U10
+                image::PixelType::RGB_U16,
+                image::PixelType::RGB_U16
             };
             return data[static_cast<size_t>(value)];
         }
 
-        GLenum getReadPixelsFormat(device::PixelType value)
+        size_t getPackPixelsSize(const math::Size2i& size, device::PixelType pixelType)
+        {
+            size_t out = 0;
+            switch (pixelType)
+            {
+            case PixelType::_8BitBGRA:
+            case PixelType::_8BitYUV:
+            case PixelType::_10BitRGB:
+            case PixelType::_10BitRGBX:
+            case PixelType::_10BitRGBXLE:
+            case PixelType::_10BitYUV:
+                out = getDataByteCount(size, pixelType);
+                break;
+            case PixelType::_12BitRGB:
+            case PixelType::_12BitRGBLE:
+                out = size.w * size.h * 3 * sizeof(uint16_t);
+                break;
+            default: break;
+            }
+            return out;
+        }
+
+        GLenum getPackPixelsFormat(device::PixelType value)
         {
             const std::array<GLenum, static_cast<size_t>(device::PixelType::Count)> data =
             {
@@ -301,13 +327,13 @@ namespace tl
                 GL_RGBA,
                 GL_RGBA,
                 GL_RGBA,
-                GL_RGBA,
-                GL_RGBA
+                GL_RGB,
+                GL_RGB
             };
             return data[static_cast<size_t>(value)];
         }
 
-        GLenum getReadPixelsType(device::PixelType value)
+        GLenum getPackPixelsType(device::PixelType value)
         {
             const std::array<GLenum, static_cast<size_t>(device::PixelType::Count)> data =
             {
@@ -318,13 +344,13 @@ namespace tl
                 GL_UNSIGNED_INT_10_10_10_2,
                 GL_UNSIGNED_INT_10_10_10_2,
                 GL_UNSIGNED_INT_10_10_10_2,
-                GL_UNSIGNED_INT_10_10_10_2,
-                GL_UNSIGNED_INT_10_10_10_2
+                GL_UNSIGNED_SHORT,
+                GL_UNSIGNED_SHORT
             };
             return data[static_cast<size_t>(value)];
         }
 
-        GLint getReadPixelsAlign(device::PixelType value)
+        GLint getPackPixelsAlign(device::PixelType value)
         {
             //! \bug OpenGL only allows alignment values of 1, 2, 4, and 8.
             const std::array<GLint, static_cast<size_t>(device::PixelType::Count)> data =
@@ -336,13 +362,13 @@ namespace tl
                 8, // 256,
                 8, // 256,
                 8, // 128,
-                8, // 256,
-                8, // 256
+                2, // 256,
+                2, // 256
             };
             return data[static_cast<size_t>(value)];
         }
 
-        GLint getReadPixelsSwap(device::PixelType value)
+        GLint getPackPixelsSwap(device::PixelType value)
         {
             const std::array<GLint, static_cast<size_t>(device::PixelType::Count)> data =
             {
@@ -357,6 +383,204 @@ namespace tl
                 GL_FALSE
             };
             return data[static_cast<size_t>(value)];
+        }
+
+        void copyPackPixels(
+            const void* inP,
+            void* outP,
+            const math::Size2i& size,
+            device::PixelType pixelType)
+        {
+            switch (pixelType)
+            {
+            case PixelType::_12BitRGB:
+                for (int y = 0; y < size.h; ++y)
+                {
+                    const uint16_t* in16 = (const uint16_t*)inP + y * size.w * 3;
+                    uint8_t* out8 = (uint8_t*)outP + y * size.w * 36 / 8;
+                    for (int x = 0; x < size.w; x += 8)
+                    {
+                        uint16_t r = in16[0] >> 4;
+                        uint16_t g = in16[1] >> 4;
+                        uint16_t b = in16[2] >> 4;
+                        out8[3 - 0] = r & 0xFF;
+                        out8[3 - 1] = (r >> 8) & 0x0F;
+                        out8[3 - 1] |= (g & 0x0F) << 4;
+                        out8[3 - 2] = (g >> 4) & 0xFF;
+                        out8[3 - 3] = b & 0xFF;
+                        out8[4 + (3 - 0)] = (b >> 8) & 0x0F;
+
+                        r = in16[3] >> 4;
+                        g = in16[4] >> 4;
+                        b = in16[5] >> 4;
+                        out8[4 + (3 - 0)] |= (r & 0x0F) << 4;
+                        out8[4 + (3 - 1)] = (r >> 4) & 0xFF;
+                        out8[4 + (3 - 2)] = g & 0xFF;
+                        out8[4 + (3 - 3)] = (g >> 8) & 0x0F;
+                        out8[4 + (3 - 3)] |= (g & 0x0F) << 4;
+                        out8[8 + (3 - 0)] = (g >> 4) & 0xFF;
+
+                        r = in16[6] >> 4;
+                        g = in16[7] >> 4;
+                        b = in16[8] >> 4;
+                        out8[8 + (3 - 1)] = r & 0xFF;
+                        out8[8 + (3 - 2)] = (r >> 8) & 0x0F;
+                        out8[8 + (3 - 2)] |= (g & 0x0F) << 4;
+                        out8[8 + (3 - 3)] = (g >> 4) & 0xFF;
+                        out8[12 + (3 - 0)] = b & 0xFF;
+                        out8[12 + (3 - 1)] = (b >> 8) & 0x0F;
+
+                        r = in16[9] >> 4;
+                        g = in16[10] >> 4;
+                        b = in16[11] >> 4;
+                        out8[12 + (3 - 1)] |= (r & 0x0F) << 4;
+                        out8[12 + (3 - 2)] = (r >> 4) & 0xFF;
+                        out8[12 + (3 - 3)] = g & 0xFF;
+                        out8[16 + (3 - 0)] = (g >> 8) & 0x0F;
+                        out8[16 + (3 - 0)] |= (g & 0x0F) << 4;
+                        out8[16 + (3 - 1)] = (g >> 4) & 0xFF;
+
+                        r = in16[12] >> 4;
+                        g = in16[13] >> 4;
+                        b = in16[14] >> 4;
+                        out8[16 + (3 - 2)] = r & 0xFF;
+                        out8[16 + (3 - 3)] = (r >> 8) & 0x0F;
+                        out8[16 + (3 - 3)] |= (g & 0x0F) << 4;
+                        out8[20 + (3 - 0)] = (g >> 4) & 0xFF;
+                        out8[20 + (3 - 1)] = b & 0xFF;
+                        out8[20 + (3 - 2)] = (b >> 8) & 0x0F;
+
+                        r = in16[15] >> 4;
+                        g = in16[16] >> 4;
+                        b = in16[17] >> 4;
+                        out8[20 + (3 - 2)] |= (r & 0x0F) << 4;
+                        out8[20 + (3 - 3)] = (r >> 4) & 0xFF;
+                        out8[24 + (3 - 0)] = g & 0xFF;
+                        out8[24 + (3 - 1)] = (g >> 8) & 0x0F;
+                        out8[24 + (3 - 1)] |= (g & 0x0F) << 4;
+                        out8[24 + (3 - 2)] = (g >> 4) & 0xFF;
+
+                        r = in16[18] >> 4;
+                        g = in16[19] >> 4;
+                        b = in16[20] >> 4;
+                        out8[24 + (3 - 3)] = r & 0xFF;
+                        out8[28 + (3 - 0)] = (r >> 8) & 0x0F;
+                        out8[28 + (3 - 0)] |= (g & 0x0F) << 4;
+                        out8[28 + (3 - 1)] = (g >> 4) & 0xFF;
+                        out8[28 + (3 - 2)] = b & 0xFF;
+                        out8[28 + (3 - 3)] = (b >> 8) & 0x0F;
+
+                        r = in16[21] >> 4;
+                        g = in16[22] >> 4;
+                        b = in16[23] >> 4;
+                        out8[28 + (3 - 3)] |= (r & 0x0F) << 4;
+                        out8[32 + (3 - 0)] = (r >> 4) & 0xFF;
+                        out8[32 + (3 - 1)] = g & 0xFF;
+                        out8[32 + (3 - 2)] = (g >> 8) & 0x0F;
+                        out8[32 + (3 - 2)] |= (g & 0x0F) << 4;
+                        out8[32 + (3 - 3)] = (g >> 4) & 0xFF;
+
+                        in16 += 8 * 3;
+                        out8 += 36;
+                    }
+                }
+                break;
+            case PixelType::_12BitRGBLE:
+                for (int y = 0; y < size.h; ++y)
+                {
+                    const uint16_t* in16 = (const uint16_t*)inP + y * size.w * 3;
+                    uint8_t* out8 = (uint8_t*)outP + y * size.w * 36 / 8;
+                    for (int x = 0; x < size.w; x += 8)
+                    {
+                        uint16_t r = in16[0] >> 4;
+                        uint16_t g = in16[1] >> 4;
+                        uint16_t b = in16[2] >> 4;
+                        out8[0] = r & 0xFF;
+                        out8[1] = (r >> 8) & 0x0F;
+                        out8[1] |= (g & 0x0F) << 4;
+                        out8[2] = (g >> 4) & 0xFF;
+                        out8[3] = b & 0xFF;
+                        out8[4 + 0] = (b >> 8) & 0x0F;
+
+                        r = in16[3] >> 4;
+                        g = in16[4] >> 4;
+                        b = in16[5] >> 4;
+                        out8[4 + 0] |= (r & 0x0F) << 4;
+                        out8[4 + 1] = (r >> 4) & 0xFF;
+                        out8[4 + 2] = g & 0xFF;
+                        out8[4 + 3] = (g >> 8) & 0x0F;
+                        out8[4 + 3] |= (g & 0x0F) << 4;
+                        out8[8 + 0] = (g >> 4) & 0xFF;
+
+                        r = in16[6] >> 4;
+                        g = in16[7] >> 4;
+                        b = in16[8] >> 4;
+                        out8[8 + 1] = r & 0xFF;
+                        out8[8 + 2] = (r >> 8) & 0x0F;
+                        out8[8 + 2] |= (g & 0x0F) << 4;
+                        out8[8 + 3] = (g >> 4) & 0xFF;
+                        out8[12 + 0] = b & 0xFF;
+                        out8[12 + 1] = (b >> 8) & 0x0F;
+
+                        r = in16[9] >> 4;
+                        g = in16[10] >> 4;
+                        b = in16[11] >> 4;
+                        out8[12 + 1] |= (r & 0x0F) << 4;
+                        out8[12 + 2] = (r >> 4) & 0xFF;
+                        out8[12 + 3] = g & 0xFF;
+                        out8[16 + 0] = (g >> 8) & 0x0F;
+                        out8[16 + 0] |= (g & 0x0F) << 4;
+                        out8[16 + 1] = (g >> 4) & 0xFF;
+
+                        r = in16[12] >> 4;
+                        g = in16[13] >> 4;
+                        b = in16[14] >> 4;
+                        out8[16 + 2] = r & 0xFF;
+                        out8[16 + 3] = (r >> 8) & 0x0F;
+                        out8[16 + 3] |= (g & 0x0F) << 4;
+                        out8[20 + 0] = (g >> 4) & 0xFF;
+                        out8[20 + 1] = b & 0xFF;
+                        out8[20 + 2] = (b >> 8) & 0x0F;
+
+                        r = in16[15] >> 4;
+                        g = in16[16] >> 4;
+                        b = in16[17] >> 4;
+                        out8[20 + 2] |= (r & 0x0F) << 4;
+                        out8[20 + 3] = (r >> 4) & 0xFF;
+                        out8[24 + 0] = g & 0xFF;
+                        out8[24 + 1] = (g >> 8) & 0x0F;
+                        out8[24 + 1] |= (g & 0x0F) << 4;
+                        out8[24 + 2] = (g >> 4) & 0xFF;
+
+                        r = in16[18] >> 4;
+                        g = in16[19] >> 4;
+                        b = in16[20] >> 4;
+                        out8[24 + 3] = r & 0xFF;
+                        out8[28 + 0] = (r >> 8) & 0x0F;
+                        out8[28 + 0] |= (g & 0x0F) << 4;
+                        out8[28 + 1] = (g >> 4) & 0xFF;
+                        out8[28 + 2] = b & 0xFF;
+                        out8[28 + 3] = (b >> 8) & 0x0F;
+
+                        r = in16[21] >> 4;
+                        g = in16[22] >> 4;
+                        b = in16[23] >> 4;
+                        out8[28 + 3] |= (r & 0x0F) << 4;
+                        out8[32 + 0] = (r >> 4) & 0xFF;
+                        out8[32 + 1] = g & 0xFF;
+                        out8[32 + 2] = (g >> 8) & 0x0F;
+                        out8[32 + 2] |= (g & 0x0F) << 4;
+                        out8[32 + 3] = (g >> 4) & 0xFF;
+
+                        in16 += 8 * 3;
+                        out8 += 36;
+                    }
+                }
+                break;
+            default:
+                memcpy(outP, inP, getDataByteCount(size, pixelType));
+                break;
+            }
         }
     }
 }
