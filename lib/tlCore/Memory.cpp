@@ -36,7 +36,6 @@ namespace tl
                     tmp  = p[0];
                     p[0] = p[1];
                     p[1] = tmp;
-
                     p += 2;
                 }
                 break;
@@ -49,7 +48,6 @@ namespace tl
                     tmp  = p[1];
                     p[1] = p[2];
                     p[2] = tmp;
-
                     p += 4;
                 }
                 break;
@@ -68,7 +66,6 @@ namespace tl
                     tmp  = p[3];
                     p[3] = p[4];
                     p[4] = tmp;
-
                     p += 8;
                 }
                 break;
@@ -91,7 +88,6 @@ namespace tl
                 {
                     outP[0] = inP[1];
                     outP[1] = inP[0];
-
                     inP += 2;
                     outP += 2;
                 }
@@ -103,7 +99,6 @@ namespace tl
                     outP[1] = inP[2];
                     outP[2] = inP[1];
                     outP[3] = inP[0];
-
                     inP += 4;
                     outP += 4;
                 }
@@ -119,7 +114,6 @@ namespace tl
                     outP[5] = inP[2];
                     outP[6] = inP[1];
                     outP[7] = inP[0];
-
                     inP += 8;
                     outP += 8;
                 }
@@ -128,6 +122,28 @@ namespace tl
                 std::memcpy(out, in, size * wordSize);
                 break;
             }
+        }
+
+        std::string getBitString(uint8_t value)
+        {
+            std::string out;
+            for (int i = 0; i < 8; ++i)
+            {
+                out.push_back((value & 0x01) ? '1' : '0');
+                value = value >> 1;
+            }
+            return out;
+        }
+
+        std::string getBitString(uint16_t value)
+        {
+            std::string out;
+            for (int i = 0; i < 16; ++i)
+            {
+                out.push_back((value & 0x01) ? '1' : '0');
+                value = value >> 1;
+            }
+            return out;
         }
     }
 }

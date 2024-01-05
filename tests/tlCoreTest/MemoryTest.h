@@ -23,6 +23,7 @@ namespace tl
         private:
             void _enums();
             void _endian();
+            void _bits();
         };
     }
 }

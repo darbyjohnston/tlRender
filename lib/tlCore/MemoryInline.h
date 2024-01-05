@@ -18,5 +18,25 @@ namespace tl
         {
             return Endian::MSB == in ? Endian::LSB : Endian::MSB;
         }
+
+        inline bool getBit(unsigned int value, int bit)
+        {
+            return (value >> bit) & 0x01;
+        }
+
+        inline unsigned int setBit(unsigned int value, int bit)
+        {
+            return value | (1 << bit);
+        }
+
+        inline unsigned int clearBit(unsigned int value, int bit)
+        {
+            return value & ~(1 << bit);
+        }
+
+        inline unsigned int toggleBit(unsigned int value, int bit)
+        {
+            return value ^ (1 << bit);
+        }
     }
 }
