@@ -4,7 +4,7 @@
 
 #include <tlPlay/BMDDevicesModel.h>
 
-#include <tlDevice/BMDDeviceSystem.h>
+#include <tlDevice/BMDSystem.h>
 
 #include <tlCore/Context.h>
 
@@ -52,10 +52,10 @@ namespace tl
 
             _update();
 
-            if (auto deviceSystem = context->getSystem<device::BMDDeviceSystem>())
+            if (auto system = context->getSystem<device::BMDSystem>())
             {
                 p.deviceInfoObserver = observer::ListObserver<device::DeviceInfo>::create(
-                    deviceSystem->observeDeviceInfo(),
+                    system->observeDeviceInfo(),
                     [this](const std::vector<device::DeviceInfo>& value)
                     {
                         _p->deviceInfo = value;

@@ -5,7 +5,7 @@
 #include <tlDevice/Init.h>
 
 #if defined(TLRENDER_BMD)
-#include <tlDevice/BMDDeviceSystem.h>
+#include <tlDevice/BMDSystem.h>
 #endif // TLRENDER_BMD
 
 #include <tlTimeline/Init.h>
@@ -20,9 +20,9 @@ namespace tl
         {
             timeline::init(context);
 #if defined(TLRENDER_BMD)
-            if (!context->getSystem<BMDDeviceSystem>())
+            if (!context->getSystem<BMDSystem>())
             {
-                context->addSystem(BMDDeviceSystem::create(context));
+                context->addSystem(BMDSystem::create(context));
             }
 #endif // TLRENDER_BMD
         }

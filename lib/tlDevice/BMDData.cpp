@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlDevice/BMDDeviceData.h>
+#include <tlDevice/BMDData.h>
 
 #include <tlCore/Error.h>
 #include <tlCore/String.h>

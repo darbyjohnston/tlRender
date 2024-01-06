@@ -12,18 +12,18 @@ set(LIBRARIES_PRIVATE)
 if(TLRENDER_BMD)
 
     list(APPEND HEADERS
-        BMDDeviceData.h
+        BMDData.h
         BMDOutputDevice.h
-        BMDDeviceSystem.h
+        BMDSystem.h
         BMDUtil.h)
     list(APPEND HEADERS_PRIVATE
-        BMDOutputDevicePrivate.h)
+        BMDOutputPrivate.h)
     list(APPEND SOURCE
+        BMDData.cpp
         BMDOutputCallback.cpp
-        BMDDeviceData.cpp
         BMDHDRVideoFrame.cpp
         BMDOutputDevice.cpp
-        BMDDeviceSystem.cpp
+        BMDSystem.cpp
         BMDUtil.cpp)
 
     if(WIN32)

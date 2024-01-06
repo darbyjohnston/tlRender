@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlDevice/BMDDeviceData.h>
+#include <tlDevice/BMDData.h>
 
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/Player.h>

@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlDevice/BMDDeviceSystem.h>
+#include <tlDevice/BMDSystem.h>
 
 #include <tlDevice/BMDOutputDevice.h>
 
@@ -27,7 +27,7 @@ namespace tl
 {
     namespace device
     {
-        struct BMDDeviceSystem::Private
+        struct BMDSystem::Private
         {
             std::weak_ptr<system::Context> context;
             std::shared_ptr<observer::List<DeviceInfo> > deviceInfo;
@@ -41,9 +41,9 @@ namespace tl
             std::atomic<bool> running;
         };
 
-        void BMDDeviceSystem::_init(const std::shared_ptr<system::Context>& context)
+        void BMDSystem::_init(const std::shared_ptr<system::Context>& context)
         {
-            ISystem::_init("tl::device::BMDDeviceSystem", context);
+            ISystem::_init("tl::device::BMDSystem", context);
             TLRENDER_P();
 
             p.context = context;
@@ -184,7 +184,7 @@ namespace tl
                                         displayModes.push_back(j.name);
                                     }
                                     context->log(
-                                        "tl::device::BMDDeviceSystem",
+                                        "tl::device::BMDSystem",
                                         string::Format(
                                             "\n"
                                             "    {0}\n"
@@ -210,11 +210,11 @@ namespace tl
                 });
         }
 
-        BMDDeviceSystem::BMDDeviceSystem() :
+        BMDSystem::BMDSystem() :
             _p(new Private)
         {}
 
-        BMDDeviceSystem::~BMDDeviceSystem()
+        BMDSystem::~BMDSystem()
         {
             TLRENDER_P();
             p.running = false;
@@ -224,19 +224,19 @@ namespace tl
             }
         }
 
-        std::shared_ptr<BMDDeviceSystem> BMDDeviceSystem::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<BMDSystem> BMDSystem::create(const std::shared_ptr<system::Context>& context)
         {
-            auto out = std::shared_ptr<BMDDeviceSystem>(new BMDDeviceSystem);
+            auto out = std::shared_ptr<BMDSystem>(new BMDSystem);
             out->_init(context);
             return out;
         }
 
-        std::shared_ptr<observer::IList<DeviceInfo> > BMDDeviceSystem::observeDeviceInfo() const
+        std::shared_ptr<observer::IList<DeviceInfo> > BMDSystem::observeDeviceInfo() const
         {
             return _p->deviceInfo;
         }
 
-        void BMDDeviceSystem::tick()
+        void BMDSystem::tick()
         {
             TLRENDER_P();
             std::vector<DeviceInfo> deviceInfo;
@@ -247,7 +247,7 @@ namespace tl
             p.deviceInfo->setIfChanged(deviceInfo);
         }
 
-        std::chrono::milliseconds BMDDeviceSystem::getTickTime() const
+        std::chrono::milliseconds BMDSystem::getTickTime() const
         {
             return std::chrono::milliseconds(1000);
         }
