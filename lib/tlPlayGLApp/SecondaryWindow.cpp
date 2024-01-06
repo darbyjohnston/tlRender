@@ -116,5 +116,15 @@ namespace tl
             out->_init(window, app, context);
             return out;
         }
+
+        void SecondaryWindow::setView(
+            const tl::math::Vector2i& pos,
+            double                    zoom,
+            bool                      frame)
+        {
+            TLRENDER_P();
+            p.viewport->setViewPosAndZoom(pos, zoom);
+            p.viewport->setFrameView(frame);
+        }
     }
 }

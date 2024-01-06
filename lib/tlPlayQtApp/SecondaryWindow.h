@@ -31,8 +31,11 @@ namespace tl
 
             virtual ~SecondaryWindow();
 
-            //! Get the viewport.
-            qtwidget::TimelineViewport* viewport() const;
+            //! Set the view.
+            void setView(
+                const tl::math::Vector2i& pos,
+                double                    zoom,
+                bool                      frame);
 
         private:
             TLRENDER_PRIVATE();

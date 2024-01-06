@@ -35,6 +35,12 @@ namespace tl
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&);
 
+            //! Set the view.
+            void setView(
+                const tl::math::Vector2i& pos,
+                double                    zoom,
+                bool                      frame);
+
         private:
             TLRENDER_PRIVATE();
         };

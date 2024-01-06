@@ -718,6 +718,23 @@ namespace tl
                         _p->secondaryWindowObserver.reset();
                     }
                 });
+
+            p.mainWindow->getTimelineViewport()->setViewPosAndZoomCallback(
+                [this](const math::Vector2i& pos, double zoom)
+                {
+                    _viewUpdate(
+                        pos,
+                        zoom,
+                        _p->mainWindow->getTimelineViewport()->hasFrameView());
+                });
+            p.mainWindow->getTimelineViewport()->setFrameViewCallback(
+                [this](bool value)
+                {
+                    _viewUpdate(
+                        _p->mainWindow->getTimelineViewport()->getViewPos(),
+                        _p->mainWindow->getTimelineViewport()->getViewZoom(),
+                        value);
+                });
         }
 
         io::Options App::_getIOOptions() const
@@ -1051,6 +1068,31 @@ namespace tl
                     player->setCacheOptions(cacheOptions);
                 }
             }
+        }
+
+        void App::_viewUpdate(const math::Vector2i& pos, double zoom, bool frame)
+        {
+            TLRENDER_P();
+            float scale = 1.F;
+            const math::Box2i& g = p.mainWindow->getTimelineViewport()->getGeometry();
+            if (p.secondaryWindow)
+            {
+                const math::Size2i& secondarySize = p.secondaryWindow->getWindowSize();
+                if (g.isValid() && secondarySize.isValid())
+                {
+                    scale = secondarySize.w / static_cast<float>(g.w());
+                }
+                p.secondaryWindow->setView(pos * scale, zoom * scale, frame);
+            }
+#if defined(TLRENDER_BMD)
+            scale = 1.F;
+            const math::Size2i& bmdSize = p.bmdOutputDevice->getSize();
+            if (g.isValid() && bmdSize.isValid())
+            {
+                scale = bmdSize.w / static_cast<float>(g.w());
+            }
+            p.bmdOutputDevice->setView(pos * scale, zoom * scale, frame);
+#endif // TLRENDER_BMD
         }
 
         void App::_audioUpdate()

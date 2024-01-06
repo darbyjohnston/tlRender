@@ -618,24 +618,10 @@ namespace tl
                 });
             connect(
                 p.timelineViewport,
-                &qtwidget::TimelineViewport::viewPosAndZoomChanged,
-                [this](const math::Vector2i& pos, double zoom)
-                {
-                    _devicesViewUpdate(
-                        pos,
-                        zoom,
-                        _p->timelineViewport->hasFrameView());
-                });
-            connect(
-                p.timelineViewport,
                 &qtwidget::TimelineViewport::frameViewChanged,
                 [this](bool value)
                 {
                     _p->viewActions->actions()["Frame"]->setChecked(value);
-                    _devicesViewUpdate(
-                        _p->timelineViewport->viewPos(),
-                        _p->timelineViewport->viewZoom(),
-                        value);
                 });
 
             connect(
@@ -795,25 +781,6 @@ namespace tl
             p.timelineViewport->setTimelinePlayers(p.timelinePlayers);
 
             _widgetUpdate();
-        }
-
-        void MainWindow::_devicesViewUpdate(const math::Vector2i& pos, double zoom, bool frame)
-        {
-            TLRENDER_P();
-#if defined(TLRENDER_BMD)
-            const QSize& size = p.timelineViewport->size();
-            auto bmdOutputDevice = p.app->bmdOutputDevice();
-            const math::Size2i& bmdSize = bmdOutputDevice->getSize();
-            math::Vector2i bmdPos;
-            double bmdZoom = 1.0;
-            if (size.isValid() && bmdSize.isValid())
-            {
-                bmdPos.x = pos.x / static_cast<float>(size.width()) * bmdSize.w;
-                bmdPos.y = pos.y / static_cast<float>(size.height()) * bmdSize.h;
-                bmdZoom = zoom / static_cast<float>(size.width()) * bmdSize.w;
-            }
-            bmdOutputDevice->setView(bmdPos, bmdZoom, frame);
-#endif // TLRENDER_BMD
         }
 
         void MainWindow::_widgetUpdate()

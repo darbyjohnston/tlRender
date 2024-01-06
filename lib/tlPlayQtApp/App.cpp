@@ -869,6 +869,27 @@ namespace tl
                 p.mainWindow.get(),
                 SIGNAL(destroyed(QObject*)),
                 SLOT(_mainWindowDestroyedCallback()));
+
+            connect(
+                p.mainWindow->timelineViewport(),
+                &qtwidget::TimelineViewport::viewPosAndZoomChanged,
+                [this](const math::Vector2i& pos, double zoom)
+                {
+                    _viewUpdate(
+                        pos,
+                        zoom,
+                        _p->mainWindow->timelineViewport()->hasFrameView());
+                });
+            connect(
+                p.mainWindow->timelineViewport(),
+                &qtwidget::TimelineViewport::frameViewChanged,
+                [this](bool value)
+                {
+                    _viewUpdate(
+                        _p->mainWindow->timelineViewport()->viewPos(),
+                        _p->mainWindow->timelineViewport()->viewZoom(),
+                        value);
+                });
         }
 
         io::Options App::_ioOptions() const
@@ -1055,6 +1076,33 @@ namespace tl
                     player->setCacheOptions(cacheOptions);
                 }
             }
+        }
+
+        void App::_viewUpdate(const math::Vector2i& pos, double zoom, bool frame)
+        {
+            TLRENDER_P();
+            float scale = 1.F;
+            const QSize& size = p.mainWindow->timelineViewport()->size() *
+                p.mainWindow->devicePixelRatio();
+            if (p.secondaryWindow)
+            {
+                const QSize& secondarySize = p.secondaryWindow->size() *
+                    p.secondaryWindow->devicePixelRatio();
+                if (size.isValid() && secondarySize.isValid())
+                {
+                    scale = secondarySize.width() / static_cast<float>(size.width());
+                }
+                p.secondaryWindow->setView(pos * scale, zoom * scale, frame);
+            }
+#if defined(TLRENDER_BMD)
+            scale = 1.F;
+            const math::Size2i& bmdSize = p.bmdOutputDevice->getSize();
+            if (size.isValid() && bmdSize.isValid())
+            {
+                scale = bmdSize.w / static_cast<float>(size.width());
+            }
+            p.bmdOutputDevice->setView(pos * scale, zoom * scale, frame);
+#endif // TLRENDER_BMD
         }
 
         void App::_audioUpdate()

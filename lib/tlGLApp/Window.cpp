@@ -309,6 +309,11 @@ namespace tl
             return out;
         }
 
+        const math::Size2i& Window::getWindowSize() const
+        {
+            return _p->windowSize->get();
+        }
+
         std::shared_ptr<observer::IValue<math::Size2i> > Window::observeWindowSize() const
         {
             return _p->windowSize;

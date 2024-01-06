@@ -462,22 +462,6 @@ namespace tl
                         app->getFilesModel()->setCompareOptions(value);
                     }
                 });
-            p.timelineViewport->setViewPosAndZoomCallback(
-                [this](const math::Vector2i& pos, double zoom)
-                {
-                    _devicesViewUpdate(
-                        pos,
-                        zoom,
-                        _p->timelineViewport->hasFrameView());
-                });
-            p.timelineViewport->setFrameViewCallback(
-                [this](bool value)
-                {
-                    _devicesViewUpdate(
-                        _p->timelineViewport->getViewPos(),
-                        _p->timelineViewport->getViewZoom(),
-                        value);
-                });
 
             p.currentTimeEdit->setCallback(
                 [this](const otime::RationalTime& value)
@@ -945,28 +929,6 @@ namespace tl
             }
             p.infoLabel->setText(text);
             p.infoLabel->setToolTip(toolTip);
-        }
-
-        void MainWindow::_devicesViewUpdate(const math::Vector2i& pos, double zoom, bool frame)
-        {
-            TLRENDER_P();
-#if defined(TLRENDER_BMD)
-            if (auto app = p.app.lock())
-            {
-                const math::Box2i& g = p.timelineViewport->getGeometry();
-                auto bmdOutputDevice = app->getBMDOutputDevice();
-                const math::Size2i& bmdSize = bmdOutputDevice->getSize();
-                math::Vector2i bmdPos;
-                double bmdZoom = 1.0;
-                if (g.isValid() && bmdSize.isValid())
-                {
-                    bmdPos.x = pos.x / static_cast<float>(g.w()) * bmdSize.w;
-                    bmdPos.y = pos.y / static_cast<float>(g.h()) * bmdSize.h;
-                    bmdZoom = zoom / static_cast<double>(g.w()) * bmdSize.w;
-                }
-                bmdOutputDevice->setView(bmdPos, bmdZoom, frame);
-            }
-#endif // TLRENDER_BMD
         }
 
         void to_json(nlohmann::json& json, const WindowOptions& in)

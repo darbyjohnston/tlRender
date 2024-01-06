@@ -37,6 +37,9 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<Window>& share = nullptr);
 
+            //! Get the window size.
+            const math::Size2i& getWindowSize() const;
+
             //! Observe the window size.
             std::shared_ptr<observer::IValue<math::Size2i> > observeWindowSize() const;
 
