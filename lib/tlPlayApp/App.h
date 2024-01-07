@@ -36,14 +36,14 @@ namespace tl
 #endif // TLRENDER_BMD
     }
 
-    //! tlplay application.
+    //! tlplay application
     namespace play_app
     {
         class MainWindow;
         class ToolsModel;
 
         //! Application.
-        class App : public app::IApp
+        class App : public ui_app::IApp
         {
             TLRENDER_NON_COPYABLE(App);
 

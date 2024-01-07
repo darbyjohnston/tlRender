@@ -8,7 +8,7 @@
 
 namespace tl
 {
-    //! Errors.
+    //! Errors
     namespace error
     {
 #if defined(_WINDOWS)

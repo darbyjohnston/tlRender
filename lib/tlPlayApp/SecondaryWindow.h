@@ -15,13 +15,13 @@ namespace tl
         class App;
 
         //! Secondary window.
-        class SecondaryWindow : public app::Window
+        class SecondaryWindow : public ui_app::Window
         {
             TLRENDER_NON_COPYABLE(SecondaryWindow);
 
         protected:
             void _init(
-                const std::shared_ptr<app::Window>&,
+                const std::shared_ptr<ui_app::Window>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&);
 
@@ -31,7 +31,7 @@ namespace tl
             virtual ~SecondaryWindow();
 
             static std::shared_ptr<SecondaryWindow> create(
-                const std::shared_ptr<app::Window>&,
+                const std::shared_ptr<ui_app::Window>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&);
 

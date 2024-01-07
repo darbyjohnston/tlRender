@@ -13,7 +13,7 @@ namespace tl
         class Context;
     }
 
-    //! Timeline user interface.
+    //! Timeline user interface
     namespace timelineui
     {
         //! Initialize the library.

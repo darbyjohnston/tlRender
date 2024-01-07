@@ -15,7 +15,7 @@ namespace tl
         namespace player
         {
             //! Example player application.
-            class App : public app::IApp
+            class App : public ui_app::IApp
             {
                 TLRENDER_NON_COPYABLE(App);
 
@@ -39,7 +39,7 @@ namespace tl
             private:
                 std::string _fileName;
                 std::shared_ptr<timeline::Player> _player;
-                std::shared_ptr<app::Window> _window;
+                std::shared_ptr<ui_app::Window> _window;
             };
         }
     }

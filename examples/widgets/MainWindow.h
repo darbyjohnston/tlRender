@@ -13,7 +13,7 @@ namespace tl
         namespace widgets
         {
             //! Main window.
-            class MainWindow : public app::Window
+            class MainWindow : public ui_app::Window
             {
                 TLRENDER_NON_COPYABLE(MainWindow);
 

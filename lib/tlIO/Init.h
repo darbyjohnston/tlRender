@@ -13,7 +13,7 @@ namespace tl
         class Context;
     }
 
-    //! I/O library.
+    //! Video, audio, and image I/O
     namespace io
     {
         //! Initialize the library.

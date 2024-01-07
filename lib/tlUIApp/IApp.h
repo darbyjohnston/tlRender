@@ -15,11 +15,12 @@ namespace tl
         class Style;
     }
 
-    namespace app
+    //! User interface applications
+    namespace ui_app
     {
         class Window;
 
-        //! User interface options.
+        //! Application options.
         struct UIOptions
         {
             math::Size2i windowSize = math::Size2i(1920, 1080);

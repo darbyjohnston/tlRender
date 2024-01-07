@@ -9,7 +9,7 @@
 
 namespace tl
 {
-    //! Strings.
+    //! Strings
     namespace string
     {
         //! Arbitrary C string size.

@@ -11,7 +11,7 @@
 
 namespace tl
 {
-    //! Logging.
+    //! Logging
     namespace log
     {
         //! Log types.

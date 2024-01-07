@@ -49,7 +49,7 @@ namespace tl
         class RecentFilesModel;
     }
 
-    //! tlplay-qt application.
+    //! tlplay-qt application
     namespace play_qt
     {
         class FilesAModel;

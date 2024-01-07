@@ -21,7 +21,7 @@
 
 namespace tl
 {
-    namespace app
+    namespace ui_app
     {
         namespace
         {

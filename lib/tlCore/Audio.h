@@ -15,7 +15,7 @@
 
 namespace tl
 {
-    //! Audio.
+    //! Audio
     namespace audio
     {
         //! \name Audio Types

@@ -12,7 +12,7 @@
 
 namespace tl
 {
-    //! Systems.
+    //! Systems
     namespace system
     {
         class Context;

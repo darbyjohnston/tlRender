@@ -6,7 +6,7 @@
 
 namespace tl
 {
-    //! Observer pattern.
+    //! Observer pattern
     namespace observer
     {
         //! Observer callback options.

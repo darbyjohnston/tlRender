@@ -17,7 +17,7 @@ namespace tl
             class MainWindow;
 
             //! Application.
-            class App : public app::IApp
+            class App : public ui_app::IApp
             {
                 TLRENDER_NON_COPYABLE(App);
 

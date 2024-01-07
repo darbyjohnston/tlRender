@@ -13,7 +13,7 @@ namespace tl
         class Context;
     }
 
-    //! OpenGL renderer.
+    //! OpenGL support
     namespace gl
     {
         //! Initialize the library.

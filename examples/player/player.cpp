@@ -39,7 +39,7 @@ namespace tl
                 _player = timeline::Player::create(timeline, context);
                 _player->setPlayback(timeline::Playback::Forward);
 
-                _window = app::Window::create("player", context);
+                _window = ui_app::Window::create("player", context);
                 addWindow(_window);
 
                 auto viewport = timelineui::TimelineViewport::create(context, _window);

@@ -27,7 +27,7 @@ namespace tl
         class GLFWWindow;
     }
 
-    //! tlbake application.
+    //! tlbake application
     namespace bake
     {
         //! Application options.

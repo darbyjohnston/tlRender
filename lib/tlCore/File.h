@@ -8,7 +8,7 @@
 
 namespace tl
 {
-    //! File system.
+    //! File system
     namespace file
     {
         //! Does a file exist?

@@ -8,7 +8,7 @@
 
 namespace tl
 {
-    //! Qt QWidget support.
+    //! Qt QWidget support
     namespace qtwidget
     {
         //! Initialize the library. This needs to be called before the Qt

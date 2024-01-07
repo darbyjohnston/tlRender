@@ -31,7 +31,7 @@ namespace tl
         };
 
         void SecondaryWindow::_init(
-            const std::shared_ptr<app::Window>& window,
+            const std::shared_ptr<ui_app::Window>& window,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context)
         {
@@ -108,7 +108,7 @@ namespace tl
         }
 
         std::shared_ptr<SecondaryWindow> SecondaryWindow::create(
-            const std::shared_ptr<app::Window>& window,
+            const std::shared_ptr<ui_app::Window>& window,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context)
         {
@@ -119,8 +119,8 @@ namespace tl
 
         void SecondaryWindow::setView(
             const tl::math::Vector2i& pos,
-            double                    zoom,
-            bool                      frame)
+            double zoom,
+            bool frame)
         {
             TLRENDER_P();
             p.viewport->setViewPosAndZoom(pos, zoom);

@@ -11,7 +11,7 @@
 
 namespace tl
 {
-    //! Geometry.
+    //! Geometry
     namespace geom
     {
         //! Two-dimensional vertex.

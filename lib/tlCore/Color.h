@@ -11,7 +11,7 @@
 
 namespace tl
 {
-    //! Imaging.
+    //! Imaging
     namespace image
     {
         //! Color.

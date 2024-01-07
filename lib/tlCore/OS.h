@@ -9,7 +9,7 @@
 
 namespace tl
 {
-    //! Operating system.
+    //! Operating system
     namespace os
     {
         //! \name Information

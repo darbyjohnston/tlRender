@@ -12,6 +12,7 @@
 
 namespace tl
 {
+    //! Timeline OpenGL support
     namespace timeline_gl
     {
         //! Texture cache.

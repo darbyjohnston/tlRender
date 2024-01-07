@@ -21,7 +21,7 @@ namespace tl
     namespace otime = opentime::OPENTIME_VERSION;
     namespace otio = opentimelineio::OPENTIMELINEIO_VERSION;
 
-    //! Time.
+    //! Time
     namespace time
     {
         //! Invalid time.

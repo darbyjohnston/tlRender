@@ -14,7 +14,7 @@
 
 namespace tl
 {
-    //! Memory.
+    //! Memory
     namespace memory
     {
         //! \name Sizes

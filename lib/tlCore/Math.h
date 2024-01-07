@@ -6,7 +6,7 @@
 
 namespace tl
 {
-    //! Math.
+    //! Math
     namespace math
     {
         //! Approximate value of PI.

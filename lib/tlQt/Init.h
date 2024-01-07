@@ -8,7 +8,7 @@
 
 namespace tl
 {
-    //! Qt support.
+    //! Qt support
     namespace qt
     {
         //! Surface formats.

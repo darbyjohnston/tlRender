@@ -13,7 +13,7 @@ namespace tl
         class Context;
     }
 
-    //! Qt Quick support.
+    //! Qt Quick support
     namespace qtquick
     {
         //! Initialize the library. This needs to be called before the Qt

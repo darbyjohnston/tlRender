@@ -13,7 +13,7 @@ namespace tl
         class GLFWWindow;
     }
 
-    namespace app
+    namespace ui_app
     {
         //! Window.
         class Window : public ui::IWindow

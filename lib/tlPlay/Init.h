@@ -13,7 +13,7 @@ namespace tl
         class Context;
     }
 
-    //! User interface library.
+    //! Player application support
     namespace play
     {
         //! Initialize the library.

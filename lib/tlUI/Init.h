@@ -13,7 +13,7 @@ namespace tl
         class Context;
     }
 
-    //! User interface library.
+    //! User interface
     namespace ui
     {
         //! Initialize the library.
