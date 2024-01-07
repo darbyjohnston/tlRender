@@ -54,29 +54,30 @@ Contents:
 # Libraries
 
 Core libraries:
-* tlBaseApp
-* tlCore
-* tlGL
-* tlIO
-* tlUI
-* tlUIApp
+* tlBaseApp - Basic applications
+* tlCore - Math, images, audio, etc.
+* tlGL - OpenGL support
+* tlIO - Video, audio, and image I/O
+* tlUI - User interface
+* tlUIApp - User interface applications
 
 Timeline libraries:
-* tlDevice
-* tlTimeline
-* tlTimelineUI
+* tlDevice - Hardware devices
+* tlTimeline - Timelines
+* tlTimelineGL - Timeline OpenGL support
+* tlTimelineUI - Timeline user interface
 
 Qt integration libraries:
-* tlQt
-* tlQtQuick
-* tlQtWidget
+* tlQt - Qt support
+* tlQtQuick - Qt Quick support
+* tlQtWidget - Qt QWidget support
 
 Application libraries:
-* tlBakeApp
-* tlPlay
-* tlPlayApp
-* tlPlayQtApp
-* tlResourceApp
+* tlBakeApp - tlbake application
+* tlPlay - Player application support
+* tlPlayApp - tlplay application
+* tlPlayQtApp - tlplay-qt application
+* tlResourceApp - tlresource application
 
 
 # Dependencies
