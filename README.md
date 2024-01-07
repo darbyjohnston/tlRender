@@ -13,7 +13,7 @@ integrating the library with Qt and OpenGL applications.
 
 The library is written in C++ and uses the CMake build system.
 
-![tlplay-gl](etc/Images/tlplay-gl-screenshot1.png)
+![tlplay](etc/Images/tlplay-screenshot1.png)
 
 This screenshot shows an example playback application built with the tlRender
 user interface library. Two files are being compared with an A/B "wipe", a USD
@@ -53,15 +53,30 @@ Contents:
 
 # Libraries
 
-tlRender is composed of multiple libraries:
+Core libraries:
+* tlBaseApp
+* tlCore
+* tlGL
+* tlIO
+* tlUI
+* tlUIApp
 
-<img src="etc/Images/tlRenderLibraries.png" height=500>
+Timeline libraries:
+* tlDevice
+* tlTimeline
+* tlTimelineUI
 
-| Libraries                                | Description              |
-| ---------------------------------------- | ------------------------ |
-| tlCore, tlGL, tlIO, tlTimelime, tlDevice | Core libraries           |
-| tlUI, tlTimelineIO                       | User interface libraries |
-| tlQt, tlQtWidget, tlQtQuick              | Qt integration libraries | 
+Qt integration libraries:
+* tlQt
+* tlQtQuick
+* tlQtWidget
+
+Application libraries:
+* tlBakeApp
+* tlPlay
+* tlPlayApp
+* tlPlayQtApp
+* tlResourceApp
 
 
 # Dependencies
@@ -120,10 +135,10 @@ Start the build:
 ```
 cmake --build . -j 4 --config Debug
 ```
-Try running the *tlplay-gl* application:
+Try running the *tlplay* application:
 ```
 export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
-./tlRender/src/tlRender-build/bin/tlplay-gl/tlplay-gl ../etc/SampleData/MultipleClips.otio
+./tlRender/src/tlRender-build/bin/tlplay/tlplay ../etc/SampleData/MultipleClips.otio
 ```
 
 ### Building on Linux with Qt 6
@@ -180,9 +195,9 @@ Start the build:
 ```
 cmake --build . -j 4 --config Debug
 ```
-Try running the *tlplay-gl* application:
+Try running the *tlplay* application:
 ```
-./tlRender/src/tlRender-build/bin/tlplay-gl/tlplay-gl ../etc/SampleData/MultipleClips.otio
+./tlRender/src/tlRender-build/bin/tlplay/tlplay ../etc/SampleData/MultipleClips.otio
 ```
 
 ### Building on macOS with Qt 6
@@ -244,10 +259,10 @@ Start the build:
 ```
 cmake --build . -j 4 --config Debug
 ```
-Try running the *tlplay-gl* application:
+Try running the *tlplay* application:
 ```
 set PATH=%CD%\install\bin;%PATH%
-.\tlRender\src\tlRender-build\bin\tlplay-gl\Debug\tlplay-gl ..\etc\SampleData\MultipleClips.otio
+.\tlRender\src\tlRender-build\bin\tlplay\Debug\tlplay ..\etc\SampleData\MultipleClips.otio
 ```
 
 ### Building on Windows with Qt 6
