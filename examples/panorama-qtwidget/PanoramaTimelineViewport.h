@@ -6,7 +6,7 @@
 
 #include <tlQt/TimelinePlayer.h>
 
-#include <tlTimeline/GLRender.h>
+#include <tlTimelineGL/Render.h>
 
 #include <tlGL/Mesh.h>
 #include <tlGL/OffscreenBuffer.h>
@@ -73,7 +73,7 @@ namespace tl
                 std::shared_ptr<gl::VAO> _sphereVAO;
                 std::shared_ptr<gl::Shader> _shader;
                 std::shared_ptr<gl::OffscreenBuffer> _buffer;
-                std::shared_ptr<timeline::GLRender> _render;
+                std::shared_ptr<timeline_gl::Render> _render;
                 math::Vector2i _mousePosPrev;
             };
         }

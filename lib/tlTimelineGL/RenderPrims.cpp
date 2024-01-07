@@ -2,15 +2,15 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlTimeline/GLRenderPrivate.h>
+#include <tlTimelineGL/RenderPrivate.h>
 
 #include <tlGL/GL.h>
 
 namespace tl
 {
-    namespace timeline
+    namespace timeline_gl
     {
-        void GLRender::drawRect(
+        void Render::drawRect(
             const math::Box2i& box,
             const image::Color4f& color)
         {
@@ -33,7 +33,7 @@ namespace tl
             }
         }
 
-        void GLRender::drawMesh(
+        void Render::drawMesh(
             const geom::TriangleMesh2& mesh,
             const math::Vector2i& position,
             const image::Color4f& color)
@@ -78,7 +78,7 @@ namespace tl
             }
         }
 
-        void GLRender::drawColorMesh(
+        void Render::drawColorMesh(
             const geom::TriangleMesh2& mesh,
             const math::Vector2i& position,
             const image::Color4f& color)
@@ -123,7 +123,7 @@ namespace tl
             }
         }
 
-        void GLRender::Private::drawTextMesh(const geom::TriangleMesh2& mesh)
+        void Render::Private::drawTextMesh(const geom::TriangleMesh2& mesh)
         {
             const size_t size = mesh.triangles.size();
             currentStats.textTriangles += size;
@@ -150,7 +150,7 @@ namespace tl
             }
         }
 
-        void GLRender::drawText(
+        void Render::drawText(
             const std::vector<std::shared_ptr<image::Glyph> >& glyphs,
             const math::Vector2i& pos,
             const image::Color4f& color)
@@ -254,7 +254,7 @@ namespace tl
             p.drawTextMesh(mesh);
         }
 
-        void GLRender::drawTexture(
+        void Render::drawTexture(
             unsigned int id,
             const math::Box2i& box,
             const image::Color4f& color)
@@ -282,11 +282,11 @@ namespace tl
             }
         }
 
-        void GLRender::drawImage(
+        void Render::drawImage(
             const std::shared_ptr<image::Image>& image,
             const math::Box2i& box,
             const image::Color4f& color,
-            const ImageOptions& imageOptions)
+            const timeline::ImageOptions& imageOptions)
         {
             TLRENDER_P();
             ++(p.currentStats.images);
@@ -312,8 +312,12 @@ namespace tl
             image::VideoLevels videoLevels = info.videoLevels;
             switch (imageOptions.videoLevels)
             {
-            case InputVideoLevels::FullRange:  videoLevels = image::VideoLevels::FullRange;  break;
-            case InputVideoLevels::LegalRange: videoLevels = image::VideoLevels::LegalRange; break;
+            case timeline::InputVideoLevels::FullRange:
+                videoLevels = image::VideoLevels::FullRange;
+                break;
+            case timeline::InputVideoLevels::LegalRange:
+                videoLevels = image::VideoLevels::LegalRange;
+                break;
             default: break;
             }
             p.shaders["image"]->setUniform("videoLevels", static_cast<int>(videoLevels));
@@ -338,13 +342,13 @@ namespace tl
 
             switch (imageOptions.alphaBlend)
             {
-            case AlphaBlend::None:
+            case timeline::AlphaBlend::None:
                 glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ONE);
                 break;
-            case AlphaBlend::Straight:
+            case timeline::AlphaBlend::Straight:
                 glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
                 break;
-            case AlphaBlend::Premultiplied:
+            case timeline::AlphaBlend::Premultiplied:
                 glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
                 break;
             default: break;

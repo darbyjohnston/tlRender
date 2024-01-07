@@ -104,7 +104,7 @@ namespace tl
                     // Create the renderer.
                     if (auto context = _context.lock())
                     {
-                        _render = timeline::GLRender::create(context);
+                        _render = timeline_gl::Render::create(context);
                     }
 
                     // Create the shader.

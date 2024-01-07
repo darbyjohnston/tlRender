@@ -4,7 +4,7 @@
 
 #include "render.h"
 
-#include <tlTimeline/GLRender.h>
+#include <tlTimelineGL/Render.h>
 
 #include <tlGL/GL.h>
 #include <tlGL/GLFWWindow.h>
@@ -179,7 +179,7 @@ namespace tl
                         });
 
                     // Create the renderer.
-                    _render = timeline::GLRender::create(_context);
+                    _render = timeline_gl::Render::create(_context);
 
                     // Print the shortcuts help.
                     _printShortcutsHelp();

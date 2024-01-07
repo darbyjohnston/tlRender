@@ -4,7 +4,7 @@
 
 #include <tlUI/ThumbnailSystem.h>
 
-#include <tlTimeline/GLRender.h>
+#include <tlTimelineGL/Render.h>
 
 #include <tlIO/System.h>
 
@@ -655,10 +655,10 @@ namespace tl
         void ThumbnailGenerator::_run()
         {
             TLRENDER_P();
-            std::shared_ptr<timeline::GLRender> render;
+            std::shared_ptr<timeline_gl::Render> render;
             if (auto context = p.context.lock())
             {
-                render = timeline::GLRender::create(context);
+                render = timeline_gl::Render::create(context);
             }
             std::shared_ptr<gl::OffscreenBuffer> buffer;
             io::Options ioOptions;

@@ -35,10 +35,6 @@ set(HEADERS
 set(PRIVATE_HEADERS
     PlayerPrivate.h
     TimelinePrivate.h)
-list(APPEND HEADERS
-    GLRender.h)
-list(APPEND PRIVATE_HEADERS
-    GLRenderPrivate.h)
 
 set(SOURCE
     BackgroundOptions.cpp
@@ -62,15 +58,6 @@ set(SOURCE
     TimelinePrivate.cpp
     Transition.cpp
     Util.cpp)
-list(APPEND SOURCE
-    GLRender.cpp
-    GLRenderPrims.cpp
-    GLRenderVideo.cpp)
-if("${TLRENDER_API}" STREQUAL "GL_4_1" OR "${TLRENDER_API}" STREQUAL "GL_4_1_Debug")
-    list(APPEND SOURCE GLRenderShaders_GL_4_1.cpp)
-elseif("${TLRENDER_API}" STREQUAL "GLES_2")
-    list(APPEND SOURCE GLRenderShaders_GLES_2.cpp)
-endif()
 
 add_library(tlTimeline ${HEADERS} ${PRIVATE_HEADERS} ${SOURCE})
 target_link_libraries(tlTimeline tlIO)

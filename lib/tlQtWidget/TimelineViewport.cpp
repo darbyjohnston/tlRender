@@ -6,7 +6,7 @@
 
 #include <tlUI/DrawUtil.h>
 
-#include <tlTimeline/GLRender.h>
+#include <tlTimelineGL/Render.h>
 
 #include <tlGL/Init.h>
 #include <tlGL/Mesh.h>
@@ -324,7 +324,7 @@ namespace tl
             {
                 if (auto context = p.context.lock())
                 {
-                    p.render = timeline::GLRender::create(context);
+                    p.render = timeline_gl::Render::create(context);
                 }
 
                 const std::string vertexSource =

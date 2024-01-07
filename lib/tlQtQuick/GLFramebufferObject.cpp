@@ -8,7 +8,7 @@
 
 #include <tlQt/TimelinePlayer.h>
 
-#include <tlTimeline/GLRender.h>
+#include <tlTimelineGL/Render.h>
 
 #include <tlGL/Init.h>
 
@@ -44,7 +44,7 @@ namespace tl
                     {
                         _init = true;
                         gl::initGLAD();
-                        _render = timeline::GLRender::create(qtquick::getContext());
+                        _render = timeline_gl::Render::create(qtquick::getContext());
                     }
 
                     QOpenGLFramebufferObject* fbo = framebufferObject();

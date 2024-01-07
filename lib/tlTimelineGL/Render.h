@@ -12,39 +12,39 @@
 
 namespace tl
 {
-    namespace timeline
+    namespace timeline_gl
     {
-        //! OpenGL texture cache.
+        //! Texture cache.
         typedef memory::LRUCache<
             std::shared_ptr<image::Image>,
-            std::vector<std::shared_ptr<gl::Texture> > > GLTextureCache;
+            std::vector<std::shared_ptr<gl::Texture> > > TextureCache;
 
         //! OpenGL renderer.
-        class GLRender : public IRender
+        class Render : public timeline::IRender
         {
-            TLRENDER_NON_COPYABLE(GLRender);
+            TLRENDER_NON_COPYABLE(Render);
 
         protected:
             void _init(
                 const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<GLTextureCache>&);
+                const std::shared_ptr<TextureCache>&);
 
-            GLRender();
+            Render();
 
         public:
-            virtual ~GLRender();
+            virtual ~Render();
 
             //! Create a new renderer.
-            static std::shared_ptr<GLRender> create(
+            static std::shared_ptr<Render> create(
                 const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<GLTextureCache>& = nullptr);
+                const std::shared_ptr<TextureCache>& = nullptr);
 
             //! Get the texture cache.
-            const std::shared_ptr<GLTextureCache>& getTextureCache() const;
+            const std::shared_ptr<TextureCache>& getTextureCache() const;
 
             void begin(
                 const math::Size2i&,
-                const RenderOptions& = RenderOptions()) override;
+                const timeline::RenderOptions& = timeline::RenderOptions()) override;
             void end() override;
 
             math::Size2i getRenderSize() const override;
@@ -58,8 +58,8 @@ namespace tl
             void setClipRect(const math::Box2i&) override;
             math::Matrix4x4f getTransform() const override;
             void setTransform(const math::Matrix4x4f&) override;
-            void setOCIOOptions(const OCIOOptions&) override;
-            void setLUTOptions(const LUTOptions&) override;
+            void setOCIOOptions(const timeline::OCIOOptions&) override;
+            void setLUTOptions(const timeline::LUTOptions&) override;
 
             void drawRect(
                 const math::Box2i&,
@@ -84,58 +84,58 @@ namespace tl
                 const std::shared_ptr<image::Image>&,
                 const math::Box2i&,
                 const image::Color4f& = image::Color4f(1.F, 1.F, 1.F),
-                const ImageOptions& = ImageOptions()) override;
+                const timeline::ImageOptions& = timeline::ImageOptions()) override;
             void drawVideo(
-                const std::vector<VideoData>&,
+                const std::vector<timeline::VideoData>&,
                 const std::vector<math::Box2i>&,
-                const std::vector<ImageOptions>& = {},
-                const std::vector<DisplayOptions>& = {},
-                const CompareOptions& = CompareOptions()) override;
+                const std::vector<timeline::ImageOptions>& = {},
+                const std::vector<timeline::DisplayOptions>& = {},
+                const timeline::CompareOptions& = timeline::CompareOptions()) override;
 
         private:
             void _displayShader();
 
             void _drawVideoA(
-                const std::vector<VideoData>&,
+                const std::vector<timeline::VideoData>&,
                 const std::vector<math::Box2i>&,
-                const std::vector<ImageOptions>&,
-                const std::vector<DisplayOptions>&,
-                const CompareOptions&);
+                const std::vector<timeline::ImageOptions>&,
+                const std::vector<timeline::DisplayOptions>&,
+                const timeline::CompareOptions&);
             void _drawVideoB(
-                const std::vector<VideoData>&,
+                const std::vector<timeline::VideoData>&,
                 const std::vector<math::Box2i>&,
-                const std::vector<ImageOptions>&,
-                const std::vector<DisplayOptions>&,
-                const CompareOptions&);
+                const std::vector<timeline::ImageOptions>&,
+                const std::vector<timeline::DisplayOptions>&,
+                const timeline::CompareOptions&);
             void _drawVideoWipe(
-                const std::vector<VideoData>&,
+                const std::vector<timeline::VideoData>&,
                 const std::vector<math::Box2i>&,
-                const std::vector<ImageOptions>&,
-                const std::vector<DisplayOptions>&,
-                const CompareOptions&);
+                const std::vector<timeline::ImageOptions>&,
+                const std::vector<timeline::DisplayOptions>&,
+                const timeline::CompareOptions&);
             void _drawVideoOverlay(
-                const std::vector<VideoData>&,
+                const std::vector<timeline::VideoData>&,
                 const std::vector<math::Box2i>&,
-                const std::vector<ImageOptions>&,
-                const std::vector<DisplayOptions>&,
-                const CompareOptions&);
+                const std::vector<timeline::ImageOptions>&,
+                const std::vector<timeline::DisplayOptions>&,
+                const timeline::CompareOptions&);
             void _drawVideoDifference(
-                const std::vector<VideoData>&,
+                const std::vector<timeline::VideoData>&,
                 const std::vector<math::Box2i>&,
-                const std::vector<ImageOptions>&,
-                const std::vector<DisplayOptions>&,
-                const CompareOptions&);
+                const std::vector<timeline::ImageOptions>&,
+                const std::vector<timeline::DisplayOptions>&,
+                const timeline::CompareOptions&);
             void _drawVideoTile(
-                const std::vector<VideoData>&,
+                const std::vector<timeline::VideoData>&,
                 const std::vector<math::Box2i>&,
-                const std::vector<ImageOptions>&,
-                const std::vector<DisplayOptions>&,
-                const CompareOptions&);
+                const std::vector<timeline::ImageOptions>&,
+                const std::vector<timeline::DisplayOptions>&,
+                const timeline::CompareOptions&);
             void _drawVideo(
-                const VideoData&,
+                const timeline::VideoData&,
                 const math::Box2i&,
-                const std::shared_ptr<ImageOptions>&,
-                const DisplayOptions&);
+                const std::shared_ptr<timeline::ImageOptions>&,
+                const timeline::DisplayOptions&);
 
             TLRENDER_PRIVATE();
         };

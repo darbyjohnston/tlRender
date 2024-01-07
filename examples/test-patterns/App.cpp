@@ -6,7 +6,7 @@
 
 #include "TestPatterns.h"
 
-#include <tlTimeline/GLRender.h>
+#include <tlTimelineGL/Render.h>
 
 #include <tlGL/GL.h>
 #include <tlGL/GLFWWindow.h>
@@ -134,7 +134,7 @@ namespace tl
                             auto image = image::Image::create(info);
 
                             // Render the test pattern.
-                            auto render = timeline::GLRender::create(_context);
+                            auto render = timeline_gl::Render::create(_context);
                             auto pattern = TestPatternFactory::create(name, size, _context);
                             for (double i = ioInfo.videoTime.start_time().value(); i < ioInfo.videoTime.duration().value(); i = i + 1.0)
                             {

@@ -4,7 +4,7 @@
 
 #include <tlBakeApp/App.h>
 
-#include <tlTimeline/GLRender.h>
+#include <tlTimelineGL/Render.h>
 
 #include <tlIO/System.h>
 
@@ -224,7 +224,7 @@ namespace tl
                 _print(string::Format("Render size: {0}").arg(_renderSize));
 
                 // Create the renderer.
-                _render = timeline::GLRender::create(_context);
+                _render = timeline_gl::Render::create(_context);
                 gl::OffscreenBufferOptions offscreenBufferOptions;
                 offscreenBufferOptions.colorType = gl::offscreenColorDefault;
                 _buffer = gl::OffscreenBuffer::create(_renderSize, offscreenBufferOptions);

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlTimeline/GLRender.h>
+#include <tlTimelineGL/Render.h>
 
 #include <tlGL/Mesh.h>
 #include <tlGL/OffscreenBuffer.h>
@@ -23,7 +23,7 @@ namespace OCIO = OCIO_NAMESPACE;
 
 namespace tl
 {
-    namespace timeline
+    namespace timeline_gl
     {
         std::string vertexSource();
         std::string meshFragmentSource();
@@ -37,12 +37,12 @@ namespace tl
             const std::string& ocio,
             const std::string& lutDef,
             const std::string& lut,
-            LUTOrder);
+            timeline::LUTOrder);
         std::string differenceFragmentSource();
 
         std::vector<std::shared_ptr<gl::Texture> > getTextures(
             const image::Info&,
-            const ImageFilters&,
+            const timeline::ImageFilters&,
             size_t offset = 0);
 
         void copyTextures(
@@ -96,12 +96,12 @@ namespace tl
         };
 #endif // TLRENDER_OCIO
 
-        struct GLRender::Private
+        struct Render::Private
         {
             math::Size2i renderSize;
-            OCIOOptions ocioOptions;
-            LUTOptions lutOptions;
-            RenderOptions renderOptions;
+            timeline::OCIOOptions ocioOptions;
+            timeline::LUTOptions lutOptions;
+            timeline::RenderOptions renderOptions;
 
 #if defined(TLRENDER_OCIO)
             //! \todo Add a cache for OpenColorIO data.
@@ -116,7 +116,7 @@ namespace tl
 
             std::map<std::string, std::shared_ptr<gl::Shader> > shaders;
             std::map<std::string, std::shared_ptr<gl::OffscreenBuffer> > buffers;
-            std::shared_ptr<GLTextureCache> textureCache;
+            std::shared_ptr<TextureCache> textureCache;
             std::shared_ptr<gl::TextureAtlas> glyphTextureAtlas;
             std::map<image::GlyphInfo, gl::TextureAtlasID> glyphIDs;
             std::map<std::string, std::shared_ptr<gl::VBO> > vbos;

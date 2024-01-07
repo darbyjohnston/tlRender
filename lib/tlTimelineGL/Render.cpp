@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlTimeline/GLRenderPrivate.h>
+#include <tlTimelineGL/RenderPrivate.h>
 
 #include <tlGL/GL.h>
 #include <tlGL/Mesh.h>
@@ -22,7 +22,7 @@
 
 namespace tl
 {
-    namespace timeline
+    namespace timeline_gl
     {
         namespace
         {
@@ -31,7 +31,7 @@ namespace tl
 
         std::vector<std::shared_ptr<gl::Texture> > getTextures(
             const image::Info& info,
-            const ImageFilters& imageFilters,
+            const timeline::ImageFilters& imageFilters,
             size_t offset)
         {
             std::vector<std::shared_ptr<gl::Texture> > out;
@@ -311,9 +311,9 @@ namespace tl
         }
 #endif // TLRENDER_OCIO
 
-        void GLRender::_init(
+        void Render::_init(
             const std::shared_ptr<system::Context>& context,
-            const std::shared_ptr<GLTextureCache>& textureCache)
+            const std::shared_ptr<TextureCache>& textureCache)
         {
             IRender::_init(context);
             TLRENDER_P();
@@ -321,42 +321,42 @@ namespace tl
             p.textureCache = textureCache;
             if (!p.textureCache)
             {
-                p.textureCache = std::make_shared<GLTextureCache>();
+                p.textureCache = std::make_shared<TextureCache>();
             }
 
             p.glyphTextureAtlas = gl::TextureAtlas::create(
                 1,
                 4096,
                 image::PixelType::L_U8,
-                ImageFilter::Linear);
+                timeline::ImageFilter::Linear);
 
             p.logTimer = std::chrono::steady_clock::now();
         }
 
-        GLRender::GLRender() :
+        Render::Render() :
             _p(new Private)
         {}
 
-        GLRender::~GLRender()
+        Render::~Render()
         {}
 
-        std::shared_ptr<GLRender> GLRender::create(
+        std::shared_ptr<Render> Render::create(
             const std::shared_ptr<system::Context>& context,
-            const std::shared_ptr<GLTextureCache>& textureCache)
+            const std::shared_ptr<TextureCache>& textureCache)
         {
-            auto out = std::shared_ptr<GLRender>(new GLRender);
+            auto out = std::shared_ptr<Render>(new Render);
             out->_init(context, textureCache);
             return out;
         }
 
-        const std::shared_ptr<GLTextureCache>& GLRender::getTextureCache() const
+        const std::shared_ptr<TextureCache>& Render::getTextureCache() const
         {
             return _p->textureCache;
         }
 
-        void GLRender::begin(
+        void Render::begin(
             const math::Size2i& renderSize,
-            const RenderOptions& renderOptions)
+            const timeline::RenderOptions& renderOptions)
         {
             TLRENDER_P();
 
@@ -456,7 +456,7 @@ namespace tl
                 1.F));
         }
 
-        void GLRender::end()
+        void Render::end()
         {
             TLRENDER_P();
 
@@ -536,22 +536,22 @@ namespace tl
             }
         }
 
-        math::Size2i GLRender::getRenderSize() const
+        math::Size2i Render::getRenderSize() const
         {
             return _p->renderSize;
         }
 
-        void GLRender::setRenderSize(const math::Size2i& value)
+        void Render::setRenderSize(const math::Size2i& value)
         {
             _p->renderSize = value;
         }
 
-        math::Box2i GLRender::getViewport() const
+        math::Box2i Render::getViewport() const
         {
             return _p->viewport;
         }
 
-        void GLRender::setViewport(const math::Box2i& value)
+        void Render::setViewport(const math::Box2i& value)
         {
             TLRENDER_P();
             p.viewport = value;
@@ -562,18 +562,18 @@ namespace tl
                 value.h());
         }
 
-        void GLRender::clearViewport(const image::Color4f& value)
+        void Render::clearViewport(const image::Color4f& value)
         {
             glClearColor(value.r, value.g, value.b, value.a);
             glClear(GL_COLOR_BUFFER_BIT);
         }
 
-        bool GLRender::getClipRectEnabled() const
+        bool Render::getClipRectEnabled() const
         {
             return _p->clipRectEnabled;
         }
 
-        void GLRender::setClipRectEnabled(bool value)
+        void Render::setClipRectEnabled(bool value)
         {
             TLRENDER_P();
             p.clipRectEnabled = value;
@@ -587,12 +587,12 @@ namespace tl
             }
         }
 
-        math::Box2i GLRender::getClipRect() const
+        math::Box2i Render::getClipRect() const
         {
             return _p->clipRect;
         }
 
-        void GLRender::setClipRect(const math::Box2i& value)
+        void Render::setClipRect(const math::Box2i& value)
         {
             TLRENDER_P();
             p.clipRect = value;
@@ -606,12 +606,12 @@ namespace tl
             }
         }
 
-        math::Matrix4x4f GLRender::getTransform() const
+        math::Matrix4x4f Render::getTransform() const
         {
             return _p->transform;
         }
 
-        void GLRender::setTransform(const math::Matrix4x4f& value)
+        void Render::setTransform(const math::Matrix4x4f& value)
         {
             TLRENDER_P();
             p.transform = value;
@@ -645,7 +645,7 @@ namespace tl
 #endif // TLRENDER_OCIO
         }
 
-        void GLRender::setOCIOOptions(const OCIOOptions& value)
+        void Render::setOCIOOptions(const timeline::OCIOOptions& value)
         {
             TLRENDER_P();
             if (value == p.ocioOptions)
@@ -834,7 +834,7 @@ namespace tl
             _displayShader();
         }
 
-        void GLRender::setLUTOptions(const LUTOptions& value)
+        void Render::setLUTOptions(const timeline::LUTOptions& value)
         {
             TLRENDER_P();
             if (value == p.lutOptions)
@@ -999,7 +999,7 @@ namespace tl
             _displayShader();
         }
 
-        void GLRender::_displayShader()
+        void Render::_displayShader()
         {
             TLRENDER_P();
             if (!p.shaders["display"])

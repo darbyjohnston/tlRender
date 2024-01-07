@@ -29,7 +29,7 @@ namespace tl
                     app::convert(argc, argv),
                     context,
                     "player-qtquick",
-                    "Example Qt Quick playback application.",
+                    "Example Qt Quick player application.",
                     {
                         app::CmdLineValueArg<std::string>::create(
                             _input,

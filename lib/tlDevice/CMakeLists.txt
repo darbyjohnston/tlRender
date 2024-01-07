@@ -6,7 +6,7 @@ set(SOURCE
     Init.cpp)
 
 set(INCLUDE_DIRS)
-set(LIBRARIES tlTimeline)
+set(LIBRARIES tlTimelineGL)
 set(LIBRARIES_PRIVATE)
 
 if(TLRENDER_BMD)

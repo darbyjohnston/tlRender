@@ -6,7 +6,7 @@
 
 #include <tlDevice/BMDUtil.h>
 
-#include <tlTimeline/GLRender.h>
+#include <tlTimelineGL/Render.h>
 
 #include <tlGL/GL.h>
 #include <tlGL/GLFWWindow.h>
@@ -507,7 +507,7 @@ namespace tl
 
             if (auto context = p.context.lock())
             {
-                p.thread.render = timeline::GLRender::create(context);
+                p.thread.render = timeline_gl::Render::create(context);
             }
 
             auto t = std::chrono::steady_clock::now();

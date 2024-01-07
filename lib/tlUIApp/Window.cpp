@@ -4,7 +4,7 @@
 
 #include <tlUIApp/Window.h>
 
-#include <tlTimeline/GLRender.h>
+#include <tlTimelineGL/Render.h>
 
 #include <tlGL/GL.h>
 #include <tlGL/GLFWWindow.h>
@@ -167,8 +167,8 @@ namespace tl
             float displayScale = 1.F;
             bool refresh = false;
             int modifiers = 0;
-            std::shared_ptr<timeline::GLTextureCache> textureCache;
-            std::shared_ptr<timeline::GLRender> render;
+            std::shared_ptr<timeline_gl::TextureCache> textureCache;
+            std::shared_ptr<timeline_gl::Render> render;
             std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
         };
 
@@ -439,7 +439,7 @@ namespace tl
 
                 if (!p.render)
                 {
-                    p.render = timeline::GLRender::create(
+                    p.render = timeline_gl::Render::create(
                         _context.lock(),
                         p.textureCache);
                 }

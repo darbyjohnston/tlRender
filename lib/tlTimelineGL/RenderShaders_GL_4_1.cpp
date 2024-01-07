@@ -2,13 +2,13 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlTimeline/GLRenderPrivate.h>
+#include <tlTimelineGL/RenderPrivate.h>
 
 #include <tlCore/StringFormat.h>
 
 namespace tl
 {
-    namespace timeline
+    namespace timeline_gl
     {
         std::string vertexSource()
         {
@@ -287,7 +287,7 @@ namespace tl
             const std::string& ocio,
             const std::string& lutDef,
             const std::string& lut,
-            LUTOrder lutOrder)
+            timeline::LUTOrder lutOrder)
         {
             std::vector<std::string> args;
             args.push_back(videoLevels);
@@ -295,11 +295,11 @@ namespace tl
             args.push_back(lutDef);
             switch (lutOrder)
             {
-            case LUTOrder::PreColorConfig:
+            case timeline::LUTOrder::PreColorConfig:
                 args.push_back(lut);
                 args.push_back(ocio);
                 break;
-            case LUTOrder::PostColorConfig:
+            case timeline::LUTOrder::PostColorConfig:
                 args.push_back(ocio);
                 args.push_back(lut);
                 break;
