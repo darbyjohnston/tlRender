@@ -237,7 +237,10 @@ alias intel="env /usr/bin/arch -x86_64 /bin/zsh --login"
 
 ## Building on Windows
 
-Install MSYS2 (https://www.msys2.org) for compiling FFmpeg.
+Dependencies:
+* Install MSYS2 (https://www.msys2.org) for compiling FFmpeg.
+* Install Strawberry Perl (https://strawberryperl.com/) for compiling network support.
+* Install Python 3.11 for compiling USD.
 
 Clone the repository:
 ```
