@@ -25,7 +25,7 @@ namespace tl
                 const std::shared_ptr<system::Context>& context) :
                 QGuiApplication(argc, argv)
             {
-                IApp::_init(
+                BaseApp::_init(
                     app::convert(argc, argv),
                     context,
                     "simple-qtquick",

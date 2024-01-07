@@ -12,5 +12,5 @@ elseif(TLRENDER_QT5)
 endif()
 
 add_executable(simple-qtquick ${SOURCE} ${HEADERS})
-target_link_libraries(simple-qtquick tlQtQuick tlApp)
+target_link_libraries(simple-qtquick tlQtQuick tlBaseApp)
 set_target_properties(simple-qtquick PROPERTIES FOLDER examples)

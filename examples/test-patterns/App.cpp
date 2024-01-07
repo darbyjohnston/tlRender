@@ -33,13 +33,12 @@ namespace tl
                 const std::vector<std::string>& argv,
                 const std::shared_ptr<system::Context>& context)
             {
-                IApp::_init(
+                BaseApp::_init(
                     argv,
                     context,
                     "test-patterns",
                     "Example test patterns application.");
 
-                // Create the window.
                 _window = gl::GLFWWindow::create(
                     "test-patterns",
                     math::Size2i(1, 1),

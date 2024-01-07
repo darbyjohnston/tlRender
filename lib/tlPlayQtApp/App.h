@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlApp/IApp.h>
+#include <tlBaseApp/BaseApp.h>
 
 #include <tlTimeline/TimeUnits.h>
 #include <tlTimeline/IRender.h>
@@ -57,7 +57,7 @@ namespace tl
         class MainWindow;
 
         //! Application.
-        class App : public QApplication, public app::IApp
+        class App : public QApplication, public app::BaseApp
         {
             Q_OBJECT
 

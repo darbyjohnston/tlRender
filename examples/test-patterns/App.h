@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlApp/IApp.h>
+#include <tlBaseApp/BaseApp.h>
 
 namespace tl
 {
@@ -17,7 +17,7 @@ namespace tl
         namespace test_patterns
         {
             //! Application.
-            class App : public app::IApp
+            class App : public app::BaseApp
             {
                 TLRENDER_NON_COPYABLE(App);
 

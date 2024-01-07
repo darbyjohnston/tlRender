@@ -4,7 +4,7 @@
 
 #include <tlAppTest/AppTest.h>
 
-#include <tlApp/IApp.h>
+#include <tlBaseApp/BaseApp.h>
 
 #include <tlCore/FileInfo.h>
 #include <tlCore/StringFormat.h>
@@ -83,13 +83,13 @@ namespace tl
 
         namespace
         {
-            class App : public IApp
+            class App : public BaseApp
             {
                 void _init(
                     const std::vector<std::string>& args,
                     const std::shared_ptr<system::Context>& context)
                 {
-                    IApp::_init(
+                    BaseApp::_init(
                         args,
                         context,
                         "test",

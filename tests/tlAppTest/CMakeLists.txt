@@ -7,5 +7,5 @@ set(SOURCE
     CmdLineTest.cpp)
 
 add_library(tlAppTest ${SOURCE} ${HEADERS})
-target_link_libraries(tlAppTest tlTestLib tlApp)
+target_link_libraries(tlAppTest tlTestLib tlBaseApp)
 set_target_properties(tlAppTest PROPERTIES FOLDER tests)

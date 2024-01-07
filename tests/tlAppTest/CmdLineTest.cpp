@@ -4,7 +4,7 @@
 
 #include <tlAppTest/CmdLineTest.h>
 
-#include <tlApp/CmdLine.h>
+#include <tlBaseApp/CmdLine.h>
 
 using namespace tl::app;
 

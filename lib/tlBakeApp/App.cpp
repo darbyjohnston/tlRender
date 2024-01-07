@@ -26,7 +26,7 @@ namespace tl
             const std::vector<std::string>& argv,
             const std::shared_ptr<system::Context>& context)
         {
-            IApp::_init(
+            BaseApp::_init(
                 argv,
                 context,
                 "tlbake",

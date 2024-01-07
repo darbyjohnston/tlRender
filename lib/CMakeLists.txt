@@ -1,4 +1,4 @@
-add_subdirectory(tlApp)
+add_subdirectory(tlBaseApp)
 add_subdirectory(tlCore)
 add_subdirectory(tlGL)
 add_subdirectory(tlDevice)

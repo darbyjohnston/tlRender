@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlApp/CmdLine.h>
+#include <tlBaseApp/CmdLine.h>
 
 #include <tlTimeline/CompareOptions.h>
 #include <tlTimeline/LUTOptions.h>

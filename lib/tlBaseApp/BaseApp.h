@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlApp/CmdLine.h>
+#include <tlBaseApp/CmdLine.h>
 
 #include <tlCore/Context.h>
 
@@ -38,9 +38,9 @@ namespace tl
         std::vector<std::string> convert(int argc, wchar_t* argv[]);
 
         //! Base class for applications.
-        class IApp : public std::enable_shared_from_this<IApp>
+        class BaseApp : public std::enable_shared_from_this<BaseApp>
         {
-            TLRENDER_NON_COPYABLE(IApp);
+            TLRENDER_NON_COPYABLE(BaseApp);
 
         protected:
             void _init(
@@ -51,10 +51,10 @@ namespace tl
                 const std::vector<std::shared_ptr<ICmdLineArg> >& = {},
                 const std::vector<std::shared_ptr<ICmdLineOption> >& = {});
 
-            IApp();
+            BaseApp();
 
         public:
-            virtual ~IApp() = 0;
+            virtual ~BaseApp() = 0;
 
             //! Get the context.
             const std::shared_ptr<system::Context>& getContext() const;

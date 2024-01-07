@@ -6,7 +6,7 @@ set(SOURCE
     IApp.cpp
     Window.cpp)
 
-set(LIBRARIES tlApp tlUI)
+set(LIBRARIES tlUI tlBaseApp)
 
 add_library(tlGLApp ${HEADERS} ${SOURCE})
 target_link_libraries(tlGLApp ${LIBRARIES})

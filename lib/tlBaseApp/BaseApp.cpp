@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlApp/IApp.h>
+#include <tlBaseApp/BaseApp.h>
 
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
@@ -33,7 +33,7 @@ namespace tl
             return out;
         }
 
-        struct IApp::Private
+        struct BaseApp::Private
         {
             struct CmdLineData
             {
@@ -48,7 +48,7 @@ namespace tl
             std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
         };
 
-        void IApp::_init(
+        void BaseApp::_init(
             const std::vector<std::string>& argv,
             const std::shared_ptr<system::Context>& context,
             const std::string& cmdLineName,
@@ -98,49 +98,49 @@ namespace tl
             }
         }
         
-        IApp::IApp() :
+        BaseApp::BaseApp() :
             _p(new Private)
         {}
 
-        IApp::~IApp()
+        BaseApp::~BaseApp()
         {}
 
-        const std::shared_ptr<system::Context>& IApp::getContext() const
+        const std::shared_ptr<system::Context>& BaseApp::getContext() const
         {
             return _context;
         }
 
-        int IApp::getExit() const
+        int BaseApp::getExit() const
         {
             return _exit;
         }
 
-        const std::string& IApp::_getCmdLineName() const
+        const std::string& BaseApp::_getCmdLineName() const
         {
             return _p->cmdLine.name;
         }
 
-        void IApp::_log(const std::string& value, log::Type type)
+        void BaseApp::_log(const std::string& value, log::Type type)
         {
             _context->log(_p->cmdLine.name, value, type);
         }
 
-        void IApp::_print(const std::string& value)
+        void BaseApp::_print(const std::string& value)
         {
             std::cout << value << std::endl;
         }
 
-        void IApp::_printNewline()
+        void BaseApp::_printNewline()
         {
             std::cout << std::endl;
         }
 
-        void IApp::_printError(const std::string& value)
+        void BaseApp::_printError(const std::string& value)
         {
             std::cerr << "ERROR: " << value << std::endl;
         }
 
-        int IApp::_parseCmdLine()
+        int BaseApp::_parseCmdLine()
         {
             TLRENDER_P();
             for (const auto& i : p.cmdLine.options)
@@ -195,7 +195,7 @@ namespace tl
             return 0;
         }
 
-        void IApp::_printCmdLineHelp()
+        void BaseApp::_printCmdLineHelp()
         {
             TLRENDER_P();
             _print("\n" + p.cmdLine.name + "\n");

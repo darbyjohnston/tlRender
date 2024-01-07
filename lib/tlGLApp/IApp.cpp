@@ -108,7 +108,7 @@ namespace tl
                     _options.fullscreen,
                     { "-fullscreen", "-fs" },
                     "Enable full screen mode."));
-            app::IApp::_init(
+            app::BaseApp::_init(
                 argv,
                 context,
                 cmdLineName,

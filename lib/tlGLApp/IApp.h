@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlApp/IApp.h>
+#include <tlBaseApp/BaseApp.h>
 
 #include <tlUI/Event.h>
 
@@ -28,7 +28,7 @@ namespace tl
         };
 
         //! Base class for OpenGL applications.
-        class IApp : public app::IApp
+        class IApp : public app::BaseApp
         {
             TLRENDER_NON_COPYABLE(IApp);
 

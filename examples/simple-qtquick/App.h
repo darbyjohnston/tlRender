@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlApp/IApp.h>
+#include <tlBaseApp/BaseApp.h>
 
 #include <tlQt/ContextObject.h>
 #include <tlQt/TimeObject.h>
@@ -22,7 +22,7 @@ namespace tl
         namespace simple_qtquick
         {
             //! Application.
-            class App : public QGuiApplication, public app::IApp
+            class App : public QGuiApplication, public app::BaseApp
             {
                 Q_OBJECT
 
