@@ -126,6 +126,9 @@ jobs:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
 
     - name: Setup environment
       run: |
@@ -198,8 +201,6 @@ jobs:
         cd tlRender/src/tlRender-build
         tests/tltest/tltest
 
-  # \bug Temporarily disable USD since Python 3.12 does not have the
-  # distutils package.
   macos-package:
     runs-on: macos-12
 
@@ -216,7 +217,7 @@ jobs:
       TLRENDER_PNG: ON
       TLRENDER_EXR: ON
       TLRENDER_FFMPEG: ON
-      TLRENDER_USD: OFF
+      TLRENDER_USD: ON
       TLRENDER_NFD: OFF
       TLRENDER_QT5: OFF
       TLRENDER_PROGRAMS: ON
@@ -227,6 +228,9 @@ jobs:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
 
     # \bug DYLD_LIBRARY_PATH is not being set here?
     - name: Setup environment
@@ -333,6 +337,9 @@ jobs:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
 
     # \bug Any spaces before the ">>" will be considered part of the path.
     - name: Setup environment
