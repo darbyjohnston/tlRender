@@ -8,6 +8,7 @@ jobs:
 
     env:
       TLRENDER_PYTHON: OFF
+      TLRENDER_API: GL_4_1
       TLRENDER_GLFW: ON
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON
@@ -67,6 +68,7 @@ jobs:
 
     env:
       TLRENDER_PYTHON: OFF
+      TLRENDER_API: GL_4_1
       TLRENDER_GLFW: ON
       TLRENDER_OCIO: OFF
       TLRENDER_AUDIO: OFF
@@ -88,7 +90,52 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-      
+
+    - name: Setup environment
+      run: |
+        echo "$PWD/build/install/bin" >> $GITHUB_PATH
+        echo "LD_LIBRARY_PATH=$PWD/build/install/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+        echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
+        cmake --version
+        python --version
+
+    - name: Build tlRender
+      run: bash etc/Linux/linux-build-gha.sh Debug
+
+    - name: Run tests
+      run: |
+        cd build
+        cd tlRender/src/tlRender-build
+        xvfb-run tests/tltest/tltest
+
+  linux-minimal-build-gles2:
+    runs-on: ubuntu-latest
+
+    env:
+      TLRENDER_PYTHON: OFF
+      TLRENDER_API: GLES_2
+      TLRENDER_GLFW: ON
+      TLRENDER_OCIO: OFF
+      TLRENDER_AUDIO: OFF
+      TLRENDER_JPEG: OFF
+      TLRENDER_TIFF: OFF
+      TLRENDER_STB: OFF
+      TLRENDER_PNG: OFF
+      TLRENDER_EXR: OFF
+      TLRENDER_FFMPEG: OFF
+      TLRENDER_USD: OFF
+      TLRENDER_NFD: OFF
+      TLRENDER_QT5: OFF
+      TLRENDER_TESTS: ON
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
     - name: Setup environment
       run: |
         echo "$PWD/build/install/bin" >> $GITHUB_PATH
@@ -113,6 +160,7 @@ jobs:
     env:
       CMAKE_CXX_STANDARD: 17
       TLRENDER_PYTHON: OFF
+      TLRENDER_API: GL_4_1
       TLRENDER_GLFW: ON
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON
@@ -165,6 +213,7 @@ jobs:
     env:
       CMAKE_OSX_DEPLOYMENT_TARGET: 10.15
       TLRENDER_PYTHON: OFF
+      TLRENDER_API: GL_4_1
       TLRENDER_GLFW: ON
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON
@@ -219,6 +268,7 @@ jobs:
       CMAKE_CXX_STANDARD: 17
       CMAKE_OSX_DEPLOYMENT_TARGET: 10.15
       TLRENDER_PYTHON: OFF
+      TLRENDER_API: GL_4_1
       TLRENDER_GLFW: ON
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON
@@ -273,6 +323,7 @@ jobs:
 
     env:
       TLRENDER_PYTHON: OFF
+      TLRENDER_API: GL_4_1
       TLRENDER_GLFW: ON
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON
@@ -331,6 +382,7 @@ jobs:
 
     env:
       TLRENDER_PYTHON: OFF
+      TLRENDER_API: GL_4_1
       TLRENDER_GLFW: ON
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON
