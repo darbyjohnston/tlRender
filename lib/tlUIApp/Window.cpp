@@ -8,10 +8,14 @@
 
 #include <tlGL/GL.h>
 #include <tlGL/GLFWWindow.h>
-#include <tlGL/Mesh.h>
 #include <tlGL/OffscreenBuffer.h>
-#include <tlGL/Shader.h>
 #include <tlGL/Util.h>
+#if defined(TLRENDER_API_GLES_2)
+#include <tlGL/Mesh.h>
+#include <tlGL/Shader.h>
+#endif // TLRENDER_API_GLES_2
+
+#include <tlCore/StringFormat.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -170,6 +174,9 @@ namespace tl
             std::shared_ptr<timeline_gl::TextureCache> textureCache;
             std::shared_ptr<timeline_gl::Render> render;
             std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
+#if defined(TLRENDER_API_GLES_2)
+            std::shared_ptr<gl::Shader> shader;
+#endif // TLRENDER_API_GLES_2
         };
 
         void Window::_init(
@@ -534,8 +541,13 @@ namespace tl
                         }
                         catch (const std::exception& e)
                         {
-                            _log(string::Format("Cannot compile shader: {0}").arg(e.what()),
-                                log::Type::Error);
+                            if (auto context = _context.lock())
+                            {
+                                context->log(
+                                    "tl::ui_app::Window",
+                                    string::Format("Cannot compile shader: {0}").arg(e.what()),
+                                    log::Type::Error);
+                            }
                         }
                     }
                     if (p.shader)
@@ -549,21 +561,21 @@ namespace tl
                             "transform.mvp",
                             math::ortho(
                                 0.F,
-                                static_cast<float>(frameBufferSize.w),
+                                static_cast<float>(p.frameBufferSize.w),
                                 0.F,
-                                static_cast<float>(frameBufferSize.h),
+                                static_cast<float>(p.frameBufferSize.h),
                                 -1.F,
                                 1.F));
                         p.shader->setUniform("textureSampler", 0);
 
                         glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
-                        glBindTexture(GL_TEXTURE_2D, i.second.offscreenBuffer->getColorID());
+                        glBindTexture(GL_TEXTURE_2D, p.offscreenBuffer->getColorID());
 
                         auto mesh = geom::box(math::Box2i(
                             0,
                             0,
-                            frameBufferSize.w,
-                            frameBufferSize.h));
+                            p.frameBufferSize.w,
+                            p.frameBufferSize.h));
                         auto vboData = gl::convert(
                             mesh,
                             gl::VBOType::Pos2_F32_UV_U16,

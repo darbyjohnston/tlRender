@@ -2,13 +2,13 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlTimeline/GLRenderPrivate.h>
+#include <tlTimelineGL/RenderPrivate.h>
 
 #include <tlCore/StringFormat.h>
 
 namespace tl
 {
-    namespace timeline
+    namespace timeline_gl
     {
         std::string vertexSource()
         {
@@ -280,7 +280,7 @@ namespace tl
             const std::string& colorConfig,
             const std::string& lutDef,
             const std::string& lut,
-            LUTOrder lutOrder)
+            timeline::LUTOrder lutOrder)
         {
              return string::Format(
                 "precision mediump float;\n"
