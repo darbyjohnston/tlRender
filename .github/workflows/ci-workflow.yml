@@ -106,6 +106,7 @@ jobs:
         cd tlRender/src/tlRender-build
         xvfb-run tests/tltest/tltest
 
+  # \bug Disable USD until the boost downloads are fixed
   linux-package:
     runs-on: ubuntu-latest
 
@@ -121,7 +122,7 @@ jobs:
       TLRENDER_PNG: ON
       TLRENDER_EXR: ON
       TLRENDER_FFMPEG: ON
-      TLRENDER_USD: ON
+      TLRENDER_USD: OFF
       TLRENDER_NFD: OFF
       TLRENDER_QT5: ON
       TLRENDER_PROGRAMS: ON
@@ -210,6 +211,7 @@ jobs:
         cd tlRender/src/tlRender-build
         tests/tltest/tltest
 
+  # \bug Disable USD until the boost downloads are fixed
   macos-package:
     runs-on: macos-12
 
@@ -226,7 +228,7 @@ jobs:
       TLRENDER_PNG: ON
       TLRENDER_EXR: ON
       TLRENDER_FFMPEG: ON
-      TLRENDER_USD: ON
+      TLRENDER_USD: OFF
       TLRENDER_NFD: OFF
       TLRENDER_QT5: OFF
       TLRENDER_PROGRAMS: ON
@@ -322,6 +324,7 @@ jobs:
 
   # \bug USD has errors in the boost build with windows-latest
   # \bug USD has errors in the MaterialX build with windows-2019
+  # \bug Disable USD until the boost downloads are fixed
   windows-package:
     runs-on: windows-latest
     #runs-on: windows-2019
