@@ -108,7 +108,7 @@ jobs:
         cd tlRender/src/tlRender-build
         xvfb-run tests/tltest/tltest
 
-  linux-minimal-build-gles2:
+  linux-gles2-minimal-build:
     runs-on: ubuntu-latest
 
     env:
