@@ -54,12 +54,12 @@ Contents:
 # Libraries
 
 Core libraries:
-* tlBaseApp - Basic applications
-* tlCore - Math, images, audio, etc.
+* tlBaseApp - Base application
+* tlCore - Core functionality; file paths and I/O, math, images, audio, etc.
 * tlGL - OpenGL support
 * tlIO - Video, audio, and image I/O
 * tlUI - User interface
-* tlUIApp - User interface applications
+* tlUIApp - User interface application
 
 Timeline libraries:
 * tlDevice - Hardware devices

@@ -17,7 +17,7 @@ namespace tl
                 const std::vector<std::string>& argv,
                 const std::shared_ptr<system::Context>& context)
             {
-                IApp::_init(
+                ui_app::App::_init(
                     argv,
                     context,
                     "player",

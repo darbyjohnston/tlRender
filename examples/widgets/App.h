@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlUIApp/IApp.h>
+#include <tlUIApp/App.h>
 
 namespace tl
 {
@@ -17,7 +17,7 @@ namespace tl
             class MainWindow;
 
             //! Application.
-            class App : public ui_app::IApp
+            class App : public ui_app::App
             {
                 TLRENDER_NON_COPYABLE(App);
 

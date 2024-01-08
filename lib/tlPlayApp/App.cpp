@@ -102,7 +102,7 @@ namespace tl
             const std::string appDocsPath = play::appDocsPath();
             const std::string logFileName = play::logFileName(appName, appDocsPath);
             const std::string settingsFileName = play::settingsName(appName, appDocsPath);
-            IApp::_init(
+            ui_app::App::_init(
                 argv,
                 context,
                 appName,

@@ -15,22 +15,22 @@ namespace tl
         class Style;
     }
 
-    //! User interface applications
+    //! User interface application
     namespace ui_app
     {
         class Window;
 
         //! Application options.
-        struct UIOptions
+        struct Options
         {
             math::Size2i windowSize = math::Size2i(1920, 1080);
             bool fullscreen = false;
         };
 
         //! Base class for user interface applications.
-        class IApp : public app::BaseApp
+        class App : public app::BaseApp
         {
-            TLRENDER_NON_COPYABLE(IApp);
+            TLRENDER_NON_COPYABLE(App);
 
         protected:
             void _init(
@@ -41,10 +41,10 @@ namespace tl
                 const std::vector<std::shared_ptr<app::ICmdLineArg> >& = {},
                 const std::vector<std::shared_ptr<app::ICmdLineOption> >& = {});
 
-            IApp();
+            App();
 
         public:
-            ~IApp();
+            ~App();
 
             //! Run the application.
             virtual int run();
@@ -73,7 +73,7 @@ namespace tl
                 bool enabled,
                 const ui::TickEvent&);
 
-            UIOptions _uiOptions;
+            Options _uiOptions;
 
         private:
             void _removeWindow(const std::shared_ptr<Window>&);

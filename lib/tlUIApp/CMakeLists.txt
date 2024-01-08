@@ -1,9 +1,9 @@
 set(HEADERS
-    IApp.h
+    App.h
     Window.h)
 
 set(SOURCE
-    IApp.cpp
+    App.cpp
     Window.cpp)
 
 set(LIBRARIES tlUI tlBaseApp)

@@ -18,7 +18,7 @@
 
 namespace tl
 {
-    //! Basic applications
+    //! Base application
     namespace app
     {
         class ICmdLineArg;

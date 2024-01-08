@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUIApp/IApp.h>
+#include <tlUIApp/App.h>
 #include <tlUIApp/Window.h>
 
 #include <tlTimeline/Player.h>
@@ -15,7 +15,7 @@ namespace tl
         namespace player
         {
             //! Example player application.
-            class App : public ui_app::IApp
+            class App : public ui_app::App
             {
                 TLRENDER_NON_COPYABLE(App);
 
