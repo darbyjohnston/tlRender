@@ -258,6 +258,8 @@ namespace tl
             case PixelType::_10BitRGB:
             case PixelType::_10BitRGBX:
             case PixelType::_10BitRGBXLE:
+            case PixelType::_12BitRGB:
+            case PixelType::_12BitRGBLE:
                 out = value;
                 break;
             case PixelType::_8BitYUV:
@@ -265,12 +267,6 @@ namespace tl
                 break;
             case PixelType::_10BitYUV:
                 out = PixelType::_10BitRGBXLE;
-                break;
-            case PixelType::_12BitRGB:
-                out = PixelType::_12BitRGB;
-                break;
-            case PixelType::_12BitRGBLE:
-                out = PixelType::_12BitRGBLE;
                 break;
             default: break;
             }
@@ -284,9 +280,9 @@ namespace tl
                 image::PixelType::None,
                 image::PixelType::RGBA_U8,
                 image::PixelType::RGBA_U8,
-                image::PixelType::RGB_U10,
-                image::PixelType::RGB_U10,
-                image::PixelType::RGB_U10,
+                image::PixelType::RGB_U16,
+                image::PixelType::RGB_U16,
+                image::PixelType::RGB_U16,
                 image::PixelType::RGB_U10,
                 image::PixelType::RGB_U16,
                 image::PixelType::RGB_U16
@@ -301,12 +297,12 @@ namespace tl
             {
             case PixelType::_8BitBGRA:
             case PixelType::_8BitYUV:
-            case PixelType::_10BitRGB:
-            case PixelType::_10BitRGBX:
-            case PixelType::_10BitRGBXLE:
             case PixelType::_10BitYUV:
                 out = getDataByteCount(size, pixelType);
                 break;
+            case PixelType::_10BitRGB:
+            case PixelType::_10BitRGBX:
+            case PixelType::_10BitRGBXLE:
             case PixelType::_12BitRGB:
             case PixelType::_12BitRGBLE:
                 out = size.w * size.h * 3 * sizeof(uint16_t);
@@ -323,9 +319,9 @@ namespace tl
                 GL_NONE,
                 GL_BGRA,
                 GL_BGRA,
-                GL_BGRA,
-                GL_RGBA,
-                GL_RGBA,
+                GL_RGB,
+                GL_RGB,
+                GL_RGB,
                 GL_RGBA,
                 GL_RGB,
                 GL_RGB
@@ -340,9 +336,9 @@ namespace tl
                 GL_NONE,
                 GL_UNSIGNED_BYTE,
                 GL_UNSIGNED_BYTE,
-                GL_UNSIGNED_INT_2_10_10_10_REV,
-                GL_UNSIGNED_INT_10_10_10_2,
-                GL_UNSIGNED_INT_10_10_10_2,
+                GL_UNSIGNED_SHORT,
+                GL_UNSIGNED_SHORT,
+                GL_UNSIGNED_SHORT,
                 GL_UNSIGNED_INT_10_10_10_2,
                 GL_UNSIGNED_SHORT,
                 GL_UNSIGNED_SHORT
@@ -358,12 +354,12 @@ namespace tl
                 0,
                 4,
                 4,
-                8, // 256,
-                8, // 256,
-                8, // 256,
+                1,
+                1,
+                1,
                 8, // 128,
-                2, // 256,
-                2, // 256
+                1,
+                1
             };
             return data[static_cast<size_t>(value)];
         }
@@ -375,8 +371,8 @@ namespace tl
                 GL_FALSE,
                 GL_FALSE,
                 GL_FALSE,
-                GL_TRUE,
-                GL_TRUE,
+                GL_FALSE,
+                GL_FALSE,
                 GL_FALSE,
                 GL_FALSE,
                 GL_FALSE,
@@ -391,13 +387,74 @@ namespace tl
             const math::Size2i& size,
             device::PixelType pixelType)
         {
+            const size_t rowByteCount = getRowByteCount(size.w, pixelType);
             switch (pixelType)
             {
+            case PixelType::_10BitRGB:
+                for (int y = 0; y < size.h; ++y)
+                {
+                    const uint16_t* in16 = (const uint16_t*)inP + y * size.w * 3;
+                    uint8_t* out8 = (uint8_t*)outP + y * rowByteCount;
+                    for (int x = 0; x < size.w; ++x)
+                    {
+                        const uint16_t r10 = in16[0] >> 6;
+                        const uint16_t g10 = in16[1] >> 6;
+                        const uint16_t b10 = in16[2] >> 6;
+                        out8[3] = b10;
+                        out8[2] = (b10 >> 8) | (g10 << 2);
+                        out8[1] = (g10 >> 6) | (r10 << 4);
+                        out8[0] = r10 >> 4;
+
+                        in16 += 3;
+                        out8 += 4;
+                    }
+                }
+                break;
+            case PixelType::_10BitRGBX:
+                for (int y = 0; y < size.h; ++y)
+                {
+                    const uint16_t* in16 = (const uint16_t*)inP + y * size.w * 3;
+                    uint8_t* out8 = (uint8_t*)outP + y * rowByteCount;
+                    for (int x = 0; x < size.w; ++x)
+                    {
+                        const uint16_t r10 = in16[0] >> 6;
+                        const uint16_t g10 = in16[1] >> 6;
+                        const uint16_t b10 = in16[2] >> 6;
+                        out8[3] = b10 << 2;
+                        out8[2] = (b10 >> 6) | (g10 << 4);
+                        out8[1] = (g10 >> 4) | (r10 << 6);
+                        out8[0] = r10 >> 2;
+
+                        in16 += 3;
+                        out8 += 4;
+                    }
+                }
+                break;
+            case PixelType::_10BitRGBXLE:
+                for (int y = 0; y < size.h; ++y)
+                {
+                    const uint16_t* in16 = (const uint16_t*)inP + y * size.w * 3;
+                    uint8_t* out8 = (uint8_t*)outP + y * rowByteCount;
+                    for (int x = 0; x < size.w; ++x)
+                    {
+                        const uint16_t r10 = in16[0] >> 6;
+                        const uint16_t g10 = in16[1] >> 6;
+                        const uint16_t b10 = in16[2] >> 6;
+                        out8[0] = b10 << 2;
+                        out8[1] = (b10 >> 6) | (g10 << 4);
+                        out8[2] = (g10 >> 4) | (r10 << 6);
+                        out8[3] = r10 >> 2;
+
+                        in16 += 3;
+                        out8 += 4;
+                    }
+                }
+                break;
             case PixelType::_12BitRGB:
                 for (int y = 0; y < size.h; ++y)
                 {
                     const uint16_t* in16 = (const uint16_t*)inP + y * size.w * 3;
-                    uint8_t* out8 = (uint8_t*)outP + y * size.w * 36 / 8;
+                    uint8_t* out8 = (uint8_t*)outP + y * rowByteCount;
                     for (int x = 0; x < size.w; x += 8)
                     {
                         uint16_t r = in16[0] >> 4;
@@ -489,7 +546,7 @@ namespace tl
                 for (int y = 0; y < size.h; ++y)
                 {
                     const uint16_t* in16 = (const uint16_t*)inP + y * size.w * 3;
-                    uint8_t* out8 = (uint8_t*)outP + y * size.w * 36 / 8;
+                    uint8_t* out8 = (uint8_t*)outP + y * rowByteCount;
                     for (int x = 0; x < size.w; x += 8)
                     {
                         uint16_t r = in16[0] >> 4;
