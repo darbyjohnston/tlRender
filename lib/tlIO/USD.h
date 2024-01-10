@@ -79,6 +79,8 @@ namespace tl
             Plugin();
 
         public:
+            virtual ~Plugin();
+
             //! Create a new plugin.
             static std::shared_ptr<Plugin> create(
                 const std::shared_ptr<io::Cache>&,

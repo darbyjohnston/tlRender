@@ -25,6 +25,7 @@ namespace tl
         struct Plugin::Private
         {
             int64_t id = -1;
+            std::mutex mutex;
             std::shared_ptr<Render> render;
         };
         
@@ -50,6 +51,9 @@ namespace tl
             _p(new Private)
         {}
         
+        Plugin::~Plugin()
+        {}
+
         std::shared_ptr<Plugin> Plugin::create(
             const std::shared_ptr<io::Cache>& cache,
             const std::weak_ptr<log::System>& logSystem)
@@ -64,8 +68,13 @@ namespace tl
             const io::Options& options)
         {
             TLRENDER_P();
-            ++(p.id);
-            return Read::create(p.id, p.render, path, options, _cache, _logSystem);
+            int64_t id = -1;
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                ++(p.id);
+                id = p.id;
+            }
+            return Read::create(id, p.render, path, options, _cache, _logSystem);
         }
         
         std::shared_ptr<io::IRead> Plugin::read(
@@ -74,8 +83,13 @@ namespace tl
             const io::Options& options)
         {
             TLRENDER_P();
-            ++(p.id);
-            return Read::create(p.id, p.render, path, options, _cache, _logSystem);
+            int64_t id = -1;
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                ++(p.id);
+                id = p.id;
+            }
+            return Read::create(id, p.render, path, options, _cache, _logSystem);
         }
         
         image::Info Plugin::getWriteInfo(
