@@ -476,8 +476,7 @@ namespace tl
                 }
                 p.thread.stageCache.setMax(stageCacheCount);
                 p.thread.diskCache.setMax(diskCacheByteCount);
-                if (diskCacheByteCount > 0 &&
-                    p.thread.tempDir.empty())
+                if (diskCacheByteCount > 0 && p.thread.tempDir.empty())
                 {
                     p.thread.tempDir = file::createTempDir();
                     if (auto logSystem = p.logSystem.lock())
@@ -504,6 +503,12 @@ namespace tl
                 {
                     renderWidth = std::atoi(i->second.c_str());
                 }
+                std::string cameraName;
+                i = ioOptions.find("USD/cameraName");
+                if (i != ioOptions.end())
+                {
+                    cameraName = i->second;
+                }
                 if (infoRequest)
                 {
                     const std::string fileName = infoRequest->path.get();
@@ -520,7 +525,7 @@ namespace tl
                         const double endTimeCode = stageCacheItem.stage->GetEndTimeCode();
                         const double timeCodesPerSecond = stageCacheItem.stage->GetTimeCodesPerSecond();
                         GfCamera gfCamera;
-                        auto camera = getCamera(stageCacheItem.stage);
+                        auto camera = getCamera(stageCacheItem.stage, cameraName);
                         if (camera)
                         {
                             //std::cout << fileName << " camera: " <<
@@ -667,8 +672,14 @@ namespace tl
                             }
 
                             // Setup the camera.
+                            std::string cameraName;
+                            i = ioOptions.find("USD/cameraName");
+                            if (i != ioOptions.end())
+                            {
+                                cameraName = i->second;
+                            }
                             GfCamera gfCamera;
-                            auto camera = getCamera(stageCacheItem.stage);
+                            auto camera = getCamera(stageCacheItem.stage, cameraName);
                             if (camera)
                             {
                                 gfCamera = camera.GetCamera(timeCode);

@@ -18,6 +18,7 @@ namespace tl
     {
         struct VideoClipItem::Private
         {
+            io::Options ioOptions;
             file::Path path;
             std::vector<file::MemoryRead> memoryRead;
             std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator;
@@ -61,6 +62,7 @@ namespace tl
                 parent);
             TLRENDER_P();
 
+            p.ioOptions["USD/cameraName"] = clip->name();
             p.path = path;
             p.memoryRead = timeline::getMemoryRead(clip->media_reference());
             p.thumbnailGenerator = thumbnailGenerator;
@@ -149,7 +151,7 @@ namespace tl
                     i->second.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
                     const auto image = i->second.future.get();
-                    _data->thumbnails[_getThumbnailKey(i->first)] = image;
+                    _data->thumbnails[_getThumbnailKey(i->first, p.ioOptions)] = image;
                     i = p.thumbnailRequests.erase(i);
                     _updates |= ui::Update::Draw;
                 }
@@ -203,10 +205,20 @@ namespace tl
             }
         }
 
-        std::string VideoClipItem::_getThumbnailKey(const otime::RationalTime& time) const
+        std::string VideoClipItem::_getThumbnailKey(
+            const otime::RationalTime& time,
+            const io::Options& ioOptions) const
         {
             TLRENDER_P();
-            return string::Format("{0}_{1}").arg(p.path.get()).arg(time);
+            std::vector<std::string> s;
+            s.push_back(p.path.get());
+            s.push_back(string::Format("{0}").arg(time));
+            for (const auto& i : ioOptions)
+            {
+                s.push_back(i.first);
+                s.push_back(i.second);
+            }
+            return string::join(s, '_');
         }
 
         void VideoClipItem::_drawThumbnails(
@@ -272,7 +284,7 @@ namespace tl
                             _trimmedRange,
                             p.ioInfo->videoTime.duration().rate());
 
-                        const auto i = _data->thumbnails.find(_getThumbnailKey(mediaTime));
+                        const auto i = _data->thumbnails.find(_getThumbnailKey(mediaTime, p.ioOptions));
                         if (i != _data->thumbnails.end())
                         {
                             if (i->second)
@@ -289,7 +301,8 @@ namespace tl
                                     p.path,
                                     p.memoryRead,
                                     _options.thumbnailHeight,
-                                    mediaTime);
+                                    mediaTime,
+                                    p.ioOptions);
                             }
                         }
                     }
