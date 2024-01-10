@@ -737,7 +737,7 @@ namespace tl
                                 HdxColorCorrectionTokens->disabled;
                             const UsdPrim& pseudoRoot = stageCacheItem.stage->GetPseudoRoot();
                             unsigned int sleepTime = 10;
-                            while (true)
+                            while (p.thread.running)
                             {
                                 stageCacheItem.engine->Render(pseudoRoot, renderParams);
                                 if (stageCacheItem.engine->IsConverged())
