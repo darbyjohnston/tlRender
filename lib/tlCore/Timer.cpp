@@ -128,7 +128,9 @@ namespace tl
         };
 
         void TimerSystem::_init(const std::shared_ptr<system::Context>& context)
-        {}
+        {
+            ISystem::_init("tl::time::TimerSystem", context);
+        }
 
         TimerSystem::TimerSystem() :
             _p(new Private)
@@ -181,3 +183,4 @@ namespace tl
         }
     }
 }
+
