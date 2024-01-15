@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BSD-3-Clause
-// Copyright (c) 2021-2023 Darby Johnston
+// Copyright (c) 2021-2024 Darby Johnston
 // All rights reserved.
 
 #if defined(TLRENDER_QT5) || defined(TLRENDER_QT6)
