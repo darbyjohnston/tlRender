@@ -27,10 +27,6 @@ namespace tl
         {}
 
         template<typename T>
-        inline Range<T>::~Range()
-        {}
-
-        template<typename T>
         constexpr T Range<T>::getMin() const
         {
             return _min;

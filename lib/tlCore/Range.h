@@ -21,7 +21,6 @@ namespace tl
             constexpr Range();
             explicit constexpr Range(T minMax);
             constexpr Range(T min, T max);
-            ~Range();
 
             //! Get the minimum value.
             constexpr T getMin() const;
