@@ -17,7 +17,7 @@
 	<key>CFBundleVersion</key>
 	<string>@TLRENDER_VERSION@</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright (c) 2021-2023 Darby Johnston</string>
+	<string>Copyright (c) 2021-2024 Darby Johnston</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
     <key>CFBundleDocumentTypes</key>
