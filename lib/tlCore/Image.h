@@ -235,8 +235,8 @@ namespace tl
         {
         public:
             Info();
-            explicit Info(const Size&, PixelType);
-            explicit Info(int w, int h, PixelType);
+            Info(const Size&, PixelType);
+            Info(int w, int h, PixelType);
 
             std::string     name             = "Default";
             Size            size;
