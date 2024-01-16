@@ -22,7 +22,7 @@ namespace tl
                 bmdFormat10BitRGB,
                 bmdFormat10BitRGBX,
                 bmdFormat10BitRGBXLE,
-                bmdFormat10BitYUV,
+                //bmdFormat10BitYUV,
                 bmdFormat12BitRGB,
                 bmdFormat12BitRGBLE
             };
@@ -39,7 +39,7 @@ namespace tl
             case bmdFormat10BitRGB:    out = PixelType::_10BitRGB;    break;
             case bmdFormat10BitRGBX:   out = PixelType::_10BitRGBX;   break;
             case bmdFormat10BitRGBXLE: out = PixelType::_10BitRGBXLE; break;
-            case bmdFormat10BitYUV:    out = PixelType::_10BitYUV;    break;
+            //case bmdFormat10BitYUV:    out = PixelType::_10BitYUV;    break;
             case bmdFormat12BitRGB:    out = PixelType::_12BitRGB;    break;
             case bmdFormat12BitRGBLE:  out = PixelType::_12BitRGBLE;  break;
             default: break;
@@ -265,9 +265,9 @@ namespace tl
             case PixelType::_8BitYUV:
                 out = PixelType::_8BitBGRA;
                 break;
-            case PixelType::_10BitYUV:
-                out = PixelType::_10BitRGBXLE;
-                break;
+            //case PixelType::_10BitYUV:
+            //    out = PixelType::_10BitRGBXLE;
+            //    break;
             default: break;
             }
             return out;
@@ -283,7 +283,7 @@ namespace tl
                 image::PixelType::RGB_U16,
                 image::PixelType::RGB_U16,
                 image::PixelType::RGB_U16,
-                image::PixelType::RGB_U10,
+                //image::PixelType::RGB_U10,
                 image::PixelType::RGB_U16,
                 image::PixelType::RGB_U16
             };
@@ -297,7 +297,7 @@ namespace tl
             {
             case PixelType::_8BitBGRA:
             case PixelType::_8BitYUV:
-            case PixelType::_10BitYUV:
+            //case PixelType::_10BitYUV:
                 out = getDataByteCount(size, pixelType);
                 break;
             case PixelType::_10BitRGB:
@@ -322,7 +322,7 @@ namespace tl
                 GL_RGB,
                 GL_RGB,
                 GL_RGB,
-                GL_RGBA,
+                //GL_RGBA,
                 GL_RGB,
                 GL_RGB
             };
@@ -339,7 +339,7 @@ namespace tl
                 GL_UNSIGNED_SHORT,
                 GL_UNSIGNED_SHORT,
                 GL_UNSIGNED_SHORT,
-                GL_UNSIGNED_INT_10_10_10_2,
+                //GL_UNSIGNED_INT_10_10_10_2,
                 GL_UNSIGNED_SHORT,
                 GL_UNSIGNED_SHORT
             };
@@ -348,7 +348,6 @@ namespace tl
 
         GLint getPackPixelsAlign(device::PixelType value)
         {
-            //! \bug OpenGL only allows alignment values of 1, 2, 4, and 8.
             const std::array<GLint, static_cast<size_t>(device::PixelType::Count)> data =
             {
                 0,
@@ -357,7 +356,8 @@ namespace tl
                 1,
                 1,
                 1,
-                8, // 128,
+                //! \bug OpenGL only allows alignment values of 1, 2, 4, and 8.
+                //8, // 128,
                 1,
                 1
             };
@@ -374,7 +374,7 @@ namespace tl
                 GL_FALSE,
                 GL_FALSE,
                 GL_FALSE,
-                GL_FALSE,
+                //GL_FALSE,
                 GL_FALSE,
                 GL_FALSE
             };

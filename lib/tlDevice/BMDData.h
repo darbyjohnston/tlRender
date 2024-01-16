@@ -25,6 +25,9 @@ namespace tl
         };
 
         //! Pixel types.
+        //!
+        //! \bug Disable 10-bit YUV since the BMD conversion function
+        //! shows artifacts.
         enum class PixelType
         {
             None,
@@ -33,7 +36,7 @@ namespace tl
             _10BitRGB,
             _10BitRGBX,
             _10BitRGBXLE,
-            _10BitYUV,
+            //_10BitYUV,
             _12BitRGB,
             _12BitRGBLE,
 
