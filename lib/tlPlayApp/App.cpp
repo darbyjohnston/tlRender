@@ -17,9 +17,6 @@
 #include <tlPlay/Settings.h>
 #include <tlPlay/Util.h>
 #include <tlPlay/ViewportModel.h>
-#if defined(TLRENDER_BMD)
-#include <tlPlay/BMDDevicesModel.h>
-#endif // TLRENDER_BMD
 
 #include <tlUI/FileBrowser.h>
 #include <tlUI/RecentFilesModel.h>
@@ -27,6 +24,7 @@
 #include <tlTimeline/Util.h>
 
 #if defined(TLRENDER_BMD)
+#include <tlDevice/BMDDevicesModel.h>
 #include <tlDevice/BMDOutputDevice.h>
 #endif // TLRENDER_BMD
 
@@ -64,8 +62,8 @@ namespace tl
 
             bool bmdDeviceActive = false;
 #if defined(TLRENDER_BMD)
-            std::shared_ptr<play::BMDDevicesModel> bmdDevicesModel;
-            std::shared_ptr<device::BMDOutputDevice> bmdOutputDevice;
+            std::shared_ptr<bmd::DevicesModel> bmdDevicesModel;
+            std::shared_ptr<bmd::OutputDevice> bmdOutputDevice;
             image::VideoLevels bmdOutputVideoLevels;
 #endif // TLRENDER_BMD
 
@@ -81,7 +79,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ValueObserver<double> > syncOffsetObserver;
 #if defined(TLRENDER_BMD)
-            std::shared_ptr<observer::ValueObserver<play::BMDDevicesModelData> > bmdDevicesObserver;
+            std::shared_ptr<observer::ValueObserver<bmd::DevicesModelData> > bmdDevicesObserver;
             std::shared_ptr<observer::ValueObserver<bool> > bmdActiveObserver;
             std::shared_ptr<observer::ValueObserver<math::Size2i> > bmdSizeObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > bmdFrameRateObserver;
@@ -304,12 +302,12 @@ namespace tl
         }
 
 #if defined(TLRENDER_BMD)
-        const std::shared_ptr<play::BMDDevicesModel>& App::getBMDDevicesModel() const
+        const std::shared_ptr<bmd::DevicesModel>& App::getBMDDevicesModel() const
         {
             return _p->bmdDevicesModel;
         }
 
-        const std::shared_ptr<device::BMDOutputDevice>& App::getBMDOutputDevice() const
+        const std::shared_ptr<bmd::OutputDevice>& App::getBMDOutputDevice() const
         {
             return _p->bmdOutputDevice;
         }
@@ -392,12 +390,12 @@ namespace tl
 #endif // TLRENDER_USD
 
 #if defined(TLRENDER_BMD)
-            play::BMDDevicesModelData bmdDevicesModelData;
+            bmd::DevicesModelData bmdDevicesModelData;
             p.settings->setDefaultValue("BMD/DeviceIndex", bmdDevicesModelData.deviceIndex);
             p.settings->setDefaultValue("BMD/DisplayModeIndex", bmdDevicesModelData.displayModeIndex);
             p.settings->setDefaultValue("BMD/PixelTypeIndex", bmdDevicesModelData.pixelTypeIndex);
             p.settings->setDefaultValue("BMD/DeviceEnabled", bmdDevicesModelData.deviceEnabled);
-            const auto i = bmdDevicesModelData.boolOptions.find(device::Option::_444SDIVideoOutput);
+            const auto i = bmdDevicesModelData.boolOptions.find(bmd::Option::_444SDIVideoOutput);
             p.settings->setDefaultValue("BMD/444SDIVideoOutput", i != bmdDevicesModelData.boolOptions.end() ? i->second : false);
             p.settings->setDefaultValue("BMD/HDRMode", bmdDevicesModelData.hdrMode);
             p.settings->setDefaultValue("BMD/HDRData", bmdDevicesModelData.hdrData);
@@ -442,7 +440,7 @@ namespace tl
         {
             TLRENDER_P();
 #if defined(TLRENDER_BMD)
-            p.bmdOutputDevice = device::BMDOutputDevice::create(_context);
+            p.bmdOutputDevice = bmd::OutputDevice::create(_context);
             //! \todo BMD
             /*if (0)
             {
@@ -450,7 +448,7 @@ namespace tl
                 bmdOverlayImage->fill(QColor(0, 0, 255, 63));
                 p.bmdOutputDevice->setOverlay(bmdOverlayImage);
             }*/
-            p.bmdDevicesModel = play::BMDDevicesModel::create(_context); p.bmdDevicesModel->setDeviceIndex(
+            p.bmdDevicesModel = bmd::DevicesModel::create(_context); p.bmdDevicesModel->setDeviceIndex(
                 p.settings->getValue<int>("BMD/DeviceIndex"));
             p.bmdDevicesModel->setDisplayModeIndex(
                 p.settings->getValue<int>("BMD/DisplayModeIndex"));
@@ -458,12 +456,12 @@ namespace tl
                 p.settings->getValue<int>("BMD/PixelTypeIndex"));
             p.bmdDevicesModel->setDeviceEnabled(
                 p.settings->getValue<bool>("BMD/DeviceEnabled"));
-            device::BoolOptions deviceBoolOptions;
-            deviceBoolOptions[device::Option::_444SDIVideoOutput] =
+            bmd::BoolOptions deviceBoolOptions;
+            deviceBoolOptions[bmd::Option::_444SDIVideoOutput] =
                 p.settings->getValue<bool>("BMD/444SDIVideoOutput");
             p.bmdDevicesModel->setBoolOptions(deviceBoolOptions);
             p.bmdDevicesModel->setHDRMode(
-                p.settings->getValue<device::HDRMode>("BMD/HDRMode"));
+                p.settings->getValue<bmd::HDRMode>("BMD/HDRMode"));
             p.bmdDevicesModel->setHDRData(
                 p.settings->getValue<image::HDRData>("BMD/HDRData"));
 #endif // TLRENDER_BMD
@@ -548,18 +546,18 @@ namespace tl
                 });
 
 #if defined(TLRENDER_BMD)
-            p.bmdDevicesObserver = observer::ValueObserver<play::BMDDevicesModelData>::create(
+            p.bmdDevicesObserver = observer::ValueObserver<bmd::DevicesModelData>::create(
                 p.bmdDevicesModel->observeData(),
-                [this](const play::BMDDevicesModelData& value)
+                [this](const bmd::DevicesModelData& value)
                 {
                     TLRENDER_P();
-                    device::DeviceConfig config;
+                    bmd::DeviceConfig config;
                     config.deviceIndex = value.deviceIndex - 1;
                     config.displayModeIndex = value.displayModeIndex - 1;
                     config.pixelType = value.pixelTypeIndex >= 0 &&
                         value.pixelTypeIndex < value.pixelTypes.size() ?
                         value.pixelTypes[value.pixelTypeIndex] :
-                        device::PixelType::None;
+                        bmd::PixelType::None;
                     config.boolOptions = value.boolOptions;
                     p.bmdOutputDevice->setConfig(config);
                     p.bmdOutputDevice->setEnabled(value.deviceEnabled);
@@ -578,7 +576,7 @@ namespace tl
                     p.settings->setValue("BMD/DisplayModeIndex", value.displayModeIndex);
                     p.settings->setValue("BMD/PixelTypeIndex", value.pixelTypeIndex);
                     p.settings->setValue("BMD/DeviceEnabled", value.deviceEnabled);
-                    const auto i = value.boolOptions.find(device::Option::_444SDIVideoOutput);
+                    const auto i = value.boolOptions.find(bmd::Option::_444SDIVideoOutput);
                     p.settings->setValue("BMD/444SDIVideoOutput", i != value.boolOptions.end() ? i->second : false);
                     p.settings->setValue("BMD/HDRMode", value.hdrMode);
                     p.settings->setValue("BMD/HDRData", value.hdrData);

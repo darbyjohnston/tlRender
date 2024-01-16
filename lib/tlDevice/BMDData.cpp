@@ -12,7 +12,7 @@
 
 namespace tl
 {
-    namespace device
+    namespace bmd
     {
         bool DisplayMode::operator == (const DisplayMode& other) const
         {

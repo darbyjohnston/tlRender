@@ -17,12 +17,13 @@
 
 namespace tl
 {
-    namespace device
-    {
 #if defined(TLRENDER_BMD)
-        class BMDOutputDevice;
-#endif // TLRENDER_BMD
+    namespace bmd
+    {
+        class DevicesModel;
+        class OutputDevice;
     }
+#endif // TLRENDER_BMD
 
     namespace play
     {
@@ -33,9 +34,6 @@ namespace tl
         class FilesModel;
         class Settings;
         class ViewportModel;
-#if defined(TLRENDER_BMD)
-        class BMDDevicesModel;
-#endif // TLRENDER_BMD
     }
 
     namespace qt
@@ -104,10 +102,10 @@ namespace tl
 
 #if defined(TLRENDER_BMD)
             //! Get the BMD devices model.
-            const std::shared_ptr<play::BMDDevicesModel>& bmdDevicesModel() const;
+            const std::shared_ptr<bmd::DevicesModel>& bmdDevicesModel() const;
 
             //! Get the BMD output device.
-            const std::shared_ptr<device::BMDOutputDevice>& bmdOutputDevice() const;
+            const std::shared_ptr<bmd::OutputDevice>& bmdOutputDevice() const;
 #endif // TLRENDER_BMD
 
         public Q_SLOTS:

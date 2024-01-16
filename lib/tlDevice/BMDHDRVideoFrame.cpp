@@ -6,7 +6,7 @@
 
 namespace tl
 {
-    namespace device
+    namespace bmd
     {
         /*HRESULT DLHDRVideoFrame::QueryInterface(REFIID iid, LPVOID* ppv)
         {

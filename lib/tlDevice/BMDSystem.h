@@ -11,23 +11,23 @@
 
 namespace tl
 {
-    namespace device
+    namespace bmd
     {
         //! BMD system.
-        class BMDSystem : public system::ISystem
+        class System : public system::ISystem
         {
-            TLRENDER_NON_COPYABLE(BMDSystem);
+            TLRENDER_NON_COPYABLE(System);
 
         protected:
             void _init(const std::shared_ptr<system::Context>&);
 
-            BMDSystem();
+            System();
 
         public:
-            ~BMDSystem() override;
+            ~System() override;
 
             //! Create a new system.
-            static std::shared_ptr<BMDSystem> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<System> create(const std::shared_ptr<system::Context>&);
 
             //! Observe the device information.
             std::shared_ptr<observer::IList<DeviceInfo> > observeDeviceInfo() const;

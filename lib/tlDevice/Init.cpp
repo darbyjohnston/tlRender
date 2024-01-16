@@ -20,9 +20,9 @@ namespace tl
         {
             timeline::init(context);
 #if defined(TLRENDER_BMD)
-            if (!context->getSystem<BMDSystem>())
+            if (!context->getSystem<bmd::System>())
             {
-                context->addSystem(BMDSystem::create(context));
+                context->addSystem(bmd::System::create(context));
             }
 #endif // TLRENDER_BMD
         }

@@ -10,10 +10,7 @@
 #include <tlQtWidget/FloatEditSlider.h>
 
 #if defined(TLRENDER_BMD)
-#include <tlPlay/BMDDevicesModel.h>
-#endif // TLRENDER_BMD
-
-#if defined(TLRENDER_BMD)
+#include <tlDevice/BMDDevicesModel.h>
 #include <tlDevice/BMDOutputDevice.h>
 #endif // TLRENDER_BMD
 
@@ -49,7 +46,7 @@ namespace tl
             qtwidget::FloatEditSlider* maxCLLSlider = nullptr;
             qtwidget::FloatEditSlider* maxFALLSlider = nullptr;
 
-            std::shared_ptr<observer::ValueObserver<play::BMDDevicesModelData> > dataObserver;
+            std::shared_ptr<observer::ValueObserver<bmd::DevicesModelData> > dataObserver;
 #endif // TLRENDER_BMD
         };
 
@@ -171,7 +168,7 @@ namespace tl
                 [this](bool value)
                 {
                     auto options = _p->app->bmdDevicesModel()->observeData()->get().boolOptions;
-                    options[device::Option::_444SDIVideoOutput] = value;
+                    options[bmd::Option::_444SDIVideoOutput] = value;
                     _p->app->bmdDevicesModel()->setBoolOptions(options);
                 });
 
@@ -188,7 +185,7 @@ namespace tl
                 QOverload<int>::of(&QComboBox::activated),
                 [this](int value)
                 {
-                    _p->app->bmdDevicesModel()->setHDRMode(static_cast<device::HDRMode>(value));
+                    _p->app->bmdDevicesModel()->setHDRMode(static_cast<bmd::HDRMode>(value));
                 });
 
             for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
@@ -251,9 +248,9 @@ namespace tl
                     _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
 
-            p.dataObserver = observer::ValueObserver<play::BMDDevicesModelData>::create(
+            p.dataObserver = observer::ValueObserver<bmd::DevicesModelData>::create(
                 app->bmdDevicesModel()->observeData(),
-                [this](const play::BMDDevicesModelData& value)
+                [this](const bmd::DevicesModelData& value)
                 {
                     TLRENDER_P();
                     {
@@ -291,7 +288,7 @@ namespace tl
                     }
                     {
                         QSignalBlocker blocker(p._444SDIVideoOutputCheckBox);
-                        const auto i = value.boolOptions.find(device::Option::_444SDIVideoOutput);
+                        const auto i = value.boolOptions.find(bmd::Option::_444SDIVideoOutput);
                         p._444SDIVideoOutputCheckBox->setChecked(i != value.boolOptions.end() ? i->second : false);
                     }
                     {
@@ -308,7 +305,7 @@ namespace tl
                     {
                         QSignalBlocker blocker(p.hdrModeComboBox);
                         p.hdrModeComboBox->clear();
-                        for (const auto& i : device::getHDRModeLabels())
+                        for (const auto& i : bmd::getHDRModeLabels())
                         {
                             p.hdrModeComboBox->addItem(QString::fromUtf8(i.c_str()));
                         }
@@ -319,33 +316,33 @@ namespace tl
                         {
                             QSignalBlocker blocker(p.primariesSpinBoxes[i].first);
                             p.primariesSpinBoxes[i].first->setValue(value.hdrData.primaries[i].x);
-                            p.primariesSpinBoxes[i].first->setEnabled(device::HDRMode::Custom == value.hdrMode);
+                            p.primariesSpinBoxes[i].first->setEnabled(bmd::HDRMode::Custom == value.hdrMode);
                         }
                         {
                             QSignalBlocker blocker(p.primariesSpinBoxes[i].second);
                             p.primariesSpinBoxes[i].second->setValue(value.hdrData.primaries[i].y);
-                            p.primariesSpinBoxes[i].second->setEnabled(device::HDRMode::Custom == value.hdrMode);
+                            p.primariesSpinBoxes[i].second->setEnabled(bmd::HDRMode::Custom == value.hdrMode);
                         }
                     }
                     {
                         QSignalBlocker blocker(p.masteringLuminanceSpinBoxes.first);
                         p.masteringLuminanceSpinBoxes.first->setValue(value.hdrData.displayMasteringLuminance.getMin());
-                        p.masteringLuminanceSpinBoxes.first->setEnabled(device::HDRMode::Custom == value.hdrMode);
+                        p.masteringLuminanceSpinBoxes.first->setEnabled(bmd::HDRMode::Custom == value.hdrMode);
                     }
                     {
                         QSignalBlocker blocker(p.masteringLuminanceSpinBoxes.second);
                         p.masteringLuminanceSpinBoxes.second->setValue(value.hdrData.displayMasteringLuminance.getMax());
-                        p.masteringLuminanceSpinBoxes.second->setEnabled(device::HDRMode::Custom == value.hdrMode);
+                        p.masteringLuminanceSpinBoxes.second->setEnabled(bmd::HDRMode::Custom == value.hdrMode);
                     }
                     {
                         QSignalBlocker blocker(p.maxCLLSlider);
                         p.maxCLLSlider->setValue(value.hdrData.maxCLL);
-                        p.maxCLLSlider->setEnabled(device::HDRMode::Custom == value.hdrMode);
+                        p.maxCLLSlider->setEnabled(bmd::HDRMode::Custom == value.hdrMode);
                     }
                     {
                         QSignalBlocker blocker(p.maxFALLSlider);
                         p.maxFALLSlider->setValue(value.hdrData.maxFALL);
-                        p.maxFALLSlider->setEnabled(device::HDRMode::Custom == value.hdrMode);
+                        p.maxFALLSlider->setEnabled(bmd::HDRMode::Custom == value.hdrMode);
                     }
                 });
 #endif // TLRENDER_BMD

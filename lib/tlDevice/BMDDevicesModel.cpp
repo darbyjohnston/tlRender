@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2024 Darby Johnston
 // All rights reserved.
 
-#include <tlPlay/BMDDevicesModel.h>
+#include <tlDevice/BMDDevicesModel.h>
 
 #include <tlDevice/BMDSystem.h>
 
@@ -10,9 +10,9 @@
 
 namespace tl
 {
-    namespace play
+    namespace bmd
     {
-        bool BMDDevicesModelData::operator == (const BMDDevicesModelData& other) const
+        bool DevicesModelData::operator == (const DevicesModelData& other) const
         {
             return
                 devices == other.devices &&
@@ -28,35 +28,35 @@ namespace tl
                 hdrData == other.hdrData;
         }
 
-        struct BMDDevicesModel::Private
+        struct DevicesModel::Private
         {
-            std::vector<device::DeviceInfo> deviceInfo;
+            std::vector<DeviceInfo> deviceInfo;
             int deviceIndex = 0;
             int displayModeIndex = 0;
             int pixelTypeIndex = 0;
             bool deviceEnabled = true;
-            device::BoolOptions boolOptions;
+            BoolOptions boolOptions;
             image::VideoLevels videoLevels = image::VideoLevels::LegalRange;
-            device::HDRMode hdrMode = device::HDRMode::FromFile;
+            HDRMode hdrMode = HDRMode::FromFile;
             image::HDRData hdrData;
-            std::shared_ptr<observer::Value<BMDDevicesModelData> > data;
-            std::shared_ptr<observer::ListObserver<device::DeviceInfo> > deviceInfoObserver;
+            std::shared_ptr<observer::Value<DevicesModelData> > data;
+            std::shared_ptr<observer::ListObserver<DeviceInfo> > deviceInfoObserver;
         };
 
-        void BMDDevicesModel::_init(
+        void DevicesModel::_init(
             const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
 
-            p.data = observer::Value<BMDDevicesModelData>::create();
+            p.data = observer::Value<DevicesModelData>::create();
 
             _update();
 
-            if (auto system = context->getSystem<device::BMDSystem>())
+            if (auto system = context->getSystem<System>())
             {
-                p.deviceInfoObserver = observer::ListObserver<device::DeviceInfo>::create(
+                p.deviceInfoObserver = observer::ListObserver<DeviceInfo>::create(
                     system->observeDeviceInfo(),
-                    [this](const std::vector<device::DeviceInfo>& value)
+                    [this](const std::vector<DeviceInfo>& value)
                     {
                         _p->deviceInfo = value;
                         _update();
@@ -64,27 +64,27 @@ namespace tl
             }
         }
 
-        BMDDevicesModel::BMDDevicesModel() :
+        DevicesModel::DevicesModel() :
             _p(new Private)
         {}
 
-        BMDDevicesModel::~BMDDevicesModel()
+        DevicesModel::~DevicesModel()
         {}
 
-        std::shared_ptr<BMDDevicesModel> BMDDevicesModel::create(
+        std::shared_ptr<DevicesModel> DevicesModel::create(
             const std::shared_ptr<system::Context>& context)
         {
-            auto out = std::shared_ptr<BMDDevicesModel>(new BMDDevicesModel);
+            auto out = std::shared_ptr<DevicesModel>(new DevicesModel);
             out->_init(context);
             return out;
         }
 
-        std::shared_ptr<observer::IValue<BMDDevicesModelData> > BMDDevicesModel::observeData() const
+        std::shared_ptr<observer::IValue<DevicesModelData> > DevicesModel::observeData() const
         {
             return _p->data;
         }
 
-        void BMDDevicesModel::setDeviceIndex(int index)
+        void DevicesModel::setDeviceIndex(int index)
         {
             TLRENDER_P();
             if (index == p.deviceIndex)
@@ -93,7 +93,7 @@ namespace tl
             _update();
         }
 
-        void BMDDevicesModel::setDisplayModeIndex(int index)
+        void DevicesModel::setDisplayModeIndex(int index)
         {
             TLRENDER_P();
             if (index == p.displayModeIndex)
@@ -102,7 +102,7 @@ namespace tl
             _update();
         }
 
-        void BMDDevicesModel::setPixelTypeIndex(int index)
+        void DevicesModel::setPixelTypeIndex(int index)
         {
             TLRENDER_P();
             if (index == p.pixelTypeIndex)
@@ -111,7 +111,7 @@ namespace tl
             _update();
         }
 
-        void BMDDevicesModel::setDeviceEnabled(bool value)
+        void DevicesModel::setDeviceEnabled(bool value)
         {
             TLRENDER_P();
             if (value == p.deviceEnabled)
@@ -120,7 +120,7 @@ namespace tl
             _update();
         }
 
-        void BMDDevicesModel::setBoolOptions(const device::BoolOptions& value)
+        void DevicesModel::setBoolOptions(const BoolOptions& value)
         {
             TLRENDER_P();
             if (value == p.boolOptions)
@@ -129,7 +129,7 @@ namespace tl
             _update();
         }
 
-        void BMDDevicesModel::setVideoLevels(image::VideoLevels value)
+        void DevicesModel::setVideoLevels(image::VideoLevels value)
         {
             TLRENDER_P();
             if (value == p.videoLevels)
@@ -138,7 +138,7 @@ namespace tl
             _update();
         }
 
-        void BMDDevicesModel::setHDRMode(device::HDRMode value)
+        void DevicesModel::setHDRMode(HDRMode value)
         {
             TLRENDER_P();
             if (value == p.hdrMode)
@@ -147,7 +147,7 @@ namespace tl
             _update();
         }
 
-        void BMDDevicesModel::setHDRData(const image::HDRData& value)
+        void DevicesModel::setHDRData(const image::HDRData& value)
         {
             TLRENDER_P();
             if (value == p.hdrData)
@@ -156,11 +156,11 @@ namespace tl
             _update();
         }
 
-        void BMDDevicesModel::_update()
+        void DevicesModel::_update()
         {
             TLRENDER_P();
 
-            BMDDevicesModelData data;
+            DevicesModelData data;
 
             data.devices.push_back("None");
             for (const auto& i : p.deviceInfo)
@@ -179,7 +179,7 @@ namespace tl
                 data.displayModeIndex = p.displayModeIndex;
             }
 
-            data.pixelTypes.push_back(device::PixelType::None);
+            data.pixelTypes.push_back(PixelType::None);
             if (!p.deviceInfo.empty() && p.deviceIndex >= 1 && (p.deviceIndex - 1) < p.deviceInfo.size())
             {
                 for (const auto& i : p.deviceInfo[p.deviceIndex - 1].pixelTypes)

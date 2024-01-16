@@ -17,10 +17,7 @@
 #include <tlUI/ScrollWidget.h>
 
 #if defined(TLRENDER_BMD)
-#include <tlPlay/BMDDevicesModel.h>
-#endif // TLRENDER_BMD
-
-#if defined(TLRENDER_BMD)
+#include <tlDevice/BMDDevicesModel.h>
 #include <tlDevice/BMDOutputDevice.h>
 #endif // TLRENDER_BMD
 
@@ -43,7 +40,7 @@ namespace tl
             std::shared_ptr<ui::FloatEditSlider> maxCLLSlider;
             std::shared_ptr<ui::FloatEditSlider> maxFALLSlider;
 
-            std::shared_ptr<observer::ValueObserver<play::BMDDevicesModelData> > dataObserver;
+            std::shared_ptr<observer::ValueObserver<bmd::DevicesModelData> > dataObserver;
 #endif // TLRENDER_BMD
         };
 
@@ -71,7 +68,7 @@ namespace tl
 
             p.videoLevelsComboBox = ui::ComboBox::create(image::getVideoLevelsLabels(), context);
 
-            p.hdrModeComboBox = ui::ComboBox::create(device::getHDRModeLabels(), context);
+            p.hdrModeComboBox = ui::ComboBox::create(bmd::getHDRModeLabels(), context);
 
             for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
             {
@@ -217,7 +214,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getBMDDevicesModel()->observeData()->get().boolOptions;
-                        options[device::Option::_444SDIVideoOutput] = value;
+                        options[bmd::Option::_444SDIVideoOutput] = value;
                         app->getBMDDevicesModel()->setBoolOptions(options);
                     }
                 });
@@ -236,7 +233,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getBMDDevicesModel()->setHDRMode(static_cast<device::HDRMode>(value));
+                        app->getBMDDevicesModel()->setHDRMode(static_cast<bmd::HDRMode>(value));
                     }
                 });
 
@@ -306,9 +303,9 @@ namespace tl
                     }
                 });
 
-            p.dataObserver = observer::ValueObserver<play::BMDDevicesModelData>::create(
+            p.dataObserver = observer::ValueObserver<bmd::DevicesModelData>::create(
                 app->getBMDDevicesModel()->observeData(),
-                [this](const play::BMDDevicesModelData& value)
+                [this](const bmd::DevicesModelData& value)
                 {
                     TLRENDER_P();
                     p.enabledCheckBox->setChecked(value.deviceEnabled);
@@ -327,7 +324,7 @@ namespace tl
                     p.pixelTypeComboBox->setItems(pixelTypes);
                     p.pixelTypeComboBox->setCurrentIndex(value.pixelTypeIndex);
 
-                    const auto i = value.boolOptions.find(device::Option::_444SDIVideoOutput);
+                    const auto i = value.boolOptions.find(bmd::Option::_444SDIVideoOutput);
                     p._444SDIVideoOutputCheckBox->setChecked(i != value.boolOptions.end() ? i->second : false);
 
                     p.videoLevelsComboBox->setCurrentIndex(static_cast<int>(value.videoLevels));
@@ -337,20 +334,20 @@ namespace tl
                     for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
                     {
                         p.primariesFloatEdits[i].first->setValue(value.hdrData.primaries[i].x);
-                        p.primariesFloatEdits[i].first->setEnabled(device::HDRMode::Custom == value.hdrMode);
+                        p.primariesFloatEdits[i].first->setEnabled(bmd::HDRMode::Custom == value.hdrMode);
                         p.primariesFloatEdits[i].second->setValue(value.hdrData.primaries[i].y);
-                        p.primariesFloatEdits[i].second->setEnabled(device::HDRMode::Custom == value.hdrMode);
+                        p.primariesFloatEdits[i].second->setEnabled(bmd::HDRMode::Custom == value.hdrMode);
                     }
 
                     p.masteringLuminanceFloatEdits.first->setValue(value.hdrData.displayMasteringLuminance.getMin());
-                    p.masteringLuminanceFloatEdits.first->setEnabled(device::HDRMode::Custom == value.hdrMode);
+                    p.masteringLuminanceFloatEdits.first->setEnabled(bmd::HDRMode::Custom == value.hdrMode);
                     p.masteringLuminanceFloatEdits.second->setValue(value.hdrData.displayMasteringLuminance.getMax());
-                    p.masteringLuminanceFloatEdits.second->setEnabled(device::HDRMode::Custom == value.hdrMode);
+                    p.masteringLuminanceFloatEdits.second->setEnabled(bmd::HDRMode::Custom == value.hdrMode);
 
                     p.maxCLLSlider->setValue(value.hdrData.maxCLL);
-                    p.maxCLLSlider->setEnabled(device::HDRMode::Custom == value.hdrMode);
+                    p.maxCLLSlider->setEnabled(bmd::HDRMode::Custom == value.hdrMode);
                     p.maxFALLSlider->setValue(value.hdrData.maxFALL);
-                    p.maxFALLSlider->setEnabled(device::HDRMode::Custom == value.hdrMode);
+                    p.maxFALLSlider->setEnabled(bmd::HDRMode::Custom == value.hdrMode);
                 });
 #endif // TLRENDER_BMD
         }

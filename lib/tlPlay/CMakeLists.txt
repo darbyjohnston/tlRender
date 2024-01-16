@@ -23,13 +23,6 @@ set(SOURCE
     Util.cpp
     ViewportModel.cpp)
 
-if(TLRENDER_BMD)
-    list(APPEND HEADERS
-        BMDDevicesModel.h)
-    list(APPEND SOURCE
-        BMDDevicesModel.cpp)
-endif()
-
 add_library(tlPlay ${HEADERS} ${SOURCE})
 target_link_libraries(tlPlay tlDevice)
 set_target_properties(tlPlay PROPERTIES FOLDER lib)

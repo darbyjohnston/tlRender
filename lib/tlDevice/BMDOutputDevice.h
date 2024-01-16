@@ -11,23 +11,23 @@
 
 namespace tl
 {
-    namespace device
+    namespace bmd
     {
         //! BMD output device.
-        class BMDOutputDevice : public std::enable_shared_from_this<BMDOutputDevice>
+        class OutputDevice : public std::enable_shared_from_this<OutputDevice>
         {
-            TLRENDER_NON_COPYABLE(BMDOutputDevice);
+            TLRENDER_NON_COPYABLE(OutputDevice);
 
         protected:
             void _init(const std::shared_ptr<system::Context>&);
 
-            BMDOutputDevice();
+            OutputDevice();
 
         public:
-            ~BMDOutputDevice();
+            ~OutputDevice();
 
-            //! Create a new BMD output device.
-            static std::shared_ptr<BMDOutputDevice> create(const std::shared_ptr<system::Context>&);
+            //! Create a new output device.
+            static std::shared_ptr<OutputDevice> create(const std::shared_ptr<system::Context>&);
 
             //! Get the output device configuration.
             DeviceConfig getConfig() const;
@@ -84,7 +84,7 @@ namespace tl
             void setDisplayOptions(const std::vector<timeline::DisplayOptions>&);
 
             //! Set the HDR mode and metadata.
-            void setHDR(device::HDRMode, const image::HDRData&);
+            void setHDR(HDRMode, const image::HDRData&);
 
             //! Set the comparison options.
             void setCompareOptions(const timeline::CompareOptions&);
@@ -107,12 +107,12 @@ namespace tl
         private:
             void _run();
             void _createDevice(
-                const device::DeviceConfig&,
+                const DeviceConfig&,
                 bool& active,
                 math::Size2i& size,
                 otime::RationalTime& frameRate);
             void _render(
-                const device::DeviceConfig&,
+                const DeviceConfig&,
                 const timeline::OCIOOptions&,
                 const timeline::LUTOptions&,
                 const std::vector<timeline::ImageOptions>&,

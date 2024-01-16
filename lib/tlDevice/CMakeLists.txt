@@ -13,6 +13,7 @@ if(TLRENDER_BMD)
 
     list(APPEND HEADERS
         BMDData.h
+        BMDDevicesModel.h
         BMDOutputDevice.h
         BMDSystem.h
         BMDUtil.h)
@@ -20,6 +21,7 @@ if(TLRENDER_BMD)
         BMDOutputPrivate.h)
     list(APPEND SOURCE
         BMDData.cpp
+        BMDDevicesModel.cpp
         BMDOutputCallback.cpp
         BMDHDRVideoFrame.cpp
         BMDOutputDevice.cpp

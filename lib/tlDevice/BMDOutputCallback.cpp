@@ -14,7 +14,7 @@
 
 namespace tl
 {
-    namespace device
+    namespace bmd
     {
         namespace
         {

@@ -8,7 +8,7 @@
 
 namespace tl
 {
-    namespace device
+    namespace bmd
     {
         BMDPixelFormat toBMD(PixelType value)
         {
@@ -249,9 +249,9 @@ namespace tl
             return out;
         }
 
-        device::PixelType getOutputType(device::PixelType value)
+        PixelType getOutputType(PixelType value)
         {
-            device::PixelType out = device::PixelType::None;
+            PixelType out = PixelType::None;
             switch (value)
             {
             case PixelType::_8BitBGRA:
@@ -273,9 +273,9 @@ namespace tl
             return out;
         }
 
-        image::PixelType getOffscreenType(device::PixelType value)
+        image::PixelType getOffscreenType(PixelType value)
         {
-            const std::array<image::PixelType, static_cast<size_t>(device::PixelType::Count)> data =
+            const std::array<image::PixelType, static_cast<size_t>(PixelType::Count)> data =
             {
                 image::PixelType::None,
                 image::PixelType::RGBA_U8,
@@ -290,7 +290,7 @@ namespace tl
             return data[static_cast<size_t>(value)];
         }
 
-        size_t getPackPixelsSize(const math::Size2i& size, device::PixelType pixelType)
+        size_t getPackPixelsSize(const math::Size2i& size, PixelType pixelType)
         {
             size_t out = 0;
             switch (pixelType)
@@ -312,9 +312,9 @@ namespace tl
             return out;
         }
 
-        GLenum getPackPixelsFormat(device::PixelType value)
+        GLenum getPackPixelsFormat(PixelType value)
         {
-            const std::array<GLenum, static_cast<size_t>(device::PixelType::Count)> data =
+            const std::array<GLenum, static_cast<size_t>(PixelType::Count)> data =
             {
                 GL_NONE,
                 GL_BGRA,
@@ -329,9 +329,9 @@ namespace tl
             return data[static_cast<size_t>(value)];
         }
 
-        GLenum getPackPixelsType(device::PixelType value)
+        GLenum getPackPixelsType(PixelType value)
         {
-            const std::array<GLenum, static_cast<size_t>(device::PixelType::Count)> data =
+            const std::array<GLenum, static_cast<size_t>(PixelType::Count)> data =
             {
                 GL_NONE,
                 GL_UNSIGNED_BYTE,
@@ -346,9 +346,9 @@ namespace tl
             return data[static_cast<size_t>(value)];
         }
 
-        GLint getPackPixelsAlign(device::PixelType value)
+        GLint getPackPixelsAlign(PixelType value)
         {
-            const std::array<GLint, static_cast<size_t>(device::PixelType::Count)> data =
+            const std::array<GLint, static_cast<size_t>(PixelType::Count)> data =
             {
                 0,
                 4,
@@ -364,9 +364,9 @@ namespace tl
             return data[static_cast<size_t>(value)];
         }
 
-        GLint getPackPixelsSwap(device::PixelType value)
+        GLint getPackPixelsSwap(PixelType value)
         {
-            const std::array<GLint, static_cast<size_t>(device::PixelType::Count)> data =
+            const std::array<GLint, static_cast<size_t>(PixelType::Count)> data =
             {
                 GL_FALSE,
                 GL_FALSE,
@@ -385,7 +385,7 @@ namespace tl
             const void* inP,
             void* outP,
             const math::Size2i& size,
-            device::PixelType pixelType)
+            PixelType pixelType)
         {
             const size_t rowByteCount = getRowByteCount(size.w, pixelType);
             switch (pixelType)

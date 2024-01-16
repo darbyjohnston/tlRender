@@ -19,7 +19,7 @@
 
 namespace tl
 {
-    namespace device
+    namespace bmd
     {
         //! Convert to BMD.
         BMDPixelFormat toBMD(PixelType);
@@ -43,31 +43,31 @@ namespace tl
         std::string getOutputFrameCompletionResultLabel(BMDOutputFrameCompletionResult);
 
         //! Get the output pixel type.
-        device::PixelType getOutputType(device::PixelType);
+        PixelType getOutputType(PixelType);
 
         //! Get the offscreen buffer type.
-        image::PixelType getOffscreenType(device::PixelType);
+        image::PixelType getOffscreenType(PixelType);
 
         //! Get the pack pixels buffer size.
-        size_t getPackPixelsSize(const math::Size2i&, device::PixelType);
+        size_t getPackPixelsSize(const math::Size2i&, PixelType);
 
         //! Get the pack pixels format.
-        GLenum getPackPixelsFormat(device::PixelType);
+        GLenum getPackPixelsFormat(PixelType);
 
         //! Get the pack pixels type.
-        GLenum getPackPixelsType(device::PixelType);
+        GLenum getPackPixelsType(PixelType);
 
         //! Get the pack pixels alignment.
-        GLint getPackPixelsAlign(device::PixelType);
+        GLint getPackPixelsAlign(PixelType);
 
         //! Get the pack pixels endian byte swap.
-        GLint getPackPixelsSwap(device::PixelType);
+        GLint getPackPixelsSwap(PixelType);
 
         //! Copy the pack pixels.
         void copyPackPixels(
             const void*,
             void*,
             const math::Size2i&,
-            device::PixelType);
+            PixelType);
     }
 }
