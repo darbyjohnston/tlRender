@@ -89,6 +89,9 @@ namespace tl
             //! Set the comparison options.
             void setCompareOptions(const timeline::CompareOptions&);
 
+            //! Set the overlay.
+            void setOverlay(const std::shared_ptr<image::Image>&);
+
             //! Set the volume.
             void setVolume(float);
 

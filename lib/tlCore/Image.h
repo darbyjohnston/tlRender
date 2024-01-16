@@ -97,6 +97,8 @@ namespace tl
             YUV_422P_U16,
             YUV_444P_U16,
 
+            ARGB_4444_Premult,
+
             Count,
             First = None
         };

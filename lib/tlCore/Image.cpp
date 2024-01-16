@@ -76,7 +76,9 @@ namespace tl
 
             "YUV_420P_U16",
             "YUV_422P_U16",
-            "YUV_444P_U16");
+            "YUV_444P_U16",
+
+            "ARGB_4444_Premult");
         TLRENDER_ENUM_SERIALIZE_IMPL(PixelType);
 
         TLRENDER_ENUM_IMPL(
@@ -111,7 +113,8 @@ namespace tl
                 3, 3, 3, 3, 3, 3,
                 4, 4, 4, 4, 4,
                 3, 3, 3,
-                3, 3, 3
+                3, 3, 3,
+                4
             };
             return values[static_cast<size_t>(value)];
         }
@@ -126,7 +129,8 @@ namespace tl
                 8, 10, 16, 32, 16, 32,
                 8, 16, 32, 16, 32,
                 8, 8, 8,
-                16, 16, 16
+                16, 16, 16,
+                4
             };
             return values[static_cast<size_t>(value)];
         }
@@ -266,6 +270,8 @@ namespace tl
             case PixelType::YUV_420P_U16: out = (w * h + (w / 2 * h / 2) + (w / 2 * h / 2)) * 2; break;
             case PixelType::YUV_422P_U16: out = (w * h + (w / 2 * h) + (w / 2 * h)) * 2; break;
             case PixelType::YUV_444P_U16: out = (w * h * 3) * 2; break;
+
+            case PixelType::ARGB_4444_Premult: out = w * h * 4 * 2; break;
 
             default: break;
             }

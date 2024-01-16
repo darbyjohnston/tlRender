@@ -8,7 +8,6 @@
 
 #include <tlTimelineGL/Render.h>
 
-#include <tlGL/GL.h>
 #include <tlGL/GLFWWindow.h>
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Texture.h>
@@ -77,6 +76,7 @@ namespace tl
                 otime::RationalTime currentTime = time::invalidTime;
                 std::vector<image::Size> sizes;
                 std::vector<timeline::VideoData> videoData;
+                std::shared_ptr<image::Image> overlay;
                 float volume = 1.F;
                 bool mute = false;
                 double audioOffset = 0.0;
@@ -99,10 +99,12 @@ namespace tl
                 otime::TimeRange timeRange = time::invalidTimeRange;
                 std::vector<image::Size> sizes;
                 std::vector<timeline::VideoData> videoData;
+                std::shared_ptr<image::Image> overlay;
 
                 std::shared_ptr<timeline::IRender> render;
                 std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
                 GLuint pbo = 0;
+
                 std::condition_variable cv;
                 std::thread thread;
                 std::atomic<bool> running;
@@ -325,6 +327,16 @@ namespace tl
             p.thread.cv.notify_one();
         }
 
+        void OutputDevice::setOverlay(const std::shared_ptr<image::Image>& value)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.overlay = value;
+            }
+            p.thread.cv.notify_one();
+        }
+
         void OutputDevice::setVolume(float value)
         {
             TLRENDER_P();
@@ -504,6 +516,7 @@ namespace tl
             bool mute = false;
             double audioOffset = 0.0;
             std::vector<timeline::AudioData> audioData;
+            std::shared_ptr<image::Image> overlay;
 
             if (auto context = p.context.lock())
             {
@@ -515,7 +528,6 @@ namespace tl
             {
                 bool createDevice = false;
                 bool doRender = false;
-                bool overlayChanged = false;
                 bool audioDataChanged = false;
                 {
                     std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -546,6 +558,7 @@ namespace tl
                                 currentTime != _p->mutex.currentTime ||
                                 _p->thread.sizes != _p->mutex.sizes ||
                                 _p->thread.videoData != _p->mutex.videoData ||
+                                _p->thread.overlay != _p->mutex.overlay ||
                                 volume != _p->mutex.volume ||
                                 mute != _p->mutex.mute ||
                                 audioOffset != _p->mutex.audioOffset ||
@@ -575,7 +588,8 @@ namespace tl
                             p.thread.viewZoom != p.mutex.viewZoom ||
                             p.thread.frameView != p.mutex.frameView ||
                             p.thread.sizes != p.mutex.sizes ||
-                            p.thread.videoData != p.mutex.videoData;
+                            p.thread.videoData != p.mutex.videoData ||
+                            p.thread.overlay != p.mutex.overlay;
                         ocioOptions = p.mutex.ocioOptions;
                         lutOptions = p.mutex.lutOptions;
                         imageOptions = p.mutex.imageOptions;
@@ -588,6 +602,7 @@ namespace tl
                         p.thread.frameView = p.mutex.frameView;
                         p.thread.sizes = p.mutex.sizes;
                         p.thread.videoData = p.mutex.videoData;
+                        p.thread.overlay = p.mutex.overlay;
 
                         audioDataChanged =
                             createDevice ||
@@ -963,6 +978,20 @@ namespace tl
                     imageOptions,
                     displayOptions,
                     compareOptions);
+                if (p.thread.overlay)
+                {
+                    timeline::ImageOptions imageOptions;
+                    imageOptions.alphaBlend = timeline::AlphaBlend::Premultiplied;
+                    p.thread.render->drawImage(
+                        p.thread.overlay,
+                        math::Box2i(
+                            0,
+                            0,
+                            p.thread.overlay->getWidth(),
+                            p.thread.overlay->getHeight()),
+                        image::Color4f(1.F, 1.F, 1.F),
+                        imageOptions);
+                }
 
                 p.thread.render->end();
 

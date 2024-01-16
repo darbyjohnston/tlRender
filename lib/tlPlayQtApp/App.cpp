@@ -600,13 +600,20 @@ namespace tl
             TLRENDER_P();
 #if defined(TLRENDER_BMD)
             p.bmdOutputDevice = bmd::OutputDevice::create(_context);
-            //! \todo BMD
-            /*if (0)
+            if (0)
             {
-                QImage* bmdOverlayImage = new QImage(1920, 1080, QImage::Format_RGBA8888);
+                auto overlayImage = image::Image::create(
+                    1920,
+                    1080,
+                    image::PixelType::ARGB_4444_Premult);
+                QImage* bmdOverlayImage = new QImage(
+                    overlayImage->getData(),
+                    1920,
+                    1080,
+                    QImage::Format_ARGB4444_Premultiplied);
                 bmdOverlayImage->fill(QColor(0, 0, 255, 63));
-                p.bmdOutputDevice->setOverlay(bmdOverlayImage);
-            }*/
+                p.bmdOutputDevice->setOverlay(overlayImage);
+            }
             p.bmdDevicesModel = bmd::DevicesModel::create(_context);
             p.bmdDevicesModel->setDeviceIndex(
                 p.settings->getValue<int>("BMD/DeviceIndex"));
