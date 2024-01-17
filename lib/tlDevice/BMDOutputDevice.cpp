@@ -980,6 +980,7 @@ namespace tl
                     compareOptions);
                 if (p.thread.overlay)
                 {
+                    p.thread.render->setTransform(pm);
                     timeline::ImageOptions imageOptions;
                     imageOptions.alphaBlend = timeline::AlphaBlend::Premultiplied;
                     p.thread.render->drawImage(
