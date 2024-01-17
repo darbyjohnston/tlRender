@@ -112,7 +112,7 @@ namespace tl
         const KeyModifier commandKeyModifier = KeyModifier::Control;
 #endif // __APPLE__
 
-        //! Get a keyboard modifer label.
+        //! Get a keyboard modifier label.
         std::string getKeyModifierLabel(int);
 
         //! Mouse click event.

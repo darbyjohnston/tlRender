@@ -33,7 +33,7 @@ namespace tl
         //! Endian type.
         enum class Endian
         {
-            MSB, //!< Most siginificant byte first
+            MSB, //!< Most significant byte first
             LSB, //!< Least significant byte first
 
             Count,

@@ -166,7 +166,7 @@ namespace tl
             //! Does this widget accept key focus?
             bool acceptsKeyFocus() const;
 
-            //! Set whether the widget acceps key focus.
+            //! Set whether the widget accepts key focus.
             void setAcceptsKeyFocus(bool);
 
             //! Does this widget have key focus?

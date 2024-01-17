@@ -39,7 +39,7 @@ HRESULT GetDeckLinkIterator(IDeckLinkIterator **deckLinkIterator);
 #define dlbool_t	bool
 #define dlstring_t	const char*
 
-// DeckLink String conversion fucntions
+// DeckLink String conversion functions
 const std::function<void(dlstring_t)> DeleteString = [](dlstring_t dl_str) { free((void*)dl_str); };
 const std::function<std::string(dlstring_t)> DlToStdString = [](dlstring_t dl_str) -> std::string { return dl_str; };
 const std::function<dlstring_t(std::string)> StdToDlString = [](std::string std_str) -> dlstring_t { 

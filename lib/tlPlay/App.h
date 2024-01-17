@@ -49,10 +49,10 @@ namespace tl
             std::string settingsFileName;
         };
 
-        //! Get the applicaiton command line arguments.
+        //! Get the application command line arguments.
         std::vector<std::shared_ptr<app::ICmdLineArg> > getCmdLineArgs(Options&);
 
-        //! Get the applicaiton command line options.
+        //! Get the application command line options.
         std::vector<std::shared_ptr<app::ICmdLineOption> > getCmdLineOptions(
             Options&,
             const std::string& logFileName,
