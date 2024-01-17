@@ -118,7 +118,7 @@ namespace tl
             //! Open a file with separate audio dialog.
             void openSeparateAudioDialog();
 
-            //! Set whether the scondary window is active.
+            //! Set whether the secondary window is active.
             void setSecondaryWindow(bool);
 
         Q_SIGNALS:

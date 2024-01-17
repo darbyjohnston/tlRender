@@ -15,10 +15,10 @@ namespace tl
         //! Approximate value of PI times two.
         constexpr float pi2 = pi * 2.F;
 
-        //! Convert degress to radians.
+        //! Convert degrees to radians.
         constexpr float deg2rad(float);
 
-        //! Convert radians to degress.
+        //! Convert radians to degrees.
         constexpr float rad2deg(float);
 
         //! Clamp a value.

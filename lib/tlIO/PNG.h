@@ -24,7 +24,7 @@ namespace tl
             //! PNG error function.
             void errorFunc(png_structp in, png_const_charp msg);
 
-            //! PNG warning functin.
+            //! PNG warning function.
             void warningFunc(png_structp in, png_const_charp msg);
         }
 

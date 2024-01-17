@@ -177,7 +177,7 @@ namespace tl
             catch (const std::exception& e)
             {
                 std::stringstream ss;
-                ss << "Cannot initalize audio system: " << e.what();
+                ss << "Cannot initialize audio system: " << e.what();
                 _log(ss.str(), log::Type::Error);
             }
 #endif // TLRENDER_AUDIO
