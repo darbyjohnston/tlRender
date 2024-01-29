@@ -20,7 +20,7 @@ namespace tl
                 argv,
                 context,
                 "tlresource",
-                "Convert a resource file to a source code file.",
+                "Convert a resource file to a source file.",
                 {
                     app::CmdLineValueArg<std::string>::create(
                         _input,

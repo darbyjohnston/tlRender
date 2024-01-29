@@ -50,10 +50,7 @@ namespace tl
                 }
                 return out;
             }
-        }
 
-        namespace
-        {
             ui::Key fromGLFWKey(int key)
             {
                 ui::Key out = ui::Key::Unknown;
