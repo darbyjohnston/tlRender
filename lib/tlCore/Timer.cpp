@@ -162,17 +162,22 @@ namespace tl
             auto i = p.timers.begin();
             while (i != p.timers.end())
             {
+                bool active = false;
                 if (auto timer = i->lock())
                 {
                     if (timer->isActive())
                     {
+                        active = true;
                         timer->tick();
                     }
-                    ++i;
+                }
+                if (!active)
+                {
+                    i = p.timers.erase(i);
                 }
                 else
                 {
-                    i = p.timers.erase(i);
+                    ++i;
                 }
             }
         }
