@@ -31,23 +31,10 @@
     std::vector<std::string> get##ENUM##Labels(); \
     std::string getLabel(ENUM)
 
-//! Convenience macro for serializing enums.
-//! 
-//! Required includes:
-//! * iostream
-//! * nlohmann/json.hpp
-#define TLRENDER_ENUM_SERIALIZE(ENUM) \
-    std::ostream& operator << (std::ostream&, ENUM); \
-    std::istream& operator >> (std::istream&, ENUM&); \
-    void to_json(nlohmann::json&, ENUM); \
-    void from_json(const nlohmann::json&, ENUM&)
-
 //! Implementation macro for enum utilities.
 //! 
 //! Required includes:
 //! * array
-//! * string
-//! * vector
 #define TLRENDER_ENUM_IMPL(ENUM, ...) \
     std::vector<ENUM> get##ENUM##Enums() \
     { \
@@ -69,6 +56,17 @@
         const std::array<std::string, static_cast<std::size_t>(ENUM::Count)> data = { __VA_ARGS__ }; \
         return data[static_cast<std::size_t>(value)]; \
     }
+
+//! Convenience macro for serializing enums.
+//! 
+//! Required includes:
+//! * iostream
+//! * nlohmann/json.hpp
+#define TLRENDER_ENUM_SERIALIZE(ENUM) \
+    std::ostream& operator << (std::ostream&, ENUM); \
+    std::istream& operator >> (std::istream&, ENUM&); \
+    void to_json(nlohmann::json&, ENUM); \
+    void from_json(const nlohmann::json&, ENUM&)
 
 //! Implementation macro for serializing enums.
 //! 
@@ -93,7 +91,7 @@
             labels.end(), \
             [s](const std::string& value) \
             { \
-                return string::compare(s, value, string::Compare::CaseInsensitive); \
+                return tl::string::compare(s, value, tl::string::Compare::CaseInsensitive); \
             }); \
         if (i == labels.end()) \
         { \
