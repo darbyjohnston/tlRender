@@ -362,6 +362,7 @@ jobs:
         echo CTEST_OUTPUT_ON_FAILURE=1 >> %GITHUB_ENV%
         cmake --version
         python --version
+        where nasm
         
     - name: Build tlRender
       shell: cmd
