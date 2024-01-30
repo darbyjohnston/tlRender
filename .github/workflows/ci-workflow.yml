@@ -352,6 +352,7 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+    - uses: ilammy/setup-nasm@v1
 
     # \bug Any spaces before the ">>" will be considered part of the path.
     - name: Setup environment
@@ -362,7 +363,6 @@ jobs:
         echo CTEST_OUTPUT_ON_FAILURE=1 >> %GITHUB_ENV%
         cmake --version
         python --version
-        where nasm
         
     - name: Build tlRender
       shell: cmd
@@ -413,6 +413,7 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+    - uses: ilammy/setup-nasm@v1
 
     # \bug Any spaces before the ">>" will be considered part of the path.
     - name: Setup environment
