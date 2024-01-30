@@ -48,7 +48,10 @@ namespace tl
 
         void ContextObject::timerEvent(QTimerEvent*)
         {
-            _p->context->tick();
+            if (_p && _p->context)
+            {
+                _p->context->tick();
+            }
         }
     }
 }

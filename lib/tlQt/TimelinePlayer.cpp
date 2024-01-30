@@ -396,7 +396,10 @@ namespace tl
 
         void TimelinePlayer::timerEvent(QTimerEvent* event)
         {
-            _p->player->tick();
+            if (_p && _p->player)
+            {
+                _p->player->tick();
+            }
         }
     }
 }

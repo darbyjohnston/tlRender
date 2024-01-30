@@ -330,11 +330,10 @@ namespace tl
 
         void App::timerEvent(QTimerEvent*)
         {
-            TLRENDER_P();
 #if defined(TLRENDER_BMD)
-            if (p.bmdOutputDevice)
+            if (_p && _p->bmdOutputDevice)
             {
-                p.bmdOutputDevice->tick();
+                _p->bmdOutputDevice->tick();
             }
 #endif // TLRENDER_BMD
         }
