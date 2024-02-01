@@ -6,6 +6,8 @@
 
 #include <tlCore/Context.h>
 
+#include <QTimer>
+
 namespace tl
 {
     namespace qt
@@ -18,7 +20,7 @@ namespace tl
         struct ContextObject::Private
         {
             std::shared_ptr<system::Context> context;
-            int timerId = 0;
+            std::unique_ptr<QTimer> timer;
         };
 
         ContextObject::ContextObject(
@@ -28,25 +30,24 @@ namespace tl
             _p(new Private)
         {
             TLRENDER_P();
+
             p.context = context;
-            p.timerId = startTimer(timeout, Qt::PreciseTimer);
+
+            p.timer.reset(new QTimer);
+            p.timer->setTimerType(Qt::PreciseTimer);
+            connect(p.timer.get(), &QTimer::timeout, this, &ContextObject::_timerCallback);
+            p.timer->start(timeout);
         }
 
         ContextObject::~ContextObject()
-        {
-            TLRENDER_P();
-            if (p.timerId != 0)
-            {
-                killTimer(p.timerId);
-            }
-        }
+        {}
 
         const std::shared_ptr<system::Context>& ContextObject::context() const
         {
             return _p->context;
         }
 
-        void ContextObject::timerEvent(QTimerEvent*)
+        void ContextObject::_timerCallback()
         {
             if (_p && _p->context)
             {

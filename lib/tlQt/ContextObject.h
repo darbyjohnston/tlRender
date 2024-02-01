@@ -34,10 +34,9 @@ namespace tl
             //! Get the context.
             const std::shared_ptr<system::Context>& context() const;
 
-        protected:
-            void timerEvent(QTimerEvent*) override;
-
         private:
+            void _timerCallback();
+
             TLRENDER_PRIVATE();
         };
     }

@@ -51,6 +51,7 @@
 
 #include <QPointer>
 #include <QScreen>
+#include <QTimer>
 
 namespace tl
 {
@@ -89,7 +90,7 @@ namespace tl
             std::shared_ptr<bmd::OutputDevice> bmdOutputDevice;
             image::VideoLevels bmdOutputVideoLevels;
 #endif // TLRENDER_BMD
-            int timerId = 0;
+            std::unique_ptr<QTimer> timer;
 
             std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
@@ -154,17 +155,14 @@ namespace tl
             _inputFilesInit();
             _windowsInit();
 
-            p.timerId = startTimer(timeout, Qt::PreciseTimer);
+            p.timer.reset(new QTimer);
+            p.timer->setTimerType(Qt::PreciseTimer);
+            connect(p.timer.get(), &QTimer::timeout, this, &App::_timerCallback);
+            p.timer->start(timeout);
         }
 
         App::~App()
-        {
-            TLRENDER_P();
-            if (p.timerId != 0)
-            {
-                killTimer(p.timerId);
-            }
-        }
+        {}
 
         const std::shared_ptr<timeline::TimeUnitsModel>& App::timeUnitsModel() const
         {
@@ -328,16 +326,6 @@ namespace tl
             Q_EMIT secondaryWindowChanged(value);
         }
 
-        void App::timerEvent(QTimerEvent*)
-        {
-#if defined(TLRENDER_BMD)
-            if (_p && _p->bmdOutputDevice)
-            {
-                _p->bmdOutputDevice->tick();
-            }
-#endif // TLRENDER_BMD
-        }
-
         void App::_filesCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >& items)
         {
             TLRENDER_P();
@@ -489,6 +477,16 @@ namespace tl
             TLRENDER_P();
             p.secondaryWindow.take();
             Q_EMIT secondaryWindowChanged(false);
+        }
+
+        void App::_timerCallback()
+        {
+#if defined(TLRENDER_BMD)
+            if (_p && _p->bmdOutputDevice)
+            {
+                _p->bmdOutputDevice->tick();
+            }
+#endif // TLRENDER_BMD
         }
 
         void App::_fileLogInit(const std::string& logFileName)

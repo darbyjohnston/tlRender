@@ -24,6 +24,7 @@
 #include <QDragMoveEvent>
 #include <QGuiApplication>
 #include <QMimeData>
+#include <QTimer>
 
 namespace tl
 {
@@ -141,8 +142,6 @@ namespace tl
         {
             std::weak_ptr<system::Context> context;
 
-            std::shared_ptr<timeline::Player> player;
-
             std::shared_ptr<ui::Style> style;
             std::shared_ptr<ui::IconLibrary> iconLibrary;
             std::shared_ptr<image::FontSystem> fontSystem;
@@ -156,8 +155,7 @@ namespace tl
             std::shared_ptr<gl::VBO> vbo;
             std::shared_ptr<gl::VAO> vao;
             std::chrono::steady_clock::time_point mouseWheelTimer;
-
-            int timerId = 0;
+            std::unique_ptr<QTimer> timer;
 
             std::shared_ptr<observer::ValueObserver<bool> > editableObserver;
             std::shared_ptr<observer::ValueObserver<bool> > frameViewObserver;
@@ -211,26 +209,20 @@ namespace tl
                     Q_EMIT frameViewChanged(value);
                 });
 
-            p.timerId = startTimer(timeout);
+            p.timer.reset(new QTimer);
+            p.timer->setTimerType(Qt::PreciseTimer);
+            connect(p.timer.get(), &QTimer::timeout, this, &TimelineWidget::_timerCallback);
+            p.timer->start(timeout);
         }
 
         TimelineWidget::~TimelineWidget()
         {
-            TLRENDER_P();
             makeCurrent();
-            if (p.timerId != 0)
-            {
-                killTimer(p.timerId);
-            }
         }
 
         void TimelineWidget::setPlayer(const std::shared_ptr<timeline::Player>& player)
         {
-            TLRENDER_P();
-            if (player == p.player)
-                return;
-            p.player = player;
-            p.timelineWidget->setPlayer(p.player);
+            _p->timelineWidget->setPlayer(player);
         }
 
         bool TimelineWidget::isEditable() const
@@ -688,32 +680,33 @@ namespace tl
             }
         }
 
-        void TimelineWidget::timerEvent(QTimerEvent*)
+        void TimelineWidget::_timerCallback()
         {
-            TLRENDER_P();
-
-            ui::TickEvent tickEvent(p.style, p.iconLibrary, p.fontSystem);
-            _tickEvent(p.timelineWindow, true, true, tickEvent);
-
-            if (_getSizeUpdate(p.timelineWindow))
+            if (_p)
             {
-                const float devicePixelRatio = window()->devicePixelRatio();
-                ui::SizeHintEvent sizeHintEvent(
-                    p.style,
-                    p.iconLibrary,
-                    p.fontSystem,
-                    devicePixelRatio);
-                _sizeHintEvent(p.timelineWindow, sizeHintEvent);
+                ui::TickEvent tickEvent(_p->style, _p->iconLibrary, _p->fontSystem);
+                _tickEvent(_p->timelineWindow, true, true, tickEvent);
 
-                const math::Box2i geometry(0, 0, _toUI(width()), _toUI(height()));
-                p.timelineWindow->setGeometry(geometry);
+                if (_getSizeUpdate(_p->timelineWindow))
+                {
+                    const float devicePixelRatio = window()->devicePixelRatio();
+                    ui::SizeHintEvent sizeHintEvent(
+                        _p->style,
+                        _p->iconLibrary,
+                        _p->fontSystem,
+                        devicePixelRatio);
+                    _sizeHintEvent(_p->timelineWindow, sizeHintEvent);
 
-                _clipEvent(p.timelineWindow, geometry, false);
-            }
+                    const math::Box2i geometry(0, 0, _toUI(width()), _toUI(height()));
+                    _p->timelineWindow->setGeometry(geometry);
 
-            if (_getDrawUpdate(p.timelineWindow))
-            {
-                update();
+                    _clipEvent(_p->timelineWindow, geometry, false);
+                }
+
+                if (_getDrawUpdate(_p->timelineWindow))
+                {
+                    update();
+                }
             }
         }
 

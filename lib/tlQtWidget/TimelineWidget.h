@@ -107,10 +107,11 @@ namespace tl
             void keyPressEvent(QKeyEvent*) override;
             void keyReleaseEvent(QKeyEvent*) override;
 
-            void timerEvent(QTimerEvent*) override;
             bool event(QEvent*) override;
 
         private:
+            void _timerCallback();
+
             void _tickEvent(
                 const std::shared_ptr<ui::IWidget>&,
                 bool visible,

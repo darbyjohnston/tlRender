@@ -373,10 +373,9 @@ namespace tl
 
             ///@}
 
-        protected:
-            void timerEvent(QTimerEvent*) override;
-
         private:
+            void _timerCallback();
+
             TLRENDER_PRIVATE();
         };
     }
