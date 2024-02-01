@@ -62,4 +62,4 @@ cmake ../etc/SuperBuild \
     -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
     -DTLRENDER_TESTS=$TLRENDER_TESTS \
     -DTLRENDER_GCOV=$TLRENDER_GCOV
-cmake --build . -j 8 --config $BUILD_TYPE
+cmake --build . -j 4 --config $BUILD_TYPE
