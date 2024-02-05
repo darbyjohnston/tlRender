@@ -120,6 +120,7 @@ namespace tl
             double scale,
             const ItemOptions& options,
             const std::shared_ptr<ItemData>& itemData,
+            const std::shared_ptr<gl::GLFWWindow>& window,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -143,7 +144,7 @@ namespace tl
 
             p.player = player;
             
-            p.thumbnailGenerator = ui::ThumbnailGenerator::create(context);
+            p.thumbnailGenerator = ui::ThumbnailGenerator::create(context, window);
 
             const auto otioTimeline = p.player->getTimeline()->getTimeline();
             int trackIndex = 0;
@@ -268,11 +269,12 @@ namespace tl
             double scale,
             const ItemOptions& options,
             const std::shared_ptr<ItemData>& itemData,
+            const std::shared_ptr<gl::GLFWWindow>& window,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TimelineItem>(new TimelineItem);
-            out->_init(player, stack, scale, options, itemData, context, parent);
+            out->_init(player, stack, scale, options, itemData, window, context, parent);
             return out;
         }
 

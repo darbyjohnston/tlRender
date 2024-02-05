@@ -17,6 +17,11 @@
 
 namespace tl
 {
+    namespace gl
+    {
+        class GLFWWindow;
+    }
+
     namespace ui
     {
         //! Information request.
@@ -135,7 +140,9 @@ namespace tl
         class ThumbnailGenerator : public std::enable_shared_from_this<ThumbnailGenerator>
         {
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<gl::GLFWWindow>&);
 
             ThumbnailGenerator();
 
@@ -144,7 +151,8 @@ namespace tl
 
             //! Create a new thumbnail generator.
             static std::shared_ptr<ThumbnailGenerator> create(
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<gl::GLFWWindow>& = nullptr);
 
             //! Get information.
             InfoRequest getInfo(

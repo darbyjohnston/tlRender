@@ -275,7 +275,8 @@ namespace tl
         };
 
         void ThumbnailGenerator::_init(
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<gl::GLFWWindow>& window)
         {
             TLRENDER_P();
             
@@ -283,11 +284,15 @@ namespace tl
 
             p.cache = context->getSystem<ThumbnailSystem>()->getCache();
 
-            p.window = gl::GLFWWindow::create(
-                "tl::ui::ThumbnailGenerator",
-                math::Size2i(1, 1),
-                context,
-                static_cast<int>(gl::GLFWWindowOptions::None));
+            p.window = window;
+            if (!p.window)
+            {
+                p.window = gl::GLFWWindow::create(
+                    "tl::ui::ThumbnailGenerator",
+                    math::Size2i(1, 1),
+                    context,
+                    static_cast<int>(gl::GLFWWindowOptions::None));
+            }
 
             p.thread.ioCache.setMax(1000);
             p.thread.running = true;
@@ -335,10 +340,11 @@ namespace tl
         }
 
         std::shared_ptr<ThumbnailGenerator> ThumbnailGenerator::create(
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<gl::GLFWWindow>& window)
         {
             auto out = std::shared_ptr<ThumbnailGenerator>(new ThumbnailGenerator);
-            out->_init(context);
+            out->_init(context, window);
             return out;
         }
 

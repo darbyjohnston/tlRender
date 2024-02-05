@@ -6,6 +6,9 @@
 
 #include <tlUI/ScrollWidget.h>
 
+#include <tlGL/GL.h>
+#include <tlGL/GLFWWindow.h>
+
 namespace tl
 {
     namespace timelineui
@@ -24,6 +27,8 @@ namespace tl
             double scale = 500.0;
             std::shared_ptr<observer::Value<ItemOptions> > itemOptions;
             bool sizeInit = true;
+
+            std::shared_ptr<gl::GLFWWindow> window;
 
             std::shared_ptr<ui::ScrollWidget> scrollWidget;
             std::shared_ptr<TimelineItem> timelineItem;
@@ -60,6 +65,12 @@ namespace tl
             p.frameView = observer::Value<bool>::create(true);
             p.stopOnScrub = observer::Value<bool>::create(true);
             p.itemOptions = observer::Value<ItemOptions>::create();
+
+            p.window = gl::GLFWWindow::create(
+                "tl::timelineui::TimelineWidget",
+                math::Size2i(1, 1),
+                context,
+                static_cast<int>(gl::GLFWWindowOptions::None));
 
             p.scrollWidget = ui::ScrollWidget::create(
                 context,
@@ -505,6 +516,7 @@ namespace tl
                         p.scale,
                         p.itemOptions->get(),
                         p.itemData,
+                        p.window,
                         context);
                     p.timelineItem->setEditable(p.editable->get());
                     p.timelineItem->setStopOnScrub(p.stopOnScrub->get());

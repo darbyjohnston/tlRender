@@ -10,6 +10,11 @@
 
 namespace tl
 {
+    namespace gl
+    {
+        class GLFWWindow;
+    }
+
     namespace timelineui
     {
         //! Track types.
@@ -36,6 +41,7 @@ namespace tl
                 double scale,
                 const ItemOptions&,
                 const std::shared_ptr<ItemData>&,
+                const std::shared_ptr<gl::GLFWWindow>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -51,6 +57,7 @@ namespace tl
                 double scale,
                 const ItemOptions&,
                 const std::shared_ptr<ItemData>&,
+                const std::shared_ptr<gl::GLFWWindow>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
