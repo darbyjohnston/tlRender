@@ -304,9 +304,9 @@ namespace tl
         file::Path getPath(
             const std::string& url,
             const std::string& directory,
-            const file::PathOptions& options)
+            const file::PathOptions& pathOptions)
         {
-            file::Path out(url);
+            file::Path out(url, pathOptions);
             if (out.isFileProtocol() && !out.isAbsolute())
             {
                 out.setDirectory(file::appendSeparator(directory) + out.getDirectory());

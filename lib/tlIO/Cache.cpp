@@ -14,6 +14,38 @@ namespace tl
 {
     namespace io
     {
+        std::string getCacheKey(
+            const file::Path& path,
+            const otime::RationalTime& time,
+            const Options& options)
+        {
+            std::vector<std::string> s;
+            s.push_back(path.get());
+            s.push_back(path.getNumber());
+            s.push_back(string::Format("{0}").arg(time));
+            for (const auto& i : options)
+            {
+                s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
+            }
+            return string::join(s, ';');
+        }
+
+        std::string getCacheKey(
+            const file::Path& path,
+            const otime::TimeRange& timeRange,
+            const Options& options)
+        {
+            std::vector<std::string> s;
+            s.push_back(path.get());
+            s.push_back(path.getNumber());
+            s.push_back(string::Format("{0}").arg(timeRange));
+            for (const auto& i : options)
+            {
+                s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
+            }
+            return string::join(s, ';');
+        }
+
         struct Cache::Private
         {
             size_t max = memory::gigabyte;
@@ -71,21 +103,6 @@ namespace tl
                 static_cast<float>(p.video.getMax() + p.audio.getMax()) * 100.F;
         }
 
-        std::string Cache::getVideoKey(
-            const std::string& fileName,
-            const otime::RationalTime& time,
-            const Options& options)
-        {
-            std::vector<std::string> s;
-            s.push_back(fileName);
-            s.push_back(string::Format("{0}").arg(time));
-            for (const auto& i : options)
-            {
-                s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
-            }
-            return string::join(s, ';');
-        }
-
         void Cache::addVideo(const std::string& key, const VideoData& videoData)
         {
             TLRENDER_P();
@@ -108,21 +125,6 @@ namespace tl
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.video.get(key, videoData);
-        }
-
-        std::string Cache::getAudioKey(
-            const std::string& fileName,
-            const otime::TimeRange& timeRange,
-            const Options& options)
-        {
-            std::vector<std::string> s;
-            s.push_back(fileName);
-            s.push_back(string::Format("{0}").arg(timeRange));
-            for (const auto& i : options)
-            {
-                s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
-            }
-            return string::join(s, ';');
         }
 
         void Cache::addAudio(const std::string& key, const AudioData& audioData)

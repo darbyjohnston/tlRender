@@ -130,7 +130,6 @@ namespace tl
         {
             TLRENDER_P();
             auto request = std::make_shared<Private::VideoRequest>();
-            request->fileName = _path.get(-1, file::PathType::Path);
             request->time = time;
             request->options = merge(options, _options);
             auto future = request->promise.get_future();
@@ -214,33 +213,29 @@ namespace tl
                     videoRequests.pop_front();
 
                     VideoData videoData;
-                    const std::string cacheKey = Cache::getVideoKey(
-                        request->fileName,
+                    const std::string cacheKey = getCacheKey(
+                        _path,
                         request->time,
                         request->options);
                     if (_cache && _cache->getVideo(cacheKey, videoData))
                     {
-                        //std::cout << "cache: " << request->fileName << " " <<
-                        //    request->time << std::endl;
                         request->promise.set_value(videoData);
                     }
                     else
                     {
-                        //std::cout << "request: " << request->fileName << " " <<
-                        //    request->time << std::endl;
                         bool seq = false;
+                        std::string fileName;
                         if (!_path.getNumber().empty())
                         {
                             seq = true;
-                            request->fileName = _path.get(
+                            fileName = _path.get(
                                 static_cast<int>(request->time.value()),
                                 file::PathType::Path);
                         }
                         else
                         {
-                            request->fileName = _path.get(-1, file::PathType::Path);
+                            fileName = _path.get(-1, file::PathType::Path);
                         }
-                        const std::string fileName = request->fileName;
                         const otime::RationalTime time = request->time;
                         const Options options = request->options;
                         request->future = std::async(
@@ -285,8 +280,8 @@ namespace tl
                         
                         if (_cache)
                         {
-                            const std::string cacheKey = Cache::getVideoKey(
-                                (*requestIt)->fileName,
+                            const std::string cacheKey = getCacheKey(
+                                _path,
                                 (*requestIt)->time,
                                 (*requestIt)->options);
                             _cache->addVideo(cacheKey, videoData);

@@ -62,6 +62,7 @@ namespace tl
                 for (; i > 0 && value[i - 1] >= '0' && value[i - 1] <= '9'; --i)
                     ;
                 if (value[i] >= '0' && value[i] <= '9' &&
+                    options.maxNumberDigits > 0 &&
                     (j - i) <= options.maxNumberDigits)
                 {
                     _number = value.substr(i, j - i);

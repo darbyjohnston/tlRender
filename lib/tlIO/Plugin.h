@@ -7,7 +7,6 @@
 #include <tlIO/Cache.h>
 
 #include <tlCore/FileIO.h>
-#include <tlCore/Path.h>
 
 #include <future>
 #include <set>

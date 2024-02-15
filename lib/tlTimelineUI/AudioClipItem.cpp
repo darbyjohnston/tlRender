@@ -149,7 +149,7 @@ namespace tl
                     i->second.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
                     const auto mesh = i->second.future.get();
-                    _data->waveforms[_getWaveformKey(i->second.timeRange)] = mesh;
+                    _data->waveforms[io::getCacheKey(p.path, i->second.timeRange, _data->options.ioOptions)] = mesh;
                     i = p.waveformRequests.erase(i);
                     _updates |= ui::Update::Draw;
                 }
@@ -194,12 +194,6 @@ namespace tl
             {
                 _drawWaveforms(drawRect, event);
             }
-        }
-
-        std::string AudioClipItem::_getWaveformKey(const otime::TimeRange& timeRange) const
-        {
-            TLRENDER_P();
-            return string::Format("{0}_{1}").arg(p.path.get()).arg(timeRange);
         }
 
         void AudioClipItem::_drawWaveforms(
@@ -268,7 +262,8 @@ namespace tl
                             _trimmedRange,
                             p.ioInfo->audio.sampleRate);
 
-                        const auto i = _data->waveforms.find(_getWaveformKey(mediaRange));
+                        const auto i = _data->waveforms.find(
+                            io::getCacheKey(p.path, mediaRange, _data->options.ioOptions));
                         if (i != _data->waveforms.end())
                         {
                             if (i->second)
@@ -288,7 +283,8 @@ namespace tl
                                     p.path,
                                     p.memoryRead,
                                     box.getSize(),
-                                    mediaRange);
+                                    mediaRange,
+                                    _data->options.ioOptions);
                             }
                         }
                     }

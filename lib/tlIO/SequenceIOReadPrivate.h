@@ -40,8 +40,6 @@ namespace tl
                 otime::RationalTime time = time::invalidTime;
                 Options options;
                 std::promise<VideoData> promise;
-
-                std::string fileName;
                 std::future<VideoData> future;
             };
 

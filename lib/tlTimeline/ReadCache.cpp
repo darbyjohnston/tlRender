@@ -5,29 +5,27 @@
 #include <tlTimeline/ReadCache.h>
 
 #include <tlCore/LRUCache.h>
+#include <tlCore/String.h>
+#include <tlCore/StringFormat.h>
 
 namespace tl
 {
     namespace timeline
     {
+        namespace
+        {
+            std::string getKey(const file::Path& path)
+            {
+                std::vector<std::string> out;
+                out.push_back(path.get());
+                out.push_back(path.getNumber());
+                return string::join(out, ';');
+            }
+        }
+
         struct ReadCache::Private
         {
-            enum class FileNameType
-            {
-                Regular,
-                Sequence
-            };
-
-            static FileNameType getFileNameType(const file::Path& path)
-            {
-                return path.getNumber().empty() ?
-                    FileNameType::Regular :
-                    FileNameType::Sequence;
-            }
-
-            typedef std::pair<std::string, FileNameType> Key;
-
-            memory::LRUCache<Key, ReadCacheItem> cache;
+            memory::LRUCache<std::string, ReadCacheItem> cache;
         };
 
         void ReadCache::_init()
@@ -52,18 +50,13 @@ namespace tl
         void ReadCache::add(const ReadCacheItem& read)
         {
             const file::Path& path = read.read->getPath();
-            const Private::Key key(
-                path.get(),
-                Private::getFileNameType(path));
+            const std::string key = getKey(path);
             _p->cache.add(key, read);
         }
 
         bool ReadCache::get(const file::Path& path, ReadCacheItem& out)
         {
-            const Private::Key key(
-                path.get(),
-                Private::getFileNameType(path));
-            return _p->cache.get(key, out);
+            return _p->cache.get(getKey(path), out);
         }
 
         void ReadCache::setMax(size_t value)

@@ -6,10 +6,24 @@
 
 #include <tlIO/IO.h>
 
+#include <tlCore/Path.h>
+
 namespace tl
 {
     namespace io
     {
+        //! Get a cache key.
+        std::string getCacheKey(
+            const file::Path&,
+            const otime::RationalTime&,
+            const Options& = Options());
+
+        //! Get a cache key.
+        std::string getCacheKey(
+            const file::Path&,
+            const otime::TimeRange&,
+            const Options& = Options());
+
         //! I/O cache.
         class Cache : public std::enable_shared_from_this<Cache>
         {
@@ -38,12 +52,6 @@ namespace tl
             //! Get the current cache size as a percentage.
             float getPercentage() const;
 
-            //! Get a video cache key.
-            static std::string getVideoKey(
-                const std::string& fileName,
-                const otime::RationalTime&,
-                const Options&);
-
             //! Add video to the cache.
             void addVideo(const std::string& key, const VideoData&);
 
@@ -52,12 +60,6 @@ namespace tl
 
             //! Get video from the cache.
             bool getVideo(const std::string& key, VideoData&) const;
-
-            //! Get an audio cache key.
-            static std::string getAudioKey(
-                const std::string& fileName,
-                const otime::TimeRange&,
-                const Options&);
 
             //! Add audio to the cache.
             void addAudio(const std::string& key, const AudioData&);
