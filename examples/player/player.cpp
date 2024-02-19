@@ -43,6 +43,9 @@ namespace tl
                 addWindow(_window);
 
                 auto viewport = timelineui::TimelineViewport::create(context, _window);
+                timeline::BackgroundOptions backgroundOptions;
+                backgroundOptions.type = timeline::Background::Checkers;
+                viewport->setBackgroundOptions(backgroundOptions);
                 viewport->setPlayers({ _player });
 
                 _window->show();
