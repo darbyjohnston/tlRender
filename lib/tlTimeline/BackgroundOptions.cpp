@@ -14,7 +14,8 @@ namespace tl
         TLRENDER_ENUM_IMPL(
             Background,
             "Solid",
-            "Checkers");
+            "Checkers",
+            "Gradient");
         TLRENDER_ENUM_SERIALIZE_IMPL(Background);
 
         void to_json(nlohmann::json& json, const BackgroundOptions& in)
@@ -22,9 +23,8 @@ namespace tl
             json = nlohmann::json
             {
                 { "type", in.type },
-                { "solidColor", in.solidColor },
-                { "checkersColor0", in.checkersColor0 },
-                { "checkersColor1", in.checkersColor1 },
+                { "color0", in.color0 },
+                { "color1", in.color1 },
                 { "checkersSize", in.checkersSize },
             };
         }
@@ -32,9 +32,8 @@ namespace tl
         void from_json(const nlohmann::json& json, BackgroundOptions& out)
         {
             json.at("type").get_to(out.type);
-            json.at("solidColor").get_to(out.solidColor);
-            json.at("checkersColor0").get_to(out.checkersColor0);
-            json.at("checkersColor1").get_to(out.checkersColor1);
+            json.at("color0").get_to(out.color0);
+            json.at("color1").get_to(out.color1);
             json.at("checkersSize").get_to(out.checkersSize);
         }
     }

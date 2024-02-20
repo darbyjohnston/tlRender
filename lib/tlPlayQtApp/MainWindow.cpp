@@ -117,11 +117,11 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
             std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
@@ -432,13 +432,6 @@ namespace tl
                     _widgetUpdate();
                 });
 
-            p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
-                app->viewportModel()->observeBackgroundOptions(),
-                [this](const timeline::BackgroundOptions& value)
-                {
-                    _widgetUpdate();
-                });
-
             p.ocioOptionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
                 app->colorModel()->observeOCIOOptions(),
                 [this](const timeline::OCIOOptions&)
@@ -460,6 +453,13 @@ namespace tl
             p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
                 app->colorModel()->observeImageOptions(),
                 [this](const timeline::ImageOptions&)
+                {
+                    _widgetUpdate();
+                });
+
+            p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
+                app->viewportModel()->observeBackgroundOptions(),
+                [this](const timeline::BackgroundOptions& value)
                 {
                     _widgetUpdate();
                 });
@@ -856,6 +856,8 @@ namespace tl
             p.timelineViewport->setDisplayOptions(displayOptions);
             p.timelineViewport->setCompareOptions(
                 p.app->filesModel()->getCompareOptions());
+            p.timelineViewport->setBackgroundOptions(
+                p.app->viewportModel()->getBackgroundOptions());
 
             p.timelineWidget->setPlayer(
                 (!p.timelinePlayers.empty() && p.timelinePlayers[0]) ?

@@ -10,9 +10,8 @@ namespace tl
         {
             return
                 type == other.type &&
-                solidColor == other.solidColor &&
-                checkersColor0 == other.checkersColor0 &&
-                checkersColor1 == other.checkersColor1 &&
+                color0 == other.color0 &&
+                color1 == other.color1 &&
                 checkersSize == other.checkersSize;
         }
 

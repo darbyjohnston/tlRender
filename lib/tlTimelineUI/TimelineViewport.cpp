@@ -19,7 +19,6 @@ namespace tl
     {
         struct TimelineViewport::Private
         {
-            timeline::BackgroundOptions backgroundOptions;
             timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
             timeline::RenderOptions renderOptions;
@@ -27,6 +26,7 @@ namespace tl
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
             std::function<void(timeline::CompareOptions)> compareCallback;
+            timeline::BackgroundOptions backgroundOptions;
             std::vector<std::shared_ptr<timeline::Player> > players;
             std::vector<image::Size> timelineSizes;
             std::vector<timeline::VideoData> videoData;
@@ -97,16 +97,6 @@ namespace tl
             return out;
         }
 
-        void TimelineViewport::setBackgroundOptions(const timeline::BackgroundOptions& value)
-        {
-            TLRENDER_P();
-            if (value == p.backgroundOptions)
-                return;
-            p.backgroundOptions = value;
-            p.doRender = true;
-            _updates |= ui::Update::Draw;
-        }
-
         void TimelineViewport::setOCIOOptions(const timeline::OCIOOptions& value)
         {
             TLRENDER_P();
@@ -160,6 +150,16 @@ namespace tl
         void TimelineViewport::setCompareCallback(const std::function<void(timeline::CompareOptions)>& value)
         {
             _p->compareCallback = value;
+        }
+
+        void TimelineViewport::setBackgroundOptions(const timeline::BackgroundOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.backgroundOptions)
+                return;
+            p.backgroundOptions = value;
+            p.doRender = true;
+            _updates |= ui::Update::Draw;
         }
 
         void TimelineViewport::setPlayers(const std::vector<std::shared_ptr<timeline::Player> >& value)
@@ -371,32 +371,7 @@ namespace tl
                     event.render->setRenderSize(size);
                     event.render->setViewport(math::Box2i(0, 0, g.w(), g.h()));
                     event.render->setClipRectEnabled(false);
-                    event.render->setTransform(math::ortho(
-                        0.F,
-                        static_cast<float>(g.w()),
-                        static_cast<float>(g.h()),
-                        0.F,
-                        -1.F,
-                        1.F));
-                    switch (p.backgroundOptions.type)
-                    {
-                    case timeline::Background::Solid:
-                        event.render->clearViewport(
-                            p.backgroundOptions.solidColor);
-                        break;
-                    case timeline::Background::Checkers:
-                        event.render->clearViewport(image::Color4f(0.F, 0.F, 0.F));
-                        event.render->drawColorMesh(
-                            ui::checkers(
-                                math::Box2i(0, 0, g.w(), g.h()),
-                                p.backgroundOptions.checkersColor0,
-                                p.backgroundOptions.checkersColor1,
-                                p.backgroundOptions.checkersSize * _displayScale),
-                            math::Vector2i(),
-                            image::Color4f(1.F, 1.F, 1.F));
-                        break;
-                    default: break;
-                    }
+                    event.render->clearViewport(image::Color4f(0.F, 0.F, 0.F));
                     event.render->setOCIOOptions(p.ocioOptions);
                     event.render->setLUTOptions(p.lutOptions);
                     if (!p.videoData.empty())
@@ -417,7 +392,8 @@ namespace tl
                             timeline::getBoxes(p.compareOptions.mode, p.timelineSizes),
                             p.imageOptions,
                             p.displayOptions,
-                            p.compareOptions);
+                            p.compareOptions,
+                            p.backgroundOptions);
 
                         _droppedFramesUpdate(p.videoData[0].time);
                     }
@@ -545,6 +521,7 @@ namespace tl
                 case ui::Key::Backspace:
                     event.accept = true;
                     setFrameView(true);
+                    break;
                 default: break;
                 }
             }

@@ -500,7 +500,6 @@ namespace tl
                 "        outColor.r = outColor.r * scale + offset;\n"
                 "        outColor.g = outColor.g * scale + offset;\n"
                 "        outColor.b = outColor.b * scale + offset;\n"
-                "        outColor.a = outColor.a * scale + offset;\n"
                 "    }\n"
                 "}\n").
                 arg(args[0]).

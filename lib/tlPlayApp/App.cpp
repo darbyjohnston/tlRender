@@ -88,6 +88,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
 #endif // TLRENDER_BMD
         };
 
@@ -638,6 +639,13 @@ namespace tl
                 [this](const timeline::CompareOptions& value)
                 {
                     _p->bmdOutputDevice->setCompareOptions(value);
+                });
+
+            p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
+                p.viewportModel->observeBackgroundOptions(),
+                [this](const timeline::BackgroundOptions& value)
+                {
+                    _p->bmdOutputDevice->setBackgroundOptions(value);
                 });
 #endif // TLRENDER_BMD
         }

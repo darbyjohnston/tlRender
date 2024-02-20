@@ -22,12 +22,12 @@ namespace tl
             std::shared_ptr<timelineui::TimelineViewport> viewport;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playersObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
         };
 
         void SecondaryWindow::_init(
@@ -47,13 +47,6 @@ namespace tl
                 [this](const std::vector<std::shared_ptr<timeline::Player> >& value)
                 {
                     _p->viewport->setPlayers(value);
-                });
-
-            p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
-                app->getViewportModel()->observeBackgroundOptions(),
-                [this](const timeline::BackgroundOptions& value)
-                {
-                    _p->viewport->setBackgroundOptions(value);
                 });
 
             p.ocioOptionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
@@ -89,6 +82,13 @@ namespace tl
                 [this](const timeline::CompareOptions& value)
                 {
                     _p->viewport->setCompareOptions(value);
+                });
+
+            p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
+                app->getViewportModel()->observeBackgroundOptions(),
+                [this](const timeline::BackgroundOptions& value)
+                {
+                    _p->viewport->setBackgroundOptions(value);
                 });
         }
 

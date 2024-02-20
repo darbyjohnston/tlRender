@@ -24,9 +24,8 @@ namespace tl
         struct BackgroundWidget::Private
         {
             QComboBox* typeComboBox = nullptr;
-            qtwidget::ColorSwatch* solidColorSwatch = nullptr;
-            qtwidget::ColorSwatch* checkersColor0Swatch = nullptr;
-            qtwidget::ColorSwatch* checkersColor1Swatch = nullptr;
+            qtwidget::ColorSwatch* color0Swatch = nullptr;
+            qtwidget::ColorSwatch* color1Swatch = nullptr;
             qtwidget::IntEditSlider* checkersSizeSlider = nullptr;
 
             std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > optionsObservers;
@@ -44,32 +43,20 @@ namespace tl
                 p.typeComboBox->addItem(QString::fromUtf8(i.c_str()));
             }
 
-            p.solidColorSwatch = new qtwidget::ColorSwatch;
-            p.solidColorSwatch->setEditable(true);
+            p.color0Swatch = new qtwidget::ColorSwatch;
+            p.color0Swatch->setEditable(true);
 
-            p.checkersColor0Swatch = new qtwidget::ColorSwatch;
-            p.checkersColor0Swatch->setEditable(true);
-
-            p.checkersColor1Swatch = new qtwidget::ColorSwatch;
-            p.checkersColor1Swatch->setEditable(true);
+            p.color1Swatch = new qtwidget::ColorSwatch;
+            p.color1Swatch->setEditable(true);
 
             p.checkersSizeSlider = new qtwidget::IntEditSlider;
             p.checkersSizeSlider->setRange(math::IntRange(10, 100));
 
-            auto layout = new QVBoxLayout;
-            layout->addWidget(p.typeComboBox);
-            auto groupBox = new QGroupBox(tr("Solid"));
-            auto vLayout = new QVBoxLayout;
-            vLayout->addWidget(p.solidColorSwatch);
-            groupBox->setLayout(vLayout);
-            layout->addWidget(groupBox);
-            groupBox = new QGroupBox(tr("Checkers"));
-            auto formLayout = new QFormLayout;
-            formLayout->addRow(tr("Color 0:"), p.checkersColor0Swatch);
-            formLayout->addRow(tr("Color 1:"), p.checkersColor1Swatch);
-            formLayout->addRow(tr("Size:"), p.checkersSizeSlider);
-            groupBox->setLayout(formLayout);
-            layout->addWidget(groupBox);
+            auto layout = new QFormLayout;
+            layout->addRow(tr("Type:"), p.typeComboBox);
+            layout->addRow(tr("Color 0:"), p.color0Swatch);
+            layout->addRow(tr("Color 1:"), p.color1Swatch);
+            layout->addRow(tr("Checkers size:"), p.checkersSizeSlider);
             setLayout(layout);
 
             connect(
@@ -83,33 +70,24 @@ namespace tl
                 });
 
             connect(
-                p.solidColorSwatch,
+                p.color0Swatch,
                 &qtwidget::ColorSwatch::colorChanged,
                 [app](const image::Color4f& value)
                 {
                     auto options = app->viewportModel()->getBackgroundOptions();
-                    options.solidColor = value;
+                    options.color0 = value;
+                    app->viewportModel()->setBackgroundOptions(options);
+                });
+            connect(
+                p.color1Swatch,
+                &qtwidget::ColorSwatch::colorChanged,
+                [app](const image::Color4f& value)
+                {
+                    auto options = app->viewportModel()->getBackgroundOptions();
+                    options.color1 = value;
                     app->viewportModel()->setBackgroundOptions(options);
                 });
 
-            connect(
-                p.checkersColor0Swatch,
-                &qtwidget::ColorSwatch::colorChanged,
-                [app](const image::Color4f& value)
-                {
-                    auto options = app->viewportModel()->getBackgroundOptions();
-                    options.checkersColor0 = value;
-                    app->viewportModel()->setBackgroundOptions(options);
-                });
-            connect(
-                p.checkersColor1Swatch,
-                &qtwidget::ColorSwatch::colorChanged,
-                [app](const image::Color4f& value)
-                {
-                    auto options = app->viewportModel()->getBackgroundOptions();
-                    options.checkersColor1 = value;
-                    app->viewportModel()->setBackgroundOptions(options);
-                });
             connect(
                 p.checkersSizeSlider,
                 &qtwidget::IntEditSlider::valueChanged,
@@ -136,9 +114,8 @@ namespace tl
         {
             TLRENDER_P();
             p.typeComboBox->setCurrentIndex(static_cast<int>(value.type));
-            p.solidColorSwatch->setColor(value.solidColor);
-            p.checkersColor0Swatch->setColor(value.checkersColor0);
-            p.checkersColor1Swatch->setColor(value.checkersColor1);
+            p.color0Swatch->setColor(value.color0);
+            p.color1Swatch->setColor(value.color1);
             p.checkersSizeSlider->setValue(value.checkersSize.w);
         }
 

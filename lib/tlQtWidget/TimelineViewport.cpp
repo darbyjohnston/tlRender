@@ -27,12 +27,12 @@ namespace tl
         struct TimelineViewport::Private
         {
             std::weak_ptr<system::Context> context;
-            timeline::BackgroundOptions backgroundOptions;
             timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
+            timeline::BackgroundOptions backgroundOptions;
             QVector<QSharedPointer<qt::TimelinePlayer> > timelinePlayers;
             std::vector<image::Size> timelineSizes;
             std::vector<timeline::VideoData> videoData;
@@ -86,16 +86,6 @@ namespace tl
             makeCurrent();
         }
 
-        void TimelineViewport::setBackgroundOptions(const timeline::BackgroundOptions& value)
-        {
-            TLRENDER_P();
-            if (value == p.backgroundOptions)
-                return;
-            p.backgroundOptions = value;
-            p.doRender = true;
-            update();
-        }
-
         void TimelineViewport::setOCIOOptions(const timeline::OCIOOptions& value)
         {
             TLRENDER_P();
@@ -142,6 +132,16 @@ namespace tl
             if (value == p.compareOptions)
                 return;
             p.compareOptions = value;
+            p.doRender = true;
+            update();
+        }
+
+        void TimelineViewport::setBackgroundOptions(const timeline::BackgroundOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.backgroundOptions)
+                return;
+            p.backgroundOptions = value;
             p.doRender = true;
             update();
         }
@@ -419,25 +419,6 @@ namespace tl
                         p.render->begin(viewportSize);
                         p.render->setOCIOOptions(p.ocioOptions);
                         p.render->setLUTOptions(p.lutOptions);
-                        switch (p.backgroundOptions.type)
-                        {
-                        case timeline::Background::Solid:
-                            p.render->clearViewport(
-                                p.backgroundOptions.solidColor);
-                            break;
-                        case timeline::Background::Checkers:
-                            p.render->clearViewport(image::Color4f(0.F, 0.F, 0.F));
-                            p.render->drawColorMesh(
-                                ui::checkers(
-                                    math::Box2i(0, 0, viewportSize.w, viewportSize.h),
-                                    p.backgroundOptions.checkersColor0,
-                                    p.backgroundOptions.checkersColor1,
-                                    p.backgroundOptions.checkersSize),
-                                math::Vector2i(),
-                                image::Color4f(1.F, 1.F, 1.F));
-                            break;
-                        default: break;
-                        }
                         if (!p.videoData.empty())
                         {
                             math::Matrix4x4f vm;
@@ -456,7 +437,8 @@ namespace tl
                                 timeline::getBoxes(p.compareOptions.mode, p.timelineSizes),
                                 p.imageOptions,
                                 p.displayOptions,
-                                p.compareOptions);
+                                p.compareOptions,
+                                p.backgroundOptions);
 
                             _droppedFramesUpdate(p.videoData[0].time);
                         }

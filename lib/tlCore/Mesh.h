@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlCore/Box.h>
+#include <tlCore/Color.h>
 
 #include <array>
 #include <vector>
@@ -68,11 +69,18 @@ namespace tl
             std::vector<Triangle3> triangles;
         };
 
-        //! Create a two-dimensional axis aligned box mesh.
+        //! Create a two-dimensional box mesh.
         TriangleMesh2 box(const math::Box2i&, bool flipV = false);
 
-        //! Create a two-dimensional axis aligned box mesh.
+        //! Create a two-dimensional box mesh.
         TriangleMesh2 box(const math::Box2f&, bool flipV = false);
+
+        //! Create a mesh for drawing checkers.
+        geom::TriangleMesh2 checkers(
+            const math::Box2i&,
+            const image::Color4f& color0,
+            const image::Color4f& color1,
+            const math::Size2i& checkerSize);
 
         //! Edge function.
         float edge(

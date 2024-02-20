@@ -19,8 +19,10 @@ namespace tl
             const std::vector<math::Box2i>& boxes,
             const std::vector<timeline::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
-            const timeline::CompareOptions& compareOptions)
+            const timeline::CompareOptions& compareOptions,
+            const timeline::BackgroundOptions& backgroundOptions)
         {
+            _drawBackground(boxes, backgroundOptions);
             switch (compareOptions.mode)
             {
             case timeline::CompareMode::A:
@@ -86,6 +88,59 @@ namespace tl
                     compareOptions);
                 break;
             default: break;
+            }
+        }
+
+        void Render::_drawBackground(
+            const std::vector<math::Box2i>& boxes,
+            const timeline::BackgroundOptions& options)
+        {
+            for (const auto& box : boxes)
+            {
+                switch (options.type)
+                {
+                case timeline::Background::Solid:
+                    drawRect(box, options.color0);
+                    break;
+                case timeline::Background::Checkers:
+                    drawColorMesh(
+                        geom::checkers(box, options.color0, options.color1, options.checkersSize),
+                        math::Vector2i(),
+                        image::Color4f(1.F, 1.F, 1.F));
+                    break;
+                case timeline::Background::Gradient:
+                {
+                    geom::TriangleMesh2 mesh;
+                    mesh.v.push_back(math::Vector2f(box.min.x, box.min.y));
+                    mesh.v.push_back(math::Vector2f(box.max.x, box.min.y));
+                    mesh.v.push_back(math::Vector2f(box.max.x, box.max.y));
+                    mesh.v.push_back(math::Vector2f(box.min.x, box.max.y));
+                    mesh.c.push_back(math::Vector4f(
+                        options.color0.r,
+                        options.color0.g,
+                        options.color0.b,
+                        options.color0.a));
+                    mesh.c.push_back(math::Vector4f(
+                        options.color1.r,
+                        options.color1.g,
+                        options.color1.b,
+                        options.color1.a));
+                    mesh.triangles.push_back({
+                        geom::Vertex2(1, 0, 1),
+                        geom::Vertex2(2, 0, 1),
+                        geom::Vertex2(3, 0, 2), });
+                    mesh.triangles.push_back({
+                        geom::Vertex2(3, 0, 2),
+                        geom::Vertex2(4, 0, 2),
+                        geom::Vertex2(1, 0, 1), });
+                    drawColorMesh(
+                        mesh,
+                        math::Vector2i(),
+                        image::Color4f(1.F, 1.F, 1.F));
+                    break;
+                }
+                default: break;
+                }
             }
         }
 
@@ -692,18 +747,7 @@ namespace tl
 
             if (p.buffers["video"])
             {
-                switch (imageOptions ? imageOptions->alphaBlend : timeline::AlphaBlend::Straight)
-                {
-                case timeline::AlphaBlend::None:
-                    glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
-                    break;
-                case timeline::AlphaBlend::Straight:
-                    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                    break;
-                case timeline::AlphaBlend::Premultiplied:
-                    glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                    break;
-                }
+                glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
                 glViewport(
                     viewportPrev[0],

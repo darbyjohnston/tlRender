@@ -68,6 +68,7 @@ namespace tl
                 HDRMode hdrMode = HDRMode::FromFile;
                 image::HDRData hdrData;
                 timeline::CompareOptions compareOptions;
+                timeline::BackgroundOptions backgroundOptions;
                 math::Vector2i viewPos;
                 double viewZoom = 1.0;
                 bool frameView = true;
@@ -327,6 +328,16 @@ namespace tl
             p.thread.cv.notify_one();
         }
 
+        void OutputDevice::setBackgroundOptions(const timeline::BackgroundOptions& value)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.backgroundOptions = value;
+            }
+            p.thread.cv.notify_one();
+        }
+
         void OutputDevice::setOverlay(const std::shared_ptr<image::Image>& value)
         {
             TLRENDER_P();
@@ -510,6 +521,7 @@ namespace tl
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
+            timeline::BackgroundOptions backgroundOptions;
             timeline::Playback playback = timeline::Playback::Stop;
             otime::RationalTime currentTime = time::invalidTime;
             float volume = 1.F;
@@ -536,7 +548,7 @@ namespace tl
                         timeout,
                         [this, config, enabled,
                         ocioOptions, lutOptions, imageOptions,
-                        displayOptions, compareOptions,
+                        displayOptions, compareOptions, backgroundOptions,
                         playback, currentTime,
                         volume, mute, audioOffset, audioData]
                         {
@@ -550,6 +562,7 @@ namespace tl
                                 _p->thread.hdrMode != _p->mutex.hdrMode ||
                                 _p->thread.hdrData != _p->mutex.hdrData ||
                                 compareOptions != _p->mutex.compareOptions ||
+                                backgroundOptions != _p->mutex.backgroundOptions ||
                                 _p->thread.viewPos != _p->mutex.viewPos ||
                                 _p->thread.viewZoom != _p->mutex.viewZoom ||
                                 _p->thread.frameView != _p->mutex.frameView ||
@@ -584,6 +597,7 @@ namespace tl
                             p.thread.hdrMode != p.mutex.hdrMode ||
                             p.thread.hdrData != p.mutex.hdrData ||
                             compareOptions != p.mutex.compareOptions ||
+                            backgroundOptions != p.mutex.backgroundOptions ||
                             p.thread.viewPos != p.mutex.viewPos ||
                             p.thread.viewZoom != p.mutex.viewZoom ||
                             p.thread.frameView != p.mutex.frameView ||
@@ -597,6 +611,7 @@ namespace tl
                         p.thread.hdrMode = p.mutex.hdrMode;
                         p.thread.hdrData = p.mutex.hdrData;
                         compareOptions = p.mutex.compareOptions;
+                        backgroundOptions = p.mutex.backgroundOptions;
                         p.thread.viewPos = p.mutex.viewPos;
                         p.thread.viewZoom = p.mutex.viewZoom;
                         p.thread.frameView = p.mutex.frameView;
@@ -671,7 +686,8 @@ namespace tl
                             lutOptions,
                             imageOptions,
                             displayOptions,
-                            compareOptions);
+                            compareOptions,
+                            backgroundOptions);
                     }
                     catch (const std::exception& e)
                     {
@@ -916,7 +932,8 @@ namespace tl
             const timeline::LUTOptions& lutOptions,
             const std::vector<timeline::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
-            const timeline::CompareOptions& compareOptions)
+            const timeline::CompareOptions& compareOptions,
+            const timeline::BackgroundOptions& backgroundOptions)
         {
             TLRENDER_P();
 
@@ -977,7 +994,8 @@ namespace tl
                     timeline::getBoxes(compareOptions.mode, p.thread.sizes),
                     imageOptions,
                     displayOptions,
-                    compareOptions);
+                    compareOptions,
+                    backgroundOptions);
                 if (p.thread.overlay)
                 {
                     p.thread.render->setTransform(pm);

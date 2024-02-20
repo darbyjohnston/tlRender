@@ -39,13 +39,13 @@ namespace tl
                 const std::shared_ptr<Settings>&,
                 const std::shared_ptr<system::Context>&);
 
-            //! Get the timeline viewport background options.
+            //! Get the background options.
             const timeline::BackgroundOptions& getBackgroundOptions() const;
 
-            //! Observer the timeline viewport background options.
+            //! Observe the background options.
             std::shared_ptr<observer::IValue<timeline::BackgroundOptions> > observeBackgroundOptions() const;
 
-            //! Set the timeline viewport background options.
+            //! Set the background options.
             void setBackgroundOptions(const timeline::BackgroundOptions&);
 
         private:

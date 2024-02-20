@@ -25,11 +25,10 @@ namespace tl
         struct BackgroundWidget::Private
         {
             std::shared_ptr<ui::ComboBox> typeComboBox;
-            std::shared_ptr<ui::ColorSwatch> solidColorSwatch;
-            std::shared_ptr<ui::ColorSwatch> checkersColor0Swatch;
-            std::shared_ptr<ui::ColorSwatch> checkersColor1Swatch;
+            std::shared_ptr<ui::ColorSwatch> color0Swatch;
+            std::shared_ptr<ui::ColorSwatch> color1Swatch;
             std::shared_ptr<ui::IntEditSlider> checkersSizeSlider;
-            std::shared_ptr<ui::VerticalLayout> layout;
+            std::shared_ptr<ui::GridLayout> layout;
 
             std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > optionsObservers;
         };
@@ -46,36 +45,32 @@ namespace tl
                 timeline::getBackgroundLabels(),
                 context);
 
-            p.solidColorSwatch = ui::ColorSwatch::create(context);
-            p.solidColorSwatch->setEditable(true);
-
-            p.checkersColor0Swatch = ui::ColorSwatch::create(context);
-            p.checkersColor0Swatch->setEditable(true);
-            p.checkersColor1Swatch = ui::ColorSwatch::create(context);
-            p.checkersColor1Swatch->setEditable(true);
+            p.color0Swatch = ui::ColorSwatch::create(context);
+            p.color0Swatch->setEditable(true);
+            p.color1Swatch = ui::ColorSwatch::create(context);
+            p.color1Swatch->setEditable(true);
             p.checkersSizeSlider = ui::IntEditSlider::create(context);
             p.checkersSizeSlider->setRange(math::IntRange(10, 100));
 
-            p.layout = ui::VerticalLayout::create(context, shared_from_this());
+            p.layout = ui::GridLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
             p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            auto label = ui::Label::create("Type:", context, p.layout);
+            p.layout->setGridPos(label, 0, 0);
             p.typeComboBox->setParent(p.layout);
-            auto groupBox = ui::GroupBox::create("Solid", context, p.layout);
-            p.solidColorSwatch->setParent(groupBox);
-            groupBox = ui::GroupBox::create("Checkers", context, p.layout);
-            auto gridLayout = ui::GridLayout::create(context, groupBox);
-            auto label = ui::Label::create("Color 0:", context, gridLayout);
-            gridLayout->setGridPos(label, 0, 0);
-            p.checkersColor0Swatch->setParent(gridLayout);
-            gridLayout->setGridPos(p.checkersColor0Swatch, 0, 1);
-            label = ui::Label::create("Color 1:", context, gridLayout);
-            gridLayout->setGridPos(label, 1, 0);
-            p.checkersColor1Swatch->setParent(gridLayout);
-            gridLayout->setGridPos(p.checkersColor1Swatch, 1, 1);
-            label = ui::Label::create("Size:", context, gridLayout);
-            gridLayout->setGridPos(label, 2, 0);
-            p.checkersSizeSlider->setParent(gridLayout);
-            gridLayout->setGridPos(p.checkersSizeSlider, 2, 1);
+            p.layout->setGridPos(p.typeComboBox, 0, 1);
+            label = ui::Label::create("Color 0:", context, p.layout);
+            p.layout->setGridPos(label, 1, 0);
+            p.color0Swatch->setParent(p.layout);
+            p.layout->setGridPos(p.color0Swatch, 1, 1);
+            label = ui::Label::create("Color 1:", context, p.layout);
+            p.layout->setGridPos(label, 2, 0);
+            p.color1Swatch->setParent(p.layout);
+            p.layout->setGridPos(p.color1Swatch, 2, 1);
+            label = ui::Label::create("Checkers size:", context, p.layout);
+            p.layout->setGridPos(label, 3, 0);
+            p.checkersSizeSlider->setParent(p.layout);
+            p.layout->setGridPos(p.checkersSizeSlider, 3, 1);
 
             p.optionsObservers = observer::ValueObserver<timeline::BackgroundOptions>::create(
                 app->getViewportModel()->observeBackgroundOptions(),
@@ -96,35 +91,24 @@ namespace tl
                     }
                 });
 
-            p.solidColorSwatch->setCallback(
+            p.color0Swatch->setCallback(
                 [appWeak](const image::Color4f& value)
                 {
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getViewportModel()->getBackgroundOptions();
-                        options.solidColor = value;
+                        options.color0 = value;
                         app->getViewportModel()->setBackgroundOptions(options);
                     }
                 });
 
-            p.checkersColor0Swatch->setCallback(
+            p.color1Swatch->setCallback(
                 [appWeak](const image::Color4f& value)
                 {
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getViewportModel()->getBackgroundOptions();
-                        options.checkersColor0 = value;
-                        app->getViewportModel()->setBackgroundOptions(options);
-                    }
-                });
-
-            p.checkersColor1Swatch->setCallback(
-                [appWeak](const image::Color4f& value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        auto options = app->getViewportModel()->getBackgroundOptions();
-                        options.checkersColor1 = value;
+                        options.color1 = value;
                         app->getViewportModel()->setBackgroundOptions(options);
                     }
                 });
@@ -175,9 +159,8 @@ namespace tl
         {
             TLRENDER_P();
             p.typeComboBox->setCurrentIndex(static_cast<int>(value.type));
-            p.solidColorSwatch->setColor(value.solidColor);
-            p.checkersColor0Swatch->setColor(value.checkersColor0);
-            p.checkersColor1Swatch->setColor(value.checkersColor1);
+            p.color0Swatch->setColor(value.color0);
+            p.color1Swatch->setColor(value.color1);
             p.checkersSizeSlider->setValue(value.checkersSize.w);
         }
 

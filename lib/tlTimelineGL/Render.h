@@ -91,11 +91,15 @@ namespace tl
                 const std::vector<math::Box2i>&,
                 const std::vector<timeline::ImageOptions>& = {},
                 const std::vector<timeline::DisplayOptions>& = {},
-                const timeline::CompareOptions& = timeline::CompareOptions()) override;
+                const timeline::CompareOptions& = timeline::CompareOptions(),
+                const timeline::BackgroundOptions& = timeline::BackgroundOptions()) override;
 
         private:
             void _displayShader();
 
+            void _drawBackground(
+                const std::vector<math::Box2i>&,
+                const timeline::BackgroundOptions&);
             void _drawVideoA(
                 const std::vector<timeline::VideoData>&,
                 const std::vector<math::Box2i>&,

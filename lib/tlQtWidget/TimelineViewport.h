@@ -35,9 +35,6 @@ namespace tl
 
             virtual ~TimelineViewport();
 
-            //! Set the background options.
-            void setBackgroundOptions(const timeline::BackgroundOptions&);
-
             //! Set the OpenColorIO options.
             void setOCIOOptions(const timeline::OCIOOptions&);
 
@@ -52,6 +49,9 @@ namespace tl
 
             //! Set the comparison options.
             void setCompareOptions(const timeline::CompareOptions&);
+
+            //! Set the background options.
+            void setBackgroundOptions(const timeline::BackgroundOptions&);
 
             //! Set the timeline players.
             void setTimelinePlayers(const QVector<QSharedPointer<qt::TimelinePlayer> >&);

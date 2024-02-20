@@ -89,6 +89,9 @@ namespace tl
             //! Set the comparison options.
             void setCompareOptions(const timeline::CompareOptions&);
 
+            //! Set the background options.
+            void setBackgroundOptions(const timeline::BackgroundOptions&);
+
             //! Set the overlay.
             void setOverlay(const std::shared_ptr<image::Image>&);
 
@@ -120,7 +123,8 @@ namespace tl
                 const timeline::LUTOptions&,
                 const std::vector<timeline::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
-                const timeline::CompareOptions&);
+                const timeline::CompareOptions&,
+                const timeline::BackgroundOptions&);
             void _read();
 
             TLRENDER_PRIVATE();

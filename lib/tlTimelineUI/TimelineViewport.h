@@ -33,9 +33,6 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Set the background options.
-            void setBackgroundOptions(const timeline::BackgroundOptions&);
-
             //! Set the OpenColorIO options.
             void setOCIOOptions(const timeline::OCIOOptions&);
 
@@ -53,6 +50,9 @@ namespace tl
 
             //! Set the comparison callback.
             void setCompareCallback(const std::function<void(timeline::CompareOptions)>&);
+
+            //! Set the background options.
+            void setBackgroundOptions(const timeline::BackgroundOptions&);
 
             //! Set the timeline players.
             void setPlayers(const std::vector<std::shared_ptr<timeline::Player> >&);

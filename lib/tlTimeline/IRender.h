@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlTimeline/BackgroundOptions.h>
 #include <tlTimeline/CompareOptions.h>
 #include <tlTimeline/DisplayOptions.h>
 #include <tlTimeline/LUTOptions.h>
@@ -120,7 +121,8 @@ namespace tl
                 const std::vector<math::Box2i>&,
                 const std::vector<ImageOptions>& = {},
                 const std::vector<DisplayOptions>& = {},
-                const CompareOptions& = CompareOptions()) = 0;
+                const CompareOptions& = CompareOptions(),
+                const BackgroundOptions& = BackgroundOptions()) = 0;
 
         protected:
             std::weak_ptr<system::Context> _context;
