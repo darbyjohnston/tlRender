@@ -988,14 +988,16 @@ namespace tl
                     -1.F,
                     1.F);
                 p.thread.render->setTransform(pm * vm);
-
-                p.thread.render->drawVideo(
-                    p.thread.videoData,
-                    timeline::getBoxes(compareOptions.mode, p.thread.sizes),
-                    imageOptions,
-                    displayOptions,
-                    compareOptions,
-                    backgroundOptions);
+                if (!p.thread.videoData.empty())
+                {
+                    p.thread.render->drawVideo(
+                        p.thread.videoData,
+                        timeline::getBoxes(compareOptions.mode, p.thread.sizes),
+                        imageOptions,
+                        displayOptions,
+                        compareOptions,
+                        backgroundOptions);
+                }
                 if (p.thread.overlay)
                 {
                     p.thread.render->setTransform(pm);
