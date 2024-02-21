@@ -406,7 +406,8 @@ namespace tl
                             }
                             device->_p->thread.cv.notify_one();
                         }
-                    });
+                    },
+                    observer::CallbackAction::Suppress);
                 p.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
                     p.players.front()->observeCurrentTime(),
                     [weak](const otime::RationalTime& value)
@@ -419,7 +420,8 @@ namespace tl
                             }
                             device->_p->thread.cv.notify_one();
                         }
-                    });
+                    },
+                    observer::CallbackAction::Suppress);
                 for (size_t i = 0; i < p.players.size(); ++i)
                 {
                     if (p.players[i])
@@ -439,7 +441,8 @@ namespace tl
                                     }
                                     device->_p->thread.cv.notify_one();
                                 }
-                            }));
+                            },
+                            observer::CallbackAction::Suppress));
                     }
                 }
                 p.audioObserver = observer::ListObserver<timeline::AudioData>::create(
@@ -454,7 +457,8 @@ namespace tl
                             }
                             device->_p->thread.cv.notify_one();
                         }
-                    });
+                    },
+                    observer::CallbackAction::Suppress);
             }
 
             {
