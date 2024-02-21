@@ -22,7 +22,12 @@ namespace tl
             const timeline::CompareOptions& compareOptions,
             const timeline::BackgroundOptions& backgroundOptions)
         {
-            _drawBackground(boxes, backgroundOptions);
+            //! \todo Render the background only if there is valid video data and a
+            //! valid layer?
+            if (!videoData.empty() && !videoData.front().layers.empty())
+            {
+                _drawBackground(boxes, backgroundOptions);
+            }
             switch (compareOptions.mode)
             {
             case timeline::CompareMode::A:
