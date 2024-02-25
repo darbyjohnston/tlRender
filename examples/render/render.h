@@ -80,7 +80,7 @@ namespace tl
                 std::string _input;
                 Options _options;
 
-                std::vector<std::shared_ptr<timeline::Player> > _players;
+                std::shared_ptr<timeline::Player> _player;
                 std::vector<image::Size> _videoSizes;
 
                 std::shared_ptr<gl::GLFWWindow> _window;
@@ -92,6 +92,7 @@ namespace tl
                 std::shared_ptr<timeline::IRender> _render;
                 bool _renderDirty = true;
                 std::vector<timeline::VideoData> _videoData;
+                std::shared_ptr<observer::ListObserver<timeline::VideoData> > _videoDataObserver;
                 std::chrono::steady_clock::time_point _startTime;
 
                 bool _running = true;

@@ -27,7 +27,6 @@ namespace tl
             void _loop();
             void _player();
             void _player(const std::shared_ptr<timeline::Player>&);
-            void _externalTime();
         };
     }
 }

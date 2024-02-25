@@ -46,10 +46,10 @@ namespace tl
             std::shared_ptr<observer::Value<math::Size2i> > size;
             std::shared_ptr<observer::Value<otime::RationalTime> > frameRate;
 
-            std::vector<std::shared_ptr<timeline::Player> > players;
+            std::shared_ptr<timeline::Player> player;
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
-            std::vector<std::shared_ptr<observer::ValueObserver<timeline::VideoData> > > videoObservers;
+            std::shared_ptr<observer::ListObserver<timeline::VideoData> > videoObserver;
             std::shared_ptr<observer::ListObserver<timeline::AudioData> > audioObserver;
 
             std::shared_ptr<gl::GLFWWindow> window;
@@ -378,24 +378,24 @@ namespace tl
             p.thread.cv.notify_one();
         }
 
-        void OutputDevice::setPlayers(const std::vector<std::shared_ptr<timeline::Player> >& value)
+        void OutputDevice::setPlayer(const std::shared_ptr<timeline::Player>& value)
         {
             TLRENDER_P();
-            if (value == p.players)
+            if (value == p.player)
                 return;
 
             p.playbackObserver.reset();
             p.currentTimeObserver.reset();
-            p.videoObservers.clear();
+            p.videoObserver.reset();
             p.audioObserver.reset();
 
-            p.players = value;
+            p.player = value;
 
-            if (!p.players.empty() && p.players.front())
+            if (p.player)
             {
                 auto weak = std::weak_ptr<OutputDevice>(shared_from_this());
                 p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
-                    p.players.front()->observePlayback(),
+                    p.player->observePlayback(),
                     [weak](timeline::Playback value)
                     {
                         if (auto device = weak.lock())
@@ -409,7 +409,7 @@ namespace tl
                     },
                     observer::CallbackAction::Suppress);
                 p.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
-                    p.players.front()->observeCurrentTime(),
+                    p.player->observeCurrentTime(),
                     [weak](const otime::RationalTime& value)
                     {
                         if (auto device = weak.lock())
@@ -422,31 +422,22 @@ namespace tl
                         }
                     },
                     observer::CallbackAction::Suppress);
-                for (size_t i = 0; i < p.players.size(); ++i)
-                {
-                    if (p.players[i])
+                p.videoObserver = observer::ListObserver<timeline::VideoData>::create(
+                    p.player->observeCurrentVideo(),
+                    [weak](const std::vector<timeline::VideoData>& value)
                     {
-                        p.videoObservers.push_back(observer::ValueObserver<timeline::VideoData>::create(
-                            p.players[i]->observeCurrentVideo(),
-                            [weak, i](const timeline::VideoData& value)
+                        if (auto device = weak.lock())
+                        {
                             {
-                                if (auto device = weak.lock())
-                                {
-                                    {
-                                        std::unique_lock<std::mutex> lock(device->_p->mutex.mutex);
-                                        if (i < device->_p->mutex.videoData.size())
-                                        {
-                                            device->_p->mutex.videoData[i] = value;
-                                        }
-                                    }
-                                    device->_p->thread.cv.notify_one();
-                                }
-                            },
-                            observer::CallbackAction::Suppress));
-                    }
-                }
+                                std::unique_lock<std::mutex> lock(device->_p->mutex.mutex);
+                                device->_p->mutex.videoData = value;
+                            }
+                            device->_p->thread.cv.notify_one();
+                        }
+                    },
+                    observer::CallbackAction::Suppress);
                 p.audioObserver = observer::ListObserver<timeline::AudioData>::create(
-                    p.players.front()->observeCurrentAudio(),
+                    p.player->observeCurrentAudio(),
                     [weak](const std::vector<timeline::AudioData>& value)
                     {
                         if (auto device = weak.lock())
@@ -463,11 +454,11 @@ namespace tl
 
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                if (!p.players.empty() && p.players.front())
+                if (p.player)
                 {
-                    p.mutex.timeRange = p.players.front()->getTimeRange();
-                    p.mutex.playback = p.players.front()->getPlayback();
-                    p.mutex.currentTime = p.players.front()->getCurrentTime();
+                    p.mutex.timeRange = p.player->getTimeRange();
+                    p.mutex.playback = p.player->getPlayback();
+                    p.mutex.currentTime = p.player->getCurrentTime();
                 }
                 else
                 {
@@ -477,22 +468,12 @@ namespace tl
                 }
                 p.mutex.sizes.clear();
                 p.mutex.videoData.clear();
-                for (const auto& player : p.players)
-                {
-                    if (player)
-                    {
-                        const auto& ioInfo = player->getIOInfo();
-                        if (!ioInfo.video.empty())
-                        {
-                            p.mutex.sizes.push_back(ioInfo.video[0].size);
-                        }
-                        p.mutex.videoData.push_back(player->getCurrentVideo());
-                    }
-                }
                 p.mutex.audioData.clear();
-                if (!p.players.empty() && p.players.front())
+                if (p.player)
                 {
-                    p.mutex.audioData = p.players.front()->getCurrentAudio();
+                    p.mutex.sizes = p.player->getSizes();
+                    p.mutex.videoData = p.player->getCurrentVideo();
+                    p.mutex.audioData = p.player->getCurrentAudio();
                 }
             }
         }

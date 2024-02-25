@@ -39,7 +39,6 @@ namespace tl
             _enums();
             _loop();
             _player();
-            _externalTime();
         }
 
         void PlayerTest::_enums()
@@ -356,12 +355,16 @@ namespace tl
                 player->setCacheOptions(cacheOptions);
                 TLRENDER_ASSERT(cacheOptions == player->getCacheOptions());
 
-                auto currentVideoObserver = observer::ValueObserver<timeline::VideoData>::create(
+                auto currentVideoObserver = observer::ListObserver<timeline::VideoData>::create(
                     player->observeCurrentVideo(),
-                    [this](const timeline::VideoData& value)
+                    [this](const std::vector<timeline::VideoData>& value)
                     {
                         std::stringstream ss;
-                        ss << "Video time: " << value.time;
+                        ss << "Video time: ";
+                        if (!value.empty())
+                        {
+                            ss << value.front().time;
+                        }
                         _print(ss.str());
                     });
                 auto currentAudioObserver = observer::ListObserver<timeline::AudioData>::create(
@@ -437,29 +440,6 @@ namespace tl
                 player->setPlayback(Playback::Stop);
                 player->clearCache();
             }
-        }
-
-        void PlayerTest::_externalTime()
-        {
-            const file::Path path(TLRENDER_SAMPLE_DATA, "MultipleClips.otio");
-            auto timeline = Timeline::create(path, _context);
-            auto player = Player::create(timeline, _context);
-            const otime::TimeRange& timeRange = player->getTimeRange();
-
-            const file::Path path2(TLRENDER_SAMPLE_DATA, "SingleClip.otio");
-            auto timeline2 = Timeline::create(path2, _context);
-            auto player2 = Player::create(timeline2, _context);
-            player2->setExternalTime(player);
-            player2->setExternalTime(player);
-
-            player->setPlayback(Playback::Forward);
-            for (size_t i = 0; i < timeRange.duration().rate(); ++i)
-            {
-                player->tick();
-                time::sleep(std::chrono::milliseconds(1));
-            }
-
-            player2->setExternalTime(nullptr);
         }
     }
 }

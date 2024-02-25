@@ -185,7 +185,7 @@ namespace tl
             auto videoCacheIt = thread.videoDataCache.begin();
             while (videoCacheIt != thread.videoDataCache.end())
             {
-                const otime::RationalTime t = videoCacheIt->second.time;
+                const otime::RationalTime t = videoCacheIt->first;
                 const auto j = std::find_if(
                     videoRanges.begin(),
                     videoRanges.end(),
@@ -352,7 +352,7 @@ namespace tl
                 {
                     auto data = videoDataRequestsIt->second.get();
                     data.time = videoDataRequestsIt->first;
-                    thread.videoDataCache[data.time] = data;
+                    thread.videoDataCache[data.time] = { data };
                     videoDataRequestsIt = thread.videoDataRequests.erase(videoDataRequestsIt);
                     continue;
                 }
@@ -387,7 +387,7 @@ namespace tl
                 std::vector<otime::RationalTime> cachedVideoFrames;
                 for (const auto& i : thread.videoDataCache)
                 {
-                    cachedVideoFrames.push_back(i.second.time);
+                    cachedVideoFrames.push_back(i.first);
                 }
                 const float cachedVideoPercentage = cachedVideoFrames.size() /
                     static_cast<float>(cacheOptions.readAhead.rescaled_to(timeRange.duration().rate()).value() +
@@ -458,13 +458,11 @@ namespace tl
             Playback playback = Playback::Stop;
             otime::RationalTime playbackStartTime = time::invalidTime;
             double audioOffset = 0.0;
-            bool externalTime = false;
             {
                 std::unique_lock<std::mutex> lock(p->mutex.mutex);
                 playback = p->mutex.playback;
                 playbackStartTime = p->mutex.playbackStartTime;
                 audioOffset = p->mutex.audioOffset;
-                externalTime = p->mutex.externalTime;
             }
             double speed = 0.0;
             float volume = 1.F;
@@ -596,7 +594,6 @@ namespace tl
                 // Send audio data to RtAudio.
                 const auto now = std::chrono::steady_clock::now();
                 if (speed == p->timeline->getTimeRange().duration().rate() &&
-                    !externalTime &&
                     !mute &&
                     now >= muteTimeout &&
                     nFrames <= getSampleCount(p->audioThread.buffer))

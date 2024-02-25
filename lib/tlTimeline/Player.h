@@ -85,6 +85,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<Timeline>&,
+                const std::vector<std::shared_ptr<Timeline> >& compare,
                 const std::shared_ptr<system::Context>&,
                 const PlayerOptions&);
 
@@ -97,13 +98,23 @@ namespace tl
             static std::shared_ptr<Player> create(
                 const std::shared_ptr<Timeline>&,
                 const std::shared_ptr<system::Context>&,
-                const PlayerOptions& = PlayerOptions());
+                const PlayerOptions & = PlayerOptions());
+
+            //! Create a new timeline player.
+            static std::shared_ptr<Player> create(
+                const std::shared_ptr<Timeline>&,
+                const std::vector<std::shared_ptr<Timeline> >& compare,
+                const std::shared_ptr<system::Context>&,
+                const PlayerOptions & = PlayerOptions());
 
             //! Get the context.
             const std::weak_ptr<system::Context>& getContext() const;
 
             //! Get the timeline.
             const std::shared_ptr<Timeline>& getTimeline() const;
+
+            //! Get the timelines for comparison.
+            const std::vector<std::shared_ptr<Timeline> >& getCompare() const;
 
             //! Get the path.
             const file::Path& getPath() const;
@@ -126,6 +137,9 @@ namespace tl
             //! Get the I/O information. This information is retrieved from
             //! the first clip in the timeline.
             const io::Info& getIOInfo() const;
+
+            //! Get the timeline sizes.
+            const std::vector<image::Size>& getSizes() const;
 
             ///@}
 
@@ -191,9 +205,6 @@ namespace tl
             //! Go to the next frame.
             void frameNext();
 
-            //! Use the time from a separate timeline player.
-            void setExternalTime(const std::shared_ptr<Player>&);
-
             ///@}
 
             //! \name In/Out Points
@@ -240,10 +251,10 @@ namespace tl
             ///@{
 
             //! Get the current video data.
-            const VideoData& getCurrentVideo() const;
+            const std::vector<VideoData>& getCurrentVideo() const;
 
             //! Observe the current video data.
-            std::shared_ptr<observer::IValue<VideoData> > observeCurrentVideo() const;
+            std::shared_ptr<observer::IList<VideoData> > observeCurrentVideo() const;
 
             ///@}
 

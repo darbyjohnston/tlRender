@@ -52,7 +52,7 @@ namespace tl
                 WRITE setIOOptions
                 NOTIFY ioOptionsChanged)
             Q_PROPERTY(
-                tl::timeline::VideoData
+                std::vector<tl::timeline::VideoData>
                 currentVideo
                 READ currentVideo
                 NOTIFY currentVideoChanged)
@@ -176,7 +176,7 @@ namespace tl
             ///@{
 
             //! Get the current video data.
-            const timeline::VideoData& currentVideo() const;
+            const std::vector<timeline::VideoData>& currentVideo() const;
 
             ///@}
 
@@ -341,7 +341,7 @@ namespace tl
             ///@{
 
             //! This signal is emitted when the current video data is changed.
-            void currentVideoChanged(const tl::timeline::VideoData&);
+            void currentVideoChanged(const std::vector<tl::timeline::VideoData>&);
 
             ///@}
 

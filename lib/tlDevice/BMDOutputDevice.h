@@ -104,8 +104,8 @@ namespace tl
             //! Set the audio sync offset.
             void setAudioOffset(double);
 
-            //! Set the timeline players.
-            void setPlayers(const std::vector<std::shared_ptr<timeline::Player> >&);
+            //! Set the timeline player.
+            void setPlayer(const std::shared_ptr<timeline::Player>&);
 
             //! Tick the output device.
             void tick();

@@ -32,7 +32,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
             std::shared_ptr<observer::ValueObserver<otime::TimeRange> > inOutRangeObserver;
             std::shared_ptr<observer::ValueObserver<io::Options> > ioOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::VideoData> > currentVideoObserver;
+            std::shared_ptr<observer::ListObserver<timeline::VideoData> > currentVideoObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ValueObserver<double> > audioOffsetObserver;
@@ -91,9 +91,9 @@ namespace tl
                     Q_EMIT ioOptionsChanged(value);
                 });
 
-            p.currentVideoObserver = observer::ValueObserver<timeline::VideoData>::create(
+            p.currentVideoObserver = observer::ListObserver<timeline::VideoData>::create(
                 p.player->observeCurrentVideo(),
-                [this](const timeline::VideoData& value)
+                [this](const std::vector<timeline::VideoData>& value)
                 {
                     Q_EMIT currentVideoChanged(value);
                 },
@@ -240,7 +240,7 @@ namespace tl
             return _p->player->observeIOOptions()->get();
         }
 
-        const timeline::VideoData& TimelinePlayer::currentVideo() const
+        const std::vector<timeline::VideoData>& TimelinePlayer::currentVideo() const
         {
             return _p->player->getCurrentVideo();
         }

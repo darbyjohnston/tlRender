@@ -54,8 +54,8 @@ namespace tl
             //! Set the background options.
             void setBackgroundOptions(const timeline::BackgroundOptions&);
 
-            //! Set the timeline players.
-            void setPlayers(const std::vector<std::shared_ptr<timeline::Player> >&);
+            //! Set the timeline player.
+            void setPlayer(const std::shared_ptr<timeline::Player>&);
 
             //! Get the view position.
             const math::Vector2i& getViewPos() const;
@@ -111,13 +111,11 @@ namespace tl
             void _releaseMouse() override;
 
         private:
-            math::Size2i _renderSize() const;
-            math::Vector2i _viewportCenter() const;
+            math::Size2i _getRenderSize() const;
+            math::Vector2i _getViewportCenter() const;
             void _frameView();
 
             void _droppedFramesUpdate(const otime::RationalTime&);
-
-            void _videoDataUpdate(const timeline::VideoData&, size_t);
 
             TLRENDER_PRIVATE();
         };

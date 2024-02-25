@@ -58,6 +58,7 @@ namespace tl
 
         void Player::_init(
             const std::shared_ptr<Timeline>& timeline,
+            const std::vector<std::shared_ptr<Timeline> >& compare,
             const std::shared_ptr<system::Context>& context,
             const PlayerOptions& playerOptions)
         {
@@ -87,6 +88,19 @@ namespace tl
             p.playerOptions = playerOptions;
             p.timeline = timeline;
             p.ioInfo = p.timeline->getIOInfo();
+            p.compare = compare;
+            if (!p.ioInfo.video.empty())
+            {
+                p.sizes.push_back(p.ioInfo.video.front().size);
+            }
+            for (const auto& timeline : compare)
+            {
+                io::Info ioInfo = timeline->getIOInfo();
+                if (!ioInfo.video.empty())
+                {
+                    p.sizes.push_back(ioInfo.video.front().size);
+                }
+            }
 
             // Create observers.
             p.speed = observer::Value<double>::create(p.timeline->getTimeRange().duration().rate());
@@ -98,7 +112,7 @@ namespace tl
                 p.timeline->getTimeRange().start_time());
             p.inOutRange = observer::Value<otime::TimeRange>::create(p.timeline->getTimeRange());
             p.ioOptions = observer::Value<io::Options>::create();
-            p.currentVideoData = observer::Value<VideoData>::create();
+            p.currentVideoData = observer::List<VideoData>::create();
             p.volume = observer::Value<float>::create(1.F);
             p.mute = observer::Value<bool>::create(false);
             p.audioOffset = observer::Value<double>::create(0.0);
@@ -265,7 +279,7 @@ namespace tl
                                     p.mutex.playbackStartTimer = std::chrono::steady_clock::now();
                                     if (!timeRange.contains(currentTime))
                                     {
-                                        p.mutex.currentVideoData = VideoData();
+                                        p.mutex.currentVideoData.clear();
                                     }
                                 }
                                 p.resetAudioTime();
@@ -280,7 +294,7 @@ namespace tl
                                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                                 if (!timeRange.contains(currentTime))
                                 {
-                                    p.mutex.currentVideoData = VideoData();
+                                    p.mutex.currentVideoData.clear();
                                 }
                             }
                         }
@@ -360,7 +374,18 @@ namespace tl
             const PlayerOptions& playerOptions)
         {
             auto out = std::shared_ptr<Player>(new Player);
-            out->_init(timeline, context, playerOptions);
+            out->_init(timeline, {}, context, playerOptions);
+            return out;
+        }
+
+        std::shared_ptr<Player> Player::create(
+            const std::shared_ptr<Timeline>& timeline,
+            const std::vector<std::shared_ptr<Timeline> >& compare,
+            const std::shared_ptr<system::Context>& context,
+            const PlayerOptions& playerOptions)
+        {
+            auto out = std::shared_ptr<Player>(new Player);
+            out->_init(timeline, compare, context, playerOptions);
             return out;
         }
 
@@ -372,6 +397,11 @@ namespace tl
         const std::shared_ptr<Timeline>& Player::getTimeline() const
         {
             return _p->timeline;
+        }
+
+        const std::vector<std::shared_ptr<Timeline> >& Player::getCompare() const
+        {
+            return _p->compare;
         }
 
         const file::Path& Player::getPath() const
@@ -402,6 +432,11 @@ namespace tl
         const io::Info& Player::getIOInfo() const
         {
             return _p->ioInfo;
+        }
+
+        const std::vector<image::Size>& Player::getSizes() const
+        {
+            return _p->sizes;
         }
 
         double Player::getDefaultSpeed() const
@@ -651,53 +686,6 @@ namespace tl
             timeAction(TimeAction::FrameNext);
         }
 
-        void Player::setExternalTime(const std::shared_ptr<Player>& value)
-        {
-            TLRENDER_P();
-            if (value == p.externalTime.player)
-                return;
-            p.externalTime.player = value;
-            if (p.externalTime.player)
-            {
-                p.externalTime.timeRange = p.externalTime.player->getTimeRange();
-
-                auto weak = std::weak_ptr<Player>(shared_from_this());
-                p.externalTime.playbackObserver = observer::ValueObserver<Playback>::create(
-                    p.externalTime.player->observePlayback(),
-                    [weak](Playback value)
-                    {
-                        if (auto player = weak.lock())
-                        {
-                            player->setPlayback(value);
-                        }
-                    });
-                p.externalTime.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
-                    p.externalTime.player->observeCurrentTime(),
-                    [weak](const otime::RationalTime& value)
-                    {
-                        if (auto player = weak.lock())
-                        {
-                            const otime::RationalTime externalTime = getExternalTime(
-                                value,
-                                player->_p->externalTime.timeRange,
-                                player->getTimeRange(),
-                                player->_p->playerOptions.externalTimeMode);
-                            player->_p->currentTime->setIfChanged(externalTime);
-                        }
-                    });
-            }
-            else
-            {
-                p.externalTime.timeRange = time::invalidTimeRange;
-                p.externalTime.playbackObserver.reset();
-                p.externalTime.currentTimeObserver.reset();
-            }
-            {
-                std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                p.mutex.externalTime = p.externalTime.player.get();
-            }
-        }
-
         otime::TimeRange Player::getInOutRange() const
         {
             return _p->inOutRange->get();
@@ -773,12 +761,12 @@ namespace tl
             }
         }
 
-        const VideoData& Player::getCurrentVideo() const
+        const std::vector<VideoData>& Player::getCurrentVideo() const
         {
             return _p->currentVideoData->get();
         }
 
-        std::shared_ptr<observer::IValue<VideoData> > Player::observeCurrentVideo() const
+        std::shared_ptr<observer::IList<VideoData> > Player::observeCurrentVideo() const
         {
             return _p->currentVideoData;
         }
@@ -896,7 +884,7 @@ namespace tl
             // Calculate the current time.
             const auto& timeRange = p.timeline->getTimeRange();
             const auto playback = p.playback->get();
-            if (playback != Playback::Stop && !p.externalTime.player)
+            if (playback != Playback::Stop)
             {
                 const double timelineSpeed = timeRange.duration().rate();
                 const double speed = p.speed->get();
@@ -939,7 +927,7 @@ namespace tl
             }
 
             // Sync with the thread.
-            VideoData currentVideoData;
+            std::vector<VideoData> currentVideoData;
             std::vector<AudioData> currentAudioData;
             PlayerCacheInfo cacheInfo;
             {

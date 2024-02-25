@@ -46,7 +46,7 @@ namespace tl
                 timeline::BackgroundOptions backgroundOptions;
                 backgroundOptions.type = timeline::Background::Checkers;
                 viewport->setBackgroundOptions(backgroundOptions);
-                viewport->setPlayers({ _player });
+                viewport->setPlayer(_player);
 
                 _window->show();
             }

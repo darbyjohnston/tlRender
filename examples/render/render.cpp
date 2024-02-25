@@ -128,29 +128,20 @@ namespace tl
                 {
                     // Read the timelines.
                     auto timeline = timeline::Timeline::create(_input, _context);
-                    auto player = timeline::Player::create(timeline, _context);
-                    _players.push_back(player);
-                    auto ioInfo = player->getIOInfo();
-                    if (!ioInfo.video.empty())
-                    {
-                        _videoSizes.push_back(ioInfo.video[0].size);
-                    }
-                    _videoData.push_back(timeline::VideoData());
+                    std::vector<std::shared_ptr <timeline::Timeline> > compare;
                     if (!_options.compareFileName.empty())
                     {
-                        timeline = timeline::Timeline::create(
-                            _options.compareFileName,
-                            _context);
-                        player = timeline::Player::create(timeline, _context);
-                        player->setExternalTime(_players[0]);
-                        _players.push_back(player);
-                        ioInfo = player->getIOInfo();
-                        if (!ioInfo.video.empty())
-                        {
-                            _videoSizes.push_back(ioInfo.video[0].size);
-                        }
-                        _videoData.push_back(timeline::VideoData());
+                        compare.push_back(timeline::Timeline::create(_options.compareFileName, _context));
                     }
+                    _player = timeline::Player::create(timeline, compare, _context);
+                    _videoSizes = _player->getSizes();
+                    _videoDataObserver = observer::ListObserver<timeline::VideoData>::create(
+                        _player->observeCurrentVideo(),
+                        [this](const std::vector<timeline::VideoData>& value)
+                        {
+                            _videoData = value;
+                            _renderDirty = true;
+                        });
 
                     // Create the window.
                     _window = gl::GLFWWindow::create(
@@ -188,14 +179,14 @@ namespace tl
                     _hud = _options.hud;
                     if (time::isValid(_options.inOutRange))
                     {
-                        _players[0]->setInOutRange(_options.inOutRange);
-                        _players[0]->seek(_options.inOutRange.start_time());
+                        _player->setInOutRange(_options.inOutRange);
+                        _player->seek(_options.inOutRange.start_time());
                     }
                     if (time::isValid(_options.seek))
                     {
-                        _players[0]->seek(_options.seek);
+                        _player->seek(_options.seek);
                     }
-                    _players[0]->setPlayback(_options.playback);
+                    _player->setPlayback(_options.playback);
                     _startTime = std::chrono::steady_clock::now();
                     while (_running && !_window->shouldClose())
                     {
@@ -228,21 +219,21 @@ namespace tl
                         break;
                     case GLFW_KEY_SPACE:
                         _playbackCallback(
-                            timeline::Playback::Stop == _players[0]->observePlayback()->get() ?
+                            timeline::Playback::Stop == _player->observePlayback()->get() ?
                             timeline::Playback::Forward :
                             timeline::Playback::Stop);
                         break;
                     case GLFW_KEY_HOME:
-                        _players[0]->start();
+                        _player->start();
                         break;
                     case GLFW_KEY_END:
-                        _players[0]->end();
+                        _player->end();
                         break;
                     case GLFW_KEY_LEFT:
-                        _players[0]->framePrev();
+                        _player->framePrev();
                         break;
                     case GLFW_KEY_RIGHT:
-                        _players[0]->frameNext();
+                        _player->frameNext();
                         break;
                     }
                 }
@@ -266,21 +257,11 @@ namespace tl
 
             void App::_tick()
             {
+                const auto t0 = std::chrono::steady_clock::now();
+
                 // Update.
                 _context->tick();
-                for (const auto& player : _players)
-                {
-                    player->tick();
-                }
-                for (size_t i = 0; i < _players.size(); ++i)
-                {
-                    const auto& videoData = _players[i]->observeCurrentVideo()->get();
-                    if (!timeline::isTimeEqual(videoData, _videoData[i]))
-                    {
-                        _videoData[i] = videoData;
-                        _renderDirty = true;
-                    }
-                }
+                _player->tick();
 
                 // Render the video.
                 if (_renderDirty)
@@ -293,17 +274,17 @@ namespace tl
                     _window->swap();
                     _renderDirty = false;
                 }
-                else
-                {
-                    time::sleep(std::chrono::milliseconds(5));
-                }
 
-                const auto now = std::chrono::steady_clock::now();
-                const std::chrono::duration<float> diff = now - _startTime;
+                // Update the animation.
+                const auto t1 = std::chrono::steady_clock::now();
+                const std::chrono::duration<float> diff = t1 - _startTime;
                 const float v = (sinf(diff.count()) + 1.F) / 2.F;
                 _compareOptions.wipeCenter.x = v;
                 _compareOptions.overlay = v;
                 _rotation = diff.count() * 2.F;
+
+                // Sleep.
+                time::sleep(std::chrono::milliseconds(5), t0, t1);
             }
 
             void App::_draw()
@@ -500,8 +481,8 @@ namespace tl
 
             void App::_playbackCallback(timeline::Playback value)
             {
-                _players[0]->setPlayback(value);
-                _log(string::Format("Playback: {0}").arg(_players[0]->observePlayback()->get()));
+                _player->setPlayback(value);
+                _log(string::Format("Playback: {0}").arg(_player->observePlayback()->get()));
             }
         }
     }
