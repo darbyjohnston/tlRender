@@ -112,7 +112,7 @@ Optional dependencies:
 ## Building Dependencies
 
 A CMake super build script is provided to build all of the dependencies from
-source, except for Qt. Qt needs to be installed separately:
+source except for Qt. Qt needs to be installed separately:
 https://www.qt.io/
 
 ## Building on Linux
