@@ -99,7 +99,7 @@ namespace tl
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             std::shared_ptr<ui::DoubleModel> speedModel;
             timelineui::ItemOptions itemOptions;
-            std::vector<std::shared_ptr<timeline::Player> > players;
+            std::shared_ptr<timeline::Player> player;
 
             std::shared_ptr<timelineui::TimelineViewport> timelineViewport;
             std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
@@ -151,7 +151,7 @@ namespace tl
             std::shared_ptr<ui::HorizontalLayout> statusLayout;
             std::shared_ptr<ui::VerticalLayout> layout;
 
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playersObserver;
+            std::shared_ptr<observer::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
             std::shared_ptr<observer::ValueObserver<double> > speedObserver;
             std::shared_ptr<observer::ValueObserver<double> > speedObserver2;
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
@@ -466,11 +466,11 @@ namespace tl
             p.currentTimeEdit->setCallback(
                 [this](const otime::RationalTime& value)
                 {
-                    if (!_p->players.empty() && _p->players[0])
+                    if (_p->player)
                     {
-                        _p->players[0]->setPlayback(timeline::Playback::Stop);
-                        _p->players[0]->seek(value);
-                        _p->currentTimeEdit->setValue(_p->players[0]->getCurrentTime());
+                        _p->player->setPlayback(timeline::Playback::Stop);
+                        _p->player->seek(value);
+                        _p->currentTimeEdit->setValue(_p->player->getCurrentTime());
                     }
                 });
 
@@ -484,30 +484,30 @@ namespace tl
             p.playbackButtonGroup->setCheckedCallback(
                 [this](int index, bool value)
                 {
-                    if (!_p->players.empty() && _p->players[0])
+                    if (_p->player)
                     {
-                        _p->players[0]->setPlayback(static_cast<timeline::Playback>(index));
+                        _p->player->setPlayback(static_cast<timeline::Playback>(index));
                     }
                 });
 
             p.frameButtonGroup->setClickedCallback(
                 [this](int index)
                 {
-                    if (!_p->players.empty() && _p->players[0])
+                    if (_p->player)
                     {
                         switch (index)
                         {
                         case 0:
-                            _p->players[0]->timeAction(timeline::TimeAction::Start);
+                            _p->player->timeAction(timeline::TimeAction::Start);
                             break;
                         case 1:
-                            _p->players[0]->timeAction(timeline::TimeAction::FramePrev);
+                            _p->player->timeAction(timeline::TimeAction::FramePrev);
                             break;
                         case 2:
-                            _p->players[0]->timeAction(timeline::TimeAction::FrameNext);
+                            _p->player->timeAction(timeline::TimeAction::FrameNext);
                             break;
                         case 3:
-                            _p->players[0]->timeAction(timeline::TimeAction::End);
+                            _p->player->timeAction(timeline::TimeAction::End);
                             break;
                         }
                     }
@@ -533,20 +533,20 @@ namespace tl
                     }
                 });
 
-            p.playersObserver = observer::ListObserver<std::shared_ptr<timeline::Player> >::create(
-                app->observeActivePlayers(),
-                [this](const std::vector<std::shared_ptr<timeline::Player> >& value)
+            p.playerObserver = observer::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+                app->observePlayer(),
+                [this](const std::shared_ptr<timeline::Player>& value)
                 {
-                    _playersUpdate(value);
+                    _playerUpdate(value);
                 });
 
             p.speedObserver2 = observer::ValueObserver<double>::create(
                 p.speedModel->observeValue(),
                 [this](double value)
                 {
-                    if (!_p->players.empty() && _p->players[0])
+                    if (_p->player)
                     {
-                        _p->players[0]->setSpeed(value);
+                        _p->player->setSpeed(value);
                     }
                 });
 
@@ -568,24 +568,14 @@ namespace tl
                 app->getColorModel()->observeImageOptions(),
                 [this](const timeline::ImageOptions& value)
                 {
-                    std::vector<timeline::ImageOptions> imageOptions;
-                    for (const auto& player : _p->players)
-                    {
-                        imageOptions.push_back(value);
-                    }
-                    _p->timelineViewport->setImageOptions(imageOptions);
+                    _p->timelineViewport->setImageOptions({ value });
                 });
 
             p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
                 app->getColorModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
-                    std::vector<timeline::DisplayOptions> displayOptions;
-                    for (const auto& player : _p->players)
-                    {
-                        displayOptions.push_back(value);
-                    }
-                    _p->timelineViewport->setDisplayOptions(displayOptions);
+                    _p->timelineViewport->setDisplayOptions({ value });
                 });
 
             p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
@@ -724,7 +714,7 @@ namespace tl
             }
         }
 
-        void MainWindow::_playersUpdate(const std::vector<std::shared_ptr<timeline::Player> >& value)
+        void MainWindow::_playerUpdate(const std::shared_ptr<timeline::Player>& value)
         {
             TLRENDER_P();
 
@@ -732,37 +722,34 @@ namespace tl
             p.playbackObserver.reset();
             p.currentTimeObserver.reset();
 
-            p.players = value;
+            p.player = value;
 
-            p.timelineViewport->setPlayers(p.players);
-            p.timelineWidget->setPlayer(
-                !p.players.empty() ?
-                p.players[0] :
-                nullptr);
+            p.timelineViewport->setPlayer(p.player);
+            p.timelineWidget->setPlayer(p.player);
             p.durationLabel->setValue(
-                (!p.players.empty() && p.players[0]) ?
-                p.players[0]->getTimeRange().duration() :
+                p.player ?
+                p.player->getTimeRange().duration() :
                 time::invalidTime);
             _infoUpdate();
 
-            if (!p.players.empty() && p.players[0])
+            if (p.player)
             {
                 p.speedObserver = observer::ValueObserver<double>::create(
-                    p.players[0]->observeSpeed(),
+                    p.player->observeSpeed(),
                     [this](double value)
                     {
                         _p->speedModel->setValue(value);
                     });
 
                 p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
-                    p.players[0]->observePlayback(),
+                    p.player->observePlayback(),
                     [this](timeline::Playback value)
                     {
                         _p->playbackButtonGroup->setChecked(static_cast<int>(value), true);
                     });
 
                 p.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
-                    p.players[0]->observeCurrentTime(),
+                    p.player->observeCurrentTime(),
                     [this](const otime::RationalTime& value)
                     {
                         _p->currentTimeEdit->setValue(value);
@@ -786,8 +773,8 @@ namespace tl
                     if (!p.speedPopup)
                     {
                         const double defaultSpeed =
-                            !p.players.empty() && p.players[0] ?
-                            p.players[0]->getDefaultSpeed() :
+                            p.player ?
+                            p.player->getDefaultSpeed() :
                             0.0;
                         p.speedPopup = SpeedPopup::create(defaultSpeed, context);
                         p.speedPopup->open(window, p.speedButton->getGeometry());
@@ -797,10 +784,9 @@ namespace tl
                             {
                                 if (auto widget = weak.lock())
                                 {
-                                    if (!widget->_p->players.empty() &&
-                                        widget->_p->players[0])
+                                    if (widget->_p->player)
                                     {
-                                        widget->_p->players[0]->setSpeed(value);
+                                        widget->_p->player->setSpeed(value);
                                     }
                                     widget->_p->speedPopup->close();
                                 }
@@ -920,10 +906,10 @@ namespace tl
             TLRENDER_P();
             std::string text;
             std::string toolTip;
-            if (!p.players.empty() && p.players[0])
+            if (p.player)
             {
-                const file::Path& path = p.players[0]->getPath();
-                const io::Info& info = p.players[0]->getIOInfo();
+                const file::Path& path = p.player->getPath();
+                const io::Info& info = p.player->getIOInfo();
                 text = play::infoLabel(path, info);
                 toolTip = play::infoToolTip(path, info);
             }

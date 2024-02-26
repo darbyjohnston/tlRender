@@ -21,7 +21,7 @@ namespace tl
         {
             std::shared_ptr<timelineui::TimelineViewport> viewport;
 
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Player> > > playersObserver;
+            std::shared_ptr<observer::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
             std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
@@ -42,11 +42,11 @@ namespace tl
             p.viewport = timelineui::TimelineViewport::create(context);
             p.viewport->setParent(shared_from_this());
 
-            p.playersObserver = observer::ListObserver<std::shared_ptr<timeline::Player> >::create(
-                app->observeActivePlayers(),
-                [this](const std::vector<std::shared_ptr<timeline::Player> >& value)
+            p.playerObserver = observer::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+                app->observePlayer(),
+                [this](const std::shared_ptr<timeline::Player>& value)
                 {
-                    _p->viewport->setPlayers(value);
+                    _p->viewport->setPlayer(value);
                 });
 
             p.ocioOptionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(

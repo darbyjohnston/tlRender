@@ -85,7 +85,7 @@ namespace tl
             void _drop(const std::vector<std::string>&) override;
 
         private:
-            void _playersUpdate(const std::vector<std::shared_ptr<timeline::Player> >&);
+            void _playerUpdate(const std::shared_ptr<timeline::Player>&);
             void _showSpeedPopup();
             void _showAudioPopup();
             void _windowOptionsUpdate();
