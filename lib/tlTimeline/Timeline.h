@@ -5,13 +5,15 @@
 #pragma once
 
 #include <tlTimeline/Audio.h>
-#include <tlTimeline/ReadCache.h>
 #include <tlTimeline/Video.h>
 
 #include <tlCore/Context.h>
+#include <tlCore/Path.h>
 #include <tlCore/ValueObserver.h>
 
 #include <opentimelineio/timeline.h>
+
+#include <future>
 
 namespace tl
 {
@@ -56,8 +58,7 @@ namespace tl
         otio::SerializableObject::Retainer<otio::Timeline> create(
             const file::Path&,
             const std::shared_ptr<system::Context>&,
-            const Options& = Options(),
-            const std::shared_ptr<ReadCache>& = nullptr);
+            const Options& = Options());
 
         //! Create a new timeline from a path and audio path. The file name
         //! can point to an .otio file, .otioz file, movie file, or image
@@ -66,8 +67,7 @@ namespace tl
             const file::Path& path,
             const file::Path& audioPath,
             const std::shared_ptr<system::Context>&,
-            const Options& = Options(),
-            const std::shared_ptr<ReadCache>& = nullptr);
+            const Options& = Options());
 
         //! Timeline.
         class Timeline : public std::enable_shared_from_this<Timeline>
@@ -78,8 +78,7 @@ namespace tl
             void _init(
                 const otio::SerializableObject::Retainer<otio::Timeline>&,
                 const std::shared_ptr<system::Context>&,
-                const Options&,
-                const std::shared_ptr<ReadCache>&);
+                const Options&);
 
             Timeline();
 
@@ -90,8 +89,7 @@ namespace tl
             static std::shared_ptr<Timeline> create(
                 const otio::SerializableObject::Retainer<otio::Timeline>&,
                 const std::shared_ptr<system::Context>&,
-                const Options& = Options(),
-                const std::shared_ptr<ReadCache>& = nullptr);
+                const Options& = Options());
 
             //! Create a new timeline from a file name. The file name can point
             //! to an .otio file, movie file, or image sequence.

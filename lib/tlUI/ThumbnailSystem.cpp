@@ -24,9 +24,9 @@ namespace tl
     {
         namespace
         {
-            const size_t infoRequestsMax = 3;
-            const size_t thumbnailRequestsMax = 3;
-            const size_t waveformRequestsMax = 3;
+            const size_t infoRequestsMax = 10;
+            const size_t thumbnailRequestsMax = 10;
+            const size_t waveformRequestsMax = 10;
         }
 
         struct ThumbnailCache::Private

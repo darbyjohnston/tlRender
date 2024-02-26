@@ -17,6 +17,11 @@ namespace tl
 {
     namespace timeline
     {
+        namespace
+        {
+            const size_t readCacheMax = 10;
+        }
+
         TLRENDER_ENUM_IMPL(
             FileSequenceAudio,
             "None",
@@ -45,8 +50,7 @@ namespace tl
         void Timeline::_init(
             const otio::SerializableObject::Retainer<otio::Timeline>& otioTimeline,
             const std::shared_ptr<system::Context>& context,
-            const Options& options,
-            const std::shared_ptr<ReadCache>& readCache)
+            const Options& options)
         {
             TLRENDER_P();
 
@@ -80,8 +84,8 @@ namespace tl
             }
 
             p.context = context;
-            p.options = options;
             p.otioTimeline = otioTimeline;
+            p.timelineChanges = observer::Value<bool>::create(false);
             const auto i = otioTimeline->metadata().find("tlRender");
             if (i != otioTimeline->metadata().end())
             {
@@ -102,9 +106,8 @@ namespace tl
                 catch (const std::exception&)
                 {}
             }
-            p.timelineChanges = observer::Value<bool>::create(false);
-            p.readCache = readCache ? readCache : ReadCache::create();
-            p.readCache->setMax(16);
+            p.options = options;
+            p.readCache.setMax(readCacheMax);
 
             // Get information about the timeline.
             p.timeRange = timeline::getTimeRange(p.otioTimeline.value);
@@ -324,7 +327,6 @@ namespace tl
             {
                 request->promise.set_value(AudioData());
             }
-            p.readCache->cancelRequests();
         }
 
         void Timeline::tick()

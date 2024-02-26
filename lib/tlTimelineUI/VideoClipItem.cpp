@@ -9,6 +9,8 @@
 #include <tlTimeline/RenderUtil.h>
 #include <tlTimeline/Util.h>
 
+#include <tlIO/Cache.h>
+
 #include <tlCore/Assert.h>
 #include <tlCore/StringFormat.h>
 

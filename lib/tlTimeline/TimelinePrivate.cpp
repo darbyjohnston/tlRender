@@ -24,12 +24,12 @@ namespace tl
                 if (auto context = this->context.lock())
                 {
                     // The first video clip defines the video information for the timeline.
-                    auto item = getRead(clip, options.ioOptions);
-                    if (item.read)
+                    if (auto read = getRead(clip, options.ioOptions))
                     {
-                        this->ioInfo.video = item.ioInfo.video;
-                        this->ioInfo.videoTime = item.ioInfo.videoTime;
-                        this->ioInfo.tags.insert(item.ioInfo.tags.begin(), item.ioInfo.tags.end());
+                        const io::Info& ioInfo = read->getInfo().get();
+                        this->ioInfo.video = ioInfo.video;
+                        this->ioInfo.videoTime = ioInfo.videoTime;
+                        this->ioInfo.tags.insert(ioInfo.tags.begin(), ioInfo.tags.end());
                         return true;
                     }
                 }
@@ -54,12 +54,12 @@ namespace tl
                 if (auto context = this->context.lock())
                 {
                     // The first audio clip defines the audio information for the timeline.
-                    auto item = getRead(clip, options.ioOptions);
-                    if (item.read)
+                    if (auto read = getRead(clip, options.ioOptions))
                     {
-                        this->ioInfo.audio = item.ioInfo.audio;
-                        this->ioInfo.audioTime = item.ioInfo.audioTime;
-                        this->ioInfo.tags.insert(item.ioInfo.tags.begin(), item.ioInfo.tags.end());
+                        const io::Info& ioInfo = read->getInfo().get();
+                        this->ioInfo.audio = ioInfo.audio;
+                        this->ioInfo.audioTime = ioInfo.audioTime;
+                        this->ioInfo.tags.insert(ioInfo.tags.begin(), ioInfo.tags.end());
                         return true;
                     }
                 }
@@ -108,16 +108,14 @@ namespace tl
                         "\n"
                         "    Path: {0}\n"
                         "    Video requests: {1}, {2} in-progress, {3} max\n"
-                        "    Audio requests: {4}, {5} in-progress, {6} max\n"
-                        "    Read cache: {7}").
+                        "    Audio requests: {4}, {5} in-progress, {6} max").
                         arg(path.get()).
                         arg(videoRequestsSize).
                         arg(thread.videoRequestsInProgress.size()).
                         arg(options.videoRequestCount).
                         arg(audioRequestsSize).
                         arg(thread.audioRequestsInProgress.size()).
-                        arg(options.audioRequestCount).
-                        arg(readCache->getCount()));
+                        arg(options.audioRequestCount));
                 }
             }
 
@@ -440,50 +438,37 @@ namespace tl
             }
         }
 
-        ReadCacheItem Timeline::Private::getRead(
+        namespace
+        {
+            std::string getKey(const file::Path& path)
+            {
+                std::vector<std::string> out;
+                out.push_back(path.get());
+                out.push_back(path.getNumber());
+                return string::join(out, ';');
+            }
+        }
+
+        std::shared_ptr<io::IRead> Timeline::Private::getRead(
             const otio::Clip* clip,
             const io::Options& ioOptions)
         {
-            ReadCacheItem out;
+            std::shared_ptr<io::IRead> out;
             const auto path = timeline::getPath(
                 clip->media_reference(),
                 this->path.getDirectory(),
                 options.pathOptions);
-            if (!readCache->get(path, out))
+            const std::string key = getKey(path);
+            if (!readCache.get(key, out))
             {
                 if (auto context = this->context.lock())
                 {
-                    const auto path = timeline::getPath(
-                        clip->media_reference(),
-                        this->path.getDirectory(),
-                        options.pathOptions);
                     const auto memoryRead = getMemoryRead(clip->media_reference());
                     io::Options options = ioOptions;
                     options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(timeRange.duration().rate());
                     const auto ioSystem = context->getSystem<io::System>();
-                    out.read = ioSystem->read(path, memoryRead, options);
-                    if (out.read)
-                    {
-                        out.ioInfo = out.read->getInfo().get();
-                        readCache->add(out);
-                        context->log(
-                            string::Format("tl::timeline::Timeline {0}").arg(this),
-                            string::Format(
-                                "\n"
-                                "    Read: {0}\n"
-                                "    Video: {1} {2}\n"
-                                "    Video time: {3}\n"
-                                "    Audio: {4} {5} {6}\n"
-                                "    Audio time: {7}").
-                            arg(path.get()).
-                            arg(!out.ioInfo.video.empty() ? out.ioInfo.video[0].size : image::Size()).
-                            arg(!out.ioInfo.video.empty() ? out.ioInfo.video[0].pixelType : image::PixelType::None).
-                            arg(out.ioInfo.videoTime).
-                            arg(out.ioInfo.audio.channelCount).
-                            arg(out.ioInfo.audio.dataType).
-                            arg(out.ioInfo.audio.sampleRate).
-                            arg(out.ioInfo.audioTime));
-                    }
+                    out = ioSystem->read(path, memoryRead, options);
+                    readCache.add(key, out);
                 }
             }
             return out;
@@ -497,16 +482,17 @@ namespace tl
             std::future<io::VideoData> out;
             io::Options optionsMerged = io::merge(options, this->options.ioOptions);
             optionsMerged["USD/cameraName"] = clip->name();
-            ReadCacheItem item = getRead(clip, optionsMerged);
+            auto read = getRead(clip, optionsMerged);
             const auto timeRangeOpt = clip->trimmed_range_in_parent();
-            if (item.read && timeRangeOpt.has_value())
+            if (read && timeRangeOpt.has_value())
             {
+                const io::Info& ioInfo = read->getInfo().get();
                 const auto mediaTime = timeline::toVideoMediaTime(
                     time,
                     timeRangeOpt.value(),
                     clip->trimmed_range(),
-                    item.ioInfo.videoTime.duration().rate());
-                out = item.read->readVideo(mediaTime, optionsMerged);
+                    ioInfo.videoTime.duration().rate());
+                out = read->readVideo(mediaTime, optionsMerged);
             }
             return out;
         }
@@ -518,16 +504,17 @@ namespace tl
         {
             std::future<io::AudioData> out;
             io::Options optionsMerged = io::merge(options, this->options.ioOptions);
-            ReadCacheItem item = getRead(clip, optionsMerged);
+            auto read = getRead(clip, optionsMerged);
             const auto timeRangeOpt = clip->trimmed_range_in_parent();
-            if (item.read && timeRangeOpt.has_value())
+            if (read && timeRangeOpt.has_value())
             {
+                const io::Info& ioInfo = read->getInfo().get();
                 const auto mediaRange = timeline::toAudioMediaTime(
                     timeRange,
                     timeRangeOpt.value(),
                     clip->trimmed_range(),
-                    item.ioInfo.audio.sampleRate);
-                out = item.read->readAudio(mediaRange, optionsMerged);
+                    ioInfo.audio.sampleRate);
+                out = read->readAudio(mediaRange, optionsMerged);
             }
             return out;
         }

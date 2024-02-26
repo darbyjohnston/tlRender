@@ -21,7 +21,6 @@ set(HEADERS
     PlayerInline.h
     PlayerOptions.h
     PlayerOptionsInline.h
-    ReadCache.h
     RenderOptions.h
     RenderOptionsInline.h
     RenderUtil.h
@@ -50,7 +49,6 @@ set(SOURCE
     Player.cpp
     PlayerOptions.cpp
     PlayerPrivate.cpp
-    ReadCache.cpp
     RenderUtil.cpp
     TimeUnits.cpp
     Timeline.cpp
