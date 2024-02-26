@@ -10,7 +10,7 @@ include(ExternalProject)
 set(USD_DEPS)
 
 set(USD_GIT_REPOSITORY https://github.com/PixarAnimationStudios/OpenUSD.git)
-set(USD_GIT_TAG v23.11)
+set(USD_GIT_TAG v24.03)
 
 set(USD_ARGS)
 if(CMAKE_OSX_ARCHITECTURES)
