@@ -6,6 +6,8 @@
 
 #include <tlTimeline/Player.h>
 
+#include <tlCore/FileIO.h>
+
 #include <opentimelineio/mediaReference.h>
 #include <opentimelineio/timeline.h>
 
