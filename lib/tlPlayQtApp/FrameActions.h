@@ -35,7 +35,7 @@ namespace tl
             QMenu* menu() const;
 
         private:
-            void _playersUpdate(const QVector<QSharedPointer<qt::TimelinePlayer> >&);
+            void _playerUpdate(const QSharedPointer<qt::TimelinePlayer>&);
             void _actionsUpdate();
 
             TLRENDER_PRIVATE();

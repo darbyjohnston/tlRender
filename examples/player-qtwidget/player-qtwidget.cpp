@@ -44,19 +44,19 @@ int main(int argc, char* argv[])
         auto timeline = tl::timeline::Timeline::create(argv[1], context);
 
         // Create the timeline player.
-        QSharedPointer<tl::qt::TimelinePlayer> timelinePlayer(
+        QSharedPointer<tl::qt::TimelinePlayer> player(
             new tl::qt::TimelinePlayer(
                 tl::timeline::Player::create(timeline, context),
                 context));
 
         // Create the timeline viewport.
         auto timelineViewport = new tl::qtwidget::TimelineViewport(context);
-        timelineViewport->setTimelinePlayers({ timelinePlayer });
+        timelineViewport->setPlayer(player);
         timelineViewport->setAttribute(Qt::WA_DeleteOnClose);
         timelineViewport->show();
 
         // Start playback.
-        timelinePlayer->setPlayback(tl::timeline::Playback::Forward);
+        player->setPlayback(tl::timeline::Playback::Forward);
 
         // Start the application.
         r = app.exec();

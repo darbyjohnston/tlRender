@@ -79,11 +79,8 @@ namespace tl
             //! Get the files model.
             const std::shared_ptr<play::FilesModel>& filesModel() const;
 
-            //! Get the timeline players.
-            const QVector<QSharedPointer<qt::TimelinePlayer> >& players() const;
-
-            //! Get the active timeline players.
-            QVector<QSharedPointer<qt::TimelinePlayer> > activePlayers() const;
+            //! Get the timeline player.
+            const QSharedPointer<qt::TimelinePlayer>& player() const;
 
             //! Get the recent files model.
             const std::shared_ptr<ui::RecentFilesModel>& recentFilesModel() const;
@@ -122,14 +119,13 @@ namespace tl
             void setSecondaryWindow(bool);
 
         Q_SIGNALS:
-            //! This signal is emitted when the active players are changed.
-            void activePlayersChanged(const QVector<QSharedPointer<qt::TimelinePlayer> >&);
+            //! This signal is emitted when the timeline player is changed.
+            void playerChanged(const QSharedPointer<qt::TimelinePlayer>&);
 
             //! This signal is emitted when the secondary window active state is changed.
             void secondaryWindowChanged(bool);
 
         private Q_SLOTS:
-            void _filesCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
             void _activeCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
             void _mainWindowDestroyedCallback();
             void _secondaryWindowDestroyedCallback();

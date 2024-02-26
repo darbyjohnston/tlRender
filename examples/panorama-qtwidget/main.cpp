@@ -45,19 +45,19 @@ int main(int argc, char* argv[])
         auto timeline = tl::timeline::Timeline::create(argv[1], context);
 
         // Create the timeline player.
-        QScopedPointer<tl::qt::TimelinePlayer> timelinePlayer(
+        QSharedPointer<tl::qt::TimelinePlayer> player(
             new tl::qt::TimelinePlayer(
                 tl::timeline::Player::create(timeline, context),
                 context));
 
         // Create the panorama timeline viewport.
         auto timelineViewport = new tl::examples::panorama_qtwidget::PanoramaTimelineViewport(context);
-        timelineViewport->setTimelinePlayer(timelinePlayer.get());
+        timelineViewport->setPlayer(player);
         timelineViewport->setAttribute(Qt::WA_DeleteOnClose);
         timelineViewport->show();
 
         // Start playback.
-        timelinePlayer->setPlayback(tl::timeline::Playback::Forward);
+        player->setPlayback(tl::timeline::Playback::Forward);
 
         // Start the application.
         r = app.exec();

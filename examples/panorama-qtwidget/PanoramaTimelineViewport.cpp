@@ -53,32 +53,32 @@ namespace tl
                 update();
             }
 
-            void PanoramaTimelineViewport::setTimelinePlayer(qt::TimelinePlayer* timelinePlayer)
+            void PanoramaTimelineViewport::setPlayer(const QSharedPointer<qt::TimelinePlayer>& player)
             {
-                _videoData = timeline::VideoData();
-                if (_timelinePlayer)
+                if (_player)
                 {
                     disconnect(
-                        _timelinePlayer,
-                        SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
+                        _player.get(),
+                        SIGNAL(currentVideoChanged(const std::vector<tl::timeline::VideoData>&)),
                         this,
-                        SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
+                        SLOT(_currentVideoCallback(const std::vector<tl::timeline::VideoData>&)));
                 }
-                _timelinePlayer = timelinePlayer;
-                if (_timelinePlayer)
+                _player = player;
+                _videoData.clear();
+                if (_player)
                 {
-                    const auto& ioInfo = _timelinePlayer->ioInfo();
+                    const auto& ioInfo = _player->ioInfo();
                     _videoSize = !ioInfo.video.empty() ? ioInfo.video[0].size : image::Size();
-                    _videoData = _timelinePlayer->currentVideo();
+                    _videoData = _player->currentVideo();
                     connect(
-                        _timelinePlayer,
-                        SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
-                        SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
+                        _player.get(),
+                        SIGNAL(currentVideoChanged(const std::vector<tl::timeline::VideoData>&)),
+                        SLOT(_currentVideoCallback(const std::vector<tl::timeline::VideoData>&)));
                 }
                 update();
             }
 
-            void PanoramaTimelineViewport::_currentVideoCallback(const timeline::VideoData& value)
+            void PanoramaTimelineViewport::_currentVideoCallback(const std::vector<timeline::VideoData>& value)
             {
                 _videoData = value;
                 update();

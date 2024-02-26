@@ -78,7 +78,7 @@ namespace tl
         {
             App* app = nullptr;
 
-            QVector<QSharedPointer<qt::TimelinePlayer> > timelinePlayers;
+            QSharedPointer<qt::TimelinePlayer> player;
             bool floatOnTop = false;
 
             FileActions* fileActions = nullptr;
@@ -404,7 +404,7 @@ namespace tl
 
             p.timelineViewport->setFocus();
 
-            _playersUpdate(app->players());
+            _playerUpdate(app->player());
             _widgetUpdate();
 
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
@@ -576,11 +576,11 @@ namespace tl
                 &qtwidget::TimeSpinBox::valueChanged,
                 [this](const otime::RationalTime& value)
                 {
-                    if (!_p->timelinePlayers.isEmpty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->setPlayback(timeline::Playback::Stop);
-                        _p->timelinePlayers[0]->seek(value);
-                        _p->currentTimeSpinBox->setValue(_p->timelinePlayers[0]->currentTime());
+                        _p->player->setPlayback(timeline::Playback::Stop);
+                        _p->player->seek(value);
+                        _p->currentTimeSpinBox->setValue(_p->player->currentTime());
                     }
                 });
 
@@ -589,9 +589,9 @@ namespace tl
                 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 [this](double value)
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->setSpeed(value);
+                        _p->player->setSpeed(value);
                     }
                 });
 
@@ -626,10 +626,10 @@ namespace tl
 
             connect(
                 app,
-                &App::activePlayersChanged,
-                [this](const QVector<QSharedPointer<qt::TimelinePlayer> >& value)
+                &App::playerChanged,
+                [this](const QSharedPointer<qt::TimelinePlayer>& value)
                 {
-                    _playersUpdate(value);
+                    _playerUpdate(value);
                 });
 
             connect(
@@ -738,47 +738,47 @@ namespace tl
             p.app->audioModel()->setVolume(value / static_cast<float>(sliderSteps));
         }
 
-        void MainWindow::_playersUpdate(const QVector<QSharedPointer<qt::TimelinePlayer> >& timelinePlayers)
+        void MainWindow::_playerUpdate(const QSharedPointer<qt::TimelinePlayer>& player)
         {
             TLRENDER_P();
-            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
+            if (p.player)
             {
                 disconnect(
-                    p.timelinePlayers[0].get(),
+                    p.player.get(),
                     SIGNAL(speedChanged(double)),
                     this,
                     SLOT(_speedCallback(double)));
                 disconnect(
-                    p.timelinePlayers[0].get(),
+                    p.player.get(),
                     SIGNAL(playbackChanged(tl::timeline::Playback)),
                     this,
                     SLOT(_playbackCallback(tl::timeline::Playback)));
                 disconnect(
-                    p.timelinePlayers[0].get(),
+                    p.player.get(),
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
                     this,
                     SLOT(_currentTimeCallback(const otime::RationalTime&)));
             }
 
-            p.timelinePlayers = timelinePlayers;
+            p.player = player;
 
-            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
+            if (p.player)
             {
                 connect(
-                    p.timelinePlayers[0].get(),
+                    p.player.get(),
                     SIGNAL(speedChanged(double)),
                     SLOT(_speedCallback(double)));
                 connect(
-                    p.timelinePlayers[0].get(),
+                    p.player.get(),
                     SIGNAL(playbackChanged(tl::timeline::Playback)),
                     SLOT(_playbackCallback(tl::timeline::Playback)));
                 connect(
-                    p.timelinePlayers[0].get(),
+                    p.player.get(),
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
                     SLOT(_currentTimeCallback(const otime::RationalTime&)));
             }
 
-            p.timelineViewport->setTimelinePlayers(p.timelinePlayers);
+            p.timelineViewport->setPlayer(p.player);
 
             _widgetUpdate();
         }
@@ -796,24 +796,24 @@ namespace tl
             p.speedSpinBox->setEnabled(count > 0);
             p.volumeSlider->setEnabled(count > 0);
 
-            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
+            if (p.player)
             {
                 {
                     QSignalBlocker blocker(p.currentTimeSpinBox);
-                    p.currentTimeSpinBox->setValue(p.timelinePlayers[0]->currentTime());
+                    p.currentTimeSpinBox->setValue(p.player->currentTime());
                 }
 
                 {
                     QSignalBlocker blocker(p.speedSpinBox);
-                    p.speedSpinBox->setValue(p.timelinePlayers[0]->speed());
+                    p.speedSpinBox->setValue(p.player->speed());
                 }
 
-                const auto& timeRange = p.timelinePlayers[0]->timeRange();
+                const auto& timeRange = p.player->timeRange();
                 p.durationLabel->setValue(timeRange.duration());
 
                 {
                     QSignalBlocker blocker(p.volumeSlider);
-                    p.volumeSlider->setValue(p.timelinePlayers[0]->volume() * sliderSteps);
+                    p.volumeSlider->setValue(p.player->volume() * sliderSteps);
                 }
             }
             else
@@ -847,22 +847,14 @@ namespace tl
             p.timelineViewport->setLUTOptions(colorModel->getLUTOptions());
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
-            for (const auto& i : p.timelinePlayers)
-            {
-                imageOptions.push_back(colorModel->getImageOptions());
-                displayOptions.push_back(colorModel->getDisplayOptions());
-            }
-            p.timelineViewport->setImageOptions(imageOptions);
-            p.timelineViewport->setDisplayOptions(displayOptions);
+            p.timelineViewport->setImageOptions({ colorModel->getImageOptions() });
+            p.timelineViewport->setDisplayOptions({ colorModel->getDisplayOptions() });
             p.timelineViewport->setCompareOptions(
                 p.app->filesModel()->getCompareOptions());
             p.timelineViewport->setBackgroundOptions(
                 p.app->viewportModel()->getBackgroundOptions());
 
-            p.timelineWidget->setPlayer(
-                (!p.timelinePlayers.empty() && p.timelinePlayers[0]) ?
-                p.timelinePlayers[0]->player() :
-                nullptr);
+            p.timelineWidget->setPlayer(p.player ? p.player->player() : nullptr);
 
             {
                 const QSignalBlocker blocker(p.volumeSlider);
@@ -870,17 +862,14 @@ namespace tl
                 p.volumeSlider->setValue(volume * sliderSteps);
             }
 
-            p.infoTool->setInfo(
-                (!p.timelinePlayers.empty() && p.timelinePlayers[0]) ?
-                p.timelinePlayers[0]->ioInfo() :
-                io::Info());
+            p.infoTool->setInfo(p.player ? p.player->ioInfo() : io::Info());
 
             std::string infoLabel;
             std::string infoToolTip;
-            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
+            if (p.player)
             {
-                const file::Path& path = p.timelinePlayers[0]->path();
-                const io::Info& ioInfo = p.timelinePlayers[0]->ioInfo();
+                const file::Path& path = p.player->path();
+                const io::Info& ioInfo = p.player->ioInfo();
                 infoLabel = play::infoLabel(path, ioInfo);
                 infoToolTip = play::infoToolTip(path, ioInfo);
             }

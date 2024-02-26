@@ -17,7 +17,7 @@ namespace tl
     {
         struct FrameActions::Private
         {
-            QVector<QSharedPointer<qt::TimelinePlayer> > timelinePlayers;
+            QSharedPointer<qt::TimelinePlayer> player;
 
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
@@ -100,7 +100,7 @@ namespace tl
             p.menu->addSeparator();
             p.menu->addAction(p.actions["FocusCurrentFrame"]);
 
-            _playersUpdate(app->players());
+            _playerUpdate(app->player());
             _actionsUpdate();
 
             connect(
@@ -108,9 +108,9 @@ namespace tl
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->start();
+                        _p->player->start();
                     }
                 });
             connect(
@@ -118,9 +118,9 @@ namespace tl
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->end();
+                        _p->player->end();
                     }
                 });
             connect(
@@ -128,9 +128,9 @@ namespace tl
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->framePrev();
+                        _p->player->framePrev();
                     }
                 });
             connect(
@@ -138,9 +138,9 @@ namespace tl
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->timeAction(timeline::TimeAction::FramePrevX10);
+                        _p->player->timeAction(timeline::TimeAction::FramePrevX10);
                     }
                 });
             connect(
@@ -148,9 +148,9 @@ namespace tl
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->timeAction(timeline::TimeAction::FramePrevX100);
+                        _p->player->timeAction(timeline::TimeAction::FramePrevX100);
                     }
                 });
             connect(
@@ -158,9 +158,9 @@ namespace tl
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->frameNext();
+                        _p->player->frameNext();
                     }
                 });
             connect(
@@ -168,9 +168,9 @@ namespace tl
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->timeAction(timeline::TimeAction::FrameNextX10);
+                        _p->player->timeAction(timeline::TimeAction::FrameNextX10);
                     }
                 });
             connect(
@@ -178,9 +178,9 @@ namespace tl
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->timeAction(timeline::TimeAction::FrameNextX100);
+                        _p->player->timeAction(timeline::TimeAction::FrameNextX100);
                     }
                 });
 
@@ -189,9 +189,9 @@ namespace tl
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->setInPoint();
+                        _p->player->setInPoint();
                     }
                 });
             connect(
@@ -199,9 +199,9 @@ namespace tl
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->resetInPoint();
+                        _p->player->resetInPoint();
                     }
                 });
             connect(
@@ -209,9 +209,9 @@ namespace tl
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->setOutPoint();
+                        _p->player->setOutPoint();
                     }
                 });
             connect(
@@ -219,18 +219,18 @@ namespace tl
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->resetOutPoint();
+                        _p->player->resetOutPoint();
                     }
                 });
 
             connect(
                 app,
-                &App::activePlayersChanged,
-                [this](const QVector<QSharedPointer<qt::TimelinePlayer> >& value)
+                &App::playerChanged,
+                [this](const QSharedPointer<qt::TimelinePlayer>& value)
                 {
-                    _playersUpdate(value);
+                    _playerUpdate(value);
                 });
         }
 
@@ -247,22 +247,20 @@ namespace tl
             return _p->menu.get();
         }
 
-        void FrameActions::_playersUpdate(const QVector<QSharedPointer<qt::TimelinePlayer> >& timelinePlayers)
+        void FrameActions::_playerUpdate(const QSharedPointer<qt::TimelinePlayer>& player)
         {
             TLRENDER_P();
-            p.timelinePlayers = timelinePlayers;
+            p.player = player;
             _actionsUpdate();
         }
 
         void FrameActions::_actionsUpdate()
         {
             TLRENDER_P();
-
-            const size_t count = p.timelinePlayers.size();
             QList<QString> keys = p.actions.keys();
             for (auto i : keys)
             {
-                p.actions[i]->setEnabled(count > 0);
+                p.actions[i]->setEnabled(p.player.get());
             }
         }
     }

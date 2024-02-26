@@ -19,7 +19,7 @@ namespace tl
         {
             App* app = nullptr;
 
-            QVector<QSharedPointer<qt::TimelinePlayer> > timelinePlayers;
+            QSharedPointer<qt::TimelinePlayer> player;
 
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
@@ -168,7 +168,7 @@ namespace tl
             p.speedMenu->addSeparator();
             p.speedMenu->addAction(p.actions["Speed/Default"]);
 
-            _playersUpdate(app->players());
+            _playerUpdate(app->player());
             _actionsUpdate();
 
             connect(
@@ -176,9 +176,9 @@ namespace tl
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->togglePlayback();
+                        _p->player->togglePlayback();
                     }
                 });
 
@@ -187,9 +187,9 @@ namespace tl
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->timeAction(timeline::TimeAction::JumpBack1s);
+                        _p->player->timeAction(timeline::TimeAction::JumpBack1s);
                     }
                 });
             connect(
@@ -197,9 +197,9 @@ namespace tl
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->timeAction(timeline::TimeAction::JumpBack10s);
+                        _p->player->timeAction(timeline::TimeAction::JumpBack10s);
                     }
                 });
             connect(
@@ -207,9 +207,9 @@ namespace tl
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->timeAction(timeline::TimeAction::JumpForward1s);
+                        _p->player->timeAction(timeline::TimeAction::JumpForward1s);
                     }
                 });
             connect(
@@ -217,9 +217,9 @@ namespace tl
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->timeAction(timeline::TimeAction::JumpForward10s);
+                        _p->player->timeAction(timeline::TimeAction::JumpForward10s);
                     }
                 });
 
@@ -228,9 +228,9 @@ namespace tl
                 &QActionGroup::triggered,
                 [this](QAction* action)
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->setPlayback(action->data().value<timeline::Playback>());
+                        _p->player->setPlayback(action->data().value<timeline::Playback>());
                     }
                 });
 
@@ -239,9 +239,9 @@ namespace tl
                 &QActionGroup::triggered,
                 [this](QAction* action)
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
-                        _p->timelinePlayers[0]->setLoop(action->data().value<timeline::Loop>());
+                        _p->player->setLoop(action->data().value<timeline::Loop>());
                     }
                 });
 
@@ -259,19 +259,19 @@ namespace tl
                 &QActionGroup::triggered,
                 [this](QAction* action)
                 {
-                    if (!_p->timelinePlayers.empty())
+                    if (_p->player)
                     {
                         const float speed = action->data().toFloat();
-                        _p->timelinePlayers[0]->setSpeed(speed > 0.F ? speed : _p->timelinePlayers[0]->defaultSpeed());
+                        _p->player->setSpeed(speed > 0.F ? speed : _p->player->defaultSpeed());
                     }
                 });
 
             connect(
                 app,
-                &App::activePlayersChanged,
-                [this](const QVector<QSharedPointer<qt::TimelinePlayer> >& value)
+                &App::playerChanged,
+                [this](const QSharedPointer<qt::TimelinePlayer>& value)
                 {
-                    _playersUpdate(value);
+                    _playerUpdate(value);
                 });
         }
 
@@ -321,33 +321,33 @@ namespace tl
             }
         }
 
-        void PlaybackActions::_playersUpdate(const QVector<QSharedPointer<qt::TimelinePlayer> >& timelinePlayers)
+        void PlaybackActions::_playerUpdate(const QSharedPointer<qt::TimelinePlayer>& player)
         {
             TLRENDER_P();
-            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
+            if (p.player)
             {
                 disconnect(
-                    p.timelinePlayers[0].get(),
+                    p.player.get(),
                     SIGNAL(playbackChanged(tl::timeline::Playback)),
                     this,
                     SLOT(_playbackCallback(tl::timeline::Playback)));
                 disconnect(
-                    p.timelinePlayers[0].get(),
+                    p.player.get(),
                     SIGNAL(loopChanged(tl::timeline::Loop)),
                     this,
                     SLOT(_loopCallback(tl::timeline::Loop)));
             }
 
-            p.timelinePlayers = timelinePlayers;
+            p.player = player;
 
-            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
+            if (p.player)
             {
                 connect(
-                    p.timelinePlayers[0].get(),
+                    p.player.get(),
                     SIGNAL(playbackChanged(tl::timeline::Playback)),
                     SLOT(_playbackCallback(tl::timeline::Playback)));
                 connect(
-                    p.timelinePlayers[0].get(),
+                    p.player.get(),
                     SIGNAL(loopChanged(tl::timeline::Loop)),
                     SLOT(_loopCallback(tl::timeline::Loop)));
             }
@@ -359,20 +359,19 @@ namespace tl
         {
             TLRENDER_P();
 
-            const size_t count = p.timelinePlayers.size();
             QList<QString> keys = p.actions.keys();
             for (auto i : keys)
             {
-                p.actions[i]->setEnabled(count > 0);
+                p.actions[i]->setEnabled(p.player.get());
             }
 
-            if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
+            if (p.player)
             {
                 {
                     QSignalBlocker blocker(p.actionGroups["Playback"]);
                     for (auto action : p.actionGroups["Playback"]->actions())
                     {
-                        if (action->data().value<timeline::Playback>() == p.timelinePlayers[0]->playback())
+                        if (action->data().value<timeline::Playback>() == p.player->playback())
                         {
                             action->setChecked(true);
                             break;
@@ -383,7 +382,7 @@ namespace tl
                     QSignalBlocker blocker(p.actionGroups["Loop"]);
                     for (auto action : p.actionGroups["Loop"]->actions())
                     {
-                        if (action->data().value<timeline::Loop>() == p.timelinePlayers[0]->loop())
+                        if (action->data().value<timeline::Loop>() == p.player->loop())
                         {
                             action->setChecked(true);
                             break;

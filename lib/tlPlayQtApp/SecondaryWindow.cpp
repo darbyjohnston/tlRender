@@ -60,14 +60,14 @@ namespace tl
             const math::Size2i size = settings->getValue<math::Size2i>("SecondaryWindow/Size");
             resize(size.w, size.h);
 
-            p.viewport->setTimelinePlayers(app->activePlayers());
+            p.viewport->setPlayer(app->player());
 
             connect(
                 app,
-                &App::activePlayersChanged,
-                [this](const QVector<QSharedPointer<qt::TimelinePlayer> >& value)
+                &App::playerChanged,
+                [this](const QSharedPointer<qt::TimelinePlayer>& value)
                 {
-                    _p->viewport->setTimelinePlayers(value);
+                    _p->viewport->setPlayer(value);
                 });
 
             p.ocioOptionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
