@@ -435,8 +435,6 @@ jobs:
     #    cd tlRender\src\tlRender-build
     #    tests\tltest\Debug\tltest
 
-  # \bug USD has errors in the boost build with windows-latest
-  # \bug USD has errors in the MaterialX build with windows-2019
   windows-package:
     runs-on: windows-latest
     #runs-on: windows-2019
@@ -454,7 +452,7 @@ jobs:
       TLRENDER_PNG: ON
       TLRENDER_EXR: ON
       TLRENDER_FFMPEG: ON
-      TLRENDER_USD: OFF
+      TLRENDER_USD: ON
       TLRENDER_NFD: OFF
       TLRENDER_QT5: OFF
       TLRENDER_PROGRAMS: ON
