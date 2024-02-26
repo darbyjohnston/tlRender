@@ -103,6 +103,7 @@ Optional dependencies:
 * [PNG](https://libpng.sourceforge.io/index.html)
 * [OpenEXR](https://www.openexr.com/)
 * [FFmpeg](https://ffmpeg.org)
+* [OpenUSD](https://github.com/PixarAnimationStudios/OpenUSD)
 * [nativefiledialog-extended](https://github.com/btzy/nativefiledialog-extended)
 * [Qt version 5 or 6](https://www.qt.io)
 
