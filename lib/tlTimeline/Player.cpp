@@ -58,7 +58,6 @@ namespace tl
 
         void Player::_init(
             const std::shared_ptr<Timeline>& timeline,
-            const std::vector<std::shared_ptr<Timeline> >& compare,
             const std::shared_ptr<system::Context>& context,
             const PlayerOptions& playerOptions)
         {
@@ -88,19 +87,6 @@ namespace tl
             p.playerOptions = playerOptions;
             p.timeline = timeline;
             p.ioInfo = p.timeline->getIOInfo();
-            p.compare = compare;
-            if (!p.ioInfo.video.empty())
-            {
-                p.sizes.push_back(p.ioInfo.video.front().size);
-            }
-            for (const auto& timeline : compare)
-            {
-                io::Info ioInfo = timeline->getIOInfo();
-                if (!ioInfo.video.empty())
-                {
-                    p.sizes.push_back(ioInfo.video.front().size);
-                }
-            }
 
             // Create observers.
             p.speed = observer::Value<double>::create(p.timeline->getTimeRange().duration().rate());
@@ -209,6 +195,7 @@ namespace tl
                         Playback playback = Playback::Stop;
                         otime::RationalTime currentTime = time::invalidTime;
                         otime::TimeRange inOutRange = time::invalidTimeRange;
+                        std::vector<std::shared_ptr<Timeline> > compare;
                         io::Options ioOptions;
                         double audioOffset = 0.0;
                         bool clearRequests = false;
@@ -220,6 +207,7 @@ namespace tl
                             playback = p.mutex.playback;
                             currentTime = p.mutex.currentTime;
                             inOutRange = p.mutex.inOutRange;
+                            compare = p.mutex.compare;
                             ioOptions = p.mutex.ioOptions;
                             audioOffset = p.mutex.audioOffset;
                             clearRequests = p.mutex.clearRequests;
@@ -234,6 +222,10 @@ namespace tl
                         if (clearRequests)
                         {
                             p.timeline->cancelRequests();
+                            for (const auto& i : p.thread.compare)
+                            {
+                                i->cancelRequests();
+                            }
                             p.thread.videoDataRequests.clear();
                             p.thread.audioDataRequests.clear();
                         }
@@ -253,6 +245,7 @@ namespace tl
                         }
 
                         // Update the cache.
+                        p.thread.compare = compare;
                         p.cacheUpdate(
                             currentTime,
                             inOutRange,
@@ -374,18 +367,7 @@ namespace tl
             const PlayerOptions& playerOptions)
         {
             auto out = std::shared_ptr<Player>(new Player);
-            out->_init(timeline, {}, context, playerOptions);
-            return out;
-        }
-
-        std::shared_ptr<Player> Player::create(
-            const std::shared_ptr<Timeline>& timeline,
-            const std::vector<std::shared_ptr<Timeline> >& compare,
-            const std::shared_ptr<system::Context>& context,
-            const PlayerOptions& playerOptions)
-        {
-            auto out = std::shared_ptr<Player>(new Player);
-            out->_init(timeline, compare, context, playerOptions);
+            out->_init(timeline, context, playerOptions);
             return out;
         }
 
@@ -397,11 +379,6 @@ namespace tl
         const std::shared_ptr<Timeline>& Player::getTimeline() const
         {
             return _p->timeline;
-        }
-
-        const std::vector<std::shared_ptr<Timeline> >& Player::getCompare() const
-        {
-            return _p->compare;
         }
 
         const file::Path& Player::getPath() const
@@ -434,9 +411,20 @@ namespace tl
             return _p->ioInfo;
         }
 
-        const std::vector<image::Size>& Player::getSizes() const
+        std::vector<image::Size> Player::getSizes() const
         {
-            return _p->sizes;
+            TLRENDER_P();
+            std::vector<image::Size> out;
+            out.push_back(!_p->ioInfo.video.empty() ?
+                _p->ioInfo.video.front().size :
+                image::Size());
+            for (const auto& compare : p.compare)
+            {
+                out.push_back(compare && !compare->getIOInfo().video.empty() ?
+                    compare->getIOInfo().video.front().size :
+                    image::Size());
+            }
+            return out;
         }
 
         double Player::getDefaultSpeed() const
@@ -737,6 +725,23 @@ namespace tl
             setInOutRange(otime::TimeRange::range_from_start_end_time_inclusive(
                 p.inOutRange->get().start_time(),
                 p.timeline->getTimeRange().end_time_inclusive()));
+        }
+
+        const std::vector<std::shared_ptr<Timeline> >& Player::getCompare() const
+        {
+            return _p->compare;
+        }
+
+        void Player::setCompare(const std::vector<std::shared_ptr<Timeline> >& value)
+        {
+            TLRENDER_P();
+            if (value == p.compare)
+                return;
+            p.compare = value;
+            std::unique_lock<std::mutex> lock(p.mutex.mutex);
+            p.mutex.compare = value;
+            p.mutex.clearRequests = true;
+            p.mutex.clearCache = true;
         }
 
         const io::Options& Player::getIOOptions() const

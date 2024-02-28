@@ -55,7 +55,6 @@ namespace tl
             std::shared_ptr<Timeline> timeline;
             io::Info ioInfo;
             std::vector<std::shared_ptr<Timeline> > compare;
-            std::vector<image::Size> sizes;
 
             std::shared_ptr<observer::Value<double> > speed;
             std::shared_ptr<observer::Value<Playback> > playback;
@@ -79,6 +78,7 @@ namespace tl
                 std::chrono::steady_clock::time_point playbackStartTimer;
                 otime::RationalTime currentTime = time::invalidTime;
                 otime::TimeRange inOutRange = time::invalidTimeRange;
+                std::vector<std::shared_ptr<Timeline> > compare;
                 io::Options ioOptions;
                 std::vector<VideoData> currentVideoData;
                 double audioOffset = 0.0;
@@ -106,6 +106,7 @@ namespace tl
 
             struct Thread
             {
+                std::vector<std::shared_ptr<Timeline> > compare;
                 std::map<otime::RationalTime, std::future<VideoData> > videoDataRequests;
                 std::map<otime::RationalTime, std::vector<VideoData> > videoDataCache;
 #if defined(TLRENDER_AUDIO)

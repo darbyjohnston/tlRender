@@ -14,30 +14,30 @@ namespace tl
         TLRENDER_ENUM_IMPL(TimerMode, "System", "Audio");
         TLRENDER_ENUM_SERIALIZE_IMPL(TimerMode);
 
-        TLRENDER_ENUM_IMPL(ExternalTimeMode, "Relative", "Absolute");
-        TLRENDER_ENUM_SERIALIZE_IMPL(ExternalTimeMode);
+        TLRENDER_ENUM_IMPL(CompareTimeMode, "Relative", "Absolute");
+        TLRENDER_ENUM_SERIALIZE_IMPL(CompareTimeMode);
 
-        otime::RationalTime getExternalTime(
+        otime::RationalTime getCompareTime(
             const otime::RationalTime& sourceTime,
             const otime::TimeRange& sourceTimeRange,
-            const otime::TimeRange& externalTimeRange,
-            ExternalTimeMode mode)
+            const otime::TimeRange& compareTimeRange,
+            CompareTimeMode mode)
         {
             otime::RationalTime out;
             switch (mode)
             {
-            case ExternalTimeMode::Relative:
+            case CompareTimeMode::Relative:
             {
                 const otime::RationalTime relativeTime =
                     sourceTime - sourceTimeRange.start_time();
                 const otime::RationalTime relativeTimeRescaled = time::floor(
-                    relativeTime.rescaled_to(externalTimeRange.duration().rate()));
-                out = externalTimeRange.start_time() + relativeTimeRescaled;
+                    relativeTime.rescaled_to(compareTimeRange.duration().rate()));
+                out = compareTimeRange.start_time() + relativeTimeRescaled;
                 break;
             }
-            case ExternalTimeMode::Absolute:
+            case CompareTimeMode::Absolute:
                 out = time::floor(sourceTime.rescaled_to(
-                    externalTimeRange.duration().rate()));
+                    compareTimeRange.duration().rate()));
                 break;
             default: break;
             }

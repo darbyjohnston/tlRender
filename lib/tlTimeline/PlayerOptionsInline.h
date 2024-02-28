@@ -27,7 +27,7 @@ namespace tl
                 muteTimeout == other.muteTimeout &&
                 sleepTimeout == other.sleepTimeout &&
                 currentTime == other.currentTime &&
-                externalTimeMode == other.externalTimeMode;
+                compareTimeMode == other.compareTimeMode;
         }
 
         inline bool PlayerOptions::operator != (const PlayerOptions& other) const

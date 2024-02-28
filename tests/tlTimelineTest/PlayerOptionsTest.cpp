@@ -28,7 +28,7 @@ namespace tl
         {
             {
                 _enum<TimerMode>("TimerMode", getTimerModeEnums);
-                _enum<ExternalTimeMode>("ExternalTimeMode", getExternalTimeModeEnums);
+                _enum<CompareTimeMode>("CompareTimeMode", getCompareTimeModeEnums);
             }
             {
                 PlayerCacheOptions v;
@@ -43,7 +43,7 @@ namespace tl
                 TLRENDER_ASSERT(v != PlayerOptions());
             }
             {
-                const auto time = getExternalTime(
+                const auto time = getCompareTime(
                     otime::RationalTime(0.0, 24.0),
                     otime::TimeRange(
                         otime::RationalTime(0.0, 24.0),
@@ -51,11 +51,11 @@ namespace tl
                     otime::TimeRange(
                         otime::RationalTime(0.0, 24.0),
                         otime::RationalTime(24.0, 24.0)),
-                    ExternalTimeMode::Absolute);
+                    CompareTimeMode::Absolute);
                 TLRENDER_ASSERT(time == otime::RationalTime(0.0, 24.0));
             }
             {
-                const auto time = getExternalTime(
+                const auto time = getCompareTime(
                     otime::RationalTime(0.0, 24.0),
                     otime::TimeRange(
                         otime::RationalTime(0.0, 24.0),
@@ -63,7 +63,7 @@ namespace tl
                     otime::TimeRange(
                         otime::RationalTime(24.0, 24.0),
                         otime::RationalTime(24.0, 24.0)),
-                    ExternalTimeMode::Relative);
+                    CompareTimeMode::Relative);
                 TLRENDER_ASSERT(time == otime::RationalTime(24.0, 24.0));
             }
         }

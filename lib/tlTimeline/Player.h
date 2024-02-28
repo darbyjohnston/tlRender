@@ -85,7 +85,6 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<Timeline>&,
-                const std::vector<std::shared_ptr<Timeline> >& compare,
                 const std::shared_ptr<system::Context>&,
                 const PlayerOptions&);
 
@@ -100,21 +99,11 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const PlayerOptions & = PlayerOptions());
 
-            //! Create a new timeline player.
-            static std::shared_ptr<Player> create(
-                const std::shared_ptr<Timeline>&,
-                const std::vector<std::shared_ptr<Timeline> >& compare,
-                const std::shared_ptr<system::Context>&,
-                const PlayerOptions & = PlayerOptions());
-
             //! Get the context.
             const std::weak_ptr<system::Context>& getContext() const;
 
             //! Get the timeline.
             const std::shared_ptr<Timeline>& getTimeline() const;
-
-            //! Get the timelines for comparison.
-            const std::vector<std::shared_ptr<Timeline> >& getCompare() const;
 
             //! Get the path.
             const file::Path& getPath() const;
@@ -139,7 +128,7 @@ namespace tl
             const io::Info& getIOInfo() const;
 
             //! Get the timeline sizes.
-            const std::vector<image::Size>& getSizes() const;
+            std::vector<image::Size> getSizes() const;
 
             ///@}
 
@@ -230,6 +219,17 @@ namespace tl
 
             //! Reset the out point
             void resetOutPoint();
+
+            ///@}
+
+            //! \name Comparison
+            ///@{
+
+            //! Get the timelines for comparison.
+            const std::vector<std::shared_ptr<Timeline> >& getCompare() const;
+
+            //! Set the timelines for comparison.
+            void setCompare(const std::vector<std::shared_ptr<Timeline> >&);
 
             ///@}
 
