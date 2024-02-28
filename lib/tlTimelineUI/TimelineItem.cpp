@@ -682,132 +682,134 @@ namespace tl
             const ui::DrawEvent& event)
         {
             TLRENDER_P();
-
-            const math::Box2i& g = _geometry;
-
-            const std::string labelMax = _data->timeUnitsModel->getLabel(_timeRange.duration());
-            const math::Size2i labelMaxSize = event.fontSystem->getSize(labelMax, p.size.fontInfo);
-            const int distanceMin = p.size.border + p.size.margin + labelMaxSize.w;
-
-            const int w = _sizeHint.w;
-            const float duration = _timeRange.duration().rescaled_to(1.0).value();
-            const int frameTick = 1.0 / _timeRange.duration().value() * w;
-            if (frameTick >= p.size.handle)
+            if (_timeRange != time::invalidTimeRange)
             {
-                geom::TriangleMesh2 mesh;
-                size_t i = 1;
-                for (double t = 0.0; t < duration; t += 1.0 / _timeRange.duration().rate())
+                const math::Box2i& g = _geometry;
+
+                const std::string labelMax = _data->timeUnitsModel->getLabel(_timeRange.duration());
+                const math::Size2i labelMaxSize = event.fontSystem->getSize(labelMax, p.size.fontInfo);
+                const int distanceMin = p.size.border + p.size.margin + labelMaxSize.w;
+
+                const int w = _sizeHint.w;
+                const float duration = _timeRange.duration().rescaled_to(1.0).value();
+                const int frameTick = 1.0 / _timeRange.duration().value() * w;
+                if (frameTick >= p.size.handle)
                 {
-                    const math::Box2i box(
-                        g.min.x +
-                        t / duration * w,
-                        p.size.scrollPos.y +
-                        g.min.y +
-                        p.size.margin +
-                        p.size.fontMetrics.lineHeight,
-                        p.size.border,
-                        p.size.margin +
-                        p.size.border * 4);
-                    if (box.intersects(drawRect))
+                    geom::TriangleMesh2 mesh;
+                    size_t i = 1;
+                    for (double t = 0.0; t < duration; t += 1.0 / _timeRange.duration().rate())
                     {
-                        mesh.v.push_back(math::Vector2f(box.min.x, box.min.y));
-                        mesh.v.push_back(math::Vector2f(box.max.x + 1, box.min.y));
-                        mesh.v.push_back(math::Vector2f(box.max.x + 1, box.max.y + 1));
-                        mesh.v.push_back(math::Vector2f(box.min.x, box.max.y + 1));
-                        mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
-                        mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
-                        i += 4;
+                        const math::Box2i box(
+                            g.min.x +
+                            t / duration * w,
+                            p.size.scrollPos.y +
+                            g.min.y +
+                            p.size.margin +
+                            p.size.fontMetrics.lineHeight,
+                            p.size.border,
+                            p.size.margin +
+                            p.size.border * 4);
+                        if (box.intersects(drawRect))
+                        {
+                            mesh.v.push_back(math::Vector2f(box.min.x, box.min.y));
+                            mesh.v.push_back(math::Vector2f(box.max.x + 1, box.min.y));
+                            mesh.v.push_back(math::Vector2f(box.max.x + 1, box.max.y + 1));
+                            mesh.v.push_back(math::Vector2f(box.min.x, box.max.y + 1));
+                            mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
+                            mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
+                            i += 4;
+                        }
+                    }
+                    if (!mesh.v.empty())
+                    {
+                        event.render->drawMesh(
+                            mesh,
+                            math::Vector2i(),
+                            event.style->getColorRole(ui::ColorRole::Button));
                     }
                 }
-                if (!mesh.v.empty())
-                {
-                    event.render->drawMesh(
-                        mesh,
-                        math::Vector2i(),
-                        event.style->getColorRole(ui::ColorRole::Button));
-                }
-            }
 
-            const int secondsTick = 1.0 / duration * w;
-            const int minutesTick = 60.0 / duration * w;
-            const int hoursTick = 3600.0 / duration * w;
-            double seconds = 0;
-            int tick = 0;
-            if (secondsTick >= distanceMin)
-            {
-                seconds = 1.0;
-                tick = secondsTick;
-            }
-            else if (minutesTick >= distanceMin)
-            {
-                seconds = 60.0;
-                tick = minutesTick;
-            }
-            else if (hoursTick >= distanceMin)
-            {
-                seconds = 3600.0;
-                tick = hoursTick;
-            }
-            if (seconds > 0.0 && tick > 0)
-            {
-                geom::TriangleMesh2 mesh;
-                size_t i = 1;
-                for (double t = 0.0; t < duration; t += seconds)
+                const int secondsTick = 1.0 / duration * w;
+                const int minutesTick = 60.0 / duration * w;
+                const int hoursTick = 3600.0 / duration * w;
+                double seconds = 0;
+                int tick = 0;
+                if (secondsTick >= distanceMin)
                 {
-                    const math::Box2i box(
-                        g.min.x +
-                        t / duration * w,
-                        p.size.scrollPos.y +
-                        g.min.y,
-                        p.size.border,
-                        p.size.margin +
-                        p.size.fontMetrics.lineHeight +
-                        p.size.margin +
-                        p.size.border * 4);
-                    if (box.intersects(drawRect))
+                    seconds = 1.0;
+                    tick = secondsTick;
+                }
+                else if (minutesTick >= distanceMin)
+                {
+                    seconds = 60.0;
+                    tick = minutesTick;
+                }
+                else if (hoursTick >= distanceMin)
+                {
+                    seconds = 3600.0;
+                    tick = hoursTick;
+                }
+                if (seconds > 0.0 && tick > 0)
+                {
+                    geom::TriangleMesh2 mesh;
+                    size_t i = 1;
+                    for (double t = 0.0; t < duration; t += seconds)
                     {
-                        mesh.v.push_back(math::Vector2f(box.min.x, box.min.y));
-                        mesh.v.push_back(math::Vector2f(box.max.x + 1, box.min.y));
-                        mesh.v.push_back(math::Vector2f(box.max.x + 1, box.max.y + 1));
-                        mesh.v.push_back(math::Vector2f(box.min.x, box.max.y + 1));
-                        mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
-                        mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
-                        i += 4;
+                        const math::Box2i box(
+                            g.min.x +
+                            t / duration * w,
+                            p.size.scrollPos.y +
+                            g.min.y,
+                            p.size.border,
+                            p.size.margin +
+                            p.size.fontMetrics.lineHeight +
+                            p.size.margin +
+                            p.size.border * 4);
+                        if (box.intersects(drawRect))
+                        {
+                            mesh.v.push_back(math::Vector2f(box.min.x, box.min.y));
+                            mesh.v.push_back(math::Vector2f(box.max.x + 1, box.min.y));
+                            mesh.v.push_back(math::Vector2f(box.max.x + 1, box.max.y + 1));
+                            mesh.v.push_back(math::Vector2f(box.min.x, box.max.y + 1));
+                            mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
+                            mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
+                            i += 4;
+                        }
                     }
-                }
-                if (!mesh.v.empty())
-                {
-                    event.render->drawMesh(
-                        mesh,
-                        math::Vector2i(),
-                        event.style->getColorRole(ui::ColorRole::Button));
-                }
-
-                const otime::RationalTime& currentTime = p.player->observeCurrentTime()->get();
-                for (double t = 0.0; t < duration; t += seconds)
-                {
-                    const otime::RationalTime time = _timeRange.start_time() +
-                        otime::RationalTime(t, 1.0).rescaled_to(_timeRange.duration().rate());
-                    const math::Box2i box(
-                        g.min.x +
-                        t / duration * w +
-                        p.size.border +
-                        p.size.margin,
-                        p.size.scrollPos.y +
-                        g.min.y +
-                        p.size.margin,
-                        labelMaxSize.w,
-                        p.size.fontMetrics.lineHeight);
-                    if (time != currentTime && box.intersects(drawRect))
+                    if (!mesh.v.empty())
                     {
-                        const std::string label = _data->timeUnitsModel->getLabel(time);
-                        event.render->drawText(
-                            event.fontSystem->getGlyphs(label, p.size.fontInfo),
-                            math::Vector2i(
-                                box.min.x,
-                                box.min.y +
-                                p.size.fontMetrics.ascender),
-                            event.style->getColorRole(ui::ColorRole::TextDisabled));
+                        event.render->drawMesh(
+                            mesh,
+                            math::Vector2i(),
+                            event.style->getColorRole(ui::ColorRole::Button));
+                    }
+
+                    const otime::RationalTime& currentTime = p.player->observeCurrentTime()->get();
+                    for (double t = 0.0; t < duration; t += seconds)
+                    {
+                        const otime::RationalTime time = _timeRange.start_time() +
+                            otime::RationalTime(t, 1.0).rescaled_to(_timeRange.duration().rate());
+                        const math::Box2i box(
+                            g.min.x +
+                            t / duration * w +
+                            p.size.border +
+                            p.size.margin,
+                            p.size.scrollPos.y +
+                            g.min.y +
+                            p.size.margin,
+                            labelMaxSize.w,
+                            p.size.fontMetrics.lineHeight);
+                        if (time != currentTime && box.intersects(drawRect))
+                        {
+                            const std::string label = _data->timeUnitsModel->getLabel(time);
+                            event.render->drawText(
+                                event.fontSystem->getGlyphs(label, p.size.fontInfo),
+                                math::Vector2i(
+                                    box.min.x,
+                                    box.min.y +
+                                    p.size.fontMetrics.ascender),
+                                event.style->getColorRole(ui::ColorRole::TextDisabled));
+                        }
                     }
                 }
             }

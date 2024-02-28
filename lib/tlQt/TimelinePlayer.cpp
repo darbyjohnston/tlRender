@@ -205,7 +205,7 @@ namespace tl
             return _p->player->getIOInfo();
         }
 
-        const std::vector<image::Size>& TimelinePlayer::sizes() const
+        std::vector<image::Size> TimelinePlayer::sizes() const
         {
             return _p->player->getSizes();
         }
@@ -243,6 +243,16 @@ namespace tl
         const io::Options& TimelinePlayer::ioOptions() const
         {
             return _p->player->observeIOOptions()->get();
+        }
+
+        const std::vector<std::shared_ptr<timeline::Timeline> >& TimelinePlayer::compare() const
+        {
+            return _p->player->getCompare();
+        }
+
+        void TimelinePlayer::setCompare(const std::vector<std::shared_ptr<timeline::Timeline> >& value)
+        {
+            _p->player->setCompare(value);
         }
 
         const std::vector<timeline::VideoData>& TimelinePlayer::currentVideo() const

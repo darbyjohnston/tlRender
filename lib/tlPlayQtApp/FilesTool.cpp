@@ -11,6 +11,7 @@
 
 #include <QAction>
 #include <QBoxLayout>
+#include <QButtonGroup>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QFormLayout>
@@ -28,6 +29,8 @@ namespace tl
             App* app = nullptr;
             std::vector<std::shared_ptr<play::FilesModelItem> > items;
 
+            QButtonGroup* aButtonGroup = nullptr;
+            QButtonGroup* bButtonGroup = nullptr;
             std::vector<QCheckBox*> aButtons;
             std::vector<QToolButton*> bButtons;
             std::vector<QComboBox*> layerComboBoxes;
@@ -54,6 +57,12 @@ namespace tl
             TLRENDER_P();
 
             p.app = app;
+
+            p.aButtonGroup = new QButtonGroup;
+            p.aButtonGroup->setExclusive(true);
+
+            p.bButtonGroup = new QButtonGroup;
+            p.bButtonGroup->setExclusive(false);
 
             p.wipeXSlider = new qtwidget::FloatEditSlider;
 
@@ -86,6 +95,33 @@ namespace tl
             addBellows(tr("Overlay"), widget);
 
             addStretch();
+
+            connect(
+                p.aButtonGroup,
+                &QButtonGroup::buttonToggled,
+                [this, app](QAbstractButton* button, bool value)
+                {
+                    if (value)
+                    {
+                        auto i = std::find(_p->aButtons.begin(), _p->aButtons.end(), button);
+                        if (i != _p->aButtons.end())
+                        {
+                            app->filesModel()->setA(i - _p->aButtons.begin());
+                        }
+                    }
+                });
+
+            connect(
+                p.bButtonGroup,
+                &QButtonGroup::buttonToggled,
+                [this, app](QAbstractButton* button, bool value)
+                {
+                    auto i = std::find(_p->bButtons.begin(), _p->bButtons.end(), button);
+                    if (i != _p->bButtons.end())
+                    {
+                        app->filesModel()->setB(i - _p->bButtons.begin(), value);
+                    }
+                });
 
             connect(
                 p.wipeXSlider,
@@ -169,11 +205,13 @@ namespace tl
 
             for (auto i : p.aButtons)
             {
+                p.aButtonGroup->removeButton(i);
                 delete i;
             }
             p.aButtons.clear();
             for (auto i : p.bButtons)
             {
+                p.bButtonGroup->removeButton(i);
                 delete i;
             }
             p.bButtons.clear();
@@ -201,6 +239,7 @@ namespace tl
                 aButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
                 aButton->setToolTip(QString::fromUtf8(item->path.get().c_str()));
                 p.aButtons.push_back(aButton);
+                p.aButtonGroup->addButton(aButton);
 
                 auto bButton = new QToolButton;
                 bButton->setText("B");
@@ -210,6 +249,7 @@ namespace tl
                 bButton->setAutoRaise(true);
                 bButton->setToolTip("Set the B file(s)");
                 p.bButtons.push_back(bButton);
+                p.bButtonGroup->addButton(bButton);
 
                 auto layerComboBox = new QComboBox;
                 for (const auto& layer : item->videoLayers)
@@ -223,22 +263,6 @@ namespace tl
                 p.itemsLayout->addWidget(aButton, i, 0);
                 p.itemsLayout->addWidget(bButton, i, 1);
                 p.itemsLayout->addWidget(layerComboBox, i, 2);
-
-                connect(
-                    aButton,
-                    &QToolButton::toggled,
-                    [this, i](bool value)
-                    {
-                        _p->app->filesModel()->setA(i);
-                    });
-
-                connect(
-                    bButton,
-                    &QToolButton::toggled,
-                    [this, i](bool value)
-                    {
-                        _p->app->filesModel()->setB(i, value);
-                    });
 
                 connect(
                     layerComboBox,

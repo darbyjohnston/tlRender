@@ -130,7 +130,7 @@ namespace tl
             const io::Info& ioInfo() const;
 
             //! Get the timeline sizes.
-            const std::vector<image::Size>& sizes() const;
+            std::vector<image::Size> sizes() const;
 
             ///@}
 
@@ -172,6 +172,17 @@ namespace tl
 
             //! Get the I/O options.
             const io::Options& ioOptions() const;
+
+            ///@}
+
+            //! \name Comparison
+            ///@{
+
+            //! Get the timelines for comparison.
+            const std::vector<std::shared_ptr<timeline::Timeline> >& compare() const;
+
+            //! Set the timelines for comparison.
+            void setCompare(const std::vector<std::shared_ptr<timeline::Timeline> >&);
 
             ///@}
 

@@ -72,6 +72,9 @@ namespace tl
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             QScopedPointer<qt::TimeObject> timeObject;
             std::shared_ptr<play::FilesModel> filesModel;
+            std::vector<std::shared_ptr<play::FilesModelItem> > files;
+            std::vector<std::shared_ptr<play::FilesModelItem> > activeFiles;
+            std::vector<std::shared_ptr<timeline::Timeline> > timelines;
             QSharedPointer<qt::TimelinePlayer> player;
             std::shared_ptr<ui::RecentFilesModel> recentFilesModel;
             std::shared_ptr<play::ViewportModel> viewportModel;
@@ -91,6 +94,7 @@ namespace tl
             std::unique_ptr<QTimer> timer;
 
             std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
             std::shared_ptr<observer::ListObserver<int> > layersObserver;
             std::shared_ptr<observer::ValueObserver<size_t> > recentFilesMaxObserver;
@@ -305,79 +309,121 @@ namespace tl
             Q_EMIT secondaryWindowChanged(value);
         }
 
-        void App::_activeCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >& items)
+        void App::_filesCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >& files)
+        {
+            TLRENDER_P();
+
+            std::vector<std::shared_ptr<timeline::Timeline> > timelines(files.size());
+            for (size_t i = 0; i < files.size(); ++i)
+            {
+                const auto j = std::find(p.files.begin(), p.files.end(), files[i]);
+                if (j != p.files.end())
+                {
+                    timelines[i] = p.timelines[j - p.files.begin()];
+                }
+            }
+
+            for (size_t i = 0; i < files.size(); ++i)
+            {
+                if (!timelines[i])
+                {
+                    try
+                    {
+                        timeline::Options options;
+                        options.fileSequenceAudio =
+                            p.settings->getValue<timeline::FileSequenceAudio>("FileSequence/Audio");
+                        options.fileSequenceAudioFileName =
+                            p.settings->getValue<std::string>("FileSequence/AudioFileName");
+                        options.fileSequenceAudioDirectory =
+                            p.settings->getValue<std::string>("FileSequence/AudioDirectory");
+                        options.videoRequestCount =
+                            p.settings->getValue<size_t>("Performance/VideoRequestCount");
+                        options.audioRequestCount =
+                            p.settings->getValue<size_t>("Performance/AudioRequestCount");
+                        options.ioOptions = _ioOptions();
+                        options.pathOptions.maxNumberDigits =
+                            p.settings->getValue<size_t>("FileSequence/MaxDigits");
+                        auto otioTimeline = files[i]->audioPath.isEmpty() ?
+                            timeline::create(files[i]->path, _context, options) :
+                            timeline::create(files[i]->path, files[i]->audioPath, _context, options);
+                        if (0)
+                        {
+                            timeline::toMemoryReferences(
+                                otioTimeline,
+                                files[i]->path.getDirectory(),
+                                timeline::ToMemoryReference::Shared,
+                                options.pathOptions);
+                        }
+                        timelines[i] = timeline::Timeline::create(otioTimeline, _context, options);
+                        for (const auto& video : timelines[i]->getIOInfo().video)
+                        {
+                            files[i]->videoLayers.push_back(video.name);
+                        }
+                    }
+                    catch (const std::exception& e)
+                    {
+                        _log(e.what(), log::Type::Error);
+                    }
+                }
+            }
+
+            p.files = files;
+            p.timelines = timelines;
+        }
+
+        void App::_activeCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >& files)
         {
             TLRENDER_P();
 
             QSharedPointer<qt::TimelinePlayer> player;
-            if (!items.empty())
+            if ((!files.empty() && !p.activeFiles.empty() && files[0] != p.activeFiles[0]) ||
+                (!files.empty() && p.activeFiles.empty()))
             {
-                try
+                auto i = std::find(p.files.begin(), p.files.end(), files[0]);
+                if (i != p.files.end())
                 {
-                    timeline::Options options;
-                    options.fileSequenceAudio =
-                        p.settings->getValue<timeline::FileSequenceAudio>("FileSequence/Audio");
-                    options.fileSequenceAudioFileName =
-                        p.settings->getValue<std::string>("FileSequence/AudioFileName");
-                    options.fileSequenceAudioDirectory =
-                        p.settings->getValue<std::string>("FileSequence/AudioDirectory");
-                    options.videoRequestCount =
-                        p.settings->getValue<size_t>("Performance/VideoRequestCount");
-                    options.audioRequestCount =
-                        p.settings->getValue<size_t>("Performance/AudioRequestCount");
-                    options.ioOptions = _ioOptions();
-                    options.pathOptions.maxNumberDigits =
-                        p.settings->getValue<size_t>("FileSequence/MaxDigits");
-                    auto otioTimeline = items[0]->audioPath.isEmpty() ?
-                        timeline::create(items[0]->path, _context, options) :
-                        timeline::create(items[0]->path, items[0]->audioPath, _context, options);
-                    if (0)
+                    try
                     {
-                        timeline::toMemoryReferences(
-                            otioTimeline,
-                            items[0]->path.getDirectory(),
-                            timeline::ToMemoryReference::Shared,
-                            options.pathOptions);
+                        timeline::PlayerOptions playerOptions;
+                        playerOptions.cache.readAhead = time::invalidTime;
+                        playerOptions.cache.readBehind = time::invalidTime;
+                        playerOptions.timerMode =
+                            p.settings->getValue<timeline::TimerMode>("Performance/TimerMode");
+                        playerOptions.audioBufferFrameCount =
+                            p.settings->getValue<size_t>("Performance/AudioBufferFrameCount");
+                        auto timeline = p.timelines[i - p.files.begin()];
+                        player.reset(new qt::TimelinePlayer(
+                            timeline::Player::create(timeline, _context, playerOptions),
+                            _context,
+                            this));
                     }
-                    auto timeline = timeline::Timeline::create(otioTimeline, _context, options);
-                    for (const auto& video : timeline->getIOInfo().video)
+                    catch (const std::exception& e)
                     {
-                        items[0]->videoLayers.push_back(video.name);
+                        _log(e.what(), log::Type::Error);
                     }
-
-                    std::vector<std::shared_ptr<timeline::Timeline> > compare;
-                    for (size_t i = 1; i < items.size(); ++i)
-                    {
-                        auto otioTimelineB = items[i]->audioPath.isEmpty() ?
-                            timeline::create(items[i]->path, _context, options) :
-                            timeline::create(items[i]->path, items[i]->audioPath, _context, options);
-                        auto timelineB = timeline::Timeline::create(otioTimelineB, _context, options);
-                        compare.push_back(timelineB);
-                        for (const auto& video : timelineB->getIOInfo().video)
-                        {
-                            items[i]->videoLayers.push_back(video.name);
-                        }
-                    }
-
-                    timeline::PlayerOptions playerOptions;
-                    playerOptions.cache.readAhead = time::invalidTime;
-                    playerOptions.cache.readBehind = time::invalidTime;
-                    playerOptions.timerMode =
-                        p.settings->getValue<timeline::TimerMode>("Performance/TimerMode");
-                    playerOptions.audioBufferFrameCount =
-                        p.settings->getValue<size_t>("Performance/AudioBufferFrameCount");
-                    player.reset(new qt::TimelinePlayer(
-                        timeline::Player::create(timeline, _context, playerOptions),
-                        _context,
-                        this));
-                }
-                catch (const std::exception& e)
-                {
-                    _log(e.what(), log::Type::Error);
                 }
             }
-            p.player = player;
+            else
+            {
+                player = p.player;
+            }
+            if (player)
+            {
+                std::vector<std::shared_ptr<timeline::Timeline> > compare;
+                for (size_t i = 1; i < files.size(); ++i)
+                {
+                    auto j = std::find(p.files.begin(), p.files.end(), files[i]);
+                    if (j != p.files.end())
+                    {
+                        auto timeline = p.timelines[j - p.files.begin()];
+                        compare.push_back(timeline);
+                    }
+                }
+                player->setCompare(compare);
+            }
 
+            p.activeFiles = files;
+            p.player = player;
 #if defined(TLRENDER_BMD)
             p.bmdOutputDevice->setPlayer(p.player ? p.player->player() : nullptr);
 #endif // TLRENDER_BMD
@@ -580,6 +626,12 @@ namespace tl
                     _settingsUpdate(name);
                 });
 
+            p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+                p.filesModel->observeFiles(),
+                [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
+                {
+                    _filesCallback(value);
+                });
             p.activeObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 p.filesModel->observeActive(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
@@ -864,26 +916,6 @@ namespace tl
             return out;
         }
 
-        otime::RationalTime App::_cacheReadAhead() const
-        {
-            TLRENDER_P();
-            const size_t activeCount = p.filesModel->observeActive()->getSize();
-            const double readAhead = p.settings->getValue<double>("Cache/ReadAhead");
-            return otime::RationalTime(
-                activeCount > 0 ? (readAhead / static_cast<double>(activeCount)) : 0.0,
-                1.0);
-        }
-
-        otime::RationalTime App::_cacheReadBehind() const
-        {
-            TLRENDER_P();
-            const size_t activeCount = p.filesModel->observeActive()->getSize();
-            const double readBehind = p.settings->getValue<double>("Cache/ReadBehind");
-            return otime::RationalTime(
-                activeCount > 0 ? (readBehind / static_cast<double>(activeCount)) : 0.0,
-                1.0);
-        }
-
         void App::_settingsUpdate(const std::string& name)
         {
             TLRENDER_P();
@@ -958,8 +990,12 @@ namespace tl
                 p.settings->getValue<size_t>("Cache/Size") * memory::gigabyte);
 
             timeline::PlayerCacheOptions cacheOptions;
-            cacheOptions.readAhead = _cacheReadAhead();
-            cacheOptions.readBehind = _cacheReadBehind();
+            cacheOptions.readAhead = otime::RationalTime(
+                p.settings->getValue<double>("Cache/ReadAhead"),
+                1.0);
+            cacheOptions.readBehind = otime::RationalTime(
+                p.settings->getValue<double>("Cache/ReadBehind"),
+                1.0);
             if (p.player)
             {
                 p.player->setCacheOptions(cacheOptions);

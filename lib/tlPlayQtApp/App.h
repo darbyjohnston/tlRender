@@ -126,6 +126,7 @@ namespace tl
             void secondaryWindowChanged(bool);
 
         private Q_SLOTS:
+            void _filesCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
             void _activeCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
             void _mainWindowDestroyedCallback();
             void _secondaryWindowDestroyedCallback();
@@ -142,8 +143,6 @@ namespace tl
             void _windowsInit();
 
             io::Options _ioOptions() const;
-            otime::RationalTime _cacheReadAhead() const;
-            otime::RationalTime _cacheReadBehind() const;
 
             void _settingsUpdate(const std::string&);
             void _cacheUpdate();
