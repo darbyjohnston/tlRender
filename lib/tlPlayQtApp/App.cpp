@@ -367,7 +367,7 @@ namespace tl
                     playerOptions.audioBufferFrameCount =
                         p.settings->getValue<size_t>("Performance/AudioBufferFrameCount");
                     player.reset(new qt::TimelinePlayer(
-                        timeline::Player::create(timeline, compare, _context, playerOptions),
+                        timeline::Player::create(timeline, _context, playerOptions),
                         _context,
                         this));
                 }

@@ -110,10 +110,16 @@ namespace tl
         {
             // Get the video ranges to be cached.
             const otime::TimeRange& timeRange = timeline->getTimeRange();
-            const otime::RationalTime readAheadRescaled =
-                time::floor(cacheOptions.readAhead.rescaled_to(timeRange.duration().rate()));
-            const otime::RationalTime readBehindRescaled =
-                time::floor(cacheOptions.readBehind.rescaled_to(timeRange.duration().rate()));
+            const otime::RationalTime readAheadDivided(
+                cacheOptions.readAhead.value() / (1 + thread.compare.size()),
+                cacheOptions.readAhead.rate());
+            const otime::RationalTime readAheadRescaled = time::floor(
+                readAheadDivided.rescaled_to(timeRange.duration().rate()));
+            const otime::RationalTime readBehindDivided(
+                cacheOptions.readBehind.value() / (1 + thread.compare.size()),
+                cacheOptions.readBehind.rate());
+            const otime::RationalTime readBehindRescaled = time::floor(
+                readBehindDivided.rescaled_to(timeRange.duration().rate()));
             otime::TimeRange videoRange = time::invalidTimeRange;
             switch (cacheDirection)
             {
@@ -390,8 +396,8 @@ namespace tl
                     cachedVideoFrames.push_back(i.first);
                 }
                 const float cachedVideoPercentage = cachedVideoFrames.size() /
-                    static_cast<float>(cacheOptions.readAhead.rescaled_to(timeRange.duration().rate()).value() +
-                        cacheOptions.readBehind.rescaled_to(timeRange.duration().rate()).value()) *
+                    static_cast<float>(readAheadDivided.rescaled_to(timeRange.duration().rate()).value() +
+                        readBehindDivided.rescaled_to(timeRange.duration().rate()).value()) *
                     100.F;
                 std::vector<otime::RationalTime> cachedAudioFrames;
                 {

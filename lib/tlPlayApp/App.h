@@ -122,8 +122,6 @@ namespace tl
             void _windowsInit();
 
             io::Options _getIOOptions() const;
-            otime::RationalTime _getCacheReadAhead() const;
-            otime::RationalTime _getCacheReadBehind() const;
 
             void _filesCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
             void _activeCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >&);

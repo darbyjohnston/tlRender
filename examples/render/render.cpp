@@ -128,12 +128,13 @@ namespace tl
                 {
                     // Read the timelines.
                     auto timeline = timeline::Timeline::create(_input, _context);
+                    _player = timeline::Player::create(timeline, _context);
                     std::vector<std::shared_ptr <timeline::Timeline> > compare;
                     if (!_options.compareFileName.empty())
                     {
                         compare.push_back(timeline::Timeline::create(_options.compareFileName, _context));
                     }
-                    _player = timeline::Player::create(timeline, compare, _context);
+                    _player->setCompare(compare);
                     _videoSizes = _player->getSizes();
                     _videoDataObserver = observer::ListObserver<timeline::VideoData>::create(
                         _player->observeCurrentVideo(),

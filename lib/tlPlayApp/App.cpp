@@ -775,26 +775,6 @@ namespace tl
             return out;
         }
 
-        otime::RationalTime App::_getCacheReadAhead() const
-        {
-            TLRENDER_P();
-            const size_t activeCount = p.filesModel->getActive().size();
-            const double readAhead = p.settings->getValue<double>("Cache/ReadAhead");
-            return otime::RationalTime(
-                activeCount > 0 ? (readAhead / static_cast<double>(activeCount)) : 0.0,
-                1.0);
-        }
-
-        otime::RationalTime App::_getCacheReadBehind() const
-        {
-            TLRENDER_P();
-            const size_t activeCount = p.filesModel->getActive().size();
-            const double readBehind = p.settings->getValue<double>("Cache/ReadBehind");
-            return otime::RationalTime(
-                activeCount > 0 ? (readBehind / static_cast<double>(activeCount)) : 0.0,
-                1.0);
-        }
-
         void App::_filesCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >& files)
         {
             TLRENDER_P();
@@ -988,8 +968,12 @@ namespace tl
                 p.settings->getValue<size_t>("Cache/Size") * memory::gigabyte);
 
             timeline::PlayerCacheOptions cacheOptions;
-            cacheOptions.readAhead = _getCacheReadAhead();
-            cacheOptions.readBehind = _getCacheReadBehind();
+            cacheOptions.readAhead = otime::RationalTime(
+                p.settings->getValue<double>("Cache/ReadAhead"),
+                1.0);
+            cacheOptions.readBehind = otime::RationalTime(
+                p.settings->getValue<double>("Cache/ReadBehind"),
+                1.0);
             if (auto player = p.player->get())
             {
                 player->setCacheOptions(cacheOptions);
