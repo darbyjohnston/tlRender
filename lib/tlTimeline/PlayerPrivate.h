@@ -107,7 +107,7 @@ namespace tl
             struct Thread
             {
                 std::vector<std::shared_ptr<Timeline> > compare;
-                std::map<otime::RationalTime, std::future<VideoData> > videoDataRequests;
+                std::map<otime::RationalTime, std::vector<std::future<VideoData> > > videoDataRequests;
                 std::map<otime::RationalTime, std::vector<VideoData> > videoDataCache;
 #if defined(TLRENDER_AUDIO)
                 std::unique_ptr<RtAudio> rtAudio;

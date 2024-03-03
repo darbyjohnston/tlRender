@@ -260,7 +260,12 @@ namespace tl
                                 if (j == thread.videoDataRequests.end())
                                 {
                                     //std::cout << this << " video request: " << time << std::endl;
-                                    thread.videoDataRequests[time] = timeline->getVideo(time, ioOptions);
+                                    thread.videoDataRequests[time].clear();
+                                    thread.videoDataRequests[time].push_back(timeline->getVideo(time, ioOptions));
+                                    for (const auto& c : compare)
+                                    {
+                                        thread.videoDataRequests[time].push_back(c->getVideo(time, ioOptions));
+                                    }
                                 }
                             }
                         }
@@ -280,7 +285,12 @@ namespace tl
                                 if (j == thread.videoDataRequests.end())
                                 {
                                     //std::cout << this << " video request: " << time << std::endl;
-                                    thread.videoDataRequests[time] = timeline->getVideo(time, ioOptions);
+                                    thread.videoDataRequests[time].clear();
+                                    thread.videoDataRequests[time].push_back(timeline->getVideo(time, ioOptions));
+                                    for (const auto& c : compare)
+                                    {
+                                        thread.videoDataRequests[time].push_back(c->getVideo(time, ioOptions));
+                                    }
                                 }
                             }
                         }
@@ -353,16 +363,32 @@ namespace tl
             auto videoDataRequestsIt = thread.videoDataRequests.begin();
             while (videoDataRequestsIt != thread.videoDataRequests.end())
             {
-                if (videoDataRequestsIt->second.valid() &&
-                    videoDataRequestsIt->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                bool ready = true;
+                for (auto videoDataRequestIt = videoDataRequestsIt->second.begin();
+                    videoDataRequestIt != videoDataRequestsIt->second.end();
+                    ++videoDataRequestIt)
                 {
-                    auto data = videoDataRequestsIt->second.get();
-                    data.time = videoDataRequestsIt->first;
-                    thread.videoDataCache[data.time] = { data };
-                    videoDataRequestsIt = thread.videoDataRequests.erase(videoDataRequestsIt);
-                    continue;
+                    ready &= videoDataRequestIt->valid() &&
+                        videoDataRequestIt->wait_for(std::chrono::seconds(0)) == std::future_status::ready;
                 }
-                ++videoDataRequestsIt;
+                if (ready)
+                {
+                    const otime::RationalTime time = videoDataRequestsIt->first;
+                    thread.videoDataCache[time].clear();
+                    for (auto videoDataRequestIt = videoDataRequestsIt->second.begin();
+                        videoDataRequestIt != videoDataRequestsIt->second.end();
+                        ++videoDataRequestIt)
+                    {
+                        auto data = videoDataRequestIt->get();
+                        data.time = time;
+                        thread.videoDataCache[data.time].push_back(data);
+                    }
+                    videoDataRequestsIt = thread.videoDataRequests.erase(videoDataRequestsIt);
+                }
+                else
+                {
+                    ++videoDataRequestsIt;
+                }
             }
 
             // Check for finished audio.
@@ -379,9 +405,11 @@ namespace tl
                         audioMutex.audioDataCache[audioDataRequestsIt->first] = audioData;
                     }
                     audioDataRequestsIt = thread.audioDataRequests.erase(audioDataRequestsIt);
-                    continue;
                 }
-                ++audioDataRequestsIt;
+                else
+                {
+                    ++audioDataRequestsIt;
+                }
             }
 
             // Update cached frames.
