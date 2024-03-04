@@ -98,7 +98,7 @@ namespace tl
 
             connect(
                 p.aButtonGroup,
-                &QButtonGroup::buttonToggled,
+                QOverload<QAbstractButton*, bool>::of(&QButtonGroup::buttonToggled),
                 [this, app](QAbstractButton* button, bool value)
                 {
                     if (value)
@@ -113,7 +113,7 @@ namespace tl
 
             connect(
                 p.bButtonGroup,
-                &QButtonGroup::buttonToggled,
+                QOverload<QAbstractButton*, bool>::of(&QButtonGroup::buttonToggled),
                 [this, app](QAbstractButton* button, bool value)
                 {
                     auto i = std::find(_p->bButtons.begin(), _p->bButtons.end(), button);
