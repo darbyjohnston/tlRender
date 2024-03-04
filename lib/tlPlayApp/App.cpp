@@ -476,13 +476,13 @@ namespace tl
                 p.filesModel->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
                 {
-                    _filesCallback(value);
+                    _filesUpdate(value);
                 });
             p.activeObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 p.filesModel->observeActive(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
                 {
-                    _activeCallback(value);
+                    _activeUpdate(value);
                 });
             p.layersObserver = observer::ListObserver<int>::create(
                 p.filesModel->observeLayers(),
@@ -775,117 +775,6 @@ namespace tl
             return out;
         }
 
-        void App::_filesCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >& files)
-        {
-            TLRENDER_P();
-
-            std::vector<std::shared_ptr<timeline::Timeline> > timelines(files.size());
-            for (size_t i = 0; i < files.size(); ++i)
-            {
-                const auto j = std::find(p.files.begin(), p.files.end(), files[i]);
-                if (j != p.files.end())
-                {
-                    timelines[i] = p.timelines[j - p.files.begin()];
-                }
-            }
-
-            for (size_t i = 0; i < files.size(); ++i)
-            {
-                if (!timelines[i])
-                {
-                    try
-                    {
-                        timeline::Options options;
-                        options.fileSequenceAudio =
-                            p.settings->getValue<timeline::FileSequenceAudio>("FileSequence/Audio");
-                        options.fileSequenceAudioFileName =
-                            p.settings->getValue<std::string>("FileSequence/AudioFileName");
-                        options.fileSequenceAudioDirectory =
-                            p.settings->getValue<std::string>("FileSequence/AudioDirectory");
-                        options.videoRequestCount =
-                            p.settings->getValue<size_t>("Performance/VideoRequestCount");
-                        options.audioRequestCount =
-                            p.settings->getValue<size_t>("Performance/AudioRequestCount");
-                        options.ioOptions = _getIOOptions();
-                        options.pathOptions.maxNumberDigits =
-                            p.settings->getValue<size_t>("FileSequence/MaxDigits");
-                        auto otioTimeline = files[i]->audioPath.isEmpty() ?
-                            timeline::create(files[i]->path, _context, options) :
-                            timeline::create(files[i]->path, files[i]->audioPath, _context, options);
-                        timelines[i] = timeline::Timeline::create(otioTimeline, _context, options);
-                        for (const auto& video : timelines[i]->getIOInfo().video)
-                        {
-                            files[i]->videoLayers.push_back(video.name);
-                        }
-                    }
-                    catch (const std::exception& e)
-                    {
-                        _log(e.what(), log::Type::Error);
-                    }
-                }
-            }
-
-            p.files = files;
-            p.timelines = timelines;
-        }
-
-        void App::_activeCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >& files)
-        {
-            TLRENDER_P();
-            std::shared_ptr<timeline::Player> player;
-            if ((!files.empty() && !p.activeFiles.empty() && files[0] != p.activeFiles[0]) ||
-                (!files.empty() && p.activeFiles.empty()))
-            {
-                auto i = std::find(p.files.begin(), p.files.end(), files[0]);
-                if (i != p.files.end())
-                {
-                    try
-                    {
-                        timeline::PlayerOptions playerOptions;
-                        playerOptions.cache.readAhead = time::invalidTime;
-                        playerOptions.cache.readBehind = time::invalidTime;
-                        playerOptions.timerMode =
-                            p.settings->getValue<timeline::TimerMode>("Performance/TimerMode");
-                        playerOptions.audioBufferFrameCount =
-                            p.settings->getValue<size_t>("Performance/AudioBufferFrameCount");
-                        auto timeline = p.timelines[i - p.files.begin()];
-                        player = timeline::Player::create(timeline, _context, playerOptions);
-                    }
-                    catch (const std::exception& e)
-                    {
-                        _log(e.what(), log::Type::Error);
-                    }
-                }
-            }
-            else
-            {
-                player = p.player->get();
-            }
-            if (player)
-            {
-                std::vector<std::shared_ptr<timeline::Timeline> > compare;
-                for (size_t i = 1; i < files.size(); ++i)
-                {
-                    auto j = std::find(p.files.begin(), p.files.end(), files[i]);
-                    if (j != p.files.end())
-                    {
-                        auto timeline = p.timelines[j - p.files.begin()];
-                        compare.push_back(timeline);
-                    }
-                }
-                player->setCompare(compare);
-            }
-
-            p.activeFiles = files;
-            p.player->setIfChanged(player);
-#if defined(TLRENDER_BMD)
-            p.bmdOutputDevice->setPlayer(player);
-#endif // TLRENDER_BMD
-
-            _cacheUpdate();
-            _audioUpdate();
-        }
-
         void App::_settingsUpdate(const std::string& name)
         {
             TLRENDER_P();
@@ -957,6 +846,117 @@ namespace tl
                 getStyle()->setColorRoles(getStylePalette(
                     p.settings->getValue<StylePalette>("Style/Palette")));
             }
+        }
+
+        void App::_filesUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& files)
+        {
+            TLRENDER_P();
+
+            std::vector<std::shared_ptr<timeline::Timeline> > timelines(files.size());
+            for (size_t i = 0; i < files.size(); ++i)
+            {
+                const auto j = std::find(p.files.begin(), p.files.end(), files[i]);
+                if (j != p.files.end())
+                {
+                    timelines[i] = p.timelines[j - p.files.begin()];
+                }
+            }
+
+            for (size_t i = 0; i < files.size(); ++i)
+            {
+                if (!timelines[i])
+                {
+                    try
+                    {
+                        timeline::Options options;
+                        options.fileSequenceAudio =
+                            p.settings->getValue<timeline::FileSequenceAudio>("FileSequence/Audio");
+                        options.fileSequenceAudioFileName =
+                            p.settings->getValue<std::string>("FileSequence/AudioFileName");
+                        options.fileSequenceAudioDirectory =
+                            p.settings->getValue<std::string>("FileSequence/AudioDirectory");
+                        options.videoRequestCount =
+                            p.settings->getValue<size_t>("Performance/VideoRequestCount");
+                        options.audioRequestCount =
+                            p.settings->getValue<size_t>("Performance/AudioRequestCount");
+                        options.ioOptions = _getIOOptions();
+                        options.pathOptions.maxNumberDigits =
+                            p.settings->getValue<size_t>("FileSequence/MaxDigits");
+                        auto otioTimeline = files[i]->audioPath.isEmpty() ?
+                            timeline::create(files[i]->path, _context, options) :
+                            timeline::create(files[i]->path, files[i]->audioPath, _context, options);
+                        timelines[i] = timeline::Timeline::create(otioTimeline, _context, options);
+                        for (const auto& video : timelines[i]->getIOInfo().video)
+                        {
+                            files[i]->videoLayers.push_back(video.name);
+                        }
+                    }
+                    catch (const std::exception& e)
+                    {
+                        _log(e.what(), log::Type::Error);
+                    }
+                }
+            }
+
+            p.files = files;
+            p.timelines = timelines;
+        }
+
+        void App::_activeUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& files)
+        {
+            TLRENDER_P();
+            std::shared_ptr<timeline::Player> player;
+            if ((!files.empty() && !p.activeFiles.empty() && files[0] != p.activeFiles[0]) ||
+                (!files.empty() && p.activeFiles.empty()))
+            {
+                auto i = std::find(p.files.begin(), p.files.end(), files[0]);
+                if (i != p.files.end())
+                {
+                    try
+                    {
+                        timeline::PlayerOptions playerOptions;
+                        playerOptions.cache.readAhead = time::invalidTime;
+                        playerOptions.cache.readBehind = time::invalidTime;
+                        playerOptions.timerMode =
+                            p.settings->getValue<timeline::TimerMode>("Performance/TimerMode");
+                        playerOptions.audioBufferFrameCount =
+                            p.settings->getValue<size_t>("Performance/AudioBufferFrameCount");
+                        auto timeline = p.timelines[i - p.files.begin()];
+                        player = timeline::Player::create(timeline, _context, playerOptions);
+                    }
+                    catch (const std::exception& e)
+                    {
+                        _log(e.what(), log::Type::Error);
+                    }
+                }
+            }
+            else
+            {
+                player = p.player->get();
+            }
+            if (player)
+            {
+                std::vector<std::shared_ptr<timeline::Timeline> > compare;
+                for (size_t i = 1; i < files.size(); ++i)
+                {
+                    auto j = std::find(p.files.begin(), p.files.end(), files[i]);
+                    if (j != p.files.end())
+                    {
+                        auto timeline = p.timelines[j - p.files.begin()];
+                        compare.push_back(timeline);
+                    }
+                }
+                player->setCompare(compare);
+            }
+
+            p.activeFiles = files;
+            p.player->setIfChanged(player);
+#if defined(TLRENDER_BMD)
+            p.bmdOutputDevice->setPlayer(player);
+#endif // TLRENDER_BMD
+
+            _cacheUpdate();
+            _audioUpdate();
         }
 
         void App::_cacheUpdate()

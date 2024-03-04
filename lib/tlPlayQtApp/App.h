@@ -125,15 +125,7 @@ namespace tl
             //! This signal is emitted when the secondary window active state is changed.
             void secondaryWindowChanged(bool);
 
-        private Q_SLOTS:
-            void _filesCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
-            void _activeCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
-            void _mainWindowDestroyedCallback();
-            void _secondaryWindowDestroyedCallback();
-
         private:
-            void _timerCallback();
-
             void _fileLogInit(const std::string&);
             void _settingsInit(const std::string&);
             void _modelsInit();
@@ -145,6 +137,9 @@ namespace tl
             io::Options _ioOptions() const;
 
             void _settingsUpdate(const std::string&);
+            void _timerUpdate();
+            void _filesUpdate(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
+            void _activeUpdate(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
             void _cacheUpdate();
             void _viewUpdate(const math::Vector2i& pos, double zoom, bool frame);
             void _audioUpdate();

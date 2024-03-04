@@ -123,10 +123,9 @@ namespace tl
 
             io::Options _getIOOptions() const;
 
-            void _filesCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
-            void _activeCallback(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
-
             void _settingsUpdate(const std::string&);
+            void _filesUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
+            void _activeUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
             void _cacheUpdate();
             void _viewUpdate(const math::Vector2i& pos, double zoom, bool frame);
             void _audioUpdate();
