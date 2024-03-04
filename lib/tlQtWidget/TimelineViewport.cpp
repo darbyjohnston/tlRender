@@ -34,7 +34,6 @@ namespace tl
             timeline::CompareOptions compareOptions;
             timeline::BackgroundOptions backgroundOptions;
             QSharedPointer<qt::TimelinePlayer> player;
-            std::vector<image::Size> sizes;
             std::vector<timeline::VideoData> videoData;
             math::Vector2i viewPos;
             double viewZoom = 1.0;
@@ -166,11 +165,9 @@ namespace tl
 
             p.player = value;
 
-            p.sizes.clear();
             p.videoData.clear();
             if (p.player)
             {
-                p.sizes = p.player->sizes();
                 p.videoData = p.player->currentVideo();
             }
             p.doRender = true;
@@ -382,7 +379,7 @@ namespace tl
                         p.render->begin(viewportSize);
                         p.render->setOCIOOptions(p.ocioOptions);
                         p.render->setLUTOptions(p.lutOptions);
-                        if (!p.videoData.empty())
+                        if (p.player && !p.videoData.empty())
                         {
                             math::Matrix4x4f vm;
                             vm = vm * math::translate(math::Vector3f(p.viewPos.x, p.viewPos.y, 0.F));
@@ -397,7 +394,7 @@ namespace tl
                             p.render->setTransform(pm * vm);
                             p.render->drawVideo(
                                 p.videoData,
-                                timeline::getBoxes(p.compareOptions.mode, p.sizes),
+                                timeline::getBoxes(p.compareOptions.mode, p.player->sizes()),
                                 p.imageOptions,
                                 p.displayOptions,
                                 p.compareOptions,
@@ -618,7 +615,12 @@ namespace tl
         math::Size2i TimelineViewport::_renderSize() const
         {
             TLRENDER_P();
-            return timeline::getRenderSize(p.compareOptions.mode, p.sizes);
+            math::Size2i out;
+            if (p.player)
+            {
+                out = timeline::getRenderSize(p.compareOptions.mode, p.player->sizes());
+            }
+            return out;
         }
 
         void TimelineViewport::_frameView()

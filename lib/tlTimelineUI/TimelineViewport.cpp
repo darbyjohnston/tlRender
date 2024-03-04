@@ -28,7 +28,6 @@ namespace tl
             std::function<void(timeline::CompareOptions)> compareCallback;
             timeline::BackgroundOptions backgroundOptions;
             std::shared_ptr<timeline::Player> player;
-            std::vector<image::Size> sizes;
             std::vector<timeline::VideoData> videoData;
             math::Vector2i viewPos;
             double viewZoom = 1.0;
@@ -166,7 +165,6 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.sizes.clear();
             p.playbackObserver.reset();
             p.videoDataObserver.reset();
 
@@ -174,8 +172,6 @@ namespace tl
 
             if (p.player)
             {
-                p.sizes = p.player->getSizes();
-
                 p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
                     p.player->observePlayback(),
                     [this](timeline::Playback value)
@@ -362,7 +358,7 @@ namespace tl
                     event.render->clearViewport(image::Color4f(0.F, 0.F, 0.F));
                     event.render->setOCIOOptions(p.ocioOptions);
                     event.render->setLUTOptions(p.lutOptions);
-                    if (!p.videoData.empty())
+                    if (p.player && !p.videoData.empty())
                     {
                         math::Matrix4x4f vm;
                         vm = vm * math::translate(math::Vector3f(p.viewPos.x, p.viewPos.y, 0.F));
@@ -377,7 +373,7 @@ namespace tl
                         event.render->setTransform(pm * vm);
                         event.render->drawVideo(
                             p.videoData,
-                            timeline::getBoxes(p.compareOptions.mode, p.sizes),
+                            timeline::getBoxes(p.compareOptions.mode, p.player->getSizes()),
                             p.imageOptions,
                             p.displayOptions,
                             p.compareOptions,
@@ -530,7 +526,12 @@ namespace tl
         math::Size2i TimelineViewport::_getRenderSize() const
         {
             TLRENDER_P();
-            return timeline::getRenderSize(p.compareOptions.mode, p.sizes);
+            math::Size2i out;
+            if (p.player)
+            {
+                out = timeline::getRenderSize(p.compareOptions.mode, p.player->getSizes());
+            }
+            return out;
         }
 
         math::Vector2i TimelineViewport::_getViewportCenter() const

@@ -906,33 +906,35 @@ namespace tl
         {
             TLRENDER_P();
             std::shared_ptr<timeline::Player> player;
-            if ((!files.empty() && !p.activeFiles.empty() && files[0] != p.activeFiles[0]) ||
-                (!files.empty() && p.activeFiles.empty()))
+            if (!files.empty())
             {
-                auto i = std::find(p.files.begin(), p.files.end(), files[0]);
-                if (i != p.files.end())
+                if (!p.activeFiles.empty() && files[0] == p.activeFiles[0])
                 {
-                    try
+                    player = p.player->get();
+                }
+                else
+                {
+                    auto i = std::find(p.files.begin(), p.files.end(), files[0]);
+                    if (i != p.files.end())
                     {
-                        timeline::PlayerOptions playerOptions;
-                        playerOptions.cache.readAhead = time::invalidTime;
-                        playerOptions.cache.readBehind = time::invalidTime;
-                        playerOptions.timerMode =
-                            p.settings->getValue<timeline::TimerMode>("Performance/TimerMode");
-                        playerOptions.audioBufferFrameCount =
-                            p.settings->getValue<size_t>("Performance/AudioBufferFrameCount");
-                        auto timeline = p.timelines[i - p.files.begin()];
-                        player = timeline::Player::create(timeline, _context, playerOptions);
-                    }
-                    catch (const std::exception& e)
-                    {
-                        _log(e.what(), log::Type::Error);
+                        try
+                        {
+                            timeline::PlayerOptions playerOptions;
+                            playerOptions.cache.readAhead = time::invalidTime;
+                            playerOptions.cache.readBehind = time::invalidTime;
+                            playerOptions.timerMode =
+                                p.settings->getValue<timeline::TimerMode>("Performance/TimerMode");
+                            playerOptions.audioBufferFrameCount =
+                                p.settings->getValue<size_t>("Performance/AudioBufferFrameCount");
+                            auto timeline = p.timelines[i - p.files.begin()];
+                            player = timeline::Player::create(timeline, _context, playerOptions);
+                        }
+                        catch (const std::exception& e)
+                        {
+                            _log(e.what(), log::Type::Error);
+                        }
                     }
                 }
-            }
-            else
-            {
-                player = p.player->get();
             }
             if (player)
             {
