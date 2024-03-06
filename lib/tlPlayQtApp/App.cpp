@@ -89,7 +89,7 @@ namespace tl
 #if defined(TLRENDER_BMD)
             std::shared_ptr<bmd::DevicesModel> bmdDevicesModel;
             std::shared_ptr<bmd::OutputDevice> bmdOutputDevice;
-            image::VideoLevels bmdOutputVideoLevels;
+            image::VideoLevels bmdOutputVideoLevels = image::VideoLevels::First;
 #endif // TLRENDER_BMD
             std::unique_ptr<QTimer> timer;
 
@@ -97,6 +97,7 @@ namespace tl
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
             std::shared_ptr<observer::ListObserver<int> > layersObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
             std::shared_ptr<observer::ValueObserver<size_t> > recentFilesMaxObserver;
             std::shared_ptr<observer::ListObserver<file::Path> > recentFilesObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
@@ -504,6 +505,15 @@ namespace tl
                             _p->players[i]->setIOOptions(ioOptions);
                         }
                     }*/
+                });
+            p.compareTimeObserver = observer::ValueObserver<timeline::CompareTimeMode>::create(
+                p.filesModel->observeCompareTime(),
+                [this](timeline::CompareTimeMode value)
+                {
+                    if (_p->player)
+                    {
+                        _p->player->setCompareTime(value);
+                    }
                 });
 
             p.recentFilesMaxObserver = observer::ValueObserver<size_t>::create(
@@ -963,6 +973,7 @@ namespace tl
                     }
                 }
                 player->setCompare(compare);
+                player->setCompareTime(p.filesModel->getCompareTime());
             }
 
             p.activeFiles = files;

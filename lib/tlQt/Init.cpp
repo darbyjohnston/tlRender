@@ -101,6 +101,7 @@ namespace tl
             qRegisterMetaType<timeline::Channels>("tl::timeline::Channels");
             qRegisterMetaType<timeline::Color>("tl::timeline::Color");
             qRegisterMetaType<timeline::CompareMode>("tl::timeline::CompareMode");
+            qRegisterMetaType<timeline::CompareTimeMode>("tl::timeline::CompareTimeMode");
             qRegisterMetaType<timeline::CompareOptions>("tl::timeline::CompareOptions");
             qRegisterMetaType<timeline::EXRDisplay>("tl::timeline::EXRDisplay");
             qRegisterMetaType<timeline::FileSequenceAudio>("tl::timeline::FileSequenceAudio");
@@ -126,6 +127,7 @@ namespace tl
             QMetaType::registerComparators<timeline::AlphaBlend>();
             QMetaType::registerComparators<timeline::Channels>();
             QMetaType::registerComparators<timeline::CompareMode>();
+            QMetaType::registerComparators<timeline::CompareTimeMode>();
             QMetaType::registerComparators<timeline::FileSequenceAudio>();
             QMetaType::registerComparators<timeline::ImageFilter>();
             QMetaType::registerComparators<timeline::InputVideoLevels>();

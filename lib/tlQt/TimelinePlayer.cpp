@@ -31,6 +31,8 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::Loop> > loopObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
             std::shared_ptr<observer::ValueObserver<otime::TimeRange> > inOutRangeObserver;
+            std::shared_ptr<observer::ListObserver<std::shared_ptr<timeline::Timeline> > > compareObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
             std::shared_ptr<observer::ValueObserver<io::Options> > ioOptionsObserver;
             std::shared_ptr<observer::ListObserver<timeline::VideoData> > currentVideoObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
@@ -82,6 +84,20 @@ namespace tl
                 [this](const otime::TimeRange value)
                 {
                     Q_EMIT inOutRangeChanged(value);
+                });
+
+            p.compareObserver = observer::ListObserver<std::shared_ptr<timeline::Timeline> >::create(
+                p.player->observeCompare(),
+                [this](const std::vector<std::shared_ptr<timeline::Timeline> >& value)
+                {
+                    Q_EMIT compareChanged(value);
+                });
+
+            p.compareTimeObserver = observer::ValueObserver<timeline::CompareTimeMode>::create(
+                p.player->observeCompareTime(),
+                [this](timeline::CompareTimeMode value)
+                {
+                    Q_EMIT compareTimeChanged(value);
                 });
 
             p.ioOptionsObserver = observer::ValueObserver<io::Options>::create(
@@ -240,11 +256,6 @@ namespace tl
             return _p->player->observeInOutRange()->get();
         }
 
-        const io::Options& TimelinePlayer::ioOptions() const
-        {
-            return _p->player->observeIOOptions()->get();
-        }
-
         const std::vector<std::shared_ptr<timeline::Timeline> >& TimelinePlayer::compare() const
         {
             return _p->player->getCompare();
@@ -253,6 +264,21 @@ namespace tl
         void TimelinePlayer::setCompare(const std::vector<std::shared_ptr<timeline::Timeline> >& value)
         {
             _p->player->setCompare(value);
+        }
+
+        timeline::CompareTimeMode TimelinePlayer::compareTime() const
+        {
+            return _p->player->getCompareTime();
+        }
+
+        void TimelinePlayer::setCompareTime(timeline::CompareTimeMode value)
+        {
+            _p->player->setCompareTime(value);
+        }
+
+        const io::Options& TimelinePlayer::ioOptions() const
+        {
+            return _p->player->observeIOOptions()->get();
         }
 
         const std::vector<timeline::VideoData>& TimelinePlayer::currentVideo() const

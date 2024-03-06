@@ -71,6 +71,7 @@ namespace tl
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
             std::shared_ptr<observer::ListObserver<int> > layersObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
             std::shared_ptr<observer::ValueObserver<size_t> > recentFilesMaxObserver;
             std::shared_ptr<observer::ListObserver<file::Path> > recentFilesObserver;
             std::shared_ptr<observer::ValueObserver<bool> > mainWindowObserver;
@@ -498,6 +499,15 @@ namespace tl
                             timeline->setIOOptions(ioOptions);
                         }
                     }*/
+                });
+            p.compareTimeObserver = observer::ValueObserver<timeline::CompareTimeMode>::create(
+                p.filesModel->observeCompareTime(),
+                [this](timeline::CompareTimeMode value)
+                {
+                    if (auto player = _p->player->get())
+                    {
+                        player->setCompareTime(value);
+                    }
                 });
 
             auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>();
@@ -949,6 +959,7 @@ namespace tl
                     }
                 }
                 player->setCompare(compare);
+                player->setCompareTime(p.filesModel->getCompareTime());
             }
 
             p.activeFiles = files;

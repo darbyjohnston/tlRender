@@ -17,10 +17,12 @@ namespace tl
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::shared_ptr<Menu> bMenu;
             std::vector<std::shared_ptr<ui::Action> > bActions;
+            std::shared_ptr<Menu> timeMenu;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
         };
 
         void CompareMenu::_init(
@@ -39,10 +41,17 @@ namespace tl
             addItem(p.actions["Next"]);
             addItem(p.actions["Prev"]);
             addDivider();
-            const auto labels = timeline::getCompareModeLabels();
-            for (const auto& label : labels)
+            const auto compareLabels = timeline::getCompareModeLabels();
+            for (const auto& label : compareLabels)
             {
                 addItem(p.actions[label]);
+            }
+            addDivider();
+            p.timeMenu = addSubMenu("Time");
+            const auto timeLabels = timeline::getCompareTimeModeLabels();
+            for (const auto& label : timeLabels)
+            {
+                p.timeMenu->addItem(p.actions[label]);
             }
 
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
@@ -64,6 +73,13 @@ namespace tl
                 [this](const timeline::CompareOptions& value)
                 {
                     _compareUpdate(value);
+                });
+
+            p.compareTimeObserver = observer::ValueObserver<timeline::CompareTimeMode>::create(
+                app->getFilesModel()->observeCompareTime(),
+                [this](timeline::CompareTimeMode value)
+                {
+                    _compareTimeUpdate(value);
                 });
         }
 
@@ -145,6 +161,17 @@ namespace tl
             for (size_t i = 0; i < enums.size(); ++i)
             {
                 setItemChecked(p.actions[labels[i]], enums[i] == value.mode);
+            }
+        }
+
+        void CompareMenu::_compareTimeUpdate(timeline::CompareTimeMode value)
+        {
+            TLRENDER_P();
+            const auto enums = timeline::getCompareTimeModeEnums();
+            const auto labels = timeline::getCompareTimeModeLabels();
+            for (size_t i = 0; i < enums.size(); ++i)
+            {
+                p.timeMenu->setItemChecked(p.actions[labels[i]], enums[i] == value);
             }
         }
     }

@@ -229,11 +229,17 @@ namespace tl
             //! Get the timelines for comparison.
             const std::vector<std::shared_ptr<Timeline> >& getCompare() const;
 
+            //! Observe the timelines for comparison.
+            std::shared_ptr<observer::IList<std::shared_ptr<Timeline> > > observeCompare() const;
+
             //! Set the timelines for comparison.
             void setCompare(const std::vector<std::shared_ptr<Timeline> >&);
 
             //! Get the time comparison mode.
             CompareTimeMode getCompareTime() const;
+
+            //! Observe the time comparison mode.
+            std::shared_ptr<observer::IValue<CompareTimeMode> > observeCompareTime() const;
 
             //! Set the time comparison mode.
             void setCompareTime(CompareTimeMode);

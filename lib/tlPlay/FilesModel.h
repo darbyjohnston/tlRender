@@ -149,6 +149,15 @@ namespace tl
             //! Observe the compare options.
             std::shared_ptr<observer::IValue<timeline::CompareOptions> > observeCompareOptions() const;
 
+            //! Set the compare time mode.
+            void setCompareTime(timeline::CompareTimeMode);
+
+            //! Get the compare time mode.
+            timeline::CompareTimeMode getCompareTime() const;
+
+            //! Observe the compare time mode.
+            std::shared_ptr<observer::IValue<timeline::CompareTimeMode> > observeCompareTime() const;
+
             //! Set the compare options.
             void setCompareOptions(const timeline::CompareOptions&);
 

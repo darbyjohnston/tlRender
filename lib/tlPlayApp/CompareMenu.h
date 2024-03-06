@@ -44,6 +44,7 @@ namespace tl
                 const std::vector<std::shared_ptr<play::FilesModelItem> >&);
             void _bUpdate(const std::vector<int>&);
             void _compareUpdate(const timeline::CompareOptions&);
+            void _compareTimeUpdate(timeline::CompareTimeMode);
 
             TLRENDER_PRIVATE();
         };

@@ -21,6 +21,7 @@ namespace tl
             std::shared_ptr<observer::List<std::shared_ptr<FilesModelItem> > > active;
             std::shared_ptr<observer::List<int> > layers;
             std::shared_ptr<observer::Value<timeline::CompareOptions> > compareOptions;
+            std::shared_ptr<observer::Value<timeline::CompareTimeMode> > compareTime;
         };
 
         void FilesModel::_init(const std::shared_ptr<system::Context>& context)
@@ -37,6 +38,7 @@ namespace tl
             p.active = observer::List<std::shared_ptr<FilesModelItem> >::create();
             p.layers = observer::List<int>::create();
             p.compareOptions = observer::Value<timeline::CompareOptions>::create();
+            p.compareTime = observer::Value<timeline::CompareTimeMode>::create();
         }
 
         FilesModel::FilesModel() :
@@ -519,6 +521,22 @@ namespace tl
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
             }
+        }
+
+        timeline::CompareTimeMode FilesModel::getCompareTime() const
+        {
+            return _p->compareTime->get();
+        }
+
+        std::shared_ptr<observer::IValue<timeline::CompareTimeMode> > FilesModel::observeCompareTime() const
+        {
+            return _p->compareTime;
+        }
+
+        void FilesModel::setCompareTime(timeline::CompareTimeMode value)
+        {
+            TLRENDER_P();
+            p.compareTime->setIfChanged(value);
         }
 
         int FilesModel::_index(const std::shared_ptr<FilesModelItem>& item) const

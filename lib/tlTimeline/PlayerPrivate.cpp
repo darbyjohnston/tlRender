@@ -103,6 +103,7 @@ namespace tl
         void Player::Private::cacheUpdate(
             const otime::RationalTime& currentTime,
             const otime::TimeRange& inOutRange,
+            CompareTimeMode compareTime,
             const io::Options& ioOptions,
             double audioOffset,
             CacheDirection cacheDirection,
@@ -248,10 +249,10 @@ namespace tl
                     {
                     case CacheDirection::Forward:
                     {
-                        const auto start = range.start_time();
-                        const auto end = range.end_time_inclusive();
-                        const auto inc = otime::RationalTime(1.0, range.duration().rate());
-                        for (auto time = start; time <= end; time += inc)
+                        const otime::RationalTime start = range.start_time();
+                        const otime::RationalTime end = range.end_time_inclusive();
+                        const otime::RationalTime inc = otime::RationalTime(1.0, range.duration().rate());
+                        for (otime::RationalTime time = start; time <= end; time += inc)
                         {
                             const auto i = thread.videoDataCache.find(time);
                             if (i == thread.videoDataCache.end())
@@ -262,9 +263,14 @@ namespace tl
                                     //std::cout << this << " video request: " << time << std::endl;
                                     thread.videoDataRequests[time].clear();
                                     thread.videoDataRequests[time].push_back(timeline->getVideo(time, ioOptions));
-                                    for (const auto& c : compare)
+                                    for (const auto& c : thread.compare)
                                     {
-                                        thread.videoDataRequests[time].push_back(c->getVideo(time, ioOptions));
+                                        const otime::RationalTime time2 = timeline::getCompareTime(
+                                            time,
+                                            timeRange,
+                                            c->getTimeRange(),
+                                            compareTime);
+                                        thread.videoDataRequests[time].push_back(c->getVideo(time2, ioOptions));
                                     }
                                 }
                             }
@@ -287,9 +293,14 @@ namespace tl
                                     //std::cout << this << " video request: " << time << std::endl;
                                     thread.videoDataRequests[time].clear();
                                     thread.videoDataRequests[time].push_back(timeline->getVideo(time, ioOptions));
-                                    for (const auto& c : compare)
+                                    for (const auto& c : thread.compare)
                                     {
-                                        thread.videoDataRequests[time].push_back(c->getVideo(time, ioOptions));
+                                        const otime::RationalTime time2 = timeline::getCompareTime(
+                                            time,
+                                            timeRange,
+                                            c->getTimeRange(),
+                                            compareTime);
+                                        thread.videoDataRequests[time].push_back(c->getVideo(time2, ioOptions));
                                     }
                                 }
                             }

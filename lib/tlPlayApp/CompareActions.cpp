@@ -52,7 +52,7 @@ namespace tl
                     }
                 });
 
-            const std::array<std::string, static_cast<size_t>(timeline::CompareMode::Count)> icons =
+            const std::array<std::string, static_cast<size_t>(timeline::CompareMode::Count)> compareIcons =
             {
                 "CompareA",
                 "CompareB",
@@ -63,7 +63,7 @@ namespace tl
                 "CompareVertical",
                 "CompareTile"
             };
-            const std::array<ui::Key, static_cast<size_t>(timeline::CompareMode::Count)> shortcuts =
+            const std::array<ui::Key, static_cast<size_t>(timeline::CompareMode::Count)> compareShortcuts =
             {
                 ui::Key::A,
                 ui::Key::B,
@@ -74,21 +74,21 @@ namespace tl
                 ui::Key::Unknown,
                 ui::Key::T
             };
-            const std::array<std::string, static_cast<size_t>(timeline::CompareMode::Count)> toolTips =
+            const std::array<std::string, static_cast<size_t>(timeline::CompareMode::Count)> compareToolTips =
             {
                 string::Format(
                     "Show the A file\n"
                     "\n"
                     "Shortcut: {0}").
                     arg(ui::getLabel(
-                        shortcuts[static_cast<size_t>(timeline::CompareMode::A)],
+                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::A)],
                         static_cast<int>(ui::KeyModifier::Control))),
                 string::Format(
                     "Show the B file\n"
                     "\n"
                     "Shortcut: {0}").
                     arg(ui::getLabel(
-                        shortcuts[static_cast<size_t>(timeline::CompareMode::B)],
+                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::B)],
                         static_cast<int>(ui::KeyModifier::Control))),
                 string::Format(
                     "Wipe between the A and B files\n"
@@ -97,7 +97,7 @@ namespace tl
                     "\n"
                     "Shortcut: {0}").
                     arg(ui::getLabel(
-                        shortcuts[static_cast<size_t>(timeline::CompareMode::Wipe)],
+                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::Wipe)],
                         static_cast<int>(ui::KeyModifier::Control))),
                 "Show the A file over the B file with transparency",
                 "Show the difference between the A and B files",
@@ -108,18 +108,18 @@ namespace tl
                     "\n"
                     "Shortcut: {0}").
                     arg(ui::getLabel(
-                        shortcuts[static_cast<size_t>(timeline::CompareMode::Tile)],
+                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::Tile)],
                         static_cast<int>(ui::KeyModifier::Control))),
             };
-            const auto enums = timeline::getCompareModeEnums();
-            const auto labels = timeline::getCompareModeLabels();
-            for (size_t i = 0; i < enums.size(); ++i)
+            const auto compareEnums = timeline::getCompareModeEnums();
+            const auto comapreLabels = timeline::getCompareModeLabels();
+            for (size_t i = 0; i < compareEnums.size(); ++i)
             {
-                const auto mode = enums[i];
-                p.actions[labels[i]] = std::make_shared<ui::Action>(
+                const auto mode = compareEnums[i];
+                p.actions[comapreLabels[i]] = std::make_shared<ui::Action>(
                     timeline::getLabel(mode),
-                    icons[i],
-                    shortcuts[i],
+                    compareIcons[i],
+                    compareShortcuts[i],
                     static_cast<int>(ui::KeyModifier::Control),
                     [appWeak, mode]
                     {
@@ -130,7 +130,29 @@ namespace tl
                             app->getFilesModel()->setCompareOptions(options);
                         }
                     });
-                p.actions[labels[i]]->toolTip = toolTips[i];
+                p.actions[comapreLabels[i]]->toolTip = compareToolTips[i];
+            }
+
+            const auto compareTimeEnums = timeline::getCompareTimeModeEnums();
+            const auto comapreTimeLabels = timeline::getCompareTimeModeLabels();
+            const std::array<std::string, static_cast<size_t>(timeline::CompareMode::Count)> compareTimeToolTips =
+            {
+                "Compare relative times",
+                "Compare absolute times"
+            };
+            for (size_t i = 0; i < compareTimeEnums.size(); ++i)
+            {
+                const auto mode = compareTimeEnums[i];
+                p.actions[comapreTimeLabels[i]] = std::make_shared<ui::Action>(
+                    comapreTimeLabels[i],
+                    [appWeak, mode]
+                    {
+                        if (auto app = appWeak.lock())
+                        {
+                            app->getFilesModel()->setCompareTime(mode);
+                        }
+                    });
+                p.actions[comapreTimeLabels[i]]->toolTip = compareTimeToolTips[i];
             }
         }
 

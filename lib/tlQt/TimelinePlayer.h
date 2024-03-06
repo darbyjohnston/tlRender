@@ -184,6 +184,12 @@ namespace tl
             //! Set the timelines for comparison.
             void setCompare(const std::vector<std::shared_ptr<timeline::Timeline> >&);
 
+            //! Get the time comparison mode.
+            timeline::CompareTimeMode compareTime() const;
+
+            //! Set the time comparison mode.
+            void setCompareTime(timeline::CompareTimeMode);
+
             ///@}
 
             //! \name Video
@@ -340,6 +346,17 @@ namespace tl
 
             //! This signal is emitted when the in/out points range is changed.
             void inOutRangeChanged(const otime::TimeRange&);
+
+            ///@}
+
+            //! \name Comparison
+            ///@{
+
+            //! This signal is emitted when the comparison timelines are changed.
+            void compareChanged(const std::vector<std::shared_ptr<timeline::Timeline> >&);
+
+            //! This signal is emitted when the time comparison mode is changed.
+            void compareTimeChanged(tl::timeline::CompareTimeMode);
 
             ///@}
 

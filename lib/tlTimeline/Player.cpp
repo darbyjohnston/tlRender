@@ -97,6 +97,8 @@ namespace tl
                 playerOptions.currentTime :
                 p.timeline->getTimeRange().start_time());
             p.inOutRange = observer::Value<otime::TimeRange>::create(p.timeline->getTimeRange());
+            p.compare = observer::List<std::shared_ptr<Timeline> >::create();
+            p.compareTime = observer::Value<CompareTimeMode>::create(CompareTimeMode::Relative);
             p.ioOptions = observer::Value<io::Options>::create();
             p.currentVideoData = observer::List<VideoData>::create();
             p.volume = observer::Value<float>::create(1.F);
@@ -251,6 +253,7 @@ namespace tl
                         p.cacheUpdate(
                             currentTime,
                             inOutRange,
+                            compareTime,
                             ioOptions,
                             audioOffset,
                             cacheDirection,
@@ -420,7 +423,7 @@ namespace tl
             out.push_back(!_p->ioInfo.video.empty() ?
                 _p->ioInfo.video.front().size :
                 image::Size());
-            for (const auto& compare : p.compare)
+            for (const auto& compare : p.compare->get())
             {
                 out.push_back(compare && !compare->getIOInfo().video.empty() ?
                     compare->getIOInfo().video.front().size :
@@ -731,22 +734,32 @@ namespace tl
 
         const std::vector<std::shared_ptr<Timeline> >& Player::getCompare() const
         {
+            return _p->compare->get();
+        }
+
+        std::shared_ptr<observer::IList<std::shared_ptr<Timeline> > > Player::observeCompare() const
+        {
             return _p->compare;
         }
 
         void Player::setCompare(const std::vector<std::shared_ptr<Timeline> >& value)
         {
             TLRENDER_P();
-            if (value == p.compare)
-                return;
-            p.compare = value;
-            std::unique_lock<std::mutex> lock(p.mutex.mutex);
-            p.mutex.compare = value;
-            p.mutex.clearRequests = true;
-            p.mutex.clearCache = true;
+            if (p.compare->setIfChanged(value))
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.compare = value;
+                p.mutex.clearRequests = true;
+                p.mutex.clearCache = true;
+            }
         }
 
         CompareTimeMode Player::getCompareTime() const
+        {
+            return _p->compareTime->get();
+        }
+
+        std::shared_ptr<observer::IValue<CompareTimeMode> > Player::observeCompareTime() const
         {
             return _p->compareTime;
         }
@@ -754,13 +767,13 @@ namespace tl
         void Player::setCompareTime(CompareTimeMode value)
         {
             TLRENDER_P();
-            if (value == p.compareTime)
-                return;
-            p.compareTime = value;
-            std::unique_lock<std::mutex> lock(p.mutex.mutex);
-            p.mutex.compareTime = value;
-            p.mutex.clearRequests = true;
-            p.mutex.clearCache = true;
+            if (p.compareTime->setIfChanged(value))
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.compareTime = value;
+                p.mutex.clearRequests = true;
+                p.mutex.clearCache = true;
+            }
         }
 
         const io::Options& Player::getIOOptions() const

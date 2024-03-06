@@ -26,10 +26,12 @@ namespace tl
 
             QScopedPointer<QMenu> menu;
             QScopedPointer<QMenu> bMenu;
+            QScopedPointer<QMenu> timeMenu;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
         };
 
         CompareActions::CompareActions(App* app, QObject* parent) :
@@ -39,6 +41,18 @@ namespace tl
             TLRENDER_P();
 
             p.app = app;
+
+            p.actions["Next"] = new QAction(this);
+            p.actions["Next"]->setText(tr("Next"));
+            p.actions["Next"]->setIcon(QIcon(":/Icons/Next.svg"));
+            p.actions["Next"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_PageDown));
+            p.actions["Next"]->setToolTip(tr("Change to the next file"));
+
+            p.actions["Prev"] = new QAction(this);
+            p.actions["Prev"]->setText(tr("Previous"));
+            p.actions["Prev"]->setIcon(QIcon(":/Icons/Prev.svg"));
+            p.actions["Prev"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_PageUp));
+            p.actions["Prev"]->setToolTip(tr("Change to the previous file"));
 
             p.actions["A"] = new QAction(this);
             p.actions["A"]->setData(QVariant::fromValue<timeline::CompareMode>(timeline::CompareMode::A));
@@ -102,17 +116,17 @@ namespace tl
             p.actions["Tile"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_T));
             p.actions["Tile"]->setToolTip(tr("Tile the A and B files"));
 
-            p.actions["Next"] = new QAction(this);
-            p.actions["Next"]->setText(tr("Next"));
-            p.actions["Next"]->setIcon(QIcon(":/Icons/Next.svg"));
-            p.actions["Next"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_PageDown));
-            p.actions["Next"]->setToolTip(tr("Change to the next file"));
+            p.actions["Relative"] = new QAction(this);
+            p.actions["Relative"]->setData(QVariant::fromValue<timeline::CompareTimeMode>(timeline::CompareTimeMode::Relative));
+            p.actions["Relative"]->setCheckable(true);
+            p.actions["Relative"]->setText(tr("Relative"));
+            p.actions["Relative"]->setToolTip(tr("Compare relative times"));
 
-            p.actions["Prev"] = new QAction(this);
-            p.actions["Prev"]->setText(tr("Previous"));
-            p.actions["Prev"]->setIcon(QIcon(":/Icons/Prev.svg"));
-            p.actions["Prev"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_PageUp));
-            p.actions["Prev"]->setToolTip(tr("Change to the previous file"));
+            p.actions["Absolute"] = new QAction(this);
+            p.actions["Absolute"]->setData(QVariant::fromValue<timeline::CompareTimeMode>(timeline::CompareTimeMode::Absolute));
+            p.actions["Absolute"]->setCheckable(true);
+            p.actions["Absolute"]->setText(tr("Absolute"));
+            p.actions["Absolute"]->setToolTip(tr("Compare absolute times"));
 
             p.actionGroups["B"] = new QActionGroup(this);
 
@@ -127,11 +141,18 @@ namespace tl
             p.actionGroups["Compare"]->addAction(p.actions["Vertical"]);
             p.actionGroups["Compare"]->addAction(p.actions["Tile"]);
 
+            p.actionGroups["Time"] = new QActionGroup(this);
+            p.actionGroups["Time"]->setExclusive(true);
+            p.actionGroups["Time"]->addAction(p.actions["Relative"]);
+            p.actionGroups["Time"]->addAction(p.actions["Absolute"]);
+
             p.menu.reset(new QMenu);
             p.menu->setTitle(tr("&Compare"));
             p.bMenu.reset(new QMenu);
             p.bMenu->setTitle(tr("&B"));
             p.menu->addMenu(p.bMenu.get());
+            p.menu->addAction(p.actions["Next"]);
+            p.menu->addAction(p.actions["Prev"]);
             p.menu->addSeparator();
             p.menu->addAction(p.actions["A"]);
             p.menu->addAction(p.actions["B"]);
@@ -142,8 +163,11 @@ namespace tl
             p.menu->addAction(p.actions["Vertical"]);
             p.menu->addAction(p.actions["Tile"]);
             p.menu->addSeparator();
-            p.menu->addAction(p.actions["Next"]);
-            p.menu->addAction(p.actions["Prev"]);
+            p.timeMenu.reset(new QMenu);
+            p.timeMenu->setTitle(tr("&Time"));
+            p.menu->addMenu(p.timeMenu.get());
+            p.timeMenu->addAction(p.actions["Relative"]);
+            p.timeMenu->addAction(p.actions["Absolute"]);
 
             _actionsUpdate();
 
@@ -183,6 +207,15 @@ namespace tl
                     app->filesModel()->setCompareOptions(options);
                 });
 
+            connect(
+                p.actionGroups["Time"],
+                &QActionGroup::triggered,
+                [this, app](QAction* action)
+                {
+                    const timeline::CompareTimeMode value = action->data().value<timeline::CompareTimeMode>();
+                    app->filesModel()->setCompareTime(value);
+                });
+
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 app->filesModel()->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >&)
@@ -200,6 +233,13 @@ namespace tl
             p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
                 app->filesModel()->observeCompareOptions(),
                 [this](const timeline::CompareOptions&)
+                {
+                    _actionsUpdate();
+                });
+
+            p.compareTimeObserver = observer::ValueObserver<timeline::CompareTimeMode>::create(
+                app->filesModel()->observeCompareTime(),
+                [this](timeline::CompareTimeMode)
                 {
                     _actionsUpdate();
                 });
@@ -242,14 +282,29 @@ namespace tl
                 p.bMenu->addAction(action);
             }
 
-            const auto options = p.app->filesModel()->getCompareOptions();
-            QSignalBlocker blocker(p.actionGroups["Compare"]);
-            for (auto action : p.actionGroups["Compare"]->actions())
             {
-                if (action->data().value<timeline::CompareMode>() == options.mode)
+                const auto options = p.app->filesModel()->getCompareOptions();
+                QSignalBlocker blocker(p.actionGroups["Compare"]);
+                for (auto action : p.actionGroups["Compare"]->actions())
                 {
-                    action->setChecked(true);
-                    break;
+                    if (action->data().value<timeline::CompareMode>() == options.mode)
+                    {
+                        action->setChecked(true);
+                        break;
+                    }
+                }
+            }
+
+            {
+                const timeline::CompareTimeMode time = p.app->filesModel()->getCompareTime();
+                QSignalBlocker blocker(p.actionGroups["Time"]);
+                for (auto action : p.actionGroups["Time"]->actions())
+                {
+                    if (action->data().value<timeline::CompareTimeMode>() == time)
+                    {
+                        action->setChecked(true);
+                        break;
+                    }
                 }
             }
         }

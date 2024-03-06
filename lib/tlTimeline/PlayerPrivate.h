@@ -30,6 +30,7 @@ namespace tl
             void cacheUpdate(
                 const otime::RationalTime& currentTime,
                 const otime::TimeRange& inOutRange,
+                CompareTimeMode,
                 const io::Options& ioOptions,
                 double audioOffset,
                 CacheDirection,
@@ -54,14 +55,14 @@ namespace tl
             PlayerOptions playerOptions;
             std::shared_ptr<Timeline> timeline;
             io::Info ioInfo;
-            std::vector<std::shared_ptr<Timeline> > compare;
-            CompareTimeMode compareTime = CompareTimeMode::Relative;
 
             std::shared_ptr<observer::Value<double> > speed;
             std::shared_ptr<observer::Value<Playback> > playback;
             std::shared_ptr<observer::Value<Loop> > loop;
             std::shared_ptr<observer::Value<otime::RationalTime> > currentTime;
             std::shared_ptr<observer::Value<otime::TimeRange> > inOutRange;
+            std::shared_ptr<observer::List<std::shared_ptr<Timeline> > > compare;
+            std::shared_ptr<observer::Value<CompareTimeMode> > compareTime;
             std::shared_ptr<observer::Value<io::Options> > ioOptions;
             std::shared_ptr<observer::List<VideoData> > currentVideoData;
             std::shared_ptr<observer::Value<float> > volume;

@@ -33,6 +33,7 @@ Q_DECLARE_METATYPE(tl::io::FileType);
 Q_DECLARE_METATYPE(tl::timeline::AlphaBlend);
 Q_DECLARE_METATYPE(tl::timeline::Channels);
 Q_DECLARE_METATYPE(tl::timeline::CompareMode);
+Q_DECLARE_METATYPE(tl::timeline::CompareTimeMode);
 Q_DECLARE_METATYPE(tl::timeline::FileSequenceAudio);
 Q_DECLARE_METATYPE(tl::timeline::ImageFilter);
 Q_DECLARE_METATYPE(tl::timeline::InputVideoLevels);
