@@ -28,6 +28,7 @@ namespace tl
         {
             {
                 _enum<CompareMode>("CompareMode", getCompareModeEnums);
+                _enum<CompareTimeMode>("CompareTimeMode", getCompareTimeModeEnums);
             }
             {
                 CompareOptions options;
@@ -83,6 +84,30 @@ namespace tl
                 TLRENDER_ASSERT(math::Box2i(1920, 1080, 1920, 1080) == boxes[3]);
                 renderSize = getRenderSize(CompareMode::Tile, sizes);
                 TLRENDER_ASSERT(math::Size2i(1920 * 2, 1080 * 2) == renderSize);
+            }
+            {
+                const auto time = getCompareTime(
+                    otime::RationalTime(0.0, 24.0),
+                    otime::TimeRange(
+                        otime::RationalTime(0.0, 24.0),
+                        otime::RationalTime(24.0, 24.0)),
+                    otime::TimeRange(
+                        otime::RationalTime(0.0, 24.0),
+                        otime::RationalTime(24.0, 24.0)),
+                    CompareTimeMode::Absolute);
+                TLRENDER_ASSERT(time == otime::RationalTime(0.0, 24.0));
+            }
+            {
+                const auto time = getCompareTime(
+                    otime::RationalTime(0.0, 24.0),
+                    otime::TimeRange(
+                        otime::RationalTime(0.0, 24.0),
+                        otime::RationalTime(24.0, 24.0)),
+                    otime::TimeRange(
+                        otime::RationalTime(24.0, 24.0),
+                        otime::RationalTime(24.0, 24.0)),
+                    CompareTimeMode::Relative);
+                TLRENDER_ASSERT(time == otime::RationalTime(24.0, 24.0));
             }
         }
     }

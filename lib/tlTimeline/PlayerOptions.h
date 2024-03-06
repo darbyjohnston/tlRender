@@ -22,18 +22,6 @@ namespace tl
         TLRENDER_ENUM(TimerMode);
         TLRENDER_ENUM_SERIALIZE(TimerMode);
 
-        //! Compare time mode.
-        enum class CompareTimeMode
-        {
-            Relative,
-            Absolute,
-
-            Count,
-            First = Relative
-        };
-        TLRENDER_ENUM(CompareTimeMode);
-        TLRENDER_ENUM_SERIALIZE(CompareTimeMode);
-
         //! Timeline player cache options.
         struct PlayerCacheOptions
         {
@@ -68,19 +56,9 @@ namespace tl
             //! Current time.
             otime::RationalTime currentTime = time::invalidTime;
 
-            //! Compare time mode.
-            CompareTimeMode compareTimeMode = CompareTimeMode::Relative;
-
             bool operator == (const PlayerOptions&) const;
             bool operator != (const PlayerOptions&) const;
         };
-
-        //! Get a compare time.
-        otime::RationalTime getCompareTime(
-            const otime::RationalTime& sourceTime,
-            const otime::TimeRange& sourceTimeRange,
-            const otime::TimeRange& compareTimeRange,
-            CompareTimeMode);
     }
 }
 

@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlTimeline/CompareOptions.h>
 #include <tlTimeline/PlayerOptions.h>
 #include <tlTimeline/Timeline.h>
 
@@ -230,6 +231,12 @@ namespace tl
 
             //! Set the timelines for comparison.
             void setCompare(const std::vector<std::shared_ptr<Timeline> >&);
+
+            //! Get the time comparison mode.
+            CompareTimeMode getCompareTime() const;
+
+            //! Set the time comparison mode.
+            void setCompareTime(CompareTimeMode);
 
             ///@}
 

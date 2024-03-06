@@ -6,6 +6,7 @@
 
 #include <tlCore/Image.h>
 #include <tlCore/Size.h>
+#include <tlCore/Time.h>
 
 namespace tl
 {
@@ -29,6 +30,18 @@ namespace tl
         TLRENDER_ENUM(CompareMode);
         TLRENDER_ENUM_SERIALIZE(CompareMode);
 
+        //! Comparison time mode.
+        enum class CompareTimeMode
+        {
+            Relative,
+            Absolute,
+
+            Count,
+            First = Relative
+        };
+        TLRENDER_ENUM(CompareTimeMode);
+        TLRENDER_ENUM_SERIALIZE(CompareTimeMode);
+
         //! Comparison options.
         struct CompareOptions
         {
@@ -46,6 +59,13 @@ namespace tl
 
         //! Get the render size for the given compare mode and sizes.
         math::Size2i getRenderSize(CompareMode, const std::vector<image::Size>&);
+
+        //! Get a compare time.
+        otime::RationalTime getCompareTime(
+            const otime::RationalTime& sourceTime,
+            const otime::TimeRange& sourceTimeRange,
+            const otime::TimeRange& compareTimeRange,
+            CompareTimeMode);
     }
 }
 

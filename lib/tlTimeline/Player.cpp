@@ -196,6 +196,7 @@ namespace tl
                         otime::RationalTime currentTime = time::invalidTime;
                         otime::TimeRange inOutRange = time::invalidTimeRange;
                         std::vector<std::shared_ptr<Timeline> > compare;
+                        CompareTimeMode compareTime = CompareTimeMode::Relative;
                         io::Options ioOptions;
                         double audioOffset = 0.0;
                         bool clearRequests = false;
@@ -208,6 +209,7 @@ namespace tl
                             currentTime = p.mutex.currentTime;
                             inOutRange = p.mutex.inOutRange;
                             compare = p.mutex.compare;
+                            compareTime = p.mutex.compareTime;
                             ioOptions = p.mutex.ioOptions;
                             audioOffset = p.mutex.audioOffset;
                             clearRequests = p.mutex.clearRequests;
@@ -740,6 +742,23 @@ namespace tl
             p.compare = value;
             std::unique_lock<std::mutex> lock(p.mutex.mutex);
             p.mutex.compare = value;
+            p.mutex.clearRequests = true;
+            p.mutex.clearCache = true;
+        }
+
+        CompareTimeMode Player::getCompareTime() const
+        {
+            return _p->compareTime;
+        }
+
+        void Player::setCompareTime(CompareTimeMode value)
+        {
+            TLRENDER_P();
+            if (value == p.compareTime)
+                return;
+            p.compareTime = value;
+            std::unique_lock<std::mutex> lock(p.mutex.mutex);
+            p.mutex.compareTime = value;
             p.mutex.clearRequests = true;
             p.mutex.clearCache = true;
         }

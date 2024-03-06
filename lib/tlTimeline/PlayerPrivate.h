@@ -55,6 +55,7 @@ namespace tl
             std::shared_ptr<Timeline> timeline;
             io::Info ioInfo;
             std::vector<std::shared_ptr<Timeline> > compare;
+            CompareTimeMode compareTime = CompareTimeMode::Relative;
 
             std::shared_ptr<observer::Value<double> > speed;
             std::shared_ptr<observer::Value<Playback> > playback;
@@ -79,6 +80,7 @@ namespace tl
                 otime::RationalTime currentTime = time::invalidTime;
                 otime::TimeRange inOutRange = time::invalidTimeRange;
                 std::vector<std::shared_ptr<Timeline> > compare;
+                CompareTimeMode compareTime = CompareTimeMode::Relative;
                 io::Options ioOptions;
                 std::vector<VideoData> currentVideoData;
                 double audioOffset = 0.0;
