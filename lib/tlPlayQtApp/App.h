@@ -140,6 +140,7 @@ namespace tl
             void _timerUpdate();
             void _filesUpdate(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
             void _activeUpdate(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
+            void _layersUpdate(const std::vector<int>&);
             void _cacheUpdate();
             void _viewUpdate(const math::Vector2i& pos, double zoom, bool frame);
             void _audioUpdate();

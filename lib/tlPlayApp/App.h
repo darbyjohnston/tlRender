@@ -126,6 +126,7 @@ namespace tl
             void _settingsUpdate(const std::string&);
             void _filesUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
             void _activeUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
+            void _layersUpdate(const std::vector<int>&);
             void _cacheUpdate();
             void _viewUpdate(const math::Vector2i& pos, double zoom, bool frame);
             void _audioUpdate();

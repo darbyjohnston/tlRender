@@ -100,39 +100,32 @@ namespace tl
             return out;
         }
 
-        void Player::Private::cacheUpdate(
-            const otime::RationalTime& currentTime,
-            const otime::TimeRange& inOutRange,
-            CompareTimeMode compareTime,
-            const io::Options& ioOptions,
-            double audioOffset,
-            CacheDirection cacheDirection,
-            const PlayerCacheOptions& cacheOptions)
+        void Player::Private::cacheUpdate()
         {
             // Get the video ranges to be cached.
             const otime::TimeRange& timeRange = timeline->getTimeRange();
             const otime::RationalTime readAheadDivided(
-                cacheOptions.readAhead.value() / (1 + thread.compare.size()),
-                cacheOptions.readAhead.rate());
+                thread.cacheOptions.readAhead.value() / (1 + thread.compare.size()),
+                thread.cacheOptions.readAhead.rate());
             const otime::RationalTime readAheadRescaled = time::floor(
                 readAheadDivided.rescaled_to(timeRange.duration().rate()));
             const otime::RationalTime readBehindDivided(
-                cacheOptions.readBehind.value() / (1 + thread.compare.size()),
-                cacheOptions.readBehind.rate());
+                thread.cacheOptions.readBehind.value() / (1 + thread.compare.size()),
+                thread.cacheOptions.readBehind.rate());
             const otime::RationalTime readBehindRescaled = time::floor(
                 readBehindDivided.rescaled_to(timeRange.duration().rate()));
             otime::TimeRange videoRange = time::invalidTimeRange;
-            switch (cacheDirection)
+            switch (thread.cacheDirection)
             {
             case CacheDirection::Forward:
                 videoRange = otime::TimeRange::range_from_start_end_time_inclusive(
-                    currentTime - readBehindRescaled,
-                    currentTime + readAheadRescaled);
+                    thread.currentTime - readBehindRescaled,
+                    thread.currentTime + readAheadRescaled);
                 break;
             case CacheDirection::Reverse:
                 videoRange = otime::TimeRange::range_from_start_end_time_inclusive(
-                    currentTime - readAheadRescaled,
-                    currentTime + readBehindRescaled);
+                    thread.currentTime - readAheadRescaled,
+                    thread.currentTime + readBehindRescaled);
                 break;
             default: break;
             }
@@ -140,20 +133,20 @@ namespace tl
             //std::cout << "video range: " << videoRange << std::endl;
             auto videoRanges = timeline::loopCache(
                 videoRange,
-                inOutRange,
-                cacheDirection);
+                thread.inOutRange,
+                thread.cacheDirection);
             videoRanges.insert(
                 videoRanges.begin(),
                 otime::TimeRange(
-                    currentTime,
-                    otime::RationalTime(1.0, currentTime.rate())));
+                    thread.currentTime,
+                    otime::RationalTime(1.0, thread.currentTime.rate())));
             //for (const auto& i : videoRanges)
             //{
             //    std::cout << "video ranges: " << i << std::endl;
             //}
 
             // Get the audio ranges to be cached.
-            const otime::RationalTime audioOffsetTime = otime::RationalTime(audioOffset, 1.0).
+            const otime::RationalTime audioOffsetTime = otime::RationalTime(thread.audioOffset, 1.0).
                 rescaled_to(timeRange.duration().rate());
             //std::cout << "audio offset: " << audioOffsetTime << std::endl;
             const otime::RationalTime audioOffsetAhead = time::round(
@@ -163,30 +156,30 @@ namespace tl
             //std::cout << "audio offset ahead: " << audioOffsetAhead << std::endl;
             //std::cout << "audio offset behind: " << audioOffsetBehind << std::endl;
             otime::TimeRange audioRange = time::invalidTimeRange;
-            switch (cacheDirection)
+            switch (thread.cacheDirection)
             {
             case CacheDirection::Forward:
                 audioRange = otime::TimeRange::range_from_start_end_time_inclusive(
-                    currentTime - readBehindRescaled - audioOffsetBehind,
-                    currentTime + readAheadRescaled + audioOffsetAhead);
+                    thread.currentTime - readBehindRescaled - audioOffsetBehind,
+                    thread.currentTime + readAheadRescaled + audioOffsetAhead);
                 break;
             case CacheDirection::Reverse:
                 audioRange = otime::TimeRange::range_from_start_end_time_inclusive(
-                    currentTime - readAheadRescaled - audioOffsetAhead,
-                    currentTime + readBehindRescaled + audioOffsetBehind);
+                    thread.currentTime - readAheadRescaled - audioOffsetAhead,
+                    thread.currentTime + readBehindRescaled + audioOffsetBehind);
                 break;
             default: break;
             }
             //std::cout << "audio range: " << audioRange << std::endl;
             const otime::TimeRange inOutAudioRange = otime::TimeRange::range_from_start_end_time_inclusive(
-                inOutRange.start_time() - audioOffsetBehind,
-                inOutRange.end_time_inclusive() + audioOffsetAhead).
+                thread.inOutRange.start_time() - audioOffsetBehind,
+                thread.inOutRange.end_time_inclusive() + audioOffsetAhead).
                     clamped(timeRange);
             //std::cout << "in out audio range: " << inOutAudioRange << std::endl;
             const auto audioRanges = timeline::loopCache(
                 audioRange,
                 inOutAudioRange,
-                cacheDirection);
+                thread.cacheDirection);
 
             // Remove old video from the cache.
             auto videoCacheIt = thread.videoDataCache.begin();
@@ -245,7 +238,7 @@ namespace tl
             {
                 for (const auto& range : videoRanges)
                 {
-                    switch (cacheDirection)
+                    switch (thread.cacheDirection)
                     {
                     case CacheDirection::Forward:
                     {
@@ -262,15 +255,22 @@ namespace tl
                                 {
                                     //std::cout << this << " video request: " << time << std::endl;
                                     thread.videoDataRequests[time].clear();
-                                    thread.videoDataRequests[time].push_back(timeline->getVideo(time, ioOptions));
-                                    for (const auto& c : thread.compare)
+                                    io::Options ioOptions2 = thread.ioOptions;
+                                    ioOptions2["Layer"] = string::Format("{0}").arg(thread.videoLayer);
+                                    thread.videoDataRequests[time].push_back(timeline->getVideo(time, ioOptions2));
+                                    for (size_t i = 0; i < thread.compare.size(); ++i)
                                     {
                                         const otime::RationalTime time2 = timeline::getCompareTime(
                                             time,
                                             timeRange,
-                                            c->getTimeRange(),
-                                            compareTime);
-                                        thread.videoDataRequests[time].push_back(c->getVideo(time2, ioOptions));
+                                            thread.compare[i]->getTimeRange(),
+                                            thread.compareTime);
+                                        ioOptions2["Layer"] = string::Format("{0}").
+                                            arg(i < thread.compareVideoLayers.size() ?
+                                                thread.compareVideoLayers[i] :
+                                                thread.videoLayer);
+                                        thread.videoDataRequests[time].push_back(
+                                            thread.compare[i]->getVideo(time2, ioOptions2));
                                     }
                                 }
                             }
@@ -292,15 +292,22 @@ namespace tl
                                 {
                                     //std::cout << this << " video request: " << time << std::endl;
                                     thread.videoDataRequests[time].clear();
-                                    thread.videoDataRequests[time].push_back(timeline->getVideo(time, ioOptions));
-                                    for (const auto& c : thread.compare)
+                                    io::Options ioOptions2 = thread.ioOptions;
+                                    ioOptions2["Layer"] = string::Format("{0}").arg(thread.videoLayer);
+                                    thread.videoDataRequests[time].push_back(timeline->getVideo(time, ioOptions2));
+                                    for (size_t i = 0; i < thread.compare.size(); ++i)
                                     {
                                         const otime::RationalTime time2 = timeline::getCompareTime(
                                             time,
                                             timeRange,
-                                            c->getTimeRange(),
-                                            compareTime);
-                                        thread.videoDataRequests[time].push_back(c->getVideo(time2, ioOptions));
+                                            thread.compare[i]->getTimeRange(),
+                                            thread.compareTime);
+                                        ioOptions2["Layer"] = string::Format("{0}").
+                                            arg(i < thread.compareVideoLayers.size() ?
+                                                thread.compareVideoLayers[i] :
+                                                thread.videoLayer);
+                                        thread.videoDataRequests[time].push_back(
+                                            thread.compare[i]->getVideo(time2, ioOptions2));
                                     }
                                 }
                             }
@@ -342,18 +349,18 @@ namespace tl
                         }
                     }
                 }
-                switch (cacheDirection)
+                switch (thread.cacheDirection)
                 {
                 case CacheDirection::Forward:
                     for (auto i = requests.begin(); i != requests.end(); ++i)
                     {
-                        thread.audioDataRequests[i->first] = timeline->getAudio(i->second, ioOptions);
+                        thread.audioDataRequests[i->first] = timeline->getAudio(i->second, thread.ioOptions);
                     }
                     break;
                 case CacheDirection::Reverse:
                     for (auto i = requests.rbegin(); i != requests.rend(); ++i)
                     {
-                        thread.audioDataRequests[i->first] = timeline->getAudio(i->second, ioOptions);
+                        thread.audioDataRequests[i->first] = timeline->getAudio(i->second, thread.ioOptions);
                     }
                     break;
                 default: break;

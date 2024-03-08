@@ -489,16 +489,7 @@ namespace tl
                 p.filesModel->observeLayers(),
                 [this](const std::vector<int>& value)
                 {
-                    //! \todo AB
-                    /*for (size_t i = 0; i < value.size() && i < _p->timelines.size(); ++i)
-                    {
-                        if (auto timeline = _p->timelines[i])
-                        {
-                            auto ioOptions = _getIOOptions();
-                            ioOptions["Layer"] = string::Format("{0}").arg(value[i]);
-                            timeline->setIOOptions(ioOptions);
-                        }
-                    }*/
+                    _layersUpdate(value);
                 });
             p.compareTimeObserver = observer::ValueObserver<timeline::CompareTimeMode>::create(
                 p.filesModel->observeCompareTime(),
@@ -912,19 +903,19 @@ namespace tl
             p.timelines = timelines;
         }
 
-        void App::_activeUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& files)
+        void App::_activeUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& activeFiles)
         {
             TLRENDER_P();
             std::shared_ptr<timeline::Player> player;
-            if (!files.empty())
+            if (!activeFiles.empty())
             {
-                if (!p.activeFiles.empty() && files[0] == p.activeFiles[0])
+                if (!p.activeFiles.empty() && activeFiles[0] == p.activeFiles[0])
                 {
                     player = p.player->get();
                 }
                 else
                 {
-                    auto i = std::find(p.files.begin(), p.files.end(), files[0]);
+                    auto i = std::find(p.files.begin(), p.files.end(), activeFiles[0]);
                     if (i != p.files.end())
                     {
                         try
@@ -949,9 +940,9 @@ namespace tl
             if (player)
             {
                 std::vector<std::shared_ptr<timeline::Timeline> > compare;
-                for (size_t i = 1; i < files.size(); ++i)
+                for (size_t i = 1; i < activeFiles.size(); ++i)
                 {
-                    auto j = std::find(p.files.begin(), p.files.end(), files[i]);
+                    auto j = std::find(p.files.begin(), p.files.end(), activeFiles[i]);
                     if (j != p.files.end())
                     {
                         auto timeline = p.timelines[j - p.files.begin()];
@@ -962,14 +953,43 @@ namespace tl
                 player->setCompareTime(p.filesModel->getCompareTime());
             }
 
-            p.activeFiles = files;
+            p.activeFiles = activeFiles;
             p.player->setIfChanged(player);
 #if defined(TLRENDER_BMD)
             p.bmdOutputDevice->setPlayer(player);
 #endif // TLRENDER_BMD
 
+            _layersUpdate(p.filesModel->observeLayers()->get());
             _cacheUpdate();
             _audioUpdate();
+        }
+
+        void App::_layersUpdate(const std::vector<int>& value)
+        {
+            TLRENDER_P();
+            if (auto player = p.player->get())
+            {
+                int videoLayer = 0;
+                std::vector<int> compareVideoLayers;
+                if (!value.empty() && value.size() == p.files.size() && !p.activeFiles.empty())
+                {
+                    auto i = std::find(p.files.begin(), p.files.end(), p.activeFiles.front());
+                    if (i != p.files.end())
+                    {
+                        videoLayer = value[i - p.files.begin()];
+                    }
+                    for (size_t j = 1; j < p.activeFiles.size(); ++j)
+                    {
+                        i = std::find(p.files.begin(), p.files.end(), p.activeFiles[j]);
+                        if (i != p.files.end())
+                        {
+                            compareVideoLayers.push_back(value[i - p.files.begin()]);
+                        }
+                    }
+                }
+                player->setVideoLayer(videoLayer);
+                player->setCompareVideoLayers(compareVideoLayers);
+            }
         }
 
         void App::_cacheUpdate()

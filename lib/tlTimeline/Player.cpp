@@ -100,6 +100,8 @@ namespace tl
             p.compare = observer::List<std::shared_ptr<Timeline> >::create();
             p.compareTime = observer::Value<CompareTimeMode>::create(CompareTimeMode::Relative);
             p.ioOptions = observer::Value<io::Options>::create();
+            p.videoLayer = observer::Value<int>::create(0);
+            p.compareVideoLayers = observer::List<int>::create();
             p.currentVideoData = observer::List<VideoData>::create();
             p.volume = observer::Value<float>::create(1.F);
             p.mute = observer::Value<bool>::create(false);
@@ -194,32 +196,25 @@ namespace tl
                     while (p.thread.running)
                     {
                         // Get mutex protected values.
-                        Playback playback = Playback::Stop;
-                        otime::RationalTime currentTime = time::invalidTime;
-                        otime::TimeRange inOutRange = time::invalidTimeRange;
-                        std::vector<std::shared_ptr<Timeline> > compare;
-                        CompareTimeMode compareTime = CompareTimeMode::Relative;
-                        io::Options ioOptions;
-                        double audioOffset = 0.0;
                         bool clearRequests = false;
                         bool clearCache = false;
-                        CacheDirection cacheDirection = CacheDirection::Forward;
-                        PlayerCacheOptions cacheOptions;
                         {
                             std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                            playback = p.mutex.playback;
-                            currentTime = p.mutex.currentTime;
-                            inOutRange = p.mutex.inOutRange;
-                            compare = p.mutex.compare;
-                            compareTime = p.mutex.compareTime;
-                            ioOptions = p.mutex.ioOptions;
-                            audioOffset = p.mutex.audioOffset;
+                            p.thread.playback = p.mutex.playback;
+                            p.thread.currentTime = p.mutex.currentTime;
+                            p.thread.inOutRange = p.mutex.inOutRange;
+                            p.thread.compare = p.mutex.compare;
+                            p.thread.compareTime = p.mutex.compareTime;
+                            p.thread.ioOptions = p.mutex.ioOptions;
+                            p.thread.videoLayer = p.mutex.videoLayer;
+                            p.thread.compareVideoLayers = p.mutex.compareVideoLayers;
+                            p.thread.audioOffset = p.mutex.audioOffset;
                             clearRequests = p.mutex.clearRequests;
                             p.mutex.clearRequests = false;
                             clearCache = p.mutex.clearCache;
                             p.mutex.clearCache = false;
-                            cacheDirection = p.mutex.cacheDirection;
-                            cacheOptions = p.mutex.cacheOptions;
+                            p.thread.cacheDirection = p.mutex.cacheDirection;
+                            p.thread.cacheOptions = p.mutex.cacheOptions;
                         }
 
                         // Clear requests.
@@ -249,33 +244,25 @@ namespace tl
                         }
 
                         // Update the cache.
-                        p.thread.compare = compare;
-                        p.cacheUpdate(
-                            currentTime,
-                            inOutRange,
-                            compareTime,
-                            ioOptions,
-                            audioOffset,
-                            cacheDirection,
-                            cacheOptions);
+                        p.cacheUpdate();
 
                         // Update the current video data.
                         const auto& timeRange = p.timeline->getTimeRange();
                         if (!p.ioInfo.video.empty())
                         {
-                            const auto i = p.thread.videoDataCache.find(currentTime);
+                            const auto i = p.thread.videoDataCache.find(p.thread.currentTime);
                             if (i != p.thread.videoDataCache.end())
                             {
                                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                                 p.mutex.currentVideoData = i->second;
                             }
-                            else if (playback != Playback::Stop)
+                            else if (p.thread.playback != Playback::Stop)
                             {
                                 {
                                     std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                                    p.mutex.playbackStartTime = currentTime;
+                                    p.mutex.playbackStartTime = p.thread.currentTime;
                                     p.mutex.playbackStartTimer = std::chrono::steady_clock::now();
-                                    if (!timeRange.contains(currentTime))
+                                    if (!timeRange.contains(p.thread.currentTime))
                                     {
                                         p.mutex.currentVideoData.clear();
                                     }
@@ -290,7 +277,7 @@ namespace tl
                             else
                             {
                                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                                if (!timeRange.contains(currentTime))
+                                if (!timeRange.contains(p.thread.currentTime))
                                 {
                                     p.mutex.currentVideoData.clear();
                                 }
@@ -302,7 +289,7 @@ namespace tl
                         {
                             std::vector<AudioData> audioDataList;
                             {
-                                const int64_t seconds = currentTime.rescaled_to(1.0).value() -
+                                const int64_t seconds = p.thread.currentTime.rescaled_to(1.0).value() -
                                     timeRange.start_time().rescaled_to(1.0).value();
                                 std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                                 for (int64_t s : { seconds - 1, seconds, seconds + 1 })
@@ -793,6 +780,50 @@ namespace tl
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                 p.mutex.ioOptions = value;
+                p.mutex.clearRequests = true;
+                p.mutex.clearCache = true;
+            }
+        }
+
+        int Player::getVideoLayer() const
+        {
+            return _p->videoLayer->get();
+        }
+
+        std::shared_ptr<observer::IValue<int> > Player::observeVideoLayer() const
+        {
+            return _p->videoLayer;
+        }
+
+        void Player::setVideoLayer(int value)
+        {
+            TLRENDER_P();
+            if (p.videoLayer->setIfChanged(value))
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.videoLayer = value;
+                p.mutex.clearRequests = true;
+                p.mutex.clearCache = true;
+            }
+        }
+
+        const std::vector<int>& Player::getCompareVideoLayers() const
+        {
+            return _p->compareVideoLayers->get();
+        }
+
+        std::shared_ptr<observer::IList<int> > Player::observeCompareVideoLayers() const
+        {
+            return _p->compareVideoLayers;
+        }
+
+        void Player::setCompareVideoLayers(const std::vector<int>& value)
+        {
+            TLRENDER_P();
+            if (p.compareVideoLayers->setIfChanged(value))
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.compareVideoLayers = value;
                 p.mutex.clearRequests = true;
                 p.mutex.clearCache = true;
             }

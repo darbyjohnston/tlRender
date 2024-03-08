@@ -47,10 +47,31 @@ namespace tl
                 WRITE setInOutRange
                 NOTIFY inOutRangeChanged)
             Q_PROPERTY(
+                std::vector<std::shared_ptr<tl::timeline::Timeline> >
+                compare
+                READ compare
+                WRITE setCompare
+                NOTIFY compareChanged)
+            Q_PROPERTY(
+                tl::timeline::CompareTimeMode compareTime
+                READ compareTime
+                WRITE setCompareTime
+                NOTIFY compareTimeChanged)
+            Q_PROPERTY(
                 tl::io::Options ioOptions
                 READ ioOptions
                 WRITE setIOOptions
                 NOTIFY ioOptionsChanged)
+            Q_PROPERTY(
+                int videoLayer
+                READ videoLayer
+                WRITE setVideoLayer
+                NOTIFY videoLayerChanged)
+            Q_PROPERTY(
+                std::vector<int> compareVideoLayers
+                READ compareVideoLayers
+                WRITE setCompareVideoLayers
+                NOTIFY compareVideoLayersChanged)
             Q_PROPERTY(
                 std::vector<tl::timeline::VideoData>
                 currentVideo
@@ -181,19 +202,19 @@ namespace tl
             //! Get the timelines for comparison.
             const std::vector<std::shared_ptr<timeline::Timeline> >& compare() const;
 
-            //! Set the timelines for comparison.
-            void setCompare(const std::vector<std::shared_ptr<timeline::Timeline> >&);
-
-            //! Get the time comparison mode.
+            //! Get the comparison time mode.
             timeline::CompareTimeMode compareTime() const;
-
-            //! Set the time comparison mode.
-            void setCompareTime(timeline::CompareTimeMode);
 
             ///@}
 
             //! \name Video
             ///@{
+
+            //! Get the video layer.
+            int videoLayer() const;
+
+            //! Get the comparison video layers.
+            const std::vector<int>& compareVideoLayers() const;
 
             //! Get the current video data.
             const std::vector<timeline::VideoData>& currentVideo() const;
@@ -306,6 +327,28 @@ namespace tl
 
             ///@}
 
+            //! \name Comparison
+            ///@{
+
+            //! Set the timelines for comparison.
+            void setCompare(const std::vector<std::shared_ptr<timeline::Timeline> >&);
+
+            //! Set the comparison time mode.
+            void setCompareTime(timeline::CompareTimeMode);
+
+            ///@}
+
+            //! \name Video
+            ///@{
+
+            //! Set the video layer.
+            void setVideoLayer(int);
+
+            //! Set the comparison video layers.
+            void setCompareVideoLayers(const std::vector<int>&);
+
+            ///@}
+
             //! \name Audio
             ///@{
 
@@ -352,10 +395,10 @@ namespace tl
             //! \name Comparison
             ///@{
 
-            //! This signal is emitted when the comparison timelines are changed.
+            //! This signal is emitted when the timelines for comparison are changed.
             void compareChanged(const std::vector<std::shared_ptr<timeline::Timeline> >&);
 
-            //! This signal is emitted when the time comparison mode is changed.
+            //! This signal is emitted when the comparison time mode is changed.
             void compareTimeChanged(tl::timeline::CompareTimeMode);
 
             ///@}
@@ -370,6 +413,12 @@ namespace tl
 
             //! \name Video
             ///@{
+
+            //! This signal is emitted when the video layer is changed.
+            void videoLayerChanged(int);
+
+            //! This signal is emitted when the comparison video layers are changed.
+            void compareVideoLayersChanged(const std::vector<int>&);
 
             //! This signal is emitted when the current video data is changed.
             void currentVideoChanged(const std::vector<tl::timeline::VideoData>&);

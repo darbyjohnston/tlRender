@@ -235,13 +235,13 @@ namespace tl
             //! Set the timelines for comparison.
             void setCompare(const std::vector<std::shared_ptr<Timeline> >&);
 
-            //! Get the time comparison mode.
+            //! Get the comparison time mode.
             CompareTimeMode getCompareTime() const;
 
-            //! Observe the time comparison mode.
+            //! Observe the comparison time mode.
             std::shared_ptr<observer::IValue<CompareTimeMode> > observeCompareTime() const;
 
-            //! Set the time comparison mode.
+            //! Set the comparison time mode.
             void setCompareTime(CompareTimeMode);
 
             ///@}
@@ -262,6 +262,24 @@ namespace tl
 
             //! \name Video
             ///@{
+
+            //! Get the video layer.
+            int getVideoLayer() const;
+
+            //! Observer the video layer.
+            std::shared_ptr<observer::IValue<int> > observeVideoLayer() const;
+
+            //! Set the video layer.
+            void setVideoLayer(int);
+
+            //! Get the comparison video layers.
+            const std::vector<int>& getCompareVideoLayers() const;
+
+            //! Observe the comparison video layers.
+            std::shared_ptr<observer::IList<int> > observeCompareVideoLayers() const;
+
+            //! Set the comparison video layers.
+            void setCompareVideoLayers(const std::vector<int>&);
 
             //! Get the current video data.
             const std::vector<VideoData>& getCurrentVideo() const;

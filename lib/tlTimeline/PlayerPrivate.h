@@ -27,14 +27,7 @@ namespace tl
         {
             otime::RationalTime loopPlayback(const otime::RationalTime&);
 
-            void cacheUpdate(
-                const otime::RationalTime& currentTime,
-                const otime::TimeRange& inOutRange,
-                CompareTimeMode,
-                const io::Options& ioOptions,
-                double audioOffset,
-                CacheDirection,
-                const PlayerCacheOptions&);
+            void cacheUpdate();
 
             void resetAudioTime();
 #if defined(TLRENDER_AUDIO)
@@ -64,6 +57,8 @@ namespace tl
             std::shared_ptr<observer::List<std::shared_ptr<Timeline> > > compare;
             std::shared_ptr<observer::Value<CompareTimeMode> > compareTime;
             std::shared_ptr<observer::Value<io::Options> > ioOptions;
+            std::shared_ptr<observer::Value<int> > videoLayer;
+            std::shared_ptr<observer::List<int> > compareVideoLayers;
             std::shared_ptr<observer::List<VideoData> > currentVideoData;
             std::shared_ptr<observer::Value<float> > volume;
             std::shared_ptr<observer::Value<bool> > mute;
@@ -83,6 +78,8 @@ namespace tl
                 std::vector<std::shared_ptr<Timeline> > compare;
                 CompareTimeMode compareTime = CompareTimeMode::Relative;
                 io::Options ioOptions;
+                int videoLayer = 0;
+                std::vector<int> compareVideoLayers;
                 std::vector<VideoData> currentVideoData;
                 double audioOffset = 0.0;
                 std::vector<AudioData> currentAudioData;
@@ -109,7 +106,18 @@ namespace tl
 
             struct Thread
             {
+                Playback playback = Playback::Stop;
+                otime::RationalTime currentTime = time::invalidTime;
+                otime::TimeRange inOutRange = time::invalidTimeRange;
                 std::vector<std::shared_ptr<Timeline> > compare;
+                CompareTimeMode compareTime = CompareTimeMode::Relative;
+                io::Options ioOptions;
+                int videoLayer = 0;
+                std::vector<int> compareVideoLayers;
+                double audioOffset = 0.0;
+                CacheDirection cacheDirection = CacheDirection::Forward;
+                PlayerCacheOptions cacheOptions;
+
                 std::map<otime::RationalTime, std::vector<std::future<VideoData> > > videoDataRequests;
                 std::map<otime::RationalTime, std::vector<VideoData> > videoDataCache;
 #if defined(TLRENDER_AUDIO)
