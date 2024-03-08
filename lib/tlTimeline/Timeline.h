@@ -169,6 +169,8 @@ namespace tl
                 const io::Options& = io::Options());
 
             //! Cancel requests.
+            //!
+            //! \todo Change this to cancel only specific requests.
             void cancelRequests();
 
             ///@}
