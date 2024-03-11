@@ -307,6 +307,32 @@ namespace tl
             TLRENDER_ASSERT(ioOptions2 == ioOptions);
             player->setIOOptions({});
 
+            // Test the video layers.
+            int videoLayer = 0;
+            std::vector<int> compareVideoLayers;
+            auto videoLayerObserver = observer::ValueObserver<int>::create(
+                player->observeVideoLayer(),
+                [&videoLayer](int value)
+                {
+                    videoLayer = value;
+                });
+            auto compareVideoLayersObserver = observer::ListObserver<int>::create(
+                player->observeCompareVideoLayers(),
+                [&compareVideoLayers](const std::vector<int>& value)
+                {
+                    compareVideoLayers = value;
+                });
+            int videoLayer2 = 1;
+            player->setVideoLayer(videoLayer2);
+            TLRENDER_ASSERT(videoLayer2 == player->getVideoLayer());
+            TLRENDER_ASSERT(videoLayer2 == videoLayer);
+            std::vector<int> compareVideoLayers2 = { 2, 3 };
+            player->setCompareVideoLayers(compareVideoLayers2);
+            TLRENDER_ASSERT(compareVideoLayers2 == player->getCompareVideoLayers());
+            TLRENDER_ASSERT(compareVideoLayers2 == compareVideoLayers);
+            player->setVideoLayer(0);
+            player->setCompareVideoLayers({});
+
             // Test audio.
             float volume = 1.F;
             auto volumeObserver = observer::ValueObserver<float>::create(
