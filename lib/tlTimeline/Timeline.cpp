@@ -340,7 +340,6 @@ namespace tl
             }
             if (otioTimelineChanged)
             {
-                cancelRequests();
                 p.timelineChanges->setAlways(true);
             }
         }
