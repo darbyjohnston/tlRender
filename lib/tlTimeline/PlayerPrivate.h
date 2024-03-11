@@ -118,12 +118,12 @@ namespace tl
                 CacheDirection cacheDirection = CacheDirection::Forward;
                 PlayerCacheOptions cacheOptions;
 
-                std::map<otime::RationalTime, std::vector<std::future<VideoData> > > videoDataRequests;
+                std::map<otime::RationalTime, std::vector<VideoRequest> > videoDataRequests;
                 std::map<otime::RationalTime, std::vector<VideoData> > videoDataCache;
 #if defined(TLRENDER_AUDIO)
                 std::unique_ptr<RtAudio> rtAudio;
 #endif // TLRENDER_AUDIO
-                std::map<int64_t, std::future<AudioData> > audioDataRequests;
+                std::map<int64_t, AudioRequest> audioDataRequests;
                 std::chrono::steady_clock::time_point cacheTimer;
                 std::chrono::steady_clock::time_point logTimer;
                 std::atomic<bool> running;

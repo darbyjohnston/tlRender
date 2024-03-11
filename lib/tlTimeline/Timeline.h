@@ -69,6 +69,20 @@ namespace tl
             const std::shared_ptr<system::Context>&,
             const Options& = Options());
 
+        //! Video request.
+        struct VideoRequest
+        {
+            uint64_t id = 0;
+            std::future<VideoData> future;
+        };
+
+        //! Audio request.
+        struct AudioRequest
+        {
+            uint64_t id = 0;
+            std::future<AudioData> future;
+        };
+
         //! Timeline.
         class Timeline : public std::enable_shared_from_this<Timeline>
         {
@@ -159,19 +173,17 @@ namespace tl
             ///@{
 
             //! Get video data.
-            std::future<VideoData> getVideo(
+            VideoRequest getVideo(
                 const otime::RationalTime&,
                 const io::Options& = io::Options());
 
             //! Get audio data.
-            std::future<AudioData> getAudio(
+            AudioRequest getAudio(
                 double seconds,
                 const io::Options& = io::Options());
 
             //! Cancel requests.
-            //!
-            //! \todo Change this to cancel only specific requests.
-            void cancelRequests();
+            void cancelRequests(const std::vector<uint64_t>&);
 
             ///@}
 

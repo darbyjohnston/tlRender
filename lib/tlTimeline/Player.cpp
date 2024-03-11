@@ -220,10 +220,23 @@ namespace tl
                         // Clear requests.
                         if (clearRequests)
                         {
-                            p.timeline->cancelRequests();
-                            for (const auto& i : p.thread.compare)
+                            std::vector<std::vector<uint64_t> > ids;
+                            ids.resize(1 + p.thread.compare.size());
+                            for (const auto& i : p.thread.videoDataRequests)
                             {
-                                i->cancelRequests();
+                                for (size_t j = 0; j < i.second.size() && j < ids.size(); ++j)
+                                {
+                                    ids[j].push_back(i.second[j].id);
+                                }
+                            }
+                            for (const auto& i : p.thread.audioDataRequests)
+                            {
+                                ids[0].push_back(i.second.id);
+                            }
+                            p.timeline->cancelRequests(ids[0]);
+                            for (size_t i = 0; i < p.thread.compare.size(); ++i)
+                            {
+                                p.thread.compare[i]->cancelRequests(ids[i + 1]);
                             }
                             p.thread.videoDataRequests.clear();
                             p.thread.audioDataRequests.clear();

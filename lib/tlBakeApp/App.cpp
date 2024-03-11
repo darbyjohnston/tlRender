@@ -364,7 +364,7 @@ namespace tl
             _render->begin(_renderSize);
             _render->setOCIOOptions(_options.ocioOptions);
             _render->setLUTOptions(_options.lutOptions);
-            const auto videoData = _timeline->getVideo(_inputTime).get();
+            const auto videoData = _timeline->getVideo(_inputTime).future.get();
             _render->drawVideo(
                 { videoData },
                 { math::Box2i(0, 0, _renderSize.w, _renderSize.h) });

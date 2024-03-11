@@ -58,6 +58,7 @@ namespace tl
             memory::LRUCache<std::string, std::shared_ptr<io::IRead> > readCache;
             otime::TimeRange timeRange = time::invalidTimeRange;
             io::Info ioInfo;
+            uint64_t requestId = 0;
 
             struct VideoLayerData
             {
@@ -74,6 +75,7 @@ namespace tl
                 VideoRequest() {};
                 VideoRequest(VideoRequest&&) = default;
 
+                uint64_t id = 0;
                 otime::RationalTime time = time::invalidTime;
                 io::Options options;
                 std::promise<VideoData> promise;
@@ -95,6 +97,7 @@ namespace tl
                 AudioRequest() {};
                 AudioRequest(AudioRequest&&) = default;
 
+                uint64_t id = 0;
                 double seconds = -1.0;
                 io::Options options;
                 std::promise<AudioData> promise;

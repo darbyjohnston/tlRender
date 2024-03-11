@@ -134,27 +134,27 @@ namespace tl
             // Get video from the timeline.
             const otime::TimeRange& timeRange = timeline->getTimeRange();
             std::vector<timeline::VideoData> videoData;
-            std::vector<std::future<timeline::VideoData> > videoFutures;
+            std::vector<timeline::VideoRequest> videoRequests;
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
-                videoFutures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0)));
+                videoRequests.push_back(timeline->getVideo(otime::RationalTime(i, 24.0)));
             }
             io::Options ioOptions;
             ioOptions["Layer"] = "1";
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
-                videoFutures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), ioOptions));
+                videoRequests.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), ioOptions));
             }
             while (videoData.size() < static_cast<size_t>(timeRange.duration().value()) * 2)
             {
-                auto i = videoFutures.begin();
-                while (i != videoFutures.end())
+                auto i = videoRequests.begin();
+                while (i != videoRequests.end())
                 {
-                    if (i->valid() &&
-                        i->wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                    if (i->future.valid() &&
+                        i->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                     {
-                        videoData.push_back(i->get());
-                        i = videoFutures.erase(i);
+                        videoData.push_back(i->future.get());
+                        i = videoRequests.erase(i);
                     }
                     else
                     {
@@ -162,25 +162,25 @@ namespace tl
                     }
                 }
             }
-            TLRENDER_ASSERT(videoFutures.empty());
+            TLRENDER_ASSERT(videoRequests.empty());
 
             // Get audio from the timeline.
             std::vector<timeline::AudioData> audioData;
-            std::vector<std::future<timeline::AudioData> > audioFutures;
+            std::vector<timeline::AudioRequest> audioRequests;
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().rescaled_to(1.0).value()); ++i)
             {
-                audioFutures.push_back(timeline->getAudio(i));
+                audioRequests.push_back(timeline->getAudio(i));
             }
             while (audioData.size() < static_cast<size_t>(timeRange.duration().rescaled_to(1.0).value()))
             {
-                auto i = audioFutures.begin();
-                while (i != audioFutures.end())
+                auto i = audioRequests.begin();
+                while (i != audioRequests.end())
                 {
-                    if (i->valid() &&
-                        i->wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                    if (i->future.valid() &&
+                        i->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                     {
-                        audioData.push_back(i->get());
-                        i = audioFutures.erase(i);
+                        audioData.push_back(i->future.get());
+                        i = audioRequests.erase(i);
                     }
                     else
                     {
@@ -188,26 +188,35 @@ namespace tl
                     }
                 }
             }
-            TLRENDER_ASSERT(audioFutures.empty());
+            TLRENDER_ASSERT(audioRequests.empty());
 
             // Cancel requests.
             videoData.clear();
-            videoFutures.clear();
+            videoRequests.clear();
             audioData.clear();
-            audioFutures.clear();
+            audioRequests.clear();
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
-                videoFutures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0)));
+                videoRequests.push_back(timeline->getVideo(otime::RationalTime(i, 24.0)));
             }
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
-                videoFutures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), ioOptions));
+                videoRequests.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), ioOptions));
             }
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().rescaled_to(1.0).value()); ++i)
             {
-                audioFutures.push_back(timeline->getAudio(i));
+                audioRequests.push_back(timeline->getAudio(i));
             }
-            timeline->cancelRequests();
+            std::vector<uint64_t> ids;
+            for (const auto& i : videoRequests)
+            {
+                ids.push_back(i.id);
+            }
+            for (const auto& i : audioRequests)
+            {
+                ids.push_back(i.id);
+            }
+            timeline->cancelRequests(ids);
         }
 
         void TimelineTest::_separateAudio()

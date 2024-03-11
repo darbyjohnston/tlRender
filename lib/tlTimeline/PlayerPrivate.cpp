@@ -386,8 +386,8 @@ namespace tl
                     videoDataRequestIt != videoDataRequestsIt->second.end();
                     ++videoDataRequestIt)
                 {
-                    ready &= videoDataRequestIt->valid() &&
-                        videoDataRequestIt->wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+                    ready &= videoDataRequestIt->future.valid() &&
+                        videoDataRequestIt->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
                 }
                 if (ready)
                 {
@@ -397,7 +397,7 @@ namespace tl
                         videoDataRequestIt != videoDataRequestsIt->second.end();
                         ++videoDataRequestIt)
                     {
-                        auto data = videoDataRequestIt->get();
+                        auto data = videoDataRequestIt->future.get();
                         data.time = time;
                         thread.videoDataCache[data.time].push_back(data);
                     }
@@ -413,10 +413,10 @@ namespace tl
             auto audioDataRequestsIt = thread.audioDataRequests.begin();
             while (audioDataRequestsIt != thread.audioDataRequests.end())
             {
-                if (audioDataRequestsIt->second.valid() &&
-                    audioDataRequestsIt->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                if (audioDataRequestsIt->second.future.valid() &&
+                    audioDataRequestsIt->second.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
-                    auto audioData = audioDataRequestsIt->second.get();
+                    auto audioData = audioDataRequestsIt->second.future.get();
                     audioData.seconds = audioDataRequestsIt->first;
                     {
                         std::unique_lock<std::mutex> lock(audioMutex.mutex);
