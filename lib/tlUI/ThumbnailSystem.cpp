@@ -490,50 +490,53 @@ namespace tl
             return out;
         }
 
-        void ThumbnailGenerator::cancelRequests(std::vector<uint64_t> ids)
+        void ThumbnailGenerator::cancelRequests(const std::vector<uint64_t>& ids)
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex.mutex);
-            auto infoRequest = p.mutex.infoRequests.begin();
-            while (infoRequest != p.mutex.infoRequests.end())
             {
-                const auto id = std::find(ids.begin(), ids.end(), (*infoRequest)->id);
-                if (id != ids.end())
+                auto i = p.mutex.infoRequests.begin();
+                while (i != p.mutex.infoRequests.end())
                 {
-                    infoRequest = p.mutex.infoRequests.erase(infoRequest);
-                    ids.erase(id);
-                }
-                else
-                {
-                    ++infoRequest;
+                    const auto j = std::find(ids.begin(), ids.end(), (*i)->id);
+                    if (j != ids.end())
+                    {
+                        i = p.mutex.infoRequests.erase(i);
+                    }
+                    else
+                    {
+                        ++i;
+                    }
                 }
             }
-            auto thumbnailRequest = p.mutex.thumbnailRequests.begin();
-            while (thumbnailRequest != p.mutex.thumbnailRequests.end())
             {
-                const auto id = std::find(ids.begin(), ids.end(), (*thumbnailRequest)->id);
-                if (id != ids.end())
+                auto i = p.mutex.thumbnailRequests.begin();
+                while (i != p.mutex.thumbnailRequests.end())
                 {
-                    thumbnailRequest = p.mutex.thumbnailRequests.erase(thumbnailRequest);
-                    ids.erase(id);
-                }
-                else
-                {
-                    ++thumbnailRequest;
+                    const auto j = std::find(ids.begin(), ids.end(), (*i)->id);
+                    if (j != ids.end())
+                    {
+                        i = p.mutex.thumbnailRequests.erase(i);
+                    }
+                    else
+                    {
+                        ++i;
+                    }
                 }
             }
-            auto waveformRequest = p.mutex.waveformRequests.begin();
-            while (waveformRequest != p.mutex.waveformRequests.end())
             {
-                const auto id = std::find(ids.begin(), ids.end(), (*waveformRequest)->id);
-                if (id != ids.end())
+                auto i = p.mutex.waveformRequests.begin();
+                while (i != p.mutex.waveformRequests.end())
                 {
-                    waveformRequest = p.mutex.waveformRequests.erase(waveformRequest);
-                    ids.erase(id);
-                }
-                else
-                {
-                    ++waveformRequest;
+                    const auto j = std::find(ids.begin(), ids.end(), (*i)->id);
+                    if (j != ids.end())
+                    {
+                        i = p.mutex.waveformRequests.erase(i);
+                    }
+                    else
+                    {
+                        ++i;
+                    }
                 }
             }
         }

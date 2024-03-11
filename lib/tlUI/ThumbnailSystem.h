@@ -196,7 +196,7 @@ namespace tl
                 const io::Options& = io::Options());
 
             //! Cancel pending requests.
-            void cancelRequests(std::vector<uint64_t>);
+            void cancelRequests(const std::vector<uint64_t>&);
 
         private:
             void _run();
