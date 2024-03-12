@@ -220,8 +220,7 @@ namespace tl
                         // Clear requests.
                         if (clearRequests)
                         {
-                            std::vector<std::vector<uint64_t> > ids;
-                            ids.resize(1 + p.thread.compare.size());
+                            std::vector<std::vector<uint64_t> > ids(1 + p.thread.compare.size());
                             for (const auto& i : p.thread.videoDataRequests)
                             {
                                 for (size_t j = 0; j < i.second.size() && j < ids.size(); ++j)
