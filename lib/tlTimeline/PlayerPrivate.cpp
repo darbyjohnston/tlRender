@@ -105,12 +105,12 @@ namespace tl
             // Get the video ranges to be cached.
             const otime::TimeRange& timeRange = timeline->getTimeRange();
             const otime::RationalTime readAheadDivided(
-                thread.cacheOptions.readAhead.value() / (1 + thread.compare.size()),
+                thread.cacheOptions.readAhead.value() / static_cast<double>(1 + thread.compare.size()),
                 thread.cacheOptions.readAhead.rate());
             const otime::RationalTime readAheadRescaled = time::floor(
                 readAheadDivided.rescaled_to(timeRange.duration().rate()));
             const otime::RationalTime readBehindDivided(
-                thread.cacheOptions.readBehind.value() / (1 + thread.compare.size()),
+                thread.cacheOptions.readBehind.value() / static_cast<double>(1 + thread.compare.size()),
                 thread.cacheOptions.readBehind.rate());
             const otime::RationalTime readBehindRescaled = time::floor(
                 readBehindDivided.rescaled_to(timeRange.duration().rate()));
