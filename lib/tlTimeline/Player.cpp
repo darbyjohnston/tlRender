@@ -195,6 +195,8 @@ namespace tl
                     p.thread.logTimer = std::chrono::steady_clock::now();
                     while (p.thread.running)
                     {
+                        const auto t0 = std::chrono::steady_clock::now();
+
                         // Get mutex protected values.
                         bool clearRequests = false;
                         bool clearCache = false;
@@ -320,19 +322,19 @@ namespace tl
                         }
 
                         // Logging.
-                        const auto now = std::chrono::steady_clock::now();
-                        const std::chrono::duration<double> diff = now - p.thread.logTimer;
+                        const auto t1 = std::chrono::steady_clock::now();
+                        const std::chrono::duration<double> diff = t1 - p.thread.logTimer;
                         if (diff.count() > 10.0)
                         {
-                            p.thread.logTimer = now;
+                            p.thread.logTimer = t1;
                             if (auto context = getContext().lock())
                             {
                                 p.log(context);
                             }
                         }
 
-                        // Sleep for a bit...
-                        time::sleep(p.playerOptions.sleepTimeout);
+                        // Sleep for a bit.
+                        time::sleep(p.playerOptions.sleepTimeout, t0, t1);
                     }
                 });
         }

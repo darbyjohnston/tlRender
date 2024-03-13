@@ -63,6 +63,8 @@ namespace tl
                     bool log = true;
                     while (p.running)
                     {
+                        const auto t0 = std::chrono::steady_clock::now();
+
                         std::vector<DeviceInfo> deviceInfoList;
 
                         IDeckLinkIterator* dlIterator = nullptr;
@@ -201,7 +203,8 @@ namespace tl
                             }
                         }
 
-                        time::sleep(getTickTime());
+                        const auto t1 = std::chrono::steady_clock::now();
+                        time::sleep(getTickTime(), t0, t1);
                     }
 
 #if defined(_WIN32)

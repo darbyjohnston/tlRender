@@ -17,6 +17,11 @@ namespace tl
 {
     namespace timeline
     {
+        namespace
+        {
+            const std::chrono::milliseconds timeout(5);
+        }
+
         bool Timeline::Private::getVideoInfo(const otio::Composable* composable)
         {
             if (auto clip = dynamic_cast<const otio::Clip*>(composable))
@@ -84,14 +89,16 @@ namespace tl
 
         void Timeline::Private::tick()
         {
+            const auto t0 = std::chrono::steady_clock::now();
+
             requests();
 
             // Logging.
-            const auto now = std::chrono::steady_clock::now();
-            const std::chrono::duration<float> diff = now - thread.logTimer;
+            const auto t1 = std::chrono::steady_clock::now();
+            const std::chrono::duration<float> diff = t1 - thread.logTimer;
             if (diff.count() > 10.F)
             {
-                thread.logTimer = now;
+                thread.logTimer = t1;
                 if (auto context = this->context.lock())
                 {
                     size_t videoRequestsSize = 0;
@@ -119,8 +126,8 @@ namespace tl
                 }
             }
 
-            // Sleep for a bit...
-            time::sleep(std::chrono::milliseconds(1));
+            // Sleep for a bit.
+            time::sleep(timeout, t0, t1);
         }
 
         void Timeline::Private::requests()
