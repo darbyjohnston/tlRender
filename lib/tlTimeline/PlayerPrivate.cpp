@@ -100,6 +100,42 @@ namespace tl
             return out;
         }
 
+        void Player::Private::clearRequests()
+        {
+            std::vector<std::vector<uint64_t> > ids(1 + thread.compare.size());
+            for (const auto& i : thread.videoDataRequests)
+            {
+                for (size_t j = 0; j < i.second.size() && j < ids.size(); ++j)
+                {
+                    ids[j].push_back(i.second[j].id);
+                }
+            }
+            for (const auto& i : thread.audioDataRequests)
+            {
+                ids[0].push_back(i.second.id);
+            }
+            timeline->cancelRequests(ids[0]);
+            for (size_t i = 0; i < thread.compare.size(); ++i)
+            {
+                thread.compare[i]->cancelRequests(ids[i + 1]);
+            }
+            thread.videoDataRequests.clear();
+            thread.audioDataRequests.clear();
+        }
+
+        void Player::Private::clearCache()
+        {
+            thread.videoDataCache.clear();
+            {
+                std::unique_lock<std::mutex> lock(mutex.mutex);
+                mutex.cacheInfo = PlayerCacheInfo();
+            }
+            {
+                std::unique_lock<std::mutex> lock(audioMutex.mutex);
+                audioMutex.audioDataCache.clear();
+            }
+        }
+
         void Player::Private::cacheUpdate()
         {
             // Get the video ranges to be cached.

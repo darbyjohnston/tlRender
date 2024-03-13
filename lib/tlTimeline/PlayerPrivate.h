@@ -27,6 +27,8 @@ namespace tl
         {
             otime::RationalTime loopPlayback(const otime::RationalTime&);
 
+            void clearRequests();
+            void clearCache();
             void cacheUpdate();
 
             void resetAudioTime();

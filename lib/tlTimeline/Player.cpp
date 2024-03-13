@@ -222,39 +222,13 @@ namespace tl
                         // Clear requests.
                         if (clearRequests)
                         {
-                            std::vector<std::vector<uint64_t> > ids(1 + p.thread.compare.size());
-                            for (const auto& i : p.thread.videoDataRequests)
-                            {
-                                for (size_t j = 0; j < i.second.size() && j < ids.size(); ++j)
-                                {
-                                    ids[j].push_back(i.second[j].id);
-                                }
-                            }
-                            for (const auto& i : p.thread.audioDataRequests)
-                            {
-                                ids[0].push_back(i.second.id);
-                            }
-                            p.timeline->cancelRequests(ids[0]);
-                            for (size_t i = 0; i < p.thread.compare.size(); ++i)
-                            {
-                                p.thread.compare[i]->cancelRequests(ids[i + 1]);
-                            }
-                            p.thread.videoDataRequests.clear();
-                            p.thread.audioDataRequests.clear();
+                            p.clearRequests();
                         }
 
                         // Clear the cache.
                         if (clearCache)
                         {
-                            p.thread.videoDataCache.clear();
-                            {
-                                std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                                p.mutex.cacheInfo = PlayerCacheInfo();
-                            }
-                            {
-                                std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
-                                p.audioMutex.audioDataCache.clear();
-                            }
+                            p.clearCache();
                         }
 
                         // Update the cache.
@@ -336,6 +310,8 @@ namespace tl
                         // Sleep for a bit.
                         time::sleep(p.playerOptions.sleepTimeout, t0, t1);
                     }
+
+                    p.clearRequests();
                 });
         }
 
