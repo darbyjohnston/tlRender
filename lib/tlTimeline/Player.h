@@ -98,7 +98,7 @@ namespace tl
             static std::shared_ptr<Player> create(
                 const std::shared_ptr<Timeline>&,
                 const std::shared_ptr<system::Context>&,
-                const PlayerOptions & = PlayerOptions());
+                const PlayerOptions& = PlayerOptions());
 
             //! Get the context.
             const std::weak_ptr<system::Context>& getContext() const;
