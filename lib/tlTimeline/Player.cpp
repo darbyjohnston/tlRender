@@ -198,6 +198,7 @@ namespace tl
                         const auto t0 = std::chrono::steady_clock::now();
 
                         // Get mutex protected values.
+                        std::vector<std::shared_ptr<Timeline> > compare;
                         bool clearRequests = false;
                         bool clearCache = false;
                         {
@@ -205,7 +206,7 @@ namespace tl
                             p.thread.playback = p.mutex.playback;
                             p.thread.currentTime = p.mutex.currentTime;
                             p.thread.inOutRange = p.mutex.inOutRange;
-                            p.thread.compare = p.mutex.compare;
+                            compare = p.mutex.compare;
                             p.thread.compareTime = p.mutex.compareTime;
                             p.thread.ioOptions = p.mutex.ioOptions;
                             p.thread.videoLayer = p.mutex.videoLayer;
@@ -224,6 +225,7 @@ namespace tl
                         {
                             p.clearRequests();
                         }
+                        p.thread.compare = compare;
 
                         // Clear the cache.
                         if (clearCache)
