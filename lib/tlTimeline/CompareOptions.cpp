@@ -31,10 +31,10 @@ namespace tl
         TLRENDER_ENUM_IMPL(CompareTimeMode, "Relative", "Absolute");
         TLRENDER_ENUM_SERIALIZE_IMPL(CompareTimeMode);
 
-        std::vector<math::Box2i> getBoxes(CompareMode mode, const std::vector<image::Size>& sizes)
+        std::vector<math::Box2i> getBoxes(CompareMode mode, const std::vector<VideoData>& videoData)
         {
             std::vector<math::Box2i> out;
-            const size_t count = sizes.size();
+            const size_t count = videoData.size();
             switch (mode)
             {
             case CompareMode::Horizontal:
@@ -42,7 +42,7 @@ namespace tl
                 image::Size size;
                 if (count > 0)
                 {
-                    size = sizes[0];
+                    size = videoData[0].size;
                 }
                 if (count > 0)
                 {
@@ -67,7 +67,7 @@ namespace tl
                 image::Size size;
                 if (count > 0)
                 {
-                    size = sizes[0];
+                    size = videoData[0].size;
                 }
                 if (count > 0)
                 {
@@ -91,9 +91,9 @@ namespace tl
                 if (count > 0)
                 {
                     image::Size tileSize;
-                    for (const auto& i : sizes)
+                    for (const auto& i : videoData)
                     {
-                        tileSize = std::max(tileSize, i);
+                        tileSize = std::max(tileSize, i.size);
                     }
 
                     int columns = 0;
@@ -119,7 +119,7 @@ namespace tl
                         {
                             if (i < count)
                             {
-                                const auto& s = sizes[i];
+                                const auto& s = videoData[i].size;
                                 const math::Box2i box(
                                     x,
                                     y,
@@ -139,19 +139,19 @@ namespace tl
                     out.push_back(math::Box2i(
                         0,
                         0,
-                        sizes[0].w * sizes[0].pixelAspectRatio,
-                        sizes[0].h));
+                        videoData[0].size.w * videoData[0].size.pixelAspectRatio,
+                        videoData[0].size.h));
                 }
                 break;
             }
             return out;
         }
 
-        math::Size2i getRenderSize(CompareMode mode, const std::vector<image::Size>& sizes)
+        math::Size2i getRenderSize(CompareMode mode, const std::vector<VideoData>& videoData)
         {
             math::Size2i out;
             math::Box2i box;
-            const auto boxes = getBoxes(mode, sizes);
+            const auto boxes = getBoxes(mode, videoData);
             if (!boxes.empty())
             {
                 box = boxes[0];

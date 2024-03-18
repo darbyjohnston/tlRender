@@ -4,9 +4,7 @@
 
 #pragma once
 
-#include <tlCore/Image.h>
-#include <tlCore/Size.h>
-#include <tlCore/Time.h>
+#include <tlTimeline/Video.h>
 
 namespace tl
 {
@@ -55,10 +53,10 @@ namespace tl
         };
 
         //! Get the boxes for the given compare mode and sizes.
-        std::vector<math::Box2i> getBoxes(CompareMode, const std::vector<image::Size>&);
+        std::vector<math::Box2i> getBoxes(CompareMode, const std::vector<VideoData>&);
 
         //! Get the render size for the given compare mode and sizes.
-        math::Size2i getRenderSize(CompareMode, const std::vector<image::Size>&);
+        math::Size2i getRenderSize(CompareMode, const std::vector<VideoData>&);
 
         //! Get a compare time.
         otime::RationalTime getCompareTime(

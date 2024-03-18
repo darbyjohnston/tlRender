@@ -237,11 +237,6 @@ namespace tl
             return _p->player->getIOInfo();
         }
 
-        std::vector<image::Size> TimelinePlayer::sizes() const
-        {
-            return _p->player->getSizes();
-        }
-
         double TimelinePlayer::defaultSpeed() const
         {
             return _p->player->getDefaultSpeed();

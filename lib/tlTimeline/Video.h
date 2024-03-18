@@ -33,6 +33,7 @@ namespace tl
         //! Video data.
         struct VideoData
         {
+            image::Size size;
             otime::RationalTime time = time::invalidTime;
             std::vector<VideoLayer> layers;
 

@@ -128,9 +128,6 @@ namespace tl
             //! the first clip in the timeline.
             const io::Info& getIOInfo() const;
 
-            //! Get the timeline sizes.
-            std::vector<image::Size> getSizes() const;
-
             ///@}
 
             //! \name Playback

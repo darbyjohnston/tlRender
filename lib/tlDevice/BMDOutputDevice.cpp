@@ -75,7 +75,6 @@ namespace tl
                 otime::TimeRange timeRange = time::invalidTimeRange;
                 timeline::Playback playback = timeline::Playback::Stop;
                 otime::RationalTime currentTime = time::invalidTime;
-                std::vector<image::Size> sizes;
                 std::vector<timeline::VideoData> videoData;
                 std::shared_ptr<image::Image> overlay;
                 float volume = 1.F;
@@ -98,7 +97,6 @@ namespace tl
                 double viewZoom = 1.0;
                 bool frameView = true;
                 otime::TimeRange timeRange = time::invalidTimeRange;
-                std::vector<image::Size> sizes;
                 std::vector<timeline::VideoData> videoData;
                 std::shared_ptr<image::Image> overlay;
 
@@ -466,12 +464,10 @@ namespace tl
                     p.mutex.playback = timeline::Playback::Stop;
                     p.mutex.currentTime = time::invalidTime;
                 }
-                p.mutex.sizes.clear();
                 p.mutex.videoData.clear();
                 p.mutex.audioData.clear();
                 if (p.player)
                 {
-                    p.mutex.sizes = p.player->getSizes();
                     p.mutex.videoData = p.player->getCurrentVideo();
                     p.mutex.audioData = p.player->getCurrentAudio();
                 }
@@ -554,7 +550,6 @@ namespace tl
                                 _p->thread.timeRange != _p->mutex.timeRange ||
                                 playback != _p->mutex.playback ||
                                 currentTime != _p->mutex.currentTime ||
-                                _p->thread.sizes != _p->mutex.sizes ||
                                 _p->thread.videoData != _p->mutex.videoData ||
                                 _p->thread.overlay != _p->mutex.overlay ||
                                 volume != _p->mutex.volume ||
@@ -586,7 +581,6 @@ namespace tl
                             p.thread.viewPos != p.mutex.viewPos ||
                             p.thread.viewZoom != p.mutex.viewZoom ||
                             p.thread.frameView != p.mutex.frameView ||
-                            p.thread.sizes != p.mutex.sizes ||
                             p.thread.videoData != p.mutex.videoData ||
                             p.thread.overlay != p.mutex.overlay;
                         ocioOptions = p.mutex.ocioOptions;
@@ -600,7 +594,6 @@ namespace tl
                         p.thread.viewPos = p.mutex.viewPos;
                         p.thread.viewZoom = p.mutex.viewZoom;
                         p.thread.frameView = p.mutex.frameView;
-                        p.thread.sizes = p.mutex.sizes;
                         p.thread.videoData = p.mutex.videoData;
                         p.thread.overlay = p.mutex.overlay;
 
@@ -925,7 +918,7 @@ namespace tl
             // Create the offscreen buffer.
             const math::Size2i renderSize = timeline::getRenderSize(
                 compareOptions.mode,
-                p.thread.sizes);
+                p.thread.videoData);
             gl::OffscreenBufferOptions offscreenBufferOptions;
             offscreenBufferOptions.colorType = getOffscreenType(p.thread.outputPixelType);
             if (!displayOptions.empty())
@@ -977,7 +970,7 @@ namespace tl
                 {
                     p.thread.render->drawVideo(
                         p.thread.videoData,
-                        timeline::getBoxes(compareOptions.mode, p.thread.sizes),
+                        timeline::getBoxes(compareOptions.mode, p.thread.videoData),
                         imageOptions,
                         displayOptions,
                         compareOptions,

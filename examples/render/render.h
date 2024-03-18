@@ -81,7 +81,6 @@ namespace tl
                 Options _options;
 
                 std::shared_ptr<timeline::Player> _player;
-                std::vector<image::Size> _videoSizes;
 
                 std::shared_ptr<gl::GLFWWindow> _window;
                 math::Size2i _frameBufferSize;

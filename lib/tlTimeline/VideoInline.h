@@ -25,6 +25,7 @@ namespace tl
         inline bool VideoData::operator == (const VideoData& other) const
         {
             return
+                size == other.size &&
                 time::compareExact(time, other.time) &&
                 layers == other.layers;
         }

@@ -379,7 +379,7 @@ namespace tl
                         p.render->begin(viewportSize);
                         p.render->setOCIOOptions(p.ocioOptions);
                         p.render->setLUTOptions(p.lutOptions);
-                        if (p.player && !p.videoData.empty())
+                        if (!p.videoData.empty())
                         {
                             math::Matrix4x4f vm;
                             vm = vm * math::translate(math::Vector3f(p.viewPos.x, p.viewPos.y, 0.F));
@@ -394,7 +394,7 @@ namespace tl
                             p.render->setTransform(pm * vm);
                             p.render->drawVideo(
                                 p.videoData,
-                                timeline::getBoxes(p.compareOptions.mode, p.player->sizes()),
+                                timeline::getBoxes(p.compareOptions.mode, p.videoData),
                                 p.imageOptions,
                                 p.displayOptions,
                                 p.compareOptions,
@@ -615,12 +615,7 @@ namespace tl
         math::Size2i TimelineViewport::_renderSize() const
         {
             TLRENDER_P();
-            math::Size2i out;
-            if (p.player)
-            {
-                out = timeline::getRenderSize(p.compareOptions.mode, p.player->sizes());
-            }
-            return out;
+            return timeline::getRenderSize(p.compareOptions.mode, p.videoData);
         }
 
         void TimelineViewport::_frameView()

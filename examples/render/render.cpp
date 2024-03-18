@@ -135,7 +135,6 @@ namespace tl
                         compare.push_back(timeline::Timeline::create(_options.compareFileName, _context));
                     }
                     _player->setCompare(compare);
-                    _videoSizes = _player->getSizes();
                     _videoDataObserver = observer::ListObserver<timeline::VideoData>::create(
                         _player->observeCurrentVideo(),
                         [this](const std::vector<timeline::VideoData>& value)
@@ -404,7 +403,7 @@ namespace tl
                 const float viewportAspect = viewportSize.getAspect();
                 const math::Size2i renderSize = timeline::getRenderSize(
                     compareOptions.mode,
-                    _videoSizes);
+                    _videoData);
                 const float renderSizeAspect = renderSize.getAspect();
                 image::Size transformSize;
                 math::Vector2f transformOffset;
@@ -440,7 +439,7 @@ namespace tl
                     math::translate(math::Vector3f(-renderSize.w / 2, -renderSize.h / 2, 0.F)));
                 _render->drawVideo(
                     _videoData,
-                    timeline::getBoxes(compareOptions.mode, _videoSizes),
+                    timeline::getBoxes(compareOptions.mode, _videoData),
                     {},
                     {},
                     compareOptions);

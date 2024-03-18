@@ -393,22 +393,6 @@ namespace tl
             return _p->ioInfo;
         }
 
-        std::vector<image::Size> Player::getSizes() const
-        {
-            TLRENDER_P();
-            std::vector<image::Size> out;
-            out.push_back(!_p->ioInfo.video.empty() ?
-                _p->ioInfo.video.front().size :
-                image::Size());
-            for (const auto& compare : p.compare->get())
-            {
-                out.push_back(compare && !compare->getIOInfo().video.empty() ?
-                    compare->getIOInfo().video.front().size :
-                    image::Size());
-            }
-            return out;
-        }
-
         double Player::getDefaultSpeed() const
         {
             return _p->timeline->getTimeRange().duration().rate();
