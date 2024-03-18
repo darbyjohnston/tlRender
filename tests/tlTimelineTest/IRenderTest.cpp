@@ -26,7 +26,6 @@ namespace tl
         void IRenderTest::run()
         {
             _enums();
-            _util();
         }
 
         void IRenderTest::_enums()
@@ -34,16 +33,6 @@ namespace tl
             _enum<InputVideoLevels>("InputVideoLevels", getInputVideoLevelsEnums);
             _enum<Channels>("Channels", getChannelsEnums);
             _enum<AlphaBlend>("AlphaBlend", getAlphaBlendEnums);
-            _enum<CompareMode>("CompareMode", getCompareModeEnums);
-        }
-
-        void IRenderTest::_util()
-        {
-            {
-                math::Size2i size = getRenderSize(CompareMode::A, {});
-                TLRENDER_ASSERT(0 == size.w);
-                TLRENDER_ASSERT(0 == size.h);
-            }
         }
     }
 }

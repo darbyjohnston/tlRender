@@ -37,12 +37,12 @@ namespace tl
                 TLRENDER_ASSERT(options != CompareOptions());
             }
             {
-                const std::vector<VideoData> videoData =
+                const std::vector<image::Size> sizes =
                 {
-                    { image::Size(1920, 1080) },
-                    { image::Size(1920 / 2, 1080 / 2) },
-                    { image::Size(1920 / 2, 1080 / 2) },
-                    { image::Size(1920 / 2, 1080 / 2) }
+                    image::Size(1920, 1080),
+                    image::Size(1920 / 2, 1080 / 2),
+                    image::Size(1920 / 2, 1080 / 2),
+                    image::Size(1920 / 2, 1080 / 2)
                 };
 
                 for (auto mode :
@@ -54,35 +54,35 @@ namespace tl
                         CompareMode::Difference
                     })
                 {
-                    auto boxes = getBoxes(mode, videoData);
+                    auto boxes = getBoxes(mode, sizes);
                     TLRENDER_ASSERT(2 == boxes.size());
                     TLRENDER_ASSERT(math::Box2i(0, 0, 1920, 1080) == boxes[0]);
                     TLRENDER_ASSERT(math::Box2i(0, 0, 1920, 1080) == boxes[1]);
-                    auto renderSize = getRenderSize(mode, videoData);
+                    auto renderSize = getRenderSize(mode, sizes);
                     TLRENDER_ASSERT(math::Size2i(1920, 1080) == renderSize);
                 }
 
-                auto boxes = getBoxes(CompareMode::Horizontal, videoData);
+                auto boxes = getBoxes(CompareMode::Horizontal, sizes);
                 TLRENDER_ASSERT(2 == boxes.size());
                 TLRENDER_ASSERT(math::Box2i(0, 0, 1920, 1080) == boxes[0]);
                 TLRENDER_ASSERT(math::Box2i(1920, 0, 1920, 1080) == boxes[1]);
-                auto renderSize = getRenderSize(CompareMode::Horizontal, videoData);
+                auto renderSize = getRenderSize(CompareMode::Horizontal, sizes);
                 TLRENDER_ASSERT(math::Size2i(1920 * 2, 1080) == renderSize);
 
-                boxes = getBoxes(CompareMode::Vertical, videoData);
+                boxes = getBoxes(CompareMode::Vertical, sizes);
                 TLRENDER_ASSERT(2 == boxes.size());
                 TLRENDER_ASSERT(math::Box2i(0, 0, 1920, 1080) == boxes[0]);
                 TLRENDER_ASSERT(math::Box2i(0, 1080, 1920, 1080) == boxes[1]);
-                renderSize = getRenderSize(CompareMode::Vertical, videoData);
+                renderSize = getRenderSize(CompareMode::Vertical, sizes);
                 TLRENDER_ASSERT(math::Size2i(1920, 1080 * 2) == renderSize);
 
-                boxes = getBoxes(CompareMode::Tile, videoData);
+                boxes = getBoxes(CompareMode::Tile, sizes);
                 TLRENDER_ASSERT(4 == boxes.size());
                 TLRENDER_ASSERT(math::Box2i(0, 0, 1920, 1080) == boxes[0]);
                 TLRENDER_ASSERT(math::Box2i(1920, 0, 1920, 1080) == boxes[1]);
                 TLRENDER_ASSERT(math::Box2i(0, 1080, 1920, 1080) == boxes[2]);
                 TLRENDER_ASSERT(math::Box2i(1920, 1080, 1920, 1080) == boxes[3]);
-                renderSize = getRenderSize(CompareMode::Tile, videoData);
+                renderSize = getRenderSize(CompareMode::Tile, sizes	);
                 TLRENDER_ASSERT(math::Size2i(1920 * 2, 1080 * 2) == renderSize);
             }
             {

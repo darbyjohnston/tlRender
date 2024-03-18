@@ -53,9 +53,15 @@ namespace tl
         };
 
         //! Get the boxes for the given compare mode and sizes.
+        std::vector<math::Box2i> getBoxes(CompareMode, const std::vector<image::Size>&);
+
+        //! Get the boxes for the given compare mode and video data.
         std::vector<math::Box2i> getBoxes(CompareMode, const std::vector<VideoData>&);
 
         //! Get the render size for the given compare mode and sizes.
+        math::Size2i getRenderSize(CompareMode, const std::vector<image::Size>&);
+
+        //! Get the render size for the given compare mode and video data.
         math::Size2i getRenderSize(CompareMode, const std::vector<VideoData>&);
 
         //! Get a compare time.
