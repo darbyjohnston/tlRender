@@ -22,7 +22,6 @@ namespace tl
 
         private:
             void _enums();
-            void _util();
         };
     }
 }
