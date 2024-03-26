@@ -314,7 +314,9 @@ namespace tl
             TLRENDER_P();
             const int sa = event.style->getSizeRole(ui::SizeRole::ScrollArea, _displayScale);
             _sizeHint.w = sa;
-            _sizeHint.h = sa * 2;
+            //! \bug Hard-coded vertical size hint.
+            //_sizeHint.h = 226;
+            _sizeHint.h = 376;
         }
 
         void TimelineWidget::mouseMoveEvent(ui::MouseMoveEvent& event)
