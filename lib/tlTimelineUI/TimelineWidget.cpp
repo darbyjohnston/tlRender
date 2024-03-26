@@ -314,7 +314,7 @@ namespace tl
             TLRENDER_P();
             const int sa = event.style->getSizeRole(ui::SizeRole::ScrollArea, _displayScale);
             _sizeHint.w = sa;
-            //! \bug Hard-coded vertical size hint.
+            //! \bug Hard-coded size hint.
             //_sizeHint.h = 226;
             _sizeHint.h = 376;
         }

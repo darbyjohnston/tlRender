@@ -262,7 +262,7 @@ namespace tl
 
         QSize TimelineWidget::minimumSizeHint() const
         {
-            //! \bug Hard-coded vertical size hint.
+            //! \bug Hard-coded size hint.
             //return QSize(100, 113);
             return QSize(100, 188);
         }
