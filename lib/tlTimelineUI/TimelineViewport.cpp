@@ -34,15 +34,16 @@ namespace tl
             std::shared_ptr<observer::Value<bool> > frameView;
             std::function<void(bool)> frameViewCallback;
             std::function<void(const math::Vector2i&, double)> viewPosAndZoomCallback;
-
-            struct DroppedFrames
+            std::shared_ptr<observer::Value<double> > fps;
+            std::chrono::steady_clock::time_point fpsTimer;
+            size_t fpsFrameCount = 0;
+            std::shared_ptr<observer::Value<size_t> > droppedFrames;
+            struct DroppedFramesData
             {
                 bool init = true;
                 double frame = 0.0;
-                size_t count = 0;
-                std::function<void(size_t)> callback;
             };
-            DroppedFrames droppedFrames;
+            DroppedFramesData droppedFramesData;
             
             bool doRender = false;
             std::shared_ptr<gl::OffscreenBuffer> buffer;
@@ -78,6 +79,8 @@ namespace tl
             _setMousePress(true);
 
             p.frameView = observer::Value<bool>::create(true);
+            p.fps = observer::Value<double>::create(0.0);
+            p.droppedFrames = observer::Value<size_t>::create(0);
         }
 
         TimelineViewport::TimelineViewport() :
@@ -180,7 +183,9 @@ namespace tl
                         {
                         case timeline::Playback::Forward:
                         case timeline::Playback::Reverse:
-                            _p->droppedFrames.init = true;
+                            _p->fpsTimer = std::chrono::steady_clock::now();
+                            _p->fpsFrameCount = 0;
+                            _p->droppedFramesData.init = true;
                             break;
                         default: break;
                         }
@@ -190,6 +195,16 @@ namespace tl
                     [this](const std::vector<timeline::VideoData>& value)
                     {
                         _p->videoData = value;
+                        _p->fpsFrameCount = _p->fpsFrameCount + 1;
+                        const auto now = std::chrono::steady_clock::now();
+                        const std::chrono::duration<double> diff = now - _p->fpsTimer;
+                        if (diff.count() > 1.0)
+                        {
+                            const double fps = _p->fpsFrameCount / diff.count();
+                            _p->fps->setIfChanged(fps);
+                            _p->fpsTimer = now;
+                            _p->fpsFrameCount = 0;
+                        }
                         _p->doRender = true;
                         _updates |= ui::Update::Draw;
                     });
@@ -288,6 +303,26 @@ namespace tl
             const std::function<void(const math::Vector2i&, double)>& value)
         {
             _p->viewPosAndZoomCallback = value;
+        }
+
+        double TimelineViewport::getFPS() const
+        {
+            return _p->fps->get();
+        }
+
+        std::shared_ptr<observer::IValue<double> > TimelineViewport::observeFPS() const
+        {
+            return _p->fps;
+        }
+
+        size_t TimelineViewport::getDroppedFrames() const
+        {
+            return _p->droppedFrames->get();
+        }
+
+        std::shared_ptr<observer::IValue<size_t> > TimelineViewport::observeDroppedFrames() const
+        {
+            return _p->droppedFrames;
         }
 
         void TimelineViewport::setGeometry(const math::Box2i& value)
@@ -562,28 +597,20 @@ namespace tl
         void TimelineViewport::_droppedFramesUpdate(const otime::RationalTime& value)
         {
             TLRENDER_P();
-            if (value != time::invalidTime && p.droppedFrames.init)
+            if (value != time::invalidTime && p.droppedFramesData.init)
             {
-                p.droppedFrames.init = false;
-                p.droppedFrames.count = 0;
-                if (p.droppedFrames.callback)
-                {
-                    p.droppedFrames.callback(p.droppedFrames.count);
-                }
+                p.droppedFramesData.init = false;
+                p.droppedFrames->setIfChanged(0);
             }
             else
             {
-                const double frameDiff = value.value() - p.droppedFrames.frame;
+                const double frameDiff = value.value() - p.droppedFramesData.frame;
                 if (std::abs(frameDiff) > 1.0)
                 {
-                    ++p.droppedFrames.count;
-                    if (p.droppedFrames.callback)
-                    {
-                        p.droppedFrames.callback(p.droppedFrames.count);
-                    }
+                    p.droppedFrames->setIfChanged(p.droppedFrames->get() + 1);
                 }
             }
-            p.droppedFrames.frame = value.value();
+            p.droppedFramesData.frame = value.value();
         }
     }
 }
