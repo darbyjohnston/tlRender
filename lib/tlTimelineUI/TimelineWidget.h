@@ -103,6 +103,12 @@ namespace tl
             //! Set the item options.
             void setItemOptions(const ItemOptions&);
 
+            //! Get the frame markers.
+            const std::vector<otime::RationalTime>& getFrameMarkers() const;
+
+            //! Set the frame markers.
+            void setFrameMarkers(const std::vector<otime::RationalTime>&);
+
             void setGeometry(const math::Box2i&) override;
             void tickEvent(
                 bool,

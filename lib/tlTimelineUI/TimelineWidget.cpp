@@ -26,6 +26,7 @@ namespace tl
             float mouseWheelScale = 1.1F;
             double scale = 500.0;
             std::shared_ptr<observer::Value<ItemOptions> > itemOptions;
+            std::vector<otime::RationalTime> frameMarkers;
             bool sizeInit = true;
 
             std::shared_ptr<gl::GLFWWindow> window;
@@ -283,19 +284,32 @@ namespace tl
             }
         }
 
+        const std::vector<otime::RationalTime>& TimelineWidget::getFrameMarkers() const
+        {
+            return _p->frameMarkers;
+        }
+
+        void TimelineWidget::setFrameMarkers(const std::vector<otime::RationalTime>& value)
+        {
+            TLRENDER_P();
+            if (value == p.frameMarkers)
+                return;
+            p.frameMarkers = value;
+            if (p.timelineItem)
+            {
+                p.timelineItem->setFrameMarkers(value);
+            }
+        }
+
         void TimelineWidget::setGeometry(const math::Box2i& value)
         {
             const bool changed = value != _geometry;
             IWidget::setGeometry(value);
             TLRENDER_P();
             p.scrollWidget->setGeometry(value);
-            if (p.sizeInit)
+            if (p.sizeInit || (changed && p.frameView->get()))
             {
                 p.sizeInit = false;
-                frameView();
-            }
-            else if (changed && p.frameView->get())
-            {
                 frameView();
             }
         }
@@ -522,6 +536,7 @@ namespace tl
                         context);
                     p.timelineItem->setEditable(p.editable->get());
                     p.timelineItem->setStopOnScrub(p.stopOnScrub->get());
+                    p.timelineItem->setFrameMarkers(p.frameMarkers);
                     p.scrollWidget->setScrollPos(scrollPos);
                     p.scrollWidget->setWidget(p.timelineItem);
                 }

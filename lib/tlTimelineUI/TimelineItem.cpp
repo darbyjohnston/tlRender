@@ -29,6 +29,7 @@ namespace tl
             timeline::PlayerCacheInfo cacheInfo;
             bool editable = false;
             bool stopOnScrub = true;
+            std::vector<otime::RationalTime> frameMarkers;
             std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator;
 
             struct Track
@@ -288,6 +289,15 @@ namespace tl
             _p->stopOnScrub = value;
         }
 
+        void TimelineItem::setFrameMarkers(const std::vector<otime::RationalTime>& value)
+        {
+            TLRENDER_P();
+            if (value == p.frameMarkers)
+                return;
+            p.frameMarkers = value;
+            _updates |= ui::Update::Draw;
+        }
+
         void TimelineItem::setOptions(const ItemOptions& value)
         {
             const bool changed = value != _options;
@@ -433,6 +443,8 @@ namespace tl
 
             _drawInOutPoints(drawRect, event);
             _drawTimeTicks(drawRect, event);
+            _drawFrameMarkers(drawRect, event);
+            _drawTimeLabels(drawRect, event);
             _drawCacheInfo(drawRect, event);
             _drawCurrentTime(drawRect, event);
 
@@ -677,6 +689,47 @@ namespace tl
             }
         }
 
+        math::Size2i TimelineItem::_getLabelMaxSize(
+            const std::shared_ptr<image::FontSystem>& fontSystem) const
+        {
+            TLRENDER_P();
+            const std::string labelMax = _data->timeUnitsModel->getLabel(_timeRange.duration());
+            const math::Size2i labelMaxSize = fontSystem->getSize(labelMax, p.size.fontInfo);
+            return labelMaxSize;
+        }
+
+        void TimelineItem::_getTimeTicks(
+            const std::shared_ptr<image::FontSystem>& fontSystem,
+            double& seconds,
+            int& tick)
+        {
+            TLRENDER_P();
+            const int w = _sizeHint.w;
+            const float duration = _timeRange.duration().rescaled_to(1.0).value();
+            const int secondsTick = 1.0 / duration * w;
+            const int minutesTick = 60.0 / duration * w;
+            const int hoursTick = 3600.0 / duration * w;
+            const math::Size2i labelMaxSize = _getLabelMaxSize(fontSystem);
+            const int distanceMin = p.size.border + p.size.margin + labelMaxSize.w;
+            seconds = 0.0;
+            tick = 0;
+            if (secondsTick >= distanceMin)
+            {
+                seconds = 1.0;
+                tick = secondsTick;
+            }
+            else if (minutesTick >= distanceMin)
+            {
+                seconds = 60.0;
+                tick = minutesTick;
+            }
+            else if (hoursTick >= distanceMin)
+            {
+                seconds = 3600.0;
+                tick = hoursTick;
+            }
+        }
+
         void TimelineItem::_drawTimeTicks(
             const math::Box2i& drawRect,
             const ui::DrawEvent& event)
@@ -685,11 +738,6 @@ namespace tl
             if (_timeRange != time::invalidTimeRange)
             {
                 const math::Box2i& g = _geometry;
-
-                const std::string labelMax = _data->timeUnitsModel->getLabel(_timeRange.duration());
-                const math::Size2i labelMaxSize = event.fontSystem->getSize(labelMax, p.size.fontInfo);
-                const int distanceMin = p.size.border + p.size.margin + labelMaxSize.w;
-
                 const int w = _sizeHint.w;
                 const float duration = _timeRange.duration().rescaled_to(1.0).value();
                 const int frameTick = 1.0 / _timeRange.duration().value() * w;
@@ -729,26 +777,9 @@ namespace tl
                     }
                 }
 
-                const int secondsTick = 1.0 / duration * w;
-                const int minutesTick = 60.0 / duration * w;
-                const int hoursTick = 3600.0 / duration * w;
                 double seconds = 0;
                 int tick = 0;
-                if (secondsTick >= distanceMin)
-                {
-                    seconds = 1.0;
-                    tick = secondsTick;
-                }
-                else if (minutesTick >= distanceMin)
-                {
-                    seconds = 60.0;
-                    tick = minutesTick;
-                }
-                else if (hoursTick >= distanceMin)
-                {
-                    seconds = 3600.0;
-                    tick = hoursTick;
-                }
+                _getTimeTicks(event.fontSystem, seconds, tick);
                 if (seconds > 0.0 && tick > 0)
                 {
                     geom::TriangleMesh2 mesh;
@@ -783,7 +814,52 @@ namespace tl
                             math::Vector2i(),
                             event.style->getColorRole(ui::ColorRole::Button));
                     }
+                }
+            }
+        }
 
+        void TimelineItem::_drawFrameMarkers(
+            const math::Box2i& drawRect,
+            const ui::DrawEvent& event)
+        {
+            TLRENDER_P();
+            const math::Box2i& g = _geometry;
+            for (const auto& frameMarker : p.frameMarkers)
+            {
+                const math::Box2i g2(
+                    _timeToPos(frameMarker),
+                    p.size.scrollPos.y +
+                    g.min.y,
+                    p.size.border * 2,
+                    p.size.margin +
+                    p.size.fontMetrics.lineHeight +
+                    p.size.margin +
+                    p.size.border * 4);
+                if (g2.intersects(drawRect))
+                {
+                    event.render->drawRect(
+                        g2,
+                        event.style->getColorRole(ui::ColorRole::FrameMarker));
+                }
+            }
+        }
+
+        void TimelineItem::_drawTimeLabels(
+            const math::Box2i& drawRect,
+            const ui::DrawEvent& event)
+        {
+            TLRENDER_P();
+            if (_timeRange != time::invalidTimeRange)
+            {
+                const math::Box2i& g = _geometry;
+                const int w = _sizeHint.w;
+                const float duration = _timeRange.duration().rescaled_to(1.0).value();
+                double seconds = 0;
+                int tick = 0;
+                _getTimeTicks(event.fontSystem, seconds, tick);
+                if (seconds > 0.0 && tick > 0)
+                {
+                    const math::Size2i labelMaxSize = _getLabelMaxSize(event.fontSystem);
                     const otime::RationalTime& currentTime = p.player->observeCurrentTime()->get();
                     for (double t = 0.0; t < duration; t += seconds)
                     {

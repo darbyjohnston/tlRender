@@ -67,6 +67,9 @@ namespace tl
             //! Set whether playback stops when scrubbing.
             void setStopOnScrub(bool);
 
+            //! Set the frame markers.
+            void setFrameMarkers(const std::vector<otime::RationalTime>&);
+
             void setOptions(const ItemOptions&) override;
 
             void setGeometry(const math::Box2i&) override;
@@ -87,7 +90,19 @@ namespace tl
             void _drawInOutPoints(
                 const math::Box2i&,
                 const ui::DrawEvent&);
+            math::Size2i _getLabelMaxSize(
+                const std::shared_ptr<image::FontSystem>&) const;
+            void _getTimeTicks(
+                const std::shared_ptr<image::FontSystem>&,
+                double& seconds,
+                int& tick);
             void _drawTimeTicks(
+                const math::Box2i&,
+                const ui::DrawEvent&);
+            void _drawFrameMarkers(
+                const math::Box2i&,
+                const ui::DrawEvent&);
+            void _drawTimeLabels(
                 const math::Box2i&,
                 const ui::DrawEvent&);
             void _drawCacheInfo(

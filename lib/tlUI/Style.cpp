@@ -80,6 +80,7 @@ namespace tl
             "ToolTipText",
 
             "InOut",
+            "FrameMarker",
             "VideoCache",
             "AudioCache",
             "VideoClip",
@@ -116,6 +117,7 @@ namespace tl
             out[ColorRole::ToolTipText] = image::Color4f(0.F, 0.F, 0.F);
 
             out[ColorRole::InOut] = image::Color4f(1.F, .7F, .2F, .1F);
+            out[ColorRole::FrameMarker] = image::Color4f(.6F, .4F, .2F);
             out[ColorRole::VideoCache] = image::Color4f(.2F, .4F, .4F);
             out[ColorRole::AudioCache] = image::Color4f(.3F, .25F, .4F);
             out[ColorRole::VideoClip] = image::Color4f(.2F, .4F, .4F);

@@ -65,6 +65,7 @@ namespace tl
             ToolTipText,
 
             InOut,
+            FrameMarker,
             VideoCache,
             AudioCache,
             VideoClip,
