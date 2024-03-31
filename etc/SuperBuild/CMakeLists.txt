@@ -45,11 +45,7 @@ set(CMAKE_MODULE_PATH
     ${PROJECT_SOURCE_DIR}/../../cmake/Modules
     ${PROJECT_SOURCE_DIR}/cmake/Modules)
 if(NOT CMAKE_CXX_STANDARD)
-    if(TLRENDER_USD OR TLRENDER_QT6)
-        set(CMAKE_CXX_STANDARD 17)
-    else()
-        set(CMAKE_CXX_STANDARD 14)
-    endif()
+    set(CMAKE_CXX_STANDARD 17)
 endif()
 if(NOT BUILD_SHARED_LIBS)
     set(BUILD_SHARED_LIBS OFF)
