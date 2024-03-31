@@ -68,7 +68,7 @@ namespace tl
             void setStopOnScrub(bool);
 
             //! Set the frame markers.
-            void setFrameMarkers(const std::vector<otime::RationalTime>&);
+            void setFrameMarkers(const std::vector<int64_t>&);
 
             void setOptions(const ItemOptions&) override;
 

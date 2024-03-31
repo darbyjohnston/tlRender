@@ -260,6 +260,11 @@ namespace tl
             return _p->timelineWidget->getItemOptions();
         }
 
+        const std::vector<int64_t>& TimelineWidget::frameMarkers() const
+        {
+            return _p->timelineWidget->getFrameMarkers();
+        }
+
         QSize TimelineWidget::minimumSizeHint() const
         {
             //! \bug Hard-coded size hint.
@@ -300,6 +305,11 @@ namespace tl
         void TimelineWidget::setItemOptions(const timelineui::ItemOptions& value)
         {
             _p->timelineWidget->setItemOptions(value);
+        }
+
+        void TimelineWidget::setFrameMarkers(const std::vector<int64_t>& value)
+        {
+            _p->timelineWidget->setFrameMarkers(value);
         }
 
         void TimelineWidget::initializeGL()
