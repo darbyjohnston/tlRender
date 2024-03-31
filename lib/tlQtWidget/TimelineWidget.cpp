@@ -260,7 +260,7 @@ namespace tl
             return _p->timelineWidget->getItemOptions();
         }
 
-        const std::vector<int64_t>& TimelineWidget::frameMarkers() const
+        const std::vector<int>& TimelineWidget::frameMarkers() const
         {
             return _p->timelineWidget->getFrameMarkers();
         }
@@ -307,7 +307,7 @@ namespace tl
             _p->timelineWidget->setItemOptions(value);
         }
 
-        void TimelineWidget::setFrameMarkers(const std::vector<int64_t>& value)
+        void TimelineWidget::setFrameMarkers(const std::vector<int>& value)
         {
             _p->timelineWidget->setFrameMarkers(value);
         }

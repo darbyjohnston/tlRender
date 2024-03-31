@@ -59,7 +59,7 @@ namespace tl
             const timelineui::ItemOptions& itemOptions() const;
 
             //! Get the frame markers.
-            const std::vector<int64_t>& frameMarkers() const;
+            const std::vector<int>& frameMarkers() const;
 
             QSize minimumSizeHint() const override;
 
@@ -86,7 +86,7 @@ namespace tl
             void setItemOptions(const timelineui::ItemOptions&);
 
             //! Set the frame markers.
-            void setFrameMarkers(const std::vector<int64_t>&);
+            void setFrameMarkers(const std::vector<int>&);
 
         Q_SIGNALS:
             //! This signal is emitted when the editable timeline is changed.
