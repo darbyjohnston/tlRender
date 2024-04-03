@@ -44,6 +44,12 @@ namespace tl
             //! Get whether the view is framed.
             bool hasFrameView() const;
 
+            //! Get the frames per second.
+            double getFPS() const;
+
+            //! Get the number of dropped frames during playback.
+            size_t getDroppedFrames() const;
+
         public Q_SLOTS:
             //! Set the OpenColorIO options.
             void setOCIOOptions(const timeline::OCIOOptions&);
@@ -93,6 +99,9 @@ namespace tl
 
             //! This signal is emitted when the frame view is changed.
             void frameViewChanged(bool);
+
+            //! This signal is emitetd when the FPS is changed.
+            void fpsChanged(double);
 
             //! This signal is emitted when the dropped frames count is changed.
             void droppedFramesChanged(bool);

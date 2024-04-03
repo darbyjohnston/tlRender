@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: BSD-3-Clause
+// SPDX-License-Identifier: BSD-3-Clause
 // Copyright (c) 2021-2024 Darby Johnston
 // All rights reserved.
 
@@ -35,8 +36,12 @@ namespace tl
             std::function<void(bool)> frameViewCallback;
             std::function<void(const math::Vector2i&, double)> viewPosAndZoomCallback;
             std::shared_ptr<observer::Value<double> > fps;
-            std::chrono::steady_clock::time_point fpsTimer;
-            size_t fpsFrameCount = 0;
+            struct FpsData
+            {
+                std::chrono::steady_clock::time_point timer;
+                size_t frameCount = 0;
+            };
+            FpsData fpsData;
             std::shared_ptr<observer::Value<size_t> > droppedFrames;
             struct DroppedFramesData
             {
@@ -183,8 +188,8 @@ namespace tl
                         {
                         case timeline::Playback::Forward:
                         case timeline::Playback::Reverse:
-                            _p->fpsTimer = std::chrono::steady_clock::now();
-                            _p->fpsFrameCount = 0;
+                            _p->fpsData.timer = std::chrono::steady_clock::now();
+                            _p->fpsData.frameCount = 0;
                             _p->droppedFramesData.init = true;
                             break;
                         default: break;
@@ -195,16 +200,19 @@ namespace tl
                     [this](const std::vector<timeline::VideoData>& value)
                     {
                         _p->videoData = value;
-                        _p->fpsFrameCount = _p->fpsFrameCount + 1;
+
+                        _p->fpsData.frameCount = _p->fpsData.frameCount + 1;
                         const auto now = std::chrono::steady_clock::now();
-                        const std::chrono::duration<double> diff = now - _p->fpsTimer;
+                        const std::chrono::duration<double> diff = now - _p->fpsData.timer;
                         if (diff.count() > 1.0)
                         {
-                            const double fps = _p->fpsFrameCount / diff.count();
+                            const double fps = _p->fpsData.frameCount / diff.count();
+                            //std::cout << "FPS: " << fps << std::endl;
                             _p->fps->setIfChanged(fps);
-                            _p->fpsTimer = now;
-                            _p->fpsFrameCount = 0;
+                            _p->fpsData.timer = now;
+                            _p->fpsData.frameCount = 0;
                         }
+
                         _p->doRender = true;
                         _updates |= ui::Update::Draw;
                     });

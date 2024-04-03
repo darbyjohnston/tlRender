@@ -38,14 +38,20 @@ namespace tl
             math::Vector2i viewPos;
             double viewZoom = 1.0;
             bool frameView = true;
-
-            struct DroppedFrames
+            struct FpsData
             {
+                double fps = 0.0;
+                std::chrono::steady_clock::time_point timer;
+                size_t frameCount = 0;
+            };
+            FpsData fpsData;
+            struct DroppedFramesData
+            {
+                size_t dropped = 0;
                 bool init = true;
                 double frame = 0.0;
-                size_t count = 0;
             };
-            DroppedFrames droppedFrames;
+            DroppedFramesData droppedFramesData;
 
             enum class MouseMode
             {
@@ -98,6 +104,16 @@ namespace tl
         bool TimelineViewport::hasFrameView() const
         {
             return _p->frameView;
+        }
+
+        double TimelineViewport::getFPS() const
+        {
+            return _p->fpsData.fps;
+        }
+
+        size_t TimelineViewport::getDroppedFrames() const
+        {
+            return _p->droppedFramesData.dropped;
         }
 
         void TimelineViewport::setOCIOOptions(const timeline::OCIOOptions& value)
@@ -259,7 +275,9 @@ namespace tl
             {
             case timeline::Playback::Forward:
             case timeline::Playback::Reverse:
-                p.droppedFrames.init = true;
+                p.fpsData.timer = std::chrono::steady_clock::now();
+                p.fpsData.frameCount = 0;
+                p.droppedFramesData.init = true;
                 break;
             default: break;
             }
@@ -268,7 +286,25 @@ namespace tl
         void TimelineViewport::_videoDataUpdate(const std::vector<timeline::VideoData>& value)
         {
             TLRENDER_P();
+
             p.videoData = value;
+
+            p.fpsData.frameCount = p.fpsData.frameCount + 1;
+            const auto now = std::chrono::steady_clock::now();
+            const std::chrono::duration<double> diff = now - p.fpsData.timer;
+            if (diff.count() > 1.0)
+            {
+                const double fps = p.fpsData.frameCount / diff.count();
+                //std::cout << "FPS: " << fps << std::endl;
+                if (fps != p.fpsData.fps)
+                {
+                    p.fpsData.fps = fps;
+                    Q_EMIT fpsChanged(fps);
+                }
+                p.fpsData.timer = now;
+                p.fpsData.frameCount = 0;
+            }
+
             p.doRender = true;
             update();
         }
@@ -647,22 +683,22 @@ namespace tl
         void TimelineViewport::_droppedFramesUpdate(const otime::RationalTime& value)
         {
             TLRENDER_P();
-            if (value != time::invalidTime && p.droppedFrames.init)
+            if (value != time::invalidTime && p.droppedFramesData.init)
             {
-                p.droppedFrames.init = false;
-                p.droppedFrames.count = 0;
-                Q_EMIT droppedFramesChanged(p.droppedFrames.count);
+                p.droppedFramesData.init = false;
+                p.droppedFramesData.dropped = 0;
+                Q_EMIT droppedFramesChanged(p.droppedFramesData.dropped);
             }
             else
             {
-                const double frameDiff = value.value() - p.droppedFrames.frame;
+                const double frameDiff = value.value() - p.droppedFramesData.frame;
                 if (std::abs(frameDiff) > 1.0)
                 {
-                    ++p.droppedFrames.count;
-                    Q_EMIT droppedFramesChanged(p.droppedFrames.count);
+                    ++(p.droppedFramesData.dropped);
+                    Q_EMIT droppedFramesChanged(p.droppedFramesData.dropped);
                 }
             }
-            p.droppedFrames.frame = value.value();
+            p.droppedFramesData.frame = value.value();
         }
     }
 }
