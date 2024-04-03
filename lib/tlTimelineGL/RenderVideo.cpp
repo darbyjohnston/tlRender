@@ -319,7 +319,7 @@ namespace tl
                     boxes[0].w(),
                     boxes[0].h());
                 gl::OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.colorType = gl::offscreenColorDefault;
+                offscreenBufferOptions.colorType = p.renderOptions.offscreenColorType;
                 if (!displayOptions.empty())
                 {
                     offscreenBufferOptions.colorFilters = displayOptions[0].imageFilters;
@@ -414,7 +414,7 @@ namespace tl
                     boxes[0].w(),
                     boxes[0].h());
                 gl::OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.colorType = gl::offscreenColorDefault;
+                offscreenBufferOptions.colorType = p.renderOptions.offscreenColorType;
                 if (!displayOptions.empty())
                 {
                     offscreenBufferOptions.colorFilters = displayOptions[0].imageFilters;
@@ -466,7 +466,7 @@ namespace tl
                 if (videoData.size() > 1)
                 {
                     offscreenBufferOptions = gl::OffscreenBufferOptions();
-                    offscreenBufferOptions.colorType = gl::offscreenColorDefault;
+                    offscreenBufferOptions.colorType = p.renderOptions.offscreenColorType;
                     if (displayOptions.size() > 1)
                     {
                         offscreenBufferOptions.colorFilters = displayOptions[1].imageFilters;
@@ -624,7 +624,7 @@ namespace tl
 
             const math::Size2i& offscreenBufferSize = box.getSize();
             gl::OffscreenBufferOptions offscreenBufferOptions;
-            offscreenBufferOptions.colorType = gl::offscreenColorDefault;
+            offscreenBufferOptions.colorType = p.renderOptions.offscreenColorType;
             offscreenBufferOptions.colorFilters = displayOptions.imageFilters;
             if (doCreate(
                 p.buffers["video"],

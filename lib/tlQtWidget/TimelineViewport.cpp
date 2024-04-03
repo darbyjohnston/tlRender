@@ -33,6 +33,7 @@ namespace tl
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
             timeline::BackgroundOptions backgroundOptions;
+            image::PixelType offscreenColorType = image::PixelType::RGBA_U8;
             QSharedPointer<qt::TimelinePlayer> player;
             std::vector<timeline::VideoData> videoData;
             math::Vector2i viewPos;
@@ -89,6 +90,11 @@ namespace tl
         TimelineViewport::~TimelineViewport()
         {
             makeCurrent();
+        }
+
+        image::PixelType TimelineViewport::offscreenColorType() const
+        {
+            return _p->offscreenColorType;
         }
 
         const math::Vector2i& TimelineViewport::viewPos() const
@@ -172,6 +178,16 @@ namespace tl
             if (value == p.backgroundOptions)
                 return;
             p.backgroundOptions = value;
+            p.doRender = true;
+            update();
+        }
+
+        void TimelineViewport::setOffscreenColorType(image::PixelType value)
+        {
+            TLRENDER_P();
+            if (value == p.offscreenColorType)
+                return;
+            p.offscreenColorType = value;
             p.doRender = true;
             update();
         }
@@ -392,7 +408,7 @@ namespace tl
                     if (viewportSize.isValid())
                     {
                         gl::OffscreenBufferOptions offscreenBufferOptions;
-                        offscreenBufferOptions.colorType = gl::offscreenColorDefault;
+                        offscreenBufferOptions.colorType = p.offscreenColorType;
                         if (!p.displayOptions.empty())
                         {
                             offscreenBufferOptions.colorFilters = p.displayOptions[0].imageFilters;
@@ -412,7 +428,9 @@ namespace tl
                     if (p.buffer)
                     {
                         gl::OffscreenBufferBinding binding(p.buffer);
-                        p.render->begin(viewportSize);
+                        timeline::RenderOptions renderOptions;
+                        renderOptions.offscreenColorType = p.offscreenColorType;
+                        p.render->begin(viewportSize, renderOptions);
                         p.render->setOCIOOptions(p.ocioOptions);
                         p.render->setLUTOptions(p.lutOptions);
                         if (!p.videoData.empty())

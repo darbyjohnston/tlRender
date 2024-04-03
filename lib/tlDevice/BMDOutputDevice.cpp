@@ -937,7 +937,9 @@ namespace tl
             {
                 gl::OffscreenBufferBinding binding(p.thread.offscreenBuffer);
 
-                p.thread.render->begin(p.thread.size);
+                timeline::RenderOptions renderOptions;
+                renderOptions.offscreenColorType = getOffscreenType(p.thread.outputPixelType);
+                p.thread.render->begin(p.thread.size, renderOptions);
                 p.thread.render->setOCIOOptions(ocioOptions);
                 p.thread.render->setLUTOptions(lutOptions);
 

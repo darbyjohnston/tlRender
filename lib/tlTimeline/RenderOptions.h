@@ -19,6 +19,9 @@ namespace tl
             //! Clear color.
             image::Color4f clearColor;
 
+            //! Offscreen color type.
+            image::PixelType offscreenColorType = image::PixelType::RGBA_U8;
+
             //! Texture cache byte count.
             size_t textureCacheByteCount = memory::gigabyte / 4;
 

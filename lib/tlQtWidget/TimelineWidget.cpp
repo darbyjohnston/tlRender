@@ -388,7 +388,7 @@ namespace tl
                     if (renderSize.isValid())
                     {
                         gl::OffscreenBufferOptions offscreenBufferOptions;
-                        offscreenBufferOptions.colorType = gl::offscreenColorDefault;
+                        offscreenBufferOptions.colorType = image::PixelType::RGBA_U8;
                         if (gl::doCreate(p.buffer, renderSize, offscreenBufferOptions))
                         {
                             p.buffer = gl::OffscreenBuffer::create(renderSize, offscreenBufferOptions);
