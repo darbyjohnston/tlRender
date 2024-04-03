@@ -35,6 +35,16 @@ namespace tl
 
             virtual ~TimelineViewport();
 
+            //! Get the view position.
+            const math::Vector2i& viewPos() const;
+
+            //! Get the view zoom.
+            double viewZoom() const;
+
+            //! Get whether the view is framed.
+            bool hasFrameView() const;
+
+        public Q_SLOTS:
             //! Set the OpenColorIO options.
             void setOCIOOptions(const timeline::OCIOOptions&);
 
@@ -56,16 +66,6 @@ namespace tl
             //! Set the timeline player.
             void setPlayer(const QSharedPointer<qt::TimelinePlayer>&);
 
-            //! Get the view position.
-            const math::Vector2i& viewPos() const;
-
-            //! Get the view zoom.
-            double viewZoom() const;
-
-            //! Get whether the view is framed.
-            bool hasFrameView() const;
-
-        public Q_SLOTS:
             //! Set the view position and zoom.
             void setViewPosAndZoom(const tl::math::Vector2i&, double);
 

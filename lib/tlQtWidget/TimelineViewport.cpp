@@ -85,6 +85,21 @@ namespace tl
             makeCurrent();
         }
 
+        const math::Vector2i& TimelineViewport::viewPos() const
+        {
+            return _p->viewPos;
+        }
+
+        double TimelineViewport::viewZoom() const
+        {
+            return _p->viewZoom;
+        }
+
+        bool TimelineViewport::hasFrameView() const
+        {
+            return _p->frameView;
+        }
+
         void TimelineViewport::setOCIOOptions(const timeline::OCIOOptions& value)
         {
             TLRENDER_P();
@@ -184,21 +199,6 @@ namespace tl
                     SIGNAL(currentVideoChanged(const std::vector<tl::timeline::VideoData>&)),
                     SLOT(_videoDataUpdate(const std::vector<tl::timeline::VideoData>&)));
             }
-        }
-
-        const math::Vector2i& TimelineViewport::viewPos() const
-        {
-            return _p->viewPos;
-        }
-
-        double TimelineViewport::viewZoom() const
-        {
-            return _p->viewZoom;
-        }
-
-        bool TimelineViewport::hasFrameView() const
-        {
-            return _p->frameView;
         }
 
         void TimelineViewport::setViewPosAndZoom(const math::Vector2i& pos, double zoom)
