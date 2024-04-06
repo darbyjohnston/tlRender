@@ -9,7 +9,8 @@ set(HEADERS
     TimelineWidget.h
     TransitionItem.h
     VideoClipItem.h)
-set(HEADERS_PRIVATE)
+set(HEADERS_PRIVATE
+    TimelineItemPrivate.h)
 
 set(SOURCE
     AudioClipItem.cpp

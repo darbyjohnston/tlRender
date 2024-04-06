@@ -134,13 +134,6 @@ namespace tl
                 p.size.fontMetrics.lineHeight +
                 p.size.margin * 2 +
                 p.size.border * 4);
-            if (_options.showMarkers)
-            {
-                _sizeHint.h += p.markers.size() *
-                    (p.size.fontMetrics.lineHeight +
-                    p.size.margin * 2 +
-                    p.size.border * 2);
-            }
         }
 
         void IBasicItem::clipEvent(const math::Box2i& clipRect, bool clipped)
@@ -223,59 +216,6 @@ namespace tl
                         durationGeometry.min.y +
                         p.size.fontMetrics.ascender),
                     event.style->getColorRole(ui::ColorRole::Text));
-            }
-
-            if (_options.showMarkers)
-            {
-                if (p.draw.markerGlyphs.empty())
-                {
-                    p.draw.markerGlyphs.resize(p.markers.size());
-                }
-                float y = g2.max.y + 1 -
-                    (p.size.fontMetrics.lineHeight +
-                    p.size.margin * 2 +
-                    p.size.border * 2) *
-                    p.markers.size();
-                for (size_t i = 0; i < p.markers.size(); ++i)
-                {
-                    const int x0 =
-                        _geometry.min.x +
-                        p.markers[i].range.start_time().rescaled_to(1.0).value() * _scale;
-                    const int x1 =
-                        _geometry.min.x +
-                        p.markers[i].range.end_time_exclusive().rescaled_to(1.0).value() * _scale - 1;
-                    math::Box2i g2;
-                    g2.min.x = std::max(x0, g2.min.x);
-                    g2.min.y = y;
-                    g2.max.x = std::min(x1, g2.max.x);
-                    g2.max.y = y + p.size.border * 2 - 1;
-                    event.render->drawRect(g2, p.markers[i].color);
-
-                    y += p.size.border * 2;
-
-                    labelGeometry = math::Box2i(
-                        g2.min.x + p.size.margin,
-                        y + p.size.margin,
-                        p.size.markerSizes[i].w,
-                        p.size.fontMetrics.lineHeight);
-                    if (drawRect.intersects(labelGeometry))
-                    {
-                        if (!p.markers[i].name.empty() && p.draw.markerGlyphs[i].empty())
-                        {
-                            p.draw.markerGlyphs[i] = event.fontSystem->getGlyphs(p.markers[i].name, p.size.fontInfo);
-                        }
-                        event.render->drawText(
-                            p.draw.markerGlyphs[i],
-                            math::Vector2i(
-                                labelGeometry.min.x,
-                                labelGeometry.min.y +
-                                p.size.fontMetrics.ascender),
-                            event.style->getColorRole(ui::ColorRole::Text));
-                    }
-
-                    y += p.size.fontMetrics.lineHeight +
-                        p.size.margin * 2;
-                }
             }
         }
 

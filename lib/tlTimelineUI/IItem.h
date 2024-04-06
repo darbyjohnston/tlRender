@@ -21,7 +21,7 @@ namespace tl
         //! Item data.
         struct ItemData
         {
-            float speed = 0.0;
+            double speed = 0.0;
             std::string directory;
             timeline::Options options;
             std::shared_ptr<timeline::ITimeUnitsModel> timeUnitsModel;
@@ -57,18 +57,20 @@ namespace tl
             bool editAssociatedClips = true;
             InOutDisplay inOutDisplay = InOutDisplay::InsideRange;
             CacheDisplay cacheDisplay = CacheDisplay::VideoAndAudio;
-            float clipRectScale = 2.F;
+            std::vector<int> tracks;
+            bool trackInfo = true;
             bool thumbnails = true;
             int thumbnailHeight = 100;
             int waveformWidth = 200;
             int waveformHeight = 50;
             WaveformPrim waveformPrim = WaveformPrim::Mesh;
             float thumbnailFade = .2F;
-            bool showTransitions = false;
-            bool showMarkers = false;
+            bool transitions = false;
+            bool markers = false;
             std::string regularFont = "NotoSans-Regular";
             std::string monoFont = "NotoMono-Regular";
             int fontSize = 12;
+            float clipRectScale = 2.F;
 
             bool operator == (const ItemOptions&) const;
             bool operator != (const ItemOptions&) const;

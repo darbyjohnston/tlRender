@@ -70,6 +70,34 @@ namespace tl
                     }
                 });
 
+            p.actions["FirstTrack"] = std::make_shared<ui::Action>(
+                "First Track Only",
+                [mainWindowWeak](bool value)
+                {
+                    if (auto mainWindow = mainWindowWeak.lock())
+                    {
+                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        options.tracks.clear();
+                        if (value)
+                        {
+                            options.tracks.push_back(0);
+                        }
+                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                    }
+                });
+
+            p.actions["TrackInfo"] = std::make_shared<ui::Action>(
+                "Track Information",
+                [mainWindowWeak](bool value)
+                {
+                    if (auto mainWindow = mainWindowWeak.lock())
+                    {
+                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        options.trackInfo = value;
+                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                    }
+                });
+
             p.actions["Thumbnails"] = std::make_shared<ui::Action>(
                 "Thumbnails",
                 [mainWindowWeak](bool value)
@@ -128,7 +156,7 @@ namespace tl
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
                         auto options = mainWindow->getTimelineWidget()->getItemOptions();
-                        options.showTransitions = value;
+                        options.transitions = value;
                         mainWindow->getTimelineWidget()->setItemOptions(options);
                     }
                 });
@@ -140,7 +168,7 @@ namespace tl
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
                         auto options = mainWindow->getTimelineWidget()->getItemOptions();
-                        options.showMarkers = value;
+                        options.markers = value;
                         mainWindow->getTimelineWidget()->setItemOptions(options);
                     }
                 });

@@ -20,18 +20,20 @@ namespace tl
                 editAssociatedClips == other.editAssociatedClips &&
                 inOutDisplay == other.inOutDisplay &&
                 cacheDisplay == other.cacheDisplay &&
-                clipRectScale == other.clipRectScale &&
+                tracks == other.tracks &&
+                trackInfo == other.trackInfo &&
                 thumbnails == other.thumbnails &&
                 thumbnailHeight == other.thumbnailHeight &&
                 waveformWidth == other.waveformWidth &&
                 waveformHeight == other.waveformHeight &&
                 waveformPrim == other.waveformPrim &&
                 thumbnailFade == other.thumbnailFade &&
-                showTransitions == other.showTransitions &&
-                showMarkers == other.showMarkers &&
+                transitions == other.transitions &&
+                markers == other.markers &&
                 regularFont == other.regularFont &&
                 monoFont == other.monoFont &&
-                fontSize == other.fontSize;
+                fontSize == other.fontSize &&
+                clipRectScale == other.clipRectScale;
         }
 
         bool ItemOptions::operator != (const ItemOptions& other) const

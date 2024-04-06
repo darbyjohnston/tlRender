@@ -2,14 +2,13 @@
 // Copyright (c) 2021-2024 Darby Johnston
 // All rights reserved.
 
-#include <tlTimelineUI/TimelineItem.h>
+#include <tlTimelineUI/TimelineItemPrivate.h>
 
 #include <tlTimelineUI/AudioClipItem.h>
 #include <tlTimelineUI/GapItem.h>
 #include <tlTimelineUI/VideoClipItem.h>
 
 #include <tlUI/DrawUtil.h>
-#include <tlUI/Label.h>
 #include <tlUI/ScrollArea.h>
 
 #include <tlTimeline/Edit.h>
@@ -21,100 +20,6 @@ namespace tl
 {
     namespace timelineui
     {
-        struct TimelineItem::Private
-        {
-            std::shared_ptr<timeline::Player> player;
-            otime::RationalTime currentTime = time::invalidTime;
-            otime::TimeRange inOutRange = time::invalidTimeRange;
-            timeline::PlayerCacheInfo cacheInfo;
-            bool editable = false;
-            bool stopOnScrub = true;
-            std::vector<int> frameMarkers;
-            std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator;
-
-            struct Track
-            {
-                TrackType type = TrackType::None;
-                otime::TimeRange timeRange;
-                std::shared_ptr<ui::Label> label;
-                std::shared_ptr<ui::Label> durationLabel;
-                std::vector<std::shared_ptr<IItem> > items;
-                math::Size2i size;
-                int clipHeight = 0;
-            };
-            std::vector<Track> tracks;
-
-            struct SizeData
-            {
-                bool sizeInit = true;
-                int margin = 0;
-                int border = 0;
-                int handle = 0;
-                image::FontInfo fontInfo = image::FontInfo("", 0);
-                image::FontMetrics fontMetrics;
-
-                math::Vector2i scrollPos;
-            };
-            SizeData size;
-
-            struct DrawData
-            {
-                std::vector<math::Box2i> dropTargets;
-            };
-            DrawData draw;
-
-            enum class MouseMode
-            {
-                None,
-                CurrentTime,
-                Item
-            };
-            struct MouseItemData
-            {
-                MouseItemData();
-                MouseItemData(
-                    const std::shared_ptr<IItem>&,
-                    int index,
-                    int track);
-
-                ~MouseItemData();
-
-                std::shared_ptr<IItem> p;
-                int index = -1;
-                int track = -1;
-                math::Box2i geometry;
-            };
-            struct MouseItemDropTarget
-            {
-                int index = -1;
-                int track = -1;
-                math::Box2i mouse;
-                math::Box2i draw;
-            };
-            struct MouseData
-            {
-                MouseMode mode = MouseMode::None;
-                std::vector<std::shared_ptr<MouseItemData> > items;
-                std::vector<MouseItemDropTarget> dropTargets;
-                int currentDropTarget = -1;
-            };
-            MouseData mouse;
-
-            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
-            std::shared_ptr<observer::ValueObserver<otime::TimeRange> > inOutRangeObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::PlayerCacheInfo> > cacheInfoObserver;
-
-            std::shared_ptr<IItem> getAssociated(
-                const std::shared_ptr<IItem>&,
-                int& index,
-                int& trackIndex) const;
-
-            std::vector<MouseItemDropTarget> getDropTargets(
-                const math::Box2i& geometry,
-                int index,
-                int track);
-        };
-
         void TimelineItem::_init(
             const std::shared_ptr<timeline::Player>& player,
             const otio::SerializableObject::Retainer<otio::Stack>& stack,
@@ -148,12 +53,12 @@ namespace tl
             p.thumbnailGenerator = ui::ThumbnailGenerator::create(context, window);
 
             const auto otioTimeline = p.player->getTimeline()->getTimeline();
-            int trackIndex = 0;
             for (const auto& child : otioTimeline->tracks()->children())
             {
                 if (auto otioTrack = otio::dynamic_retainer_cast<otio::Track>(child))
                 {
                     Private::Track track;
+                    track.index = p.tracks.size();
                     std::string trackLabel = otioTrack->name();
                     if (otio::Track::Kind::video == otioTrack->kind())
                     {
@@ -230,6 +135,7 @@ namespace tl
                 }
             }
 
+            _tracksUpdate();
             _textUpdate();
 
             p.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
@@ -306,6 +212,7 @@ namespace tl
             if (changed)
             {
                 p.size.sizeInit = true;
+                _tracksUpdate();
             }
         }
 
@@ -324,13 +231,23 @@ namespace tl
                 g.min.y;
             for (const auto& track : p.tracks)
             {
-                const math::Size2i& labelSizeHint = track.label->getSizeHint();
+                const bool visible = _isTrackVisible(track.index);
+
+                math::Size2i labelSizeHint;
+                if (visible && _options.trackInfo)
+                {
+                    labelSizeHint = track.label->getSizeHint();
+                }
                 track.label->setGeometry(math::Box2i(
                     g.min.x,
                     y,
                     labelSizeHint.w,
                     labelSizeHint.h));
-                const math::Size2i& durationSizeHint = track.durationLabel->getSizeHint();
+                math::Size2i durationSizeHint;
+                if (visible && _options.trackInfo)
+                {
+                    durationSizeHint = track.durationLabel->getSizeHint();
+                }
                 track.durationLabel->setGeometry(math::Box2i(
                     g.min.x + track.size.w - durationSizeHint.w,
                     y,
@@ -351,7 +268,11 @@ namespace tl
                         continue;
                     }
                     const otime::TimeRange& timeRange = item->getTimeRange();
-                    const math::Size2i& sizeHint = item->getSizeHint();
+                    math::Size2i sizeHint;
+                    if (visible)
+                    {
+                        sizeHint = item->getSizeHint();
+                    }
                     item->setGeometry(math::Box2i(
                         _geometry.min.x +
                         timeRange.start_time().rescaled_to(1.0).value() * _scale,
@@ -360,7 +281,10 @@ namespace tl
                         track.clipHeight));
                 }
 
-                y += track.size.h;
+                if (visible)
+                {
+                    y += track.size.h;
+                }
             }
 
             if (auto scrollArea = getParentT<ui::ScrollArea>())
@@ -390,18 +314,27 @@ namespace tl
             int tracksHeight = 0;
             for (auto& track : p.tracks)
             {
+                const bool visible = _isTrackVisible(track.index);
+
                 track.size.w = track.timeRange.duration().rescaled_to(1.0).value() * _scale;
                 track.size.h = 0;
-                for (const auto& item : track.items)
+                track.clipHeight = 0;
+                if (visible)
                 {
-                    const math::Size2i& sizeHint = item->getSizeHint();
-                    track.size.h = std::max(track.size.h, sizeHint.h);
+                    for (const auto& item : track.items)
+                    {
+                        const math::Size2i& sizeHint = item->getSizeHint();
+                        track.size.h = std::max(track.size.h, sizeHint.h);
+                    }
+                    track.clipHeight = track.size.h;
+                    if (_options.trackInfo)
+                    {
+                        track.size.h += std::max(
+                            track.label->getSizeHint().h,
+                            track.durationLabel->getSizeHint().h);
+                    }
+                    tracksHeight += track.size.h;
                 }
-                track.clipHeight = track.size.h;
-                track.size.h += std::max(
-                    track.label->getSizeHint().h,
-                    track.durationLabel->getSizeHint().h);
-                tracksHeight += track.size.h;
             }
 
             _sizeHint = math::Size2i(
@@ -522,27 +455,30 @@ namespace tl
                 {
                     for (int i = 0; i < p.tracks.size(); ++i)
                     {
-                        const auto& items = p.tracks[i].items;
-                        for (int j = 0; j < items.size(); ++j)
+                        if (_isTrackVisible(i))
                         {
-                            const auto& item = items[j];
-                            if (item->getGeometry().contains(event.pos))
+                            const auto& items = p.tracks[i].items;
+                            for (int j = 0; j < items.size(); ++j)
                             {
-                                p.mouse.mode = Private::MouseMode::Item;
-                                p.mouse.items.push_back(
-                                    std::make_shared<Private::MouseItemData>(item, j, i));
-                                p.mouse.dropTargets = p.getDropTargets(g, j, i);
-                                moveToFront(item);
-                                if (_options.editAssociatedClips)
+                                const auto& item = items[j];
+                                if (item->getGeometry().contains(event.pos))
                                 {
-                                    if (auto associated = p.getAssociated(item, j, i))
+                                    p.mouse.mode = Private::MouseMode::Item;
+                                    p.mouse.items.push_back(
+                                        std::make_shared<Private::MouseItemData>(item, j, i));
+                                    p.mouse.dropTargets = p.getDropTargets(g, j, i);
+                                    moveToFront(item);
+                                    if (_options.editAssociatedClips)
                                     {
-                                        p.mouse.items.push_back(
-                                            std::make_shared<Private::MouseItemData>(associated, j, i));
-                                        moveToFront(associated);
+                                        if (auto associated = p.getAssociated(item, j, i))
+                                        {
+                                            p.mouse.items.push_back(
+                                                std::make_shared<Private::MouseItemData>(associated, j, i));
+                                            moveToFront(associated);
+                                        }
                                     }
+                                    break;
                                 }
-                                break;
                             }
                         }
                         if (!p.mouse.items.empty())
@@ -623,6 +559,16 @@ namespace tl
             TLRENDER_P();
             IWidget::_releaseMouse();
             p.mouse.items.clear();
+        }
+
+        bool TimelineItem::_isTrackVisible(int index) const
+        {
+            return
+                _options.tracks.empty() ||
+                std::find(
+                    _options.tracks.begin(),
+                    _options.tracks.end(),
+                    index) != _options.tracks.end();
         }
 
         void TimelineItem::_drawInOutPoints(
@@ -1013,6 +959,21 @@ namespace tl
                         p.size.margin +
                         p.size.fontMetrics.ascender),
                     event.style->getColorRole(ui::ColorRole::Text));
+            }
+        }
+
+        void TimelineItem::_tracksUpdate()
+        {
+            TLRENDER_P();
+            for (const auto& track : p.tracks)
+            {
+                const bool visible = _isTrackVisible(track.index);
+                track.label->setVisible(_options.trackInfo && visible);
+                track.durationLabel->setVisible(_options.trackInfo && visible);
+                for (const auto& item : track.items)
+                {
+                    item->setVisible(visible);
+                }
             }
         }
 

@@ -143,14 +143,18 @@ namespace tl
                 timelineui::ItemOptions().editAssociatedClips);
             settings->setDefaultValue("Timeline/FrameView", true);
             settings->setDefaultValue("Timeline/StopOnScrub", true);
+            settings->setDefaultValue("Timeline/FirstTrack",
+                !timelineui::ItemOptions().tracks.empty());
+            settings->setDefaultValue("Timeline/TrackInfo",
+                timelineui::ItemOptions().trackInfo);
             settings->setDefaultValue("Timeline/Thumbnails",
                 timelineui::ItemOptions().thumbnails);
             settings->setDefaultValue("Timeline/ThumbnailsSize",
                 timelineui::ItemOptions().thumbnailHeight);
             settings->setDefaultValue("Timeline/Transitions",
-                timelineui::ItemOptions().showTransitions);
+                timelineui::ItemOptions().transitions);
             settings->setDefaultValue("Timeline/Markers",
-                timelineui::ItemOptions().showMarkers);
+                timelineui::ItemOptions().markers);
 
             setAttribute(Qt::WA_DeleteOnClose);
             setFocusPolicy(Qt::StrongFocus);
@@ -171,10 +175,15 @@ namespace tl
             p.timelineWidget->setStopOnScrub(settings->getValue<bool>("Timeline/StopOnScrub"));
             timelineui::ItemOptions itemOptions;
             itemOptions.editAssociatedClips = settings->getValue<bool>("Timeline/EditAssociatedClips");
+            if (settings->getValue<bool>("Timeline/FirstTrack"))
+            {
+                itemOptions.tracks = { 0 };
+            }
+            itemOptions.trackInfo = settings->getValue<bool>("Timeline/TrackInfo");
             itemOptions.thumbnails = settings->getValue<bool>("Timeline/Thumbnails");
             itemOptions.thumbnailHeight = settings->getValue<int>("Timeline/ThumbnailsSize");
-            itemOptions.showTransitions = settings->getValue<bool>("Timeline/Transitions");
-            itemOptions.showMarkers = settings->getValue<bool>("Timeline/Markers");
+            itemOptions.transitions = settings->getValue<bool>("Timeline/Transitions");
+            itemOptions.markers = settings->getValue<bool>("Timeline/Markers");
             p.timelineWidget->setItemOptions(itemOptions);
 
             p.fileActions = new FileActions(app, this);
@@ -657,14 +666,18 @@ namespace tl
                 p.timelineWidget->hasFrameView());
             settings->setValue("Timeline/StopOnScrub",
                 p.timelineWidget->hasStopOnScrub());
+            settings->setValue("Timeline/FirstTrack",
+                !timelineItemOptions.tracks.empty());
+            settings->setValue("Timeline/TrackInfo",
+                timelineItemOptions.trackInfo);
             settings->setValue("Timeline/Thumbnails",
                 timelineItemOptions.thumbnails);
             settings->setValue("Timeline/ThumbnailsSize",
                 timelineItemOptions.thumbnailHeight);
             settings->setValue("Timeline/Transitions",
-                timelineItemOptions.showTransitions);
+                timelineItemOptions.transitions);
             settings->setValue("Timeline/Markers",
-                timelineItemOptions.showMarkers);
+                timelineItemOptions.markers);
         }
 
         qtwidget::TimelineWidget* MainWindow::timelineWidget() const
