@@ -59,6 +59,7 @@ namespace tl
             CacheDisplay cacheDisplay = CacheDisplay::VideoAndAudio;
             std::vector<int> tracks;
             bool trackInfo = true;
+            bool clipInfo = true;
             bool thumbnails = true;
             int thumbnailHeight = 100;
             int waveformWidth = 200;

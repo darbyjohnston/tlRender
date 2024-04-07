@@ -22,6 +22,7 @@ namespace tl
                 cacheDisplay == other.cacheDisplay &&
                 tracks == other.tracks &&
                 trackInfo == other.trackInfo &&
+                clipInfo == other.clipInfo &&
                 thumbnails == other.thumbnails &&
                 thumbnailHeight == other.thumbnailHeight &&
                 waveformWidth == other.waveformWidth &&

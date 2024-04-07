@@ -188,6 +188,8 @@ namespace tl
                 !timelineui::ItemOptions().tracks.empty());
             p.settings->setDefaultValue("Timeline/TrackInfo",
                 timelineui::ItemOptions().trackInfo);
+            p.settings->setDefaultValue("Timeline/ClipInfo",
+                timelineui::ItemOptions().clipInfo);
             p.settings->setDefaultValue("Timeline/Thumbnails",
                 timelineui::ItemOptions().thumbnails);
             p.settings->setDefaultValue("Timeline/ThumbnailsSize",
@@ -221,6 +223,7 @@ namespace tl
                 itemOptions.tracks = { 0 };
             }
             itemOptions.trackInfo = p.settings->getValue<bool>("Timeline/TrackInfo");
+            itemOptions.clipInfo = p.settings->getValue<bool>("Timeline/ClipInfo");
             itemOptions.thumbnails = p.settings->getValue<bool>("Timeline/Thumbnails");
             itemOptions.thumbnailHeight = p.settings->getValue<int>("Timeline/ThumbnailsSize");
             itemOptions.transitions = p.settings->getValue<bool>("Timeline/Transitions");
@@ -643,6 +646,8 @@ namespace tl
                 !timelineItemOptions.tracks.empty());
             p.settings->setValue("Timeline/TrackInfo",
                 timelineItemOptions.trackInfo);
+            p.settings->setValue("Timeline/ClipInfo",
+                timelineItemOptions.clipInfo);
             p.settings->setValue("Timeline/Thumbnails",
                 timelineItemOptions.thumbnails);
             p.settings->setValue("Timeline/ThumbnailsSize",

@@ -59,6 +59,10 @@ namespace tl
             p.actions["TrackInfo"]->setCheckable(true);
             p.actions["TrackInfo"]->setText(tr("Track Information"));
 
+            p.actions["ClipInfo"] = new QAction(parent);
+            p.actions["ClipInfo"]->setCheckable(true);
+            p.actions["ClipInfo"]->setText(tr("Clip Information"));
+
             p.actions["Thumbnails"] = new QAction(parent);
             p.actions["Thumbnails"]->setCheckable(true);
             p.actions["Thumbnails"]->setText(tr("Thumbnails"));
@@ -97,6 +101,7 @@ namespace tl
             p.menu->addSeparator();
             p.menu->addAction(p.actions["FirstTrack"]);
             p.menu->addAction(p.actions["TrackInfo"]);
+            p.menu->addAction(p.actions["ClipInfo"]);
             p.menu->addAction(p.actions["Thumbnails"]);
             auto thumbnailsSizeMenu = p.menu->addMenu(tr("Thumbnails Size"));
             thumbnailsSizeMenu->addAction(p.actions["ThumbnailsSize/Small"]);
@@ -165,6 +170,17 @@ namespace tl
                     auto timelineWidget = mainWindow->timelineWidget();
                     auto itemOptions = timelineWidget->itemOptions();
                     itemOptions.trackInfo = value;
+                    timelineWidget->setItemOptions(itemOptions);
+                });
+
+            connect(
+                p.actions["ClipInfo"],
+                &QAction::toggled,
+                [mainWindow](bool value)
+                {
+                    auto timelineWidget = mainWindow->timelineWidget();
+                    auto itemOptions = timelineWidget->itemOptions();
+                    itemOptions.clipInfo = value;
                     timelineWidget->setItemOptions(itemOptions);
                 });
 
@@ -259,6 +275,11 @@ namespace tl
                 QSignalBlocker blocker(p.actions["TrackInfo"]);
                 const auto itemOptions = p.mainWindow->timelineWidget()->itemOptions();
                 p.actions["TrackInfo"]->setChecked(itemOptions.trackInfo);
+            }
+            {
+                QSignalBlocker blocker(p.actions["ClipInfo"]);
+                const auto itemOptions = p.mainWindow->timelineWidget()->itemOptions();
+                p.actions["ClipInfo"]->setChecked(itemOptions.clipInfo);
             }
             {
                 QSignalBlocker blocker(p.actions["Thumbnails"]);

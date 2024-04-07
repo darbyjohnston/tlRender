@@ -210,7 +210,7 @@ namespace tl
             const math::Box2i box(
                 g.min.x,
                 g.min.y +
-                _getLineHeight() + m * 2,
+                (_options.clipInfo ? (_getLineHeight() + m * 2) : 0),
                 g.w(),
                 _options.waveformHeight);
             event.render->drawRect(
@@ -243,7 +243,7 @@ namespace tl
                         g.min.x +
                         x,
                         g.min.y +
-                        _getLineHeight() + m * 2,
+                        (_options.clipInfo ? (_getLineHeight() + m * 2) : 0),
                         _options.waveformWidth,
                         _options.waveformHeight);
                     if (box.intersects(clipRect))

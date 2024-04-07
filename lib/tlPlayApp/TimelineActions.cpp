@@ -98,6 +98,18 @@ namespace tl
                     }
                 });
 
+            p.actions["ClipInfo"] = std::make_shared<ui::Action>(
+                "Clip Information",
+                [mainWindowWeak](bool value)
+                {
+                    if (auto mainWindow = mainWindowWeak.lock())
+                    {
+                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        options.clipInfo = value;
+                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                    }
+                });
+
             p.actions["Thumbnails"] = std::make_shared<ui::Action>(
                 "Thumbnails",
                 [mainWindowWeak](bool value)
