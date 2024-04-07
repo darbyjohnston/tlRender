@@ -70,6 +70,9 @@ namespace tl
             //! Set the frame markers.
             void setFrameMarkers(const std::vector<int>&);
 
+            //! Get the minimum height.
+            int getMinimumHeight() const;
+
             void setOptions(const ItemOptions&) override;
 
             void setGeometry(const math::Box2i&) override;

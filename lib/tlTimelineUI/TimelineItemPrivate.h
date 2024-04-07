@@ -19,6 +19,7 @@ namespace tl
             bool editable = false;
             bool stopOnScrub = true;
             std::vector<int> frameMarkers;
+            int minimumHeight = 0;
             std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator;
 
             struct Track

@@ -326,11 +326,11 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             TLRENDER_P();
+            const int b = event.style->getSizeRole(ui::SizeRole::Border, _displayScale);
             const int sa = event.style->getSizeRole(ui::SizeRole::ScrollArea, _displayScale);
             _sizeHint.w = sa;
-            //! \bug Hard-coded size hint.
-            //_sizeHint.h = 226;
-            _sizeHint.h = 376;
+            //! \bug This assumes the scroll bars are hidden.
+            _sizeHint.h = p.timelineItem ? (p.timelineItem->getMinimumHeight() + b * 2) : sa;
         }
 
         void TimelineWidget::mouseMoveEvent(ui::MouseMoveEvent& event)

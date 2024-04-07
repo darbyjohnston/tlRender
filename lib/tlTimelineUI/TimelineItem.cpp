@@ -204,6 +204,11 @@ namespace tl
             _updates |= ui::Update::Draw;
         }
 
+        int TimelineItem::getMinimumHeight() const
+        {
+            return _p->minimumHeight;
+        }
+
         void TimelineItem::setOptions(const ItemOptions& value)
         {
             const bool changed = value != _options;
@@ -312,8 +317,11 @@ namespace tl
             p.size.sizeInit = false;
 
             int tracksHeight = 0;
-            for (auto& track : p.tracks)
+            bool minimumTrackHeightInit = true;
+            int minimumTrackHeight = 0;
+            for (int i = 0; i < p.tracks.size(); ++i)
             {
+                auto& track = p.tracks[i];
                 const bool visible = _isTrackVisible(track.index);
 
                 track.size.w = track.timeRange.duration().rescaled_to(1.0).value() * _scale;
@@ -334,6 +342,11 @@ namespace tl
                             track.durationLabel->getSizeHint().h);
                     }
                     tracksHeight += track.size.h;
+                    if (minimumTrackHeightInit)
+                    {
+                        minimumTrackHeightInit = false;
+                        minimumTrackHeight = track.size.h;
+                    }
                 }
             }
 
@@ -345,6 +358,14 @@ namespace tl
                 p.size.border * 4 +
                 p.size.border +
                 tracksHeight);
+
+            p.minimumHeight =
+                p.size.margin +
+                p.size.fontMetrics.lineHeight +
+                p.size.margin +
+                p.size.border * 4 +
+                p.size.border +
+                minimumTrackHeight;
         }
 
         void TimelineItem::drawOverlayEvent(

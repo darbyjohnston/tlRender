@@ -267,9 +267,16 @@ namespace tl
 
         QSize TimelineWidget::minimumSizeHint() const
         {
-            //! \bug Hard-coded size hint.
-            //return QSize(100, 113);
-            return QSize(100, 188);
+            math::Size2i sizeHint = _p->timelineWidget->getSizeHint();
+            const float devicePixelRatio = window()->devicePixelRatio();
+            sizeHint.w /= devicePixelRatio;
+            sizeHint.h /= devicePixelRatio;
+            if (!sizeHint.isValid())
+            {
+                sizeHint.w = 1;
+                sizeHint.h = 1;
+            }
+            return QSize(sizeHint.w, sizeHint.h);
         }
 
         void TimelineWidget::setEditable(bool value)
@@ -713,6 +720,8 @@ namespace tl
                     _p->timelineWindow->setGeometry(geometry);
 
                     _clipEvent(_p->timelineWindow, geometry, false);
+
+                    updateGeometry();
                 }
 
                 if (_getDrawUpdate(_p->timelineWindow))
