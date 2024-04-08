@@ -159,6 +159,8 @@ namespace tl
 
             std::shared_ptr<observer::ValueObserver<bool> > editableObserver;
             std::shared_ptr<observer::ValueObserver<bool> > frameViewObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
+            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
         };
 
         TimelineWidget::TimelineWidget(
@@ -209,6 +211,20 @@ namespace tl
                     Q_EMIT frameViewChanged(value);
                 });
 
+            p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
+                p.timelineWidget->observePlayback(),
+                [this](timeline::Playback value)
+                {
+                    Q_EMIT playbackChanged(value);
+                });
+
+            p.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
+                p.timelineWidget->observeCurrentTime(),
+                [this](const otime::RationalTime& value)
+                {
+                    Q_EMIT currentTimeChanged(value);
+                });
+
             p.timer.reset(new QTimer);
             p.timer->setTimerType(Qt::PreciseTimer);
             connect(p.timer.get(), &QTimer::timeout, this, &TimelineWidget::_timerCallback);
@@ -245,24 +261,24 @@ namespace tl
             return _p->timelineWidget->getScrollKeyModifier();
         }
 
-        bool TimelineWidget::hasStopOnScrub() const
-        {
-            return _p->timelineWidget->hasStopOnScrub();
-        }
-
         float TimelineWidget::mouseWheelScale() const
         {
             return _p->timelineWidget->getMouseWheelScale();
         }
 
-        const timelineui::ItemOptions& TimelineWidget::itemOptions() const
+        bool TimelineWidget::hasStopOnScrub() const
         {
-            return _p->timelineWidget->getItemOptions();
+            return _p->timelineWidget->hasStopOnScrub();
         }
 
         const std::vector<int>& TimelineWidget::frameMarkers() const
         {
             return _p->timelineWidget->getFrameMarkers();
+        }
+
+        const timelineui::ItemOptions& TimelineWidget::itemOptions() const
+        {
+            return _p->timelineWidget->getItemOptions();
         }
 
         QSize TimelineWidget::minimumSizeHint() const
@@ -299,24 +315,24 @@ namespace tl
             _p->timelineWidget->setScrollKeyModifier(value);
         }
 
-        void TimelineWidget::setStopOnScrub(bool value)
-        {
-            _p->timelineWidget->setStopOnScrub(value);
-        }
-
         void TimelineWidget::setMouseWheelScale(float value)
         {
             _p->timelineWidget->setMouseWheelScale(value);
         }
 
-        void TimelineWidget::setItemOptions(const timelineui::ItemOptions& value)
+        void TimelineWidget::setStopOnScrub(bool value)
         {
-            _p->timelineWidget->setItemOptions(value);
+            _p->timelineWidget->setStopOnScrub(value);
         }
 
         void TimelineWidget::setFrameMarkers(const std::vector<int>& value)
         {
             _p->timelineWidget->setFrameMarkers(value);
+        }
+
+        void TimelineWidget::setItemOptions(const timelineui::ItemOptions& value)
+        {
+            _p->timelineWidget->setItemOptions(value);
         }
 
         void TimelineWidget::initializeGL()

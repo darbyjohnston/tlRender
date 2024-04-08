@@ -79,6 +79,18 @@ namespace tl
             //! Set the mouse scroll key modifier.
             void setScrollKeyModifier(ui::KeyModifier);
 
+            //! Get the mouse wheel scale.
+            float getMouseWheelScale() const;
+
+            //! Set the mouse wheel scale.
+            void setMouseWheelScale(float);
+
+            //! Get the playback mode.
+            timeline::Playback getPlayback() const;
+
+            //! Observe the playback mode.
+            std::shared_ptr<observer::IValue<timeline::Playback> > observePlayback() const;
+
             //! Get whether to stop playback when scrubbing.
             bool hasStopOnScrub() const;
 
@@ -88,11 +100,17 @@ namespace tl
             //! Set whether to stop playback when scrubbing.
             void setStopOnScrub(bool);
 
-            //! Get the mouse wheel scale.
-            float getMouseWheelScale() const;
+            //! Get the current time.
+            const otime::RationalTime& getCurrentTime() const;
 
-            //! Set the mouse wheel scale.
-            void setMouseWheelScale(float);
+            //! Observe the current time.
+            std::shared_ptr<observer::IValue<otime::RationalTime> > observeCurrentTime() const;
+
+            //! Get the frame markers.
+            const std::vector<int>& getFrameMarkers() const;
+
+            //! Set the frame markers.
+            void setFrameMarkers(const std::vector<int>&);
 
             //! Get the item options.
             const ItemOptions& getItemOptions() const;
@@ -102,12 +120,6 @@ namespace tl
 
             //! Set the item options.
             void setItemOptions(const ItemOptions&);
-
-            //! Get the frame markers.
-            const std::vector<int>& getFrameMarkers() const;
-
-            //! Set the frame markers.
-            void setFrameMarkers(const std::vector<int>&);
 
             void setGeometry(const math::Box2i&) override;
             void tickEvent(

@@ -6,6 +6,8 @@
 
 #include <tlTimelineUI/IItem.h>
 
+#include <tlTimeline/Player.h>
+
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_1_Core>
 
@@ -49,17 +51,23 @@ namespace tl
             //! Get the mouse scroll key modifier.
             ui::KeyModifier scrollKeyModifier() const;
 
-            //! Get whether to stop playback when scrubbing.
-            bool hasStopOnScrub() const;
-
             //! Get the mouse wheel scale.
             float mouseWheelScale() const;
 
-            //! Get the item options.
-            const timelineui::ItemOptions& itemOptions() const;
+            //! Get the playback mode.
+            timeline::Playback playback();
+
+            //! Get whether to stop playback when scrubbing.
+            bool hasStopOnScrub() const;
+
+            //! Get the current time.
+            const otime::RationalTime& currentTime() const;
 
             //! Get the frame markers.
             const std::vector<int>& frameMarkers() const;
+
+            //! Get the item options.
+            const timelineui::ItemOptions& itemOptions() const;
 
             QSize minimumSizeHint() const override;
 
@@ -76,17 +84,17 @@ namespace tl
             //! Set the mouse scroll key modifier.
             void setScrollKeyModifier(ui::KeyModifier);
 
-            //! Set whether to stop playback when scrubbing.
-            void setStopOnScrub(bool);
-
             //! Set the mouse wheel scale.
             void setMouseWheelScale(float);
 
-            //! Set the item options.
-            void setItemOptions(const timelineui::ItemOptions&);
+            //! Set whether to stop playback when scrubbing.
+            void setStopOnScrub(bool);
 
             //! Set the frame markers.
             void setFrameMarkers(const std::vector<int>&);
+
+            //! Set the item options.
+            void setItemOptions(const timelineui::ItemOptions&);
 
         Q_SIGNALS:
             //! This signal is emitted when the editable timeline is changed.
@@ -94,6 +102,12 @@ namespace tl
 
             //! This signal is emitted when the frame view is changed.
             void frameViewChanged(bool);
+
+            //! This signal is emitted when the playback mode is changed.
+            void playbackChanged(tl::timeline::Playback);
+
+            //! This signal is emitted when the current time is changed.
+            void currentTimeChanged(const tl::otime::RationalTime&);
 
         protected:
             void initializeGL() override;

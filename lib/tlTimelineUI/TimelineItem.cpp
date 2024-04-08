@@ -49,7 +49,7 @@ namespace tl
             _setMousePress(true, 0, 0);
 
             p.player = player;
-            
+
             p.thumbnailGenerator = ui::ThumbnailGenerator::create(context, window);
 
             const auto otioTimeline = p.player->getTimeline()->getTimeline();
@@ -828,7 +828,6 @@ namespace tl
                 if (seconds > 0.0 && tick > 0)
                 {
                     const math::Size2i labelMaxSize = _getLabelMaxSize(event.fontSystem);
-                    const otime::RationalTime& currentTime = p.player->observeCurrentTime()->get();
                     for (double t = 0.0; t < duration; t += seconds)
                     {
                         const otime::RationalTime time = _timeRange.start_time() +
@@ -843,7 +842,7 @@ namespace tl
                             p.size.margin,
                             labelMaxSize.w,
                             p.size.fontMetrics.lineHeight);
-                        if (time != currentTime && box.intersects(drawRect))
+                        if (time != p.currentTime && box.intersects(drawRect))
                         {
                             const std::string label = _data->timeUnitsModel->getLabel(time);
                             event.render->drawText(
@@ -955,11 +954,10 @@ namespace tl
 
             const math::Box2i& g = _geometry;
 
-            const otime::RationalTime& currentTime = p.player->observeCurrentTime()->get();
-            if (!time::compareExact(currentTime, time::invalidTime))
+            if (!time::compareExact(p.currentTime, time::invalidTime))
             {
                 const math::Vector2i pos(
-                    _timeToPos(currentTime),
+                    _timeToPos(p.currentTime),
                     p.size.scrollPos.y +
                     g.min.y);
 
@@ -971,7 +969,7 @@ namespace tl
                         g.h()),
                     event.style->getColorRole(ui::ColorRole::Red));
 
-                const std::string label = _data->timeUnitsModel->getLabel(currentTime);
+                const std::string label = _data->timeUnitsModel->getLabel(p.currentTime);
                 event.render->drawText(
                     event.fontSystem->getGlyphs(label, p.size.fontInfo),
                     math::Vector2i(
