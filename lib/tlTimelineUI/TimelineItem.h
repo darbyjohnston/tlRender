@@ -67,6 +67,9 @@ namespace tl
             //! Set whether playback stops when scrubbing.
             void setStopOnScrub(bool);
 
+            //! Observe time scrubbing.
+            std::shared_ptr<observer::IValue<otime::RationalTime> > observeTimeScrub() const;
+
             //! Set the frame markers.
             void setFrameMarkers(const std::vector<int>&);
 

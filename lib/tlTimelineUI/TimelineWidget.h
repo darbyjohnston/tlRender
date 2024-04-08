@@ -85,12 +85,6 @@ namespace tl
             //! Set the mouse wheel scale.
             void setMouseWheelScale(float);
 
-            //! Get the playback mode.
-            timeline::Playback getPlayback() const;
-
-            //! Observe the playback mode.
-            std::shared_ptr<observer::IValue<timeline::Playback> > observePlayback() const;
-
             //! Get whether to stop playback when scrubbing.
             bool hasStopOnScrub() const;
 
@@ -100,11 +94,8 @@ namespace tl
             //! Set whether to stop playback when scrubbing.
             void setStopOnScrub(bool);
 
-            //! Get the current time.
-            const otime::RationalTime& getCurrentTime() const;
-
-            //! Observe the current time.
-            std::shared_ptr<observer::IValue<otime::RationalTime> > observeCurrentTime() const;
+            //! Observe time scrubbing.
+            std::shared_ptr<observer::IValue<otime::RationalTime> > observeTimeScrub() const;
 
             //! Get the frame markers.
             const std::vector<int>& getFrameMarkers() const;

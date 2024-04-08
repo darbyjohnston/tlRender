@@ -582,6 +582,13 @@ namespace tl
                 {
                     _p->timelineActions->actions()["FrameView"]->setChecked(value);
                 });
+            /*connect(
+                p.timelineWidget,
+                &qtwidget::TimelineWidget::timeScrubbed,
+                [this](const otime::RationalTime& value)
+                {
+                    std::cout << "Time scrubbed: " << value << std::endl;
+                });*/
 
             connect(
                 p.currentTimeSpinBox,

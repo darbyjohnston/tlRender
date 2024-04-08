@@ -54,14 +54,8 @@ namespace tl
             //! Get the mouse wheel scale.
             float mouseWheelScale() const;
 
-            //! Get the playback mode.
-            timeline::Playback playback();
-
             //! Get whether to stop playback when scrubbing.
             bool hasStopOnScrub() const;
-
-            //! Get the current time.
-            const otime::RationalTime& currentTime() const;
 
             //! Get the frame markers.
             const std::vector<int>& frameMarkers() const;
@@ -103,11 +97,8 @@ namespace tl
             //! This signal is emitted when the frame view is changed.
             void frameViewChanged(bool);
 
-            //! This signal is emitted when the playback mode is changed.
-            void playbackChanged(tl::timeline::Playback);
-
-            //! This signal is emitted when the current time is changed.
-            void currentTimeChanged(const tl::otime::RationalTime&);
+            //! This signal is emitted when the time is scrubbed.
+            void timeScrubbed(const tl::otime::RationalTime&);
 
         protected:
             void initializeGL() override;

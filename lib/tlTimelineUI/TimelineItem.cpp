@@ -50,6 +50,8 @@ namespace tl
 
             p.player = player;
 
+            p.timeScrub = observer::Value<otime::RationalTime>::create(time::invalidTime);
+
             p.thumbnailGenerator = ui::ThumbnailGenerator::create(context, window);
 
             const auto otioTimeline = p.player->getTimeline()->getTimeline();
@@ -193,6 +195,11 @@ namespace tl
         void TimelineItem::setStopOnScrub(bool value)
         {
             _p->stopOnScrub = value;
+        }
+
+        std::shared_ptr<observer::IValue<otime::RationalTime> > TimelineItem::observeTimeScrub() const
+        {
+            return _p->timeScrub;
         }
 
         void TimelineItem::setFrameMarkers(const std::vector<int>& value)
@@ -419,8 +426,12 @@ namespace tl
             switch (p.mouse.mode)
             {
             case Private::MouseMode::CurrentTime:
-                p.player->seek(_posToTime(event.pos.x));
+            {
+                const otime::RationalTime time = _posToTime(event.pos.x);
+                p.player->seek(time);
+                p.timeScrub->setIfChanged(time);
                 break;
+            }
             case Private::MouseMode::Item:
             {
                 if (!p.mouse.items.empty())
@@ -516,7 +527,9 @@ namespace tl
                     {
                         p.player->setPlayback(timeline::Playback::Stop);
                     }
-                    p.player->seek(_posToTime(event.pos.x));
+                    const otime::RationalTime time = _posToTime(event.pos.x);
+                    p.player->seek(time);
+                    p.timeScrub->setIfChanged(time);
                 }
             }
         }

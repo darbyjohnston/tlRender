@@ -159,8 +159,7 @@ namespace tl
 
             std::shared_ptr<observer::ValueObserver<bool> > editableObserver;
             std::shared_ptr<observer::ValueObserver<bool> > frameViewObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
-            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
+            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > timeScrubObserver;
         };
 
         TimelineWidget::TimelineWidget(
@@ -211,18 +210,11 @@ namespace tl
                     Q_EMIT frameViewChanged(value);
                 });
 
-            p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
-                p.timelineWidget->observePlayback(),
-                [this](timeline::Playback value)
-                {
-                    Q_EMIT playbackChanged(value);
-                });
-
-            p.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
-                p.timelineWidget->observeCurrentTime(),
+            p.timeScrubObserver = observer::ValueObserver<otime::RationalTime>::create(
+                p.timelineWidget->observeTimeScrub(),
                 [this](const otime::RationalTime& value)
                 {
-                    Q_EMIT currentTimeChanged(value);
+                    Q_EMIT timeScrubbed(value);
                 });
 
             p.timer.reset(new QTimer);

@@ -22,9 +22,8 @@ namespace tl
             std::function<void(bool)> frameViewCallback;
             ui::KeyModifier scrollKeyModifier = ui::KeyModifier::Control;
             float mouseWheelScale = 1.1F;
-            std::shared_ptr<observer::Value<timeline::Playback> > playback;
             std::shared_ptr<observer::Value<bool> > stopOnScrub;
-            std::shared_ptr<observer::Value<otime::RationalTime> > currentTime;
+            std::shared_ptr<observer::Value<otime::RationalTime> > timeScrub;
             std::vector<int> frameMarkers;
             std::shared_ptr<observer::Value<ItemOptions> > itemOptions;
             double scale = 500.0;
@@ -49,8 +48,7 @@ namespace tl
             MouseData mouse;
 
             std::shared_ptr<observer::ValueObserver<bool> > timelineObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
-            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
+            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > timeScrubObserver;
         };
 
         void TimelineWidget::_init(
@@ -69,9 +67,8 @@ namespace tl
 
             p.editable = observer::Value<bool>::create(false);
             p.frameView = observer::Value<bool>::create(true);
-            p.playback = observer::Value<timeline::Playback>::create(timeline::Playback::Stop);
             p.stopOnScrub = observer::Value<bool>::create(true);
-            p.currentTime = observer::Value<otime::RationalTime>::create(time::invalidTime);
+            p.timeScrub = observer::Value<otime::RationalTime>::create(time::invalidTime);
             p.itemOptions = observer::Value<ItemOptions>::create();
 
             p.window = gl::GLFWWindow::create(
@@ -115,8 +112,6 @@ namespace tl
             p.itemData->thumbnails.clear();
             p.itemData->waveforms.clear();
             p.timelineObserver.reset();
-            p.playbackObserver.reset();
-            p.currentTimeObserver.reset();
             p.scrollWidget->setWidget(nullptr);
             p.timelineItem.reset();
 
@@ -131,27 +126,10 @@ namespace tl
                     {
                         _timelineUpdate();
                     });
-
-                p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
-                    p.player->observePlayback(),
-                    [this](timeline::Playback value)
-                    {
-                        _p->playback->setIfChanged(value);
-                    });
-
-                p.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
-                    p.player->observeCurrentTime(),
-                    [this](const otime::RationalTime& value)
-                    {
-                        _p->currentTime->setIfChanged(value);
-                    });
             }
             else
             {
                 _timelineUpdate();
-
-                _p->playback->setIfChanged(timeline::Playback::Stop);
-                _p->currentTime->setIfChanged(time::invalidTime);
             }
         }
 
@@ -263,16 +241,6 @@ namespace tl
             p.mouseWheelScale = value;
         }
 
-        timeline::Playback TimelineWidget::getPlayback() const
-        {
-            return _p->playback->get();
-        }
-
-        std::shared_ptr<observer::IValue<timeline::Playback> > TimelineWidget::observePlayback() const
-        {
-            return _p->playback;
-        }
-
         bool TimelineWidget::hasStopOnScrub() const
         {
             return _p->stopOnScrub->get();
@@ -295,14 +263,9 @@ namespace tl
             }
         }
 
-        const otime::RationalTime& TimelineWidget::getCurrentTime() const
+        std::shared_ptr<observer::IValue<otime::RationalTime> > TimelineWidget::observeTimeScrub() const
         {
-            return _p->currentTime->get();
-        }
-
-        std::shared_ptr<observer::IValue<otime::RationalTime> > TimelineWidget::observeCurrentTime() const
-        {
-            return _p->currentTime;
+            return _p->timeScrub;
         }
 
         const std::vector<int>& TimelineWidget::getFrameMarkers() const
@@ -562,6 +525,7 @@ namespace tl
 
             const math::Vector2i scrollPos = p.scrollWidget->getScrollPos();
 
+            p.timeScrubObserver.reset();
             p.scrollWidget->setWidget(nullptr);
             p.timelineItem.reset();
 
@@ -585,6 +549,13 @@ namespace tl
                     p.timelineItem->setFrameMarkers(p.frameMarkers);
                     p.scrollWidget->setScrollPos(scrollPos);
                     p.scrollWidget->setWidget(p.timelineItem);
+
+                    p.timeScrubObserver = observer::ValueObserver<otime::RationalTime>::create(
+                        p.timelineItem->observeTimeScrub(),
+                        [this](const otime::RationalTime& value)
+                        {
+                            _p->timeScrub->setIfChanged(value);
+                        });
                 }
             }
         }
