@@ -48,6 +48,9 @@ namespace tl
             //! Get whether the scroll bars are visible.
             bool areScrollBarsVisible() const;
 
+            //! Get whether to automatically scroll during playback.
+            bool hasScrollPlayback() const;
+
             //! Get the mouse scroll key modifier.
             ui::KeyModifier scrollKeyModifier() const;
 
@@ -64,6 +67,7 @@ namespace tl
             const timelineui::ItemOptions& itemOptions() const;
 
             QSize minimumSizeHint() const override;
+            QSize sizeHint() const override;
 
         public Q_SLOTS:
             //! Set whether the timeline is editable.
@@ -74,6 +78,9 @@ namespace tl
 
             //! Set whether the scroll bars are visible.
             void setScrollBarsVisible(bool);
+
+            //! Set whether to automatically scroll during playback.
+            void setScrollPlayback(bool);
 
             //! Set the mouse scroll key modifier.
             void setScrollKeyModifier(ui::KeyModifier);
@@ -96,6 +103,9 @@ namespace tl
 
             //! This signal is emitted when the frame view is changed.
             void frameViewChanged(bool);
+
+            //! This signal is emitted when scrubbing is in progress.
+            void scrubChanged(bool);
 
             //! This signal is emitted when the time is scrubbed.
             void timeScrubbed(const tl::otime::RationalTime&);
@@ -121,8 +131,7 @@ namespace tl
             bool event(QEvent*) override;
 
         private:
-            void _timerCallback();
-
+            void _tickEvent();
             void _tickEvent(
                 const std::shared_ptr<ui::IWidget>&,
                 bool visible,
@@ -130,10 +139,14 @@ namespace tl
                 const ui::TickEvent&);
 
             bool _getSizeUpdate(const std::shared_ptr<ui::IWidget>&) const;
+            void _sizeHintEvent();
             void _sizeHintEvent(
                 const std::shared_ptr<ui::IWidget>&,
                 const ui::SizeHintEvent&);
 
+            void _setGeometry();
+
+            void _clipEvent();
             void _clipEvent(
                 const std::shared_ptr<ui::IWidget>&,
                 const math::Box2i&,
@@ -150,6 +163,7 @@ namespace tl
             int _fromUI(int) const;
             math::Vector2i _fromUI(const math::Vector2i&) const;
 
+            void _timerUpdate();
             void _styleUpdate();
 
             TLRENDER_PRIVATE();

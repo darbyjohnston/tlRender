@@ -18,6 +18,7 @@ namespace tl
             timeline::PlayerCacheInfo cacheInfo;
             bool editable = false;
             bool stopOnScrub = true;
+            std::shared_ptr<observer::Value<bool> > scrub;
             std::shared_ptr<observer::Value<otime::RationalTime> > timeScrub;
             std::vector<int> frameMarkers;
             int minimumHeight = 0;

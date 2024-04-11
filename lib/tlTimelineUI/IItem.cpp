@@ -203,8 +203,8 @@ namespace tl
             otime::RationalTime out = time::invalidTime;
             if (_geometry.w() > 0)
             {
-                const double normalized =
-                    (value - _geometry.min.x) / static_cast<double>(_geometry.w());
+                const double normalized = (value - _geometry.min.x) /
+                    static_cast<double>(_timeRange.duration().rescaled_to(1.0).value() * _scale);
                 out = time::round(
                     _timeRange.start_time() +
                     otime::RationalTime(

@@ -60,6 +60,16 @@ namespace tl
                     }
                 });
 
+            p.actions["ScrollPlayback"] = std::make_shared<ui::Action>(
+                "Scroll Playback",
+                [mainWindowWeak](bool value)
+                {
+                    if (auto mainWindow = mainWindowWeak.lock())
+                    {
+                        mainWindow->getTimelineWidget()->setScrollPlayback(value);
+                    }
+                });
+
             p.actions["StopOnScrub"] = std::make_shared<ui::Action>(
                 "Stop Playback When Scrubbing",
                 [mainWindowWeak](bool value)

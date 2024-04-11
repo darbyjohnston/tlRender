@@ -50,6 +50,7 @@ namespace tl
 
             p.player = player;
 
+            p.scrub = observer::Value<bool>::create(false);
             p.timeScrub = observer::Value<otime::RationalTime>::create(time::invalidTime);
 
             p.thumbnailGenerator = ui::ThumbnailGenerator::create(context, window);
@@ -195,6 +196,11 @@ namespace tl
         void TimelineItem::setStopOnScrub(bool value)
         {
             _p->stopOnScrub = value;
+        }
+
+        std::shared_ptr<observer::IValue<bool> > TimelineItem::observeScrub() const
+        {
+            return _p->scrub;
         }
 
         std::shared_ptr<observer::IValue<otime::RationalTime> > TimelineItem::observeTimeScrub() const
@@ -529,6 +535,7 @@ namespace tl
                     }
                     const otime::RationalTime time = _posToTime(event.pos.x);
                     p.player->seek(time);
+                    p.scrub->setIfChanged(true);
                     p.timeScrub->setIfChanged(time);
                 }
             }
@@ -538,6 +545,7 @@ namespace tl
         {
             IWidget::mouseReleaseEvent(event);
             TLRENDER_P();
+            p.scrub->setIfChanged(false);
             p.mouse.mode = Private::MouseMode::None;
             if (!p.mouse.items.empty() && p.mouse.currentDropTarget != -1)
             {

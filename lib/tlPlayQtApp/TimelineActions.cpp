@@ -47,6 +47,10 @@ namespace tl
             p.actions["FrameView"]->setCheckable(true);
             p.actions["FrameView"]->setText(tr("Frame Timeline View"));
 
+            p.actions["ScrollPlayback"] = new QAction(parent);
+            p.actions["ScrollPlayback"]->setCheckable(true);
+            p.actions["ScrollPlayback"]->setText(tr("Scroll Playback"));
+
             p.actions["StopOnScrub"] = new QAction(parent);
             p.actions["StopOnScrub"]->setCheckable(true);
             p.actions["StopOnScrub"]->setText(tr("Stop Playback When Scrubbing"));
@@ -97,6 +101,7 @@ namespace tl
             p.menu->addAction(p.actions["EditAssociatedClips"]);
             p.menu->addSeparator();
             p.menu->addAction(p.actions["FrameView"]);
+            p.menu->addAction(p.actions["ScrollPlayback"]);
             p.menu->addAction(p.actions["StopOnScrub"]);
             p.menu->addSeparator();
             p.menu->addAction(p.actions["FirstTrack"]);
@@ -137,6 +142,14 @@ namespace tl
                 [mainWindow](bool value)
                 {
                     mainWindow->timelineWidget()->setFrameView(value);
+                });
+
+            connect(
+                p.actions["ScrollPlayback"],
+                &QAction::toggled,
+                [mainWindow](bool value)
+                {
+                    mainWindow->timelineWidget()->setScrollPlayback(value);
                 });
 
             connect(
@@ -260,6 +273,11 @@ namespace tl
                 QSignalBlocker blocker(p.actions["FrameView"]);
                 p.actions["FrameView"]->setChecked(
                     p.mainWindow->timelineWidget()->hasFrameView());
+            }
+            {
+                QSignalBlocker blocker(p.actions["ScrollPlayback"]);
+                p.actions["ScrollPlayback"]->setChecked(
+                    p.mainWindow->timelineWidget()->hasScrollPlayback());
             }
             {
                 QSignalBlocker blocker(p.actions["StopOnScrub"]);
