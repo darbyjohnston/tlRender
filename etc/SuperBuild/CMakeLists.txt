@@ -41,9 +41,12 @@ set(TLRENDER_GCOV FALSE CACHE BOOL "Enable gcov code coverage")
 set(TLRENDER_GPROF FALSE CACHE BOOL "Enable gprof code profiling")
 
 # Configure.
-set(CMAKE_MODULE_PATH
+#
+# \bug Add the OpenColorIO cmake modules.
+list(PREPEND CMAKE_MODULE_PATH
     ${PROJECT_SOURCE_DIR}/../../cmake/Modules
-    ${PROJECT_SOURCE_DIR}/cmake/Modules)
+    ${PROJECT_SOURCE_DIR}/cmake/Modules
+    ${CMAKE_INSTALL_PREFIX}/share/OpenColorIO/cmake/modules)
 if(NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 17)
 endif()
