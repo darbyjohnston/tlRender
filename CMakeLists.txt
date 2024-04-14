@@ -135,7 +135,7 @@ find_package(nlohmann_json REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(minizip REQUIRED)
 find_package(OTIO REQUIRED)
-find_package(Freetype)
+find_package(Freetype REQUIRED)
 
 # GLFW dependency
 if(TLRENDER_GLFW)
