@@ -32,4 +32,4 @@ cmake ../etc/SuperBuild \
     -DTLRENDER_GCOV=$TLRENDER_GCOV \
     -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET} \
     -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-cmake --build . -j 1 --config $BUILD_TYPE
+cmake --build . -j 4 --config $BUILD_TYPE
