@@ -81,14 +81,14 @@ namespace tl
             //! Set whether the scroll bars are visible.
             void setScrollBarsVisible(bool);
 
-            //! Get whether to automatically scroll during playback.
-            bool hasScrollPlayback() const;
+            //! Get whether to automatically scroll to the current frame.
+            bool hasScrollToCurrentFrame() const;
 
-            //! Observe whether to automatically scroll during playback.
-            std::shared_ptr<observer::IValue<bool> > observeScrollPlayback() const;
+            //! Observe whether to automatically scroll to the current frame.
+            std::shared_ptr<observer::IValue<bool> > observeScrollToCurrentFrame() const;
 
-            //! Set whether to automatically scroll during playback.
-            void setScrollPlayback(bool);
+            //! Set whether to automatically scroll to the curernt frame.
+            void setScrollToCurrentFrame(bool);
 
             //! Get the mouse scroll key modifier.
             ui::KeyModifier getScrollKeyModifier() const;

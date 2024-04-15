@@ -434,8 +434,8 @@ namespace tl
             case Private::MouseMode::CurrentTime:
             {
                 const otime::RationalTime time = _posToTime(event.pos.x);
-                p.player->seek(time);
                 p.timeScrub->setIfChanged(time);
+                p.player->seek(time);
                 break;
             }
             case Private::MouseMode::Item:
@@ -534,9 +534,9 @@ namespace tl
                         p.player->setPlayback(timeline::Playback::Stop);
                     }
                     const otime::RationalTime time = _posToTime(event.pos.x);
-                    p.player->seek(time);
                     p.scrub->setIfChanged(true);
                     p.timeScrub->setIfChanged(time);
+                    p.player->seek(time);
                 }
             }
         }

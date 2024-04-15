@@ -60,13 +60,13 @@ namespace tl
                     }
                 });
 
-            p.actions["ScrollPlayback"] = std::make_shared<ui::Action>(
-                "Scroll Playback",
+            p.actions["ScrollToCurrentFrame"] = std::make_shared<ui::Action>(
+                "Scroll To Current Frame",
                 [mainWindowWeak](bool value)
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        mainWindow->getTimelineWidget()->setScrollPlayback(value);
+                        mainWindow->getTimelineWidget()->setScrollToCurrentFrame(value);
                     }
                 });
 

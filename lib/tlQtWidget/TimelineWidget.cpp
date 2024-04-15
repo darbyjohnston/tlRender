@@ -256,9 +256,9 @@ namespace tl
             return _p->timelineWidget->areScrollBarsVisible();
         }
 
-        bool TimelineWidget::hasScrollPlayback() const
+        bool TimelineWidget::hasScrollToCurrentFrame() const
         {
-            return _p->timelineWidget->hasScrollPlayback();
+            return _p->timelineWidget->hasScrollToCurrentFrame();
         }
 
         ui::KeyModifier TimelineWidget::scrollKeyModifier() const
@@ -320,9 +320,9 @@ namespace tl
             _p->timelineWidget->setScrollBarsVisible(value);
         }
 
-        void TimelineWidget::setScrollPlayback(bool value)
+        void TimelineWidget::setScrollToCurrentFrame(bool value)
         {
-            _p->timelineWidget->setScrollPlayback(value);
+            _p->timelineWidget->setScrollToCurrentFrame(value);
         }
 
         void TimelineWidget::setScrollKeyModifier(ui::KeyModifier value)

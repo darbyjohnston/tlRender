@@ -20,7 +20,7 @@ namespace tl
             std::shared_ptr<observer::Value<bool> > editable;
             std::shared_ptr<observer::Value<bool> > frameView;
             std::function<void(bool)> frameViewCallback;
-            std::shared_ptr<observer::Value<bool> > scrollPlayback;
+            std::shared_ptr<observer::Value<bool> > scrollToCurrentFrame;
             ui::KeyModifier scrollKeyModifier = ui::KeyModifier::Control;
             float mouseWheelScale = 1.1F;
             std::shared_ptr<observer::Value<bool> > stopOnScrub;
@@ -75,7 +75,7 @@ namespace tl
 
             p.editable = observer::Value<bool>::create(false);
             p.frameView = observer::Value<bool>::create(true);
-            p.scrollPlayback = observer::Value<bool>::create(true);
+            p.scrollToCurrentFrame = observer::Value<bool>::create(true);
             p.stopOnScrub = observer::Value<bool>::create(true);
             p.scrub = observer::Value<bool>::create(false);
             p.timeScrub = observer::Value<otime::RationalTime>::create(time::invalidTime);
@@ -155,14 +155,7 @@ namespace tl
                     [this](const otime::RationalTime& value)
                     {
                         _p->currentTime = value;
-                        switch (_p->playback)
-                        {
-                        case timeline::Playback::Forward:
-                        case timeline::Playback::Reverse:
-                            _scrollUpdate();
-                            break;
-                        default: break;
-                        }
+                        _scrollUpdate();
                     });
             }
             else
@@ -256,20 +249,20 @@ namespace tl
             _p->scrollWidget->setScrollBarsVisible(value);
         }
 
-        bool TimelineWidget::hasScrollPlayback() const
+        bool TimelineWidget::hasScrollToCurrentFrame() const
         {
-            return _p->scrollPlayback->get();
+            return _p->scrollToCurrentFrame->get();
         }
 
-        std::shared_ptr<observer::IValue<bool> > TimelineWidget::observeScrollPlayback() const
+        std::shared_ptr<observer::IValue<bool> > TimelineWidget::observeScrollToCurrentFrame() const
         {
-            return _p->scrollPlayback;
+            return _p->scrollToCurrentFrame;
         }
 
-        void TimelineWidget::setScrollPlayback(bool value)
+        void TimelineWidget::setScrollToCurrentFrame(bool value)
         {
             TLRENDER_P();
-            if (p.scrollPlayback->setIfChanged(value))
+            if (p.scrollToCurrentFrame->setIfChanged(value))
             {
                 _scrollUpdate();
             }
@@ -445,6 +438,7 @@ namespace tl
             IWidget::mouseReleaseEvent(event);
             TLRENDER_P();
             p.mouse.mode = Private::MouseMode::None;
+            _scrollUpdate();
         }
 
         void TimelineWidget::scrollEvent(ui::ScrollEvent& event)
@@ -586,22 +580,15 @@ namespace tl
         void TimelineWidget::_scrollUpdate()
         {
             TLRENDER_P();
-            switch (_p->playback)
+            if (p.scrollToCurrentFrame->get() &&
+                !p.scrub->get() &&
+                Private::MouseMode::None == p.mouse.mode)
             {
-            case timeline::Playback::Forward:
-            case timeline::Playback::Reverse:
-                if (p.scrollPlayback->get() &&
-                    !p.scrub->get() &&
-                    Private::MouseMode::None == p.mouse.mode)
-                {
-                    const otime::RationalTime t = p.currentTime - p.timeRange.start_time();
-                    math::Vector2i scrollPos = p.scrollWidget->getScrollPos();
-                    scrollPos.x = _geometry.min.x - _geometry.w() / 2 +
-                        t.rescaled_to(1.0).value() * p.scale;
-                    p.scrollWidget->setScrollPos(scrollPos);
-                }
-                break;
-            default: break;
+                const otime::RationalTime t = p.currentTime - p.timeRange.start_time();
+                math::Vector2i scrollPos = p.scrollWidget->getScrollPos();
+                scrollPos.x = _geometry.min.x - _geometry.w() / 2 +
+                    t.rescaled_to(1.0).value() * p.scale;
+                p.scrollWidget->setScrollPos(scrollPos);
             }
         }
 
@@ -642,6 +629,7 @@ namespace tl
                         [this](bool value)
                         {
                             _p->scrub->setIfChanged(value);
+                            _scrollUpdate();
                         });
 
                     p.timeScrubObserver = observer::ValueObserver<otime::RationalTime>::create(

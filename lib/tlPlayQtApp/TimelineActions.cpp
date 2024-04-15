@@ -47,9 +47,9 @@ namespace tl
             p.actions["FrameView"]->setCheckable(true);
             p.actions["FrameView"]->setText(tr("Frame Timeline View"));
 
-            p.actions["ScrollPlayback"] = new QAction(parent);
-            p.actions["ScrollPlayback"]->setCheckable(true);
-            p.actions["ScrollPlayback"]->setText(tr("Scroll Playback"));
+            p.actions["ScrollToCurrentFrame"] = new QAction(parent);
+            p.actions["ScrollToCurrentFrame"]->setCheckable(true);
+            p.actions["ScrollToCurrentFrame"]->setText(tr("Scroll To Current Frame"));
 
             p.actions["StopOnScrub"] = new QAction(parent);
             p.actions["StopOnScrub"]->setCheckable(true);
@@ -101,7 +101,7 @@ namespace tl
             p.menu->addAction(p.actions["EditAssociatedClips"]);
             p.menu->addSeparator();
             p.menu->addAction(p.actions["FrameView"]);
-            p.menu->addAction(p.actions["ScrollPlayback"]);
+            p.menu->addAction(p.actions["ScrollToCurrentFrame"]);
             p.menu->addAction(p.actions["StopOnScrub"]);
             p.menu->addSeparator();
             p.menu->addAction(p.actions["FirstTrack"]);
@@ -145,11 +145,11 @@ namespace tl
                 });
 
             connect(
-                p.actions["ScrollPlayback"],
+                p.actions["ScrollToCurrentFrame"],
                 &QAction::toggled,
                 [mainWindow](bool value)
                 {
-                    mainWindow->timelineWidget()->setScrollPlayback(value);
+                    mainWindow->timelineWidget()->setScrollToCurrentFrame(value);
                 });
 
             connect(
@@ -275,9 +275,9 @@ namespace tl
                     p.mainWindow->timelineWidget()->hasFrameView());
             }
             {
-                QSignalBlocker blocker(p.actions["ScrollPlayback"]);
-                p.actions["ScrollPlayback"]->setChecked(
-                    p.mainWindow->timelineWidget()->hasScrollPlayback());
+                QSignalBlocker blocker(p.actions["ScrollToCurrentFrame"]);
+                p.actions["ScrollToCurrentFrame"]->setChecked(
+                    p.mainWindow->timelineWidget()->hasScrollToCurrentFrame());
             }
             {
                 QSignalBlocker blocker(p.actions["StopOnScrub"]);

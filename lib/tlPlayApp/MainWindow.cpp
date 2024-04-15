@@ -183,7 +183,7 @@ namespace tl
             p.settings->setDefaultValue("Timeline/EditAssociatedClips",
                 timelineui::ItemOptions().editAssociatedClips);
             p.settings->setDefaultValue("Timeline/FrameView", true);
-            p.settings->setDefaultValue("Timeline/ScrollPlayback", true);
+            p.settings->setDefaultValue("Timeline/ScrollToCurrentFrame", true);
             p.settings->setDefaultValue("Timeline/StopOnScrub", true);
             p.settings->setDefaultValue("Timeline/FirstTrack",
                 !timelineui::ItemOptions().tracks.empty());
@@ -216,7 +216,7 @@ namespace tl
             p.timelineWidget->setEditable(p.settings->getValue<bool>("Timeline/Editable"));
             p.timelineWidget->setFrameView(p.settings->getValue<bool>("Timeline/FrameView"));
             p.timelineWidget->setScrollBarsVisible(false);
-            p.timelineWidget->setScrollPlayback(p.settings->getValue<bool>("Timeline/ScrollPlayback"));
+            p.timelineWidget->setScrollToCurrentFrame(p.settings->getValue<bool>("Timeline/ScrollToCurrentFrame"));
             p.timelineWidget->setStopOnScrub(p.settings->getValue<bool>("Timeline/StopOnScrub"));
             timelineui::ItemOptions itemOptions;
             itemOptions.editAssociatedClips = p.settings->getValue<bool>("Timeline/EditAssociatedClips");
@@ -642,8 +642,8 @@ namespace tl
                 timelineItemOptions.editAssociatedClips);
             p.settings->setValue("Timeline/FrameView",
                 p.timelineWidget->hasFrameView());
-            p.settings->setValue("Timeline/ScrollPlayback",
-                p.timelineWidget->hasScrollPlayback());
+            p.settings->setValue("Timeline/ScrollToCurrentFrame",
+                p.timelineWidget->hasScrollToCurrentFrame());
             p.settings->setValue("Timeline/StopOnScrub",
                 p.timelineWidget->hasStopOnScrub());
             p.settings->setValue("Timeline/FirstTrack",
