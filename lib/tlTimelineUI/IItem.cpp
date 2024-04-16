@@ -178,27 +178,7 @@ namespace tl
             _updates |= ui::Update::Draw;
         }
 
-        math::Box2i IItem::_getClipRect(
-            const math::Box2i& value,
-            double scale)
-        {
-            math::Box2i out;
-            const math::Vector2i c = value.getCenter();
-            out.min.x = (value.min.x - c.x) * scale + c.x;
-            out.min.y = (value.min.y - c.y) * scale + c.y;
-            out.max.x = (value.max.x - c.x) * scale + c.x;
-            out.max.y = (value.max.y - c.y) * scale + c.y;
-            return out;
-        }
-
-        std::string IItem::_getDurationLabel(const otime::RationalTime& value)
-        {
-            const otime::RationalTime rescaled = value.rescaled_to(_data->speed);
-            return string::Format("{0}").
-                arg(_data->timeUnitsModel->getLabel(rescaled));
-        }
-
-        otime::RationalTime IItem::_posToTime(float value) const
+        otime::RationalTime IItem::posToTime(float value) const
         {
             otime::RationalTime out = time::invalidTime;
             if (_geometry.w() > 0)
@@ -218,10 +198,30 @@ namespace tl
             return out;
         }
 
-        int IItem::_timeToPos(const otime::RationalTime& value) const
+        int IItem::timeToPos(const otime::RationalTime& value) const
         {
             const otime::RationalTime t = value - _timeRange.start_time();
             return _geometry.min.x + t.rescaled_to(1.0).value() * _scale;
+        }
+
+        math::Box2i IItem::_getClipRect(
+            const math::Box2i& value,
+            double scale)
+        {
+            math::Box2i out;
+            const math::Vector2i c = value.getCenter();
+            out.min.x = (value.min.x - c.x) * scale + c.x;
+            out.min.y = (value.min.y - c.y) * scale + c.y;
+            out.max.x = (value.max.x - c.x) * scale + c.x;
+            out.max.y = (value.max.y - c.y) * scale + c.y;
+            return out;
+        }
+
+        std::string IItem::_getDurationLabel(const otime::RationalTime& value)
+        {
+            const otime::RationalTime rescaled = value.rescaled_to(_data->speed);
+            return string::Format("{0}").
+                arg(_data->timeUnitsModel->getLabel(rescaled));
         }
 
         void IItem::_timeUnitsUpdate()

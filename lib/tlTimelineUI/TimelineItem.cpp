@@ -433,7 +433,7 @@ namespace tl
             {
             case Private::MouseMode::CurrentTime:
             {
-                const otime::RationalTime time = _posToTime(event.pos.x);
+                const otime::RationalTime time = posToTime(event.pos.x);
                 p.timeScrub->setIfChanged(time);
                 p.player->seek(time);
                 break;
@@ -533,7 +533,7 @@ namespace tl
                     {
                         p.player->setPlayback(timeline::Playback::Stop);
                     }
-                    const otime::RationalTime time = _posToTime(event.pos.x);
+                    const otime::RationalTime time = posToTime(event.pos.x);
                     p.scrub->setIfChanged(true);
                     p.timeScrub->setIfChanged(time);
                     p.player->seek(time);
@@ -627,8 +627,8 @@ namespace tl
                 {
                 case InOutDisplay::InsideRange:
                 {
-                    const int x0 = _timeToPos(_p->inOutRange.start_time());
-                    const int x1 = _timeToPos(_p->inOutRange.end_time_exclusive());
+                    const int x0 = timeToPos(_p->inOutRange.start_time());
+                    const int x1 = timeToPos(_p->inOutRange.end_time_exclusive());
                     const math::Box2i box(
                         x0,
                         p.size.scrollPos.y +
@@ -644,8 +644,8 @@ namespace tl
                 }
                 case InOutDisplay::OutsideRange:
                 {
-                    int x0 = _timeToPos(_timeRange.start_time());
-                    int x1 = _timeToPos(_p->inOutRange.start_time());
+                    int x0 = timeToPos(_timeRange.start_time());
+                    int x1 = timeToPos(_p->inOutRange.start_time());
                     math::Box2i box(
                         x0,
                         p.size.scrollPos.y +
@@ -657,8 +657,8 @@ namespace tl
                     event.render->drawRect(
                         box,
                         event.style->getColorRole(ui::ColorRole::InOut));
-                    x0 = _timeToPos(_p->inOutRange.end_time_exclusive());
-                    x1 = _timeToPos(_timeRange.end_time_exclusive());
+                    x0 = timeToPos(_p->inOutRange.end_time_exclusive());
+                    x1 = timeToPos(_timeRange.end_time_exclusive());
                     box = math::Box2i(
                         x0,
                         p.size.scrollPos.y +
@@ -816,7 +816,7 @@ namespace tl
             for (const auto& frameMarker : p.frameMarkers)
             {
                 const math::Box2i g2(
-                    _timeToPos(otime::RationalTime(frameMarker, rate)),
+                    timeToPos(otime::RationalTime(frameMarker, rate)),
                     p.size.scrollPos.y +
                     g.min.y,
                     p.size.border * 2,
@@ -894,8 +894,8 @@ namespace tl
                 size_t i = 1;
                 for (const auto& t : p.cacheInfo.videoFrames)
                 {
-                    const int x0 = _timeToPos(t.start_time());
-                    const int x1 = _timeToPos(t.end_time_exclusive());
+                    const int x0 = timeToPos(t.start_time());
+                    const int x1 = timeToPos(t.end_time_exclusive());
                     const int h = CacheDisplay::VideoAndAudio == _options.cacheDisplay ?
                         p.size.border * 2 :
                         p.size.border * 4;
@@ -934,8 +934,8 @@ namespace tl
                 size_t i = 1;
                 for (const auto& t : p.cacheInfo.audioFrames)
                 {
-                    const int x0 = _timeToPos(t.start_time());
-                    const int x1 = _timeToPos(t.end_time_exclusive());
+                    const int x0 = timeToPos(t.start_time());
+                    const int x1 = timeToPos(t.end_time_exclusive());
                     const math::Box2i box(
                         x0,
                         p.size.scrollPos.y +
@@ -978,7 +978,7 @@ namespace tl
             if (!time::compareExact(p.currentTime, time::invalidTime))
             {
                 const math::Vector2i pos(
-                    _timeToPos(p.currentTime),
+                    timeToPos(p.currentTime),
                     p.size.scrollPos.y +
                     g.min.y);
 

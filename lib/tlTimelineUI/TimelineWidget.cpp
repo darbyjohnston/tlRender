@@ -13,6 +13,11 @@ namespace tl
 {
     namespace timelineui
     {
+        namespace
+        {
+            const float marginPercentage = .1F;
+        }
+
         struct TimelineWidget::Private
         {
             std::shared_ptr<ItemData> itemData;
@@ -438,7 +443,6 @@ namespace tl
             IWidget::mouseReleaseEvent(event);
             TLRENDER_P();
             p.mouse.mode = Private::MouseMode::None;
-            _scrollUpdate();
         }
 
         void TimelineWidget::scrollEvent(ui::ScrollEvent& event)
@@ -580,15 +584,22 @@ namespace tl
         void TimelineWidget::_scrollUpdate()
         {
             TLRENDER_P();
-            if (p.scrollToCurrentFrame->get() &&
+            if (p.timelineItem &&
+                p.scrollToCurrentFrame->get() &&
                 !p.scrub->get() &&
                 Private::MouseMode::None == p.mouse.mode)
             {
-                const otime::RationalTime t = p.currentTime - p.timeRange.start_time();
-                math::Vector2i scrollPos = p.scrollWidget->getScrollPos();
-                scrollPos.x = _geometry.min.x - _geometry.w() / 2 +
-                    t.rescaled_to(1.0).value() * p.scale;
-                p.scrollWidget->setScrollPos(scrollPos);
+                const int pos = p.timelineItem->timeToPos(p.currentTime);
+                const math::Box2i vp = p.scrollWidget->getViewport();
+                const int margin = vp.w() * marginPercentage;
+                if (pos < (vp.min.x + margin) || pos >(vp.max.x - margin))
+                {
+                    const int offset = pos < (vp.min.x + margin) ? (vp.min.x + margin) : (vp.max.x - margin);
+                    const otime::RationalTime t = p.currentTime - p.timeRange.start_time();
+                    math::Vector2i scrollPos = p.scrollWidget->getScrollPos();
+                    scrollPos.x = _geometry.min.x - offset + t.rescaled_to(1.0).value() * p.scale;
+                    p.scrollWidget->setScrollPos(scrollPos);
+                }
             }
         }
 

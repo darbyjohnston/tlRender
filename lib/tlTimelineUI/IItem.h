@@ -139,15 +139,18 @@ namespace tl
             //! Set the selection color role.
             void setSelectRole(ui::ColorRole);
 
+            //! Convert a position to a time.
+            otime::RationalTime posToTime(float) const;
+
+            //! Convert a time to a position.
+            int timeToPos(const otime::RationalTime&) const;
+
         protected:
             static math::Box2i _getClipRect(
                 const math::Box2i&,
                 double scale);
 
             std::string _getDurationLabel(const otime::RationalTime&);
-
-            otime::RationalTime _posToTime(float) const;
-            int _timeToPos(const otime::RationalTime&) const;
 
             virtual void _timeUnitsUpdate();
 
