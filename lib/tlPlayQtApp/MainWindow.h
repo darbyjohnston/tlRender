@@ -12,7 +12,7 @@ namespace tl
 {
     namespace qtwidget
     {
-        class TimelineWidget;
+        class TimelineWindow;
         class TimelineViewport;
     }
 
@@ -30,10 +30,10 @@ namespace tl
 
             virtual ~MainWindow();
 
-            //! Get the timeline widget;
-            qtwidget::TimelineWidget* timelineWidget() const;
+            //! Get the timeline window.
+            qtwidget::TimelineWindow* timelineWidget() const;
 
-            //! Get the timeline viewport;
+            //! Get the timeline viewport.
             qtwidget::TimelineViewport* timelineViewport() const;
 
         protected:

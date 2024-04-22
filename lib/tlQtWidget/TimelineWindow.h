@@ -8,7 +8,7 @@
 
 #include <tlTimeline/Player.h>
 
-#include <QOpenGLWidget>
+#include <QOpenGLWindow>
 #include <QOpenGLFunctions_4_1_Core>
 
 namespace tl
@@ -16,20 +16,20 @@ namespace tl
     namespace qtwidget
     {
         //! Timeline widget.
-        class TimelineWidget :
-            public QOpenGLWidget,
+        class TimelineWindow :
+            public QOpenGLWindow,
             protected QOpenGLFunctions_4_1_Core
         {
             Q_OBJECT
 
         public:
-            TimelineWidget(
+            TimelineWindow(
                 const std::shared_ptr<ui::Style>&,
                 const std::shared_ptr<timeline::ITimeUnitsModel>&,
                 const std::shared_ptr<system::Context>&,
-                QWidget* parent = nullptr);
+                QWindow* parent = nullptr);
 
-            virtual ~TimelineWidget();
+            virtual ~TimelineWindow();
 
             //! Set the timeline player.
             void setPlayer(const std::shared_ptr<timeline::Player>&);
@@ -60,9 +60,6 @@ namespace tl
 
             //! Get the item options.
             const timelineui::ItemOptions& itemOptions() const;
-
-            QSize minimumSizeHint() const override;
-            QSize sizeHint() const override;
 
         public Q_SLOTS:
             //! Set whether the timeline is editable.
@@ -110,12 +107,6 @@ namespace tl
             void resizeGL(int w, int h) override;
             void paintGL() override;
 
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-            void enterEvent(QEvent*) override;
-#else
-            void enterEvent(QEnterEvent*) override;
-#endif // QT_VERSION
-            void leaveEvent(QEvent*) override;
             void mousePressEvent(QMouseEvent*) override;
             void mouseReleaseEvent(QMouseEvent*) override;
             void mouseMoveEvent(QMouseEvent*) override;

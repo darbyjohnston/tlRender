@@ -6,7 +6,7 @@
 
 #include <tlPlayQtApp/MainWindow.h>
 
-#include <tlQtWidget/TimelineWidget.h>
+#include <tlQtWidget/TimelineWindow.h>
 
 #include <tlQt/MetaTypes.h>
 #include <tlQt/TimeObject.h>

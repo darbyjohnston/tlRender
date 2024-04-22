@@ -37,6 +37,7 @@
 #include <tlQtWidget/TimeSpinBox.h>
 #include <tlQtWidget/TimelineViewport.h>
 #include <tlQtWidget/TimelineWidget.h>
+#include <tlQtWidget/TimelineWindow.h>
 #include <tlQtWidget/Util.h>
 
 #if defined(TLRENDER_BMD)
@@ -93,7 +94,8 @@ namespace tl
             ToolActions* toolActions = nullptr;
 
             qtwidget::TimelineViewport* timelineViewport = nullptr;
-            qtwidget::TimelineWidget* timelineWidget = nullptr;
+            //qtwidget::TimelineWidget* timelineWidget = nullptr;
+            qtwidget::TimelineWindow* timelineWidget = nullptr;
             qtwidget::TimeSpinBox* currentTimeSpinBox = nullptr;
             QDoubleSpinBox* speedSpinBox = nullptr;
             QToolButton* speedButton = nullptr;
@@ -168,7 +170,7 @@ namespace tl
             auto context = app->getContext();
             p.timelineViewport = new qtwidget::TimelineViewport(context);
 
-            p.timelineWidget = new qtwidget::TimelineWidget(
+            p.timelineWidget = new qtwidget::TimelineWindow(
                 ui::Style::create(context),
                 app->timeUnitsModel(),
                 context);
@@ -278,7 +280,7 @@ namespace tl
             timelineDockWidget->setWindowTitle(tr("Timeline"));
             timelineDockWidget->setFeatures(QDockWidget::DockWidgetClosable);
             timelineDockWidget->setTitleBarWidget(new QWidget);
-            timelineDockWidget->setWidget(p.timelineWidget);
+            timelineDockWidget->setWidget(QWidget::createWindowContainer(p.timelineWidget));
             addDockWidget(Qt::BottomDockWidgetArea, timelineDockWidget);
 
             p.currentTimeSpinBox = new qtwidget::TimeSpinBox;
@@ -572,21 +574,21 @@ namespace tl
 
             connect(
                 p.timelineWidget,
-                &qtwidget::TimelineWidget::editableChanged,
+                &qtwidget::TimelineWindow::editableChanged,
                 [this](bool value)
                 {
                     _p->timelineActions->actions()["Editable"]->setChecked(value);
                 });
             connect(
                 p.timelineWidget,
-                &qtwidget::TimelineWidget::frameViewChanged,
+                &qtwidget::TimelineWindow::frameViewChanged,
                 [this](bool value)
                 {
                     _p->timelineActions->actions()["FrameView"]->setChecked(value);
                 });
             /*connect(
                 p.timelineWidget,
-                &qtwidget::TimelineWidget::timeScrubbed,
+                &qtwidget::TimelineWindow::timeScrubbed,
                 [this](const otime::RationalTime& value)
                 {
                     std::cout << "Time scrubbed: " << value << std::endl;
@@ -696,7 +698,7 @@ namespace tl
                 timelineItemOptions.markers);
         }
 
-        qtwidget::TimelineWidget* MainWindow::timelineWidget() const
+        qtwidget::TimelineWindow* MainWindow::timelineWidget() const
         {
             return _p->timelineWidget;
         }
@@ -820,7 +822,7 @@ namespace tl
 
             const auto& files = p.app->filesModel()->observeFiles()->get();
             const size_t count = files.size();
-            p.timelineWidget->setEnabled(count > 0);
+            //p.timelineWidget->setEnabled(count > 0);
             p.currentTimeSpinBox->setEnabled(count > 0);
             p.speedSpinBox->setEnabled(count > 0);
             p.volumeSlider->setEnabled(count > 0);
