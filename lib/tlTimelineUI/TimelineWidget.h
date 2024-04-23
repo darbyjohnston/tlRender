@@ -87,7 +87,7 @@ namespace tl
             //! Observe whether to automatically scroll to the current frame.
             std::shared_ptr<observer::IValue<bool> > observeScrollToCurrentFrame() const;
 
-            //! Set whether to automatically scroll to the curernt frame.
+            //! Set whether to automatically scroll to the current frame.
             void setScrollToCurrentFrame(bool);
 
             //! Get the mouse scroll key modifier.
