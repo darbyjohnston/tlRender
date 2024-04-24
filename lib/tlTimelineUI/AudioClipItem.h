@@ -25,6 +25,7 @@ namespace tl
                 const otio::SerializableObject::Retainer<otio::Clip>&,
                 double scale,
                 const ItemOptions&,
+                const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
                 const std::shared_ptr<ui::ThumbnailGenerator>,
                 const std::shared_ptr<system::Context>&,
@@ -40,13 +41,14 @@ namespace tl
                 const otio::SerializableObject::Retainer<otio::Clip>&,
                 double scale,
                 const ItemOptions&,
+                const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
                 const std::shared_ptr<ui::ThumbnailGenerator>,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setScale(double) override;
-            void setOptions(const ItemOptions&) override;
+            void setDisplayOptions(const DisplayOptions&) override;
 
             void tickEvent(
                 bool,

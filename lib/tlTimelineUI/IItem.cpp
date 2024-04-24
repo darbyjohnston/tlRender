@@ -17,7 +17,18 @@ namespace tl
         bool ItemOptions::operator == (const ItemOptions& other) const
         {
             return
-                editAssociatedClips == other.editAssociatedClips &&
+                inputEnabled == other.inputEnabled &&
+                editAssociatedClips == other.editAssociatedClips;
+        }
+
+        bool ItemOptions::operator != (const ItemOptions& other) const
+        {
+            return !(*this == other);
+        }
+
+        bool DisplayOptions::operator == (const DisplayOptions& other) const
+        {
+            return
                 inOutDisplay == other.inOutDisplay &&
                 cacheDisplay == other.cacheDisplay &&
                 tracks == other.tracks &&
@@ -37,7 +48,7 @@ namespace tl
                 clipRectScale == other.clipRectScale;
         }
 
-        bool ItemOptions::operator != (const ItemOptions& other) const
+        bool DisplayOptions::operator != (const DisplayOptions& other) const
         {
             return !(*this == other);
         }
@@ -113,6 +124,7 @@ namespace tl
             const otime::TimeRange& trimmedRange,
             double scale,
             const ItemOptions& options,
+            const DisplayOptions& displayOptions,
             const std::shared_ptr<ItemData>& data,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -124,6 +136,7 @@ namespace tl
             _trimmedRange = trimmedRange;
             _scale = scale;
             _options = options;
+            _displayOptions = displayOptions;
             _data = data;
 
             p.timeUnitsObserver = observer::ValueObserver<bool>::create(
@@ -157,9 +170,14 @@ namespace tl
 
         void IItem::setOptions(const ItemOptions& value)
         {
-            if (value == _options)
-                return;
             _options = value;
+        }
+
+        void IItem::setDisplayOptions(const DisplayOptions& value)
+        {
+            if (value == _displayOptions)
+                return;
+            _displayOptions = value;
             _updates |= ui::Update::Size;
             _updates |= ui::Update::Draw;
         }

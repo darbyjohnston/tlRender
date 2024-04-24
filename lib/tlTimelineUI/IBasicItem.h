@@ -23,6 +23,7 @@ namespace tl
                 const otio::SerializableObject::Retainer<otio::Item>&,
                 double scale,
                 const ItemOptions&,
+                const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
@@ -32,7 +33,7 @@ namespace tl
         public:
             virtual ~IBasicItem() = 0;
 
-            void setOptions(const ItemOptions&) override;
+            void setDisplayOptions(const DisplayOptions&) override;
 
             void sizeHintEvent(const ui::SizeHintEvent&) override;
             void clipEvent(const math::Box2i&, bool) override;

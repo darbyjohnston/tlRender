@@ -43,6 +43,7 @@ namespace tl
             const otio::SerializableObject::Retainer<otio::Clip>& clip,
             double scale,
             const ItemOptions& options,
+            const DisplayOptions& displayOptions,
             const std::shared_ptr<ItemData>& itemData,
             const std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator,
             const std::shared_ptr<system::Context>& context,
@@ -59,6 +60,7 @@ namespace tl
                 clip.value,
                 scale,
                 options,
+                displayOptions,
                 itemData,
                 context,
                 parent);
@@ -90,13 +92,22 @@ namespace tl
             const otio::SerializableObject::Retainer<otio::Clip>& clip,
             double scale,
             const ItemOptions& options,
+            const DisplayOptions& displayOptions,
             const std::shared_ptr<ItemData>& itemData,
             const std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<VideoClipItem>(new VideoClipItem);
-            out->_init(clip, scale, options, itemData, thumbnailGenerator, context, parent);
+            out->_init(
+                clip,
+                scale,
+                options,
+                displayOptions,
+                itemData,
+                thumbnailGenerator,
+                context,
+                parent);
             return out;
         }
 
@@ -112,12 +123,12 @@ namespace tl
             }
         }
 
-        void VideoClipItem::setOptions(const ItemOptions& value)
+        void VideoClipItem::setDisplayOptions(const DisplayOptions& value)
         {
             const bool thumbnailsChanged =
-                value.thumbnails != _options.thumbnails ||
-                value.thumbnailHeight != _options.thumbnailHeight;
-            IBasicItem::setOptions(value);
+                value.thumbnails != _displayOptions.thumbnails ||
+                value.thumbnailHeight != _displayOptions.thumbnailHeight;
+            IBasicItem::setDisplayOptions(value);
             TLRENDER_P();
             if (thumbnailsChanged)
             {
@@ -178,9 +189,9 @@ namespace tl
             }
             p.size.sizeInit = false;
 
-            if (_options.thumbnails)
+            if (_displayOptions.thumbnails)
             {
-                _sizeHint.h += _options.thumbnailHeight;
+                _sizeHint.h += _displayOptions.thumbnailHeight;
             }
         }
 
@@ -203,7 +214,7 @@ namespace tl
             const ui::DrawEvent& event)
         {
             IBasicItem::drawEvent(drawRect, event);
-            if (_options.thumbnails)
+            if (_displayOptions.thumbnails)
             {
                 _drawThumbnails(drawRect, event);
             }
@@ -221,9 +232,9 @@ namespace tl
             const math::Box2i box(
                 g.min.x,
                 g.min.y +
-                (_options.clipInfo ? (_getLineHeight() + m * 2) : 0),
+                (_displayOptions.clipInfo ? (_getLineHeight() + m * 2) : 0),
                 g.w(),
-                _options.thumbnailHeight);
+                _displayOptions.thumbnailHeight);
             event.render->drawRect(
                 box,
                 image::Color4f(0.F, 0.F, 0.F));
@@ -234,7 +245,7 @@ namespace tl
 
             const math::Box2i clipRect = _getClipRect(
                 drawRect,
-                _options.clipRectScale);
+                _displayOptions.clipRectScale);
             if (g.intersects(clipRect))
             {
                 if (!p.ioInfo && !p.infoRequest.future.valid())
@@ -244,8 +255,8 @@ namespace tl
             }
 
             const int thumbnailWidth =
-                (_options.thumbnails && p.ioInfo && !p.ioInfo->video.empty()) ?
-                static_cast<int>(_options.thumbnailHeight * p.ioInfo->video[0].size.getAspect()) :
+                (_displayOptions.thumbnails && p.ioInfo && !p.ioInfo->video.empty()) ?
+                static_cast<int>(_displayOptions.thumbnailHeight * p.ioInfo->video[0].size.getAspect()) :
                 0;
             if (thumbnailWidth > 0)
             {
@@ -256,9 +267,9 @@ namespace tl
                         g.min.x +
                         x,
                         g.min.y +
-                        (_options.clipInfo ? (_getLineHeight() + m * 2) : 0),
+                        (_displayOptions.clipInfo ? (_getLineHeight() + m * 2) : 0),
                         thumbnailWidth,
-                        _options.thumbnailHeight);
+                        _displayOptions.thumbnailHeight);
                     if (box.intersects(clipRect))
                     {
                         const otime::RationalTime time = time::floor(otime::RationalTime(
@@ -291,7 +302,7 @@ namespace tl
                                 p.thumbnailRequests[mediaTime] = p.thumbnailGenerator->getThumbnail(
                                     p.path,
                                     p.memoryRead,
-                                    _options.thumbnailHeight,
+                                    _displayOptions.thumbnailHeight,
                                     mediaTime,
                                     ioOptions);
                             }

@@ -21,6 +21,7 @@ namespace tl
                 const otio::SerializableObject::Retainer<otio::Gap>&,
                 double scale,
                 const ItemOptions&,
+                const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
@@ -36,6 +37,7 @@ namespace tl
                 const otio::SerializableObject::Retainer<otio::Gap>&,
                 double scale,
                 const ItemOptions&,
+                const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);

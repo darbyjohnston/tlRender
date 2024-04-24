@@ -179,6 +179,8 @@ namespace tl
 
             p.settings = app->getSettings();
             p.settings->setDefaultValue("Window/Options", WindowOptions());
+            p.settings->setDefaultValue("Timeline/Input",
+                timelineui::ItemOptions().inputEnabled);
             p.settings->setDefaultValue("Timeline/Editable", true);
             p.settings->setDefaultValue("Timeline/EditAssociatedClips",
                 timelineui::ItemOptions().editAssociatedClips);
@@ -186,19 +188,19 @@ namespace tl
             p.settings->setDefaultValue("Timeline/ScrollToCurrentFrame", true);
             p.settings->setDefaultValue("Timeline/StopOnScrub", true);
             p.settings->setDefaultValue("Timeline/FirstTrack",
-                !timelineui::ItemOptions().tracks.empty());
+                !timelineui::DisplayOptions().tracks.empty());
             p.settings->setDefaultValue("Timeline/TrackInfo",
-                timelineui::ItemOptions().trackInfo);
+                timelineui::DisplayOptions().trackInfo);
             p.settings->setDefaultValue("Timeline/ClipInfo",
-                timelineui::ItemOptions().clipInfo);
+                timelineui::DisplayOptions().clipInfo);
             p.settings->setDefaultValue("Timeline/Thumbnails",
-                timelineui::ItemOptions().thumbnails);
+                timelineui::DisplayOptions().thumbnails);
             p.settings->setDefaultValue("Timeline/ThumbnailsSize",
-                timelineui::ItemOptions().thumbnailHeight);
+                timelineui::DisplayOptions().thumbnailHeight);
             p.settings->setDefaultValue("Timeline/Transitions",
-                timelineui::ItemOptions().transitions);
+                timelineui::DisplayOptions().transitions);
             p.settings->setDefaultValue("Timeline/Markers",
-                timelineui::ItemOptions().markers);
+                timelineui::DisplayOptions().markers);
 
             p.windowOptions = observer::Value<WindowOptions>::create(
                 p.settings->getValue<WindowOptions>("Window/Options"));
@@ -219,18 +221,21 @@ namespace tl
             p.timelineWidget->setScrollToCurrentFrame(p.settings->getValue<bool>("Timeline/ScrollToCurrentFrame"));
             p.timelineWidget->setStopOnScrub(p.settings->getValue<bool>("Timeline/StopOnScrub"));
             timelineui::ItemOptions itemOptions;
+            itemOptions.inputEnabled = p.settings->getValue<bool>("Timeline/Input");
             itemOptions.editAssociatedClips = p.settings->getValue<bool>("Timeline/EditAssociatedClips");
+            p.timelineWidget->setItemOptions(itemOptions);
+            timelineui::DisplayOptions displayOptions;
             if (p.settings->getValue<bool>("Timeline/FirstTrack"))
             {
-                itemOptions.tracks = { 0 };
+                displayOptions.tracks = { 0 };
             }
-            itemOptions.trackInfo = p.settings->getValue<bool>("Timeline/TrackInfo");
-            itemOptions.clipInfo = p.settings->getValue<bool>("Timeline/ClipInfo");
-            itemOptions.thumbnails = p.settings->getValue<bool>("Timeline/Thumbnails");
-            itemOptions.thumbnailHeight = p.settings->getValue<int>("Timeline/ThumbnailsSize");
-            itemOptions.transitions = p.settings->getValue<bool>("Timeline/Transitions");
-            itemOptions.markers = p.settings->getValue<bool>("Timeline/Markers");
-            p.timelineWidget->setItemOptions(itemOptions);
+            displayOptions.trackInfo = p.settings->getValue<bool>("Timeline/TrackInfo");
+            displayOptions.clipInfo = p.settings->getValue<bool>("Timeline/ClipInfo");
+            displayOptions.thumbnails = p.settings->getValue<bool>("Timeline/Thumbnails");
+            displayOptions.thumbnailHeight = p.settings->getValue<int>("Timeline/ThumbnailsSize");
+            displayOptions.transitions = p.settings->getValue<bool>("Timeline/Transitions");
+            displayOptions.markers = p.settings->getValue<bool>("Timeline/Markers");
+            p.timelineWidget->setDisplayOptions(displayOptions);
 
             p.fileActions = FileActions::create(app, context);
             p.compareActions = CompareActions::create(app, context);
@@ -635,31 +640,34 @@ namespace tl
 #endif // __APPLE__
             p.settings->setValue("Window/Size", windowSize);
             p.settings->setValue("Window/Options", p.windowOptions->get());
+            const auto& itemOptions = p.timelineWidget->getItemOptions();
+            p.settings->setValue("Timeline/Input",
+                itemOptions.inputEnabled);
             p.settings->setValue("Timeline/Editable",
                 p.timelineWidget->isEditable());
-            const auto& timelineItemOptions = p.timelineWidget->getItemOptions();
             p.settings->setValue("Timeline/EditAssociatedClips",
-                timelineItemOptions.editAssociatedClips);
+                itemOptions.editAssociatedClips);
             p.settings->setValue("Timeline/FrameView",
                 p.timelineWidget->hasFrameView());
             p.settings->setValue("Timeline/ScrollToCurrentFrame",
                 p.timelineWidget->hasScrollToCurrentFrame());
             p.settings->setValue("Timeline/StopOnScrub",
                 p.timelineWidget->hasStopOnScrub());
+            const auto& displayOptions = p.timelineWidget->getDisplayOptions();
             p.settings->setValue("Timeline/FirstTrack",
-                !timelineItemOptions.tracks.empty());
+                !displayOptions.tracks.empty());
             p.settings->setValue("Timeline/TrackInfo",
-                timelineItemOptions.trackInfo);
+                displayOptions.trackInfo);
             p.settings->setValue("Timeline/ClipInfo",
-                timelineItemOptions.clipInfo);
+                displayOptions.clipInfo);
             p.settings->setValue("Timeline/Thumbnails",
-                timelineItemOptions.thumbnails);
+                displayOptions.thumbnails);
             p.settings->setValue("Timeline/ThumbnailsSize",
-                timelineItemOptions.thumbnailHeight);
+                displayOptions.thumbnailHeight);
             p.settings->setValue("Timeline/Transitions",
-                timelineItemOptions.transitions);
+                displayOptions.transitions);
             p.settings->setValue("Timeline/Markers",
-                timelineItemOptions.markers);
+                displayOptions.markers);
             _makeCurrent();
             p.timelineViewport->setParent(nullptr);
             p.timelineWidget->setParent(nullptr);

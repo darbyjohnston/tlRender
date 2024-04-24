@@ -48,6 +48,7 @@ namespace tl
             const otio::SerializableObject::Retainer<otio::Item>& item,
             double scale,
             const ItemOptions& options,
+            const DisplayOptions& displayOptions,
             const std::shared_ptr<ItemData>& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -65,6 +66,7 @@ namespace tl
                 trimmedRange,
                 scale,
                 options,
+                displayOptions,
                 itemData,
                 context,
                 parent);
@@ -84,10 +86,10 @@ namespace tl
         IBasicItem::~IBasicItem()
         {}
 
-        void IBasicItem::setOptions(const ItemOptions& value)
+        void IBasicItem::setDisplayOptions(const DisplayOptions& value)
         {
-            const bool changed = value != _options;
-            IItem::setOptions(value);
+            const bool changed = value != _displayOptions;
+            IItem::setDisplayOptions(value);
             TLRENDER_P();
             if (changed)
             {
@@ -109,13 +111,13 @@ namespace tl
             if (displayScaleChanged || p.size.textInit || p.size.sizeInit)
             {
                 p.size.fontInfo = image::FontInfo(
-                    _options.regularFont,
-                    _options.fontSize * _displayScale);
+                    _displayOptions.regularFont,
+                    _displayOptions.fontSize * _displayScale);
                 p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
-                p.size.labelSize = _options.clipInfo ?
+                p.size.labelSize = _displayOptions.clipInfo ?
                     event.fontSystem->getSize(p.label, p.size.fontInfo) :
                     math::Size2i();
-                p.size.durationSize = _options.clipInfo ?
+                p.size.durationSize = _displayOptions.clipInfo ?
                     event.fontSystem->getSize(p.durationLabel, p.size.fontInfo) :
                     math::Size2i();
                 p.draw.labelGlyphs.clear();
@@ -126,7 +128,7 @@ namespace tl
 
             _sizeHint.w = _timeRange.duration().rescaled_to(1.0).value() * _scale;
             _sizeHint.h = 0;
-            if (_options.clipInfo)
+            if (_displayOptions.clipInfo)
             {
                 _sizeHint.h +=
                     p.size.fontMetrics.lineHeight +
@@ -173,7 +175,7 @@ namespace tl
             event.render->setClipRectEnabled(true);
             event.render->setClipRect(g2.intersect(drawRect));
 
-            if (_options.clipInfo)
+            if (_displayOptions.clipInfo)
             {
                 const math::Box2i labelGeometry(
                     g2.min.x + p.size.margin,

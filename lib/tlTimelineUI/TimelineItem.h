@@ -40,6 +40,7 @@ namespace tl
                 const otio::SerializableObject::Retainer<otio::Stack>&,
                 double scale,
                 const ItemOptions&,
+                const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
                 const std::shared_ptr<gl::GLFWWindow>&,
                 const std::shared_ptr<system::Context>&,
@@ -56,6 +57,7 @@ namespace tl
                 const otio::SerializableObject::Retainer<otio::Stack>&,
                 double scale,
                 const ItemOptions&,
+                const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
                 const std::shared_ptr<gl::GLFWWindow>&,
                 const std::shared_ptr<system::Context>&,
@@ -79,7 +81,7 @@ namespace tl
             //! Get the minimum height.
             int getMinimumHeight() const;
 
-            void setOptions(const ItemOptions&) override;
+            void setDisplayOptions(const DisplayOptions&) override;
 
             void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;

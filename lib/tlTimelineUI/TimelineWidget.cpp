@@ -33,6 +33,7 @@ namespace tl
             std::shared_ptr<observer::Value<otime::RationalTime> > timeScrub;
             std::vector<int> frameMarkers;
             std::shared_ptr<observer::Value<ItemOptions> > itemOptions;
+            std::shared_ptr<observer::Value<DisplayOptions> > displayOptions;
             otime::TimeRange timeRange = time::invalidTimeRange;
             timeline::Playback playback = timeline::Playback::Stop;
             otime::RationalTime currentTime = time::invalidTime;
@@ -85,6 +86,7 @@ namespace tl
             p.scrub = observer::Value<bool>::create(false);
             p.timeScrub = observer::Value<otime::RationalTime>::create(time::invalidTime);
             p.itemOptions = observer::Value<ItemOptions>::create();
+            p.displayOptions = observer::Value<DisplayOptions>::create();
 
             p.window = gl::GLFWWindow::create(
                 "tl::timelineui::TimelineWidget",
@@ -360,12 +362,34 @@ namespace tl
             TLRENDER_P();
             if (p.itemOptions->setIfChanged(value))
             {
+                if (p.timelineItem)
+                {
+                    _setItemOptions(p.timelineItem, value);
+                }
+            }
+        }
+
+        const DisplayOptions& TimelineWidget::getDisplayOptions() const
+        {
+            return _p->displayOptions->get();
+        }
+
+        std::shared_ptr<observer::IValue<DisplayOptions> > TimelineWidget::observeDisplayOptions() const
+        {
+            return _p->displayOptions;
+        }
+
+        void TimelineWidget::setDisplayOptions(const DisplayOptions& value)
+        {
+            TLRENDER_P();
+            if (p.displayOptions->setIfChanged(value))
+            {
                 p.itemData->info.clear();
                 p.itemData->thumbnails.clear();
                 p.itemData->waveforms.clear();
                 if (p.timelineItem)
                 {
-                    _setItemOptions(p.timelineItem, value);
+                    _setDisplayOptions(p.timelineItem, value);
                 }
             }
         }
@@ -425,7 +449,8 @@ namespace tl
         {
             IWidget::mousePressEvent(event);
             TLRENDER_P();
-            if (0 == event.button &&
+            if (p.itemOptions->get().inputEnabled &&
+                0 == event.button &&
                 event.modifiers & static_cast<int>(p.scrollKeyModifier))
             {
                 takeKeyFocus();
@@ -448,23 +473,27 @@ namespace tl
         void TimelineWidget::scrollEvent(ui::ScrollEvent& event)
         {
             TLRENDER_P();
-            event.accept = true;
-            if (event.value.y > 0)
+            if (p.itemOptions->get().inputEnabled)
             {
-                const double zoom = p.scale * p.mouseWheelScale;
-                setViewZoom(zoom, event.pos);
-            }
-            else
-            {
-                const double zoom = p.scale / p.mouseWheelScale;
-                setViewZoom(zoom, event.pos);
+                event.accept = true;
+                if (event.value.y > 0)
+                {
+                    const double zoom = p.scale * p.mouseWheelScale;
+                    setViewZoom(zoom, event.pos);
+                }
+                else
+                {
+                    const double zoom = p.scale / p.mouseWheelScale;
+                    setViewZoom(zoom, event.pos);
+                }
             }
         }
 
         void TimelineWidget::keyPressEvent(ui::KeyEvent& event)
         {
             TLRENDER_P();
-            if (0 == event.modifiers)
+            if (p.itemOptions->get().inputEnabled &&
+                0 == event.modifiers)
             {
                 switch (event.key)
                 {
@@ -581,6 +610,20 @@ namespace tl
             }
         }
 
+        void TimelineWidget::_setDisplayOptions(
+            const std::shared_ptr<IWidget>& widget,
+            const DisplayOptions& value)
+        {
+            if (auto item = std::dynamic_pointer_cast<IItem>(widget))
+            {
+                item->setDisplayOptions(value);
+            }
+            for (const auto& child : widget->getChildren())
+            {
+                _setDisplayOptions(child, value);
+            }
+        }
+
         void TimelineWidget::_scrollUpdate()
         {
             TLRENDER_P();
@@ -626,6 +669,7 @@ namespace tl
                         p.player->getTimeline()->getTimeline()->tracks(),
                         p.scale,
                         p.itemOptions->get(),
+                        p.displayOptions->get(),
                         p.itemData,
                         p.window,
                         context);

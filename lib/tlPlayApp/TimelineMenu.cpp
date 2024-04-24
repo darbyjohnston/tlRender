@@ -26,6 +26,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<bool> > scrollToCurrentFrameObserver;
             std::shared_ptr<observer::ValueObserver<bool> > stopOnScrubObserver;
             std::shared_ptr<observer::ValueObserver<timelineui::ItemOptions> > itemOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<timelineui::DisplayOptions> > displayOptionsObserver;
         };
 
         void TimelineMenu::_init(
@@ -41,6 +42,8 @@ namespace tl
             p.mainWindow = mainWindow;
 
             p.actions = actions;
+            addItem(p.actions["Input"]);
+            addDivider();
             addItem(p.actions["Editable"]);
             addItem(p.actions["EditAssociatedClips"]);
             addDivider();
@@ -98,6 +101,13 @@ namespace tl
                 [this](const timelineui::ItemOptions& value)
                 {
                     setItemChecked(_p->actions["EditAssociatedClips"], value.editAssociatedClips);
+                    setItemChecked(_p->actions["Input"], value.inputEnabled);
+                });
+
+            p.displayOptionsObserver = observer::ValueObserver<timelineui::DisplayOptions>::create(
+                mainWindow->getTimelineWidget()->observeDisplayOptions(),
+                [this](const timelineui::DisplayOptions& value)
+                {
                     setItemChecked(_p->actions["FirstTrack"], !value.tracks.empty());
                     setItemChecked(_p->actions["TrackInfo"], value.trackInfo);
                     setItemChecked(_p->actions["ClipInfo"], value.clipInfo);
@@ -139,7 +149,7 @@ namespace tl
             TLRENDER_P();
             if (auto mainWindow = p.mainWindow.lock())
             {
-                const auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                const auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
                 auto i = p.thumbnailsSizeItems.find(options.thumbnailHeight);
                 if (i == p.thumbnailsSizeItems.end())
                 {

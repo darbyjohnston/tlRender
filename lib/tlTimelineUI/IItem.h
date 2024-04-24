@@ -54,7 +54,16 @@ namespace tl
         //! Item options.
         struct ItemOptions
         {
+            bool inputEnabled = true;
             bool editAssociatedClips = true;
+
+            bool operator == (const ItemOptions&) const;
+            bool operator != (const ItemOptions&) const;
+        };
+
+        //! Display options.
+        struct DisplayOptions
+        {
             InOutDisplay inOutDisplay = InOutDisplay::InsideRange;
             CacheDisplay cacheDisplay = CacheDisplay::VideoAndAudio;
             std::vector<int> tracks;
@@ -73,8 +82,8 @@ namespace tl
             int fontSize = 12;
             float clipRectScale = 2.F;
 
-            bool operator == (const ItemOptions&) const;
-            bool operator != (const ItemOptions&) const;
+            bool operator == (const DisplayOptions&) const;
+            bool operator != (const DisplayOptions&) const;
         };
 
         //! Marker.
@@ -115,6 +124,7 @@ namespace tl
                 const otime::TimeRange& trimmedRange,
                 double scale,
                 const ItemOptions&,
+                const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
@@ -132,6 +142,9 @@ namespace tl
 
             //! Set the item options.
             virtual void setOptions(const ItemOptions&);
+
+            //! Set the display options.
+            virtual void setDisplayOptions(const DisplayOptions&);
 
             //! Get the selection color role.
             ui::ColorRole getSelectRole() const;
@@ -158,6 +171,7 @@ namespace tl
             otime::TimeRange _trimmedRange = time::invalidTimeRange;
             double _scale = 500.0;
             ItemOptions _options;
+            DisplayOptions _displayOptions;
             std::shared_ptr<ItemData> _data;
 
         private:

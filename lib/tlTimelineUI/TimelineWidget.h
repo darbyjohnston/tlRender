@@ -147,6 +147,15 @@ namespace tl
             //! Set the item options.
             void setItemOptions(const ItemOptions&);
 
+            //! Get the display options.
+            const DisplayOptions& getDisplayOptions() const;
+
+            //! Observe the display options.
+            std::shared_ptr<observer::IValue<DisplayOptions> > observeDisplayOptions() const;
+
+            //! Set the display options.
+            void setDisplayOptions(const DisplayOptions&);
+
             ///@}
 
             void setGeometry(const math::Box2i&) override;
@@ -181,6 +190,9 @@ namespace tl
             void _setItemOptions(
                 const std::shared_ptr<IWidget>&,
                 const ItemOptions&);
+            void _setDisplayOptions(
+                const std::shared_ptr<IWidget>&,
+                const DisplayOptions&);
 
             void _scrollUpdate();
             void _timelineUpdate();

@@ -66,6 +66,9 @@ namespace tl
             //! Get the item options.
             const timelineui::ItemOptions& itemOptions() const;
 
+            //! Get the display options.
+            const timelineui::DisplayOptions& displayOptions() const;
+
             QSize minimumSizeHint() const override;
             QSize sizeHint() const override;
 
@@ -96,6 +99,9 @@ namespace tl
 
             //! Set the item options.
             void setItemOptions(const timelineui::ItemOptions&);
+
+            //! Set the display options.
+            void setDisplayOptions(const timelineui::DisplayOptions&);
 
         Q_SIGNALS:
             //! This signal is emitted when the editable timeline is changed.
@@ -163,6 +169,7 @@ namespace tl
             int _fromUI(int) const;
             math::Vector2i _fromUI(const math::Vector2i&) const;
 
+            void _inputUpdate();
             void _timerUpdate();
             void _styleUpdate();
 

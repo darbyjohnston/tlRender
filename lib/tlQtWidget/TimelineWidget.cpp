@@ -182,9 +182,6 @@ namespace tl
             //surfaceFormat.setStencilBufferSize(8);
             //setFormat(surfaceFormat);
 
-            setMouseTracking(true);
-            setFocusPolicy(Qt::StrongFocus);
-
             p.style = style;
             p.iconLibrary = ui::IconLibrary::create(context);
             p.fontSystem = context->getSystem<image::FontSystem>();
@@ -195,6 +192,7 @@ namespace tl
             p.timelineWindow->setClipboard(p.clipboard);
             p.timelineWidget->setParent(p.timelineWindow);
 
+            _inputUpdate();
             _styleUpdate();
 
             p.editableObserver = observer::ValueObserver<bool>::create(
@@ -286,6 +284,11 @@ namespace tl
             return _p->timelineWidget->getItemOptions();
         }
 
+        const timelineui::DisplayOptions& TimelineWidget::displayOptions() const
+        {
+            return _p->timelineWidget->getDisplayOptions();
+        }
+
         QSize TimelineWidget::minimumSizeHint() const
         {
             math::Size2i sizeHint = _p->timelineWidget->getSizeHint();
@@ -347,7 +350,20 @@ namespace tl
 
         void TimelineWidget::setItemOptions(const timelineui::ItemOptions& value)
         {
-            _p->timelineWidget->setItemOptions(value);
+            TLRENDER_P();
+            const bool inputChanged =
+                p.timelineWidget->getItemOptions().inputEnabled !=
+                value.inputEnabled;
+            p.timelineWidget->setItemOptions(value);
+            if (inputChanged)
+            {
+                _inputUpdate();
+            }
+        }
+
+        void TimelineWidget::setDisplayOptions(const timelineui::DisplayOptions& value)
+        {
+            _p->timelineWidget->setDisplayOptions(value);
         }
 
         void TimelineWidget::initializeGL()
@@ -517,15 +533,21 @@ namespace tl
 #endif // QT_VERSION
         {
             TLRENDER_P();
-            event->accept();
-            p.timelineWindow->cursorEnter(true);
+            if (p.timelineWidget->getItemOptions().inputEnabled)
+            {
+                event->accept();
+                p.timelineWindow->cursorEnter(true);
+            }
         }
 
         void TimelineWidget::leaveEvent(QEvent* event)
         {
             TLRENDER_P();
-            event->accept();
-            p.timelineWindow->cursorEnter(false);
+            if (p.timelineWidget->getItemOptions().inputEnabled)
+            {
+                event->accept();
+                p.timelineWindow->cursorEnter(false);
+            }
         }
 
         namespace
@@ -552,53 +574,65 @@ namespace tl
         void TimelineWidget::mousePressEvent(QMouseEvent* event)
         {
             TLRENDER_P();
-            event->accept();
-            int button = -1;
-            if (event->button() == Qt::LeftButton)
+            if (p.timelineWidget->getItemOptions().inputEnabled)
             {
-                button = 0;
+                event->accept();
+                int button = -1;
+                if (event->button() == Qt::LeftButton)
+                {
+                    button = 0;
+                }
+                p.timelineWindow->mouseButton(
+                    button,
+                    true,
+                    fromQtModifiers(event->modifiers()));
             }
-            p.timelineWindow->mouseButton(
-                button,
-                true,
-                fromQtModifiers(event->modifiers()));
         }
 
         void TimelineWidget::mouseReleaseEvent(QMouseEvent* event)
         {
             TLRENDER_P();
-            event->accept();
-            int button = 0;
-            if (event->button() == Qt::LeftButton)
+            if (p.timelineWidget->getItemOptions().inputEnabled)
             {
-                button = 1;
+                event->accept();
+                int button = 0;
+                if (event->button() == Qt::LeftButton)
+                {
+                    button = 1;
+                }
+                p.timelineWindow->mouseButton(
+                    button,
+                    false,
+                    fromQtModifiers(event->modifiers()));
             }
-            p.timelineWindow->mouseButton(
-                button,
-                false,
-                fromQtModifiers(event->modifiers()));
         }
 
         void TimelineWidget::mouseMoveEvent(QMouseEvent* event)
         {
             TLRENDER_P();
-            event->accept();
-            p.timelineWindow->cursorPos(
-                math::Vector2i(_toUI(event->x()), _toUI(event->y())));
+            if (p.timelineWidget->getItemOptions().inputEnabled)
+            {
+                event->accept();
+                p.timelineWindow->cursorPos(
+                    math::Vector2i(_toUI(event->x()), _toUI(event->y())));
+            }
         }
 
         void TimelineWidget::wheelEvent(QWheelEvent* event)
         {
             TLRENDER_P();
-            const auto now = std::chrono::steady_clock::now();
-            const auto diff = std::chrono::duration<float>(now - p.mouseWheelTimer);
-            const float delta = event->angleDelta().y() / 8.F / 15.F;
-            p.mouseWheelTimer = now;
-            p.timelineWindow->scroll(
-                math::Vector2f(
-                    event->angleDelta().x() / 8.F / 15.F,
-                    event->angleDelta().y() / 8.F / 15.F),
-                fromQtModifiers(event->modifiers()));
+            if (p.timelineWidget->getItemOptions().inputEnabled)
+            {
+                const auto now = std::chrono::steady_clock::now();
+                const auto diff = std::chrono::duration<float>(now - p.mouseWheelTimer);
+                const float delta = event->angleDelta().y() / 8.F / 15.F;
+                p.mouseWheelTimer = now;
+                p.timelineWindow->scroll(
+                    math::Vector2f(
+                        event->angleDelta().x() / 8.F / 15.F,
+                        event->angleDelta().y() / 8.F / 15.F),
+                    fromQtModifiers(event->modifiers()));
+            }
         }
 
         namespace
@@ -700,10 +734,11 @@ namespace tl
         void TimelineWidget::keyPressEvent(QKeyEvent* event)
         {
             TLRENDER_P();
-            if (p.timelineWindow->key(
-                fromQtKey(event->key()),
-                true,
-                fromQtModifiers(event->modifiers())))
+            if (p.timelineWidget->getItemOptions().inputEnabled &&
+                p.timelineWindow->key(
+                    fromQtKey(event->key()),
+                    true,
+                    fromQtModifiers(event->modifiers())))
             {
                 event->accept();
             }
@@ -716,10 +751,11 @@ namespace tl
         void TimelineWidget::keyReleaseEvent(QKeyEvent* event)
         {
             TLRENDER_P();
-            if (p.timelineWindow->key(
-                fromQtKey(event->key()),
-                false,
-                fromQtModifiers(event->modifiers())))
+            if (p.timelineWidget->getItemOptions().inputEnabled &&
+                p.timelineWindow->key(
+                    fromQtKey(event->key()),
+                    false,
+                    fromQtModifiers(event->modifiers())))
             {
                 event->accept();
             }
@@ -915,6 +951,18 @@ namespace tl
         {
             const float devicePixelRatio = window()->devicePixelRatio();
             return devicePixelRatio > 0.F ? (value / devicePixelRatio) : math::Vector2i();
+        }
+
+        void TimelineWidget::_inputUpdate()
+        {
+            TLRENDER_P();
+            const bool inputEnabled = p.timelineWidget->getItemOptions().inputEnabled;
+            setMouseTracking(inputEnabled);
+            setFocusPolicy(inputEnabled ? Qt::StrongFocus : Qt::NoFocus);
+            if (!inputEnabled)
+            {
+                p.timelineWindow->cursorEnter(false);
+            }
         }
 
         void TimelineWidget::_timerUpdate()

@@ -13,6 +13,7 @@ namespace tl
             const otio::SerializableObject::Retainer<otio::Gap>& gap,
             double scale,
             const ItemOptions& options,
+            const DisplayOptions& displayOptions,
             const std::shared_ptr<ItemData>& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -24,6 +25,7 @@ namespace tl
                 gap.value,
                 scale,
                 options,
+                displayOptions,
                 itemData,
                 context,
                 parent);
@@ -40,12 +42,21 @@ namespace tl
             const otio::SerializableObject::Retainer<otio::Gap>& gap,
             double scale,
             const ItemOptions& options,
+            const DisplayOptions& displayOptions,
             const std::shared_ptr<ItemData>& itemData,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<GapItem>(new GapItem);
-            out->_init(colorRole, gap, scale, options, itemData, context, parent);
+            out->_init(
+                colorRole,
+                gap,
+                scale,
+                options,
+                displayOptions,
+                itemData,
+                context,
+                parent);
             return out;
         }
     }

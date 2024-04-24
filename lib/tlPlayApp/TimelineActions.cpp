@@ -28,6 +28,18 @@ namespace tl
             TLRENDER_P();
 
             auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
+            p.actions["Input"] = std::make_shared<ui::Action>(
+                "Enable Input",
+                [mainWindowWeak](bool value)
+                {
+                    if (auto mainWindow = mainWindowWeak.lock())
+                    {
+                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        options.inputEnabled = value;
+                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                    }
+                });
+
             p.actions["Editable"] = std::make_shared<ui::Action>(
                 "Editable",
                 [mainWindowWeak](bool value)
@@ -86,13 +98,13 @@ namespace tl
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
                         options.tracks.clear();
                         if (value)
                         {
                             options.tracks.push_back(0);
                         }
-                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                        mainWindow->getTimelineWidget()->setDisplayOptions(options);
                     }
                 });
 
@@ -102,9 +114,9 @@ namespace tl
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
                         options.trackInfo = value;
-                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                        mainWindow->getTimelineWidget()->setDisplayOptions(options);
                     }
                 });
 
@@ -114,9 +126,9 @@ namespace tl
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
                         options.clipInfo = value;
-                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                        mainWindow->getTimelineWidget()->setDisplayOptions(options);
                     }
                 });
 
@@ -126,9 +138,9 @@ namespace tl
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
                         options.thumbnails = value;
-                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                        mainWindow->getTimelineWidget()->setDisplayOptions(options);
                     }
                 });
 
@@ -138,10 +150,10 @@ namespace tl
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
                         options.thumbnailHeight = 100;
                         options.waveformHeight = options.thumbnailHeight / 2;
-                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                        mainWindow->getTimelineWidget()->setDisplayOptions(options);
                     }
                 });
 
@@ -151,10 +163,10 @@ namespace tl
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
                         options.thumbnailHeight = 200;
                         options.waveformHeight = options.thumbnailHeight / 2;
-                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                        mainWindow->getTimelineWidget()->setDisplayOptions(options);
                     }
                 });
 
@@ -164,10 +176,10 @@ namespace tl
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
                         options.thumbnailHeight = 300;
                         options.waveformHeight = options.thumbnailHeight / 2;
-                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                        mainWindow->getTimelineWidget()->setDisplayOptions(options);
                     }
                 });
 
@@ -177,9 +189,9 @@ namespace tl
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
                         options.transitions = value;
-                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                        mainWindow->getTimelineWidget()->setDisplayOptions(options);
                     }
                 });
 
@@ -189,9 +201,9 @@ namespace tl
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
+                        auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
                         options.markers = value;
-                        mainWindow->getTimelineWidget()->setItemOptions(options);
+                        mainWindow->getTimelineWidget()->setDisplayOptions(options);
                     }
                 });
         }

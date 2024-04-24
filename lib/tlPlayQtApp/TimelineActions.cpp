@@ -35,6 +35,10 @@ namespace tl
 
             p.mainWindow = mainWindow;
 
+            p.actions["Input"] = new QAction(parent);
+            p.actions["Input"]->setCheckable(true);
+            p.actions["Input"]->setText(tr("Enable Input"));
+
             p.actions["Editable"] = new QAction(parent);
             p.actions["Editable"]->setCheckable(true);
             p.actions["Editable"]->setText(tr("Editable"));
@@ -97,6 +101,8 @@ namespace tl
 
             p.menu.reset(new QMenu);
             p.menu->setTitle(tr("&Timeline"));
+            p.menu->addAction(p.actions["Input"]);
+            p.menu->addSeparator();
             p.menu->addAction(p.actions["Editable"]);
             p.menu->addAction(p.actions["EditAssociatedClips"]);
             p.menu->addSeparator();
@@ -118,6 +124,17 @@ namespace tl
             _actionsUpdate();
 
             connect(
+                p.actions["Input"],
+                &QAction::toggled,
+                [mainWindow](bool value)
+                {
+                    auto timelineWidget = mainWindow->timelineWidget();
+                    auto options = timelineWidget->itemOptions();
+                    options.inputEnabled = value;
+                    timelineWidget->setItemOptions(options);
+                });
+
+            connect(
                 p.actions["Editable"],
                 &QAction::toggled,
                 [mainWindow](bool value)
@@ -131,9 +148,9 @@ namespace tl
                 [mainWindow](bool value)
                 {
                     auto timelineWidget = mainWindow->timelineWidget();
-                    auto itemOptions = timelineWidget->itemOptions();
-                    itemOptions.editAssociatedClips = value;
-                    timelineWidget->setItemOptions(itemOptions);
+                    auto options = timelineWidget->itemOptions();
+                    options.editAssociatedClips = value;
+                    timelineWidget->setItemOptions(options);
                 });
 
             connect(
@@ -166,13 +183,13 @@ namespace tl
                 [mainWindow](bool value)
                 {
                     auto timelineWidget = mainWindow->timelineWidget();
-                    auto itemOptions = timelineWidget->itemOptions();
-                    itemOptions.tracks.clear();
+                    auto options = timelineWidget->displayOptions();
+                    options.tracks.clear();
                     if (value)
                     {
-                        itemOptions.tracks.push_back(0);
+                        options.tracks.push_back(0);
                     }
-                    timelineWidget->setItemOptions(itemOptions);
+                    timelineWidget->setDisplayOptions(options);
                 });
 
             connect(
@@ -181,9 +198,9 @@ namespace tl
                 [mainWindow](bool value)
                 {
                     auto timelineWidget = mainWindow->timelineWidget();
-                    auto itemOptions = timelineWidget->itemOptions();
-                    itemOptions.trackInfo = value;
-                    timelineWidget->setItemOptions(itemOptions);
+                    auto options = timelineWidget->displayOptions();
+                    options.trackInfo = value;
+                    timelineWidget->setDisplayOptions(options);
                 });
 
             connect(
@@ -192,9 +209,9 @@ namespace tl
                 [mainWindow](bool value)
                 {
                     auto timelineWidget = mainWindow->timelineWidget();
-                    auto itemOptions = timelineWidget->itemOptions();
-                    itemOptions.clipInfo = value;
-                    timelineWidget->setItemOptions(itemOptions);
+                    auto options = timelineWidget->displayOptions();
+                    options.clipInfo = value;
+                    timelineWidget->setDisplayOptions(options);
                 });
 
             connect(
@@ -203,9 +220,9 @@ namespace tl
                 [mainWindow](bool value)
                 {
                     auto timelineWidget = mainWindow->timelineWidget();
-                    auto itemOptions = timelineWidget->itemOptions();
-                    itemOptions.thumbnails = value;
-                    timelineWidget->setItemOptions(itemOptions);
+                    auto options = timelineWidget->displayOptions();
+                    options.thumbnails = value;
+                    timelineWidget->setDisplayOptions(options);
                 });
 
             connect(
@@ -215,9 +232,9 @@ namespace tl
                 {
                     const int value = action->data().toInt();
                     auto timelineWidget = mainWindow->timelineWidget();
-                    auto itemOptions = timelineWidget->itemOptions();
-                    itemOptions.thumbnailHeight = value;
-                    timelineWidget->setItemOptions(itemOptions);
+                    auto options = timelineWidget->displayOptions();
+                    options.thumbnailHeight = value;
+                    timelineWidget->setDisplayOptions(options);
                 });
 
             connect(
@@ -226,9 +243,9 @@ namespace tl
                 [mainWindow](bool value)
                 {
                     auto timelineWidget = mainWindow->timelineWidget();
-                    auto itemOptions = timelineWidget->itemOptions();
-                    itemOptions.transitions = value;
-                    timelineWidget->setItemOptions(itemOptions);
+                    auto options = timelineWidget->displayOptions();
+                    options.transitions = value;
+                    timelineWidget->setDisplayOptions(options);
                 });
 
             connect(
@@ -237,9 +254,9 @@ namespace tl
                 [mainWindow](bool value)
                 {
                     auto timelineWidget = mainWindow->timelineWidget();
-                    auto itemOptions = timelineWidget->itemOptions();
-                    itemOptions.markers = value;
-                    timelineWidget->setItemOptions(itemOptions);
+                    auto options = timelineWidget->displayOptions();
+                    options.markers = value;
+                    timelineWidget->setDisplayOptions(options);
                 });
         }
 
@@ -260,14 +277,19 @@ namespace tl
         {
             TLRENDER_P();
             {
+                QSignalBlocker blocker(p.actions["Input"]);
+                const auto options = p.mainWindow->timelineWidget()->itemOptions();
+                p.actions["Input"]->setChecked(options.inputEnabled);
+            }
+            {
                 QSignalBlocker blocker(p.actions["Editable"]);
                 p.actions["Editable"]->setChecked(
                     p.mainWindow->timelineWidget()->isEditable());
             }
             {
                 QSignalBlocker blocker(p.actions["EditAssociatedClips"]);
-                const auto itemOptions = p.mainWindow->timelineWidget()->itemOptions();
-                p.actions["EditAssociatedClips"]->setChecked(itemOptions.editAssociatedClips);
+                const auto options = p.mainWindow->timelineWidget()->itemOptions();
+                p.actions["EditAssociatedClips"]->setChecked(options.editAssociatedClips);
             }
             {
                 QSignalBlocker blocker(p.actions["FrameView"]);
@@ -286,33 +308,33 @@ namespace tl
             }
             {
                 QSignalBlocker blocker(p.actions["FirstTrack"]);
-                const auto itemOptions = p.mainWindow->timelineWidget()->itemOptions();
-                p.actions["FirstTrack"]->setChecked(!itemOptions.tracks.empty());
+                const auto options = p.mainWindow->timelineWidget()->displayOptions();
+                p.actions["FirstTrack"]->setChecked(!options.tracks.empty());
             }
             {
                 QSignalBlocker blocker(p.actions["TrackInfo"]);
-                const auto itemOptions = p.mainWindow->timelineWidget()->itemOptions();
-                p.actions["TrackInfo"]->setChecked(itemOptions.trackInfo);
+                const auto options = p.mainWindow->timelineWidget()->displayOptions();
+                p.actions["TrackInfo"]->setChecked(options.trackInfo);
             }
             {
                 QSignalBlocker blocker(p.actions["ClipInfo"]);
-                const auto itemOptions = p.mainWindow->timelineWidget()->itemOptions();
-                p.actions["ClipInfo"]->setChecked(itemOptions.clipInfo);
+                const auto options = p.mainWindow->timelineWidget()->displayOptions();
+                p.actions["ClipInfo"]->setChecked(options.clipInfo);
             }
             {
                 QSignalBlocker blocker(p.actions["Thumbnails"]);
-                const auto itemOptions = p.mainWindow->timelineWidget()->itemOptions();
-                p.actions["Thumbnails"]->setChecked(itemOptions.thumbnails);
+                const auto options = p.mainWindow->timelineWidget()->displayOptions();
+                p.actions["Thumbnails"]->setChecked(options.thumbnails);
             }
             {
                 QSignalBlocker blocker(p.actionGroups["ThumbnailsSize"]);
                 p.actions["ThumbnailsSize/Small"]->setChecked(false);
                 p.actions["ThumbnailsSize/Medium"]->setChecked(false);
                 p.actions["ThumbnailsSize/Large"]->setChecked(false);
-                const auto itemOptions = p.mainWindow->timelineWidget()->itemOptions();
+                const auto options = p.mainWindow->timelineWidget()->displayOptions();
                 for (auto action : p.actionGroups["ThumbnailsSize"]->actions())
                 {
-                    if (action->data().toInt() == itemOptions.thumbnailHeight)
+                    if (action->data().toInt() == options.thumbnailHeight)
                     {
                         action->setChecked(true);
                         break;
@@ -321,13 +343,13 @@ namespace tl
             }
             {
                 QSignalBlocker blocker(p.actions["Transitions"]);
-                const auto itemOptions = p.mainWindow->timelineWidget()->itemOptions();
-                p.actions["Transitions"]->setChecked(itemOptions.transitions);
+                const auto options = p.mainWindow->timelineWidget()->displayOptions();
+                p.actions["Transitions"]->setChecked(options.transitions);
             }
             {
                 QSignalBlocker blocker(p.actions["Markers"]);
-                const auto itemOptions = p.mainWindow->timelineWidget()->itemOptions();
-                p.actions["Markers"]->setChecked(itemOptions.markers);
+                const auto options = p.mainWindow->timelineWidget()->displayOptions();
+                p.actions["Markers"]->setChecked(options.markers);
             }
         }
     }
