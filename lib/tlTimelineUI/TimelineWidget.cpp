@@ -405,6 +405,12 @@ namespace tl
                 p.sizeInit = false;
                 frameView();
             }
+            else if (p.timelineItem &&
+                p.timelineItem->getSizeHint().w <
+                p.scrollWidget->getViewport().w())
+            {
+                setFrameView(true);
+            }
         }
 
         void TimelineWidget::tickEvent(
