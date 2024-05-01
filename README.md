@@ -122,24 +122,20 @@ Clone the repository:
 ```
 git clone https://github.com/darbyjohnston/tlRender.git
 ```
-Create a build directory:
-```
-mkdir build && cd build
-```
 Run CMake with the super build script:
 ```
-cmake ../tlRender/etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug
+cmake -S tlRender/etc/SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=$PWD/Release/install -DCMAKE_PREFIX_PATH=$PWD/Release/install -DCMAKE_BUILD_TYPE=Release
 ```
 Start the build:
 ```
-cmake --build . -j 4 --config Debug
+cmake --build Release -j 4 --config Release
 ```
 Try running the `tlplay` application:
 ```
-export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$PWD/Release/install/lib:$LD_LIBRARY_PATH
 ```
 ```
-./tlRender/src/tlRender-build/bin/tlplay/tlplay ../tlRender/etc/SampleData/MultipleClips.otio
+./Release/tlRender/src/tlRender-build/bin/tlplay/tlplay tlRender/etc/SampleData/MultipleClips.otio
 ```
 
 ### Building on Linux with Qt 6
@@ -147,7 +143,7 @@ export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
 Add the Qt location to `CMAKE_PREFIX_PATH` (place double quotes around the list of paths)
 and enable `TLRENDER_QT6`:
 ```
-cmake ../tlRender/etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/6.5.3/gcc_64" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Debug
+cmake -S tlRender/etc/SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=$PWD/Release/install -DCMAKE_PREFIX_PATH="$PWD/Release/install;$HOME/Qt/6.5.3/gcc_64" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Release
 ```
 
 ### Building on Linux with Qt 5
@@ -155,14 +151,14 @@ cmake ../tlRender/etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PRE
 Add the Qt location to `CMAKE_PREFIX_PATH` (place double quotes around the list of paths)
 and enable `TLRENDER_QT5`:
 ```
-cmake ../tlRender/etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/gcc_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Debug
+cmake -S tlRender/etc/SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=$PWD/Release/install -DCMAKE_PREFIX_PATH="$PWD/Release/install;$HOME/Qt/5.15.2/gcc_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Release
 ```
 
 ### Minimal build on Linux
 
 Build with only the minimal required dependencies:
 ```
-cmake ../tlRender/etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DTLRENDER_OCIO=OFF -DTLRENDER_AUDIO=OFF -DTLRENDER_JPEG=OFF -DTLRENDER_TIFF=OFF -DTLRENDER_STB=OFF -DTLRENDER_PNG=OFF -DTLRENDER_EXR=OFF -DTLRENDER_FFMPEG=OFF -DTLRENDER_PROGRAMS=OFF -DTLRENDER_EXAMPLES=OFF -DTLRENDER_TESTS=OFF
+cmake -S tlRender/etc/SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=$PWD/Release/install -DCMAKE_PREFIX_PATH=$PWD/Release/install -DCMAKE_BUILD_TYPE=Release -DTLRENDER_OCIO=OFF -DTLRENDER_AUDIO=OFF -DTLRENDER_JPEG=OFF -DTLRENDER_TIFF=OFF -DTLRENDER_STB=OFF -DTLRENDER_PNG=OFF -DTLRENDER_EXR=OFF -DTLRENDER_FFMPEG=OFF -DTLRENDER_PROGRAMS=OFF -DTLRENDER_EXAMPLES=OFF -DTLRENDER_TESTS=OFF
 ```
 
 ### Notes for building on Linux
@@ -178,21 +174,17 @@ Clone the repository:
 ```
 git clone https://github.com/darbyjohnston/tlRender.git
 ```
-Create a build directory:
-```
-mkdir build && cd build
-```
 Run CMake with the super build script:
 ```
-cmake ../tlRender/etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug
+cmake -S tlRender/etc/SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=$PWD/Release/install -DCMAKE_PREFIX_PATH=$PWD/Release/install -DCMAKE_BUILD_TYPE=Release
 ```
 Start the build:
 ```
-cmake --build . -j 4 --config Debug
+cmake --build Release -j 4 --config Release
 ```
 Try running the `tlplay` application:
 ```
-./tlRender/src/tlRender-build/bin/tlplay/tlplay ../tlRender/etc/SampleData/MultipleClips.otio
+./Release/tlRender/src/tlRender-build/bin/tlplay/tlplay tlRender/etc/SampleData/MultipleClips.otio
 ```
 
 ### Building on macOS with Qt 6
@@ -200,7 +192,7 @@ Try running the `tlplay` application:
 Add the Qt location to `CMAKE_PREFIX_PATH` (place double quotes around the list of paths)
 and enable `TLRENDER_QT6`:
 ```
-cmake ../tlRender/etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/6.5.3/macos" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Debug
+cmake -S tlRender/etc/SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=$PWD/Release/install -DCMAKE_PREFIX_PATH="$PWD/Release/install;$HOME/Qt/6.5.3/macos" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Release
 ```
 
 ### Building on macOS with Qt 5
@@ -208,7 +200,7 @@ cmake ../tlRender/etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PRE
 Add the Qt location to `CMAKE_PREFIX_PATH` (place double quotes around the list of paths)
 and enable `TLRENDER_QT5`:
 ```
-cmake ../tlRender/etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/clang_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Debug
+cmake -S tlRender/etc/SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=$PWD/Release/install -DCMAKE_PREFIX_PATH="$PWD/Release/install;$HOME/Qt/5.15.2/clang_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Release
 ```
 
 ### Notes for building on macOS
@@ -239,24 +231,20 @@ Clone the repository:
 ```
 git clone https://github.com/darbyjohnston/tlRender.git
 ```
-Create a build directory:
-```
-mkdir build && cd build
-```
 Run CMake with the super build script:
 ```
-cmake ..\tlRender\etc\SuperBuild -DCMAKE_INSTALL_PREFIX=%CD%\install -DCMAKE_PREFIX_PATH=%CD%\install -DCMAKE_BUILD_TYPE=Debug
+cmake -S tlRender\etc\SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=%CD%\Release\install -DCMAKE_PREFIX_PATH=%CD%\Release\install -DCMAKE_BUILD_TYPE=Release
 ```
 Start the build:
 ```
-cmake --build . -j 4 --config Debug
+cmake --build Release -j 4 --config Release
 ```
 Try running the `tlplay` application:
 ```
-set PATH=%CD%\install\bin;%PATH%
+set PATH=%CD%\Release\install\bin;%PATH%
 ```
 ```
-.\tlRender\src\tlRender-build\bin\tlplay\Debug\tlplay ..\tlRender\etc\SampleData\MultipleClips.otio
+.\Release\tlRender\src\tlRender-build\bin\tlplay\Release\tlplay tlRender\etc\SampleData\MultipleClips.otio
 ```
 
 ### Building on Windows with Qt 6
@@ -264,7 +252,7 @@ set PATH=%CD%\install\bin;%PATH%
 Add the Qt location to `CMAKE_PREFIX_PATH` (place double quotes around the list of paths)
 and enable `TLRENDER_QT6`:
 ```
-cmake ..\tlRender\etc\SuperBuild -DCMAKE_INSTALL_PREFIX=%CD%\install -DCMAKE_PREFIX_PATH="%CD%\install;C:\Qt\6.5.3\msvc2019_64" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Debug
+cmake -S tlRender\etc\SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=%CD%\Release\install -DCMAKE_PREFIX_PATH="%CD%\Release\install;C:\Qt\6.5.3\msvc2019_64" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Release
 ```
 
 ### Building on Windows with Qt 5
@@ -272,5 +260,5 @@ cmake ..\tlRender\etc\SuperBuild -DCMAKE_INSTALL_PREFIX=%CD%\install -DCMAKE_PRE
 Add the Qt location to `CMAKE_PREFIX_PATH` (place double quotes around the list of paths)
 and enable `TLRENDER_QT5`:
 ```
-cmake ..\tlRender\etc\SuperBuild -DCMAKE_INSTALL_PREFIX=%CD%\install -DCMAKE_PREFIX_PATH="%CD%\install;C:\Qt\5.15.2\msvc2019_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Debug
+cmake -S tlRender\etc\SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=%CD%\Release\install -DCMAKE_PREFIX_PATH="%CD%\Release\install;C:\Qt\5.15.2\msvc2019_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Release
 ```
