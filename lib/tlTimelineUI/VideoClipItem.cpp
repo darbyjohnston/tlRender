@@ -166,7 +166,12 @@ namespace tl
                     const auto image = i->second.future.get();
                     io::Options ioOptions = _data->options.ioOptions;
                     ioOptions["USD/cameraName"] = p.clipName;
-                    _data->thumbnails[io::getCacheKey(p.path, i->first, ioOptions)] = image;
+                    const std::string cacheKey = io::getCacheKey(
+                        p.path,
+                        i->first,
+                        ioOptions,
+                        {});
+                    _data->thumbnails[cacheKey] = image;
                     i = p.thumbnailRequests.erase(i);
                     _updates |= ui::Update::Draw;
                 }
@@ -285,8 +290,12 @@ namespace tl
 
                         io::Options ioOptions = _data->options.ioOptions;
                         ioOptions["USD/cameraName"] = p.clipName;
-                        const auto i = _data->thumbnails.find(
-                            io::getCacheKey(p.path, mediaTime, ioOptions));
+                        const std::string cacheKey = io::getCacheKey(
+                            p.path,
+                            mediaTime,
+                            ioOptions,
+                            {});
+                        const auto i = _data->thumbnails.find(cacheKey);
                         if (i != _data->thumbnails.end())
                         {
                             if (i->second)

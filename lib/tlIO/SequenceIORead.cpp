@@ -216,6 +216,7 @@ namespace tl
                     const std::string cacheKey = getCacheKey(
                         _path,
                         request->time,
+                        _options,
                         request->options);
                     if (_cache && _cache->getVideo(cacheKey, videoData))
                     {
@@ -283,6 +284,7 @@ namespace tl
                             const std::string cacheKey = getCacheKey(
                                 _path,
                                 (*requestIt)->time,
+                                _options,
                                 (*requestIt)->options);
                             _cache->addVideo(cacheKey, videoData);
                         }

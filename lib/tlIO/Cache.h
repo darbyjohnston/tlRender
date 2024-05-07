@@ -16,13 +16,15 @@ namespace tl
         std::string getCacheKey(
             const file::Path&,
             const otime::RationalTime&,
-            const Options& = Options());
+            const Options& initOptions,
+            const Options& frameOptions);
 
         //! Get a cache key.
         std::string getCacheKey(
             const file::Path&,
             const otime::TimeRange&,
-            const Options& = Options());
+            const Options& initOptions,
+            const Options& frameOptions);
 
         //! I/O cache.
         class Cache : public std::enable_shared_from_this<Cache>

@@ -17,13 +17,18 @@ namespace tl
         std::string getCacheKey(
             const file::Path& path,
             const otime::RationalTime& time,
-            const Options& options)
+            const Options& initOptions,
+            const Options& frameOptions)
         {
             std::vector<std::string> s;
             s.push_back(path.get());
             s.push_back(path.getNumber());
             s.push_back(string::Format("{0}").arg(time));
-            for (const auto& i : options)
+            for (const auto& i : initOptions)
+            {
+                s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
+            }
+            for (const auto& i : frameOptions)
             {
                 s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
             }
@@ -33,13 +38,18 @@ namespace tl
         std::string getCacheKey(
             const file::Path& path,
             const otime::TimeRange& timeRange,
-            const Options& options)
+            const Options& initOptions,
+            const Options& frameOptions)
         {
             std::vector<std::string> s;
             s.push_back(path.get());
             s.push_back(path.getNumber());
             s.push_back(string::Format("{0}").arg(timeRange));
-            for (const auto& i : options)
+            for (const auto& i : initOptions)
+            {
+                s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
+            }
+            for (const auto& i : frameOptions)
             {
                 s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
             }

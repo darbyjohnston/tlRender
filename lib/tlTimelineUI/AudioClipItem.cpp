@@ -162,7 +162,12 @@ namespace tl
                     i->second.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
                     const auto mesh = i->second.future.get();
-                    _data->waveforms[io::getCacheKey(p.path, i->second.timeRange, _data->options.ioOptions)] = mesh;
+                    const std::string cacheKey = io::getCacheKey(
+                        p.path,
+                        i->second.timeRange,
+                        _data->options.ioOptions,
+                        {});
+                    _data->waveforms[cacheKey] = mesh;
                     i = p.waveformRequests.erase(i);
                     _updates |= ui::Update::Draw;
                 }
@@ -275,8 +280,12 @@ namespace tl
                             _trimmedRange,
                             p.ioInfo->audio.sampleRate);
 
-                        const auto i = _data->waveforms.find(
-                            io::getCacheKey(p.path, mediaRange, _data->options.ioOptions));
+                        const std::string cacheKey = io::getCacheKey(
+                            p.path,
+                            mediaRange,
+                            _data->options.ioOptions,
+                            {});
+                        const auto i = _data->waveforms.find(cacheKey);
                         if (i != _data->waveforms.end())
                         {
                             if (i->second)

@@ -566,7 +566,8 @@ namespace tl
                     const std::string cacheKey = io::getCacheKey(
                         request->path,
                         request->time,
-                        ioOptions);
+                        ioOptions,
+                        {});
                     if (p.cache->getVideo(cacheKey, videoData))
                     {
                         request->promise.set_value(videoData);
@@ -581,7 +582,8 @@ namespace tl
                     const std::string cacheKey = io::getCacheKey(
                         request->path,
                         request->time,
-                        ioOptions);
+                        ioOptions,
+                        {});
                     if (diskCacheByteCount > 0 &&
                         p.thread.diskCache.get(cacheKey, diskCacheItem))
                     {
@@ -631,7 +633,8 @@ namespace tl
                     const std::string cacheKey = io::getCacheKey(
                         request->path,
                         request->time,
-                        ioOptions);
+                        ioOptions,
+                        {});
                     try
                     {
                         // Check the stage cache for a previously opened stage.
