@@ -519,6 +519,42 @@ namespace tl
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot initialize sws context").arg(_fileName));
                     }
+
+                    const int* inTable    = nullptr;
+                    int        inFull     = 0;
+                    const int* outTable   = nullptr;
+                    int        outFull    = 0;
+                    int        brightness = 0;
+                    int        contrast   = 0;
+                    int        saturation = 0;
+
+                    r = sws_getColorspaceDetails(
+                        _swsContext,
+                        (int**)&inTable,
+                        &inFull,
+                        (int**)&outTable,
+                        &outFull,
+                        &brightness,
+                        &contrast,
+                        &saturation);
+
+                    AVColorSpace colorSpace = _avCodecParameters[_avStream]->color_space;
+                    if (AVCOL_SPC_UNSPECIFIED == colorSpace)
+                    {
+                        colorSpace = AVCOL_SPC_BT709;
+                    }
+                    inFull = 1;
+                    outFull = 1;
+
+                    r = sws_setColorspaceDetails(
+                        _swsContext,
+                        sws_getCoefficients(colorSpace),
+                        inFull,
+                        sws_getCoefficients(AVCOL_SPC_BT709),
+                        outFull,
+                        brightness,
+                        contrast,
+                        saturation);
                 }
             }
         }
