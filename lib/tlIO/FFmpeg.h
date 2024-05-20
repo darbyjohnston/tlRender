@@ -6,12 +6,16 @@
 
 #include <tlIO/Plugin.h>
 
+#include <tlCore/LogSystem.h>
 #include <tlCore/HDR.h>
 
 extern "C"
 {
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
+
+struct AVCodecContext;
+struct AVStream;
 }
 
 namespace tl
@@ -19,7 +23,7 @@ namespace tl
     //! FFmpeg video and audio I/O
     namespace ffmpeg
     {
-        //! Write profiles.
+        //! Profiles.
         enum class Profile
         {
             None,
@@ -30,17 +34,39 @@ namespace tl
             ProRes_HQ,
             ProRes_4444,
             ProRes_XQ,
-
+            VP9,
+            Cineform,
+            AV1,
+            
             Count
         };
         TLRENDER_ENUM(Profile);
         TLRENDER_ENUM_SERIALIZE(Profile);
 
+        //! Audio Codecs.
+        enum class AudioCodec
+        {
+            None,
+            AAC,
+            AC3,
+            True_HD,
+            MP2,
+            MP3,
+            OPUS,
+            VORBIS,
+            PCM_S16LE,
+
+            Count
+        };
+        TLRENDER_ENUM(AudioCodec);
+        TLRENDER_ENUM_SERIALIZE(AudioCodec);
+
+        
         //! Number of threads.
         const size_t threadCount = 0;
 
         //! Software scaler flags.
-        const int swsScaleFlags = SWS_FAST_BILINEAR;
+        const int swsScaleFlags = SWS_SPLINE | SWS_ACCURATE_RND | SWS_FULL_CHR_H_INT | SWS_FULL_CHR_H_INP;
 
         //! Swap the numerator and denominator.
         AVRational swap(AVRational);
@@ -63,7 +89,6 @@ namespace tl
         public:
             Packet();
             ~Packet();
-
             AVPacket* p = nullptr;
         };
 
@@ -111,6 +136,9 @@ namespace tl
             void cancelRequests() override;
 
         private:
+            void _addToCache(io::VideoData& data,
+                             const otime::RationalTime&,
+                             const io::Options&);
             void _videoThread();
             void _audioThread();
             void _cancelVideoRequests();
@@ -145,9 +173,16 @@ namespace tl
                 const otime::RationalTime&,
                 const std::shared_ptr<image::Image>&,
                 const io::Options& = io::Options()) override;
+            
+            void writeAudio(
+                const otime::TimeRange&,
+                const std::shared_ptr<audio::Audio>&,
+                const io::Options& = io::Options()) override;
 
         private:
-            void _encodeVideo(AVFrame*);
+            void _encode(AVCodecContext*, const AVStream*,
+                         const AVFrame*, AVPacket*);
+            void _flushAudio();
 
             TLRENDER_PRIVATE();
         };

@@ -5,7 +5,6 @@
 #include <tlIO/FFmpegReadPrivate.h>
 
 #include <tlCore/Assert.h>
-#include <tlCore/LogSystem.h>
 #include <tlCore/StringFormat.h>
 
 extern "C"
@@ -98,6 +97,12 @@ namespace tl
                 std::stringstream ss(i->second);
                 ss >> p.options.audioConvertInfo.sampleRate;
             }
+            i = options.find("FFmpeg/AudioTrack");
+            if (i != options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> p.options.audioTrack;
+            }
             i = options.find("FFmpeg/ThreadCount");
             if (i != options.end())
             {
@@ -122,7 +127,7 @@ namespace tl
                 std::stringstream ss(i->second);
                 ss >> p.options.audioBufferSize;
             }
-
+                
             p.videoThread.running = true;
             p.audioThread.running = true;
             p.videoThread.thread = std::thread(
@@ -134,6 +139,7 @@ namespace tl
                         p.readVideo = std::make_shared<ReadVideo>(
                             path.get(-1, path.isFileProtocol() ? file::PathType::Path : file::PathType::Full),
                             _memory,
+                            _logSystem,
                             p.options);
                         const auto& videoInfo = p.readVideo->getInfo();
                         if (videoInfo.isValid())
@@ -339,6 +345,25 @@ namespace tl
             _cancelAudioRequests();
         }
 
+        void Read::_addToCache(io::VideoData& data,
+                               const otime::RationalTime& time,
+                               const io::Options& options)
+        {
+            TLRENDER_P();
+            data.time = time;
+            if (!p.readVideo->isBufferEmpty())
+            {
+                data.image = p.readVideo->popBuffer();
+            }
+            
+            const std::string cacheKey = io::getCacheKey(
+                _path,
+                time,
+                _options,
+                options);
+            _cache->addVideo(cacheKey, data);
+        }
+        
         void Read::_videoThread()
         {
             TLRENDER_P();
@@ -393,12 +418,26 @@ namespace tl
                     }
                 }
 
+
                 // Seek.
+                //
+                // \@note: Seeking on some large movies with inter-frame
+                //         compression can be slow, as FFmpeg returns the
+                //         closest 'F' frame.
+                //         When playing backwards, while we look for the
+                //         actual request time, we cache all previous 'F' and
+                //         'I' frames which allows us to play 4K movies
+                //         backwards with no issues.
+                bool backwards = false;
                 if (videoRequest &&
                     !time::compareExact(videoRequest->time, p.videoThread.currentTime))
                 {
-                    p.videoThread.currentTime = videoRequest->time;
-                    p.readVideo->seek(p.videoThread.currentTime);
+                    if (_cache &&
+                        videoRequest->time < p.videoThread.currentTime)
+                        backwards = true;
+                    else
+                        p.videoThread.currentTime = videoRequest->time;
+                    p.readVideo->seek(videoRequest->time);
                 }
 
                 // Process.
@@ -406,30 +445,30 @@ namespace tl
                     videoRequest &&
                     p.readVideo->isBufferEmpty() &&
                     p.readVideo->isValid() &&
-                    _p->readVideo->process(p.videoThread.currentTime))
-                    ;
+                    p.readVideo->process(backwards,
+                                         videoRequest->time,
+                                         p.videoThread.currentTime)
+                    )
+                {
+                    if (backwards)
+                    {
+                        if (time::compareExact(videoRequest->time,
+                                               p.videoThread.currentTime))
+                            break;
+                        io::VideoData data;
+                        _addToCache(data,
+                                    p.videoThread.currentTime,
+                                    videoRequest->options);
+                    }
+                }
 
                 // Handle request.
                 if (videoRequest)
                 {
                     io::VideoData data;
-                    data.time = videoRequest->time;
-                    if (!p.readVideo->isBufferEmpty())
-                    {
-                        data.image = p.readVideo->popBuffer();
-                    }
+                    _addToCache(data, videoRequest->time,
+                                videoRequest->options);
                     videoRequest->promise.set_value(data);
-                    
-                    if (_cache)
-                    {
-                        const std::string cacheKey = io::getCacheKey(
-                            _path,
-                            videoRequest->time,
-                            _options,
-                            videoRequest->options);
-                        _cache->addVideo(cacheKey, data);
-                    }
-
                     p.videoThread.currentTime += otime::RationalTime(1.0, p.info.videoTime.duration().rate());
                 }
 

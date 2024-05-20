@@ -110,6 +110,8 @@ namespace tl
             size_t      channelCount = 0;
             DataType    dataType     = DataType::None;
             size_t      sampleRate   = 0;
+            unsigned    trackCount   = 1;
+            std::vector<Info> audioInfo;
 
             //! Is the audio valid?
             bool isValid() const;
@@ -178,12 +180,21 @@ namespace tl
         //! \name Utility
         ///@{
 
+        //! Reverse audio sources in place.
+        void reverse(
+            uint8_t** inOut,
+            size_t          inCount,
+            size_t          sampleCount,
+            uint8_t         channelCount,
+            DataType        dataType);
+        
         //! Mix audio sources.
         void mix(
             const uint8_t** in,
             size_t          inCount,
             uint8_t*        out,
             float           volume,
+            const std::vector<float>& volumeScale,
             size_t          sampleCount,
             size_t          channelCount,
             DataType        dataType);
