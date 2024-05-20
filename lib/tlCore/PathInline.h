@@ -70,7 +70,9 @@ namespace tl
                 !value._number.empty() &&
                 _directory == value._directory &&
                 _baseName == value._baseName &&
-                (_padding == value._padding || _padding == value._numberDigits) &&
+                (_padding == value._padding ||
+                 _padding == value._numberDigits ||
+                 _numberDigits == value._padding) &&
                 _extension == value._extension &&
                 _request == value._request;
         }
