@@ -143,9 +143,28 @@ namespace tl
                 p.setSequence(sequence);
                 TLRENDER_ASSERT(sequence == p.getSequence());
                 TLRENDER_ASSERT(p.isSequence());
+                TLRENDER_ASSERT("0001-0100" == p.getSequenceString());
                 TLRENDER_ASSERT(p.sequence(Path("render.0101.exr")));
                 TLRENDER_ASSERT(!p.sequence(Path("render.101.exr")));
-                TLRENDER_ASSERT("0001-0100" == p.getSequenceString());
+            }
+            {
+                Path p("render.0001.exr");
+                const math::IntRange sequence(1, 9999);
+                p.setSequence(sequence);
+                TLRENDER_ASSERT("0001-9999" == p.getSequenceString());
+                TLRENDER_ASSERT(p.sequence(Path("render.0001.exr")));
+                TLRENDER_ASSERT(p.sequence(Path("render.1000.exr")));
+                //! \bug Handle frame numbers that exceed the zero padding.
+                //TLRENDER_ASSERT(p.sequence(Path("render.10000.exr")));
+            }
+            {
+                Path p("render.1000.exr");
+                const math::IntRange sequence(1, 9999);
+                p.setSequence(sequence);
+                TLRENDER_ASSERT(p.sequence(Path("render.0001.exr")));
+                TLRENDER_ASSERT(p.sequence(Path("render.1000.exr")));
+                //! \bug How should the padding be handled in this case?
+                //TLRENDER_ASSERT("0001-9999" == p.getSequenceString());
             }
             {
                 Path path("render.00000.exr");
