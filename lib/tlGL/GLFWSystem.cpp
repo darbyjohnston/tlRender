@@ -13,6 +13,7 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+#include <cstring>
 #include <iostream>
 
 namespace tl
@@ -25,6 +26,21 @@ namespace tl
             {
                 std::cerr << "GLFW ERROR: " << description << std::endl;
             }
+        }
+
+        bool isWayland()
+        {
+            bool out = false;
+#ifdef __linux__
+            char* platform = getenv("FLTK_BACKEND");
+            if (!platform)
+                platform = getenv("XDG_SESSION_TYPE");
+            if (platform && strcmp(platform, "wayland") == 0)
+            {
+                out = true;
+            }
+#endif  // __linux__
+            return out;
         }
         
         struct GLFWSystem::Private
@@ -44,6 +60,15 @@ namespace tl
             int glfwRevision = 0;
             glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRevision);
             _log(string::Format("GLFW version: {0}.{1}.{2}").arg(glfwMajor).arg(glfwMinor).arg(glfwRevision));
+                      
+            int platform_hint = GLFW_PLATFORM_X11;
+            if (isWayland())
+            {
+                platform_hint = GLFW_PLATFORM_WAYLAND;
+            }
+               
+            if (glfwPlatformSupported(platform_hint) == GLFW_TRUE)
+                glfwInitHint(GLFW_PLATFORM, platform_hint);
             if (!glfwInit())
             {
                 //! \todo Only log the error for now so that non-OpenGL
@@ -51,7 +76,7 @@ namespace tl
                 //throw std::runtime_error("Cannot initialize GLFW");
                 auto logSystem = context->getSystem<log::System>();
                 logSystem->print("tl::gl::GLFWSystem", "Cannot initialize GLFW", log::Type::Error);
-            }
+            }            
             p.glfwInit = true;
         }
         

@@ -5,6 +5,7 @@
 #include <tlGL/GLFWWindow.h>
 
 #include <tlGL/GL.h>
+#include <tlGL/GLFWSystem.h>
 #include <tlGL/Init.h>
 
 #include <tlCore/Context.h>
@@ -53,6 +54,23 @@ namespace tl
 #endif // TLRENDER_API_GL_4_1_Debug
         }
 
+        void windowHint(int flag, int value)
+        {
+            if (!gl::isWayland())
+            {
+                glfwWindowHint(flag, value);
+            }
+            else
+            {
+                // \@bug: NVidia drivers currently return EGL error if
+                //        GLFW_DOUBLEBUFFER is GLFW_FALSE
+                if (flag == GLFW_DOUBLEBUFFER)
+                {
+                    glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+                }
+            }
+        }
+        
         struct GLFWWindow::Private
         {
             std::weak_ptr<system::Context> context;
@@ -101,9 +119,10 @@ namespace tl
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
 #endif // TLRENDER_API_GL_4_1
+
             glfwWindowHint(GLFW_VISIBLE,
                 options & static_cast<int>(GLFWWindowOptions::Visible));
-            glfwWindowHint(GLFW_DOUBLEBUFFER,
+            gl::windowHint(GLFW_DOUBLEBUFFER, 
                 options & static_cast<int>(GLFWWindowOptions::DoubleBuffer));
 #if defined(TLRENDER_API_GL_4_1_Debug)
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);

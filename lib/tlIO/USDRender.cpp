@@ -9,6 +9,8 @@
 #include <tlCore/LogSystem.h>
 #include <tlCore/StringFormat.h>
 
+#include <tlGL/GLFWWindow.h>
+
 #include <pxr/pxr.h>
 #include <pxr/base/tf/diagnostic.h>
 #include <pxr/base/tf/token.h>
@@ -118,7 +120,7 @@ namespace tl
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
             glfwWindowHint(GLFW_OPENGL_PROFILE, glProfile);
             glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-            glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
+            gl::windowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
             p.glfwWindow = glfwCreateWindow(1, 1, "tl::usd::Render", NULL, NULL);
             if (!p.glfwWindow)
             {

@@ -27,6 +27,8 @@ namespace tl
             MakeCurrent  = 4
         };
 
+        void windowHint(int flag, int value);
+        
         //! GLFW window wrapper.
         class GLFWWindow : public std::enable_shared_from_this<GLFWWindow>
         {

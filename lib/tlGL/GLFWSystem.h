@@ -10,6 +10,8 @@ namespace tl
 {
     namespace gl
     {
+        bool isWayland();
+        
         //! GLFW system.
         class GLFWSystem : public system::ISystem
         {
