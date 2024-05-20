@@ -30,6 +30,7 @@ namespace tl
                 image::FontMetrics fontMetrics;
                 math::Size2i labelSize;
                 math::Size2i durationSize;
+                std::vector<math::Size2i> markerSizes;
             };
             SizeData size;
 
@@ -37,6 +38,7 @@ namespace tl
             {
                 std::vector<std::shared_ptr<image::Glyph> > labelGlyphs;
                 std::vector<std::shared_ptr<image::Glyph> > durationGlyphs;
+                std::vector<std::vector<std::shared_ptr<image::Glyph> > > markerGlyphs;
             };
             DrawData draw;
         };
@@ -122,6 +124,7 @@ namespace tl
                     math::Size2i();
                 p.draw.labelGlyphs.clear();
                 p.draw.durationGlyphs.clear();
+                p.draw.markerGlyphs.clear();
             }
             p.size.sizeInit = false;
             p.size.textInit = false;
@@ -134,6 +137,16 @@ namespace tl
                     p.size.fontMetrics.lineHeight +
                     p.size.margin * 2;
             }
+            if (_displayOptions.markers)
+            {
+                for (const auto& marker : p.markers)
+                {
+                    _sizeHint.h +=
+                        p.size.fontMetrics.lineHeight +
+                        p.size.margin * 2 +
+                        p.size.border * 2;
+                }
+            }
             _sizeHint.h += p.size.border * 4;
         }
 
@@ -145,6 +158,7 @@ namespace tl
             {
                 p.draw.labelGlyphs.clear();
                 p.draw.durationGlyphs.clear();
+                p.draw.markerGlyphs.clear();
             }
         }
 
@@ -218,6 +232,70 @@ namespace tl
                             durationGeometry.min.y +
                             p.size.fontMetrics.ascender),
                         event.style->getColorRole(ui::ColorRole::Text));
+                }
+            }
+
+            if (_displayOptions.markers)
+            {
+                p.draw.markerGlyphs.resize(p.markers.size());
+            
+                float y = g2.max.y + 1 -
+                    (p.size.fontMetrics.lineHeight +
+                    p.size.margin * 2 +
+                    p.size.border * 2) *
+                    p.markers.size();
+                for (size_t i = 0; i < p.markers.size(); ++i)
+                {
+                    const int x0 =
+                        _geometry.min.x +
+                        p.markers[i].range.start_time().rescaled_to(1.0).value() * _scale;
+                    const int x1 =
+                        _geometry.min.x +
+                        p.markers[i].range.end_time_exclusive().rescaled_to(1.0).value() * _scale - 1;
+                    math::Box2i mg;
+                    mg.min.x = std::max(x0, g2.min.x);
+                    mg.min.y = y;
+                    mg.max.x = std::min(x1, g2.max.x);
+                    mg.max.y = y + p.size.border * 2 - 1;
+                    event.render->drawRect(mg, p.markers[i].color);
+
+                    y += p.size.border * 2;
+
+                    // \@bug: mrv2 would crash as markerSizes would sometimes
+                    //        not be initialized properly.
+                    if (p.markers.size() > p.size.markerSizes.size())
+                    {
+                        p.size.markerSizes.clear();
+                        for (const auto& marker : p.markers)
+                        {
+                            p.size.markerSizes.push_back(
+                                event.fontSystem->getSize(
+                                    marker.name, p.size.fontInfo));
+                        }
+                    }
+                    
+                    const math::Box2i labelGeometry = math::Box2i(
+                        g2.min.x + p.size.margin,
+                        y + p.size.margin,
+                        p.size.markerSizes[i].w,
+                        p.size.fontMetrics.lineHeight);
+                    if (drawRect.intersects(labelGeometry))
+                    {
+                        if (!p.markers[i].name.empty() && p.draw.markerGlyphs[i].empty())
+                        {
+                            p.draw.markerGlyphs[i] = event.fontSystem->getGlyphs(p.markers[i].name, p.size.fontInfo);
+                        }
+                        event.render->drawText(
+                            p.draw.markerGlyphs[i],
+                            math::Vector2i(
+                                labelGeometry.min.x,
+                                labelGeometry.min.y +
+                                p.size.fontMetrics.ascender),
+                            event.style->getColorRole(ui::ColorRole::Text));
+                    }
+
+                    y += p.size.fontMetrics.lineHeight +
+                         p.size.margin * 2;
                 }
             }
         }
