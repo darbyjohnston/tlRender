@@ -12,7 +12,8 @@ set(USD_DEPS)
 set(USD_GIT_REPOSITORY https://github.com/PixarAnimationStudios/OpenUSD.git)
 set(USD_GIT_TAG v24.03)
 
-set(USD_ARGS)
+string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LC)
+set(USD_ARGS --build-variant ${CMAKE_BUILD_TYPE_LC})
 if(CMAKE_OSX_ARCHITECTURES)
     list(APPEND USD_ARGS --build-target ${CMAKE_OSX_ARCHITECTURES})
 endif()
@@ -31,64 +32,10 @@ if(WIN32)
     # \todo On Windows the USD cmake build system installs the "*.dll" files
     # and "usd" directory into "lib", however it seems like they need to be
     # in "bin" instead.
+    cmake_path(CONVERT ${CMAKE_INSTALL_PREFIX} TO_NATIVE_PATH_LIST CMAKE_INSTALL_PREFIX_NATIVE)
     set(USD_INSTALL_COMMAND
         ${CMAKE_COMMAND} -E copy_directory ${CMAKE_INSTALL_PREFIX}/lib/usd  ${CMAKE_INSTALL_PREFIX}/bin/usd
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/boost_atomic-vc143-mt-x64-1_78.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/boost_regex-vc143-mt-x64-1_78.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_ar.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_arch.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_cameraUtil.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_garch.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_geomUtil.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_gf.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_glf.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_hd.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_hdGp.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_hdMtlx.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_hdSt.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_hdar.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_hdsi.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_hdx.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_hf.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_hgi.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_hgiGL.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_hgiInterop.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_hio.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_js.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_kind.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_ndr.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_pcp.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_plug.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_pxOsd.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_sdf.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_sdr.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_tf.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_trace.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usd.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdAppUtils.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdBakeMtlx.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdGeom.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdHydra.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdImaging.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdImagingGL.dll ${CMAKE_INSTALL_PREFIX}/bin    
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdLux.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdMedia.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdMtlx.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdPhysics.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdProc.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdProcImaging.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdRender.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdRi.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdRiPxrImaging.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdShade.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdSkel.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdSkelImaging.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdUI.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdUtils.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdVol.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_usdVolImaging.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_vt.dll ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/lib/usd_work.dll ${CMAKE_INSTALL_PREFIX}/bin)
+        COMMAND copy /Y "${CMAKE_INSTALL_PREFIX_NATIVE}\\lib\\*.dll" "${CMAKE_INSTALL_PREFIX_NATIVE}\\bin")
 endif()
 
 ExternalProject_Add(

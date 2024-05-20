@@ -247,6 +247,8 @@ add_subdirectory(etc)
 #-------------------------------------------------------------------------------
 # Packaging
 
-include(Package)
-include(CPack)
-include(InstallRequiredSystemLibraries)
+if(CMAKE_BUILD_TYPE MATCHES "^Release$")
+    include(Package)
+    include(CPack)
+    include(InstallRequiredSystemLibraries)
+endif()
