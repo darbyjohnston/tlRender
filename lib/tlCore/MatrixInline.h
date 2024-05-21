@@ -120,32 +120,32 @@ namespace tl
         template<typename T>
         inline Matrix4x4<T> rotateX(T angle)
         {
-            const T a = std::cos(deg2rad(-angle));
-            const T b = std::sin(deg2rad(-angle));
+            const T a = std::cos(deg2rad(angle));
+            const T b = std::sin(deg2rad(angle));
             return Matrix4x4<T>(
                 T(1), T(0), T(0), T(0),
-                T(0), a,   -b,    T(0),
-                T(0), b,    a,    T(0),
+                T(0), a,    b,    T(0),
+                T(0), -b,   a,    T(0),
                 T(0), T(0), T(0), T(1));
         }
 
         template<typename T>
         inline Matrix4x4<T> rotateY(T angle)
         {
-            const T a = std::cos(deg2rad(-angle));
-            const T b = std::sin(deg2rad(-angle));
+            const T a = std::cos(deg2rad(angle));
+            const T b = std::sin(deg2rad(angle));
             return Matrix4x4<T>(
-                a,    T(0), b,    T(0),
+                a,    T(0), -b,   T(0),
                 T(0), T(1), T(0), T(0),
-                -b,   T(0), a,    T(0),
+                b,    T(0), a,    T(0),
                 T(0), T(0), T(0), T(1));
         }
 
         template<typename T>
         inline Matrix4x4<T> rotateZ(T angle)
         {
-            const T a = std::cos(deg2rad(-angle));
-            const T b = std::sin(deg2rad(-angle));
+            const T a = std::cos(deg2rad(angle));
+            const T b = std::sin(deg2rad(angle));
             return Matrix4x4<T>(
                 a,   -b,    T(0), T(0),
                 b,    a,    T(0), T(0),
