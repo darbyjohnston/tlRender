@@ -56,6 +56,10 @@ namespace tl
 
         //! Create a translation matrix.
         template<typename T>
+        constexpr Matrix3x3<T> translate(const Vector2<T>&);
+
+        //! Create a translation matrix.
+        template<typename T>
         constexpr Matrix4x4<T> translate(const Vector3<T>&);
 
         //! Create a X rotation matrix.

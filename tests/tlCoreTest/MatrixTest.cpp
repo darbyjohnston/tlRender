@@ -53,9 +53,9 @@ namespace tl
                 TLRENDER_ASSERT(a * b == Matrix3x3f());
             }
             {
-                Matrix3x3f a;
-                Vector2f b(1.F, 2.F);
-                TLRENDER_ASSERT(a * b == b);
+                const Matrix3x3f a = translate(Vector2f(1.F, 1.F));
+                const Vector2f b = a * Vector2f(1.F, 0.F);
+                TLRENDER_ASSERT(b == Vector2f(2.F, 1.F));
             }
             {
                 Matrix4x4f a;
