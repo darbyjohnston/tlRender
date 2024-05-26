@@ -79,11 +79,12 @@ namespace tl
             {
                 std::stringstream ss;
                 ss << type;
-                const QString name = QString::fromUtf8("ColorBuffer/" + ss.str());
+                QString name = QString::fromUtf8("ColorBuffer/");
+                name.append(QString::fromUtf8(ss.str().c_str()));
                 p.actions[name] = new QAction(this);
                 p.actions[name]->setData(QVariant::fromValue<image::PixelType>(type));
                 p.actions[name]->setCheckable(true);
-                p.actions[name]->setText(QString::fromUtf8(ss.str()));
+                p.actions[name]->setText(QString::fromUtf8(ss.str().c_str()));
                 p.actionGroups["ColorBuffer"]->addAction(p.actions[name]);
             }
 
