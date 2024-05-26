@@ -72,6 +72,8 @@ namespace tl
                     }
                     while (p.thread.running)
                     {
+                        const auto t0 = std::chrono::steady_clock::now();
+
                         std::vector<log::Item> items;
                         {
                             std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -88,7 +90,9 @@ namespace tl
                                 io->write(log::toString(item, options) + "\n");
                             }
                         }
-                        time::sleep(timeout);
+
+                        const auto t1 = std::chrono::steady_clock::now();
+                        time::sleep(timeout, t0, t1);
                     }
                     std::vector<log::Item> items;
                     {

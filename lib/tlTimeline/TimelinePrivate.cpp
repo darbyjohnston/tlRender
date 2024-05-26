@@ -94,7 +94,7 @@ namespace tl
             requests();
 
             // Logging.
-            const auto t1 = std::chrono::steady_clock::now();
+            auto t1 = std::chrono::steady_clock::now();
             const std::chrono::duration<float> diff = t1 - thread.logTimer;
             if (diff.count() > 10.F)
             {
@@ -124,6 +124,7 @@ namespace tl
                         arg(thread.audioRequestsInProgress.size()).
                         arg(options.audioRequestCount));
                 }
+                t1 = std::chrono::steady_clock::now();
             }
 
             // Sleep for a bit.

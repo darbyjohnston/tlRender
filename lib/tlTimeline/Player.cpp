@@ -298,7 +298,7 @@ namespace tl
                         }
 
                         // Logging.
-                        const auto t1 = std::chrono::steady_clock::now();
+                        auto t1 = std::chrono::steady_clock::now();
                         const std::chrono::duration<double> diff = t1 - p.thread.logTimer;
                         if (diff.count() > 10.0)
                         {
@@ -307,6 +307,7 @@ namespace tl
                             {
                                 p.log(context);
                             }
+                            t1 = std::chrono::steady_clock::now();
                         }
 
                         // Sleep for a bit.

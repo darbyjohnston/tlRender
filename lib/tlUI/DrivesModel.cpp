@@ -50,12 +50,14 @@ namespace tl
                     TLRENDER_P();
                     while (p.running)
                     {
+                        const auto t0 = std::chrono::steady_clock::now();
                         const std::vector<std::string> drives = file::getDrives();
                         {
                             std::lock_guard<std::mutex> lock(p.mutex.mutex);
                             p.mutex.drives = drives;
                         }
-                        time::sleep(timeout);
+                        const auto t1 = std::chrono::steady_clock::now();
+                        time::sleep(timeout, t0, t1);
                     }
                 });
 
