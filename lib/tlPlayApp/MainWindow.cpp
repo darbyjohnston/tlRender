@@ -596,6 +596,7 @@ namespace tl
                 app->getRenderModel()->observeOffscreenColorType(),
                 [this](image::PixelType value)
                 {
+                    setOffscreenColorType(value);
                     _p->timelineViewport->setOffscreenColorType(value);
                 });
 
