@@ -19,6 +19,7 @@ namespace tl
         {
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::map<std::string, std::shared_ptr<Menu> > menus;
+
             std::shared_ptr<observer::ValueObserver<bool> > frameViewObserver;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
         };

@@ -18,8 +18,8 @@ namespace tl
             std::weak_ptr<MainWindow> mainWindow;
 
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
-            std::shared_ptr<Menu> thumbnailsSizeMenu;
             std::map<int, std::shared_ptr<ui::Action> > thumbnailsSizeItems;
+            std::map<std::string, std::shared_ptr<ui::Menu> > menus;
 
             std::shared_ptr<observer::ValueObserver<bool> > editableObserver;
             std::shared_ptr<observer::ValueObserver<bool> > frameViewObserver;
@@ -55,10 +55,10 @@ namespace tl
             addItem(p.actions["TrackInfo"]);
             addItem(p.actions["ClipInfo"]);
             addItem(p.actions["Thumbnails"]);
-            p.thumbnailsSizeMenu = addSubMenu("Thumbnails Size");
-            p.thumbnailsSizeMenu->addItem(p.actions["Thumbnails100"]);
-            p.thumbnailsSizeMenu->addItem(p.actions["Thumbnails200"]);
-            p.thumbnailsSizeMenu->addItem(p.actions["Thumbnails300"]);
+            p.menus["ThumbnailSize"] = addSubMenu("Thumbnails Size");
+            p.menus["ThumbnailSize"]->addItem(p.actions["Thumbnails100"]);
+            p.menus["ThumbnailSize"]->addItem(p.actions["Thumbnails200"]);
+            p.menus["ThumbnailSize"]->addItem(p.actions["Thumbnails300"]);
             addItem(p.actions["Transitions"]);
             addItem(p.actions["Markers"]);
 
@@ -141,7 +141,10 @@ namespace tl
         {
             Menu::close();
             TLRENDER_P();
-            p.thumbnailsSizeMenu->close();
+            for (const auto& menu : p.menus)
+            {
+                menu.second->close();
+            }
         }
 
         void TimelineMenu::_thumbnailsSizeUpdate()
@@ -158,7 +161,7 @@ namespace tl
                 for (auto item : p.thumbnailsSizeItems)
                 {
                     const bool checked = item == *i;
-                    p.thumbnailsSizeMenu->setItemChecked(item.second, checked);
+                    p.menus["ThumbnailSize"]->setItemChecked(item.second, checked);
                 }
             }
         }

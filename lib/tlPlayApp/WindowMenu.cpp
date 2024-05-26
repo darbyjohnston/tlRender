@@ -14,7 +14,7 @@ namespace tl
         struct WindowMenu::Private
         {
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
-            std::shared_ptr<Menu> resizeMenu;
+            std::map<std::string, std::shared_ptr<ui::Menu> > menus;
 
             std::shared_ptr<observer::ValueObserver<bool> > fullScreenObserver;
             std::shared_ptr<observer::ValueObserver<bool> > floatOnTopObserver;
@@ -34,7 +34,7 @@ namespace tl
 
             p.actions = actions;
 
-            p.resizeMenu = addSubMenu("Resize");
+            p.menus["Resize"] = addSubMenu("Resize");
             auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
             auto action = std::make_shared<ui::Action>(
                 "1280x720",
@@ -45,7 +45,7 @@ namespace tl
                         mainWindow->setWindowSize(math::Size2i(1280, 720));
                     }
                 });
-            p.resizeMenu->addItem(action);
+            p.menus["Resize"]->addItem(action);
             action = std::make_shared<ui::Action>(
                 "1920x1080",
                 [mainWindowWeak]
@@ -55,7 +55,7 @@ namespace tl
                         mainWindow->setWindowSize(math::Size2i(1920, 1080));
                     }
                 });
-            p.resizeMenu->addItem(action);
+            p.menus["Resize"]->addItem(action);
 
             addDivider();
             addItem(p.actions["FullScreen"]);
@@ -131,7 +131,10 @@ namespace tl
         {
             Menu::close();
             TLRENDER_P();
-            p.resizeMenu->close();
+            for (const auto menu : p.menus)
+            {
+                menu.second->close();
+            }
         }
     }
 }

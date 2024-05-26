@@ -22,11 +22,9 @@ namespace tl
             std::shared_ptr<ui::RecentFilesModel> recentFilesModel;
 
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
-            std::shared_ptr<Menu> recentMenu;
-            std::shared_ptr<Menu> currentMenu;
             std::vector<std::shared_ptr<ui::Action> > currentItems;
-            std::shared_ptr<Menu> layersMenu;
             std::vector<std::shared_ptr<ui::Action> > layersItems;
+            std::map<std::string, std::shared_ptr<ui::Menu> > menus;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ValueObserver<std::shared_ptr<play::FilesModelItem> > > aObserver;
@@ -65,13 +63,13 @@ namespace tl
             addItem(p.actions["Close"]);
             addItem(p.actions["CloseAll"]);
             addItem(p.actions["Reload"]);
-            p.recentMenu = addSubMenu("Recent");
+            p.menus["Recent"] = addSubMenu("Recent");
             addDivider();
-            p.currentMenu = addSubMenu("Current");
+            p.menus["Current"] = addSubMenu("Current");
             addItem(p.actions["Next"]);
             addItem(p.actions["Prev"]);
             addDivider();
-            p.layersMenu = addSubMenu("Layers");
+            p.menus["Layers"] = addSubMenu("Layers");
             addItem(p.actions["NextLayer"]);
             addItem(p.actions["PrevLayer"]);
             addDivider();
@@ -138,9 +136,10 @@ namespace tl
         {
             Menu::close();
             TLRENDER_P();
-            p.recentMenu->close();
-            p.currentMenu->close();
-            p.layersMenu->close();
+            for (const auto& menu : p.menus)
+            {
+                menu.second->close();
+            }
         }
 
         void FileMenu::_filesUpdate(
@@ -154,7 +153,7 @@ namespace tl
             setItemEnabled(p.actions["Next"], value.size() > 1);
             setItemEnabled(p.actions["Prev"], value.size() > 1);
 
-            p.currentMenu->clear();
+            p.menus["Current"]->clear();
             p.currentItems.clear();
             for (size_t i = 0; i < value.size(); ++i)
             {
@@ -168,7 +167,7 @@ namespace tl
                             app->getFilesModel()->setA(i);
                         }
                     });
-                p.currentMenu->addItem(item);
+                p.menus["Current"]->addItem(item);
                 p.currentItems.push_back(item);
             }
         }
@@ -177,7 +176,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.layersMenu->clear();
+            p.menus["Layers"]->clear();
             p.layersItems.clear();
             if (value)
             {
@@ -194,7 +193,7 @@ namespace tl
                             }
                         });
                     item->checked = i == value->videoLayer;
-                    p.layersMenu->addItem(item);
+                    p.menus["Layers"]->addItem(item);
                     p.layersItems.push_back(item);
                 }
             }
@@ -208,7 +207,7 @@ namespace tl
             TLRENDER_P();
             for (int i = 0; i < p.currentItems.size(); ++i)
             {
-                p.currentMenu->setItemChecked(p.currentItems[i], i == value);
+                p.menus["Current"]->setItemChecked(p.currentItems[i], i == value);
             }
         }
 
@@ -220,7 +219,7 @@ namespace tl
                 auto a = app->getFilesModel()->getA();
                 for (size_t i = 0; i < p.layersItems.size(); ++i)
                 {
-                    p.layersMenu->setItemChecked(p.layersItems[i], i == a->videoLayer);
+                    p.menus["Layers"]->setItemChecked(p.layersItems[i], i == a->videoLayer);
                 }
             }
         }
@@ -228,7 +227,7 @@ namespace tl
         void FileMenu::_recentUpdate(const std::vector<file::Path>& value)
         {
             TLRENDER_P();
-            p.recentMenu->clear();
+            p.menus["Recent"]->clear();
             if (!value.empty())
             {
                 for (auto i = value.rbegin(); i != value.rend(); ++i)
@@ -256,7 +255,7 @@ namespace tl
                                 }
                                 close();
                             });
-                        p.recentMenu->addItem(item);
+                        p.menus["Recent"]->addItem(item);
                     }
                 }
             }

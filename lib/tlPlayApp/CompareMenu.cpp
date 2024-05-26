@@ -15,9 +15,8 @@ namespace tl
             std::weak_ptr<App> app;
 
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
-            std::shared_ptr<Menu> bMenu;
             std::vector<std::shared_ptr<ui::Action> > bActions;
-            std::shared_ptr<Menu> timeMenu;
+            std::map<std::string, std::shared_ptr<ui::Menu> > menus;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
@@ -37,7 +36,7 @@ namespace tl
             p.app = app;
             p.actions = actions;
 
-            p.bMenu = addSubMenu("B");
+            p.menus["B"] = addSubMenu("B");
             addItem(p.actions["Next"]);
             addItem(p.actions["Prev"]);
             addDivider();
@@ -47,11 +46,11 @@ namespace tl
                 addItem(p.actions[label]);
             }
             addDivider();
-            p.timeMenu = addSubMenu("Time");
+            p.menus["Time"] = addSubMenu("Time");
             const auto timeLabels = timeline::getCompareTimeModeLabels();
             for (const auto& label : timeLabels)
             {
-                p.timeMenu->addItem(p.actions[label]);
+                p.menus["Time"]->addItem(p.actions[label]);
             }
 
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
@@ -105,7 +104,10 @@ namespace tl
         {
             Menu::close();
             TLRENDER_P();
-            p.bMenu->close();
+            for (const auto& menu : p.menus)
+            {
+                menu.second->close();
+            }
         }
 
         void CompareMenu::_filesUpdate(
@@ -116,7 +118,7 @@ namespace tl
             setItemEnabled(p.actions["Next"], value.size() > 1);
             setItemEnabled(p.actions["Prev"], value.size() > 1);
 
-            p.bMenu->clear();
+            p.menus["B"]->clear();
             p.bActions.clear();
             if (auto app = p.app.lock())
             {
@@ -135,7 +137,7 @@ namespace tl
                         });
                     const auto j = std::find(bIndexes.begin(), bIndexes.end(), i);
                     action->checked = j != bIndexes.end();
-                    p.bMenu->addItem(action);
+                    p.menus["B"]->addItem(action);
                     p.bActions.push_back(action);
                 }
             }
@@ -147,7 +149,7 @@ namespace tl
             for (int i = 0; i < p.bActions.size(); ++i)
             {
                 const auto j = std::find(value.begin(), value.end(), i);
-                p.bMenu->setItemChecked(
+                p.menus["B"]->setItemChecked(
                     p.bActions[i],
                     j != value.end());
             }
@@ -171,7 +173,7 @@ namespace tl
             const auto labels = timeline::getCompareTimeModeLabels();
             for (size_t i = 0; i < enums.size(); ++i)
             {
-                p.timeMenu->setItemChecked(p.actions[labels[i]], enums[i] == value);
+                p.menus["Time"]->setItemChecked(p.actions[labels[i]], enums[i] == value);
             }
         }
     }
