@@ -33,7 +33,7 @@ namespace tl
                 const std::string& target_url = std::string(),
                 const uint8_t* memory = nullptr,
                 size_t memory_size = 0,
-                const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
+                const std::optional<otio::TimeRange>& available_range = std::nullopt,
                 const otio::AnyDictionary& metadata = otio::AnyDictionary());
 
             const std::string& target_url() const noexcept;
@@ -67,7 +67,7 @@ namespace tl
             SharedMemoryReference(
                 const std::string& target_url = std::string(),
                 const std::shared_ptr<MemoryReferenceData>& memory = nullptr,
-                const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
+                const std::optional<otio::TimeRange>& available_range = std::nullopt,
                 const otio::AnyDictionary& metadata = otio::AnyDictionary());
 
             const std::string& target_url() const noexcept;
@@ -99,7 +99,7 @@ namespace tl
                 const std::string& target_url = std::string(),
                 const std::vector<const uint8_t*>& memory = {},
                 const std::vector<size_t> memory_sizes = {},
-                const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
+                const std::optional<otio::TimeRange>& available_range = std::nullopt,
                 const otio::AnyDictionary& metadata = otio::AnyDictionary());
 
             const std::string& target_url() const noexcept;
@@ -135,7 +135,7 @@ namespace tl
             SharedMemorySequenceReference(
                 const std::string& target_url = std::string(),
                 const std::vector<std::shared_ptr<MemoryReferenceData> >& memory = {},
-                const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
+                const std::optional<otio::TimeRange>& available_range = std::nullopt,
                 const otio::AnyDictionary& metadata = otio::AnyDictionary());
 
             const std::string& target_url() const noexcept;
@@ -169,7 +169,7 @@ namespace tl
                 const std::string& target_url = std::string(),
                 const uint8_t* memory = nullptr,
                 size_t memory_size = 0,
-                const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
+                const std::optional<otio::TimeRange>& available_range = std::nullopt,
                 const otio::AnyDictionary& metadata = otio::AnyDictionary());
 
             const std::shared_ptr<file::FileIO>& file_io() const noexcept;
@@ -197,7 +197,7 @@ namespace tl
                 const std::string& target_url = std::string(),
                 const std::vector<const uint8_t*>& memory = {},
                 const std::vector<size_t> memory_sizes = {},
-                const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
+                const std::optional<otio::TimeRange>& available_range = std::nullopt,
                 const otio::AnyDictionary& metadata = otio::AnyDictionary());
 
             const std::shared_ptr<file::FileIO>& file_io() const noexcept;

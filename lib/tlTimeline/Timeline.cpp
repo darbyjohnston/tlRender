@@ -91,16 +91,16 @@ namespace tl
             {
                 try
                 {
-                    const auto dict = otio::any_cast<otio::AnyDictionary>(i->second);
+                    const auto dict = std::any_cast<otio::AnyDictionary>(i->second);
                     auto j = dict.find("path");
                     if (j != dict.end())
                     {
-                        p.path = file::Path(otio::any_cast<std::string>(j->second));
+                        p.path = file::Path(std::any_cast<std::string>(j->second));
                     }
                     j = dict.find("audioPath");
                     if (j != dict.end())
                     {
-                        p.audioPath = file::Path(otio::any_cast<std::string>(j->second));
+                        p.audioPath = file::Path(std::any_cast<std::string>(j->second));
                     }
                 }
                 catch (const std::exception&)

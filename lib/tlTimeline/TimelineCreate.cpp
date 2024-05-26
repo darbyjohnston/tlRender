@@ -225,7 +225,7 @@ namespace tl
                         otio::Timeline::from_json_string(buf.data(), errorStatus));
 
                     auto fileIO = file::FileIO::create(fileName, file::Mode::Read);
-                    for (auto clip : out->children_if<otio::Clip>())
+                    for (auto clip : out->find_children<otio::Clip>())
                     {
                         if (auto externalReference =
                             dynamic_cast<otio::ExternalReference*>(clip->media_reference()))
@@ -446,7 +446,7 @@ namespace tl
                                 path.get(-1, path.isFileProtocol() ? file::PathType::FileName : file::PathType::Full),
                                 info.videoTime));
                         }
-                        videoTrack = new otio::Track("Video", otio::nullopt, otio::Track::Kind::video);
+                        videoTrack = new otio::Track("Video", std::nullopt, otio::Track::Kind::video);
                         videoTrack->append_child(videoClip, &errorStatus);
                         if (otio::is_error(errorStatus))
                         {
@@ -467,7 +467,7 @@ namespace tl
                                 audioPath.get(-1, path.isFileProtocol() ? file::PathType::FileName : file::PathType::Full),
                                 audioInfo.audioTime));
 
-                            audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
+                            audioTrack = new otio::Track("Audio", std::nullopt, otio::Track::Kind::audio);
                             audioTrack->append_child(audioClip, &errorStatus);
                             if (otio::is_error(errorStatus))
                             {
@@ -488,7 +488,7 @@ namespace tl
                             path.get(-1, path.isFileProtocol() ? file::PathType::FileName : file::PathType::Full),
                             info.audioTime));
 
-                        audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
+                        audioTrack = new otio::Track("Audio", std::nullopt, otio::Track::Kind::audio);
                         audioTrack->append_child(audioClip, &errorStatus);
                         if (otio::is_error(errorStatus))
                         {

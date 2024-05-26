@@ -55,7 +55,7 @@ namespace tl
         const T* getParent(const otio::Item*);
 
         //! Get the duration of all tracks of the same kind.
-        otio::optional<otime::RationalTime> getDuration(
+        std::optional<otime::RationalTime> getDuration(
             const otio::Timeline*,
             const std::string& kind);
 

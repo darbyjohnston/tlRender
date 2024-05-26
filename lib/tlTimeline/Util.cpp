@@ -213,13 +213,13 @@ namespace tl
             return out;
         }
 
-        otio::optional<otime::RationalTime> getDuration(
+        std::optional<otime::RationalTime> getDuration(
             const otio::Timeline* otioTimeline,
             const std::string& kind)
         {
-            otio::optional<otime::RationalTime> out;
+            std::optional<otime::RationalTime> out;
             otio::ErrorStatus errorStatus;
-            for (auto track : otioTimeline->children_if<otio::Track>(&errorStatus))
+            for (auto track : otioTimeline->find_children<otio::Track>(&errorStatus))
             {
                 if (kind == track->kind())
                 {
@@ -425,7 +425,7 @@ namespace tl
             const file::PathOptions& pathOptions)
         {
             // Recursively iterate over all clips in the timeline.
-            for (auto clip : otioTimeline->children_if<otio::Clip>())
+            for (auto clip : otioTimeline->find_children<otio::Clip>())
             {
                 if (auto ref = dynamic_cast<otio::ExternalReference*>(clip->media_reference()))
                 {
@@ -612,7 +612,7 @@ namespace tl
                 {
                     directoryTmp += '/';
                 }
-                for (const auto& clip : timelineCopy->clip_if())
+                for (const auto& clip : timelineCopy->find_clips())
                 {
                     if (auto ref = dynamic_cast<otio::ExternalReference*>(clip->media_reference()))
                     {
