@@ -45,8 +45,8 @@ namespace tl
         //! Get the output pixel type.
         PixelType getOutputType(PixelType);
 
-        //! Get the offscreen buffer type.
-        image::PixelType getOffscreenType(PixelType);
+        //! Get the color buffer type.
+        image::PixelType getColorBuffer(PixelType);
 
         //! Get the pack pixels buffer size.
         size_t getPackPixelsSize(const math::Size2i&, PixelType);

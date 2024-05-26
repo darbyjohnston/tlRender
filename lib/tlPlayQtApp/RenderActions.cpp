@@ -19,7 +19,7 @@ namespace tl
         struct RenderActions::Private
         {
             App* app = nullptr;
-            std::vector<image::PixelType> offscreenColorTypes;
+            std::vector<image::PixelType> colorBuffers;
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
             QScopedPointer<QMenu> menu;
@@ -71,20 +71,20 @@ namespace tl
             p.actionGroups["AlphaBlend"]->addAction(p.actions["AlphaBlend/Straight"]);
             p.actionGroups["AlphaBlend"]->addAction(p.actions["AlphaBlend/Premultiplied"]);
 
-            p.offscreenColorTypes.push_back(image::PixelType::RGBA_U8);
-            p.offscreenColorTypes.push_back(image::PixelType::RGBA_F16);
-            p.offscreenColorTypes.push_back(image::PixelType::RGBA_F32);
-            p.actionGroups["OffscreenColorType"] = new QActionGroup(this);
-            for (auto type : p.offscreenColorTypes)
+            p.colorBuffers.push_back(image::PixelType::RGBA_U8);
+            p.colorBuffers.push_back(image::PixelType::RGBA_F16);
+            p.colorBuffers.push_back(image::PixelType::RGBA_F32);
+            p.actionGroups["ColorBuffer"] = new QActionGroup(this);
+            for (auto type : p.colorBuffers)
             {
                 std::stringstream ss;
                 ss << type;
-                const QString name = QString::fromUtf8("OffscreenColorType/" + ss.str());
+                const QString name = QString::fromUtf8("ColorBuffer/" + ss.str());
                 p.actions[name] = new QAction(this);
                 p.actions[name]->setData(QVariant::fromValue<image::PixelType>(type));
                 p.actions[name]->setCheckable(true);
                 p.actions[name]->setText(QString::fromUtf8(ss.str()));
-                p.actionGroups["OffscreenColorType"]->addAction(p.actions[name]);
+                p.actionGroups["ColorBuffer"]->addAction(p.actions[name]);
             }
 
             p.menu.reset(new QMenu);
@@ -97,10 +97,10 @@ namespace tl
             alphaBlendMenu->addAction(p.actions["AlphaBlend/None"]);
             alphaBlendMenu->addAction(p.actions["AlphaBlend/Straight"]);
             alphaBlendMenu->addAction(p.actions["AlphaBlend/Premultiplied"]);
-            auto offscreenColorTypeMenu = p.menu->addMenu(tr("Offscreen Color Type"));
-            for (auto action : p.actionGroups["OffscreenColorType"]->actions())
+            auto colorBufferMenu = p.menu->addMenu(tr("Color Buffer"));
+            for (auto action : p.actionGroups["ColorBuffer"]->actions())
             {
-                offscreenColorTypeMenu->addAction(action);
+                colorBufferMenu->addAction(action);
             }
 
             _actionsUpdate();
@@ -126,11 +126,11 @@ namespace tl
                 });
 
             connect(
-                _p->actionGroups["OffscreenColorType"],
+                _p->actionGroups["ColorBuffer"],
                 &QActionGroup::triggered,
                 [app](QAction* action)
                 {
-                    app->renderModel()->setOffscreenColorType(
+                    app->renderModel()->setColorBuffer(
                         action->data().value<image::PixelType>());
                 });
 
@@ -183,11 +183,11 @@ namespace tl
                 }
             }
             {
-                const image::PixelType offscreenColorType = renderModel->getOffscreenColorType();
-                QSignalBlocker blocker(p.actionGroups["OffscreenColorType"]);
-                for (auto action : p.actionGroups["OffscreenColorType"]->actions())
+                const image::PixelType colorBuffer = renderModel->getColorBuffer();
+                QSignalBlocker blocker(p.actionGroups["ColorBuffer"]);
+                for (auto action : p.actionGroups["ColorBuffer"]->actions())
                 {
-                    if (action->data().value<image::PixelType>() == offscreenColorType)
+                    if (action->data().value<image::PixelType>() == colorBuffer)
                     {
                         action->setChecked(true);
                         break;

@@ -27,7 +27,7 @@ namespace tl
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::BackgroundOptions backgroundOptions;
-            image::PixelType offscreenColorType = image::PixelType::RGBA_U8;
+            image::PixelType colorBuffer = image::PixelType::RGBA_U8;
             std::shared_ptr<timeline::Player> player;
             std::vector<timeline::VideoData> videoData;
             math::Vector2i viewPos;
@@ -169,17 +169,17 @@ namespace tl
             _updates |= ui::Update::Draw;
         }
 
-        image::PixelType TimelineViewport::getOffscreenColorType() const
+        image::PixelType TimelineViewport::getColorBuffer() const
         {
-            return _p->offscreenColorType;
+            return _p->colorBuffer;
         }
 
-        void TimelineViewport::setOffscreenColorType(image::PixelType value)
+        void TimelineViewport::setColorBuffer(image::PixelType value)
         {
             TLRENDER_P();
-            if (value == p.offscreenColorType)
+            if (value == p.colorBuffer)
                 return;
-            p.offscreenColorType = value;
+            p.colorBuffer = value;
             p.doRender = true;
             _updates |= ui::Update::Draw;
         }
@@ -392,7 +392,7 @@ namespace tl
 
                 const math::Size2i size = g.getSize();
                 gl::OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.colorType = p.offscreenColorType;
+                offscreenBufferOptions.colorType = p.colorBuffer;
                 if (!p.displayOptions.empty())
                 {
                     offscreenBufferOptions.colorFilters = p.displayOptions[0].imageFilters;

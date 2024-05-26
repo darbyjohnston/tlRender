@@ -54,11 +54,11 @@ namespace tl
             //! Set the background options.
             void setBackgroundOptions(const timeline::BackgroundOptions&);
 
-            //! Get the offscreen color buffer type.
-            image::PixelType getOffscreenColorType() const;
+            //! Get the color buffer type.
+            image::PixelType getColorBuffer() const;
 
-            //! Set the offscreen color buffer type.
-            void setOffscreenColorType(image::PixelType);
+            //! Set the color buffer type.
+            void setColorBuffer(image::PixelType);
 
             //! Set the timeline player.
             void setPlayer(const std::shared_ptr<timeline::Player>&);

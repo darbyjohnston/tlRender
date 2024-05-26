@@ -35,8 +35,8 @@ namespace tl
 
             virtual ~TimelineViewport();
 
-            //! Get the offscreen color buffer type.
-            image::PixelType offscreenColorType() const;
+            //! Get the color buffer type.
+            image::PixelType colorBuffer() const;
 
             //! Get the view position.
             const math::Vector2i& viewPos() const;
@@ -72,8 +72,8 @@ namespace tl
             //! Set the background options.
             void setBackgroundOptions(const timeline::BackgroundOptions&);
 
-            //! Set the offscreen color buffer type.
-            void setOffscreenColorType(image::PixelType);
+            //! Set the color buffer type.
+            void setColorBuffer(image::PixelType);
 
             //! Set the timeline player.
             void setPlayer(const QSharedPointer<qt::TimelinePlayer>&);

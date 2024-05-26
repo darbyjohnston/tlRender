@@ -14,7 +14,7 @@ namespace tl
         {
             std::weak_ptr<system::Context> context;
             std::shared_ptr<Settings> settings;
-            std::shared_ptr<observer::Value<image::PixelType> > offscreenColorType;
+            std::shared_ptr<observer::Value<image::PixelType> > colorBuffer;
             std::shared_ptr<observer::Value<timeline::ImageOptions> > imageOptions;
         };
 
@@ -27,9 +27,9 @@ namespace tl
             p.context = context;
             p.settings = settings;
 
-            p.settings->setDefaultValue("Render/OffscreenColorType", image::PixelType::RGBA_U8);
-            p.offscreenColorType = observer::Value<image::PixelType>::create(
-                p.settings->getValue<image::PixelType>("Render/OffscreenColorType"));
+            p.settings->setDefaultValue("Render/ColorBuffer", image::PixelType::RGBA_U8);
+            p.colorBuffer = observer::Value<image::PixelType>::create(
+                p.settings->getValue<image::PixelType>("Render/ColorBuffer"));
             p.imageOptions = observer::Value<timeline::ImageOptions>::create();
         }
 
@@ -64,20 +64,20 @@ namespace tl
             _p->imageOptions->setIfChanged(value);
         }
 
-        image::PixelType RenderModel::getOffscreenColorType() const
+        image::PixelType RenderModel::getColorBuffer() const
         {
-            return _p->offscreenColorType->get();
+            return _p->colorBuffer->get();
         }
 
-        std::shared_ptr<observer::IValue<image::PixelType> > RenderModel::observeOffscreenColorType() const
+        std::shared_ptr<observer::IValue<image::PixelType> > RenderModel::observeColorBuffer() const
         {
-            return _p->offscreenColorType;
+            return _p->colorBuffer;
         }
 
-        void RenderModel::setOffscreenColorType(image::PixelType value)
+        void RenderModel::setColorBuffer(image::PixelType value)
         {
-            _p->settings->setValue("Render/OffscreenColorType", value);
-            _p->offscreenColorType->setIfChanged(value);
+            _p->settings->setValue("Render/ColorBuffer", value);
+            _p->colorBuffer->setIfChanged(value);
         }
     }
 }

@@ -123,7 +123,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<image::PixelType> > offscreenColorTypeObserver;
+            std::shared_ptr<observer::ValueObserver<image::PixelType> > colorBufferObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
@@ -485,8 +485,8 @@ namespace tl
                 {
                     _widgetUpdate();
                 });
-            p.offscreenColorTypeObserver = observer::ValueObserver<image::PixelType>::create(
-                app->renderModel()->observeOffscreenColorType(),
+            p.colorBufferObserver = observer::ValueObserver<image::PixelType>::create(
+                app->renderModel()->observeColorBuffer(),
                 [this](image::PixelType)
                 {
                     _widgetUpdate();
@@ -897,8 +897,8 @@ namespace tl
                 p.app->viewportModel()->getBackgroundOptions());
             p.timelineViewport->setImageOptions(
                 { p.app->renderModel()->getImageOptions() });
-            p.timelineViewport->setOffscreenColorType(
-                p.app->renderModel()->getOffscreenColorType());
+            p.timelineViewport->setColorBuffer(
+                p.app->renderModel()->getColorBuffer());
 
             p.timelineWidget->setPlayer(p.player ? p.player->player() : nullptr);
 

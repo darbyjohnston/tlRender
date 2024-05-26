@@ -163,7 +163,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<image::PixelType> > offscreenColorTypeObserver;
+            std::shared_ptr<observer::ValueObserver<image::PixelType> > colorBufferObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
         };
@@ -592,12 +592,12 @@ namespace tl
                     _p->timelineViewport->setLUTOptions(value);
                 });
 
-            p.offscreenColorTypeObserver = observer::ValueObserver<image::PixelType>::create(
-                app->getRenderModel()->observeOffscreenColorType(),
+            p.colorBufferObserver = observer::ValueObserver<image::PixelType>::create(
+                app->getRenderModel()->observeColorBuffer(),
                 [this](image::PixelType value)
                 {
-                    setOffscreenColorType(value);
-                    _p->timelineViewport->setOffscreenColorType(value);
+                    setColorBuffer(value);
+                    _p->timelineViewport->setColorBuffer(value);
                 });
 
             p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(

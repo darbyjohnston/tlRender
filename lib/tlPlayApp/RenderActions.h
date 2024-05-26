@@ -31,7 +31,7 @@ namespace tl
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&);
 
-            const std::vector<image::PixelType>& getOffscreenColorTypes() const;
+            const std::vector<image::PixelType>& getColorBuffers() const;
 
             const std::map<std::string, std::shared_ptr<ui::Action> >& getActions() const;
 

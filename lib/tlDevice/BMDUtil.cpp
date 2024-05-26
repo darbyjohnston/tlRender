@@ -273,7 +273,7 @@ namespace tl
             return out;
         }
 
-        image::PixelType getOffscreenType(PixelType value)
+        image::PixelType getColorBuffer(PixelType value)
         {
             const std::array<image::PixelType, static_cast<size_t>(PixelType::Count)> data =
             {

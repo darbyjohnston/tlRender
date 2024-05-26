@@ -19,7 +19,7 @@ namespace tl
             std::map<std::string, std::shared_ptr<Menu> > menus;
 
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<image::PixelType> > offscreenColorTypeObserver;
+            std::shared_ptr<observer::ValueObserver<image::PixelType> > colorBufferObserver;
         };
 
         void RenderMenu::_init(
@@ -43,14 +43,14 @@ namespace tl
             p.menus["AlphaBlend"]->addItem(p.actions["AlphaBlendStraight"]);
             p.menus["AlphaBlend"]->addItem(p.actions["AlphaBlendPremultiplied"]);
 
-            p.menus["OffscreenColorType"] = addSubMenu("Offscreen Color Type");
-            std::vector<image::PixelType> offscreenColorTypes =
-                actions->getOffscreenColorTypes();
-            for (auto type : offscreenColorTypes)
+            p.menus["ColorBuffer"] = addSubMenu("Color Buffer");
+            std::vector<image::PixelType> colorBuffers =
+                actions->getColorBuffers();
+            for (auto type : colorBuffers)
             {
                 std::stringstream ss;
                 ss << type;
-                p.menus["OffscreenColorType"]->addItem(p.actions[ss.str()]);
+                p.menus["ColorBuffer"]->addItem(p.actions[ss.str()]);
             }
 
             p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
@@ -78,15 +78,15 @@ namespace tl
                         timeline::AlphaBlend::Premultiplied == value.alphaBlend);
                 });
 
-            p.offscreenColorTypeObserver = observer::ValueObserver<image::PixelType>::create(
-                app->getRenderModel()->observeOffscreenColorType(),
-                [this, offscreenColorTypes](image::PixelType value)
+            p.colorBufferObserver = observer::ValueObserver<image::PixelType>::create(
+                app->getRenderModel()->observeColorBuffer(),
+                [this, colorBuffers](image::PixelType value)
                 {
-                    for (auto type : offscreenColorTypes)
+                    for (auto type : colorBuffers)
                     {
                         std::stringstream ss;
                         ss << type;
-                        _p->menus["OffscreenColorType"]->setItemChecked(
+                        _p->menus["ColorBuffer"]->setItemChecked(
                             _p->actions[ss.str()],
                             type == value);
                     }

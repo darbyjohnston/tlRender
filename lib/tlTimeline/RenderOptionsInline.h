@@ -11,7 +11,7 @@ namespace tl
             return
                 clear == other.clear &&
                 clearColor == other.clearColor &&
-                offscreenColorType == other.offscreenColorType &&
+                colorBuffer == other.colorBuffer &&
                 textureCacheByteCount == other.textureCacheByteCount;
         }
 

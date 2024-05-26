@@ -920,7 +920,7 @@ namespace tl
                 compareOptions.mode,
                 p.thread.videoData);
             gl::OffscreenBufferOptions offscreenBufferOptions;
-            offscreenBufferOptions.colorType = getOffscreenType(p.thread.outputPixelType);
+            offscreenBufferOptions.colorType = getColorBuffer(p.thread.outputPixelType);
             if (!displayOptions.empty())
             {
                 offscreenBufferOptions.colorFilters = displayOptions[0].imageFilters;
@@ -938,7 +938,7 @@ namespace tl
                 gl::OffscreenBufferBinding binding(p.thread.offscreenBuffer);
 
                 timeline::RenderOptions renderOptions;
-                renderOptions.offscreenColorType = getOffscreenType(p.thread.outputPixelType);
+                renderOptions.colorBuffer = getColorBuffer(p.thread.outputPixelType);
                 p.thread.render->begin(p.thread.size, renderOptions);
                 p.thread.render->setOCIOOptions(ocioOptions);
                 p.thread.render->setLUTOptions(lutOptions);

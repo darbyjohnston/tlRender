@@ -28,7 +28,7 @@ namespace tl
 
             virtual ~RenderActions();
 
-            const std::vector<image::PixelType>& getOffscreenColorTypes() const;
+            const std::vector<image::PixelType>& getColorBuffers() const;
 
             const QMap<QString, QAction*>& actions() const;
 

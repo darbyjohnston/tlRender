@@ -15,7 +15,7 @@ namespace tl
     {
         struct RenderActions::Private
         {
-            std::vector<image::PixelType> offscreenColorTypes;
+            std::vector<image::PixelType> colorBuffers;
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
         };
 
@@ -98,10 +98,10 @@ namespace tl
                     }
                 });
 
-            p.offscreenColorTypes.push_back(image::PixelType::RGBA_U8);
-            p.offscreenColorTypes.push_back(image::PixelType::RGBA_F16);
-            p.offscreenColorTypes.push_back(image::PixelType::RGBA_F32);
-            for (auto type : p.offscreenColorTypes)
+            p.colorBuffers.push_back(image::PixelType::RGBA_U8);
+            p.colorBuffers.push_back(image::PixelType::RGBA_F16);
+            p.colorBuffers.push_back(image::PixelType::RGBA_F32);
+            for (auto type : p.colorBuffers)
             {
                 std::stringstream ss;
                 ss << type;
@@ -111,7 +111,7 @@ namespace tl
                     {
                         if (auto app = appWeak.lock())
                         {
-                            app->getRenderModel()->setOffscreenColorType(type);
+                            app->getRenderModel()->setColorBuffer(type);
                         }
                     });
             }
@@ -133,9 +133,9 @@ namespace tl
             return out;
         }
 
-        const std::vector<image::PixelType>& RenderActions::getOffscreenColorTypes() const
+        const std::vector<image::PixelType>& RenderActions::getColorBuffers() const
         {
-            return _p->offscreenColorTypes;
+            return _p->colorBuffers;
         }
 
         const std::map<std::string, std::shared_ptr<ui::Action> >& RenderActions::getActions() const

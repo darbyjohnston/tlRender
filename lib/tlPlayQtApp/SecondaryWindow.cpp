@@ -33,7 +33,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<image::PixelType> > offscreenColorTypeObserver;
+            std::shared_ptr<observer::ValueObserver<image::PixelType> > colorBufferObserver;
         };
 
         SecondaryWindow::SecondaryWindow(
@@ -114,11 +114,11 @@ namespace tl
                     _p->viewport->setImageOptions({ value });
                 });
 
-            p.offscreenColorTypeObserver = observer::ValueObserver<image::PixelType>::create(
-                app->renderModel()->observeOffscreenColorType(),
+            p.colorBufferObserver = observer::ValueObserver<image::PixelType>::create(
+                app->renderModel()->observeColorBuffer(),
                 [this](image::PixelType value)
                 {
-                    _p->viewport->setOffscreenColorType(value);
+                    _p->viewport->setColorBuffer(value);
                 });
         }
 
