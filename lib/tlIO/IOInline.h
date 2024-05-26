@@ -36,7 +36,7 @@ namespace tl
         inline bool VideoData::operator == (const VideoData& other) const
         {
             return
-                time::compareExact(time, other.time) &&
+                time.strictly_equal(other.time) &&
                 layer == other.layer &&
                 image == other.image;
         }
@@ -64,7 +64,7 @@ namespace tl
         inline bool AudioData::operator == (const AudioData& other) const
         {
             return
-                time::compareExact(time, other.time) &&
+                time.strictly_equal(other.time) &&
                 audio == other.audio;
         }
 

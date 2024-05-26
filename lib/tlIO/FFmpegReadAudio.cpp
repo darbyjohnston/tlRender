@@ -197,11 +197,11 @@ namespace tl
                         &errorStatus);
                     if (!otime::is_error(errorStatus))
                     {
-                        startTime = time::floor(time.rescaled_to(sampleRate));
+                        startTime = time.rescaled_to(sampleRate).floor();
                         //std::cout << fileName << " start time: " << startTime << std::endl;
                     }
                 }
-                else if (!time::compareExact(timeReference, time::invalidTime))
+                else if (!timeReference.is_invalid_time())
                 {
                     startTime = timeReference;
                 }

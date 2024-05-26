@@ -203,11 +203,12 @@ namespace tl
             {
                 const double normalized = (value - _geometry.min.x) /
                     static_cast<double>(_timeRange.duration().rescaled_to(1.0).value() * _scale);
-                out = time::round(
+                out = otime::RationalTime(
                     _timeRange.start_time() +
                     otime::RationalTime(
                         _timeRange.duration().value() * normalized,
-                        _timeRange.duration().rate()));
+                        _timeRange.duration().rate())).
+                    round();
                 out = math::clamp(
                     out,
                     _timeRange.start_time(),

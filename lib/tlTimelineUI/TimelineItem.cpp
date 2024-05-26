@@ -994,7 +994,7 @@ namespace tl
 
             const math::Box2i& g = _geometry;
 
-            if (!time::compareExact(p.currentTime, time::invalidTime))
+            if (!p.currentTime.is_invalid_time())
             {
                 const math::Vector2i pos(
                     timeToPos(p.currentTime),

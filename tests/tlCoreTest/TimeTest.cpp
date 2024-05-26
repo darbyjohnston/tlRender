@@ -60,13 +60,6 @@ namespace tl
                     otime::RationalTime(24.0, 24.0))));
             }
             {
-                const otime::RationalTime a(24.0, 24.0);
-                TLRENDER_ASSERT(compareExact(a, a));
-                const otime::RationalTime b(1.0, 1.0);
-                TLRENDER_ASSERT(a == b);
-                TLRENDER_ASSERT(!compareExact(a, b));
-            }
-            {
                 const otime::TimeRange a(
                     otime::RationalTime(24.0, 24.0),
                     otime::RationalTime(24.0, 24.0));
@@ -76,14 +69,6 @@ namespace tl
                     otime::RationalTime(1.0, 1.0));
                 TLRENDER_ASSERT(a == b);
                 TLRENDER_ASSERT(!compareExact(a, b));
-            }
-            {
-                TLRENDER_ASSERT(round(otime::RationalTime(0.5, 1.0)) ==
-                    otime::RationalTime(1.0, 1.0));
-                TLRENDER_ASSERT(floor(otime::RationalTime(0.5, 1.0)) ==
-                    otime::RationalTime(0.0, 1.0));
-                TLRENDER_ASSERT(ceil(otime::RationalTime(0.5, 1.0)) ==
-                    otime::RationalTime(1.0, 1.0));
             }
         }
         

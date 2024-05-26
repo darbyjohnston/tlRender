@@ -26,7 +26,7 @@ namespace tl
         {
             return
                 size == other.size &&
-                time::compareExact(time, other.time) &&
+                time.strictly_equal(other.time) &&
                 layers == other.layers;
         }
 
@@ -37,7 +37,7 @@ namespace tl
 
         inline bool isTimeEqual(const VideoData& a, const VideoData& b)
         {
-            return time::compareExact(a.time, b.time);
+            return a.time.strictly_equal(b.time);
         }
     }
 }

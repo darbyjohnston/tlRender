@@ -545,7 +545,9 @@ namespace tl
 
             // Loop the time.
             const auto& timeRange = p.timeline->getTimeRange();
-            const auto tmp = loop(time::floor(time.rescaled_to(timeRange.duration())), timeRange);
+            const auto tmp = loop(
+                time.rescaled_to(timeRange.duration()).floor(),
+                timeRange);
 
             if (p.currentTime->setIfChanged(tmp))
             {
@@ -963,7 +965,9 @@ namespace tl
                 }
                 const otime::RationalTime currentTime = p.loopPlayback(
                     playbackStartTime +
-                    time::floor(otime::RationalTime(seconds, 1.0).rescaled_to(timeRange.duration().rate())));
+                    otime::RationalTime(seconds, 1.0).
+                        rescaled_to(timeRange.duration().rate()).
+                        floor());
                 //const double currentTimeDiff = abs(currentTime.value() - p.currentTime->get().value());
                 if (p.currentTime->setIfChanged(currentTime))
                 {

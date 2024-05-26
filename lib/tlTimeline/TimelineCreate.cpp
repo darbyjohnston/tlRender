@@ -477,7 +477,7 @@ namespace tl
                     }
                     else if (info.audio.isValid())
                     {
-                        if (time::compareExact(startTime, time::invalidTime))
+                        if (startTime.is_invalid_time())
                         {
                             startTime = info.audioTime.start_time();
                         }

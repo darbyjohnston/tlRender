@@ -277,11 +277,12 @@ namespace tl
                         _displayOptions.thumbnailHeight);
                     if (box.intersects(clipRect))
                     {
-                        const otime::RationalTime time = time::floor(otime::RationalTime(
+                        const otime::RationalTime time = otime::RationalTime(
                             _timeRange.start_time().value() +
                             (w > 0 ? (x / static_cast<double>(w - 1)) : 0) *
                             _timeRange.duration().value(),
-                            _timeRange.duration().rate()));
+                            _timeRange.duration().rate()).
+                            floor();
                         const otime::RationalTime mediaTime = timeline::toVideoMediaTime(
                             time,
                             _timeRange,

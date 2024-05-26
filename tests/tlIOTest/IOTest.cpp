@@ -45,7 +45,7 @@ namespace tl
                 const uint16_t layer = 1;
                 const auto image = image::Image::create(160, 80, image::PixelType::L_U8);
                 const VideoData v(time, layer, image);
-                TLRENDER_ASSERT(time::compareExact(time, v.time));
+                TLRENDER_ASSERT(time.strictly_equal(v.time));
                 TLRENDER_ASSERT(layer == v.layer);
                 TLRENDER_ASSERT(image == v.image);
             }

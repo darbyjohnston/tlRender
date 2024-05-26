@@ -99,7 +99,7 @@ namespace tl
         void TimeLabel::setValue(const otime::RationalTime& value)
         {
             TLRENDER_P();
-            if (time::compareExact(value, p.value))
+            if (value.strictly_equal(p.value))
                 return;
             p.value = value;
             _textUpdate();

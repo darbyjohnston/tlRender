@@ -340,7 +340,7 @@ namespace tl
                         &errorStatus);
                     if (!otime::is_error(errorStatus))
                     {
-                        startTime = time::floor(time);
+                        startTime = time.floor();
                     }
                 }
                 _timeRange = otime::TimeRange(

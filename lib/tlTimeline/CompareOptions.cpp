@@ -198,14 +198,16 @@ namespace tl
             {
                 const otime::RationalTime relativeTime =
                     sourceTime - sourceTimeRange.start_time();
-                const otime::RationalTime relativeTimeRescaled = time::floor(
-                    relativeTime.rescaled_to(compareTimeRange.duration().rate()));
+                const otime::RationalTime relativeTimeRescaled = relativeTime.
+                    rescaled_to(compareTimeRange.duration().rate()).
+                    floor();
                 out = compareTimeRange.start_time() + relativeTimeRescaled;
                 break;
             }
             case CompareTimeMode::Absolute:
-                out = time::floor(sourceTime.rescaled_to(
-                    compareTimeRange.duration().rate()));
+                out = sourceTime.
+                    rescaled_to(compareTimeRange.duration().rate()).
+                    floor();
                 break;
             default: break;
             }

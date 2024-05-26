@@ -143,13 +143,15 @@ namespace tl
             const otime::RationalTime readAheadDivided(
                 thread.cacheOptions.readAhead.value() / static_cast<double>(1 + thread.compare.size()),
                 thread.cacheOptions.readAhead.rate());
-            const otime::RationalTime readAheadRescaled = time::floor(
-                readAheadDivided.rescaled_to(timeRange.duration().rate()));
+            const otime::RationalTime readAheadRescaled = readAheadDivided.
+                rescaled_to(timeRange.duration().rate()).
+                floor();
             const otime::RationalTime readBehindDivided(
                 thread.cacheOptions.readBehind.value() / static_cast<double>(1 + thread.compare.size()),
                 thread.cacheOptions.readBehind.rate());
-            const otime::RationalTime readBehindRescaled = time::floor(
-                readBehindDivided.rescaled_to(timeRange.duration().rate()));
+            const otime::RationalTime readBehindRescaled = readBehindDivided.
+                rescaled_to(timeRange.duration().rate()).
+                floor();
             otime::TimeRange videoRange = time::invalidTimeRange;
             switch (thread.cacheDirection)
             {
@@ -185,10 +187,16 @@ namespace tl
             const otime::RationalTime audioOffsetTime = otime::RationalTime(thread.audioOffset, 1.0).
                 rescaled_to(timeRange.duration().rate());
             //std::cout << "audio offset: " << audioOffsetTime << std::endl;
-            const otime::RationalTime audioOffsetAhead = time::round(
-                audioOffsetTime.value() < 0.0 ? -audioOffsetTime : otime::RationalTime(0.0, timeRange.duration().rate()));
-            const otime::RationalTime audioOffsetBehind = time::round(
-                audioOffsetTime.value() > 0.0 ? audioOffsetTime : otime::RationalTime(0.0, timeRange.duration().rate()));
+            const otime::RationalTime audioOffsetAhead = otime::RationalTime(
+                audioOffsetTime.value() < 0.0 ?
+                    -audioOffsetTime :
+                    otime::RationalTime(0.0, timeRange.duration().rate())).
+                round();
+            const otime::RationalTime audioOffsetBehind = otime::RationalTime(
+                audioOffsetTime.value() > 0.0 ?
+                    audioOffsetTime :
+                    otime::RationalTime(0.0, timeRange.duration().rate())).
+                round();
             //std::cout << "audio offset ahead: " << audioOffsetAhead << std::endl;
             //std::cout << "audio offset behind: " << audioOffsetBehind << std::endl;
             otime::TimeRange audioRange = time::invalidTimeRange;
@@ -497,8 +505,8 @@ namespace tl
                 for (auto& i : cachedAudioRanges)
                 {
                     i = otime::TimeRange(
-                        time::floor(i.start_time().rescaled_to(timeRange.duration().rate())),
-                        time::ceil(i.duration().rescaled_to(timeRange.duration().rate())));
+                        i.start_time().rescaled_to(timeRange.duration().rate()).floor(),
+                        i.duration().rescaled_to(timeRange.duration().rate()).ceil());
                 }
                 float cachedAudioPercentage = 0.F;
                 {

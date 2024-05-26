@@ -546,7 +546,7 @@ namespace tl
         {
             otime::RationalTime out =
                 time - trimmedRangeInParent.start_time() + trimmedRange.start_time();
-            out = time::round(out.rescaled_to(rate));
+            out = out.rescaled_to(rate).round();
             return out;
         }
 
@@ -560,8 +560,8 @@ namespace tl
                 timeRange.start_time() - trimmedRangeInParent.start_time() + trimmedRange.start_time(),
                 timeRange.duration());
             out = otime::TimeRange(
-                time::round(out.start_time().rescaled_to(sampleRate)),
-                time::round(out.duration().rescaled_to(sampleRate)));
+                out.start_time().rescaled_to(sampleRate).round(),
+                out.duration().rescaled_to(sampleRate).round());
             return out;
         }
 
