@@ -13,6 +13,7 @@
 #include <tlQtWidget/SearchWidget.h>
 
 #include <tlPlay/ColorModel.h>
+#include <tlPlay/ViewportModel.h>
 
 #include <tlCore/Path.h>
 
@@ -431,9 +432,9 @@ namespace tl
                 &QCheckBox::toggled,
                 [app](bool value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.color.enabled = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             connect(
@@ -441,12 +442,12 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [app](float value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.color.enabled = true;
                     options.color.add.x = value;
                     options.color.add.y = value;
                     options.color.add.z = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             connect(
@@ -454,12 +455,12 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [app](float value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.color.enabled = true;
                     options.color.brightness.x = value;
                     options.color.brightness.y = value;
                     options.color.brightness.z = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             connect(
@@ -467,12 +468,12 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [app](float value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.color.enabled = true;
                     options.color.contrast.x = value;
                     options.color.contrast.y = value;
                     options.color.contrast.z = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             connect(
@@ -480,12 +481,12 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [app](float value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.color.enabled = true;
                     options.color.saturation.x = value;
                     options.color.saturation.y = value;
                     options.color.saturation.z = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             connect(
@@ -493,10 +494,10 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [app](float value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.color.enabled = true;
                     options.color.tint = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             connect(
@@ -504,14 +505,14 @@ namespace tl
                 &QCheckBox::toggled,
                 [app](bool value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.color.enabled = true;
                     options.color.invert = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             p.displayObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
-                app->colorModel()->observeDisplayOptions(),
+                app->viewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
                     _widgetUpdate(value);
@@ -604,9 +605,9 @@ namespace tl
                 &QCheckBox::toggled,
                 [app](bool value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.levels.enabled = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             connect(
@@ -614,10 +615,10 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [app](float value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.levels.enabled = true;
                     options.levels.inLow = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             connect(
@@ -625,10 +626,10 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [app](float value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.levels.enabled = true;
                     options.levels.inHigh = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             connect(
@@ -636,10 +637,10 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [app](float value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.levels.enabled = true;
                     options.levels.gamma = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             connect(
@@ -647,10 +648,10 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [app](float value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.levels.enabled = true;
                     options.levels.outLow = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             connect(
@@ -658,14 +659,14 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [app](float value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.levels.enabled = true;
                     options.levels.outHigh = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             p.displayObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
-                app->colorModel()->observeDisplayOptions(),
+                app->viewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
                     _widgetUpdate(value);
@@ -752,9 +753,9 @@ namespace tl
                 &QCheckBox::toggled,
                 [app](bool value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.exrDisplay.enabled = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             connect(
@@ -762,10 +763,10 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [app](float value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.exrDisplay.enabled = true;
                     options.exrDisplay.exposure = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             connect(
@@ -773,10 +774,10 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [app](float value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.exrDisplay.enabled = true;
                     options.exrDisplay.defog = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             connect(
@@ -784,10 +785,10 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [app](float value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.exrDisplay.enabled = true;
                     options.exrDisplay.kneeLow = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             connect(
@@ -795,14 +796,14 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [app](float value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.exrDisplay.enabled = true;
                     options.exrDisplay.kneeHigh = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             p.displayObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
-                app->colorModel()->observeDisplayOptions(),
+                app->viewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
                     _widgetUpdate(value);
@@ -866,9 +867,9 @@ namespace tl
                 &QCheckBox::toggled,
                 [app](bool value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.softClip.enabled = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             connect(
@@ -876,14 +877,14 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [app](float value)
                 {
-                    auto options = app->colorModel()->getDisplayOptions();
+                    auto options = app->viewportModel()->getDisplayOptions();
                     options.softClip.enabled = true;
                     options.softClip.value = value;
-                    app->colorModel()->setDisplayOptions(options);
+                    app->viewportModel()->setDisplayOptions(options);
                 });
 
             p.displayObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
-                app->colorModel()->observeDisplayOptions(),
+                app->viewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
                     _widgetUpdate(value);

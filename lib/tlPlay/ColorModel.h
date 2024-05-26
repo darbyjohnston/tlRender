@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlTimeline/DisplayOptions.h>
-#include <tlTimeline/ImageOptions.h>
 #include <tlTimeline/LUTOptions.h>
 #include <tlTimeline/OCIOOptions.h>
 
@@ -53,24 +51,6 @@ namespace tl
 
             //! Set the LUT options.
             void setLUTOptions(const timeline::LUTOptions&);
-
-            //! Get the image options.
-            const timeline::ImageOptions& getImageOptions() const;
-
-            //! Observe the image options.
-            std::shared_ptr<observer::IValue<timeline::ImageOptions> > observeImageOptions() const;
-
-            //! Set the image options.
-            void setImageOptions(const timeline::ImageOptions&);
-
-            //! Get the display options.
-            const timeline::DisplayOptions& getDisplayOptions() const;
-
-            //! Observe the display options.
-            std::shared_ptr<observer::IValue<timeline::DisplayOptions> > observeDisplayOptions() const;
-
-            //! Set the display options.
-            void setDisplayOptions(const timeline::DisplayOptions&);
 
         private:
             TLRENDER_PRIVATE();

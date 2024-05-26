@@ -30,6 +30,7 @@ namespace tl
         class AudioModel;
         class ColorModel;
         class FilesModel;
+        class RenderModel;
         class Settings;
         class ViewportModel;
     }
@@ -80,11 +81,14 @@ namespace tl
             //! Observe the timeline player.
             std::shared_ptr<observer::IValue<std::shared_ptr<timeline::Player> > > observePlayer() const;
 
+            //! Get the color model.
+            const std::shared_ptr<play::ColorModel>& getColorModel() const;
+
             //! Get the viewport model.
             const std::shared_ptr<play::ViewportModel>& getViewportModel() const;
 
-            //! Get the color model.
-            const std::shared_ptr<play::ColorModel>& getColorModel() const;
+            //! Get the render model.
+            const std::shared_ptr<play::RenderModel>& getRenderModel() const;
 
             //! Get the audio model.
             const std::shared_ptr<play::AudioModel>& getAudioModel() const;

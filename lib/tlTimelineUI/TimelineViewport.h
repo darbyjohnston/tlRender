@@ -33,6 +33,12 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            //! Set the comparison options.
+            void setCompareOptions(const timeline::CompareOptions&);
+
+            //! Set the comparison callback.
+            void setCompareCallback(const std::function<void(timeline::CompareOptions)>&);
+
             //! Set the OpenColorIO options.
             void setOCIOOptions(const timeline::OCIOOptions&);
 
@@ -44,12 +50,6 @@ namespace tl
 
             //! Set the display options.
             void setDisplayOptions(const std::vector<timeline::DisplayOptions>&);
-
-            //! Set the comparison options.
-            void setCompareOptions(const timeline::CompareOptions&);
-
-            //! Set the comparison callback.
-            void setCompareCallback(const std::function<void(timeline::CompareOptions)>&);
 
             //! Set the background options.
             void setBackgroundOptions(const timeline::BackgroundOptions&);

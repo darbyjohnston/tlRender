@@ -28,10 +28,10 @@ namespace tl
 
             virtual ~RenderActions();
 
-            //! Get the actions.
+            const std::vector<image::PixelType>& getOffscreenColorTypes() const;
+
             const QMap<QString, QAction*>& actions() const;
 
-            //! Get the menu.
             QMenu* menu() const;
 
         private Q_SLOTS:

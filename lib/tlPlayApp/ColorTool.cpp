@@ -7,6 +7,7 @@
 #include <tlPlayApp/App.h>
 
 #include <tlPlay/ColorModel.h>
+#include <tlPlay/ViewportModel.h>
 
 #include <tlUI/Bellows.h>
 #include <tlUI/ButtonGroup.h>
@@ -404,7 +405,7 @@ namespace tl
             p.layout->setGridPos(p.invertCheckBox, 6, 0);
 
             p.optionsObservers = observer::ValueObserver<timeline::DisplayOptions>::create(
-                app->getColorModel()->observeDisplayOptions(),
+                app->getViewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
                     _p->enabledCheckBox->setChecked(value.color.enabled);
@@ -422,9 +423,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.color.enabled = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
 
@@ -433,12 +434,12 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.color.enabled = true;
                         options.color.add.x = value;
                         options.color.add.y = value;
                         options.color.add.z = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
 
@@ -447,12 +448,12 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.color.enabled = true;
                         options.color.brightness.x = value;
                         options.color.brightness.y = value;
                         options.color.brightness.z = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
 
@@ -461,12 +462,12 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.color.enabled = true;
                         options.color.contrast.x = value;
                         options.color.contrast.y = value;
                         options.color.contrast.z = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
 
@@ -475,12 +476,12 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.color.enabled = true;
                         options.color.saturation.x = value;
                         options.color.saturation.y = value;
                         options.color.saturation.z = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
 
@@ -489,10 +490,10 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.color.enabled = true;
                         options.color.tint = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
 
@@ -501,10 +502,10 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.color.enabled = true;
                         options.color.invert = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
         }
@@ -596,7 +597,7 @@ namespace tl
             p.layout->setGridPos(p.sliders["OutHigh"], 5, 1);
 
             p.optionsObservers = observer::ValueObserver<timeline::DisplayOptions>::create(
-                app->getColorModel()->observeDisplayOptions(),
+                app->getViewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
                     _p->enabledCheckBox->setChecked(value.levels.enabled);
@@ -613,9 +614,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.levels.enabled = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
 
@@ -624,10 +625,10 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.levels.enabled = true;
                         options.levels.inLow = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
 
@@ -636,10 +637,10 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.levels.enabled = true;
                         options.levels.inHigh = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
 
@@ -648,10 +649,10 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.levels.enabled = true;
                         options.levels.gamma = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
 
@@ -660,10 +661,10 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.levels.enabled = true;
                         options.levels.outLow = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
 
@@ -672,10 +673,10 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.levels.enabled = true;
                         options.levels.outHigh = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
         }
@@ -763,7 +764,7 @@ namespace tl
             p.layout->setGridPos(p.sliders["KneeHigh"], 4, 1);
 
             p.optionsObservers = observer::ValueObserver<timeline::DisplayOptions>::create(
-                app->getColorModel()->observeDisplayOptions(),
+                app->getViewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
                     _p->enabledCheckBox->setChecked(value.exrDisplay.enabled);
@@ -779,9 +780,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.exrDisplay.enabled = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
 
@@ -790,10 +791,10 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.exrDisplay.enabled = true;
                         options.exrDisplay.exposure = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
 
@@ -802,10 +803,10 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.exrDisplay.enabled = true;
                         options.exrDisplay.defog = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
 
@@ -814,10 +815,10 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.exrDisplay.enabled = true;
                         options.exrDisplay.kneeLow = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
 
@@ -826,10 +827,10 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.exrDisplay.enabled = true;
                         options.exrDisplay.kneeHigh = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
         }
@@ -892,7 +893,7 @@ namespace tl
             p.sliders["SoftClip"]->setParent(p.layout);
 
             p.optionsObservers = observer::ValueObserver<timeline::DisplayOptions>::create(
-                app->getColorModel()->observeDisplayOptions(),
+                app->getViewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
                     _p->enabledCheckBox->setChecked(value.softClip.enabled);
@@ -905,9 +906,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.softClip.enabled = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
 
@@ -916,10 +917,10 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getColorModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getDisplayOptions();
                         options.softClip.enabled = true;
                         options.softClip.value = value;
-                        app->getColorModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
         }

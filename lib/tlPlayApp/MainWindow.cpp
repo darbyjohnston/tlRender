@@ -38,6 +38,7 @@
 #include <tlPlay/AudioModel.h>
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/Info.h>
+#include <tlPlay/RenderModel.h>
 #include <tlPlay/Settings.h>
 #include <tlPlay/ViewportModel.h>
 
@@ -156,12 +157,13 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<double> > speedObserver2;
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<image::PixelType> > offscreenColorTypeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
         };
@@ -279,7 +281,7 @@ namespace tl
                 app,
                 context);
             p.renderMenu = RenderMenu::create(
-                p.renderActions->getActions(),
+                p.renderActions,
                 app,
                 context);
             p.playbackMenu = PlaybackMenu::create(
@@ -569,6 +571,13 @@ namespace tl
                     }
                 });
 
+            p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
+                app->getFilesModel()->observeCompareOptions(),
+                [this](const timeline::CompareOptions& value)
+                {
+                    _p->timelineViewport->setCompareOptions(value);
+                });
+
             p.ocioOptionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
                 app->getColorModel()->observeOCIOOptions(),
                 [this](const timeline::OCIOOptions& value)
@@ -583,25 +592,25 @@ namespace tl
                     _p->timelineViewport->setLUTOptions(value);
                 });
 
+            p.offscreenColorTypeObserver = observer::ValueObserver<image::PixelType>::create(
+                app->getRenderModel()->observeOffscreenColorType(),
+                [this](image::PixelType value)
+                {
+                    _p->timelineViewport->setOffscreenColorType(value);
+                });
+
             p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
-                app->getColorModel()->observeImageOptions(),
+                app->getRenderModel()->observeImageOptions(),
                 [this](const timeline::ImageOptions& value)
                 {
                     _p->timelineViewport->setImageOptions({ value });
                 });
 
             p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
-                app->getColorModel()->observeDisplayOptions(),
+                app->getViewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
                     _p->timelineViewport->setDisplayOptions({ value });
-                });
-
-            p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
-                app->getFilesModel()->observeCompareOptions(),
-                [this](const timeline::CompareOptions& value)
-                {
-                    _p->timelineViewport->setCompareOptions(value);
                 });
 
             p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(

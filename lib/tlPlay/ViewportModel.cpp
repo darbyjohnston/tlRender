@@ -15,6 +15,7 @@ namespace tl
             std::weak_ptr<system::Context> context;
             std::shared_ptr<Settings> settings;
             std::shared_ptr<observer::Value<timeline::BackgroundOptions> > backgroundOptions;
+            std::shared_ptr<observer::Value<timeline::DisplayOptions> > displayOptions;
         };
 
         void ViewportModel::_init(
@@ -29,6 +30,7 @@ namespace tl
             p.settings->setDefaultValue("Viewport/Background", timeline::BackgroundOptions());
             p.backgroundOptions = observer::Value<timeline::BackgroundOptions>::create(
                 p.settings->getValue< timeline::BackgroundOptions>("Viewport/Background"));
+            p.displayOptions = observer::Value<timeline::DisplayOptions>::create();
         }
 
         ViewportModel::ViewportModel() :
@@ -45,6 +47,21 @@ namespace tl
             auto out = std::shared_ptr<ViewportModel>(new ViewportModel);
             out->_init(settings, context);
             return out;
+        }
+
+        const timeline::DisplayOptions& ViewportModel::getDisplayOptions() const
+        {
+            return _p->displayOptions->get();
+        }
+
+        std::shared_ptr<observer::IValue<timeline::DisplayOptions> > ViewportModel::observeDisplayOptions() const
+        {
+            return _p->displayOptions;
+        }
+
+        void ViewportModel::setDisplayOptions(const timeline::DisplayOptions& value)
+        {
+            _p->displayOptions->setIfChanged(value);
         }
 
         const timeline::BackgroundOptions& ViewportModel::getBackgroundOptions() const

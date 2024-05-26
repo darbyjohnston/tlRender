@@ -7,6 +7,8 @@
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
 
+#include <tlPlay/ViewportModel.h>
+
 #include <tlTimelineUI/TimelineViewport.h>
 
 namespace tl
@@ -16,8 +18,9 @@ namespace tl
         struct ViewMenu::Private
         {
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
-
+            std::map<std::string, std::shared_ptr<Menu> > menus;
             std::shared_ptr<observer::ValueObserver<bool> > frameViewObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
         };
 
         void ViewMenu::_init(
@@ -36,12 +39,68 @@ namespace tl
             addItem(p.actions["Zoom1To1"]);
             addItem(p.actions["ZoomIn"]);
             addItem(p.actions["ZoomOut"]);
+            addDivider();
+            addItem(p.actions["Red"]);
+            addItem(p.actions["Green"]);
+            addItem(p.actions["Blue"]);
+            addItem(p.actions["Alpha"]);
+            addDivider();
+            addItem(p.actions["MirrorHorizontal"]);
+            addItem(p.actions["MirrorVertical"]);
+            addDivider();
+
+            p.menus["MinifyFilter"] = addSubMenu("Minify Filter");
+            p.menus["MinifyFilter"]->addItem(p.actions["MinifyNearest"]);
+            p.menus["MinifyFilter"]->addItem(p.actions["MinifyLinear"]);
+
+            p.menus["MagnifyFilter"] = addSubMenu("Magnify Filter");
+            p.menus["MagnifyFilter"]->addItem(p.actions["MagnifyNearest"]);
+            p.menus["MagnifyFilter"]->addItem(p.actions["MagnifyLinear"]);
 
             p.frameViewObserver = observer::ValueObserver<bool>::create(
                 mainWindow->getTimelineViewport()->observeFrameView(),
                 [this](bool value)
                 {
                     setItemChecked(_p->actions["Frame"], value);
+                });
+
+            p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+                app->getViewportModel()->observeDisplayOptions(),
+                [this](const timeline::DisplayOptions& value)
+                {
+                    setItemChecked(
+                        _p->actions["Red"],
+                        timeline::Channels::Red == value.channels);
+                    setItemChecked(
+                        _p->actions["Green"],
+                        timeline::Channels::Green == value.channels);
+                    setItemChecked(
+                        _p->actions["Blue"],
+                        timeline::Channels::Blue == value.channels);
+                    setItemChecked(
+                        _p->actions["Alpha"],
+                        timeline::Channels::Alpha == value.channels);
+
+                    setItemChecked(
+                        _p->actions["MirrorHorizontal"],
+                        value.mirror.x);
+                    setItemChecked(
+                        _p->actions["MirrorVertical"],
+                        value.mirror.y);
+
+                    _p->menus["MinifyFilter"]->setItemChecked(
+                        _p->actions["MinifyNearest"],
+                        timeline::ImageFilter::Nearest == value.imageFilters.minify);
+                    _p->menus["MinifyFilter"]->setItemChecked(
+                        _p->actions["MinifyLinear"],
+                        timeline::ImageFilter::Linear == value.imageFilters.minify);
+
+                    _p->menus["MagnifyFilter"]->setItemChecked(
+                        _p->actions["MagnifyNearest"],
+                        timeline::ImageFilter::Nearest == value.imageFilters.magnify);
+                    _p->menus["MagnifyFilter"]->setItemChecked(
+                        _p->actions["MagnifyLinear"],
+                        timeline::ImageFilter::Linear == value.imageFilters.magnify);
                 });
         }
 

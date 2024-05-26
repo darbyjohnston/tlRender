@@ -14,6 +14,7 @@
 #include <tlPlay/AudioModel.h>
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/FilesModel.h>
+#include <tlPlay/RenderModel.h>
 #include <tlPlay/Settings.h>
 #include <tlPlay/Util.h>
 #include <tlPlay/ViewportModel.h>
@@ -50,8 +51,9 @@ namespace tl
             std::vector<std::shared_ptr<play::FilesModelItem> > activeFiles;
             std::vector<std::shared_ptr<timeline::Timeline> > timelines;
             std::shared_ptr<observer::Value<std::shared_ptr<timeline::Player> > > player;
-            std::shared_ptr<play::ViewportModel> viewportModel;
             std::shared_ptr<play::ColorModel> colorModel;
+            std::shared_ptr<play::ViewportModel> viewportModel;
+            std::shared_ptr<play::RenderModel> renderModel;
             std::shared_ptr<play::AudioModel> audioModel;
             std::shared_ptr<ToolsModel> toolsModel;
 
@@ -212,14 +214,19 @@ namespace tl
             return _p->player;
         }
 
+        const std::shared_ptr<play::ColorModel>& App::getColorModel() const
+        {
+            return _p->colorModel;
+        }
+
         const std::shared_ptr<play::ViewportModel>& App::getViewportModel() const
         {
             return _p->viewportModel;
         }
 
-        const std::shared_ptr<play::ColorModel>& App::getColorModel() const
+        const std::shared_ptr<play::RenderModel>& App::getRenderModel() const
         {
-            return _p->colorModel;
+            return _p->renderModel;
         }
 
         const std::shared_ptr<play::AudioModel>& App::getAudioModel() const
@@ -424,11 +431,13 @@ namespace tl
             
             p.filesModel = play::FilesModel::create(_context);
 
-            p.viewportModel = play::ViewportModel::create(p.settings, _context);
-
             p.colorModel = play::ColorModel::create(_context);
             p.colorModel->setOCIOOptions(p.options.ocioOptions);
             p.colorModel->setLUTOptions(p.options.lutOptions);
+
+            p.viewportModel = play::ViewportModel::create(p.settings, _context);
+
+            p.renderModel = play::RenderModel::create(p.settings, _context);
 
             p.audioModel = play::AudioModel::create(p.settings, _context);
 
@@ -557,7 +566,7 @@ namespace tl
                     p.bmdOutputDevice->setConfig(config);
                     p.bmdOutputDevice->setEnabled(value.deviceEnabled);
                     p.bmdOutputVideoLevels = value.videoLevels;
-                    timeline::DisplayOptions displayOptions = p.colorModel->getDisplayOptions();
+                    timeline::DisplayOptions displayOptions = p.viewportModel->getDisplayOptions();
                     displayOptions.videoLevels = p.bmdOutputVideoLevels;
                     std::vector<timeline::DisplayOptions> displayOptionsList;
                     p.bmdOutputDevice->setDisplayOptions({ displayOptionsList });
@@ -606,13 +615,13 @@ namespace tl
                     _p->bmdOutputDevice->setLUTOptions(value);
                 });
             p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
-                p.colorModel->observeImageOptions(),
+                p.renderModel->observeImageOptions(),
                 [this](const timeline::ImageOptions& value)
                 {
                     _p->bmdOutputDevice->setImageOptions({ value });
                 });
             p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
-                p.colorModel->observeDisplayOptions(),
+                p.viewportModel->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
                     timeline::DisplayOptions tmp = value;

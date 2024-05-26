@@ -30,6 +30,7 @@
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/FilesModel.h>
 #include <tlPlay/Info.h>
+#include <tlPlay/RenderModel.h>
 #include <tlPlay/Settings.h>
 
 #include <tlQtWidget/Spacer.h>
@@ -122,6 +123,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<image::PixelType> > offscreenColorTypeObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
@@ -463,22 +465,29 @@ namespace tl
                 {
                     _widgetUpdate();
                 });
+
             p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
-                app->colorModel()->observeDisplayOptions(),
+                app->viewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions&)
                 {
                     _widgetUpdate();
                 });
-            p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
-                app->colorModel()->observeImageOptions(),
-                [this](const timeline::ImageOptions&)
+            p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
+                app->viewportModel()->observeBackgroundOptions(),
+                [this](const timeline::BackgroundOptions& value)
                 {
                     _widgetUpdate();
                 });
 
-            p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
-                app->viewportModel()->observeBackgroundOptions(),
-                [this](const timeline::BackgroundOptions& value)
+            p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
+                app->renderModel()->observeImageOptions(),
+                [this](const timeline::ImageOptions&)
+                {
+                    _widgetUpdate();
+                });
+            p.offscreenColorTypeObserver = observer::ValueObserver<image::PixelType>::create(
+                app->renderModel()->observeOffscreenColorType(),
+                [this](image::PixelType)
                 {
                     _widgetUpdate();
                 });
@@ -876,20 +885,20 @@ namespace tl
             p.viewActions->actions()["Frame"]->setChecked(
                 p.timelineViewport->hasFrameView());
 
-            auto viewportModel = p.app->viewportModel();
-            p.timelineViewport->setBackgroundOptions(
-                viewportModel->getBackgroundOptions());
-            auto colorModel = p.app->colorModel();
-            p.timelineViewport->setOCIOOptions(colorModel->getOCIOOptions());
-            p.timelineViewport->setLUTOptions(colorModel->getLUTOptions());
-            std::vector<timeline::ImageOptions> imageOptions;
-            std::vector<timeline::DisplayOptions> displayOptions;
-            p.timelineViewport->setImageOptions({ colorModel->getImageOptions() });
-            p.timelineViewport->setDisplayOptions({ colorModel->getDisplayOptions() });
             p.timelineViewport->setCompareOptions(
                 p.app->filesModel()->getCompareOptions());
+            p.timelineViewport->setOCIOOptions(
+                p.app->colorModel()->getOCIOOptions());
+            p.timelineViewport->setLUTOptions(
+                p.app->colorModel()->getLUTOptions());
+            p.timelineViewport->setDisplayOptions(
+                { p.app->viewportModel()->getDisplayOptions()});
             p.timelineViewport->setBackgroundOptions(
                 p.app->viewportModel()->getBackgroundOptions());
+            p.timelineViewport->setImageOptions(
+                { p.app->renderModel()->getImageOptions() });
+            p.timelineViewport->setOffscreenColorType(
+                p.app->renderModel()->getOffscreenColorType());
 
             p.timelineWidget->setPlayer(p.player ? p.player->player() : nullptr);
 

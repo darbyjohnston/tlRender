@@ -6,6 +6,7 @@ set(HEADERS
     Info.h
     Init.h
     OCIOModel.h
+    RenderModel.h
     Settings.h
     SettingsInline.h
     Util.h
@@ -19,6 +20,7 @@ set(SOURCE
     Info.cpp
     Init.cpp
     OCIOModel.cpp
+    RenderModel.cpp
     Settings.cpp
     Util.cpp
     ViewportModel.cpp)

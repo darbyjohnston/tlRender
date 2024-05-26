@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlTimeline/BackgroundOptions.h>
+#include <tlTimeline/DisplayOptions.h>
 
 #include <tlCore/ValueObserver.h>
 
@@ -38,6 +39,15 @@ namespace tl
             static std::shared_ptr<ViewportModel> create(
                 const std::shared_ptr<Settings>&,
                 const std::shared_ptr<system::Context>&);
+
+            //! Get the display options.
+            const timeline::DisplayOptions& getDisplayOptions() const;
+
+            //! Observe the display options.
+            std::shared_ptr<observer::IValue<timeline::DisplayOptions> > observeDisplayOptions() const;
+
+            //! Set the display options.
+            void setDisplayOptions(const timeline::DisplayOptions&);
 
             //! Get the background options.
             const timeline::BackgroundOptions& getBackgroundOptions() const;

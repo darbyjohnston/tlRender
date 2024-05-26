@@ -20,12 +20,12 @@ namespace tl
     {
         struct TimelineViewport::Private
         {
+            timeline::CompareOptions compareOptions;
+            std::function<void(timeline::CompareOptions)> compareCallback;
             timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
-            timeline::CompareOptions compareOptions;
-            std::function<void(timeline::CompareOptions)> compareCallback;
             timeline::BackgroundOptions backgroundOptions;
             image::PixelType offscreenColorType = image::PixelType::RGBA_U8;
             std::shared_ptr<timeline::Player> player;
@@ -104,6 +104,21 @@ namespace tl
             return out;
         }
 
+        void TimelineViewport::setCompareOptions(const timeline::CompareOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.compareOptions)
+                return;
+            p.compareOptions = value;
+            p.doRender = true;
+            _updates |= ui::Update::Draw;
+        }
+
+        void TimelineViewport::setCompareCallback(const std::function<void(timeline::CompareOptions)>& value)
+        {
+            _p->compareCallback = value;
+        }
+
         void TimelineViewport::setOCIOOptions(const timeline::OCIOOptions& value)
         {
             TLRENDER_P();
@@ -142,21 +157,6 @@ namespace tl
             p.displayOptions = value;
             p.doRender = true;
             _updates |= ui::Update::Draw;
-        }
-
-        void TimelineViewport::setCompareOptions(const timeline::CompareOptions& value)
-        {
-            TLRENDER_P();
-            if (value == p.compareOptions)
-                return;
-            p.compareOptions = value;
-            p.doRender = true;
-            _updates |= ui::Update::Draw;
-        }
-
-        void TimelineViewport::setCompareCallback(const std::function<void(timeline::CompareOptions)>& value)
-        {
-            _p->compareCallback = value;
         }
 
         void TimelineViewport::setBackgroundOptions(const timeline::BackgroundOptions& value)

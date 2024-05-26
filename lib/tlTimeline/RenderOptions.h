@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlCore/Color.h>
+#include <tlCore/Image.h>
 
 namespace tl
 {

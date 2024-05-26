@@ -8,6 +8,7 @@
 
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/FilesModel.h>
+#include <tlPlay/RenderModel.h>
 #include <tlPlay/Settings.h>
 #include <tlPlay/ViewportModel.h>
 
@@ -22,12 +23,13 @@ namespace tl
             std::shared_ptr<timelineui::TimelineViewport> viewport;
 
             std::shared_ptr<observer::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<image::PixelType> > offscreenColorTypeObserver;
         };
 
         void SecondaryWindow::_init(
@@ -49,6 +51,13 @@ namespace tl
                     _p->viewport->setPlayer(value);
                 });
 
+            p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
+                app->getFilesModel()->observeCompareOptions(),
+                [this](const timeline::CompareOptions& value)
+                {
+                    _p->viewport->setCompareOptions(value);
+                });
+
             p.ocioOptionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
                 app->getColorModel()->observeOCIOOptions(),
                 [this](const timeline::OCIOOptions& value)
@@ -64,24 +73,17 @@ namespace tl
                 });
 
             p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
-                app->getColorModel()->observeImageOptions(),
+                app->getRenderModel()->observeImageOptions(),
                 [this](const timeline::ImageOptions& value)
                 {
                     _p->viewport->setImageOptions({ value });
                 });
 
             p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
-                app->getColorModel()->observeDisplayOptions(),
+                app->getViewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
                     _p->viewport->setDisplayOptions({ value });
-                });
-
-            p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
-                app->getFilesModel()->observeCompareOptions(),
-                [this](const timeline::CompareOptions& value)
-                {
-                    _p->viewport->setCompareOptions(value);
                 });
 
             p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
@@ -89,6 +91,13 @@ namespace tl
                 [this](const timeline::BackgroundOptions& value)
                 {
                     _p->viewport->setBackgroundOptions(value);
+                });
+
+            p.offscreenColorTypeObserver = observer::ValueObserver<image::PixelType>::create(
+                app->getRenderModel()->observeOffscreenColorType(),
+                [this](image::PixelType value)
+                {
+                    _p->viewport->setOffscreenColorType(value);
                 });
         }
 

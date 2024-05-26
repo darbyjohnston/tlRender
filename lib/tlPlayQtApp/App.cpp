@@ -28,6 +28,7 @@
 #include <tlPlay/AudioModel.h>
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/FilesModel.h>
+#include <tlPlay/RenderModel.h>
 #include <tlPlay/ViewportModel.h>
 #include <tlPlay/Util.h>
 
@@ -77,8 +78,9 @@ namespace tl
             std::vector<std::shared_ptr<timeline::Timeline> > timelines;
             QSharedPointer<qt::TimelinePlayer> player;
             std::shared_ptr<ui::RecentFilesModel> recentFilesModel;
-            std::shared_ptr<play::ViewportModel> viewportModel;
             std::shared_ptr<play::ColorModel> colorModel;
+            std::shared_ptr<play::RenderModel> renderModel;
+            std::shared_ptr<play::ViewportModel> viewportModel;
             std::shared_ptr<play::AudioModel> audioModel;
             QScopedPointer<qt::ToolTipsFilter> toolTipsFilter;
 
@@ -108,11 +110,11 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<bool> > bmdActiveObserver;
             std::shared_ptr<observer::ValueObserver<math::Size2i> > bmdSizeObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > bmdFrameRateObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
 #endif // TLRENDER_BMD
         };
@@ -197,14 +199,19 @@ namespace tl
             return _p->recentFilesModel;
         }
 
-        const std::shared_ptr<play::ViewportModel>& App::viewportModel() const
-        {
-            return _p->viewportModel;
-        }
-
         const std::shared_ptr<play::ColorModel>& App::colorModel() const
         {
             return _p->colorModel;
+        }
+
+        const std::shared_ptr<play::RenderModel>& App::renderModel() const
+        {
+            return _p->renderModel;
+        }
+
+        const std::shared_ptr<play::ViewportModel>& App::viewportModel() const
+        {
+            return _p->viewportModel;
         }
 
         const std::shared_ptr<play::AudioModel>& App::audioModel() const
@@ -408,11 +415,13 @@ namespace tl
 
             p.recentFilesModel = ui::RecentFilesModel::create(_context);
 
-            p.viewportModel = play::ViewportModel::create(p.settings, _context);
-
             p.colorModel = play::ColorModel::create(_context);
             p.colorModel->setOCIOOptions(p.options.ocioOptions);
             p.colorModel->setLUTOptions(p.options.lutOptions);
+
+            p.viewportModel = play::ViewportModel::create(p.settings, _context);
+
+            p.renderModel = play::RenderModel::create(p.settings, _context);
 
             p.audioModel = play::AudioModel::create(p.settings, _context);
         }
@@ -562,7 +571,7 @@ namespace tl
                     p.bmdOutputDevice->setConfig(config);
                     p.bmdOutputDevice->setEnabled(value.deviceEnabled);
                     p.bmdOutputVideoLevels = value.videoLevels;
-                    timeline::DisplayOptions displayOptions = p.colorModel->getDisplayOptions();
+                    timeline::DisplayOptions displayOptions = p.viewportModel->getDisplayOptions();
                     displayOptions.videoLevels = p.bmdOutputVideoLevels;
                     p.bmdOutputDevice->setDisplayOptions({ displayOptions });
                     p.bmdOutputDevice->setHDR(value.hdrMode, value.hdrData);
@@ -597,6 +606,12 @@ namespace tl
                     //std::cout << "output device frame rate: " << value << std::endl;
                 });
 
+            p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
+                p.filesModel->observeCompareOptions(),
+                [this](const timeline::CompareOptions& value)
+                {
+                    _p->bmdOutputDevice->setCompareOptions(value);
+                });
             p.ocioOptionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
                 p.colorModel->observeOCIOOptions(),
                 [this](const timeline::OCIOOptions& value)
@@ -610,27 +625,19 @@ namespace tl
                     _p->bmdOutputDevice->setLUTOptions(value);
                 });
             p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
-                p.colorModel->observeImageOptions(),
+                p.renderModel->observeImageOptions(),
                 [this](const timeline::ImageOptions& value)
                 {
                     _p->bmdOutputDevice->setImageOptions({ value });
                 });
             p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
-                p.colorModel->observeDisplayOptions(),
+                p.viewportModel->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
                     timeline::DisplayOptions tmp = value;
                     tmp.videoLevels = _p->bmdOutputVideoLevels;
                     _p->bmdOutputDevice->setDisplayOptions({ tmp });
                 });
-
-            p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
-                p.filesModel->observeCompareOptions(),
-                [this](const timeline::CompareOptions& value)
-                {
-                    _p->bmdOutputDevice->setCompareOptions(value);
-                });
-
             p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
                 p.viewportModel->observeBackgroundOptions(),
                 [this](const timeline::BackgroundOptions& value)

@@ -32,6 +32,7 @@ namespace tl
         class AudioModel;
         class ColorModel;
         class FilesModel;
+        class RenderModel;
         class Settings;
         class ViewportModel;
     }
@@ -85,11 +86,14 @@ namespace tl
             //! Get the recent files model.
             const std::shared_ptr<ui::RecentFilesModel>& recentFilesModel() const;
 
+            //! Get the color model.
+            const std::shared_ptr<play::ColorModel>& colorModel() const;
+
             //! Get the viewport model.
             const std::shared_ptr<play::ViewportModel>& viewportModel() const;
 
-            //! Get the color model.
-            const std::shared_ptr<play::ColorModel>& colorModel() const;
+            //! Get the render model.
+            const std::shared_ptr<play::RenderModel>& renderModel() const;
 
             //! Get the audio model.
             const std::shared_ptr<play::AudioModel>& audioModel() const;

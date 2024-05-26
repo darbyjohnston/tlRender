@@ -7,6 +7,8 @@
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
 
+#include <tlPlay/ViewportModel.h>
+
 #include <tlTimelineUI/TimelineViewport.h>
 
 namespace tl
@@ -67,6 +69,147 @@ namespace tl
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
                         mainWindow->getTimelineViewport()->viewZoomOut();
+                    }
+                });
+
+            auto appWeak = std::weak_ptr<App>(app);
+            p.actions["Red"] = std::make_shared<ui::Action>(
+                "Red Channel",
+                ui::Key::R,
+                0,
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto displayOptions = app->getViewportModel()->getDisplayOptions();
+                        displayOptions.channels = value ?
+                            timeline::Channels::Red :
+                            timeline::Channels::Color;
+                        app->getViewportModel()->setDisplayOptions(displayOptions);
+                    }
+                });
+
+            p.actions["Green"] = std::make_shared<ui::Action>(
+                "Green Channel",
+                ui::Key::G,
+                0,
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto displayOptions = app->getViewportModel()->getDisplayOptions();
+                        displayOptions.channels = value ?
+                            timeline::Channels::Green :
+                            timeline::Channels::Color;
+                        app->getViewportModel()->setDisplayOptions(displayOptions);
+                    }
+                });
+
+            p.actions["Blue"] = std::make_shared<ui::Action>(
+                "Blue Channel",
+                ui::Key::B,
+                0,
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto displayOptions = app->getViewportModel()->getDisplayOptions();
+                        displayOptions.channels = value ?
+                            timeline::Channels::Blue :
+                            timeline::Channels::Color;
+                        app->getViewportModel()->setDisplayOptions(displayOptions);
+                    }
+                });
+
+            p.actions["Alpha"] = std::make_shared<ui::Action>(
+                "Alpha Channel",
+                ui::Key::A,
+                0,
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto displayOptions = app->getViewportModel()->getDisplayOptions();
+                        displayOptions.channels = value ?
+                            timeline::Channels::Alpha :
+                            timeline::Channels::Color;
+                        app->getViewportModel()->setDisplayOptions(displayOptions);
+                    }
+                });
+
+            p.actions["MirrorHorizontal"] = std::make_shared<ui::Action>(
+                "Mirror Horizontal",
+                ui::Key::H,
+                0,
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto displayOptions = app->getViewportModel()->getDisplayOptions();
+                        displayOptions.mirror.x = value;
+                        app->getViewportModel()->setDisplayOptions(displayOptions);
+                    }
+                });
+
+            p.actions["MirrorVertical"] = std::make_shared<ui::Action>(
+                "Mirror Vertical",
+                ui::Key::V,
+                0,
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto displayOptions = app->getViewportModel()->getDisplayOptions();
+                        displayOptions.mirror.y = value;
+                        app->getViewportModel()->setDisplayOptions(displayOptions);
+                    }
+                });
+
+            p.actions["MinifyNearest"] = std::make_shared<ui::Action>(
+                "Nearest",
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto displayOptions = app->getViewportModel()->getDisplayOptions();
+                        displayOptions.imageFilters.minify = timeline::ImageFilter::Nearest;
+                        app->getViewportModel()->setDisplayOptions(displayOptions);
+                    }
+                });
+
+            p.actions["MinifyLinear"] = std::make_shared<ui::Action>(
+                "Linear",
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto displayOptions = app->getViewportModel()->getDisplayOptions();
+                        displayOptions.imageFilters.minify = timeline::ImageFilter::Linear;
+                        app->getViewportModel()->setDisplayOptions(displayOptions);
+                    }
+                });
+
+            p.actions["MagnifyNearest"] = std::make_shared<ui::Action>(
+                "Nearest",
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto displayOptions = app->getViewportModel()->getDisplayOptions();
+                        displayOptions.imageFilters.magnify = timeline::ImageFilter::Nearest;
+                        app->getViewportModel()->setDisplayOptions(displayOptions);
+                    }
+                });
+
+            p.actions["MagnifyLinear"] = std::make_shared<ui::Action>(
+                "Linear",
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto displayOptions = app->getViewportModel()->getDisplayOptions();
+                        displayOptions.imageFilters.magnify = timeline::ImageFilter::Linear;
+                        app->getViewportModel()->setDisplayOptions(displayOptions);
                     }
                 });
         }
