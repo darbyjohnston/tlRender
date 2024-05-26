@@ -23,6 +23,7 @@ Q_DECLARE_METATYPE(tl::log::Type);
 
 Q_DECLARE_METATYPE(tl::file::Mode);
 
+Q_DECLARE_METATYPE(tl::image::PixelType);
 Q_DECLARE_METATYPE(tl::image::Size);
 Q_DECLARE_METATYPE(tl::image::VideoLevels);
 
