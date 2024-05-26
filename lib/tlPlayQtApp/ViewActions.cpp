@@ -6,6 +6,8 @@
 
 #include <tlPlayQtApp/App.h>
 
+#include <tlQt/MetaTypes.h>
+
 #include <tlPlay/ViewportModel.h>
 
 #include <QActionGroup>
