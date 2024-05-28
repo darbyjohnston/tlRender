@@ -662,29 +662,50 @@ namespace tl
                                         offscreenBufferSize,
                                         offscreenBufferOptions);
                                 }
+                                if (doCreate(
+                                    p.buffers["dissolve2"],
+                                    offscreenBufferSize,
+                                    offscreenBufferOptions))
+                                {
+                                    p.buffers["dissolve2"] = gl::OffscreenBuffer::create(
+                                        offscreenBufferSize,
+                                        offscreenBufferOptions);
+                                }
                                 if (p.buffers["dissolve"])
                                 {
                                     gl::OffscreenBufferBinding binding(p.buffers["dissolve"]);
                                     glViewport(0, 0, offscreenBufferSize.w, offscreenBufferSize.h);
                                     glClearColor(0.F, 0.F, 0.F, 0.F);
                                     glClear(GL_COLOR_BUFFER_BIT);
-
+                                    float v = 1.F - layer.transitionValue;
+                                    auto dissolveImageOptions = imageOptions.get() ? *imageOptions : layer.imageOptions;
+                                    dissolveImageOptions.alphaBlend = timeline::AlphaBlend::Straight;
                                     drawImage(
                                         layer.image,
                                         image::getBox(
                                             layer.image->getAspect(),
                                             math::Box2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
-                                        image::Color4f(1.F, 1.F, 1.F, 1.F - layer.transitionValue),
-                                        imageOptions.get() ? *imageOptions : layer.imageOptions);
+                                        image::Color4f(1.F, 1.F, 1.F, v),
+                                        dissolveImageOptions);
+                                }
+                                if (p.buffers["dissolve2"])
+                                {
+                                    gl::OffscreenBufferBinding binding(p.buffers["dissolve2"]);
+                                    glViewport(0, 0, offscreenBufferSize.w, offscreenBufferSize.h);
+                                    glClearColor(0.F, 0.F, 0.F, 0.F);
+                                    glClear(GL_COLOR_BUFFER_BIT);
+                                    float v = layer.transitionValue;
+                                    auto dissolveImageOptions = imageOptions.get() ? *imageOptions : layer.imageOptionsB;
+                                    dissolveImageOptions.alphaBlend = timeline::AlphaBlend::Straight;
                                     drawImage(
                                         layer.imageB,
                                         image::getBox(
                                             layer.imageB->getAspect(),
                                             math::Box2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
-                                        image::Color4f(1.F, 1.F, 1.F, layer.transitionValue),
-                                        imageOptions.get() ? *imageOptions : layer.imageOptionsB);
+                                        image::Color4f(1.F, 1.F, 1.F, v),
+                                        dissolveImageOptions);
                                 }
-                                if (p.buffers["dissolve"])
+                                if (p.buffers["dissolve"] && p.buffers["dissolve2"])
                                 {
                                     glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 
@@ -695,7 +716,19 @@ namespace tl
 
                                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                                     glBindTexture(GL_TEXTURE_2D, p.buffers["dissolve"]->getColorID());
+                                    if (p.vbos["video"])
+                                    {
+                                        p.vbos["video"]->copy(convert(
+                                            geom::box(math::Box2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h), true),
+                                            p.vbos["video"]->getType()));
+                                    }
+                                    if (p.vaos["video"])
+                                    {
+                                        p.vaos["video"]->bind();
+                                        p.vaos["video"]->draw(GL_TRIANGLES, 0, p.vbos["video"]->getSize());
+                                    }
 
+                                    glBindTexture(GL_TEXTURE_2D, p.buffers["dissolve2"]->getColorID());
                                     if (p.vbos["video"])
                                     {
                                         p.vbos["video"]->copy(convert(
