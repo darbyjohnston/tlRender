@@ -484,6 +484,12 @@ namespace tl
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot allocate frame").arg(_fileName));
                     }
+                    //! \bug These fields need to be filled out for
+                    //! sws_scale_frame()?
+                    _avFrame2->format = _avOutputPixelFormat;
+                    _avFrame2->width = _info.size.w;
+                    _avFrame2->height = _info.size.h;
+                    _avFrame2->buf[0] = av_buffer_alloc(image::getDataByteCount(_info));
 
                     /*_swsContext = sws_getContext(
                         _avCodecParameters[_avStream]->width,
@@ -513,7 +519,7 @@ namespace tl
                     r = av_opt_set_int(_swsContext, "dsth", _avCodecParameters[_avStream]->height, AV_OPT_SEARCH_CHILDREN);
                     r = av_opt_set_int(_swsContext, "dst_format", _avOutputPixelFormat, AV_OPT_SEARCH_CHILDREN);
                     r = av_opt_set_int(_swsContext, "sws_flags", swsScaleFlags, AV_OPT_SEARCH_CHILDREN);
-                    r = av_opt_set_int(_swsContext, "threads", 0, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(_swsContext, "threads", _options.threadCount, AV_OPT_SEARCH_CHILDREN);
                     r = sws_init_context(_swsContext, nullptr, nullptr);
                     if (r < 0)
                     {
@@ -791,6 +797,8 @@ namespace tl
             }
             else
             {
+
+
                 av_image_fill_arrays(
                     _avFrame2->data,
                     _avFrame2->linesize,
@@ -799,16 +807,15 @@ namespace tl
                     w,
                     h,
                     1);
-                sws_scale(
+                /*sws_scale(
                     _swsContext,
                     (uint8_t const* const*)_avFrame->data,
                     _avFrame->linesize,
                     0,
                     _avFrame->height,
                     _avFrame2->data,
-                    _avFrame2->linesize);
-                //! \bug This always seems to fail on the first frame?
-                //sws_scale_frame(_swsContext, _avFrame2, _avFrame);
+                    _avFrame2->linesize);*/
+                sws_scale_frame(_swsContext, _avFrame2, _avFrame);
             }
         }
     }
