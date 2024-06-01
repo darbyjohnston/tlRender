@@ -804,7 +804,7 @@ namespace tl
                     (uint8_t const* const*)_avFrame->data,
                     _avFrame->linesize,
                     0,
-                    _avCodecParameters[_avStream]->height,
+                    _avFrame->height,
                     _avFrame2->data,
                     _avFrame2->linesize);
                 //! \bug This always seems to fail on the first frame?
