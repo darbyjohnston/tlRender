@@ -807,6 +807,8 @@ namespace tl
                     _avCodecParameters[_avStream]->height,
                     _avFrame2->data,
                     _avFrame2->linesize);
+                //! \bug This always seems to fail on the first frame?
+                //sws_scale_frame(_swsContext, _avFrame2, _avFrame);
             }
         }
     }
