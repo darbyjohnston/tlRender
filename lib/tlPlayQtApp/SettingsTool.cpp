@@ -291,6 +291,9 @@ namespace tl
             p.threadCountSpinBox->setRange(0, 64);
 
             auto layout = new QFormLayout;
+            auto label = new QLabel(tr("Changes are applied to new files."));
+            label->setWordWrap(true);
+            layout->addRow(label);
             layout->addRow(tr("YUV to RGB conversion:"), p.yuvToRGBConversionCheckBox);
             layout->addRow(tr("I/O threads:"), p.threadCountSpinBox);
             setLayout(layout);

@@ -331,7 +331,7 @@ namespace tl
 
             std::shared_ptr<ui::CheckBox> yuvToRGBCheckBox;
             std::shared_ptr<ui::IntEdit> threadsEdit;
-            std::shared_ptr<ui::GridLayout> layout;
+            std::shared_ptr<ui::VerticalLayout> layout;
 
             std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
         };
@@ -351,17 +351,20 @@ namespace tl
             p.threadsEdit = ui::IntEdit::create(context);
             p.threadsEdit->setRange(math::IntRange(0, 64));
 
-            p.layout = ui::GridLayout::create(context, shared_from_this());
+            p.layout = ui::VerticalLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
             p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            auto label = ui::Label::create("YUV to RGB conversion:", context, p.layout);
-            p.layout->setGridPos(label, 0, 0);
-            p.yuvToRGBCheckBox->setParent(p.layout);
-            p.layout->setGridPos(p.yuvToRGBCheckBox, 0, 1);
-            label = ui::Label::create("I/O threads:", context, p.layout);
-            p.layout->setGridPos(label, 1, 0);
-            p.threadsEdit->setParent(p.layout);
-            p.layout->setGridPos(p.threadsEdit, 1, 1);
+            auto label = ui::Label::create("Changes are applied to new files.", context, p.layout);
+            auto gridLayout = ui::GridLayout::create(context, p.layout);
+            gridLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            label = ui::Label::create("YUV to RGB conversion:", context, gridLayout);
+            gridLayout->setGridPos(label, 0, 0);
+            p.yuvToRGBCheckBox->setParent(gridLayout);
+            gridLayout->setGridPos(p.yuvToRGBCheckBox, 0, 1);
+            label = ui::Label::create("I/O threads:", context, gridLayout);
+            gridLayout->setGridPos(label, 1, 0);
+            p.threadsEdit->setParent(gridLayout);
+            gridLayout->setGridPos(p.threadsEdit, 1, 1);
 
             _settingsUpdate(std::string());
 
