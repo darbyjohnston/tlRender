@@ -483,7 +483,9 @@ namespace tl
                 {
                     {
                         gl::OffscreenBufferBinding binding(p.offscreenBuffer);
-                        p.render->begin(p.frameBufferSize);
+                        timeline::RenderOptions renderOptions;
+                        renderOptions.colorBuffer = p.colorBuffer->get();
+                        p.render->begin(p.frameBufferSize, renderOptions);
                         ui::DrawEvent drawEvent(
                             event.style,
                             event.iconLibrary,

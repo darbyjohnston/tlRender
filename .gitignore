@@ -6,3 +6,5 @@ doc/doxygen
 *~
 .git
 .vscode
+.DS_Store
+.cache
