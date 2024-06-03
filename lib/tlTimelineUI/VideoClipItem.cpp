@@ -5,6 +5,7 @@
 #include <tlTimelineUI/VideoClipItem.h>
 
 #include <tlUI/DrawUtil.h>
+#include <tlUI/ThumbnailSystem.h>
 
 #include <tlTimeline/RenderUtil.h>
 #include <tlTimeline/Util.h>

@@ -9,6 +9,8 @@
 
 #include <tlQtWidget/FloatEditSlider.h>
 
+#include <tlUI/ThumbnailSystem.h>
+
 #include <QAction>
 #include <QBoxLayout>
 #include <QButtonGroup>
@@ -18,12 +20,19 @@
 #include <QGridLayout>
 #include <QLabel>
 #include <QSignalBlocker>
+#include <QTimer>
 #include <QToolButton>
 
 namespace tl
 {
     namespace play_qt
     {
+        namespace
+        {
+            const std::chrono::milliseconds thumbnailsTimeout(100);
+            const int thumbnailHeight = 40;
+        }
+
         struct FilesTool::Private
         {
             App* app = nullptr;
@@ -40,6 +49,9 @@ namespace tl
             qtwidget::FloatEditSlider* wipeYSlider = nullptr;
             qtwidget::FloatEditSlider* wipeRotationSlider = nullptr;
             qtwidget::FloatEditSlider* overlaySlider = nullptr;
+
+            std::map<QCheckBox*, ui::ThumbnailRequest> thumbnailRequests;
+            std::unique_ptr<QTimer> timer;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ValueObserver<std::shared_ptr<play::FilesModelItem> > > aObserver;
@@ -76,6 +88,7 @@ namespace tl
             auto widget = new QWidget;
             p.itemsLayout = new QGridLayout;
             p.itemsLayout->setColumnStretch(0, 1);
+            p.itemsLayout->setContentsMargins(5, 5, 5, 5);
             p.itemsLayout->setSpacing(0);
             widget->setLayout(p.itemsLayout);
             addWidget(widget);
@@ -163,6 +176,9 @@ namespace tl
                     app->filesModel()->setCompareOptions(options);
                 });
 
+            p.timer.reset(new QTimer);
+            connect(p.timer.get(), &QTimer::timeout, this, &FilesTool::_thumbnailsUpdate);
+
             p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 app->filesModel()->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
@@ -199,6 +215,9 @@ namespace tl
                 });
         }
 
+        FilesTool::~FilesTool()
+        {}
+
         void FilesTool::_filesUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& items)
         {
             TLRENDER_P();
@@ -222,9 +241,13 @@ namespace tl
             p.layerComboBoxes.clear();
             delete p.noFilesOpenLabel;
             p.noFilesOpenLabel = nullptr;
+            p.thumbnailRequests.clear();
 
             p.items = items;
 
+            auto context = p.app->getContext();
+            auto thumbnailSystem = context->getSystem<ui::ThumbnailSystem>();
+            const float devicePixelRatio = window()->devicePixelRatio();
             const auto& a = p.app->filesModel()->getA();
             const auto& b = p.app->filesModel()->getB();
             for (size_t i = 0; i < p.items.size(); ++i)
@@ -236,10 +259,14 @@ namespace tl
                 aButton->setText(QString::fromUtf8(s.c_str()));
                 aButton->setCheckable(true);
                 aButton->setChecked(item == a);
+                aButton->setIconSize(QSize(thumbnailHeight * 2, thumbnailHeight));
                 aButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
                 aButton->setToolTip(QString::fromUtf8(item->path.get().c_str()));
                 p.aButtons.push_back(aButton);
                 p.aButtonGroup->addButton(aButton);
+                p.thumbnailRequests[aButton] = thumbnailSystem->getThumbnail(
+                    item->path,
+                    thumbnailHeight * devicePixelRatio);
 
                 auto bButton = new QToolButton;
                 bButton->setText("B");
@@ -277,6 +304,8 @@ namespace tl
                 p.noFilesOpenLabel = new QLabel("No files open");
                 p.itemsLayout->addWidget(p.noFilesOpenLabel, 0, 0);
             }
+
+            p.timer->start(thumbnailsTimeout);
         }
 
         void FilesTool::_aUpdate(const std::shared_ptr<play::FilesModelItem>& item)
@@ -332,8 +361,45 @@ namespace tl
             }
         }
 
-        FilesTool::~FilesTool()
-        {}
+        void FilesTool::_thumbnailsUpdate()
+        {
+            TLRENDER_P();
+            auto i = p.thumbnailRequests.begin();
+            while (i != p.thumbnailRequests.end())
+            {
+                if (i->second.future.valid() &&
+                    i->second.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                {
+                    if (auto image = i->second.future.get())
+                    {
+                        if (image::PixelType::RGBA_U8 == image->getPixelType())
+                        {
+                            const int w = image->getWidth();
+                            const int h = image->getHeight();
+                            QImage qimage(w, h, QImage::Format_RGBA8888);
+                            const uint8_t* d = image->getData();
+                            for (int y = 0; y < h; ++y)
+                            {
+                                memcpy(
+                                    qimage.scanLine(h - 1 - y),
+                                    d + y * w * 4,
+                                    w * 4);
+                            }
+                            i->first->setIcon(QPixmap::fromImage(qimage));
+                        }
+                    }
+                    i = p.thumbnailRequests.erase(i);
+                }
+                else
+                {
+                    ++i;
+                }
+            }
+            if (p.thumbnailRequests.empty())
+            {
+                p.timer->stop();
+            }
+        }
 
         FilesDockWidget::FilesDockWidget(
             FilesTool* filesTool,

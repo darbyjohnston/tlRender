@@ -5,6 +5,7 @@
 #include <tlTimelineUI/TimelineItem.h>
 
 #include <tlUI/Label.h>
+#include <tlUI/ThumbnailSystem.h>
 
 namespace tl
 {

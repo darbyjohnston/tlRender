@@ -46,6 +46,7 @@ set(HEADERS
     WindowToolBar.h)
 set(HEADERS_PRIVATE
     ColorToolPrivate.h
+    FilesToolPrivate.h
     SeparateAudioPrivate.h
     ViewToolPrivate.h)
 
@@ -61,6 +62,7 @@ set(SOURCE
     CompareToolBar.cpp
     DevicesTool.cpp
     FileActions.cpp
+    FileButton.cpp
     FileMenu.cpp
     FileToolBar.cpp
     FilesTool.cpp

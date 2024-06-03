@@ -55,7 +55,10 @@ namespace tl
             p.scrub = observer::Value<bool>::create(false);
             p.timeScrub = observer::Value<otime::RationalTime>::create(time::invalidTime);
 
-            p.thumbnailGenerator = ui::ThumbnailGenerator::create(context, window);
+            p.thumbnailGenerator = ui::ThumbnailGenerator::create(
+                context->getSystem<ui::ThumbnailSystem>()->getCache(),
+                context,
+                window);
 
             const auto otioTimeline = p.player->getTimeline()->getTimeline();
             for (const auto& child : otioTimeline->tracks()->children())

@@ -275,6 +275,7 @@ namespace tl
         };
 
         void ThumbnailGenerator::_init(
+            const std::shared_ptr<ThumbnailCache>& cache,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<gl::GLFWWindow>& window)
         {
@@ -282,7 +283,7 @@ namespace tl
             
             p.context = context;
 
-            p.cache = context->getSystem<ThumbnailSystem>()->getCache();
+            p.cache = cache;
 
             p.window = window;
             if (!p.window)
@@ -340,11 +341,12 @@ namespace tl
         }
 
         std::shared_ptr<ThumbnailGenerator> ThumbnailGenerator::create(
+            const std::shared_ptr<ThumbnailCache>& cache,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<gl::GLFWWindow>& window)
         {
             auto out = std::shared_ptr<ThumbnailGenerator>(new ThumbnailGenerator);
-            out->_init(context, window);
+            out->_init(cache, context, window);
             return out;
         }
 
@@ -980,6 +982,7 @@ namespace tl
         struct ThumbnailSystem::Private
         {
             std::shared_ptr<ThumbnailCache> cache;
+            std::shared_ptr<ThumbnailGenerator> generator;
         };
 
         void ThumbnailSystem::_init(const std::shared_ptr<system::Context>& context)
@@ -987,6 +990,7 @@ namespace tl
             ISystem::_init("tl::ui::ThumbnailSystem", context);
             TLRENDER_P();
             p.cache = ThumbnailCache::create(context);
+            p.generator = ThumbnailGenerator::create(p.cache, context);
         }
 
         ThumbnailSystem::ThumbnailSystem() :
@@ -1002,6 +1006,36 @@ namespace tl
             auto out = std::shared_ptr<ThumbnailSystem>(new ThumbnailSystem);
             out->_init(context);
             return out;
+        }
+
+        InfoRequest ThumbnailSystem::getInfo(
+            const file::Path& path,
+            const io::Options& ioOptions)
+        {
+            return _p->generator->getInfo(path, ioOptions);
+        }
+
+        ThumbnailRequest ThumbnailSystem::getThumbnail(
+            const file::Path& path,
+            int height,
+            const otime::RationalTime& time,
+            const io::Options& ioOptions)
+        {
+            return _p->generator->getThumbnail(path, height, time, ioOptions);
+        }
+
+        WaveformRequest ThumbnailSystem::getWaveform(
+            const file::Path& path,
+            const math::Size2i& size,
+            const otime::TimeRange& timeRange,
+            const io::Options& ioOptions)
+        {
+            return _p->generator->getWaveform(path, size, timeRange, ioOptions);
+        }
+
+        void ThumbnailSystem::cancelRequests(const std::vector<uint64_t>& ids)
+        {
+            _p->generator->cancelRequests(ids);
         }
         
         const std::shared_ptr<ThumbnailCache>& ThumbnailSystem::getCache() const

@@ -2,13 +2,12 @@
 // Copyright (c) 2021-2024 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayApp/FilesTool.h>
+#include <tlPlayApp/FilesToolPrivate.h>
 
 #include <tlPlayApp/App.h>
 
 #include <tlUI/Bellows.h>
 #include <tlUI/ButtonGroup.h>
-#include <tlUI/CheckBox.h>
 #include <tlUI/ComboBox.h>
 #include <tlUI/FloatEditSlider.h>
 #include <tlUI/GridLayout.h>
@@ -25,7 +24,7 @@ namespace tl
         {
             std::shared_ptr<ui::ButtonGroup> aButtonGroup;
             std::shared_ptr<ui::ButtonGroup> bButtonGroup;
-            std::map<std::shared_ptr<play::FilesModelItem>, std::shared_ptr<ui::CheckBox> > aButtons;
+            std::map<std::shared_ptr<play::FilesModelItem>, std::shared_ptr<FileButton> > aButtons;
             std::map<std::shared_ptr<play::FilesModelItem>, std::shared_ptr<ui::ToolButton> > bButtons;
             std::vector<std::shared_ptr<ui::ComboBox> > layerComboBoxes;
             std::shared_ptr<ui::FloatEditSlider> wipeXSlider;
@@ -74,8 +73,8 @@ namespace tl
             layout->setSpacingRole(ui::SizeRole::None);
 
             p.widgetLayout = ui::GridLayout::create(context, layout);
-            p.widgetLayout->setMarginRole(ui::SizeRole::MarginInside);
-            p.widgetLayout->setSpacingRole(ui::SizeRole::SpacingTool);
+            p.widgetLayout->setMarginRole(ui::SizeRole::MarginSmall);
+            p.widgetLayout->setSpacingRole(ui::SizeRole::None);
 
             auto vLayout = ui::VerticalLayout::create(context, layout);
             vLayout->setSpacingRole(ui::SizeRole::None);
@@ -245,11 +244,8 @@ namespace tl
                     size_t row = 0;
                     for (const auto& item : value)
                     {
-                        auto aButton = ui::CheckBox::create(context);
-                        std::string s = string::elide(item->path.get(-1, file::PathType::FileName));
-                        aButton->setText(s);
+                        auto aButton = FileButton::create(item, context);
                         aButton->setChecked(item == a);
-                        aButton->setHStretch(ui::Stretch::Expanding);
                         aButton->setToolTip(item->path.get());
                         p.aButtons[item] = aButton;
                         p.aButtonGroup->addButton(aButton);
@@ -288,7 +284,6 @@ namespace tl
                     if (value.empty())
                     {
                         auto label = ui::Label::create("No files open", context, p.widgetLayout);
-                        label->setMarginRole(ui::SizeRole::MarginSmall);
                         p.widgetLayout->setGridPos(label, 0, 0);
                     }
                 }

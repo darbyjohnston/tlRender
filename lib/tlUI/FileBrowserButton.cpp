@@ -5,6 +5,7 @@
 #include <tlUI/FileBrowserPrivate.h>
 
 #include <tlUI/DrawUtil.h>
+#include <tlUI/ThumbnailSystem.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -18,7 +19,6 @@ namespace tl
         {
             file::FileInfo fileInfo;
             FileBrowserOptions options;
-            std::shared_ptr<ThumbnailGenerator> thumbnailGenerator;
             std::vector<std::string> labels;
             std::vector<int> columns;
             
@@ -62,7 +62,6 @@ namespace tl
         void Button::_init(
             const file::FileInfo& fileInfo,
             const FileBrowserOptions& options,
-            const std::shared_ptr<ThumbnailGenerator>& thumbnailGenerator,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -74,7 +73,7 @@ namespace tl
 
             p.fileInfo = fileInfo;
             p.options = options;
-            p.thumbnailGenerator = thumbnailGenerator;
+            p.thumbnailSystem = context->getSystem<ThumbnailSystem>();
 
             // Icon.
             switch (fileInfo.getType())
@@ -144,25 +143,27 @@ namespace tl
         Button::~Button()
         {
             TLRENDER_P();
-            if (p.info.request.future.valid())
+            if (auto thumbnailSystem = p.thumbnailSystem.lock())
             {
-                p.thumbnailGenerator->cancelRequests({ p.info.request.id });
-            }
-            if (p.thumbnail.request.future.valid())
-            {
-                p.thumbnailGenerator->cancelRequests({ p.thumbnail.request.id });
+                if (p.info.request.future.valid())
+                {
+                    thumbnailSystem->cancelRequests({ p.info.request.id });
+                }
+                if (p.thumbnail.request.future.valid())
+                {
+                    thumbnailSystem->cancelRequests({ p.thumbnail.request.id });
+                }
             }
         }
 
         std::shared_ptr<Button> Button::create(
             const file::FileInfo& fileInfo,
             const FileBrowserOptions& options,
-            const std::shared_ptr<ThumbnailGenerator>& thumbnailGenerator,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<Button>(new Button);
-            out->_init(fileInfo, options, thumbnailGenerator, context, parent);
+            out->_init(fileInfo, options, context, parent);
             return out;
         }
 
@@ -264,14 +265,20 @@ namespace tl
                     if (p.info.init)
                     {
                         p.info.init = false;
-                        p.info.request = p.thumbnailGenerator->getInfo(p.fileInfo.getPath());
+                        if (auto thumbnailSystem = p.thumbnailSystem.lock())
+                        {
+                            p.info.request = thumbnailSystem->getInfo(p.fileInfo.getPath());
+                        }
                     }
                     if (p.thumbnail.init)
                     {
                         p.thumbnail.init = false;
-                        p.thumbnail.request = p.thumbnailGenerator->getThumbnail(
-                            p.fileInfo.getPath(),
-                            p.options.thumbnailHeight);
+                        if (auto thumbnailSystem = p.thumbnailSystem.lock())
+                        {
+                            p.thumbnail.request = thumbnailSystem->getThumbnail(
+                                p.fileInfo.getPath(),
+                                p.options.thumbnailHeight);
+                        }
                     }
                 }
             }
@@ -279,13 +286,19 @@ namespace tl
             {
                 if (p.info.request.future.valid())
                 {
-                    p.thumbnailGenerator->cancelRequests({ p.info.request.id });
+                    if (auto thumbnailSystem = p.thumbnailSystem.lock())
+                    {
+                        thumbnailSystem->cancelRequests({ p.info.request.id });
+                    }
                     p.info.init = true;
                     p.info.request.future = std::future<io::Info>();
                 }
                 if (p.thumbnail.request.future.valid())
                 {
-                    p.thumbnailGenerator->cancelRequests({ p.thumbnail.request.id });
+                    if (auto thumbnailSystem = p.thumbnailSystem.lock())
+                    {
+                        thumbnailSystem->cancelRequests({ p.thumbnail.request.id });
+                    }
                     p.thumbnail.init = true;
                     p.thumbnail.request.future = std::future<std::shared_ptr<image::Image> >();
                 }

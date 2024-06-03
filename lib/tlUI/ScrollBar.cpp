@@ -39,6 +39,9 @@ namespace tl
         {
             IWidget::_init("tl::ui::ScrollBar", context, parent);
             TLRENDER_P();
+            setStretch(
+                Orientation::Horizontal == orientation ? Stretch::Expanding : Stretch::Fixed,
+                Orientation::Vertical == orientation ? Stretch::Expanding : Stretch::Fixed);
             _setMouseHover(true);
             _setMousePress(true);
             p.orientation = orientation;

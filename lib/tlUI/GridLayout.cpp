@@ -4,6 +4,8 @@
 
 #include <tlUI/GridLayout.h>
 
+#include <tlUI/LayoutUtil.h>
+
 namespace tl
 {
     namespace ui
@@ -195,7 +197,8 @@ namespace tl
             // Layout the children.
             for (const auto& i : p.gridPos)
             {
-                const bool visible = i.first->isVisible(false);
+                auto widget = i.first;
+                const bool visible = widget->isVisible(false);
                 math::Vector2i pos = g.min;
                 for (int j = 0; j < i.second.row; ++j)
                 {
@@ -214,7 +217,13 @@ namespace tl
                 const math::Vector2i size(
                     columnSizes[i.second.column],
                     rowSizes[i.second.row]);
-                i.first->setGeometry(math::Box2i(pos.x, pos.y, size.x, size.y));
+                widget->setGeometry(align(
+                    math::Box2i(pos.x, pos.y, size.x, size.y),
+                    widget->getSizeHint(),
+                    widget->getHStretch(),
+                    widget->getVStretch(),
+                    widget->getHAlign(),
+                    widget->getVAlign()));
             }
         }
 

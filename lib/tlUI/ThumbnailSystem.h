@@ -141,6 +141,7 @@ namespace tl
         {
         protected:
             void _init(
+                const std::shared_ptr<ThumbnailCache>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<gl::GLFWWindow>&);
 
@@ -151,6 +152,7 @@ namespace tl
 
             //! Create a new thumbnail generator.
             static std::shared_ptr<ThumbnailGenerator> create(
+                const std::shared_ptr<ThumbnailCache>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<gl::GLFWWindow>& = nullptr);
 
@@ -219,6 +221,28 @@ namespace tl
             //! Create a new system.
             static std::shared_ptr<ThumbnailSystem> create(
                 const std::shared_ptr<system::Context>&);
+
+            //! Get information.
+            InfoRequest getInfo(
+                const file::Path&,
+                const io::Options& = io::Options());
+
+            //! Get a video thumbnail.
+            ThumbnailRequest getThumbnail(
+                const file::Path&,
+                int height,
+                const otime::RationalTime& = time::invalidTime,
+                const io::Options& = io::Options());
+
+            //! Get an audio waveform.
+            WaveformRequest getWaveform(
+                const file::Path&,
+                const math::Size2i&,
+                const otime::TimeRange& = time::invalidTimeRange,
+                const io::Options& = io::Options());
+
+            //! Cancel pending requests.
+            void cancelRequests(const std::vector<uint64_t>&);
 
             //! Get the thumbnail cache.
             const std::shared_ptr<ThumbnailCache>& getCache() const;

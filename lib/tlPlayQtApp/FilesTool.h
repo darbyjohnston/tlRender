@@ -32,6 +32,7 @@ namespace tl
             void _bUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
             void _layersUpdate(const std::vector<int>&);
             void _compareUpdate(const timeline::CompareOptions&);
+            void _thumbnailsUpdate();
 
             TLRENDER_PRIVATE();
         };
