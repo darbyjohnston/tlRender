@@ -6,8 +6,7 @@
 
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
-
-#include <tlTimelineUI/TimelineViewport.h>
+#include <tlPlayApp/Viewport.h>
 
 #include <tlUI/RowLayout.h>
 #include <tlUI/ToolButton.h>
@@ -63,7 +62,7 @@ namespace tl
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        mainWindow->getTimelineViewport()->setFrameView(value);
+                        mainWindow->getViewport()->setFrameView(value);
                     }
                 });
 
@@ -72,12 +71,12 @@ namespace tl
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        mainWindow->getTimelineViewport()->viewZoom1To1();
+                        mainWindow->getViewport()->viewZoom1To1();
                     }
                 });
 
             p.frameViewObserver = observer::ValueObserver<bool>::create(
-                mainWindow->getTimelineViewport()->observeFrameView(),
+                mainWindow->getViewport()->observeFrameView(),
                 [this](bool value)
                 {
                     _p->buttons["Frame"]->setChecked(value);

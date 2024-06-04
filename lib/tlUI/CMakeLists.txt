@@ -51,6 +51,7 @@ set(HEADERS
     Menu.h
     MenuBar.h
     MessageDialog.h
+    OverlayLayout.h
     PieChart.h
     PushButton.h
     RecentFilesModel.h
@@ -130,6 +131,7 @@ set(SOURCE
     Menu.cpp
     MenuBar.cpp
     MessageDialog.cpp
+    OverlayLayout.cpp
     PieChart.cpp
     PushButton.cpp
     RecentFilesModel.cpp

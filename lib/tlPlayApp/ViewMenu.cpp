@@ -6,10 +6,9 @@
 
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
+#include <tlPlayApp/Viewport.h>
 
 #include <tlPlay/ViewportModel.h>
-
-#include <tlTimelineUI/TimelineViewport.h>
 
 namespace tl
 {
@@ -58,8 +57,11 @@ namespace tl
             p.menus["MagnifyFilter"]->addItem(p.actions["MagnifyNearest"]);
             p.menus["MagnifyFilter"]->addItem(p.actions["MagnifyLinear"]);
 
+            addDivider();
+            addItem(p.actions["HUD"]);
+
             p.frameViewObserver = observer::ValueObserver<bool>::create(
-                mainWindow->getTimelineViewport()->observeFrameView(),
+                mainWindow->getViewport()->observeFrameView(),
                 [this](bool value)
                 {
                     setItemChecked(_p->actions["Frame"], value);

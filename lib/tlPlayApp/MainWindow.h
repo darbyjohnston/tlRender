@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlTimelineUI/TimelineViewport.h>
-
 #include <tlUIApp/Window.h>
 
 #include <tlTimeline/Player.h>
@@ -20,6 +18,7 @@ namespace tl
     namespace play_app
     {
         class App;
+        class Viewport;
 
         //! Window options.
         struct WindowOptions
@@ -59,8 +58,8 @@ namespace tl
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&);
 
-            //! Get the timeline viewport.
-            const std::shared_ptr<timelineui::TimelineViewport>& getTimelineViewport() const;
+            //! Get the viewport.
+            const std::shared_ptr<Viewport>& getViewport() const;
 
             //! Get the timeline widget.
             const std::shared_ptr<timelineui::TimelineWidget>& getTimelineWidget() const;

@@ -6,10 +6,9 @@
 
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
+#include <tlPlayApp/Viewport.h>
 
 #include <tlPlay/ViewportModel.h>
-
-#include <tlTimelineUI/TimelineViewport.h>
 
 namespace tl
 {
@@ -35,7 +34,7 @@ namespace tl
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        mainWindow->getTimelineViewport()->setFrameView(value);
+                        mainWindow->getViewport()->setFrameView(value);
                     }
                 });
             p.actions["Frame"]->toolTip = "Frame the view to fit the window";
@@ -47,7 +46,7 @@ namespace tl
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        mainWindow->getTimelineViewport()->viewZoom1To1();
+                        mainWindow->getViewport()->viewZoom1To1();
                     }
                 });
             p.actions["Zoom1To1"]->toolTip = "Set the view zoom to 1:1";
@@ -58,7 +57,7 @@ namespace tl
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        mainWindow->getTimelineViewport()->viewZoomIn();
+                        mainWindow->getViewport()->viewZoomIn();
                     }
                 });
 
@@ -68,7 +67,7 @@ namespace tl
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        mainWindow->getTimelineViewport()->viewZoomOut();
+                        mainWindow->getViewport()->viewZoomOut();
                     }
                 });
 
@@ -212,6 +211,19 @@ namespace tl
                         app->getViewportModel()->setDisplayOptions(displayOptions);
                     }
                 });
+
+            p.actions["HUD"] = std::make_shared<ui::Action>(
+                "HUD",
+                ui::Key::H,
+                static_cast<int>(ui::KeyModifier::Control),
+                [mainWindowWeak](bool value)
+                {
+                    if (auto mainWindow = mainWindowWeak.lock())
+                    {
+                        mainWindow->getViewport()->setHUD(value);
+                    }
+                });
+            p.actions["HUD"]->toolTip = "Toggle the HUD (Heads Up Display)";
         }
 
         ViewActions::ViewActions() :

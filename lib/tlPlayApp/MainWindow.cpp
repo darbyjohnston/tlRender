@@ -31,6 +31,7 @@
 #include <tlPlayApp/ViewActions.h>
 #include <tlPlayApp/ViewMenu.h>
 #include <tlPlayApp/ViewToolBar.h>
+#include <tlPlayApp/Viewport.h>
 #include <tlPlayApp/WindowActions.h>
 #include <tlPlayApp/WindowMenu.h>
 #include <tlPlayApp/WindowToolBar.h>
@@ -42,7 +43,6 @@
 #include <tlPlay/Settings.h>
 #include <tlPlay/ViewportModel.h>
 
-#include <tlTimelineUI/TimelineViewport.h>
 #include <tlTimelineUI/TimelineWidget.h>
 
 #include <tlUI/ButtonGroup.h>
@@ -102,7 +102,7 @@ namespace tl
             timelineui::ItemOptions itemOptions;
             std::shared_ptr<timeline::Player> player;
 
-            std::shared_ptr<timelineui::TimelineViewport> timelineViewport;
+            std::shared_ptr<Viewport> viewport;
             std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
             std::shared_ptr<FileActions> fileActions;
             std::shared_ptr<CompareActions> compareActions;
@@ -214,7 +214,7 @@ namespace tl
             p.speedModel->setStep(1.F);
             p.speedModel->setLargeStep(10.F);
 
-            p.timelineViewport = timelineui::TimelineViewport::create(context);
+            p.viewport = Viewport::create(context);
 
             p.timelineWidget = timelineui::TimelineWidget::create(p.timeUnitsModel, context);
             p.timelineWidget->setEditable(p.settings->getValue<bool>("Timeline/Editable"));
@@ -436,7 +436,7 @@ namespace tl
             p.splitter->setSpacingRole(ui::SizeRole::None);
             p.splitter2 = ui::Splitter::create(ui::Orientation::Horizontal, context, p.splitter);
             p.splitter2->setSpacingRole(ui::SizeRole::None);
-            p.timelineViewport->setParent(p.splitter2);
+            p.viewport->setParent(p.splitter2);
             p.toolsWidget->setParent(p.splitter2);
             p.timelineWidget->setParent(p.splitter);
             p.dividers["Bottom"] = ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
@@ -475,7 +475,7 @@ namespace tl
             _infoUpdate();
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.timelineViewport->setCompareCallback(
+            p.viewport->setCompareCallback(
                 [appWeak](const timeline::CompareOptions& value)
                 {
                     if (auto app = appWeak.lock())
@@ -575,21 +575,21 @@ namespace tl
                 app->getFilesModel()->observeCompareOptions(),
                 [this](const timeline::CompareOptions& value)
                 {
-                    _p->timelineViewport->setCompareOptions(value);
+                    _p->viewport->setCompareOptions(value);
                 });
 
             p.ocioOptionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
                 app->getColorModel()->observeOCIOOptions(),
                 [this](const timeline::OCIOOptions& value)
                 {
-                    _p->timelineViewport->setOCIOOptions(value);
+                    _p->viewport->setOCIOOptions(value);
                 });
 
             p.lutOptionsObserver = observer::ValueObserver<timeline::LUTOptions>::create(
                 app->getColorModel()->observeLUTOptions(),
                 [this](const timeline::LUTOptions& value)
                 {
-                    _p->timelineViewport->setLUTOptions(value);
+                    _p->viewport->setLUTOptions(value);
                 });
 
             p.colorBufferObserver = observer::ValueObserver<image::PixelType>::create(
@@ -597,28 +597,28 @@ namespace tl
                 [this](image::PixelType value)
                 {
                     setColorBuffer(value);
-                    _p->timelineViewport->setColorBuffer(value);
+                    _p->viewport->setColorBuffer(value);
                 });
 
             p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
                 app->getRenderModel()->observeImageOptions(),
                 [this](const timeline::ImageOptions& value)
                 {
-                    _p->timelineViewport->setImageOptions({ value });
+                    _p->viewport->setImageOptions({ value });
                 });
 
             p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
                 app->getViewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
-                    _p->timelineViewport->setDisplayOptions({ value });
+                    _p->viewport->setDisplayOptions({ value });
                 });
 
             p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
                 app->getViewportModel()->observeBackgroundOptions(),
                 [this](const timeline::BackgroundOptions& value)
                 {
-                    _p->timelineViewport->setBackgroundOptions(value);
+                    _p->viewport->setBackgroundOptions(value);
                 });
 
             p.muteObserver = observer::ValueObserver<bool>::create(
@@ -679,7 +679,7 @@ namespace tl
             p.settings->setValue("Timeline/Markers",
                 displayOptions.markers);
             _makeCurrent();
-            p.timelineViewport->setParent(nullptr);
+            p.viewport->setParent(nullptr);
             p.timelineWidget->setParent(nullptr);
         }
 
@@ -692,9 +692,9 @@ namespace tl
             return out;
         }
 
-        const std::shared_ptr<timelineui::TimelineViewport>& MainWindow::getTimelineViewport() const
+        const std::shared_ptr<Viewport>& MainWindow::getViewport() const
         {
-            return _p->timelineViewport;
+            return _p->viewport;
         }
 
         const std::shared_ptr<timelineui::TimelineWidget>& MainWindow::getTimelineWidget() const
@@ -764,7 +764,7 @@ namespace tl
 
             p.player = value;
 
-            p.timelineViewport->setPlayer(p.player);
+            p.viewport->setPlayer(p.player);
             p.timelineWidget->setPlayer(p.player);
             p.durationLabel->setValue(
                 p.player ?

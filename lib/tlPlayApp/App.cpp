@@ -9,6 +9,7 @@
 #include <tlPlayApp/SeparateAudioDialog.h>
 #include <tlPlayApp/Style.h>
 #include <tlPlayApp/Tools.h>
+#include <tlPlayApp/Viewport.h>
 
 #include <tlPlay/App.h>
 #include <tlPlay/AudioModel.h>
@@ -711,20 +712,20 @@ namespace tl
                     }
                 });
 
-            p.mainWindow->getTimelineViewport()->setViewPosAndZoomCallback(
+            p.mainWindow->getViewport()->setViewPosAndZoomCallback(
                 [this](const math::Vector2i& pos, double zoom)
                 {
                     _viewUpdate(
                         pos,
                         zoom,
-                        _p->mainWindow->getTimelineViewport()->hasFrameView());
+                        _p->mainWindow->getViewport()->hasFrameView());
                 });
-            p.mainWindow->getTimelineViewport()->setFrameViewCallback(
+            p.mainWindow->getViewport()->setFrameViewCallback(
                 [this](bool value)
                 {
                     _viewUpdate(
-                        _p->mainWindow->getTimelineViewport()->getViewPos(),
-                        _p->mainWindow->getTimelineViewport()->getViewZoom(),
+                        _p->mainWindow->getViewport()->getViewPos(),
+                        _p->mainWindow->getViewport()->getViewZoom(),
                         value);
                 });
         }
@@ -1026,7 +1027,7 @@ namespace tl
         {
             TLRENDER_P();
             float scale = 1.F;
-            const math::Box2i& g = p.mainWindow->getTimelineViewport()->getGeometry();
+            const math::Box2i& g = p.mainWindow->getViewport()->getGeometry();
             if (p.secondaryWindow)
             {
                 const math::Size2i& secondarySize = p.secondaryWindow->getWindowSize();

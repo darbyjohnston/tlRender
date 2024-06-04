@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: BSD-3-Clause
-// SPDX-License-Identifier: BSD-3-Clause
 // Copyright (c) 2021-2024 Darby Johnston
 // All rights reserved.
 
@@ -188,6 +187,8 @@ namespace tl
         {
             TLRENDER_P();
 
+            p.fps->setIfChanged(0.0);
+            p.droppedFrames->setIfChanged(0);
             p.playbackObserver.reset();
             p.videoDataObserver.reset();
 
