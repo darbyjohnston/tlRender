@@ -132,21 +132,7 @@ namespace tl
                 [this]
                 {
                     TLRENDER_P();
-                    try
-                    {
-                        p.window->makeCurrent();
-                    }
-                    catch (const std::exception& e)
-                    {
-                        if (auto context = p.context.lock())
-                        {
-                            context->log(
-                                "tl::bmd::OutputDevice",
-                                string::Format("Cannot make the OpenGL context current: {0}").
-                                arg(e.what()),
-                                log::Type::Error);
-                        }
-                    }
+                    p.window->makeCurrent();
                     _run();
                     p.window->doneCurrent();
                 });
