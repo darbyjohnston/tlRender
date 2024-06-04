@@ -233,30 +233,17 @@ namespace tl
                 for (auto i = value.rbegin(); i != value.rend(); ++i)
                 {
                     const auto path = *i;
-                    const auto j = std::find_if(
-                        p.extensions.begin(),
-                        p.extensions.end(),
-                        [path](const std::string& value)
+                    auto item = std::make_shared<ui::Action>(
+                        path.get(),
+                        [this, path]
                         {
-                            return string::compare(
-                                value,
-                                path.getExtension(),
-                                string::Compare::CaseInsensitive);
-                        });
-                    if (j != p.extensions.end())
-                    {
-                        auto item = std::make_shared<ui::Action>(
-                            path.get(),
-                            [this, path]
+                            if (auto app = _p->app.lock())
                             {
-                                if (auto app = _p->app.lock())
-                                {
-                                    app->open(path);
-                                }
-                                close();
-                            });
-                        p.menus["Recent"]->addItem(item);
-                    }
+                                app->open(path);
+                            }
+                            close();
+                        });
+                    p.menus["Recent"]->addItem(item);
                 }
             }
         }
