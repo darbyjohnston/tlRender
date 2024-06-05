@@ -187,7 +187,10 @@ namespace tl
         {
             TLRENDER_P();
 
+            p.fpsData.timer = std::chrono::steady_clock::now();
+            p.fpsData.frameCount = 0;
             p.fps->setIfChanged(0.0);
+            p.droppedFramesData.init = true;
             p.droppedFrames->setIfChanged(0);
             p.playbackObserver.reset();
             p.videoDataObserver.reset();

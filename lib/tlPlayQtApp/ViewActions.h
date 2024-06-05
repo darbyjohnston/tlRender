@@ -17,6 +17,7 @@ namespace tl
     namespace play_qt
     {
         class App;
+        class MainWindow;
 
         //! View actions.
         class ViewActions : public QObject
@@ -24,7 +25,7 @@ namespace tl
             Q_OBJECT
 
         public:
-            ViewActions(App*, QObject* parent = nullptr);
+            ViewActions(App*, MainWindow*, QObject* parent = nullptr);
 
             virtual ~ViewActions();
 

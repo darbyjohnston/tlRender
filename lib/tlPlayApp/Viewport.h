@@ -28,6 +28,8 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            bool hasHUD() const;
+            std::shared_ptr<observer::IValue<bool> > observeHUD() const;
             void setHUD(bool);
 
             void sizeHintEvent(const ui::SizeHintEvent&) override;

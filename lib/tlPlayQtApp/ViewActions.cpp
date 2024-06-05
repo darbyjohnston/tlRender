@@ -5,6 +5,8 @@
 #include <tlPlayQtApp/ViewActions.h>
 
 #include <tlPlayQtApp/App.h>
+#include <tlPlayQtApp/MainWindow.h>
+#include <tlPlayQtApp/Viewport.h>
 
 #include <tlQt/MetaTypes.h>
 
@@ -19,19 +21,21 @@ namespace tl
         struct ViewActions::Private
         {
             App* app = nullptr;
+            MainWindow* mainWindow = nullptr;
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
             QScopedPointer<QMenu> menu;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
         };
 
-        ViewActions::ViewActions(App* app, QObject* parent) :
+        ViewActions::ViewActions(App* app, MainWindow* mainWindow, QObject* parent) :
             QObject(parent),
             _p(new Private)
         {
             TLRENDER_P();
 
             p.app = app;
+            p.mainWindow = mainWindow;
 
             p.actions["Frame"] = new QAction(this);
             p.actions["Frame"]->setCheckable(true);
@@ -109,6 +113,11 @@ namespace tl
             p.actionGroups["MagnifyFilter"]->addAction(p.actions["MagnifyFilter/Nearest"]);
             p.actionGroups["MagnifyFilter"]->addAction(p.actions["MagnifyFilter/Linear"]);
 
+            p.actions["HUD"] = new QAction(this);
+            p.actions["HUD"]->setCheckable(true);
+            p.actions["HUD"]->setText(tr("HUD"));
+            p.actions["HUD"]->setShortcut(QKeySequence(QKeySequence(Qt::CTRL | Qt::Key_H)));
+
             p.menu.reset(new QMenu);
             p.menu->setTitle(tr("&View"));
             p.menu->addAction(p.actions["Frame"]);
@@ -129,6 +138,8 @@ namespace tl
             auto magnifyFilterMenu = p.menu->addMenu(tr("Magnify Filter"));
             magnifyFilterMenu->addAction(p.actions["MagnifyFilter/Nearest"]);
             magnifyFilterMenu->addAction(p.actions["MagnifyFilter/Linear"]);
+            p.menu->addSeparator();
+            p.menu->addAction(p.actions["HUD"]);
 
             _actionsUpdate();
 
@@ -180,6 +191,22 @@ namespace tl
                     auto options = app->viewportModel()->getDisplayOptions();
                     options.imageFilters.magnify = action->data().value<timeline::ImageFilter>();
                     app->viewportModel()->setDisplayOptions(options);
+                });
+
+            connect(
+                p.actions["HUD"],
+                &QAction::toggled,
+                [mainWindow](bool value)
+                {
+                    mainWindow->viewport()->setHUD(value);
+                });
+
+            connect(
+                mainWindow->viewport(),
+                &Viewport::hudChanged,
+                [this](bool)
+                {
+                    _actionsUpdate();
                 });
 
             p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
@@ -252,6 +279,10 @@ namespace tl
                         break;
                     }
                 }
+            }
+            {
+                QSignalBlocker blocker(p.actions["HUD"]);
+                p.actions["HUD"]->setChecked(p.mainWindow->viewport()->hasHUD());
             }
         }
     }

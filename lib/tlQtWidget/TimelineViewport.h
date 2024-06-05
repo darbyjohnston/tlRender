@@ -110,7 +110,7 @@ namespace tl
             void fpsChanged(double);
 
             //! This signal is emitted when the dropped frames count is changed.
-            void droppedFramesChanged(bool);
+            void droppedFramesChanged(size_t);
 
         private Q_SLOTS:
             void _playbackUpdate(timeline::Playback);

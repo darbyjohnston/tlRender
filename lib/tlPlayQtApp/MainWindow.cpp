@@ -24,6 +24,7 @@
 #include <tlPlayQtApp/ToolActions.h>
 #include <tlPlayQtApp/ViewActions.h>
 #include <tlPlayQtApp/ViewTool.h>
+#include <tlPlayQtApp/Viewport.h>
 #include <tlPlayQtApp/WindowActions.h>
 
 #include <tlPlay/AudioModel.h>
@@ -36,7 +37,6 @@
 #include <tlQtWidget/Spacer.h>
 #include <tlQtWidget/TimeLabel.h>
 #include <tlQtWidget/TimeSpinBox.h>
-#include <tlQtWidget/TimelineViewport.h>
 #include <tlQtWidget/TimelineWidget.h>
 #include <tlQtWidget/Util.h>
 
@@ -93,7 +93,7 @@ namespace tl
             AudioActions* audioActions = nullptr;
             ToolActions* toolActions = nullptr;
 
-            qtwidget::TimelineViewport* timelineViewport = nullptr;
+            Viewport* viewport = nullptr;
             qtwidget::TimelineWidget* timelineWidget = nullptr;
             qtwidget::TimeSpinBox* currentTimeSpinBox = nullptr;
             QDoubleSpinBox* speedSpinBox = nullptr;
@@ -170,7 +170,7 @@ namespace tl
             p.floatOnTop = settings->getValue<bool>("MainWindow/FloatOnTop");
 
             auto context = app->getContext();
-            p.timelineViewport = new qtwidget::TimelineViewport(context);
+            p.viewport = new Viewport(context);
 
             p.timelineWidget = new qtwidget::TimelineWidget(
                 ui::Style::create(context),
@@ -201,7 +201,7 @@ namespace tl
             p.fileActions = new FileActions(app, this);
             p.compareActions = new CompareActions(app, this);
             p.windowActions = new WindowActions(app, this);
-            p.viewActions = new ViewActions(app, this);
+            p.viewActions = new ViewActions(app, this, this);
             p.renderActions = new RenderActions(app, this);
             p.playbackActions = new PlaybackActions(app, this);
             p.frameActions = new FrameActions(app, this);
@@ -278,7 +278,7 @@ namespace tl
             toolsToolBar->setFloatable(false);
             addToolBar(Qt::TopToolBarArea, toolsToolBar);
 
-            setCentralWidget(p.timelineViewport);
+            setCentralWidget(p.viewport);
 
             auto timelineDockWidget = new QDockWidget;
             timelineDockWidget->setObjectName("Timeline");
@@ -423,7 +423,7 @@ namespace tl
             p.statusBar->addPermanentWidget(labelWidget);
             setStatusBar(p.statusBar);
 
-            p.timelineViewport->setFocus();
+            p.viewport->setFocus();
 
             _playerUpdate(app->player());
             _widgetUpdate();
@@ -551,28 +551,28 @@ namespace tl
                 &QAction::toggled,
                 [this](bool value)
                 {
-                    _p->timelineViewport->setFrameView(value);
+                    _p->viewport->setFrameView(value);
                 });
             connect(
                 p.viewActions->actions()["Zoom1To1"],
                 &QAction::triggered,
                 [this]
                 {
-                    _p->timelineViewport->viewZoom1To1();
+                    _p->viewport->viewZoom1To1();
                 });
             connect(
                 p.viewActions->actions()["ZoomIn"],
                 &QAction::triggered,
                 [this]
                 {
-                    _p->timelineViewport->viewZoomIn();
+                    _p->viewport->viewZoomIn();
                 });
             connect(
                 p.viewActions->actions()["ZoomOut"],
                 &QAction::triggered,
                 [this]
                 {
-                    _p->timelineViewport->viewZoomOut();
+                    _p->viewport->viewZoomOut();
                 });
 
             connect(
@@ -645,15 +645,15 @@ namespace tl
                 SLOT(_volumeCallback(int)));
 
             connect(
-                p.timelineViewport,
-                &qtwidget::TimelineViewport::compareOptionsChanged,
+                p.viewport,
+                &Viewport::compareOptionsChanged,
                 [this](const timeline::CompareOptions& value)
                 {
                     _p->app->filesModel()->setCompareOptions(value);
                 });
             connect(
-                p.timelineViewport,
-                &qtwidget::TimelineViewport::frameViewChanged,
+                p.viewport,
+                &Viewport::frameViewChanged,
                 [this](bool value)
                 {
                     _p->viewActions->actions()["Frame"]->setChecked(value);
@@ -718,9 +718,9 @@ namespace tl
             return _p->timelineWidget;
         }
 
-        qtwidget::TimelineViewport* MainWindow::timelineViewport() const
+        Viewport* MainWindow::viewport() const
         {
-            return _p->timelineViewport;
+            return _p->viewport;
         }
 
         void MainWindow::dragEnterEvent(QDragEnterEvent* event)
@@ -824,7 +824,7 @@ namespace tl
                     SLOT(_currentTimeCallback(const otime::RationalTime&)));
             }
 
-            p.timelineViewport->setPlayer(p.player);
+            p.viewport->setPlayer(p.player);
 
             _widgetUpdate();
         }
@@ -883,21 +883,21 @@ namespace tl
             }
 
             p.viewActions->actions()["Frame"]->setChecked(
-                p.timelineViewport->hasFrameView());
+                p.viewport->hasFrameView());
 
-            p.timelineViewport->setCompareOptions(
+            p.viewport->setCompareOptions(
                 p.app->filesModel()->getCompareOptions());
-            p.timelineViewport->setOCIOOptions(
+            p.viewport->setOCIOOptions(
                 p.app->colorModel()->getOCIOOptions());
-            p.timelineViewport->setLUTOptions(
+            p.viewport->setLUTOptions(
                 p.app->colorModel()->getLUTOptions());
-            p.timelineViewport->setDisplayOptions(
+            p.viewport->setDisplayOptions(
                 { p.app->viewportModel()->getDisplayOptions()});
-            p.timelineViewport->setBackgroundOptions(
+            p.viewport->setBackgroundOptions(
                 p.app->viewportModel()->getBackgroundOptions());
-            p.timelineViewport->setImageOptions(
+            p.viewport->setImageOptions(
                 { p.app->renderModel()->getImageOptions() });
-            p.timelineViewport->setColorBuffer(
+            p.viewport->setColorBuffer(
                 p.app->renderModel()->getColorBuffer());
 
             p.timelineWidget->setPlayer(p.player ? p.player->player() : nullptr);

@@ -12,7 +12,7 @@ namespace tl
     {
         struct Viewport::Private
         {
-            bool hud = false;
+            std::shared_ptr<observer::Value<bool> > hud;
             double fps = 0.0;
             size_t droppedFrames = 0;
             std::vector<std::string> text;
@@ -46,6 +46,7 @@ namespace tl
         {
             TimelineViewport::_init(context, parent);
             TLRENDER_P();
+            p.hud = observer::Value<bool>::create(false);
             p.fpsObserver = observer::ValueObserver<double>::create(
                 observeFPS(),
                 [this](double value)
@@ -78,13 +79,23 @@ namespace tl
             return out;
         }
 
+        bool Viewport::hasHUD() const
+        {
+            return _p->hud->get();
+        }
+
+        std::shared_ptr<observer::IValue<bool> > Viewport::observeHUD() const
+        {
+            return _p->hud;
+        }
+
         void Viewport::setHUD(bool value)
         {
             TLRENDER_P();
-            if (value == p.hud)
-                return;
-            p.hud = value;
-            _updates |= ui::Update::Draw;
+            if (p.hud->setIfChanged(value))
+            {
+                _updates |= ui::Update::Draw;
+            }
         }
 
         void Viewport::sizeHintEvent(const ui::SizeHintEvent& event)
@@ -131,7 +142,7 @@ namespace tl
             TimelineViewport::drawEvent(drawRect, event);
             TLRENDER_P();
             const math::Box2i& g = _geometry;
-            if (p.hud)
+            if (p.hud->get())
             {
                 if (!p.text.empty() && p.draw.glyphs.empty())
                 {
@@ -162,7 +173,7 @@ namespace tl
                         p.draw.glyphs[i],
                         pos,
                         event.style->getColorRole(ui::ColorRole::Text));
-                    y += p.size.fontMetrics.lineHeight;
+                    y += g3.h();
                 }
             }
         }

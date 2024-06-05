@@ -196,6 +196,13 @@ namespace tl
         {
             TLRENDER_P();
 
+            p.fpsData.fps = 0.0;
+            p.fpsData.timer = std::chrono::steady_clock::now();
+            p.fpsData.frameCount = 0;
+            Q_EMIT fpsChanged(p.fpsData.fps);
+            p.droppedFramesData.init = true;
+            Q_EMIT droppedFramesChanged(p.droppedFramesData.dropped);
+
             if (value)
             {
                 disconnect(

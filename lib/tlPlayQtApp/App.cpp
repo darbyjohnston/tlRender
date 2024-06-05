@@ -7,13 +7,13 @@
 #include <tlPlayQtApp/MainWindow.h>
 #include <tlPlayQtApp/OpenSeparateAudioDialog.h>
 #include <tlPlayQtApp/SecondaryWindow.h>
+#include <tlPlayQtApp/Viewport.h>
 
 #include <tlPlay/Settings.h>
 
 #include <tlQtWidget/Init.h>
 #include <tlQtWidget/FileBrowserSystem.h>
 #include <tlQtWidget/Style.h>
-#include <tlQtWidget/TimelineViewport.h>
 #include <tlQtWidget/Util.h>
 
 #include <tlQt/ContextObject.h>
@@ -706,23 +706,23 @@ namespace tl
                 });
 
             connect(
-                p.mainWindow->timelineViewport(),
-                &qtwidget::TimelineViewport::viewPosAndZoomChanged,
+                p.mainWindow->viewport(),
+                &Viewport::viewPosAndZoomChanged,
                 [this](const math::Vector2i& pos, double zoom)
                 {
                     _viewUpdate(
                         pos,
                         zoom,
-                        _p->mainWindow->timelineViewport()->hasFrameView());
+                        _p->mainWindow->viewport()->hasFrameView());
                 });
             connect(
-                p.mainWindow->timelineViewport(),
-                &qtwidget::TimelineViewport::frameViewChanged,
+                p.mainWindow->viewport(),
+                &Viewport::frameViewChanged,
                 [this](bool value)
                 {
                     _viewUpdate(
-                        _p->mainWindow->timelineViewport()->viewPos(),
-                        _p->mainWindow->timelineViewport()->viewZoom(),
+                        _p->mainWindow->viewport()->viewPos(),
+                        _p->mainWindow->viewport()->viewZoom(),
                         value);
                 });
         }
@@ -1040,7 +1040,7 @@ namespace tl
         {
             TLRENDER_P();
             float scale = 1.F;
-            const QSize& size = p.mainWindow->timelineViewport()->size() *
+            const QSize& size = p.mainWindow->viewport()->size() *
                 p.mainWindow->devicePixelRatio();
             if (p.secondaryWindow)
             {

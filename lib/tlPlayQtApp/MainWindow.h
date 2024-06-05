@@ -13,12 +13,12 @@ namespace tl
     namespace qtwidget
     {
         class TimelineWidget;
-        class TimelineViewport;
     }
 
     namespace play_qt
     {
         class App;
+        class Viewport;
 
         //! Main window.
         class MainWindow : public QMainWindow
@@ -30,11 +30,11 @@ namespace tl
 
             virtual ~MainWindow();
 
+            //! Get the viewport;
+            Viewport* viewport() const;
+
             //! Get the timeline widget;
             qtwidget::TimelineWidget* timelineWidget() const;
-
-            //! Get the timeline viewport;
-            qtwidget::TimelineViewport* timelineViewport() const;
 
         protected:
             void dragEnterEvent(QDragEnterEvent*) override;
