@@ -201,19 +201,13 @@ namespace tl
             void cancelRequests(const std::vector<uint64_t>&);
 
         private:
-            struct InfoRequestPrivate;
-            struct ThumbnailRequestPrivate;
-            struct WaveformRequestPrivate;
+            void _infoRun();
+            void _thumbnailRun();
+            void _waveformRun();
+            void _infoCancel();
+            void _thumbnailCancel();
+            void _waveformCancel();
 
-            void _run();
-            void _infoRequests(
-                const std::list<std::shared_ptr<InfoRequestPrivate> >&);
-            void _thumbnailRequests(
-                const std::list<std::shared_ptr<ThumbnailRequestPrivate> >&);
-            void _waveformRequests(
-                const std::list<std::shared_ptr<WaveformRequestPrivate> >&);
-            void _cancelRequests();
-            
             TLRENDER_PRIVATE();
         };
 
