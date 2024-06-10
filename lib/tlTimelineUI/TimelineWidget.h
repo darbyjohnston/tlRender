@@ -182,6 +182,7 @@ namespace tl
                 const math::Vector2i& scrollPos);
 
             double _getTimelineScale() const;
+            double _getTimelineScaleMax() const;
 
             void _setItemScale();
             void _setItemScale(

@@ -545,7 +545,7 @@ namespace tl
             TLRENDER_P();
             const int w = _geometry.w();
             const double zoomMin = _getTimelineScale();
-            const double zoomMax = w;
+            const double zoomMax = _getTimelineScaleMax();
             const double zoomClamped = math::clamp(zoomNew, zoomMin, zoomMax);
             if (zoomClamped != p.scale)
             {
@@ -564,7 +564,7 @@ namespace tl
         double TimelineWidget::_getTimelineScale() const
         {
             TLRENDER_P();
-            double out = 100.0;
+            double out = 1.0;
             if (p.player)
             {
                 const otime::TimeRange& timeRange = p.player->getTimeRange();
@@ -573,6 +573,30 @@ namespace tl
                 {
                     const math::Box2i scrollViewport = p.scrollWidget->getViewport();
                     out = scrollViewport.w() / duration;
+                }
+            }
+            return out;
+        }
+
+        double TimelineWidget::_getTimelineScaleMax() const
+        {
+            TLRENDER_P();
+            double out = 1.0;
+            if (p.player)
+            {
+                const math::Box2i scrollViewport = p.scrollWidget->getViewport();
+                const otime::TimeRange& timeRange = p.player->getTimeRange();
+                const double duration = timeRange.duration().rescaled_to(1.0).value();
+                if (duration < 1.0)
+                {
+                    if (duration > 0.0)
+                    {
+                        out = scrollViewport.w() / duration;
+                    }
+                }
+                else
+                {
+                    out = scrollViewport.w();
                 }
             }
             return out;

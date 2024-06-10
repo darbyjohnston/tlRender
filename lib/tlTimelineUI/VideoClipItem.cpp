@@ -266,7 +266,7 @@ namespace tl
                 0;
             if (thumbnailWidth > 0)
             {
-                const int w = _sizeHint.w;
+                const int w = g.w();
                 for (int x = 0; x < w; x += thumbnailWidth)
                 {
                     const math::Box2i box(

@@ -852,11 +852,11 @@ namespace tl
                             //std::cout << x << ": " << x0 << " " << x1 << std::endl;
                             audio::F32_T min = 0.F;
                             audio::F32_T max = 0.F;
-                            if (x0 < x1)
+                            if (x0 <= x1)
                             {
                                 min = audio::F32Range.getMax();
                                 max = audio::F32Range.getMin();
-                                for (int i = x0; i < x1; ++i)
+                                for (int i = x0; i <= x1 && i < sampleCount; ++i)
                                 {
                                     const audio::F32_T v = *(data + i * info.channelCount);
                                     min = std::min(min, v);
