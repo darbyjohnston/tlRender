@@ -565,8 +565,8 @@ namespace tl
         void ThumbnailGenerator::cancelRequests(const std::vector<uint64_t>& ids)
         {
             TLRENDER_P();
-            std::unique_lock<std::mutex> lock(p.infoMutex.mutex);
             {
+                std::unique_lock<std::mutex> lock(p.infoMutex.mutex);
                 auto i = p.infoMutex.requests.begin();
                 while (i != p.infoMutex.requests.end())
                 {
@@ -582,6 +582,7 @@ namespace tl
                 }
             }
             {
+                std::unique_lock<std::mutex> lock(p.thumbnailMutex.mutex);
                 auto i = p.thumbnailMutex.requests.begin();
                 while (i != p.thumbnailMutex.requests.end())
                 {
@@ -597,6 +598,7 @@ namespace tl
                 }
             }
             {
+                std::unique_lock<std::mutex> lock(p.waveformMutex.mutex);
                 auto i = p.waveformMutex.requests.begin();
                 while (i != p.waveformMutex.requests.end())
                 {
