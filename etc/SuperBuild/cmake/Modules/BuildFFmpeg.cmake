@@ -5,7 +5,7 @@ if(WIN32)
     find_package(Msys REQUIRED)
 endif()
 
-set(FFmpeg_DEPS)
+set(FFmpeg_DEPS ZLIB)
 if(TLRENDER_NET)
     list(APPEND FFmpeg_DEPS OpenSSL)
 endif()
@@ -21,6 +21,15 @@ set(FFmpeg_OBJCFLAGS "--extra-objcflags=-I${CMAKE_INSTALL_PREFIX}/include")
 set(FFmpeg_LDFLAGS)
 if(WIN32)
     list(APPEND FFmpeg_LDFLAGS "--extra-ldflags=/LIBPATH:${CMAKE_INSTALL_PREFIX}/lib")
+    if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
+        list(APPEND FFmpeg_CFLAGS "--extra-cflags=-MDd")
+        list(APPEND FFmpeg_CXXFLAGS "--extra-cxxflags=-MDd")
+        list(APPEND FFmpeg_LDFLAGS "--extra-ldflags=-MDd")
+    else()
+        list(APPEND FFmpeg_CFLAGS "--extra-cflags=-MD")
+        list(APPEND FFmpeg_CXXFLAGS "--extra-cxxflags=-MD")
+        list(APPEND FFmpeg_LDFLAGS "--extra-ldflags=-MD")
+    endif()
 elseif(APPLE)
     list(APPEND FFmpeg_LDFLAGS "--extra-ldflags=-L${CMAKE_INSTALL_PREFIX}/lib")
 else()
@@ -66,7 +75,7 @@ set(FFmpeg_CONFIGURE_ARGS
     --disable-securetransport
     --disable-vulkan
     --disable-xlib
-    --disable-zlib
+    --enable-zlib
     --disable-amf
     --disable-audiotoolbox
     --disable-cuda-llvm
