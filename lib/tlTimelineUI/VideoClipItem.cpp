@@ -280,7 +280,7 @@ namespace tl
                     {
                         const otime::RationalTime time = otime::RationalTime(
                             _timeRange.start_time().value() +
-                            (w > 0 ? (x / static_cast<double>(w - 1)) : 0) *
+                            (w > 1 ? (x / static_cast<double>(w - 1)) : 0) *
                             _timeRange.duration().value(),
                             _timeRange.duration().rate()).
                             floor();
