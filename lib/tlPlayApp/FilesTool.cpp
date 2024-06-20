@@ -265,6 +265,7 @@ namespace tl
                         auto layerComboBox = ui::ComboBox::create(context);
                         layerComboBox->setItems(item->videoLayers);
                         layerComboBox->setCurrentIndex(item->videoLayer);
+                        layerComboBox->setHAlign(ui::HAlign::Left);
                         layerComboBox->setToolTip("Set the current layer");
                         p.layerComboBoxes.push_back(layerComboBox);
                         layerComboBox->setParent(p.widgetLayout);
