@@ -936,24 +936,26 @@ namespace tl
                     auto i = std::find(p.files.begin(), p.files.end(), activeFiles[0]);
                     if (i != p.files.end())
                     {
-                        try
+                        if (auto timeline = p.timelines[i - p.files.begin()])
                         {
-                            timeline::PlayerOptions playerOptions;
-                            playerOptions.cache.readAhead = time::invalidTime;
-                            playerOptions.cache.readBehind = time::invalidTime;
-                            playerOptions.timerMode =
-                                p.settings->getValue<timeline::TimerMode>("Performance/TimerMode");
-                            playerOptions.audioBufferFrameCount =
-                                p.settings->getValue<size_t>("Performance/AudioBufferFrameCount");
-                            auto timeline = p.timelines[i - p.files.begin()];
-                            player.reset(new qt::TimelinePlayer(
-                                timeline::Player::create(timeline, _context, playerOptions),
-                                _context,
-                                this));
-                        }
-                        catch (const std::exception& e)
-                        {
-                            _log(e.what(), log::Type::Error);
+                            try
+                            {
+                                timeline::PlayerOptions playerOptions;
+                                playerOptions.cache.readAhead = time::invalidTime;
+                                playerOptions.cache.readBehind = time::invalidTime;
+                                playerOptions.timerMode =
+                                    p.settings->getValue<timeline::TimerMode>("Performance/TimerMode");
+                                playerOptions.audioBufferFrameCount =
+                                    p.settings->getValue<size_t>("Performance/AudioBufferFrameCount");
+                                player.reset(new qt::TimelinePlayer(
+                                    timeline::Player::create(timeline, _context, playerOptions),
+                                    _context,
+                                    this));
+                            }
+                            catch (const std::exception& e)
+                            {
+                                _log(e.what(), log::Type::Error);
+                            }
                         }
                     }
                 }
