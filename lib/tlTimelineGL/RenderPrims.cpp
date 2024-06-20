@@ -333,10 +333,14 @@ namespace tl
             case image::PixelType::YUV_420P_U16:
             case image::PixelType::YUV_422P_U16:
             case image::PixelType::YUV_444P_U16:
+                p.shaders["image"]->setUniform("textureSampler0", 0);
                 p.shaders["image"]->setUniform("textureSampler1", 1);
                 p.shaders["image"]->setUniform("textureSampler2", 2);
+                break;
             default:
                 p.shaders["image"]->setUniform("textureSampler0", 0);
+                p.shaders["image"]->setUniform("textureSampler1", 0);
+                p.shaders["image"]->setUniform("textureSampler2", 0);
                 break;
             }
 

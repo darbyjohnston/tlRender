@@ -277,6 +277,10 @@ namespace tl
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                     textures[0]->bind();
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
+                    glBindTexture(GL_TEXTURE_2D, 0);
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
+                    glBindTexture(GL_TEXTURE_2D, 0);
                 }
                 break;
             }
