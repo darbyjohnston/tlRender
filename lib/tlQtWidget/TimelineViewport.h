@@ -112,6 +112,9 @@ namespace tl
             //! This signal is emitted when the dropped frames count is changed.
             void droppedFramesChanged(size_t);
 
+            //! This signal is emitted when the color picker is changed.
+            void colorPickerChanged(const tl::image::Color4f&);
+
         private Q_SLOTS:
             void _playbackUpdate(timeline::Playback);
             void _videoDataUpdate(const std::vector<tl::timeline::VideoData>&);

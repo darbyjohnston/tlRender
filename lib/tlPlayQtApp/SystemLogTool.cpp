@@ -125,7 +125,7 @@ namespace tl
 
             setWidget(systemLogTool);
 
-            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F9));
+            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F10));
             toggleViewAction()->setToolTip(tr("Show system log"));
         }
     }

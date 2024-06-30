@@ -413,7 +413,10 @@ namespace tl
             p.infoLabel->setHAlign(ui::HAlign::Right);
             p.infoLabel->setMarginRole(ui::SizeRole::MarginInside);
 
-            p.toolsWidget = ToolsWidget::create(app, context);
+            p.toolsWidget = ToolsWidget::create(
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                app,
+                context);
             p.toolsWidget->hide();
 
             p.layout = ui::VerticalLayout::create(context, shared_from_this());
@@ -459,11 +462,12 @@ namespace tl
             hLayout->setSpacingRole(ui::SizeRole::SpacingTool);
             p.speedEdit->setParent(hLayout);
             p.speedButton->setParent(hLayout);
-            auto spacer = ui::Spacer::create(ui::Orientation::Horizontal, context);
+            auto spacer = ui::Spacer::create(ui::Orientation::Horizontal, context, p.bottomLayout);
             spacer->setHStretch(ui::Stretch::Expanding);
-            spacer->setParent(p.bottomLayout);
-            p.audioButton->setParent(p.bottomLayout);
-            p.muteButton->setParent(p.bottomLayout);
+            hLayout = ui::HorizontalLayout::create(context, p.bottomLayout);
+            hLayout->setSpacingRole(ui::SizeRole::SpacingTool);
+            p.audioButton->setParent(hLayout);
+            p.muteButton->setParent(hLayout);
             p.dividers["Status"] = ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
             p.statusLayout = ui::HorizontalLayout::create(context, p.layout);
             p.statusLayout->setSpacingRole(ui::SizeRole::None);

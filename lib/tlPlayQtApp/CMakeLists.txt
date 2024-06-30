@@ -2,6 +2,7 @@ set(HEADERS
     App.h
     AudioActions.h
     AudioTool.h
+    ColorPickerTool.h
     ColorTool.h
     CompareActions.h
     DevicesTool.h
@@ -33,6 +34,7 @@ set(SOURCE
     App.cpp
     AudioActions.cpp
     AudioTool.cpp
+    ColorPickerTool.cpp
     ColorTool.cpp
     CompareActions.cpp
     DevicesTool.cpp

@@ -156,7 +156,7 @@ namespace tl
             setWidget(viewTool);
 
             toggleViewAction()->setIcon(QIcon(":/Icons/View.svg"));
-            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F5));
+            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F2));
             toggleViewAction()->setToolTip(tr("Show view controls"));
         }
     }

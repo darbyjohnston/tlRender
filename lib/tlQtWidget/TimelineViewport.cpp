@@ -58,7 +58,8 @@ namespace tl
             {
                 None,
                 View,
-                Wipe
+                Wipe,
+                ColorPicker
             };
             MouseMode mouseMode = MouseMode::None;
             math::Vector2i mousePos;
@@ -522,6 +523,23 @@ namespace tl
                     p.vao->draw(GL_TRIANGLES, 0, p.vbo->getSize());
                 }
             }
+
+            if (p.buffer && Private::MouseMode::ColorPicker == p.mouseMode)
+            {
+                gl::OffscreenBufferBinding binding(p.buffer);
+                std::vector<float> sample(4);
+                glPixelStorei(GL_PACK_ALIGNMENT, 1);
+                glReadPixels(
+                    p.mousePos.x,
+                    p.mousePos.y,
+                    1,
+                    1,
+                    GL_RGBA,
+                    GL_FLOAT,
+                    sample.data());
+                const image::Color4f color(sample[0], sample[1], sample[2], sample[3]);
+                Q_EMIT colorPickerChanged(color);
+            }
         }
 
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
@@ -559,6 +577,11 @@ namespace tl
                 p.mouseMode = Private::MouseMode::Wipe;
                 p.mousePress.x = event->x() * devicePixelRatio;
                 p.mousePress.y = event->y() * devicePixelRatio;
+            }
+            else if (Qt::LeftButton == event->button() && event->modifiers() & Qt::ShiftModifier)
+            {
+                p.mouseMode = Private::MouseMode::ColorPicker;
+                update();
             }
         }
 
@@ -600,6 +623,9 @@ namespace tl
                         Q_EMIT compareOptionsChanged(p.compareOptions);
                     }
                 }
+                break;
+            case Private::MouseMode::ColorPicker:
+                update();
                 break;
             default: break;
             }

@@ -8,7 +8,9 @@
 
 #include <tlTimeline/RenderUtil.h>
 
+#include <tlGL/GL.h>
 #include <tlGL/OffscreenBuffer.h>
+#include <tlGL/Util.h>
 
 #include <tlCore/Error.h>
 #include <tlCore/String.h>
@@ -48,7 +50,8 @@ namespace tl
                 double frame = 0.0;
             };
             DroppedFramesData droppedFramesData;
-            
+            std::shared_ptr<observer::Value<image::Color4f> > colorPicker;
+
             bool doRender = false;
             std::shared_ptr<gl::OffscreenBuffer> buffer;
 
@@ -56,7 +59,8 @@ namespace tl
             {
                 None,
                 View,
-                Wipe
+                Wipe,
+                ColorPicker
             };
             struct MouseData
             {
@@ -85,6 +89,7 @@ namespace tl
             p.frameView = observer::Value<bool>::create(true);
             p.fps = observer::Value<double>::create(0.0);
             p.droppedFrames = observer::Value<size_t>::create(0);
+            p.colorPicker = observer::Value<image::Color4f>::create();
         }
 
         TimelineViewport::TimelineViewport() :
@@ -352,6 +357,11 @@ namespace tl
             return _p->droppedFrames;
         }
 
+        std::shared_ptr<observer::IValue<image::Color4f> > TimelineViewport::observeColorPicker() const
+        {
+            return _p->colorPicker;
+        }
+
         void TimelineViewport::setGeometry(const math::Box2i& value)
         {
             const bool changed = value != _geometry;
@@ -451,6 +461,26 @@ namespace tl
                 const unsigned int id = p.buffer->getColorID();
                 event.render->drawTexture(id, g);
             }
+
+            if (p.buffer && Private::MouseMode::ColorPicker == p.mouse.mode)
+            {
+                gl::OffscreenBufferBinding binding(p.buffer);
+                const math::Vector2i samplePos(
+                    _mouse.pos.x - _geometry.min.x,
+                    _mouse.pos.y - _geometry.min.y);
+                std::vector<float> sample(4);
+                glPixelStorei(GL_PACK_ALIGNMENT, 1);
+                glReadPixels(
+                    samplePos.x,
+                    samplePos.y,
+                    1,
+                    1,
+                    GL_RGBA,
+                    GL_FLOAT,
+                    sample.data());
+                const image::Color4f color(sample[0], sample[1], sample[2], sample[3]);
+                p.colorPicker->setIfChanged(color);
+            }
         }
 
         void TimelineViewport::mouseMoveEvent(ui::MouseMoveEvent& event)
@@ -492,6 +522,9 @@ namespace tl
                 }
                 break;
             }
+            case Private::MouseMode::ColorPicker:
+                _updates |= ui::Update::Draw;
+                break;
             default: break;
             }
         }
@@ -511,6 +544,12 @@ namespace tl
                 event.modifiers & static_cast<int>(ui::KeyModifier::Alt))
             {
                 p.mouse.mode = Private::MouseMode::Wipe;
+            }
+            else if (0 == event.button &&
+                event.modifiers & static_cast<int>(ui::KeyModifier::Shift))
+            {
+                p.mouse.mode = Private::MouseMode::ColorPicker;
+                _updates |= ui::Update::Draw;
             }
         }
 

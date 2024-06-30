@@ -7,6 +7,7 @@
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/AudioTool.h>
 #include <tlPlayApp/ColorTool.h>
+#include <tlPlayApp/ColorPickerTool.h>
 #include <tlPlayApp/DevicesTool.h>
 #include <tlPlayApp/FilesTool.h>
 #include <tlPlayApp/InfoTool.h>
@@ -30,6 +31,7 @@ namespace tl
         };
 
         void ToolsWidget::_init(
+            const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -42,6 +44,7 @@ namespace tl
 
             p.toolWidgets[Tool::Audio] = AudioTool::create(app, context);
             p.toolWidgets[Tool::Color] = ColorTool::create(app, context);
+            p.toolWidgets[Tool::ColorPicker] = ColorPickerTool::create(mainWindow, app, context);
             p.toolWidgets[Tool::Devices] = DevicesTool::create(app, context);
             p.toolWidgets[Tool::Files] = FilesTool::create(app, context);
             p.toolWidgets[Tool::Info] = InfoTool::create(app, context);
@@ -73,12 +76,13 @@ namespace tl
         {}
 
         std::shared_ptr<ToolsWidget> ToolsWidget::create(
-            const std::shared_ptr<App>&app,
-            const std::shared_ptr<system::Context>&context,
-            const std::shared_ptr<IWidget>&parent)
+            const std::shared_ptr<MainWindow>& mainWindow,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ToolsWidget>(new ToolsWidget);
-            out->_init(app, context, parent);
+            out->_init(mainWindow, app, context, parent);
             return out;
         }
 

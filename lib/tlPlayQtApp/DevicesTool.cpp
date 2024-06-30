@@ -368,7 +368,7 @@ namespace tl
             setWidget(devicesTool);
 
             toggleViewAction()->setIcon(QIcon(":/Icons/Devices.svg"));
-            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F6));
+            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F7));
             toggleViewAction()->setToolTip(tr("Show devices"));
         }
     }

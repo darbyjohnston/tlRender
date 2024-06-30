@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <tlPlayApp/Tools.h>
+#include <tlPlayApp/IToolWidget.h>
 
-#include <tlUI/IWidget.h>
+#include <tlTimeline/Player.h>
 
 namespace tl
 {
@@ -15,10 +15,10 @@ namespace tl
         class App;
         class MainWindow;
 
-        //! Tools widget.
-        class ToolsWidget : public ui::IWidget
+        //! Color picker tool.
+        class ColorPickerTool : public IToolWidget
         {
-            TLRENDER_NON_COPYABLE(ToolsWidget);
+            TLRENDER_NON_COPYABLE(ColorPickerTool);
 
         protected:
             void _init(
@@ -27,23 +27,19 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            ToolsWidget();
+            ColorPickerTool();
 
         public:
-            virtual ~ToolsWidget();
+            virtual ~ColorPickerTool();
 
-            //! Create a new widget.
-            static std::shared_ptr<ToolsWidget> create(
+            static std::shared_ptr<ColorPickerTool> create(
                 const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            void setGeometry(const math::Box2i&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
-
         private:
-            std::map<Tool, bool> _getToolsVisible() const;
+            void _widgetUpdate();
 
             TLRENDER_PRIVATE();
         };

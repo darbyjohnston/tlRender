@@ -14,13 +14,13 @@ namespace tl
     {
         //! Tools.
         //!
-        //! \todo Add a color picker.
         //! \todo Add a magnifier.
         enum class Tool
         {
             Files,
             View,
             Color,
+            ColorPicker,
             Info,
             Audio,
             Devices,

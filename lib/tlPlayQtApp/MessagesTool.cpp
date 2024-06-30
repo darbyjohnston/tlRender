@@ -126,7 +126,7 @@ namespace tl
             setWidget(messagesTool);
 
             toggleViewAction()->setIcon(QIcon(":/Icons/Messages.svg"));
-            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F8));
+            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F9));
             toggleViewAction()->setToolTip(tr("Show messages"));
         }
     }

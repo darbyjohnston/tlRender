@@ -35,6 +35,9 @@ namespace tl
                 "Show the color tool\n"
                 "\n"
                 "Shortcut: {0}",
+                "Show the color picker tool\n"
+                "\n"
+                "Shortcut: {0}",
                 "Show the information tool\n"
                 "\n"
                 "Shortcut: {0}",
