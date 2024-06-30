@@ -13,6 +13,7 @@
 
 #include <tlCore/StringFormat.h>
 
+#include <QAction>
 #include <QBoxLayout>
 #include <QFormLayout>
 #include <QLabel>
