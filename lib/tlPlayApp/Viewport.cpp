@@ -165,7 +165,7 @@ namespace tl
                         y,
                         p.size.textSize[i].w + p.size.margin * 2,
                         p.size.textSize[i].h + p.size.margin * 2);
-                    event.render->drawRect(g3, event.style->getColorRole(ui::ColorRole::Overlay));
+                    event.render->drawRect(g3, event.style->getColorRole(ui::ColorRole::Base));
                     const math::Vector2i pos(
                         g3.min.x + p.size.margin,
                         g3.min.y + p.size.margin + p.size.fontMetrics.ascender);
