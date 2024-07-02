@@ -13,6 +13,7 @@
 #include <tlGL/Util.h>
 
 #include <tlCore/Error.h>
+#include <tlCore/LogSystem.h>
 #include <tlCore/String.h>
 
 namespace tl
@@ -423,35 +424,45 @@ namespace tl
                 }
                 if (p.buffer)
                 {
-                    gl::OffscreenBufferBinding binding(p.buffer);
-                    event.render->setRenderSize(size);
-                    event.render->setViewport(math::Box2i(0, 0, g.w(), g.h()));
-                    event.render->setClipRectEnabled(false);
-                    event.render->clearViewport(image::Color4f(0.F, 0.F, 0.F));
-                    event.render->setOCIOOptions(p.ocioOptions);
-                    event.render->setLUTOptions(p.lutOptions);
-                    if (!p.videoData.empty())
+                    try
                     {
-                        math::Matrix4x4f vm;
-                        vm = vm * math::translate(math::Vector3f(p.viewPos.x, p.viewPos.y, 0.F));
-                        vm = vm * math::scale(math::Vector3f(p.viewZoom, p.viewZoom, 1.F));
-                        const auto pm = math::ortho(
-                            0.F,
-                            static_cast<float>(g.w()),
-                            0.F,
-                            static_cast<float>(g.h()),
-                            -1.F,
-                            1.F);
-                        event.render->setTransform(pm * vm);
-                        event.render->drawVideo(
-                            p.videoData,
-                            timeline::getBoxes(p.compareOptions.mode, p.videoData),
-                            p.imageOptions,
-                            p.displayOptions,
-                            p.compareOptions,
-                            p.backgroundOptions);
+                        gl::OffscreenBufferBinding binding(p.buffer);
+                        event.render->setRenderSize(size);
+                        event.render->setViewport(math::Box2i(0, 0, g.w(), g.h()));
+                        event.render->setClipRectEnabled(false);
+                        event.render->clearViewport(image::Color4f(0.F, 0.F, 0.F));
+                        event.render->setOCIOOptions(p.ocioOptions);
+                        event.render->setLUTOptions(p.lutOptions);
+                        if (!p.videoData.empty())
+                        {
+                            math::Matrix4x4f vm;
+                            vm = vm * math::translate(math::Vector3f(p.viewPos.x, p.viewPos.y, 0.F));
+                            vm = vm * math::scale(math::Vector3f(p.viewZoom, p.viewZoom, 1.F));
+                            const auto pm = math::ortho(
+                                0.F,
+                                static_cast<float>(g.w()),
+                                0.F,
+                                static_cast<float>(g.h()),
+                                -1.F,
+                                1.F);
+                            event.render->setTransform(pm * vm);
+                            event.render->drawVideo(
+                                p.videoData,
+                                timeline::getBoxes(p.compareOptions.mode, p.videoData),
+                                p.imageOptions,
+                                p.displayOptions,
+                                p.compareOptions,
+                                p.backgroundOptions);
 
-                        _droppedFramesUpdate(p.videoData[0].time);
+                            _droppedFramesUpdate(p.videoData[0].time);
+                        }
+                    }
+                    catch (const std::exception& e)
+                    {
+                        if (auto context = _context.lock())
+                        {
+                            context->log("tl::timelineui::TimelineViewport", e.what(), log::Type::Error);
+                        }
                     }
                 }
             }
