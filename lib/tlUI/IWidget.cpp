@@ -199,6 +199,11 @@ namespace tl
             }
             _updates |= Update::Size;
             _updates |= Update::Draw;
+            if (auto parent = _parent.lock())
+            {
+                parent->_updates |= Update::Size;
+                parent->_updates |= Update::Draw;
+            }
         }
 
         void IWidget::show()
