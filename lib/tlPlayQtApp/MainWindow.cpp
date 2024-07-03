@@ -25,8 +25,14 @@
 #include <tlPlayQtApp/ToolActions.h>
 #include <tlPlayQtApp/ViewActions.h>
 #include <tlPlayQtApp/ViewTool.h>
-#include <tlPlayQtApp/Viewport.h>
 #include <tlPlayQtApp/WindowActions.h>
+
+#include <tlQtWidget/ContainerWidget.h>
+#include <tlQtWidget/Spacer.h>
+#include <tlQtWidget/TimeLabel.h>
+#include <tlQtWidget/TimeSpinBox.h>
+#include <tlQtWidget/TimelineWidget.h>
+#include <tlQtWidget/Util.h>
 
 #include <tlPlay/AudioModel.h>
 #include <tlPlay/ColorModel.h>
@@ -34,12 +40,7 @@
 #include <tlPlay/Info.h>
 #include <tlPlay/RenderModel.h>
 #include <tlPlay/Settings.h>
-
-#include <tlQtWidget/Spacer.h>
-#include <tlQtWidget/TimeLabel.h>
-#include <tlQtWidget/TimeSpinBox.h>
-#include <tlQtWidget/TimelineWidget.h>
-#include <tlQtWidget/Util.h>
+#include <tlPlay/Viewport.h>
 
 #if defined(TLRENDER_BMD)
 #include <tlDevice/BMDOutputDevice.h>
@@ -94,7 +95,8 @@ namespace tl
             AudioActions* audioActions = nullptr;
             ToolActions* toolActions = nullptr;
 
-            Viewport* viewport = nullptr;
+            std::shared_ptr<play::Viewport> viewport = nullptr;
+            qtwidget::ContainerWidget* viewportContainer = nullptr;
             qtwidget::TimelineWidget* timelineWidget = nullptr;
             qtwidget::TimeSpinBox* currentTimeSpinBox = nullptr;
             QDoubleSpinBox* speedSpinBox = nullptr;
@@ -172,11 +174,14 @@ namespace tl
             p.floatOnTop = settings->getValue<bool>("MainWindow/FloatOnTop");
 
             auto context = app->getContext();
-            p.viewport = new Viewport(context);
+            p.viewport = play::Viewport::create(context);
+            auto style = ui::Style::create(context);
+            p.viewportContainer = new qtwidget::ContainerWidget(style, context);
+            p.viewportContainer->setWidget(p.viewport);
 
             p.timelineWidget = new qtwidget::TimelineWidget(
                 app->timeUnitsModel(),
-                ui::Style::create(context),
+                style,
                 context);
             p.timelineWidget->setEditable(settings->getValue<bool>("Timeline/Editable"));
             p.timelineWidget->setFrameView(settings->getValue<bool>("Timeline/FrameView"));
@@ -280,7 +285,7 @@ namespace tl
             toolsToolBar->setFloatable(false);
             addToolBar(Qt::TopToolBarArea, toolsToolBar);
 
-            setCentralWidget(p.viewport);
+            setCentralWidget(p.viewportContainer);
 
             auto timelineDockWidget = new QDockWidget;
             timelineDockWidget->setObjectName("Timeline");
@@ -432,7 +437,7 @@ namespace tl
             p.statusBar->addPermanentWidget(labelWidget);
             setStatusBar(p.statusBar);
 
-            p.viewport->setFocus();
+            p.viewportContainer->setFocus();
 
             _playerUpdate(app->player());
             _widgetUpdate();
@@ -653,19 +658,10 @@ namespace tl
                 SIGNAL(valueChanged(int)),
                 SLOT(_volumeCallback(int)));
 
-            connect(
-                p.viewport,
-                &Viewport::compareOptionsChanged,
+            p.viewport->setCompareCallback(
                 [this](const timeline::CompareOptions& value)
                 {
                     _p->app->filesModel()->setCompareOptions(value);
-                });
-            connect(
-                p.viewport,
-                &Viewport::frameViewChanged,
-                [this](bool value)
-                {
-                    _p->viewActions->actions()["Frame"]->setChecked(value);
                 });
 
             connect(
@@ -727,7 +723,7 @@ namespace tl
             return _p->timelineWidget;
         }
 
-        Viewport* MainWindow::viewport() const
+        const std::shared_ptr<play::Viewport>& MainWindow::viewport() const
         {
             return _p->viewport;
         }
@@ -833,7 +829,7 @@ namespace tl
                     SLOT(_currentTimeCallback(const otime::RationalTime&)));
             }
 
-            p.viewport->setPlayer(p.player);
+            p.viewport->setPlayer(p.player ? p.player->player() : nullptr);
 
             _widgetUpdate();
         }

@@ -15,10 +15,14 @@ namespace tl
         class TimelineWidget;
     }
 
+    namespace play
+    {
+        class Viewport;
+    }
+
     namespace play_qt
     {
         class App;
-        class Viewport;
 
         //! Main window.
         class MainWindow : public QMainWindow
@@ -31,7 +35,7 @@ namespace tl
             virtual ~MainWindow();
 
             //! Get the viewport;
-            Viewport* viewport() const;
+            const std::shared_ptr<play::Viewport>& viewport() const;
 
             //! Get the timeline widget;
             qtwidget::TimelineWidget* timelineWidget() const;

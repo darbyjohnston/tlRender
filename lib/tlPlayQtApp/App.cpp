@@ -7,9 +7,6 @@
 #include <tlPlayQtApp/MainWindow.h>
 #include <tlPlayQtApp/OpenSeparateAudioDialog.h>
 #include <tlPlayQtApp/SecondaryWindow.h>
-#include <tlPlayQtApp/Viewport.h>
-
-#include <tlPlay/Settings.h>
 
 #include <tlQtWidget/Init.h>
 #include <tlQtWidget/FileBrowserSystem.h>
@@ -22,15 +19,17 @@
 #include <tlQt/TimelinePlayer.h>
 #include <tlQt/ToolTipsFilter.h>
 
-#include <tlUI/RecentFilesModel.h>
-
 #include <tlPlay/App.h>
 #include <tlPlay/AudioModel.h>
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/FilesModel.h>
 #include <tlPlay/RenderModel.h>
+#include <tlPlay/Settings.h>
+#include <tlPlay/Viewport.h>
 #include <tlPlay/ViewportModel.h>
 #include <tlPlay/Util.h>
+
+#include <tlUI/RecentFilesModel.h>
 
 #if defined(TLRENDER_BMD)
 #include <tlDevice/BMDDevicesModel.h>
@@ -705,9 +704,7 @@ namespace tl
                     }
                 });
 
-            connect(
-                p.mainWindow->viewport(),
-                &Viewport::viewPosAndZoomChanged,
+            p.mainWindow->viewport()->setViewPosAndZoomCallback(
                 [this](const math::Vector2i& pos, double zoom)
                 {
                     _viewUpdate(
@@ -715,14 +712,12 @@ namespace tl
                         zoom,
                         _p->mainWindow->viewport()->hasFrameView());
                 });
-            connect(
-                p.mainWindow->viewport(),
-                &Viewport::frameViewChanged,
+            p.mainWindow->viewport()->setFrameViewCallback(
                 [this](bool value)
                 {
                     _viewUpdate(
-                        _p->mainWindow->viewport()->viewPos(),
-                        _p->mainWindow->viewport()->viewZoom(),
+                        _p->mainWindow->viewport()->getViewPos(),
+                        _p->mainWindow->viewport()->getViewZoom(),
                         value);
                 });
         }
@@ -1042,7 +1037,7 @@ namespace tl
         {
             TLRENDER_P();
             float scale = 1.F;
-            const QSize& size = p.mainWindow->viewport()->size() *
+            const math::Size2i& size = p.mainWindow->viewport()->getGeometry().getSize() *
                 p.mainWindow->devicePixelRatio();
             if (p.secondaryWindow)
             {
@@ -1050,7 +1045,7 @@ namespace tl
                     p.secondaryWindow->devicePixelRatio();
                 if (size.isValid() && secondarySize.isValid())
                 {
-                    scale = secondarySize.width() / static_cast<float>(size.width());
+                    scale = secondarySize.width() / static_cast<float>(size.w);
                 }
                 p.secondaryWindow->setView(pos * scale, zoom * scale, frame);
             }
@@ -1059,7 +1054,7 @@ namespace tl
             const math::Size2i& bmdSize = p.bmdOutputDevice->getSize();
             if (size.isValid() && bmdSize.isValid())
             {
-                scale = bmdSize.w / static_cast<float>(size.width());
+                scale = bmdSize.w / static_cast<float>(size.w);
             }
             p.bmdOutputDevice->setView(pos * scale, zoom * scale, frame);
 #endif // TLRENDER_BMD

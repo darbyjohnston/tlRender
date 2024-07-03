@@ -6,11 +6,11 @@
 
 #include <tlPlayQtApp/App.h>
 #include <tlPlayQtApp/MainWindow.h>
-#include <tlPlayQtApp/Viewport.h>
+
+#include <tlPlay/Viewport.h>
+#include <tlPlay/ViewportModel.h>
 
 #include <tlQt/MetaTypes.h>
-
-#include <tlPlay/ViewportModel.h>
 
 #include <QActionGroup>
 
@@ -25,7 +25,9 @@ namespace tl
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
             QScopedPointer<QMenu> menu;
+            std::shared_ptr<observer::ValueObserver<bool> > frameViewObserver;
             std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<bool> > hudObserver;
         };
 
         ViewActions::ViewActions(App* app, MainWindow* mainWindow, QObject* parent) :
@@ -201,9 +203,8 @@ namespace tl
                     mainWindow->viewport()->setHUD(value);
                 });
 
-            connect(
-                mainWindow->viewport(),
-                &Viewport::hudChanged,
+            p.frameViewObserver = observer::ValueObserver<bool>::create(
+                mainWindow->viewport()->observeFrameView(),
                 [this](bool)
                 {
                     _actionsUpdate();
@@ -212,6 +213,13 @@ namespace tl
             p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
                 app->viewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions&)
+                {
+                    _actionsUpdate();
+                });
+
+            p.hudObserver = observer::ValueObserver<bool>::create(
+                mainWindow->viewport()->observeHUD(),
+                [this](bool)
                 {
                     _actionsUpdate();
                 });
@@ -233,6 +241,8 @@ namespace tl
         void ViewActions::_actionsUpdate()
         {
             TLRENDER_P();
+            p.actions["Frame"]->setChecked(p.mainWindow->viewport()->hasFrameView());
+
             auto viewportModel = p.app->viewportModel();
             const auto& displayOptions = viewportModel->getDisplayOptions();
             {

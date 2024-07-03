@@ -7,9 +7,10 @@
 #include <tlPlayQtApp/App.h>
 #include <tlPlayQtApp/DockTitleBar.h>
 #include <tlPlayQtApp/MainWindow.h>
-#include <tlPlayQtApp/Viewport.h>
 
 #include <tlQtWidget/ColorSwatch.h>
+
+#include <tlPlay/Viewport.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -27,6 +28,7 @@ namespace tl
             image::Color4f color;
             qtwidget::ColorSwatch* colorSwatch = nullptr;
             std::vector<QLabel*> labels;
+            std::shared_ptr<observer::ValueObserver<image::Color4f> > observer;
         };
 
         ColorPickerTool::ColorPickerTool(MainWindow* mainWindow, App* app, QWidget* parent) :
@@ -60,9 +62,8 @@ namespace tl
 
             _widgetUpdate();
 
-            connect(
-                mainWindow->viewport(),
-                &Viewport::colorPickerChanged,
+            p.observer = observer::ValueObserver<image::Color4f>::create(
+                mainWindow->viewport()->observeColorPicker(),
                 [this](const image::Color4f& value)
                 {
                     _p->color = value;
