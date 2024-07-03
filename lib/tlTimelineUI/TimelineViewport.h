@@ -109,7 +109,7 @@ namespace tl
             //! Get the number of dropped frames during playback.
             size_t getDroppedFrames() const;
 
-            //! Observe the number of dropped frames during playback..
+            //! Observe the number of dropped frames during playback.
             std::shared_ptr<observer::IValue<size_t> > observeDroppedFrames() const;
             
             //! Observe the color picker.
