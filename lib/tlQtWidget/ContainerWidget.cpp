@@ -319,7 +319,7 @@ namespace tl
         {
             TLRENDER_P();
             const math::Size2i renderSize(_toUI(width()), _toUI(height()));
-            if (_getDrawUpdate(p.window))
+            if (_hasDrawUpdate(p.window))
             {
                 try
                 {
@@ -688,7 +688,7 @@ namespace tl
             widget->tickEvent(visible, enabled, event);
         }
 
-        bool ContainerWidget::_getSizeUpdate(const std::shared_ptr<ui::IWidget>& widget) const
+        bool ContainerWidget::_hasSizeUpdate(const std::shared_ptr<ui::IWidget>& widget) const
         {
             bool out = widget->getUpdates() & ui::Update::Size;
             if (out)
@@ -699,7 +699,7 @@ namespace tl
             {
                 for (const auto& child : widget->getChildren())
                 {
-                    out |= _getSizeUpdate(child);
+                    out |= _hasSizeUpdate(child);
                 }
             }
             return out;
@@ -764,7 +764,7 @@ namespace tl
             }
         }
 
-        bool ContainerWidget::_getDrawUpdate(const std::shared_ptr<ui::IWidget>& widget) const
+        bool ContainerWidget::_hasDrawUpdate(const std::shared_ptr<ui::IWidget>& widget) const
         {
             bool out = false;
             if (!widget->isClipped())
@@ -778,7 +778,7 @@ namespace tl
                 {
                     for (const auto& child : widget->getChildren())
                     {
-                        out |= _getDrawUpdate(child);
+                        out |= _hasDrawUpdate(child);
                     }
                 }
             }
@@ -854,14 +854,14 @@ namespace tl
             if (_p)
             {
                 _tickEvent();
-                if (_getSizeUpdate(_p->window))
+                if (_hasSizeUpdate(_p->window))
                 {
                     _sizeHintEvent();
                     _setGeometry();
                     _clipEvent();
                     updateGeometry();
                 }
-                if (_getDrawUpdate(_p->window))
+                if (_hasDrawUpdate(_p->window))
                 {
                     update();
                 }

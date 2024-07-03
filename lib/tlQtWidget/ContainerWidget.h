@@ -71,7 +71,7 @@ namespace tl
                 bool enabled,
                 const ui::TickEvent&);
 
-            bool _getSizeUpdate(const std::shared_ptr<ui::IWidget>&) const;
+            bool _hasSizeUpdate(const std::shared_ptr<ui::IWidget>&) const;
             void _sizeHintEvent();
             void _sizeHintEvent(
                 const std::shared_ptr<ui::IWidget>&,
@@ -85,7 +85,7 @@ namespace tl
                 const math::Box2i&,
                 bool clipped);
 
-            bool _getDrawUpdate(const std::shared_ptr<ui::IWidget>&) const;
+            bool _hasDrawUpdate(const std::shared_ptr<ui::IWidget>&) const;
             void _drawEvent(
                 const std::shared_ptr<ui::IWidget>&,
                 const math::Box2i&,

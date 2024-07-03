@@ -4,6 +4,9 @@
 
 #include <tlPlay/Viewport.h>
 
+#include <tlUI/GridLayout.h>
+#include <tlUI/Label.h>
+
 #include <tlCore/StringFormat.h>
 
 namespace tl
@@ -15,29 +18,14 @@ namespace tl
             std::shared_ptr<observer::Value<bool> > hud;
             double fps = 0.0;
             size_t droppedFrames = 0;
-            std::vector<std::string> text;
 
-            struct SizeData
-            {
-                int sizeInit = true;
-                int margin = 0;
-                int spacing = 0;
-
-                bool textInit = true;
-                image::FontInfo fontInfo;
-                image::FontMetrics fontMetrics;
-                std::vector<math::Size2i> textSize;
-            };
-            SizeData size;
-
-            struct DrawData
-            {
-                std::vector<std::vector<std::shared_ptr<image::Glyph> > > glyphs;
-            };
-            DrawData draw;
+            std::shared_ptr<ui::Label> fpsLabel;
+            std::shared_ptr<ui::Label> colorPickerLabel;
+            std::shared_ptr<ui::GridLayout> hudLayout;
 
             std::shared_ptr<observer::ValueObserver<double> > fpsObserver;
             std::shared_ptr<observer::ValueObserver<size_t> > droppedFramesObserver;
+            std::shared_ptr<observer::ValueObserver<image::Color4f> > colorPickerObserver;
         };
 
         void Viewport::_init(
@@ -46,7 +34,21 @@ namespace tl
         {
             TimelineViewport::_init(context, parent);
             TLRENDER_P();
+
             p.hud = observer::Value<bool>::create(false);
+
+            p.fpsLabel = ui::Label::create(context);
+            p.fpsLabel->setMarginRole(ui::SizeRole::MarginInside);
+            p.fpsLabel->setBackgroundRole(ui::ColorRole::Base);
+
+            p.colorPickerLabel = ui::Label::create(context);
+
+            p.hudLayout = ui::GridLayout::create(context, shared_from_this());
+            p.hudLayout->setMarginRole(ui::SizeRole::MarginSmall);
+            p.fpsLabel->setParent(p.hudLayout);
+            p.hudLayout->setGridPos(p.fpsLabel, 0, 0);
+            p.hudLayout->hide();
+
             p.fpsObserver = observer::ValueObserver<double>::create(
                 observeFPS(),
                 [this](double value)
@@ -60,6 +62,11 @@ namespace tl
                 {
                     _p->droppedFrames = value;
                     _textUpdate();
+                });
+            p.colorPickerObserver = observer::ValueObserver<image::Color4f>::create(
+                observeColorPicker(),
+                [this](const image::Color4f& value)
+                {
                 });
         }
 
@@ -94,101 +101,31 @@ namespace tl
             TLRENDER_P();
             if (p.hud->setIfChanged(value))
             {
-                _updates |= ui::Update::Draw;
+                p.hudLayout->setVisible(value);
             }
+        }
+
+        void Viewport::setGeometry(const math::Box2i& value)
+        {
+            TimelineViewport::setGeometry(value);
+            TLRENDER_P();
+            p.hudLayout->setGeometry(value);
         }
 
         void Viewport::sizeHintEvent(const ui::SizeHintEvent& event)
         {
-            const bool displayScaleChanged = event.displayScale != _displayScale;
             TimelineViewport::sizeHintEvent(event);
             TLRENDER_P();
-
-            if (displayScaleChanged || p.size.sizeInit)
-            {
-                p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, _displayScale);
-                p.size.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, _displayScale);
-            }
-            if (displayScaleChanged || p.size.textInit || p.size.sizeInit)
-            {
-                p.size.fontInfo = event.style->getFontRole(ui::FontRole::Mono, _displayScale);
-                p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
-                p.size.textSize.clear();
-                for (const auto& text : p.text)
-                {
-                    p.size.textSize.push_back(
-                        event.fontSystem->getSize(text, p.size.fontInfo));
-                }
-                p.draw.glyphs.clear();
-            }
-            p.size.sizeInit = false;
-            p.size.textInit = false;
-        }
-
-        void Viewport::clipEvent(const math::Box2i& clipRect, bool clipped)
-        {
-            TimelineViewport::clipEvent(clipRect, clipped);
-            TLRENDER_P();
-            if (clipped)
-            {
-                p.draw.glyphs.clear();
-            }
-        }
-
-        void Viewport::drawEvent(
-            const math::Box2i& drawRect,
-            const ui::DrawEvent& event)
-        {
-            TimelineViewport::drawEvent(drawRect, event);
-            TLRENDER_P();
-            const math::Box2i& g = _geometry;
-            if (p.hud->get())
-            {
-                if (!p.text.empty() && p.draw.glyphs.empty())
-                {
-                    for (const auto& text : p.text)
-                    {
-                        p.draw.glyphs.push_back(
-                            event.fontSystem->getGlyphs(text, p.size.fontInfo));
-                    }
-                }
-
-                const math::Box2i g2 = g.margin(-p.size.margin);
-                int x = g2.min.x;
-                int y = g2.min.y;
-                for (size_t i = 0;
-                    i < p.text.size() && i < p.size.textSize.size() && i < p.draw.glyphs.size();
-                    ++i)
-                {
-                    const math::Box2i g3(
-                        x,
-                        y,
-                        p.size.textSize[i].w + p.size.margin * 2,
-                        p.size.textSize[i].h + p.size.margin * 2);
-                    event.render->drawRect(g3, event.style->getColorRole(ui::ColorRole::Base));
-                    const math::Vector2i pos(
-                        g3.min.x + p.size.margin,
-                        g3.min.y + p.size.margin + p.size.fontMetrics.ascender);
-                    event.render->drawText(
-                        p.draw.glyphs[i],
-                        pos,
-                        event.style->getColorRole(ui::ColorRole::Text));
-                    y += g3.h();
-                }
-            }
+            _sizeHint = p.hudLayout->getSizeHint();
         }
 
         void Viewport::_textUpdate()
         {
             TLRENDER_P();
-            p.text.clear();
-            p.text.push_back(
+            p.fpsLabel->setText(
                 string::Format("FPS: {0} ({1} dropped)").
                 arg(p.fps, 2, 4).
                 arg(p.droppedFrames));
-            p.size.textInit = true;
-            _updates |= ui::Update::Size;
-            _updates |= ui::Update::Draw;
         }
     }
 }
