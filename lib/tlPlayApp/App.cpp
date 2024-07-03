@@ -9,7 +9,6 @@
 #include <tlPlayApp/SeparateAudioDialog.h>
 #include <tlPlayApp/Style.h>
 #include <tlPlayApp/Tools.h>
-#include <tlPlayApp/Viewport.h>
 
 #include <tlPlay/App.h>
 #include <tlPlay/AudioModel.h>
@@ -18,6 +17,7 @@
 #include <tlPlay/RenderModel.h>
 #include <tlPlay/Settings.h>
 #include <tlPlay/Util.h>
+#include <tlPlay/Viewport.h>
 #include <tlPlay/ViewportModel.h>
 
 #include <tlUI/FileBrowser.h>

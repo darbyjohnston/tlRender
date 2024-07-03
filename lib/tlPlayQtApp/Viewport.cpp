@@ -29,7 +29,7 @@ namespace tl
         Viewport::Viewport(
             const std::shared_ptr<system::Context>& context,
             QWidget* parent) :
-            TimelineViewport(context, parent),
+            TimelineViewport(ui::Style::create(context), context, parent),
             _p(new Private)
         {
             TLRENDER_P();

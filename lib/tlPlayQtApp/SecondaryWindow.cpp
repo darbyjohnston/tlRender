@@ -48,7 +48,9 @@ namespace tl
 
             p.app = app;
 
-            p.viewport = new qtwidget::TimelineViewport(app->getContext());
+            p.viewport = new qtwidget::TimelineViewport(
+                ui::Style::create(app->getContext()),
+                app->getContext());
 
             auto layout = new QVBoxLayout;
             layout->setContentsMargins(0, 0, 0, 0);

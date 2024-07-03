@@ -6,7 +6,8 @@
 
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
-#include <tlPlayApp/Viewport.h>
+
+#include <tlPlay/Viewport.h>
 
 #include <tlUI/RowLayout.h>
 #include <tlUI/ToolButton.h>

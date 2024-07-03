@@ -8,7 +8,7 @@
 
 namespace tl
 {
-    namespace play_app
+    namespace play
     {
         class Viewport : public timelineui::TimelineViewport
         {
@@ -28,8 +28,13 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            //! Get whether the HUD is enabled.
             bool hasHUD() const;
+
+            //! Observe whether the HUD is enabled.
             std::shared_ptr<observer::IValue<bool> > observeHUD() const;
+
+            //! Set whether the HUD is enabled.
             void setHUD(bool);
 
             void sizeHintEvent(const ui::SizeHintEvent&) override;

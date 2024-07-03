@@ -4,12 +4,11 @@
 
 #pragma once
 
+#include <tlQtWidget/ContainerWidget.h>
+
 #include <tlTimelineUI/IItem.h>
 
 #include <tlTimeline/Player.h>
-
-#include <QOpenGLWidget>
-#include <QOpenGLFunctions_4_1_Core>
 
 namespace tl
 {
@@ -21,16 +20,14 @@ namespace tl
     namespace qtwidget
     {
         //! Timeline widget.
-        class TimelineWidget :
-            public QOpenGLWidget,
-            protected QOpenGLFunctions_4_1_Core
+        class TimelineWidget : public qtwidget::ContainerWidget
         {
             Q_OBJECT
 
         public:
             TimelineWidget(
-                const std::shared_ptr<ui::Style>&,
                 const std::shared_ptr<timeline::ITimeUnitsModel>&,
+                const std::shared_ptr<ui::Style>&,
                 const std::shared_ptr<system::Context>&,
                 QWidget* parent = nullptr);
 
@@ -68,9 +65,6 @@ namespace tl
 
             //! Get the display options.
             const timelineui::DisplayOptions& displayOptions() const;
-
-            QSize minimumSizeHint() const override;
-            QSize sizeHint() const override;
 
         public Q_SLOTS:
             //! Set whether the timeline is editable.
@@ -116,63 +110,7 @@ namespace tl
             //! This signal is emitted when the time is scrubbed.
             void timeScrubbed(const tl::otime::RationalTime&);
 
-        protected:
-            void initializeGL() override;
-            void resizeGL(int w, int h) override;
-            void paintGL() override;
-
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-            void enterEvent(QEvent*) override;
-#else
-            void enterEvent(QEnterEvent*) override;
-#endif // QT_VERSION
-            void leaveEvent(QEvent*) override;
-            void mousePressEvent(QMouseEvent*) override;
-            void mouseReleaseEvent(QMouseEvent*) override;
-            void mouseMoveEvent(QMouseEvent*) override;
-            void wheelEvent(QWheelEvent*) override;
-            void keyPressEvent(QKeyEvent*) override;
-            void keyReleaseEvent(QKeyEvent*) override;
-
-            bool event(QEvent*) override;
-
         private:
-            void _tickEvent();
-            void _tickEvent(
-                const std::shared_ptr<ui::IWidget>&,
-                bool visible,
-                bool enabled,
-                const ui::TickEvent&);
-
-            bool _getSizeUpdate(const std::shared_ptr<ui::IWidget>&) const;
-            void _sizeHintEvent();
-            void _sizeHintEvent(
-                const std::shared_ptr<ui::IWidget>&,
-                const ui::SizeHintEvent&);
-
-            void _setGeometry();
-
-            void _clipEvent();
-            void _clipEvent(
-                const std::shared_ptr<ui::IWidget>&,
-                const math::Box2i&,
-                bool clipped);
-
-            bool _getDrawUpdate(const std::shared_ptr<ui::IWidget>&) const;
-            void _drawEvent(
-                const std::shared_ptr<ui::IWidget>&,
-                const math::Box2i&,
-                const ui::DrawEvent&);
-
-            int _toUI(int) const;
-            math::Vector2i _toUI(const math::Vector2i&) const;
-            int _fromUI(int) const;
-            math::Vector2i _fromUI(const math::Vector2i&) const;
-
-            void _inputUpdate();
-            void _timerUpdate();
-            void _styleUpdate();
-
             TLRENDER_PRIVATE();
         };
     }

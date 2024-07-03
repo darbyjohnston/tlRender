@@ -192,12 +192,15 @@ namespace tl
         void OCIOModel::setInputIndex(size_t value)
         {
             TLRENDER_P();
-            const auto& inputs = p.data->get().inputs;
-            if (value >= 0 && value < inputs.size())
+            const auto& data = p.data->get();
+            if (value >= 0 && value < data.inputs.size())
             {
                 auto options = p.options->get();
                 options.enabled = true;
-                options.input = value > 0 ? inputs[value] : std::string();
+                options.input = value > 0 ? data.inputs[value] : std::string();
+                options.display = std::string();
+                options.view = std::string();
+                options.look = std::string();
                 if (p.options->setIfChanged(options))
                 {
                     _configUpdate();
@@ -214,6 +217,8 @@ namespace tl
                 auto options = p.options->get();
                 options.enabled = true;
                 options.display = value > 0 ? displays[value] : std::string();
+                options.view = std::string();
+                options.look = std::string();
                 if (p.options->setIfChanged(options))
                 {
                     _configUpdate();
@@ -230,6 +235,7 @@ namespace tl
                 auto options = p.options->get();
                 options.enabled = true;
                 options.view = value > 0 ? views[value] : std::string();
+                options.look = std::string();
                 if (p.options->setIfChanged(options))
                 {
                     _configUpdate();

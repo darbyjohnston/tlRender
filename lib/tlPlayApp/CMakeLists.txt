@@ -42,7 +42,6 @@ set(HEADERS
     ViewMenu.h
     ViewToolBar.h
     ViewTool.h
-    Viewport.h
     WindowActions.h
     WindowMenu.h
     WindowToolBar.h)
@@ -97,13 +96,12 @@ set(SOURCE
     ViewMenu.cpp
     ViewToolBar.cpp
     ViewTool.cpp
-    Viewport.cpp
     WindowActions.cpp
     WindowMenu.cpp
     WindowToolBar.cpp)
 
 add_library(tlPlayApp ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
-target_link_libraries(tlPlayApp tlPlay tlTimelineUI tlUIApp)
+target_link_libraries(tlPlayApp tlPlay tlUIApp)
 set_target_properties(tlPlayApp PROPERTIES FOLDER lib)
 set_target_properties(tlPlayApp PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

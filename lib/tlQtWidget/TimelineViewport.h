@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <tlQtWidget/ContainerWidget.h>
+
 #include <tlQt/TimelinePlayer.h>
 
 #include <tlTimeline/BackgroundOptions.h>
@@ -12,8 +14,6 @@
 #include <tlTimeline/LUTOptions.h>
 #include <tlTimeline/OCIOOptions.h>
 
-#include <QOpenGLWidget>
-#include <QOpenGLFunctions_4_1_Core>
 #include <QSharedPointer>
 #include <QVector>
 
@@ -22,14 +22,13 @@ namespace tl
     namespace qtwidget
     {
         //! Timeline viewport widget.
-        class TimelineViewport :
-            public QOpenGLWidget,
-            protected QOpenGLFunctions_4_1_Core
+        class TimelineViewport : public ContainerWidget
         {
             Q_OBJECT
 
         public:
             TimelineViewport(
+                const std::shared_ptr<ui::Style>&,
                 const std::shared_ptr<system::Context>&,
                 QWidget* parent = nullptr);
 
@@ -115,34 +114,7 @@ namespace tl
             //! This signal is emitted when the color picker is changed.
             void colorPickerChanged(const tl::image::Color4f&);
 
-        private Q_SLOTS:
-            void _playbackUpdate(timeline::Playback);
-            void _videoDataUpdate(const std::vector<tl::timeline::VideoData>&);
-
-        protected:
-            void initializeGL() override;
-            void resizeGL(int w, int h) override;
-            void paintGL() override;
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-            void enterEvent(QEvent*) override;
-#else
-            void enterEvent(QEnterEvent*) override;
-#endif // QT_VERSION
-            void leaveEvent(QEvent*) override;
-            void mousePressEvent(QMouseEvent*) override;
-            void mouseReleaseEvent(QMouseEvent*) override;
-            void mouseMoveEvent(QMouseEvent*) override;
-            void wheelEvent(QWheelEvent*) override;
-            void keyPressEvent(QKeyEvent*) override;
-
         private:
-            math::Size2i _viewportSize() const;
-            math::Size2i _renderSize() const;
-            math::Vector2i _viewportCenter() const;
-            void _frameView();
-
-            void _droppedFramesUpdate(const otime::RationalTime&);
-
             TLRENDER_PRIVATE();
         };
     }

@@ -2,13 +2,13 @@
 // Copyright (c) 2021-2024 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayApp/Viewport.h>
+#include <tlPlay/Viewport.h>
 
 #include <tlCore/StringFormat.h>
 
 namespace tl
 {
-    namespace play_app
+    namespace play
     {
         struct Viewport::Private
         {

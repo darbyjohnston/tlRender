@@ -175,8 +175,8 @@ namespace tl
             p.viewport = new Viewport(context);
 
             p.timelineWidget = new qtwidget::TimelineWidget(
-                ui::Style::create(context),
                 app->timeUnitsModel(),
+                ui::Style::create(context),
                 context);
             p.timelineWidget->setEditable(settings->getValue<bool>("Timeline/Editable"));
             p.timelineWidget->setFrameView(settings->getValue<bool>("Timeline/FrameView"));

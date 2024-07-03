@@ -10,6 +10,7 @@ set(HEADERS
     Settings.h
     SettingsInline.h
     Util.h
+    Viewport.h
     ViewportModel.h)
 
 set(SOURCE
@@ -23,10 +24,11 @@ set(SOURCE
     RenderModel.cpp
     Settings.cpp
     Util.cpp
+    Viewport.cpp
     ViewportModel.cpp)
 
 add_library(tlPlay ${HEADERS} ${SOURCE})
-target_link_libraries(tlPlay tlDevice)
+target_link_libraries(tlPlay tlTimelineUI tlDevice)
 set_target_properties(tlPlay PROPERTIES FOLDER lib)
 set_target_properties(tlPlay PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

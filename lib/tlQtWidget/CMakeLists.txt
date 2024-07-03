@@ -3,6 +3,7 @@ set(HEADERS
     ColorDialog.h
     ColorSwatch.h
     ColorWidget.h
+    ContainerWidget.h
     FileBrowserSystem.h
     FileWidget.h
     FloatEditSlider.h
@@ -27,6 +28,7 @@ set(SOURCE
     ColorDialog.cpp
     ColorSwatch.cpp
     ColorWidget.cpp
+    ContainerWidget.cpp
     FileBrowserSystem.cpp
     FileWidget.cpp
     FloatEditSlider.cpp

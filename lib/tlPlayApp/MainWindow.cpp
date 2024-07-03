@@ -31,7 +31,6 @@
 #include <tlPlayApp/ViewActions.h>
 #include <tlPlayApp/ViewMenu.h>
 #include <tlPlayApp/ViewToolBar.h>
-#include <tlPlayApp/Viewport.h>
 #include <tlPlayApp/WindowActions.h>
 #include <tlPlayApp/WindowMenu.h>
 #include <tlPlayApp/WindowToolBar.h>
@@ -41,6 +40,7 @@
 #include <tlPlay/Info.h>
 #include <tlPlay/RenderModel.h>
 #include <tlPlay/Settings.h>
+#include <tlPlay/Viewport.h>
 #include <tlPlay/ViewportModel.h>
 
 #include <tlTimelineUI/TimelineWidget.h>
@@ -102,7 +102,7 @@ namespace tl
             timelineui::ItemOptions itemOptions;
             std::shared_ptr<timeline::Player> player;
 
-            std::shared_ptr<Viewport> viewport;
+            std::shared_ptr<play::Viewport> viewport;
             std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
             std::shared_ptr<FileActions> fileActions;
             std::shared_ptr<CompareActions> compareActions;
@@ -214,7 +214,7 @@ namespace tl
             p.speedModel->setStep(1.F);
             p.speedModel->setLargeStep(10.F);
 
-            p.viewport = Viewport::create(context);
+            p.viewport = play::Viewport::create(context);
 
             p.timelineWidget = timelineui::TimelineWidget::create(p.timeUnitsModel, context);
             p.timelineWidget->setEditable(p.settings->getValue<bool>("Timeline/Editable"));
@@ -696,7 +696,7 @@ namespace tl
             return out;
         }
 
-        const std::shared_ptr<Viewport>& MainWindow::getViewport() const
+        const std::shared_ptr<play::Viewport>& MainWindow::getViewport() const
         {
             return _p->viewport;
         }
