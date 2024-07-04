@@ -23,6 +23,8 @@ namespace
 #include "Resources/Clear_96.h"
 #include "Resources/Close_192.h"
 #include "Resources/Close_96.h"
+#include "Resources/CloseSmall_192.h"
+#include "Resources/CloseSmall_96.h"
 #include "Resources/Color_192.h"
 #include "Resources/Color_96.h"
 #include "Resources/Compare_192.h"
@@ -189,6 +191,7 @@ namespace tl
             p.iconData[std::make_pair("BellowsOpen", 96)] = BellowsOpen_96_png;
             p.iconData[std::make_pair("Clear", 96)] = Clear_96_png;
             p.iconData[std::make_pair("Close", 96)] = Close_96_png;
+            p.iconData[std::make_pair("CloseSmall", 96)] = CloseSmall_96_png;
             p.iconData[std::make_pair("Color", 96)] = Color_96_png;
             p.iconData[std::make_pair("Compare", 96)] = Compare_96_png;
             p.iconData[std::make_pair("CompareA", 96)] = CompareA_96_png;
@@ -246,6 +249,7 @@ namespace tl
             p.iconData[std::make_pair("BellowsOpen", 192)] = BellowsOpen_192_png;
             p.iconData[std::make_pair("Clear", 192)] = Clear_192_png;
             p.iconData[std::make_pair("Close", 192)] = Close_192_png;
+            p.iconData[std::make_pair("CloseSmall", 192)] = CloseSmall_192_png;
             p.iconData[std::make_pair("Color", 192)] = Color_192_png;
             p.iconData[std::make_pair("Compare", 192)] = Compare_192_png;
             p.iconData[std::make_pair("CompareA", 192)] = CompareA_192_png;

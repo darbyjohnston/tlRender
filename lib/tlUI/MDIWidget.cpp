@@ -72,11 +72,11 @@ namespace tl
 
             p.titleLabel = Label::create(context);
             p.titleLabel->setText(title);
-            p.titleLabel->setMarginRole(SizeRole::MarginSmall);
+            p.titleLabel->setMarginRole(SizeRole::MarginInside);
             p.titleLabel->setHStretch(Stretch::Expanding);
 
             p.closeButton = ToolButton::create(context);
-            p.closeButton->setIcon("Close");
+            p.closeButton->setIcon("CloseSmall");
             p.closeButton->setToolTip("Close the window");
 
             p.layout = VerticalLayout::create(context, shared_from_this());

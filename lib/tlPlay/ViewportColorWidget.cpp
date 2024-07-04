@@ -43,7 +43,7 @@ namespace tl
             setBackgroundRole(ui::ColorRole::Window);
 
             p.closeButton = ui::ToolButton::create(context);
-            p.closeButton->setIcon("Close");
+            p.closeButton->setIcon("CloseSmall");
 
             p.swatch = ui::ColorSwatch::create(context);
 
