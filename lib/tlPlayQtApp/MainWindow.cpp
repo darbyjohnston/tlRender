@@ -15,7 +15,6 @@
 #include <tlPlayQtApp/FrameActions.h>
 #include <tlPlayQtApp/InfoTool.h>
 #include <tlPlayQtApp/MessagesTool.h>
-#include <tlPlayQtApp/OCIOModel.h>
 #include <tlPlayQtApp/PlaybackActions.h>
 #include <tlPlayQtApp/RenderActions.h>
 #include <tlPlayQtApp/SettingsTool.h>

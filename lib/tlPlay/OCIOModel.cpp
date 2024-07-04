@@ -74,7 +74,7 @@ namespace tl
                         options.display = display;
                         options.view = p.ocioConfig->getDefaultView(display);
                         p.options->setIfChanged(options);
-                        _configUpdate();
+                        p.data->setIfChanged(_getData(options));
                     }
                 }
                 catch (const std::exception& e)
@@ -133,10 +133,8 @@ namespace tl
                 options.view = p.ocioConfig->getDefaultView(display);
             }
 #endif // TLRENDER_OCIO
-            if (p.options->setIfChanged(options))
-            {
-                _configUpdate();
-            }
+            p.options->setIfChanged(options);
+            p.data->setIfChanged(_getData(options));
         }
 
         void OCIOModel::setEnabled(bool value)
@@ -144,10 +142,8 @@ namespace tl
             TLRENDER_P();
             auto options = p.options->get();
             options.enabled = value;
-            if (p.options->setIfChanged(options))
-            {
-                _configUpdate();
-            }
+            p.options->setIfChanged(options);
+            p.data->setIfChanged(_getData(options));
         }
 
         void OCIOModel::setConfig(const std::string& fileName)
@@ -178,10 +174,8 @@ namespace tl
                 options.view = p.ocioConfig->getDefaultView(display);
             }
 #endif // TLRENDER_OCIO
-            if (p.options->setIfChanged(options))
-            {
-                _configUpdate();
-            }
+            p.options->setIfChanged(options);
+            p.data->setIfChanged(_getData(options));
         }
 
         std::shared_ptr<observer::IValue<OCIOModelData> > OCIOModel::observeData() const
@@ -192,54 +186,66 @@ namespace tl
         void OCIOModel::setInputIndex(size_t value)
         {
             TLRENDER_P();
-            const auto& data = p.data->get();
+            auto data = p.data->get();
             if (value >= 0 && value < data.inputs.size())
             {
                 auto options = p.options->get();
                 options.enabled = true;
                 options.input = value > 0 ? data.inputs[value] : std::string();
-                options.display = std::string();
-                options.view = std::string();
-                options.look = std::string();
-                if (p.options->setIfChanged(options))
+                data = _getData(options);
+                if (data.displays[data.displayIndex] != options.display)
                 {
-                    _configUpdate();
+                    options.display = std::string();
                 }
+                if (data.views[data.viewIndex] != options.view)
+                {
+                    options.view = std::string();
+                }
+                if (data.looks[data.lookIndex] != options.look)
+                {
+                    options.look = std::string();
+                }
+                p.options->setIfChanged(options);
             }
         }
 
         void OCIOModel::setDisplayIndex(size_t value)
         {
             TLRENDER_P();
-            const auto& displays = p.data->get().displays;
-            if (value >= 0 && value < displays.size())
+            auto data = p.data->get();
+            if (value >= 0 && value < data.displays.size())
             {
                 auto options = p.options->get();
                 options.enabled = true;
-                options.display = value > 0 ? displays[value] : std::string();
-                options.view = std::string();
-                options.look = std::string();
-                if (p.options->setIfChanged(options))
+                options.display = value > 0 ? data.displays[value] : std::string();
+                data = _getData(options);
+                if (data.views[data.viewIndex] != options.view)
                 {
-                    _configUpdate();
+                    options.view = std::string();
                 }
+                if (data.looks[data.lookIndex] != options.look)
+                {
+                    options.look = std::string();
+                }
+                p.options->setIfChanged(options);
             }
         }
 
         void OCIOModel::setViewIndex(size_t value)
         {
             TLRENDER_P();
-            const auto& views = p.data->get().views;
-            if (value >= 0 && value < views.size())
+            auto data = p.data->get();
+            if (value >= 0 && value < data.views.size())
             {
                 auto options = p.options->get();
                 options.enabled = true;
-                options.view = value > 0 ? views[value] : std::string();
-                options.look = std::string();
-                if (p.options->setIfChanged(options))
+                options.view = value > 0 ? data.views[value] : std::string();
+                data = _getData(options);
+                if (data.looks[data.lookIndex] != options.look)
                 {
-                    _configUpdate();
+                    options.look = std::string();
                 }
+                p.options->setIfChanged(options);
             }
         }
 
@@ -252,70 +258,66 @@ namespace tl
                 auto options = p.options->get();
                 options.enabled = true;
                 options.look = value > 0 ? looks[value] : std::string();
-                if (p.options->setIfChanged(options))
-                {
-                    _configUpdate();
-                }
+                p.options->setIfChanged(options);
             }
         }
 
-        void OCIOModel::_configUpdate()
+        OCIOModelData OCIOModel::_getData(const timeline::OCIOOptions& options) const
         {
             TLRENDER_P();
-            OCIOModelData data;
-            const auto& options = p.options->get();
-            data.enabled = options.enabled;
-            data.fileName = options.fileName;
+            OCIOModelData out;
+            out.enabled = options.enabled;
+            out.fileName = options.fileName;
 #if defined(TLRENDER_OCIO)
             if (p.ocioConfig)
             {
-                data.inputs.push_back("None");
+                out.inputs.push_back("None");
                 for (int i = 0; i < p.ocioConfig->getNumColorSpaces(); ++i)
                 {
-                    data.inputs.push_back(p.ocioConfig->getColorSpaceNameByIndex(i));
+                    out.inputs.push_back(p.ocioConfig->getColorSpaceNameByIndex(i));
                 }
-                auto j = std::find(data.inputs.begin(), data.inputs.end(), options.input);
-                if (j != data.inputs.end())
+                auto j = std::find(out.inputs.begin(), out.inputs.end(), options.input);
+                if (j != out.inputs.end())
                 {
-                    data.inputIndex = j - data.inputs.begin();
+                    out.inputIndex = j - out.inputs.begin();
                 }
 
-                data.displays.push_back("None");
+                out.displays.push_back("None");
                 for (int i = 0; i < p.ocioConfig->getNumDisplays(); ++i)
                 {
-                    data.displays.push_back(p.ocioConfig->getDisplay(i));
+                    out.displays.push_back(p.ocioConfig->getDisplay(i));
                 }
-                j = std::find(data.displays.begin(), data.displays.end(), options.display);
-                if (j != data.displays.end())
+                j = std::find(out.displays.begin(), out.displays.end(), options.display);
+                if (j != out.displays.end())
                 {
-                    data.displayIndex = j - data.displays.begin();
+                    out.displayIndex = j - out.displays.begin();
                 }
 
-                data.views.push_back("None");
-                const std::string display = p.options->get().display;
+                out.views.push_back("None");
+                const std::string display = options.display;
                 for (int i = 0; i < p.ocioConfig->getNumViews(display.c_str()); ++i)
                 {
-                    data.views.push_back(p.ocioConfig->getView(display.c_str(), i));
+                    out.views.push_back(p.ocioConfig->getView(display.c_str(), i));
                 }
-                j = std::find(data.views.begin(), data.views.end(), options.view);
-                if (j != data.views.end())
+                j = std::find(out.views.begin(), out.views.end(), options.view);
+                if (j != out.views.end())
                 {
-                    data.viewIndex = j - data.views.begin();
+                    out.viewIndex = j - out.views.begin();
                 }
 
-                data.looks.push_back("None");
+                out.looks.push_back("None");
                 for (int i = 0; i < p.ocioConfig->getNumLooks(); ++i)
                 {
-                    data.looks.push_back(p.ocioConfig->getLookNameByIndex(i));
+                    out.looks.push_back(p.ocioConfig->getLookNameByIndex(i));
                 }
-                j = std::find(data.looks.begin(), data.looks.end(), options.look);
-                if (j != data.looks.end())
+                j = std::find(out.looks.begin(), out.looks.end(), options.look);
+                if (j != out.looks.end())
                 {
-                    data.lookIndex = j - data.looks.begin();
+                    out.lookIndex = j - out.looks.begin();
                 }
             }
 #endif // TLRENDER_OCIO
-            p.data->setIfChanged(data);
+            return out;
         }
     }
 }

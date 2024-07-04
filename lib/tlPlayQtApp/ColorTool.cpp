@@ -6,7 +6,6 @@
 
 #include <tlPlayQtApp/App.h>
 #include <tlPlayQtApp/DockTitleBar.h>
-#include <tlPlayQtApp/OCIOModel.h>
 
 #include <tlQtWidget/FileWidget.h>
 #include <tlQtWidget/FloatEditSlider.h>
@@ -23,9 +22,6 @@
 #include <QComboBox>
 #include <QFormLayout>
 #include <QLabel>
-#include <QListView>
-#include <QSortFilterProxyModel>
-#include <QTabWidget>
 #include <QToolButton>
 
 namespace tl
@@ -38,6 +34,10 @@ namespace tl
 
             QCheckBox* enabledCheckBox = nullptr;
             qtwidget::FileWidget* fileWidget = nullptr;
+            QComboBox* inputComboBox = nullptr;
+            QComboBox* displayComboBox = nullptr;
+            QComboBox* viewComboBox = nullptr;
+            QComboBox* lookComboBox = nullptr;
 
             std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > optionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > optionsObserver2;
@@ -58,106 +58,21 @@ namespace tl
 
             p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
-            auto inputModel = new OCIOInputModel(p.ocioModel, this);
-            auto inputProxyModel = new QSortFilterProxyModel(this);
-            inputProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-            inputProxyModel->setFilterKeyColumn(-1);
-            inputProxyModel->setSourceModel(inputModel);
-
-            auto displayModel = new OCIODisplayModel(p.ocioModel, this);
-            auto displayProxyModel = new QSortFilterProxyModel(this);
-            displayProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-            displayProxyModel->setFilterKeyColumn(-1);
-            displayProxyModel->setSourceModel(displayModel);
-
-            auto viewModel = new OCIOViewModel(p.ocioModel, this);
-            auto viewProxyModel = new QSortFilterProxyModel(this);
-            viewProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-            viewProxyModel->setFilterKeyColumn(-1);
-            viewProxyModel->setSourceModel(viewModel);
-
-            auto lookModel = new OCIOLookModel(p.ocioModel, this);
-            auto lookProxyModel = new QSortFilterProxyModel(this);
-            lookProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-            lookProxyModel->setFilterKeyColumn(-1);
-            lookProxyModel->setSourceModel(lookModel);
-
             p.fileWidget = new qtwidget::FileWidget(app->getContext());
 
-            auto inputView = new QListView;
-            inputView->setAlternatingRowColors(true);
-            inputView->setSelectionMode(QAbstractItemView::NoSelection);
-            inputView->setModel(inputProxyModel);
-
-            auto inputSearchWidget = new qtwidget::SearchWidget;
-            inputSearchWidget->setContentsMargins(2, 2, 2, 2);
-
-            auto displayView = new QListView;
-            displayView->setAlternatingRowColors(true);
-            displayView->setSelectionMode(QAbstractItemView::NoSelection);
-            displayView->setModel(displayProxyModel);
-
-            auto displaySearchWidget = new qtwidget::SearchWidget;
-            displaySearchWidget->setContentsMargins(2, 2, 2, 2);
-
-            auto viewView = new QListView;
-            viewView->setAlternatingRowColors(true);
-            viewView->setSelectionMode(QAbstractItemView::NoSelection);
-            viewView->setModel(viewProxyModel);
-
-            auto viewSearchWidget = new qtwidget::SearchWidget;
-            viewSearchWidget->setContentsMargins(2, 2, 2, 2);
-
-            auto lookView = new QListView;
-            lookView->setAlternatingRowColors(true);
-            lookView->setSelectionMode(QAbstractItemView::NoSelection);
-            lookView->setModel(lookProxyModel);
-
-            auto lookSearchWidget = new qtwidget::SearchWidget;
-            lookSearchWidget->setContentsMargins(2, 2, 2, 2);
+            p.inputComboBox = new QComboBox;
+            p.displayComboBox = new QComboBox;
+            p.viewComboBox = new QComboBox;
+            p.lookComboBox = new QComboBox;
 
             auto formLayout = new QFormLayout;
             formLayout->addRow(p.enabledCheckBox);
             formLayout->addRow(tr("File name:"), p.fileWidget);
-
-            auto tabWidget = new QTabWidget;
-            auto widget = new QWidget;
-            auto layout = new QVBoxLayout;
-            layout->setContentsMargins(0, 0, 0, 0);
-            layout->setSpacing(0);
-            layout->addWidget(inputView);
-            layout->addWidget(inputSearchWidget);
-            widget->setLayout(layout);
-            tabWidget->addTab(widget, tr("Input"));
-            widget = new QWidget;
-            layout = new QVBoxLayout;
-            layout->setContentsMargins(0, 0, 0, 0);
-            layout->setSpacing(0);
-            layout->addWidget(displayView);
-            layout->addWidget(displaySearchWidget);
-            widget->setLayout(layout);
-            tabWidget->addTab(widget, tr("Display"));
-            widget = new QWidget;
-            layout = new QVBoxLayout;
-            layout->setContentsMargins(0, 0, 0, 0);
-            layout->setSpacing(0);
-            layout->addWidget(viewView);
-            layout->addWidget(viewSearchWidget);
-            widget->setLayout(layout);
-            tabWidget->addTab(widget, tr("View"));
-            widget = new QWidget;
-            layout = new QVBoxLayout;
-            layout->setContentsMargins(0, 0, 0, 0);
-            layout->setSpacing(0);
-            layout->addWidget(lookView);
-            layout->addWidget(lookSearchWidget);
-            widget->setLayout(layout);
-            tabWidget->addTab(widget, tr("Look"));
-
-            layout = new QVBoxLayout;
-            layout->addLayout(formLayout);
-            layout->addWidget(tabWidget);
-            setLayout(layout);
+            formLayout->addRow(tr("Input:"), p.inputComboBox);
+            formLayout->addRow(tr("Display:"), p.displayComboBox);
+            formLayout->addRow(tr("View:"), p.viewComboBox);
+            formLayout->addRow(tr("Look:"), p.lookComboBox);
+            setLayout(formLayout);
 
             connect(
                 p.enabledCheckBox,
@@ -176,64 +91,36 @@ namespace tl
                 });
 
             connect(
-                inputView,
-                &QAbstractItemView::activated,
-                [this, inputProxyModel](const QModelIndex& index)
+                p.inputComboBox,
+                &QComboBox::currentIndexChanged,
+                [this](int index)
                 {
-                    auto sourceIndex = inputProxyModel->mapToSource(index);
-                    _p->ocioModel->setInputIndex(sourceIndex.row());
+                    _p->ocioModel->setInputIndex(index);
                 });
 
             connect(
-                inputSearchWidget,
-                SIGNAL(searchChanged(const QString&)),
-                inputProxyModel,
-                SLOT(setFilterFixedString(const QString&)));
-
-            connect(
-                displayView,
-                &QAbstractItemView::activated,
-                [this, displayProxyModel](const QModelIndex& index)
+                p.displayComboBox,
+                &QComboBox::currentIndexChanged,
+                [this](int index)
                 {
-                    auto sourceIndex = displayProxyModel->mapToSource(index);
-                    _p->ocioModel->setDisplayIndex(sourceIndex.row());
+                    _p->ocioModel->setDisplayIndex(index);
                 });
 
             connect(
-                displaySearchWidget,
-                SIGNAL(searchChanged(const QString&)),
-                displayProxyModel,
-                SLOT(setFilterFixedString(const QString&)));
-
-            connect(
-                viewView,
-                &QAbstractItemView::activated,
-                [this, viewProxyModel](const QModelIndex& index)
+                p.viewComboBox,
+                &QComboBox::currentIndexChanged,
+                [this](int index)
                 {
-                    auto sourceIndex = viewProxyModel->mapToSource(index);
-                    _p->ocioModel->setViewIndex(sourceIndex.row());
+                    _p->ocioModel->setViewIndex(index);
                 });
 
             connect(
-                viewSearchWidget,
-                SIGNAL(searchChanged(const QString&)),
-                viewProxyModel,
-                SLOT(setFilterFixedString(const QString&)));
-
-            connect(
-                lookView,
-                &QAbstractItemView::activated,
-                [this, lookProxyModel](const QModelIndex& index)
+                p.lookComboBox,
+                &QComboBox::currentIndexChanged,
+                [this](int index)
                 {
-                    auto sourceIndex = lookProxyModel->mapToSource(index);
-                    _p->ocioModel->setLookIndex(sourceIndex.row());
+                    _p->ocioModel->setLookIndex(index);
                 });
-
-            connect(
-                lookSearchWidget,
-                SIGNAL(searchChanged(const QString&)),
-                lookProxyModel,
-                SLOT(setFilterFixedString(const QString&)));
 
             p.optionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
                 p.ocioModel->observeOptions(),
@@ -270,6 +157,42 @@ namespace tl
             {
                 QSignalBlocker blocker(p.fileWidget);
                 p.fileWidget->setFile(QString::fromUtf8(value.fileName.c_str()));
+            }
+            {
+                QSignalBlocker blocker(p.inputComboBox);
+                p.inputComboBox->clear();
+                for (const auto& input : value.inputs)
+                {
+                    p.inputComboBox->addItem(QString::fromUtf8(input.c_str()));
+                }
+                p.inputComboBox->setCurrentIndex(value.inputIndex);
+            }
+            {
+                QSignalBlocker blocker(p.displayComboBox);
+                p.displayComboBox->clear();
+                for (const auto& display : value.displays)
+                {
+                    p.displayComboBox->addItem(QString::fromUtf8(display.c_str()));
+                }
+                p.displayComboBox->setCurrentIndex(value.displayIndex);
+            }
+            {
+                QSignalBlocker blocker(p.viewComboBox);
+                p.viewComboBox->clear();
+                for (const auto& view : value.views)
+                {
+                    p.viewComboBox->addItem(QString::fromUtf8(view.c_str()));
+                }
+                p.viewComboBox->setCurrentIndex(value.viewIndex);
+            }
+            {
+                QSignalBlocker blocker(p.lookComboBox);
+                p.lookComboBox->clear();
+                for (const auto& look : value.looks)
+                {
+                    p.lookComboBox->addItem(QString::fromUtf8(look.c_str()));
+                }
+                p.lookComboBox->setCurrentIndex(value.lookIndex);
             }
         }
 

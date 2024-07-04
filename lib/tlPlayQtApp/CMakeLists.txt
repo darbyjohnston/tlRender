@@ -14,7 +14,6 @@ set(HEADERS
     InfoModel.h
     MainWindow.h
     MessagesTool.h
-    OCIOModel.h
     OpenSeparateAudioDialog.h
     PlaybackActions.h
     RenderActions.h
@@ -44,7 +43,6 @@ set(SOURCE
     InfoModel.cpp
     MainWindow.cpp
     MessagesTool.cpp
-    OCIOModel.cpp
     OpenSeparateAudioDialog.cpp
     PlaybackActions.cpp
     RenderActions.cpp

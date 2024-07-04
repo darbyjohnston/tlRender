@@ -79,7 +79,7 @@ namespace tl
             void setLookIndex(size_t);
 
         private:
-            void _configUpdate();
+            OCIOModelData _getData(const timeline::OCIOOptions&) const;
 
             TLRENDER_PRIVATE();
         };

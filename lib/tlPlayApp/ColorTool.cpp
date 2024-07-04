@@ -17,10 +17,7 @@
 #include <tlUI/FloatEditSlider.h>
 #include <tlUI/GridLayout.h>
 #include <tlUI/Label.h>
-#include <tlUI/ListWidget.h>
 #include <tlUI/RowLayout.h>
-#include <tlUI/SearchBox.h>
-#include <tlUI/TabBar.h>
 #include <tlUI/ScrollWidget.h>
 #include <tlUI/StackLayout.h>
 
@@ -34,10 +31,10 @@ namespace tl
 
             std::shared_ptr<ui::CheckBox> enabledCheckBox;
             std::shared_ptr<ui::FileEdit> fileEdit;
-            std::shared_ptr<ui::TabBar> tabBar;
-            std::map<std::string, std::shared_ptr<ui::ListWidget> > listWidgets;
-            std::map<std::string, std::shared_ptr<ui::SearchBox> > searchBoxes;
-            std::shared_ptr<ui::StackLayout> tabLayout;
+            std::shared_ptr<ui::ComboBox> inputComboBox;
+            std::shared_ptr<ui::ComboBox> displayComboBox;
+            std::shared_ptr<ui::ComboBox> viewComboBox;
+            std::shared_ptr<ui::ComboBox> lookComboBox;
             std::shared_ptr<ui::VerticalLayout> layout;
 
             std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > optionsObserver;
@@ -63,15 +60,17 @@ namespace tl
 
             p.fileEdit = ui::FileEdit::create(context);
 
-            p.tabBar = ui::TabBar::create(context);
-            const std::vector<std::string> tabs = { "Input", "Display", "View", "Look" };
-            p.tabBar->setTabs(tabs);
-            for (const auto& tab : tabs)
-            {
-                p.listWidgets[tab] = ui::ListWidget::create(ui::ButtonGroupType::Radio, context);
-                p.searchBoxes[tab] = ui::SearchBox::create(context);
-                p.searchBoxes[tab]->setHStretch(ui::Stretch::Expanding);
-            }
+            p.inputComboBox = ui::ComboBox::create(context);
+            p.inputComboBox->setHStretch(ui::Stretch::Expanding);
+
+            p.displayComboBox = ui::ComboBox::create(context);
+            p.displayComboBox->setHStretch(ui::Stretch::Expanding);
+
+            p.viewComboBox = ui::ComboBox::create(context);
+            p.viewComboBox->setHStretch(ui::Stretch::Expanding);
+
+            p.lookComboBox = ui::ComboBox::create(context);
+            p.lookComboBox->setHStretch(ui::Stretch::Expanding);
 
             p.layout = ui::VerticalLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
@@ -84,17 +83,22 @@ namespace tl
             gridLayout->setGridPos(label, 1, 0);
             p.fileEdit->setParent(gridLayout);
             gridLayout->setGridPos(p.fileEdit, 1, 1);
-            auto vLayout = ui::VerticalLayout::create(context, p.layout);
-            vLayout->setSpacingRole(ui::SizeRole::None);
-            p.tabBar->setParent(vLayout);
-            p.tabLayout = ui::StackLayout::create(context, vLayout);
-            for (const auto& tab : tabs)
-            {
-                vLayout = ui::VerticalLayout::create(context, p.tabLayout);
-                vLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
-                p.listWidgets[tab]->setParent(vLayout);
-                p.searchBoxes[tab]->setParent(vLayout);
-            }
+            label = ui::Label::create("Input:", context, gridLayout);
+            gridLayout->setGridPos(label, 2, 0);
+            p.inputComboBox->setParent(gridLayout);
+            gridLayout->setGridPos(p.inputComboBox, 2, 1);
+            label = ui::Label::create("Display:", context, gridLayout);
+            gridLayout->setGridPos(label, 3, 0);
+            p.displayComboBox->setParent(gridLayout);
+            gridLayout->setGridPos(p.displayComboBox, 3, 1);
+            label = ui::Label::create("View:", context, gridLayout);
+            gridLayout->setGridPos(label, 4, 0);
+            p.viewComboBox->setParent(gridLayout);
+            gridLayout->setGridPos(p.viewComboBox, 4, 1);
+            label = ui::Label::create("Look:", context, gridLayout);
+            gridLayout->setGridPos(label, 5, 0);
+            p.lookComboBox->setParent(gridLayout);
+            gridLayout->setGridPos(p.lookComboBox, 5, 1);
 
             p.optionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
                 app->getColorModel()->observeOCIOOptions(),
@@ -122,20 +126,14 @@ namespace tl
                 {
                     _p->enabledCheckBox->setChecked(value.enabled);
                     _p->fileEdit->setPath(file::Path(value.fileName));
-                    _p->listWidgets["Input"]->setItems(value.inputs);
-                    _p->listWidgets["Input"]->setCurrentItem(value.inputIndex);
-                    _p->listWidgets["Display"]->setItems(value.displays);
-                    _p->listWidgets["Display"]->setCurrentItem(value.displayIndex);
-                    _p->listWidgets["View"]->setItems(value.views);
-                    _p->listWidgets["View"]->setCurrentItem(value.viewIndex);
-                    _p->listWidgets["Look"]->setItems(value.looks);
-                    _p->listWidgets["Look"]->setCurrentItem(value.lookIndex);
-                });
-
-            p.tabBar->setCallback(
-                [this](int index)
-                {
-                    _p->tabLayout->setCurrentIndex(index);
+                    _p->inputComboBox->setItems(value.inputs);
+                    _p->inputComboBox->setCurrentIndex(value.inputIndex);
+                    _p->displayComboBox->setItems(value.displays);
+                    _p->displayComboBox->setCurrentIndex(value.displayIndex);
+                    _p->viewComboBox->setItems(value.views);
+                    _p->viewComboBox->setCurrentIndex(value.viewIndex);
+                    _p->lookComboBox->setItems(value.looks);
+                    _p->lookComboBox->setCurrentIndex(value.lookIndex);
                 });
 
             p.enabledCheckBox->setCheckedCallback(
@@ -150,46 +148,25 @@ namespace tl
                     _p->ocioModel->setConfig(value.get());
                 });
 
-            p.listWidgets["Input"]->setCallback(
+            p.inputComboBox->setIndexCallback(
                 [this](int index)
                 {
                     _p->ocioModel->setInputIndex(index);
                 });
-            p.listWidgets["Display"]->setCallback(
+            p.displayComboBox->setIndexCallback(
                 [this](int index)
                 {
                     _p->ocioModel->setDisplayIndex(index);
                 });
-            p.listWidgets["View"]->setCallback(
+            p.viewComboBox->setIndexCallback(
                 [this](int index)
                 {
                     _p->ocioModel->setViewIndex(index);
                 });
-            p.listWidgets["Look"]->setCallback(
+            p.lookComboBox->setIndexCallback(
                 [this](int index)
                 {
                     _p->ocioModel->setLookIndex(index);
-                });
-
-            p.searchBoxes["Input"]->setCallback(
-                [this](const std::string& value)
-                {
-                    _p->listWidgets["Input"]->setSearch(value);
-                });
-            p.searchBoxes["Display"]->setCallback(
-                [this](const std::string& value)
-                {
-                    _p->listWidgets["Display"]->setSearch(value);
-                });
-            p.searchBoxes["View"]->setCallback(
-                [this](const std::string& value)
-                {
-                    _p->listWidgets["View"]->setSearch(value);
-                });
-            p.searchBoxes["Look"]->setCallback(
-                [this](const std::string& value)
-                {
-                    _p->listWidgets["Look"]->setSearch(value);
                 });
         }
 
