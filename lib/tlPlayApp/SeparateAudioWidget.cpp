@@ -63,14 +63,14 @@ namespace tl
             groupBox = ui::GroupBox::create("Audio", context, vLayout);
             p.audioFileEdit->setParent(groupBox);
             auto spacer = ui::Spacer::create(ui::Orientation::Vertical, context, vLayout);
-            spacer->setSpacingRole(ui::SizeRole::None);
+            spacer->setSizeRole(ui::SizeRole::None);
             spacer->setVStretch(ui::Stretch::Expanding);
             ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
             auto hLayout = ui::HorizontalLayout::create(context, p.layout);
             hLayout->setMarginRole(ui::SizeRole::MarginSmall);
             hLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
             spacer = ui::Spacer::create(ui::Orientation::Horizontal, context, hLayout);
-            spacer->setSpacingRole(ui::SizeRole::None);
+            spacer->setSizeRole(ui::SizeRole::None);
             spacer->setHStretch(ui::Stretch::Expanding);
             p.okButton->setParent(hLayout);
             p.cancelButton->setParent(hLayout);

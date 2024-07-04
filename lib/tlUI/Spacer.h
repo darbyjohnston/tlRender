@@ -32,8 +32,8 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Set the spacing role.
-            void setSpacingRole(SizeRole);
+            //! Set the size role.
+            void setSizeRole(SizeRole);
 
             void sizeHintEvent(const SizeHintEvent&) override;
 

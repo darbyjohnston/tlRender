@@ -7,7 +7,6 @@
 #include <tlPlayQtApp/App.h>
 #include <tlPlayQtApp/AudioActions.h>
 #include <tlPlayQtApp/AudioTool.h>
-#include <tlPlayQtApp/ColorPickerTool.h>
 #include <tlPlayQtApp/ColorTool.h>
 #include <tlPlayQtApp/CompareActions.h>
 #include <tlPlayQtApp/DevicesTool.h>
@@ -107,7 +106,6 @@ namespace tl
             FilesTool* filesTool = nullptr;
             ViewTool* viewTool = nullptr;
             ColorTool* colorTool = nullptr;
-            ColorPickerTool* colorPickerTool = nullptr;
             InfoTool* infoTool = nullptr;
             AudioTool* audioTool = nullptr;
             DevicesTool* devicesTool = nullptr;
@@ -376,13 +374,6 @@ namespace tl
             p.toolActions->menu()->addAction(colorDockWidget->toggleViewAction());
             toolsToolBar->addAction(colorDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, colorDockWidget);
-
-            p.colorPickerTool = new ColorPickerTool(this, app);
-            auto colorPickerDockWidget = new ColorPickerDockWidget(p.colorPickerTool);
-            colorPickerDockWidget->hide();
-            p.toolActions->menu()->addAction(colorPickerDockWidget->toggleViewAction());
-            toolsToolBar->addAction(colorPickerDockWidget->toggleViewAction());
-            addDockWidget(Qt::RightDockWidgetArea, colorPickerDockWidget);
 
             p.infoTool = new InfoTool(app);
             auto infoDockWidget = new InfoDockWidget(p.infoTool);

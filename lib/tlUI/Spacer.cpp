@@ -11,7 +11,7 @@ namespace tl
         struct Spacer::Private
         {
             Orientation orientation = Orientation::Horizontal;
-            SizeRole spacingRole = SizeRole::Spacing;
+            SizeRole sizeRole = SizeRole::Spacing;
 
             struct SizeData
             {
@@ -48,12 +48,12 @@ namespace tl
             return out;
         }
 
-        void Spacer::setSpacingRole(SizeRole value)
+        void Spacer::setSizeRole(SizeRole value)
         {
             TLRENDER_P();
-            if (value == p.spacingRole)
+            if (value == p.sizeRole)
                 return;
-            p.spacingRole = value;
+            p.sizeRole = value;
             p.size.sizeInit = true;
             _updates |= Update::Size;
         }
@@ -66,7 +66,7 @@ namespace tl
 
             if (displayScaleChanged || p.size.sizeInit)
             {
-                p.size.size = event.style->getSizeRole(p.spacingRole, _displayScale);
+                p.size.size = event.style->getSizeRole(p.sizeRole, _displayScale);
             }
             p.size.sizeInit = false;
 

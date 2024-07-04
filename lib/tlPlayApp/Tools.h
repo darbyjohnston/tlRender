@@ -20,7 +20,6 @@ namespace tl
             Files,
             View,
             Color,
-            ColorPicker,
             Info,
             Audio,
             Devices,

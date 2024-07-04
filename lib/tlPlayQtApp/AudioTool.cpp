@@ -97,7 +97,7 @@ namespace tl
             setWidget(audioTool);
 
             toggleViewAction()->setIcon(QIcon(":/Icons/Audio.svg"));
-            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F6));
+            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F5));
             toggleViewAction()->setToolTip(tr("Show audio controls"));
         }
     }

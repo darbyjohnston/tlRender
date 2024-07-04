@@ -112,8 +112,11 @@ namespace tl
             //! Observe the number of dropped frames during playback.
             std::shared_ptr<observer::IValue<size_t> > observeDroppedFrames() const;
             
-            //! Observe the color picker.
-            std::shared_ptr<observer::IValue<image::Color4f> > observeColorPicker() const;
+            //! Set the color pickers.
+            void setColorPickers(const std::vector<math::Vector2i>&);
+
+            //! Observe the color pickers.
+            std::shared_ptr<observer::IList<image::Color4f> > observeColorPickers() const;
 
             void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;

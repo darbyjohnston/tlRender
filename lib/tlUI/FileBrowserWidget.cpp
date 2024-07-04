@@ -169,7 +169,7 @@ namespace tl
             p.reverseSortCheckBox->setParent(hLayout);
             p.sequenceCheckBox->setParent(hLayout);
             auto spacer = Spacer::create(Orientation::Horizontal, context, hLayout);
-            spacer->setSpacingRole(SizeRole::None);
+            spacer->setSizeRole(SizeRole::None);
             spacer->setHStretch(Stretch::Expanding);
             p.okButton->setParent(hLayout);
             p.cancelButton->setParent(hLayout);

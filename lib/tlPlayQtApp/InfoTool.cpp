@@ -99,7 +99,7 @@ namespace tl
             setWidget(infoTool);
 
             toggleViewAction()->setIcon(QIcon(":/Icons/Info.svg"));
-            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F5));
+            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F4));
             toggleViewAction()->setToolTip(tr("Show information"));
         }
     }

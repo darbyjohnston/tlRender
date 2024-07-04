@@ -7,7 +7,6 @@
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/AudioTool.h>
 #include <tlPlayApp/ColorTool.h>
-#include <tlPlayApp/ColorPickerTool.h>
 #include <tlPlayApp/DevicesTool.h>
 #include <tlPlayApp/FilesTool.h>
 #include <tlPlayApp/InfoTool.h>
@@ -44,7 +43,6 @@ namespace tl
 
             p.toolWidgets[Tool::Audio] = AudioTool::create(app, context);
             p.toolWidgets[Tool::Color] = ColorTool::create(app, context);
-            p.toolWidgets[Tool::ColorPicker] = ColorPickerTool::create(mainWindow, app, context);
             p.toolWidgets[Tool::Devices] = DevicesTool::create(app, context);
             p.toolWidgets[Tool::Files] = FilesTool::create(app, context);
             p.toolWidgets[Tool::Info] = InfoTool::create(app, context);
@@ -96,17 +94,6 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             _sizeHint = _p->layout->getSizeHint();
-        }
-
-        std::map<Tool, bool> ToolsWidget::_getToolsVisible() const
-        {
-            TLRENDER_P();
-            std::map<Tool, bool> out;
-            for (const auto& i : p.toolWidgets)
-            {
-                out[i.first] = i.second->isVisible(false);
-            }
-            return out;
         }
     }
 }

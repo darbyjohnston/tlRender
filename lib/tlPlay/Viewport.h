@@ -38,10 +38,16 @@ namespace tl
             void setHUD(bool);
 
             void setGeometry(const math::Box2i&) override;
+            void childRemovedEvent(const ui::ChildEvent&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void mouseMoveEvent(ui::MouseMoveEvent&) override;
+            void mousePressEvent(ui::MouseClickEvent&) override;
+            void mouseReleaseEvent(ui::MouseClickEvent&) override;
 
         private:
-            void _textUpdate();
+            void _hudUpdate();
+            void _colorPickersUpdate();
+            void _colorWidgetsUpdate();
 
             TLRENDER_PRIVATE();
         };

@@ -4,46 +4,41 @@
 
 #pragma once
 
-#include <tlPlayApp/Tools.h>
-
-#include <tlUI/IWidget.h>
+#include <tlPlay/Viewport.h>
 
 namespace tl
 {
-    namespace play_app
+    namespace play
     {
-        class App;
-        class MainWindow;
-
-        //! Tools widget.
-        class ToolsWidget : public ui::IWidget
+        class ViewportColorWidget : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(ToolsWidget);
+            TLRENDER_NON_COPYABLE(ViewportColorWidget);
 
         protected:
             void _init(
-                const std::shared_ptr<MainWindow>&,
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            ToolsWidget();
+            ViewportColorWidget();
 
         public:
-            virtual ~ToolsWidget();
+            virtual ~ViewportColorWidget();
 
-            //! Create a new widget.
-            static std::shared_ptr<ToolsWidget> create(
-                const std::shared_ptr<MainWindow>&,
-                const std::shared_ptr<App>&,
+            static std::shared_ptr<ViewportColorWidget> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            void setColor(const image::Color4f&);
+
             void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void drawEvent(const math::Box2i&, const ui::DrawEvent&) override;
 
         private:
+            void _colorUpdate();
+
             TLRENDER_PRIVATE();
         };
     }
 }
+

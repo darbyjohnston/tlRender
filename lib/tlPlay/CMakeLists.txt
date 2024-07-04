@@ -12,6 +12,8 @@ set(HEADERS
     Util.h
     Viewport.h
     ViewportModel.h)
+set(PRIVATE_HEADERS
+    ViewportPrivate.h)
 
 set(SOURCE
     App.cpp
@@ -25,9 +27,10 @@ set(SOURCE
     Settings.cpp
     Util.cpp
     Viewport.cpp
+    ViewportColorWidget.cpp
     ViewportModel.cpp)
 
-add_library(tlPlay ${HEADERS} ${SOURCE})
+add_library(tlPlay ${HEADERS} ${PRIVATE_HEADERS} ${SOURCE})
 target_link_libraries(tlPlay tlTimelineUI tlDevice)
 set_target_properties(tlPlay PROPERTIES FOLDER lib)
 set_target_properties(tlPlay PROPERTIES PUBLIC_HEADER "${HEADERS}")

@@ -51,7 +51,8 @@ namespace tl
                 double frame = 0.0;
             };
             DroppedFramesData droppedFramesData;
-            std::shared_ptr<observer::Value<image::Color4f> > colorPicker;
+            std::vector<math::Vector2i> colorPickers;
+            std::shared_ptr<observer::List<image::Color4f> > colorPickerValues;
 
             bool doRender = false;
             std::shared_ptr<gl::OffscreenBuffer> buffer;
@@ -60,8 +61,7 @@ namespace tl
             {
                 None,
                 View,
-                Wipe,
-                ColorPicker
+                Wipe
             };
             struct MouseData
             {
@@ -90,7 +90,7 @@ namespace tl
             p.frameView = observer::Value<bool>::create(true);
             p.fps = observer::Value<double>::create(0.0);
             p.droppedFrames = observer::Value<size_t>::create(0);
-            p.colorPicker = observer::Value<image::Color4f>::create();
+            p.colorPickerValues = observer::List<image::Color4f>::create();
         }
 
         TimelineViewport::TimelineViewport() :
@@ -358,9 +358,18 @@ namespace tl
             return _p->droppedFrames;
         }
 
-        std::shared_ptr<observer::IValue<image::Color4f> > TimelineViewport::observeColorPicker() const
+        void TimelineViewport::setColorPickers(const std::vector<math::Vector2i>& value)
         {
-            return _p->colorPicker;
+            TLRENDER_P();
+            if (value == p.colorPickers)
+                return;
+            p.colorPickers = value;
+            _updates |= ui::Update::Draw;
+        }
+
+        std::shared_ptr<observer::IList<image::Color4f> > TimelineViewport::observeColorPickers() const
+        {
+            return _p->colorPickerValues;
         }
 
         void TimelineViewport::setGeometry(const math::Box2i& value)
@@ -473,24 +482,26 @@ namespace tl
                 event.render->drawTexture(id, g);
             }
 
-            if (p.buffer && Private::MouseMode::ColorPicker == p.mouse.mode)
+            if (p.buffer && !p.colorPickers.empty())
             {
                 gl::OffscreenBufferBinding binding(p.buffer);
-                const math::Vector2i samplePos(
-                    _mouse.pos.x - _geometry.min.x,
-                    _mouse.pos.y - _geometry.min.y);
-                std::vector<float> sample(4);
-                glPixelStorei(GL_PACK_ALIGNMENT, 1);
-                glReadPixels(
-                    samplePos.x,
-                    samplePos.y,
-                    1,
-                    1,
-                    GL_RGBA,
-                    GL_FLOAT,
-                    sample.data());
-                const image::Color4f color(sample[0], sample[1], sample[2], sample[3]);
-                p.colorPicker->setIfChanged(color);
+                std::vector<image::Color4f> colors;
+                for (const auto& colorPicker : p.colorPickers)
+                {
+                    const math::Vector2i pos = colorPicker - _geometry.min;
+                    std::vector<float> sample(4);
+                    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+                    glReadPixels(
+                        pos.x,
+                        pos.y,
+                        1,
+                        1,
+                        GL_RGBA,
+                        GL_FLOAT,
+                        sample.data());
+                    colors.push_back(image::Color4f(sample[0], sample[1], sample[2], sample[3]));
+                }
+                p.colorPickerValues->setIfChanged(colors);
             }
         }
 
@@ -533,9 +544,6 @@ namespace tl
                 }
                 break;
             }
-            case Private::MouseMode::ColorPicker:
-                _updates |= ui::Update::Draw;
-                break;
             default: break;
             }
         }
@@ -555,12 +563,6 @@ namespace tl
                 event.modifiers & static_cast<int>(ui::KeyModifier::Alt))
             {
                 p.mouse.mode = Private::MouseMode::Wipe;
-            }
-            else if (0 == event.button &&
-                event.modifiers & static_cast<int>(ui::KeyModifier::Shift))
-            {
-                p.mouse.mode = Private::MouseMode::ColorPicker;
-                _updates |= ui::Update::Draw;
             }
         }
 

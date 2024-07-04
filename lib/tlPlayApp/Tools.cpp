@@ -19,7 +19,6 @@ namespace tl
             "Files",
             "View",
             "Color",
-            "ColorPicker",
             "Info",
             "Audio",
             "Devices",
@@ -35,7 +34,6 @@ namespace tl
                 "Files",
                 "View",
                 "Color",
-                "Color Picker",
                 "Information",
                 "Audio",
                 "Devices",
@@ -53,7 +51,6 @@ namespace tl
                 "Files",
                 "View",
                 "Color",
-                "ColorPicker",
                 "Info",
                 "Audio",
                 "Devices",
@@ -76,8 +73,7 @@ namespace tl
                 ui::Key::F6,
                 ui::Key::F7,
                 ui::Key::F8,
-                ui::Key::F9,
-                ui::Key::F10
+                ui::Key::F9
             };
             return data[static_cast<size_t>(value)];
         }
@@ -89,7 +85,6 @@ namespace tl
                 Tool::Files,
                 Tool::View,
                 Tool::Color,
-                Tool::ColorPicker,
                 Tool::Info,
                 Tool::Audio,
                 Tool::Devices,
