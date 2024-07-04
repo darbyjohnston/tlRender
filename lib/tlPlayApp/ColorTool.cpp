@@ -226,6 +226,7 @@ namespace tl
             p.fileEdit = ui::FileEdit::create(context);
 
             p.orderComboBox = ui::ComboBox::create(timeline::getLUTOrderLabels(), context);
+            p.orderComboBox->setHStretch(ui::Stretch::Expanding);
 
             p.layout = ui::GridLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);

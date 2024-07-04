@@ -189,10 +189,13 @@ namespace tl
             p.audioComboBox = ui::ComboBox::create(
                 timeline::getFileSequenceAudioLabels(),
                 context);
+            p.audioComboBox->setHStretch(ui::Stretch::Expanding);
 
             p.audioFileNameEdit = ui::LineEdit::create(context);
+            p.audioFileNameEdit->setHStretch(ui::Stretch::Expanding);
 
             p.audioDirectoryEdit = ui::LineEdit::create(context);
+            p.audioDirectoryEdit->setHStretch(ui::Stretch::Expanding);
 
             p.maxDigitsEdit = ui::IntEdit::create(context);
 
@@ -467,6 +470,7 @@ namespace tl
             p.complexitySlider = ui::FloatEditSlider::create(context);
 
             p.drawModeComboBox = ui::ComboBox::create(usd::getDrawModeLabels(), context);
+            p.drawModeComboBox->setHStretch(ui::Stretch::Expanding);
 
             p.lightingCheckBox = ui::CheckBox::create(context);
 
@@ -743,6 +747,7 @@ namespace tl
 
             p.timerComboBox = ui::ComboBox::create(
                 timeline::getTimerModeLabels(), context);
+            p.timerComboBox->setHStretch(ui::Stretch::Expanding);
 
             p.audioBufferFramesEdit = ui::IntEdit::create(context);
             p.audioBufferFramesEdit->setRange(math::IntRange(1024, 4096));
@@ -977,6 +982,7 @@ namespace tl
             p.settings = app->getSettings();
 
             p.paletteComboBox = ui::ComboBox::create(getStylePaletteLabels(), context);
+            p.paletteComboBox->setHStretch(ui::Stretch::Expanding);
 
             p.layout = ui::GridLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);

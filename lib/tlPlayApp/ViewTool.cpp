@@ -44,11 +44,14 @@ namespace tl
             p.typeComboBox = ui::ComboBox::create(
                 timeline::getBackgroundLabels(),
                 context);
+            p.typeComboBox->setHStretch(ui::Stretch::Expanding);
 
             p.color0Swatch = ui::ColorSwatch::create(context);
             p.color0Swatch->setEditable(true);
+            p.color0Swatch->setHStretch(ui::Stretch::Expanding);
             p.color1Swatch = ui::ColorSwatch::create(context);
             p.color1Swatch->setEditable(true);
+            p.color1Swatch->setHStretch(ui::Stretch::Expanding);
             p.checkersSizeSlider = ui::IntEditSlider::create(context);
             p.checkersSizeSlider->setRange(math::IntRange(10, 100));
 

@@ -277,7 +277,7 @@ namespace tl
             math::Size2i _sizeHint;
             Stretch _hStretch = Stretch::Fixed;
             Stretch _vStretch = Stretch::Fixed;
-            HAlign _hAlign = HAlign::Center;
+            HAlign _hAlign = HAlign::Left;
             VAlign _vAlign = VAlign::Center;
             math::Box2i _geometry;
             bool _visible = true;

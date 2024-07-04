@@ -61,14 +61,19 @@ namespace tl
             p.enabledCheckBox = ui::CheckBox::create(context);
 
             p.deviceComboBox = ui::ComboBox::create(context);
+            p.deviceComboBox->setHStretch(ui::Stretch::Expanding);
             p.displayModeComboBox = ui::ComboBox::create(context);
+            p.displayModeComboBox->setHStretch(ui::Stretch::Expanding);
             p.pixelTypeComboBox = ui::ComboBox::create(context);
+            p.pixelTypeComboBox->setHStretch(ui::Stretch::Expanding);
 
             p._444SDIVideoOutputCheckBox = ui::CheckBox::create(context);
 
             p.videoLevelsComboBox = ui::ComboBox::create(image::getVideoLevelsLabels(), context);
+            p.videoLevelsComboBox->setHStretch(ui::Stretch::Expanding);
 
             p.hdrModeComboBox = ui::ComboBox::create(bmd::getHDRModeLabels(), context);
+            p.hdrModeComboBox->setHStretch(ui::Stretch::Expanding);
 
             for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
             {
