@@ -587,6 +587,9 @@ namespace tl
                 [this](const timeline::OCIOOptions& value)
                 {
                     _p->viewport->setOCIOOptions(value);
+                    auto options = _p->timelineWidget->getDisplayOptions();
+                    options.ocio = value;
+                    _p->timelineWidget->setDisplayOptions(options);
                 });
 
             p.lutOptionsObserver = observer::ValueObserver<timeline::LUTOptions>::create(
@@ -594,6 +597,9 @@ namespace tl
                 [this](const timeline::LUTOptions& value)
                 {
                     _p->viewport->setLUTOptions(value);
+                    auto options = _p->timelineWidget->getDisplayOptions();
+                    options.lut = value;
+                    _p->timelineWidget->setDisplayOptions(options);
                 });
 
             p.colorBufferObserver = observer::ValueObserver<image::PixelType>::create(

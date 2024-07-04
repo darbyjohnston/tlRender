@@ -895,6 +895,10 @@ namespace tl
             p.viewport->setColorBuffer(
                 p.app->renderModel()->getColorBuffer());
 
+            auto displayOptions = p.timelineWidget->displayOptions();
+            displayOptions.ocio = p.app->colorModel()->getOCIOOptions();
+            displayOptions.lut = p.app->colorModel()->getLUTOptions();
+            p.timelineWidget->setDisplayOptions(displayOptions);
             p.timelineWidget->setPlayer(p.player ? p.player->player() : nullptr);
 
             {

@@ -248,6 +248,8 @@ namespace tl
             const timeline::ClipRectState clipRectState(event.render);
             event.render->setClipRectEnabled(true);
             event.render->setClipRect(box.intersect(clipRectState.getClipRect()));
+            event.render->setOCIOOptions(_displayOptions.ocio);
+            event.render->setLUTOptions(_displayOptions.lut);
 
             const math::Box2i clipRect = _getClipRect(
                 drawRect,
@@ -302,7 +304,10 @@ namespace tl
                         {
                             if (i->second)
                             {
-                                event.render->drawImage(i->second, box);
+                                timeline::VideoData videoData;
+                                videoData.size = i->second->getSize();
+                                videoData.layers.push_back({ i->second });
+                                event.render->drawVideo({ videoData }, { box });
                             }
                         }
                         else if (p.ioInfo && !p.ioInfo->video.empty())

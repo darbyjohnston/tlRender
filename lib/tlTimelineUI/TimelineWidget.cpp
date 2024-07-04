@@ -34,6 +34,8 @@ namespace tl
             std::vector<int> frameMarkers;
             std::shared_ptr<observer::Value<ItemOptions> > itemOptions;
             std::shared_ptr<observer::Value<DisplayOptions> > displayOptions;
+            timeline::OCIOOptions ocioOptions;
+            timeline::LUTOptions lutOptions;
             otime::TimeRange timeRange = time::invalidTimeRange;
             timeline::Playback playback = timeline::Playback::Stop;
             otime::RationalTime currentTime = time::invalidTime;

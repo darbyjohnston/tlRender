@@ -80,6 +80,8 @@ namespace tl
             std::string monoFont = "NotoMono-Regular";
             int fontSize = 12;
             float clipRectScale = 2.F;
+            timeline::OCIOOptions ocio;
+            timeline::LUTOptions lut;
 
             bool operator == (const DisplayOptions&) const;
             bool operator != (const DisplayOptions&) const;

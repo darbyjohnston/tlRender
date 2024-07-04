@@ -45,7 +45,9 @@ namespace tl
                 regularFont == other.regularFont &&
                 monoFont == other.monoFont &&
                 fontSize == other.fontSize &&
-                clipRectScale == other.clipRectScale;
+                clipRectScale == other.clipRectScale &&
+                ocio == other.ocio &&
+                lut == other.lut;
         }
 
         bool DisplayOptions::operator != (const DisplayOptions& other) const
