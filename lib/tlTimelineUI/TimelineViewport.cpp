@@ -442,26 +442,82 @@ namespace tl
                         event.render->clearViewport(image::Color4f(0.F, 0.F, 0.F));
                         event.render->setOCIOOptions(p.ocioOptions);
                         event.render->setLUTOptions(p.lutOptions);
+
+                        const auto pm = math::ortho(
+                            0.F,
+                            static_cast<float>(g.w()),
+                            0.F,
+                            static_cast<float>(g.h()),
+                            -1.F,
+                            1.F);
+                        event.render->setTransform(pm);
+                        switch (p.backgroundOptions.type)
+                        {
+                        case timeline::Background::Solid:
+                            event.render->drawRect(
+                                math::Box2i(0, 0, g.w(), g.h()),
+                                p.backgroundOptions.color0);
+                            break;
+                        case timeline::Background::Checkers:
+                            event.render->drawColorMesh(
+                                geom::checkers(
+                                    math::Box2i(0, 0, g.w(), g.h()),
+                                    p.backgroundOptions.color0,
+                                    p.backgroundOptions.color1,
+                                    p.backgroundOptions.checkersSize),
+                                math::Vector2i(),
+                                image::Color4f(1.F, 1.F, 1.F));
+                            break;
+                        case timeline::Background::Gradient:
+                        {
+                            math::Box2i box(0, 0, g.w(), g.h());
+                            geom::TriangleMesh2 mesh;
+                            mesh.v.push_back(math::Vector2f(box.min.x, box.min.y));
+                            mesh.v.push_back(math::Vector2f(box.max.x, box.min.y));
+                            mesh.v.push_back(math::Vector2f(box.max.x, box.max.y));
+                            mesh.v.push_back(math::Vector2f(box.min.x, box.max.y));
+                            mesh.c.push_back(math::Vector4f(
+                                p.backgroundOptions.color0.r,
+                                p.backgroundOptions.color0.g,
+                                p.backgroundOptions.color0.b,
+                                p.backgroundOptions.color0.a));
+                            mesh.c.push_back(math::Vector4f(
+                                p.backgroundOptions.color1.r,
+                                p.backgroundOptions.color1.g,
+                                p.backgroundOptions.color1.b,
+                                p.backgroundOptions.color1.a));
+                            mesh.triangles.push_back({
+                                geom::Vertex2(1, 0, 1),
+                                geom::Vertex2(2, 0, 1),
+                                geom::Vertex2(3, 0, 2), });
+                            mesh.triangles.push_back({
+                                geom::Vertex2(3, 0, 2),
+                                geom::Vertex2(4, 0, 2),
+                                geom::Vertex2(1, 0, 1), });
+                            event.render->drawColorMesh(
+                                mesh,
+                                math::Vector2i(),
+                                image::Color4f(1.F, 1.F, 1.F));
+                            break;
+                        }
+                        default: break;
+                        }
+
                         if (!p.videoData.empty())
                         {
                             math::Matrix4x4f vm;
                             vm = vm * math::translate(math::Vector3f(p.viewPos.x, p.viewPos.y, 0.F));
                             vm = vm * math::scale(math::Vector3f(p.viewZoom, p.viewZoom, 1.F));
-                            const auto pm = math::ortho(
-                                0.F,
-                                static_cast<float>(g.w()),
-                                0.F,
-                                static_cast<float>(g.h()),
-                                -1.F,
-                                1.F);
                             event.render->setTransform(pm * vm);
+                            timeline::BackgroundOptions backgroundOptions;
+                            backgroundOptions.color0 = image::Color4f(0.F, 0.F, 0.F, 0.F);
                             event.render->drawVideo(
                                 p.videoData,
                                 timeline::getBoxes(p.compareOptions.mode, p.videoData),
                                 p.imageOptions,
                                 p.displayOptions,
                                 p.compareOptions,
-                                p.backgroundOptions);
+                                backgroundOptions);
 
                             _droppedFramesUpdate(p.videoData[0].time);
                         }
