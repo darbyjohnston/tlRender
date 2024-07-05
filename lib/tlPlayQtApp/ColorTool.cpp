@@ -92,7 +92,7 @@ namespace tl
 
             connect(
                 p.inputComboBox,
-                &QComboBox::currentIndexChanged,
+                QOverload<int>::of(&QComboBox::currentIndexChanged),
                 [this](int index)
                 {
                     _p->ocioModel->setInputIndex(index);
@@ -100,7 +100,7 @@ namespace tl
 
             connect(
                 p.displayComboBox,
-                &QComboBox::currentIndexChanged,
+                QOverload<int>::of(&QComboBox::currentIndexChanged),
                 [this](int index)
                 {
                     _p->ocioModel->setDisplayIndex(index);
@@ -108,7 +108,7 @@ namespace tl
 
             connect(
                 p.viewComboBox,
-                &QComboBox::currentIndexChanged,
+                QOverload<int>::of(&QComboBox::currentIndexChanged),
                 [this](int index)
                 {
                     _p->ocioModel->setViewIndex(index);
@@ -116,7 +116,7 @@ namespace tl
 
             connect(
                 p.lookComboBox,
-                &QComboBox::currentIndexChanged,
+                QOverload<int>::of(&QComboBox::currentIndexChanged),
                 [this](int index)
                 {
                     _p->ocioModel->setLookIndex(index);
