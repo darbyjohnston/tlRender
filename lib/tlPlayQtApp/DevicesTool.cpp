@@ -40,6 +40,7 @@ namespace tl
             QCheckBox* _444SDIVideoOutputCheckBox = nullptr;
             QComboBox* videoLevelsComboBox = nullptr;
             QComboBox* hdrModeComboBox = nullptr;
+            QComboBox* eotfComboBox = nullptr;
             std::vector<std::pair<QDoubleSpinBox*, QDoubleSpinBox*> > primariesSpinBoxes;
             std::pair<QDoubleSpinBox*, QDoubleSpinBox*> masteringLuminanceSpinBoxes =
                 std::make_pair(nullptr, nullptr);
@@ -68,8 +69,22 @@ namespace tl
             p._444SDIVideoOutputCheckBox = new QCheckBox(tr("444 SDI video output"));
 
             p.videoLevelsComboBox = new QComboBox;
+            for (const auto& i : image::getVideoLevelsLabels())
+            {
+                p.videoLevelsComboBox->addItem(QString::fromUtf8(i.c_str()));
+            }
 
             p.hdrModeComboBox = new QComboBox;
+            for (const auto& i : bmd::getHDRModeLabels())
+            {
+                p.hdrModeComboBox->addItem(QString::fromUtf8(i.c_str()));
+            }
+
+            p.eotfComboBox = new QComboBox;
+            for (const auto& i : image::getHDR_EOTFLabels())
+            {
+                p.eotfComboBox->addItem(QString::fromUtf8(i.c_str()));
+            }
 
             for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
             {
@@ -106,6 +121,7 @@ namespace tl
 
             layout = new QFormLayout;
             layout->addRow(tr("Mode:"), p.hdrModeComboBox);
+            layout->addRow(tr("EOTF:"), p.eotfComboBox);
             const std::array<QString, image::HDRPrimaries::Count> primariesLabels =
             {
                 tr("Red primaries:"),
@@ -186,6 +202,16 @@ namespace tl
                 [this](int value)
                 {
                     _p->app->bmdDevicesModel()->setHDRMode(static_cast<bmd::HDRMode>(value));
+                });
+
+            connect(
+                p.eotfComboBox,
+                QOverload<int>::of(&QComboBox::activated),
+                [this](int value)
+                {
+                    auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
+                    hdrData.eotf = static_cast<image::HDR_EOTF>(value);
+                    _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
 
             for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
@@ -293,23 +319,15 @@ namespace tl
                     }
                     {
                         QSignalBlocker blocker(p.videoLevelsComboBox);
-                        p.videoLevelsComboBox->clear();
-                        for (const auto& i : image::getVideoLevelsEnums())
-                        {
-                            std::stringstream ss;
-                            ss << i;
-                            p.videoLevelsComboBox->addItem(QString::fromUtf8(ss.str().c_str()));
-                        }
                         p.videoLevelsComboBox->setCurrentIndex(static_cast<int>(value.videoLevels));
                     }
                     {
                         QSignalBlocker blocker(p.hdrModeComboBox);
-                        p.hdrModeComboBox->clear();
-                        for (const auto& i : bmd::getHDRModeLabels())
-                        {
-                            p.hdrModeComboBox->addItem(QString::fromUtf8(i.c_str()));
-                        }
                         p.hdrModeComboBox->setCurrentIndex(static_cast<int>(value.hdrMode));
+                    }
+                    {
+                        QSignalBlocker blocker(p.eotfComboBox);
+                        p.eotfComboBox->setCurrentIndex(static_cast<int>(value.hdrData.eotf));
                     }
                     for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
                     {

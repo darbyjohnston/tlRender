@@ -72,18 +72,14 @@ namespace tl
             IDeckLinkVideoConversion* p = nullptr;
         };
 
-        /*class DLHDRVideoFrame :
+        class DLHDRVideoFrame :
             public IDeckLinkVideoFrame,
             public IDeckLinkVideoFrameMetadataExtensions
         {
         public:
-            DLHDRVideoFrame(std::shared_ptr<IDeckLinkMutableVideoFrame>& frame, image::HDRData& hdrData) :
-                _frame(frame),
-                _hdrData(hdrData),
-                _refCount(1)
-            {}
+            DLHDRVideoFrame(IDeckLinkMutableVideoFrame*, image::HDRData&);
 
-            virtual ~DLHDRVideoFrame() {}
+            virtual ~DLHDRVideoFrame();
 
             HRESULT QueryInterface(REFIID iid, LPVOID* ppv) override;
             ULONG AddRef(void) override;
@@ -107,10 +103,10 @@ namespace tl
             void UpdateHDRMetadata(const image::HDRData& metadata) { _hdrData = metadata; }
 
         private:
-            std::shared_ptr<IDeckLinkMutableVideoFrame> _frame;
+            IDeckLinkMutableVideoFrame* _frame = nullptr;
             image::HDRData _hdrData;
             std::atomic<ULONG> _refCount;
-        };*/
+        };
 
         class DLOutputCallback :
             public IDeckLinkVideoOutputCallback,

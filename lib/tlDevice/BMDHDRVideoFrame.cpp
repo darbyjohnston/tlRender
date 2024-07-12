@@ -8,7 +8,20 @@ namespace tl
 {
     namespace bmd
     {
-        /*HRESULT DLHDRVideoFrame::QueryInterface(REFIID iid, LPVOID* ppv)
+        DLHDRVideoFrame::DLHDRVideoFrame(IDeckLinkMutableVideoFrame* frame, image::HDRData& hdrData) :
+            _frame(frame),
+            _hdrData(hdrData),
+            _refCount(1)
+        {
+            _frame->AddRef();
+        }
+
+        DLHDRVideoFrame::~DLHDRVideoFrame()
+        {
+            _frame->Release();
+        }
+
+        HRESULT DLHDRVideoFrame::QueryInterface(REFIID iid, LPVOID* ppv)
         {
             IID iunknown = IID_IUnknown;
             if (ppv == nullptr)
@@ -47,7 +60,7 @@ namespace tl
             switch (metadataID)
             {
             case bmdDeckLinkFrameMetadataHDRElectroOpticalTransferFunc:
-                *value = _hdrData.eotf;
+                *value = static_cast<int>(_hdrData.eotf);
                 break;
             case bmdDeckLinkFrameMetadataColorspace:
                 *value = bmdColorspaceRec2020;
@@ -65,28 +78,28 @@ namespace tl
             switch (metadataID)
             {
             case bmdDeckLinkFrameMetadataHDRDisplayPrimariesRedX:
-                *value = _hdrData.redPrimaries.x;
+                *value = _hdrData.primaries[0].x;
                 break;
             case bmdDeckLinkFrameMetadataHDRDisplayPrimariesRedY:
-                *value = _hdrData.redPrimaries.y;
+                *value = _hdrData.primaries[0].y;
                 break;
             case bmdDeckLinkFrameMetadataHDRDisplayPrimariesGreenX:
-                *value = _hdrData.greenPrimaries.x;
+                *value = _hdrData.primaries[1].x;
                 break;
             case bmdDeckLinkFrameMetadataHDRDisplayPrimariesGreenY:
-                *value = _hdrData.greenPrimaries.y;
+                *value = _hdrData.primaries[1].y;
                 break;
             case bmdDeckLinkFrameMetadataHDRDisplayPrimariesBlueX:
-                *value = _hdrData.bluePrimaries.x;
+                *value = _hdrData.primaries[2].x;
                 break;
             case bmdDeckLinkFrameMetadataHDRDisplayPrimariesBlueY:
-                *value = _hdrData.bluePrimaries.y;
+                *value = _hdrData.primaries[2].y;
                 break;
             case bmdDeckLinkFrameMetadataHDRWhitePointX:
-                *value = _hdrData.whitePrimaries.x;
+                *value = _hdrData.primaries[3].x;
                 break;
             case bmdDeckLinkFrameMetadataHDRWhitePointY:
-                *value = _hdrData.whitePrimaries.y;
+                *value = _hdrData.primaries[3].y;
                 break;
             case bmdDeckLinkFrameMetadataHDRMaxDisplayMasteringLuminance:
                 *value = _hdrData.displayMasteringLuminance.getMax();
@@ -123,6 +136,6 @@ namespace tl
         {
             *bufferSize = 0;
             return E_INVALIDARG;
-        }*/
+        }
     }
 }

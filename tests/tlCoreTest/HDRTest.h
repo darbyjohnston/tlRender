@@ -19,6 +19,11 @@ namespace tl
             static std::shared_ptr<HDRTest> create(const std::shared_ptr<system::Context>&);
 
             void run() override;
+
+        private:
+            void _enums();
+            void _operators();
+            void _serialize();
         };
     }
 }

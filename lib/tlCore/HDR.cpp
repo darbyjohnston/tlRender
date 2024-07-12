@@ -12,6 +12,13 @@ namespace tl
     namespace image
     {
         TLRENDER_ENUM_IMPL(
+            HDR_EOTF,
+            "SDR",
+            "HDR",
+            "ST2084");
+        TLRENDER_ENUM_SERIALIZE_IMPL(HDR_EOTF);
+
+        TLRENDER_ENUM_IMPL(
             HDRPrimaries,
             "Red",
             "Green",

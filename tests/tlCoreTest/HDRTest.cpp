@@ -24,16 +24,33 @@ namespace tl
 
         void HDRTest::run()
         {
+            _enums();
+            _operators();
+            _serialize();
+        }
+
+        void HDRTest::_enums()
+        {
+            _enum<HDR_EOTF>("HDR_EOTF", getHDR_EOTFEnums);
+            _enum<HDRPrimaries>("HDRPrimaries", getHDRPrimariesEnums);
+        }
+
+        void HDRTest::_operators()
+        {
             {
                 HDRData a;
                 HDRData b;
                 TLRENDER_ASSERT(a == b);
-                a.eotf = 1;
+                a.eotf = image::HDR_EOTF::ST2084;
                 TLRENDER_ASSERT(a != b);
             }
+        }
+
+        void HDRTest::_serialize()
+        {
             {
                 HDRData value;
-                value.eotf = 1;
+                value.eotf = image::HDR_EOTF::ST2084;
                 value.primaries[0].x = .1F;
                 value.primaries[0].y = 1.F;
                 value.primaries[1].x = .2F;

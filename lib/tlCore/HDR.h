@@ -14,6 +14,19 @@ namespace tl
 {
     namespace image
     {
+        //! HDR EOTF.
+        enum class HDR_EOTF
+        {
+            SDR,
+            HDR,
+            ST2084,
+
+            Count,
+            First = SDR
+        };
+        TLRENDER_ENUM(HDR_EOTF);
+        TLRENDER_ENUM_SERIALIZE(HDR_EOTF);
+
         //! HDR color primaries.
         enum HDRPrimaries
         {
@@ -31,7 +44,8 @@ namespace tl
         //! HDR data.
         struct HDRData
         {
-            uint8_t eotf = 0;
+            HDR_EOTF eotf = HDR_EOTF::SDR;
+
             //! Default Rec. 2020 color primaries (red, green, blue, white).
             std::array<math::Vector2f, HDRPrimaries::Count> primaries =
             {

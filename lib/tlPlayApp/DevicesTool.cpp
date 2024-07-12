@@ -35,6 +35,7 @@ namespace tl
             std::shared_ptr<ui::CheckBox> _444SDIVideoOutputCheckBox;
             std::shared_ptr<ui::ComboBox> videoLevelsComboBox;
             std::shared_ptr<ui::ComboBox> hdrModeComboBox;
+            std::shared_ptr<ui::ComboBox> hdrEOTFComboBox;
             std::vector<std::pair< std::shared_ptr<ui::FloatEdit>, std::shared_ptr<ui::FloatEdit> > > primariesFloatEdits;
             std::pair< std::shared_ptr<ui::FloatEdit>, std::shared_ptr<ui::FloatEdit> > masteringLuminanceFloatEdits;
             std::shared_ptr<ui::FloatEditSlider> maxCLLSlider;
@@ -74,6 +75,9 @@ namespace tl
 
             p.hdrModeComboBox = ui::ComboBox::create(bmd::getHDRModeLabels(), context);
             p.hdrModeComboBox->setHStretch(ui::Stretch::Expanding);
+
+            p.hdrEOTFComboBox = ui::ComboBox::create(image::getHDR_EOTFLabels(), context);
+            p.hdrEOTFComboBox->setHStretch(ui::Stretch::Expanding);
 
             for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
             {
@@ -140,6 +144,10 @@ namespace tl
             gridLayout->setGridPos(label, 0, 0);
             p.hdrModeComboBox->setParent(gridLayout);
             gridLayout->setGridPos(p.hdrModeComboBox, 0, 1);
+            label = ui::Label::create("EOTF:", context, gridLayout);
+            gridLayout->setGridPos(label, 1, 0);
+            p.hdrEOTFComboBox->setParent(gridLayout);
+            gridLayout->setGridPos(p.hdrEOTFComboBox, 1, 1);
             const std::array<std::string, image::HDRPrimaries::Count> primariesLabels =
             {
                 "Red primaries:",
@@ -150,28 +158,28 @@ namespace tl
             for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
             {
                 label = ui::Label::create(primariesLabels[i], context, gridLayout);
-                gridLayout->setGridPos(label, 1 + i, 0);
+                gridLayout->setGridPos(label, 2 + i, 0);
                 auto hLayout = ui::HorizontalLayout::create(context, gridLayout);
                 hLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
                 p.primariesFloatEdits[i].first->setParent(hLayout);
                 p.primariesFloatEdits[i].second->setParent(hLayout);
-                gridLayout->setGridPos(hLayout, 1 + i, 1);
+                gridLayout->setGridPos(hLayout, 2 + i, 1);
             }
             label = ui::Label::create("Mastering luminance:", context, gridLayout);
-            gridLayout->setGridPos(label, 6, 0);
+            gridLayout->setGridPos(label, 7, 0);
             auto hLayout = ui::HorizontalLayout::create(context, gridLayout);
             hLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
             p.masteringLuminanceFloatEdits.first->setParent(hLayout);
             p.masteringLuminanceFloatEdits.second->setParent(hLayout);
-            gridLayout->setGridPos(hLayout, 6, 1);
+            gridLayout->setGridPos(hLayout, 7, 1);
             label = ui::Label::create("Maximum CLL:", context, gridLayout);
-            gridLayout->setGridPos(label, 7, 0);
-            p.maxCLLSlider->setParent(gridLayout);
-            gridLayout->setGridPos(p.maxCLLSlider, 7, 1);
-            label = ui::Label::create("Maximum FALL:", context, gridLayout);
             gridLayout->setGridPos(label, 8, 0);
+            p.maxCLLSlider->setParent(gridLayout);
+            gridLayout->setGridPos(p.maxCLLSlider, 8, 1);
+            label = ui::Label::create("Maximum FALL:", context, gridLayout);
+            gridLayout->setGridPos(label, 9, 0);
             p.maxFALLSlider->setParent(gridLayout);
-            gridLayout->setGridPos(p.maxFALLSlider, 8, 1);
+            gridLayout->setGridPos(p.maxFALLSlider, 9, 1);
             bellows->setWidget(gridLayout);
 
             auto scrollWidget = ui::ScrollWidget::create(context);
@@ -239,6 +247,17 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         app->getBMDDevicesModel()->setHDRMode(static_cast<bmd::HDRMode>(value));
+                    }
+                });
+
+            p.hdrEOTFComboBox->setIndexCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto hdrData = app->getBMDDevicesModel()->observeData()->get().hdrData;
+                        hdrData.eotf = static_cast<image::HDR_EOTF>(value);
+                        app->getBMDDevicesModel()->setHDRData(hdrData);
                     }
                 });
 
