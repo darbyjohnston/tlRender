@@ -31,6 +31,9 @@ namespace tl
             void clearCache();
             void cacheUpdate();
 
+            static size_t getAudioChannelCount(
+                const audio::Info& input,
+                const audio::Info& output);
             void resetAudioTime();
 #if defined(TLRENDER_AUDIO)
             static int rtAudioCallback(

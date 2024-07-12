@@ -518,6 +518,18 @@ namespace tl
             }
         }
 
+        size_t Player::Private::getAudioChannelCount(
+            const audio::Info& input,
+            const audio::Info& output)
+        {
+            size_t out = 2;
+            if (input.channelCount == output.channelCount)
+            {
+                out = output.channelCount;
+            }
+            return out;
+        }
+
         void Player::Private::resetAudioTime()
         {
             {

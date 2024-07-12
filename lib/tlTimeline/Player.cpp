@@ -157,6 +157,9 @@ namespace tl
                         if (p.thread.rtAudio && !audioSystem->getDevices().empty())
                         {
                             p.audioThread.info = audioSystem->getDefaultOutputInfo();
+                            p.audioThread.info.channelCount = p.getAudioChannelCount(
+                                p.ioInfo.audio,
+                                p.audioThread.info);
                             if (p.audioThread.info.channelCount > 0 &&
                                 p.audioThread.info.dataType != audio::DataType::None &&
                                 p.audioThread.info.sampleRate > 0)
