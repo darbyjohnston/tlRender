@@ -621,7 +621,8 @@ namespace tl
                             p->audioThread.info.sampleRate).rescaled_to(p->ioInfo.audio.sampleRate).value();
                     int64_t seconds = p->ioInfo.audio.sampleRate > 0 ? (frame / p->ioInfo.audio.sampleRate) : 0;
                     int64_t offset = frame - seconds * p->ioInfo.audio.sampleRate;
-                    while (audio::getSampleCount(p->audioThread.buffer) < nFrames)
+                    while (audio::getSampleCount(p->audioThread.buffer) < nFrames &&
+                        p->running)
                     {
                         //std::cout << "frame: " << frame << std::endl;
                         //std::cout << "seconds: " << seconds << std::endl;

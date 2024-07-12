@@ -143,7 +143,7 @@ namespace tl
             }
 #endif
             p.log(context);
-            p.thread.running = true;
+            p.running = true;
             p.thread.thread = std::thread(
                 [this]
                 {
@@ -193,7 +193,7 @@ namespace tl
 
                     p.thread.cacheTimer = std::chrono::steady_clock::now();
                     p.thread.logTimer = std::chrono::steady_clock::now();
-                    while (p.thread.running)
+                    while (p.running)
                     {
                         const auto t0 = std::chrono::steady_clock::now();
 
@@ -325,7 +325,7 @@ namespace tl
         Player::~Player()
         {
             TLRENDER_P();
-            p.thread.running = false;
+            p.running = false;
             if (p.thread.thread.joinable())
             {
                 p.thread.thread.join();

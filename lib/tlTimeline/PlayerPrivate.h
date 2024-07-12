@@ -70,6 +70,8 @@ namespace tl
             std::shared_ptr<observer::Value<PlayerCacheInfo> > cacheInfo;
             std::shared_ptr<observer::ValueObserver<bool> > timelineObserver;
 
+            std::atomic<bool> running;
+
             struct Mutex
             {
                 Playback playback = Playback::Stop;
@@ -128,7 +130,6 @@ namespace tl
                 std::map<int64_t, AudioRequest> audioDataRequests;
                 std::chrono::steady_clock::time_point cacheTimer;
                 std::chrono::steady_clock::time_point logTimer;
-                std::atomic<bool> running;
                 std::thread thread;
             };
             Thread thread;
