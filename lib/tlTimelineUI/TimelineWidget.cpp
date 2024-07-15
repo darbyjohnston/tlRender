@@ -384,11 +384,19 @@ namespace tl
         void TimelineWidget::setDisplayOptions(const DisplayOptions& value)
         {
             TLRENDER_P();
+            const DisplayOptions prev = p.displayOptions->get();
             if (p.displayOptions->setIfChanged(value))
             {
-                p.itemData->info.clear();
-                p.itemData->thumbnails.clear();
-                p.itemData->waveforms.clear();
+                if (prev.thumbnailHeight != value.thumbnailHeight)
+                {
+                    p.itemData->thumbnails.clear();
+                }
+                if (prev.waveformWidth != value.waveformWidth ||
+                    prev.waveformHeight != value.waveformHeight ||
+                    prev.waveformPrim != value.waveformPrim)
+                {
+                    p.itemData->waveforms.clear();
+                }
                 if (p.timelineItem)
                 {
                     _setDisplayOptions(p.timelineItem, value);
