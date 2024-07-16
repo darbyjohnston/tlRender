@@ -101,17 +101,30 @@ namespace tl
             p.colorBuffers.push_back(image::PixelType::RGBA_U8);
             p.colorBuffers.push_back(image::PixelType::RGBA_F16);
             p.colorBuffers.push_back(image::PixelType::RGBA_F32);
-            for (auto type : p.colorBuffers)
+            std::vector<std::pair<ui::Key, ui::KeyModifier> > colorBufferShortcuts =
             {
+                std::make_pair(ui::Key::_8, ui::KeyModifier::Control),
+                std::make_pair(ui::Key::_9, ui::KeyModifier::Control),
+                std::make_pair(ui::Key::_0, ui::KeyModifier::Control)
+            };
+            for (size_t i = 0; i < p.colorBuffers.size(); ++i)
+            {
+                const image::PixelType pixelType = p.colorBuffers[i];
                 std::stringstream ss;
-                ss << type;
+                ss << pixelType;
                 p.actions[ss.str()] = std::make_shared<ui::Action>(
                     ss.str(),
-                    [appWeak, type](bool value)
+                    i < colorBufferShortcuts.size() ?
+                        colorBufferShortcuts[i].first :
+                        ui::Key::Unknown,
+                    static_cast<int>(i < colorBufferShortcuts.size() ?
+                        colorBufferShortcuts[i].second :
+                        ui::KeyModifier::None),
+                    [appWeak, pixelType](bool value)
                     {
                         if (auto app = appWeak.lock())
                         {
-                            app->getRenderModel()->setColorBuffer(type);
+                            app->getRenderModel()->setColorBuffer(pixelType);
                         }
                     });
             }

@@ -57,6 +57,9 @@ namespace tl
             //! Get the color buffer type.
             image::PixelType getColorBuffer() const;
 
+            //! Observe the color buffer type.
+            std::shared_ptr<observer::IValue<image::PixelType> > observeColorBuffer() const;
+
             //! Set the color buffer type.
             void setColorBuffer(image::PixelType);
 

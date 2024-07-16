@@ -63,16 +63,16 @@ namespace tl
                 "CompareVertical",
                 "CompareTile"
             };
-            const std::array<ui::Key, static_cast<size_t>(timeline::CompareMode::Count)> compareShortcuts =
+            const std::array<std::pair<ui::Key, int>, static_cast<size_t>(timeline::CompareMode::Count)> compareShortcuts =
             {
-                ui::Key::A,
-                ui::Key::B,
-                ui::Key::W,
-                ui::Key::Unknown,
-                ui::Key::Unknown,
-                ui::Key::Unknown,
-                ui::Key::Unknown,
-                ui::Key::T
+                std::make_pair(ui::Key::A, static_cast<int>(ui::KeyModifier::Control)),
+                std::make_pair(ui::Key::B, static_cast<int>(ui::KeyModifier::Control)),
+                std::make_pair(ui::Key::W, static_cast<int>(ui::KeyModifier::Control)),
+                std::make_pair(ui::Key::Unknown, 0),
+                std::make_pair(ui::Key::Unknown, 0),
+                std::make_pair(ui::Key::Unknown, 0),
+                std::make_pair(ui::Key::Unknown, 0),
+                std::make_pair(ui::Key::T, static_cast<int>(ui::KeyModifier::Control))
             };
             const std::array<std::string, static_cast<size_t>(timeline::CompareMode::Count)> compareToolTips =
             {
@@ -81,15 +81,15 @@ namespace tl
                     "\n"
                     "Shortcut: {0}").
                     arg(ui::getLabel(
-                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::A)],
-                        static_cast<int>(ui::KeyModifier::Control))),
+                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::A)].first,
+                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::A)].second)),
                 string::Format(
                     "Show the B file\n"
                     "\n"
                     "Shortcut: {0}").
                     arg(ui::getLabel(
-                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::B)],
-                        static_cast<int>(ui::KeyModifier::Control))),
+                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::B)].first,
+                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::B)].second)),
                 string::Format(
                     "Wipe between the A and B files\n"
                     "\n"
@@ -97,8 +97,8 @@ namespace tl
                     "\n"
                     "Shortcut: {0}").
                     arg(ui::getLabel(
-                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::Wipe)],
-                        static_cast<int>(ui::KeyModifier::Control))),
+                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::Wipe)].first,
+                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::Wipe)].second)),
                 "Show the A file over the B file with transparency",
                 "Show the difference between the A and B files",
                 "Show the A and B files side by side",
@@ -108,8 +108,8 @@ namespace tl
                     "\n"
                     "Shortcut: {0}").
                     arg(ui::getLabel(
-                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::Tile)],
-                        static_cast<int>(ui::KeyModifier::Control))),
+                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::Tile)].first,
+                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::Tile)].second))
             };
             const auto compareEnums = timeline::getCompareModeEnums();
             const auto comapreLabels = timeline::getCompareModeLabels();
@@ -119,8 +119,8 @@ namespace tl
                 p.actions[comapreLabels[i]] = std::make_shared<ui::Action>(
                     timeline::getLabel(mode),
                     compareIcons[i],
-                    compareShortcuts[i],
-                    static_cast<int>(ui::KeyModifier::Control),
+                    compareShortcuts[i].first,
+                    compareShortcuts[i].second,
                     [appWeak, mode]
                     {
                         if (auto app = appWeak.lock())

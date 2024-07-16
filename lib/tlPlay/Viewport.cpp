@@ -6,6 +6,7 @@
 
 #include <tlUI/GridLayout.h>
 #include <tlUI/Label.h>
+#include <tlUI/Spacer.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -18,8 +19,10 @@ namespace tl
             std::shared_ptr<observer::Value<bool> > hud;
             double fps = 0.0;
             size_t droppedFrames = 0;
+            image::PixelType colorBuffer = image::PixelType::None;
 
             std::shared_ptr<ui::Label> fpsLabel;
+            std::shared_ptr<ui::Label> colorBufferLabel;
             std::shared_ptr<ui::GridLayout> hudLayout;
             struct ColorPicker
             {
@@ -45,6 +48,7 @@ namespace tl
 
             std::shared_ptr<observer::ValueObserver<double> > fpsObserver;
             std::shared_ptr<observer::ValueObserver<size_t> > droppedFramesObserver;
+            std::shared_ptr<observer::ValueObserver<image::PixelType> > colorBufferObserver;
             std::shared_ptr<observer::ListObserver<image::Color4f> > colorPickersObserver;
         };
 
@@ -62,10 +66,21 @@ namespace tl
             p.fpsLabel->setMarginRole(ui::SizeRole::MarginInside);
             p.fpsLabel->setBackgroundRole(ui::ColorRole::Base);
 
+            p.colorBufferLabel = ui::Label::create(context);
+            p.colorBufferLabel->setFontRole(ui::FontRole::Mono);
+            p.colorBufferLabel->setMarginRole(ui::SizeRole::MarginInside);
+            p.colorBufferLabel->setBackgroundRole(ui::ColorRole::Base);
+
             p.hudLayout = ui::GridLayout::create(context, shared_from_this());
             p.hudLayout->setMarginRole(ui::SizeRole::MarginSmall);
+            p.hudLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
             p.fpsLabel->setParent(p.hudLayout);
             p.hudLayout->setGridPos(p.fpsLabel, 0, 0);
+            p.colorBufferLabel->setParent(p.hudLayout);
+            p.hudLayout->setGridPos(p.colorBufferLabel, 0, 2);
+            auto spacer = ui::Spacer::create(ui::Orientation::Horizontal, context, p.hudLayout);
+            spacer->setStretch(ui::Stretch::Expanding, ui::Stretch::Expanding);
+            p.hudLayout->setGridPos(spacer, 1, 1);
             p.hudLayout->hide();
 
             p.fpsObserver = observer::ValueObserver<double>::create(
@@ -82,6 +97,15 @@ namespace tl
                     _p->droppedFrames = value;
                     _hudUpdate();
                 });
+
+            p.colorBufferObserver = observer::ValueObserver<image::PixelType>::create(
+                observeColorBuffer(),
+                [this](image::PixelType value)
+                {
+                    _p->colorBuffer = value;
+                    _hudUpdate();
+                });
+
             p.colorPickersObserver = observer::ListObserver<image::Color4f>::create(
                 observeColorPickers(),
                 [this](const std::vector<image::Color4f>& value)
@@ -248,6 +272,9 @@ namespace tl
                 string::Format("FPS: {0} ({1} dropped)").
                 arg(p.fps, 2, 4).
                 arg(p.droppedFrames));
+            p.colorBufferLabel->setText(
+                string::Format("Color buffer: {0}").
+                arg(p.colorBuffer));
         }
 
         void Viewport::_colorPickersUpdate()

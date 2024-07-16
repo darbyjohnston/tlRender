@@ -483,6 +483,7 @@ namespace tl
         struct Menu::Private
         {
             std::list<std::shared_ptr<Action> > items;
+            std::list<std::shared_ptr<Menu> > menus;
             std::map<std::shared_ptr<Action>, std::shared_ptr<MenuButton> > buttons;
             std::shared_ptr<VerticalLayout> layout;
         };
@@ -582,6 +583,7 @@ namespace tl
             {
                 out = Menu::create(context);
                 out->setPopupStyle(MenuPopupStyle::SubMenu);
+                p.menus.push_back(out);
 
                 auto button = MenuButton::create(context);
                 button->setText(text);
@@ -644,6 +646,13 @@ namespace tl
                         item->checkedCallback(item->checked);
                         out = true;
                     }
+                }
+            }
+            for (const auto& menu : p.menus)
+            {
+                if (menu->shortcut(shortcut, modifiers))
+                {
+                    out = true;
                 }
             }
             return out;
