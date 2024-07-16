@@ -23,7 +23,11 @@ namespace tl
 
         HRESULT DLHDRVideoFrame::QueryInterface(REFIID iid, LPVOID* ppv)
         {
+#if defined(__APPLE__)
+            CFUUIDBytes iunknown = CFUUIDGetUUIDBytes(IUnknownUUID);
+#else // __APPLE__
             IID iunknown = IID_IUnknown;
+#endif // __APPLE__
             if (ppv == nullptr)
                 return E_INVALIDARG;
             if (memcmp(&iid, &iunknown, sizeof(REFIID)) == 0)
@@ -126,11 +130,19 @@ namespace tl
             return E_INVALIDARG;
         }
 
+#if defined(__APPLE__)
+        HRESULT DLHDRVideoFrame::GetString(BMDDeckLinkFrameMetadataID, CFStringRef* value)
+        {
+            *value = nullptr;
+            return E_INVALIDARG;
+        }
+#else // __APPLE__
         HRESULT DLHDRVideoFrame::GetString(BMDDeckLinkFrameMetadataID, BSTR* value)
         {
             *value = nullptr;
             return E_INVALIDARG;
         }
+#endif // __APPLE__
 
         HRESULT	DLHDRVideoFrame::GetBytes(BMDDeckLinkFrameMetadataID metadataID, void* buffer, uint32_t* bufferSize)
         {

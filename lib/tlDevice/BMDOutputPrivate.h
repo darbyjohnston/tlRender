@@ -97,7 +97,11 @@ namespace tl
             HRESULT GetInt(BMDDeckLinkFrameMetadataID metadataID, int64_t* value) override;
             HRESULT GetFloat(BMDDeckLinkFrameMetadataID metadataID, double* value) override;
             HRESULT GetFlag(BMDDeckLinkFrameMetadataID metadataID, BOOL* value) override;
+#if defined(__APPLE__)
+            HRESULT GetString(BMDDeckLinkFrameMetadataID metadataID, CFStringRef* value) override;
+#else // __APPLE__
             HRESULT GetString(BMDDeckLinkFrameMetadataID metadataID, BSTR* value) override;
+#endif // __APPLE__
             HRESULT GetBytes(BMDDeckLinkFrameMetadataID metadataID, void* buffer, uint32_t* bufferSize) override;
 
             void UpdateHDRMetadata(const image::HDRData& metadata) { _hdrData = metadata; }
