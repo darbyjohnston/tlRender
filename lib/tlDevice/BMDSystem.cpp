@@ -56,9 +56,9 @@ namespace tl
                 {
                     TLRENDER_P();
 
-#if defined(_WIN32)
+#if defined(_WINDOWS)
                     CoInitialize(NULL);
-#endif // _WIN32
+#endif // _WINDOWS
 
                     bool log = true;
                     while (p.running)
@@ -207,9 +207,9 @@ namespace tl
                         time::sleep(getTickTime(), t0, t1);
                     }
 
-#if defined(_WIN32)
+#if defined(_WINDOWS)
                     CoUninitialize();
-#endif // _WIN32
+#endif // _WINDOWS
                 });
         }
 

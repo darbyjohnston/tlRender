@@ -25,8 +25,10 @@ namespace tl
         {
 #if defined(__APPLE__)
             CFUUIDBytes iunknown = CFUUIDGetUUIDBytes(IUnknownUUID);
-#else // __APPLE__
+#elif defined(_WINDOWS)
             IID iunknown = IID_IUnknown;
+#else // __APPLE__
+            CFUUIDBytes iunknown;
 #endif // __APPLE__
             if (ppv == nullptr)
                 return E_INVALIDARG;
@@ -136,8 +138,14 @@ namespace tl
             *value = nullptr;
             return E_INVALIDARG;
         }
-#else // __APPLE__
+#elif defined(_WINDOWS)
         HRESULT DLHDRVideoFrame::GetString(BMDDeckLinkFrameMetadataID, BSTR* value)
+        {
+            *value = nullptr;
+            return E_INVALIDARG;
+        }
+#else // __APPLE__
+        HRESULT DLHDRVideoFrame::GetString(BMDDeckLinkFrameMetadataID, const char** value)
         {
             *value = nullptr;
             return E_INVALIDARG;
