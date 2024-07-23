@@ -198,6 +198,7 @@ namespace tl
             displayOptions.clipInfo = settings->getValue<bool>("Timeline/ClipInfo");
             displayOptions.thumbnails = settings->getValue<bool>("Timeline/Thumbnails");
             displayOptions.thumbnailHeight = settings->getValue<int>("Timeline/ThumbnailsSize");
+            displayOptions.waveformHeight = displayOptions.thumbnailHeight / 2;
             displayOptions.transitions = settings->getValue<bool>("Timeline/Transitions");
             displayOptions.markers = settings->getValue<bool>("Timeline/Markers");
             p.timelineWidget->setDisplayOptions(displayOptions);
