@@ -234,11 +234,12 @@ namespace tl
 
             const math::Box2i g = _getInsideGeometry();
             const int m = _getMargin();
+            const int lineHeight = _getLineHeight();
 
             const math::Box2i box(
                 g.min.x,
                 g.min.y +
-                (_displayOptions.clipInfo ? (_getLineHeight() + m * 2) : 0),
+                (_displayOptions.clipInfo ? (lineHeight + m * 2) : 0),
                 g.w(),
                 _displayOptions.thumbnailHeight);
             event.render->drawRect(
@@ -275,7 +276,7 @@ namespace tl
                         g.min.x +
                         x,
                         g.min.y +
-                        (_displayOptions.clipInfo ? (_getLineHeight() + m * 2) : 0),
+                        (_displayOptions.clipInfo ? (lineHeight + m * 2) : 0),
                         thumbnailWidth,
                         _displayOptions.thumbnailHeight);
                     if (box.intersects(clipRect))
