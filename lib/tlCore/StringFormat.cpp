@@ -8,80 +8,116 @@
 
 #include <iomanip>
 #include <map>
-#include <regex>
 #include <sstream>
 
 namespace tl
 {
     namespace string
     {
-        namespace
-        {
-            struct Match
-            {
-                Match()
-                {}
-
-                Match(std::ptrdiff_t pos, std::ptrdiff_t length) :
-                    pos(pos),
-                    length(length)
-                {}
-
-                std::ptrdiff_t pos = 0;
-                std::ptrdiff_t length = 0;
-            };
-
-        } // namespace
-
         Format::Format(const std::string& value) :
             _text(value)
         {}
 
         Format& Format::arg(const std::string& value)
         {
-            try
+            std::map<int, std::pair<size_t, size_t> > args;
+
+            enum class Parse
             {
-                std::string subject = _text;
-                std::regex r("\\{([0-9]+)\\}");
-                std::smatch m;
-                std::map<int, Match> matches;
-                std::ptrdiff_t currentPos = 0;
-                while (std::regex_search(subject, m, r))
+                None,
+                StartBracket,
+                Number,
+                EndBracket
+            };
+            Parse parse = Parse::None;
+
+            size_t pos = 0;
+            size_t size = 0;
+
+            for (size_t i = 0; i < _text.size(); ++i)
+            {
+                Parse newParse = Parse::None;
+                if ('{' == _text[i])
                 {
-                    if (2 == m.size())
+                    newParse = Parse::StartBracket;
+                }
+                else if ('}' == _text[i])
+                {
+                    newParse = Parse::EndBracket;
+                }
+                else if (_text[i] >= '0' && _text[i] <= '9')
+                {
+                    newParse = Parse::Number;
+                }
+                
+                switch (newParse)
+                {
+                case Parse::StartBracket:
+                    if (Parse::None == parse ||
+                        Parse::EndBracket == parse)
                     {
-                        const int index = std::stoi(m[1]);
-                        const auto i = matches.find(index);
-                        if (i == matches.end())
-                        {
-                            const std::ptrdiff_t pos = m.position(0);
-                            const std::ptrdiff_t len = m.length(0);
-                            matches[std::stoi(m[1])] = Match(currentPos + pos, len);
-                            currentPos += pos + len;
-                        }
-                        else
-                        {
-                            throw std::invalid_argument("Duplicate argument");
-                        }
+                        parse = newParse;
+                        pos = i;
+                        size = 1;
                     }
                     else
                     {
-                        throw error::ParseError();
+                        parse = Parse::None;
                     }
-                    subject = m.suffix().str();
+                    break;
+                case Parse::Number:
+                    if (Parse::StartBracket == parse ||
+                        Parse::Number == parse)
+                    {
+                        parse = newParse;
+                        ++size;
+                    }
+                    else
+                    {
+                        parse = Parse::None;
+                    }
+                    break;
+                case Parse::EndBracket:
+                    if (Parse::Number == parse)
+                    {
+                        parse = newParse;
+                        ++size;
+                    }
+                    else
+                    {
+                        parse = Parse::None;
+                    }
+                    break;
+                default:
+                    parse = Parse::None;
+                    break;
                 }
-                if (matches.size() > 0)
+                
+                if (Parse::EndBracket == parse)
                 {
-                    _text.replace(matches.begin()->second.pos, matches.begin()->second.length, value);
+                    const int arg = std::stoi(_text.substr(pos + 1, size - 2));
+                    const auto i = args.find(arg);
+                    if (i == args.end())
+                    {
+                        args[arg] = std::make_pair(pos, size);
+                    }
+                    else
+                    {
+                        _error = "Duplicate argument";
+                        break;
+                    }
+                }
+            }
+            if (_error.empty())
+            {
+                if (!args.empty())
+                {
+                    _text.replace(args.begin()->second.first, args.begin()->second.second, value);
                 }
                 else
                 {
-                    throw std::invalid_argument("Argument not found");
+                    _error = "Argument not found";
                 }
-            }
-            catch (const std::exception& e)
-            {
-                _error = e.what();
             }
             return *this;
         }
