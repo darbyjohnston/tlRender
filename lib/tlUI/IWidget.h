@@ -137,7 +137,7 @@ namespace tl
 
             //! Get the clipping rect applied to the child widgets. By
             //! default this is the same as the widget geometry.
-            virtual math::Box2i getChildrenClipRect() const;
+            const math::Box2i& getChildrenClipRect() const;
 
             ///@}
 
@@ -280,6 +280,7 @@ namespace tl
             HAlign _hAlign = HAlign::Left;
             VAlign _vAlign = VAlign::Center;
             math::Box2i _geometry;
+            math::Box2i _childrenClipRect;
             bool _visible = true;
             bool _parentsVisible = true;
             bool _clipped = false;

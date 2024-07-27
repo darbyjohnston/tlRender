@@ -87,15 +87,11 @@ namespace tl
             IWidget::setGeometry(value);
             TLRENDER_P();
             const math::Box2i g = _geometry.margin(-p.size.margin);
+            _childrenClipRect = g;
             for (const auto& child : _children)
             {
                 child->setGeometry(g);
             }
-        }
-
-        math::Box2i StackLayout::getChildrenClipRect() const
-        {
-            return _geometry.margin(-_p->size.margin);
         }
 
         void StackLayout::childAddedEvent(const ChildEvent& event)

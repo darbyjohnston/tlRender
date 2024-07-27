@@ -88,6 +88,11 @@ namespace tl
             return _clipped;
         }
 
+        inline const math::Box2i& IWidget::getChildrenClipRect() const
+        {
+            return _childrenClipRect;
+        }
+
         inline bool IWidget::isEnabled(bool andParentsEnabled) const
         {
             bool out = _enabled;

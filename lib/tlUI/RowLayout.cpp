@@ -78,6 +78,7 @@ namespace tl
             IWidget::setGeometry(value);
             TLRENDER_P();
             const math::Box2i g = _geometry.margin(-p.size.margin);
+            _childrenClipRect = g;
             std::vector<math::Size2i> sizeHints;
             size_t expanding = 0;
             std::shared_ptr<IWidget> lastVisibleChild;
@@ -174,11 +175,6 @@ namespace tl
                     ++count;
                 }
             }
-        }
-
-        math::Box2i RowLayout::getChildrenClipRect() const
-        {
-            return _geometry.margin(-_p->size.margin);
         }
 
         void RowLayout::sizeHintEvent(const SizeHintEvent& event)

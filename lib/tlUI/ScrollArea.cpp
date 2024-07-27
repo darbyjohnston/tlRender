@@ -97,12 +97,6 @@ namespace tl
             _p->scrollPosCallback = value;
         }
 
-        math::Box2i ScrollArea::getChildrenClipRect() const
-        {
-            TLRENDER_P();
-            return _geometry.margin(-p.size.border);
-        }
-
         void ScrollArea::setBorder(bool value)
         {
             TLRENDER_P();
@@ -118,6 +112,7 @@ namespace tl
             IWidget::setGeometry(value);
             TLRENDER_P();
             const math::Box2i g = value.margin(-p.size.border);
+            _childrenClipRect = g;
 
             math::Vector2i scrollSize;
             for (const auto& child : _children)

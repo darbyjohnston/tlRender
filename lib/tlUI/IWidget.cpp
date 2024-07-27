@@ -183,6 +183,7 @@ namespace tl
             if (value == _geometry)
                 return;
             _geometry = value;
+            _childrenClipRect = _geometry;
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
@@ -214,11 +215,6 @@ namespace tl
         void IWidget::hide()
         {
             setVisible(false);
-        }
-
-        math::Box2i IWidget::getChildrenClipRect() const
-        {
-            return _geometry;
         }
 
         void IWidget::setEnabled(bool value)
