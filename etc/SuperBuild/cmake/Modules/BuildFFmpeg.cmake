@@ -331,6 +331,8 @@ if(FFmpeg_DEBUG)
         --enable-debug=3
         --assert-level=2)
 endif()
+include(ProcessorCount)
+ProcessorCount(FFmpeg_BUILD_JOBS)
 if(WIN32)
     list(APPEND FFmpeg_CONFIGURE_ARGS
         --arch=x86_64
@@ -356,7 +358,7 @@ if(WIN32)
         -c "pacman -S diffutils make nasm --noconfirm && \
         ${FFmpeg_OPENSSL_COPY} \
         ./configure ${FFmpeg_CONFIGURE_ARGS_TMP}")
-    set(FFmpeg_BUILD ${FFmpeg_MSYS2} -c "make")
+    set(FFmpeg_BUILD ${FFmpeg_MSYS2} -c "make -j${FFmpeg_BUILD_JOBS}")
     set(FFmpeg_INSTALL ${FFmpeg_MSYS2} -c "make install"
         COMMAND ${FFmpeg_MSYS2} -c "mv ${CMAKE_INSTALL_PREFIX}/bin/avcodec.lib ${CMAKE_INSTALL_PREFIX}/lib"
         COMMAND ${FFmpeg_MSYS2} -c "mv ${CMAKE_INSTALL_PREFIX}/bin/avdevice.lib ${CMAKE_INSTALL_PREFIX}/lib"
@@ -366,7 +368,7 @@ if(WIN32)
         COMMAND ${FFmpeg_MSYS2} -c "mv ${CMAKE_INSTALL_PREFIX}/bin/swscale.lib ${CMAKE_INSTALL_PREFIX}/lib")
 else()
     set(FFmpeg_CONFIGURE ./configure ${FFmpeg_CONFIGURE_ARGS})
-    set(FFmpeg_BUILD make)
+    set(FFmpeg_BUILD make -j${FFmpeg_BUILD_JOBS})
     set(FFmpeg_INSTALL make install)
     if(APPLE)
         list(APPEND FFmpeg_INSTALL
