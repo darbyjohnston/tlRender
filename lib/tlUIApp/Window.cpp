@@ -650,6 +650,10 @@ namespace tl
                 for (const auto& child : widget->getChildren())
                 {
                     out |= _hasSizeUpdate(child);
+                    if (out)
+                    {
+                        break;
+                    }
                 }
             }
             return out;
@@ -681,6 +685,10 @@ namespace tl
                     for (const auto& child : widget->getChildren())
                     {
                         out |= _hasDrawUpdate(child);
+                        if (out)
+                        {
+                            break;
+                        }
                     }
                 }
             }
