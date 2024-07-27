@@ -147,11 +147,11 @@ namespace tl
             TLRENDER_P();
 
             // Check if the I/O information is finished.
-            const std::string fileName = p.path.get();
             if (p.infoRequest.future.valid() &&
                 p.infoRequest.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
                 p.ioInfo = std::make_shared<io::Info>(p.infoRequest.future.get());
+                const std::string fileName = p.path.get();
                 _data->info[fileName] = p.ioInfo;
                 _updates |= ui::Update::Size;
                 _updates |= ui::Update::Draw;
