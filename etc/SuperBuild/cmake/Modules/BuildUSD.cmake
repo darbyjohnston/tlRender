@@ -1,10 +1,3 @@
-# \todo The Windows build currently only works in "Release" and "RelWithDebInfo"
-# configurations. Building in "Debug" gives these error messages:
-#
-# LINK : fatal error LNK1104: cannot open file 'tbb_debug.lib'
-#
-# However both "tbb_debug.lib" and "tbb_debug.dll" exist in the install directory.
-
 include(ExternalProject)
 
 set(USD_DEPS)
