@@ -426,16 +426,18 @@ jobs:
       run: |
         etc\Windows\windows-build-gha.bat Debug
 
-    # \bug Temporarily disable tests on Windows. All the tests seem to pass
-    # but GitHub actions reports this error at the end:
-    # Error: Process completed with exit code -1073741819.
-    #- name: Run tests
-    #  shell: cmd
-    #  run: |
-    #    cd build
-    #    cd tlRender\src\tlRender-build
-    #    tests\tltest\Debug\tltest
-
+  # \bug Temporarily disable tests on Windows. All the tests seem to pass
+  # but GitHub actions reports this error at the end:
+  # Error: Process completed with exit code -1073741819.
+  #- name: Run tests
+  #  shell: cmd
+  #  run: |
+  #    cd build
+  #    cd tlRender\src\tlRender-build
+  #    tests\tltest\Debug\tltest
+  #
+  # \bug USD build fails with this error:
+  # Failed to run 'cmake --build . --config Release --target install -- -j4' in D:\a\tlRender\tlRender\build\install\build\MaterialX-1.38.10
   windows-package:
     runs-on: windows-latest
     #runs-on: windows-2019
@@ -453,7 +455,7 @@ jobs:
       TLRENDER_PNG: ON
       TLRENDER_EXR: ON
       TLRENDER_FFMPEG: ON
-      TLRENDER_USD: ON
+      TLRENDER_USD: OFF
       TLRENDER_NFD: OFF
       TLRENDER_QT5: OFF
       TLRENDER_PROGRAMS: ON
