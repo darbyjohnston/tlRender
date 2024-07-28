@@ -1,3 +1,4 @@
+find_package(OpenGL REQUIRED)
 find_package(pxr REQUIRED)
 
 set(source main.cpp)
