@@ -751,11 +751,16 @@ namespace tl
                 const int w = _sizeHint.w;
                 const float duration = _timeRange.duration().rescaled_to(1.0).value();
                 const int frameTick = 1.0 / _timeRange.duration().value() * w;
-                if (frameTick >= p.size.handle)
+                if (duration > 0.0 && frameTick >= p.size.handle)
                 {
                     geom::TriangleMesh2 mesh;
                     size_t i = 1;
-                    for (double t = 0.0; t < duration; t += 1.0 / _timeRange.duration().rate())
+                    const otime::RationalTime t0 = posToTime(g.min.x) - _timeRange.start_time();
+                    const otime::RationalTime t1 = posToTime(g.max.x) - _timeRange.start_time();
+                    const double inc = 1.0 / _timeRange.duration().rate();
+                    const double x0 = static_cast<int>(t0.rescaled_to(1.0).value() / inc) * inc;
+                    const double x1 = static_cast<int>(t1.rescaled_to(1.0).value() / inc) * inc;
+                    for (double t = x0; t <= x1; t += inc)
                     {
                         const math::Box2i box(
                             g.min.x +
@@ -790,11 +795,16 @@ namespace tl
                 double seconds = 0;
                 int tick = 0;
                 _getTimeTicks(event.fontSystem, seconds, tick);
-                if (seconds > 0.0 && tick > 0)
+                if (duration > 0.0 && seconds > 0.0 && tick > 0)
                 {
                     geom::TriangleMesh2 mesh;
                     size_t i = 1;
-                    for (double t = 0.0; t < duration; t += seconds)
+                    const otime::RationalTime t0 = posToTime(g.min.x) - _timeRange.start_time();
+                    const otime::RationalTime t1 = posToTime(g.max.x) - _timeRange.start_time();
+                    const double inc = seconds;
+                    const double x0 = static_cast<int>(t0.rescaled_to(1.0).value() / inc) * inc;
+                    const double x1 = static_cast<int>(t1.rescaled_to(1.0).value() / inc) * inc;
+                    for (double t = x0; t <= x1; t += inc)
                     {
                         const math::Box2i box(
                             g.min.x +
@@ -871,7 +881,12 @@ namespace tl
                 if (seconds > 0.0 && tick > 0)
                 {
                     const math::Size2i labelMaxSize = _getLabelMaxSize(event.fontSystem);
-                    for (double t = 0.0; t < duration; t += seconds)
+                    const otime::RationalTime t0 = posToTime(g.min.x) - _timeRange.start_time();
+                    const otime::RationalTime t1 = posToTime(g.max.x) - _timeRange.start_time();
+                    const double inc = seconds;
+                    const double x0 = static_cast<int>(t0.rescaled_to(1.0).value() / inc) * inc;
+                    const double x1 = static_cast<int>(t1.rescaled_to(1.0).value() / inc) * inc;
+                    for (double t = x0; t <= x1; t += inc)
                     {
                         const otime::RationalTime time = _timeRange.start_time() +
                             otime::RationalTime(t, 1.0).rescaled_to(_timeRange.duration().rate());

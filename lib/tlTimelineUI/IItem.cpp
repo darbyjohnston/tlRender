@@ -214,7 +214,7 @@ namespace tl
                 out = math::clamp(
                     out,
                     _timeRange.start_time(),
-                    _timeRange.end_time_inclusive());
+                    _timeRange.end_time_exclusive());
             }
             return out;
         }
