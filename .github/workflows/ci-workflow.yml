@@ -266,6 +266,8 @@ jobs:
         cd tlRender/src/tlRender-build
         tests/tltest/tltest
 
+  # \bug USD build fails with this error:
+  # Failed to download https://github.com/oneapi-src/oneTBB/archive/refs/tags/2018_U1.zip
   macos-12-package:
     runs-on: macos-12
 
@@ -284,7 +286,7 @@ jobs:
       TLRENDER_PNG: ON
       TLRENDER_EXR: ON
       TLRENDER_FFMPEG: ON
-      TLRENDER_USD: ON
+      TLRENDER_USD: OFF
       TLRENDER_NFD: OFF
       TLRENDER_QT5: OFF
       TLRENDER_PROGRAMS: ON
