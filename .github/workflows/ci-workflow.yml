@@ -266,7 +266,6 @@ jobs:
         cd tlRender/src/tlRender-build
         tests/tltest/tltest
 
-  # \bug Temporarily disable USD which is failing to download boost
   macos-12-package:
     runs-on: macos-12
 
@@ -285,7 +284,7 @@ jobs:
       TLRENDER_PNG: ON
       TLRENDER_EXR: ON
       TLRENDER_FFMPEG: ON
-      TLRENDER_USD: OFF
+      TLRENDER_USD: ON
       TLRENDER_NFD: OFF
       TLRENDER_QT5: OFF
       TLRENDER_PROGRAMS: ON
