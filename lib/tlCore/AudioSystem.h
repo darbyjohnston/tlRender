@@ -6,6 +6,8 @@
 
 #include <tlCore/Audio.h>
 #include <tlCore/ISystem.h>
+#include <tlCore/ListObserver.h>
+#include <tlCore/ValueObserver.h>
 
 namespace tl
 {
@@ -31,12 +33,15 @@ namespace tl
         struct Device
         {
             std::string               name;
-            size_t                    outputChannels      = 0;
-            size_t                    inputChannels       = 0;
-            size_t                    duplexChannels      = 0;
-            std::vector<size_t>       sampleRates;
-            size_t                    preferredSampleRate = 0;
+            unsigned int              outputChannels      = 0;
+            unsigned int              inputChannels       = 0;
+            unsigned int              duplexChannels      = 0;
+            std::vector<unsigned int> sampleRates;
+            unsigned int              preferredSampleRate = 0;
             std::vector<DeviceFormat> nativeFormats;
+
+            bool operator == (const Device&) const;
+            bool operator != (const Device&) const;
         };
 
         //! Audio system.
@@ -58,22 +63,44 @@ namespace tl
             //! Get the list of audio APIs.
             const std::vector<std::string>& getAPIs() const;
 
-            //! Get the audio devices.
+            //! Get the list of audio devices.
             const std::vector<Device>& getDevices() const;
 
-            //! Get the default audio input device.
-            size_t getDefaultInputDevice() const;
+            //! Observe the list of audio devices.
+            std::shared_ptr<observer::IList<Device> > observeDevices() const;
 
-            //! Get the default audio output device.
-            size_t getDefaultOutputDevice() const;
+            //! Get the default audio output device. If there is no valid device
+            //! -1 is returned.
+            int getDefaultOutputDevice() const;
 
-            //! Get the default audio input device information.
-            Info getDefaultInputInfo() const;
+            //! Observe the default audio ouput device.
+            std::shared_ptr<observer::IValue<int> > observeDefaultOutputDevice() const;
 
             //! Get the default audio output device information.
             Info getDefaultOutputInfo() const;
 
+            //! Observe the default audio output device information.
+            std::shared_ptr<observer::IValue<Info> > observeDefaultOutputInfo() const;
+
+            //! Get the default audio input device. If there is no valid device
+            //! -1 is returned.
+            int getDefaultInputDevice() const;
+
+            //! Observe the default audio input device.
+            std::shared_ptr<observer::IValue<int> > observeDefaultInputDevice() const;
+
+            //! Get the default audio input device information.
+            Info getDefaultInputInfo() const;
+
+            //! Observe the default audio input device information.
+            std::shared_ptr<observer::IValue<Info> > observeDefaultInputInfo() const;
+
+            void tick() override;
+            std::chrono::milliseconds getTickTime() const override;
+
         private:
+            void _run();
+
             TLRENDER_PRIVATE();
         };
     }
