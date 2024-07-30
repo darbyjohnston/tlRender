@@ -47,6 +47,7 @@ set(SOURCE
     MemoryReference.cpp
     OCIOOptions.cpp
     Player.cpp
+    PlayerAudio.cpp
     PlayerOptions.cpp
     PlayerPrivate.cpp
     RenderUtil.cpp
