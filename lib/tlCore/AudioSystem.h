@@ -99,6 +99,10 @@ namespace tl
             std::chrono::milliseconds getTickTime() const override;
 
         private:
+            std::vector<Device> _getDevices();
+            void _getDefaultOutputDevice(const std::vector<Device>&, int&, Info&);
+            void _getDefaultInputDevice(const std::vector<Device>&, int&, Info&);
+
             void _run();
 
             TLRENDER_PRIVATE();

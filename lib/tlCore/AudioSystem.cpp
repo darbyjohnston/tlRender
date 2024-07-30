@@ -90,12 +90,6 @@ namespace tl
             ISystem::_init("tl::audio::System", context);
             TLRENDER_P();
 
-            p.devices = observer::List<Device>::create();
-            p.defaultOutputDevice = observer::Value<int>::create(-1);
-            p.defaultOutputInfo = observer::Value<Info>::create();
-            p.defaultInputDevice = observer::Value<int>::create(-1);
-            p.defaultInputInfo = observer::Value<Info>::create();
-
 #if defined(TLRENDER_AUDIO)
             try
             {
@@ -117,6 +111,7 @@ namespace tl
                 }
 
                 p.rtAudio.reset(new RtAudio);
+                p.rtAudio->showWarnings(false);
             }
             catch (const std::exception& e)
             {
@@ -124,7 +119,29 @@ namespace tl
                 ss << "Cannot initialize audio system: " << e.what();
                 _log(ss.str(), log::Type::Error);
             }
+#endif // TLRENDER_AUDIO
 
+            std::vector<Device> devices = _getDevices();
+            int defaultOutputDevice = -1;
+            Info defaultOutputInfo;
+            _getDefaultOutputDevice(devices, defaultOutputDevice, defaultOutputInfo);
+            int defaultInputDevice = -1;
+            Info defaultInputInfo;
+            _getDefaultInputDevice(devices, defaultInputDevice, defaultInputInfo);
+
+            p.devices = observer::List<Device>::create(devices);
+            p.defaultOutputDevice = observer::Value<int>::create(defaultOutputDevice);
+            p.defaultOutputInfo = observer::Value<Info>::create(defaultOutputInfo);
+            p.defaultInputDevice = observer::Value<int>::create(defaultInputDevice);
+            p.defaultInputInfo = observer::Value<Info>::create(defaultInputInfo);
+
+            p.mutex.devices = devices;
+            p.mutex.defaultOutputDevice = defaultOutputDevice;
+            p.mutex.defaultOutputInfo = defaultOutputInfo;
+            p.mutex.defaultInputDevice = defaultInputDevice;
+            p.mutex.defaultInputInfo = defaultInputInfo;
+
+#if defined(TLRENDER_AUDIO)
             if (p.rtAudio)
             {
                 p.thread.running = true;
@@ -263,19 +280,13 @@ namespace tl
             }
         }
 
-        void System::_run()
+        std::vector<Device> System::_getDevices()
         {
             TLRENDER_P();
+            std::vector<Device> out;
 #if defined(TLRENDER_AUDIO)
-
-            std::vector<Device> devices;
-            int defaultOutputDevice = -1;
-            Info defaultOutputInfo;
-            int defaultInputDevice = -1;
-            Info defaultInputInfo;
             try
             {
-                // Get the devices.
                 const unsigned int rtDeviceCount = p.rtAudio->getDeviceCount();
                 for (unsigned int i = 0; i < rtDeviceCount; ++i)
                 {
@@ -316,62 +327,108 @@ namespace tl
                         {
                             device.nativeFormats.push_back(DeviceFormat::F64);
                         }
-                        devices.push_back(device);
+                        out.push_back(device);
                     }
-                }
-
-                // Get the output device.
-                unsigned int device = p.rtAudio->getDefaultOutputDevice();
-                if (device < devices.size() && devices[device].outputChannels > 0)
-                {
-                    defaultOutputDevice = device;
-                }
-                if (defaultOutputDevice >= 0 && defaultOutputDevice < devices.size())
-                {
-                    const auto& device = devices[defaultOutputDevice];
-                    defaultOutputInfo.channelCount = device.outputChannels;
-                    switch (getBestFormat(device.nativeFormats))
-                    {
-                    case DeviceFormat::S8: defaultOutputInfo.dataType = DataType::S8; break;
-                    case DeviceFormat::S16: defaultOutputInfo.dataType = DataType::S16; break;
-                    case DeviceFormat::S24:
-                    case DeviceFormat::S32: defaultOutputInfo.dataType = DataType::S32; break;
-                    case DeviceFormat::F32: defaultOutputInfo.dataType = DataType::F32; break;
-                    case DeviceFormat::F64: defaultOutputInfo.dataType = DataType::F64; break;
-                    default: defaultOutputInfo.dataType = DataType::F32; break;
-                    }
-                    defaultOutputInfo.sampleRate = device.preferredSampleRate;
-                }
-
-                // Get the input device.
-                device = p.rtAudio->getDefaultInputDevice();
-                if (device < devices.size() && devices[device].inputChannels > 0)
-                {
-                    defaultInputDevice = device;
-                }
-                if (defaultInputDevice >= 0 && defaultInputDevice < devices.size())
-                {
-                    const auto& device = devices[defaultInputDevice];
-                    defaultInputInfo.channelCount = device.inputChannels;
-                    switch (getBestFormat(device.nativeFormats))
-                    {
-                    case DeviceFormat::S8: defaultInputInfo.dataType = DataType::S8; break;
-                    case DeviceFormat::S16: defaultInputInfo.dataType = DataType::S16; break;
-                    case DeviceFormat::S24:
-                    case DeviceFormat::S32: defaultInputInfo.dataType = DataType::S32; break;
-                    case DeviceFormat::F32: defaultInputInfo.dataType = DataType::F32; break;
-                    case DeviceFormat::F64: defaultInputInfo.dataType = DataType::F64; break;
-                    default: defaultInputInfo.dataType = DataType::F32; break;
-                    }
-                    defaultInputInfo.sampleRate = device.preferredSampleRate;
                 }
             }
             catch (const std::exception& e)
             {
                 std::stringstream ss;
-                ss << "Cannot get audio information: " << e.what();
+                ss << "Cannot get audio devices: " << e.what();
                 _log(ss.str(), log::Type::Error);
             }
+#endif // TLRENDER_AUDIO
+            return out;
+        }
+
+        void System::_getDefaultOutputDevice(const std::vector<Device>& devices, int& index, Info& info)
+        {
+            TLRENDER_P();
+            index = -1;
+#if defined(TLRENDER_AUDIO)
+            try
+            {
+                unsigned int tmp = p.rtAudio->getDefaultOutputDevice();
+                if (tmp < devices.size() && devices[tmp].outputChannels > 0)
+                {
+                    index = tmp;
+                }
+                if (index >= 0 && index < devices.size())
+                {
+                    const auto& device = devices[index];
+                    info.channelCount = device.outputChannels;
+                    switch (getBestFormat(device.nativeFormats))
+                    {
+                    case DeviceFormat::S8: info.dataType = DataType::S8; break;
+                    case DeviceFormat::S16: info.dataType = DataType::S16; break;
+                    case DeviceFormat::S24:
+                    case DeviceFormat::S32: info.dataType = DataType::S32; break;
+                    case DeviceFormat::F32: info.dataType = DataType::F32; break;
+                    case DeviceFormat::F64: info.dataType = DataType::F64; break;
+                    default: info.dataType = DataType::F32; break;
+                    }
+                    info.sampleRate = device.preferredSampleRate;
+                }
+            }
+            catch (const std::exception& e)
+            {
+                std::stringstream ss;
+                ss << "Cannot get default audio output device: " << e.what();
+                _log(ss.str(), log::Type::Error);
+            }
+#endif // TLRENDER_AUDIO
+        }
+
+        void System::_getDefaultInputDevice(const std::vector<Device>& devices, int& index, Info& info)
+        {
+            TLRENDER_P();
+            index = -1;
+#if defined(TLRENDER_AUDIO)
+            try
+            {
+                unsigned int tmp = p.rtAudio->getDefaultInputDevice();
+                if (tmp < devices.size() && devices[tmp].inputChannels > 0)
+                {
+                    index = tmp;
+                }
+                if (index >= 0 && index < devices.size())
+                {
+                    const auto& device = devices[index];
+                    info.channelCount = device.inputChannels;
+                    switch (getBestFormat(device.nativeFormats))
+                    {
+                    case DeviceFormat::S8: info.dataType = DataType::S8; break;
+                    case DeviceFormat::S16: info.dataType = DataType::S16; break;
+                    case DeviceFormat::S24:
+                    case DeviceFormat::S32: info.dataType = DataType::S32; break;
+                    case DeviceFormat::F32: info.dataType = DataType::F32; break;
+                    case DeviceFormat::F64: info.dataType = DataType::F64; break;
+                    default: info.dataType = DataType::F32; break;
+                    }
+                    info.sampleRate = device.preferredSampleRate;
+                }
+            }
+            catch (const std::exception& e)
+            {
+                std::stringstream ss;
+                ss << "Cannot get default audio input device: " << e.what();
+                _log(ss.str(), log::Type::Error);
+            }
+#endif // TLRENDER_AUDIO
+        }
+
+        void System::_run()
+        {
+            TLRENDER_P();
+#if defined(TLRENDER_AUDIO)
+
+            std::vector<Device> devices = _getDevices();
+            int defaultOutputDevice = -1;
+            Info defaultOutputInfo;
+            _getDefaultOutputDevice(devices, defaultOutputDevice, defaultOutputInfo);
+            int defaultInputDevice = -1;
+            Info defaultInputInfo;
+            _getDefaultInputDevice(devices, defaultInputDevice, defaultInputInfo);
 
             if (devices != p.thread.devices)
             {

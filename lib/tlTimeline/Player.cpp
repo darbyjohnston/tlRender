@@ -131,6 +131,7 @@ namespace tl
             try
             {
                 p.thread.rtAudio.reset(new RtAudio);
+                p.thread.rtAudio->showWarnings(false);
             }
             catch (const std::exception& e)
             {
