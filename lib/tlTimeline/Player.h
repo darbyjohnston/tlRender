@@ -348,6 +348,8 @@ namespace tl
             void tick();
 
         private:
+            void _thread();
+
             TLRENDER_PRIVATE();
         };
     }

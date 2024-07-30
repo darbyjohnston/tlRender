@@ -148,178 +148,7 @@ namespace tl
             p.thread.thread = std::thread(
                 [this]
                 {
-                    TLRENDER_P();
-
-#if defined(TLRENDER_AUDIO)
-                    if (auto context = getContext().lock())
-                    {
-                        // Initialize audio.
-                        auto audioSystem = context->getSystem<audio::System>();
-                        const auto audioDevice = audioSystem->getDefaultOutputDevice();
-                        if (p.thread.rtAudio && audioDevice.index != -1)
-                        {
-                            p.audioThread.info = audioDevice.info;
-                            p.audioThread.info.channelCount = p.getAudioChannelCount(
-                                p.ioInfo.audio,
-                                p.audioThread.info);
-                            if (p.audioThread.info.channelCount > 0 &&
-                                p.audioThread.info.dataType != audio::DataType::None &&
-                                p.audioThread.info.sampleRate > 0)
-                            {
-                                try
-                                {
-                                    RtAudio::StreamParameters rtParameters;
-                                    auto audioSystem = context->getSystem<audio::System>();
-                                    rtParameters.deviceId = audioDevice.index;
-                                    rtParameters.nChannels = p.audioThread.info.channelCount;
-                                    unsigned int rtBufferFrames = p.playerOptions.audioBufferFrameCount;
-                                    p.thread.rtAudio->openStream(
-                                        &rtParameters,
-                                        nullptr,
-                                        toRtAudio(p.audioThread.info.dataType),
-                                        p.audioThread.info.sampleRate,
-                                        &rtBufferFrames,
-                                        p.rtAudioCallback,
-                                        _p.get(),
-                                        nullptr,
-                                        p.rtAudioErrorCallback);
-                                    p.thread.rtAudio->startStream();
-                                }
-                                catch (const std::exception& e)
-                                {
-                                    std::stringstream ss;
-                                    ss << "Cannot open audio stream: " << e.what();
-                                    context->log("tl::timeline::Player", ss.str(), log::Type::Error);
-                                }
-                            }
-                        }
-                    }
-#endif // TLRENDER_AUDIO
-
-                    p.thread.cacheTimer = std::chrono::steady_clock::now();
-                    p.thread.logTimer = std::chrono::steady_clock::now();
-                    while (p.running)
-                    {
-                        const auto t0 = std::chrono::steady_clock::now();
-
-                        // Get mutex protected values.
-                        std::vector<std::shared_ptr<Timeline> > compare;
-                        bool clearRequests = false;
-                        bool clearCache = false;
-                        {
-                            std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                            p.thread.playback = p.mutex.playback;
-                            p.thread.currentTime = p.mutex.currentTime;
-                            p.thread.inOutRange = p.mutex.inOutRange;
-                            compare = p.mutex.compare;
-                            p.thread.compareTime = p.mutex.compareTime;
-                            p.thread.ioOptions = p.mutex.ioOptions;
-                            p.thread.videoLayer = p.mutex.videoLayer;
-                            p.thread.compareVideoLayers = p.mutex.compareVideoLayers;
-                            p.thread.audioOffset = p.mutex.audioOffset;
-                            clearRequests = p.mutex.clearRequests;
-                            p.mutex.clearRequests = false;
-                            clearCache = p.mutex.clearCache;
-                            p.mutex.clearCache = false;
-                            p.thread.cacheDirection = p.mutex.cacheDirection;
-                            p.thread.cacheOptions = p.mutex.cacheOptions;
-                        }
-
-                        // Clear requests.
-                        if (clearRequests)
-                        {
-                            p.clearRequests();
-                        }
-                        p.thread.compare = compare;
-
-                        // Clear the cache.
-                        if (clearCache)
-                        {
-                            p.clearCache();
-                        }
-
-                        // Update the cache.
-                        p.cacheUpdate();
-
-                        // Update the current video data.
-                        const auto& timeRange = p.timeline->getTimeRange();
-                        if (!p.ioInfo.video.empty())
-                        {
-                            const auto i = p.thread.videoDataCache.find(p.thread.currentTime);
-                            if (i != p.thread.videoDataCache.end())
-                            {
-                                std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                                p.mutex.currentVideoData = i->second;
-                            }
-                            else if (p.thread.playback != Playback::Stop)
-                            {
-                                {
-                                    std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                                    p.mutex.playbackStartTime = p.thread.currentTime;
-                                    p.mutex.playbackStartTimer = std::chrono::steady_clock::now();
-                                    if (!timeRange.contains(p.thread.currentTime))
-                                    {
-                                        p.mutex.currentVideoData.clear();
-                                    }
-                                }
-                                p.resetAudioTime();
-                                {
-                                    const auto now = std::chrono::steady_clock::now();
-                                    std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
-                                    p.audioMutex.muteTimeout = now + p.playerOptions.muteTimeout;
-                                }
-                            }
-                            else
-                            {
-                                std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                                if (!timeRange.contains(p.thread.currentTime))
-                                {
-                                    p.mutex.currentVideoData.clear();
-                                }
-                            }
-                        }
-
-                        // Update the current audio data.
-                        if (p.ioInfo.audio.isValid())
-                        {
-                            std::vector<AudioData> audioDataList;
-                            {
-                                const int64_t seconds = p.thread.currentTime.rescaled_to(1.0).value() -
-                                    timeRange.start_time().rescaled_to(1.0).value();
-                                std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
-                                for (int64_t s : { seconds - 1, seconds, seconds + 1 })
-                                {
-                                    auto i = p.audioMutex.audioDataCache.find(s);
-                                    if (i != p.audioMutex.audioDataCache.end())
-                                    {
-                                        audioDataList.push_back(i->second);
-                                    }
-                                }
-                            }
-                            {
-                                std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                                p.mutex.currentAudioData = audioDataList;
-                            }
-                        }
-
-                        // Logging.
-                        auto t1 = std::chrono::steady_clock::now();
-                        const std::chrono::duration<double> diff = t1 - p.thread.logTimer;
-                        if (diff.count() > 10.0)
-                        {
-                            p.thread.logTimer = t1;
-                            if (auto context = getContext().lock())
-                            {
-                                p.log(context);
-                            }
-                            t1 = std::chrono::steady_clock::now();
-                        }
-
-                        // Sleep for a bit.
-                        time::sleep(p.playerOptions.sleepTimeout, t0, t1);
-                    }
-
-                    p.clearRequests();
+                    _thread();
                 });
         }
 
@@ -924,6 +753,181 @@ namespace tl
             p.currentVideoData->setIfChanged(currentVideoData);
             p.currentAudioData->setIfChanged(currentAudioData);
             p.cacheInfo->setIfChanged(cacheInfo);
+        }
+
+        void Player::_thread()
+        {
+            TLRENDER_P();
+
+#if defined(TLRENDER_AUDIO)
+            if (auto context = getContext().lock())
+            {
+                // Initialize audio.
+                auto audioSystem = context->getSystem<audio::System>();
+                const auto audioDevice = audioSystem->getDefaultOutputDevice();
+                if (p.thread.rtAudio && audioDevice.index != -1)
+                {
+                    p.audioThread.info = audioDevice.info;
+                    p.audioThread.info.channelCount = p.getAudioChannelCount(
+                        p.ioInfo.audio,
+                        p.audioThread.info);
+                    if (p.audioThread.info.channelCount > 0 &&
+                        p.audioThread.info.dataType != audio::DataType::None &&
+                        p.audioThread.info.sampleRate > 0)
+                    {
+                        try
+                        {
+                            RtAudio::StreamParameters rtParameters;
+                            auto audioSystem = context->getSystem<audio::System>();
+                            rtParameters.deviceId = audioDevice.index;
+                            rtParameters.nChannels = p.audioThread.info.channelCount;
+                            unsigned int rtBufferFrames = p.playerOptions.audioBufferFrameCount;
+                            p.thread.rtAudio->openStream(
+                                &rtParameters,
+                                nullptr,
+                                toRtAudio(p.audioThread.info.dataType),
+                                p.audioThread.info.sampleRate,
+                                &rtBufferFrames,
+                                p.rtAudioCallback,
+                                _p.get(),
+                                nullptr,
+                                p.rtAudioErrorCallback);
+                            p.thread.rtAudio->startStream();
+                        }
+                        catch (const std::exception& e)
+                        {
+                            std::stringstream ss;
+                            ss << "Cannot open audio stream: " << e.what();
+                            context->log("tl::timeline::Player", ss.str(), log::Type::Error);
+                        }
+                    }
+                }
+            }
+#endif // TLRENDER_AUDIO
+
+            p.thread.cacheTimer = std::chrono::steady_clock::now();
+            p.thread.logTimer = std::chrono::steady_clock::now();
+            while (p.running)
+            {
+                const auto t0 = std::chrono::steady_clock::now();
+
+                // Get mutex protected values.
+                std::vector<std::shared_ptr<Timeline> > compare;
+                bool clearRequests = false;
+                bool clearCache = false;
+                {
+                    std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                    p.thread.playback = p.mutex.playback;
+                    p.thread.currentTime = p.mutex.currentTime;
+                    p.thread.inOutRange = p.mutex.inOutRange;
+                    compare = p.mutex.compare;
+                    p.thread.compareTime = p.mutex.compareTime;
+                    p.thread.ioOptions = p.mutex.ioOptions;
+                    p.thread.videoLayer = p.mutex.videoLayer;
+                    p.thread.compareVideoLayers = p.mutex.compareVideoLayers;
+                    p.thread.audioOffset = p.mutex.audioOffset;
+                    clearRequests = p.mutex.clearRequests;
+                    p.mutex.clearRequests = false;
+                    clearCache = p.mutex.clearCache;
+                    p.mutex.clearCache = false;
+                    p.thread.cacheDirection = p.mutex.cacheDirection;
+                    p.thread.cacheOptions = p.mutex.cacheOptions;
+                }
+
+                // Clear requests.
+                if (clearRequests)
+                {
+                    p.clearRequests();
+                }
+                p.thread.compare = compare;
+
+                // Clear the cache.
+                if (clearCache)
+                {
+                    p.clearCache();
+                }
+
+                // Update the cache.
+                p.cacheUpdate();
+
+                // Update the current video data.
+                const auto& timeRange = p.timeline->getTimeRange();
+                if (!p.ioInfo.video.empty())
+                {
+                    const auto i = p.thread.videoDataCache.find(p.thread.currentTime);
+                    if (i != p.thread.videoDataCache.end())
+                    {
+                        std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                        p.mutex.currentVideoData = i->second;
+                    }
+                    else if (p.thread.playback != Playback::Stop)
+                    {
+                        {
+                            std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                            p.mutex.playbackStartTime = p.thread.currentTime;
+                            p.mutex.playbackStartTimer = std::chrono::steady_clock::now();
+                            if (!timeRange.contains(p.thread.currentTime))
+                            {
+                                p.mutex.currentVideoData.clear();
+                            }
+                        }
+                        p.resetAudioTime();
+                        {
+                            const auto now = std::chrono::steady_clock::now();
+                            std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                            p.audioMutex.muteTimeout = now + p.playerOptions.muteTimeout;
+                        }
+                    }
+                    else
+                    {
+                        std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                        if (!timeRange.contains(p.thread.currentTime))
+                        {
+                            p.mutex.currentVideoData.clear();
+                        }
+                    }
+                }
+
+                // Update the current audio data.
+                if (p.ioInfo.audio.isValid())
+                {
+                    std::vector<AudioData> audioDataList;
+                    {
+                        const int64_t seconds = p.thread.currentTime.rescaled_to(1.0).value() -
+                            timeRange.start_time().rescaled_to(1.0).value();
+                        std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                        for (int64_t s : { seconds - 1, seconds, seconds + 1 })
+                        {
+                            auto i = p.audioMutex.audioDataCache.find(s);
+                            if (i != p.audioMutex.audioDataCache.end())
+                            {
+                                audioDataList.push_back(i->second);
+                            }
+                        }
+                    }
+                    {
+                        std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                        p.mutex.currentAudioData = audioDataList;
+                    }
+                }
+
+                // Logging.
+                auto t1 = std::chrono::steady_clock::now();
+                const std::chrono::duration<double> diff = t1 - p.thread.logTimer;
+                if (diff.count() > 10.0)
+                {
+                    p.thread.logTimer = t1;
+                    if (auto context = getContext().lock())
+                    {
+                        p.log(context);
+                    }
+                    t1 = std::chrono::steady_clock::now();
+                }
+
+                // Sleep for a bit.
+                time::sleep(p.playerOptions.sleepTimeout, t0, t1);
+            }
+            p.clearRequests();
         }
     }
 }
