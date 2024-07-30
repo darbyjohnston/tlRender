@@ -29,8 +29,8 @@ namespace tl
         TLRENDER_ENUM(DeviceFormat);
         TLRENDER_ENUM_SERIALIZE(DeviceFormat);
 
-        //! Audio device.
-        struct Device
+        //! Audio device information.
+        struct DeviceInfo
         {
             std::string               name;
             unsigned int              outputChannels      = 0;
@@ -40,8 +40,8 @@ namespace tl
             unsigned int              preferredSampleRate = 0;
             std::vector<DeviceFormat> nativeFormats;
 
-            bool operator == (const Device&) const;
-            bool operator != (const Device&) const;
+            bool operator == (const DeviceInfo&) const;
+            bool operator != (const DeviceInfo&) const;
         };
 
         //! Audio system.
@@ -64,10 +64,10 @@ namespace tl
             const std::vector<std::string>& getAPIs() const;
 
             //! Get the list of audio devices.
-            const std::vector<Device>& getDevices() const;
+            const std::vector<DeviceInfo>& getDevices() const;
 
             //! Observe the list of audio devices.
-            std::shared_ptr<observer::IList<Device> > observeDevices() const;
+            std::shared_ptr<observer::IList<DeviceInfo> > observeDevices() const;
 
             //! Get the default audio output device. If there is no valid device
             //! -1 is returned.
@@ -99,9 +99,9 @@ namespace tl
             std::chrono::milliseconds getTickTime() const override;
 
         private:
-            std::vector<Device> _getDevices();
-            void _getDefaultOutputDevice(const std::vector<Device>&, int&, Info&);
-            void _getDefaultInputDevice(const std::vector<Device>&, int&, Info&);
+            std::vector<DeviceInfo> _getDevices();
+            void _getDefaultOutputDevice(const std::vector<DeviceInfo>&, int&, Info&);
+            void _getDefaultInputDevice(const std::vector<DeviceInfo>&, int&, Info&);
 
             void _run();
 

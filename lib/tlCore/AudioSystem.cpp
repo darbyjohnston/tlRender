@@ -33,7 +33,7 @@ namespace tl
             "F64");
         TLRENDER_ENUM_SERIALIZE_IMPL(DeviceFormat);
 
-        bool Device::operator == (const Device& other) const
+        bool DeviceInfo::operator == (const DeviceInfo& other) const
         {
             return
                 name == other.name &&
@@ -45,7 +45,7 @@ namespace tl
                 nativeFormats == other.nativeFormats;
         }
 
-        bool Device::operator != (const Device& other) const
+        bool DeviceInfo::operator != (const DeviceInfo& other) const
         {
             return !(*this == other);
         }
@@ -56,7 +56,7 @@ namespace tl
             std::unique_ptr<RtAudio> rtAudio;
 #endif // TLRENDER_AUDIO
             std::vector<std::string> apis;
-            std::shared_ptr<observer::List<Device> > devices;
+            std::shared_ptr<observer::List<DeviceInfo> > devices;
             std::shared_ptr<observer::Value<int> > defaultOutputDevice;
             std::shared_ptr<observer::Value<Info> > defaultOutputInfo;
             std::shared_ptr<observer::Value<int> > defaultInputDevice;
@@ -64,7 +64,7 @@ namespace tl
 
             struct Mutex
             {
-                std::vector<Device> devices;
+                std::vector<DeviceInfo> devices;
                 int defaultOutputDevice = -1;
                 Info defaultOutputInfo;
                 int defaultInputDevice = -1;
@@ -74,7 +74,7 @@ namespace tl
             Mutex mutex;
             struct Thread
             {
-                std::vector<Device> devices;
+                std::vector<DeviceInfo> devices;
                 int defaultOutputDevice = -1;
                 Info defaultOutputInfo;
                 int defaultInputDevice = -1;
@@ -121,7 +121,7 @@ namespace tl
             }
 #endif // TLRENDER_AUDIO
 
-            std::vector<Device> devices = _getDevices();
+            std::vector<DeviceInfo> devices = _getDevices();
             int defaultOutputDevice = -1;
             Info defaultOutputInfo;
             _getDefaultOutputDevice(devices, defaultOutputDevice, defaultOutputInfo);
@@ -129,7 +129,7 @@ namespace tl
             Info defaultInputInfo;
             _getDefaultInputDevice(devices, defaultInputDevice, defaultInputInfo);
 
-            p.devices = observer::List<Device>::create(devices);
+            p.devices = observer::List<DeviceInfo>::create(devices);
             p.defaultOutputDevice = observer::Value<int>::create(defaultOutputDevice);
             p.defaultOutputInfo = observer::Value<Info>::create(defaultOutputInfo);
             p.defaultInputDevice = observer::Value<int>::create(defaultInputDevice);
@@ -187,12 +187,12 @@ namespace tl
             return _p->apis;
         }
 
-        const std::vector<Device>& System::getDevices() const
+        const std::vector<DeviceInfo>& System::getDevices() const
         {
             return _p->devices->get();
         }
 
-        std::shared_ptr<observer::IList<Device> > System::observeDevices() const
+        std::shared_ptr<observer::IList<DeviceInfo> > System::observeDevices() const
         {
             return _p->devices;
         }
@@ -240,7 +240,7 @@ namespace tl
         void System::tick()
         {
             TLRENDER_P();
-            std::vector<Device> devices;
+            std::vector<DeviceInfo> devices;
             int defaultOutputDevice = -1;
             Info defaultOutputInfo;
             int defaultInputDevice = -1;
@@ -280,10 +280,10 @@ namespace tl
             }
         }
 
-        std::vector<Device> System::_getDevices()
+        std::vector<DeviceInfo> System::_getDevices()
         {
             TLRENDER_P();
-            std::vector<Device> out;
+            std::vector<DeviceInfo> out;
 #if defined(TLRENDER_AUDIO)
             try
             {
@@ -293,7 +293,7 @@ namespace tl
                     const RtAudio::DeviceInfo rtInfo = p.rtAudio->getDeviceInfo(i);
                     if (rtInfo.probed)
                     {
-                        Device device;
+                        DeviceInfo device;
                         device.name = rtInfo.name;
                         device.outputChannels = rtInfo.outputChannels;
                         device.inputChannels = rtInfo.inputChannels;
@@ -341,7 +341,7 @@ namespace tl
             return out;
         }
 
-        void System::_getDefaultOutputDevice(const std::vector<Device>& devices, int& index, Info& info)
+        void System::_getDefaultOutputDevice(const std::vector<DeviceInfo>& devices, int& index, Info& info)
         {
             TLRENDER_P();
             index = -1;
@@ -379,7 +379,7 @@ namespace tl
 #endif // TLRENDER_AUDIO
         }
 
-        void System::_getDefaultInputDevice(const std::vector<Device>& devices, int& index, Info& info)
+        void System::_getDefaultInputDevice(const std::vector<DeviceInfo>& devices, int& index, Info& info)
         {
             TLRENDER_P();
             index = -1;
@@ -422,7 +422,7 @@ namespace tl
             TLRENDER_P();
 #if defined(TLRENDER_AUDIO)
 
-            std::vector<Device> devices = _getDevices();
+            std::vector<DeviceInfo> devices = _getDevices();
             int defaultOutputDevice = -1;
             Info defaultOutputInfo;
             _getDefaultOutputDevice(devices, defaultOutputDevice, defaultOutputInfo);
