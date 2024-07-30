@@ -102,12 +102,12 @@ namespace tl
             }
             {
                 std::stringstream ss;
-                ss << "default input device: " << system->getDefaultInputDevice();
+                ss << "default input device: " << system->getDefaultInputDevice().index;
                 _print(ss.str());
             }
             {
                 std::stringstream ss;
-                ss << "default output device: " << system->getDefaultOutputDevice();
+                ss << "default output device: " << system->getDefaultOutputDevice().index;
                 _print(ss.str());
             }
         }

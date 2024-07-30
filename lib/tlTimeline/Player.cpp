@@ -155,10 +155,10 @@ namespace tl
                     {
                         // Initialize audio.
                         auto audioSystem = context->getSystem<audio::System>();
-                        const int audioDevice = audioSystem->getDefaultOutputDevice();
-                        if (p.thread.rtAudio && audioDevice != -1)
+                        const auto audioDevice = audioSystem->getDefaultOutputDevice();
+                        if (p.thread.rtAudio && audioDevice.index != -1)
                         {
-                            p.audioThread.info = audioSystem->getDefaultOutputInfo();
+                            p.audioThread.info = audioDevice.info;
                             p.audioThread.info.channelCount = p.getAudioChannelCount(
                                 p.ioInfo.audio,
                                 p.audioThread.info);
@@ -170,7 +170,7 @@ namespace tl
                                 {
                                     RtAudio::StreamParameters rtParameters;
                                     auto audioSystem = context->getSystem<audio::System>();
-                                    rtParameters.deviceId = audioDevice;
+                                    rtParameters.deviceId = audioDevice.index;
                                     rtParameters.nChannels = p.audioThread.info.channelCount;
                                     unsigned int rtBufferFrames = p.playerOptions.audioBufferFrameCount;
                                     p.thread.rtAudio->openStream(

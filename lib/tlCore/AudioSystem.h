@@ -44,6 +44,16 @@ namespace tl
             bool operator != (const DeviceInfo&) const;
         };
 
+        //! Audio device.
+        struct Device
+        {
+            int  index = -1;
+            Info info;
+
+            bool operator == (const Device&) const;
+            bool operator != (const Device&) const;
+        };
+
         //! Audio system.
         class System : public system::ISystem
         {
@@ -69,39 +79,25 @@ namespace tl
             //! Observe the list of audio devices.
             std::shared_ptr<observer::IList<DeviceInfo> > observeDevices() const;
 
-            //! Get the default audio output device. If there is no valid device
-            //! -1 is returned.
-            int getDefaultOutputDevice() const;
+            //! Get the default audio output device.
+            Device getDefaultOutputDevice() const;
 
             //! Observe the default audio ouput device.
-            std::shared_ptr<observer::IValue<int> > observeDefaultOutputDevice() const;
+            std::shared_ptr<observer::IValue<Device> > observeDefaultOutputDevice() const;
 
-            //! Get the default audio output device information.
-            Info getDefaultOutputInfo() const;
-
-            //! Observe the default audio output device information.
-            std::shared_ptr<observer::IValue<Info> > observeDefaultOutputInfo() const;
-
-            //! Get the default audio input device. If there is no valid device
-            //! -1 is returned.
-            int getDefaultInputDevice() const;
+            //! Get the default audio input device.
+            Device getDefaultInputDevice() const;
 
             //! Observe the default audio input device.
-            std::shared_ptr<observer::IValue<int> > observeDefaultInputDevice() const;
-
-            //! Get the default audio input device information.
-            Info getDefaultInputInfo() const;
-
-            //! Observe the default audio input device information.
-            std::shared_ptr<observer::IValue<Info> > observeDefaultInputInfo() const;
+            std::shared_ptr<observer::IValue<Device> > observeDefaultInputDevice() const;
 
             void tick() override;
             std::chrono::milliseconds getTickTime() const override;
 
         private:
             std::vector<DeviceInfo> _getDevices();
-            void _getDefaultOutputDevice(const std::vector<DeviceInfo>&, int&, Info&);
-            void _getDefaultInputDevice(const std::vector<DeviceInfo>&, int&, Info&);
+            Device _getDefaultOutputDevice(const std::vector<DeviceInfo>&);
+            Device _getDefaultInputDevice(const std::vector<DeviceInfo>&);
 
             void _run();
 
