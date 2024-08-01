@@ -37,6 +37,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<int> > videoLayerObserver;
             std::shared_ptr<observer::ListObserver<int> > compareVideoLayersObserver;
             std::shared_ptr<observer::ListObserver<timeline::VideoData> > currentVideoObserver;
+            std::shared_ptr<observer::ValueObserver<int> > audioDeviceObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ValueObserver<double> > audioOffsetObserver;
@@ -130,6 +131,13 @@ namespace tl
                     Q_EMIT currentVideoChanged(value);
                 },
                 observer::CallbackAction::Suppress);
+
+            p.audioDeviceObserver = observer::ValueObserver<int>::create(
+                p.player->observeAudioDevice(),
+                [this](int value)
+                {
+                    Q_EMIT audioDeviceChanged(value);
+                });
 
             p.volumeObserver = observer::ValueObserver<float>::create(
                 p.player->observeVolume(),
@@ -297,6 +305,11 @@ namespace tl
             return _p->player->getCurrentVideo();
         }
 
+        int TimelinePlayer::audioDevice() const
+        {
+            return _p->player->observeAudioDevice()->get();
+        }
+
         float TimelinePlayer::volume() const
         {
             return _p->player->observeVolume()->get();
@@ -443,6 +456,11 @@ namespace tl
         void TimelinePlayer::setCompareVideoLayers(const std::vector<int>& value)
         {
             _p->player->setCompareVideoLayers(value);
+        }
+
+        void TimelinePlayer::setAudioDevice(int value)
+        {
+            _p->player->setAudioDevice(value);
         }
 
         void TimelinePlayer::setVolume(float value)

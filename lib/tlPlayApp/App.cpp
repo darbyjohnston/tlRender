@@ -32,7 +32,6 @@
 
 #include <tlIO/System.h>
 
-#include <tlCore/AudioSystem.h>
 #include <tlCore/File.h>
 #include <tlCore/FileLogSystem.h>
 #include <tlCore/StringFormat.h>
@@ -67,7 +66,7 @@ namespace tl
 #if defined(TLRENDER_BMD)
             std::shared_ptr<bmd::DevicesModel> bmdDevicesModel;
             std::shared_ptr<bmd::OutputDevice> bmdOutputDevice;
-            image::VideoLevels bmdOutputVideoLevels;
+            image::VideoLevels bmdOutputVideoLevels = image::VideoLevels::LegalRange;
 #endif // TLRENDER_BMD
 
             std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
@@ -79,6 +78,7 @@ namespace tl
             std::shared_ptr<observer::ListObserver<file::Path> > recentFilesObserver;
             std::shared_ptr<observer::ValueObserver<bool> > mainWindowObserver;
             std::shared_ptr<observer::ValueObserver<bool> > secondaryWindowObserver;
+            std::shared_ptr<observer::ValueObserver<int> > audioDeviceObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ValueObserver<double> > syncOffsetObserver;
@@ -531,6 +531,15 @@ namespace tl
                     _p->settings->setValue("Files/Recent", fileNames);
                 });
 
+            p.audioDeviceObserver = observer::ValueObserver<int>::create(
+                p.audioModel->observeDevice(),
+                [this](int value)
+                {
+                    if (auto player = _p->player->get())
+                    {
+                        player->setAudioDevice(value);
+                    }
+                });
             p.volumeObserver = observer::ValueObserver<float>::create(
                 p.audioModel->observeVolume(),
                 [this](float)
@@ -933,6 +942,7 @@ namespace tl
                             try
                             {
                                 timeline::PlayerOptions playerOptions;
+                                playerOptions.audioDevice = p.audioModel->getDevice();
                                 playerOptions.cache.readAhead = time::invalidTime;
                                 playerOptions.cache.readBehind = time::invalidTime;
                                 playerOptions.timerMode =

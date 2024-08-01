@@ -39,19 +39,11 @@ namespace tl
             std::vector<unsigned int> sampleRates;
             unsigned int              preferredSampleRate = 0;
             std::vector<DeviceFormat> nativeFormats;
+            Info                      outputInfo;
+            Info                      inputInfo;
 
             bool operator == (const DeviceInfo&) const;
             bool operator != (const DeviceInfo&) const;
-        };
-
-        //! Audio device.
-        struct Device
-        {
-            int  index = -1;
-            Info info;
-
-            bool operator == (const Device&) const;
-            bool operator != (const Device&) const;
         };
 
         //! Audio system.
@@ -80,24 +72,24 @@ namespace tl
             std::shared_ptr<observer::IList<DeviceInfo> > observeDevices() const;
 
             //! Get the default audio output device.
-            Device getDefaultOutputDevice() const;
+            int getDefaultOutputDevice() const;
 
             //! Observe the default audio ouput device.
-            std::shared_ptr<observer::IValue<Device> > observeDefaultOutputDevice() const;
+            std::shared_ptr<observer::IValue<int> > observeDefaultOutputDevice() const;
 
             //! Get the default audio input device.
-            Device getDefaultInputDevice() const;
+            int getDefaultInputDevice() const;
 
             //! Observe the default audio input device.
-            std::shared_ptr<observer::IValue<Device> > observeDefaultInputDevice() const;
+            std::shared_ptr<observer::IValue<int> > observeDefaultInputDevice() const;
 
             void tick() override;
             std::chrono::milliseconds getTickTime() const override;
 
         private:
             std::vector<DeviceInfo> _getDevices();
-            Device _getDefaultOutputDevice(const std::vector<DeviceInfo>&);
-            Device _getDefaultInputDevice(const std::vector<DeviceInfo>&);
+            int _getDefaultOutputDevice(const std::vector<DeviceInfo>&);
+            int _getDefaultInputDevice(const std::vector<DeviceInfo>&);
 
             void _run();
 

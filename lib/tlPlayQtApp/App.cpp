@@ -101,6 +101,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
             std::shared_ptr<observer::ValueObserver<size_t> > recentFilesMaxObserver;
             std::shared_ptr<observer::ListObserver<file::Path> > recentFilesObserver;
+            std::shared_ptr<observer::ValueObserver<int> > audioDeviceObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ValueObserver<double> > syncOffsetObserver;
@@ -533,6 +534,15 @@ namespace tl
                     _p->settings->setValue("Files/Recent", fileNames);
                 });
 
+            p.audioDeviceObserver = observer::ValueObserver<int>::create(
+                p.audioModel->observeDevice(),
+                [this](int value)
+                {
+                    if (auto player = _p->player)
+                    {
+                        player->setAudioDevice(value);
+                    }
+                });
             p.volumeObserver = observer::ValueObserver<float>::create(
                 p.audioModel->observeVolume(),
                 [this](float)
@@ -936,6 +946,7 @@ namespace tl
                             try
                             {
                                 timeline::PlayerOptions playerOptions;
+                                playerOptions.audioDevice = p.audioModel->getDevice();
                                 playerOptions.cache.readAhead = time::invalidTime;
                                 playerOptions.cache.readBehind = time::invalidTime;
                                 playerOptions.timerMode =

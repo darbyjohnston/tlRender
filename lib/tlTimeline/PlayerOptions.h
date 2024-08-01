@@ -38,6 +38,9 @@ namespace tl
         //! Timeline player options.
         struct PlayerOptions
         {
+            //! Audio device index.
+            int audioDevice = -1;
+
             //! Cache options.
             PlayerCacheOptions cache;
 

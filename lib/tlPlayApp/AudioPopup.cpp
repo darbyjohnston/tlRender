@@ -8,6 +8,7 @@
 
 #include <tlPlay/AudioModel.h>
 
+#include <tlUI/ComboBox.h>
 #include <tlUI/IntEditSlider.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/ToolButton.h>
@@ -21,9 +22,12 @@ namespace tl
         struct AudioPopup::Private
         {
             std::shared_ptr<ui::IntEditSlider> volumeSlider;
-            std::shared_ptr<ui::HorizontalLayout> layout;
+            std::shared_ptr<ui::ComboBox> deviceComboBox;
+            std::shared_ptr<ui::VerticalLayout> layout;
 
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
+            std::shared_ptr<observer::ListObserver<std::string> > devicesObserver;
+            std::shared_ptr<observer::ValueObserver<int> > deviceObserver;
         };
 
         void AudioPopup::_init(
@@ -43,10 +47,14 @@ namespace tl
             p.volumeSlider->setLargeStep(10);
             p.volumeSlider->setToolTip("Audio volume");
 
-            p.layout = ui::HorizontalLayout::create(context);
+            p.deviceComboBox = ui::ComboBox::create(context);
+            p.deviceComboBox->setToolTip("Audio output device");
+
+            p.layout = ui::VerticalLayout::create(context);
             p.layout->setMarginRole(ui::SizeRole::MarginInside);
             p.layout->setSpacingRole(ui::SizeRole::SpacingTool);
             p.volumeSlider->setParent(p.layout);
+            p.deviceComboBox->setParent(p.layout);
             setWidget(p.layout);
 
             auto appWeak = std::weak_ptr<App>(app);
@@ -59,11 +67,34 @@ namespace tl
                     }
                 });
 
+            p.deviceComboBox->setIndexCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getAudioModel()->setDevice(value);
+                    }
+                });
+
             p.volumeObserver = observer::ValueObserver<float>::create(
                 app->getAudioModel()->observeVolume(),
                 [this](float value)
                 {
                     _p->volumeSlider->setValue(std::roundf(value * 100.F));
+                });
+
+            p.devicesObserver = observer::ListObserver<std::string>::create(
+                app->getAudioModel()->observeDevices(),
+                [this](const std::vector<std::string>& value)
+                {
+                    _p->deviceComboBox->setItems(value);
+                });
+
+            p.deviceObserver = observer::ValueObserver<int>::create(
+                app->getAudioModel()->observeDevice(),
+                [this](int value)
+                {
+                    _p->deviceComboBox->setCurrentIndex(value);
                 });
         }
 

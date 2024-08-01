@@ -6,12 +6,35 @@
 
 #include <tlTimeline/Util.h>
 
+#include <tlCore/AudioSystem.h>
 #include <tlCore/StringFormat.h>
 
 namespace tl
 {
     namespace timeline
     {
+        int Player::getAudioDevice() const
+        {
+            return _p->audioDevice->get();
+        }
+
+        std::shared_ptr<observer::IValue<int> > Player::observeAudioDevice() const
+        {
+            return _p->audioDevice;
+        }
+
+        void Player::setAudioDevice(int value)
+        {
+            TLRENDER_P();
+            if (p.audioDevice->setIfChanged(value))
+            {
+                if (auto context = getContext().lock())
+                {
+                    p.audioInit(context);
+                }
+            }
+        }
+
         float Player::getVolume() const
         {
             return _p->volume->get();
@@ -82,6 +105,109 @@ namespace tl
             return _p->currentAudioData;
         }
 
+        namespace
+        {
+#if defined(TLRENDER_AUDIO)
+            RtAudioFormat toRtAudio(audio::DataType value) noexcept
+            {
+                RtAudioFormat out = 0;
+                switch (value)
+                {
+                case audio::DataType::S16: out = RTAUDIO_SINT16; break;
+                case audio::DataType::S32: out = RTAUDIO_SINT32; break;
+                case audio::DataType::F32: out = RTAUDIO_FLOAT32; break;
+                case audio::DataType::F64: out = RTAUDIO_FLOAT64; break;
+                default: break;
+                }
+                return out;
+            }
+#endif // TLRENDER_AUDIO
+        }
+
+        void Player::Private::audioInit(const std::shared_ptr<system::Context>& context)
+        {
+#if defined(TLRENDER_AUDIO)
+            if (rtAudio && rtAudio->isStreamOpen())
+            {
+                try
+                {
+                    rtAudio->abortStream();
+                    rtAudio->closeStream();
+                }
+                catch (const std::exception&)
+                {
+                    //! \todo How should this be handled?
+                }
+            }
+            try
+            {
+                rtAudio.reset(new RtAudio);
+                rtAudio->showWarnings(false);
+            }
+            catch (const std::exception& e)
+            {
+                std::stringstream ss;
+                ss << "Cannot create RtAudio instance: " << e.what();
+                context->log("tl::timeline::Player", ss.str(), log::Type::Error);
+            }
+
+            const int device = audioDevice->get();
+            if (rtAudio && device != -1)
+            {
+                auto audioSystem = context->getSystem<audio::System>();
+                const auto devices = audioSystem->getDevices();
+                if (device >= 0 && device < devices.size())
+                {
+                    audioInfo = devices[device].outputInfo;
+                }
+                audioInfo.channelCount = getAudioChannelCount(
+                    ioInfo.audio,
+                    audioInfo);
+                if (audioInfo.channelCount > 0 &&
+                    audioInfo.dataType != audio::DataType::None &&
+                    audioInfo.sampleRate > 0)
+                {
+                    if (playback->get() != Playback::Stop)
+                    {
+                        std::unique_lock<std::mutex> lock(mutex.mutex);
+                        mutex.playbackStartTime = currentTime->get();
+                        mutex.playbackStartTimer = std::chrono::steady_clock::now();
+                    }
+
+                    // Note that these are OK to modify without a mutex since
+                    // the audio thread is stopped.
+                    audioMutex.reset = true;
+                    audioThread.info = audioInfo;
+
+                    try
+                    {
+                        RtAudio::StreamParameters rtParameters;
+                        rtParameters.deviceId = device;
+                        rtParameters.nChannels = audioInfo.channelCount;
+                        unsigned int rtBufferFrames = playerOptions.audioBufferFrameCount;
+                        rtAudio->openStream(
+                            &rtParameters,
+                            nullptr,
+                            toRtAudio(audioInfo.dataType),
+                            audioInfo.sampleRate,
+                            &rtBufferFrames,
+                            rtAudioCallback,
+                            this,
+                            nullptr,
+                            rtAudioErrorCallback);
+                        rtAudio->startStream();
+                    }
+                    catch (const std::exception& e)
+                    {
+                        std::stringstream ss;
+                        ss << "Cannot open audio stream: " << e.what();
+                        context->log("tl::timeline::Player", ss.str(), log::Type::Error);
+                    }
+                }
+            }
+#endif // TLRENDER_AUDIO
+        }
+
         size_t Player::Private::getAudioChannelCount(
             const audio::Info& input,
             const audio::Info& output)
@@ -101,12 +227,12 @@ namespace tl
                 audioMutex.reset = true;
             }
 #if defined(TLRENDER_AUDIO)
-            if (thread.rtAudio &&
-                thread.rtAudio->isStreamRunning())
+            if (rtAudio &&
+                rtAudio->isStreamRunning())
             {
                 try
                 {
-                    thread.rtAudio->setStreamTime(0.0);
+                    rtAudio->setStreamTime(0.0);
                 }
                 catch (const std::exception&)
                 {

@@ -42,22 +42,12 @@ namespace tl
                 duplexChannels == other.duplexChannels &&
                 sampleRates == other.sampleRates &&
                 preferredSampleRate == other.preferredSampleRate &&
-                nativeFormats == other.nativeFormats;
+                nativeFormats == other.nativeFormats &&
+                outputInfo == other.outputInfo &&
+                inputInfo == other.inputInfo;
         }
 
         bool DeviceInfo::operator != (const DeviceInfo& other) const
-        {
-            return !(*this == other);
-        }
-
-        bool Device::operator == (const Device& other) const
-        {
-            return
-                index == other.index &&
-                info == other.info;
-        }
-
-        bool Device::operator != (const Device& other) const
         {
             return !(*this == other);
         }
@@ -69,22 +59,22 @@ namespace tl
 #endif // TLRENDER_AUDIO
             std::vector<std::string> apis;
             std::shared_ptr<observer::List<DeviceInfo> > devices;
-            std::shared_ptr<observer::Value<Device> > defaultOutputDevice;
-            std::shared_ptr<observer::Value<Device> > defaultInputDevice;
+            std::shared_ptr<observer::Value<int> > defaultOutputDevice;
+            std::shared_ptr<observer::Value<int> > defaultInputDevice;
 
             struct Mutex
             {
                 std::vector<DeviceInfo> devices;
-                Device defaultOutputDevice;
-                Device defaultInputDevice;
+                int defaultOutputDevice = -1;
+                int defaultInputDevice = -1;
                 std::mutex mutex;
             };
             Mutex mutex;
             struct Thread
             {
                 std::vector<DeviceInfo> devices;
-                Device defaultOutputDevice;
-                Device defaultInputDevice;
+                int defaultOutputDevice = -1;
+                int defaultInputDevice = -1;
                 std::thread thread;
                 std::atomic<bool> running;
             };
@@ -128,12 +118,12 @@ namespace tl
 #endif // TLRENDER_AUDIO
 
             const std::vector<DeviceInfo> devices = _getDevices();
-            const Device defaultOutputDevice = _getDefaultOutputDevice(devices);
-            const Device defaultInputDevice = _getDefaultInputDevice(devices);
+            const int defaultOutputDevice = _getDefaultOutputDevice(devices);
+            const int defaultInputDevice = _getDefaultInputDevice(devices);
 
             p.devices = observer::List<DeviceInfo>::create(devices);
-            p.defaultOutputDevice = observer::Value<Device>::create(defaultOutputDevice);
-            p.defaultInputDevice = observer::Value<Device>::create(defaultInputDevice);
+            p.defaultOutputDevice = observer::Value<int>::create(defaultOutputDevice);
+            p.defaultInputDevice = observer::Value<int>::create(defaultInputDevice);
 
             p.mutex.devices = devices;
             p.mutex.defaultOutputDevice = defaultOutputDevice;
@@ -195,22 +185,22 @@ namespace tl
             return _p->devices;
         }
 
-        Device System::getDefaultOutputDevice() const
+        int System::getDefaultOutputDevice() const
         {
             return _p->defaultOutputDevice->get();
         }
 
-        std::shared_ptr<observer::IValue<Device> > System::observeDefaultOutputDevice() const
+        std::shared_ptr<observer::IValue<int> > System::observeDefaultOutputDevice() const
         {
             return _p->defaultOutputDevice;
         }
 
-        Device System::getDefaultInputDevice() const
+        int System::getDefaultInputDevice() const
         {
             return _p->defaultInputDevice->get();
         }
 
-        std::shared_ptr<observer::IValue<Device> > System::observeDefaultInputDevice() const
+        std::shared_ptr<observer::IValue<int> > System::observeDefaultInputDevice() const
         {
             return _p->defaultInputDevice;
         }
@@ -219,8 +209,8 @@ namespace tl
         {
             TLRENDER_P();
             std::vector<DeviceInfo> devices;
-            Device defaultOutputDevice;
-            Device defaultInputDevice;
+            int defaultOutputDevice = -1;
+            int defaultInputDevice = -1;
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                 devices = p.mutex.devices;
@@ -270,11 +260,13 @@ namespace tl
                         device.outputChannels = rtInfo.outputChannels;
                         device.inputChannels = rtInfo.inputChannels;
                         device.duplexChannels = rtInfo.duplexChannels;
+
                         for (auto j : rtInfo.sampleRates)
                         {
                             device.sampleRates.push_back(j);
                         }
                         device.preferredSampleRate = rtInfo.preferredSampleRate;
+
                         if (rtInfo.nativeFormats & RTAUDIO_SINT8)
                         {
                             device.nativeFormats.push_back(DeviceFormat::S8);
@@ -299,6 +291,33 @@ namespace tl
                         {
                             device.nativeFormats.push_back(DeviceFormat::F64);
                         }
+
+                        device.outputInfo.channelCount = device.outputChannels;
+                        switch (getBestFormat(device.nativeFormats))
+                        {
+                        case DeviceFormat::S8: device.outputInfo.dataType = DataType::S8; break;
+                        case DeviceFormat::S16: device.outputInfo.dataType = DataType::S16; break;
+                        case DeviceFormat::S24:
+                        case DeviceFormat::S32: device.outputInfo.dataType = DataType::S32; break;
+                        case DeviceFormat::F32: device.outputInfo.dataType = DataType::F32; break;
+                        case DeviceFormat::F64: device.outputInfo.dataType = DataType::F64; break;
+                        default: device.outputInfo.dataType = DataType::F32; break;
+                        }
+                        device.outputInfo.sampleRate = device.preferredSampleRate;
+
+                        device.inputInfo.channelCount = device.inputChannels;
+                        switch (getBestFormat(device.nativeFormats))
+                        {
+                        case DeviceFormat::S8: device.inputInfo.dataType = DataType::S8; break;
+                        case DeviceFormat::S16: device.inputInfo.dataType = DataType::S16; break;
+                        case DeviceFormat::S24:
+                        case DeviceFormat::S32: device.inputInfo.dataType = DataType::S32; break;
+                        case DeviceFormat::F32: device.inputInfo.dataType = DataType::F32; break;
+                        case DeviceFormat::F64: device.inputInfo.dataType = DataType::F64; break;
+                        default: device.inputInfo.dataType = DataType::F32; break;
+                        }
+                        device.inputInfo.sampleRate = device.preferredSampleRate;
+
                         out.push_back(device);
                     }
                 }
@@ -313,33 +332,17 @@ namespace tl
             return out;
         }
 
-        Device System::_getDefaultOutputDevice(const std::vector<DeviceInfo>& devices)
+        int System::_getDefaultOutputDevice(const std::vector<DeviceInfo>& devices)
         {
             TLRENDER_P();
-            Device out;
+            int out = -1;
 #if defined(TLRENDER_AUDIO)
             try
             {
                 unsigned int tmp = p.rtAudio->getDefaultOutputDevice();
                 if (tmp < devices.size() && devices[tmp].outputChannels > 0)
                 {
-                    out.index = tmp;
-                }
-                if (out.index >= 0 && out.index < devices.size())
-                {
-                    const auto& device = devices[out.index];
-                    out.info.channelCount = device.outputChannels;
-                    switch (getBestFormat(device.nativeFormats))
-                    {
-                    case DeviceFormat::S8: out.info.dataType = DataType::S8; break;
-                    case DeviceFormat::S16: out.info.dataType = DataType::S16; break;
-                    case DeviceFormat::S24:
-                    case DeviceFormat::S32: out.info.dataType = DataType::S32; break;
-                    case DeviceFormat::F32: out.info.dataType = DataType::F32; break;
-                    case DeviceFormat::F64: out.info.dataType = DataType::F64; break;
-                    default: out.info.dataType = DataType::F32; break;
-                    }
-                    out.info.sampleRate = device.preferredSampleRate;
+                    out = tmp;
                 }
             }
             catch (const std::exception& e)
@@ -352,33 +355,17 @@ namespace tl
             return out;
         }
 
-        Device System::_getDefaultInputDevice(const std::vector<DeviceInfo>& devices)
+        int System::_getDefaultInputDevice(const std::vector<DeviceInfo>& devices)
         {
             TLRENDER_P();
-            Device out;
+            int out = -1;
 #if defined(TLRENDER_AUDIO)
             try
             {
                 unsigned int tmp = p.rtAudio->getDefaultInputDevice();
                 if (tmp < devices.size() && devices[tmp].inputChannels > 0)
                 {
-                    out.index = tmp;
-                }
-                if (out.index >= 0 && out.index < devices.size())
-                {
-                    const auto& device = devices[out.index];
-                    out.info.channelCount = device.inputChannels;
-                    switch (getBestFormat(device.nativeFormats))
-                    {
-                    case DeviceFormat::S8: out.info.dataType = DataType::S8; break;
-                    case DeviceFormat::S16: out.info.dataType = DataType::S16; break;
-                    case DeviceFormat::S24:
-                    case DeviceFormat::S32: out.info.dataType = DataType::S32; break;
-                    case DeviceFormat::F32: out.info.dataType = DataType::F32; break;
-                    case DeviceFormat::F64: out.info.dataType = DataType::F64; break;
-                    default: out.info.dataType = DataType::F32; break;
-                    }
-                    out.info.sampleRate = device.preferredSampleRate;
+                    out = tmp;
                 }
             }
             catch (const std::exception& e)
@@ -397,8 +384,8 @@ namespace tl
 #if defined(TLRENDER_AUDIO)
 
             const std::vector<DeviceInfo> devices = _getDevices();
-            const Device defaultOutputDevice = _getDefaultOutputDevice(devices);
-            const Device defaultInputDevice = _getDefaultInputDevice(devices);
+            const int defaultOutputDevice = _getDefaultOutputDevice(devices);
+            const int defaultInputDevice = _getDefaultInputDevice(devices);
 
             if (devices != p.thread.devices)
             {
@@ -454,11 +441,7 @@ namespace tl
                 p.thread.defaultOutputDevice = defaultOutputDevice;
 
                 std::stringstream ss;
-                ss << "    Default output device: " <<
-                    defaultOutputDevice.index << " " <<
-                    defaultOutputDevice.info.channelCount << " " <<
-                    defaultOutputDevice.info.dataType << " " <<
-                    defaultOutputDevice.info.sampleRate;
+                ss << "    Default output device: " << defaultOutputDevice;
                 _log(ss.str());
             }
             if (defaultInputDevice != p.thread.defaultInputDevice)
@@ -466,11 +449,7 @@ namespace tl
                 p.thread.defaultInputDevice = defaultInputDevice;
 
                 std::stringstream ss;
-                ss << "    Default input device: " <<
-                    defaultInputDevice.index << " " <<
-                    defaultInputDevice.info.channelCount << " " <<
-                    defaultInputDevice.info.dataType << " " <<
-                    defaultInputDevice.info.sampleRate;
+                ss << "    Default input device: " << defaultInputDevice;
                 _log(ss.str());
             }
 

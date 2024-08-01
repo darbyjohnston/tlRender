@@ -14,6 +14,20 @@ namespace tl
 {
     namespace play_qt
     {
+        //! Audio device widget.
+        class AudioDeviceWidget : public QWidget
+        {
+            Q_OBJECT
+
+        public:
+            AudioDeviceWidget(App*, QWidget* parent = nullptr);
+
+            virtual ~AudioDeviceWidget();
+
+        private:
+            TLRENDER_PRIVATE();
+        };
+
         //! Audio offset widget.
         class AudioOffsetWidget : public QWidget
         {

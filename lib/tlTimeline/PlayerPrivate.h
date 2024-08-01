@@ -31,6 +31,7 @@ namespace tl
             void clearCache();
             void cacheUpdate();
 
+            void audioInit(const std::shared_ptr<system::Context>&);
             static size_t getAudioChannelCount(
                 const audio::Info& input,
                 const audio::Info& output);
@@ -65,6 +66,7 @@ namespace tl
             std::shared_ptr<observer::Value<int> > videoLayer;
             std::shared_ptr<observer::List<int> > compareVideoLayers;
             std::shared_ptr<observer::List<VideoData> > currentVideoData;
+            std::shared_ptr<observer::Value<int> > audioDevice;
             std::shared_ptr<observer::Value<float> > volume;
             std::shared_ptr<observer::Value<bool> > mute;
             std::shared_ptr<observer::Value<double> > audioOffset;
@@ -72,6 +74,11 @@ namespace tl
             std::shared_ptr<observer::Value<PlayerCacheOptions> > cacheOptions;
             std::shared_ptr<observer::Value<PlayerCacheInfo> > cacheInfo;
             std::shared_ptr<observer::ValueObserver<bool> > timelineObserver;
+
+#if defined(TLRENDER_AUDIO)
+            audio::Info audioInfo;
+            std::unique_ptr<RtAudio> rtAudio;
+#endif // TLRENDER_AUDIO
 
             std::atomic<bool> running;
 
@@ -127,9 +134,6 @@ namespace tl
 
                 std::map<otime::RationalTime, std::vector<VideoRequest> > videoDataRequests;
                 std::map<otime::RationalTime, std::vector<VideoData> > videoDataCache;
-#if defined(TLRENDER_AUDIO)
-                std::unique_ptr<RtAudio> rtAudio;
-#endif // TLRENDER_AUDIO
                 std::map<int64_t, AudioRequest> audioDataRequests;
                 std::chrono::steady_clock::time_point cacheTimer;
                 std::chrono::steady_clock::time_point logTimer;

@@ -13,11 +13,63 @@
 
 #include <QAction>
 #include <QBoxLayout>
+#include <QComboBox>
 
 namespace tl
 {
     namespace play_qt
     {
+        struct AudioDeviceWidget::Private
+        {
+            QComboBox* deviceComboBox = nullptr;
+
+            std::shared_ptr<observer::ListObserver<std::string> > audioDevicesObserver;
+            std::shared_ptr<observer::ValueObserver<int> > audioDeviceObserver;
+        };
+
+        AudioDeviceWidget::AudioDeviceWidget(App* app, QWidget* parent) :
+            QWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
+
+            p.deviceComboBox = new QComboBox;
+
+            auto layout = new QVBoxLayout;
+            layout->addWidget(p.deviceComboBox);
+            setLayout(layout);
+
+            connect(
+                p.deviceComboBox,
+                QOverload<int>::of(&QComboBox::currentIndexChanged),
+                [app](int value)
+                {
+                    app->audioModel()->setDevice(value);
+                });
+
+            p.audioDevicesObserver = observer::ListObserver<std::string>::create(
+                app->audioModel()->observeDevices(),
+                [this](const std::vector<std::string>& devices)
+                {
+                    const QSignalBlocker blocker(_p->deviceComboBox);
+                    _p->deviceComboBox->clear();
+                    for (const auto& device : devices)
+                    {
+                        _p->deviceComboBox->addItem(QString::fromUtf8(device.c_str()));
+                    }
+                });
+            p.audioDeviceObserver = observer::ValueObserver<int>::create(
+                app->audioModel()->observeDevice(),
+                [this](int value)
+                {
+                    const QSignalBlocker blocker(_p->deviceComboBox);
+                    _p->deviceComboBox->setCurrentIndex(value);
+                });
+        }
+
+        AudioDeviceWidget::~AudioDeviceWidget()
+        {}
+
         struct AudioOffsetWidget::Private
         {
             qtwidget::FloatEditSlider* slider = nullptr;
@@ -37,7 +89,6 @@ namespace tl
 
             auto layout = new QVBoxLayout;
             layout->addWidget(p.slider);
-            layout->addStretch();
             setLayout(layout);
 
             connect(
@@ -62,6 +113,7 @@ namespace tl
 
         struct AudioTool::Private
         {
+            AudioDeviceWidget* deviceWidget = nullptr;
             AudioOffsetWidget* offsetWidget = nullptr;
         };
 
@@ -71,8 +123,10 @@ namespace tl
         {
             TLRENDER_P();
 
+            p.deviceWidget = new AudioDeviceWidget(app);
             p.offsetWidget = new AudioOffsetWidget(app);
 
+            addBellows(tr("Output Device"), p.deviceWidget);
             addBellows(tr("Sync Offset"), p.offsetWidget);
             addStretch();
         }

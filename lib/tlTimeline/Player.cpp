@@ -37,25 +37,6 @@ namespace tl
             "JumpForward10s");
         TLRENDER_ENUM_SERIALIZE_IMPL(TimeAction);
 
-        namespace
-        {
-#if defined(TLRENDER_AUDIO)
-            RtAudioFormat toRtAudio(audio::DataType value) noexcept
-            {
-                RtAudioFormat out = 0;
-                switch (value)
-                {
-                case audio::DataType::S16: out = RTAUDIO_SINT16; break;
-                case audio::DataType::S32: out = RTAUDIO_SINT32; break;
-                case audio::DataType::F32: out = RTAUDIO_FLOAT32; break;
-                case audio::DataType::F64: out = RTAUDIO_FLOAT64; break;
-                default: break;
-                }
-                return out;
-            }
-#endif // TLRENDER_AUDIO
-        }
-
         void Player::_init(
             const std::shared_ptr<Timeline>& timeline,
             const std::shared_ptr<system::Context>& context,
@@ -88,6 +69,15 @@ namespace tl
             p.timeline = timeline;
             p.ioInfo = p.timeline->getIOInfo();
 
+            // Get the audio device.
+            int audioDevice = -1;
+            audioDevice = playerOptions.audioDevice;
+            if (-1 == audioDevice)
+            {
+                auto audioSystem = context->getSystem<audio::System>();
+                audioDevice = audioSystem->getDefaultOutputDevice();
+            }
+
             // Create observers.
             p.speed = observer::Value<double>::create(p.timeline->getTimeRange().duration().rate());
             p.playback = observer::Value<Playback>::create(Playback::Stop);
@@ -103,6 +93,7 @@ namespace tl
             p.videoLayer = observer::Value<int>::create(0);
             p.compareVideoLayers = observer::List<int>::create();
             p.currentVideoData = observer::List<VideoData>::create();
+            p.audioDevice = observer::Value<int>::create(audioDevice);
             p.volume = observer::Value<float>::create(1.F);
             p.mute = observer::Value<bool>::create(false);
             p.audioOffset = observer::Value<double>::create(0.0);
@@ -120,6 +111,9 @@ namespace tl
                     }
                 });
 
+            // Initialize the audio.
+            p.audioInit(context);
+
             // Create a new thread.
             p.mutex.currentTime = p.currentTime->get();
             p.mutex.inOutRange = p.inOutRange->get();
@@ -127,22 +121,6 @@ namespace tl
             p.mutex.cacheOptions = p.cacheOptions->get();
             p.mutex.cacheInfo = p.cacheInfo->get();
             p.audioMutex.speed = p.speed->get();
-#if defined(TLRENDER_AUDIO)
-            try
-            {
-                p.thread.rtAudio.reset(new RtAudio);
-                p.thread.rtAudio->showWarnings(false);
-            }
-            catch (const std::exception& e)
-            {
-                if (auto context = getContext().lock())
-                {
-                    std::stringstream ss;
-                    ss << "Cannot create RtAudio instance: " << e.what();
-                    context->log("tl::timeline::Player", ss.str(), log::Type::Error);
-                }
-            }
-#endif
             p.log(context);
             p.running = true;
             p.thread.thread = std::thread(
@@ -165,12 +143,12 @@ namespace tl
                 p.thread.thread.join();
             }
 #if defined(TLRENDER_AUDIO)
-            if (p.thread.rtAudio && p.thread.rtAudio->isStreamOpen())
+            if (p.rtAudio && p.rtAudio->isStreamOpen())
             {
                 try
                 {
-                    p.thread.rtAudio->abortStream();
-                    p.thread.rtAudio->closeStream();
+                    p.rtAudio->abortStream();
+                    p.rtAudio->closeStream();
                 }
                 catch (const std::exception&)
                 {
@@ -709,12 +687,12 @@ namespace tl
                 }
                 double seconds = 0.0;
 #if defined(TLRENDER_AUDIO)
-                if (p.thread.rtAudio &&
-                    p.thread.rtAudio->isStreamRunning() &&
+                if (p.rtAudio &&
+                    p.rtAudio->isStreamRunning() &&
                     TimerMode::Audio == p.playerOptions.timerMode &&
                     math::fuzzyCompare(timelineSpeed, speed))
                 {
-                    seconds = p.thread.rtAudio->getStreamTime();
+                    seconds = p.rtAudio->getStreamTime();
                 }
                 else
 #endif // TLRENDER_AUDIO
@@ -758,53 +736,6 @@ namespace tl
         void Player::_thread()
         {
             TLRENDER_P();
-
-#if defined(TLRENDER_AUDIO)
-            if (auto context = getContext().lock())
-            {
-                // Initialize audio.
-                auto audioSystem = context->getSystem<audio::System>();
-                const auto audioDevice = audioSystem->getDefaultOutputDevice();
-                if (p.thread.rtAudio && audioDevice.index != -1)
-                {
-                    p.audioThread.info = audioDevice.info;
-                    p.audioThread.info.channelCount = p.getAudioChannelCount(
-                        p.ioInfo.audio,
-                        p.audioThread.info);
-                    if (p.audioThread.info.channelCount > 0 &&
-                        p.audioThread.info.dataType != audio::DataType::None &&
-                        p.audioThread.info.sampleRate > 0)
-                    {
-                        try
-                        {
-                            RtAudio::StreamParameters rtParameters;
-                            auto audioSystem = context->getSystem<audio::System>();
-                            rtParameters.deviceId = audioDevice.index;
-                            rtParameters.nChannels = p.audioThread.info.channelCount;
-                            unsigned int rtBufferFrames = p.playerOptions.audioBufferFrameCount;
-                            p.thread.rtAudio->openStream(
-                                &rtParameters,
-                                nullptr,
-                                toRtAudio(p.audioThread.info.dataType),
-                                p.audioThread.info.sampleRate,
-                                &rtBufferFrames,
-                                p.rtAudioCallback,
-                                _p.get(),
-                                nullptr,
-                                p.rtAudioErrorCallback);
-                            p.thread.rtAudio->startStream();
-                        }
-                        catch (const std::exception& e)
-                        {
-                            std::stringstream ss;
-                            ss << "Cannot open audio stream: " << e.what();
-                            context->log("tl::timeline::Player", ss.str(), log::Type::Error);
-                        }
-                    }
-                }
-            }
-#endif // TLRENDER_AUDIO
-
             p.thread.cacheTimer = std::chrono::steady_clock::now();
             p.thread.logTimer = std::chrono::steady_clock::now();
             while (p.running)
