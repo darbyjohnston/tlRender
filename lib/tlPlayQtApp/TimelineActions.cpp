@@ -234,6 +234,7 @@ namespace tl
                     auto timelineWidget = mainWindow->timelineWidget();
                     auto options = timelineWidget->displayOptions();
                     options.thumbnailHeight = value;
+                    options.waveformHeight = value / 2;
                     timelineWidget->setDisplayOptions(options);
                 });
 
