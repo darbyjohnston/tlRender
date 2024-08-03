@@ -22,6 +22,7 @@
 #include <tlPlayApp/RenderActions.h>
 #include <tlPlayApp/RenderMenu.h>
 #include <tlPlayApp/SpeedPopup.h>
+#include <tlPlayApp/StatusBar.h>
 #include <tlPlayApp/TimelineActions.h>
 #include <tlPlayApp/TimelineMenu.h>
 #include <tlPlayApp/ToolsActions.h>
@@ -65,8 +66,6 @@
 #endif // TLRENDER_BMD
 
 #include <tlTimeline/TimeUnits.h>
-
-#include <tlCore/Timer.h>
 
 namespace tl
 {
@@ -141,8 +140,7 @@ namespace tl
             std::shared_ptr<ui::ToolButton> audioButton;
             std::shared_ptr<AudioPopup> audioPopup;
             std::shared_ptr<ui::ToolButton> muteButton;
-            std::shared_ptr<ui::Label> statusLabel;
-            std::shared_ptr<time::Timer> statusTimer;
+            std::shared_ptr<StatusBar> statusBar;
             std::shared_ptr<ui::Label> infoLabel;
             std::shared_ptr<ToolsWidget> toolsWidget;
             std::map<std::string, std::shared_ptr<ui::Divider> > dividers;
@@ -165,7 +163,6 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
             std::shared_ptr<observer::ValueObserver<image::PixelType> > colorBufferObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
-            std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
         };
 
         void MainWindow::_init(
@@ -405,10 +402,8 @@ namespace tl
             p.muteButton->setIcon("Mute");
             p.muteButton->setToolTip("Mute the audio");
 
-            p.statusLabel = ui::Label::create(context);
-            p.statusLabel->setHStretch(ui::Stretch::Expanding);
-            p.statusLabel->setMarginRole(ui::SizeRole::MarginInside);
-            p.statusTimer = time::Timer::create(context);
+            p.statusBar = StatusBar::create(context);
+            p.statusBar->setHStretch(ui::Stretch::Expanding);
 
             p.infoLabel = ui::Label::create(context);
             p.infoLabel->setHAlign(ui::HAlign::Right);
@@ -472,7 +467,7 @@ namespace tl
             p.dividers["Status"] = ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
             p.statusLayout = ui::HorizontalLayout::create(context, p.layout);
             p.statusLayout->setSpacingRole(ui::SizeRole::None);
-            p.statusLabel->setParent(p.statusLayout);
+            p.statusBar->setParent(p.statusLayout);
             ui::Divider::create(ui::Orientation::Horizontal, context, p.statusLayout);
             p.infoLabel->setParent(p.statusLayout);
 
@@ -559,6 +554,16 @@ namespace tl
                     }
                 });
 
+            p.statusBar->setClickedCallback(
+                [appWeak]
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto toolsModel = app->getToolsModel();
+                        toolsModel->setActiveTool(static_cast<int>(Tool::Messages));
+                    }
+                });
+
             p.playerObserver = observer::ValueObserver<std::shared_ptr<timeline::Player> >::create(
                 app->observePlayer(),
                 [this](const std::shared_ptr<timeline::Player>& value)
@@ -637,13 +642,6 @@ namespace tl
                 [this](bool value)
                 {
                     _p->muteButton->setChecked(value);
-                });
-
-            p.logObserver = observer::ListObserver<log::Item>::create(
-                context->getLogSystem()->observeLog(),
-                [this](const std::vector<log::Item>& value)
-                {
-                    _statusUpdate(value);
                 });
         }
 
@@ -929,27 +927,6 @@ namespace tl
 
             p.splitter->setSplit(windowOptions.splitter);
             p.splitter2->setSplit(windowOptions.splitter2);
-        }
-
-        void MainWindow::_statusUpdate(const std::vector<log::Item>& value)
-        {
-            TLRENDER_P();
-            for (const auto& i : value)
-            {
-                switch (i.type)
-                {
-                case log::Type::Error:
-                    p.statusLabel->setText(log::toString(i));
-                    p.statusTimer->start(
-                        std::chrono::seconds(5),
-                        [this]
-                        {
-                            _p->statusLabel->setText(std::string());
-                        });
-                        break;
-                default: break;
-                }
-            }
         }
 
         void MainWindow::_infoUpdate()

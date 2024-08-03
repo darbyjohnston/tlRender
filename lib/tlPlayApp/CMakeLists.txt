@@ -28,6 +28,7 @@ set(HEADERS
     SecondaryWindow.h
     SettingsTool.h
     SettingsToolPrivate.h
+    StatusBar.h
     Style.h
     SystemLogTool.h
     TimelineActions.h
@@ -81,6 +82,7 @@ set(SOURCE
     SpeedPopup.cpp
     SecondaryWindow.cpp
     SettingsTool.cpp
+    StatusBar.cpp
     Style.cpp
     SystemLogTool.cpp
     TimelineActions.cpp
