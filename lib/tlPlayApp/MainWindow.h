@@ -92,7 +92,6 @@ namespace tl
             void _showSpeedPopup();
             void _showAudioPopup();
             void _windowOptionsUpdate();
-            void _statusUpdate(const std::vector<log::Item>&);
             void _infoUpdate();
 
             TLRENDER_PRIVATE();
