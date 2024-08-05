@@ -170,6 +170,7 @@ namespace tl
                     // These are OK to modify since the audio thread is stopped.
                     audioMutex.reset = true;
                     audioThread.info = audioInfo;
+                    audioThread.resample.reset();
 
                     try
                     {
