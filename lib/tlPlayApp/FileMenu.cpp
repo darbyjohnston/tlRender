@@ -233,15 +233,19 @@ namespace tl
                 for (auto i = value.rbegin(); i != value.rend(); ++i)
                 {
                     const auto path = *i;
+                    auto weak = std::weak_ptr<FileMenu>(std::dynamic_pointer_cast<FileMenu>(shared_from_this()));
                     auto item = std::make_shared<ui::Action>(
                         path.get(),
-                        [this, path]
+                        [weak, path]
                         {
-                            if (auto app = _p->app.lock())
+                            if (auto widget = weak.lock())
                             {
-                                app->open(path);
+                                if (auto app = widget->_p->app.lock())
+                                {
+                                    app->open(path);
+                                }
+                                widget->close();
                             }
-                            close();
                         });
                     p.menus["Recent"]->addItem(item);
                 }
