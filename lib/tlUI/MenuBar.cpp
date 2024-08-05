@@ -112,11 +112,14 @@ namespace tl
         {
             TLRENDER_P();
             bool out = false;
-            for (const auto& menu : p.menus)
+            if (shortcut != Key::Unknown)
             {
-                if (menu->isEnabled())
+                for (const auto& menu : p.menus)
                 {
-                    out |= menu->shortcut(shortcut, modifiers);
+                    if (menu->isEnabled())
+                    {
+                        out |= menu->shortcut(shortcut, modifiers);
+                    }
                 }
             }
             return out;
