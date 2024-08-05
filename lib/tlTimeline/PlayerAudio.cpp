@@ -167,15 +167,7 @@ namespace tl
                     audioInfo.dataType != audio::DataType::None &&
                     audioInfo.sampleRate > 0)
                 {
-                    if (playback->get() != Playback::Stop)
-                    {
-                        std::unique_lock<std::mutex> lock(mutex.mutex);
-                        mutex.playbackStartTime = currentTime->get();
-                        mutex.playbackStartTimer = std::chrono::steady_clock::now();
-                    }
-
-                    // Note that these are OK to modify without a mutex since
-                    // the audio thread is stopped.
+                    // These are OK to modify since the audio thread is stopped.
                     audioMutex.reset = true;
                     audioThread.info = audioInfo;
 
@@ -256,11 +248,13 @@ namespace tl
             // Get mutex protected values.
             Playback playback = Playback::Stop;
             otime::RationalTime playbackStartTime = time::invalidTime;
+            otime::RationalTime currentTime = time::invalidTime;
             double audioOffset = 0.0;
             {
                 std::unique_lock<std::mutex> lock(p->mutex.mutex);
                 playback = p->mutex.playback;
                 playbackStartTime = p->mutex.playbackStartTime;
+                currentTime = p->mutex.currentTime;
                 audioOffset = p->mutex.audioOffset;
             }
             double speed = 0.0;
@@ -280,6 +274,20 @@ namespace tl
             //std::cout << "playback: " << playback << std::endl;
             //std::cout << "playbackStartTime: " << playbackStartTime << std::endl;
             //std::cout << "reset: " << reset << std::endl;
+
+            // Check if the timers should be initialized.
+            if (playback != p->audioThread.playback ||
+                speed != p->audioThread.speed ||
+                reset)
+            {
+                p->audioThread.playback = playback;
+                p->audioThread.speed = speed;
+                {
+                    std::unique_lock<std::mutex> lock(p->mutex.mutex);
+                    p->mutex.playbackStartTime = currentTime;
+                    p->mutex.playbackStartTimer = std::chrono::steady_clock::now();
+                }
+            }
 
             // Zero output audio data.
             std::memset(outputBuffer, 0, nFrames * p->audioThread.info.getByteCount());

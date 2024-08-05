@@ -106,18 +106,6 @@ namespace tl
             };
             Mutex mutex;
 
-            struct AudioMutex
-            {
-                double speed = 0.0;
-                float volume = 1.F;
-                bool mute = false;
-                std::chrono::steady_clock::time_point muteTimeout;
-                std::map<int64_t, AudioData> audioDataCache;
-                bool reset = false;
-                std::mutex mutex;
-            };
-            AudioMutex audioMutex;
-
             struct Thread
             {
                 Playback playback = Playback::Stop;
@@ -141,9 +129,23 @@ namespace tl
             };
             Thread thread;
 
+            struct AudioMutex
+            {
+                double speed = 0.0;
+                float volume = 1.F;
+                bool mute = false;
+                std::chrono::steady_clock::time_point muteTimeout;
+                std::map<int64_t, AudioData> audioDataCache;
+                bool reset = false;
+                std::mutex mutex;
+            };
+            AudioMutex audioMutex;
+
             struct AudioThread
             {
                 audio::Info info;
+                Playback playback = Playback::Stop;
+                double speed = 0.0;
                 std::shared_ptr<audio::AudioResample> resample;
                 std::list<std::shared_ptr<audio::Audio> > buffer;
                 std::shared_ptr<audio::Audio> silence;
