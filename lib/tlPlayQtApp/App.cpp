@@ -938,6 +938,10 @@ namespace tl
                 }
                 else
                 {
+                    if (p.player)
+                    {
+                        p.player->setAudioDevice(-1);
+                    }
                     auto i = std::find(p.files.begin(), p.files.end(), activeFiles[0]);
                     if (i != p.files.end())
                     {
