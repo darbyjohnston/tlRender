@@ -143,7 +143,7 @@ namespace tl
             {
                 RtAudio::Api rtApi = RtAudio::Api::UNSPECIFIED;
 #if defined(__linux__)
-                rtApi = RtAudio::Api::LINUX_ALSA;
+                rtApi = RtAudio::Api::LINUX_PULSE;
 #endif // __linux__
                 rtAudio.reset(new RtAudio(rtApi));
                 rtAudio->showWarnings(false);
@@ -160,9 +160,13 @@ namespace tl
             {
                 auto audioSystem = context->getSystem<audio::System>();
                 const auto devices = audioSystem->getDevices();
-                if (device >= 0 && device < devices.size())
+                for (unsigned int i = 0; i < devices.size(); ++i)
                 {
-                    audioInfo = devices[device].outputInfo;
+                    if (device == devices[i].id)
+                    {
+                        audioInfo = devices[i].outputInfo;
+                        break;
+                    }
                 }
                 audioInfo.channelCount = getAudioChannelCount(
                     ioInfo.audio,
@@ -190,8 +194,7 @@ namespace tl
                             &rtBufferFrames,
                             rtAudioCallback,
                             this,
-                            nullptr,
-                            rtAudioErrorCallback);
+                            nullptr);
                         rtAudio->startStream();
                     }
                     catch (const std::exception& e)
@@ -430,13 +433,6 @@ namespace tl
             }
 
             return 0;
-        }
-
-        void Player::Private::rtAudioErrorCallback(
-            RtAudioError::Type type,
-            const std::string& errorText)
-        {
-            //std::cout << "RtAudio ERROR: " << errorText << std::endl;
         }
 #endif // TLRENDER_AUDIO
     }

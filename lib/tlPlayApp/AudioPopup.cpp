@@ -25,8 +25,10 @@ namespace tl
             std::shared_ptr<ui::ComboBox> deviceComboBox;
             std::shared_ptr<ui::VerticalLayout> layout;
 
+            std::vector<audio::DeviceInfo> devices;
+
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
-            std::shared_ptr<observer::ListObserver<std::string> > devicesObserver;
+            std::shared_ptr<observer::ListObserver<audio::DeviceInfo> > devicesObserver;
             std::shared_ptr<observer::ValueObserver<int> > deviceObserver;
         };
 
@@ -68,11 +70,16 @@ namespace tl
                 });
 
             p.deviceComboBox->setIndexCallback(
-                [appWeak](int value)
+                [this, appWeak](int value)
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getAudioModel()->setDevice(value);
+                        int id = 0;
+                        if (value >= 0 && value < _p->devices.size())
+                        {
+                            id = _p->devices[value].id;
+                        }
+                        app->getAudioModel()->setDevice(id);
                     }
                 });
 
@@ -83,18 +90,33 @@ namespace tl
                     _p->volumeSlider->setValue(std::roundf(value * 100.F));
                 });
 
-            p.devicesObserver = observer::ListObserver<std::string>::create(
+            p.devicesObserver = observer::ListObserver<audio::DeviceInfo>::create(
                 app->getAudioModel()->observeDevices(),
-                [this](const std::vector<std::string>& value)
+                [this](const std::vector<audio::DeviceInfo>& value)
                 {
-                    _p->deviceComboBox->setItems(value);
+                    _p->devices = value;
+                    std::vector<std::string> names;
+                    for (const auto& device : value)
+                    {
+                        names.push_back(device.name);
+                    }
+                    _p->deviceComboBox->setItems(names);
                 });
 
             p.deviceObserver = observer::ValueObserver<int>::create(
                 app->getAudioModel()->observeDevice(),
                 [this](int value)
                 {
-                    _p->deviceComboBox->setCurrentIndex(value);
+                    int index = 0;
+                    for (int i = 0; i < _p->devices.size(); ++i)
+                    {
+                        if (value == _p->devices[i].id)
+                        {
+                            index = i;
+                            break;
+                        }
+                    }
+                    _p->deviceComboBox->setCurrentIndex(index);
                 });
         }
 

@@ -32,6 +32,7 @@ namespace tl
         //! Audio device information.
         struct DeviceInfo
         {
+            unsigned int              id                  = 0;
             std::string               name;
             unsigned int              outputChannels      = 0;
             unsigned int              inputChannels       = 0;

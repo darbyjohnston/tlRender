@@ -6,7 +6,6 @@
 
 #include <tlPlay/Settings.h>
 
-#include <tlCore/AudioSystem.h>
 #include <tlCore/Context.h>
 #include <tlCore/Math.h>
 
@@ -17,7 +16,7 @@ namespace tl
         struct AudioModel::Private
         {
             std::shared_ptr<Settings> settings;
-            std::shared_ptr<observer::List<std::string> > devices;
+            std::shared_ptr<observer::List<audio::DeviceInfo> > devices;
             std::shared_ptr<observer::Value<int> > device;
             std::shared_ptr<observer::Value<float> > volume;
             std::shared_ptr<observer::Value<bool> > mute;
@@ -33,7 +32,7 @@ namespace tl
 
             p.settings = settings;
 
-            p.devices = observer::List<std::string>::create();
+            p.devices = observer::List<audio::DeviceInfo>::create();
 
             auto audioSystem = context->getSystem<audio::System>();
             const int device = audioSystem->getDefaultOutputDevice();
@@ -53,12 +52,7 @@ namespace tl
                 audioSystem->observeDevices(),
                 [this](const std::vector<audio::DeviceInfo>& devices)
                 {
-                    std::vector<std::string> names;
-                    for (const auto& device : devices)
-                    {
-                        names.push_back(device.name);
-                    }
-                    _p->devices->setIfChanged(names);
+                    _p->devices->setIfChanged(devices);
                 });
         }
 
@@ -78,12 +72,12 @@ namespace tl
             return out;
         }
 
-        const std::vector<std::string>& AudioModel::getDevices()
+        const std::vector<audio::DeviceInfo>& AudioModel::getDevices()
         {
             return _p->devices->get();
         }
 
-        std::shared_ptr<observer::IList<std::string> > AudioModel::observeDevices() const
+        std::shared_ptr<observer::IList<audio::DeviceInfo> > AudioModel::observeDevices() const
         {
             return _p->devices;
         }

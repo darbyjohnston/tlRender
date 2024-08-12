@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(RtAudio_GIT_REPOSITORY "https://github.com/thestk/rtaudio.git")
-set(RtAudio_GIT_TAG "5.2.0")
+set(RtAudio_GIT_TAG "6.0.1")
 
 set(RtAudio_ARGS
     ${TLRENDER_EXTERNAL_ARGS}

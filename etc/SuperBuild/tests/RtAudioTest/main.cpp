@@ -9,10 +9,7 @@ int main(int argc, char* argv[])
     for (unsigned int i = 0; i < devices; ++i)
     {
         const auto info = audio.getDeviceInfo(i);
-        if (info.probed)
-        {
-            std::cout << "Device: " << info.name << std::endl;
-        }
+        std::cout << "Device: " << info.name << std::endl;
     }
     return 0;
 }

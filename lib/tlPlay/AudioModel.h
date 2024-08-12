@@ -6,6 +6,7 @@
 
 #include <tlTimeline/CompareOptions.h>
 
+#include <tlCore/AudioSystem.h>
 #include <tlCore/ListObserver.h>
 #include <tlCore/ValueObserver.h>
 
@@ -41,10 +42,10 @@ namespace tl
                 const std::shared_ptr<system::Context>&);
 
             //! Get the output devices.
-            const std::vector<std::string>& getDevices();
+            const std::vector<audio::DeviceInfo>& getDevices();
 
             //! Observe the output devices.
-            std::shared_ptr<observer::IList<std::string> > observeDevices() const;
+            std::shared_ptr<observer::IList<audio::DeviceInfo> > observeDevices() const;
 
             //! Get the output device.
             int getDevice() const;
