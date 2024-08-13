@@ -52,6 +52,11 @@ namespace tl
                 audioSystem->observeDevices(),
                 [this](const std::vector<audio::DeviceInfo>& devices)
                 {
+                    std::cout << "AudioModel devices:" << std::endl;
+                    for (const auto& device : devices)
+                    {
+                        std::cout << "  " << device.id << ": " << device.name << std::endl;
+                    }
                     _p->devices->setIfChanged(devices);
                 });
         }

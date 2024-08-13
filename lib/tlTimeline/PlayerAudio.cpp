@@ -142,9 +142,9 @@ namespace tl
             try
             {
                 RtAudio::Api rtApi = RtAudio::Api::UNSPECIFIED;
-#if defined(__linux__)
-                rtApi = RtAudio::Api::LINUX_PULSE;
-#endif // __linux__
+//#if defined(__linux__)
+//                rtApi = RtAudio::Api::LINUX_PULSE;
+//#endif // __linux__
                 rtAudio.reset(new RtAudio(rtApi));
                 rtAudio->showWarnings(false);
             }
@@ -158,6 +158,7 @@ namespace tl
             const int device = audioDevice->get();
             if (rtAudio && device != -1)
             {
+                std::cout << "Player audio device: " << device << std::endl;
                 auto audioSystem = context->getSystem<audio::System>();
                 const auto devices = audioSystem->getDevices();
                 for (unsigned int i = 0; i < devices.size(); ++i)
