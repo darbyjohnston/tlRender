@@ -82,6 +82,7 @@ namespace tl
             Thread thread;
         };
 
+#if defined(TLRENDER_AUDIO)
         namespace
         {
             void rtErrorCallback(
@@ -91,6 +92,7 @@ namespace tl
                 //std::cout << "rtErrorCallback: " << error << ": " << message << std::endl;
             }
         }
+#endif // TLRENDER_AUDIO
 
         void System::_init(const std::shared_ptr<system::Context>& context)
         {
