@@ -82,6 +82,16 @@ namespace tl
             Thread thread;
         };
 
+        namespace
+        {
+            void rtErrorCallback(
+                RtAudioErrorType error,
+                const std::string& message)
+            {
+                //std::cout << "rtErrorCallback: " << error << ": " << message << std::endl;
+            }
+        }
+
         void System::_init(const std::shared_ptr<system::Context>& context)
         {
             ISystem::_init("tl::audio::System", context);
@@ -111,7 +121,7 @@ namespace tl
 //#if defined(__linux__)
 //                api = RtAudio::LINUX_PULSE;
 //#endif // __linux__
-                p.rtAudio.reset(new RtAudio(api));
+                p.rtAudio.reset(new RtAudio(api, rtErrorCallback));
                 p.rtAudio->showWarnings(false);
             }
             catch (const std::exception& e)
@@ -258,74 +268,71 @@ namespace tl
                 for (unsigned int i = 0; i < rtDeviceIds.size(); ++i)
                 {
                     const RtAudio::DeviceInfo rtInfo = p.rtAudio->getDeviceInfo(rtDeviceIds[i]);
-                    if (rtInfo.outputChannels > 0 || rtInfo.duplexChannels > 0)
+                    DeviceInfo device;
+                    device.id = rtDeviceIds[i];
+                    device.name = rtInfo.name;
+                    device.outputChannels = rtInfo.outputChannels;
+                    device.inputChannels = rtInfo.inputChannels;
+                    device.duplexChannels = rtInfo.duplexChannels;
+
+                    for (auto j : rtInfo.sampleRates)
                     {
-                        DeviceInfo device;
-                        device.id = rtDeviceIds[i];
-                        device.name = rtInfo.name;
-                        device.outputChannels = rtInfo.outputChannels;
-                        device.inputChannels = rtInfo.inputChannels;
-                        device.duplexChannels = rtInfo.duplexChannels;
-
-                        for (auto j : rtInfo.sampleRates)
-                        {
-                            device.sampleRates.push_back(j);
-                        }
-                        device.preferredSampleRate = rtInfo.preferredSampleRate;
-
-                        if (rtInfo.nativeFormats & RTAUDIO_SINT8)
-                        {
-                            device.nativeFormats.push_back(DeviceFormat::S8);
-                        }
-                        if (rtInfo.nativeFormats & RTAUDIO_SINT16)
-                        {
-                            device.nativeFormats.push_back(DeviceFormat::S16);
-                        }
-                        if (rtInfo.nativeFormats & RTAUDIO_SINT24)
-                        {
-                            device.nativeFormats.push_back(DeviceFormat::S24);
-                        }
-                        if (rtInfo.nativeFormats & RTAUDIO_SINT32)
-                        {
-                            device.nativeFormats.push_back(DeviceFormat::S32);
-                        }
-                        if (rtInfo.nativeFormats & RTAUDIO_FLOAT32)
-                        {
-                            device.nativeFormats.push_back(DeviceFormat::F32);
-                        }
-                        if (rtInfo.nativeFormats & RTAUDIO_FLOAT64)
-                        {
-                            device.nativeFormats.push_back(DeviceFormat::F64);
-                        }
-
-                        device.outputInfo.channelCount = device.outputChannels;
-                        switch (getBestFormat(device.nativeFormats))
-                        {
-                        case DeviceFormat::S8: device.outputInfo.dataType = DataType::S8; break;
-                        case DeviceFormat::S16: device.outputInfo.dataType = DataType::S16; break;
-                        case DeviceFormat::S24:
-                        case DeviceFormat::S32: device.outputInfo.dataType = DataType::S32; break;
-                        case DeviceFormat::F32: device.outputInfo.dataType = DataType::F32; break;
-                        case DeviceFormat::F64: device.outputInfo.dataType = DataType::F64; break;
-                        default: device.outputInfo.dataType = DataType::F32; break;
-                        }
-                        device.outputInfo.sampleRate = device.preferredSampleRate;
-
-                        device.inputInfo.channelCount = device.inputChannels;
-                        switch (getBestFormat(device.nativeFormats))
-                        {
-                        case DeviceFormat::S8: device.inputInfo.dataType = DataType::S8; break;
-                        case DeviceFormat::S16: device.inputInfo.dataType = DataType::S16; break;
-                        case DeviceFormat::S24:
-                        case DeviceFormat::S32: device.inputInfo.dataType = DataType::S32; break;
-                        case DeviceFormat::F32: device.inputInfo.dataType = DataType::F32; break;
-                        case DeviceFormat::F64: device.inputInfo.dataType = DataType::F64; break;
-                        default: device.inputInfo.dataType = DataType::F32; break;
-                        }
-                        device.inputInfo.sampleRate = device.preferredSampleRate;
-
-                        out.push_back(device);
+                        device.sampleRates.push_back(j);
                     }
+                    device.preferredSampleRate = rtInfo.preferredSampleRate;
+
+                    if (rtInfo.nativeFormats & RTAUDIO_SINT8)
+                    {
+                        device.nativeFormats.push_back(DeviceFormat::S8);
+                    }
+                    if (rtInfo.nativeFormats & RTAUDIO_SINT16)
+                    {
+                        device.nativeFormats.push_back(DeviceFormat::S16);
+                    }
+                    if (rtInfo.nativeFormats & RTAUDIO_SINT24)
+                    {
+                        device.nativeFormats.push_back(DeviceFormat::S24);
+                    }
+                    if (rtInfo.nativeFormats & RTAUDIO_SINT32)
+                    {
+                        device.nativeFormats.push_back(DeviceFormat::S32);
+                    }
+                    if (rtInfo.nativeFormats & RTAUDIO_FLOAT32)
+                    {
+                        device.nativeFormats.push_back(DeviceFormat::F32);
+                    }
+                    if (rtInfo.nativeFormats & RTAUDIO_FLOAT64)
+                    {
+                        device.nativeFormats.push_back(DeviceFormat::F64);
+                    }
+
+                    device.outputInfo.channelCount = device.outputChannels;
+                    switch (getBestFormat(device.nativeFormats))
+                    {
+                    case DeviceFormat::S8: device.outputInfo.dataType = DataType::S8; break;
+                    case DeviceFormat::S16: device.outputInfo.dataType = DataType::S16; break;
+                    case DeviceFormat::S24:
+                    case DeviceFormat::S32: device.outputInfo.dataType = DataType::S32; break;
+                    case DeviceFormat::F32: device.outputInfo.dataType = DataType::F32; break;
+                    case DeviceFormat::F64: device.outputInfo.dataType = DataType::F64; break;
+                    default: device.outputInfo.dataType = DataType::F32; break;
+                    }
+                    device.outputInfo.sampleRate = device.preferredSampleRate;
+
+                    device.inputInfo.channelCount = device.inputChannels;
+                    switch (getBestFormat(device.nativeFormats))
+                    {
+                    case DeviceFormat::S8: device.inputInfo.dataType = DataType::S8; break;
+                    case DeviceFormat::S16: device.inputInfo.dataType = DataType::S16; break;
+                    case DeviceFormat::S24:
+                    case DeviceFormat::S32: device.inputInfo.dataType = DataType::S32; break;
+                    case DeviceFormat::F32: device.inputInfo.dataType = DataType::F32; break;
+                    case DeviceFormat::F64: device.inputInfo.dataType = DataType::F64; break;
+                    default: device.inputInfo.dataType = DataType::F32; break;
+                    }
+                    device.inputInfo.sampleRate = device.preferredSampleRate;
+
+                    out.push_back(device);
                 }
             }
             catch (const std::exception& e)

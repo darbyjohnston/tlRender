@@ -145,7 +145,7 @@ namespace tl
 //#if defined(__linux__)
 //                rtApi = RtAudio::Api::LINUX_PULSE;
 //#endif // __linux__
-                rtAudio.reset(new RtAudio(rtApi));
+                rtAudio.reset(new RtAudio(rtApi, rtErrorCallback));
                 rtAudio->showWarnings(false);
             }
             catch (const std::exception& e)
@@ -434,6 +434,13 @@ namespace tl
             }
 
             return 0;
+        }
+
+        void Player::Private::rtErrorCallback(
+            RtAudioErrorType error,
+            const std::string& message)
+        {
+            //std::cout << "rtErrorCallback: " << error << ": " << message << std::endl;
         }
 #endif // TLRENDER_AUDIO
     }

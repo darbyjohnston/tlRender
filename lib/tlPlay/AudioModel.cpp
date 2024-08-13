@@ -53,11 +53,16 @@ namespace tl
                 [this](const std::vector<audio::DeviceInfo>& devices)
                 {
                     std::cout << "AudioModel devices:" << std::endl;
+                    std::vector<audio::DeviceInfo> outputDevices;
                     for (const auto& device : devices)
                     {
-                        std::cout << "  " << device.id << ": " << device.name << std::endl;
+                        if (device.outputChannels > 0 || device.duplexChannels > 0)
+                        {
+                            std::cout << "  " << device.id << ": " << device.name << std::endl;
+                            outputDevices.push_back(device);
+                        }
                     }
-                    _p->devices->setIfChanged(devices);
+                    _p->devices->setIfChanged(outputDevices);
                 });
         }
 

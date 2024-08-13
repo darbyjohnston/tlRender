@@ -44,6 +44,9 @@ namespace tl
                 double streamTime,
                 RtAudioStreamStatus status,
                 void* userData);
+            static void rtErrorCallback(
+                RtAudioErrorType,
+                const std::string&);
 #endif // TLRENDER_AUDIO
 
             void log(const std::shared_ptr<system::Context>&);
