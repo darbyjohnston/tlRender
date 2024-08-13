@@ -109,7 +109,7 @@ namespace tl
 
                 RtAudio::Api api=RtAudio::UNSPECIFIED;
 #if defined(__linux__)
-                api = RtAudio::LINUX_PULSE;
+                //api = RtAudio::LINUX_PULSE;
 #endif // __linux__
                 p.rtAudio.reset(new RtAudio(api));
                 p.rtAudio->showWarnings(false);
