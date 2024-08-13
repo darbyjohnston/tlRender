@@ -23,7 +23,9 @@ namespace tl
         {
             QComboBox* deviceComboBox = nullptr;
 
-            std::shared_ptr<observer::ListObserver<std::string> > audioDevicesObserver;
+            std::vector<audio::DeviceInfo> devices;
+
+            std::shared_ptr<observer::ListObserver<audio::DeviceInfo> > audioDevicesObserver;
             std::shared_ptr<observer::ValueObserver<int> > audioDeviceObserver;
         };
 
@@ -42,20 +44,26 @@ namespace tl
             connect(
                 p.deviceComboBox,
                 QOverload<int>::of(&QComboBox::currentIndexChanged),
-                [app](int value)
+                [this, app](int value)
                 {
-                    app->audioModel()->setDevice(value);
+                    int id = 0;
+                    if (value >= 0 && value < _p->devices.size())
+                    {
+                        id = _p->devices[value].id;
+                    }
+                    app->audioModel()->setDevice(id);
                 });
 
-            p.audioDevicesObserver = observer::ListObserver<std::string>::create(
+            p.audioDevicesObserver = observer::ListObserver<audio::DeviceInfo>::create(
                 app->audioModel()->observeDevices(),
-                [this](const std::vector<std::string>& devices)
+                [this](const std::vector<audio::DeviceInfo>& devices)
                 {
+                    _p->devices = devices;
                     const QSignalBlocker blocker(_p->deviceComboBox);
                     _p->deviceComboBox->clear();
                     for (const auto& device : devices)
                     {
-                        _p->deviceComboBox->addItem(QString::fromUtf8(device.c_str()));
+                        _p->deviceComboBox->addItem(QString::fromUtf8(device.name.c_str()));
                     }
                 });
             p.audioDeviceObserver = observer::ValueObserver<int>::create(
@@ -63,7 +71,16 @@ namespace tl
                 [this](int value)
                 {
                     const QSignalBlocker blocker(_p->deviceComboBox);
-                    _p->deviceComboBox->setCurrentIndex(value);
+                    int index = 0;
+                    for (int i = 0; i < _p->devices.size(); ++i)
+                    {
+                        if (value == _p->devices[i].id)
+                        {
+                            index = i;
+                            break;
+                        }
+                    }
+                    _p->deviceComboBox->setCurrentIndex(index);
                 });
         }
 
