@@ -158,7 +158,7 @@ namespace tl
             const int device = audioDevice->get();
             if (rtAudio && device != -1)
             {
-                std::cout << "Player audio device: " << device << std::endl;
+                //std::cout << "audio device: " << device << std::endl;
                 auto audioSystem = context->getSystem<audio::System>();
                 const auto devices = audioSystem->getDevices();
                 for (unsigned int i = 0; i < devices.size(); ++i)

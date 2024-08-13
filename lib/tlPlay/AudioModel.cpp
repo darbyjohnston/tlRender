@@ -52,13 +52,13 @@ namespace tl
                 audioSystem->observeDevices(),
                 [this](const std::vector<audio::DeviceInfo>& devices)
                 {
-                    std::cout << "AudioModel devices:" << std::endl;
+                    //std::cout << "audio devices:" << std::endl;
                     std::vector<audio::DeviceInfo> outputDevices;
                     for (const auto& device : devices)
                     {
                         if (device.outputChannels > 0 || device.duplexChannels > 0)
                         {
-                            std::cout << "  " << device.id << ": " << device.name << std::endl;
+                            //std::cout << "  " << device.id << ": " << device.name << std::endl;
                             outputDevices.push_back(device);
                         }
                     }
