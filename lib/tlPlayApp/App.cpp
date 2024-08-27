@@ -1073,7 +1073,7 @@ namespace tl
             if (auto player = p.player->get())
             {
                 player->setVolume(volume);
-                player->setMute(mute || p.bmdDeviceActive);
+                player->setMute(mute);
                 player->setAudioOffset(audioOffset);
             }
 #if defined(TLRENDER_BMD)

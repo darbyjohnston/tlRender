@@ -188,6 +188,69 @@ namespace tl
             }
         }
 
+        namespace
+        {
+            template<typename T>
+            void reverseI(
+                const uint8_t* in,
+                uint8_t*       out,
+                size_t         sampleCount,
+                size_t         channelCount)
+            {
+                const T* inP = reinterpret_cast<const T*>(in) +
+                    (sampleCount - 1) * channelCount;
+                T* outP = reinterpret_cast<T*>(out);
+                for (size_t i = 0; i < sampleCount; ++i, inP -= channelCount, outP += channelCount)
+                {
+                    memcpy(outP, inP, channelCount * sizeof(T));
+                }
+            }
+
+            template<typename T>
+            void reverseF(
+                const uint8_t* in,
+                uint8_t*       out,
+                size_t         sampleCount,
+                size_t         channelCount)
+            {
+                const T* inP = reinterpret_cast<const T*>(in) +
+                    (sampleCount - 1) * channelCount;
+                T* outP = reinterpret_cast<T*>(out);
+                for (size_t i = 0; i < sampleCount; ++i, inP -= channelCount, outP += channelCount)
+                {
+                    memcpy(outP, inP, channelCount * sizeof(T));
+                }
+            }
+        }
+
+        void reverse(
+            const uint8_t* in,
+            uint8_t*       out,
+            size_t         sampleCount,
+            size_t         channelCount,
+            DataType       dataType)
+        {
+            switch (dataType)
+            {
+            case DataType::S8:
+                reverseI<int8_t>(in, out, sampleCount, channelCount);
+                break;
+            case DataType::S16:
+                reverseI<int16_t>(in, out, sampleCount, channelCount);
+                break;
+            case DataType::S32:
+                reverseI<int32_t>(in, out, sampleCount, channelCount);
+                break;
+            case DataType::F32:
+                reverseF<float>(in, out, sampleCount, channelCount);
+                break;
+            case DataType::F64:
+                reverseF<double>(in, out, sampleCount, channelCount);
+                break;
+            default: break;
+            }
+        }
+
 #define _CONVERT(a, b) \
     { \
         const a##_T * inP = reinterpret_cast<const a##_T *>(in->getData()); \

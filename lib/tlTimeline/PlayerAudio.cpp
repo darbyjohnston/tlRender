@@ -297,9 +297,7 @@ namespace tl
             // Zero output audio data.
             std::memset(outputBuffer, 0, nFrames * p->audioThread.info.getByteCount());
 
-            switch (playback)
-            {
-            case Playback::Forward:
+            if (playback != Playback::Stop)
             {
                 // Flush the audio resampler and buffer when the RtAudio
                 // playback is reset.
@@ -330,7 +328,7 @@ namespace tl
                         playbackStartTime.rescaled_to(p->ioInfo.audio.sampleRate).value() -
                         p->timeline->getTimeRange().start_time().rescaled_to(p->ioInfo.audio.sampleRate).value() -
                         otime::RationalTime(audioOffset, 1.0).rescaled_to(p->ioInfo.audio.sampleRate).value();;
-                    int64_t frame = playbackStartFrame +
+                    int64_t frame = playbackStartFrame -
                         otime::RationalTime(
                             p->audioThread.rtAudioCurrentFrame + audio::getSampleCount(p->audioThread.buffer),
                             p->audioThread.info.sampleRate).rescaled_to(p->ioInfo.audio.sampleRate).value();
@@ -387,6 +385,17 @@ namespace tl
                             size,
                             p->ioInfo.audio.channelCount,
                             p->ioInfo.audio.dataType);
+                        if (Playback::Reverse == playback)
+                        {
+                            auto reverse = audio::Audio::create(p->ioInfo.audio, size);
+                            audio::reverse(
+                                tmp->getData(),
+                                reverse->getData(),
+                                size,
+                                p->ioInfo.audio.channelCount,
+                                p->ioInfo.audio.dataType);
+                            tmp = reverse;
+                        }
 
                         if (p->audioThread.resample)
                         {
@@ -419,14 +428,6 @@ namespace tl
 
                 // Update the audio frame.
                 p->audioThread.rtAudioCurrentFrame += nFrames;
-
-                break;
-            }
-            case Playback::Reverse:
-                // Update the audio frame.
-                p->audioThread.rtAudioCurrentFrame += nFrames;
-                break;
-            default: break;
             }
 
             return 0;

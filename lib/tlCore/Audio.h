@@ -188,6 +188,14 @@ namespace tl
             size_t          channelCount,
             DataType        dataType);
 
+        //! Reverse audio.
+        void reverse(
+            const uint8_t* in,
+            uint8_t*       out,
+            size_t         sampleCount,
+            size_t         channelCount,
+            DataType       dataType);
+
         //! Convert audio data.
         std::shared_ptr<Audio> convert(const std::shared_ptr<Audio>&, DataType);
 
