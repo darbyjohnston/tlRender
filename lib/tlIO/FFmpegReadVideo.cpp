@@ -286,12 +286,7 @@ namespace tl
                 default: break;
                 }
 
-                _avSpeed = avVideoStream->r_frame_rate;
-                // Use avg_frame_rate if set
-                if (avVideoStream->avg_frame_rate.num != 0 &&
-                    avVideoStream->avg_frame_rate.den != 0)
-                    _avSpeed = avVideoStream->avg_frame_rate;
-                
+                _avSpeed = av_guess_frame_rate(_avFormatContext, avVideoStream, nullptr);
                 const double speed = av_q2d(_avSpeed);
 
                 std::size_t sequenceSize = 0;
