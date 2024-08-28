@@ -15,10 +15,7 @@
 # * OTIO
 
 find_path(OTIO_INCLUDE_DIR NAMES opentimelineio/version.h)
-if(OTIO_INCLUDE_DIR)
-    set(OTIO_DEPS_INCLUDE_DIRS ${OTIO_INCLUDE_DIR}/opentimelineio/deps)
-endif()
-set(OTIO_INCLUDE_DIRS ${OTIO_INCLUDE_DIR} ${OTIO_DEPS_INCLUDE_DIRS})
+set(OTIO_INCLUDE_DIRS ${OTIO_INCLUDE_DIR})
 
 if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
     find_library(
@@ -44,8 +41,8 @@ set(OTIO_LIBRARIES ${opentimelineio_LIBRARY} ${opentime_LIBRARY})
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
     OTIO
-    REQUIRED_VARS OTIO_INCLUDE_DIR OTIO_DEPS_INCLUDE_DIRS opentimelineio_LIBRARY opentime_LIBRARY)
-mark_as_advanced(OTIO_INCLUDE_DIR OTIO_DEPS_INCLUDE_DIRS opentimelineio_LIBRARY opentime_LIBRARY)
+    REQUIRED_VARS OTIO_INCLUDE_DIR opentimelineio_LIBRARY opentime_LIBRARY)
+mark_as_advanced(OTIO_INCLUDE_DIR opentimelineio_LIBRARY opentime_LIBRARY)
 
 if(OTIO_FOUND AND NOT TARGET OTIO::opentime)
     add_library(OTIO::opentime UNKNOWN IMPORTED)
@@ -59,7 +56,7 @@ if(OTIO_FOUND AND NOT TARGET OTIO::opentimelineio)
     set_target_properties(OTIO::opentimelineio PROPERTIES
         IMPORTED_LOCATION "${opentimelineio_LIBRARY}"
         INTERFACE_COMPILE_DEFINITIONS opentimelineio_FOUND
-        INTERFACE_INCLUDE_DIRECTORIES "${OTIO_INCLUDE_DIR};${OTIO_DEPS_INCLUDE_DIRS}")
+        INTERFACE_INCLUDE_DIRECTORIES "${OTIO_INCLUDE_DIR}")
 endif()
 if(OTIO_FOUND AND NOT TARGET OTIO)
     add_library(OTIO INTERFACE)
