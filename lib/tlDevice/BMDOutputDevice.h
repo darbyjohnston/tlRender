@@ -29,41 +29,47 @@ namespace tl
             //! Create a new output device.
             static std::shared_ptr<OutputDevice> create(const std::shared_ptr<system::Context>&);
 
-            //! Get the output device configuration.
+            //! Get the device configuration.
             DeviceConfig getConfig() const;
 
-            //! Observe the output device configuration.
+            //! Observe the device configuration.
             std::shared_ptr<observer::IValue<DeviceConfig> > observeConfig() const;
 
-            //! Set the output device configuration.
+            //! Set the device configuration.
             void setConfig(const DeviceConfig&);
 
-            //! Get whether the output device is enabled.
+            //! Get whether the device is enabled.
             bool isEnabled() const;
 
-            //! Observe whether the output device is enabled.
+            //! Observe whether the device is enabled.
             std::shared_ptr<observer::IValue<bool> > observeEnabled() const;
 
-            //! Set whether the output device is enabled.
+            //! Set whether the device is enabled.
             void setEnabled(bool);
 
-            //! Get whether the output device is active.
+            //! Get whether the device is active.
             bool isActive() const;
 
-            //! Observe whether the output device is active.
+            //! Observe whether the device is active.
             std::shared_ptr<observer::IValue<bool> > observeActive() const;
 
-            //! Get the output device size.
+            //! Get the video size.
             const math::Size2i& getSize() const;
 
-            //! Observe the output device size.
+            //! Observe the video size.
             std::shared_ptr<observer::IValue<math::Size2i> > observeSize() const;
 
-            //! Get the output device frame rate.
+            //! Get the frame rate.
             const otime::RationalTime& getFrameRate() const;
 
-            //! Observe the output device frame rate.
+            //! Observe the frame rate.
             std::shared_ptr<observer::IValue<otime::RationalTime> > observeFrameRate() const;
+
+            //! Get the video frame delay.
+            int getVideoFrameDelay() const;
+
+            //! Observe the video frame delay.
+            std::shared_ptr<observer::IValue<int> > observeVideoFrameDelay() const;
 
             //! Set the view.
             void setView(
@@ -116,7 +122,8 @@ namespace tl
                 const DeviceConfig&,
                 bool& active,
                 math::Size2i& size,
-                otime::RationalTime& frameRate);
+                otime::RationalTime& frameRate,
+                int videoFrameDelay);
             void _render(
                 const DeviceConfig&,
                 const timeline::OCIOOptions&,

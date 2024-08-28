@@ -34,6 +34,7 @@ namespace tl
     {
         namespace
         {
+            const size_t videoFrameDelay = 3;
             const std::chrono::milliseconds timeout(5);
         }
 
@@ -45,6 +46,7 @@ namespace tl
             std::shared_ptr<observer::Value<bool> > active;
             std::shared_ptr<observer::Value<math::Size2i> > size;
             std::shared_ptr<observer::Value<otime::RationalTime> > frameRate;
+            std::shared_ptr<observer::Value<int> > videoFrameDelay;
 
             std::shared_ptr<timeline::Player> player;
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
@@ -61,6 +63,7 @@ namespace tl
                 bool active = false;
                 math::Size2i size;
                 otime::RationalTime frameRate = time::invalidTime;
+                int videoFrameDelay = bmd::videoFrameDelay;
                 timeline::OCIOOptions ocioOptions;
                 timeline::LUTOptions lutOptions;
                 std::vector<timeline::ImageOptions> imageOptions;
@@ -121,6 +124,7 @@ namespace tl
             p.active = observer::Value<bool>::create(false);
             p.size = observer::Value<math::Size2i>::create();
             p.frameRate = observer::Value<otime::RationalTime>::create(time::invalidTime);
+            p.videoFrameDelay = observer::Value<int>::create(bmd::videoFrameDelay);
 
             p.window = gl::GLFWWindow::create(
                 "tl::bmd::OutputDevice",
@@ -234,6 +238,16 @@ namespace tl
         std::shared_ptr<observer::IValue<otime::RationalTime> > OutputDevice::observeFrameRate() const
         {
             return _p->frameRate;
+        }
+
+        int OutputDevice::getVideoFrameDelay() const
+        {
+            return _p->videoFrameDelay->get();
+        }
+
+        std::shared_ptr<observer::IValue<int> > OutputDevice::observeVideoFrameDelay() const
+        {
+            return _p->videoFrameDelay;
         }
 
         void OutputDevice::setView(
@@ -483,6 +497,7 @@ namespace tl
 
             DeviceConfig config;
             bool enabled = false;
+            int videoFrameDelay = bmd::videoFrameDelay;
             timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
             std::vector<timeline::ImageOptions> imageOptions;
@@ -513,7 +528,7 @@ namespace tl
                     if (p.thread.cv.wait_for(
                         lock,
                         timeout,
-                        [this, config, enabled,
+                        [this, config, enabled, videoFrameDelay,
                         ocioOptions, lutOptions, imageOptions,
                         displayOptions, compareOptions, backgroundOptions,
                         playback, currentTime,
@@ -522,6 +537,7 @@ namespace tl
                             return
                                 config != _p->mutex.config ||
                                 enabled != _p->mutex.enabled ||
+                                videoFrameDelay != _p->mutex.videoFrameDelay ||
                                 ocioOptions != _p->mutex.ocioOptions ||
                                 lutOptions != _p->mutex.lutOptions ||
                                 imageOptions != _p->mutex.imageOptions ||
@@ -546,9 +562,11 @@ namespace tl
                     {
                         createDevice =
                             p.mutex.config != config ||
-                            p.mutex.enabled != enabled;
+                            p.mutex.enabled != enabled ||
+                            p.mutex.videoFrameDelay != videoFrameDelay;
                         config = p.mutex.config;
                         enabled = p.mutex.enabled;
+                        videoFrameDelay = p.mutex.videoFrameDelay;
 
                         p.thread.timeRange = p.mutex.timeRange;
                         playback = p.mutex.playback;
@@ -611,7 +629,12 @@ namespace tl
                         try
                         {
                             p.thread.dl.reset(new DLWrapper);
-                            _createDevice(config, active, size, frameRate);
+                            _createDevice(
+                                config,
+                                active,
+                                size,
+                                frameRate,
+                                videoFrameDelay);
                         }
                         catch (const std::exception& e)
                         {
@@ -708,7 +731,8 @@ namespace tl
             const DeviceConfig& config,
             bool& active,
             math::Size2i& size,
-            otime::RationalTime& frameRate)
+            otime::RationalTime& frameRate,
+            int videoFrameDelay)
         {
             TLRENDER_P();
             if (config.deviceIndex != -1 &&
@@ -874,6 +898,7 @@ namespace tl
                     p.thread.size,
                     config.pixelType,
                     frameRate,
+                    videoFrameDelay,
                     audioInfo);
 
                 if (p.thread.dl->output->SetScheduledFrameCompletionCallback(p.thread.dl->outputCallback) != S_OK)

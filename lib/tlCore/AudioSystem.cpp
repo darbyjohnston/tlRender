@@ -106,7 +106,11 @@ namespace tl
                     _log(ss.str());
                 }
 
-                p.rtAudio.reset(new RtAudio);
+                RtAudio::Api rtApi = RtAudio::Api::UNSPECIFIED;
+#if defined(__linux__)
+                rtApi = RtAudio::Api::LINUX_ALSA;
+#endif // __linux__
+                p.rtAudio.reset(new RtAudio(rtApi));
                 p.rtAudio->showWarnings(false);
             }
             catch (const std::exception& e)

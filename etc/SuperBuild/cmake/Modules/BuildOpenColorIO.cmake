@@ -12,7 +12,7 @@ set(OpenColorIO_ARGS
     -DOCIO_BUILD_PYTHON=OFF
     -DOCIO_INSTALL_EXT_PACKAGES=NONE)
 cmake_host_system_information(RESULT HAS_SSE2 QUERY HAS_SSE2)
-list(APPEND OpenColorIO_ARGS -DOCIO_USE_SSE=${HAS_SSE2})
+list(APPEND OpenColorIO_ARGS -DOCIO_USE_SSE2=${HAS_SSE2})
 #if(APPLE)
 #    execute_process(
 #        COMMAND uname -m

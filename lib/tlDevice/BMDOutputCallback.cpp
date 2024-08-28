@@ -18,7 +18,6 @@ namespace tl
     {
         namespace
         {
-            const size_t videoPreroll = 3;
             const size_t videoFramesMax = 3;
             //! \todo Should this be the same as
             //! timeline::PlayerOptions().audioBufferFrameCount?
@@ -83,6 +82,7 @@ namespace tl
             const math::Size2i& size,
             PixelType pixelType,
             const otime::RationalTime& frameRate,
+            int videoFrameDelay,
             const audio::Info& audioInfo) :
             _p(new Private)
         {
@@ -136,7 +136,7 @@ namespace tl
                 nullptr);*/
             p.dlOutput->EndAudioPreroll();
 
-            for (size_t i = 0; i < videoPreroll; ++i)
+            for (size_t i = 0; i < videoFrameDelay; ++i)
             {
                 DLVideoFrameWrapper dlVideoFrame;
                 if (p.dlOutput->CreateVideoFrame(
