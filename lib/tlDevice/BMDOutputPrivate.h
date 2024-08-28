@@ -124,6 +124,7 @@ namespace tl
                 const math::Size2i& size,
                 PixelType pixelType,
                 const otime::RationalTime& frameRate,
+                int videoFrameDelay,
                 const audio::Info& audioInfo);
 
             void setPlayback(timeline::Playback, const otime::RationalTime&);
