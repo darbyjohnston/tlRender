@@ -184,6 +184,7 @@ namespace tl
             size_t          inCount,
             uint8_t*        out,
             float           volume,
+            bool            reverse,
             size_t          sampleCount,
             size_t          channelCount,
             DataType        dataType);
