@@ -256,6 +256,11 @@ namespace tl
             _number = value;
             _numberUpdate();
         }
+
+        void Path::setPadding(size_t value)
+        {
+            _padding = value;
+        }
         
         void Path::setSequence(const math::IntRange& value)
         {
