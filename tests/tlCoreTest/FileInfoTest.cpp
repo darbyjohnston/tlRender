@@ -112,6 +112,16 @@ namespace tl
                 f.sequence(FileInfo(Path("7800.exr")));
                 TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(1, 7800));
             }
+            {
+                FileInfo f(Path("1000.exr"));
+                f.sequence(FileInfo(Path("0999.exr")));
+                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(999, 1000));
+                TLRENDER_ASSERT(f.getPath().getPadding() == 4);
+                std::string s = f.getPath().get(999);
+                TLRENDER_ASSERT("0999.exr" == s);
+                s = f.getPath().get(1000);
+                TLRENDER_ASSERT("1000.exr" == s);
+            }
         }
 
         void FileInfoTest::_list()

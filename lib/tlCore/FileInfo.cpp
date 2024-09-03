@@ -36,8 +36,10 @@ namespace tl
             if (!_path.getNumber().empty() &&
                 !value._path.getNumber().empty() &&
                 (_path.getPadding() == value._path.getPadding() ||
-                 _path.getPadding() == value._path.getNumber().size()))
+                 _path.getPadding() == value._path.getNumber().size() ||
+                 _path.getNumber().size() == value._path.getPadding()))
             {
+                _path.setPadding(std::max(_path.getPadding(), value._path.getPadding()));
                 math::IntRange sequence = _path.getSequence();
                 const math::IntRange& otherSequence = value._path.getSequence();
                 sequence.expand(otherSequence.getMin());

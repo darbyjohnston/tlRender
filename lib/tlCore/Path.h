@@ -102,6 +102,9 @@ namespace tl
             //! Get the number zero padding.
             size_t getPadding() const;
 
+            //! Set the number zero padding.
+            void setPadding(size_t);
+
             //! Get the number sequence.
             const math::IntRange& getSequence() const;
 
