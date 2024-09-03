@@ -7,7 +7,7 @@
 #
 # This module defines the following imported targets:
 #
-# * PNG::png
+# * PNG::PNG
 #
 # This module defines the following interfaces:
 #
@@ -37,9 +37,9 @@ find_package_handle_standard_args(
     REQUIRED_VARS PNG_INCLUDE_DIR PNG_LIBRARY)
 mark_as_advanced(PNG_INCLUDE_DIR PNG_LIBRARY)
 
-if(PNG_FOUND AND NOT TARGET PNG::png)
-    add_library(PNG::png UNKNOWN IMPORTED)
-    set_target_properties(PNG::png PROPERTIES
+if(PNG_FOUND AND NOT TARGET PNG::PNG)
+    add_library(PNG::PNG UNKNOWN IMPORTED)
+    set_target_properties(PNG::PNG PROPERTIES
         IMPORTED_LOCATION "${PNG_LIBRARY}"
         INTERFACE_COMPILE_DEFINITIONS PNG_FOUND
         INTERFACE_INCLUDE_DIRECTORIES "${PNG_INCLUDE_DIR}"
@@ -47,5 +47,5 @@ if(PNG_FOUND AND NOT TARGET PNG::png)
 endif()
 if(PNG_FOUND AND NOT TARGET PNG)
     add_library(PNG INTERFACE)
-    target_link_libraries(PNG INTERFACE PNG::png)
+    target_link_libraries(PNG INTERFACE PNG::PNG)
 endif()
