@@ -133,7 +133,7 @@ namespace tl
                     std::numeric_limits<T>::min(),
                     std::numeric_limits<T>::max()
                 };
-                const uint8_t* in[2] =
+                const uint8_t* in[] =
                 {
                     reinterpret_cast<const uint8_t*>(in0.data()),
                     reinterpret_cast<const uint8_t*>(in1.data())
@@ -151,13 +151,11 @@ namespace tl
                     2,
                     reinterpret_cast<uint8_t*>(result.data()),
                     1.F,
+                    false,
                     in0.size(),
                     1,
                     DT);
-                for (size_t i = 0; i < in0.size(); ++i)
-                {
-                    TLRENDER_ASSERT(out[i] == result[i]);
-                }
+                TLRENDER_ASSERT(out == result);
             }
 
             template<DataType DT, typename T>
@@ -179,7 +177,7 @@ namespace tl
                     -1,
                     1
                 };
-                const uint8_t* in[2] =
+                const uint8_t* in[] =
                 {
                     reinterpret_cast<const uint8_t*>(in0.data()),
                     reinterpret_cast<const uint8_t*>(in1.data())
@@ -197,6 +195,7 @@ namespace tl
                     2,
                     reinterpret_cast<uint8_t*>(result.data()),
                     1.F,
+                    false,
                     in0.size(),
                     1,
                     DT);
@@ -214,6 +213,47 @@ namespace tl
             _mixI<DataType::S32, int32_t>();
             _mixF<DataType::F32, float>();
             _mixF<DataType::F64, double>();
+            {
+                const std::vector<int8_t> in0 =
+                {
+                    0, 0,
+                    1, 1,
+                    2, 2,
+                    3, 3,
+                    4, 4
+                };
+                const std::vector<int8_t> in1 =
+                {
+                    0, 0,
+                    1, 1,
+                    2, 2,
+                    3, 3,
+                    4, 4
+                };
+                const uint8_t* in[] =
+                {
+                    reinterpret_cast<const uint8_t*>(in0.data()),
+                    reinterpret_cast<const uint8_t*>(in1.data())
+                };
+                std::vector<int8_t> result(in0.size(), 0);
+                mix(in,
+                    2,
+                    reinterpret_cast<uint8_t*>(result.data()),
+                    1.F,
+                    true,
+                    in0.size() / 2,
+                    2,
+                    DataType::S8);
+                const std::vector<int8_t> out =
+                {
+                    8, 8,
+                    6, 6,
+                    4, 4,
+                    2, 2,
+                    0, 0
+                };
+                TLRENDER_ASSERT(out == result);
+            }
         }
 
         void AudioTest::_convert()

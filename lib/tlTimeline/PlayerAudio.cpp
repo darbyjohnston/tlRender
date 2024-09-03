@@ -295,9 +295,11 @@ namespace tl
             }
 
             // Zero output audio data.
-            std::memset(outputBuffer, 0, nFrames * p->audioThread.info.getByteCount());
+            const audio::Info& outputInfo = p->audioThread.info;
+            std::memset(outputBuffer, 0, nFrames * outputInfo.getByteCount());
 
-            if (playback != Playback::Stop)
+            const audio::Info& inputInfo = p->ioInfo.audio;
+            if (playback != Playback::Stop && inputInfo.sampleRate > 0)
             {
                 // Flush the audio resampler and buffer when the RtAudio
                 // playback is reset.
@@ -320,87 +322,78 @@ namespace tl
                         p->audioThread.info);
                 }
 
+                // Calculate the audio frame.
+                const int64_t playbackStartFrame =
+                    playbackStartTime.rescaled_to(inputInfo.sampleRate).value() -
+                    p->timeline->getTimeRange().start_time().rescaled_to(inputInfo.sampleRate).value() -
+                    otime::RationalTime(audioOffset, 1.0).rescaled_to(inputInfo.sampleRate).value();
+                const int64_t playbackStartFrameOffset = otime::RationalTime(
+                    p->audioThread.rtAudioCurrentFrame + audio::getSampleCount(p->audioThread.buffer),
+                    p->audioThread.info.sampleRate).rescaled_to(inputInfo.sampleRate).value();
+
                 // Fill the audio buffer.
-                if (p->ioInfo.audio.sampleRate > 0 &&
-                    playbackStartTime != time::invalidTime)
+                const size_t bufferSizeMax = std::max(
+                    static_cast<size_t>(nFrames),
+                    p->playerOptions.audioBufferFrameCount);
+                int64_t fillSize = bufferSizeMax - audio::getSampleCount(p->audioThread.buffer);
+                int64_t frame = Playback::Forward == playback ?
+                    (playbackStartFrame + playbackStartFrameOffset) :
+                    (playbackStartFrame - playbackStartFrameOffset - fillSize);
+                int64_t seconds = frame / inputInfo.sampleRate;
+                int64_t offset = frame - seconds * inputInfo.sampleRate;
+                while (audio::getSampleCount(p->audioThread.buffer) < bufferSizeMax &&
+                    p->running)
                 {
-                    const int64_t playbackStartFrame =
-                        playbackStartTime.rescaled_to(p->ioInfo.audio.sampleRate).value() -
-                        p->timeline->getTimeRange().start_time().rescaled_to(p->ioInfo.audio.sampleRate).value() -
-                        otime::RationalTime(audioOffset, 1.0).rescaled_to(p->ioInfo.audio.sampleRate).value();;
-                    int64_t frame = playbackStartFrame -
-                        otime::RationalTime(
-                            p->audioThread.rtAudioCurrentFrame + audio::getSampleCount(p->audioThread.buffer),
-                            p->audioThread.info.sampleRate).rescaled_to(p->ioInfo.audio.sampleRate).value();
-                    int64_t seconds = p->ioInfo.audio.sampleRate > 0 ? (frame / p->ioInfo.audio.sampleRate) : 0;
-                    int64_t offset = frame - seconds * p->ioInfo.audio.sampleRate;
-                    while (audio::getSampleCount(p->audioThread.buffer) < nFrames &&
-                        p->running)
+                    // Get audio from the cache.
+                    AudioData audioData;
+                    bool found = false;
                     {
-                        //std::cout << "frame: " << frame << std::endl;
-                        //std::cout << "seconds: " << seconds << std::endl;
-                        //std::cout << "offset: " << offset << std::endl;
-                        AudioData audioData;
+                        std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
+                        auto j = p->audioMutex.audioDataCache.find(seconds);
+                        if (j != p->audioMutex.audioDataCache.end())
                         {
-                            std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
-                            const auto j = p->audioMutex.audioDataCache.find(seconds);
-                            if (j != p->audioMutex.audioDataCache.end())
-                            {
-                                audioData = j->second;
-                            }
+                            audioData = j->second;
+                            found = true;
                         }
-                        if (!p->audioThread.silence)
-                        {
-                            p->audioThread.silence = audio::Audio::create(p->ioInfo.audio, p->ioInfo.audio.sampleRate);
-                            p->audioThread.silence->zero();
-                        }
-                        std::vector<const uint8_t*> audioDataP;
-                        for (const auto& layer : audioData.layers)
-                        {
-                            if (layer.audio && layer.audio->getInfo() == p->ioInfo.audio)
-                            {
-                                audioDataP.push_back(
-                                    layer.audio->getData() +
-                                    (offset * p->ioInfo.audio.getByteCount()));
-                            }
-                        }
-                        if (audioDataP.empty())
+                    }
+                    if (!found)
+                    {
+                        break;
+                    }
+
+                    // Mix the audio layers.
+                    std::vector<const uint8_t*> audioDataP;
+                    for (const auto& layer : audioData.layers)
+                    {
+                        if (layer.audio && layer.audio->getInfo() == p->ioInfo.audio)
                         {
                             audioDataP.push_back(
-                                p->audioThread.silence->getData() +
-                                (offset * p->ioInfo.audio.getByteCount()));
+                                layer.audio->getData() +
+                                offset * inputInfo.getByteCount());
                         }
-
-                        const size_t size = std::min(
-                            p->playerOptions.audioBufferFrameCount,
-                            static_cast<size_t>(p->ioInfo.audio.sampleRate - offset));
-                        //std::cout << "size: " << size << std::endl;
-                        auto tmp = audio::Audio::create(p->ioInfo.audio, size);
-                        tmp->zero();
-                        audio::mix(
-                            audioDataP.data(),
-                            audioDataP.size(),
-                            tmp->getData(),
-                            volume,
-                            Playback::Reverse == playback,
-                            size,
-                            p->ioInfo.audio.channelCount,
-                            p->ioInfo.audio.dataType);
-
-                        if (p->audioThread.resample)
-                        {
-                            p->audioThread.buffer.push_back(p->audioThread.resample->process(tmp));
-                        }
-
-                        offset += size;
-                        if (offset >= p->ioInfo.audio.sampleRate)
-                        {
-                            offset -= p->ioInfo.audio.sampleRate;
-                            seconds += 1;
-                        }
-
-                        //std::cout << std::endl;
                     }
+                    const int64_t size = std::min(
+                        fillSize,
+                        static_cast<int64_t>(inputInfo.sampleRate - offset));
+                    auto tmp = audio::Audio::create(inputInfo, size);
+                    tmp->zero();
+                    audio::mix(
+                        audioDataP.data(),
+                        audioDataP.size(),
+                        tmp->getData(),
+                        volume,
+                        Playback::Reverse == playback,
+                        size,
+                        p->ioInfo.audio.channelCount,
+                        p->ioInfo.audio.dataType);
+
+                    // Resample the audio and add it to the buffer.
+                    p->audioThread.buffer.push_back(p->audioThread.resample->process(tmp));
+
+                    fillSize -= size;
+                    frame += size;
+                    seconds = frame / inputInfo.sampleRate;
+                    offset = frame - seconds * inputInfo.sampleRate;
                 }
 
                 // Send audio data to RtAudio.
