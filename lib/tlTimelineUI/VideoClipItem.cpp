@@ -35,6 +35,7 @@ namespace tl
             };
             SizeData size;
 
+            io::Options ioOptions;
             ui::InfoRequest infoRequest;
             std::shared_ptr<io::Info> ioInfo;
             std::map<otime::RationalTime, ui::ThumbnailRequest> thumbnailRequests;
@@ -72,7 +73,10 @@ namespace tl
             p.memoryRead = timeline::getMemoryRead(clip->media_reference());
             p.thumbnailGenerator = thumbnailGenerator;
 
-            const auto i = itemData->info.find(path.get());
+            p.ioOptions = _data->options.ioOptions;
+            p.ioOptions["USD/cameraName"] = p.clipName;
+            const std::string infoCacheKey = io::getInfoCacheKey(path, p.ioOptions);
+            const auto i = itemData->info.find(infoCacheKey);
             if (i != itemData->info.end())
             {
                 p.ioInfo = i->second;
@@ -151,8 +155,8 @@ namespace tl
                 p.infoRequest.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
                 p.ioInfo = std::make_shared<io::Info>(p.infoRequest.future.get());
-                const std::string fileName = p.path.get();
-                _data->info[fileName] = p.ioInfo;
+                const std::string infoCacheKey = io::getInfoCacheKey(p.path, p.ioOptions);
+                _data->info[infoCacheKey] = p.ioInfo;
                 _updates |= ui::Update::Size;
                 _updates |= ui::Update::Draw;
             }
@@ -165,12 +169,10 @@ namespace tl
                     i->second.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
                     const auto image = i->second.future.get();
-                    io::Options ioOptions = _data->options.ioOptions;
-                    ioOptions["USD/cameraName"] = p.clipName;
-                    const std::string cacheKey = io::getCacheKey(
+                    const std::string cacheKey = io::getVideoCacheKey(
                         p.path,
                         i->first,
-                        ioOptions,
+                        p.ioOptions,
                         {});
                     _data->thumbnails[cacheKey] = image;
                     i = p.thumbnailRequests.erase(i);
@@ -259,7 +261,10 @@ namespace tl
             {
                 if (!p.ioInfo && !p.infoRequest.future.valid())
                 {
-                    p.infoRequest = p.thumbnailGenerator->getInfo(p.path, p.memoryRead);
+                    p.infoRequest = p.thumbnailGenerator->getInfo(
+                        p.path,
+                        p.memoryRead,
+                        p.ioOptions);
                 }
             }
 
@@ -293,12 +298,10 @@ namespace tl
                             _trimmedRange,
                             p.ioInfo->videoTime.duration().rate());
 
-                        io::Options ioOptions = _data->options.ioOptions;
-                        ioOptions["USD/cameraName"] = p.clipName;
-                        const std::string cacheKey = io::getCacheKey(
+                        const std::string cacheKey = io::getVideoCacheKey(
                             p.path,
                             mediaTime,
-                            ioOptions,
+                            p.ioOptions,
                             {});
                         const auto i = _data->thumbnails.find(cacheKey);
                         if (i != _data->thumbnails.end())
@@ -321,7 +324,7 @@ namespace tl
                                     p.memoryRead,
                                     _displayOptions.thumbnailHeight,
                                     mediaTime,
-                                    ioOptions);
+                                    p.ioOptions);
                             }
                         }
                     }

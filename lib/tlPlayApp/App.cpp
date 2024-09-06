@@ -379,6 +379,7 @@ namespace tl
             p.settings->setDefaultValue("FileSequence/AudioDirectory", std::string());
             p.settings->setDefaultValue("FileSequence/MaxDigits", 9);
 
+            p.settings->setDefaultValue("SequenceIO/DefaultSpeed", 24.0);
             p.settings->setDefaultValue("SequenceIO/ThreadCount", 16);
 
 #if defined(TLRENDER_FFMPEG)
@@ -744,6 +745,8 @@ namespace tl
             TLRENDER_P();
             io::Options out;
 
+            out["SequenceIO/DefaultSpeed"] = string::Format("{0}").
+                arg(p.settings->getValue<double>("SequenceIO/DefaultSpeed"));
             out["SequenceIO/ThreadCount"] = string::Format("{0}").
                 arg(p.settings->getValue<int>("SequenceIO/ThreadCount"));
 

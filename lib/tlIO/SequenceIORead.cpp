@@ -213,7 +213,7 @@ namespace tl
                     videoRequests.pop_front();
 
                     VideoData videoData;
-                    const std::string cacheKey = getCacheKey(
+                    const std::string cacheKey = getVideoCacheKey(
                         _path,
                         request->time,
                         _options,
@@ -281,7 +281,7 @@ namespace tl
                         
                         if (_cache)
                         {
-                            const std::string cacheKey = getCacheKey(
+                            const std::string cacheKey = getVideoCacheKey(
                                 _path,
                                 (*requestIt)->time,
                                 _options,

@@ -12,15 +12,20 @@ namespace tl
 {
     namespace io
     {
-        //! Get a cache key.
-        std::string getCacheKey(
+        //! Get an I/O information cache key.
+        std::string getInfoCacheKey(
+            const file::Path&,
+            const Options&);
+
+        //! Get a video cache key.
+        std::string getVideoCacheKey(
             const file::Path&,
             const otime::RationalTime&,
             const Options& initOptions,
             const Options& frameOptions);
 
-        //! Get a cache key.
-        std::string getCacheKey(
+        //! Get an audio cache key.
+        std::string getAudioCacheKey(
             const file::Path&,
             const otime::TimeRange&,
             const Options& initOptions,
