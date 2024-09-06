@@ -170,6 +170,7 @@ namespace tl
             std::shared_ptr<ui::LineEdit> audioFileNameEdit;
             std::shared_ptr<ui::LineEdit> audioDirectoryEdit;
             std::shared_ptr<ui::IntEdit> maxDigitsEdit;
+            std::shared_ptr<ui::DoubleEdit> defaultSpeedEdit;
             std::shared_ptr<ui::IntEdit> threadsEdit;
             std::shared_ptr<ui::GridLayout> layout;
 
@@ -199,6 +200,9 @@ namespace tl
 
             p.maxDigitsEdit = ui::IntEdit::create(context);
 
+            p.defaultSpeedEdit = ui::DoubleEdit::create(context);
+            p.defaultSpeedEdit->setRange(math::DoubleRange(1.0, 120.0));
+
             p.threadsEdit = ui::IntEdit::create(context);
             p.threadsEdit->setRange(math::IntRange(1, 64));
 
@@ -221,10 +225,14 @@ namespace tl
             p.layout->setGridPos(label, 3, 0);
             p.maxDigitsEdit->setParent(p.layout);
             p.layout->setGridPos(p.maxDigitsEdit, 3, 1);
-            label = ui::Label::create("I/O threads:", context, p.layout);
+            label = ui::Label::create("Default FPS:", context, p.layout);
             p.layout->setGridPos(label, 4, 0);
+            p.defaultSpeedEdit->setParent(p.layout);
+            p.layout->setGridPos(p.defaultSpeedEdit, 4, 1);
+            label = ui::Label::create("I/O threads:", context, p.layout);
+            p.layout->setGridPos(label, 5, 0);
             p.threadsEdit->setParent(p.layout);
-            p.layout->setGridPos(p.threadsEdit, 4, 1);
+            p.layout->setGridPos(p.threadsEdit, 5, 1);
 
             _settingsUpdate(std::string());
 
@@ -259,6 +267,12 @@ namespace tl
                 [this](int value)
                 {
                     _p->settings->setValue("FileSequence/MaxDigits", value);
+                });
+
+            p.defaultSpeedEdit->setCallback(
+                [this](double value)
+                {
+                    _p->settings->setValue("SequenceIO/DefaultSpeed", value);
                 });
 
             p.threadsEdit->setCallback(
@@ -320,7 +334,12 @@ namespace tl
                 p.maxDigitsEdit->setValue(
                     p.settings->getValue<size_t>("FileSequence/MaxDigits"));
             }
-            if ("FileSequence/ThreadCount" == name || name.empty())
+            if ("SequenceIO/DefaultSpeed" == name || name.empty())
+            {
+                p.defaultSpeedEdit->setValue(
+                    p.settings->getValue<double>("SequenceIO/DefaultSpeed"));
+            }
+            if ("SequenceIO/ThreadCount" == name || name.empty())
             {
                 p.threadsEdit->setValue(
                     p.settings->getValue<size_t>("SequenceIO/ThreadCount"));

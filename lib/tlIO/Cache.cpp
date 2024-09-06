@@ -14,7 +14,21 @@ namespace tl
 {
     namespace io
     {
-        std::string getCacheKey(
+        std::string getInfoCacheKey(
+            const file::Path& path,
+            const Options& options)
+        {
+            std::vector<std::string> s;
+            s.push_back(path.get());
+            s.push_back(path.getNumber());
+            for (const auto& i : options)
+            {
+                s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
+            }
+            return string::join(s, ';');
+        }
+
+        std::string getVideoCacheKey(
             const file::Path& path,
             const otime::RationalTime& time,
             const Options& initOptions,
@@ -35,7 +49,7 @@ namespace tl
             return string::join(s, ';');
         }
 
-        std::string getCacheKey(
+        std::string getAudioCacheKey(
             const file::Path& path,
             const otime::TimeRange& timeRange,
             const Options& initOptions,

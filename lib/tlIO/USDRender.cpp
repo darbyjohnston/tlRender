@@ -563,7 +563,7 @@ namespace tl
                 io::VideoData videoData;
                 if (request && p.cache)
                 {
-                    const std::string cacheKey = io::getCacheKey(
+                    const std::string cacheKey = io::getVideoCacheKey(
                         request->path,
                         request->time,
                         ioOptions,
@@ -579,7 +579,7 @@ namespace tl
                 if (request)
                 {
                     std::shared_ptr<Private::DiskCacheItem> diskCacheItem;
-                    const std::string cacheKey = io::getCacheKey(
+                    const std::string cacheKey = io::getVideoCacheKey(
                         request->path,
                         request->time,
                         ioOptions,
@@ -630,7 +630,7 @@ namespace tl
                 if (request)
                 {
                     std::shared_ptr<image::Image> image;
-                    const std::string cacheKey = io::getCacheKey(
+                    const std::string cacheKey = io::getVideoCacheKey(
                         request->path,
                         request->time,
                         ioOptions,

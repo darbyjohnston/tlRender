@@ -381,7 +381,7 @@ namespace tl
                 io::VideoData videoData;
                 if (videoRequest && _cache)
                 {
-                    const std::string cacheKey = io::getCacheKey(
+                    const std::string cacheKey = io::getVideoCacheKey(
                         _path,
                         videoRequest->time,
                         _options,
@@ -422,7 +422,7 @@ namespace tl
                     
                     if (_cache)
                     {
-                        const std::string cacheKey = io::getCacheKey(
+                        const std::string cacheKey = io::getVideoCacheKey(
                             _path,
                             videoRequest->time,
                             _options,
@@ -500,7 +500,7 @@ namespace tl
                 io::AudioData audioData;
                 if (request && _cache)
                 {
-                    const std::string cacheKey = io::getCacheKey(
+                    const std::string cacheKey = io::getAudioCacheKey(
                         _path,
                         request->timeRange,
                         _options,
@@ -558,7 +558,7 @@ namespace tl
 
                     if (_cache)
                     {
-                        const std::string cacheKey = io::getCacheKey(
+                        const std::string cacheKey = io::getAudioCacheKey(
                             _path,
                             request->timeRange,
                             _options,
