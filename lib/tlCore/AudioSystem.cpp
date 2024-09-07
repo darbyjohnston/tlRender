@@ -8,6 +8,7 @@
 #include <tlCore/Error.h>
 #include <tlCore/LogSystem.h>
 #include <tlCore/String.h>
+#include <tlCore/StringFormat.h>
 
 #if defined(TLRENDER_AUDIO)
 #include <rtaudio/RtAudio.h>
@@ -257,10 +258,11 @@ namespace tl
                 for (unsigned int i = 0; i < rtDeviceCount; ++i)
                 {
                     const RtAudio::DeviceInfo rtInfo = p.rtAudio->getDeviceInfo(i);
-                    if (rtInfo.probed)
+                    if (rtInfo.probed &&
+                        (rtInfo.outputChannels > 0 || rtInfo.duplexChannels > 0))
                     {
                         DeviceInfo device;
-                        device.name = rtInfo.name;
+                        device.name = string::Format("{0}: {1}").arg(i).arg(rtInfo.name);
                         device.outputChannels = rtInfo.outputChannels;
                         device.inputChannels = rtInfo.inputChannels;
                         device.duplexChannels = rtInfo.duplexChannels;
