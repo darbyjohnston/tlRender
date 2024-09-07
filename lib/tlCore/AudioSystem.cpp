@@ -262,7 +262,8 @@ namespace tl
                         (rtInfo.outputChannels > 0 || rtInfo.duplexChannels > 0))
                     {
                         DeviceInfo device;
-                        device.name = string::Format("{0}: {1}").arg(i).arg(rtInfo.name);
+                        device.id = i;
+                        device.name = string::Format("{0}: {1}").arg(out.size()).arg(rtInfo.name);
                         device.outputChannels = rtInfo.outputChannels;
                         device.inputChannels = rtInfo.inputChannels;
                         device.duplexChannels = rtInfo.duplexChannels;

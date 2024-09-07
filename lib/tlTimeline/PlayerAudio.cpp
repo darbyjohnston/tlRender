@@ -181,7 +181,7 @@ namespace tl
                 if (i != devices.end())
                 {
                     audioInfo = i->outputInfo;
-                    deviceId = i - devices.begin();
+                    deviceId = i->id;
                 }
                 audioInfo.channelCount = getAudioChannelCount(
                     ioInfo.audio,
