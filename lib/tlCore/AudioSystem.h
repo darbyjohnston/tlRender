@@ -72,24 +72,24 @@ namespace tl
             std::shared_ptr<observer::IList<DeviceInfo> > observeDevices() const;
 
             //! Get the default audio output device.
-            int getDefaultOutputDevice() const;
+            std::string getDefaultOutputDevice() const;
 
             //! Observe the default audio ouput device.
-            std::shared_ptr<observer::IValue<int> > observeDefaultOutputDevice() const;
+            std::shared_ptr<observer::IValue<std::string> > observeDefaultOutputDevice() const;
 
             //! Get the default audio input device.
-            int getDefaultInputDevice() const;
+            std::string getDefaultInputDevice() const;
 
             //! Observe the default audio input device.
-            std::shared_ptr<observer::IValue<int> > observeDefaultInputDevice() const;
+            std::shared_ptr<observer::IValue<std::string> > observeDefaultInputDevice() const;
 
             void tick() override;
             std::chrono::milliseconds getTickTime() const override;
 
         private:
             std::vector<DeviceInfo> _getDevices();
-            int _getDefaultOutputDevice(const std::vector<DeviceInfo>&);
-            int _getDefaultInputDevice(const std::vector<DeviceInfo>&);
+            std::string _getDefaultOutputDevice(const std::vector<DeviceInfo>&);
+            std::string _getDefaultInputDevice(const std::vector<DeviceInfo>&);
 
             void _run();
 

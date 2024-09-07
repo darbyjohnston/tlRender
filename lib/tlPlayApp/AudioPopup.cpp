@@ -21,13 +21,15 @@ namespace tl
     {
         struct AudioPopup::Private
         {
+            std::vector<std::string> devices;
+
             std::shared_ptr<ui::IntEditSlider> volumeSlider;
             std::shared_ptr<ui::ComboBox> deviceComboBox;
             std::shared_ptr<ui::VerticalLayout> layout;
 
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ListObserver<std::string> > devicesObserver;
-            std::shared_ptr<observer::ValueObserver<int> > deviceObserver;
+            std::shared_ptr<observer::ValueObserver<std::string> > deviceObserver;
         };
 
         void AudioPopup::_init(
@@ -68,11 +70,15 @@ namespace tl
                 });
 
             p.deviceComboBox->setIndexCallback(
-                [appWeak](int value)
+                [this, appWeak](int value)
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getAudioModel()->setDevice(value);
+                        if (value >= 0 && value < _p->devices.size())
+                        {
+                            app->getAudioModel()->setDevice(
+                                0 == value ? std::string() : _p->devices[value]);
+                        }
                     }
                 });
 
@@ -87,14 +93,23 @@ namespace tl
                 app->getAudioModel()->observeDevices(),
                 [this](const std::vector<std::string>& value)
                 {
-                    _p->deviceComboBox->setItems(value);
+                    _p->devices.clear();
+                    _p->devices.push_back("Default");
+                    _p->devices.insert(_p->devices.end(), value.begin(), value.end());
+                    _p->deviceComboBox->setItems(_p->devices);
                 });
 
-            p.deviceObserver = observer::ValueObserver<int>::create(
+            p.deviceObserver = observer::ValueObserver<std::string>::create(
                 app->getAudioModel()->observeDevice(),
-                [this](int value)
+                [this](const std::string& value)
                 {
-                    _p->deviceComboBox->setCurrentIndex(value);
+                    int index = 0;
+                    const auto i = std::find(_p->devices.begin(), _p->devices.end(), value);
+                    if (i != _p->devices.end())
+                    {
+                        index = i - _p->devices.begin();
+                    }
+                    _p->deviceComboBox->setCurrentIndex(index);
                 });
         }
 

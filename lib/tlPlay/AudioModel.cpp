@@ -18,7 +18,7 @@ namespace tl
         {
             std::shared_ptr<Settings> settings;
             std::shared_ptr<observer::List<std::string> > devices;
-            std::shared_ptr<observer::Value<int> > device;
+            std::shared_ptr<observer::Value<std::string> > device;
             std::shared_ptr<observer::Value<float> > volume;
             std::shared_ptr<observer::Value<bool> > mute;
             std::shared_ptr<observer::Value<double> > syncOffset;
@@ -34,10 +34,7 @@ namespace tl
             p.settings = settings;
 
             p.devices = observer::List<std::string>::create();
-
-            auto audioSystem = context->getSystem<audio::System>();
-            const int device = audioSystem->getDefaultOutputDevice();
-            p.device = observer::Value<int>::create(device);
+            p.device = observer::Value<std::string>::create();
 
             p.settings->setDefaultValue("Audio/Volume", 1.F);
             p.volume = observer::Value<float>::create(
@@ -49,6 +46,7 @@ namespace tl
 
             p.syncOffset = observer::Value<double>::create(0.0);
 
+            auto audioSystem = context->getSystem<audio::System>();
             p.devicesObserver = observer::ListObserver<audio::DeviceInfo>::create(
                 audioSystem->observeDevices(),
                 [this](const std::vector<audio::DeviceInfo>& devices)
@@ -88,17 +86,17 @@ namespace tl
             return _p->devices;
         }
 
-        int AudioModel::getDevice() const
+        const std::string& AudioModel::getDevice() const
         {
             return _p->device->get();
         }
 
-        std::shared_ptr<observer::IValue<int> > AudioModel::observeDevice() const
+        std::shared_ptr<observer::IValue<std::string> > AudioModel::observeDevice() const
         {
             return _p->device;
         }
 
-        void AudioModel::setDevice(int value)
+        void AudioModel::setDevice(const std::string& value)
         {
             _p->device->setIfChanged(value);
         }

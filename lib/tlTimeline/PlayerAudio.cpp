@@ -13,17 +13,17 @@ namespace tl
 {
     namespace timeline
     {
-        int Player::getAudioDevice() const
+        const std::string& Player::getAudioDevice() const
         {
             return _p->audioDevice->get();
         }
 
-        std::shared_ptr<observer::IValue<int> > Player::observeAudioDevice() const
+        std::shared_ptr<observer::IValue<std::string> > Player::observeAudioDevice() const
         {
             return _p->audioDevice;
         }
 
-        void Player::setAudioDevice(int value)
+        void Player::setAudioDevice(const std::string& value)
         {
             TLRENDER_P();
             if (p.audioDevice->setIfChanged(value))
@@ -155,14 +155,33 @@ namespace tl
                 context->log("tl::timeline::Player", ss.str(), log::Type::Error);
             }
 
-            const int device = audioDevice->get();
-            if (rtAudio && device != -1)
+            std::string device = audioDevice->get();
+            if (rtAudio)
             {
                 auto audioSystem = context->getSystem<audio::System>();
-                const auto devices = audioSystem->getDevices();
-                if (device >= 0 && device < devices.size())
+                if (device.empty())
                 {
-                    audioInfo = devices[device].outputInfo;
+                    device = audioSystem->getDefaultOutputDevice();
+                }
+                {
+                    std::stringstream ss;
+                    ss << "Opening audio device: " << device << std::endl;
+                    context->log("tl::timeline::Player", ss.str());
+                }
+                const auto devices = audioSystem->getDevices();
+                const auto i = std::find_if(
+                    devices.begin(),
+                    devices.end(),
+                    [device](const audio::DeviceInfo& value)
+                    {
+                        return device == value.name;
+                    });
+                audioInfo = audio::Info();
+                unsigned int deviceId = 0;
+                if (i != devices.end())
+                {
+                    audioInfo = i->outputInfo;
+                    deviceId = i - devices.begin();
                 }
                 audioInfo.channelCount = getAudioChannelCount(
                     ioInfo.audio,
@@ -179,7 +198,7 @@ namespace tl
                     try
                     {
                         RtAudio::StreamParameters rtParameters;
-                        rtParameters.deviceId = device;
+                        rtParameters.deviceId = deviceId;
                         rtParameters.nChannels = audioInfo.channelCount;
                         unsigned int rtBufferFrames = playerOptions.audioBufferFrameCount;
                         rtAudio->openStream(

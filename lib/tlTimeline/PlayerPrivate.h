@@ -66,7 +66,7 @@ namespace tl
             std::shared_ptr<observer::Value<int> > videoLayer;
             std::shared_ptr<observer::List<int> > compareVideoLayers;
             std::shared_ptr<observer::List<VideoData> > currentVideoData;
-            std::shared_ptr<observer::Value<int> > audioDevice;
+            std::shared_ptr<observer::Value<std::string> > audioDevice;
             std::shared_ptr<observer::Value<float> > volume;
             std::shared_ptr<observer::Value<bool> > mute;
             std::shared_ptr<observer::Value<double> > audioOffset;
@@ -74,6 +74,7 @@ namespace tl
             std::shared_ptr<observer::Value<PlayerCacheOptions> > cacheOptions;
             std::shared_ptr<observer::Value<PlayerCacheInfo> > cacheInfo;
             std::shared_ptr<observer::ValueObserver<bool> > timelineObserver;
+            std::shared_ptr<observer::ValueObserver<std::string> > defaultAudioDeviceObserver;
 
 #if defined(TLRENDER_AUDIO)
             audio::Info audioInfo;

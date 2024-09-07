@@ -47,13 +47,13 @@ namespace tl
             std::shared_ptr<observer::IList<std::string> > observeDevices() const;
 
             //! Get the output device.
-            int getDevice() const;
+            const std::string& getDevice() const;
 
             //! Observe the output device.
-            std::shared_ptr<observer::IValue<int> > observeDevice() const;
+            std::shared_ptr<observer::IValue<std::string> > observeDevice() const;
 
             //! Set the output device.
-            void setDevice(int);
+            void setDevice(const std::string&);
 
             //! Get the volume.
             float getVolume() const;

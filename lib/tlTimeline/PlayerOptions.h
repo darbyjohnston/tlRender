@@ -39,7 +39,7 @@ namespace tl
         struct PlayerOptions
         {
             //! Audio device index.
-            int audioDevice = -1;
+            std::string audioDevice;
 
             //! Cache options.
             PlayerCacheOptions cache;
