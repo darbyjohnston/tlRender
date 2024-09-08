@@ -290,13 +290,13 @@ namespace tl
             ///@{
 
             //! Get the audio device.
-            const std::string& getAudioDevice() const;
+            const audio::DeviceID& getAudioDevice() const;
 
-            //! Observe the audio device.
-            std::shared_ptr<observer::IValue<std::string> > observeAudioDevice() const;
+            //! Observe the audio devices.
+            std::shared_ptr<observer::IValue<audio::DeviceID> > observeAudioDevice() const;
 
             //! Set the audio device.
-            void setAudioDevice(const std::string&);
+            void setAudioDevice(const audio::DeviceID&);
 
             //! Get the volume.
             float getVolume() const;

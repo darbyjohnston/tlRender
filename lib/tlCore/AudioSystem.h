@@ -13,6 +13,16 @@ namespace tl
 {
     namespace audio
     {
+        //! Audio device ID.
+        struct DeviceID
+        {
+            unsigned int number = 0;
+            std::string  name;
+
+            bool operator == (const DeviceID&) const;
+            bool operator != (const DeviceID&) const;
+        };
+
         //! Audio device format.
         enum class DeviceFormat
         {
@@ -32,8 +42,7 @@ namespace tl
         //! Audio device information.
         struct DeviceInfo
         {
-            unsigned int              id                  = 0;
-            std::string               name;
+            DeviceID                  id;
             unsigned int              outputChannels      = 0;
             unsigned int              inputChannels       = 0;
             unsigned int              duplexChannels      = 0;
@@ -73,24 +82,24 @@ namespace tl
             std::shared_ptr<observer::IList<DeviceInfo> > observeDevices() const;
 
             //! Get the default audio output device.
-            std::string getDefaultOutputDevice() const;
+            DeviceID getDefaultOutputDevice() const;
 
             //! Observe the default audio ouput device.
-            std::shared_ptr<observer::IValue<std::string> > observeDefaultOutputDevice() const;
+            std::shared_ptr<observer::IValue<DeviceID> > observeDefaultOutputDevice() const;
 
             //! Get the default audio input device.
-            std::string getDefaultInputDevice() const;
+            DeviceID getDefaultInputDevice() const;
 
             //! Observe the default audio input device.
-            std::shared_ptr<observer::IValue<std::string> > observeDefaultInputDevice() const;
+            std::shared_ptr<observer::IValue<DeviceID> > observeDefaultInputDevice() const;
 
             void tick() override;
             std::chrono::milliseconds getTickTime() const override;
 
         private:
             std::vector<DeviceInfo> _getDevices();
-            std::string _getDefaultOutputDevice(const std::vector<DeviceInfo>&);
-            std::string _getDefaultInputDevice(const std::vector<DeviceInfo>&);
+            DeviceID _getDefaultOutputDevice(const std::vector<DeviceInfo>&);
+            DeviceID _getDefaultInputDevice(const std::vector<DeviceInfo>&);
 
             void _run();
 

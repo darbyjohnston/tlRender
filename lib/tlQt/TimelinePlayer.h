@@ -78,7 +78,7 @@ namespace tl
                 READ currentVideo
                 NOTIFY currentVideoChanged)
             Q_PROPERTY(
-                std::string audioDevice
+                audio::DeviceID audioDevice
                 READ audioDevice
                 WRITE setAudioDevice
                 NOTIFY audioDeviceChanged)
@@ -227,7 +227,7 @@ namespace tl
             ///@{
 
             //! Get the audio device.
-            const std::string& audioDevice() const;
+            const audio::DeviceID& audioDevice() const;
 
             //! Get the audio volume.
             float volume() const;
@@ -358,7 +358,7 @@ namespace tl
             ///@{
 
             //! Set the audio device.
-            void setAudioDevice(const std::string&);
+            void setAudioDevice(const audio::DeviceID&);
 
             //! Set the audio volume.
             void setVolume(float);
@@ -437,7 +437,7 @@ namespace tl
             ///@{
 
             //! This signal is emitted when the audio device is changed.
-            void audioDeviceChanged(const std::string&);
+            void audioDeviceChanged(const audio::DeviceID&);
 
             //! This signal is emitted when the audio volume is changed.
             void volumeChanged(float);

@@ -21,15 +21,15 @@ namespace tl
     {
         struct AudioPopup::Private
         {
-            std::vector<std::string> devices;
+            std::vector<audio::DeviceID> devices;
 
             std::shared_ptr<ui::IntEditSlider> volumeSlider;
             std::shared_ptr<ui::ComboBox> deviceComboBox;
             std::shared_ptr<ui::VerticalLayout> layout;
 
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
-            std::shared_ptr<observer::ListObserver<std::string> > devicesObserver;
-            std::shared_ptr<observer::ValueObserver<std::string> > deviceObserver;
+            std::shared_ptr<observer::ListObserver<audio::DeviceID> > devicesObserver;
+            std::shared_ptr<observer::ValueObserver<audio::DeviceID> > deviceObserver;
         };
 
         void AudioPopup::_init(
@@ -77,7 +77,7 @@ namespace tl
                         if (value >= 0 && value < _p->devices.size())
                         {
                             app->getAudioModel()->setDevice(
-                                0 == value ? std::string() : _p->devices[value]);
+                                0 == value ? audio::DeviceID() : _p->devices[value]);
                         }
                     }
                 });
@@ -89,19 +89,25 @@ namespace tl
                     _p->volumeSlider->setValue(std::roundf(value * 100.F));
                 });
 
-            p.devicesObserver = observer::ListObserver<std::string>::create(
+            p.devicesObserver = observer::ListObserver<audio::DeviceID>::create(
                 app->getAudioModel()->observeDevices(),
-                [this](const std::vector<std::string>& value)
+                [this](const std::vector<audio::DeviceID>& devices)
                 {
                     _p->devices.clear();
-                    _p->devices.push_back("Default");
-                    _p->devices.insert(_p->devices.end(), value.begin(), value.end());
-                    _p->deviceComboBox->setItems(_p->devices);
+                    _p->devices.push_back(audio::DeviceID());
+                    _p->devices.insert(_p->devices.end(), devices.begin(), devices.end());
+                    std::vector<std::string> names;
+                    names.push_back("Default");
+                    for (const auto& device : devices)
+                    {
+                        names.push_back(device.name);
+                    }
+                    _p->deviceComboBox->setItems(names);
                 });
 
-            p.deviceObserver = observer::ValueObserver<std::string>::create(
+            p.deviceObserver = observer::ValueObserver<audio::DeviceID>::create(
                 app->getAudioModel()->observeDevice(),
-                [this](const std::string& value)
+                [this](const audio::DeviceID& value)
                 {
                     int index = 0;
                     const auto i = std::find(_p->devices.begin(), _p->devices.end(), value);

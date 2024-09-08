@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlCore/AudioSystem.h>
 #include <tlCore/Time.h>
 
 namespace tl
@@ -39,7 +40,7 @@ namespace tl
         struct PlayerOptions
         {
             //! Audio device index.
-            std::string audioDevice;
+            audio::DeviceID audioDevice;
 
             //! Cache options.
             PlayerCacheOptions cache;

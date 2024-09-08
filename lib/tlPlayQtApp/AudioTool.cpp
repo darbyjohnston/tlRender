@@ -21,12 +21,12 @@ namespace tl
     {
         struct AudioDeviceWidget::Private
         {
-            std::vector<std::string> devices;
+            std::vector<audio::DeviceID> devices;
 
             QComboBox* deviceComboBox = nullptr;
 
-            std::shared_ptr<observer::ListObserver<std::string> > audioDevicesObserver;
-            std::shared_ptr<observer::ValueObserver<std::string> > audioDeviceObserver;
+            std::shared_ptr<observer::ListObserver<audio::DeviceID> > audioDevicesObserver;
+            std::shared_ptr<observer::ValueObserver<audio::DeviceID> > audioDeviceObserver;
         };
 
         AudioDeviceWidget::AudioDeviceWidget(App* app, QWidget* parent) :
@@ -49,27 +49,34 @@ namespace tl
                     if (value >= 0 && value < _p->devices.size())
                     {
                         app->audioModel()->setDevice(
-                            0 == value ? std::string() : _p->devices[value]);
+                            0 == value ? audio::DeviceID() : _p->devices[value]);
                     }
                 });
 
-            p.audioDevicesObserver = observer::ListObserver<std::string>::create(
+            p.audioDevicesObserver = observer::ListObserver<audio::DeviceID>::create(
                 app->audioModel()->observeDevices(),
-                [this](const std::vector<std::string>& devices)
+                [this](const std::vector<audio::DeviceID>& devices)
                 {
                     _p->devices.clear();
-                    _p->devices.push_back("Default");
+                    _p->devices.push_back(audio::DeviceID());
                     _p->devices.insert(_p->devices.end(), devices.begin(), devices.end());
+                    std::vector<std::string> names;
+                    names.push_back("Default");
+                    for (const auto& device : devices)
+                    {
+                        names.push_back(device.name);
+                    }
                     const QSignalBlocker blocker(_p->deviceComboBox);
                     _p->deviceComboBox->clear();
-                    for (const auto& device : _p->devices)
+                    for (const auto& name : names)
                     {
-                        _p->deviceComboBox->addItem(QString::fromUtf8(device.c_str()));
+                        _p->deviceComboBox->addItem(QString::fromUtf8(name.c_str()));
                     }
                 });
-            p.audioDeviceObserver = observer::ValueObserver<std::string>::create(
+
+            p.audioDeviceObserver = observer::ValueObserver<audio::DeviceID>::create(
                 app->audioModel()->observeDevice(),
-                [this](const std::string& value)
+                [this](const audio::DeviceID &value)
                 {
                     int index = 0;
                     const auto i = std::find(_p->devices.begin(), _p->devices.end(), value);

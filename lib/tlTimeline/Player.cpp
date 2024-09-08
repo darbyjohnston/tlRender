@@ -10,8 +10,6 @@
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
-#include <tlCore/AudioSystem.h>
-
 namespace tl
 {
     namespace timeline
@@ -84,7 +82,7 @@ namespace tl
             p.videoLayer = observer::Value<int>::create(0);
             p.compareVideoLayers = observer::List<int>::create();
             p.currentVideoData = observer::List<VideoData>::create();
-            p.audioDevice = observer::Value<std::string>::create(playerOptions.audioDevice);
+            p.audioDevice = observer::Value<audio::DeviceID>::create(playerOptions.audioDevice);
             p.volume = observer::Value<float>::create(1.F);
             p.mute = observer::Value<bool>::create(false);
             p.audioOffset = observer::Value<double>::create(0.0);
@@ -102,13 +100,13 @@ namespace tl
                     }
                 });
             auto audioSystem = context->getSystem<audio::System>();
-            p.defaultAudioDeviceObserver = observer::ValueObserver<std::string>::create(
+            p.defaultAudioDeviceObserver = observer::ValueObserver<audio::DeviceID>::create(
                 audioSystem->observeDefaultOutputDevice(),
-                [weak](const std::string&)
+                [weak](const audio::DeviceID&)
                 {
                     if (auto player = weak.lock())
                     {
-                        if (player->_p->audioDevice->get().empty())
+                        if (audio::DeviceID() == player->_p->audioDevice->get())
                         {
                             if (auto context = player->getContext().lock())
                             {
