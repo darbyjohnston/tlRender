@@ -101,7 +101,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
             std::shared_ptr<observer::ValueObserver<size_t> > recentFilesMaxObserver;
             std::shared_ptr<observer::ListObserver<file::Path> > recentFilesObserver;
-            std::shared_ptr<observer::ValueObserver<int> > audioDeviceObserver;
+            std::shared_ptr<observer::ValueObserver<audio::DeviceID> > audioDeviceObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ValueObserver<double> > syncOffsetObserver;
@@ -534,9 +534,9 @@ namespace tl
                     _p->settings->setValue("Files/Recent", fileNames);
                 });
 
-            p.audioDeviceObserver = observer::ValueObserver<int>::create(
+            p.audioDeviceObserver = observer::ValueObserver<audio::DeviceID>::create(
                 p.audioModel->observeDevice(),
-                [this](int value)
+                [this](const audio::DeviceID& value)
                 {
                     if (auto player = _p->player)
                     {
@@ -940,7 +940,7 @@ namespace tl
                 {
                     if (p.player)
                     {
-                        p.player->setAudioDevice(-1);
+                        p.player->setAudioDevice(audio::DeviceID());
                     }
                     auto i = std::find(p.files.begin(), p.files.end(), activeFiles[0]);
                     if (i != p.files.end())

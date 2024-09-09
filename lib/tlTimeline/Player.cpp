@@ -10,8 +10,6 @@
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
-#include <tlCore/AudioSystem.h>
-
 namespace tl
 {
     namespace timeline
@@ -69,15 +67,6 @@ namespace tl
             p.timeline = timeline;
             p.ioInfo = p.timeline->getIOInfo();
 
-            // Get the audio device.
-            int audioDevice = -1;
-            audioDevice = playerOptions.audioDevice;
-            if (-1 == audioDevice)
-            {
-                auto audioSystem = context->getSystem<audio::System>();
-                audioDevice = audioSystem->getDefaultOutputDevice();
-            }
-
             // Create observers.
             p.speed = observer::Value<double>::create(p.timeline->getTimeRange().duration().rate());
             p.playback = observer::Value<Playback>::create(Playback::Stop);
@@ -93,7 +82,7 @@ namespace tl
             p.videoLayer = observer::Value<int>::create(0);
             p.compareVideoLayers = observer::List<int>::create();
             p.currentVideoData = observer::List<VideoData>::create();
-            p.audioDevice = observer::Value<int>::create(audioDevice);
+            p.audioDevice = observer::Value<audio::DeviceID>::create(playerOptions.audioDevice);
             p.volume = observer::Value<float>::create(1.F);
             p.mute = observer::Value<bool>::create(false);
             p.audioOffset = observer::Value<double>::create(0.0);
@@ -108,6 +97,22 @@ namespace tl
                     if (auto player = weak.lock())
                     {
                         player->clearCache();
+                    }
+                });
+            auto audioSystem = context->getSystem<audio::System>();
+            p.defaultAudioDeviceObserver = observer::ValueObserver<audio::DeviceID>::create(
+                audioSystem->observeDefaultOutputDevice(),
+                [weak](const audio::DeviceID&)
+                {
+                    if (auto player = weak.lock())
+                    {
+                        if (audio::DeviceID() == player->_p->audioDevice->get())
+                        {
+                            if (auto context = player->getContext().lock())
+                            {
+                                player->_p->audioInit(context);
+                            }
+                        }
                     }
                 });
 
