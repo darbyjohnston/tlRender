@@ -8,6 +8,7 @@
 #include <tlCore/Error.h>
 #include <tlCore/LogSystem.h>
 #include <tlCore/String.h>
+#include <tlCore/StringFormat.h>
 
 #if defined(TLRENDER_AUDIO)
 #include <rtaudio/RtAudio.h>
@@ -23,6 +24,18 @@ namespace tl
 {
     namespace audio
     {
+        bool DeviceID::operator == (const DeviceID& other) const
+        {
+            return
+                number == other.number &&
+                name == other.name;
+        }
+
+        bool DeviceID::operator != (const DeviceID& other) const
+        {
+            return !(*this == other);
+        }
+
         TLRENDER_ENUM_IMPL(
             DeviceFormat,
             "S8",
@@ -36,7 +49,7 @@ namespace tl
         bool DeviceInfo::operator == (const DeviceInfo& other) const
         {
             return
-                name == other.name &&
+                id == other.id &&
                 outputChannels == other.outputChannels &&
                 inputChannels == other.inputChannels &&
                 duplexChannels == other.duplexChannels &&
@@ -59,22 +72,22 @@ namespace tl
 #endif // TLRENDER_AUDIO
             std::vector<std::string> apis;
             std::shared_ptr<observer::List<DeviceInfo> > devices;
-            std::shared_ptr<observer::Value<int> > defaultOutputDevice;
-            std::shared_ptr<observer::Value<int> > defaultInputDevice;
+            std::shared_ptr<observer::Value<DeviceID> > defaultOutputDevice;
+            std::shared_ptr<observer::Value<DeviceID> > defaultInputDevice;
 
             struct Mutex
             {
                 std::vector<DeviceInfo> devices;
-                int defaultOutputDevice = -1;
-                int defaultInputDevice = -1;
+                DeviceID defaultOutputDevice;
+                DeviceID defaultInputDevice;
                 std::mutex mutex;
             };
             Mutex mutex;
             struct Thread
             {
                 std::vector<DeviceInfo> devices;
-                int defaultOutputDevice = -1;
-                int defaultInputDevice = -1;
+                DeviceID defaultOutputDevice;
+                DeviceID defaultInputDevice;
                 std::thread thread;
                 std::atomic<bool> running;
             };
@@ -122,12 +135,12 @@ namespace tl
 #endif // TLRENDER_AUDIO
 
             const std::vector<DeviceInfo> devices = _getDevices();
-            const int defaultOutputDevice = _getDefaultOutputDevice(devices);
-            const int defaultInputDevice = _getDefaultInputDevice(devices);
+            const DeviceID defaultOutputDevice = _getDefaultOutputDevice(devices);
+            const DeviceID defaultInputDevice = _getDefaultInputDevice(devices);
 
             p.devices = observer::List<DeviceInfo>::create(devices);
-            p.defaultOutputDevice = observer::Value<int>::create(defaultOutputDevice);
-            p.defaultInputDevice = observer::Value<int>::create(defaultInputDevice);
+            p.defaultOutputDevice = observer::Value<DeviceID>::create(defaultOutputDevice);
+            p.defaultInputDevice = observer::Value<DeviceID>::create(defaultInputDevice);
 
             p.mutex.devices = devices;
             p.mutex.defaultOutputDevice = defaultOutputDevice;
@@ -189,22 +202,22 @@ namespace tl
             return _p->devices;
         }
 
-        int System::getDefaultOutputDevice() const
+        DeviceID System::getDefaultOutputDevice() const
         {
             return _p->defaultOutputDevice->get();
         }
 
-        std::shared_ptr<observer::IValue<int> > System::observeDefaultOutputDevice() const
+        std::shared_ptr<observer::IValue<DeviceID> > System::observeDefaultOutputDevice() const
         {
             return _p->defaultOutputDevice;
         }
 
-        int System::getDefaultInputDevice() const
+        DeviceID System::getDefaultInputDevice() const
         {
             return _p->defaultInputDevice->get();
         }
 
-        std::shared_ptr<observer::IValue<int> > System::observeDefaultInputDevice() const
+        std::shared_ptr<observer::IValue<DeviceID> > System::observeDefaultInputDevice() const
         {
             return _p->defaultInputDevice;
         }
@@ -213,8 +226,8 @@ namespace tl
         {
             TLRENDER_P();
             std::vector<DeviceInfo> devices;
-            int defaultOutputDevice = -1;
-            int defaultInputDevice = -1;
+            DeviceID defaultOutputDevice;
+            DeviceID defaultInputDevice;
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                 devices = p.mutex.devices;
@@ -257,10 +270,12 @@ namespace tl
                 for (unsigned int i = 0; i < rtDeviceCount; ++i)
                 {
                     const RtAudio::DeviceInfo rtInfo = p.rtAudio->getDeviceInfo(i);
-                    if (rtInfo.probed)
+                    if (rtInfo.probed &&
+                        (rtInfo.outputChannels > 0 || rtInfo.duplexChannels > 0))
                     {
                         DeviceInfo device;
-                        device.name = rtInfo.name;
+                        device.id.number = i;
+                        device.id.name = rtInfo.name;
                         device.outputChannels = rtInfo.outputChannels;
                         device.inputChannels = rtInfo.inputChannels;
                         device.duplexChannels = rtInfo.duplexChannels;
@@ -336,17 +351,21 @@ namespace tl
             return out;
         }
 
-        int System::_getDefaultOutputDevice(const std::vector<DeviceInfo>& devices)
+        DeviceID System::_getDefaultOutputDevice(const std::vector<DeviceInfo>& devices)
         {
             TLRENDER_P();
-            int out = -1;
+            DeviceID out;
 #if defined(TLRENDER_AUDIO)
             try
             {
-                unsigned int tmp = p.rtAudio->getDefaultOutputDevice();
-                if (tmp < devices.size() && devices[tmp].outputChannels > 0)
+                unsigned int id = p.rtAudio->getDefaultOutputDevice();
+                for (size_t i = 0; i < devices.size(); ++i)
                 {
-                    out = tmp;
+                    if (id == devices[i].id.number)
+                    {
+                        out = devices[i].id;
+                        break;
+                    }
                 }
             }
             catch (const std::exception& e)
@@ -359,17 +378,21 @@ namespace tl
             return out;
         }
 
-        int System::_getDefaultInputDevice(const std::vector<DeviceInfo>& devices)
+        DeviceID System::_getDefaultInputDevice(const std::vector<DeviceInfo>& devices)
         {
             TLRENDER_P();
-            int out = -1;
+            DeviceID out;
 #if defined(TLRENDER_AUDIO)
             try
             {
-                unsigned int tmp = p.rtAudio->getDefaultInputDevice();
-                if (tmp < devices.size() && devices[tmp].inputChannels > 0)
+                unsigned int id = p.rtAudio->getDefaultInputDevice();
+                for (size_t i = 0; i < devices.size(); ++i)
                 {
-                    out = tmp;
+                    if (id == devices[i].id.number)
+                    {
+                        out = devices[i].id;
+                        break;
+                    }
                 }
             }
             catch (const std::exception& e)
@@ -388,8 +411,8 @@ namespace tl
 #if defined(TLRENDER_AUDIO)
 
             const std::vector<DeviceInfo> devices = _getDevices();
-            const int defaultOutputDevice = _getDefaultOutputDevice(devices);
-            const int defaultInputDevice = _getDefaultInputDevice(devices);
+            const DeviceID defaultOutputDevice = _getDefaultOutputDevice(devices);
+            const DeviceID defaultInputDevice = _getDefaultInputDevice(devices);
 
             if (devices != p.thread.devices)
             {
@@ -402,7 +425,7 @@ namespace tl
                     const auto& device = devices[i];
                     {
                         std::stringstream ss;
-                        ss << "    Device " << i << ": " << device.name;
+                        ss << "    Device " << i << ": " << device.id.name;
                         log.push_back(ss.str());
                     }
                     {
@@ -445,7 +468,9 @@ namespace tl
                 p.thread.defaultOutputDevice = defaultOutputDevice;
 
                 std::stringstream ss;
-                ss << "    Default output device: " << defaultOutputDevice;
+                ss << "    Default output device: " <<
+                    defaultOutputDevice.number << " " <<
+                    defaultOutputDevice.name;
                 _log(ss.str());
             }
             if (defaultInputDevice != p.thread.defaultInputDevice)
@@ -453,7 +478,9 @@ namespace tl
                 p.thread.defaultInputDevice = defaultInputDevice;
 
                 std::stringstream ss;
-                ss << "    Default input device: " << defaultInputDevice;
+                ss << "    Default input device: " <<
+                    defaultInputDevice.number << " " <<
+                    defaultInputDevice.name;
                 _log(ss.str());
             }
 

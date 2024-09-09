@@ -21,10 +21,12 @@ namespace tl
     {
         struct AudioDeviceWidget::Private
         {
+            std::vector<audio::DeviceID> devices;
+
             QComboBox* deviceComboBox = nullptr;
 
-            std::shared_ptr<observer::ListObserver<std::string> > audioDevicesObserver;
-            std::shared_ptr<observer::ValueObserver<int> > audioDeviceObserver;
+            std::shared_ptr<observer::ListObserver<audio::DeviceID> > audioDevicesObserver;
+            std::shared_ptr<observer::ValueObserver<audio::DeviceID> > audioDeviceObserver;
         };
 
         AudioDeviceWidget::AudioDeviceWidget(App* app, QWidget* parent) :
@@ -42,28 +44,48 @@ namespace tl
             connect(
                 p.deviceComboBox,
                 QOverload<int>::of(&QComboBox::currentIndexChanged),
-                [app](int value)
+                [this, app](int value)
                 {
-                    app->audioModel()->setDevice(value);
-                });
-
-            p.audioDevicesObserver = observer::ListObserver<std::string>::create(
-                app->audioModel()->observeDevices(),
-                [this](const std::vector<std::string>& devices)
-                {
-                    const QSignalBlocker blocker(_p->deviceComboBox);
-                    _p->deviceComboBox->clear();
-                    for (const auto& device : devices)
+                    if (value >= 0 && value < _p->devices.size())
                     {
-                        _p->deviceComboBox->addItem(QString::fromUtf8(device.c_str()));
+                        app->audioModel()->setDevice(
+                            0 == value ? audio::DeviceID() : _p->devices[value]);
                     }
                 });
-            p.audioDeviceObserver = observer::ValueObserver<int>::create(
-                app->audioModel()->observeDevice(),
-                [this](int value)
+
+            p.audioDevicesObserver = observer::ListObserver<audio::DeviceID>::create(
+                app->audioModel()->observeDevices(),
+                [this](const std::vector<audio::DeviceID>& devices)
                 {
+                    _p->devices.clear();
+                    _p->devices.push_back(audio::DeviceID());
+                    _p->devices.insert(_p->devices.end(), devices.begin(), devices.end());
+                    std::vector<std::string> names;
+                    names.push_back("Default");
+                    for (const auto& device : devices)
+                    {
+                        names.push_back(device.name);
+                    }
                     const QSignalBlocker blocker(_p->deviceComboBox);
-                    _p->deviceComboBox->setCurrentIndex(value);
+                    _p->deviceComboBox->clear();
+                    for (const auto& name : names)
+                    {
+                        _p->deviceComboBox->addItem(QString::fromUtf8(name.c_str()));
+                    }
+                });
+
+            p.audioDeviceObserver = observer::ValueObserver<audio::DeviceID>::create(
+                app->audioModel()->observeDevice(),
+                [this](const audio::DeviceID &value)
+                {
+                    int index = 0;
+                    const auto i = std::find(_p->devices.begin(), _p->devices.end(), value);
+                    if (i != _p->devices.end())
+                    {
+                        index = i - _p->devices.begin();
+                    }
+                    const QSignalBlocker blocker(_p->deviceComboBox);
+                    _p->deviceComboBox->setCurrentIndex(index);
                 });
         }
 

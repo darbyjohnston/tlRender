@@ -43,6 +43,7 @@ namespace tl
 
             qRegisterMetaType<audio::DataType>("tl::audio::DataType");
             qRegisterMetaType<audio::DeviceFormat>("tl::audio::DeviceFormat");
+            qRegisterMetaType<audio::DeviceID>("tl::audio::DeviceID");
             qRegisterMetaType<audio::DeviceInfo>("tl::audio::DeviceInfo");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<audio::DataType>();

@@ -97,17 +97,19 @@ namespace tl
             for (const auto& i : system->getDevices())
             {
                 std::stringstream ss;
-                ss << "device: " << i.name;
+                ss << "device: " << i.id.number << " " << i.id.name;
                 _print(ss.str());
             }
             {
                 std::stringstream ss;
-                ss << "default input device: " << system->getDefaultInputDevice();
+                const DeviceID id = system->getDefaultInputDevice();
+                ss << "default input device: " << id.number << " " << id.name;
                 _print(ss.str());
             }
             {
                 std::stringstream ss;
-                ss << "default output device: " << system->getDefaultOutputDevice();
+                const DeviceID id = system->getDefaultOutputDevice();
+                ss << "default output device: " << id.number << " " << id.name;
                 _print(ss.str());
             }
         }

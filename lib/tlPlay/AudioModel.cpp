@@ -17,8 +17,8 @@ namespace tl
         struct AudioModel::Private
         {
             std::shared_ptr<Settings> settings;
-            std::shared_ptr<observer::List<std::string> > devices;
-            std::shared_ptr<observer::Value<int> > device;
+            std::shared_ptr<observer::List<audio::DeviceID> > devices;
+            std::shared_ptr<observer::Value<audio::DeviceID> > device;
             std::shared_ptr<observer::Value<float> > volume;
             std::shared_ptr<observer::Value<bool> > mute;
             std::shared_ptr<observer::Value<double> > syncOffset;
@@ -33,11 +33,8 @@ namespace tl
 
             p.settings = settings;
 
-            p.devices = observer::List<std::string>::create();
-
-            auto audioSystem = context->getSystem<audio::System>();
-            const int device = audioSystem->getDefaultOutputDevice();
-            p.device = observer::Value<int>::create(device);
+            p.devices = observer::List<audio::DeviceID>::create();
+            p.device = observer::Value<audio::DeviceID>::create();
 
             p.settings->setDefaultValue("Audio/Volume", 1.F);
             p.volume = observer::Value<float>::create(
@@ -49,16 +46,17 @@ namespace tl
 
             p.syncOffset = observer::Value<double>::create(0.0);
 
+            auto audioSystem = context->getSystem<audio::System>();
             p.devicesObserver = observer::ListObserver<audio::DeviceInfo>::create(
                 audioSystem->observeDevices(),
                 [this](const std::vector<audio::DeviceInfo>& devices)
                 {
-                    std::vector<std::string> names;
+                    std::vector<audio::DeviceID> ids;
                     for (const auto& device : devices)
                     {
-                        names.push_back(device.name);
+                        ids.push_back(device.id);
                     }
-                    _p->devices->setIfChanged(names);
+                    _p->devices->setIfChanged(ids);
                 });
         }
 
@@ -78,27 +76,27 @@ namespace tl
             return out;
         }
 
-        const std::vector<std::string>& AudioModel::getDevices()
+        const std::vector<audio::DeviceID>& AudioModel::getDevices()
         {
             return _p->devices->get();
         }
 
-        std::shared_ptr<observer::IList<std::string> > AudioModel::observeDevices() const
+        std::shared_ptr<observer::IList<audio::DeviceID> > AudioModel::observeDevices() const
         {
             return _p->devices;
         }
 
-        int AudioModel::getDevice() const
+        const audio::DeviceID& AudioModel::getDevice() const
         {
             return _p->device->get();
         }
 
-        std::shared_ptr<observer::IValue<int> > AudioModel::observeDevice() const
+        std::shared_ptr<observer::IValue<audio::DeviceID> > AudioModel::observeDevice() const
         {
             return _p->device;
         }
 
-        void AudioModel::setDevice(int value)
+        void AudioModel::setDevice(const audio::DeviceID& value)
         {
             _p->device->setIfChanged(value);
         }
