@@ -398,7 +398,6 @@ namespace tl
                         audioDataP.size(),
                         tmp->getData(),
                         volume,
-                        Playback::Reverse == playback,
                         size,
                         p->ioInfo.audio.channelCount,
                         p->ioInfo.audio.dataType);

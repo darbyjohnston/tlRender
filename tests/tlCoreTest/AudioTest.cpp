@@ -153,7 +153,6 @@ namespace tl
                     2,
                     reinterpret_cast<uint8_t*>(result.data()),
                     1.F,
-                    false,
                     in0.size(),
                     1,
                     DT);
@@ -197,7 +196,6 @@ namespace tl
                     2,
                     reinterpret_cast<uint8_t*>(result.data()),
                     1.F,
-                    false,
                     in0.size(),
                     1,
                     DT);
@@ -242,17 +240,16 @@ namespace tl
                     2,
                     reinterpret_cast<uint8_t*>(result.data()),
                     1.F,
-                    true,
                     in0.size() / 2,
                     2,
                     DataType::S8);
                 const std::vector<int8_t> out =
                 {
-                    8, 8,
-                    6, 6,
-                    4, 4,
+                    0, 0,
                     2, 2,
-                    0, 0
+                    4, 4,
+                    6, 6,
+                    8, 8
                 };
                 TLRENDER_ASSERT(out == result);
             }

@@ -423,7 +423,6 @@ namespace tl
                         audioDataP.size(),
                         tmpAudio->getData(),
                         mute ? 0.F : volume,
-                        timeline::Playback::Reverse == p.audioThread.playback,
                         size,
                         inputInfo.channelCount,
                         inputInfo.dataType);

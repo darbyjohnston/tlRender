@@ -118,19 +118,12 @@ namespace tl
                 size_t inCount,
                 uint8_t* out,
                 float volume,
-                bool reverse,
                 size_t sampleCount,
                 size_t channelCount)
             {
                 const T** inP = reinterpret_cast<const T**>(in);
                 T* outP = reinterpret_cast<T*>(out);
-                int outInc = channelCount;
-                if (reverse && sampleCount)
-                {
-                    outP += (sampleCount - 1) * channelCount;
-                    outInc = -channelCount;
-                }
-                for (size_t i = 0; i < sampleCount; ++i, outP += outInc)
+                for (size_t i = 0; i < sampleCount; ++i, outP += channelCount)
                 {
                     for (size_t j = 0; j < channelCount; ++j)
                     {
@@ -152,19 +145,12 @@ namespace tl
                 size_t inCount,
                 uint8_t* out,
                 float volume,
-                bool reverse,
                 size_t sampleCount,
                 size_t channelCount)
             {
                 const T** inP = reinterpret_cast<const T**>(in);
                 T* outP = reinterpret_cast<T*>(out);
-                int outInc = channelCount;
-                if (reverse && sampleCount)
-                {
-                    outP += (sampleCount - 1) * channelCount;
-                    outInc = -channelCount;
-                }
-                for (size_t i = 0; i < sampleCount; ++i, outP += outInc)
+                for (size_t i = 0; i < sampleCount; ++i, outP += channelCount)
                 {
                     for (size_t j = 0; j < channelCount; ++j)
                     {
@@ -184,7 +170,6 @@ namespace tl
             size_t inCount,
             uint8_t* out,
             float volume,
-            bool reverse,
             size_t sampleCount,
             size_t channelCount,
             DataType type)
@@ -192,19 +177,88 @@ namespace tl
             switch (type)
             {
             case DataType::S8:
-                mixI<int8_t, int16_t>(in, inCount, out, volume, reverse, sampleCount, channelCount);
+                mixI<int8_t, int16_t>(in, inCount, out, volume, sampleCount, channelCount);
                 break;
             case DataType::S16:
-                mixI<int16_t, int32_t>(in, inCount, out, volume, reverse, sampleCount, channelCount);
+                mixI<int16_t, int32_t>(in, inCount, out, volume, sampleCount, channelCount);
                 break;
             case DataType::S32:
-                mixI<int32_t, int64_t>(in, inCount, out, volume, reverse, sampleCount, channelCount);
+                mixI<int32_t, int64_t>(in, inCount, out, volume, sampleCount, channelCount);
                 break;
             case DataType::F32:
-                mixF<float>(in, inCount, out, volume, reverse, sampleCount, channelCount);
+                mixF<float>(in, inCount, out, volume, sampleCount, channelCount);
                 break;
             case DataType::F64:
-                mixF<double>(in, inCount, out, volume, reverse, sampleCount, channelCount);
+                mixF<double>(in, inCount, out, volume, sampleCount, channelCount);
+                break;
+            default: break;
+            }
+        }
+
+        namespace
+        {
+            template<typename T>
+            void reverseI(
+                const uint8_t* in,
+                uint8_t* out,
+                size_t         sampleCount,
+                size_t         channelCount)
+            {
+                const T* inP = reinterpret_cast<const T*>(in) +
+                    (sampleCount - 1) * channelCount;
+                T* outP = reinterpret_cast<T*>(out);
+                for (size_t i = 0; i < sampleCount; ++i, inP -= channelCount, outP += channelCount)
+                {
+                    for (size_t j = 0; j < channelCount; ++j)
+                    {
+                        outP[j] = inP[j];
+                    }
+                }
+            }
+
+            template<typename T>
+            void reverseF(
+                const uint8_t* in,
+                uint8_t* out,
+                size_t         sampleCount,
+                size_t         channelCount)
+            {
+                const T* inP = reinterpret_cast<const T*>(in) +
+                    (sampleCount - 1) * channelCount;
+                T* outP = reinterpret_cast<T*>(out);
+                for (size_t i = 0; i < sampleCount; ++i, inP -= channelCount, outP += channelCount)
+                {
+                    for (size_t j = 0; j < channelCount; ++j)
+                    {
+                        outP[j] = inP[j];
+                    }
+                }
+            }
+        }
+
+        void reverse(
+            const uint8_t* in,
+            uint8_t*       out,
+            size_t         sampleCount,
+            size_t         channelCount,
+            DataType       dataType)
+        {
+            switch (dataType)
+            {
+            case DataType::S8:
+                reverseI<int8_t>(in, out, sampleCount, channelCount);
+                break;
+            case DataType::S16:
+                reverseI<int16_t>(in, out, sampleCount, channelCount);
+                break;
+            case DataType::S32:
+                reverseI<int32_t>(in, out, sampleCount, channelCount);
+                break;
+            case DataType::F32:
+                reverseF<float>(in, out, sampleCount, channelCount);
+                break;
+            case DataType::F64:
+                reverseF<double>(in, out, sampleCount, channelCount);
                 break;
             default: break;
             }
