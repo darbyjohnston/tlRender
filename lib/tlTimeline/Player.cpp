@@ -233,18 +233,10 @@ namespace tl
             TLRENDER_P();
             if (p.speed->setIfChanged(value))
             {
-                if (p.playback->get() != Playback::Stop)
-                {
-                    {
-                        std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                        p.mutex.playbackStartTime = p.currentTime->get();
-                        p.mutex.playbackStartTimer = std::chrono::steady_clock::now();
-                    }
-                    p.resetAudioTime();
-                }
                 {
                     std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                     p.audioMutex.speed = value;
+                    p.audioReset(p.currentTime->get());
                 }
             }
         }
@@ -312,15 +304,16 @@ namespace tl
                     {
                         std::unique_lock<std::mutex> lock(p.mutex.mutex);
                         p.mutex.playback = value;
-                        p.mutex.playbackStartTime = p.currentTime->get();
-                        p.mutex.playbackStartTimer = std::chrono::steady_clock::now();
                         p.mutex.currentTime = p.currentTime->get();
                         p.mutex.cacheDirection = Playback::Forward == value ?
                             CacheDirection::Forward :
                             CacheDirection::Reverse;
                         p.mutex.clearRequests = true;
                     }
-                    p.resetAudioTime();
+                    {
+                        std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                        p.audioReset(p.currentTime->get());
+                    }
                 }
                 else
                 {
@@ -371,19 +364,15 @@ namespace tl
                 //std::cout << "seek: " << tmp << std::endl;
 
                 // Update playback.
-                if (p.playback->get() != Playback::Stop)
-                {
-                    std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                    p.mutex.playbackStartTime = tmp;
-                    p.mutex.playbackStartTimer = std::chrono::steady_clock::now();
-                }
-
                 {
                     std::unique_lock<std::mutex> lock(p.mutex.mutex);
                     p.mutex.currentTime = tmp;
                     p.mutex.clearRequests = true;
                 }
-                p.resetAudioTime();
+                {
+                    std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                    p.audioReset(p.currentTime->get());
+                }
             }
         }
 
@@ -677,44 +666,29 @@ namespace tl
 
             // Calculate the current time.
             const auto& timeRange = p.timeline->getTimeRange();
+            const double timelineSpeed = timeRange.duration().rate();
             const auto playback = p.playback->get();
-            if (playback != Playback::Stop)
+            if (playback != Playback::Stop && timelineSpeed > 0.0)
             {
-                const double timelineSpeed = timeRange.duration().rate();
-                const double speed = p.speed->get();
-
-                otime::RationalTime playbackStartTime = time::invalidTime;
-                std::chrono::steady_clock::time_point playbackStartTimer;
+                int64_t start = 0;
+                int64_t frame = 0;
                 {
-                    std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                    playbackStartTime = p.mutex.playbackStartTime;
-                    playbackStartTimer = p.mutex.playbackStartTimer;
+                    std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                    start = p.audioMutex.start;
+                    frame = p.audioMutex.frame;
                 }
-                double seconds = 0.0;
-#if defined(TLRENDER_AUDIO)
-                if (p.rtAudio &&
-                    p.rtAudio->isStreamRunning() &&
-                    TimerMode::Audio == p.playerOptions.timerMode &&
-                    math::fuzzyCompare(timelineSpeed, speed))
+                int64_t t = start;
+                if (Playback::Forward == playback)
                 {
-                    seconds = p.rtAudio->getStreamTime();
+                    t += frame * p.speed->get() / timelineSpeed;
                 }
                 else
-#endif // TLRENDER_AUDIO
                 {
-                    const auto now = std::chrono::steady_clock::now();
-                    const std::chrono::duration<double> diff = now - playbackStartTimer;
-                    seconds = diff.count() * (speed / timelineSpeed);
-                }
-                if (Playback::Reverse == playback)
-                {
-                    seconds = -seconds;
+                    t -= frame * p.speed->get() / timelineSpeed;
                 }
                 const otime::RationalTime currentTime = p.loopPlayback(
-                    playbackStartTime +
-                    otime::RationalTime(seconds, 1.0).
-                        rescaled_to(timeRange.duration().rate()).
-                        floor());
+                    otime::RationalTime(t, p.ioInfo.audio.sampleRate).rescaled_to(p.speed->get()).
+                    floor());
                 //const double currentTimeDiff = abs(currentTime.value() - p.currentTime->get().value());
                 if (p.currentTime->setIfChanged(currentTime))
                 {
@@ -798,20 +772,16 @@ namespace tl
                     }
                     else if (p.thread.playback != Playback::Stop)
                     {
+                        if (!timeRange.contains(p.thread.currentTime))
                         {
                             std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                            p.mutex.playbackStartTime = p.thread.currentTime;
-                            p.mutex.playbackStartTimer = std::chrono::steady_clock::now();
-                            if (!timeRange.contains(p.thread.currentTime))
-                            {
-                                p.mutex.currentVideoData.clear();
-                            }
+                            p.mutex.currentVideoData.clear();
                         }
-                        p.resetAudioTime();
                         {
                             const auto now = std::chrono::steady_clock::now();
                             std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                             p.audioMutex.muteTimeout = now + p.playerOptions.muteTimeout;
+                            p.audioReset(p.currentTime->get());
                         }
                     }
                     else

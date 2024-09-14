@@ -110,6 +110,27 @@ namespace tl
             std::memset(_data.data(), 0, getByteCount());
         }
 
+        std::shared_ptr<audio::Audio> combine(const std::list<std::shared_ptr<audio::Audio> >& chunks)
+        {
+            std::shared_ptr<audio::Audio> out;
+            size_t size = 0;
+            for (const auto& chunk : chunks)
+            {
+                size += chunk->getSampleCount();
+            }
+            if (size > 0)
+            {
+                out = audio::Audio::create(chunks.front()->getInfo(), size);
+                uint8_t* p = out->getData();
+                for (const auto& chunk : chunks)
+                {
+                    memcpy(p, chunk->getData(), chunk->getByteCount());
+                    p += chunk->getByteCount();
+                }
+            }
+            return out;
+        }
+
         namespace
         {
             template<typename T, typename TI>

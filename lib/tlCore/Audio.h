@@ -178,6 +178,11 @@ namespace tl
         //! \name Utility
         ///@{
 
+        //! Combine chunks of audio. The chunks should all have the same
+        //! number of channels and type.
+        std::shared_ptr<audio::Audio> combine(
+            const std::list<std::shared_ptr<audio::Audio> >&);
+
         //! Mix audio sources.
         void mix(
             const uint8_t** in,

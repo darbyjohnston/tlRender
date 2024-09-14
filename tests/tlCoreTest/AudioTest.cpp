@@ -31,7 +31,9 @@ namespace tl
             _types();
             _audio();
             _audioSystem();
+            _combine();
             _mix();
+            _reverse();
             _convert();
             _interleave();
             _move();
@@ -112,6 +114,25 @@ namespace tl
                 ss << "default output device: " << id.number << " " << id.name;
                 _print(ss.str());
             }
+        }
+
+        void AudioTest::_combine()
+        {
+            std::list<std::shared_ptr<Audio> > list;
+            auto audio = Audio::create(Info(1, DataType::S8, 41000), 1);
+            audio->getData()[0] = 1;
+            list.push_back(audio);
+            audio = Audio::create(Info(1, DataType::S8, 41000), 1);
+            audio->getData()[0] = 2;
+            list.push_back(audio);
+            audio = Audio::create(Info(1, DataType::S8, 41000), 1);
+            audio->getData()[0] = 3;
+            list.push_back(audio);
+            auto combined = combine(list);
+            TLRENDER_ASSERT(3 == combined->getSampleCount());
+            TLRENDER_ASSERT(1 == combined->getData()[0]);
+            TLRENDER_ASSERT(2 == combined->getData()[1]);
+            TLRENDER_ASSERT(3 == combined->getData()[2]);
         }
 
         namespace
@@ -253,6 +274,19 @@ namespace tl
                 };
                 TLRENDER_ASSERT(out == result);
             }
+        }
+
+        void AudioTest::_reverse()
+        {
+            auto audio = Audio::create(Info(1, DataType::S8, 41000), 3);
+            audio->getData()[0] = 1;
+            audio->getData()[1] = 2;
+            audio->getData()[2] = 3;
+            auto reversed = Audio::create(Info(1, DataType::S8, 41000), 3);
+            reverse(audio->getData(), reversed->getData(), 3, 1, DataType::S8);
+            TLRENDER_ASSERT(3 == reversed->getData()[0]);
+            TLRENDER_ASSERT(2 == reversed->getData()[1]);
+            TLRENDER_ASSERT(1 == reversed->getData()[2]);
         }
 
         void AudioTest::_convert()

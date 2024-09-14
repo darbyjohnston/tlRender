@@ -21,6 +21,7 @@ namespace tl
         inline bool PlayerOptions::operator == (const PlayerOptions& other) const
         {
             return
+                audioDevice == other.audioDevice &&
                 cache == other.cache &&
                 timerMode == other.timerMode &&
                 audioBufferFrameCount == other.audioBufferFrameCount &&

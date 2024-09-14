@@ -25,12 +25,8 @@ namespace tl
                 out = timeline::loop(out, range, &looped);
                 if (looped)
                 {
-                    {
-                        std::unique_lock<std::mutex> lock(mutex.mutex);
-                        mutex.playbackStartTime = out;
-                        mutex.playbackStartTimer = std::chrono::steady_clock::now();
-                    }
-                    resetAudioTime();
+                    std::unique_lock<std::mutex> lock(audioMutex.mutex);
+                    audioReset(out);
                 }
                 break;
             }
@@ -69,13 +65,14 @@ namespace tl
                     {
                         std::unique_lock<std::mutex> lock(mutex.mutex);
                         mutex.playback = Playback::Forward;
-                        mutex.playbackStartTime = out;
-                        mutex.playbackStartTimer = std::chrono::steady_clock::now();
-                        mutex.currentTime = currentTime->get();
+                        mutex.currentTime = out;
                         mutex.clearRequests = true;
                         mutex.cacheDirection = CacheDirection::Forward;
                     }
-                    resetAudioTime();
+                    {
+                        std::unique_lock<std::mutex> lock(audioMutex.mutex);
+                        audioReset(out);
+                    }
                 }
                 else if (out > range.end_time_inclusive() && Playback::Forward == playbackValue)
                 {
@@ -84,13 +81,14 @@ namespace tl
                     {
                         std::unique_lock<std::mutex> lock(mutex.mutex);
                         mutex.playback = Playback::Reverse;
-                        mutex.playbackStartTime = out;
-                        mutex.playbackStartTimer = std::chrono::steady_clock::now();
-                        mutex.currentTime = currentTime->get();
+                        mutex.currentTime = out;
                         mutex.clearRequests = true;
                         mutex.cacheDirection = CacheDirection::Reverse;
                     }
-                    resetAudioTime();
+                    {
+                        std::unique_lock<std::mutex> lock(audioMutex.mutex);
+                        audioReset(out);
+                    }
                 }
                 break;
             }

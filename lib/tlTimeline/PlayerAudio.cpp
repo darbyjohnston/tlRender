@@ -6,6 +6,7 @@
 
 #include <tlTimeline/Util.h>
 
+#include <tlCore/Assert.h>
 #include <tlCore/StringFormat.h>
 
 namespace tl
@@ -221,6 +222,13 @@ namespace tl
 #endif // TLRENDER_AUDIO
         }
 
+        void Player::Private::audioReset(const otime::RationalTime& time)
+        {
+            audioMutex.reset = true;
+            audioMutex.start = time.rescaled_to(ioInfo.audio.sampleRate).value();
+            audioMutex.frame = 0;
+        }
+
         size_t Player::Private::getAudioChannelCount(
             const audio::Info& input,
             const audio::Info& output)
@@ -231,28 +239,6 @@ namespace tl
                 out = output.channelCount;
             }
             return out;
-        }
-
-        void Player::Private::resetAudioTime()
-        {
-            {
-                std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                audioMutex.reset = true;
-            }
-#if defined(TLRENDER_AUDIO)
-            if (rtAudio &&
-                rtAudio->isStreamRunning())
-            {
-                try
-                {
-                    rtAudio->setStreamTime(0.0);
-                }
-                catch (const std::exception&)
-                {
-                    //! \todo How should this be handled?
-                }
-            }
-#endif // TLRENDER_AUDIO
         }
 
 #if defined(TLRENDER_AUDIO)
@@ -268,13 +254,11 @@ namespace tl
             
             // Get mutex protected values.
             Playback playback = Playback::Stop;
-            otime::RationalTime playbackStartTime = time::invalidTime;
             otime::RationalTime currentTime = time::invalidTime;
             double audioOffset = 0.0;
             {
                 std::unique_lock<std::mutex> lock(p->mutex.mutex);
                 playback = p->mutex.playback;
-                playbackStartTime = p->mutex.playbackStartTime;
                 currentTime = p->mutex.currentTime;
                 audioOffset = p->mutex.audioOffset;
             }
@@ -283,6 +267,8 @@ namespace tl
             bool mute = false;
             std::chrono::steady_clock::time_point muteTimeout;
             bool reset = false;
+            int64_t start = 0;
+            int64_t frame = 0;
             {
                 std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
                 speed = p->audioMutex.speed;
@@ -291,30 +277,27 @@ namespace tl
                 muteTimeout = p->audioMutex.muteTimeout;
                 reset = p->audioMutex.reset;
                 p->audioMutex.reset = false;
+                start = p->audioMutex.start;
+                frame = p->audioMutex.frame;
             }
             //std::cout << "playback: " << playback << std::endl;
             //std::cout << "playbackStartTime: " << playbackStartTime << std::endl;
             //std::cout << "reset: " << reset << std::endl;
 
             // Check if the timers should be initialized.
+            const audio::Info& inputInfo = p->ioInfo.audio;
             if (playback != p->audioThread.playback ||
                 speed != p->audioThread.speed ||
                 reset)
             {
                 p->audioThread.playback = playback;
                 p->audioThread.speed = speed;
-                {
-                    std::unique_lock<std::mutex> lock(p->mutex.mutex);
-                    p->mutex.playbackStartTime = currentTime;
-                    p->mutex.playbackStartTimer = std::chrono::steady_clock::now();
-                }
             }
 
             // Zero output audio data.
             const audio::Info& outputInfo = p->audioThread.info;
             std::memset(outputBuffer, 0, nFrames * outputInfo.getByteCount());
 
-            const audio::Info& inputInfo = p->ioInfo.audio;
             if (playback != Playback::Stop && inputInfo.sampleRate > 0)
             {
                 // Flush the audio resampler and buffer when the RtAudio
@@ -326,7 +309,6 @@ namespace tl
                         p->audioThread.resample->flush();
                     }
                     p->audioThread.buffer.clear();
-                    p->audioThread.rtAudioCurrentFrame = 0;
                 }
 
                 // Create the audio resampler.
@@ -338,85 +320,113 @@ namespace tl
                         p->audioThread.info);
                 }
 
-                // Calculate the audio frame.
-                const int64_t playbackStartFrame =
-                    playbackStartTime.rescaled_to(inputInfo.sampleRate).value() -
-                    p->timeline->getTimeRange().start_time().rescaled_to(inputInfo.sampleRate).value() -
-                    otime::RationalTime(audioOffset, 1.0).rescaled_to(inputInfo.sampleRate).value();
-                const int64_t playbackStartFrameOffset = otime::RationalTime(
-                    p->audioThread.rtAudioCurrentFrame + audio::getSampleCount(p->audioThread.buffer),
-                    p->audioThread.info.sampleRate).rescaled_to(inputInfo.sampleRate).value();
-
-                // Fill the audio buffer.
-                const size_t bufferSizeMax = std::max(
-                    static_cast<size_t>(nFrames),
-                    p->playerOptions.audioBufferFrameCount);
-                int64_t fillSize = bufferSizeMax - audio::getSampleCount(p->audioThread.buffer);
-                int64_t frame = Playback::Forward == playback ?
-                    (playbackStartFrame + playbackStartFrameOffset) :
-                    (playbackStartFrame - playbackStartFrameOffset - fillSize);
-                int64_t seconds = frame / inputInfo.sampleRate;
-                int64_t offset = frame - seconds * inputInfo.sampleRate;
-                while (audio::getSampleCount(p->audioThread.buffer) < bufferSizeMax &&
-                    p->running)
+                // Get audio from the cache.
+                const int64_t bufferSize = getSampleCount(p->audioThread.buffer);
+                int64_t size = otio::RationalTime(
+                    nFrames * 2 - bufferSize,
+                    outputInfo.sampleRate).
+                    rescaled_to(inputInfo.sampleRate).value();
+                int64_t t = start;
+                if (Playback::Forward == playback)
                 {
-                    // Get audio from the cache.
-                    AudioData audioData;
-                    bool found = false;
+                    t += frame;
+                }
+                else
+                {
+                    t -= frame;
+                }
+                int64_t seconds = t / inputInfo.sampleRate;
+                int64_t offset = t - (seconds * inputInfo.sampleRate);
+                if (Playback::Forward == playback)
+                {
+                    size = std::min(
+                        size,
+                        static_cast<int64_t>(inputInfo.sampleRate) - offset);
+                }
+                else
+                {
+                    const int64_t tmp = t;
+                    t -= size;
+                    if (t < (seconds * inputInfo.sampleRate))
                     {
-                        std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
-                        auto j = p->audioMutex.audioDataCache.find(seconds);
-                        if (j != p->audioMutex.audioDataCache.end())
+                        if (tmp == (seconds * inputInfo.sampleRate))
                         {
-                            audioData = j->second;
-                            found = true;
+                            --seconds;
+                            offset = t - (seconds * inputInfo.sampleRate);
+                        }
+                        else
+                        {
+                            size = tmp - (seconds * inputInfo.sampleRate);
+                            offset = 0;
                         }
                     }
-                    if (!found)
+                    else
                     {
-                        break;
+                        offset = t - (seconds * inputInfo.sampleRate);
                     }
+                }
+                AudioData audioData;
+                bool found = false;
+                {
+                    std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
+                    auto j = p->audioMutex.audioDataCache.find(seconds);
+                    if (j != p->audioMutex.audioDataCache.end())
+                    {
+                        audioData = j->second;
+                        found = true;
+                    }
+                }
 
+                if (found)
+                {
                     // Mix the audio layers.
-                    std::vector<const uint8_t*> audioDataP;
+                    std::vector<const uint8_t*> audioLayerP;
                     for (const auto& layer : audioData.layers)
                     {
                         if (layer.audio && layer.audio->getInfo() == p->ioInfo.audio)
                         {
-                            audioDataP.push_back(
+                            audioLayerP.push_back(
                                 layer.audio->getData() +
                                 offset * inputInfo.getByteCount());
                         }
                     }
-                    const int64_t size = std::min(
-                        fillSize,
-                        static_cast<int64_t>(inputInfo.sampleRate - offset));
-                    auto tmp = audio::Audio::create(inputInfo, size);
-                    tmp->zero();
+                    auto audio = audio::Audio::create(inputInfo, size);
+                    audio->zero();
+                    const auto now = std::chrono::steady_clock::now();
+                    if (mute ||
+                        now < muteTimeout ||
+                        speed != p->timeline->getTimeRange().duration().rate())
+                    {
+                        volume = 0.F;
+                    }
                     audio::mix(
-                        audioDataP.data(),
-                        audioDataP.size(),
-                        tmp->getData(),
+                        audioLayerP.data(),
+                        audioLayerP.size(),
+                        audio->getData(),
                         volume,
                         size,
-                        p->ioInfo.audio.channelCount,
-                        p->ioInfo.audio.dataType);
+                        inputInfo.channelCount,
+                        inputInfo.dataType);
+
+                    // Reverse the audio if necessary.
+                    if (Playback::Reverse == playback)
+                    {
+                        auto tmp = audio::Audio::create(inputInfo, audio->getSampleCount());
+                        audio::reverse(
+                            audio->getData(),
+                            tmp->getData(),
+                            size,
+                            audio->getChannelCount(),
+                            audio->getDataType());
+                        audio = tmp;
+                    }
 
                     // Resample the audio and add it to the buffer.
-                    p->audioThread.buffer.push_back(p->audioThread.resample->process(tmp));
-
-                    fillSize -= size;
-                    frame += size;
-                    seconds = frame / inputInfo.sampleRate;
-                    offset = frame - seconds * inputInfo.sampleRate;
+                    p->audioThread.buffer.push_back(p->audioThread.resample->process(audio));
                 }
 
                 // Send audio data to RtAudio.
-                const auto now = std::chrono::steady_clock::now();
-                if (speed == p->timeline->getTimeRange().duration().rate() &&
-                    !mute &&
-                    now >= muteTimeout &&
-                    nFrames <= getSampleCount(p->audioThread.buffer))
+                if (nFrames <= getSampleCount(p->audioThread.buffer))
                 {
                     audio::move(
                         p->audioThread.buffer,
@@ -424,8 +434,11 @@ namespace tl
                         nFrames);
                 }
 
-                // Update the audio frame.
-                p->audioThread.rtAudioCurrentFrame += nFrames;
+                // Update the frame counter.
+                {
+                    std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
+                    p->audioMutex.frame += size;
+                }
             }
 
             return 0;

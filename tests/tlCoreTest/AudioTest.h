@@ -25,7 +25,9 @@ namespace tl
             void _types();
             void _audio();
             void _audioSystem();
+            void _combine();
             void _mix();
+            void _reverse();
             void _convert();
             void _interleave();
             void _move();

@@ -32,10 +32,10 @@ namespace tl
             void cacheUpdate();
 
             void audioInit(const std::shared_ptr<system::Context>&);
+            void audioReset(const otime::RationalTime&);
             static size_t getAudioChannelCount(
                 const audio::Info& input,
                 const audio::Info& output);
-            void resetAudioTime();
 #if defined(TLRENDER_AUDIO)
             static int rtAudioCallback(
                 void* outputBuffer,
@@ -86,8 +86,6 @@ namespace tl
             struct Mutex
             {
                 Playback playback = Playback::Stop;
-                otime::RationalTime playbackStartTime = time::invalidTime;
-                std::chrono::steady_clock::time_point playbackStartTimer;
                 otime::RationalTime currentTime = time::invalidTime;
                 otime::TimeRange inOutRange = time::invalidTimeRange;
                 std::vector<std::shared_ptr<Timeline> > compare;
@@ -138,6 +136,8 @@ namespace tl
                 std::chrono::steady_clock::time_point muteTimeout;
                 std::map<int64_t, AudioData> audioDataCache;
                 bool reset = false;
+                int64_t start = 0;
+                int64_t frame = 0;
                 std::mutex mutex;
             };
             AudioMutex audioMutex;
@@ -150,7 +150,6 @@ namespace tl
                 std::shared_ptr<audio::AudioResample> resample;
                 std::list<std::shared_ptr<audio::Audio> > buffer;
                 std::shared_ptr<audio::Audio> silence;
-                size_t rtAudioCurrentFrame = 0;
             };
             AudioThread audioThread;
         };

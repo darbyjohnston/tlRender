@@ -49,7 +49,7 @@ namespace tl
             TimerMode timerMode = TimerMode::System;
 
             //! Audio buffer frame count.
-            size_t audioBufferFrameCount = 2048;
+            size_t audioBufferFrameCount = 10 * 1024;
 
             //! Timeout for muting the audio when playback stutters.
             std::chrono::milliseconds muteTimeout = std::chrono::milliseconds(500);
