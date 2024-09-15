@@ -367,6 +367,7 @@ namespace tl
                 }
                 AudioData audioData;
                 bool found = false;
+                if (size >= 0 && seconds >= 0 && offset >= 0)
                 {
                     std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
                     auto j = p->audioMutex.audioDataCache.find(seconds);
