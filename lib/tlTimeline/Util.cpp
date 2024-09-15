@@ -8,7 +8,6 @@
 
 #include <tlIO/System.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/Error.h>
 #include <tlCore/FileInfo.h>
 #include <tlCore/String.h>
@@ -121,40 +120,26 @@ namespace tl
             CacheDirection direction)
         {
             std::vector<otime::TimeRange> out;
-            const otime::RationalTime min = std::min(value.duration(), range.duration());
             switch (direction)
             {
             case CacheDirection::Forward:
-                if (value.start_time() < range.start_time())
+                if (value.duration() > range.duration())
                 {
-                    const otime::TimeRange a(range.start_time(), min);
-                    TLRENDER_ASSERT(a.duration() == min);
-                    out.push_back(a);
+                    out.push_back(range);
                 }
-                else if (value.start_time() > range.end_time_inclusive())
+                else if (value.start_time() < range.start_time())
                 {
-                    const otime::TimeRange a(range.end_time_exclusive() - min, min);
-                    TLRENDER_ASSERT(a.duration() == min);
-                    out.push_back(a);
+                    const otime::RationalTime a(range.start_time() - value.start_time());
+                    const otime::RationalTime b(value.end_time_exclusive() - range.start_time());
+                    out.push_back(otime::TimeRange(range.start_time(), b));
+                    out.push_back(otime::TimeRange(range.end_time_exclusive() - a, a));
                 }
-                else if (value.end_time_inclusive() > range.end_time_exclusive())
+                else if (value.end_time_inclusive() > range.end_time_inclusive())
                 {
-                    const otime::TimeRange clamped(value.start_time(), min);
-                    const otime::TimeRange a = otime::TimeRange::range_from_start_end_time_inclusive(
-                        clamped.start_time(),
-                        range.end_time_inclusive());
-                    const otime::TimeRange b = otime::TimeRange(
-                        range.start_time(),
-                        clamped.duration() - a.duration());
-                    TLRENDER_ASSERT(a.duration() + b.duration() == min);
-                    if (a.duration().value() > 0.0)
-                    {
-                        out.push_back(a);
-                    }
-                    if (b.duration().value() > 0.0)
-                    {
-                        out.push_back(b);
-                    }
+                    const otime::RationalTime a(range.end_time_exclusive() - value.start_time());
+                    const otime::RationalTime b(value.end_time_exclusive() - range.end_time_exclusive());
+                    out.push_back(otime::TimeRange(value.start_time(), a));
+                    out.push_back(otime::TimeRange(range.start_time(), b));
                 }
                 else
                 {
@@ -162,38 +147,23 @@ namespace tl
                 }
                 break;
             case CacheDirection::Reverse:
-                if (value.end_time_inclusive() > range.end_time_inclusive())
+                if (value.duration() > range.duration())
                 {
-                    const otime::TimeRange a(range.end_time_exclusive() - min, min);
-                    out.push_back(a);
-                    TLRENDER_ASSERT(a.duration() == min);
-                }
-                else if (value.end_time_inclusive() < range.start_time())
-                {
-                    const otime::TimeRange a(range.start_time(), min);
-                    out.push_back(a);
-                    TLRENDER_ASSERT(a.duration() == min);
+                    out.push_back(range);
                 }
                 else if (value.start_time() < range.start_time())
                 {
-                    const otime::TimeRange clamped = otime::TimeRange::range_from_start_end_time_inclusive(
-                        value.end_time_exclusive() - min,
-                        value.end_time_inclusive());
-                    const otime::TimeRange a = otime::TimeRange::range_from_start_end_time_inclusive(
-                        range.start_time(),
-                        clamped.end_time_inclusive());
-                    const otime::TimeRange b = otime::TimeRange::range_from_start_end_time_inclusive(
-                        range.end_time_exclusive() - (clamped.duration() - a.duration()),
-                        range.end_time_inclusive());
-                    TLRENDER_ASSERT(a.duration() + b.duration() == min);
-                    if (a.duration().value() > 0.0)
-                    {
-                        out.push_back(a);
-                    }
-                    if (b.duration().value() > 0.0)
-                    {
-                        out.push_back(b);
-                    }
+                    const otime::RationalTime a(range.start_time() - value.start_time());
+                    const otime::RationalTime b(value.end_time_exclusive() - range.start_time());
+                    out.push_back(otime::TimeRange(range.start_time(), b));
+                    out.push_back(otime::TimeRange(range.end_time_exclusive() - a, a));
+                }
+                else if (value.end_time_inclusive() > range.end_time_inclusive())
+                {
+                    const otime::RationalTime a(range.end_time_exclusive() - value.start_time());
+                    const otime::RationalTime b(value.end_time_exclusive() - range.end_time_exclusive());
+                    out.push_back(otime::TimeRange(range.start_time(), b));
+                    out.push_back(otime::TimeRange(value.start_time(), a));
                 }
                 else
                 {

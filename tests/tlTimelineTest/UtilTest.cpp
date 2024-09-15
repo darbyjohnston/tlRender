@@ -32,6 +32,7 @@ namespace tl
             _enums();
             _extensions();
             _ranges();
+            _loop();
             _util();
             _otioz();
         }
@@ -135,6 +136,142 @@ namespace tl
                 TLRENDER_ASSERT(2 == r.size());
                 TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(0, 24), otime::RationalTime(2, 24)) == r[0]);
                 TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(3, 24), otime::RationalTime(2, 24)) == r[1]);
+            }
+        }
+
+        void UtilTest::_loop()
+        {
+            {
+                const otio::TimeRange timeRange(
+                    otio::RationalTime(0.0, 24.0),
+                    otio::RationalTime(24.0, 24.0));
+                bool looped = false;
+                otio::RationalTime t = loop(
+                    otio::RationalTime(0.0, 24.0),
+                    timeRange,
+                    &looped);
+                TLRENDER_ASSERT(otio::RationalTime(0.0, 24.0) == t);
+                TLRENDER_ASSERT(!looped);
+                t = loop(
+                    otio::RationalTime(24.0, 24.0),
+                    timeRange,
+                    &looped);
+                TLRENDER_ASSERT(otio::RationalTime(0.0, 24.0) == t);
+                TLRENDER_ASSERT(looped);
+                t = loop(
+                    otio::RationalTime(-1.0, 24.0),
+                    timeRange,
+                    &looped);
+                TLRENDER_ASSERT(otio::RationalTime(23.0, 24.0) == t);
+                TLRENDER_ASSERT(looped);
+            }
+            {
+                const otio::TimeRange timeRange(
+                    otio::RationalTime(0.0, 24.0),
+                    otio::RationalTime(24.0, 24.0));
+                otio::TimeRange cacheRange(
+                    otio::RationalTime(0.0, 24.0),
+                    otio::RationalTime(12.0, 24.0));
+                auto result = loopCache(
+                    cacheRange,
+                    timeRange,
+                    CacheDirection::Forward);
+                TLRENDER_ASSERT(result == std::vector<otime::TimeRange>({
+                    cacheRange }));
+
+                cacheRange = otio::TimeRange(
+                    otio::RationalTime(-1.0, 24.0),
+                    otio::RationalTime(12.0, 24.0));
+                result = loopCache(
+                    cacheRange,
+                    timeRange,
+                    CacheDirection::Forward);
+                TLRENDER_ASSERT(result == std::vector<otime::TimeRange>({
+                    otio::TimeRange(
+                        otio::RationalTime(0.0, 24.0),
+                        otio::RationalTime(11.0, 24.0)),
+                    otio::TimeRange(
+                        otio::RationalTime(23.0, 24.0),
+                        otio::RationalTime(1.0, 24.0)) }));
+
+                cacheRange = otio::TimeRange(
+                    otio::RationalTime(13.0, 24.0),
+                    otio::RationalTime(12.0, 24.0));
+                result = loopCache(
+                    cacheRange,
+                    timeRange,
+                    CacheDirection::Forward);
+                TLRENDER_ASSERT(result == std::vector<otime::TimeRange>({
+                    otio::TimeRange(
+                        otio::RationalTime(13.0, 24.0),
+                        otio::RationalTime(11.0, 24.0)),
+                    otio::TimeRange(
+                        otio::RationalTime(0.0, 24.0),
+                        otio::RationalTime(1.0, 24.0)) }));
+
+                cacheRange = otio::TimeRange(
+                    otio::RationalTime(-1.0, 24.0),
+                    otio::RationalTime(26.0, 24.0));
+                result = loopCache(
+                    cacheRange,
+                    timeRange,
+                    CacheDirection::Forward);
+                TLRENDER_ASSERT(result == std::vector<otime::TimeRange>({
+                    timeRange }));
+            }
+            {
+                const otio::TimeRange timeRange(
+                    otio::RationalTime(0.0, 24.0),
+                    otio::RationalTime(24.0, 24.0));
+                otio::TimeRange cacheRange(
+                    otio::RationalTime(12.0, 24.0),
+                    otio::RationalTime(12.0, 24.0));
+                auto result = loopCache(
+                    cacheRange,
+                    timeRange,
+                    CacheDirection::Reverse);
+                TLRENDER_ASSERT(result == std::vector<otime::TimeRange>({
+                    cacheRange }));
+
+                cacheRange = otio::TimeRange(
+                    otio::RationalTime(13.0, 24.0),
+                    otio::RationalTime(12.0, 24.0));
+                result = loopCache(
+                    cacheRange,
+                    timeRange,
+                    CacheDirection::Reverse);
+                TLRENDER_ASSERT(result == std::vector<otime::TimeRange>({
+                    otio::TimeRange(
+                        otio::RationalTime(0.0, 24.0),
+                        otio::RationalTime(1.0, 24.0)),
+                    otio::TimeRange(
+                        otio::RationalTime(13.0, 24.0),
+                        otio::RationalTime(11.0, 24.0)) }));
+
+                cacheRange = otio::TimeRange(
+                    otio::RationalTime(-1.0, 24.0),
+                    otio::RationalTime(12.0, 24.0));
+                result = loopCache(
+                    cacheRange,
+                    timeRange,
+                    CacheDirection::Reverse);
+                TLRENDER_ASSERT(result == std::vector<otime::TimeRange>({
+                    otio::TimeRange(
+                        otio::RationalTime(0.0, 24.0),
+                        otio::RationalTime(11.0, 24.0)),
+                    otio::TimeRange(
+                        otio::RationalTime(23.0, 24.0),
+                        otio::RationalTime(1.0, 24.0)) }));
+
+                cacheRange = otio::TimeRange(
+                    otio::RationalTime(-1.0, 24.0),
+                    otio::RationalTime(26.0, 24.0));
+                result = loopCache(
+                    cacheRange,
+                    timeRange,
+                    CacheDirection::Reverse);
+                TLRENDER_ASSERT(result == std::vector<otime::TimeRange>({
+                    timeRange }));
             }
         }
 
