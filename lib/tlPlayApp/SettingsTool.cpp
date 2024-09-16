@@ -769,7 +769,7 @@ namespace tl
             p.timerComboBox->setHStretch(ui::Stretch::Expanding);
 
             p.audioBufferFramesEdit = ui::IntEdit::create(context);
-            p.audioBufferFramesEdit->setRange(math::IntRange(1024, 4096));
+            p.audioBufferFramesEdit->setRange(math::IntRange(1, 1000000));
             p.audioBufferFramesEdit->setStep(256);
             p.audioBufferFramesEdit->setLargeStep(1024);
 
