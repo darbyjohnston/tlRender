@@ -11,18 +11,6 @@ namespace tl
 {
     namespace timeline
     {
-        //! Timer modes.
-        enum class TimerMode
-        {
-            System,
-            Audio,
-
-            Count,
-            First = System
-        };
-        TLRENDER_ENUM(TimerMode);
-        TLRENDER_ENUM_SERIALIZE(TimerMode);
-
         //! Timeline player cache options.
         struct PlayerCacheOptions
         {
@@ -44,9 +32,6 @@ namespace tl
 
             //! Cache options.
             PlayerCacheOptions cache;
-
-            //! Timer mode.
-            TimerMode timerMode = TimerMode::System;
 
             //! Audio buffer frame count.
             size_t audioBufferFrameCount = 100;

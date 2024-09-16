@@ -42,5 +42,4 @@ Q_DECLARE_METATYPE(tl::timeline::Loop);
 Q_DECLARE_METATYPE(tl::timeline::Playback);
 Q_DECLARE_METATYPE(tl::timeline::TimeAction);
 Q_DECLARE_METATYPE(tl::timeline::TimeUnits);
-Q_DECLARE_METATYPE(tl::timeline::TimerMode);
 Q_DECLARE_METATYPE(tl::timeline::Transition);

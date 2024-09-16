@@ -745,7 +745,6 @@ namespace tl
         {
             std::shared_ptr<play::Settings> settings;
 
-            std::shared_ptr<ui::ComboBox> timerComboBox;
             std::shared_ptr<ui::IntEdit> audioBufferFramesEdit;
             std::shared_ptr<ui::IntEdit> videoRequestsEdit;
             std::shared_ptr<ui::IntEdit> audioRequestsEdit;
@@ -764,10 +763,6 @@ namespace tl
 
             p.settings = app->getSettings();
 
-            p.timerComboBox = ui::ComboBox::create(
-                timeline::getTimerModeLabels(), context);
-            p.timerComboBox->setHStretch(ui::Stretch::Expanding);
-
             p.audioBufferFramesEdit = ui::IntEdit::create(context);
             p.audioBufferFramesEdit->setRange(math::IntRange(1, 1000000));
             p.audioBufferFramesEdit->setStep(256);
@@ -785,22 +780,18 @@ namespace tl
             auto label = ui::Label::create("Changes are applied to new files.", context, p.layout);
             auto gridLayout = ui::GridLayout::create(context, p.layout);
             gridLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            label = ui::Label::create("Timer mode:", context, gridLayout);
-            gridLayout->setGridPos(label, 0, 0);
-            p.timerComboBox->setParent(gridLayout);
-            gridLayout->setGridPos(p.timerComboBox, 0, 1);
             label = ui::Label::create("Audio buffer frames:", context, gridLayout);
-            gridLayout->setGridPos(label, 1, 0);
+            gridLayout->setGridPos(label, 0, 0);
             p.audioBufferFramesEdit->setParent(gridLayout);
-            gridLayout->setGridPos(p.audioBufferFramesEdit, 1, 1);
+            gridLayout->setGridPos(p.audioBufferFramesEdit, 0, 1);
             label = ui::Label::create("Video requests:", context, gridLayout);
-            gridLayout->setGridPos(label, 2, 0);
+            gridLayout->setGridPos(label, 1, 0);
             p.videoRequestsEdit->setParent(gridLayout);
-            gridLayout->setGridPos(p.videoRequestsEdit, 2, 1);
+            gridLayout->setGridPos(p.videoRequestsEdit, 1, 1);
             label = ui::Label::create("Audio requests:", context, gridLayout);
-            gridLayout->setGridPos(label, 3, 0);
+            gridLayout->setGridPos(label, 2, 0);
             p.audioRequestsEdit->setParent(gridLayout);
-            gridLayout->setGridPos(p.audioRequestsEdit, 3, 1);
+            gridLayout->setGridPos(p.audioRequestsEdit, 2, 1);
 
             _settingsUpdate(std::string());
 
@@ -809,14 +800,6 @@ namespace tl
                 [this](const std::string& name)
                 {
                     _settingsUpdate(name);
-                });
-
-            p.timerComboBox->setIndexCallback(
-                [this](int value)
-                {
-                    _p->settings->setValue(
-                        "Performance/TimerMode",
-                        static_cast<timeline::TimerMode>(value));
                 });
 
             p.audioBufferFramesEdit->setCallback(
@@ -870,11 +853,6 @@ namespace tl
         void PerformanceSettingsWidget::_settingsUpdate(const std::string& name)
         {
             TLRENDER_P();
-            if ("Performance/TimerMode" == name || name.empty())
-            {
-                p.timerComboBox->setCurrentIndex(static_cast<int>(
-                    p.settings->getValue<timeline::TimerMode>("Performance/TimerMode")));
-            }
             if ("Performance/AudioBufferFrameCount" == name || name.empty())
             {
                 p.audioBufferFramesEdit->setValue(

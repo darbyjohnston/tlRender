@@ -580,7 +580,6 @@ namespace tl
         {
             std::shared_ptr<play::Settings> settings;
 
-            QComboBox* timerModeComboBox = nullptr;
             QSpinBox* audioBufferFrameCountSpinBox = nullptr;
             QSpinBox* videoRequestCountSpinBox = nullptr;
             QSpinBox* audioRequestCountSpinBox = nullptr;
@@ -596,12 +595,6 @@ namespace tl
 
             p.settings = app->settings();
 
-            p.timerModeComboBox = new QComboBox;
-            for (const auto& i : timeline::getTimerModeLabels())
-            {
-                p.timerModeComboBox->addItem(QString::fromUtf8(i.c_str()));
-            }
-
             p.audioBufferFrameCountSpinBox = new QSpinBox;
             p.audioBufferFrameCountSpinBox->setRange(1024, 4096);
 
@@ -615,7 +608,6 @@ namespace tl
             auto label = new QLabel(tr("Changes are applied to new files."));
             label->setWordWrap(true);
             layout->addRow(label);
-            layout->addRow(tr("Timer mode:"), p.timerModeComboBox);
             layout->addRow(tr("Audio buffer frames:"), p.audioBufferFrameCountSpinBox);
             layout->addRow(tr("Video requests:"), p.videoRequestCountSpinBox);
             layout->addRow(tr("Audio requests:"), p.audioRequestCountSpinBox);
@@ -628,16 +620,6 @@ namespace tl
                 [this](const std::string& name)
                 {
                     _settingsUpdate(name);
-                });
-
-            connect(
-                p.timerModeComboBox,
-                QOverload<int>::of(&QComboBox::activated),
-                [this](int value)
-                {
-                    _p->settings->setValue(
-                        "Performance/TimerMode",
-                        static_cast<timeline::TimerMode>(value));
                 });
 
             connect(
@@ -671,12 +653,6 @@ namespace tl
         void PerformanceSettingsWidget::_settingsUpdate(const std::string & name)
         {
             TLRENDER_P();
-            if ("Performance/TimerMode" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.timerModeComboBox);
-                p.timerModeComboBox->setCurrentIndex(static_cast<int>(
-                    p.settings->getValue<timeline::TimerMode>("Performance/TimerMode")));
-            }
             if ("Performance/AudioBufferFrameCount" == name || name.empty())
             {
                 QSignalBlocker signalBlocker(p.audioBufferFrameCountSpinBox);

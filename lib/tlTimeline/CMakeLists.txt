@@ -48,7 +48,6 @@ set(SOURCE
     OCIOOptions.cpp
     Player.cpp
     PlayerAudio.cpp
-    PlayerOptions.cpp
     PlayerPrivate.cpp
     RenderUtil.cpp
     TimeUnits.cpp

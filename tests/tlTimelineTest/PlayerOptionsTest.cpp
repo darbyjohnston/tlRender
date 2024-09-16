@@ -27,19 +27,10 @@ namespace tl
         void PlayerOptionsTest::run()
         {
             {
-                _enum<TimerMode>("TimerMode", getTimerModeEnums);
-            }
-            {
                 PlayerCacheOptions v;
                 v.readAhead = otime::RationalTime(10.0, 1.0);
                 TLRENDER_ASSERT(v == v);
                 TLRENDER_ASSERT(v != PlayerCacheOptions());
-            }
-            {
-                PlayerOptions v;
-                v.timerMode = TimerMode::Audio;
-                TLRENDER_ASSERT(v == v);
-                TLRENDER_ASSERT(v != PlayerOptions());
             }
         }
     }

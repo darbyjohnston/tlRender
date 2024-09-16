@@ -50,8 +50,6 @@ namespace tl
                     arg(playerOptions.cache.readAhead));
                 lines.push_back(string::Format("    Cache read behind: {0}").
                     arg(playerOptions.cache.readBehind));
-                lines.push_back(string::Format("    Timer mode: {0}").
-                    arg(playerOptions.timerMode));
                 lines.push_back(string::Format("    Audio buffer frame count: {0}").
                     arg(playerOptions.audioBufferFrameCount));
                 lines.push_back(string::Format("    Mute timeout: {0}ms").

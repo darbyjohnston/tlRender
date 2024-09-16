@@ -413,8 +413,6 @@ namespace tl
             p.settings->setDefaultValue("FileBrowser/Path", file::getCWD());
             p.settings->setDefaultValue("FileBrowser/Options", ui::FileBrowserOptions());
 
-            p.settings->setDefaultValue("Performance/TimerMode",
-                timeline::PlayerOptions().timerMode);
             p.settings->setDefaultValue("Performance/AudioBufferFrameCount",
                 timeline::PlayerOptions().audioBufferFrameCount);
             p.settings->setDefaultValue("Performance/VideoRequestCount", 16);
@@ -952,8 +950,6 @@ namespace tl
                                 playerOptions.audioDevice = p.audioModel->getDevice();
                                 playerOptions.cache.readAhead = time::invalidTime;
                                 playerOptions.cache.readBehind = time::invalidTime;
-                                playerOptions.timerMode =
-                                    p.settings->getValue<timeline::TimerMode>("Performance/TimerMode");
                                 playerOptions.audioBufferFrameCount =
                                     p.settings->getValue<size_t>("Performance/AudioBufferFrameCount");
                                 player = timeline::Player::create(timeline, _context, playerOptions);
