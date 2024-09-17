@@ -792,8 +792,6 @@ namespace tl
             }
             else
             {
-
-
                 av_image_fill_arrays(
                     _avFrame2->data,
                     _avFrame2->linesize,

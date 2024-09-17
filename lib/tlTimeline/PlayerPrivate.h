@@ -31,6 +31,8 @@ namespace tl
             void clearCache();
             void cacheUpdate();
 
+            bool hasAudio() const;
+            void playbackReset(const otime::RationalTime&);
             void audioInit(const std::shared_ptr<system::Context>&);
             void audioReset(const otime::RationalTime&);
             static size_t getAudioChannelCount(
@@ -118,7 +120,6 @@ namespace tl
                 double audioOffset = 0.0;
                 CacheDirection cacheDirection = CacheDirection::Forward;
                 PlayerCacheOptions cacheOptions;
-
                 std::map<otime::RationalTime, std::vector<VideoRequest> > videoDataRequests;
                 std::map<otime::RationalTime, std::vector<VideoData> > videoDataCache;
                 std::map<int64_t, AudioRequest> audioDataRequests;
@@ -152,6 +153,13 @@ namespace tl
                 std::shared_ptr<audio::Audio> silence;
             };
             AudioThread audioThread;
+
+            struct NoAudio
+            {
+                std::chrono::steady_clock::time_point playbackTimer;
+                int64_t start = 0;
+            };
+            NoAudio noAudio;
         };
     }
 }

@@ -105,6 +105,15 @@ namespace tl
             return _p->currentAudioData;
         }
 
+        bool Player::Private::hasAudio() const
+        {
+            bool out = ioInfo.audio.isValid();
+#if !defined(TLRENDER_AUDIO)
+            out = false;
+#endif
+            return out;
+        }
+
         namespace
         {
 #if defined(TLRENDER_AUDIO)

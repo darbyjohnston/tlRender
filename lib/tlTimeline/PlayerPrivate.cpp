@@ -25,8 +25,14 @@ namespace tl
                 out = timeline::loop(out, range, &looped);
                 if (looped)
                 {
-                    std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                    audioReset(out);
+                    {
+                        std::unique_lock<std::mutex> lock(audioMutex.mutex);
+                        audioReset(out);
+                    }
+                    if (!hasAudio())
+                    {
+                        playbackReset(out);
+                    }
                 }
                 break;
             }
@@ -73,6 +79,10 @@ namespace tl
                         std::unique_lock<std::mutex> lock(audioMutex.mutex);
                         audioReset(out);
                     }
+                    if (!hasAudio())
+                    {
+                        playbackReset(out);
+                    }
                 }
                 else if (out > range.end_time_inclusive() && Playback::Forward == playbackValue)
                 {
@@ -88,6 +98,10 @@ namespace tl
                     {
                         std::unique_lock<std::mutex> lock(audioMutex.mutex);
                         audioReset(out);
+                    }
+                    if (!hasAudio())
+                    {
+                        playbackReset(out);
                     }
                 }
                 break;
@@ -514,6 +528,12 @@ namespace tl
                     mutex.cacheInfo.audioFrames = cachedAudioRanges;
                 }
             }
+        }
+
+        void Player::Private::playbackReset(const otime::RationalTime& time)
+        {
+            noAudio.playbackTimer = std::chrono::steady_clock::now();
+            noAudio.start = time.rescaled_to(ioInfo.videoTime.duration().rate()).value();
         }
 
         void Player::Private::log(const std::shared_ptr<system::Context>& context)

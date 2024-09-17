@@ -236,6 +236,10 @@ namespace tl
                     p.audioMutex.speed = value;
                     p.audioReset(p.currentTime->get());
                 }
+                if (!p.hasAudio())
+                {
+                    p.playbackReset(p.currentTime->get());
+                }
             }
         }
 
@@ -312,6 +316,10 @@ namespace tl
                         std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                         p.audioReset(p.currentTime->get());
                     }
+                    if (!p.hasAudio())
+                    {
+                        p.playbackReset(p.currentTime->get());
+                    }
                 }
                 else
                 {
@@ -370,6 +378,10 @@ namespace tl
                 {
                     std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                     p.audioReset(p.currentTime->get());
+                }
+                if (!p.hasAudio())
+                {
+                    p.playbackReset(p.currentTime->get());
                 }
             }
         }
@@ -670,10 +682,21 @@ namespace tl
             {
                 int64_t start = 0;
                 int64_t frame = 0;
+                double rate = 24.0;
+                if (p.hasAudio())
                 {
                     std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                     start = p.audioMutex.start;
                     frame = p.audioMutex.frame;
+                    rate = p.ioInfo.audio.sampleRate;
+                }
+                else
+                {
+                    start = p.noAudio.start;
+                    const auto now = std::chrono::steady_clock::now();
+                    const std::chrono::duration<double> diff = now - p.noAudio.playbackTimer;
+                    frame = diff.count() * p.ioInfo.videoTime.duration().rate();
+                    rate = p.ioInfo.videoTime.duration().rate();
                 }
                 int64_t t = start;
                 if (Playback::Forward == playback)
@@ -685,7 +708,7 @@ namespace tl
                     t -= frame * p.speed->get() / timelineSpeed;
                 }
                 const otime::RationalTime currentTime = p.loopPlayback(
-                    otime::RationalTime(t, p.ioInfo.audio.sampleRate).rescaled_to(p.speed->get()).
+                    otime::RationalTime(t, rate).rescaled_to(p.speed->get()).
                     floor());
                 //const double currentTimeDiff = abs(currentTime.value() - p.currentTime->get().value());
                 if (p.currentTime->setIfChanged(currentTime))
@@ -780,6 +803,10 @@ namespace tl
                             std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                             p.audioMutex.muteTimeout = now + p.playerOptions.muteTimeout;
                             p.audioReset(p.currentTime->get());
+                        }
+                        if (!p.hasAudio())
+                        {
+                            p.playbackReset(p.currentTime->get());
                         }
                     }
                     else
