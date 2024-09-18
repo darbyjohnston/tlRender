@@ -63,17 +63,18 @@ namespace tl
 
             p.playerOptions = playerOptions;
             p.timeline = timeline;
-            p.ioInfo = p.timeline->getIOInfo();
+            p.timeRange = timeline->getTimeRange();
+            p.ioInfo = timeline->getIOInfo();
 
             // Create observers.
-            p.speed = observer::Value<double>::create(p.timeline->getTimeRange().duration().rate());
+            p.speed = observer::Value<double>::create(p.timeRange.duration().rate());
             p.playback = observer::Value<Playback>::create(Playback::Stop);
             p.loop = observer::Value<Loop>::create(Loop::Loop);
             p.currentTime = observer::Value<otime::RationalTime>::create(
                 playerOptions.currentTime != time::invalidTime ?
                 playerOptions.currentTime :
-                p.timeline->getTimeRange().start_time());
-            p.inOutRange = observer::Value<otime::TimeRange>::create(p.timeline->getTimeRange());
+                p.timeRange.start_time());
+            p.inOutRange = observer::Value<otime::TimeRange>::create(p.timeRange);
             p.compare = observer::List<std::shared_ptr<Timeline> >::create();
             p.compareTime = observer::Value<CompareTimeMode>::create(CompareTimeMode::Relative);
             p.ioOptions = observer::Value<io::Options>::create();
@@ -203,7 +204,7 @@ namespace tl
 
         const otime::TimeRange& Player::getTimeRange() const
         {
-            return _p->timeline->getTimeRange();
+            return _p->timeRange;
         }
 
         const io::Info& Player::getIOInfo() const
@@ -213,7 +214,7 @@ namespace tl
 
         double Player::getDefaultSpeed() const
         {
-            return _p->timeline->getTimeRange().duration().rate();
+            return _p->timeRange.duration().rate();
         }
 
         double Player::getSpeed() const
@@ -360,10 +361,9 @@ namespace tl
             TLRENDER_P();
 
             // Loop the time.
-            const auto& timeRange = p.timeline->getTimeRange();
             const auto tmp = loop(
-                time.rescaled_to(timeRange.duration()).floor(),
-                timeRange);
+                time.rescaled_to(p.timeRange.duration()).floor(),
+                p.timeRange);
 
             if (p.currentTime->setIfChanged(tmp))
             {
@@ -389,7 +389,6 @@ namespace tl
         void Player::timeAction(TimeAction time)
         {
             TLRENDER_P();
-            const auto& timeRange = p.timeline->getTimeRange();
             const auto& currentTime = p.currentTime->get();
             switch (time)
             {
@@ -403,27 +402,27 @@ namespace tl
                 break;
             case TimeAction::FramePrev:
                 setPlayback(timeline::Playback::Stop);
-                seek(currentTime - otime::RationalTime(1, timeRange.duration().rate()));
+                seek(currentTime - otime::RationalTime(1, p.timeRange.duration().rate()));
                 break;
             case TimeAction::FramePrevX10:
                 setPlayback(timeline::Playback::Stop);
-                seek(currentTime - otime::RationalTime(10, timeRange.duration().rate()));
+                seek(currentTime - otime::RationalTime(10, p.timeRange.duration().rate()));
                 break;
             case TimeAction::FramePrevX100:
                 setPlayback(timeline::Playback::Stop);
-                seek(currentTime - otime::RationalTime(100, timeRange.duration().rate()));
+                seek(currentTime - otime::RationalTime(100, p.timeRange.duration().rate()));
                 break;
             case TimeAction::FrameNext:
                 setPlayback(timeline::Playback::Stop);
-                seek(currentTime + otime::RationalTime(1, timeRange.duration().rate()));
+                seek(currentTime + otime::RationalTime(1, p.timeRange.duration().rate()));
                 break;
             case TimeAction::FrameNextX10:
                 setPlayback(timeline::Playback::Stop);
-                seek(currentTime + otime::RationalTime(10, timeRange.duration().rate()));
+                seek(currentTime + otime::RationalTime(10, p.timeRange.duration().rate()));
                 break;
             case TimeAction::FrameNextX100:
                 setPlayback(timeline::Playback::Stop);
-                seek(currentTime + otime::RationalTime(100, timeRange.duration().rate()));
+                seek(currentTime + otime::RationalTime(100, p.timeRange.duration().rate()));
                 break;
             case TimeAction::JumpBack1s:
                 seek(currentTime - otime::RationalTime(1.0, 1.0));
@@ -494,7 +493,7 @@ namespace tl
         {
             TLRENDER_P();
             setInOutRange(otime::TimeRange::range_from_start_end_time(
-                p.timeline->getTimeRange().start_time(),
+                p.timeRange.start_time(),
                 p.inOutRange->get().end_time_exclusive()));
         }
 
@@ -511,7 +510,7 @@ namespace tl
             TLRENDER_P();
             setInOutRange(otime::TimeRange::range_from_start_end_time_inclusive(
                 p.inOutRange->get().start_time(),
-                p.timeline->getTimeRange().end_time_inclusive()));
+                p.timeRange.end_time_inclusive()));
         }
 
         const std::vector<std::shared_ptr<Timeline> >& Player::getCompare() const
@@ -675,8 +674,7 @@ namespace tl
             p.timeline->tick();
 
             // Calculate the current time.
-            const auto& timeRange = p.timeline->getTimeRange();
-            const double timelineSpeed = timeRange.duration().rate();
+            const double timelineSpeed = p.timeRange.duration().rate();
             const auto playback = p.playback->get();
             if (playback != Playback::Stop && timelineSpeed > 0.0)
             {
@@ -708,7 +706,7 @@ namespace tl
                     t -= frame * p.speed->get() / timelineSpeed;
                 }
                 const otime::RationalTime currentTime = p.loopPlayback(
-                    p.timeline->getTimeRange().start_time() +
+                    p.timeRange.start_time() +
                     otime::RationalTime(t, rate).rescaled_to(p.speed->get()).floor());
                 //const double currentTimeDiff = abs(currentTime.value() - p.currentTime->get().value());
                 if (p.currentTime->setIfChanged(currentTime))
@@ -782,7 +780,6 @@ namespace tl
                 p.cacheUpdate();
 
                 // Update the current video data.
-                const auto& timeRange = p.timeline->getTimeRange();
                 if (!p.ioInfo.video.empty())
                 {
                     const auto i = p.thread.videoDataCache.find(p.thread.currentTime);
@@ -793,7 +790,7 @@ namespace tl
                     }
                     else if (p.thread.playback != Playback::Stop)
                     {
-                        if (!timeRange.contains(p.thread.currentTime))
+                        if (!p.timeRange.contains(p.thread.currentTime))
                         {
                             std::unique_lock<std::mutex> lock(p.mutex.mutex);
                             p.mutex.currentVideoData.clear();
@@ -812,7 +809,7 @@ namespace tl
                     else
                     {
                         std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                        if (!timeRange.contains(p.thread.currentTime))
+                        if (!p.timeRange.contains(p.thread.currentTime))
                         {
                             p.mutex.currentVideoData.clear();
                         }
@@ -825,7 +822,7 @@ namespace tl
                     std::vector<AudioData> audioDataList;
                     {
                         const int64_t seconds = p.thread.currentTime.rescaled_to(1.0).value() -
-                            timeRange.start_time().rescaled_to(1.0).value();
+                            p.timeRange.start_time().rescaled_to(1.0).value();
                         std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                         for (int64_t s : { seconds - 1, seconds, seconds + 1 })
                         {

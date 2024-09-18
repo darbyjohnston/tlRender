@@ -55,6 +55,7 @@ namespace tl
 
             PlayerOptions playerOptions;
             std::shared_ptr<Timeline> timeline;
+            otime::TimeRange timeRange;
             io::Info ioInfo;
 
             std::shared_ptr<observer::Value<double> > speed;
@@ -146,8 +147,7 @@ namespace tl
             struct AudioThread
             {
                 audio::Info info;
-                Playback playback = Playback::Stop;
-                double speed = 0.0;
+                int64_t frame = 0;
                 std::shared_ptr<audio::AudioResample> resample;
                 std::list<std::shared_ptr<audio::Audio> > buffer;
                 std::shared_ptr<audio::Audio> silence;

@@ -234,8 +234,7 @@ namespace tl
         void Player::Private::audioReset(const otime::RationalTime& time)
         {
             audioMutex.reset = true;
-            audioMutex.start = (time - timeline->getTimeRange().start_time()).rescaled_to(ioInfo.audio.sampleRate).value();
-            audioMutex.frame = 0;
+            audioMutex.start = (time - timeRange.start_time()).rescaled_to(ioInfo.audio.sampleRate).value();
         }
 
         size_t Player::Private::getAudioChannelCount(
@@ -277,7 +276,6 @@ namespace tl
             std::chrono::steady_clock::time_point muteTimeout;
             bool reset = false;
             int64_t start = 0;
-            int64_t frame = 0;
             {
                 std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
                 speed = p->audioMutex.speed;
@@ -287,32 +285,24 @@ namespace tl
                 reset = p->audioMutex.reset;
                 p->audioMutex.reset = false;
                 start = p->audioMutex.start;
-                frame = p->audioMutex.frame;
             }
             //std::cout << "playback: " << playback << std::endl;
             //std::cout << "playbackStartTime: " << playbackStartTime << std::endl;
             //std::cout << "reset: " << reset << std::endl;
-
-            // Check if the timers should be initialized.
-            const audio::Info& inputInfo = p->ioInfo.audio;
-            if (playback != p->audioThread.playback ||
-                speed != p->audioThread.speed ||
-                reset)
-            {
-                p->audioThread.playback = playback;
-                p->audioThread.speed = speed;
-            }
+            //std::cout << "start: " << start << std::endl;
 
             // Zero output audio data.
             const audio::Info& outputInfo = p->audioThread.info;
             std::memset(outputBuffer, 0, nFrames * outputInfo.getByteCount());
 
+            const audio::Info& inputInfo = p->ioInfo.audio;
             if (playback != Playback::Stop && inputInfo.sampleRate > 0)
             {
                 // Flush the audio resampler and buffer when the RtAudio
                 // playback is reset.
                 if (reset)
                 {
+                    p->audioThread.frame = 0;
                     if (p->audioThread.resample)
                     {
                         p->audioThread.resample->flush();
@@ -330,19 +320,17 @@ namespace tl
                 }
 
                 // Get audio from the cache.
-                const int64_t bufferSize = getSampleCount(p->audioThread.buffer);
-                int64_t size = otio::RationalTime(
-                    nFrames * 2 - bufferSize,
-                    outputInfo.sampleRate).
+                int64_t size = otio::RationalTime(nFrames * 2, outputInfo.sampleRate).
                     rescaled_to(inputInfo.sampleRate).value();
+                size -= getSampleCount(p->audioThread.buffer);
                 int64_t t = start;
                 if (Playback::Forward == playback)
                 {
-                    t += frame;
+                    t += p->audioThread.frame;
                 }
                 else
                 {
-                    t -= frame;
+                    t -= p->audioThread.frame;
                 }
                 int64_t seconds = t / inputInfo.sampleRate;
                 int64_t offset = t - (seconds * inputInfo.sampleRate);
@@ -405,7 +393,7 @@ namespace tl
                     const auto now = std::chrono::steady_clock::now();
                     if (mute ||
                         now < muteTimeout ||
-                        speed != p->timeline->getTimeRange().duration().rate())
+                        speed != p->timeRange.duration().rate())
                     {
                         volume = 0.F;
                     }
@@ -446,18 +434,19 @@ namespace tl
 
                 // Update the frame counter.
                 int64_t inc = 0;
-                if (!found)
-                {
-                    inc = OTIO_NS::RationalTime(nFrames, outputInfo.sampleRate).
-                        rescaled_to(inputInfo.sampleRate).value();
-                }
-                else if (size > 0)
+                if (found && size > 0)
                 {
                     inc = size;
                 }
+                else
+                {
+                    inc = otio::RationalTime(nFrames, outputInfo.sampleRate).
+                        rescaled_to(inputInfo.sampleRate).value();
+                }
+                p->audioThread.frame += inc;
                 {
                     std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
-                    p->audioMutex.frame += inc;
+                    p->audioMutex.frame = p->audioThread.frame;
                 }
             }
 
