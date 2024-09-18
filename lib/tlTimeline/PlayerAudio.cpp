@@ -445,9 +445,19 @@ namespace tl
                 }
 
                 // Update the frame counter.
+                int64_t inc = 0;
+                if (!found)
+                {
+                    inc = OTIO_NS::RationalTime(nFrames, outputInfo.sampleRate).
+                        rescaled_to(inputInfo.sampleRate).value();
+                }
+                else if (size > 0)
+                {
+                    inc = size;
+                }
                 {
                     std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
-                    p->audioMutex.frame += size;
+                    p->audioMutex.frame += inc;
                 }
             }
 
