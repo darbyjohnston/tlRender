@@ -708,8 +708,8 @@ namespace tl
                     t -= frame * p.speed->get() / timelineSpeed;
                 }
                 const otime::RationalTime currentTime = p.loopPlayback(
-                    otime::RationalTime(t, rate).rescaled_to(p.speed->get()).
-                    floor());
+                    p.timeline->getTimeRange().start_time() +
+                    otime::RationalTime(t, rate).rescaled_to(p.speed->get()).floor());
                 //const double currentTimeDiff = abs(currentTime.value() - p.currentTime->get().value());
                 if (p.currentTime->setIfChanged(currentTime))
                 {

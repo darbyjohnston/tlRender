@@ -234,7 +234,7 @@ namespace tl
         void Player::Private::audioReset(const otime::RationalTime& time)
         {
             audioMutex.reset = true;
-            audioMutex.start = time.rescaled_to(ioInfo.audio.sampleRate).value();
+            audioMutex.start = (time - timeline->getTimeRange().start_time()).rescaled_to(ioInfo.audio.sampleRate).value();
             audioMutex.frame = 0;
         }
 

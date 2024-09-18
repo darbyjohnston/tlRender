@@ -533,7 +533,7 @@ namespace tl
         void Player::Private::playbackReset(const otime::RationalTime& time)
         {
             noAudio.playbackTimer = std::chrono::steady_clock::now();
-            noAudio.start = time.rescaled_to(ioInfo.videoTime.duration().rate()).value();
+            noAudio.start = (time - timeline->getTimeRange().start_time()).rescaled_to(ioInfo.videoTime.duration().rate()).value();
         }
 
         void Player::Private::log(const std::shared_ptr<system::Context>& context)
