@@ -307,7 +307,8 @@ namespace tl
                 // playback is reset.
                 if (reset)
                 {
-                    p->audioThread.frame = 0;
+                    p->audioThread.inputFrame = 0;
+                    p->audioThread.outputFrame = 0;
                     if (p->audioThread.resample)
                     {
                         p->audioThread.resample->flush();
@@ -332,11 +333,11 @@ namespace tl
                 int64_t t = (start - p->timeRange.start_time()).rescaled_to(inputInfo.sampleRate).value();
                 if (Playback::Forward == playback)
                 {
-                    t += p->audioThread.frame;
+                    t += p->audioThread.inputFrame;
                 }
                 else
                 {
-                    t -= p->audioThread.frame;
+                    t -= p->audioThread.inputFrame;
                 }
                 int64_t seconds = t / inputInfo.sampleRate;
                 int64_t offset = t - (seconds * inputInfo.sampleRate);
@@ -439,10 +440,13 @@ namespace tl
                 }
 
                 // Update the frame counters.
-                p->audioThread.frame += size;
+                p->audioThread.inputFrame += size;
+                p->audioThread.outputFrame += nFrames;
                 {
                     std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
-                    p->audioMutex.frame += otio::RationalTime(nFrames, outputInfo.sampleRate).
+                    p->audioMutex.frame = otio::RationalTime(
+                        p->audioThread.outputFrame,
+                        outputInfo.sampleRate).
                         rescaled_to(inputInfo.sampleRate).value();
                 }
             }
