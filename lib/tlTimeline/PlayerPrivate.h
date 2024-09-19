@@ -132,10 +132,12 @@ namespace tl
 
             struct AudioMutex
             {
+                Playback playback = Playback::Stop;
                 double speed = 0.0;
                 float volume = 1.F;
                 bool mute = false;
                 std::chrono::steady_clock::time_point muteTimeout;
+                double audioOffset = 0.0;
                 std::map<int64_t, AudioData> audioDataCache;
                 bool reset = false;
                 int64_t start = 0;

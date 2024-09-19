@@ -90,8 +90,14 @@ namespace tl
             TLRENDER_P();
             if (p.audioOffset->setIfChanged(value))
             {
-                std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                p.mutex.audioOffset = value;
+                {
+                    std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                    p.mutex.audioOffset = value;
+                }
+                {
+                    std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                    p.audioMutex.audioOffset = value;
+                }
             }
         }
 
@@ -235,6 +241,7 @@ namespace tl
         {
             audioMutex.reset = true;
             audioMutex.start = (time - timeRange.start_time()).rescaled_to(ioInfo.audio.sampleRate).value();
+            audioMutex.frame = 0;
         }
 
         size_t Player::Private::getAudioChannelCount(
@@ -262,14 +269,7 @@ namespace tl
             
             // Get mutex protected values.
             Playback playback = Playback::Stop;
-            otime::RationalTime currentTime = time::invalidTime;
             double audioOffset = 0.0;
-            {
-                std::unique_lock<std::mutex> lock(p->mutex.mutex);
-                playback = p->mutex.playback;
-                currentTime = p->mutex.currentTime;
-                audioOffset = p->mutex.audioOffset;
-            }
             double speed = 0.0;
             float volume = 1.F;
             bool mute = false;
@@ -278,6 +278,8 @@ namespace tl
             int64_t start = 0;
             {
                 std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
+                playback = p->audioMutex.playback;
+                audioOffset = p->audioMutex.audioOffset;
                 speed = p->audioMutex.speed;
                 volume = p->audioMutex.volume;
                 mute = p->audioMutex.mute;
@@ -287,7 +289,6 @@ namespace tl
                 start = p->audioMutex.start;
             }
             //std::cout << "playback: " << playback << std::endl;
-            //std::cout << "playbackStartTime: " << playbackStartTime << std::endl;
             //std::cout << "reset: " << reset << std::endl;
             //std::cout << "start: " << start << std::endl;
 
@@ -434,14 +435,14 @@ namespace tl
 
                 // Update the frame counter.
                 int64_t inc = 0;
-                if (found && size > 0)
-                {
-                    inc = size;
-                }
-                else
+                if (!found)
                 {
                     inc = otio::RationalTime(nFrames, outputInfo.sampleRate).
                         rescaled_to(inputInfo.sampleRate).value();
+                }
+                else if (size > 0)
+                {
+                    inc = size;
                 }
                 p->audioThread.frame += inc;
                 {

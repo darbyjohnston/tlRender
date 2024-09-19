@@ -48,6 +48,10 @@ namespace tl
                         mutex.playback = Playback::Stop;
                         mutex.clearRequests = true;
                     }
+                    {
+                        std::unique_lock<std::mutex> lock(audioMutex.mutex);
+                        audioMutex.playback = Playback::Stop;
+                    }
                 }
                 else if (out > range.end_time_inclusive() && Playback::Forward == playbackValue)
                 {
@@ -57,6 +61,10 @@ namespace tl
                         std::unique_lock<std::mutex> lock(mutex.mutex);
                         mutex.playback = Playback::Stop;
                         mutex.clearRequests = true;
+                    }
+                    {
+                        std::unique_lock<std::mutex> lock(audioMutex.mutex);
+                        audioMutex.playback = Playback::Stop;
                     }
                 }
                 break;
@@ -77,6 +85,7 @@ namespace tl
                     }
                     {
                         std::unique_lock<std::mutex> lock(audioMutex.mutex);
+                        audioMutex.playback = Playback::Forward;
                         audioReset(out);
                     }
                     if (!hasAudio())
@@ -97,6 +106,7 @@ namespace tl
                     }
                     {
                         std::unique_lock<std::mutex> lock(audioMutex.mutex);
+                        audioMutex.playback = Playback::Reverse;
                         audioReset(out);
                     }
                     if (!hasAudio())

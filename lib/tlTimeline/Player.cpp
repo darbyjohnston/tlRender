@@ -315,6 +315,7 @@ namespace tl
                     }
                     {
                         std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                        p.audioMutex.playback = value;
                         p.audioReset(p.currentTime->get());
                     }
                     if (!p.hasAudio())
@@ -324,9 +325,15 @@ namespace tl
                 }
                 else
                 {
-                    std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                    p.mutex.playback = value;
-                    p.mutex.clearRequests = true;
+                    {
+                        std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                        p.mutex.playback = value;
+                        p.mutex.clearRequests = true;
+                    }
+                    {
+                        std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                        p.audioMutex.playback = value;
+                    }
                 }
             }
         }
@@ -368,8 +375,6 @@ namespace tl
             if (p.currentTime->setIfChanged(tmp))
             {
                 //std::cout << "seek: " << tmp << std::endl;
-
-                // Update playback.
                 {
                     std::unique_lock<std::mutex> lock(p.mutex.mutex);
                     p.mutex.currentTime = tmp;
@@ -377,11 +382,11 @@ namespace tl
                 }
                 {
                     std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
-                    p.audioReset(p.currentTime->get());
+                    p.audioReset(tmp);
                 }
                 if (!p.hasAudio())
                 {
-                    p.playbackReset(p.currentTime->get());
+                    p.playbackReset(tmp);
                 }
             }
         }
