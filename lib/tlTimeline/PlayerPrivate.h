@@ -55,7 +55,7 @@ namespace tl
 
             PlayerOptions playerOptions;
             std::shared_ptr<Timeline> timeline;
-            otime::TimeRange timeRange;
+            otime::TimeRange timeRange = time::invalidTimeRange;
             io::Info ioInfo;
 
             std::shared_ptr<observer::Value<double> > speed;
@@ -140,7 +140,7 @@ namespace tl
                 double audioOffset = 0.0;
                 std::map<int64_t, AudioData> audioDataCache;
                 bool reset = false;
-                int64_t start = 0;
+                otime::RationalTime start = time::invalidTime;
                 int64_t frame = 0;
                 std::mutex mutex;
             };
@@ -159,7 +159,7 @@ namespace tl
             struct NoAudio
             {
                 std::chrono::steady_clock::time_point playbackTimer;
-                int64_t start = 0;
+                otime::RationalTime start = time::invalidTime;
             };
             NoAudio noAudio;
         };

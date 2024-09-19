@@ -683,36 +683,28 @@ namespace tl
             const auto playback = p.playback->get();
             if (playback != Playback::Stop && timelineSpeed > 0.0)
             {
-                int64_t start = 0;
-                int64_t frame = 0;
-                double rate = 24.0;
+                otime::RationalTime start = time::invalidTime;
+                double t = 0.0;
                 if (p.hasAudio())
                 {
                     std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                     start = p.audioMutex.start;
-                    frame = p.audioMutex.frame;
-                    rate = p.ioInfo.audio.sampleRate;
+                    t = otime::RationalTime(p.audioMutex.frame, p.ioInfo.audio.sampleRate).rescaled_to(1.0).value();
                 }
                 else
                 {
                     start = p.noAudio.start;
                     const auto now = std::chrono::steady_clock::now();
                     const std::chrono::duration<double> diff = now - p.noAudio.playbackTimer;
-                    frame = diff.count() * p.ioInfo.videoTime.duration().rate();
-                    rate = p.ioInfo.videoTime.duration().rate();
+                    t = diff.count();
                 }
-                int64_t t = start;
-                if (Playback::Forward == playback)
+                if (Playback::Reverse == playback)
                 {
-                    t += frame * p.speed->get() / timelineSpeed;
-                }
-                else
-                {
-                    t -= frame * p.speed->get() / timelineSpeed;
+                    t = -t;
                 }
                 const otime::RationalTime currentTime = p.loopPlayback(
-                    p.timeRange.start_time() +
-                    otime::RationalTime(t, rate).rescaled_to(p.speed->get()).floor());
+                    start +
+                    otime::RationalTime(t * p.speed->get() / timelineSpeed, 1.0).rescaled_to(p.speed->get()).floor());
                 //const double currentTimeDiff = abs(currentTime.value() - p.currentTime->get().value());
                 if (p.currentTime->setIfChanged(currentTime))
                 {
