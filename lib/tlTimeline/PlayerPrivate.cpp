@@ -618,6 +618,7 @@ namespace tl
             }
 
             double timerDiffAverage = 0.0;
+#if defined(TLRENDER_AUDIO)
             for (auto t : timerDiffs)
             {
                 timerDiffAverage += t;
@@ -626,6 +627,7 @@ namespace tl
             {
                 timerDiffAverage /= static_cast<double>(timerDiffs.size());
             }
+#endif // TLRENDER_AUDIO
 
             auto logSystem = context->getLogSystem();
             logSystem->print(id, string::Format(
