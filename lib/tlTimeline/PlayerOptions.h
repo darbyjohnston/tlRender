@@ -34,7 +34,7 @@ namespace tl
             PlayerCacheOptions cache;
 
             //! Audio buffer frame count.
-            size_t audioBufferFrameCount = 100;
+            size_t audioBufferFrameCount = 1000;
 
             //! Timeout for muting the audio when playback stutters.
             std::chrono::milliseconds muteTimeout = std::chrono::milliseconds(500);

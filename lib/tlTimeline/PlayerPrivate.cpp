@@ -617,6 +617,16 @@ namespace tl
                 ioOptionStrings.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
             }
 
+            double timerDiffAverage = 0.0;
+            for (auto t : timerDiffs)
+            {
+                timerDiffAverage += t;
+            }
+            if (!timerDiffs.empty())
+            {
+                timerDiffAverage /= static_cast<double>(timerDiffs.size());
+            }
+
             auto logSystem = context->getLogSystem();
             logSystem->print(id, string::Format(
                 "\n"
@@ -630,7 +640,8 @@ namespace tl
                 "    {10}\n"
                 "    {11}\n"
                 "    {12}\n"
-                "    (T=current time, V=cached video, A=cached audio)").
+                "    (T=current time, V=cached video, A=cached audio)\n"
+                "    Audio timer diff: {13}").
                 arg(timeline->getPath().get()).
                 arg(currentTime).
                 arg(inOutRange).
@@ -643,7 +654,8 @@ namespace tl
                 arg(audioDataCacheSize).
                 arg(currentTimeDisplay).
                 arg(cachedVideoFramesDisplay).
-                arg(cachedAudioFramesDisplay));
+                arg(cachedAudioFramesDisplay).
+                arg(timerDiffAverage));
         }
     }
 }

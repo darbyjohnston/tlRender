@@ -685,11 +685,15 @@ namespace tl
             {
                 otime::RationalTime start = time::invalidTime;
                 double t = 0.0;
+                double t2 = 0.0;
                 if (p.hasAudio())
                 {
                     std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                     start = p.audioMutex.start;
                     t = otime::RationalTime(p.audioMutex.frame, p.ioInfo.audio.sampleRate).rescaled_to(1.0).value();
+                    const auto now = std::chrono::steady_clock::now();
+                    const std::chrono::duration<double> diff = now - p.audioMutex.playbackTimer;
+                    t2 = diff.count();
                 }
                 else
                 {
@@ -698,13 +702,21 @@ namespace tl
                     const std::chrono::duration<double> diff = now - p.noAudio.playbackTimer;
                     t = diff.count();
                 }
+#if defined(TLRENDER_AUDIO)
+                p.timerDiffs.push_back(t - t2);
+                while (p.timerDiffs.size() > 10)
+                {
+                    p.timerDiffs.pop_front();
+                }
+#endif // TLRENDER_AUDIO
                 if (Playback::Reverse == playback)
                 {
                     t = -t;
                 }
+                const double speedMult = p.speed->get() / timelineSpeed;
                 const otime::RationalTime currentTime = p.loopPlayback(
                     start +
-                    otime::RationalTime(t * p.speed->get() / timelineSpeed, 1.0).rescaled_to(p.speed->get()).floor());
+                    otime::RationalTime(t * speedMult, 1.0).rescaled_to(timelineSpeed).floor());
                 //const double currentTimeDiff = abs(currentTime.value() - p.currentTime->get().value());
                 if (p.currentTime->setIfChanged(currentTime))
                 {

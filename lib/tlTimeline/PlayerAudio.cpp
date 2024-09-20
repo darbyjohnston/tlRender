@@ -241,6 +241,7 @@ namespace tl
         {
             audioMutex.reset = true;
             audioMutex.start = time;
+            audioMutex.playbackTimer = std::chrono::steady_clock::now();
             audioMutex.frame = 0;
         }
 
@@ -290,6 +291,7 @@ namespace tl
                 if (reset)
                 {
                     p->audioMutex.frame = 0;
+                    p->audioMutex.playbackTimer = std::chrono::steady_clock::now();
                 }
             }
             //std::cout << "playback: " << playback << std::endl;
