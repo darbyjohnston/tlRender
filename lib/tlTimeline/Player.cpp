@@ -685,15 +685,11 @@ namespace tl
             {
                 otime::RationalTime start = time::invalidTime;
                 double t = 0.0;
-                double t2 = 0.0;
                 if (p.hasAudio())
                 {
                     std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                     start = p.audioMutex.start;
                     t = otime::RationalTime(p.audioMutex.frame, p.ioInfo.audio.sampleRate).rescaled_to(1.0).value();
-                    const auto now = std::chrono::steady_clock::now();
-                    const std::chrono::duration<double> diff = now - p.audioMutex.playbackTimer;
-                    t2 = diff.count();
                 }
                 else
                 {
@@ -702,13 +698,6 @@ namespace tl
                     const std::chrono::duration<double> diff = now - p.noAudio.playbackTimer;
                     t = diff.count();
                 }
-#if defined(TLRENDER_AUDIO)
-                p.timerDiffs.push_back(t - t2);
-                while (p.timerDiffs.size() > 10)
-                {
-                    p.timerDiffs.pop_front();
-                }
-#endif // TLRENDER_AUDIO
                 if (Playback::Reverse == playback)
                 {
                     t = -t;
@@ -804,15 +793,18 @@ namespace tl
                             std::unique_lock<std::mutex> lock(p.mutex.mutex);
                             p.mutex.currentVideoData.clear();
                         }
+                        const auto now = std::chrono::steady_clock::now();
+                        if (now > p.audioMutex.muteTimeout)
                         {
-                            const auto now = std::chrono::steady_clock::now();
-                            std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
-                            p.audioMutex.muteTimeout = now + p.playerOptions.muteTimeout;
-                            p.audioReset(p.currentTime->get());
-                        }
-                        if (!p.hasAudio())
-                        {
-                            p.playbackReset(p.currentTime->get());
+                            {
+                                std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                                p.audioMutex.muteTimeout = now + p.playerOptions.muteTimeout;
+                                p.audioReset(p.currentTime->get());
+                            }
+                            if (!p.hasAudio())
+                            {
+                                p.playbackReset(p.currentTime->get());
+                            }
                         }
                     }
                     else

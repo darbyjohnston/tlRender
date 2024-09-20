@@ -82,7 +82,6 @@ namespace tl
 #if defined(TLRENDER_AUDIO)
             audio::Info audioInfo;
             std::unique_ptr<RtAudio> rtAudio;
-            std::list<double> timerDiffs;
 #endif // TLRENDER_AUDIO
 
             std::atomic<bool> running;
@@ -142,7 +141,6 @@ namespace tl
                 std::map<int64_t, AudioData> audioDataCache;
                 bool reset = false;
                 otime::RationalTime start = time::invalidTime;
-                std::chrono::steady_clock::time_point playbackTimer;
                 int64_t frame = 0;
                 std::mutex mutex;
             };
