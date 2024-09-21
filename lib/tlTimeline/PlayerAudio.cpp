@@ -440,14 +440,20 @@ namespace tl
                 }
 
                 // Update the frame counters.
-                p->audioThread.inputFrame += size;
+                p->audioThread.inputFrame += found ?
+                    size :
+                    otio::RationalTime(
+                        nFrames,
+                        outputInfo.sampleRate).
+                    rescaled_to(inputInfo.sampleRate).value();
                 p->audioThread.outputFrame += nFrames;
+                const int64_t outputFrame = otio::RationalTime(
+                    p->audioThread.outputFrame,
+                    outputInfo.sampleRate).
+                    rescaled_to(inputInfo.sampleRate).value();
                 {
                     std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
-                    p->audioMutex.frame = otio::RationalTime(
-                        p->audioThread.outputFrame,
-                        outputInfo.sampleRate).
-                        rescaled_to(inputInfo.sampleRate).value();
+                    p->audioMutex.frame = outputFrame;
                 }
             }
 
