@@ -440,13 +440,21 @@ namespace tl
                 }
 
                 // Update the frame counters.
-                p->audioThread.inputFrame += found ?
-                    size :
-                    otio::RationalTime(
-                        nFrames,
-                        outputInfo.sampleRate).
-                    rescaled_to(inputInfo.sampleRate).value();
-                p->audioThread.outputFrame += nFrames;
+                if (found || p->audioThread.cacheRetryCount > 1)
+                {
+                    p->audioThread.cacheRetryCount = 0;
+                    p->audioThread.inputFrame += found ?
+                        size :
+                        otio::RationalTime(
+                            nFrames,
+                            outputInfo.sampleRate).
+                        rescaled_to(inputInfo.sampleRate).value();
+                    p->audioThread.outputFrame += nFrames;
+                }
+                else
+                {
+                    p->audioThread.cacheRetryCount += 1;
+                }
                 const int64_t outputFrame = otio::RationalTime(
                     p->audioThread.outputFrame,
                     outputInfo.sampleRate).

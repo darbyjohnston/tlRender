@@ -151,6 +151,7 @@ namespace tl
                 audio::Info info;
                 int64_t inputFrame = 0;
                 int64_t outputFrame = 0;
+                size_t cacheRetryCount = 0;
                 std::shared_ptr<audio::AudioResample> resample;
                 std::list<std::shared_ptr<audio::Audio> > buffer;
                 std::shared_ptr<audio::Audio> silence;
