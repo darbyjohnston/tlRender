@@ -443,7 +443,7 @@ namespace tl
                 if (found || p->audioThread.cacheRetryCount > 1)
                 {
                     p->audioThread.cacheRetryCount = 0;
-                    p->audioThread.inputFrame += (found && size >=0) ?
+                    p->audioThread.inputFrame += (found && size >= 0) ?
                         size :
                         otio::RationalTime(
                             nFrames,
