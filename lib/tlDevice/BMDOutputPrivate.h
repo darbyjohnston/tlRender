@@ -6,9 +6,15 @@
 
 #include <tlDevice/BMDOutputDevice.h>
 
+#include <tlCore/AudioResample.h>
+
+#if defined(_WINDOWS)
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif // NOMINMAX
+#include <atlbase.h>
+#endif // _WINDOWS
+
 #include "platform.h"
 
 #if defined(__APPLE__)
@@ -146,7 +152,55 @@ namespace tl
             ULONG STDMETHODCALLTYPE Release() override;
 
         private:
-            TLRENDER_PRIVATE();
+            IDeckLinkOutput* _dlOutput = nullptr;
+            math::Size2i _size;
+            PixelType _pixelType = PixelType::None;
+            otime::RationalTime _frameRate = time::invalidTime;
+            audio::Info _audioInfo;
+
+            std::atomic<size_t> _refCount;
+
+            struct VideoMutex
+            {
+                std::list<std::shared_ptr<DLVideoFrameWrapper> > videoFrames;
+                std::mutex mutex;
+            };
+            VideoMutex _videoMutex;
+
+            struct VideoThread
+            {
+                std::shared_ptr<DLVideoFrameWrapper> videoFrame;
+#if defined(_WINDOWS)
+                CComPtr<IDeckLinkVideoConversion> frameConverter;
+#else // _WINDOWS
+                DLFrameConversionWrapper frameConverter;
+#endif // _WINDOWS
+                uint64_t frameCount = 0;
+                std::chrono::steady_clock::time_point t;
+            };
+            VideoThread _videoThread;
+
+            struct AudioMutex
+            {
+                timeline::Playback playback = timeline::Playback::Stop;
+                otime::RationalTime startTime = time::invalidTime;
+                otime::RationalTime currentTime = time::invalidTime;
+                float volume = 1.F;
+                bool mute = false;
+                double audioOffset = 0.0;
+                std::vector<timeline::AudioData> audioData;
+                std::mutex mutex;
+            };
+            AudioMutex _audioMutex;
+
+            struct AudioThread
+            {
+                timeline::Playback playback = timeline::Playback::Stop;
+                otime::RationalTime startTime = time::invalidTime;
+                size_t samplesOffset = 0;
+                std::shared_ptr<audio::AudioResample> resample;
+            };
+            AudioThread _audioThread;
         };
 
         class DLWrapper
