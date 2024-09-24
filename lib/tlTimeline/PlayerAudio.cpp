@@ -303,8 +303,7 @@ namespace tl
             const audio::Info& inputInfo = p->ioInfo.audio;
             if (playback != Playback::Stop && inputInfo.sampleRate > 0)
             {
-                // Flush the audio resampler and buffer when the RtAudio
-                // playback is reset.
+                // Initialize on reset.
                 if (reset)
                 {
                     p->audioThread.inputFrame = 0;

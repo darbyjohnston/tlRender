@@ -13,9 +13,7 @@ namespace tl
         namespace
         {
             const size_t videoFramesMax = 3;
-            //! \todo Should this be the same as
-            //! timeline::PlayerOptions().audioBufferFrameCount?
-            const size_t audioBufferCount = 3000;
+            const size_t audioBufferCount = 2000;
         }
 
         DLOutputCallback::DLOutputCallback(
@@ -115,8 +113,9 @@ namespace tl
             {
                 _dlOutput->FlushBufferedAudioSamples();
                 _audioMutex.playback = value;
-                _audioMutex.startTime = time;
-                _audioMutex.currentTime = time;
+                _audioMutex.reset = true;
+                _audioMutex.start = time;
+                _audioMutex.current = time;
             }
         }
 
@@ -134,17 +133,15 @@ namespace tl
             }
             {
                 std::unique_lock<std::mutex> lock(_audioMutex.mutex);
-                if (time != _audioMutex.currentTime)
+                const otime::RationalTime currentTimePlusOne(
+                    _audioMutex.current.value() + 1.0,
+                    _audioMutex.current.rate());
+                if (time != currentTimePlusOne)
                 {
-                    const otime::RationalTime currentTimePlusOne(
-                        _audioMutex.currentTime.value() + 1.0,
-                        _audioMutex.currentTime.rate());
-                    if (time != currentTimePlusOne)
-                    {
-                        _audioMutex.startTime = time;
-                    }
-                    _audioMutex.currentTime = time;
+                    _audioMutex.reset = true;
+                    _audioMutex.start = time;
                 }
+                _audioMutex.current = time;
             }
         }
 
@@ -246,34 +243,34 @@ namespace tl
         HRESULT DLOutputCallback::RenderAudioSamples(BOOL preroll)
         {
             // Get values.
-            otime::RationalTime currentTime = time::invalidTime;
+            timeline::Playback playback = timeline::Playback::Stop;
             float volume = 1.F;
             bool mute = false;
             double audioOffset = 0.0;
             std::vector<timeline::AudioData> audioDataList;
+            bool reset = false;
+            otime::RationalTime start = time::invalidTime;
+            otime::RationalTime current = time::invalidTime;
             {
                 std::unique_lock<std::mutex> lock(_audioMutex.mutex);
-                if (_audioMutex.playback != _audioThread.playback ||
-                    _audioMutex.startTime != _audioThread.startTime)
-                {
-                    _audioThread.playback = _audioMutex.playback;
-                    _audioThread.startTime = _audioMutex.startTime;
-                    _audioThread.samplesOffset = 0;
-                }
-                currentTime = _audioMutex.currentTime;
+                playback = _audioMutex.playback;
                 volume = _audioMutex.volume;
                 mute = _audioMutex.mute;
                 audioOffset = _audioMutex.audioOffset;
                 audioDataList = _audioMutex.audioData;
+                reset = _audioMutex.reset;
+                _audioMutex.reset = false;
+                start = _audioMutex.start;
+                current = _audioMutex.current;
             }
-            //std::cout << "audio playback: " << _audioThread.playback << std::endl;
-            //std::cout << "audio start time: " << _audioThread.startTime << std::endl;
-            //std::cout << "audio samples offset: " << _audioThread.samplesOffset << std::endl;
+            //std::cout << "audio playback: " << playback << std::endl;
+            //std::cout << "audio reset: " << reset << std::endl;
+            //std::cout << "audio start: " << start << std::endl;
 
-            // Flush the audio resampler and BMD buffer when the playback
-            // is reset.
-            if (0 == _audioThread.samplesOffset)
+            // Initialize on reset.
+            if (reset)
             {
+                _audioThread.frame = 0;
                 if (_audioThread.resample)
                 {
                     _audioThread.resample->flush();
@@ -281,105 +278,97 @@ namespace tl
                 _dlOutput->FlushBufferedAudioSamples();
             }
 
-            // Create the audio resampler.
             audio::Info inputInfo;
             if (!audioDataList.empty() &&
                 !audioDataList[0].layers.empty() &&
                 audioDataList[0].layers[0].audio)
             {
                 inputInfo = audioDataList[0].layers[0].audio->getInfo();
+            }
+            if (playback != timeline::Playback::Stop && inputInfo.sampleRate > 0)
+            {
+                // Create the audio resampler.
                 if (!_audioThread.resample ||
                     (_audioThread.resample && _audioThread.resample->getInputInfo() != inputInfo))
                 {
-                    _audioThread.resample = audio::AudioResample::create(inputInfo, _audioInfo);
+                    _audioThread.resample = audio::AudioResample::create(
+                        inputInfo,
+                        _audioInfo);
                 }
-            }
-
-            // Copy audio data to BMD.
-            if (timeline::Playback::Forward == _audioThread.playback &&
-                _audioThread.resample)
-            {
-                int64_t frame =
-                    _audioThread.startTime.rescaled_to(inputInfo.sampleRate).value() -
-                    otime::RationalTime(audioOffset, 1.0).rescaled_to(inputInfo.sampleRate).value() +
-                    _audioThread.samplesOffset;
-                int64_t seconds = inputInfo.sampleRate > 0 ? (frame / inputInfo.sampleRate) : 0;
-                int64_t offset = frame - seconds * inputInfo.sampleRate;
 
                 uint32_t bufferedSampleCount = 0;
                 _dlOutput->GetBufferedAudioSampleFrameCount(&bufferedSampleCount);
-                //std::cout << "bmd buffered sample count: " << bufferedSampleCount << std::endl;
-                while (bufferedSampleCount < audioBufferCount)
+                //std::cout << "bmd buffered samples: " << bufferedSampleCount << std::endl;
+                if (bufferedSampleCount < audioBufferCount)
                 {
+                    // Find the audio data.
+                    timeline::AudioData audioData;
+                    const int64_t frame =
+                        start.rescaled_to(inputInfo.sampleRate).value() -
+                        otime::RationalTime(audioOffset, 1.0).rescaled_to(inputInfo.sampleRate).value() +
+                        _audioThread.frame;
+                    const int64_t seconds = frame / inputInfo.sampleRate;
+                    const int64_t offset = frame - seconds * inputInfo.sampleRate;
+                    const size_t size = std::min(
+                        (audioBufferCount - bufferedSampleCount),
+                        inputInfo.sampleRate - static_cast<size_t>(offset));
                     //std::cout << "frame: " << frame << std::endl;
                     //std::cout << "seconds: " << seconds << std::endl;
                     //std::cout << "offset: " << offset << std::endl;
-                    timeline::AudioData audioData;
+                    //std::cout << "size: " << size << std::endl;
+                    bool found = false;
                     for (const auto& i : audioDataList)
                     {
                         if (seconds == static_cast<int64_t>(i.seconds))
                         {
                             audioData = i;
+                            found = true;
                             break;
                         }
                     }
-                    if (audioData.layers.empty())
+
+                    if (found)
                     {
+                        // Mix the audio layers.
+                        std::vector<const uint8_t*> audioDataP;
+                        for (const auto& layer : audioData.layers)
                         {
-                            std::unique_lock<std::mutex> lock(_audioMutex.mutex);
-                            _audioMutex.startTime = currentTime;
+                            if (layer.audio && layer.audio->getInfo() == inputInfo)
+                            {
+                                audioDataP.push_back(layer.audio->getData() + offset * inputInfo.getByteCount());
+                            }
                         }
-                        _audioThread.startTime = currentTime;
-                        _audioThread.samplesOffset = 0;
-                        break;
+                        auto tmpAudio = audio::Audio::create(inputInfo, size);
+                        audio::mix(
+                            audioDataP.data(),
+                            audioDataP.size(),
+                            tmpAudio->getData(),
+                            mute ? 0.F : volume,
+                            size,
+                            inputInfo.channelCount,
+                            inputInfo.dataType);
+
+                        // Resample the audio.
+                        auto resampledAudio = _audioThread.resample->process(tmpAudio);
+
+                        // Send audio data to the device.
+                        _dlOutput->ScheduleAudioSamples(
+                            resampledAudio->getData(),
+                            resampledAudio->getSampleCount(),
+                            0,
+                            0,
+                            nullptr);
+
+                        // Update the frame counter.
+                        _audioThread.frame += size;
                     }
-                    std::vector<const uint8_t*> audioDataP;
-                    for (const auto& layer : audioData.layers)
+                    else
                     {
-                        if (layer.audio && layer.audio->getInfo() == inputInfo)
-                        {
-                            audioDataP.push_back(layer.audio->getData() + offset * inputInfo.getByteCount());
-                        }
+                        std::unique_lock<std::mutex> lock(_audioMutex.mutex);
+                        _audioMutex.reset = true;
+                        _audioMutex.start = current;
+                        _audioMutex.current = current;
                     }
-
-                    const size_t size = std::min(
-                        audioBufferCount,
-                        inputInfo.sampleRate - static_cast<size_t>(offset));
-                    //std::cout << "size: " << size << " " << std::endl;
-                    auto tmpAudio = audio::Audio::create(inputInfo, size);
-                    audio::mix(
-                        audioDataP.data(),
-                        audioDataP.size(),
-                        tmpAudio->getData(),
-                        mute ? 0.F : volume,
-                        size,
-                        inputInfo.channelCount,
-                        inputInfo.dataType);
-
-                    auto resampledAudio = _audioThread.resample->process(tmpAudio);
-                    _dlOutput->ScheduleAudioSamples(
-                        resampledAudio->getData(),
-                        resampledAudio->getSampleCount(),
-                        0,
-                        0,
-                        nullptr);
-
-                    offset += size;
-                    if (offset >= inputInfo.sampleRate)
-                    {
-                        offset -= inputInfo.sampleRate;
-                        seconds += 1;
-                    }
-
-                    _audioThread.samplesOffset += size;
-
-                    HRESULT result = _dlOutput->GetBufferedAudioSampleFrameCount(&bufferedSampleCount);
-                    if (result != S_OK)
-                    {
-                        break;
-                    }
-
-                    //std::cout << std::endl;
                 }
             }
 

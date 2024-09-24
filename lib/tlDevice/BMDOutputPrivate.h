@@ -183,21 +183,20 @@ namespace tl
             struct AudioMutex
             {
                 timeline::Playback playback = timeline::Playback::Stop;
-                otime::RationalTime startTime = time::invalidTime;
-                otime::RationalTime currentTime = time::invalidTime;
                 float volume = 1.F;
                 bool mute = false;
                 double audioOffset = 0.0;
                 std::vector<timeline::AudioData> audioData;
+                bool reset = false;
+                otime::RationalTime start = time::invalidTime;
+                otime::RationalTime current = time::invalidTime;
                 std::mutex mutex;
             };
             AudioMutex _audioMutex;
 
             struct AudioThread
             {
-                timeline::Playback playback = timeline::Playback::Stop;
-                otime::RationalTime startTime = time::invalidTime;
-                size_t samplesOffset = 0;
+                size_t frame = 0;
                 std::shared_ptr<audio::AudioResample> resample;
             };
             AudioThread _audioThread;
