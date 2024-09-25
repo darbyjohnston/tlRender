@@ -134,9 +134,9 @@ namespace tl
                 const audio::Info& audioInfo);
 
             void setPlayback(timeline::Playback, const otime::RationalTime&);
-            void setVideo(
-                const std::shared_ptr<DLVideoFrameWrapper>&,
-                const otime::RationalTime&);
+            void setCurrentTime(const otime::RationalTime&);
+            void seek(const otime::RationalTime&);
+            void setVideo(const std::shared_ptr<DLVideoFrameWrapper>&);
             void setVolume(float);
             void setMute(bool);
             void setAudioOffset(double);
@@ -157,6 +157,7 @@ namespace tl
             PixelType _pixelType = PixelType::None;
             otime::RationalTime _frameRate = time::invalidTime;
             audio::Info _audioInfo;
+            otime::RationalTime _seek = time::invalidTime;
 
             std::atomic<size_t> _refCount;
 

@@ -174,6 +174,9 @@ namespace tl
             //! Observe the current time.
             std::shared_ptr<observer::IValue<otime::RationalTime> > observeCurrentTime() const;
 
+            //! Observe seeking.
+            std::shared_ptr<observer::IValue<otime::RationalTime> > observeSeek() const;
+
             //! Seek to the given time.
             void seek(const otime::RationalTime&);
 

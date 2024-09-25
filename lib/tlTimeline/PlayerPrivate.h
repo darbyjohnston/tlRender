@@ -62,6 +62,7 @@ namespace tl
             std::shared_ptr<observer::Value<Playback> > playback;
             std::shared_ptr<observer::Value<Loop> > loop;
             std::shared_ptr<observer::Value<otime::RationalTime> > currentTime;
+            std::shared_ptr<observer::Value<otime::RationalTime> > seek;
             std::shared_ptr<observer::Value<otime::TimeRange> > inOutRange;
             std::shared_ptr<observer::List<std::shared_ptr<Timeline> > > compare;
             std::shared_ptr<observer::Value<CompareTimeMode> > compareTime;

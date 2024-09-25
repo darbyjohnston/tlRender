@@ -325,10 +325,6 @@ namespace tl
                 }
 
                 // Get audio from the cache.
-                int64_t size = otio::RationalTime(
-                    nFrames * 2 - getSampleCount(p->audioThread.buffer),
-                    outputInfo.sampleRate).
-                    rescaled_to(inputInfo.sampleRate).value();
                 int64_t t = (start - p->timeRange.start_time()).rescaled_to(inputInfo.sampleRate).value();
                 if (Playback::Forward == playback)
                 {
@@ -340,6 +336,10 @@ namespace tl
                 }
                 int64_t seconds = t / inputInfo.sampleRate;
                 int64_t offset = t - (seconds * inputInfo.sampleRate);
+                int64_t size = otio::RationalTime(
+                    nFrames * 2 - getSampleCount(p->audioThread.buffer),
+                    outputInfo.sampleRate).
+                    rescaled_to(inputInfo.sampleRate).value();
                 if (Playback::Forward == playback)
                 {
                     size = std::min(
@@ -395,7 +395,6 @@ namespace tl
                         }
                     }
                     auto audio = audio::Audio::create(inputInfo, size);
-                    audio->zero();
                     const auto now = std::chrono::steady_clock::now();
                     if (mute ||
                         now < muteTimeout ||

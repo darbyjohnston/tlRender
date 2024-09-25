@@ -74,6 +74,7 @@ namespace tl
                 playerOptions.currentTime != time::invalidTime ?
                 playerOptions.currentTime :
                 p.timeRange.start_time());
+            p.seek = observer::Value<otime::RationalTime>::create(p.currentTime->get());
             p.inOutRange = observer::Value<otime::TimeRange>::create(p.timeRange);
             p.compare = observer::List<std::shared_ptr<Timeline> >::create();
             p.compareTime = observer::Value<CompareTimeMode>::create(CompareTimeMode::Relative);
@@ -363,6 +364,11 @@ namespace tl
             return _p->currentTime;
         }
 
+        std::shared_ptr<observer::IValue<otime::RationalTime> > Player::observeSeek() const
+        {
+            return _p->seek;
+        }
+
         void Player::seek(const otime::RationalTime& time)
         {
             TLRENDER_P();
@@ -375,6 +381,7 @@ namespace tl
             if (p.currentTime->setIfChanged(tmp))
             {
                 //std::cout << "seek: " << tmp << std::endl;
+                p.seek->setIfChanged(tmp);
                 {
                     std::unique_lock<std::mutex> lock(p.mutex.mutex);
                     p.mutex.currentTime = tmp;

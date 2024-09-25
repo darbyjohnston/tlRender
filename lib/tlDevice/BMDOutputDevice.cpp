@@ -51,6 +51,7 @@ namespace tl
             std::shared_ptr<timeline::Player> player;
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
+            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > seekObserver;
             std::shared_ptr<observer::ListObserver<timeline::VideoData> > videoObserver;
             std::shared_ptr<observer::ListObserver<timeline::AudioData> > audioObserver;
 
@@ -78,6 +79,7 @@ namespace tl
                 otime::TimeRange timeRange = time::invalidTimeRange;
                 timeline::Playback playback = timeline::Playback::Stop;
                 otime::RationalTime currentTime = time::invalidTime;
+                otime::RationalTime seek = time::invalidTime;
                 std::vector<timeline::VideoData> videoData;
                 std::shared_ptr<image::Image> overlay;
                 float volume = 1.F;
@@ -384,6 +386,7 @@ namespace tl
 
             p.playbackObserver.reset();
             p.currentTimeObserver.reset();
+            p.seekObserver.reset();
             p.videoObserver.reset();
             p.audioObserver.reset();
 
@@ -415,6 +418,20 @@ namespace tl
                             {
                                 std::unique_lock<std::mutex> lock(device->_p->mutex.mutex);
                                 device->_p->mutex.currentTime = value;
+                            }
+                            device->_p->thread.cv.notify_one();
+                        }
+                    },
+                    observer::CallbackAction::Suppress);
+                p.seekObserver = observer::ValueObserver<otime::RationalTime>::create(
+                    p.player->observeSeek(),
+                    [weak](const otime::RationalTime& value)
+                    {
+                        if (auto device = weak.lock())
+                        {
+                            {
+                                std::unique_lock<std::mutex> lock(device->_p->mutex.mutex);
+                                device->_p->mutex.seek = value;
                             }
                             device->_p->thread.cv.notify_one();
                         }
@@ -457,12 +474,14 @@ namespace tl
                     p.mutex.timeRange = p.player->getTimeRange();
                     p.mutex.playback = p.player->getPlayback();
                     p.mutex.currentTime = p.player->getCurrentTime();
+                    p.mutex.seek = p.player->getCurrentTime();
                 }
                 else
                 {
                     p.mutex.timeRange = time::invalidTimeRange;
                     p.mutex.playback = timeline::Playback::Stop;
                     p.mutex.currentTime = time::invalidTime;
+                    p.mutex.seek = time::invalidTime;
                 }
                 p.mutex.videoData.clear();
                 p.mutex.audioData.clear();
@@ -506,6 +525,7 @@ namespace tl
             timeline::BackgroundOptions backgroundOptions;
             timeline::Playback playback = timeline::Playback::Stop;
             otime::RationalTime currentTime = time::invalidTime;
+            otime::RationalTime seek = time::invalidTime;
             float volume = 1.F;
             bool mute = false;
             double audioOffset = 0.0;
@@ -531,7 +551,7 @@ namespace tl
                         [this, config, enabled, videoFrameDelay,
                         ocioOptions, lutOptions, imageOptions,
                         displayOptions, compareOptions, backgroundOptions,
-                        playback, currentTime,
+                        playback, currentTime, seek,
                         volume, mute, audioOffset, audioData]
                         {
                             return
@@ -552,6 +572,7 @@ namespace tl
                                 _p->thread.timeRange != _p->mutex.timeRange ||
                                 playback != _p->mutex.playback ||
                                 currentTime != _p->mutex.currentTime ||
+                                seek != _p->mutex.seek ||
                                 _p->thread.videoData != _p->mutex.videoData ||
                                 _p->thread.overlay != _p->mutex.overlay ||
                                 volume != _p->mutex.volume ||
@@ -571,6 +592,7 @@ namespace tl
                         p.thread.timeRange = p.mutex.timeRange;
                         playback = p.mutex.playback;
                         currentTime = p.mutex.currentTime;
+                        seek = p.mutex.seek;
 
                         doRender =
                             createDevice ||
@@ -693,6 +715,10 @@ namespace tl
                     p.thread.dl->outputCallback->setPlayback(
                         playback,
                         currentTime - p.thread.timeRange.start_time());
+                    p.thread.dl->outputCallback->setCurrentTime(
+                        currentTime - p.thread.timeRange.start_time());
+                    p.thread.dl->outputCallback->seek(
+                        seek - p.thread.timeRange.start_time());
                 }
                 if (p.thread.dl && p.thread.dl->outputCallback)
                 {
@@ -1044,12 +1070,7 @@ namespace tl
                 copyPackPixels(pboP, dlVideoFrameP, p.thread.size, p.thread.outputPixelType);
                 glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
             }
-
-            p.thread.dl->outputCallback->setVideo(
-                dlVideoFrame,
-                !p.thread.videoData.empty() ?
-                (p.thread.videoData.front().time - p.thread.timeRange.start_time()) :
-                time::invalidTime);
+            p.thread.dl->outputCallback->setVideo(dlVideoFrame);
         }
     }
 }
