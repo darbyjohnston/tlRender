@@ -6,6 +6,8 @@
 
 #include <tlDevice/BMDUtil.h>
 
+#include <tlTimeline/Util.h>
+
 namespace tl
 {
     namespace bmd
@@ -323,25 +325,7 @@ namespace tl
                     }
                     else
                     {
-                        const int64_t tmp = t;
-                        t -= size;
-                        if (t < (seconds * inputInfo.sampleRate))
-                        {
-                            if (tmp == (seconds * inputInfo.sampleRate))
-                            {
-                                --seconds;
-                                offset = t - (seconds * inputInfo.sampleRate);
-                            }
-                            else
-                            {
-                                size = tmp - (seconds * inputInfo.sampleRate);
-                                offset = 0;
-                            }
-                        }
-                        else
-                        {
-                            offset = t - (seconds * inputInfo.sampleRate);
-                        }
+                        timeline::reverseAudioChunk(t, seconds, offset, size, inputInfo.sampleRate);
                     }
                     //std::cout << "start: " << start << std::endl;
                     //std::cout << "current: " << current << std::endl;

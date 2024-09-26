@@ -34,6 +34,7 @@ namespace tl
             _ranges();
             _loop();
             _util();
+            _audio();
             _otioz();
         }
 
@@ -304,6 +305,47 @@ namespace tl
                 VideoData b;
                 b.time = otime::RationalTime(1.0, 24.0);
                 TLRENDER_ASSERT(isTimeEqual(a, b));
+            }
+        }
+
+        void UtilTest::_audio()
+        {
+            {
+                const size_t sampleRate = 48000;
+                int64_t t = 0;
+                int64_t seconds = 0;
+                int64_t offset = 0;
+                int64_t size = 0;
+
+                seconds = 10;
+                t = seconds * sampleRate + 1000;
+                offset = 1000;
+                size = 1000;
+                reverseAudioChunk(t, seconds, offset, size, sampleRate);
+                TLRENDER_ASSERT(480000 == t);
+                TLRENDER_ASSERT(10 == seconds);
+                TLRENDER_ASSERT(0 == offset);
+                TLRENDER_ASSERT(1000 == size);
+
+                seconds = 10;
+                t = seconds * sampleRate + 500;
+                offset = -500;
+                size = 1000;
+                reverseAudioChunk(t, seconds, offset, size, sampleRate);
+                TLRENDER_ASSERT(seconds * sampleRate == t);
+                TLRENDER_ASSERT(10 == seconds);
+                TLRENDER_ASSERT(0 == offset);
+                TLRENDER_ASSERT(500 == size);
+
+                seconds = 10;
+                t = seconds * sampleRate;
+                offset = 0;
+                size = 1000;
+                reverseAudioChunk(t, seconds, offset, size, sampleRate);
+                TLRENDER_ASSERT((10 * sampleRate - 1000) == t);
+                TLRENDER_ASSERT(9 == seconds);
+                TLRENDER_ASSERT((sampleRate - 1000) == offset);
+                TLRENDER_ASSERT(1000 == size);
             }
         }
         

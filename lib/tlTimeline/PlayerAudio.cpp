@@ -348,25 +348,7 @@ namespace tl
                 }
                 else
                 {
-                    const int64_t tmp = t;
-                    t -= size;
-                    if (t < (seconds * inputInfo.sampleRate))
-                    {
-                        if (tmp == (seconds * inputInfo.sampleRate))
-                        {
-                            --seconds;
-                            offset = t - (seconds * inputInfo.sampleRate);
-                        }
-                        else
-                        {
-                            size = tmp - (seconds * inputInfo.sampleRate);
-                            offset = 0;
-                        }
-                    }
-                    else
-                    {
-                        offset = t - (seconds * inputInfo.sampleRate);
-                    }
+                    reverseAudioChunk(t, seconds, offset, size, inputInfo.sampleRate);
                 }
                 AudioData audioData;
                 bool found = false;

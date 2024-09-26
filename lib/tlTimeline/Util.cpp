@@ -535,6 +535,35 @@ namespace tl
             return out;
         }
 
+        void reverseAudioChunk(
+            int64_t& t,
+            int64_t& seconds,
+            int64_t& offset,
+            int64_t& size,
+            size_t   sampleRate)
+        {
+            const int64_t tmp = t;
+            t -= size;
+            if (t < (seconds * sampleRate))
+            {
+                if (tmp == (seconds * sampleRate))
+                {
+                    --seconds;
+                    offset = t - (seconds * sampleRate);
+                }
+                else
+                {
+                    t = seconds * sampleRate;
+                    offset = 0;
+                    size = tmp - (seconds * sampleRate);
+                }
+            }
+            else
+            {
+                offset = t - (seconds * sampleRate);
+            }
+        }
+
         namespace
         {
             class OTIOZWriter
