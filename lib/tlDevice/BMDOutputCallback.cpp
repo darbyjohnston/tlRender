@@ -20,7 +20,7 @@ namespace tl
             IDeckLinkOutput* dlOutput,
             const math::Size2i& size,
             PixelType pixelType,
-            const otime::RationalTime& frameRate,
+            const FrameRate& frameRate,
             int videoFrameDelay,
             const audio::Info& audioInfo) :
             _dlOutput(dlOutput),
@@ -87,9 +87,9 @@ namespace tl
                 }
                 if (_dlOutput->ScheduleVideoFrame(
                     dlVideoFrame.p,
-                    _videoThread.frameCount * _frameRate.value(),
-                    _frameRate.value(),
-                    _frameRate.rate()) != S_OK)
+                    _videoThread.frameCount * _frameRate.num,
+                    _frameRate.num,
+                    _frameRate.den) != S_OK)
                 {
                     throw std::runtime_error("Cannot schedule video frame");
                 }
@@ -98,10 +98,7 @@ namespace tl
 
             _videoThread.t = std::chrono::steady_clock::now();
 
-            _dlOutput->StartScheduledPlayback(
-                0,
-                _frameRate.rate(),
-                1.0);
+            _dlOutput->StartScheduledPlayback(0, _frameRate.den, 1.0);
         }
 
         void DLOutputCallback::setPlayback(
@@ -222,9 +219,9 @@ namespace tl
 
             _dlOutput->ScheduleVideoFrame(
                 dlVideoFrame,
-                _videoThread.frameCount * _frameRate.value(),
-                _frameRate.value(),
-                _frameRate.rate());
+                _videoThread.frameCount * _frameRate.num,
+                _frameRate.num,
+                _frameRate.den);
             //std::cout << "result: " << getOutputFrameCompletionResultLabel(dlResult) << std::endl;
             _videoThread.frameCount += 1;
 

@@ -109,7 +109,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<bmd::DevicesModelData> > bmdDevicesObserver;
             std::shared_ptr<observer::ValueObserver<bool> > bmdActiveObserver;
             std::shared_ptr<observer::ValueObserver<math::Size2i> > bmdSizeObserver;
-            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > bmdFrameRateObserver;
+            std::shared_ptr<observer::ValueObserver<bmd::FrameRate> > bmdFrameRateObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
@@ -606,11 +606,14 @@ namespace tl
                 {
                     //std::cout << "output device size: " << value << std::endl;
                 });
-            p.bmdFrameRateObserver = observer::ValueObserver<otime::RationalTime>::create(
+            p.bmdFrameRateObserver = observer::ValueObserver<bmd::FrameRate>::create(
                 p.bmdOutputDevice->observeFrameRate(),
-                [this](const otime::RationalTime& value)
+                [this](const bmd::FrameRate& value)
                 {
-                    //std::cout << "output device frame rate: " << value << std::endl;
+                    //std::cout << "output device frame rate: " <<
+                    //    value.num << "/" <<
+                    //    value.den <<
+                    //    std::endl;
                 });
 
             p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(

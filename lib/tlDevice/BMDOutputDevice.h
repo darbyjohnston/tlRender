@@ -13,6 +13,16 @@ namespace tl
 {
     namespace bmd
     {
+        //! Frame rate.
+        struct FrameRate
+        {
+            int num = 0;
+            int den = 0;
+
+            bool operator == (const FrameRate&) const;
+            bool operator != (const FrameRate&) const;
+        };
+
         //! BMD output device.
         class OutputDevice : public std::enable_shared_from_this<OutputDevice>
         {
@@ -60,10 +70,10 @@ namespace tl
             std::shared_ptr<observer::IValue<math::Size2i> > observeSize() const;
 
             //! Get the frame rate.
-            const otime::RationalTime& getFrameRate() const;
+            const FrameRate& getFrameRate() const;
 
             //! Observe the frame rate.
-            std::shared_ptr<observer::IValue<otime::RationalTime> > observeFrameRate() const;
+            std::shared_ptr<observer::IValue<FrameRate> > observeFrameRate() const;
 
             //! Get the video frame delay.
             int getVideoFrameDelay() const;
@@ -122,7 +132,7 @@ namespace tl
                 const DeviceConfig&,
                 bool& active,
                 math::Size2i& size,
-                otime::RationalTime& frameRate,
+                FrameRate& frameRate,
                 int videoFrameDelay);
             void _render(
                 const DeviceConfig&,

@@ -129,7 +129,7 @@ namespace tl
                 IDeckLinkOutput*,
                 const math::Size2i& size,
                 PixelType pixelType,
-                const otime::RationalTime& frameRate,
+                const FrameRate& frameRate,
                 int videoFrameDelay,
                 const audio::Info& audioInfo);
 
@@ -155,7 +155,7 @@ namespace tl
             IDeckLinkOutput* _dlOutput = nullptr;
             math::Size2i _size;
             PixelType _pixelType = PixelType::None;
-            otime::RationalTime _frameRate = time::invalidTime;
+            FrameRate _frameRate;
             audio::Info _audioInfo;
             otime::RationalTime _seek = time::invalidTime;
 

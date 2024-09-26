@@ -38,6 +38,16 @@ namespace tl
             const std::chrono::milliseconds timeout(5);
         }
 
+        bool FrameRate::operator == (const FrameRate& other) const
+        {
+            return num == other.num && den == other.den;
+        }
+
+        bool FrameRate::operator != (const FrameRate& other) const
+        {
+            return !(*this == other);
+        }
+
         struct OutputDevice::Private
         {
             std::weak_ptr<system::Context> context;
@@ -45,7 +55,7 @@ namespace tl
             std::shared_ptr<observer::Value<bool> > enabled;
             std::shared_ptr<observer::Value<bool> > active;
             std::shared_ptr<observer::Value<math::Size2i> > size;
-            std::shared_ptr<observer::Value<otime::RationalTime> > frameRate;
+            std::shared_ptr<observer::Value<FrameRate> > frameRate;
             std::shared_ptr<observer::Value<int> > videoFrameDelay;
 
             std::shared_ptr<timeline::Player> player;
@@ -63,7 +73,7 @@ namespace tl
                 bool enabled = false;
                 bool active = false;
                 math::Size2i size;
-                otime::RationalTime frameRate = time::invalidTime;
+                FrameRate frameRate;
                 int videoFrameDelay = bmd::videoFrameDelay;
                 timeline::OCIOOptions ocioOptions;
                 timeline::LUTOptions lutOptions;
@@ -125,7 +135,7 @@ namespace tl
             p.enabled = observer::Value<bool>::create(false);
             p.active = observer::Value<bool>::create(false);
             p.size = observer::Value<math::Size2i>::create();
-            p.frameRate = observer::Value<otime::RationalTime>::create(time::invalidTime);
+            p.frameRate = observer::Value<FrameRate>::create();
             p.videoFrameDelay = observer::Value<int>::create(bmd::videoFrameDelay);
 
             p.window = gl::GLFWWindow::create(
@@ -232,12 +242,12 @@ namespace tl
             return _p->size;
         }
 
-        const otime::RationalTime& OutputDevice::getFrameRate() const
+        const FrameRate& OutputDevice::getFrameRate() const
         {
             return _p->frameRate->get();
         }
 
-        std::shared_ptr<observer::IValue<otime::RationalTime> > OutputDevice::observeFrameRate() const
+        std::shared_ptr<observer::IValue<FrameRate> > OutputDevice::observeFrameRate() const
         {
             return _p->frameRate;
         }
@@ -498,7 +508,7 @@ namespace tl
             TLRENDER_P();
             bool active = false;
             math::Size2i size = p.size->get();
-            otime::RationalTime frameRate = p.frameRate->get();
+            FrameRate frameRate = p.frameRate->get();
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                 active = p.mutex.active;
@@ -645,7 +655,7 @@ namespace tl
 
                     bool active = false;
                     math::Size2i size;
-                    otime::RationalTime frameRate = time::invalidTime;
+                    FrameRate frameRate;
                     if (enabled)
                     {
                         try
@@ -757,7 +767,7 @@ namespace tl
             const DeviceConfig& config,
             bool& active,
             math::Size2i& size,
-            otime::RationalTime& frameRate,
+            FrameRate& frameRate,
             int videoFrameDelay)
         {
             TLRENDER_P();
@@ -868,7 +878,8 @@ namespace tl
                     BMDTimeValue frameDuration;
                     BMDTimeScale frameTimescale;
                     dlDisplayMode->GetFrameRate(&frameDuration, &frameTimescale);
-                    frameRate = otime::RationalTime(frameDuration, frameTimescale);
+                    frameRate.num = static_cast<int>(frameDuration);
+                    frameRate.den = static_cast<int>(frameTimescale);
 
                     if (auto context = p.context.lock())
                     {
@@ -876,13 +887,14 @@ namespace tl
                             "tl::bmd::OutputDevice",
                             string::Format(
                                 "\n"
-                                "    #{0} {1}\n"
-                                "    video: {2} {3}\n"
-                                "    audio: {4} {5} {6}").
+                                "    #{0} {1}/{2}\n"
+                                "    video: {3} {4}\n"
+                                "    audio: {5} {6} {7}").
                             arg(config.deviceIndex).
                             arg(modelName).
                             arg(p.thread.size).
-                            arg(frameRate).
+                            arg(frameRate.num).
+                            arg(frameRate.den).
                             arg(audioInfo.channelCount).
                             arg(audioInfo.dataType).
                             arg(audioInfo.sampleRate));
