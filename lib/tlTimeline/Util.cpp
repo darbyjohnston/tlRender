@@ -592,7 +592,8 @@ namespace tl
                 const int64_t sizeTmp = std::min(outSize, static_cast<int64_t>(info.sampleRate) - offset);
                 for (size_t i = 0; i < secondsIt->layers.size(); ++i)
                 {
-                    if (secondsIt->layers[i].audio->getInfo() == info)
+                    if (secondsIt->layers[i].audio &&
+                        secondsIt->layers[i].audio->getInfo() == info)
                     {
                         memcpy(
                             out[i]->getData(),
@@ -601,12 +602,13 @@ namespace tl
                     }
                 }
 
-                if (secondsPlusOneIt != data.end())
+                if (outSize < size && secondsPlusOneIt != data.end())
                 {
                     // Copy audio from the second chunk.
                     for (size_t i = 0; i < secondsPlusOneIt->layers.size(); ++i)
                     {
-                        if (secondsPlusOneIt->layers[i].audio->getInfo() == info)
+                        if (secondsPlusOneIt->layers[i].audio &&
+                            secondsPlusOneIt->layers[i].audio->getInfo() == info)
                         {
                             memcpy(
                                 out[i]->getData() + sizeTmp * info.getByteCount(),
