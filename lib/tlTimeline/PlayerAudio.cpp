@@ -334,49 +334,41 @@ namespace tl
                 {
                     t -= p->audioThread.inputFrame;
                 }
-                int64_t seconds = t / inputInfo.sampleRate;
-                int64_t offset = t - (seconds * inputInfo.sampleRate);
+                std::vector<AudioData> audioDataList;
+                {
+                    const int64_t seconds = t / inputInfo.sampleRate;
+                    std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
+                    for (int64_t i = seconds - 1; i < seconds + 1; ++i)
+                    {
+                        auto j = p->audioMutex.audioDataCache.find(i);
+                        if (j != p->audioMutex.audioDataCache.end())
+                        {
+                            audioDataList.push_back(j->second);
+                        }
+                    }
+                }
                 int64_t size = otio::RationalTime(
                     nFrames * 2 - getSampleCount(p->audioThread.buffer),
                     outputInfo.sampleRate).
                     rescaled_to(inputInfo.sampleRate).value();
-                if (Playback::Forward == playback)
-                {
-                    size = std::min(
-                        size,
-                        static_cast<int64_t>(inputInfo.sampleRate) - offset);
-                }
-                else
-                {
-                    reverseAudioChunk(t, seconds, offset, size, inputInfo.sampleRate);
-                }
-                AudioData audioData;
-                bool found = false;
-                if (size >= 0 && seconds >= 0 && offset >= 0)
-                {
-                    std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
-                    auto j = p->audioMutex.audioDataCache.find(seconds);
-                    if (j != p->audioMutex.audioDataCache.end())
-                    {
-                        audioData = j->second;
-                        found = true;
-                    }
-                }
+                const auto audioList = audioCopy(
+                    inputInfo,
+                    audioDataList,
+                    playback,
+                    t,
+                    size);
 
-                if (found)
+                if (!audioList.empty())
                 {
                     // Mix the audio layers.
-                    std::vector<const uint8_t*> audioLayerP;
-                    for (const auto& layer : audioData.layers)
+                    std::vector<const uint8_t*> audioP;
+                        for (const auto& i : audioList)
                     {
-                        if (layer.audio && layer.audio->getInfo() == p->ioInfo.audio)
-                        {
-                            audioLayerP.push_back(
-                                layer.audio->getData() +
-                                offset * inputInfo.getByteCount());
-                        }
+                        audioP.push_back(i->getData());
                     }
-                    auto audio = audio::Audio::create(inputInfo, size);
+                    auto audio = audio::Audio::create(
+                        inputInfo,
+                        audioList[0]->getSampleCount());
                     const auto now = std::chrono::steady_clock::now();
                     if (mute ||
                         now < muteTimeout ||
@@ -385,11 +377,11 @@ namespace tl
                         volume = 0.F;
                     }
                     audio::mix(
-                        audioLayerP.data(),
-                        audioLayerP.size(),
+                        audioP.data(),
+                        audioP.size(),
                         audio->getData(),
                         volume,
-                        size,
+                        audioList[0]->getSampleCount(),
                         inputInfo.channelCount,
                         inputInfo.dataType);
 
@@ -400,7 +392,7 @@ namespace tl
                         audio::reverse(
                             audio->getData(),
                             tmp->getData(),
-                            size,
+                            audio->getSampleCount(),
                             audio->getChannelCount(),
                             audio->getDataType());
                         audio = tmp;
@@ -420,11 +412,11 @@ namespace tl
                 }
 
                 // Update the frame counters.
-                if (found || p->audioThread.cacheRetryCount > 1)
+                if (!audioList.empty() || p->audioThread.cacheRetryCount > 1)
                 {
                     p->audioThread.cacheRetryCount = 0;
-                    p->audioThread.inputFrame += (found && size >= 0) ?
-                        size :
+                    p->audioThread.inputFrame += !audioList.empty() ?
+                        audioList[0]->getSampleCount() :
                         otio::RationalTime(
                             nFrames,
                             outputInfo.sampleRate).

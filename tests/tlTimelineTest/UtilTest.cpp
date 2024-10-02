@@ -311,41 +311,89 @@ namespace tl
         void UtilTest::_audio()
         {
             {
-                const size_t sampleRate = 48000;
-                int64_t t = 0;
-                int64_t seconds = 0;
-                int64_t offset = 0;
-                int64_t size = 0;
+                audio::Info info(2, audio::DataType::S32, 48000);
+                std::vector<AudioData> data;
+                auto out = audioCopy(info, data, Playback::Forward, 0, 2000);
+                TLRENDER_ASSERT(out.empty());
 
-                seconds = 10;
-                t = seconds * sampleRate + 1000;
-                offset = 1000;
-                size = 1000;
-                reverseAudioChunk(t, seconds, offset, size, sampleRate);
-                TLRENDER_ASSERT(480000 == t);
-                TLRENDER_ASSERT(10 == seconds);
-                TLRENDER_ASSERT(0 == offset);
-                TLRENDER_ASSERT(1000 == size);
+                auto audio = audio::Audio::create(info, info.sampleRate);
+                audio::S32_T* audioP = reinterpret_cast<audio::S32_T*>(audio->getData());
+                for (size_t i = 0; i < info.sampleRate; ++i, audioP += 2)
+                {
+                    audioP[0] = i;
+                    audioP[1] = i + 1;
+                }
+                data.push_back(AudioData({ 0.0, { { audio } } }));
+                out = audioCopy(info, data, Playback::Forward, 0, 2000);
+                TLRENDER_ASSERT(1 == out.size());
+                TLRENDER_ASSERT(2000 == out[0]->getSampleCount());
+                audioP = reinterpret_cast<audio::S32_T*>(out[0]->getData());
+                for (size_t i = 0; i < out[0]->getSampleCount(); ++i, audioP += 2)
+                {
+                    TLRENDER_ASSERT(i == audioP[0]);
+                    TLRENDER_ASSERT((i + 1) == audioP[1]);
+                }
 
-                seconds = 10;
-                t = seconds * sampleRate + 500;
-                offset = -500;
-                size = 1000;
-                reverseAudioChunk(t, seconds, offset, size, sampleRate);
-                TLRENDER_ASSERT(seconds * sampleRate == t);
-                TLRENDER_ASSERT(10 == seconds);
-                TLRENDER_ASSERT(0 == offset);
-                TLRENDER_ASSERT(500 == size);
+                out = audioCopy(info, data, Playback::Forward, info.sampleRate - 1000, 2000);
+                TLRENDER_ASSERT(1 == out.size());
+                TLRENDER_ASSERT(1000 == out[0]->getSampleCount());
+                audioP = reinterpret_cast<audio::S32_T*>(out[0]->getData());
+                for (size_t i = 0, j = info.sampleRate - 1000; i < out[0]->getSampleCount(); ++i, ++j, audioP += 2)
+                {
+                    TLRENDER_ASSERT(j == audioP[0]);
+                    TLRENDER_ASSERT((j + 1) == audioP[1]);
+                }
 
-                seconds = 10;
-                t = seconds * sampleRate;
-                offset = 0;
-                size = 1000;
-                reverseAudioChunk(t, seconds, offset, size, sampleRate);
-                TLRENDER_ASSERT((10 * sampleRate - 1000) == t);
-                TLRENDER_ASSERT(9 == seconds);
-                TLRENDER_ASSERT((sampleRate - 1000) == offset);
-                TLRENDER_ASSERT(1000 == size);
+                data.push_back(AudioData({ 1.0, { { audio } } }));
+                out = audioCopy(info, data, Playback::Forward, info.sampleRate - 1000, 2000);
+                TLRENDER_ASSERT(1 == out.size());
+                TLRENDER_ASSERT(2000 == out[0]->getSampleCount());
+                audioP = reinterpret_cast<audio::S32_T*>(out[0]->getData());
+                size_t i = 0;
+                size_t j = info.sampleRate - 1000;
+                for (; i < 1000; ++i, ++j, audioP += 2)
+                {
+                    TLRENDER_ASSERT(j == audioP[0]);
+                    TLRENDER_ASSERT((j + 1) == audioP[1]);
+                }
+                i = 0;
+                j = 0;
+                for (; i < 1000; ++i, ++j, audioP += 2)
+                {
+                    TLRENDER_ASSERT(j == audioP[0]);
+                    TLRENDER_ASSERT((j + 1) == audioP[1]);
+                }
+
+                out = audioCopy(info, data, Playback::Reverse, info.sampleRate, 2000);
+                TLRENDER_ASSERT(1 == out.size());
+                TLRENDER_ASSERT(2000 == out[0]->getSampleCount());
+                audioP = reinterpret_cast<audio::S32_T*>(out[0]->getData());
+                i = 0;
+                j = info.sampleRate - 2000;
+                for (; i < 2000; ++i, ++j, audioP += 2)
+                {
+                    TLRENDER_ASSERT(j == audioP[0]);
+                    TLRENDER_ASSERT((j + 1) == audioP[1]);
+                }
+
+                out = audioCopy(info, data, Playback::Reverse, info.sampleRate + 1000, 2000);
+                TLRENDER_ASSERT(1 == out.size());
+                TLRENDER_ASSERT(2000 == out[0]->getSampleCount());
+                audioP = reinterpret_cast<audio::S32_T*>(out[0]->getData());
+                i = 0;
+                j = info.sampleRate - 1000;
+                for (; i < 1000; ++i, ++j, audioP += 2)
+                {
+                    TLRENDER_ASSERT(j == audioP[0]);
+                    TLRENDER_ASSERT((j + 1) == audioP[1]);
+                }
+                i = 0;
+                j = 0;
+                for (; i < 1000; ++i, ++j, audioP += 2)
+                {
+                    TLRENDER_ASSERT(j == audioP[0]);
+                    TLRENDER_ASSERT((j + 1) == audioP[1]);
+                }
             }
         }
         

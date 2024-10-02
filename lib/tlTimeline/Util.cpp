@@ -535,33 +535,89 @@ namespace tl
             return out;
         }
 
-        void reverseAudioChunk(
-            int64_t& t,
-            int64_t& seconds,
-            int64_t& offset,
-            int64_t& size,
-            size_t   sampleRate)
+        std::vector<std::shared_ptr<audio::Audio> > audioCopy(
+            const audio::Info& info,
+            const std::vector<AudioData>& data,
+            Playback playback,
+            int64_t frame,
+            int64_t size)
         {
-            const int64_t tmp = t;
-            t -= size;
-            if (t < (seconds * sampleRate))
+            std::vector<std::shared_ptr<audio::Audio> > out;
+
+            // Adjust the frame for reverse playback.
+            if (Playback::Reverse == playback)
             {
-                if (tmp == (seconds * sampleRate))
+                frame -= size;
+            }
+
+            // Find the first chunk of audio data.
+            const int64_t seconds = frame / info.sampleRate;
+            auto secondsIt = std::find_if(
+                data.begin(),
+                data.end(),
+                [seconds](const AudioData& data)
                 {
-                    --seconds;
-                    offset = t - (seconds * sampleRate);
+                    return seconds == data.seconds;
+                });
+
+            // Find the second chunk of audio data.
+            const int64_t secondsPlusOne = seconds + 1;
+            auto secondsPlusOneIt = std::find_if(
+                data.begin(),
+                data.end(),
+                [secondsPlusOne](const AudioData& data)
+                {
+                    return secondsPlusOne == data.seconds;
+                });
+
+            if (secondsIt != data.end())
+            {
+                // Adjust the size if necessary.
+                const int64_t offset = frame - seconds * info.sampleRate;
+                int64_t outSize = size;
+                if ((offset + outSize) > info.sampleRate && secondsPlusOneIt == data.end())
+                {
+                    outSize = info.sampleRate - offset;
                 }
-                else
+
+                // Create the output audio.
+                for (size_t i = 0; i < secondsIt->layers.size(); ++i)
                 {
-                    t = seconds * sampleRate;
-                    offset = 0;
-                    size = tmp - (seconds * sampleRate);
+                    auto audio = audio::Audio::create(info, outSize);
+                    audio->zero();
+                    out.push_back(audio);
+                }
+
+                // Copy audio from the first chunk.
+                const int64_t sizeTmp = std::min(outSize, static_cast<int64_t>(info.sampleRate) - offset);
+                for (size_t i = 0; i < secondsIt->layers.size(); ++i)
+                {
+                    if (secondsIt->layers[i].audio->getInfo() == info)
+                    {
+                        memcpy(
+                            out[i]->getData(),
+                            secondsIt->layers[i].audio->getData() + offset * info.getByteCount(),
+                            sizeTmp * info.getByteCount());
+                    }
+                }
+
+                if (secondsPlusOneIt != data.end())
+                {
+                    // Copy audio from the second chunk.
+                    for (size_t i = 0; i < secondsPlusOneIt->layers.size(); ++i)
+                    {
+                        if (secondsPlusOneIt->layers[i].audio->getInfo() == info)
+                        {
+                            memcpy(
+                                out[i]->getData() + sizeTmp * info.getByteCount(),
+                                secondsPlusOneIt->layers[i].audio->getData(),
+                                (outSize - sizeTmp) * info.getByteCount());
+                        }
+                    }
                 }
             }
-            else
-            {
-                offset = t - (seconds * sampleRate);
-            }
+
+            return out;
         }
 
         namespace

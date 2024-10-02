@@ -299,10 +299,11 @@ namespace tl
                 uint32_t bufferedSampleCount = 0;
                 _dlOutput->GetBufferedAudioSampleFrameCount(&bufferedSampleCount);
                 //std::cout << "bmd buffered samples: " << bufferedSampleCount << std::endl;
+                bufferedSampleCount = otime::RationalTime(bufferedSampleCount, _audioInfo.sampleRate).
+                    rescaled_to(inputInfo.sampleRate).value();
                 if (bufferedSampleCount < audioBufferCount)
                 {
                     // Find the audio data.
-                    timeline::AudioData audioData;
                     int64_t t =
                         start.rescaled_to(inputInfo.sampleRate).value() -
                         otime::RationalTime(audioOffset, 1.0).rescaled_to(inputInfo.sampleRate).value();
@@ -314,59 +315,34 @@ namespace tl
                     {
                         t -= _audioThread.frame;
                     }
-                    int64_t seconds = t / inputInfo.sampleRate;
-                    int64_t offset = t - seconds * inputInfo.sampleRate;
                     int64_t size = audioBufferCount - bufferedSampleCount;
-                    if (timeline::Playback::Forward == playback)
-                    {
-                        size = std::min(
-                            size,
-                            static_cast<int64_t>(inputInfo.sampleRate) - offset);
-                    }
-                    else
-                    {
-                        timeline::reverseAudioChunk(t, seconds, offset, size, inputInfo.sampleRate);
-                    }
-                    //std::cout << "start: " << start << std::endl;
-                    //std::cout << "current: " << current << std::endl;
-                    //std::cout << "t: " << t << std::endl;
-                    //std::cout << "seconds: " << seconds << std::endl;
-                    //std::cout << "offset: " << offset << std::endl;
-                    //std::cout << "size: " << size << std::endl;
-                    bool found = false;
-                    if (size >= 0 && seconds >= 0 && offset >= 0)
-                    {
-                        for (const auto& i : audioDataList)
-                        {
-                            if (seconds == static_cast<int64_t>(i.seconds))
-                            {
-                                audioData = i;
-                                found = true;
-                                break;
-                            }
-                        }
-                    }
-                    //std::cout << "found: " << found << std::endl;
-                    //std::cout << std::endl;
+                    const auto audioList = audioCopy(
+                        inputInfo,
+                        audioDataList,
+                        playback,
+                        t,
+                        size);
 
-                    if (found)
+                    if (!audioList.empty())
                     {
+                        //std::cout << "t: " << t << std::endl;
+                        //std::cout << "size: " << audioData.size() << std::endl;
+
                         // Mix the audio layers.
-                        std::vector<const uint8_t*> audioDataP;
-                        for (const auto& layer : audioData.layers)
+                        std::vector<const uint8_t*> audioP;
+                        for (const auto& i : audioList)
                         {
-                            if (layer.audio && layer.audio->getInfo() == inputInfo)
-                            {
-                                audioDataP.push_back(layer.audio->getData() + offset * inputInfo.getByteCount());
-                            }
+                            audioP.push_back(i->getData());
                         }
-                        auto audio = audio::Audio::create(inputInfo, size);
+                        auto audio = audio::Audio::create(
+                            inputInfo,
+                            audioList[0]->getSampleCount());
                         audio::mix(
-                            audioDataP.data(),
-                            audioDataP.size(),
+                            audioP.data(),
+                            audioP.size(),
                             audio->getData(),
                             mute ? 0.F : volume,
-                            size,
+                            audioList[0]->getSampleCount(),
                             inputInfo.channelCount,
                             inputInfo.dataType);
 
@@ -377,7 +353,7 @@ namespace tl
                             audio::reverse(
                                 audio->getData(),
                                 tmp->getData(),
-                                size,
+                                audio->getSampleCount(),
                                 audio->getChannelCount(),
                                 audio->getDataType());
                             audio = tmp;
@@ -395,13 +371,14 @@ namespace tl
                             nullptr);
 
                         // Update the frame counter.
-                        _audioThread.frame += size;
+                        _audioThread.frame += audioList[0]->getSampleCount();
                     }
                     else
                     {
                         std::unique_lock<std::mutex> lock(_audioMutex.mutex);
                         _audioMutex.reset = true;
                         _audioMutex.start = current;
+                        _audioMutex.current = current;
                     }
                 }
             }

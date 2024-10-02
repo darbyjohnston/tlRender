@@ -117,14 +117,13 @@ namespace tl
             const otime::TimeRange& trimmedRange,
             double sampleRate);
 
-        //! Calculate the offset and size of data needed when playing back
-        //! reverse audio.
-        void reverseAudioChunk(
-            int64_t& t,
-            int64_t& seconds,
-            int64_t& offset,
-            int64_t& size,
-            size_t   sampleRate);
+        //! Copy audio data.
+        std::vector<std::shared_ptr<audio::Audio> > audioCopy(
+            const audio::Info&,
+            const std::vector<AudioData>&,
+            Playback,
+            int64_t frame,
+            int64_t size);
 
         //! Write a timeline to an .otioz file.
         bool writeOTIOZ(
