@@ -118,6 +118,11 @@ if(APPLE)
     set(CMAKE_FIND_FRAMEWORK LAST)
 endif()
 
+if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
+endif()
+
 if(WIN32)
 elseif(APPLE)
     set(CMAKE_SKIP_BUILD_RPATH FALSE)
