@@ -173,20 +173,20 @@ namespace tl
             // Traverse the timeline for new video requests.
             for (auto& request : newVideoRequests)
             {
-                try
+                for (const auto& otioTrack : thread.otioTimeline->video_tracks())
                 {
-                    for (const auto& otioTrack : thread.otioTimeline->video_tracks())
+                    for (const auto& otioChild : otioTrack->children())
                     {
-                        for (const auto& otioChild : otioTrack->children())
+                        if (auto otioItem = dynamic_cast<otio::Item*>(otioChild.value))
                         {
-                            if (auto otioItem = dynamic_cast<otio::Item*>(otioChild.value))
+                            const auto requestTime = request->time - timeRange.start_time();
+                            otio::ErrorStatus errorStatus;
+                            const auto range = otioItem->trimmed_range_in_parent(&errorStatus);
+                            if (range.has_value() && range.value().contains(requestTime))
                             {
-                                const auto requestTime = request->time - timeRange.start_time();
-                                otio::ErrorStatus errorStatus;
-                                const auto range = otioItem->trimmed_range_in_parent(&errorStatus);
-                                if (range.has_value() && range.value().contains(requestTime))
+                                VideoLayerData videoData;
+                                try
                                 {
-                                    VideoLayerData videoData;
                                     if (auto otioClip = dynamic_cast<const otio::Clip*>(otioItem))
                                     {
                                         videoData.image = readVideo(otioClip, requestTime, request->options);
@@ -225,15 +225,15 @@ namespace tl
                                             }
                                         }
                                     }
-                                    request->layerData.push_back(std::move(videoData));
                                 }
+                                catch (const std::exception&)
+                                {
+                                    //! \todo How should this be handled?
+                                }
+                                request->layerData.push_back(std::move(videoData));
                             }
                         }
                     }
-                }
-                catch (const std::exception&)
-                {
-                    //! \todo How should this be handled?
                 }
 
                 thread.videoRequestsInProgress.push_back(request);
@@ -242,29 +242,29 @@ namespace tl
             // Traverse the timeline for new audio requests.
             for (auto& request : newAudioRequests)
             {
-                try
+                for (const auto& otioTrack : thread.otioTimeline->audio_tracks())
                 {
-                    for (const auto& otioTrack : thread.otioTimeline->audio_tracks())
+                    for (const auto& otioChild : otioTrack->children())
                     {
-                        for (const auto& otioChild : otioTrack->children())
+                        if (auto otioClip = dynamic_cast<otio::Clip*>(otioChild.value))
                         {
-                            if (auto otioClip = dynamic_cast<otio::Clip*>(otioChild.value))
+                            const auto rangeOptional = otioClip->trimmed_range_in_parent();
+                            if (rangeOptional.has_value())
                             {
-                                const auto rangeOptional = otioClip->trimmed_range_in_parent();
-                                if (rangeOptional.has_value())
+                                const otime::TimeRange clipTimeRange(
+                                    rangeOptional.value().start_time().rescaled_to(1.0),
+                                    rangeOptional.value().duration().rescaled_to(1.0));
+                                const double start = request->seconds -
+                                    timeRange.start_time().rescaled_to(1.0).value();
+                                const otime::TimeRange requestTimeRange = otime::TimeRange(
+                                    otime::RationalTime(start, 1.0),
+                                    otime::RationalTime(1.0, 1.0));
+                                if (requestTimeRange.intersects(clipTimeRange))
                                 {
-                                    const otime::TimeRange clipTimeRange(
-                                        rangeOptional.value().start_time().rescaled_to(1.0),
-                                        rangeOptional.value().duration().rescaled_to(1.0));
-                                    const double start = request->seconds -
-                                        timeRange.start_time().rescaled_to(1.0).value();
-                                    const otime::TimeRange requestTimeRange = otime::TimeRange(
-                                        otime::RationalTime(start, 1.0),
-                                        otime::RationalTime(1.0, 1.0));
-                                    if (requestTimeRange.intersects(clipTimeRange))
+                                    AudioLayerData audioData;
+                                    audioData.seconds = request->seconds;
+                                    try
                                     {
-                                        AudioLayerData audioData;
-                                        audioData.seconds = request->seconds;
                                         //! \bug Why is otime::TimeRange::clamped() not giving us the
                                         //! result we expect?
                                         //audioData.timeRange = requestTimeRange.clamped(clipTimeRange);
@@ -278,18 +278,17 @@ namespace tl
                                             otime::RationalTime(start, 1.0),
                                             otime::RationalTime(end - start, 1.0));
                                         audioData.audio = readAudio(otioClip, audioData.timeRange, request->options);
-                                        request->layerData.push_back(std::move(audioData));
                                     }
+                                    catch (const std::exception&)
+                                    {
+                                        //! \todo How should this be handled?
+                                    }
+                                    request->layerData.push_back(std::move(audioData));
                                 }
                             }
                         }
                     }
                 }
-                catch (const std::exception&)
-                {
-                    //! \todo How should this be handled?
-                }
-
                 thread.audioRequestsInProgress.push_back(request);
             }
 
@@ -317,27 +316,20 @@ namespace tl
                         data.size = ioInfo.video.front().size;
                     }
                     data.time = (*videoRequestIt)->time;
-                    try
+                    for (auto& j : (*videoRequestIt)->layerData)
                     {
-                        for (auto& j : (*videoRequestIt)->layerData)
+                        VideoLayer layer;
+                        if (j.image.valid())
                         {
-                            VideoLayer layer;
-                            if (j.image.valid())
-                            {
-                                layer.image = j.image.get().image;
-                            }
-                            if (j.imageB.valid())
-                            {
-                                layer.imageB = j.imageB.get().image;
-                            }
-                            layer.transition = j.transition;
-                            layer.transitionValue = j.transitionValue;
-                            data.layers.push_back(layer);
+                            layer.image = j.image.get().image;
                         }
-                    }
-                    catch (const std::exception&)
-                    {
-                        //! \todo How should this be handled?
+                        if (j.imageB.valid())
+                        {
+                            layer.imageB = j.imageB.get().image;
+                        }
+                        layer.transition = j.transition;
+                        layer.transitionValue = j.transitionValue;
+                        data.layers.push_back(layer);
                     }
                     (*videoRequestIt)->promise.set_value(data);
                     videoRequestIt = thread.videoRequestsInProgress.erase(videoRequestIt);
@@ -362,25 +354,24 @@ namespace tl
                 {
                     AudioData data;
                     data.seconds = (*audioRequestIt)->seconds;
-                    try
+                    for (auto& j : (*audioRequestIt)->layerData)
                     {
-                        for (auto& j : (*audioRequestIt)->layerData)
+                        AudioLayer layer;
+                        if (j.audio.valid())
                         {
-                            AudioLayer layer;
-                            if (j.audio.valid())
+                            const auto audioData = j.audio.get();
+                            if (audioData.audio)
                             {
-                                const auto audioData = j.audio.get();
-                                if (audioData.audio)
-                                {
-                                    layer.audio = padAudioToOneSecond(audioData.audio, j.seconds, j.timeRange);
-                                }
+                                layer.audio = padAudioToOneSecond(audioData.audio, j.seconds, j.timeRange);
                             }
-                            data.layers.push_back(layer);
                         }
+                        data.layers.push_back(layer);
                     }
-                    catch (const std::exception&)
+                    if (data.layers.empty())
                     {
-                        //! \todo How should this be handled?
+                        auto audio = audio::Audio::create(ioInfo.audio, ioInfo.audio.sampleRate);
+                        audio->zero();
+                        data.layers.push_back({ audio });
                     }
                     (*audioRequestIt)->promise.set_value(data);
                     audioRequestIt = thread.audioRequestsInProgress.erase(audioRequestIt);
