@@ -602,7 +602,7 @@ namespace tl
                     }
                 }
 
-                if (outSize < size && secondsPlusOneIt != data.end())
+                if (sizeTmp < outSize && secondsPlusOneIt != data.end())
                 {
                     // Copy audio from the second chunk.
                     for (size_t i = 0; i < secondsPlusOneIt->layers.size(); ++i)
