@@ -174,17 +174,8 @@ namespace tl
             {
                 audio::DeviceID id = audioDevice->get();
                 auto audioSystem = context->getSystem<audio::System>();
-                if (audio::DeviceID() == id)
-                {
-                    id = audioSystem->getDefaultOutputDevice();
-                }
-                {
-                    std::stringstream ss;
-                    ss << "Opening audio device: " << id.number << " " << id.name;
-                    context->log("tl::timeline::Player", ss.str());
-                }
                 const auto devices = audioSystem->getDevices();
-                const auto i = std::find_if(
+                auto i = std::find_if(
                     devices.begin(),
                     devices.end(),
                     [id](const audio::DeviceInfo& value)
@@ -192,19 +183,35 @@ namespace tl
                         return id == value.id;
                     });
                 audioInfo = audio::Info();
+                if (i == devices.end())
+                {
+                    id = audioSystem->getDefaultOutputDevice();
+                    i = std::find_if(
+                        devices.begin(),
+                        devices.end(),
+                        [id](const audio::DeviceInfo& value)
+                        {
+                            return id == value.id;
+                        });
+                }
                 if (i != devices.end())
                 {
                     audioInfo = i->outputInfo;
                 }
+                {
+                    std::stringstream ss;
+                    ss << "Opening audio device: " << id.number << " " << id.name;
+                    context->log("tl::timeline::Player", ss.str());
+                }
                 audioInfo.channelCount = getAudioChannelCount(
                     ioInfo.audio,
                     audioInfo);
-                if (audioInfo.channelCount > 0 &&
-                    audioInfo.dataType != audio::DataType::None &&
-                    audioInfo.sampleRate > 0)
+                if (audioInfo.isValid())
                 {
                     // These are OK to modify since the audio thread is stopped.
                     audioMutex.reset = true;
+                    audioMutex.start = currentTime->get();
+                    audioMutex.frame = 0;
                     audioThread.info = audioInfo;
                     audioThread.resample.reset();
 
@@ -248,7 +255,7 @@ namespace tl
             const audio::Info& input,
             const audio::Info& output)
         {
-            size_t out = 2;
+            size_t out = std::min(static_cast<size_t>(2), output.channelCount);
             if (input.channelCount == output.channelCount)
             {
                 out = output.channelCount;

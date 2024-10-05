@@ -100,6 +100,18 @@ namespace tl
                     }
                 });
             auto audioSystem = context->getSystem<audio::System>();
+            p.audioDevicesObserver = observer::ListObserver<audio::DeviceInfo>::create(
+                audioSystem->observeDevices(),
+                [weak](const std::vector<audio::DeviceInfo>&)
+                {
+                    if (auto player = weak.lock())
+                    {
+                        if (auto context = player->getContext().lock())
+                        {
+                            player->_p->audioInit(context);
+                        }
+                    }
+                });
             p.defaultAudioDeviceObserver = observer::ValueObserver<audio::DeviceID>::create(
                 audioSystem->observeDefaultOutputDevice(),
                 [weak](const audio::DeviceID&)

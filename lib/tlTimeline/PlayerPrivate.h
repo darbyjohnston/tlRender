@@ -78,6 +78,7 @@ namespace tl
             std::shared_ptr<observer::Value<PlayerCacheOptions> > cacheOptions;
             std::shared_ptr<observer::Value<PlayerCacheInfo> > cacheInfo;
             std::shared_ptr<observer::ValueObserver<bool> > timelineObserver;
+            std::shared_ptr<observer::ListObserver<audio::DeviceInfo> > audioDevicesObserver;
             std::shared_ptr<observer::ValueObserver<audio::DeviceID> > defaultAudioDeviceObserver;
 
 #if defined(TLRENDER_AUDIO)
