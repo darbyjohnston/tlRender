@@ -107,10 +107,15 @@ namespace tl
             timeline::Playback value,
             const otime::RationalTime& time)
         {
-            std::unique_lock<std::mutex> lock(_audioMutex.mutex);
-            if (value != _audioMutex.playback)
+            if (value == _playback)
+                return;
+            _playback = value;
             {
-                _dlOutput->FlushBufferedAudioSamples();
+                std::unique_lock<std::mutex> lock(_videoMutex.mutex);
+                _videoMutex.videoFrames.clear();
+            }
+            {
+                std::unique_lock<std::mutex> lock(_audioMutex.mutex);
                 _audioMutex.playback = value;
                 _audioMutex.reset = true;
                 _audioMutex.start = time;
@@ -118,21 +123,21 @@ namespace tl
             }
         }
 
-        void DLOutputCallback::setCurrentTime(const otime::RationalTime& time)
-        {
-            std::unique_lock<std::mutex> lock(_audioMutex.mutex);
-            _audioMutex.current = time;
-        }
-
         void DLOutputCallback::seek(const otime::RationalTime& time)
         {
             if (time == _seek)
                 return;
             _seek = time;
-            std::unique_lock<std::mutex> lock(_audioMutex.mutex);
-            _audioMutex.reset = true;
-            _audioMutex.start = time;
-            _audioMutex.current = time;
+            {
+                std::unique_lock<std::mutex> lock(_videoMutex.mutex);
+                _videoMutex.videoFrames.clear();
+            }
+            {
+                std::unique_lock<std::mutex> lock(_audioMutex.mutex);
+                _audioMutex.reset = true;
+                _audioMutex.start = time;
+                _audioMutex.current = time;
+            }
         }
 
         void DLOutputCallback::setVideo(const std::shared_ptr<DLVideoFrameWrapper>& value)
@@ -371,7 +376,7 @@ namespace tl
                             nullptr);
 
                         // Update the frame counter.
-                        _audioThread.frame += audioList[0]->getSampleCount();
+                        _audioThread.frame += audio->getSampleCount();
                     }
                     else
                     {

@@ -725,8 +725,6 @@ namespace tl
                     p.thread.dl->outputCallback->setPlayback(
                         playback,
                         currentTime - p.thread.timeRange.start_time());
-                    p.thread.dl->outputCallback->setCurrentTime(
-                        currentTime - p.thread.timeRange.start_time());
                     p.thread.dl->outputCallback->seek(
                         seek - p.thread.timeRange.start_time());
                 }
