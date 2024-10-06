@@ -135,7 +135,9 @@ namespace tl
 
             void setPlayback(timeline::Playback, const otime::RationalTime&);
             void seek(const otime::RationalTime&);
-            void setVideo(const std::shared_ptr<DLVideoFrameWrapper>&);
+            void setVideo(
+                const otime::RationalTime&,
+                const std::shared_ptr<DLVideoFrameWrapper>&);
             void setVolume(float);
             void setMute(bool);
             void setAudioOffset(double);
@@ -163,6 +165,7 @@ namespace tl
 
             struct VideoMutex
             {
+                otime::RationalTime time = time::invalidTime;
                 std::list<std::shared_ptr<DLVideoFrameWrapper> > videoFrames;
                 std::mutex mutex;
             };

@@ -14,7 +14,7 @@ namespace tl
     {
         namespace
         {
-            const size_t videoFramesMax = 3;
+            const size_t videoFramesMax = 2;
             const size_t audioBufferCount = 2000;
         }
 
@@ -111,10 +111,6 @@ namespace tl
                 return;
             _playback = value;
             {
-                std::unique_lock<std::mutex> lock(_videoMutex.mutex);
-                _videoMutex.videoFrames.clear();
-            }
-            {
                 std::unique_lock<std::mutex> lock(_audioMutex.mutex);
                 _audioMutex.playback = value;
                 _audioMutex.reset = true;
@@ -129,10 +125,6 @@ namespace tl
                 return;
             _seek = time;
             {
-                std::unique_lock<std::mutex> lock(_videoMutex.mutex);
-                _videoMutex.videoFrames.clear();
-            }
-            {
                 std::unique_lock<std::mutex> lock(_audioMutex.mutex);
                 _audioMutex.reset = true;
                 _audioMutex.start = time;
@@ -140,13 +132,31 @@ namespace tl
             }
         }
 
-        void DLOutputCallback::setVideo(const std::shared_ptr<DLVideoFrameWrapper>& value)
+        void DLOutputCallback::setVideo(
+            const otime::RationalTime& time,
+            const std::shared_ptr<DLVideoFrameWrapper>& value)
         {
-            std::unique_lock<std::mutex> lock(_videoMutex.mutex);
-            _videoMutex.videoFrames.push_back(value);
-            while (_videoMutex.videoFrames.size() > videoFramesMax)
+            bool reset = false;
             {
-                _videoMutex.videoFrames.pop_front();
+                std::unique_lock<std::mutex> lock(_videoMutex.mutex);
+                reset = std::abs((time - _videoMutex.time).value()) > 1.0;
+                if (reset)
+                {
+                    _videoMutex.videoFrames.clear();
+                }
+                _videoMutex.time = time;
+                _videoMutex.videoFrames.push_back(value);
+                while (_videoMutex.videoFrames.size() > videoFramesMax)
+                {
+                    _videoMutex.videoFrames.pop_front();
+                }
+            }
+            if (reset)
+            {
+                std::unique_lock<std::mutex> lock(_audioMutex.mutex);
+                _audioMutex.reset = true;
+                _audioMutex.start = time;
+                _audioMutex.current = time;
             }
         }
 

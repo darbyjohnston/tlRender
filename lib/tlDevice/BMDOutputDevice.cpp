@@ -1080,7 +1080,13 @@ namespace tl
                 copyPackPixels(pboP, dlVideoFrameP, p.thread.size, p.thread.outputPixelType);
                 glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
             }
-            p.thread.dl->outputCallback->setVideo(dlVideoFrame);
+
+            otime::RationalTime time = time::invalidTime;
+            if (!p.thread.videoData.empty())
+            {
+                time = p.thread.videoData.begin()->time - p.thread.timeRange.start_time();
+            }
+            p.thread.dl->outputCallback->setVideo(time, dlVideoFrame);
         }
     }
 }
