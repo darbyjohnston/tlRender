@@ -332,7 +332,9 @@ namespace tl
                 }
 
                 // Get audio from the cache.
-                int64_t t = (start - p->timeRange.start_time()).rescaled_to(inputInfo.sampleRate).value();
+                int64_t t =
+                    (start - p->timeRange.start_time()).rescaled_to(inputInfo.sampleRate).value() -
+                    otime::RationalTime(audioOffset, 1.0).rescaled_to(inputInfo.sampleRate).value();
                 if (Playback::Forward == playback)
                 {
                     t += p->audioThread.inputFrame;
