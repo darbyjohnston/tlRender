@@ -25,7 +25,7 @@ namespace tl
     {
         struct Player::Private
         {
-            otime::RationalTime loopPlayback(const otime::RationalTime&);
+            otime::RationalTime loopPlayback(const otime::RationalTime&, bool& looped);
 
             void clearRequests();
             void clearCache();

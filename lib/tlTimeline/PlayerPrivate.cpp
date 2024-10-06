@@ -12,16 +12,16 @@ namespace tl
 {
     namespace timeline
     {
-        otime::RationalTime Player::Private::loopPlayback(const otime::RationalTime& time)
+        otime::RationalTime Player::Private::loopPlayback(const otime::RationalTime& time, bool& looped)
         {
             otime::RationalTime out = time;
+            looped = false;
 
             const auto& range = inOutRange->get();
             switch (loop->get())
             {
             case Loop::Loop:
             {
-                bool looped = false;
                 out = timeline::loop(out, range, &looped);
                 if (looped)
                 {
@@ -160,6 +160,8 @@ namespace tl
 
         void Player::Private::cacheUpdate()
         {
+            //std::cout << "current time: " << currentTime->get() << std::endl;
+
             // Get the video ranges to be cached.
             const otime::RationalTime readAheadDivided(
                 thread.cacheOptions.readAhead.value() / static_cast<double>(1 + thread.compare.size()),
@@ -205,41 +207,28 @@ namespace tl
             //}
 
             // Get the audio ranges to be cached.
-            const otime::RationalTime audioOffsetTime = otime::RationalTime(thread.audioOffset, 1.0).
+            otime::RationalTime audioOffsetTime = otime::RationalTime(thread.audioOffset, 1.0).
                 rescaled_to(timeRange.duration().rate());
             //std::cout << "audio offset: " << audioOffsetTime << std::endl;
-            const otime::RationalTime audioOffsetAhead = otime::RationalTime(
-                audioOffsetTime.value() < 0.0 ?
-                    -audioOffsetTime :
-                    otime::RationalTime(0.0, timeRange.duration().rate())).
-                round();
-            const otime::RationalTime audioOffsetBehind = otime::RationalTime(
-                audioOffsetTime.value() > 0.0 ?
-                    audioOffsetTime :
-                    otime::RationalTime(0.0, timeRange.duration().rate())).
-                round();
-            //std::cout << "audio offset ahead: " << audioOffsetAhead << std::endl;
-            //std::cout << "audio offset behind: " << audioOffsetBehind << std::endl;
             otime::TimeRange audioRange = time::invalidTimeRange;
             switch (thread.cacheDirection)
             {
             case CacheDirection::Forward:
                 audioRange = otime::TimeRange::range_from_start_end_time_inclusive(
-                    thread.currentTime - readBehindRescaled - audioOffsetBehind,
-                    thread.currentTime + readAheadRescaled + audioOffsetAhead);
+                    thread.currentTime - readBehindRescaled - audioOffsetTime,
+                    thread.currentTime + readAheadRescaled - audioOffsetTime);
                 break;
             case CacheDirection::Reverse:
                 audioRange = otime::TimeRange::range_from_start_end_time_inclusive(
-                    thread.currentTime - readAheadRescaled - audioOffsetAhead,
-                    thread.currentTime + readBehindRescaled + audioOffsetBehind);
+                    thread.currentTime - readAheadRescaled - audioOffsetTime,
+                    thread.currentTime + readBehindRescaled - audioOffsetTime);
                 break;
             default: break;
             }
             //std::cout << "audio range: " << audioRange << std::endl;
             const otime::TimeRange inOutAudioRange = otime::TimeRange::range_from_start_end_time_inclusive(
-                thread.inOutRange.start_time() - audioOffsetBehind,
-                thread.inOutRange.end_time_inclusive() + audioOffsetAhead).
-                    clamped(timeRange);
+                thread.inOutRange.start_time() - audioOffsetTime,
+                thread.inOutRange.end_time_inclusive() - audioOffsetTime);
             //std::cout << "in out audio range: " << inOutAudioRange << std::endl;
             const auto audioRanges = timeline::loopCache(
                 audioRange,

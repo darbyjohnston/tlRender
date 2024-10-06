@@ -393,7 +393,7 @@ namespace tl
             if (p.currentTime->setIfChanged(tmp))
             {
                 //std::cout << "seek: " << tmp << std::endl;
-                p.seek->setIfChanged(tmp);
+                p.seek->setAlways(tmp);
                 {
                     std::unique_lock<std::mutex> lock(p.mutex.mutex);
                     p.mutex.currentTime = tmp;
@@ -722,13 +722,19 @@ namespace tl
                     t = -t;
                 }
                 const double speedMult = p.speed->get() / timelineSpeed;
+                bool looped = false;
                 const otime::RationalTime currentTime = p.loopPlayback(
                     start +
-                    otime::RationalTime(t * speedMult, 1.0).rescaled_to(timelineSpeed).floor());
+                    otime::RationalTime(t * speedMult, 1.0).rescaled_to(timelineSpeed).floor(),
+                    looped);
                 //const double currentTimeDiff = abs(currentTime.value() - p.currentTime->get().value());
                 if (p.currentTime->setIfChanged(currentTime))
                 {
                     //std::cout << "current time: " << p.currentTime->get() << " / " << currentTimeDiff << std::endl;
+                    if (looped)
+                    {
+                        p.seek->setAlways(currentTime);
+                    }
                 }
             }
 
@@ -842,6 +848,7 @@ namespace tl
                     std::vector<AudioData> audioDataList;
                     {
                         const int64_t seconds = p.thread.currentTime.rescaled_to(1.0).value() -
+                            p.thread.audioOffset -
                             p.timeRange.start_time().rescaled_to(1.0).value();
                         std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                         for (int64_t s : { seconds - 1, seconds, seconds + 1 })

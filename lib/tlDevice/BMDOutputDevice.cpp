@@ -89,7 +89,7 @@ namespace tl
                 otime::TimeRange timeRange = time::invalidTimeRange;
                 timeline::Playback playback = timeline::Playback::Stop;
                 otime::RationalTime currentTime = time::invalidTime;
-                otime::RationalTime seek = time::invalidTime;
+                bool seek = false;
                 std::vector<timeline::VideoData> videoData;
                 std::shared_ptr<image::Image> overlay;
                 float volume = 1.F;
@@ -435,13 +435,13 @@ namespace tl
                     observer::CallbackAction::Suppress);
                 p.seekObserver = observer::ValueObserver<otime::RationalTime>::create(
                     p.player->observeSeek(),
-                    [weak](const otime::RationalTime& value)
+                    [weak](const otime::RationalTime&)
                     {
                         if (auto device = weak.lock())
                         {
                             {
                                 std::unique_lock<std::mutex> lock(device->_p->mutex.mutex);
-                                device->_p->mutex.seek = value;
+                                device->_p->mutex.seek = true;
                             }
                             device->_p->thread.cv.notify_one();
                         }
@@ -484,14 +484,12 @@ namespace tl
                     p.mutex.timeRange = p.player->getTimeRange();
                     p.mutex.playback = p.player->getPlayback();
                     p.mutex.currentTime = p.player->getCurrentTime();
-                    p.mutex.seek = p.player->getCurrentTime();
                 }
                 else
                 {
                     p.mutex.timeRange = time::invalidTimeRange;
                     p.mutex.playback = timeline::Playback::Stop;
                     p.mutex.currentTime = time::invalidTime;
-                    p.mutex.seek = time::invalidTime;
                 }
                 p.mutex.videoData.clear();
                 p.mutex.audioData.clear();
@@ -535,7 +533,7 @@ namespace tl
             timeline::BackgroundOptions backgroundOptions;
             timeline::Playback playback = timeline::Playback::Stop;
             otime::RationalTime currentTime = time::invalidTime;
-            otime::RationalTime seek = time::invalidTime;
+            bool seek = false;
             float volume = 1.F;
             bool mute = false;
             double audioOffset = 0.0;
@@ -582,7 +580,7 @@ namespace tl
                                 _p->thread.timeRange != _p->mutex.timeRange ||
                                 playback != _p->mutex.playback ||
                                 currentTime != _p->mutex.currentTime ||
-                                seek != _p->mutex.seek ||
+                                _p->mutex.seek ||
                                 _p->thread.videoData != _p->mutex.videoData ||
                                 _p->thread.overlay != _p->mutex.overlay ||
                                 volume != _p->mutex.volume ||
@@ -603,6 +601,7 @@ namespace tl
                         playback = p.mutex.playback;
                         currentTime = p.mutex.currentTime;
                         seek = p.mutex.seek;
+                        p.mutex.seek = false;
 
                         doRender =
                             createDevice ||
@@ -722,17 +721,14 @@ namespace tl
 
                 if (p.thread.dl && p.thread.dl->outputCallback)
                 {
-                    p.thread.dl->outputCallback->setPlayback(
-                        playback,
-                        currentTime - p.thread.timeRange.start_time());
-                    p.thread.dl->outputCallback->seek(
-                        seek - p.thread.timeRange.start_time());
-                }
-                if (p.thread.dl && p.thread.dl->outputCallback)
-                {
-                    p.thread.dl->outputCallback->setVolume(volume);
-                    p.thread.dl->outputCallback->setMute(mute);
-                    p.thread.dl->outputCallback->setAudioOffset(audioOffset);
+                    DLOutputCallbackData data;
+                    data.playback = playback;
+                    data.currentTime = currentTime - p.thread.timeRange.start_time();
+                    data.seek = seek;
+                    data.volume = volume;
+                    data.mute = mute;
+                    data.audioOffset = audioOffset;
+                    p.thread.dl->outputCallback->setData(data);
                 }
                 if (p.thread.dl && p.thread.dl->outputCallback && audioDataChanged)
                 {
@@ -1081,12 +1077,7 @@ namespace tl
                 glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
             }
 
-            otime::RationalTime time = time::invalidTime;
-            if (!p.thread.videoData.empty())
-            {
-                time = p.thread.videoData.begin()->time - p.thread.timeRange.start_time();
-            }
-            p.thread.dl->outputCallback->setVideo(time, dlVideoFrame);
+            p.thread.dl->outputCallback->setVideo(dlVideoFrame);
         }
     }
 }

@@ -120,6 +120,16 @@ namespace tl
             std::atomic<ULONG> _refCount;
         };
 
+        struct DLOutputCallbackData
+        {
+            timeline::Playback playback = timeline::Playback::Stop;
+            otime::RationalTime currentTime = time::invalidTime;
+            bool seek = false;
+            float volume = 1.F;
+            bool mute = false;
+            double audioOffset = 0.0;
+        };
+
         class DLOutputCallback :
             public IDeckLinkVideoOutputCallback,
             public IDeckLinkAudioOutputCallback
@@ -133,14 +143,8 @@ namespace tl
                 int videoFrameDelay,
                 const audio::Info& audioInfo);
 
-            void setPlayback(timeline::Playback, const otime::RationalTime&);
-            void seek(const otime::RationalTime&);
-            void setVideo(
-                const otime::RationalTime&,
-                const std::shared_ptr<DLVideoFrameWrapper>&);
-            void setVolume(float);
-            void setMute(bool);
-            void setAudioOffset(double);
+            void setData(const DLOutputCallbackData&);
+            void setVideo(const std::shared_ptr<DLVideoFrameWrapper>&);
             void setAudioData(const std::vector<timeline::AudioData>&);
 
             HRESULT STDMETHODCALLTYPE ScheduledFrameCompleted(IDeckLinkVideoFrame*, BMDOutputFrameCompletionResult) override;
@@ -158,14 +162,12 @@ namespace tl
             PixelType _pixelType = PixelType::None;
             FrameRate _frameRate;
             audio::Info _audioInfo;
-            timeline::Playback _playback = timeline::Playback::Stop;
-            otime::RationalTime _seek = time::invalidTime;
+            DLOutputCallbackData _data;
 
             std::atomic<size_t> _refCount;
 
             struct VideoMutex
             {
-                otime::RationalTime time = time::invalidTime;
                 std::list<std::shared_ptr<DLVideoFrameWrapper> > videoFrames;
                 std::mutex mutex;
             };

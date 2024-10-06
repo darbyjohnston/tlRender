@@ -345,7 +345,7 @@ namespace tl
                 }
                 std::vector<AudioData> audioDataList;
                 {
-                    const int64_t seconds = t / inputInfo.sampleRate;
+                    const int64_t seconds = std::floor(t / static_cast<double>(inputInfo.sampleRate));
                     std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
                     for (int64_t i = seconds - 1; i < seconds + 1; ++i)
                     {

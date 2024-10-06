@@ -103,79 +103,44 @@ namespace tl
             _dlOutput->StartScheduledPlayback(0, _frameRate.den, 1.0);
         }
 
-        void DLOutputCallback::setPlayback(
-            timeline::Playback value,
-            const otime::RationalTime& time)
+        void DLOutputCallback::setData(const DLOutputCallbackData& data)
         {
-            if (value == _playback)
-                return;
-            _playback = value;
+            bool reset =
+                data.playback != _data.playback ||
+                data.seek ||
+                data.audioOffset != _data.audioOffset;
+            _data = data;
+            if (reset)
+            {
+                std::unique_lock<std::mutex> lock(_videoMutex.mutex);
+                _videoMutex.videoFrames.clear();
+            }
             {
                 std::unique_lock<std::mutex> lock(_audioMutex.mutex);
-                _audioMutex.playback = value;
-                _audioMutex.reset = true;
-                _audioMutex.start = time;
-                _audioMutex.current = time;
+                _audioMutex.playback = _data.playback;
+                _audioMutex.volume = _data.volume;
+                _audioMutex.mute = _data.mute;
+                _audioMutex.audioOffset = _data.audioOffset;
+                if (reset)
+                {
+                    _audioMutex.reset = true;
+                    _audioMutex.start = _data.currentTime;
+                    _audioMutex.current = _data.currentTime;
+                }
             }
         }
 
-        void DLOutputCallback::seek(const otime::RationalTime& time)
-        {
-            if (time == _seek)
-                return;
-            _seek = time;
-            {
-                std::unique_lock<std::mutex> lock(_audioMutex.mutex);
-                _audioMutex.reset = true;
-                _audioMutex.start = time;
-                _audioMutex.current = time;
-            }
-        }
-
-        void DLOutputCallback::setVideo(
-            const otime::RationalTime& time,
-            const std::shared_ptr<DLVideoFrameWrapper>& value)
+        void DLOutputCallback::setVideo(const std::shared_ptr<DLVideoFrameWrapper>& value)
         {
             bool reset = false;
             {
                 std::unique_lock<std::mutex> lock(_videoMutex.mutex);
-                reset = std::abs((time - _videoMutex.time).value()) > 1.0;
-                if (reset)
-                {
-                    _videoMutex.videoFrames.clear();
-                }
-                _videoMutex.time = time;
                 _videoMutex.videoFrames.push_back(value);
                 while (_videoMutex.videoFrames.size() > videoFramesMax)
                 {
                     _videoMutex.videoFrames.pop_front();
                 }
             }
-            if (reset)
-            {
-                std::unique_lock<std::mutex> lock(_audioMutex.mutex);
-                _audioMutex.reset = true;
-                _audioMutex.start = time;
-                _audioMutex.current = time;
-            }
-        }
-
-        void DLOutputCallback::setVolume(float value)
-        {
-            std::unique_lock<std::mutex> lock(_audioMutex.mutex);
-            _audioMutex.volume = value;
-        }
-
-        void DLOutputCallback::setMute(bool value)
-        {
-            std::unique_lock<std::mutex> lock(_audioMutex.mutex);
-            _audioMutex.mute = value;
-        }
-
-        void DLOutputCallback::setAudioOffset(double value)
-        {
-            std::unique_lock<std::mutex> lock(_audioMutex.mutex);
-            _audioMutex.audioOffset = value;
         }
 
         void DLOutputCallback::setAudioData(const std::vector<timeline::AudioData>& value)

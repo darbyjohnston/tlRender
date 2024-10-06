@@ -551,7 +551,7 @@ namespace tl
             }
 
             // Find the first chunk of audio data.
-            const int64_t seconds = frame / info.sampleRate;
+            const int64_t seconds = std::floor(frame / static_cast<double>(info.sampleRate));
             auto secondsIt = std::find_if(
                 data.begin(),
                 data.end(),
