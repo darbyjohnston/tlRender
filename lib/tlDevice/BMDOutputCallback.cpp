@@ -118,6 +118,7 @@ namespace tl
             {
                 std::unique_lock<std::mutex> lock(_audioMutex.mutex);
                 _audioMutex.playback = _data.playback;
+                _audioMutex.currentTime = _data.currentTime;
                 _audioMutex.volume = _data.volume;
                 _audioMutex.mute = _data.mute;
                 _audioMutex.audioOffset = _data.audioOffset;
@@ -125,7 +126,6 @@ namespace tl
                 {
                     _audioMutex.reset = true;
                     _audioMutex.start = _data.currentTime;
-                    _audioMutex.current = _data.currentTime;
                 }
             }
         }
@@ -224,16 +224,17 @@ namespace tl
         {
             // Get values.
             timeline::Playback playback = timeline::Playback::Stop;
+            otime::RationalTime currentTime = time::invalidTime;
             float volume = 1.F;
             bool mute = false;
             double audioOffset = 0.0;
             std::vector<timeline::AudioData> audioDataList;
             bool reset = false;
             otime::RationalTime start = time::invalidTime;
-            otime::RationalTime current = time::invalidTime;
             {
                 std::unique_lock<std::mutex> lock(_audioMutex.mutex);
                 playback = _audioMutex.playback;
+                currentTime = _audioMutex.currentTime;
                 volume = _audioMutex.volume;
                 mute = _audioMutex.mute;
                 audioOffset = _audioMutex.audioOffset;
@@ -241,7 +242,6 @@ namespace tl
                 reset = _audioMutex.reset;
                 _audioMutex.reset = false;
                 start = _audioMutex.start;
-                current = _audioMutex.current;
             }
             //std::cout << "audio playback: " << playback << std::endl;
             //std::cout << "audio reset: " << reset << std::endl;
@@ -357,8 +357,7 @@ namespace tl
                     {
                         std::unique_lock<std::mutex> lock(_audioMutex.mutex);
                         _audioMutex.reset = true;
-                        _audioMutex.start = current;
-                        _audioMutex.current = current;
+                        _audioMutex.start = currentTime;
                     }
                 }
             }

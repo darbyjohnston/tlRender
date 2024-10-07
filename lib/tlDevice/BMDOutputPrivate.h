@@ -189,13 +189,13 @@ namespace tl
             struct AudioMutex
             {
                 timeline::Playback playback = timeline::Playback::Stop;
+                otime::RationalTime currentTime = time::invalidTime;
                 float volume = 1.F;
                 bool mute = false;
                 double audioOffset = 0.0;
                 std::vector<timeline::AudioData> audioData;
                 bool reset = false;
                 otime::RationalTime start = time::invalidTime;
-                otime::RationalTime current = time::invalidTime;
                 std::mutex mutex;
             };
             AudioMutex _audioMutex;
