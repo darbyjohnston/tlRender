@@ -266,12 +266,16 @@ namespace tl
 #if defined(TLRENDER_AUDIO)
             try
             {
-                const unsigned int rtDeviceCount = p.rtAudio->getDeviceCount();
-                for (unsigned int i = 0; i < rtDeviceCount; ++i)
+                std::vector<RtAudio::DeviceInfo> rtInfoList;
+                for (unsigned int i = 0; i < p.rtAudio->getDeviceCount(); ++i)
                 {
-                    const RtAudio::DeviceInfo rtInfo = p.rtAudio->getDeviceInfo(i);
-                    if (rtInfo.probed &&
-                        (rtInfo.outputChannels > 0 || rtInfo.duplexChannels > 0))
+                    rtInfoList.push_back(p.rtAudio->getDeviceInfo(i));
+                }
+
+                for (size_t i = 0; i < rtInfoList.size(); ++i)
+                {
+                    const auto& rtInfo = rtInfoList[i];
+                    if (rtInfo.probed)
                     {
                         DeviceInfo device;
                         device.id.number = i;

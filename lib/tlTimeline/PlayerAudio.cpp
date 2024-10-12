@@ -174,7 +174,24 @@ namespace tl
             {
                 audio::DeviceID id = audioDevice->get();
                 auto audioSystem = context->getSystem<audio::System>();
-                const auto devices = audioSystem->getDevices();
+                auto devices = audioSystem->getDevices();
+                if (playerOptions.audioMinPreferredSampleRate)
+                {
+                    for (auto i = devices.begin(); i != devices.end(); ++i)
+                    {
+                        for (auto j = devices.begin(); j != devices.end(); ++j)
+                        {
+                            if (i != j && i->id.name == j->id.name)
+                            {
+                                i->preferredSampleRate = std::min(
+                                    i->preferredSampleRate,
+                                    j->preferredSampleRate);
+                                i->inputInfo.sampleRate = i->preferredSampleRate;
+                                i->outputInfo.sampleRate = i->preferredSampleRate;
+                            }
+                        }
+                    }
+                }
                 auto i = std::find_if(
                     devices.begin(),
                     devices.end(),
@@ -200,7 +217,11 @@ namespace tl
                 }
                 {
                     std::stringstream ss;
-                    ss << "Opening audio device: " << id.number << " " << id.name;
+                    ss << "Opening audio device: " << id.number << " " << id.name << "\n" <<
+                        "  buffer frames: " << playerOptions.audioBufferFrameCount << "\n" <<
+                        "  channels: " << audioInfo.channelCount << "\n" <<
+                        "  data type: " << audioInfo.dataType << "\n" <<
+                        "  sample rate: " << audioInfo.sampleRate;
                     context->log("tl::timeline::Player", ss.str());
                 }
                 audioInfo.channelCount = getAudioChannelCount(

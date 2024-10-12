@@ -22,6 +22,7 @@ namespace tl
         {
             return
                 audioDevice == other.audioDevice &&
+                audioMinPreferredSampleRate == other.audioMinPreferredSampleRate &&
                 cache == other.cache &&
                 audioBufferFrameCount == other.audioBufferFrameCount &&
                 muteTimeout == other.muteTimeout &&
