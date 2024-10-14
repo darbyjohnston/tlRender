@@ -252,6 +252,7 @@ namespace tl
                             this,
                             nullptr,
                             rtAudioErrorCallback);
+                        audioInfo.sampleRate = rtAudio->getStreamSampleRate();
                         rtAudio->startStream();
                     }
                     catch (const std::exception& e)
