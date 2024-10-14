@@ -253,6 +253,11 @@ namespace tl
                             nullptr,
                             rtAudioErrorCallback);
                         audioInfo.sampleRate = rtAudio->getStreamSampleRate();
+                        {
+                            std::stringstream ss;
+                            ss << "Audio device sample rate: " << audioInfo.sampleRate;
+                            context->log("tl::timeline::Player", ss.str());
+                        }
                         rtAudio->startStream();
                     }
                     catch (const std::exception& e)
