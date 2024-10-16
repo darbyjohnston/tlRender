@@ -113,16 +113,16 @@ namespace tl
 
         bool Player::Private::hasAudio() const
         {
-            bool out = ioInfo.audio.isValid();
-#if !defined(TLRENDER_AUDIO)
-            out = false;
+            bool out = false;
+#if defined(TLRENDER_RTAUDIO) || defined(TLRENDER_SDL2)
+            out = ioInfo.audio.isValid();
 #endif
             return out;
         }
 
         namespace
         {
-#if defined(TLRENDER_AUDIO)
+#if defined(TLRENDER_RTAUDIO)
             RtAudioFormat toRtAudio(audio::DataType value) noexcept
             {
                 RtAudioFormat out = 0;
@@ -136,12 +136,27 @@ namespace tl
                 }
                 return out;
             }
-#endif // TLRENDER_AUDIO
+#endif // TLRENDER_RTAUDIO
+#if defined(TLRENDER_SDL2)
+            SDL_AudioFormat toSDL2(audio::DataType value) noexcept
+            {
+                SDL_AudioFormat out = 0;
+                switch (value)
+                {
+                case audio::DataType::S8: out = AUDIO_S8; break;
+                case audio::DataType::S16: out = AUDIO_S16; break;
+                case audio::DataType::S32: out = AUDIO_S32; break;
+                case audio::DataType::F32: out = AUDIO_F32; break;
+                default: break;
+                }
+                return out;
+            }
+#endif // TLRENDER_RTAUDIO
         }
 
         void Player::Private::audioInit(const std::shared_ptr<system::Context>& context)
         {
-#if defined(TLRENDER_AUDIO)
+#if defined(TLRENDER_RTAUDIO)
             if (rtAudio && rtAudio->isStreamOpen())
             {
                 try
@@ -268,7 +283,39 @@ namespace tl
                     }
                 }
             }
-#endif // TLRENDER_AUDIO
+#endif // TLRENDER_RTAUDIO
+#if defined(TLRENDER_SDL2)
+            SDL_CloseAudio();
+            SDL_AudioSpec inSpec;
+            inSpec.freq = 48000;
+            inSpec.format = AUDIO_F32;
+            inSpec.channels = 2;
+            inSpec.samples = playerOptions.audioBufferFrameCount;
+            inSpec.callback = sdl2Callback;
+            inSpec.userdata = this;
+            SDL_AudioSpec outSpec;
+            if (SDL_OpenAudio(&inSpec, &outSpec) >= 0)
+            {
+                audioInfo.channelCount = outSpec.channels;
+                audioInfo.dataType = audio::DataType::F32;
+                audioInfo.sampleRate = outSpec.freq;
+
+                // These are OK to modify since the audio thread is stopped.
+                audioMutex.reset = true;
+                audioMutex.start = currentTime->get();
+                audioMutex.frame = 0;
+                audioThread.info = audioInfo;
+                audioThread.resample.reset();
+
+                SDL_PauseAudio(0);
+            }
+            else
+            {
+                std::stringstream ss;
+                ss << "Cannot open audio stream: " << SDL_GetError();
+                context->log("tl::timeline::Player", ss.str(), log::Type::Error);
+            }
+#endif // TLRENDER_SDL2
         }
 
         void Player::Private::audioReset(const otime::RationalTime& time)
@@ -290,7 +337,8 @@ namespace tl
             return out;
         }
 
-#if defined(TLRENDER_AUDIO)
+#if defined(TLRENDER_RTAUDIO) || defined(TLRENDER_SDL2)
+#if defined(TLRENDER_RTAUDIO)
         int Player::Private::rtAudioCallback(
             void* outputBuffer,
             void* inputBuffer,
@@ -298,8 +346,18 @@ namespace tl
             double streamTime,
             RtAudioStreamStatus status,
             void* userData)
+#endif // TLRENDER_RTAUDIO
+#if defined(TLRENDER_SDL2)
+            void Player::Private::sdl2Callback(
+                void* userData,
+                Uint8* outputBuffer,
+                int len)
+#endif // TLRENDER_SDL2
         {
             auto p = reinterpret_cast<Player::Private*>(userData);
+#if defined(TLRENDER_SDL2)
+            unsigned int nFrames = len / p->audioThread.info.getByteCount();
+#endif // TLRENDER_SDL2
 
             // Get mutex protected values.
             Playback playback = Playback::Stop;
@@ -398,7 +456,7 @@ namespace tl
                 {
                     // Mix the audio layers.
                     std::vector<const uint8_t*> audioP;
-                        for (const auto& i : audioList)
+                    for (const auto& i : audioList)
                     {
                         audioP.push_back(i->getData());
                     }
@@ -473,15 +531,19 @@ namespace tl
                 }
             }
 
+#if defined(TLRENDER_RTAUDIO)
             return 0;
+#endif // TLRENDER_RTAUDIO
         }
+#endif // TLRENDER_RTAUDIO || TLRENDER_SDL2
 
+#if defined(TLRENDER_RTAUDIO)
         void Player::Private::rtAudioErrorCallback(
             RtAudioError::Type type,
             const std::string& errorText)
         {
             //std::cout << "RtAudio ERROR: " << errorText << std::endl;
         }
-#endif // TLRENDER_AUDIO
+#endif // TLRENDER_RTAUDIO
     }
 }

@@ -159,7 +159,7 @@ namespace tl
             {
                 p.thread.thread.join();
             }
-#if defined(TLRENDER_AUDIO)
+#if defined(TLRENDER_RTAUDIO)
             if (p.rtAudio && p.rtAudio->isStreamOpen())
             {
                 try
@@ -172,7 +172,10 @@ namespace tl
                     //! \todo How should this be handled?
                 }
             }
-#endif // TLRENDER_AUDIO
+#endif // TLRENDER_RTAUDIO
+#if defined(TLRENDER_SDL2)
+            SDL_CloseAudio();
+#endif // TLRENDER_SDL2
         }
 
         std::shared_ptr<Player> Player::create(

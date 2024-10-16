@@ -10,9 +10,12 @@
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
-#if defined(TLRENDER_AUDIO)
+#if defined(TLRENDER_RTAUDIO)
 #include <rtaudio/RtAudio.h>
-#endif // TLRENDER_AUDIO
+#endif // TLRENDER_RTAUDIO
+#if defined(TLRENDER_SDL2)
+#include <SDL2/SDL.h>
+#endif // TLRENDER_SDL2
 
 #include <array>
 #include <atomic>
@@ -67,9 +70,9 @@ namespace tl
 
         struct System::Private
         {
-#if defined(TLRENDER_AUDIO)
+#if defined(TLRENDER_RTAUDIO)
             std::unique_ptr<RtAudio> rtAudio;
-#endif // TLRENDER_AUDIO
+#endif // TLRENDER_RTAUDIO
             std::vector<std::string> apis;
             std::shared_ptr<observer::List<DeviceInfo> > devices;
             std::shared_ptr<observer::Value<DeviceID> > defaultOutputDevice;
@@ -99,7 +102,7 @@ namespace tl
             ISystem::_init("tl::audio::System", context);
             TLRENDER_P();
 
-#if defined(TLRENDER_AUDIO)
+#if defined(TLRENDER_RTAUDIO)
             try
             {
                 {
@@ -129,10 +132,18 @@ namespace tl
             catch (const std::exception& e)
             {
                 std::stringstream ss;
-                ss << "Cannot initialize audio system: " << e.what();
+                ss << "Cannot initialize RtAudio: " << e.what();
                 _log(ss.str(), log::Type::Error);
             }
-#endif // TLRENDER_AUDIO
+#endif // TLRENDER_RTAUDIO
+#if defined(TLRENDER_SDL2)
+            if (SDL_Init(SDL_INIT_AUDIO) < 0)
+            {
+                std::stringstream ss;
+                ss << "Cannot initialize SDL2";
+                _log(ss.str(), log::Type::Error);
+            }
+#endif // TLRENDER_SDL2
 
             const std::vector<DeviceInfo> devices = _getDevices();
             const DeviceID defaultOutputDevice = _getDefaultOutputDevice(devices);
@@ -146,7 +157,7 @@ namespace tl
             p.mutex.defaultOutputDevice = defaultOutputDevice;
             p.mutex.defaultInputDevice = defaultInputDevice;
 
-#if defined(TLRENDER_AUDIO)
+#if defined(TLRENDER_RTAUDIO)
             if (p.rtAudio)
             {
                 p.thread.running = true;
@@ -159,7 +170,7 @@ namespace tl
                         }
                     });
             }
-#endif // TLRENDER_AUDIO
+#endif // TLRENDER_RTAUDIO
         }
 
         System::System() :
@@ -174,6 +185,9 @@ namespace tl
             {
                 p.thread.thread.join();
             }
+#if defined(TLRENDER_SDL2)
+            SDL_Quit();
+#endif // TLRENDER_SDL2
         }
 
         std::shared_ptr<System> System::create(const std::shared_ptr<system::Context>& context)
@@ -263,7 +277,7 @@ namespace tl
         {
             TLRENDER_P();
             std::vector<DeviceInfo> out;
-#if defined(TLRENDER_AUDIO)
+#if defined(TLRENDER_RTAUDIO)
             try
             {
                 std::vector<RtAudio::DeviceInfo> rtInfoList;
@@ -351,7 +365,7 @@ namespace tl
                 ss << "Cannot get audio devices: " << e.what();
                 _log(ss.str(), log::Type::Error);
             }
-#endif // TLRENDER_AUDIO
+#endif // TLRENDER_RTAUDIO
             return out;
         }
 
@@ -359,7 +373,7 @@ namespace tl
         {
             TLRENDER_P();
             DeviceID out;
-#if defined(TLRENDER_AUDIO)
+#if defined(TLRENDER_RTAUDIO)
             try
             {
                 unsigned int id = p.rtAudio->getDefaultOutputDevice();
@@ -378,7 +392,7 @@ namespace tl
                 ss << "Cannot get default audio output device: " << e.what();
                 _log(ss.str(), log::Type::Error);
             }
-#endif // TLRENDER_AUDIO
+#endif // TLRENDER_RTAUDIO
             return out;
         }
 
@@ -386,7 +400,7 @@ namespace tl
         {
             TLRENDER_P();
             DeviceID out;
-#if defined(TLRENDER_AUDIO)
+#if defined(TLRENDER_RTAUDIO)
             try
             {
                 unsigned int id = p.rtAudio->getDefaultInputDevice();
@@ -405,14 +419,14 @@ namespace tl
                 ss << "Cannot get default audio input device: " << e.what();
                 _log(ss.str(), log::Type::Error);
             }
-#endif // TLRENDER_AUDIO
+#endif // TLRENDER_RTAUDIO
             return out;
         }
 
         void System::_run()
         {
             TLRENDER_P();
-#if defined(TLRENDER_AUDIO)
+#if defined(TLRENDER_RTAUDIO)
 
             const std::vector<DeviceInfo> devices = _getDevices();
             const DeviceID defaultOutputDevice = _getDefaultOutputDevice(devices);
@@ -494,7 +508,7 @@ namespace tl
                 p.mutex.defaultOutputDevice = p.thread.defaultOutputDevice;
                 p.mutex.defaultInputDevice = p.thread.defaultInputDevice;
             }
-#endif // TLRENDER_AUDIO
+#endif // TLRENDER_RTAUDIO
         }
     }
 }

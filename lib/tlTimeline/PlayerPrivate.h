@@ -11,9 +11,12 @@
 #include <tlCore/AudioResample.h>
 #include <tlCore/LRUCache.h>
 
-#if defined(TLRENDER_AUDIO)
+#if defined(TLRENDER_RTAUDIO)
 #include <rtaudio/RtAudio.h>
-#endif // TLRENDER_AUDIO
+#endif // TLRENDER_RTAUDIO
+#if defined(TLRENDER_SDL2)
+#include <SDL2/SDL.h>
+#endif // TLRENDER_SDL2
 
 #include <atomic>
 #include <mutex>
@@ -38,7 +41,7 @@ namespace tl
             static size_t getAudioChannelCount(
                 const audio::Info& input,
                 const audio::Info& output);
-#if defined(TLRENDER_AUDIO)
+#if defined(TLRENDER_RTAUDIO)
             static int rtAudioCallback(
                 void* outputBuffer,
                 void* inputBuffer,
@@ -49,7 +52,10 @@ namespace tl
             static void rtAudioErrorCallback(
                 RtAudioError::Type type,
                 const std::string& errorText);
-#endif // TLRENDER_AUDIO
+#endif // TLRENDER_RTAUDIO
+#if defined(TLRENDER_SDL2)
+            static void sdl2Callback(void* user, Uint8* stream, int len);
+#endif // TLRENDER_SDL2
 
             void log(const std::shared_ptr<system::Context>&);
 
@@ -81,10 +87,10 @@ namespace tl
             std::shared_ptr<observer::ListObserver<audio::DeviceInfo> > audioDevicesObserver;
             std::shared_ptr<observer::ValueObserver<audio::DeviceID> > defaultAudioDeviceObserver;
 
-#if defined(TLRENDER_AUDIO)
             audio::Info audioInfo;
+#if defined(TLRENDER_RTAUDIO)
             std::unique_ptr<RtAudio> rtAudio;
-#endif // TLRENDER_AUDIO
+#endif // TLRENDER_RTAUDIO
 
             std::atomic<bool> running;
 
