@@ -173,7 +173,10 @@ namespace tl
         void Player::Private::audioInit(const std::shared_ptr<system::Context>& context)
         {
 #if defined(TLRENDER_SDL2)
-            SDL_CloseAudio();
+            if (sdlID > 0)
+            {
+                SDL_CloseAudioDevice(sdlID);
+            }
 
             audio::DeviceID id = audioDevice->get();
             auto audioSystem = context->getSystem<audio::System>();
@@ -207,11 +210,26 @@ namespace tl
                 inSpec.callback = sdl2Callback;
                 inSpec.userdata = this;
                 SDL_AudioSpec outSpec;
-                if (SDL_OpenAudio(&inSpec, &outSpec) >= 0)
+                sdlID = SDL_OpenAudioDevice(
+                    !id.name.empty() ? id.name.c_str() : nullptr,
+                    0,
+                    &inSpec,
+                    &outSpec,
+                    SDL_AUDIO_ALLOW_ANY_CHANGE);
+                if (sdlID > 0)
                 {
                     audioInfo.channelCount = outSpec.channels;
                     audioInfo.dataType = fromSDL2(outSpec.format);
                     audioInfo.sampleRate = outSpec.freq;
+
+                    {
+                        std::stringstream ss;
+                        ss << "Audio device: " << id.number << " " << id.name << "\n" <<
+                        "  channels: " << audioInfo.channelCount << "\n" <<
+                        "  data type: " << audioInfo.dataType << "\n" <<
+                        "  sample rate: " << audioInfo.sampleRate;
+                        context->log("tl::timeline::Player", ss.str());
+                    }
 
                     // These are OK to modify since the audio thread is stopped.
                     audioMutex.reset = true;
@@ -220,7 +238,7 @@ namespace tl
                     audioThread.info = audioInfo;
                     audioThread.resample.reset();
 
-                    SDL_PauseAudio(0);
+                    SDL_PauseAudioDevice(sdlID, 0);
                 }
                 else
                 {
@@ -228,7 +246,6 @@ namespace tl
                     ss << "Cannot open audio device: " << SDL_GetError();
                     context->log("tl::timeline::Player", ss.str(), log::Type::Error);
                 }
-
             }
 #endif // TLRENDER_SDL2
         }

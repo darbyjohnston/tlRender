@@ -73,6 +73,9 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<audio::DeviceInfo> > defaultAudioDeviceObserver;
 
             audio::Info audioInfo;
+#if defined(TLRENDER_SDL2)
+            int sdlID = 0;
+#endif // TLRENDER_SDL2
 
             std::atomic<bool> running;
 

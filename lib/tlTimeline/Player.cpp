@@ -160,7 +160,10 @@ namespace tl
                 p.thread.thread.join();
             }
 #if defined(TLRENDER_SDL2)
-            SDL_CloseAudio();
+            if (p.sdlID > 0)
+            {
+                SDL_CloseAudioDevice(p.sdlID);
+            }
 #endif // TLRENDER_SDL2
         }
 
