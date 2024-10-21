@@ -143,6 +143,25 @@ namespace tl
                 ss << "Cannot initialize SDL2";
                 _log(ss.str(), log::Type::Error);
             }
+            else
+            {
+                std::vector<std::string> drivers;
+                const int count = SDL_GetNumAudioDrivers();
+                for (int i = 0; i < count; ++i)
+                {
+                    drivers.push_back(SDL_GetAudioDriver(i));
+                }
+                {
+                    std::stringstream ss;
+                    ss << "Audio drivers: " << string::join(drivers, ", ");
+                    _log(ss.str());
+                }
+                {
+                    std::stringstream ss;
+                    ss << "Current audio driver: " << SDL_GetCurrentAudioDriver();
+                    _log(ss.str());
+                }
+            }
 #endif // TLRENDER_SDL2
 
             const std::vector<DeviceInfo> devices = _getDevices();
@@ -271,6 +290,21 @@ namespace tl
                     });
                 return !value.empty() ? value.back() : DeviceFormat::F32;
             }
+
+#if defined(TLRENDER_SDL2)
+            DeviceFormat fromSDL2(SDL_AudioFormat value) noexcept
+            {
+                DeviceFormat out = DeviceFormat::First;
+                switch (value & SDL_AUDIO_MASK_DATATYPE)
+                {
+                case AUDIO_S8: out = DeviceFormat::S8; break;
+                case AUDIO_S16: out = DeviceFormat::S16; break;
+                case AUDIO_S32: out = DeviceFormat::S32; break;
+                case AUDIO_F32: out = DeviceFormat::F32; break;
+                }
+                return out;
+            }
+#endif // TLRENDER_RTAUDIO
         }
 
         std::vector<DeviceInfo> System::_getDevices()
@@ -366,6 +400,32 @@ namespace tl
                 _log(ss.str(), log::Type::Error);
             }
 #endif // TLRENDER_RTAUDIO
+#if defined(TLRENDER_SDL2)
+            const int count = SDL_GetNumAudioDevices(0);
+            for (int i = 0; i < count; ++i)
+            {
+                DeviceInfo info;
+                info.id.number = i;
+                info.id.name = SDL_GetAudioDeviceName(i, 0);
+                SDL_AudioSpec spec;
+                SDL_GetAudioDeviceSpec(i, 0, &spec);
+                info.outputChannels = spec.channels;
+                info.sampleRates.push_back(spec.freq);
+                info.preferredSampleRate = spec.freq;
+                const DeviceFormat format = fromSDL2(spec.format);
+                info.nativeFormats.push_back(format);
+                info.outputInfo.channelCount = spec.channels;
+                switch (format)
+                {
+                case DeviceFormat::S8: info.outputInfo.dataType = audio::DataType::S8; break;
+                case DeviceFormat::S16: info.outputInfo.dataType = audio::DataType::S16; break;
+                case DeviceFormat::S32: info.outputInfo.dataType = audio::DataType::S32; break;
+                case DeviceFormat::F32: info.outputInfo.dataType = audio::DataType::F32; break;
+                }
+                info.outputInfo.sampleRate = spec.freq;
+                out.push_back(info);
+            }
+#endif // TLRENDER_SDL2
             return out;
         }
 

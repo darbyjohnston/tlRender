@@ -291,6 +291,7 @@ namespace tl
             inSpec.format = AUDIO_F32;
             inSpec.channels = 2;
             inSpec.samples = playerOptions.audioBufferFrameCount;
+            inSpec.padding = 0;
             inSpec.callback = sdl2Callback;
             inSpec.userdata = this;
             SDL_AudioSpec outSpec;
