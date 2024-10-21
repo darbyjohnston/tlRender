@@ -266,8 +266,11 @@ namespace tl
             char* name = nullptr;
             SDL_AudioSpec spec;
             SDL_GetDefaultAudioInfo(&name, &spec, 0);
-            out.id.name = name;
-            SDL_free(name);
+            if (name)
+            {
+                out.id.name = name;
+                SDL_free(name);
+            }
             out.info.channelCount = spec.channels;
             out.info.dataType = fromSDL2(spec.format);
             out.info.sampleRate = spec.freq;
