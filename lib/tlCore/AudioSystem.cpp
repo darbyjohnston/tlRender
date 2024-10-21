@@ -205,15 +205,33 @@ namespace tl
         namespace
         {
 #if defined(TLRENDER_SDL2)
+            //! \todo This is duplicated in AudioSystem.cpp and PlayerAudio.cpp
             audio::DataType fromSDL2(SDL_AudioFormat value)
             {
-                audio::DataType out = audio::DataType::None;
-                switch (value)
+                audio::DataType out = audio::DataType::F32;
+                if (SDL_AUDIO_BITSIZE(value) == 8 &&
+                    SDL_AUDIO_ISSIGNED(value) &&
+                    !SDL_AUDIO_ISFLOAT(value))
                 {
-                case AUDIO_S8: out = audio::DataType::S8; break;
-                case AUDIO_S16: out = audio::DataType::S16; break;
-                case AUDIO_S32: out = audio::DataType::S32; break;
-                case AUDIO_F32: out = audio::DataType::F32; break;
+                    out = audio::DataType::S8;
+                }
+                else if (SDL_AUDIO_BITSIZE(value) == 16 &&
+                    SDL_AUDIO_ISSIGNED(value) &&
+                    !SDL_AUDIO_ISFLOAT(value))
+                {
+                    out = audio::DataType::S16;
+                }
+                else if (SDL_AUDIO_BITSIZE(value) == 32 &&
+                    SDL_AUDIO_ISSIGNED(value) &&
+                    !SDL_AUDIO_ISFLOAT(value))
+                {
+                    out = audio::DataType::S32;
+                }
+                else if (SDL_AUDIO_BITSIZE(value) == 32 &&
+                    SDL_AUDIO_ISSIGNED(value) &&
+                    SDL_AUDIO_ISFLOAT(value))
+                {
+                    out = audio::DataType::F32;
                 }
                 return out;
             }
