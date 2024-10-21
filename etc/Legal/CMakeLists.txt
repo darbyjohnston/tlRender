@@ -12,7 +12,6 @@ set(LEGAL
     LICENSE_OpenTimelineIO.txt
     LICENSE_OpenUSD.txt
     LICENSE_Qt.txt
-    LICENSE_RtAudio.txt
     LICENSE_SDL2.txt
     LICENSE_boost.txt
     LICENSE_expat.txt

@@ -112,9 +112,9 @@ namespace tl
                         }
                     }
                 });
-            p.defaultAudioDeviceObserver = observer::ValueObserver<audio::DeviceID>::create(
-                audioSystem->observeDefaultOutputDevice(),
-                [weak](const audio::DeviceID&)
+            p.defaultAudioDeviceObserver = observer::ValueObserver<audio::DeviceInfo>::create(
+                audioSystem->observeDefaultDevice(),
+                [weak](const audio::DeviceInfo&)
                 {
                     if (auto player = weak.lock())
                     {
@@ -159,20 +159,6 @@ namespace tl
             {
                 p.thread.thread.join();
             }
-#if defined(TLRENDER_RTAUDIO)
-            if (p.rtAudio && p.rtAudio->isStreamOpen())
-            {
-                try
-                {
-                    p.rtAudio->abortStream();
-                    p.rtAudio->closeStream();
-                }
-                catch (const std::exception&)
-                {
-                    //! \todo How should this be handled?
-                }
-            }
-#endif // TLRENDER_RTAUDIO
 #if defined(TLRENDER_SDL2)
             SDL_CloseAudio();
 #endif // TLRENDER_SDL2
