@@ -310,9 +310,10 @@ namespace tl
                 p.thread.defaultDevice = defaultDevice;
 
                 std::stringstream ss;
-                ss << "Default device: " <<
-                    defaultDevice.id.number << " " <<
-                    defaultDevice.id.name;
+                ss << "Default device: " << defaultDevice.id.number << " " << defaultDevice.id.name << "\n" <<
+                    "      Channels: " << defaultDevice.info.channelCount << "\n" <<
+                    "      Data type: " << defaultDevice.info.dataType << "\n" <<
+                    "      Sample rate: " << defaultDevice.info.sampleRate;
                 _log(ss.str());
             }
 
