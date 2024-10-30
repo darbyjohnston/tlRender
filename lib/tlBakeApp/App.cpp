@@ -252,7 +252,7 @@ namespace tl
                 _outputImage = image::Image::create(_outputInfo);
                 ioInfo.video.push_back(_outputInfo);
                 ioInfo.videoTime = _timeRange;
-                _writer = _writerPlugin->write(file::Path(_output), ioInfo);
+                _writer = _writerPlugin->write(file::Path(_output), ioInfo, _getIOOptions());
                 if (!_writer)
                 {
                     throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));
