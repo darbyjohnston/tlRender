@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(SDL2_GIT_REPOSITORY "https://github.com/libsdl-org/SDL.git")
-set(SDL2_GIT_TAG "release-2.30.8")
+set(SDL2_GIT_TAG "release-2.30.9")
 
 set(SDL2_ARGS
     ${TLRENDER_EXTERNAL_ARGS}
