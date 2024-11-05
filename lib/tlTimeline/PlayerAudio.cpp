@@ -114,16 +114,16 @@ namespace tl
         bool Player::Private::hasAudio() const
         {
             bool out = false;
-#if defined(TLRENDER_SDL2)
+#if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
             out = ioInfo.audio.isValid();
-#endif
+#endif // TLRENDER_SDL2
             return out;
         }
 
         namespace
         {
 #if defined(TLRENDER_SDL2)
-            SDL_AudioFormat toSDL2(audio::DataType value)
+            SDL_AudioFormat toSDL(audio::DataType value)
             {
                 SDL_AudioFormat out = 0;
                 switch (value)
@@ -136,9 +136,25 @@ namespace tl
                 }
                 return out;
             }
+#elif defined(TLRENDER_SDL3)
+            SDL_AudioFormat toSDL(audio::DataType value)
+            {
+                SDL_AudioFormat out = SDL_AUDIO_UNKNOWN;
+                switch (value)
+                {
+                case audio::DataType::S8: out = SDL_AUDIO_S8; break;
+                case audio::DataType::S16: out = SDL_AUDIO_S16; break;
+                case audio::DataType::S32: out = SDL_AUDIO_S32; break;
+                case audio::DataType::F32: out = SDL_AUDIO_F32; break;
+                default: break;
+                }
+                return out;
+            }
+#endif // TLRENDER_SDL2
 
+#if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
             //! \todo This is duplicated in AudioSystem.cpp and PlayerAudio.cpp
-            audio::DataType fromSDL2(SDL_AudioFormat value)
+            audio::DataType fromSDL(SDL_AudioFormat value)
             {
                 audio::DataType out = audio::DataType::F32;
                 if (SDL_AUDIO_BITSIZE(value) == 8 &&
@@ -172,11 +188,19 @@ namespace tl
 
         void Player::Private::audioInit(const std::shared_ptr<system::Context>& context)
         {
+#if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
+
 #if defined(TLRENDER_SDL2)
             if (sdlID > 0)
             {
                 SDL_CloseAudioDevice(sdlID);
             }
+#elif defined(TLRENDER_SDL3)
+            if (sdlStream)
+            {
+                SDL_DestroyAudioStream(sdlStream);
+            }
+#endif // TLRENDER_SDL2
 
             audio::DeviceID id = audioDevice->get();
             auto audioSystem = context->getSystem<audio::System>();
@@ -201,27 +225,36 @@ namespace tl
                     context->log("tl::timeline::Player", ss.str());
                 }
 
-                SDL_AudioSpec inSpec;
-                inSpec.freq = audioInfo.sampleRate;
-                inSpec.format = toSDL2(audioInfo.dataType);
-                inSpec.channels = audioInfo.channelCount;
-                inSpec.samples = playerOptions.audioBufferFrameCount;
-                inSpec.padding = 0;
-                inSpec.callback = sdl2Callback;
-                inSpec.userdata = this;
+                SDL_AudioSpec spec;
+                spec.freq = audioInfo.sampleRate;
+                spec.format = toSDL(audioInfo.dataType);
+                spec.channels = audioInfo.channelCount;
+#if defined(TLRENDER_SDL2)
+                spec.samples = playerOptions.audioBufferFrameCount;
+                spec.padding = 0;
+                spec.callback = sdl2Callback;
+                spec.userdata = this;
                 SDL_AudioSpec outSpec;
                 sdlID = SDL_OpenAudioDevice(
                     !id.name.empty() ? id.name.c_str() : nullptr,
                     0,
-                    &inSpec,
+                    &spec,
                     &outSpec,
                     SDL_AUDIO_ALLOW_ANY_CHANGE);
                 if (sdlID > 0)
                 {
                     audioInfo.channelCount = outSpec.channels;
-                    audioInfo.dataType = fromSDL2(outSpec.format);
+                    audioInfo.dataType = fromSDL(outSpec.format);
                     audioInfo.sampleRate = outSpec.freq;
-
+#elif defined(TLRENDER_SDL3)
+                sdlStream = SDL_OpenAudioDeviceStream(
+                    -1 == id.number ? SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK : id.number,
+                    &spec,
+                    sdl3Callback,
+                    this);
+                if (sdlStream)
+                {
+#endif // TLRENDER_SDL2
                     {
                         std::stringstream ss;
                         ss << "Audio device: " << id.number << " " << id.name << "\n" <<
@@ -238,7 +271,11 @@ namespace tl
                     audioThread.info = audioInfo;
                     audioThread.resample.reset();
 
+#if defined(TLRENDER_SDL2)
                     SDL_PauseAudioDevice(sdlID, 0);
+#elif defined(TLRENDER_SDL3)
+                    SDL_ResumeAudioStreamDevice(sdlStream);
+#endif // TLRENDER_SDL2
                 }
                 else
                 {
@@ -269,14 +306,11 @@ namespace tl
             return out;
         }
 
-#if defined(TLRENDER_SDL2)
-            void Player::Private::sdl2Callback(
-                void* userData,
-                Uint8* outputBuffer,
-                int len)
+#if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
+        void Player::Private::sdlCallback(
+            uint8_t* outputBuffer,
+            int len)
         {
-            auto p = reinterpret_cast<Player::Private*>(userData);
-
             // Get mutex protected values.
             Playback playback = Playback::Stop;
             double speed = 0.0;
@@ -287,19 +321,19 @@ namespace tl
             bool reset = false;
             otime::RationalTime start = time::invalidTime;
             {
-                std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
-                playback = p->audioMutex.playback;
-                speed = p->audioMutex.speed;
-                volume = p->audioMutex.volume;
-                mute = p->audioMutex.mute;
-                muteTimeout = p->audioMutex.muteTimeout;
-                audioOffset = p->audioMutex.audioOffset;
-                reset = p->audioMutex.reset;
-                p->audioMutex.reset = false;
-                start = p->audioMutex.start;
+                std::unique_lock<std::mutex> lock(audioMutex.mutex);
+                playback = audioMutex.playback;
+                speed = audioMutex.speed;
+                volume = audioMutex.volume;
+                mute = audioMutex.mute;
+                muteTimeout = audioMutex.muteTimeout;
+                audioOffset = audioMutex.audioOffset;
+                reset = audioMutex.reset;
+                audioMutex.reset = false;
+                start = audioMutex.start;
                 if (reset)
                 {
-                    p->audioMutex.frame = 0;
+                    audioMutex.frame = 0;
                 }
             }
             //std::cout << "playback: " << playback << std::endl;
@@ -307,61 +341,61 @@ namespace tl
             //std::cout << "start: " << start << std::endl;
 
             // Zero output audio data.
-            const audio::Info& outputInfo = p->audioThread.info;
-            const size_t outputSamples = len / p->audioThread.info.getByteCount();
+            const audio::Info& outputInfo = audioThread.info;
+            const size_t outputSamples = len / audioThread.info.getByteCount();
             std::memset(outputBuffer, 0, outputSamples * outputInfo.getByteCount());
 
-            const audio::Info& inputInfo = p->ioInfo.audio;
+            const audio::Info& inputInfo = ioInfo.audio;
             if (playback != Playback::Stop && inputInfo.sampleRate > 0)
             {
                 // Initialize on reset.
                 if (reset)
                 {
-                    p->audioThread.inputFrame = 0;
-                    p->audioThread.outputFrame = 0;
-                    if (p->audioThread.resample)
+                    audioThread.inputFrame = 0;
+                    audioThread.outputFrame = 0;
+                    if (audioThread.resample)
                     {
-                        p->audioThread.resample->flush();
+                        audioThread.resample->flush();
                     }
-                    p->audioThread.buffer.clear();
+                    audioThread.buffer.clear();
                 }
 
                 // Create the audio resampler.
-                if (!p->audioThread.resample ||
-                    (p->audioThread.resample && p->audioThread.resample->getInputInfo() != p->ioInfo.audio))
+                if (!audioThread.resample ||
+                    (audioThread.resample && audioThread.resample->getInputInfo() != ioInfo.audio))
                 {
-                    p->audioThread.resample = audio::AudioResample::create(
-                        p->ioInfo.audio,
-                        p->audioThread.info);
+                    audioThread.resample = audio::AudioResample::create(
+                        ioInfo.audio,
+                        audioThread.info);
                 }
 
                 // Get audio from the cache.
                 int64_t t =
-                    (start - p->timeRange.start_time()).rescaled_to(inputInfo.sampleRate).value() -
+                    (start - timeRange.start_time()).rescaled_to(inputInfo.sampleRate).value() -
                     otime::RationalTime(audioOffset, 1.0).rescaled_to(inputInfo.sampleRate).value();
                 if (Playback::Forward == playback)
                 {
-                    t += p->audioThread.inputFrame;
+                    t += audioThread.inputFrame;
                 }
                 else
                 {
-                    t -= p->audioThread.inputFrame;
+                    t -= audioThread.inputFrame;
                 }
                 std::vector<AudioData> audioDataList;
                 {
                     const int64_t seconds = std::floor(t / static_cast<double>(inputInfo.sampleRate));
-                    std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
+                    std::unique_lock<std::mutex> lock(audioMutex.mutex);
                     for (int64_t i = seconds - 1; i < seconds + 1; ++i)
                     {
-                        auto j = p->audioMutex.audioDataCache.find(i);
-                        if (j != p->audioMutex.audioDataCache.end())
+                        auto j = audioMutex.audioDataCache.find(i);
+                        if (j != audioMutex.audioDataCache.end())
                         {
                             audioDataList.push_back(j->second);
                         }
                     }
                 }
                 int64_t size = otio::RationalTime(
-                    outputSamples * 2 - getSampleCount(p->audioThread.buffer),
+                    outputSamples * 2 - getSampleCount(audioThread.buffer),
                     outputInfo.sampleRate).
                     rescaled_to(inputInfo.sampleRate).value();
                 const auto audioList = audioCopy(
@@ -385,7 +419,7 @@ namespace tl
                     const auto now = std::chrono::steady_clock::now();
                     if (mute ||
                         now < muteTimeout ||
-                        speed != p->timeRange.duration().rate())
+                        speed != timeRange.duration().rate())
                     {
                         volume = 0.F;
                     }
@@ -412,44 +446,70 @@ namespace tl
                     }
 
                     // Resample the audio and add it to the buffer.
-                    p->audioThread.buffer.push_back(p->audioThread.resample->process(audio));
+                    audioThread.buffer.push_back(audioThread.resample->process(audio));
                 }
 
                 // Send the audio data to the device.
-                if (outputSamples <= getSampleCount(p->audioThread.buffer))
+                if (outputSamples <= getSampleCount(audioThread.buffer))
                 {
-                    audio::move(
-                        p->audioThread.buffer,
-                        reinterpret_cast<uint8_t*>(outputBuffer),
-                        outputSamples);
+                    audio::move(audioThread.buffer, outputBuffer, outputSamples);
                 }
 
                 // Update the frame counters.
-                if (!audioList.empty() || p->audioThread.cacheRetryCount > 1)
+                if (!audioList.empty() || audioThread.cacheRetryCount > 1)
                 {
-                    p->audioThread.cacheRetryCount = 0;
-                    p->audioThread.inputFrame += !audioList.empty() ?
+                    audioThread.cacheRetryCount = 0;
+                    audioThread.inputFrame += !audioList.empty() ?
                         audioList[0]->getSampleCount() :
                         otio::RationalTime(
                             outputSamples,
                             outputInfo.sampleRate).
                         rescaled_to(inputInfo.sampleRate).value();
-                    p->audioThread.outputFrame += outputSamples;
+                    audioThread.outputFrame += outputSamples;
                 }
                 else
                 {
-                    p->audioThread.cacheRetryCount += 1;
+                    audioThread.cacheRetryCount += 1;
                 }
                 const int64_t outputFrame = otio::RationalTime(
-                    p->audioThread.outputFrame,
+                    audioThread.outputFrame,
                     outputInfo.sampleRate).
                     rescaled_to(inputInfo.sampleRate).value();
                 {
-                    std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
-                    p->audioMutex.frame = outputFrame;
+                    std::unique_lock<std::mutex> lock(audioMutex.mutex);
+                    audioMutex.frame = outputFrame;
                 }
             }
         }
+
+#if defined(TLRENDER_SDL2)
+        void Player::Private::sdl2Callback(
+            void* userData,
+            Uint8* outputBuffer,
+            int len)
+        {
+            auto p = reinterpret_cast<Player::Private*>(userData);
+            if (len > 0)
+            {
+                p->sdlCallback(outputBuffer, len);
+            }
+        }
+#elif defined(TLRENDER_SDL3)
+        void Player::Private::sdl3Callback(
+            void* userData,
+            SDL_AudioStream *stream,
+            int additional_amount,
+            int total_amount)
+        {
+            auto p = reinterpret_cast<Player::Private*>(userData);
+            if (additional_amount > 0)
+            {
+                std::vector<uint8_t> buf(additional_amount * p->audioThread.info.getByteCount());
+                p->sdlCallback(buf.data(), buf.size());
+                SDL_PutAudioStreamData(stream, buf.data(), buf.size());
+            }
+        }
+#endif // TLRENDER_SDL2
 #endif // TLRENDER_SDL2
     }
 }

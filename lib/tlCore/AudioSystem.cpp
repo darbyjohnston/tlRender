@@ -13,6 +13,9 @@
 #if defined(TLRENDER_SDL2)
 #include <SDL2/SDL.h>
 #endif // TLRENDER_SDL2
+#if defined(TLRENDER_SDL3)
+#include <SDL3/SDL.h>
+#endif // TLRENDER_SDL3
 
 #include <array>
 #include <atomic>
@@ -77,8 +80,12 @@ namespace tl
             ISystem::_init("tl::audio::System", context);
             TLRENDER_P();
 
+#if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
 #if defined(TLRENDER_SDL2)
             p.init = SDL_Init(SDL_INIT_AUDIO) >= 0;
+#elif defined(TLRENDER_SDL3)
+            p.init = SDL_Init(SDL_INIT_AUDIO);
+#endif // TLRENDER_SDL2
             if (!p.init)
             {
                 std::stringstream ss;
@@ -114,7 +121,7 @@ namespace tl
             p.mutex.devices = devices;
             p.mutex.defaultDevice = defaultDevice;
 
-#if defined(TLRENDER_SDL2)
+#if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
             if (p.init)
             {
                 p.thread.running = true;
@@ -142,7 +149,7 @@ namespace tl
             {
                 p.thread.thread.join();
             }
-#if defined(TLRENDER_SDL2)
+#if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
             SDL_Quit();
 #endif // TLRENDER_SDL2
         }
@@ -204,9 +211,9 @@ namespace tl
 
         namespace
         {
-#if defined(TLRENDER_SDL2)
+#if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
             //! \todo This is duplicated in AudioSystem.cpp and PlayerAudio.cpp
-            audio::DataType fromSDL2(SDL_AudioFormat value)
+            audio::DataType fromSDL(SDL_AudioFormat value)
             {
                 audio::DataType out = audio::DataType::F32;
                 if (SDL_AUDIO_BITSIZE(value) == 8 &&
@@ -252,10 +259,27 @@ namespace tl
                 SDL_AudioSpec spec;
                 SDL_GetAudioDeviceSpec(i, 0, &spec);
                 device.info.channelCount = spec.channels;
-                device.info.dataType = fromSDL2(spec.format);
+                device.info.dataType = fromSDL(spec.format);
                 device.info.sampleRate = spec.freq;
                 out.push_back(device);
             }
+#elif defined(TLRENDER_SDL3)
+            int count = 0;
+            SDL_AudioDeviceID* ids = SDL_GetAudioPlaybackDevices(&count);
+            for (int i = 0; i < count; ++i)
+            {
+                DeviceInfo device;
+                device.id.number = ids[i];
+                device.id.name = SDL_GetAudioDeviceName(ids[i]);
+                SDL_AudioSpec spec;
+                int sampleFrames = 0;
+                SDL_GetAudioDeviceFormat(ids[i], &spec, &sampleFrames);
+                device.info.channelCount = spec.channels;
+                device.info.dataType = fromSDL(spec.format);
+                device.info.sampleRate = spec.freq;
+                out.push_back(device);
+            }
+            SDL_free(ids);
 #endif // TLRENDER_SDL2
             return out;
         }
@@ -263,6 +287,7 @@ namespace tl
         DeviceInfo System::_getDefaultDevice()
         {
             DeviceInfo out;
+#if defined(TLRENDER_SDL2)
             char* name = nullptr;
             SDL_AudioSpec spec;
             SDL_GetDefaultAudioInfo(&name, &spec, 0);
@@ -272,15 +297,24 @@ namespace tl
                 SDL_free(name);
             }
             out.info.channelCount = spec.channels;
-            out.info.dataType = fromSDL2(spec.format);
+            out.info.dataType = fromSDL(spec.format);
             out.info.sampleRate = spec.freq;
+#elif defined(TLRENDER_SDL3)
+            out.id.name = "Default";
+            SDL_AudioSpec spec;
+            int sampleFrames = 0;
+            SDL_GetAudioDeviceFormat(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, &sampleFrames);
+            out.info.channelCount = spec.channels;
+            out.info.dataType = fromSDL(spec.format);
+            out.info.sampleRate = spec.freq;
+#endif // TLRENDER_SDL2
             return out;
         }
 
         void System::_run()
         {
             TLRENDER_P();
-#if defined(TLRENDER_SDL2)
+#if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
 
             const std::vector<DeviceInfo> devices = _getDevices();
             const DeviceInfo defaultDevice = _getDefaultDevice();
