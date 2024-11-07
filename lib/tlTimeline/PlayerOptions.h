@@ -30,16 +30,6 @@ namespace tl
             //! Audio device index.
             audio::DeviceID audioDevice;
 
-            //! Use the minimum preferred sample rate for multiple devices with the same name.
-            //!
-            //! \bug This is to workaround an issue with RtAudio and Bluetooth headsets
-            //! on macOS. When the microphone is activated RtAudio shows the headset as
-            //! two separate devices. The devices may show different preferred sample rates
-            //! but only the minimum sample rate seems to work. This option uses the minimum
-            //! preferred sample rate for devices with the same name, and can be disabled in case it
-            //! has other side effects.
-            bool audioMinPreferredSampleRate = true;
-
             //! Cache options.
             PlayerCacheOptions cache;
 

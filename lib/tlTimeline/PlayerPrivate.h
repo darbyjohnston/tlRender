@@ -11,9 +11,12 @@
 #include <tlCore/AudioResample.h>
 #include <tlCore/LRUCache.h>
 
-#if defined(TLRENDER_AUDIO)
-#include <rtaudio/RtAudio.h>
-#endif // TLRENDER_AUDIO
+#if defined(TLRENDER_SDL2)
+#include <SDL2/SDL.h>
+#endif // TLRENDER_SDL2
+#if defined(TLRENDER_SDL3)
+#include <SDL3/SDL.h>
+#endif // TLRENDER_SDL3
 
 #include <atomic>
 #include <mutex>
@@ -38,18 +41,14 @@ namespace tl
             static size_t getAudioChannelCount(
                 const audio::Info& input,
                 const audio::Info& output);
-#if defined(TLRENDER_AUDIO)
-            static int rtAudioCallback(
-                void* outputBuffer,
-                void* inputBuffer,
-                unsigned int nFrames,
-                double streamTime,
-                RtAudioStreamStatus status,
-                void* userData);
-            static void rtAudioErrorCallback(
-                RtAudioError::Type type,
-                const std::string& errorText);
-#endif // TLRENDER_AUDIO
+#if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
+            void sdlCallback(uint8_t* stream, int len);
+#if defined(TLRENDER_SDL2)
+            static void sdl2Callback(void* user, Uint8* stream, int len);
+#elif defined(TLRENDER_SDL3)
+            static void sdl3Callback(void* user, SDL_AudioStream *stream, int additional_amount, int total_amount);
+#endif // TLRENDER_SDL2
+#endif // TLRENDER_SDL2
 
             void log(const std::shared_ptr<system::Context>&);
 
@@ -79,12 +78,14 @@ namespace tl
             std::shared_ptr<observer::Value<PlayerCacheInfo> > cacheInfo;
             std::shared_ptr<observer::ValueObserver<bool> > timelineObserver;
             std::shared_ptr<observer::ListObserver<audio::DeviceInfo> > audioDevicesObserver;
-            std::shared_ptr<observer::ValueObserver<audio::DeviceID> > defaultAudioDeviceObserver;
+            std::shared_ptr<observer::ValueObserver<audio::DeviceInfo> > defaultAudioDeviceObserver;
 
-#if defined(TLRENDER_AUDIO)
             audio::Info audioInfo;
-            std::unique_ptr<RtAudio> rtAudio;
-#endif // TLRENDER_AUDIO
+#if defined(TLRENDER_SDL2)
+            int sdlID = 0;
+#elif defined(TLRENDER_SDL3)
+            SDL_AudioStream* sdlStream = nullptr;
+#endif // TLRENDER_SDL2
 
             std::atomic<bool> running;
 

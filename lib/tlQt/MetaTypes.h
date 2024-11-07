@@ -17,7 +17,6 @@
 #include <QMetaType>
 
 Q_DECLARE_METATYPE(tl::audio::DataType);
-Q_DECLARE_METATYPE(tl::audio::DeviceFormat);
 
 Q_DECLARE_METATYPE(tl::log::Type);
 

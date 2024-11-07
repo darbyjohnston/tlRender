@@ -43,7 +43,6 @@ namespace tl
         void AudioTest::_enums()
         {
             _enum<DataType>("DataType", getDataTypeEnums);
-            _enum<DeviceFormat>("DeviceFormat", getDeviceFormatEnums);
         }
 
         void AudioTest::_types()
@@ -90,7 +89,7 @@ namespace tl
         void AudioTest::_audioSystem()
         {
             auto system = _context->getSystem<System>();
-            for (const auto& i : system->getAPIs())
+            for (const auto& i : system->getDrivers())
             {
                 std::stringstream ss;
                 ss << "api: " << i;
@@ -104,14 +103,8 @@ namespace tl
             }
             {
                 std::stringstream ss;
-                const DeviceID id = system->getDefaultInputDevice();
-                ss << "default input device: " << id.number << " " << id.name;
-                _print(ss.str());
-            }
-            {
-                std::stringstream ss;
-                const DeviceID id = system->getDefaultOutputDevice();
-                ss << "default output device: " << id.number << " " << id.name;
+                const DeviceInfo device = system->getDefaultDevice();
+                ss << "default device: " << device.id.number << " " << device.id.name;
                 _print(ss.str());
             }
         }

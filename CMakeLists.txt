@@ -29,7 +29,8 @@ set(TLRENDER_API "GL_4_1" CACHE STRING "Graphics API (GL_4_1, GL_4_1_Debug, GLES
 set(TLRENDER_GLFW TRUE CACHE BOOL "Enable support for GLFW")
 set(TLRENDER_NET FALSE CACHE BOOL "Enable network support")
 set(TLRENDER_OCIO TRUE CACHE BOOL "Enable support for OpenColorIO")
-set(TLRENDER_AUDIO TRUE CACHE BOOL "Enable support for audio")
+set(TLRENDER_SDL2 TRUE CACHE BOOL "Enable support for SDL2")
+set(TLRENDER_SDL3 FALSE CACHE BOOL "Enable support for SDL3")
 set(TLRENDER_JPEG TRUE CACHE BOOL "Enable support for JPEG I/O")
 set(TLRENDER_TIFF TRUE CACHE BOOL "Enable support for TIFF I/O")
 set(TLRENDER_STB TRUE CACHE BOOL "Enable support for STB I/O (TGA, BMP, PSD)")
@@ -163,11 +164,14 @@ if(TLRENDER_OCIO AND NOT "${TLRENDER_API}" STREQUAL "GLES_2")
     add_definitions(-DTLRENDER_OCIO)
 endif()
 
-# Audio dependencies
-if(TLRENDER_AUDIO)
-    find_package(SampleRate REQUIRED)
-    find_package(RtAudio REQUIRED)
-    add_definitions(-DTLRENDER_AUDIO)
+# SDL dependencies
+if(TLRENDER_SDL2)
+    find_package(SDL2 REQUIRED)
+    add_definitions(-DTLRENDER_SDL2)
+endif()
+if(TLRENDER_SDL3)
+    find_package(SDL3 REQUIRED)
+    add_definitions(-DTLRENDER_SDL3)
 endif()
 
 # I/O dependencies

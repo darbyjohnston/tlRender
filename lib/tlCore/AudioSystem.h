@@ -16,41 +16,18 @@ namespace tl
         //! Audio device ID.
         struct DeviceID
         {
-            unsigned int number = 0;
-            std::string  name;
+            int         number = -1;
+            std::string name;
 
             bool operator == (const DeviceID&) const;
             bool operator != (const DeviceID&) const;
         };
 
-        //! Audio device format.
-        enum class DeviceFormat
-        {
-            S8,
-            S16,
-            S24,
-            S32,
-            F32,
-            F64,
-
-            Count,
-            First = S8
-        };
-        TLRENDER_ENUM(DeviceFormat);
-        TLRENDER_ENUM_SERIALIZE(DeviceFormat);
-
         //! Audio device information.
         struct DeviceInfo
         {
-            DeviceID                  id;
-            unsigned int              outputChannels      = 0;
-            unsigned int              inputChannels       = 0;
-            unsigned int              duplexChannels      = 0;
-            std::vector<unsigned int> sampleRates;
-            unsigned int              preferredSampleRate = 0;
-            std::vector<DeviceFormat> nativeFormats;
-            Info                      outputInfo;
-            Info                      inputInfo;
+            DeviceID    id;
+            audio::Info info;
 
             bool operator == (const DeviceInfo&) const;
             bool operator != (const DeviceInfo&) const;
@@ -72,8 +49,8 @@ namespace tl
             //! Create a new system.
             static std::shared_ptr<System> create(const std::shared_ptr<system::Context>&);
 
-            //! Get the list of audio APIs.
-            const std::vector<std::string>& getAPIs() const;
+            //! Get the list of audio drivers.
+            const std::vector<std::string>& getDrivers() const;
 
             //! Get the list of audio devices.
             const std::vector<DeviceInfo>& getDevices() const;
@@ -81,25 +58,18 @@ namespace tl
             //! Observe the list of audio devices.
             std::shared_ptr<observer::IList<DeviceInfo> > observeDevices() const;
 
-            //! Get the default audio output device.
-            DeviceID getDefaultOutputDevice() const;
+            //! Get the default audio device.
+            DeviceInfo getDefaultDevice() const;
 
-            //! Observe the default audio ouput device.
-            std::shared_ptr<observer::IValue<DeviceID> > observeDefaultOutputDevice() const;
-
-            //! Get the default audio input device.
-            DeviceID getDefaultInputDevice() const;
-
-            //! Observe the default audio input device.
-            std::shared_ptr<observer::IValue<DeviceID> > observeDefaultInputDevice() const;
+            //! Observe the default audio device.
+            std::shared_ptr<observer::IValue<DeviceInfo> > observeDefaultDevice() const;
 
             void tick() override;
             std::chrono::milliseconds getTickTime() const override;
 
         private:
             std::vector<DeviceInfo> _getDevices();
-            DeviceID _getDefaultOutputDevice(const std::vector<DeviceInfo>&);
-            DeviceID _getDefaultInputDevice(const std::vector<DeviceInfo>&);
+            DeviceInfo _getDefaultDevice();
 
             void _run();
 
