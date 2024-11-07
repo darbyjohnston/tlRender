@@ -3,6 +3,11 @@ include(ExternalProject)
 set(SDL2_GIT_REPOSITORY "https://github.com/libsdl-org/SDL.git")
 set(SDL2_GIT_TAG "release-2.30.9")
 
+set(SDL2_PATCH
+    ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/SDL2-patch/src/audio/coreaudio/SDL_coreaudio.m
+    ${CMAKE_CURRENT_BINARY_DIR}/SDL2/src/SDL2/src/audio/coreaudio/SDL_coreaudio.m)
+
 set(SDL2_ARGS
     ${TLRENDER_EXTERNAL_ARGS}
     -DSDL_STATIC=ON
@@ -47,5 +52,6 @@ ExternalProject_Add(
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/SDL2
     GIT_REPOSITORY ${SDL2_GIT_REPOSITORY}
     GIT_TAG ${SDL2_GIT_TAG}
+    PATCH_COMMAND ${SDL2_PATCH}
     LIST_SEPARATOR |
     CMAKE_ARGS ${SDL2_ARGS})
