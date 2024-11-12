@@ -115,7 +115,8 @@ namespace tl
         {
             bool out = false;
 #if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
-            out = ioInfo.audio.isValid();
+            out = ioInfo.audio.isValid() &&
+                speed->get() == timeRange.duration().rate();
 #endif // TLRENDER_SDL2
             return out;
         }
