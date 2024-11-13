@@ -384,7 +384,9 @@ namespace tl
                     (speed / timeRange.duration().rate()) :
                     0.0;
                 const int64_t copySize = otio::RationalTime(
-                    outputSamples * 2.0 * speedRatio - getSampleCount(audioThread.buffer),
+                    std::max(
+                        0.0,
+                        outputSamples * 2.0 * speedRatio - static_cast<double>(getSampleCount(audioThread.buffer))),
                     outputInfo.sampleRate).
                     rescaled_to(inputInfo.sampleRate).value();
                 const auto audioLayers = audioCopy(
