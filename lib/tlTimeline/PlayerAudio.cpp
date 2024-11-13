@@ -295,18 +295,6 @@ namespace tl
             audioMutex.frame = 0;
         }
 
-        size_t Player::Private::getAudioChannelCount(
-            const audio::Info& input,
-            const audio::Info& output)
-        {
-            size_t out = std::min(static_cast<size_t>(2), output.channelCount);
-            if (input.channelCount == output.channelCount)
-            {
-                out = output.channelCount;
-            }
-            return out;
-        }
-
 #if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
         void Player::Private::sdlCallback(
             uint8_t* outputBuffer,
@@ -343,7 +331,7 @@ namespace tl
 
             // Zero output audio data.
             const audio::Info& outputInfo = audioThread.info;
-            const size_t outputSamples = len / audioThread.info.getByteCount();
+            const size_t outputSamples = len / outputInfo.getByteCount();
             std::memset(outputBuffer, 0, outputSamples * outputInfo.getByteCount());
 
             const audio::Info& inputInfo = ioInfo.audio;
@@ -363,11 +351,9 @@ namespace tl
 
                 // Create the audio resampler.
                 if (!audioThread.resample ||
-                    (audioThread.resample && audioThread.resample->getInputInfo() != ioInfo.audio))
+                    (audioThread.resample && audioThread.resample->getInputInfo() != inputInfo))
                 {
-                    audioThread.resample = audio::AudioResample::create(
-                        ioInfo.audio,
-                        audioThread.info);
+                    audioThread.resample = audio::AudioResample::create(inputInfo, outputInfo);
                 }
 
                 // Get audio from the cache.

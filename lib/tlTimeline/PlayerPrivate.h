@@ -38,9 +38,6 @@ namespace tl
             void playbackReset(const otime::RationalTime&);
             void audioInit(const std::shared_ptr<system::Context>&);
             void audioReset(const otime::RationalTime&);
-            static size_t getAudioChannelCount(
-                const audio::Info& input,
-                const audio::Info& output);
 #if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
             void sdlCallback(uint8_t* stream, int len);
 #if defined(TLRENDER_SDL2)
