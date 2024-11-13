@@ -385,24 +385,24 @@ namespace tl
                     outputSamples * 2 - getSampleCount(audioThread.buffer),
                     outputInfo.sampleRate).
                     rescaled_to(inputInfo.sampleRate).value();
-                const auto audioList = audioCopy(
+                const auto audioLayers = audioCopy(
                     inputInfo,
                     audioDataList,
                     playback,
                     t,
                     size);
 
-                if (!audioList.empty())
+                if (!audioLayers.empty())
                 {
                     // Mix the audio layers.
                     std::vector<const uint8_t*> audioP;
-                    for (const auto& i : audioList)
+                    for (const auto& i : audioLayers)
                     {
                         audioP.push_back(i->getData());
                     }
                     auto audio = audio::Audio::create(
                         inputInfo,
-                        audioList[0]->getSampleCount());
+                        audioLayers[0]->getSampleCount());
                     const auto now = std::chrono::steady_clock::now();
                     if (mute ||
                         now < muteTimeout ||
@@ -415,7 +415,7 @@ namespace tl
                         audioP.size(),
                         audio->getData(),
                         volume,
-                        audioList[0]->getSampleCount(),
+                        audioLayers[0]->getSampleCount(),
                         inputInfo.channelCount,
                         inputInfo.dataType);
 
@@ -443,11 +443,11 @@ namespace tl
                 }
 
                 // Update the frame counters.
-                if (!audioList.empty() || audioThread.cacheRetryCount > 1)
+                if (!audioLayers.empty() || audioThread.cacheRetryCount > 1)
                 {
                     audioThread.cacheRetryCount = 0;
-                    audioThread.inputFrame += !audioList.empty() ?
-                        audioList[0]->getSampleCount() :
+                    audioThread.inputFrame += !audioLayers.empty() ?
+                        audioLayers[0]->getSampleCount() :
                         otio::RationalTime(
                             outputSamples,
                             outputInfo.sampleRate).
