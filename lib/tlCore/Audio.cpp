@@ -285,6 +285,25 @@ namespace tl
             }
         }
 
+        std::shared_ptr<Audio> changeSpeed(const std::shared_ptr<Audio>& audio, double mult)
+        {
+            const size_t inSampleCount = audio->getSampleCount();
+            const size_t outSampleCount = inSampleCount * mult;
+            std::shared_ptr<Audio> out = Audio::create(audio->getInfo(), outSampleCount);
+
+            const S16_T* inP = reinterpret_cast<const S16_T*>(audio->getData());
+            S16_T* outP = reinterpret_cast<S16_T*>(out->getData());
+            for (size_t i = 0; i < outSampleCount; ++i)
+            {
+                const size_t j = i / static_cast<double>(outSampleCount - 1) *
+                    (inSampleCount - 1);
+                outP[i * 2] = inP[j * 2];
+                outP[i * 2 + 1] = inP[j * 2 + 1];
+            }
+
+            return out;
+        }
+
 #define _CONVERT(a, b) \
     { \
         const a##_T * inP = reinterpret_cast<const a##_T *>(in->getData()); \

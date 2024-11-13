@@ -201,6 +201,9 @@ namespace tl
             size_t         channelCount,
             DataType       dataType);
 
+        //! Change audio speed.
+        std::shared_ptr<Audio> changeSpeed(const std::shared_ptr<Audio>&, double);
+
         //! Convert audio data.
         std::shared_ptr<Audio> convert(const std::shared_ptr<Audio>&, DataType);
 

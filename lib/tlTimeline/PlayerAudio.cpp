@@ -115,8 +115,7 @@ namespace tl
         {
             bool out = false;
 #if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
-            out = ioInfo.audio.isValid() &&
-                speed->get() == timeRange.duration().rate();
+            out = ioInfo.audio.isValid();
 #endif // TLRENDER_SDL2
             return out;
         }
@@ -381,8 +380,11 @@ namespace tl
                         }
                     }
                 }
-                int64_t size = otio::RationalTime(
-                    outputSamples * 2 - getSampleCount(audioThread.buffer),
+                const double speedRatio = timeRange.duration().rate() > 0.0 ?
+                    (speed / timeRange.duration().rate()) :
+                    0.0;
+                const int64_t copySize = otio::RationalTime(
+                    outputSamples * 2.0 * speedRatio - getSampleCount(audioThread.buffer),
                     outputInfo.sampleRate).
                     rescaled_to(inputInfo.sampleRate).value();
                 const auto audioLayers = audioCopy(
@@ -390,7 +392,7 @@ namespace tl
                     audioDataList,
                     playback,
                     t,
-                    size);
+                    copySize);
 
                 if (!audioLayers.empty())
                 {
@@ -404,9 +406,7 @@ namespace tl
                         inputInfo,
                         audioLayers[0]->getSampleCount());
                     const auto now = std::chrono::steady_clock::now();
-                    if (mute ||
-                        now < muteTimeout ||
-                        speed != timeRange.duration().rate())
+                    if (mute || now < muteTimeout)
                     {
                         volume = 0.F;
                     }
@@ -419,7 +419,7 @@ namespace tl
                         inputInfo.channelCount,
                         inputInfo.dataType);
 
-                    // Reverse the audio if necessary.
+                    // Reverse the audio.
                     if (Playback::Reverse == playback)
                     {
                         auto tmp = audio::Audio::create(inputInfo, audio->getSampleCount());
@@ -430,6 +430,12 @@ namespace tl
                             audio->getChannelCount(),
                             audio->getDataType());
                         audio = tmp;
+                    }
+
+                    // Change the audio speed.
+                    if (speed != timeRange.duration().rate() && speed > 0.0)
+                    {
+                        audio = audio::changeSpeed(audio, timeRange.duration().rate() / speed);
                     }
 
                     // Resample the audio and add it to the buffer.
