@@ -202,20 +202,6 @@ namespace tl
         //! Convert audio data.
         std::shared_ptr<Audio> convert(const std::shared_ptr<Audio>&, DataType);
 
-        //! Interleave audio data.
-        std::shared_ptr<Audio> planarInterleave(const std::shared_ptr<Audio>&);
-
-        //! Interleave audio data.
-        template<typename T>
-        void planarInterleave(
-            const T** in,
-            T*        out,
-            size_t    channelCount,
-            size_t    sampleCount);
-
-        //! De-interleave audio data.
-        std::shared_ptr<Audio> planarDeinterleave(const std::shared_ptr<Audio>&);
-
         //! Get the total sample count from a list of audio data.
         size_t getSampleCount(const std::list<std::shared_ptr<audio::Audio> >&);
 
