@@ -221,7 +221,7 @@ namespace tl
             template<typename T>
             void reverseI(
                 const uint8_t* in,
-                uint8_t* out,
+                uint8_t*       out,
                 size_t         sampleCount,
                 size_t         channelCount)
             {
@@ -240,7 +240,7 @@ namespace tl
             template<typename T>
             void reverseF(
                 const uint8_t* in,
-                uint8_t* out,
+                uint8_t*       out,
                 size_t         sampleCount,
                 size_t         channelCount)
             {
@@ -257,32 +257,31 @@ namespace tl
             }
         }
 
-        void reverse(
-            const uint8_t* in,
-            uint8_t*       out,
-            size_t         sampleCount,
-            size_t         channelCount,
-            DataType       dataType)
+        std::shared_ptr<Audio> reverse(const std::shared_ptr<Audio>& audio)
         {
-            switch (dataType)
+            const Info& info = audio->getInfo();
+            const size_t sampleCount = audio->getSampleCount();
+            auto out = Audio::create(info, sampleCount);
+            switch (info.dataType)
             {
             case DataType::S8:
-                reverseI<int8_t>(in, out, sampleCount, channelCount);
+                reverseI<int8_t>(audio->getData(), out->getData(), sampleCount, info.channelCount);
                 break;
             case DataType::S16:
-                reverseI<int16_t>(in, out, sampleCount, channelCount);
+                reverseI<int16_t>(audio->getData(), out->getData(), sampleCount, info.channelCount);
                 break;
             case DataType::S32:
-                reverseI<int32_t>(in, out, sampleCount, channelCount);
+                reverseI<int32_t>(audio->getData(), out->getData(), sampleCount, info.channelCount);
                 break;
             case DataType::F32:
-                reverseF<float>(in, out, sampleCount, channelCount);
+                reverseF<float>(audio->getData(), out->getData(), sampleCount, info.channelCount);
                 break;
             case DataType::F64:
-                reverseF<double>(in, out, sampleCount, channelCount);
+                reverseF<double>(audio->getData(), out->getData(), sampleCount, info.channelCount);
                 break;
             default: break;
             }
+            return out;
         }
 
         std::shared_ptr<Audio> changeSpeed(const std::shared_ptr<Audio>& audio, double mult)

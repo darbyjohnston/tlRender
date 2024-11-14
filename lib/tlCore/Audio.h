@@ -194,12 +194,7 @@ namespace tl
             DataType        dataType);
 
         //! Reverse audio.
-        void reverse(
-            const uint8_t* in,
-            uint8_t*       out,
-            size_t         sampleCount,
-            size_t         channelCount,
-            DataType       dataType);
+        std::shared_ptr<Audio> reverse(const std::shared_ptr<Audio>&);
 
         //! Change audio speed.
         std::shared_ptr<Audio> changeSpeed(const std::shared_ptr<Audio>&, double);

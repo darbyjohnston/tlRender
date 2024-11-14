@@ -275,8 +275,7 @@ namespace tl
             audio->getData()[0] = 1;
             audio->getData()[1] = 2;
             audio->getData()[2] = 3;
-            auto reversed = Audio::create(Info(1, DataType::S8, 41000), 3);
-            reverse(audio->getData(), reversed->getData(), 3, 1, DataType::S8);
+            auto reversed = reverse(audio);
             TLRENDER_ASSERT(3 == reversed->getData()[0]);
             TLRENDER_ASSERT(2 == reversed->getData()[1]);
             TLRENDER_ASSERT(1 == reversed->getData()[2]);

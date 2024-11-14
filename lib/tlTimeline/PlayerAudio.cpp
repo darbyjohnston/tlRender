@@ -426,14 +426,7 @@ namespace tl
                     // Reverse the audio.
                     if (Playback::Reverse == playback)
                     {
-                        auto tmp = audio::Audio::create(inputInfo, audio->getSampleCount());
-                        audio::reverse(
-                            audio->getData(),
-                            tmp->getData(),
-                            audio->getSampleCount(),
-                            audio->getChannelCount(),
-                            audio->getDataType());
-                        audio = tmp;
+                        audio = audio::reverse(audio);
                     }
 
                     // Change the audio speed.
