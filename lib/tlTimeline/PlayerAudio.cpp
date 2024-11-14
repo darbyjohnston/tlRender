@@ -384,17 +384,19 @@ namespace tl
                     (speed / timeRange.duration().rate()) :
                     0.0;
                 const int64_t copySize = otio::RationalTime(
-                    std::max(
-                        0.0,
-                        outputSamples * 2.0 * speedRatio - static_cast<double>(getSampleCount(audioThread.buffer))),
+                    outputSamples * 2.0 * speedRatio - static_cast<double>(getSampleCount(audioThread.buffer)),
                     outputInfo.sampleRate).
                     rescaled_to(inputInfo.sampleRate).value();
-                const auto audioLayers = audioCopy(
-                    inputInfo,
-                    audioDataList,
-                    playback,
-                    t,
-                    copySize);
+                std::vector<std::shared_ptr<audio::Audio> > audioLayers;
+                if (copySize > 0)
+                {
+                    audioLayers = audioCopy(
+                        inputInfo,
+                        audioDataList,
+                        playback,
+                        t,
+                        copySize);
+                }
 
                 if (!audioLayers.empty())
                 {
