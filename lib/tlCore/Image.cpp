@@ -306,8 +306,8 @@ namespace tl
             // Use reserve() instead of resize() which can be faster since it
             // does not initialize the data.
             // 
-            //! \bug Allocate a bit of extra space since FFmpeg sws_scale()
-            //! seems to be reading past the end?
+            // Allocate a bit of extra space since FFmpeg sws_scale()
+            // can read past the end.
             _data.reserve(_dataByteCount + 16);
         }
 
