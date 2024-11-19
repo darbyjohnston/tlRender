@@ -107,6 +107,7 @@ namespace tl
         {
             bool reset =
                 data.playback != _data.playback ||
+                data.speed != _data.speed ||
                 data.seek ||
                 data.audioOffset != _data.audioOffset;
             _data = data;
@@ -118,6 +119,7 @@ namespace tl
             {
                 std::unique_lock<std::mutex> lock(_audioMutex.mutex);
                 _audioMutex.playback = _data.playback;
+                _audioMutex.speed = _data.speed;
                 _audioMutex.currentTime = _data.currentTime;
                 _audioMutex.volume = _data.volume;
                 _audioMutex.mute = _data.mute;
@@ -224,6 +226,7 @@ namespace tl
         {
             // Get values.
             timeline::Playback playback = timeline::Playback::Stop;
+            double speed = 0.0;
             otime::RationalTime currentTime = time::invalidTime;
             float volume = 1.F;
             bool mute = false;
@@ -234,6 +237,7 @@ namespace tl
             {
                 std::unique_lock<std::mutex> lock(_audioMutex.mutex);
                 playback = _audioMutex.playback;
+                speed = _audioMutex.speed;
                 currentTime = _audioMutex.currentTime;
                 volume = _audioMutex.volume;
                 mute = _audioMutex.mute;
@@ -265,7 +269,9 @@ namespace tl
             {
                 inputInfo = audioDataList[0].layers[0].audio->getInfo();
             }
-            if (playback != timeline::Playback::Stop && inputInfo.sampleRate > 0)
+            if (playback != timeline::Playback::Stop &&
+                inputInfo.sampleRate > 0 &&
+                speed == currentTime.rate())
             {
                 // Create the audio resampler.
                 if (!_audioThread.resample ||
@@ -295,38 +301,41 @@ namespace tl
                     {
                         t -= _audioThread.frame;
                     }
-                    int64_t size = audioBufferCount - bufferedSampleCount;
-                    const auto audioList = audioCopy(
-                        inputInfo,
-                        audioDataList,
-                        playback,
-                        t,
-                        size);
+                    const int64_t copySize = audioBufferCount - bufferedSampleCount;
+                    std::vector<std::shared_ptr<audio::Audio> > audioLayers;
+                    if (copySize > 0)
+                    {
+                        audioLayers = audioCopy(
+                            inputInfo,
+                            audioDataList,
+                            playback,
+                            t,
+                            copySize);
+                    }
 
-                    if (!audioList.empty())
+                    if (!audioLayers.empty())
                     {
                         //std::cout << "t: " << t << std::endl;
-                        //std::cout << "size: " << audioData.size() << std::endl;
 
                         // Mix the audio layers.
                         std::vector<const uint8_t*> audioP;
-                        for (const auto& i : audioList)
+                        for (const auto& i : audioLayers)
                         {
                             audioP.push_back(i->getData());
                         }
                         auto audio = audio::Audio::create(
                             inputInfo,
-                            audioList[0]->getSampleCount());
+                            audioLayers[0]->getSampleCount());
                         audio::mix(
                             audioP.data(),
                             audioP.size(),
                             audio->getData(),
                             mute ? 0.F : volume,
-                            audioList[0]->getSampleCount(),
+                            audioLayers[0]->getSampleCount(),
                             inputInfo.channelCount,
                             inputInfo.dataType);
 
-                        // Reverse the audio if necessary.
+                        // Reverse the audio.
                         if (timeline::Playback::Reverse == playback)
                         {
                             audio = audio::reverse(audio);
