@@ -269,9 +269,7 @@ namespace tl
             {
                 inputInfo = audioDataList[0].layers[0].audio->getInfo();
             }
-            if (playback != timeline::Playback::Stop &&
-                inputInfo.sampleRate > 0 &&
-                speed == currentTime.rate())
+            if (playback != timeline::Playback::Stop && inputInfo.sampleRate > 0)
             {
                 // Create the audio resampler.
                 if (!_audioThread.resample ||
@@ -301,7 +299,10 @@ namespace tl
                     {
                         t -= _audioThread.frame;
                     }
-                    const int64_t copySize = audioBufferCount - bufferedSampleCount;
+                    const double speedRatio = currentTime.rate() > 0.0 ?
+                        (speed / currentTime.rate()) :
+                        0.0;
+                    const int64_t copySize = audioBufferCount * speedRatio - bufferedSampleCount;
                     std::vector<std::shared_ptr<audio::Audio> > audioLayers;
                     if (copySize > 0)
                     {
@@ -341,6 +342,12 @@ namespace tl
                             audio = audio::reverse(audio);
                         }
 
+                        // Change the audio speed.
+                        if (speed != currentTime.rate() && speed > 0.0)
+                        {
+                            audio = audio::changeSpeed(audio, currentTime.rate() / speed);
+                        }
+
                         // Resample the audio.
                         auto resampledAudio = _audioThread.resample->process(audio);
 
@@ -353,7 +360,7 @@ namespace tl
                             nullptr);
 
                         // Update the frame counter.
-                        _audioThread.frame += audio->getSampleCount();
+                        _audioThread.frame += audioLayers[0]->getSampleCount();
                     }
                     else
                     {
