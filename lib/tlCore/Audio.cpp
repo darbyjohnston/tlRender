@@ -219,26 +219,7 @@ namespace tl
         namespace
         {
             template<typename T>
-            void reverseI(
-                const uint8_t* in,
-                uint8_t*       out,
-                size_t         sampleCount,
-                size_t         channelCount)
-            {
-                const T* inP = reinterpret_cast<const T*>(in) +
-                    (sampleCount - 1) * channelCount;
-                T* outP = reinterpret_cast<T*>(out);
-                for (size_t i = 0; i < sampleCount; ++i, inP -= channelCount, outP += channelCount)
-                {
-                    for (size_t j = 0; j < channelCount; ++j)
-                    {
-                        outP[j] = inP[j];
-                    }
-                }
-            }
-
-            template<typename T>
-            void reverseF(
+            void reverseT(
                 const uint8_t* in,
                 uint8_t*       out,
                 size_t         sampleCount,
@@ -265,41 +246,74 @@ namespace tl
             switch (info.dataType)
             {
             case DataType::S8:
-                reverseI<int8_t>(audio->getData(), out->getData(), sampleCount, info.channelCount);
+                reverseT<int8_t>(audio->getData(), out->getData(), sampleCount, info.channelCount);
                 break;
             case DataType::S16:
-                reverseI<int16_t>(audio->getData(), out->getData(), sampleCount, info.channelCount);
+                reverseT<int16_t>(audio->getData(), out->getData(), sampleCount, info.channelCount);
                 break;
             case DataType::S32:
-                reverseI<int32_t>(audio->getData(), out->getData(), sampleCount, info.channelCount);
+                reverseT<int32_t>(audio->getData(), out->getData(), sampleCount, info.channelCount);
                 break;
             case DataType::F32:
-                reverseF<float>(audio->getData(), out->getData(), sampleCount, info.channelCount);
+                reverseT<float>(audio->getData(), out->getData(), sampleCount, info.channelCount);
                 break;
             case DataType::F64:
-                reverseF<double>(audio->getData(), out->getData(), sampleCount, info.channelCount);
+                reverseT<double>(audio->getData(), out->getData(), sampleCount, info.channelCount);
                 break;
             default: break;
             }
             return out;
         }
 
+        namespace
+        {
+            template<typename T>
+            void changeSpeedT(
+                const uint8_t* in,
+                uint8_t*       out,
+                size_t         inSampleCount,
+                size_t         outSampleCount,
+                size_t         channelCount)
+            {
+                const T* inP = reinterpret_cast<const T*>(in);
+                T* outP = reinterpret_cast<T*>(out);
+                for (size_t i = 0; i < outSampleCount; ++i)
+                {
+                    const size_t j = i / static_cast<double>(outSampleCount - 1) *
+                        (inSampleCount - 1);
+                    for (size_t c = 0; c < channelCount; ++c)
+                    {
+                        outP[i * channelCount + c] = inP[j * channelCount + c];
+                    }
+                }
+            }
+        }
+
         std::shared_ptr<Audio> changeSpeed(const std::shared_ptr<Audio>& audio, double mult)
         {
+            const Info& info = audio->getInfo();
             const size_t inSampleCount = audio->getSampleCount();
             const size_t outSampleCount = inSampleCount * mult;
-            std::shared_ptr<Audio> out = Audio::create(audio->getInfo(), outSampleCount);
-
-            const S16_T* inP = reinterpret_cast<const S16_T*>(audio->getData());
-            S16_T* outP = reinterpret_cast<S16_T*>(out->getData());
-            for (size_t i = 0; i < outSampleCount; ++i)
+            std::shared_ptr<Audio> out = Audio::create(info, outSampleCount);
+            switch (info.dataType)
             {
-                const size_t j = i / static_cast<double>(outSampleCount - 1) *
-                    (inSampleCount - 1);
-                outP[i * 2] = inP[j * 2];
-                outP[i * 2 + 1] = inP[j * 2 + 1];
+            case DataType::S8:
+                changeSpeedT<int8_t>(audio->getData(), out->getData(), inSampleCount, outSampleCount, info.channelCount);
+                break;
+            case DataType::S16:
+                changeSpeedT<int16_t>(audio->getData(), out->getData(), inSampleCount, outSampleCount, info.channelCount);
+                break;
+            case DataType::S32:
+                changeSpeedT<int32_t>(audio->getData(), out->getData(), inSampleCount, outSampleCount, info.channelCount);
+                break;
+            case DataType::F32:
+                changeSpeedT<float>(audio->getData(), out->getData(), inSampleCount, outSampleCount, info.channelCount);
+                break;
+            case DataType::F64:
+                changeSpeedT<double>(audio->getData(), out->getData(), inSampleCount, outSampleCount, info.channelCount);
+                break;
+            default: break;
             }
-
             return out;
         }
 
