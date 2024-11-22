@@ -712,17 +712,16 @@ namespace tl
                     start = p.noAudio.start;
                     const auto now = std::chrono::steady_clock::now();
                     const std::chrono::duration<double> diff = now - p.noAudio.playbackTimer;
-                    t = diff.count();
+                    t = diff.count() * p.speed->get() / timelineSpeed;
                 }
                 if (Playback::Reverse == playback)
                 {
                     t = -t;
                 }
-                const double speedMult = p.speed->get() / timelineSpeed;
                 bool looped = false;
                 const otime::RationalTime currentTime = p.loopPlayback(
                     start +
-                    otime::RationalTime(t * speedMult, 1.0).rescaled_to(timelineSpeed).floor(),
+                    otime::RationalTime(t, 1.0).rescaled_to(timelineSpeed).floor(),
                     looped);
                 //const double currentTimeDiff = abs(currentTime.value() - p.currentTime->get().value());
                 if (p.currentTime->setIfChanged(currentTime))

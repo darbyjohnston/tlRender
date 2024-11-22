@@ -355,88 +355,99 @@ namespace tl
                     audioThread.resample = audio::AudioResample::create(inputInfo, outputInfo);
                 }
 
-                // Get audio from the cache.
-                int64_t t =
-                    (start - timeRange.start_time()).rescaled_to(inputInfo.sampleRate).value() -
-                    otime::RationalTime(audioOffset, 1.0).rescaled_to(inputInfo.sampleRate).value();
-                if (Playback::Forward == playback)
+                // Fill the audio buffer.
+                if (getSampleCount(audioThread.buffer) < outputSamples)
                 {
-                    t += audioThread.inputFrame;
-                }
-                else
-                {
-                    t -= audioThread.inputFrame;
-                }
-                std::vector<AudioData> audioDataList;
-                {
-                    const int64_t seconds = std::floor(t / static_cast<double>(inputInfo.sampleRate));
-                    std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                    for (int64_t i = seconds - 1; i < seconds + 1; ++i)
+                    // Get audio from the cache.
+                    int64_t t =
+                        (start - timeRange.start_time()).rescaled_to(inputInfo.sampleRate).value() -
+                        otime::RationalTime(audioOffset, 1.0).rescaled_to(inputInfo.sampleRate).value();
+                    if (Playback::Forward == playback)
                     {
-                        auto j = audioMutex.audioDataCache.find(i);
-                        if (j != audioMutex.audioDataCache.end())
+                        t += audioThread.inputFrame;
+                    }
+                    else
+                    {
+                        t -= audioThread.inputFrame;
+                    }
+                    std::vector<AudioData> audioDataList;
+                    {
+                        const int64_t seconds = std::floor(t / static_cast<double>(inputInfo.sampleRate));
+                        std::unique_lock<std::mutex> lock(audioMutex.mutex);
+                        for (int64_t i = seconds - 1; i < seconds + 1; ++i)
                         {
-                            audioDataList.push_back(j->second);
+                            auto j = audioMutex.audioDataCache.find(i);
+                            if (j != audioMutex.audioDataCache.end())
+                            {
+                                audioDataList.push_back(j->second);
+                            }
                         }
                     }
-                }
-                const double speedRatio = timeRange.duration().rate() > 0.0 ?
-                    (speed / timeRange.duration().rate()) :
-                    0.0;
-                const int64_t copySize = otio::RationalTime(
-                    outputSamples * 2.0 * speedRatio - static_cast<double>(getSampleCount(audioThread.buffer)),
-                    outputInfo.sampleRate).
-                    rescaled_to(inputInfo.sampleRate).value();
-                std::vector<std::shared_ptr<audio::Audio> > audioLayers;
-                if (copySize > 0)
-                {
-                    audioLayers = audioCopy(
-                        inputInfo,
-                        audioDataList,
-                        playback,
-                        t,
-                        copySize);
-                }
-
-                if (!audioLayers.empty())
-                {
-                    // Mix the audio layers.
-                    std::vector<const uint8_t*> audioP;
-                    for (const auto& i : audioLayers)
+                    const int64_t copySize = otio::RationalTime(
+                        outputSamples * 2 - static_cast<double>(getSampleCount(audioThread.buffer)),
+                        outputInfo.sampleRate).
+                        rescaled_to(inputInfo.sampleRate).value();
+                    std::vector<std::shared_ptr<audio::Audio> > audioLayers;
+                    if (copySize > 0)
                     {
-                        audioP.push_back(i->getData());
+                        audioLayers = audioCopy(
+                            inputInfo,
+                            audioDataList,
+                            playback,
+                            t,
+                            copySize);
                     }
-                    auto audio = audio::Audio::create(
-                        inputInfo,
-                        audioLayers[0]->getSampleCount());
-                    const auto now = std::chrono::steady_clock::now();
-                    if (mute || now < muteTimeout)
+                    if (!audioLayers.empty())
                     {
-                        volume = 0.F;
-                    }
-                    audio::mix(
-                        audioP.data(),
-                        audioP.size(),
-                        audio->getData(),
-                        volume,
-                        audioLayers[0]->getSampleCount(),
-                        inputInfo.channelCount,
-                        inputInfo.dataType);
+                        // Mix the audio layers.
+                        std::vector<const uint8_t*> audioP;
+                        for (const auto& i : audioLayers)
+                        {
+                            audioP.push_back(i->getData());
+                        }
+                        auto audio = audio::Audio::create(
+                            inputInfo,
+                            audioLayers[0]->getSampleCount());
+                        const auto now = std::chrono::steady_clock::now();
+                        if (mute || now < muteTimeout)
+                        {
+                            volume = 0.F;
+                        }
+                        audio::mix(
+                            audioP.data(),
+                            audioP.size(),
+                            audio->getData(),
+                            volume,
+                            audioLayers[0]->getSampleCount(),
+                            inputInfo.channelCount,
+                            inputInfo.dataType);
 
-                    // Reverse the audio.
-                    if (Playback::Reverse == playback)
+                        // Reverse the audio.
+                        if (Playback::Reverse == playback)
+                        {
+                            audio = audio::reverse(audio);
+                        }
+
+                        // Change the audio speed.
+                        if (speed != timeRange.duration().rate() && speed > 0.0)
+                        {
+                            audio = audio::changeSpeed(audio, timeRange.duration().rate() / speed);
+                        }
+
+                        // Resample the audio and add it to the buffer.
+                        audioThread.buffer.push_back(audioThread.resample->process(audio));
+
+                        // Update the frame counters.
+                        audioThread.inputFrame += audioLayers[0]->getSampleCount();
+                        audioThread.outputFrame += audio->getSampleCount();
+                    }
+                    else
                     {
-                        audio = audio::reverse(audio);
+                        const int64_t frames = otio::RationalTime(outputSamples, outputInfo.sampleRate).
+                            rescaled_to(inputInfo.sampleRate).value();
+                        audioThread.inputFrame += frames;
+                        audioThread.outputFrame += frames;
                     }
-
-                    // Change the audio speed.
-                    if (speed != timeRange.duration().rate() && speed > 0.0)
-                    {
-                        audio = audio::changeSpeed(audio, timeRange.duration().rate() / speed);
-                    }
-
-                    // Resample the audio and add it to the buffer.
-                    audioThread.buffer.push_back(audioThread.resample->process(audio));
                 }
 
                 // Send the audio data to the device.
@@ -445,29 +456,13 @@ namespace tl
                     audio::move(audioThread.buffer, outputBuffer, outputSamples);
                 }
 
-                // Update the frame counters.
-                if (!audioLayers.empty() || audioThread.cacheRetryCount > 1)
+                // Update the frame counter.
                 {
-                    audioThread.cacheRetryCount = 0;
-                    audioThread.inputFrame += !audioLayers.empty() ?
-                        audioLayers[0]->getSampleCount() :
-                        otio::RationalTime(
-                            outputSamples,
-                            outputInfo.sampleRate).
-                        rescaled_to(inputInfo.sampleRate).value();
-                    audioThread.outputFrame += outputSamples;
-                }
-                else
-                {
-                    audioThread.cacheRetryCount += 1;
-                }
-                const int64_t outputFrame = otio::RationalTime(
-                    audioThread.outputFrame,
-                    outputInfo.sampleRate).
-                    rescaled_to(inputInfo.sampleRate).value();
-                {
+                    const double speedMult = timeRange.duration().rate() > 0.0 ?
+                        (speed / timeRange.duration().rate()) :
+                        0.0;
                     std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                    audioMutex.frame = outputFrame;
+                    audioMutex.frame = audioThread.outputFrame * speedMult;
                 }
             }
         }
