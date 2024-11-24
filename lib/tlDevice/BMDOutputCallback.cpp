@@ -285,7 +285,8 @@ namespace tl
                 //std::cout << "bmd buffered samples: " << bufferedSampleCount << std::endl;
                 bufferedSampleCount = otime::RationalTime(bufferedSampleCount, _audioInfo.sampleRate).
                     rescaled_to(inputInfo.sampleRate).value();
-                if (bufferedSampleCount < audioBufferCount)
+                const double speedMult = std::max(currentTime.rate() > 0.0 ? (speed / currentTime.rate()) : 1.0, 1.0);
+                if (bufferedSampleCount < audioBufferCount * 2 * speedMult)
                 {
                     // Find the audio data.
                     int64_t t =
@@ -299,10 +300,7 @@ namespace tl
                     {
                         t -= _audioThread.frame;
                     }
-                    const double speedRatio = currentTime.rate() > 0.0 ?
-                        (speed / currentTime.rate()) :
-                        0.0;
-                    const int64_t copySize = audioBufferCount * speedRatio - bufferedSampleCount;
+                    const int64_t copySize = audioBufferCount * 2 * speedMult - bufferedSampleCount;
                     std::vector<std::shared_ptr<audio::Audio> > audioLayers;
                     if (copySize > 0)
                     {
