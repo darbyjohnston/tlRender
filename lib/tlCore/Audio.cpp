@@ -85,9 +85,7 @@ namespace tl
             _info = info;
             _sampleCount = sampleCount;
             const size_t byteCount = getByteCount();
-            // Use reserve() instead of resize() which can be faster since it
-            // does not initialize the data.
-            _data.reserve(byteCount);
+            _data.resize(byteCount);
         }
 
         Audio::Audio()
@@ -430,8 +428,8 @@ namespace tl
                 const size_t remainingSize = sampleCount - size;
                 std::memcpy(
                     out,
-                    item->getData(), remainingSize *
-                    item->getInfo().getByteCount());
+                    item->getData(),
+                    remainingSize * item->getInfo().getByteCount());
                 const size_t newItemSampleCount = item->getSampleCount() - remainingSize;
                 auto newItem = audio::Audio::create(item->getInfo(), newItemSampleCount);
                 std::memcpy(
@@ -439,6 +437,7 @@ namespace tl
                     item->getData() + remainingSize * item->getInfo().getByteCount(),
                     newItem->getByteCount());
                 in.push_front(newItem);
+                size += remainingSize;
             }
         }
     }
