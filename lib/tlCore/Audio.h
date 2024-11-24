@@ -209,7 +209,7 @@ namespace tl
         void move(
             std::list<std::shared_ptr<Audio> >& in,
             uint8_t* out,
-            size_t byteCount);
+            size_t sampleCount);
 
         ///@}
     }
