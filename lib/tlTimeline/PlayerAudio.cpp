@@ -356,7 +356,9 @@ namespace tl
                 }
 
                 // Fill the audio buffer.
-                if (getSampleCount(audioThread.buffer) < outputSamples)
+                int64_t copySize = 0;
+                const double speedMult = std::max(timeRange.duration().rate() > 0.0 ? (speed / timeRange.duration().rate()) : 1.0, 1.0);
+                if (getSampleCount(audioThread.buffer) < outputSamples * 2 * speedMult)
                 {
                     // Get audio from the cache.
                     int64_t t =
@@ -383,8 +385,8 @@ namespace tl
                             }
                         }
                     }
-                    const int64_t copySize = otio::RationalTime(
-                        outputSamples * 2 - static_cast<double>(getSampleCount(audioThread.buffer)),
+                    copySize = otio::RationalTime(
+                        outputSamples * 2 * speedMult - static_cast<double>(getSampleCount(audioThread.buffer)),
                         outputInfo.sampleRate).
                         rescaled_to(inputInfo.sampleRate).value();
                     std::vector<std::shared_ptr<audio::Audio> > audioLayers;
