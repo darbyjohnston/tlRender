@@ -362,7 +362,16 @@ namespace tl
 
             if (_swrContext)
             {
-                swr_init(_swrContext);
+                const int drain = swr_get_out_samples(_swrContext, 0);
+                //std::cout << "drain: " << drain << std::endl;
+                std::vector<uint8_t> tmp(drain * _info.getByteCount(), 0);
+                uint8_t* tmpP[] = { tmp.data() };
+                swr_convert(
+                    _swrContext,
+                    tmpP,
+                    drain,
+                    nullptr,
+                    0);
             }
 
             _buffer.clear();
@@ -466,6 +475,8 @@ namespace tl
             int out = 0;
             while (0 == out)
             {
+                //std::cout << "current time: " << currentTime << std::endl;
+
                 out = avcodec_receive_frame(_avCodecContext[_avStream], _avFrame);
                 if (out < 0)
                 {
@@ -486,21 +497,56 @@ namespace tl
                     _info.sampleRate);
                 //std::cout << "audio time: " << time << std::endl;
 
-                if (time >= currentTime)
+                if (time.value() + (_avFrame->nb_samples - 1) >= currentTime.value())
                 {
+                    //std::cout << "current time: " << currentTime << std::endl;
                     //std::cout << "audio time: " << time << std::endl;
                     //std::cout << "nb_samples: " << _avFrame->nb_samples << std::endl;
                     const int swrOutputSamples = swr_get_out_samples(_swrContext, _avFrame->nb_samples);
                     //std::cout << "swrOutputSamples: " << swrOutputSamples << std::endl;
                     auto swrOutputBuffer = audio::Audio::create(_info, swrOutputSamples);
-                    uint8_t* swrOutputBufferP[] = { swrOutputBuffer->getData()};
+
+                    std::vector<const uint8_t*> swrInputBufferP;
+                    if (av_sample_fmt_is_planar(static_cast<AVSampleFormat>(_avFrame->format)))
+                    {
+                        int64_t offset = 0;
+                        if (time.value() < currentTime.value())
+                        {
+                            offset = (currentTime.value() - time.value()) * audio::getByteCount(_info.dataType);
+                            //std::cout << "offset: " << offset << std::endl;
+                        }
+                        for (int c = 0; c < _info.channelCount; ++c)
+                        {
+                            swrInputBufferP.push_back(av_frame_get_plane_buffer(_avFrame, c)->data + offset);
+                        }
+                    }
+                    else
+                    {
+                        int64_t offset = 0;
+                        if (time.value() < currentTime.value())
+                        {
+                            offset = (currentTime.value() - time.value()) * _info.getByteCount();
+                            //std::cout << "offset: " << offset << std::endl;
+                        }
+                        swrInputBufferP.push_back(av_frame_get_plane_buffer(_avFrame, 0)->data + offset);
+                    }
+
+                    uint8_t* swrOutputBufferP[] = { swrOutputBuffer->getData() };
+
+                    int64_t size = _avFrame->nb_samples;
+                    if (time.value() < currentTime.value())
+                    {
+                        size -= currentTime.value() - time.value();
+                        //std::cout << "size: " << size << std::endl;
+                    }
                     const int swrOutputCount = swr_convert(
                         _swrContext,
                         swrOutputBufferP,
                         swrOutputSamples,
-                        (const uint8_t **)_avFrame->data,
-                        _avFrame->nb_samples);
+                        swrInputBufferP.data(),
+                        size);
                     //std::cout << "swrOutputCount: " << swrOutputCount << std::endl << std::endl;
+
                     auto tmp = audio::Audio::create(_info, swrOutputCount > 0 ? swrOutputCount : 0);
                     memcpy(tmp->getData(), swrOutputBuffer->getData(), tmp->getByteCount());
                     _buffer.push_back(tmp);
