@@ -77,6 +77,7 @@ namespace tl
             std::shared_ptr<observer::ListObserver<audio::DeviceInfo> > audioDevicesObserver;
             std::shared_ptr<observer::ValueObserver<audio::DeviceInfo> > defaultAudioDeviceObserver;
 
+            bool audioDevices = false;
             audio::Info audioInfo;
 #if defined(TLRENDER_SDL2)
             int sdlID = 0;

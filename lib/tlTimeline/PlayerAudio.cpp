@@ -115,7 +115,7 @@ namespace tl
         {
             bool out = false;
 #if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
-            out = ioInfo.audio.isValid();
+            out = audioDevices && ioInfo.audio.isValid();
 #endif // TLRENDER_SDL2
             return out;
         }
@@ -212,6 +212,7 @@ namespace tl
                 {
                     return id == value.id;
                 });
+            audioDevices = !devices.empty();
             audioInfo = i != devices.end() ? i->info : audioSystem->getDefaultDevice().info;
             if (audioInfo.isValid())
             {
