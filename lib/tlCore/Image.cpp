@@ -303,12 +303,9 @@ namespace tl
         {
             _info = info;
             _dataByteCount = image::getDataByteCount(info);
-            // Use reserve() instead of resize() which can be faster since it
-            // does not initialize the data.
-            // 
             // Allocate a bit of extra space since FFmpeg sws_scale()
             // can read past the end.
-            _data.reserve(_dataByteCount + 16);
+            _data.resize(_dataByteCount + 16);
         }
 
         Image::Image()

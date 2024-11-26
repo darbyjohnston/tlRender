@@ -145,7 +145,16 @@ namespace tl
 #if defined(TLRENDER_FFMPEG)
             if (p.swrContext)
             {
-                swr_init(p.swrContext);
+                const int drain = swr_get_out_samples(p.swrContext, 0);
+                //std::cout << "drain: " << drain << std::endl;
+                std::vector<uint8_t> tmp(drain * p.outputInfo.getByteCount(), 0);
+                uint8_t* tmpP[] = { tmp.data() };
+                swr_convert(
+                    p.swrContext,
+                    tmpP,
+                    drain,
+                    nullptr,
+                    0);
             }
 #endif // TLRENDER_FFMPEG
         }

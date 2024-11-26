@@ -194,29 +194,13 @@ namespace tl
             DataType        dataType);
 
         //! Reverse audio.
-        void reverse(
-            const uint8_t* in,
-            uint8_t*       out,
-            size_t         sampleCount,
-            size_t         channelCount,
-            DataType       dataType);
+        std::shared_ptr<Audio> reverse(const std::shared_ptr<Audio>&);
+
+        //! Change audio speed.
+        std::shared_ptr<Audio> changeSpeed(const std::shared_ptr<Audio>&, double);
 
         //! Convert audio data.
         std::shared_ptr<Audio> convert(const std::shared_ptr<Audio>&, DataType);
-
-        //! Interleave audio data.
-        std::shared_ptr<Audio> planarInterleave(const std::shared_ptr<Audio>&);
-
-        //! Interleave audio data.
-        template<typename T>
-        void planarInterleave(
-            const T** in,
-            T*        out,
-            size_t    channelCount,
-            size_t    sampleCount);
-
-        //! De-interleave audio data.
-        std::shared_ptr<Audio> planarDeinterleave(const std::shared_ptr<Audio>&);
 
         //! Get the total sample count from a list of audio data.
         size_t getSampleCount(const std::list<std::shared_ptr<audio::Audio> >&);
@@ -225,7 +209,7 @@ namespace tl
         void move(
             std::list<std::shared_ptr<Audio> >& in,
             uint8_t* out,
-            size_t byteCount);
+            size_t sampleCount);
 
         ///@}
     }

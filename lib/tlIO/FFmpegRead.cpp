@@ -507,6 +507,7 @@ namespace tl
                         request->options);
                     if (_cache->getAudio(cacheKey, audioData))
                     {
+                        p.audioThread.currentTime += request->timeRange.duration();
                         request->promise.set_value(audioData);
                         request.reset();
                     }
@@ -554,6 +555,7 @@ namespace tl
                             audioData.audio->getData() + offset * p.info.audio.getByteCount(),
                             audioData.audio->getSampleCount() - offset);
                     }
+
                     request->promise.set_value(audioData);
 
                     if (_cache)

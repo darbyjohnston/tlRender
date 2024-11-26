@@ -123,6 +123,7 @@ namespace tl
         struct DLOutputCallbackData
         {
             timeline::Playback playback = timeline::Playback::Stop;
+            double speed = 0.0;
             otime::RationalTime currentTime = time::invalidTime;
             bool seek = false;
             float volume = 1.F;
@@ -189,6 +190,7 @@ namespace tl
             struct AudioMutex
             {
                 timeline::Playback playback = timeline::Playback::Stop;
+                double speed = 0.0;
                 otime::RationalTime currentTime = time::invalidTime;
                 float volume = 1.F;
                 bool mute = false;

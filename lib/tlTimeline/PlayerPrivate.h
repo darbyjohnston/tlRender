@@ -77,6 +77,7 @@ namespace tl
             std::shared_ptr<observer::ListObserver<audio::DeviceInfo> > audioDevicesObserver;
             std::shared_ptr<observer::ValueObserver<audio::DeviceInfo> > defaultAudioDeviceObserver;
 
+            bool audioDevices = false;
             audio::Info audioInfo;
 #if defined(TLRENDER_SDL2)
             int sdlID = 0;
@@ -151,7 +152,6 @@ namespace tl
                 audio::Info info;
                 int64_t inputFrame = 0;
                 int64_t outputFrame = 0;
-                size_t cacheRetryCount = 0;
                 std::shared_ptr<audio::AudioResample> resample;
                 std::list<std::shared_ptr<audio::Audio> > buffer;
                 std::shared_ptr<audio::Audio> silence;

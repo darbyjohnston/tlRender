@@ -29,7 +29,6 @@ namespace tl
             void _mix();
             void _reverse();
             void _convert();
-            void _interleave();
             void _move();
             void _resample();
         };

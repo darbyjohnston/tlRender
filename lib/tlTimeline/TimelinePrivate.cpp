@@ -552,7 +552,7 @@ namespace tl
             }
             size_t sampleCount = audio::getSampleCount(list);
             auto out = audio::Audio::create(audio->getInfo(), sampleCount);
-            audio::move(list, out->getData(), out->getByteCount());
+            audio::move(list, out->getData(), sampleCount);
             return out;
         }
     }

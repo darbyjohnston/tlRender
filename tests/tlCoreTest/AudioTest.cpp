@@ -35,7 +35,6 @@ namespace tl
             _mix();
             _reverse();
             _convert();
-            _interleave();
             _move();
             _resample();
         }
@@ -275,8 +274,7 @@ namespace tl
             audio->getData()[0] = 1;
             audio->getData()[1] = 2;
             audio->getData()[2] = 3;
-            auto reversed = Audio::create(Info(1, DataType::S8, 41000), 3);
-            reverse(audio->getData(), reversed->getData(), 3, 1, DataType::S8);
+            auto reversed = reverse(audio);
             TLRENDER_ASSERT(3 == reversed->getData()[0]);
             TLRENDER_ASSERT(2 == reversed->getData()[1]);
             TLRENDER_ASSERT(1 == reversed->getData()[2]);
@@ -297,127 +295,6 @@ namespace tl
                     TLRENDER_ASSERT(out->getSampleCount() == in->getSampleCount());
                 }
             }
-        }
-
-        namespace
-        {
-            template<DataType DT, typename T>
-            void _interleaveT()
-            {
-                {
-                    auto in = Audio::create(Info(1, DT, 44100), 2);
-                    T* inP = reinterpret_cast<T*>(in->getData());
-                    inP[0] = 0;
-                    inP[1] = 1;
-                    const auto out0 = planarInterleave(in);
-                    const T* out0P = reinterpret_cast<const T*>(out0->getData());
-                    TLRENDER_ASSERT(0 == out0P[0]);
-                    TLRENDER_ASSERT(1 == out0P[1]);
-                    const auto out1 = planarDeinterleave(out0);
-                    const T* out1P = reinterpret_cast<const T*>(out1->getData());
-                    TLRENDER_ASSERT(0 == out1P[0]);
-                    TLRENDER_ASSERT(1 == out1P[1]);
-                }
-                {
-                    auto in = Audio::create(Info(2, DT, 44100), 2);
-                    T* inP = reinterpret_cast<T*>(in->getData());
-                    inP[0] = 0;
-                    inP[1] = 1;
-                    inP[2] = 2;
-                    inP[3] = 3;
-                    const auto out0 = planarInterleave(in);
-                    const T* out0P = reinterpret_cast<const T*>(out0->getData());
-                    TLRENDER_ASSERT(0 == out0P[0]);
-                    TLRENDER_ASSERT(2 == out0P[1]);
-                    TLRENDER_ASSERT(1 == out0P[2]);
-                    TLRENDER_ASSERT(3 == out0P[3]);
-                    const auto out1 = planarDeinterleave(out0);
-                    const T* out1P = reinterpret_cast<const T*>(out1->getData());
-                    TLRENDER_ASSERT(0 == out1P[0]);
-                    TLRENDER_ASSERT(1 == out1P[1]);
-                    TLRENDER_ASSERT(2 == out1P[2]);
-                    TLRENDER_ASSERT(3 == out1P[3]);
-                }
-                {
-                    auto in = Audio::create(Info(3, DT, 44100), 2);
-                    T* inP = reinterpret_cast<T*>(in->getData());
-                    inP[0] = 0;
-                    inP[1] = 1;
-                    inP[2] = 2;
-                    inP[3] = 3;
-                    inP[4] = 4;
-                    inP[5] = 5;
-                    const auto out0 = planarInterleave(in);
-                    const T* out0P = reinterpret_cast<const T*>(out0->getData());
-                    TLRENDER_ASSERT(0 == out0P[0]);
-                    TLRENDER_ASSERT(2 == out0P[1]);
-                    TLRENDER_ASSERT(4 == out0P[2]);
-                    TLRENDER_ASSERT(1 == out0P[3]);
-                    TLRENDER_ASSERT(3 == out0P[4]);
-                    TLRENDER_ASSERT(5 == out0P[5]);
-                    const auto out1 = planarDeinterleave(out0);
-                    const T* out1P = reinterpret_cast<const T*>(out1->getData());
-                    TLRENDER_ASSERT(0 == out1P[0]);
-                    TLRENDER_ASSERT(1 == out1P[1]);
-                    TLRENDER_ASSERT(2 == out1P[2]);
-                    TLRENDER_ASSERT(3 == out1P[3]);
-                    TLRENDER_ASSERT(4 == out1P[4]);
-                    TLRENDER_ASSERT(5 == out1P[5]);
-                }
-                {
-                    auto in = Audio::create(Info(6, DT, 44100), 2);
-                    T* inP = reinterpret_cast<T*>(in->getData());
-                    inP[0] = 0;
-                    inP[1] = 1;
-                    inP[2] = 2;
-                    inP[3] = 3;
-                    inP[4] = 4;
-                    inP[5] = 5;
-                    inP[6] = 6;
-                    inP[7] = 7;
-                    inP[8] = 8;
-                    inP[9] = 9;
-                    inP[10] = 10;
-                    inP[11] = 11;
-                    const auto out0 = planarInterleave(in);
-                    const T* out0P = reinterpret_cast<const T*>(out0->getData());
-                    TLRENDER_ASSERT(0 == out0P[0]);
-                    TLRENDER_ASSERT(2 == out0P[1]);
-                    TLRENDER_ASSERT(4 == out0P[2]);
-                    TLRENDER_ASSERT(6 == out0P[3]);
-                    TLRENDER_ASSERT(8 == out0P[4]);
-                    TLRENDER_ASSERT(10 == out0P[5]);
-                    TLRENDER_ASSERT(1 == out0P[6]);
-                    TLRENDER_ASSERT(3 == out0P[7]);
-                    TLRENDER_ASSERT(5 == out0P[8]);
-                    TLRENDER_ASSERT(7 == out0P[9]);
-                    TLRENDER_ASSERT(9 == out0P[10]);
-                    TLRENDER_ASSERT(11 == out0P[11]);
-                    const auto out1 = planarDeinterleave(out0);
-                    const T* out1P = reinterpret_cast<const T*>(out1->getData());
-                    TLRENDER_ASSERT(0 == out1P[0]);
-                    TLRENDER_ASSERT(1 == out1P[1]);
-                    TLRENDER_ASSERT(2 == out1P[2]);
-                    TLRENDER_ASSERT(3 == out1P[3]);
-                    TLRENDER_ASSERT(4 == out1P[4]);
-                    TLRENDER_ASSERT(5 == out1P[5]);
-                    TLRENDER_ASSERT(6 == out1P[6]);
-                    TLRENDER_ASSERT(7 == out1P[7]);
-                    TLRENDER_ASSERT(8 == out1P[8]);
-                    TLRENDER_ASSERT(9 == out1P[9]);
-                    TLRENDER_ASSERT(10 == out1P[10]);
-                    TLRENDER_ASSERT(11 == out1P[11]);
-                }
-            }
-        }
-
-        void AudioTest::_interleave()
-        {
-            _interleaveT<DataType::S8, int8_t>();
-            _interleaveT<DataType::S16, int16_t>();
-            _interleaveT<DataType::S32, int32_t>();
-            _interleaveT<DataType::F32, float>();
-            _interleaveT<DataType::F64, double>();
         }
 
         void AudioTest::_move()
