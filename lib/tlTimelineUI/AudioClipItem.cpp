@@ -271,14 +271,14 @@ namespace tl
                         const otime::RationalTime time = otime::RationalTime(
                             _timeRange.start_time().value() +
                             (w > 0 ? (x / static_cast<double>(w)) : 0) *
-                            _timeRange.duration().value(),
-                            _timeRange.duration().rate()).
+                            _timeRange.duration().rescaled_to(_timeRange.start_time()).value(),
+                            _timeRange.start_time().rate()).
                             round();
                         const otime::RationalTime time2 = otime::RationalTime(
                             _timeRange.start_time().value() +
                             (w > 0 ? ((x + _displayOptions.waveformWidth) / static_cast<double>(w)) : 0) *
-                            _timeRange.duration().value(),
-                            _timeRange.duration().rate()).
+                            _timeRange.duration().rescaled_to(_timeRange.start_time()).value(),
+                            _timeRange.start_time().rate()).
                             round();
                         const otime::TimeRange mediaRange = timeline::toAudioMediaTime(
                             otime::TimeRange::range_from_start_end_time(time, time2),
