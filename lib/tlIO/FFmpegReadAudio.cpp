@@ -470,6 +470,38 @@ namespace tl
             audio::move(_buffer, out, sampleCount);
         }
 
+        namespace
+        {
+            size_t getByteCount(AVSampleFormat format)
+            {
+                size_t out = 0;
+                switch (format)
+                {
+                case AV_SAMPLE_FMT_U8:
+                case AV_SAMPLE_FMT_U8P:
+                    out = 1;
+                    break;
+                case AV_SAMPLE_FMT_S16:
+                case AV_SAMPLE_FMT_S16P:
+                    out = 2;
+                    break;
+                case AV_SAMPLE_FMT_S32:
+                case AV_SAMPLE_FMT_FLT:
+                case AV_SAMPLE_FMT_S32P:
+                case AV_SAMPLE_FMT_FLTP:
+                    out = 4;
+                    break;
+                case AV_SAMPLE_FMT_DBL:
+                case AV_SAMPLE_FMT_DBLP:
+                case AV_SAMPLE_FMT_S64:
+                case AV_SAMPLE_FMT_S64P:
+                    out = 8;
+                    break;
+                }
+                return out;
+            }
+        }
+
         int ReadAudio::_decode(const otime::RationalTime& currentTime)
         {
             int out = 0;
@@ -512,10 +544,11 @@ namespace tl
                         int64_t offset = 0;
                         if (time.value() < currentTime.value())
                         {
-                            offset = (currentTime.value() - time.value()) * audio::getByteCount(_info.dataType);
-                            //std::cout << "offset: " << offset << std::endl;
+                            offset = (currentTime.value() - time.value()) *
+                                getByteCount(static_cast<AVSampleFormat>(_avFrame->format));
+                            //std::cout << "planar offset: " << offset << std::endl;
                         }
-                        for (int c = 0; c < _info.channelCount; ++c)
+                        for (int c = 0; c < _avFrame->ch_layout.nb_channels; ++c)
                         {
                             swrInputBufferP.push_back(av_frame_get_plane_buffer(_avFrame, c)->data + offset);
                         }
@@ -525,8 +558,10 @@ namespace tl
                         int64_t offset = 0;
                         if (time.value() < currentTime.value())
                         {
-                            offset = (currentTime.value() - time.value()) * _info.getByteCount();
-                            //std::cout << "offset: " << offset << std::endl;
+                            offset = (currentTime.value() - time.value()) *
+                                _avFrame->ch_layout.nb_channels *
+                                getByteCount(static_cast<AVSampleFormat>(_avFrame->format));
+                            //std::cout << "interleaved offset: " << offset << std::endl;
                         }
                         swrInputBufferP.push_back(av_frame_get_plane_buffer(_avFrame, 0)->data + offset);
                     }
