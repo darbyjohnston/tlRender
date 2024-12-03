@@ -132,90 +132,61 @@ namespace tl
             template<DataType DT, typename T>
             void _mixI()
             {
-                const std::vector<T> in0 =
-                {
-                    0,
-                    std::numeric_limits<T>::max(),
-                    std::numeric_limits<T>::min(),
-                    std::numeric_limits<T>::max(),
-                    std::numeric_limits<T>::min()
-                };
-                const std::vector<T> in1 =
-                {
-                    0,
-                    std::numeric_limits<T>::max(),
-                    std::numeric_limits<T>::min(),
-                    std::numeric_limits<T>::min(),
-                    std::numeric_limits<T>::max()
-                };
-                const uint8_t* in[] =
-                {
-                    reinterpret_cast<const uint8_t*>(in0.data()),
-                    reinterpret_cast<const uint8_t*>(in1.data())
-                };
-                const std::vector<T> out =
-                {
-                    0,
-                    std::numeric_limits<T>::max(),
-                    std::numeric_limits<T>::min(),
-                    std::numeric_limits<T>::max() + std::numeric_limits<T>::min(),
-                    std::numeric_limits<T>::max() + std::numeric_limits<T>::min()
-                };
-                std::vector<T> result(in0.size(), 0);
-                mix(in,
-                    2,
-                    reinterpret_cast<uint8_t*>(result.data()),
-                    1.F,
-                    in0.size(),
-                    1,
-                    DT);
-                TLRENDER_ASSERT(out == result);
+                const Info info(1, DT, 48000);
+
+                auto audio0 = Audio::create(info, 5);
+                T* p0 = reinterpret_cast<T*>(audio0->getData());
+                p0[0] = 0;
+                p0[1] = std::numeric_limits<T>::max();
+                p0[2] = std::numeric_limits<T>::min();
+                p0[3] = std::numeric_limits<T>::max();
+                p0[4] = std::numeric_limits<T>::min();
+
+                auto audio1 = Audio::create(info, 5);
+                T* p1 = reinterpret_cast<T*>(audio1->getData());
+                p1[0] = 0;
+                p1[1] = std::numeric_limits<T>::max();
+                p1[2] = std::numeric_limits<T>::min();
+                p1[3] = std::numeric_limits<T>::min();
+                p1[4] = std::numeric_limits<T>::max();
+
+                auto out = mix({ audio0, audio1 }, 1.0);
+                T* outP = reinterpret_cast<T*>(out->getData());
+                TLRENDER_ASSERT(0 == outP[0]);
+                TLRENDER_ASSERT(std::numeric_limits<T>::max() == outP[1]);
+                TLRENDER_ASSERT(std::numeric_limits<T>::min() == outP[2]);
+                TLRENDER_ASSERT(std::numeric_limits<T>::max() + std::numeric_limits<T>::min() == outP[3]);
+                TLRENDER_ASSERT(std::numeric_limits<T>::max() + std::numeric_limits<T>::min() == outP[4]);
             }
 
             template<DataType DT, typename T>
             void _mixF()
             {
-                const std::vector<T> in0 =
-                {
-                    0,
-                    1,
-                    -1,
-                    1,
-                    -1
-                };
-                const std::vector<T> in1 =
-                {
-                    0,
-                    1,
-                    -1,
-                    -1,
-                    1
-                };
-                const uint8_t* in[] =
-                {
-                    reinterpret_cast<const uint8_t*>(in0.data()),
-                    reinterpret_cast<const uint8_t*>(in1.data())
-                };
-                const std::vector<T> out =
-                {
-                    0,
-                    2,
-                    -2,
-                    0,
-                    0
-                };
-                std::vector<T> result(in0.size(), 0);
-                mix(in,
-                    2,
-                    reinterpret_cast<uint8_t*>(result.data()),
-                    1.F,
-                    in0.size(),
-                    1,
-                    DT);
-                for (size_t i = 0; i < in0.size(); ++i)
-                {
-                    TLRENDER_ASSERT(math::fuzzyCompare(out[i], result[i]));
-                }
+                const Info info(1, DT, 48000);
+
+                auto audio0 = Audio::create(info, 5);
+                T* p0 = reinterpret_cast<T*>(audio0->getData());
+                p0[0] = 0;
+                p0[1] = 1;
+                p0[2] = -1;
+                p0[3] = 1;
+                p0[4] = -1;
+
+                auto audio1 = Audio::create(info, 5);
+                T* p1 = reinterpret_cast<T*>(audio1->getData());
+                p1[0] = 0;
+                p1[1] = 1;
+                p1[2] = -1;
+                p1[3] = -1;
+                p1[4] = 1;
+
+                auto out = mix({ audio0, audio1 }, 1.0);
+                T* outP = reinterpret_cast<T*>(out->getData());
+                TLRENDER_ASSERT(0 == outP[0]);
+                TLRENDER_ASSERT(2 == outP[1]);
+                TLRENDER_ASSERT(-2 == outP[2]);
+                TLRENDER_ASSERT(0 == outP[3]);
+                TLRENDER_ASSERT(0 == outP[4]);
             }
         }
 
@@ -226,46 +197,6 @@ namespace tl
             _mixI<DataType::S32, int32_t>();
             _mixF<DataType::F32, float>();
             _mixF<DataType::F64, double>();
-            {
-                const std::vector<int8_t> in0 =
-                {
-                    0, 0,
-                    1, 1,
-                    2, 2,
-                    3, 3,
-                    4, 4
-                };
-                const std::vector<int8_t> in1 =
-                {
-                    0, 0,
-                    1, 1,
-                    2, 2,
-                    3, 3,
-                    4, 4
-                };
-                const uint8_t* in[] =
-                {
-                    reinterpret_cast<const uint8_t*>(in0.data()),
-                    reinterpret_cast<const uint8_t*>(in1.data())
-                };
-                std::vector<int8_t> result(in0.size(), 0);
-                mix(in,
-                    2,
-                    reinterpret_cast<uint8_t*>(result.data()),
-                    1.F,
-                    in0.size() / 2,
-                    2,
-                    DataType::S8);
-                const std::vector<int8_t> out =
-                {
-                    0, 0,
-                    2, 2,
-                    4, 4,
-                    6, 6,
-                    8, 8
-                };
-                TLRENDER_ASSERT(out == result);
-            }
         }
 
         void AudioTest::_reverse()

@@ -184,14 +184,9 @@ namespace tl
             const std::list<std::shared_ptr<audio::Audio> >&);
 
         //! Mix audio sources.
-        void mix(
-            const uint8_t** in,
-            size_t          inCount,
-            uint8_t*        out,
-            float           volume,
-            size_t          sampleCount,
-            size_t          channelCount,
-            DataType        dataType);
+        std::shared_ptr<Audio> mix(
+            const std::vector<std::shared_ptr<Audio> >&,
+            float volume);
 
         //! Reverse audio.
         std::shared_ptr<Audio> reverse(const std::shared_ptr<Audio>&);

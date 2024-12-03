@@ -317,22 +317,7 @@ namespace tl
                         //std::cout << "t: " << t << std::endl;
 
                         // Mix the audio layers.
-                        std::vector<const uint8_t*> audioP;
-                        for (const auto& i : audioLayers)
-                        {
-                            audioP.push_back(i->getData());
-                        }
-                        auto audio = audio::Audio::create(
-                            inputInfo,
-                            audioLayers[0]->getSampleCount());
-                        audio::mix(
-                            audioP.data(),
-                            audioP.size(),
-                            audio->getData(),
-                            mute ? 0.F : volume,
-                            audioLayers[0]->getSampleCount(),
-                            inputInfo.channelCount,
-                            inputInfo.dataType);
+                        auto audio = audio::mix(audioLayers, mute ? 0.F : volume);
 
                         // Reverse the audio.
                         if (timeline::Playback::Reverse == playback)

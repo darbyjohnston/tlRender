@@ -403,27 +403,12 @@ namespace tl
                     if (!audioLayers.empty())
                     {
                         // Mix the audio layers.
-                        std::vector<const uint8_t*> audioP;
-                        for (const auto& i : audioLayers)
-                        {
-                            audioP.push_back(i->getData());
-                        }
-                        auto audio = audio::Audio::create(
-                            inputInfo,
-                            audioLayers[0]->getSampleCount());
                         const auto now = std::chrono::steady_clock::now();
                         if (mute || now < muteTimeout)
                         {
                             volume = 0.F;
                         }
-                        audio::mix(
-                            audioP.data(),
-                            audioP.size(),
-                            audio->getData(),
-                            volume,
-                            audioLayers[0]->getSampleCount(),
-                            inputInfo.channelCount,
-                            inputInfo.dataType);
+                        auto audio = audio::mix(audioLayers, volume);
 
                         // Reverse the audio.
                         if (Playback::Reverse == playback)

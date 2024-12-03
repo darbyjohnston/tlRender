@@ -137,8 +137,8 @@ namespace tl
                 size_t inCount,
                 uint8_t* out,
                 float volume,
-                size_t sampleCount,
-                size_t channelCount)
+                size_t channelCount,
+                size_t sampleCount)
             {
                 const T** inP = reinterpret_cast<const T**>(in);
                 T* outP = reinterpret_cast<T*>(out);
@@ -164,8 +164,8 @@ namespace tl
                 size_t inCount,
                 uint8_t* out,
                 float volume,
-                size_t sampleCount,
-                size_t channelCount)
+                size_t channelCount,
+                size_t sampleCount)
             {
                 const T** inP = reinterpret_cast<const T**>(in);
                 T* outP = reinterpret_cast<T*>(out);
@@ -184,34 +184,72 @@ namespace tl
             }
         }
 
-        void mix(
-            const uint8_t** in,
-            size_t inCount,
-            uint8_t* out,
-            float volume,
-            size_t sampleCount,
-            size_t channelCount,
-            DataType type)
+        std::shared_ptr<Audio> mix(
+            const std::vector<std::shared_ptr<Audio> >& in,
+            float volume)
         {
-            switch (type)
+            std::shared_ptr<Audio> out;
+            if (!in.empty())
             {
-            case DataType::S8:
-                mixI<int8_t, int16_t>(in, inCount, out, volume, sampleCount, channelCount);
-                break;
-            case DataType::S16:
-                mixI<int16_t, int32_t>(in, inCount, out, volume, sampleCount, channelCount);
-                break;
-            case DataType::S32:
-                mixI<int32_t, int64_t>(in, inCount, out, volume, sampleCount, channelCount);
-                break;
-            case DataType::F32:
-                mixF<float>(in, inCount, out, volume, sampleCount, channelCount);
-                break;
-            case DataType::F64:
-                mixF<double>(in, inCount, out, volume, sampleCount, channelCount);
-                break;
-            default: break;
+                const Info& info = in.front()->getInfo();
+                const size_t sampleCount = in.front()->getSampleCount();
+                out = Audio::create(info, sampleCount);
+                std::vector<const uint8_t*> inP;
+                for (size_t i = 0; i < in.size(); ++i)
+                {
+                    inP.push_back(in[i]->getData());
+                }
+                switch (info.dataType)
+                {
+                case DataType::S8:
+                    mixI<int8_t, int16_t>(
+                        inP.data(),
+                        inP.size(),
+                        out->getData(),
+                        volume,
+                        info.channelCount,
+                        sampleCount);
+                    break;
+                case DataType::S16:
+                    mixI<int16_t, int32_t>(
+                        inP.data(),
+                        inP.size(),
+                        out->getData(),
+                        volume,
+                        info.channelCount,
+                        sampleCount);
+                    break;
+                case DataType::S32:
+                    mixI<int32_t, int64_t>(
+                        inP.data(),
+                        inP.size(),
+                        out->getData(),
+                        volume,
+                        info.channelCount,
+                        sampleCount);
+                    break;
+                case DataType::F32:
+                    mixF<float>(
+                        inP.data(),
+                        inP.size(),
+                        out->getData(),
+                        volume,
+                        info.channelCount,
+                        sampleCount);
+                    break;
+                case DataType::F64:
+                    mixF<double>(
+                        inP.data(),
+                        inP.size(),
+                        out->getData(),
+                        volume,
+                        info.channelCount,
+                        sampleCount);
+                    break;
+                default: break;
+                }
             }
+            return out;
         }
 
         namespace
