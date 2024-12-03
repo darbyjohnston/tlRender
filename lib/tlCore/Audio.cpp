@@ -136,22 +136,22 @@ namespace tl
                 const uint8_t** in,
                 size_t inCount,
                 uint8_t* out,
-                float volume,
+                float* volume,
                 size_t channelCount,
                 size_t sampleCount)
             {
                 const T** inP = reinterpret_cast<const T**>(in);
                 T* outP = reinterpret_cast<T*>(out);
+                const TI min = static_cast<TI>(std::numeric_limits<T>::min());
+                const TI max = static_cast<TI>(std::numeric_limits<T>::max());
                 for (size_t i = 0; i < sampleCount; ++i, outP += channelCount)
                 {
                     for (size_t j = 0; j < channelCount; ++j)
                     {
-                        const TI min = static_cast<TI>(std::numeric_limits<T>::min());
-                        const TI max = static_cast<TI>(std::numeric_limits<T>::max());
                         TI v = 0;
                         for (size_t k = 0; k < inCount; ++k)
                         {
-                            v += math::clamp(static_cast<TI>(inP[k][i * channelCount + j] * volume), min, max);
+                            v += math::clamp(static_cast<TI>(inP[k][i * channelCount + j] * volume[j]), min, max);
                         }
                         outP[j] = math::clamp(v, min, max);
                     }
@@ -163,7 +163,7 @@ namespace tl
                 const uint8_t** in,
                 size_t inCount,
                 uint8_t* out,
-                float volume,
+                float* volume,
                 size_t channelCount,
                 size_t sampleCount)
             {
@@ -176,7 +176,7 @@ namespace tl
                         T v = static_cast<T>(0);
                         for (size_t k = 0; k < inCount; ++k)
                         {
-                            v += inP[k][i * channelCount + j] * volume;
+                            v += inP[k][i * channelCount + j] * volume[j];
                         }
                         outP[j] = v;
                     }
@@ -186,7 +186,8 @@ namespace tl
 
         std::shared_ptr<Audio> mix(
             const std::vector<std::shared_ptr<Audio> >& in,
-            float volume)
+            float volume,
+            const std::vector<bool>& channelMute)
         {
             std::shared_ptr<Audio> out;
             if (!in.empty())
@@ -199,6 +200,14 @@ namespace tl
                 {
                     inP.push_back(in[i]->getData());
                 }
+                std::vector<float> channelVolumes;
+                for (size_t i = 0; i < info.channelCount; ++i)
+                {
+                    channelVolumes.push_back(
+                        i < channelMute.size() && channelMute[i] ?
+                        0.F :
+                        volume);
+                }
                 switch (info.dataType)
                 {
                 case DataType::S8:
@@ -206,7 +215,7 @@ namespace tl
                         inP.data(),
                         inP.size(),
                         out->getData(),
-                        volume,
+                        channelVolumes.data(),
                         info.channelCount,
                         sampleCount);
                     break;
@@ -215,7 +224,7 @@ namespace tl
                         inP.data(),
                         inP.size(),
                         out->getData(),
-                        volume,
+                        channelVolumes.data(),
                         info.channelCount,
                         sampleCount);
                     break;
@@ -224,7 +233,7 @@ namespace tl
                         inP.data(),
                         inP.size(),
                         out->getData(),
-                        volume,
+                        channelVolumes.data(),
                         info.channelCount,
                         sampleCount);
                     break;
@@ -233,7 +242,7 @@ namespace tl
                         inP.data(),
                         inP.size(),
                         out->getData(),
-                        volume,
+                        channelVolumes.data(),
                         info.channelCount,
                         sampleCount);
                     break;
@@ -242,7 +251,7 @@ namespace tl
                         inP.data(),
                         inP.size(),
                         out->getData(),
-                        volume,
+                        channelVolumes.data(),
                         info.channelCount,
                         sampleCount);
                     break;

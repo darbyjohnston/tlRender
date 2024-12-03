@@ -151,7 +151,7 @@ namespace tl
                 p1[4] = std::numeric_limits<T>::max();
 
                 auto out = mix({ audio0, audio1 }, 1.0);
-                T* outP = reinterpret_cast<T*>(out->getData());
+                const T* outP = reinterpret_cast<T*>(out->getData());
                 TLRENDER_ASSERT(0 == outP[0]);
                 TLRENDER_ASSERT(std::numeric_limits<T>::max() == outP[1]);
                 TLRENDER_ASSERT(std::numeric_limits<T>::min() == outP[2]);
@@ -181,7 +181,7 @@ namespace tl
                 p1[4] = 1;
 
                 auto out = mix({ audio0, audio1 }, 1.0);
-                T* outP = reinterpret_cast<T*>(out->getData());
+                const T* outP = reinterpret_cast<T*>(out->getData());
                 TLRENDER_ASSERT(0 == outP[0]);
                 TLRENDER_ASSERT(2 == outP[1]);
                 TLRENDER_ASSERT(-2 == outP[2]);
@@ -197,6 +197,57 @@ namespace tl
             _mixI<DataType::S32, int32_t>();
             _mixF<DataType::F32, float>();
             _mixF<DataType::F64, double>();
+            {
+                const Info info(2, DataType::F32, 48000);
+
+                auto audio0 = Audio::create(info, 5);
+                F32_T* p0 = reinterpret_cast<F32_T*>(audio0->getData());
+                p0[0] = 1; p0[1] = 1;
+                p0[2] = 1; p0[3] = 1;
+                p0[4] = 1; p0[5] = 1;
+                p0[6] = 1; p0[7] = 1;
+                p0[8] = 1; p0[9] = 1;
+
+                auto audio1 = Audio::create(info, 5);
+                F32_T* p1 = reinterpret_cast<F32_T*>(audio1->getData());
+                p1[0] = 1; p1[1] = 1;
+                p1[2] = 1; p1[3] = 1;
+                p1[4] = 1; p1[5] = 1;
+                p1[6] = 1; p1[7] = 1;
+                p1[8] = 1; p1[9] = 1;
+
+                auto out = mix({ audio0, audio1 }, 1.0, { false, false });
+                const F32_T* outP = reinterpret_cast<F32_T*>(out->getData());
+                TLRENDER_ASSERT(2 == outP[0]); TLRENDER_ASSERT(2 == outP[1]);
+                TLRENDER_ASSERT(2 == outP[2]); TLRENDER_ASSERT(2 == outP[3]);
+                TLRENDER_ASSERT(2 == outP[4]); TLRENDER_ASSERT(2 == outP[5]);
+                TLRENDER_ASSERT(2 == outP[6]); TLRENDER_ASSERT(2 == outP[7]);
+                TLRENDER_ASSERT(2 == outP[8]); TLRENDER_ASSERT(2 == outP[9]);
+
+                out = mix({ audio0, audio1 }, 1.0, { true, false });
+                outP = reinterpret_cast<F32_T*>(out->getData());
+                TLRENDER_ASSERT(0 == outP[0]); TLRENDER_ASSERT(2 == outP[1]);
+                TLRENDER_ASSERT(0 == outP[2]); TLRENDER_ASSERT(2 == outP[3]);
+                TLRENDER_ASSERT(0 == outP[4]); TLRENDER_ASSERT(2 == outP[5]);
+                TLRENDER_ASSERT(0 == outP[6]); TLRENDER_ASSERT(2 == outP[7]);
+                TLRENDER_ASSERT(0 == outP[8]); TLRENDER_ASSERT(2 == outP[9]);
+
+                out = mix({ audio0, audio1 }, 1.0, { false, true });
+                outP = reinterpret_cast<F32_T*>(out->getData());
+                TLRENDER_ASSERT(2 == outP[0]); TLRENDER_ASSERT(0 == outP[1]);
+                TLRENDER_ASSERT(2 == outP[2]); TLRENDER_ASSERT(0 == outP[3]);
+                TLRENDER_ASSERT(2 == outP[4]); TLRENDER_ASSERT(0 == outP[5]);
+                TLRENDER_ASSERT(2 == outP[6]); TLRENDER_ASSERT(0 == outP[7]);
+                TLRENDER_ASSERT(2 == outP[8]); TLRENDER_ASSERT(0 == outP[9]);
+
+                out = mix({ audio0, audio1 }, 1.0, { true, true });
+                outP = reinterpret_cast<F32_T*>(out->getData());
+                TLRENDER_ASSERT(0 == outP[0]); TLRENDER_ASSERT(0 == outP[1]);
+                TLRENDER_ASSERT(0 == outP[2]); TLRENDER_ASSERT(0 == outP[3]);
+                TLRENDER_ASSERT(0 == outP[4]); TLRENDER_ASSERT(0 == outP[5]);
+                TLRENDER_ASSERT(0 == outP[6]); TLRENDER_ASSERT(0 == outP[7]);
+                TLRENDER_ASSERT(0 == outP[8]); TLRENDER_ASSERT(0 == outP[9]);
+            }
         }
 
         void AudioTest::_reverse()

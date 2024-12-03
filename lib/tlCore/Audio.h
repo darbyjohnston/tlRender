@@ -186,7 +186,8 @@ namespace tl
         //! Mix audio sources.
         std::shared_ptr<Audio> mix(
             const std::vector<std::shared_ptr<Audio> >&,
-            float volume);
+            float volume,
+            const std::vector<bool>& channelMute = {});
 
         //! Reverse audio.
         std::shared_ptr<Audio> reverse(const std::shared_ptr<Audio>&);
