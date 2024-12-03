@@ -211,8 +211,8 @@ jobs:
         name: tlRender-Linux-Packages
         path: build/tlRender/src/tlRender-build/tlRender-*.tar.gz
 
-  macos-12-build:
-    runs-on: macos-12
+  macos-13-build:
+    runs-on: macos-13
 
     env:
       TLRENDER_PYTHON: OFF
@@ -268,8 +268,8 @@ jobs:
 
   # \bug USD build fails with this error:
   # Failed to download https://github.com/oneapi-src/oneTBB/archive/refs/tags/2018_U1.zip
-  macos-12-package:
-    runs-on: macos-12
+  macos-13-package:
+    runs-on: macos-13
 
     env:
       CMAKE_CXX_STANDARD: 17
@@ -326,8 +326,8 @@ jobs:
         name: tlRender-macOS-Packages
         path: build/tlRender/src/tlRender-build/tlRender-*.dmg
 
-  macos-14-build:
-    runs-on: macos-14
+  macos-latest:
+    runs-on: macos-latest
 
     env:
       TLRENDER_PYTHON: OFF
