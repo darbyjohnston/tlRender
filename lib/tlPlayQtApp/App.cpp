@@ -104,6 +104,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<audio::DeviceID> > audioDeviceObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
+            std::shared_ptr<observer::ListObserver<bool> > channelMuteObserver;
             std::shared_ptr<observer::ValueObserver<double> > syncOffsetObserver;
 #if defined(TLRENDER_BMD)
             std::shared_ptr<observer::ValueObserver<bmd::DevicesModelData> > bmdDevicesObserver;
@@ -550,6 +551,12 @@ namespace tl
             p.muteObserver = observer::ValueObserver<bool>::create(
                 p.audioModel->observeMute(),
                 [this](bool)
+                {
+                    _audioUpdate();
+                });
+            p.channelMuteObserver = observer::ListObserver<bool>::create(
+                p.audioModel->observeChannelMute(),
+                [this](const std::vector<bool>&)
                 {
                     _audioUpdate();
                 });
@@ -1079,16 +1086,19 @@ namespace tl
             TLRENDER_P();
             const float volume = p.audioModel->getVolume();
             const bool mute = p.audioModel->isMuted();
+            const std::vector<bool> channelMute = p.audioModel->getChannelMute();
             const double audioOffset = p.audioModel->getSyncOffset();
             if (p.player)
             {
                 p.player->setVolume(volume);
                 p.player->setMute(mute || p.bmdDeviceActive);
+                p.player->setChannelMute(channelMute);
                 p.player->setAudioOffset(audioOffset);
             }
 #if defined(TLRENDER_BMD)
             p.bmdOutputDevice->setVolume(volume);
             p.bmdOutputDevice->setMute(mute);
+            p.bmdOutputDevice->setChannelMute(channelMute);
             p.bmdOutputDevice->setAudioOffset(audioOffset);
 #endif // TLRENDER_BMD
         }

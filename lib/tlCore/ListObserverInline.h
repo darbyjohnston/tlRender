@@ -228,7 +228,7 @@ namespace tl
         }
 
         template<typename T>
-        inline const T& List<T>::getItem(std::size_t index) const
+        inline T List<T>::getItem(std::size_t index) const
         {
             return _value[index];
         }

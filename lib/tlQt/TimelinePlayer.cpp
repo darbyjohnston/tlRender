@@ -40,6 +40,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<audio::DeviceID> > audioDeviceObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
+            std::shared_ptr<observer::ListObserver<bool> > channelMuteObserver;
             std::shared_ptr<observer::ValueObserver<double> > audioOffsetObserver;
             std::shared_ptr<observer::ListObserver<timeline::AudioData> > currentAudioObserver;
             std::shared_ptr<observer::ValueObserver<timeline::PlayerCacheOptions> > cacheOptionsObserver;
@@ -153,6 +154,13 @@ namespace tl
                     Q_EMIT muteChanged(value);
                 });
 
+            p.channelMuteObserver = observer::ListObserver<bool>::create(
+                p.player->observeChannelMute(),
+                [this](const std::vector<bool>& value)
+                {
+                    Q_EMIT channelMuteChanged(value);
+                });
+
             p.audioOffsetObserver = observer::ValueObserver<double>::create(
                 p.player->observeAudioOffset(),
                 [this](double value)
@@ -252,27 +260,27 @@ namespace tl
 
         double TimelinePlayer::speed() const
         {
-            return _p->player->observeSpeed()->get();
+            return _p->player->getSpeed();
         }
 
         timeline::Playback TimelinePlayer::playback() const
         {
-            return _p->player->observePlayback()->get();
+            return _p->player->getPlayback();
         }
 
         timeline::Loop TimelinePlayer::loop() const
         {
-            return _p->player->observeLoop()->get();
+            return _p->player->getLoop();
         }
 
         const otime::RationalTime& TimelinePlayer::currentTime() const
         {
-            return _p->player->observeCurrentTime()->get();
+            return _p->player->getCurrentTime();
         }
 
         const otime::TimeRange& TimelinePlayer::inOutRange() const
         {
-            return _p->player->observeInOutRange()->get();
+            return _p->player->getInOutRange();
         }
 
         const std::vector<std::shared_ptr<timeline::Timeline> >& TimelinePlayer::compare() const
@@ -287,7 +295,7 @@ namespace tl
 
         const io::Options& TimelinePlayer::ioOptions() const
         {
-            return _p->player->observeIOOptions()->get();
+            return _p->player->getIOOptions();
         }
 
         int TimelinePlayer::videoLayer() const
@@ -307,22 +315,27 @@ namespace tl
 
         const audio::DeviceID& TimelinePlayer::audioDevice() const
         {
-            return _p->player->observeAudioDevice()->get();
+            return _p->player->getAudioDevice();
         }
 
         float TimelinePlayer::volume() const
         {
-            return _p->player->observeVolume()->get();
+            return _p->player->getVolume();
         }
 
         bool TimelinePlayer::isMuted() const
         {
-            return _p->player->observeMute()->get();
+            return _p->player->isMuted();
+        }
+
+        const std::vector<bool>& TimelinePlayer::getChannelMute() const
+        {
+            return _p->player->getChannelMute();
         }
 
         double TimelinePlayer::audioOffset() const
         {
-            return _p->player->observeAudioOffset()->get();
+            return _p->player->getAudioOffset();
         }
 
         const std::vector<timeline::AudioData>& TimelinePlayer::currentAudio() const
@@ -332,7 +345,7 @@ namespace tl
 
         const timeline::PlayerCacheOptions& TimelinePlayer::cacheOptions() const
         {
-            return _p->player->observeCacheOptions()->get();
+            return _p->player->getCacheOptions();
         }
 
         const timeline::PlayerCacheInfo& TimelinePlayer::cacheInfo() const
@@ -368,7 +381,7 @@ namespace tl
         void TimelinePlayer::togglePlayback()
         {
             _p->player->setPlayback(
-                timeline::Playback::Stop == _p->player->observePlayback()->get() ?
+                timeline::Playback::Stop == _p->player->getPlayback() ?
                 timeline::Playback::Forward :
                 timeline::Playback::Stop);
         }
@@ -471,6 +484,11 @@ namespace tl
         void TimelinePlayer::setMute(bool value)
         {
             _p->player->setMute(value);
+        }
+
+        void TimelinePlayer::setChannelMute(const std::vector<bool>& value)
+        {
+            _p->player->setChannelMute(value);
         }
 
         void TimelinePlayer::setAudioOffset(double value)

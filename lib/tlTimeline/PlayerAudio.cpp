@@ -75,6 +75,26 @@ namespace tl
             }
         }
 
+        const std::vector<bool>& Player::getChannelMute() const
+        {
+            return _p->channelMute->get();
+        }
+
+        std::shared_ptr<observer::IList<bool> > Player::observeChannelMute() const
+        {
+            return _p->channelMute;
+        }
+
+        void Player::setChannelMute(const std::vector<bool>& value)
+        {
+            TLRENDER_P();
+            if (p.channelMute->setIfChanged(value))
+            {
+                std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                p.audioMutex.channelMute = value;
+            }
+        }
+
         double Player::getAudioOffset() const
         {
             return _p->audioOffset->get();
@@ -305,6 +325,7 @@ namespace tl
             double speed = 0.0;
             float volume = 1.F;
             bool mute = false;
+            std::vector<bool> channelMute;
             std::chrono::steady_clock::time_point muteTimeout;
             double audioOffset = 0.0;
             bool reset = false;
@@ -315,6 +336,7 @@ namespace tl
                 speed = audioMutex.speed;
                 volume = audioMutex.volume;
                 mute = audioMutex.mute;
+                channelMute = audioMutex.channelMute;
                 muteTimeout = audioMutex.muteTimeout;
                 audioOffset = audioMutex.audioOffset;
                 reset = audioMutex.reset;
@@ -408,7 +430,7 @@ namespace tl
                         {
                             volume = 0.F;
                         }
-                        auto audio = audio::mix(audioLayers, volume);
+                        auto audio = audio::mix(audioLayers, volume, channelMute);
 
                         // Reverse the audio.
                         if (Playback::Reverse == playback)

@@ -123,6 +123,7 @@ namespace tl
                 _audioMutex.currentTime = _data.currentTime;
                 _audioMutex.volume = _data.volume;
                 _audioMutex.mute = _data.mute;
+                _audioMutex.channelMute = _data.channelMute;
                 _audioMutex.audioOffset = _data.audioOffset;
                 if (reset)
                 {
@@ -230,6 +231,7 @@ namespace tl
             otime::RationalTime currentTime = time::invalidTime;
             float volume = 1.F;
             bool mute = false;
+            std::vector<bool> channelMute;
             double audioOffset = 0.0;
             std::vector<timeline::AudioData> audioDataList;
             bool reset = false;
@@ -241,6 +243,7 @@ namespace tl
                 currentTime = _audioMutex.currentTime;
                 volume = _audioMutex.volume;
                 mute = _audioMutex.mute;
+                channelMute = _audioMutex.channelMute;
                 audioOffset = _audioMutex.audioOffset;
                 audioDataList = _audioMutex.audioData;
                 reset = _audioMutex.reset;
@@ -317,7 +320,7 @@ namespace tl
                         //std::cout << "t: " << t << std::endl;
 
                         // Mix the audio layers.
-                        auto audio = audio::mix(audioLayers, mute ? 0.F : volume);
+                        auto audio = audio::mix(audioLayers, mute ? 0.F : volume, channelMute);
 
                         // Reverse the audio.
                         if (timeline::Playback::Reverse == playback)

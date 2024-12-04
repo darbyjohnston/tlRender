@@ -85,6 +85,7 @@ namespace tl
             p.audioDevice = observer::Value<audio::DeviceID>::create(playerOptions.audioDevice);
             p.volume = observer::Value<float>::create(1.F);
             p.mute = observer::Value<bool>::create(false);
+            p.channelMute = observer::List<bool>::create();
             p.audioOffset = observer::Value<double>::create(0.0);
             p.currentAudioData = observer::List<AudioData>::create();
             p.cacheOptions = observer::Value<PlayerCacheOptions>::create(playerOptions.cache);

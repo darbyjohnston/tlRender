@@ -128,6 +128,7 @@ namespace tl
             bool seek = false;
             float volume = 1.F;
             bool mute = false;
+            std::vector<bool> channelMute;
             double audioOffset = 0.0;
         };
 
@@ -194,6 +195,7 @@ namespace tl
                 otime::RationalTime currentTime = time::invalidTime;
                 float volume = 1.F;
                 bool mute = false;
+                std::vector<bool> channelMute;
                 double audioOffset = 0.0;
                 std::vector<timeline::AudioData> audioData;
                 bool reset = false;

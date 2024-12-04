@@ -69,6 +69,7 @@ namespace tl
             std::shared_ptr<observer::Value<audio::DeviceID> > audioDevice;
             std::shared_ptr<observer::Value<float> > volume;
             std::shared_ptr<observer::Value<bool> > mute;
+            std::shared_ptr<observer::List<bool> > channelMute;
             std::shared_ptr<observer::Value<double> > audioOffset;
             std::shared_ptr<observer::List<AudioData> > currentAudioData;
             std::shared_ptr<observer::Value<PlayerCacheOptions> > cacheOptions;
@@ -137,6 +138,7 @@ namespace tl
                 double speed = 0.0;
                 float volume = 1.F;
                 bool mute = false;
+                std::vector<bool> channelMute;
                 std::chrono::steady_clock::time_point muteTimeout;
                 double audioOffset = 0.0;
                 std::map<int64_t, AudioData> audioDataCache;

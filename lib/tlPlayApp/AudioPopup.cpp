@@ -8,8 +8,12 @@
 
 #include <tlPlay/AudioModel.h>
 
+#include <tlUI/ButtonGroup.h>
+#include <tlUI/CheckBox.h>
 #include <tlUI/ComboBox.h>
+#include <tlUI/GridLayout.h>
 #include <tlUI/IntEditSlider.h>
+#include <tlUI/Label.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/ToolButton.h>
 
@@ -22,14 +26,21 @@ namespace tl
         struct AudioPopup::Private
         {
             std::vector<audio::DeviceID> devices;
+            std::vector<bool> channelMute;
+            audio::Info info;
 
             std::shared_ptr<ui::IntEditSlider> volumeSlider;
             std::shared_ptr<ui::ComboBox> deviceComboBox;
-            std::shared_ptr<ui::VerticalLayout> layout;
+            std::vector<std::shared_ptr<ui::CheckBox> > channelMuteCheckBoxes;
+            std::shared_ptr<ui::ButtonGroup> channelMuteButtonGroup;
+            std::shared_ptr<ui::GridLayout> layout;
+            std::shared_ptr<ui::HorizontalLayout> channelMuteLayout;
 
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ListObserver<audio::DeviceID> > devicesObserver;
             std::shared_ptr<observer::ValueObserver<audio::DeviceID> > deviceObserver;
+            std::shared_ptr<observer::ListObserver<bool> > channelMuteObserver;
+            std::shared_ptr<observer::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
         };
 
         void AudioPopup::_init(
@@ -52,12 +63,27 @@ namespace tl
             p.deviceComboBox = ui::ComboBox::create(context);
             p.deviceComboBox->setToolTip("Audio output device");
 
-            p.layout = ui::VerticalLayout::create(context);
+            p.channelMuteButtonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Toggle, context);
+
+            p.layout = ui::GridLayout::create(context);
             p.layout->setMarginRole(ui::SizeRole::MarginInside);
             p.layout->setSpacingRole(ui::SizeRole::SpacingTool);
+            auto label = ui::Label::create("Volume: ", context, p.layout);
+            p.layout->setGridPos(label, 0, 0);
             p.volumeSlider->setParent(p.layout);
+            p.layout->setGridPos(p.volumeSlider, 0, 1);
+            label = ui::Label::create("Device: ", context, p.layout);
+            p.layout->setGridPos(label, 1, 0);
             p.deviceComboBox->setParent(p.layout);
+            p.layout->setGridPos(p.deviceComboBox, 1, 1);
+            label = ui::Label::create("Channel mute: ", context, p.layout);
+            p.layout->setGridPos(label, 2, 0);
+            p.channelMuteLayout = ui::HorizontalLayout::create(context, p.layout);
+            p.channelMuteLayout->setSpacingRole(ui::SizeRole::SpacingTool);
+            p.layout->setGridPos(p.channelMuteLayout, 2, 1);
             setWidget(p.layout);
+
+            _widgetUpdate();
 
             auto appWeak = std::weak_ptr<App>(app);
             p.volumeSlider->setCallback(
@@ -79,6 +105,21 @@ namespace tl
                             app->getAudioModel()->setDevice(
                                 0 == value ? audio::DeviceID() : _p->devices[value]);
                         }
+                    }
+                });
+
+            p.channelMuteButtonGroup->setCheckedCallback(
+                [this, appWeak](int index, bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        std::vector<bool> channelMute = _p->channelMute;
+                        if (index >= channelMute.size())
+                        {
+                            channelMute.resize(index + 1);
+                        }
+                        channelMute[index] = value;
+                        app->getAudioModel()->setChannelMute(channelMute);
                     }
                 });
 
@@ -117,6 +158,22 @@ namespace tl
                     }
                     _p->deviceComboBox->setCurrentIndex(index);
                 });
+
+            p.channelMuteObserver = observer::ListObserver<bool>::create(
+                app->getAudioModel()->observeChannelMute(),
+                [this](const std::vector<bool>& value)
+                {
+                    _p->channelMute = value;
+                    _widgetUpdate();
+                });
+
+            p.playerObserver = observer::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+                app->observePlayer(),
+                [this](const std::shared_ptr<timeline::Player>& value)
+                {
+                    _p->info = value ? value->getIOInfo().audio : audio::Info();
+                    _widgetUpdate();
+                });
         }
 
         AudioPopup::AudioPopup() :
@@ -134,6 +191,36 @@ namespace tl
             auto out = std::shared_ptr<AudioPopup>(new AudioPopup);
             out->_init(app, context, parent);
             return out;
+        }
+
+        void AudioPopup::_widgetUpdate()
+        {
+            TLRENDER_P();
+            if (p.channelMuteCheckBoxes.size() != p.info.channelCount)
+            {
+                for (const auto& checkBox : p.channelMuteCheckBoxes)
+                {
+                    checkBox->setParent(nullptr);
+                }
+                p.channelMuteCheckBoxes.clear();
+                p.channelMuteButtonGroup->clearButtons();
+                if (auto context = _context.lock())
+                {
+                    for (size_t i = 0; i < p.info.channelCount; ++i)
+                    {
+                        auto checkBox = ui::CheckBox::create(
+                            string::Format("{0}").arg(i),
+                            context,
+                            p.channelMuteLayout);
+                        p.channelMuteCheckBoxes.push_back(checkBox);
+                        p.channelMuteButtonGroup->addButton(checkBox);
+                    }
+                }
+            }
+            for (size_t i = 0; i < p.channelMute.size() && i < p.channelMuteCheckBoxes.size(); ++i)
+            {
+                p.channelMuteCheckBoxes[i]->setChecked(p.channelMute[i]);
+            }
         }
     }
 }

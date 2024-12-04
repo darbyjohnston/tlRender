@@ -93,6 +93,11 @@ namespace tl
                 WRITE setMute
                 NOTIFY muteChanged)
             Q_PROPERTY(
+                std::vector<bool> channelMute
+                READ getChannelMute
+                WRITE setChannelMute
+                NOTIFY channelMuteChanged)
+            Q_PROPERTY(
                 double audioOffset
                 READ audioOffset
                 WRITE setAudioOffset
@@ -235,6 +240,9 @@ namespace tl
             //! Get the audio mute.
             bool isMuted() const;
 
+            //! Get the audio channels mute.
+            const std::vector<bool>& getChannelMute() const;
+
             //! Get the audio sync offset (in seconds).
             double audioOffset() const;
 
@@ -366,6 +374,9 @@ namespace tl
             //! Set the audio mute.
             void setMute(bool);
 
+            //! Set the audio channels mute.
+            void setChannelMute(const std::vector<bool>&);
+
             //! Set the audio sync offset (in seconds).
             void setAudioOffset(double);
 
@@ -444,6 +455,9 @@ namespace tl
 
             //! This signal is emitted when the audio mute is changed.
             void muteChanged(bool);
+
+            //! This signal is emitted when the audio channels mute is changed.
+            void channelMuteChanged(const std::vector<bool>&);
 
             //! This signal is emitted when the audio sync offset is changed.
             void audioOffsetChanged(double);

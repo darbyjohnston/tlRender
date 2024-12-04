@@ -71,14 +71,23 @@ namespace tl
             //! Decrease the volume.
             void volumeDown();
 
-            //! Get whether the audio is muted.
+            //! Get the audio mute.
             bool isMuted() const;
 
-            //! Observe whether the audio is muted.
+            //! Observe the audio mute.
             std::shared_ptr<observer::IValue<bool> > observeMute() const;
 
-            //! Set whether the audio is muted.
+            //! Set the audio mute.
             void setMute(bool);
+
+            //! Get the audio channels mute.
+            const std::vector<bool>& getChannelMute() const;
+
+            //! Observe the audio channels mute.
+            std::shared_ptr<observer::IList<bool> > observeChannelMute() const;
+
+            //! Set the audio channels mute.
+            void setChannelMute(const std::vector<bool>&);
 
             //! Get the audio sync offset.
             double getSyncOffset() const;

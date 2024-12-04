@@ -69,7 +69,7 @@ namespace tl
             virtual bool isEmpty() const = 0;
 
             //! Get a list item.
-            virtual const T& getItem(std::size_t) const = 0;
+            virtual T getItem(std::size_t) const = 0;
 
             //! Does the list contain the given item?
             virtual bool contains(const T&) const = 0;
@@ -130,7 +130,7 @@ namespace tl
             const std::vector<T>& get() const override;
             std::size_t getSize() const override;
             bool isEmpty() const override;
-            const T& getItem(std::size_t) const override;
+            T getItem(std::size_t) const override;
             bool contains(const T&) const override;
             std::size_t indexOf(const T&) const override;
 

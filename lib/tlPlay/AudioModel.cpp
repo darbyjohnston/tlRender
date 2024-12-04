@@ -21,6 +21,7 @@ namespace tl
             std::shared_ptr<observer::Value<audio::DeviceID> > device;
             std::shared_ptr<observer::Value<float> > volume;
             std::shared_ptr<observer::Value<bool> > mute;
+            std::shared_ptr<observer::List<bool> > channelMute;
             std::shared_ptr<observer::Value<double> > syncOffset;
             std::shared_ptr<observer::ListObserver<audio::DeviceInfo> > devicesObserver;
         };
@@ -43,6 +44,8 @@ namespace tl
             p.settings->setDefaultValue("Audio/Mute", false);
             p.mute = observer::Value<bool>::create(
                 p.settings->getValue<bool>("Audio/Mute"));
+
+            p.channelMute = observer::List<bool>::create();
 
             p.syncOffset = observer::Value<double>::create(0.0);
 
@@ -142,6 +145,21 @@ namespace tl
         {
             _p->settings->setValue("Audio/Mute", value);
             _p->mute->setIfChanged(value);
+        }
+
+        const std::vector<bool>& AudioModel::getChannelMute() const
+        {
+            return _p->channelMute->get();
+        }
+
+        std::shared_ptr<observer::IList<bool> > AudioModel::observeChannelMute() const
+        {
+            return _p->channelMute;
+        }
+
+        void AudioModel::setChannelMute(const std::vector<bool>& value)
+        {
+            _p->channelMute->setIfChanged(value);
         }
 
         double AudioModel::getSyncOffset() const

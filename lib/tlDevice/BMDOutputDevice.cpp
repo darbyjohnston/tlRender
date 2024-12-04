@@ -96,6 +96,7 @@ namespace tl
                 std::shared_ptr<image::Image> overlay;
                 float volume = 1.F;
                 bool mute = false;
+                std::vector<bool> channelMute;
                 double audioOffset = 0.0;
                 std::vector<timeline::AudioData> audioData;
                 std::mutex mutex;
@@ -380,6 +381,16 @@ namespace tl
             p.thread.cv.notify_one();
         }
 
+        void OutputDevice::setChannelMute(const std::vector<bool>& value)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.channelMute = value;
+            }
+            p.thread.cv.notify_one();
+        }
+
         void OutputDevice::setAudioOffset(double value)
         {
             TLRENDER_P();
@@ -556,6 +567,7 @@ namespace tl
             bool seek = false;
             float volume = 1.F;
             bool mute = false;
+            std::vector<bool> channelMute;
             double audioOffset = 0.0;
             std::vector<timeline::AudioData> audioData;
             std::shared_ptr<image::Image> overlay;
@@ -580,7 +592,7 @@ namespace tl
                         ocioOptions, lutOptions, imageOptions,
                         displayOptions, compareOptions, backgroundOptions,
                         playback, speed, currentTime, seek,
-                        volume, mute, audioOffset, audioData]
+                        volume, mute, channelMute, audioOffset, audioData]
                         {
                             return
                                 config != _p->mutex.config ||
@@ -606,6 +618,7 @@ namespace tl
                                 _p->thread.overlay != _p->mutex.overlay ||
                                 volume != _p->mutex.volume ||
                                 mute != _p->mutex.mute ||
+                                channelMute != _p->mutex.channelMute ||
                                 audioOffset != _p->mutex.audioOffset ||
                                 audioData != _p->mutex.audioData;
                         }))
@@ -659,6 +672,7 @@ namespace tl
                             audioData != p.mutex.audioData;
                         volume = p.mutex.volume;
                         mute = p.mutex.mute;
+                        channelMute = p.mutex.channelMute;
                         audioOffset = p.mutex.audioOffset;
                         audioData = p.mutex.audioData;
                     }
@@ -750,6 +764,7 @@ namespace tl
                     data.seek = seek;
                     data.volume = volume;
                     data.mute = mute;
+                    data.channelMute = channelMute;
                     data.audioOffset = audioOffset;
                     p.thread.dl->outputCallback->setData(data);
                 }

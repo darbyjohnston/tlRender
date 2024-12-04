@@ -272,6 +272,7 @@ namespace tl
             TLRENDER_ASSERT(.5F == player->getVolume());
             TLRENDER_ASSERT(.5F == volume);
             player->setVolume(1.F);
+
             bool mute = false;
             auto muteObserver = observer::ValueObserver<bool>::create(
                 player->observeMute(),
@@ -283,6 +284,20 @@ namespace tl
             TLRENDER_ASSERT(player->isMuted());
             TLRENDER_ASSERT(mute);
             player->setMute(false);
+
+            std::vector<bool> channelMute = { false, false };
+            auto channelMuteObserver = observer::ListObserver<bool>::create(
+                player->observeChannelMute(),
+                [&channelMute](const std::vector<bool>& value)
+                {
+                    channelMute = value;
+                });
+            player->setChannelMute({ true, true });
+            TLRENDER_ASSERT(player->getChannelMute() == std::vector<bool>({ true, true }));
+            TLRENDER_ASSERT(channelMute[0]);
+            TLRENDER_ASSERT(channelMute[1]);
+            player->setChannelMute({ false, false });
+
             double audioOffset = 0.0;
             auto audioOffsetObserver = observer::ValueObserver<double>::create(
                 player->observeAudioOffset(),

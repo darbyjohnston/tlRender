@@ -111,11 +111,14 @@ namespace tl
             //! Set the overlay.
             void setOverlay(const std::shared_ptr<image::Image>&);
 
-            //! Set the volume.
+            //! Set the audio volume.
             void setVolume(float);
 
-            //! Set whether the audio is muted.
+            //! Set the audio mute.
             void setMute(bool);
+
+            //! Set the audio channels mute.
+            void setChannelMute(const std::vector<bool>&);
 
             //! Set the audio sync offset.
             void setAudioOffset(double);
