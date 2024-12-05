@@ -347,7 +347,7 @@ namespace tl
 
             const auto timeRational = time::toRational(time.rate());
             p.avFrame->pts = av_rescale_q(
-                time.value(),
+                (time - _info.videoTime.start_time()).value(),
                 { timeRational.second, timeRational.first },
                 p.avVideoStream->time_base);
             _encodeVideo(p.avFrame);
