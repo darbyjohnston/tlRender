@@ -163,11 +163,13 @@ namespace tl
             if (p.sdlID > 0)
             {
                 SDL_CloseAudioDevice(p.sdlID);
+                p.sdlID = 0;
             }
 #elif defined(TLRENDER_SDL3)
             if (p.sdlStream)
             {
                 SDL_DestroyAudioStream(p.sdlStream);
+                p.sdlStream = nullptr;
             }
 #endif // TLRENDER_SDL2
         }
