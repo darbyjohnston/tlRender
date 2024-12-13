@@ -6,7 +6,10 @@ set(SDL2_GIT_TAG "release-2.0.12")
 set(SDL2_PATCH
     ${CMAKE_COMMAND} -E copy_if_different
     ${CMAKE_CURRENT_SOURCE_DIR}/SDL2-patch/CMakeLists.txt
-    ${CMAKE_CURRENT_BINARY_DIR}/SDL2/src/SDL2/CMakeLists.txt)
+    ${CMAKE_CURRENT_BINARY_DIR}/SDL2/src/SDL2/CMakeLists.txt
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_SOURCE_DIR}/SDL2-patch/src/video/cocoa/SDL_cocoakeyboard.m
+    ${CMAKE_CURRENT_BINARY_DIR}/SDL2/src/SDL2/src/video/cocoa/SDL_cocoakeyboard.m)
 
 set(SDL2_ARGS
     ${TLRENDER_EXTERNAL_ARGS}
