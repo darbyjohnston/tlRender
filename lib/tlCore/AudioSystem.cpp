@@ -256,11 +256,9 @@ namespace tl
                 DeviceInfo device;
                 device.id.number = i;
                 device.id.name = SDL_GetAudioDeviceName(i, 0);
-                SDL_AudioSpec spec;
-                SDL_GetAudioDeviceSpec(i, 0, &spec);
-                device.info.channelCount = spec.channels;
-                device.info.dataType = fromSDL(spec.format);
-                device.info.sampleRate = spec.freq;
+                device.info.channelCount = 2;
+                device.info.dataType = audio::DataType::F32;
+                device.info.sampleRate = 48000;
                 out.push_back(device);
             }
 #elif defined(TLRENDER_SDL3)
@@ -288,17 +286,9 @@ namespace tl
         {
             DeviceInfo out;
 #if defined(TLRENDER_SDL2)
-            char* name = nullptr;
-            SDL_AudioSpec spec;
-            SDL_GetDefaultAudioInfo(&name, &spec, 0);
-            if (name)
-            {
-                out.id.name = name;
-                SDL_free(name);
-            }
-            out.info.channelCount = spec.channels;
-            out.info.dataType = fromSDL(spec.format);
-            out.info.sampleRate = spec.freq;
+            out.info.channelCount = 2;
+            out.info.dataType = audio::DataType::F32;
+            out.info.sampleRate = 48000;
 #elif defined(TLRENDER_SDL3)
             out.id.name = "Default";
             SDL_AudioSpec spec;

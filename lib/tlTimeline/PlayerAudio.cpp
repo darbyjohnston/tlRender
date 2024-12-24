@@ -214,11 +214,13 @@ namespace tl
             if (sdlID > 0)
             {
                 SDL_CloseAudioDevice(sdlID);
+                sdlID = 0;
             }
 #elif defined(TLRENDER_SDL3)
             if (sdlStream)
             {
                 SDL_DestroyAudioStream(sdlStream);
+                sdlStream = nullptr;
             }
 #endif // TLRENDER_SDL2
 
@@ -245,6 +247,13 @@ namespace tl
                         "  sample rate: " << audioInfo.sampleRate;
                     context->log("tl::timeline::Player", ss.str());
                 }
+
+                // These are OK to modify since the audio thread is stopped.
+                audioMutex.reset = true;
+                audioMutex.start = currentTime->get();
+                audioMutex.frame = 0;
+                audioThread.info = audioInfo;
+                audioThread.resample.reset();
 
                 SDL_AudioSpec spec;
                 spec.freq = audioInfo.sampleRate;
@@ -284,13 +293,6 @@ namespace tl
                         "  sample rate: " << audioInfo.sampleRate;
                         context->log("tl::timeline::Player", ss.str());
                     }
-
-                    // These are OK to modify since the audio thread is stopped.
-                    audioMutex.reset = true;
-                    audioMutex.start = currentTime->get();
-                    audioMutex.frame = 0;
-                    audioThread.info = audioInfo;
-                    audioThread.resample.reset();
 
 #if defined(TLRENDER_SDL2)
                     SDL_PauseAudioDevice(sdlID, 0);
