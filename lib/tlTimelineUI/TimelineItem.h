@@ -99,6 +99,7 @@ namespace tl
 
         private:
             bool _isTrackVisible(int) const;
+            void _setTrackEnabled(int, bool);
 
             void _drawInOutPoints(
                 const math::Box2i&,

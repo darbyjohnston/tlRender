@@ -175,62 +175,65 @@ namespace tl
             {
                 for (const auto& otioTrack : thread.otioTimeline->video_tracks())
                 {
-                    for (const auto& otioChild : otioTrack->children())
+                    if (otioTrack->enabled())
                     {
-                        if (auto otioItem = dynamic_cast<otio::Item*>(otioChild.value))
+                        for (const auto& otioChild : otioTrack->children())
                         {
-                            const auto requestTime = request->time - timeRange.start_time();
-                            otio::ErrorStatus errorStatus;
-                            const auto range = otioItem->trimmed_range_in_parent(&errorStatus);
-                            if (range.has_value() && range.value().contains(requestTime))
+                            if (auto otioItem = dynamic_cast<otio::Item*>(otioChild.value))
                             {
-                                VideoLayerData videoData;
-                                try
+                                const auto requestTime = request->time - timeRange.start_time();
+                                otio::ErrorStatus errorStatus;
+                                const auto range = otioItem->trimmed_range_in_parent(&errorStatus);
+                                if (range.has_value() && range.value().contains(requestTime))
                                 {
-                                    if (auto otioClip = dynamic_cast<const otio::Clip*>(otioItem))
+                                    VideoLayerData videoData;
+                                    try
                                     {
-                                        videoData.image = readVideo(otioClip, requestTime, request->options);
-                                    }
-                                    const auto neighbors = otioTrack->neighbors_of(otioItem, &errorStatus);
-                                    if (auto otioTransition = dynamic_cast<otio::Transition*>(neighbors.second.value))
-                                    {
-                                        if (requestTime > range.value().end_time_inclusive() - otioTransition->in_offset())
+                                        if (auto otioClip = dynamic_cast<const otio::Clip*>(otioItem))
                                         {
-                                            videoData.transition = toTransition(otioTransition->transition_type());
-                                            videoData.transitionValue = transitionValue(
-                                                requestTime.value(),
-                                                range.value().end_time_inclusive().value() - otioTransition->in_offset().value(),
-                                                range.value().end_time_inclusive().value() + otioTransition->out_offset().value() + 1.0);
-                                            const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
-                                            if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.second.value))
+                                            videoData.image = readVideo(otioClip, requestTime, request->options);
+                                        }
+                                        const auto neighbors = otioTrack->neighbors_of(otioItem, &errorStatus);
+                                        if (auto otioTransition = dynamic_cast<otio::Transition*>(neighbors.second.value))
+                                        {
+                                            if (requestTime > range.value().end_time_inclusive() - otioTransition->in_offset())
                                             {
-                                                videoData.imageB = readVideo(otioClipB, requestTime, request->options);
+                                                videoData.transition = toTransition(otioTransition->transition_type());
+                                                videoData.transitionValue = transitionValue(
+                                                    requestTime.value(),
+                                                    range.value().end_time_inclusive().value() - otioTransition->in_offset().value(),
+                                                    range.value().end_time_inclusive().value() + otioTransition->out_offset().value() + 1.0);
+                                                const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
+                                                if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.second.value))
+                                                {
+                                                    videoData.imageB = readVideo(otioClipB, requestTime, request->options);
+                                                }
+                                            }
+                                        }
+                                        if (auto otioTransition = dynamic_cast<otio::Transition*>(neighbors.first.value))
+                                        {
+                                            if (requestTime < range.value().start_time() + otioTransition->out_offset())
+                                            {
+                                                std::swap(videoData.image, videoData.imageB);
+                                                videoData.transition = toTransition(otioTransition->transition_type());
+                                                videoData.transitionValue = transitionValue(
+                                                    requestTime.value(),
+                                                    range.value().start_time().value() - otioTransition->in_offset().value() - 1.0,
+                                                    range.value().start_time().value() + otioTransition->out_offset().value());
+                                                const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
+                                                if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.first.value))
+                                                {
+                                                    videoData.image = readVideo(otioClipB, requestTime, request->options);
+                                                }
                                             }
                                         }
                                     }
-                                    if (auto otioTransition = dynamic_cast<otio::Transition*>(neighbors.first.value))
+                                    catch (const std::exception&)
                                     {
-                                        if (requestTime < range.value().start_time() + otioTransition->out_offset())
-                                        {
-                                            std::swap(videoData.image, videoData.imageB);
-                                            videoData.transition = toTransition(otioTransition->transition_type());
-                                            videoData.transitionValue = transitionValue(
-                                                requestTime.value(),
-                                                range.value().start_time().value() - otioTransition->in_offset().value() - 1.0,
-                                                range.value().start_time().value() + otioTransition->out_offset().value());
-                                            const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
-                                            if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.first.value))
-                                            {
-                                                videoData.image = readVideo(otioClipB, requestTime, request->options);
-                                            }
-                                        }
+                                        //! \todo How should this be handled?
                                     }
+                                    request->layerData.push_back(std::move(videoData));
                                 }
-                                catch (const std::exception&)
-                                {
-                                    //! \todo How should this be handled?
-                                }
-                                request->layerData.push_back(std::move(videoData));
                             }
                         }
                     }
@@ -244,46 +247,49 @@ namespace tl
             {
                 for (const auto& otioTrack : thread.otioTimeline->audio_tracks())
                 {
-                    for (const auto& otioChild : otioTrack->children())
+                    if (otioTrack->enabled())
                     {
-                        if (auto otioClip = dynamic_cast<otio::Clip*>(otioChild.value))
+                        for (const auto& otioChild : otioTrack->children())
                         {
-                            const auto rangeOptional = otioClip->trimmed_range_in_parent();
-                            if (rangeOptional.has_value())
+                            if (auto otioClip = dynamic_cast<otio::Clip*>(otioChild.value))
                             {
-                                const otime::TimeRange clipTimeRange(
-                                    rangeOptional.value().start_time().rescaled_to(1.0),
-                                    rangeOptional.value().duration().rescaled_to(1.0));
-                                const double start = request->seconds -
-                                    timeRange.start_time().rescaled_to(1.0).value();
-                                const otime::TimeRange requestTimeRange = otime::TimeRange(
-                                    otime::RationalTime(start, 1.0),
-                                    otime::RationalTime(1.0, 1.0));
-                                if (requestTimeRange.intersects(clipTimeRange))
+                                const auto rangeOptional = otioClip->trimmed_range_in_parent();
+                                if (rangeOptional.has_value())
                                 {
-                                    AudioLayerData audioData;
-                                    audioData.seconds = request->seconds;
-                                    try
+                                    const otime::TimeRange clipTimeRange(
+                                        rangeOptional.value().start_time().rescaled_to(1.0),
+                                        rangeOptional.value().duration().rescaled_to(1.0));
+                                    const double start = request->seconds -
+                                        timeRange.start_time().rescaled_to(1.0).value();
+                                    const otime::TimeRange requestTimeRange = otime::TimeRange(
+                                        otime::RationalTime(start, 1.0),
+                                        otime::RationalTime(1.0, 1.0));
+                                    if (requestTimeRange.intersects(clipTimeRange))
                                     {
-                                        //! \bug Why is otime::TimeRange::clamped() not giving us the
-                                        //! result we expect?
-                                        //audioData.timeRange = requestTimeRange.clamped(clipTimeRange);
-                                        const double start = std::max(
-                                            clipTimeRange.start_time().value(),
-                                            requestTimeRange.start_time().value());
-                                        const double end = std::min(
-                                            clipTimeRange.start_time().value() + clipTimeRange.duration().value(),
-                                            requestTimeRange.start_time().value() + requestTimeRange.duration().value());
-                                        audioData.timeRange = otime::TimeRange(
-                                            otime::RationalTime(start, 1.0),
-                                            otime::RationalTime(end - start, 1.0));
-                                        audioData.audio = readAudio(otioClip, audioData.timeRange, request->options);
+                                        AudioLayerData audioData;
+                                        audioData.seconds = request->seconds;
+                                        try
+                                        {
+                                            //! \bug Why is otime::TimeRange::clamped() not giving us the
+                                            //! result we expect?
+                                            //audioData.timeRange = requestTimeRange.clamped(clipTimeRange);
+                                            const double start = std::max(
+                                                clipTimeRange.start_time().value(),
+                                                requestTimeRange.start_time().value());
+                                            const double end = std::min(
+                                                clipTimeRange.start_time().value() + clipTimeRange.duration().value(),
+                                                requestTimeRange.start_time().value() + requestTimeRange.duration().value());
+                                            audioData.timeRange = otime::TimeRange(
+                                                otime::RationalTime(start, 1.0),
+                                                otime::RationalTime(end - start, 1.0));
+                                            audioData.audio = readAudio(otioClip, audioData.timeRange, request->options);
+                                        }
+                                        catch (const std::exception&)
+                                        {
+                                            //! \todo How should this be handled?
+                                        }
+                                        request->layerData.push_back(std::move(audioData));
                                     }
-                                    catch (const std::exception&)
-                                    {
-                                        //! \todo How should this be handled?
-                                    }
-                                    request->layerData.push_back(std::move(audioData));
                                 }
                             }
                         }

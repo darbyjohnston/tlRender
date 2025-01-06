@@ -6,6 +6,7 @@
 
 #include <tlUI/Label.h>
 #include <tlUI/ThumbnailSystem.h>
+#include <tlUI/ToolButton.h>
 
 namespace tl
 {
@@ -30,6 +31,7 @@ namespace tl
                 int index = 0;
                 TrackType type = TrackType::None;
                 otime::TimeRange timeRange;
+                std::shared_ptr<ui::ToolButton> enabledButton;
                 std::shared_ptr<ui::Label> label;
                 std::shared_ptr<ui::Label> durationLabel;
                 std::vector<std::shared_ptr<IItem> > items;
@@ -42,6 +44,7 @@ namespace tl
             {
                 bool sizeInit = true;
                 int margin = 0;
+                int spacing = 0;
                 int border = 0;
                 int handle = 0;
                 image::FontInfo fontInfo = image::FontInfo("", 0);

@@ -61,6 +61,7 @@ namespace tl
                 window);
 
             const auto otioTimeline = p.player->getTimeline()->getTimeline();
+            int stackIndex = 0;
             for (const auto& child : otioTimeline->tracks()->children())
             {
                 if (auto otioTrack = otio::dynamic_retainer_cast<otio::Track>(child))
@@ -85,6 +86,18 @@ namespace tl
                         }
                     }
                     track.timeRange = otioTrack->trimmed_range();
+                    track.enabledButton = ui::ToolButton::create(
+                        context,
+                        shared_from_this());
+                    track.enabledButton->setIcon("CloseSmall");
+                    track.enabledButton->setCheckable(true);
+                    track.enabledButton->setChecked(otioTrack->enabled());
+                    track.enabledButton->setCheckedCallback(
+                        [this, stackIndex](bool value)
+                        {
+                            _setTrackEnabled(stackIndex, value);
+                        });
+                    track.enabledButton->setAcceptsKeyFocus(false);
                     track.label = ui::Label::create(
                         trackLabel,
                         context,
@@ -144,6 +157,7 @@ namespace tl
 
                     p.tracks.push_back(track);
                 }
+                ++stackIndex;
             }
 
             _tracksUpdate();
@@ -269,24 +283,34 @@ namespace tl
             {
                 const bool visible = _isTrackVisible(track.index);
 
+                math::Size2i buttonSizeHint;
                 math::Size2i labelSizeHint;
+                math::Size2i durationSizeHint;
+                int trackInfoHeight = 0;
                 if (visible && _displayOptions.trackInfo)
                 {
+                    buttonSizeHint = track.enabledButton->getSizeHint();
                     labelSizeHint = track.label->getSizeHint();
+                    durationSizeHint = track.durationLabel->getSizeHint();
+                    trackInfoHeight = std::max(
+                        buttonSizeHint.h,
+                        std::max(
+                            labelSizeHint.h,
+                            durationSizeHint.h));
                 }
-                track.label->setGeometry(math::Box2i(
+                track.enabledButton->setGeometry(math::Box2i(
                     g.min.x,
-                    y,
+                    y + trackInfoHeight / 2 - buttonSizeHint.h / 2,
+                    buttonSizeHint.w,
+                    buttonSizeHint.h));
+                track.label->setGeometry(math::Box2i(
+                    g.min.x + buttonSizeHint.w + p.size.spacing,
+                    y + trackInfoHeight / 2 - labelSizeHint.h / 2,
                     labelSizeHint.w,
                     labelSizeHint.h));
-                math::Size2i durationSizeHint;
-                if (visible && _displayOptions.trackInfo)
-                {
-                    durationSizeHint = track.durationLabel->getSizeHint();
-                }
                 track.durationLabel->setGeometry(math::Box2i(
                     g.min.x + track.size.w - durationSizeHint.w,
-                    y,
+                    y + trackInfoHeight / 2 - durationSizeHint.h / 2,
                     durationSizeHint.w,
                     durationSizeHint.h));
 
@@ -338,6 +362,7 @@ namespace tl
             if (displayScaleChanged || p.size.sizeInit)
             {
                 p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, _displayScale);
+                p.size.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, _displayScale);
                 p.size.border = event.style->getSizeRole(ui::SizeRole::Border, _displayScale);
                 p.size.handle = event.style->getSizeRole(ui::SizeRole::Handle, _displayScale);
                 p.size.fontInfo = image::FontInfo(
@@ -369,8 +394,10 @@ namespace tl
                     if (_displayOptions.trackInfo)
                     {
                         track.size.h += std::max(
-                            track.label->getSizeHint().h,
-                            track.durationLabel->getSizeHint().h);
+                            track.enabledButton->getSizeHint().h,
+                            std::max(
+                                track.label->getSizeHint().h,
+                                track.durationLabel->getSizeHint().h));
                     }
                     tracksHeight += track.size.h;
                     if (minimumTrackHeightInit)
@@ -633,6 +660,21 @@ namespace tl
                     _displayOptions.tracks.begin(),
                     _displayOptions.tracks.end(),
                     index) != _displayOptions.tracks.end();
+        }
+
+        void TimelineItem::_setTrackEnabled(int stackIndex, bool enabled)
+        {
+            TLRENDER_P();
+            auto otioTimeline = timeline::copy(p.player->getTimeline()->getTimeline().value);
+            const auto& children = otioTimeline->tracks()->children();
+            if (stackIndex >= 0 && stackIndex < children.size())
+            {
+                if (auto item = OTIO_NS::dynamic_retainer_cast<OTIO_NS::Item>(children[stackIndex]))
+                {
+                    item->set_enabled(enabled);
+                }
+            }
+            p.player->getTimeline()->setTimeline(otioTimeline);
         }
 
         void TimelineItem::_drawInOutPoints(
