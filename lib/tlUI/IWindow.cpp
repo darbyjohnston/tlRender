@@ -19,6 +19,7 @@ namespace tl
 
         struct IWindow::Private
         {
+            bool inside = false;
             math::Vector2i cursorPos;
             math::Vector2i cursorPosPrev;
             std::weak_ptr<IWidget> hover;
@@ -128,31 +129,40 @@ namespace tl
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
             TLRENDER_P();
-            const auto toolTipTime = std::chrono::steady_clock::now();
-            const auto toolTipDiff = std::chrono::duration_cast<std::chrono::milliseconds>(toolTipTime - p.toolTipTimer);
-            if (toolTipDiff > toolTipTimeout && !p.toolTip)
+            if (p.inside)
             {
-                if (auto context = _context.lock())
+                if (!p.mousePress.lock())
                 {
-                    std::string text;
-                    auto widgets = _getUnderCursor(p.cursorPos);
-                    while (!widgets.empty())
+                    MouseMoveEvent mouseMoveEvent(p.cursorPos, p.cursorPos);
+                    _hoverUpdate(mouseMoveEvent);
+                }
+
+                const auto toolTipTime = std::chrono::steady_clock::now();
+                const auto toolTipDiff = std::chrono::duration_cast<std::chrono::milliseconds>(toolTipTime - p.toolTipTimer);
+                if (toolTipDiff > toolTipTimeout && !p.toolTip)
+                {
+                    if (auto context = _context.lock())
                     {
-                        text = widgets.front()->getToolTip();
+                        std::string text;
+                        auto widgets = _getUnderCursor(p.cursorPos);
+                        while (!widgets.empty())
+                        {
+                            text = widgets.front()->getToolTip();
+                            if (!text.empty())
+                            {
+                                break;
+                            }
+                            widgets.pop_front();
+                        }
                         if (!text.empty())
                         {
-                            break;
+                            p.toolTip = ToolTip::create(
+                                text,
+                                p.cursorPos,
+                                shared_from_this(),
+                                context);
+                            p.toolTipPos = p.cursorPos;
                         }
-                        widgets.pop_front();
-                    }
-                    if (!text.empty())
-                    {
-                        p.toolTip = ToolTip::create(
-                            text,
-                            p.cursorPos,
-                            shared_from_this(),
-                            context);
-                        p.toolTipPos = p.cursorPos;
                     }
                 }
             }
@@ -276,6 +286,7 @@ namespace tl
         void IWindow::_cursorEnter(bool enter)
         {
             TLRENDER_P();
+            p.inside = enter;
             if (!enter)
             {
                 _setHover(nullptr);
