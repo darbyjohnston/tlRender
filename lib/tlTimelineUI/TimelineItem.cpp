@@ -89,7 +89,9 @@ namespace tl
                     track.enabledButton = ui::ToolButton::create(
                         context,
                         shared_from_this());
-                    track.enabledButton->setIcon("CloseSmall");
+                    track.enabledButton->setIcon("Hidden");
+                    track.enabledButton->setCheckedIcon("Visible");
+                    track.enabledButton->setCheckedRole(ui::ColorRole::None);
                     track.enabledButton->setCheckable(true);
                     track.enabledButton->setChecked(otioTrack->enabled());
                     track.enabledButton->setCheckedCallback(
@@ -98,6 +100,7 @@ namespace tl
                             _setTrackEnabled(stackIndex, value);
                         });
                     track.enabledButton->setAcceptsKeyFocus(false);
+                    track.enabledButton->setToolTip("Toggle the enabled state");
                     track.label = ui::Label::create(
                         trackLabel,
                         context,

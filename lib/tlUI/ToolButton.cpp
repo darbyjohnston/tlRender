@@ -129,16 +129,21 @@ namespace tl
                     _sizeHint.h = _sizeHint.h;
                 }
             }
-            if (_iconImage)
+            std::shared_ptr<image::Image> iconImage = _iconImage;
+            if (_checked && _checkedIconImage)
             {
-                _sizeHint.w += _iconImage->getWidth();
+                iconImage = _checkedIconImage;
+            }
+            if (iconImage)
+            {
+                _sizeHint.w += iconImage->getWidth();
                 if (!_text.empty())
                 {
                     _sizeHint.w += p.size.spacing;
                 }
                 _sizeHint.h = std::max(
                     _sizeHint.h,
-                    static_cast<int>(_iconImage->getHeight()));
+                    static_cast<int>(iconImage->getHeight()));
             }
             _sizeHint.w +=
                 p.size.margin * 2 +
@@ -200,11 +205,16 @@ namespace tl
 
             const math::Box2i g3 = g2.margin(-p.size.margin);
             int x = g3.x();
-            if (_iconImage)
+            std::shared_ptr<image::Image> iconImage = _iconImage;
+            if (_checked && _checkedIconImage)
             {
-                const image::Size& iconSize = _iconImage->getSize();
+                iconImage = _checkedIconImage;
+            }
+            if (iconImage)
+            {
+                const image::Size& iconSize = iconImage->getSize();
                 event.render->drawImage(
-                  _iconImage,
+                  iconImage,
                   math::Box2i(
                       x,
                       g3.y() + g3.h() / 2 - iconSize.h / 2,

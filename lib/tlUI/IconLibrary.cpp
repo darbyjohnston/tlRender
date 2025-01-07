@@ -79,6 +79,8 @@ namespace
 #include "Resources/FrameNext_96.h"
 #include "Resources/FramePrev_192.h"
 #include "Resources/FramePrev_96.h"
+#include "Resources/Hidden_192.h"
+#include "Resources/Hidden_96.h"
 #include "Resources/Increment_192.h"
 #include "Resources/Increment_96.h"
 #include "Resources/Info_192.h"
@@ -121,6 +123,8 @@ namespace
 #include "Resources/ViewFrame_96.h"
 #include "Resources/ViewZoom1To1_192.h"
 #include "Resources/ViewZoom1To1_96.h"
+#include "Resources/Visible_192.h"
+#include "Resources/Visible_96.h"
 #include "Resources/Volume_192.h"
 #include "Resources/Volume_96.h"
 #include "Resources/WindowFullScreen_192.h"
@@ -219,6 +223,7 @@ namespace tl
             p.iconData[std::make_pair("Files", 96)] = Files_96_png;
             p.iconData[std::make_pair("FrameNext", 96)] = FrameNext_96_png;
             p.iconData[std::make_pair("FramePrev", 96)] = FramePrev_96_png;
+            p.iconData[std::make_pair("Hidden", 96)] = Hidden_96_png;
             p.iconData[std::make_pair("Increment", 96)] = Increment_96_png;
             p.iconData[std::make_pair("Info", 96)] = Info_96_png;
             p.iconData[std::make_pair("MenuArrow", 96)] = MenuArrow_96_png;
@@ -240,6 +245,7 @@ namespace tl
             p.iconData[std::make_pair("View", 96)] = View_96_png;
             p.iconData[std::make_pair("ViewFrame", 96)] = ViewFrame_96_png;
             p.iconData[std::make_pair("ViewZoom1To1", 96)] = ViewZoom1To1_96_png;
+            p.iconData[std::make_pair("Visible", 96)] = Visible_96_png;
             p.iconData[std::make_pair("Volume", 96)] = Volume_96_png;
             p.iconData[std::make_pair("WindowFullScreen", 96)] = WindowFullScreen_96_png;
             p.iconData[std::make_pair("WindowSecondary", 96)] = WindowSecondary_96_png;
@@ -277,6 +283,7 @@ namespace tl
             p.iconData[std::make_pair("Files", 192)] = Files_192_png;
             p.iconData[std::make_pair("FrameNext", 192)] = FrameNext_192_png;
             p.iconData[std::make_pair("FramePrev", 192)] = FramePrev_192_png;
+            p.iconData[std::make_pair("Hidden", 192)] = Hidden_192_png;
             p.iconData[std::make_pair("Increment", 192)] = Increment_192_png;
             p.iconData[std::make_pair("Info", 192)] = Info_192_png;
             p.iconData[std::make_pair("MenuArrow", 192)] = MenuArrow_192_png;
@@ -298,6 +305,7 @@ namespace tl
             p.iconData[std::make_pair("View", 192)] = View_192_png;
             p.iconData[std::make_pair("ViewFrame", 192)] = ViewFrame_192_png;
             p.iconData[std::make_pair("ViewZoom1To1", 192)] = ViewZoom1To1_192_png;
+            p.iconData[std::make_pair("Visible", 192)] = Visible_192_png;
             p.iconData[std::make_pair("Volume", 192)] = Volume_192_png;
             p.iconData[std::make_pair("WindowFullScreen", 192)] = WindowFullScreen_192_png;
             p.iconData[std::make_pair("WindowSecondary", 192)] = WindowSecondary_192_png;
