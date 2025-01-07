@@ -15,9 +15,7 @@ namespace tl
             bool checkable = false;
             float iconScale = 1.F;
             bool iconInit = false;
-            std::future<std::shared_ptr<image::Image> > iconFuture;
             bool checkedIconInit = false;
-            std::future<std::shared_ptr<image::Image> > checkedIconFuture;
             bool repeatClick = false;
             bool repeatClickInit = false;
             std::chrono::steady_clock::time_point repeatClickTimer;
@@ -155,20 +153,6 @@ namespace tl
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
             TLRENDER_P();
-            if (p.iconFuture.valid() &&
-                p.iconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-            {
-                _iconImage = p.iconFuture.get();
-                _updates |= Update::Size;
-                _updates |= Update::Draw;
-            }
-            if (p.checkedIconFuture.valid() &&
-                p.checkedIconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-            {
-                _checkedIconImage = p.checkedIconFuture.get();
-                _updates |= Update::Size;
-                _updates |= Update::Draw;
-            }
             if (_mouse.press && p.repeatClick)
             {
                 const float duration = p.repeatClickInit ? .4F : .02F;
@@ -191,21 +175,19 @@ namespace tl
             {
                 p.iconScale = _displayScale;
                 p.iconInit = true;
-                p.iconFuture = std::future<std::shared_ptr<image::Image> >();
                 _iconImage.reset();
                 p.checkedIconInit = true;
-                p.checkedIconFuture = std::future<std::shared_ptr<image::Image> >();
                 _checkedIconImage.reset();
             }
             if (!_icon.empty() && p.iconInit)
             {
                 p.iconInit = false;
-                p.iconFuture = event.iconLibrary->request(_icon, _displayScale);
+                _iconImage = event.iconLibrary->request(_icon, _displayScale).get();
             }
             if (!_checkedIcon.empty() && p.checkedIconInit)
             {
                 p.checkedIconInit = false;
-                p.checkedIconFuture = event.iconLibrary->request(_checkedIcon, _displayScale);
+                _checkedIconImage = event.iconLibrary->request(_checkedIcon, _displayScale).get();
             }
         }
 
