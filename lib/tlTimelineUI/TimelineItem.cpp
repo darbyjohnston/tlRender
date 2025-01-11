@@ -106,10 +106,12 @@ namespace tl
                         context,
                         shared_from_this());
                     track.label->setMarginRole(ui::SizeRole::MarginInside);
+                    track.label->setEnabled(otioTrack->enabled());
                     track.durationLabel = ui::Label::create(
                         context,
                         shared_from_this());
                     track.durationLabel->setMarginRole(ui::SizeRole::MarginInside);
+                    track.durationLabel->setEnabled(otioTrack->enabled());
 
                     for (const auto& child : otioTrack->children())
                     {

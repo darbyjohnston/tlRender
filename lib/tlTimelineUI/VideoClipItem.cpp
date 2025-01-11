@@ -275,6 +275,7 @@ namespace tl
             if (thumbnailWidth > 0)
             {
                 const int w = g.w();
+                const bool enabled = isEnabled();
                 for (int x = 0; x < w; x += thumbnailWidth)
                 {
                     const math::Box2i box(
@@ -308,10 +309,22 @@ namespace tl
                         {
                             if (i->second)
                             {
+                                timeline::DisplayOptions displayOptions;
+                                if (!enabled)
+                                {
+                                    displayOptions.color.enabled = true;
+                                    displayOptions.color.saturation.x = 0.F;
+                                    displayOptions.color.saturation.y = 0.F;
+                                    displayOptions.color.saturation.z = 0.F;
+                                }
                                 timeline::VideoData videoData;
                                 videoData.size = i->second->getSize();
                                 videoData.layers.push_back({ i->second });
-                                event.render->drawVideo({ videoData }, { box });
+                                event.render->drawVideo(
+                                    { videoData },
+                                    { box },
+                                    {},
+                                    { displayOptions });
                             }
                         }
                         else if (p.ioInfo && !p.ioInfo->video.empty())
@@ -328,16 +341,6 @@ namespace tl
                             }
                         }
                     }
-                }
-                if (!isEnabled(false))
-                {
-                    const math::Box2i box(
-                        g.min.x,
-                        g.min.y +
-                        (_displayOptions.clipInfo ? (lineHeight + m * 2) : 0),
-                        g.w(),
-                        _displayOptions.thumbnailHeight);
-                    event.render->drawRect(box, image::Color4f(0.F, 0.F, 0.F, .5F));
                 }
             }
         }

@@ -168,7 +168,7 @@ namespace tl
             const math::Box2i g2 = g.margin(-(p.size.border * 2));
             event.render->drawRect(
                 g2,
-                isEnabled(false) ?
+                isEnabled() ?
                     event.style->getColorRole(p.colorRole) :
                     image::greyscale(event.style->getColorRole(p.colorRole)));
 
@@ -184,6 +184,7 @@ namespace tl
                     g2.min.y + p.size.margin,
                     p.size.labelSize.w,
                     p.size.fontMetrics.lineHeight);
+                const bool enabled = isEnabled();
                 if (drawRect.intersects(labelGeometry))
                 {
                     if (!p.label.empty() && p.draw.labelGlyphs.empty())
@@ -196,7 +197,10 @@ namespace tl
                             labelGeometry.min.x,
                             labelGeometry.min.y +
                             p.size.fontMetrics.ascender),
-                        event.style->getColorRole(ui::ColorRole::Text));
+                        event.style->getColorRole(
+                            enabled ?
+                            ui::ColorRole::Text :
+                            ui::ColorRole::TextDisabled));
                 }
 
                 const math::Box2i durationGeometry(
@@ -219,7 +223,10 @@ namespace tl
                             durationGeometry.min.x,
                             durationGeometry.min.y +
                             p.size.fontMetrics.ascender),
-                        event.style->getColorRole(ui::ColorRole::Text));
+                        event.style->getColorRole(
+                            enabled ?
+                            ui::ColorRole::Text :
+                            ui::ColorRole::TextDisabled));
                 }
             }
         }

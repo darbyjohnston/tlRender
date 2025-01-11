@@ -257,6 +257,7 @@ namespace tl
             if (_displayOptions.waveformWidth > 0 && p.ioInfo)
             {
                 const int w = g.w();
+                const bool enabled = isEnabled();
                 for (int x = 0; x < w; x += _displayOptions.waveformWidth)
                 {
                     const math::Box2i box(
@@ -299,7 +300,7 @@ namespace tl
                                 event.render->drawMesh(
                                     *i->second,
                                     box.min,
-                                    isEnabled(false) ?
+                                    enabled ?
                                         image::Color4f(1.F, 1.F, 1.F) :
                                         image::Color4f(.5F, .5F, .5F));
                             }

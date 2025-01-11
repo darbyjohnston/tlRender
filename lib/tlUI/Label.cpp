@@ -187,7 +187,7 @@ namespace tl
                 event.render->drawText(
                     glyphs,
                     math::Vector2i(pos.x, pos.y + p.size.fontMetrics.ascender),
-                    event.style->getColorRole(p.textRole));
+                    event.style->getColorRole(isEnabled() ? p.textRole : ColorRole::TextDisabled));
                 pos.y += p.size.fontMetrics.lineHeight;
             }
         }
