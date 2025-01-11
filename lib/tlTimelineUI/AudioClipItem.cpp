@@ -299,7 +299,9 @@ namespace tl
                                 event.render->drawMesh(
                                     *i->second,
                                     box.min,
-                                    image::Color4f(1.F, 1.F, 1.F));
+                                    isEnabled(false) ?
+                                        image::Color4f(1.F, 1.F, 1.F) :
+                                        image::Color4f(.5F, .5F, .5F));
                             }
                         }
                         else if (p.ioInfo && p.ioInfo->audio.isValid())

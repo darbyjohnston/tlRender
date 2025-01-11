@@ -168,7 +168,9 @@ namespace tl
             const math::Box2i g2 = g.margin(-(p.size.border * 2));
             event.render->drawRect(
                 g2,
-                event.style->getColorRole(p.colorRole));
+                isEnabled(false) ?
+                    event.style->getColorRole(p.colorRole) :
+                    image::greyscale(event.style->getColorRole(p.colorRole)));
 
             const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
             const timeline::ClipRectState clipRectState(event.render);

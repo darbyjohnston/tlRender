@@ -113,12 +113,13 @@ namespace tl
 
                     for (const auto& child : otioTrack->children())
                     {
+                        std::shared_ptr<IBasicItem> item;
                         if (auto clip = otio::dynamic_retainer_cast<otio::Clip>(child))
                         {
                             switch (track.type)
                             {
                             case TrackType::Video:
-                                track.items.push_back(VideoClipItem::create(
+                                item = VideoClipItem::create(
                                     clip,
                                     scale,
                                     options,
@@ -126,10 +127,10 @@ namespace tl
                                     itemData,
                                     p.thumbnailGenerator,
                                     context,
-                                    shared_from_this()));
+                                    shared_from_this());
                                 break;
                             case TrackType::Audio:
-                                track.items.push_back(AudioClipItem::create(
+                                item = AudioClipItem::create(
                                     clip,
                                     scale,
                                     options,
@@ -137,14 +138,14 @@ namespace tl
                                     itemData,
                                     p.thumbnailGenerator,
                                     context,
-                                    shared_from_this()));
+                                    shared_from_this());
                                 break;
                             default: break;
                             }
                         }
                         else if (auto gap = otio::dynamic_retainer_cast<otio::Gap>(child))
                         {
-                            track.items.push_back(GapItem::create(
+                            item = GapItem::create(
                                 TrackType::Video == track.type ?
                                 ui::ColorRole::VideoGap :
                                 ui::ColorRole::AudioGap,
@@ -154,7 +155,12 @@ namespace tl
                                 displayOptions,
                                 itemData,
                                 context,
-                                shared_from_this()));
+                                shared_from_this());
+                        }
+                        if (item)
+                        {
+                            item->setEnabled(otioTrack->enabled());
+                            track.items.push_back(item);
                         }
                     }
 

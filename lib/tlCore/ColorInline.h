@@ -30,22 +30,28 @@ namespace tl
             return !(*this == other);
         }
 
-        inline image::Color4f lighter(const image::Color4f& color, float amount)
+        inline Color4f lighter(const Color4f& color, float amount)
         {
-            return image::Color4f(
+            return Color4f(
                 color.r + amount,
                 color.g + amount,
                 color.b + amount,
                 color.a);
         }
 
-        inline image::Color4f darker(const image::Color4f& color, float amount)
+        inline Color4f darker(const Color4f& color, float amount)
         {
-            return image::Color4f(
+            return Color4f(
                 color.r - amount,
                 color.g - amount,
                 color.b - amount,
                 color.a);
+        }
+
+        inline Color4f greyscale(const Color4f& color)
+        {
+            const float l = (color.r + color.g + color.b) / 3.F;
+            return Color4f(l, l, l, color.a);
         }
     }
 }

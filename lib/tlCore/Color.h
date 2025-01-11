@@ -33,6 +33,9 @@ namespace tl
         //! Get a darker color.
         image::Color4f darker(const image::Color4f&, float);
 
+        //! Convert to greyscale.
+        image::Color4f greyscale(const image::Color4f&);
+
         //! \name Serialize
         ///@{
 

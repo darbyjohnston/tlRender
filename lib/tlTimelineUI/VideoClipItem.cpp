@@ -329,6 +329,16 @@ namespace tl
                         }
                     }
                 }
+                if (!isEnabled(false))
+                {
+                    const math::Box2i box(
+                        g.min.x,
+                        g.min.y +
+                        (_displayOptions.clipInfo ? (lineHeight + m * 2) : 0),
+                        g.w(),
+                        _displayOptions.thumbnailHeight);
+                    event.render->drawRect(box, image::Color4f(0.F, 0.F, 0.F, .5F));
+                }
             }
         }
 
