@@ -265,6 +265,17 @@ namespace tl
             return _p->minimumHeight;
         }
 
+        std::vector<math::Box2i> TimelineItem::getTrackGeom() const
+        {
+            TLRENDER_P();
+            std::vector<math::Box2i> out;
+            for (const auto& track : p.tracks)
+            {
+                out.push_back(track.geom);
+            }
+            return out;
+        }
+
         void TimelineItem::setDisplayOptions(const DisplayOptions& value)
         {
             const bool changed = value != _displayOptions;
@@ -290,7 +301,7 @@ namespace tl
                 p.size.border * 4 +
                 p.size.border +
                 g.min.y;
-            for (const auto& track : p.tracks)
+            for (auto& track : p.tracks)
             {
                 const bool visible = _isTrackVisible(track.index);
 
@@ -351,6 +362,12 @@ namespace tl
                         sizeHint.w,
                         track.clipHeight));
                 }
+
+                track.geom = math::Box2i(
+                    g.min.x,
+                    y,
+                    track.size.w,
+                    visible ? track.size.h : 0);
 
                 if (visible)
                 {

@@ -35,6 +35,9 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            //! Get the timeline player.
+            std::shared_ptr<timeline::Player>& getPlayer() const;
+
             //! Set the timeline player.
             void setPlayer(const std::shared_ptr<timeline::Player>&);
 
@@ -157,6 +160,9 @@ namespace tl
             void setDisplayOptions(const DisplayOptions&);
 
             ///@}
+
+            //! Get the track geometry.
+            std::vector<math::Box2i> getTrackGeom() const;
 
             void setGeometry(const math::Box2i&) override;
             void tickEvent(

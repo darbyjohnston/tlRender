@@ -81,6 +81,9 @@ namespace tl
             //! Get the minimum height.
             int getMinimumHeight() const;
 
+            //! Get the track geometry.
+            std::vector<math::Box2i> getTrackGeom() const;
+
             void setDisplayOptions(const DisplayOptions&) override;
 
             void setGeometry(const math::Box2i&) override;

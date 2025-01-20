@@ -422,6 +422,8 @@ namespace tl
             {
                 event->accept();
                 p.window->cursorEnter(true);
+                p.window->cursorPos(
+                    math::Vector2i(_toUI(event->x()), _toUI(event->y())));
             }
         }
 
@@ -431,6 +433,7 @@ namespace tl
             if (p.inputEnabled)
             {
                 event->accept();
+                p.window->cursorPos(math::Vector2i(-1, -1));
                 p.window->cursorEnter(false);
             }
         }
@@ -462,15 +465,20 @@ namespace tl
             if (p.inputEnabled)
             {
                 event->accept();
+                p.window->cursorPos(
+                    math::Vector2i(_toUI(event->x()), _toUI(event->y())));
                 int button = -1;
                 if (event->button() == Qt::LeftButton)
                 {
                     button = 0;
                 }
-                p.window->mouseButton(
-                    button,
-                    true,
-                    fromQtModifiers(event->modifiers()));
+                if (button != -1)
+                {
+                    p.window->mouseButton(
+                        button,
+                        true,
+                        fromQtModifiers(event->modifiers()));
+                }
             }
         }
 
@@ -480,15 +488,18 @@ namespace tl
             if (p.inputEnabled)
             {
                 event->accept();
-                int button = 0;
+                int button = -1;
                 if (event->button() == Qt::LeftButton)
                 {
-                    button = 1;
+                    button = 0;
                 }
-                p.window->mouseButton(
-                    button,
-                    false,
-                    fromQtModifiers(event->modifiers()));
+                if (button != -1)
+                {
+                    p.window->mouseButton(
+                        button,
+                        false,
+                        fromQtModifiers(event->modifiers()));
+                }
             }
         }
 
@@ -661,6 +672,30 @@ namespace tl
             return out;
         }
 
+        int ContainerWidget::_toUI(int value) const
+        {
+            const float devicePixelRatio = window()->devicePixelRatio();
+            return value * devicePixelRatio;
+        }
+
+        math::Vector2i ContainerWidget::_toUI(const math::Vector2i& value) const
+        {
+            const float devicePixelRatio = window()->devicePixelRatio();
+            return value * devicePixelRatio;
+        }
+
+        int ContainerWidget::_fromUI(int value) const
+        {
+            const float devicePixelRatio = window()->devicePixelRatio();
+            return devicePixelRatio > 0.F ? (value / devicePixelRatio) : 0.F;
+        }
+
+        math::Vector2i ContainerWidget::_fromUI(const math::Vector2i& value) const
+        {
+            const float devicePixelRatio = window()->devicePixelRatio();
+            return devicePixelRatio > 0.F ? (value / devicePixelRatio) : math::Vector2i();
+        }
+
         void ContainerWidget::_tickEvent()
         {
             TLRENDER_P();
@@ -812,30 +847,6 @@ namespace tl
                 event.render->setClipRect(drawRect);
                 widget->drawOverlayEvent(drawRect, event);
             }
-        }
-
-        int ContainerWidget::_toUI(int value) const
-        {
-            const float devicePixelRatio = window()->devicePixelRatio();
-            return value * devicePixelRatio;
-        }
-
-        math::Vector2i ContainerWidget::_toUI(const math::Vector2i& value) const
-        {
-            const float devicePixelRatio = window()->devicePixelRatio();
-            return value * devicePixelRatio;
-        }
-
-        int ContainerWidget::_fromUI(int value) const
-        {
-            const float devicePixelRatio = window()->devicePixelRatio();
-            return devicePixelRatio > 0.F ? (value / devicePixelRatio) : 0.F;
-        }
-
-        math::Vector2i ContainerWidget::_fromUI(const math::Vector2i& value) const
-        {
-            const float devicePixelRatio = window()->devicePixelRatio();
-            return devicePixelRatio > 0.F ? (value / devicePixelRatio) : math::Vector2i();
         }
 
         void ContainerWidget::_inputUpdate()

@@ -36,6 +36,7 @@ namespace tl
                 std::shared_ptr<ui::Label> durationLabel;
                 std::vector<std::shared_ptr<IItem> > items;
                 math::Size2i size;
+                math::Box2i geom;
                 int clipHeight = 0;
             };
             std::vector<Track> tracks;

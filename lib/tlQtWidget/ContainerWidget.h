@@ -63,6 +63,11 @@ namespace tl
 
             bool event(QEvent*) override;
 
+            int _toUI(int) const;
+            math::Vector2i _toUI(const math::Vector2i&) const;
+            int _fromUI(int) const;
+            math::Vector2i _fromUI(const math::Vector2i&) const;
+
         private:
             void _tickEvent();
             void _tickEvent(
@@ -90,11 +95,6 @@ namespace tl
                 const std::shared_ptr<ui::IWidget>&,
                 const math::Box2i&,
                 const ui::DrawEvent&);
-
-            int _toUI(int) const;
-            math::Vector2i _toUI(const math::Vector2i&) const;
-            int _fromUI(int) const;
-            math::Vector2i _fromUI(const math::Vector2i&) const;
 
             void _inputUpdate();
             void _timerUpdate();

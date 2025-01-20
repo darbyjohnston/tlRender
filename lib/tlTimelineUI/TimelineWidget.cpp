@@ -121,6 +121,11 @@ namespace tl
             return out;
         }
 
+        std::shared_ptr<timeline::Player>& TimelineWidget::getPlayer() const
+        {
+            return _p->player;
+        }
+
         void TimelineWidget::setPlayer(const std::shared_ptr<timeline::Player>& player)
         {
             TLRENDER_P();
@@ -402,6 +407,11 @@ namespace tl
                     _setDisplayOptions(p.timelineItem, value);
                 }
             }
+        }
+
+        std::vector<math::Box2i> TimelineWidget::getTrackGeom() const
+        {
+            return _p->timelineItem->getTrackGeom();
         }
 
         void TimelineWidget::setGeometry(const math::Box2i& value)

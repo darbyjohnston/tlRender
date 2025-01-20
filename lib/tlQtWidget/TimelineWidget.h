@@ -33,6 +33,9 @@ namespace tl
 
             virtual ~TimelineWidget();
 
+            //! Get the timeline player.
+            std::shared_ptr<timeline::Player>& player() const;
+
             //! Set the timeline player.
             void setPlayer(const std::shared_ptr<timeline::Player>&);
 
@@ -109,6 +112,12 @@ namespace tl
 
             //! This signal is emitted when the time is scrubbed.
             void timeScrubbed(const tl::otime::RationalTime&);
+
+        protected:
+            void contextMenuEvent(QContextMenuEvent* event) override;
+
+        private Q_SLOTS:
+            void _trackEnabledCallback(bool);
 
         private:
             TLRENDER_PRIVATE();

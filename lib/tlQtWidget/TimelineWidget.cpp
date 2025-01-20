@@ -7,6 +7,13 @@
 #include <tlQtWidget/Util.h>
 
 #include <tlTimelineUI/TimelineWidget.h>
+#include <tlTimelineUI/TimelineWidget.h>
+
+#include <tlTimeline/Edit.h>
+
+#include <QAction>
+#include <QContextMenuEvent>
+#include <QMenu>
 
 namespace tl
 {
@@ -14,7 +21,10 @@ namespace tl
     {
         struct TimelineWidget::Private
         {
+            int currentTrack = -1;
+
             std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
+            QAction* trackEnabledAction = nullptr;
 
             std::shared_ptr<observer::ValueObserver<bool> > editableObserver;
             std::shared_ptr<observer::ValueObserver<bool> > frameViewObserver;
@@ -35,6 +45,15 @@ namespace tl
             p.timelineWidget = timelineui::TimelineWidget::create(timeUnitsModel, context);
             //p.timelineWidget->setScrollBarsVisible(false);
             setWidget(p.timelineWidget);
+
+            p.trackEnabledAction = new QAction(this);
+            p.trackEnabledAction->setText("Track enabled");
+            p.trackEnabledAction->setCheckable(true);
+
+            connect(
+                p.trackEnabledAction,
+                SIGNAL(toggled(bool)),
+                SLOT(_trackEnabledCallback(bool)));
 
             p.editableObserver = observer::ValueObserver<bool>::create(
                 p.timelineWidget->observeEditable(),
@@ -67,6 +86,11 @@ namespace tl
 
         TimelineWidget::~TimelineWidget()
         {}
+
+        std::shared_ptr<timeline::Player>& TimelineWidget::player() const
+        {
+            return _p->timelineWidget->getPlayer();
+        }
 
         void TimelineWidget::setPlayer(const std::shared_ptr<timeline::Player>& player)
         {
@@ -173,6 +197,64 @@ namespace tl
         void TimelineWidget::setDisplayOptions(const timelineui::DisplayOptions& value)
         {
             _p->timelineWidget->setDisplayOptions(value);
+        }
+
+        void TimelineWidget::contextMenuEvent(QContextMenuEvent* event)
+        {
+            TLRENDER_P();
+            if (auto player = p.timelineWidget->getPlayer())
+            {
+                const math::Vector2i pos = _toUI(math::Vector2i(event->x(), event->y()));
+                const std::vector<math::Box2i> trackGeom = p.timelineWidget->getTrackGeom();
+                for (int i = 0; i < trackGeom.size(); ++i)
+                {
+                    if (trackGeom[i].contains(pos))
+                    {
+                        p.currentTrack = i;
+
+                        bool checked = false;
+                        auto otioTimeline = player->getTimeline()->getTimeline();
+                        const auto& children = otioTimeline->tracks()->children();
+                        if (i >= 0 && i < children.size())
+                        {
+                            if (auto track = otio::dynamic_retainer_cast<otio::Item>(children[i]))
+                            {
+                                checked = track->enabled();
+                            }
+                        }
+                        p.trackEnabledAction->setChecked(checked);
+
+                        QMenu menu(this);
+                        menu.addAction(p.trackEnabledAction);
+                        menu.exec(event->globalPos());
+                        break;
+                    }
+                }
+            }
+        }
+
+        void TimelineWidget::_trackEnabledCallback(bool value)
+        {
+            TLRENDER_P();
+            if (auto player = p.timelineWidget->getPlayer())
+            {
+                auto otioTimeline = player->getTimeline()->getTimeline();
+                auto children = otioTimeline->tracks()->children();
+                if (p.currentTrack >= 0 && p.currentTrack < children.size())
+                {
+                    if (auto track = otio::dynamic_retainer_cast<otio::Item>(children[p.currentTrack]))
+                    {
+                        if (value != track->enabled())
+                        {
+                            auto otioTimelineNew = timeline::copy(player->getTimeline()->getTimeline().value);
+                            children = otioTimelineNew->tracks()->children();
+                            track = otio::dynamic_retainer_cast<otio::Item>(children[p.currentTrack]);
+                            track->set_enabled(value);
+                            player->getTimeline()->setTimeline(otioTimelineNew);
+                        }
+                    }
+                }
+            }
         }
     }
 }
