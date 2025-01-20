@@ -422,8 +422,10 @@ namespace tl
             {
                 event->accept();
                 p.window->cursorEnter(true);
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
                 p.window->cursorPos(
                     math::Vector2i(_toUI(event->x()), _toUI(event->y())));
+#endif // QT_VERSION
             }
         }
 
