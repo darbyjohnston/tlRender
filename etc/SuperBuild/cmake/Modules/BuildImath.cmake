@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(Imath_GIT_REPOSITORY "https://github.com/AcademySoftwareFoundation/Imath.git")
-set(Imath_GIT_TAG "v3.1.9")
+set(Imath_GIT_TAG "v3.1.12")
 
 set(Imath_ARGS
     ${TLRENDER_EXTERNAL_ARGS}
