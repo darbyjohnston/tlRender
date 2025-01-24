@@ -5,6 +5,8 @@ if(WIN32)
     find_package(Msys REQUIRED)
 endif()
 
+set(FFmpeg_URL https://ffmpeg.org/releases/ffmpeg-7.1.tar.bz2)
+
 set(FFmpeg_DEPS ZLIB)
 if(TLRENDER_NET)
     list(APPEND FFmpeg_DEPS OpenSSL)
@@ -404,7 +406,7 @@ ExternalProject_Add(
     FFmpeg
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/FFmpeg
     DEPENDS ${FFmpeg_DEPS}
-    URL https://ffmpeg.org/releases/ffmpeg-7.0.1.tar.bz2
+    URL ${FFmpeg_URL}
     CONFIGURE_COMMAND ${FFmpeg_CONFIGURE}
     BUILD_COMMAND ${FFmpeg_BUILD}
     INSTALL_COMMAND ${FFmpeg_INSTALL}
