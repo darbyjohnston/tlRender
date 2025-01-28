@@ -31,7 +31,7 @@ namespace tl
             _p(new Private)
         {
             TLRENDER_P();
-            p.f = file::FileIO::create(fileName, file::Mode::Read);
+            p.f = file::FileIO::create(fileName, file::Mode::Read, file::ReadType::MemoryMapped);
             p.p = p.f->getMemoryP();
             p.size = p.f->getSize();
         }
