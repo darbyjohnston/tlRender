@@ -214,7 +214,7 @@ namespace tl
             const std::vector<std::string> fileNames =
             {
                 "OpenEXRTest",
-                "大平原"
+                //"大平原"
             };
             const std::vector<bool> memoryIOList =
             {

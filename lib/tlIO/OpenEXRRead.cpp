@@ -72,9 +72,15 @@ namespace tl
         bool IStream::read(char c[], int n)
         {
             TLRENDER_P();
-            if (p.pos >= p.size || (p.pos + n) > p.size)
+            if (p.pos >= p.size && n != 0)
             {
                 throw std::runtime_error(string::Format("{0}: Error reading file").arg(fileName()));
+            }
+            bool out = true;
+            if (p.pos + n > p.size)
+            {
+                n = p.size - p.pos;
+                out = false;
             }
             if (p.p)
             {
@@ -85,7 +91,7 @@ namespace tl
                 p.f->read(c, n);
             }
             p.pos += n;
-            return p.pos < p.size;
+            return out;
         }
 
         uint64_t IStream::tellg()

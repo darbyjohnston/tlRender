@@ -6,7 +6,9 @@
 
 #include <tlCore/StringFormat.h>
 
-#include <ImfRgbaFile.h>
+#include <ImfChannelList.h>
+#include <ImfFrameBuffer.h>
+#include <ImfOutputFile.h>
 #include <ImfStandardAttributes.h>
 
 namespace tl
@@ -67,12 +69,54 @@ namespace tl
                 1.F,
                 Imf::INCREASING_Y,
                 toImf(_compression));
+            header.channels().insert(
+                "R",
+                Imf::Channel());
+            header.channels().insert(
+                "G",
+                Imf::Channel());
+            header.channels().insert(
+                "B",
+                Imf::Channel());
+            header.channels().insert(
+                "A",
+                Imf::Channel());
             header.dwaCompressionLevel() = _dwaCompressionLevel;
             writeTags(image->getTags(), io::sequenceDefaultSpeed, header);
-            Imf::RgbaOutputFile f(fileName.c_str(), header);
-            const size_t scanlineSize = static_cast<size_t>(info.size.w) * 4 * 2;
-            const uint8_t* p = image->getData() + (info.size.h - 1) * scanlineSize;
-            f.setFrameBuffer(reinterpret_cast<const Imf::Rgba*>(p), 1, -info.size.w);
+
+            Imf::OutputFile f(fileName.c_str(), header);
+            Imf::FrameBuffer frameBuffer;
+            const size_t scanlineSize = info.size.w * 4 * 2;
+            const size_t offset = (info.size.h - 1) * scanlineSize;
+            frameBuffer.insert(
+                "R",
+                Imf::Slice(
+                    Imf::PixelType::HALF,
+                    (char*)image->getData() + offset,
+                    4 * 2,
+                    -info.size.w * 4 * 2));
+            frameBuffer.insert(
+                "G",
+                Imf::Slice(
+                    Imf::PixelType::HALF,
+                    (char*)image->getData() + offset + 2,
+                    4 * 2,
+                    -info.size.w * 4 * 2));
+            frameBuffer.insert(
+                "B",
+                Imf::Slice(
+                    Imf::PixelType::HALF,
+                    (char*)image->getData() + offset + 2 * 2,
+                    4 * 2,
+                    -info.size.w * 4 * 2));
+            frameBuffer.insert(
+                "A",
+                Imf::Slice(
+                    Imf::PixelType::HALF,
+                    (char*)image->getData() + offset + 3 * 2,
+                    4 * 2,
+                    -info.size.w * 4 * 2));
+            f.setFrameBuffer(frameBuffer);
             f.writePixels(info.size.h);
         }
     }
