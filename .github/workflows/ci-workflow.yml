@@ -206,7 +206,7 @@ jobs:
         cd tlRender/src/tlRender-build
         cmake --build . -j 4 --target package
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: tlRender-Linux-Packages
         path: build/tlRender/src/tlRender-build/tlRender-*.tar.gz
@@ -321,7 +321,7 @@ jobs:
         cd tlRender/src/tlRender-build
         cmake --build . -j 4 --target package
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: tlRender-macOS-Packages
         path: build/tlRender/src/tlRender-build/tlRender-*.dmg
@@ -493,7 +493,7 @@ jobs:
         cd tlRender\src\tlRender-build
         cmake --build . -j 4 --target package
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: tlRender-Windows-Packages
         path: build\tlRender\src\tlRender-build\tlRender-*.zip
