@@ -7,8 +7,9 @@
 #include <tlCore/AudioSystem.h>
 #include <tlCore/FontSystem.h>
 #include <tlCore/OS.h>
-#include <tlCore/StringFormat.h>
 #include <tlCore/Timer.h>
+
+#include <dtk/core/Format.h>
 
 #include <sstream>
 
@@ -26,7 +27,7 @@ namespace tl
             addSystem(_logSystem);
 
             const os::SystemInfo info = os::getSystemInfo();
-            log("tl::system::Context", string::Format(
+            log("tl::system::Context", dtk::Format(
                 "\n"
                 "    System: {0}\n"
                 "    Cores:  {1}\n"

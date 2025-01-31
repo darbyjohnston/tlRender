@@ -11,8 +11,8 @@
 #include <tlUI/ScrollWidget.h>
 #include <tlUI/ToolButton.h>
 
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 namespace tl
 {
@@ -77,7 +77,7 @@ namespace tl
                     {
                         if (auto clipboard = window->getClipboard())
                         {
-                            const std::string text = string::join(
+                            const std::string text = dtk::join(
                                 { std::begin(_p->messages), std::end(_p->messages) },
                                 '\n');
                             clipboard->setText(text);
@@ -111,7 +111,7 @@ namespace tl
                     {
                         _p->messages.pop_front();
                     }
-                    _p->label->setText(string::join(
+                    _p->label->setText(dtk::join(
                         { std::begin(_p->messages), std::end(_p->messages) },
                         '\n'));
                 });

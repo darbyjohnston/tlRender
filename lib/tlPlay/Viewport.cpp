@@ -8,7 +8,7 @@
 #include <tlUI/Label.h>
 #include <tlUI/Spacer.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -269,11 +269,11 @@ namespace tl
         {
             TLRENDER_P();
             p.fpsLabel->setText(
-                string::Format("FPS: {0} ({1} dropped)").
+                dtk::Format("FPS: {0} ({1} dropped)").
                 arg(p.fps, 2, 4).
                 arg(p.droppedFrames));
             p.colorBufferLabel->setText(
-                string::Format("Color buffer: {0}").
+                dtk::Format("Color buffer: {0}").
                 arg(p.colorBuffer));
         }
 

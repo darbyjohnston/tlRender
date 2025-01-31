@@ -4,7 +4,7 @@
 
 #include <tlTimelineGL/RenderPrivate.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -240,7 +240,7 @@ namespace tl
 
         std::string imageFragmentSource()
         {
-            return string::Format(
+            return dtk::Format(
                 "#version 410\n"
                 "\n"
                 "in vec2 fTexture;\n"
@@ -314,7 +314,7 @@ namespace tl
                 break;
             default: break;
             }
-            return string::Format(
+            return dtk::Format(
                 "#version 410\n"
                 "\n"
                 "in vec2 fTexture;\n"

@@ -23,7 +23,6 @@ set(HEADERS
     RangeTest.h
     SizeTest.h
     StringTest.h
-    StringFormatTest.h
     TimeTest.h
     ValueObserverTest.h
     VectorTest.h)
@@ -53,7 +52,6 @@ set(SOURCE
     RangeTest.cpp
     SizeTest.cpp
     StringTest.cpp
-    StringFormatTest.cpp
     TimeTest.cpp
     ValueObserverTest.cpp
     VectorTest.cpp)

@@ -7,7 +7,7 @@
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -38,7 +38,7 @@ namespace tl
                         app->getMainWindow()->setFullScreen(value);
                     }
                 });
-            p.actions["FullScreen"]->toolTip = string::Format(
+            p.actions["FullScreen"]->toolTip = dtk::Format(
                 "Toggle the window full screen\n"
                 "\n"
                 "Shortcut: {0}").
@@ -68,7 +68,7 @@ namespace tl
                         app->setSecondaryWindow(value);
                     }
                 });
-            p.actions["Secondary"]->toolTip = string::Format(
+            p.actions["Secondary"]->toolTip = dtk::Format(
                 "Toggle the secondary window\n"
                 "\n"
                 "Shortcut: {0}").

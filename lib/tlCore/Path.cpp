@@ -7,7 +7,8 @@
 #include <tlCore/Error.h>
 #include <tlCore/Math.h>
 #include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 #include <algorithm>
 #include <array>
@@ -272,7 +273,7 @@ namespace tl
             std::string out;
             if (isSequence())
             {
-                out = string::Format("{0}-{1}").
+                out = dtk::Format("{0}-{1}").
                     arg(_sequence.getMin(), _padding, '0').
                     arg(_sequence.getMax(), _padding, '0');
             }

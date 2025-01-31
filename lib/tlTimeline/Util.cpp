@@ -10,8 +10,9 @@
 
 #include <tlCore/Error.h>
 #include <tlCore/FileInfo.h>
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/externalReference.h>
@@ -244,7 +245,7 @@ namespace tl
                 for (const auto& fileInfo : list)
                 {
                     const file::Path& path = fileInfo.getPath();
-                    const std::string extension = string::toLower(path.getExtension());
+                    const std::string extension = dtk::toLower(path.getExtension());
                     switch (ioSystem->getFileType(extension))
                     {
                     case io::FileType::Sequence:

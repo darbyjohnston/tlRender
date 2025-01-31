@@ -10,7 +10,7 @@
 #include <tlUI/RowLayout.h>
 #include <tlUI/ToolButton.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -144,7 +144,7 @@ namespace tl
             TLRENDER_P();
             p.swatch->setColor(p.color);
             p.label->setText(
-                string::Format(
+                dtk::Format(
                     "R:{0}\n"
                     "G:{1}\n"
                     "B:{2}\n"

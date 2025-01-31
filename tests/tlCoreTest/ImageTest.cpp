@@ -6,7 +6,8 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/Image.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 using namespace tl::image;
 
@@ -78,7 +79,7 @@ namespace tl
             _enum<YUVCoefficients>("YUVCoefficients", getYUVCoefficientsEnums);
             for (auto i : getYUVCoefficientsEnums())
             {
-                _print(string::Format("%0: %1").arg(getLabel(i)).arg(getYUVCoefficients(i)));
+                _print(dtk::Format("%0: %1").arg(getLabel(i)).arg(getYUVCoefficients(i)));
             }
         }
 

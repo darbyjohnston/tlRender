@@ -9,7 +9,9 @@
 #include <tlIO/System.h>
 
 #include <tlCore/Assert.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 #include <opentimelineio/transition.h>
 
@@ -110,8 +112,8 @@ namespace tl
                     }
                     auto logSystem = context->getLogSystem();
                     logSystem->print(
-                        string::Format("tl::timeline::Timeline {0}").arg(this),
-                        string::Format(
+                        dtk::Format("tl::timeline::Timeline {0}").arg(this),
+                        dtk::Format(
                         "\n"
                         "    Path: {0}\n"
                         "    Video requests: {1}, {2} in-progress, {3} max\n"
@@ -454,7 +456,7 @@ namespace tl
                 std::vector<std::string> out;
                 out.push_back(path.get());
                 out.push_back(path.getNumber());
-                return string::join(out, ';');
+                return dtk::join(out, ';');
             }
         }
 
@@ -474,7 +476,7 @@ namespace tl
                 {
                     const auto memoryRead = getMemoryRead(clip->media_reference());
                     io::Options options = ioOptions;
-                    options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(timeRange.duration().rate());
+                    options["SequenceIO/DefaultSpeed"] = dtk::Format("{0}").arg(timeRange.duration().rate());
                     const auto ioSystem = context->getSystem<io::System>();
                     out = ioSystem->read(path, memoryRead, options);
                     readCache.add(key, out);

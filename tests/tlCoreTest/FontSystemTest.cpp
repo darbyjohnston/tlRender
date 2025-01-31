@@ -6,7 +6,8 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/FontSystem.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 using namespace tl::image;
 
@@ -79,7 +80,7 @@ namespace tl
             auto fontSystem = _context->getSystem<image::FontSystem>();
             for (auto fontSize : { 14, 0 })
             {
-                _print(string::Format("Font size: {0}").arg(fontSize));
+                _print(dtk::Format("Font size: {0}").arg(fontSize));
                 FontInfo fi("NotoMono-Regular", fontSize);
                 auto fm = fontSystem->getMetrics(fi);
                 std::vector<std::string> text =
@@ -96,14 +97,14 @@ namespace tl
                 };
                 for (size_t i = 0; i < text.size(); ++i)
                 {
-                    _print(string::Format("Text: {0}").arg(text[i]));
+                    _print(dtk::Format("Text: {0}").arg(text[i]));
                     const math::Size2i size = fontSystem->getSize(text[i], fi, maxLineWidth[i]);
-                    _print(string::Format("Size: {0}").arg(size));
+                    _print(dtk::Format("Size: {0}").arg(size));
                     const auto boxes = fontSystem->getBox(text[i], fi, maxLineWidth[i]);
                     TLRENDER_ASSERT(text[i].size() == boxes.size());
                     for (size_t j = 0; j < text[i].size(); ++j)
                     {
-                        _print(string::Format("Box '{0}': {1}").
+                        _print(dtk::Format("Box '{0}': {1}").
                             arg(text[i][j]).
                             arg(boxes[j]));
                     }
@@ -116,13 +117,13 @@ namespace tl
                         {
                             size = glyphs[j]->image->getSize();
                         }
-                        _print(string::Format("Glyph '{0}': {1}").
+                        _print(dtk::Format("Glyph '{0}': {1}").
                             arg(text[i][j]).
                             arg(size));
                     }
-                    _print(string::Format("Glyph cache size: {0}").
+                    _print(dtk::Format("Glyph cache size: {0}").
                         arg(fontSystem->getGlyphCacheSize()));
-                    _print(string::Format("Glyph cache percentage: {0}%").
+                    _print(dtk::Format("Glyph cache percentage: {0}%").
                         arg(fontSystem->getGlyphCachePercentage()));
                 }
             }

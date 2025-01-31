@@ -8,7 +8,7 @@
 #include <tlGL/GL.h>
 #include <tlGL/Mesh.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 using namespace tl::gl;
 
@@ -53,7 +53,7 @@ namespace tl
             _enum<VBOType>("VBOType", getVBOTypeEnums);
             for (auto i : getVBOTypeEnums())
             {
-                _print(string::Format("{0} byte count: {1}").arg(getLabel(i)).arg(getByteCount(i)));
+                _print(dtk::Format("{0} byte count: {1}").arg(getLabel(i)).arg(getByteCount(i)));
             }
         }
 

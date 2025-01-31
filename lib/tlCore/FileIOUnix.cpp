@@ -6,7 +6,8 @@
 
 #include <tlCore/File.h>
 #include <tlCore/Memory.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 #if defined(__linux__)
 #include <linux/limits.h>
@@ -64,40 +65,40 @@ namespace tl
                 switch (type)
                 {
                 case ErrorType::Open:
-                    out = string::Format("{0}: Cannot open file").arg(fileName);
+                    out = dtk::Format("{0}: Cannot open file").arg(fileName);
                     break;
                 case ErrorType::Stat:
-                    out = string::Format("{0}: Cannot stat file").arg(fileName);
+                    out = dtk::Format("{0}: Cannot stat file").arg(fileName);
                     break;
                 case ErrorType::MemoryMap:
-                    out = string::Format("{0}: Cannot memory map").arg(fileName);
+                    out = dtk::Format("{0}: Cannot memory map").arg(fileName);
                     break;
                 case ErrorType::Close:
-                    out = string::Format("{0}: Cannot close").arg(fileName);
+                    out = dtk::Format("{0}: Cannot close").arg(fileName);
                     break;
                 case ErrorType::CloseMemoryMap:
-                    out = string::Format("{0}: Cannot unmap").arg(fileName);
+                    out = dtk::Format("{0}: Cannot unmap").arg(fileName);
                     break;
                 case ErrorType::Read:
-                    out = string::Format("{0}: Cannot read").arg(fileName);
+                    out = dtk::Format("{0}: Cannot read").arg(fileName);
                     break;
                 case ErrorType::ReadMemoryMap:
-                    out = string::Format("{0}: Cannot read memory map").arg(fileName);
+                    out = dtk::Format("{0}: Cannot read memory map").arg(fileName);
                     break;
                 case ErrorType::Write:
-                    out = string::Format("{0}: Cannot write").arg(fileName);
+                    out = dtk::Format("{0}: Cannot write").arg(fileName);
                     break;
                 case ErrorType::Seek:
-                    out = string::Format("{0}: Cannot seek").arg(fileName);
+                    out = dtk::Format("{0}: Cannot seek").arg(fileName);
                     break;
                 case ErrorType::SeekMemoryMap:
-                    out = string::Format("{0}: Cannot seek memory map").arg(fileName);
+                    out = dtk::Format("{0}: Cannot seek memory map").arg(fileName);
                     break;
                 default: break;
                 }
                 if (!message.empty())
                 {
-                    out = string::Format("{0}: {1}").arg(out).arg(message);
+                    out = dtk::Format("{0}: {1}").arg(out).arg(message);
                 }
                 return out;
             }

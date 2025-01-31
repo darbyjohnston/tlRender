@@ -8,7 +8,7 @@
 #include <tlUI/LineEdit.h>
 #include <tlUI/RowLayout.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -220,8 +220,8 @@ namespace tl
             std::string format;
             if (p.model)
             {
-                text = string::Format("{0}").arg(p.model->getValue(), p.precision);
-                format = string::Format("{0}").arg(0, p.digits + 1 + p.precision);
+                text = dtk::Format("{0}").arg(p.model->getValue(), p.precision);
+                format = dtk::Format("{0}").arg(0, p.digits + 1 + p.precision);
             }
             p.lineEdit->setText(text);
             p.lineEdit->setFormat(format);

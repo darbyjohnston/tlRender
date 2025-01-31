@@ -6,7 +6,8 @@
 
 #include <tlTimeline/Util.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 namespace tl
 {
@@ -311,7 +312,7 @@ namespace tl
                                     auto& request = thread.videoDataRequests[time];
                                     request.clear();
                                     io::Options ioOptions2 = thread.ioOptions;
-                                    ioOptions2["Layer"] = string::Format("{0}").arg(thread.videoLayer);
+                                    ioOptions2["Layer"] = dtk::Format("{0}").arg(thread.videoLayer);
                                     request.push_back(timeline->getVideo(time, ioOptions2));
                                     for (size_t i = 0; i < thread.compare.size(); ++i)
                                     {
@@ -320,7 +321,7 @@ namespace tl
                                             timeRange,
                                             thread.compare[i]->getTimeRange(),
                                             thread.compareTime);
-                                        ioOptions2["Layer"] = string::Format("{0}").
+                                        ioOptions2["Layer"] = dtk::Format("{0}").
                                             arg(i < thread.compareVideoLayers.size() ?
                                                 thread.compareVideoLayers[i] :
                                                 thread.videoLayer);
@@ -348,7 +349,7 @@ namespace tl
                                     auto& request = thread.videoDataRequests[time];
                                     request.clear();
                                     io::Options ioOptions2 = thread.ioOptions;
-                                    ioOptions2["Layer"] = string::Format("{0}").arg(thread.videoLayer);
+                                    ioOptions2["Layer"] = dtk::Format("{0}").arg(thread.videoLayer);
                                     request.push_back(timeline->getVideo(time, ioOptions2));
                                     for (size_t i = 0; i < thread.compare.size(); ++i)
                                     {
@@ -357,7 +358,7 @@ namespace tl
                                             timeRange,
                                             thread.compare[i]->getTimeRange(),
                                             thread.compareTime);
-                                        ioOptions2["Layer"] = string::Format("{0}").
+                                        ioOptions2["Layer"] = dtk::Format("{0}").
                                             arg(i < thread.compareVideoLayers.size() ?
                                                 thread.compareVideoLayers[i] :
                                                 thread.videoLayer);
@@ -536,7 +537,7 @@ namespace tl
 
         void Player::Private::log(const std::shared_ptr<system::Context>& context)
         {
-            const std::string id = string::Format("tl::timeline::Player {0}").arg(this);
+            const std::string id = dtk::Format("tl::timeline::Player {0}").arg(this);
 
             // Get mutex protected values.
             otime::RationalTime currentTime = time::invalidTime;
@@ -603,11 +604,11 @@ namespace tl
             std::vector<std::string> ioOptionStrings;
             for (const auto& i : ioOptions)
             {
-                ioOptionStrings.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
+                ioOptionStrings.push_back(dtk::Format("{0}:{1}").arg(i.first).arg(i.second));
             }
 
             auto logSystem = context->getLogSystem();
-            logSystem->print(id, string::Format(
+            logSystem->print(id, dtk::Format(
                 "\n"
                 "    Path: {0}\n"
                 "    Current time: {1}\n"
@@ -623,7 +624,7 @@ namespace tl
                 arg(timeline->getPath().get()).
                 arg(currentTime).
                 arg(inOutRange).
-                arg(string::join(ioOptionStrings, ", ")).
+                arg(dtk::join(ioOptionStrings, ", ")).
                 arg(cacheOptions->get().readAhead).
                 arg(cacheOptions->get().readBehind).
                 arg(thread.videoDataRequests.size()).

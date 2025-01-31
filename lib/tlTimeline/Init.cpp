@@ -9,7 +9,8 @@
 #include <tlIO/Init.h>
 
 #include <tlCore/Context.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 #include <opentimelineio/typeRegistry.h>
 
@@ -58,7 +59,7 @@ namespace tl
             };
             for (const auto& t : registerTypes)
             {
-                _log(string::Format("register type {0}: {1}").
+                _log(dtk::Format("register type {0}: {1}").
                     arg(t.first).
                     arg(t.second));
             }

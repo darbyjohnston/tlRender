@@ -34,7 +34,8 @@
 
 #include <tlCore/File.h>
 #include <tlCore/FileLogSystem.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -753,15 +754,15 @@ namespace tl
             TLRENDER_P();
             io::Options out;
 
-            out["SequenceIO/DefaultSpeed"] = string::Format("{0}").
+            out["SequenceIO/DefaultSpeed"] = dtk::Format("{0}").
                 arg(p.settings->getValue<double>("SequenceIO/DefaultSpeed"));
-            out["SequenceIO/ThreadCount"] = string::Format("{0}").
+            out["SequenceIO/ThreadCount"] = dtk::Format("{0}").
                 arg(p.settings->getValue<int>("SequenceIO/ThreadCount"));
 
 #if defined(TLRENDER_FFMPEG)
-            out["FFmpeg/YUVToRGBConversion"] = string::Format("{0}").
+            out["FFmpeg/YUVToRGBConversion"] = dtk::Format("{0}").
                 arg(p.settings->getValue<bool>("FFmpeg/YUVToRGBConversion"));
-            out["FFmpeg/ThreadCount"] = string::Format("{0}").
+            out["FFmpeg/ThreadCount"] = dtk::Format("{0}").
                 arg(p.settings->getValue<int>("FFmpeg/ThreadCount"));
 #endif // TLRENDER_FFMPEG
 

@@ -8,7 +8,7 @@
 #include <tlGL/GL.h>
 #include <tlGL/Shader.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 using namespace tl::gl;
 

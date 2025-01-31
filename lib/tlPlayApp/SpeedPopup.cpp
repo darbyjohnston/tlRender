@@ -9,7 +9,7 @@
 #include <tlUI/ListButton.h>
 #include <tlUI/RowLayout.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -119,8 +119,8 @@ namespace tl
                         (p.speeds.size() - 2) == i;
                     auto button = ui::ListButton::create(context, shared_from_this());
                     button->setText(last ?
-                        string::Format("Default: {0}").arg(p.speeds[i], 2) :
-                        string::Format("{0}").arg(p.speeds[i], 2));
+                        dtk::Format("Default: {0}").arg(p.speeds[i], 2) :
+                        dtk::Format("{0}").arg(p.speeds[i], 2));
                     button->setParent(p.layout);
                     p.buttons.push_back(button);
                     p.buttonGroup->addButton(button);

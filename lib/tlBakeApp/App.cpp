@@ -14,9 +14,10 @@
 
 #include <tlCore/File.h>
 #include <tlCore/Math.h>
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
 #include <tlCore/Time.h>
+
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 namespace tl
 {
@@ -55,7 +56,7 @@ namespace tl
                         { "-outputPixelType", "-op" },
                         "Output pixel type.",
                         std::string(),
-                        string::join(image::getPixelTypeLabels(), ", ")),
+                        dtk::join(image::getPixelTypeLabels(), ", ")),
                     app::CmdLineValueOption<std::string>::create(
                         _options.ocioOptions.fileName,
                         { "-ocio" },
@@ -84,30 +85,30 @@ namespace tl
                         _options.lutOptions.order,
                         { "-lutOrder" },
                         "LUT operation order.",
-                        string::Format("{0}").arg(_options.lutOptions.order),
-                        string::join(timeline::getLUTOrderLabels(), ", ")),
+                        dtk::Format("{0}").arg(_options.lutOptions.order),
+                        dtk::join(timeline::getLUTOrderLabels(), ", ")),
                     app::CmdLineValueOption<float>::create(
                         _options.sequenceDefaultSpeed,
                         { "-sequenceDefaultSpeed" },
                         "Default speed for image sequences.",
-                        string::Format("{0}").arg(_options.sequenceDefaultSpeed)),
+                        dtk::Format("{0}").arg(_options.sequenceDefaultSpeed)),
                     app::CmdLineValueOption<int>::create(
                         _options.sequenceThreadCount,
                         { "-sequenceThreadCount" },
                         "Number of threads for image sequence I/O.",
-                        string::Format("{0}").arg(_options.sequenceThreadCount)),
+                        dtk::Format("{0}").arg(_options.sequenceThreadCount)),
 #if defined(TLRENDER_EXR)
                     app::CmdLineValueOption<exr::Compression>::create(
                         _options.exrCompression,
                         { "-exrCompression" },
                         "OpenEXR output compression.",
-                        string::Format("{0}").arg(_options.exrCompression),
-                        string::join(exr::getCompressionLabels(), ", ")),
+                        dtk::Format("{0}").arg(_options.exrCompression),
+                        dtk::join(exr::getCompressionLabels(), ", ")),
                     app::CmdLineValueOption<float>::create(
                         _options.exrDWACompressionLevel,
                         { "-exrDWACompressionLevel" },
                         "OpenEXR DWA compression level.",
-                        string::Format("{0}").arg(_options.exrDWACompressionLevel)),
+                        dtk::Format("{0}").arg(_options.exrDWACompressionLevel)),
 #endif // TLRENDER_EXR
 #if defined(TLRENDER_FFMPEG)
                     app::CmdLineValueOption<std::string>::create(
@@ -115,50 +116,50 @@ namespace tl
                         { "-ffmpegProfile", "-ffp" },
                         "FFmpeg output profile.",
                         std::string(),
-                        string::join(ffmpeg::getProfileLabels(), ", ")),
+                        dtk::join(ffmpeg::getProfileLabels(), ", ")),
                     app::CmdLineValueOption<int>::create(
                         _options.ffmpegThreadCount,
                         { "-ffmpegThreadCount" },
                         "Number of threads for FFmpeg I/O.",
-                        string::Format("{0}").arg(_options.ffmpegThreadCount)),
+                        dtk::Format("{0}").arg(_options.ffmpegThreadCount)),
 #endif // TLRENDER_FFMPEG
 #if defined(TLRENDER_USD)
                     app::CmdLineValueOption<int>::create(
                         _options.usdRenderWidth,
                         { "-usdRenderWidth" },
                         "USD render width.",
-                        string::Format("{0}").arg(_options.usdRenderWidth)),
+                        dtk::Format("{0}").arg(_options.usdRenderWidth)),
                     app::CmdLineValueOption<float>::create(
                         _options.usdComplexity,
                         { "-usdComplexity" },
                         "USD render complexity setting.",
-                        string::Format("{0}").arg(_options.usdComplexity)),
+                        dtk::Format("{0}").arg(_options.usdComplexity)),
                     app::CmdLineValueOption<usd::DrawMode>::create(
                         _options.usdDrawMode,
                         { "-usdDrawMode" },
                         "USD draw mode.",
-                        string::Format("{0}").arg(_options.usdDrawMode),
-                        string::join(usd::getDrawModeLabels(), ", ")),
+                        dtk::Format("{0}").arg(_options.usdDrawMode),
+                        dtk::join(usd::getDrawModeLabels(), ", ")),
                     app::CmdLineValueOption<bool>::create(
                         _options.usdEnableLighting,
                         { "-usdEnableLighting" },
                         "USD enable lighting.",
-                        string::Format("{0}").arg(_options.usdEnableLighting)),
+                        dtk::Format("{0}").arg(_options.usdEnableLighting)),
                     app::CmdLineValueOption<bool>::create(
                         _options.usdSRGB,
                         { "-usdSRGB" },
                         "USD enable sRGB color space.",
-                        string::Format("{0}").arg(_options.usdSRGB)),
+                        dtk::Format("{0}").arg(_options.usdSRGB)),
                     app::CmdLineValueOption<size_t>::create(
                         _options.usdStageCache,
                         { "-usdStageCache" },
                         "USD stage cache size.",
-                        string::Format("{0}").arg(_options.usdStageCache)),
+                        dtk::Format("{0}").arg(_options.usdStageCache)),
                     app::CmdLineValueOption<size_t>::create(
                         _options.usdDiskCache,
                         { "-usdDiskCache" },
                         "USD disk cache size in gigabytes. A size of zero disables the cache.",
-                        string::Format("{0}").arg(_options.usdDiskCache)),
+                        dtk::Format("{0}").arg(_options.usdDiskCache)),
 #endif // TLRENDER_USD
                 });
         }
@@ -196,17 +197,17 @@ namespace tl
                 options.ioOptions = _getIOOptions();
                 _timeline = timeline::Timeline::create(_input, _context, options);
                 _timeRange = _timeline->getTimeRange();
-                _print(string::Format("Timeline range: {0}-{1}").
+                _print(dtk::Format("Timeline range: {0}-{1}").
                     arg(_timeRange.start_time().value()).
                     arg(_timeRange.end_time_inclusive().value()));
-                _print(string::Format("Timeline speed: {0}").arg(_timeRange.duration().rate()));
+                _print(dtk::Format("Timeline speed: {0}").arg(_timeRange.duration().rate()));
 
                 // Time range.
                 if (time::isValid(_options.inOutRange))
                 {
                     _timeRange = _options.inOutRange;
                 }
-                _print(string::Format("In/out range: {0}-{1}").
+                _print(dtk::Format("In/out range: {0}-{1}").
                     arg(_timeRange.start_time().value()).
                     arg(_timeRange.end_time_inclusive().value()));
                 _inputTime = _timeRange.start_time();
@@ -221,7 +222,7 @@ namespace tl
                 _renderSize = _options.renderSize.isValid() ?
                     _options.renderSize :
                     math::Size2i(info.video[0].size.w, info.video[0].size.h);
-                _print(string::Format("Render size: {0}").arg(_renderSize));
+                _print(dtk::Format("Render size: {0}").arg(_renderSize));
 
                 // Create the renderer.
                 _render = timeline_gl::Render::create(_context);
@@ -233,7 +234,7 @@ namespace tl
                 _writerPlugin = _context->getSystem<io::System>()->getPlugin(file::Path(_output));
                 if (!_writerPlugin)
                 {
-                    throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));
+                    throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(_output));
                 }
                 io::Info ioInfo;
                 _outputInfo.size.w = _renderSize.w;
@@ -246,7 +247,7 @@ namespace tl
                 {
                     _outputInfo.pixelType = image::PixelType::RGB_U8;
                 }
-                _print(string::Format("Output info: {0} {1}").
+                _print(dtk::Format("Output info: {0} {1}").
                     arg(_outputInfo.size).
                     arg(_outputInfo.pixelType));
                 _outputImage = image::Image::create(_outputInfo);
@@ -255,7 +256,7 @@ namespace tl
                 _writer = _writerPlugin->write(file::Path(_output), ioInfo, _getIOOptions());
                 if (!_writer)
                 {
-                    throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));
+                    throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(_output));
                 }
 
                 // Start the main loop.
@@ -267,8 +268,8 @@ namespace tl
 
                 const auto now = std::chrono::steady_clock::now();
                 const std::chrono::duration<float> diff = now - _startTime;
-                _print(string::Format("Seconds elapsed: {0}").arg(diff.count()));
-                _print(string::Format("Average FPS: {0}").arg(_timeRange.duration().value() / diff.count()));
+                _print(dtk::Format("Seconds elapsed: {0}").arg(diff.count()));
+                _print(dtk::Format("Average FPS: {0}").arg(_timeRange.duration().value() / diff.count()));
             }
 
             return _exit;
@@ -379,7 +380,7 @@ namespace tl
             const GLenum type = gl::getReadPixelsType(_outputInfo.pixelType);
             if (GL_NONE == format || GL_NONE == type)
             {
-                throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));
+                throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(_output));
             }
             glReadPixels(
                 0,
@@ -406,7 +407,7 @@ namespace tl
             const int64_t d = static_cast<int64_t>(_timeRange.duration().value());
             if (d >= 100 && c % (d / 100) == 0)
             {
-                _print(string::Format("Complete: {0}%").arg(static_cast<int>(c / static_cast<float>(d) * 100)));
+                _print(dtk::Format("Complete: {0}%").arg(static_cast<int>(c / static_cast<float>(d) * 100)));
             }
         }
     }

@@ -15,7 +15,7 @@
 #include <tlGL/Shader.h>
 #endif // TLRENDER_API_GLES_2
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -564,7 +564,7 @@ namespace tl
                             {
                                 context->log(
                                     "tl::ui_app::Window",
-                                    string::Format("Cannot compile shader: {0}").arg(e.what()),
+                                    dtk::Format("Cannot compile shader: {0}").arg(e.what()),
                                     log::Type::Error);
                             }
                         }

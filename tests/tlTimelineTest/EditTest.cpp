@@ -10,7 +10,6 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/Path.h>
-#include <tlCore/StringFormat.h>
 
 #include <opentimelineio/clip.h>
 

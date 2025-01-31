@@ -4,7 +4,8 @@
 
 #include <tlPlay/App.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 namespace tl
 {
@@ -41,18 +42,18 @@ namespace tl
                     options.compareOptions.mode,
                     { "-compare", "-c" },
                     "A/B comparison mode.",
-                    string::Format("{0}").arg(options.compareOptions.mode),
-                    string::join(timeline::getCompareModeLabels(), ", ")),
+                    dtk::Format("{0}").arg(options.compareOptions.mode),
+                    dtk::join(timeline::getCompareModeLabels(), ", ")),
                 app::CmdLineValueOption<math::Vector2f>::create(
                     options.compareOptions.wipeCenter,
                     { "-wipeCenter", "-wc" },
                     "A/B comparison wipe center.",
-                    string::Format("{0}").arg(options.compareOptions.wipeCenter)),
+                    dtk::Format("{0}").arg(options.compareOptions.wipeCenter)),
                 app::CmdLineValueOption<float>::create(
                     options.compareOptions.wipeRotation,
                     { "-wipeRotation", "-wr" },
                     "A/B comparison wipe rotation.",
-                    string::Format("{0}").arg(options.compareOptions.wipeRotation)),
+                    dtk::Format("{0}").arg(options.compareOptions.wipeRotation)),
                 app::CmdLineValueOption<double>::create(
                     options.speed,
                     { "-speed" },
@@ -61,14 +62,14 @@ namespace tl
                     options.playback,
                     { "-playback", "-p" },
                     "Playback mode.",
-                    string::Format("{0}").arg(options.playback),
-                    string::join(timeline::getPlaybackLabels(), ", ")),
+                    dtk::Format("{0}").arg(options.playback),
+                    dtk::join(timeline::getPlaybackLabels(), ", ")),
                 app::CmdLineValueOption<timeline::Loop>::create(
                     options.loop,
                     { "-loop", "-lp" },
                     "Playback loop mode.",
-                    string::Format("{0}").arg(options.loop),
-                    string::join(timeline::getLoopLabels(), ", ")),
+                    dtk::Format("{0}").arg(options.loop),
+                    dtk::join(timeline::getLoopLabels(), ", ")),
                 app::CmdLineValueOption<otime::RationalTime>::create(
                     options.seek,
                     { "-seek" },
@@ -105,51 +106,51 @@ namespace tl
                     options.lutOptions.order,
                     { "-lutOrder" },
                     "LUT operation order.",
-                    string::Format("{0}").arg(options.lutOptions.order),
-                    string::join(timeline::getLUTOrderLabels(), ", ")),
+                    dtk::Format("{0}").arg(options.lutOptions.order),
+                    dtk::join(timeline::getLUTOrderLabels(), ", ")),
 #if defined(TLRENDER_USD)
                 app::CmdLineValueOption<int>::create(
                     options.usdRenderWidth,
                     { "-usdRenderWidth" },
                     "USD render width.",
-                    string::Format("{0}").arg(options.usdRenderWidth)),
+                    dtk::Format("{0}").arg(options.usdRenderWidth)),
                 app::CmdLineValueOption<float>::create(
                     options.usdComplexity,
                     { "-usdComplexity" },
                     "USD render complexity setting.",
-                    string::Format("{0}").arg(options.usdComplexity)),
+                    dtk::Format("{0}").arg(options.usdComplexity)),
                 app::CmdLineValueOption<usd::DrawMode>::create(
                     options.usdDrawMode,
                     { "-usdDrawMode" },
                     "USD draw mode.",
-                    string::Format("{0}").arg(options.usdDrawMode),
-                    string::join(usd::getDrawModeLabels(), ", ")),
+                    dtk::Format("{0}").arg(options.usdDrawMode),
+                    dtk::join(usd::getDrawModeLabels(), ", ")),
                 app::CmdLineValueOption<bool>::create(
                     options.usdEnableLighting,
                     { "-usdEnableLighting" },
                     "USD enable lighting.",
-                    string::Format("{0}").arg(options.usdEnableLighting)),
+                    dtk::Format("{0}").arg(options.usdEnableLighting)),
                 app::CmdLineValueOption<bool>::create(
                     options.usdSRGB,
                     { "-usdSRGB" },
                     "USD enable sRGB color space.",
-                    string::Format("{0}").arg(options.usdSRGB)),
+                    dtk::Format("{0}").arg(options.usdSRGB)),
                 app::CmdLineValueOption<size_t>::create(
                     options.usdStageCache,
                     { "-usdStageCache" },
                     "USD stage cache size.",
-                    string::Format("{0}").arg(options.usdStageCache)),
+                    dtk::Format("{0}").arg(options.usdStageCache)),
                 app::CmdLineValueOption<size_t>::create(
                     options.usdDiskCache,
                     { "-usdDiskCache" },
                     "USD disk cache size in gigabytes. A size of zero disables the disk cache.",
-                    string::Format("{0}").arg(options.usdDiskCache)),
+                    dtk::Format("{0}").arg(options.usdDiskCache)),
 #endif // TLRENDER_USD
                 app::CmdLineValueOption<std::string>::create(
                     options.logFileName,
                     { "-logFile" },
                     "Log file name.",
-                    string::Format("{0}").arg(logFileName)),
+                    dtk::Format("{0}").arg(logFileName)),
                 app::CmdLineFlagOption::create(
                     options.resetSettings,
                     { "-resetSettings" },
@@ -158,7 +159,7 @@ namespace tl
                     options.settingsFileName,
                     { "-settings" },
                     "Settings file name.",
-                    string::Format("{0}").arg(settingsFileName)),
+                    dtk::Format("{0}").arg(settingsFileName)),
             };
         }
     }

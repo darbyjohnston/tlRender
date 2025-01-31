@@ -7,7 +7,8 @@
 #include <tlCore/Assert.h>
 #include <tlCore/Path.h>
 #include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 #include <iostream>
 
@@ -38,7 +39,7 @@ namespace tl
             _enum<UserPath>("UserPath", getUserPathEnums);
             for (auto i : getUserPathEnums())
             {
-                _print(string::Format("{0}: {1}").arg(getLabel(i)).arg(getUserPath(i)));
+                _print(dtk::Format("{0}: {1}").arg(getLabel(i)).arg(getUserPath(i)));
             }
         }
 
@@ -236,7 +237,7 @@ namespace tl
                 TLRENDER_ASSERT("a" == path);
             }
             {
-                _print(string::Format("Drives: {0}").arg(string::join(getDrives(), " ")));
+                _print(dtk::Format("Drives: {0}").arg(string::join(getDrives(), " ")));
             }
         }
     }

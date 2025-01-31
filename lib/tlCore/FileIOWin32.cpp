@@ -6,8 +6,9 @@
 
 #include <tlCore/Error.h>
 #include <tlCore/Memory.h>
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 #include <cstring>
 #include <exception>
@@ -50,40 +51,40 @@ namespace tl
                 switch (type)
                 {
                 case ErrorType::Open:
-                    out = string::Format("{0}: Cannot open file").arg(fileName);
+                    out = dtk::Format("{0}: Cannot open file").arg(fileName);
                     break;
                 case ErrorType::OpenTemp:
-                    out = string::Format("Cannot open temporary file");
+                    out = dtk::Format("Cannot open temporary file");
                     break;
                 case ErrorType::MemoryMap:
-                    out = string::Format("{0}: Cannot memory map").arg(fileName);
+                    out = dtk::Format("{0}: Cannot memory map").arg(fileName);
                     break;
                 case ErrorType::Close:
-                    out = string::Format("{0}: Cannot close").arg(fileName);
+                    out = dtk::Format("{0}: Cannot close").arg(fileName);
                     break;
                 case ErrorType::CloseMemoryMap:
-                    out = string::Format("{0}: Cannot unmap").arg(fileName);
+                    out = dtk::Format("{0}: Cannot unmap").arg(fileName);
                     break;
                 case ErrorType::Read:
-                    out = string::Format("{0}: Cannot read").arg(fileName);
+                    out = dtk::Format("{0}: Cannot read").arg(fileName);
                     break;
                 case ErrorType::ReadMemoryMap:
-                    out = string::Format("{0}: Cannot read memory map").arg(fileName);
+                    out = dtk::Format("{0}: Cannot read memory map").arg(fileName);
                     break;
                 case ErrorType::Write:
-                    out = string::Format("{0}: Cannot write").arg(fileName);
+                    out = dtk::Format("{0}: Cannot write").arg(fileName);
                     break;
                 case ErrorType::Seek:
-                    out = string::Format("{0}: Cannot seek").arg(fileName);
+                    out = dtk::Format("{0}: Cannot seek").arg(fileName);
                     break;
                 case ErrorType::SeekMemoryMap:
-                    out = string::Format("{0}: Cannot seek memory map").arg(fileName);
+                    out = dtk::Format("{0}: Cannot seek memory map").arg(fileName);
                     break;
                 default: break;
                 }
                 if (!message.empty())
                 {
-                    out = string::Format("{0}: {1}").arg(out).arg(message);
+                    out = dtk::Format("{0}: {1}").arg(out).arg(message);
                 }
                 return out;
             }
@@ -148,7 +149,7 @@ namespace tl
                 std::string fileName;
                 try
                 {
-                    fileName = string::fromWide(buf);
+                    fileName = dtk::fromWide(buf);
                 }
                 catch (const std::exception&)
                 {
@@ -332,7 +333,7 @@ namespace tl
 
             _close();
 
-            const std::wstring fileNameW = string::toWide(fileName);
+            const std::wstring fileNameW = dtk::toWide(fileName);
 
             // Open the file.
             DWORD desiredAccess = 0;
@@ -392,7 +393,7 @@ namespace tl
             if (_wstati64(fileNameW.c_str(), &info) != 0)
             {
                 throw std::runtime_error(
-                    string::Format("{0}: Cannot get file size").arg(fileName));
+                    dtk::Format("{0}: Cannot get file size").arg(fileName));
             }
             p.size = info.st_size;
 
@@ -543,7 +544,7 @@ namespace tl
             try
             {
                 h = CreateFileW(
-                    string::toWide(fileName).c_str(),
+                    dtk::toWide(fileName).c_str(),
                     GENERIC_WRITE,
                     0,
                     0,

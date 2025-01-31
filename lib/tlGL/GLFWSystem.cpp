@@ -8,7 +8,8 @@
 
 #include <tlCore/Context.h>
 #include <tlCore/LogSystem.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -43,7 +44,7 @@ namespace tl
             int glfwMinor = 0;
             int glfwRevision = 0;
             glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRevision);
-            _log(string::Format("GLFW version: {0}.{1}.{2}").arg(glfwMajor).arg(glfwMinor).arg(glfwRevision));
+            _log(dtk::Format("GLFW version: {0}.{1}.{2}").arg(glfwMajor).arg(glfwMinor).arg(glfwRevision));
             if (!glfwInit())
             {
                 //! \todo Only log the error for now so that non-OpenGL

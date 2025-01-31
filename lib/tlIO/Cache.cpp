@@ -4,9 +4,9 @@
 
 #include <tlIO/Cache.h>
 
-#include <tlCore/LRUCache.h>
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
+#include <dtk/core/LRUCache.h>
+#include <dtk/core/String.h>
 
 #include <mutex>
 
@@ -23,9 +23,9 @@ namespace tl
             s.push_back(path.getNumber());
             for (const auto& i : options)
             {
-                s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
+                s.push_back(dtk::Format("{0}:{1}").arg(i.first).arg(i.second));
             }
-            return string::join(s, ';');
+            return dtk::join(s, ';');
         }
 
         std::string getVideoCacheKey(
@@ -37,16 +37,16 @@ namespace tl
             std::vector<std::string> s;
             s.push_back(path.get());
             s.push_back(path.getNumber());
-            s.push_back(string::Format("{0}").arg(time));
+            s.push_back(dtk::Format("{0}").arg(time));
             for (const auto& i : initOptions)
             {
-                s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
+                s.push_back(dtk::Format("{0}:{1}").arg(i.first).arg(i.second));
             }
             for (const auto& i : frameOptions)
             {
-                s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
+                s.push_back(dtk::Format("{0}:{1}").arg(i.first).arg(i.second));
             }
-            return string::join(s, ';');
+            return dtk::join(s, ';');
         }
 
         std::string getAudioCacheKey(
@@ -58,23 +58,23 @@ namespace tl
             std::vector<std::string> s;
             s.push_back(path.get());
             s.push_back(path.getNumber());
-            s.push_back(string::Format("{0}").arg(timeRange));
+            s.push_back(dtk::Format("{0}").arg(timeRange));
             for (const auto& i : initOptions)
             {
-                s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
+                s.push_back(dtk::Format("{0}:{1}").arg(i.first).arg(i.second));
             }
             for (const auto& i : frameOptions)
             {
-                s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
+                s.push_back(dtk::Format("{0}:{1}").arg(i.first).arg(i.second));
             }
-            return string::join(s, ';');
+            return dtk::join(s, ';');
         }
 
         struct Cache::Private
         {
             size_t max = memory::gigabyte;
-            memory::LRUCache<std::string, VideoData> video;
-            memory::LRUCache<std::string, AudioData> audio;
+            dtk::LRUCache<std::string, VideoData> video;
+            dtk::LRUCache<std::string, AudioData> audio;
             std::mutex mutex;
         };
 

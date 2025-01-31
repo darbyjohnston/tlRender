@@ -7,8 +7,9 @@
 #include <tlBaseApp/BaseApp.h>
 
 #include <tlCore/FileInfo.h>
-#include <tlCore/StringFormat.h>
 #include <tlCore/Time.h>
+
+#include <dtk/core/Format.h>
 
 #include <cstring>
 
@@ -179,7 +180,7 @@ namespace tl
                 {
                     _context->log(
                         "AppTest::_app",
-                        string::Format("Tick: {0}").arg(i));
+                        dtk::Format("Tick: {0}").arg(i));
                     _context->tick();
                     time::sleep(std::chrono::milliseconds(1000));
                 }

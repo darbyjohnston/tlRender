@@ -10,8 +10,9 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/Error.h>
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 namespace tl
 {
@@ -58,29 +59,29 @@ namespace tl
             {
                 std::vector<std::string> lines;
                 lines.push_back(std::string());
-                lines.push_back(string::Format("    File sequence audio: {0}").
+                lines.push_back(dtk::Format("    File sequence audio: {0}").
                     arg(options.fileSequenceAudio));
-                lines.push_back(string::Format("    File sequence audio file name: {0}").
+                lines.push_back(dtk::Format("    File sequence audio file name: {0}").
                     arg(options.fileSequenceAudioFileName));
-                lines.push_back(string::Format("    File sequence audio directory: {0}").
+                lines.push_back(dtk::Format("    File sequence audio directory: {0}").
                     arg(options.fileSequenceAudioDirectory));
-                lines.push_back(string::Format("    Video request count: {0}").
+                lines.push_back(dtk::Format("    Video request count: {0}").
                     arg(options.videoRequestCount));
-                lines.push_back(string::Format("    Audio request count: {0}").
+                lines.push_back(dtk::Format("    Audio request count: {0}").
                     arg(options.audioRequestCount));
-                lines.push_back(string::Format("    Request timeout: {0}ms").
+                lines.push_back(dtk::Format("    Request timeout: {0}ms").
                     arg(options.requestTimeout.count()));
                 for (const auto& i : options.ioOptions)
                 {
-                    lines.push_back(string::Format("    AV I/O {0}: {1}").
+                    lines.push_back(dtk::Format("    AV I/O {0}: {1}").
                         arg(i.first).
                         arg(i.second));
                 }
-                lines.push_back(string::Format("    Path max number digits: {0}").
+                lines.push_back(dtk::Format("    Path max number digits: {0}").
                     arg(options.pathOptions.maxNumberDigits));
                 logSystem->print(
-                    string::Format("tl::timeline::Timeline {0}").arg(this),
-                    string::join(lines, "\n"));
+                    dtk::Format("tl::timeline::Timeline {0}").arg(this),
+                    dtk::join(lines, "\n"));
             }
 
             p.context = context;
@@ -123,19 +124,19 @@ namespace tl
                             if (j == p.options.ioOptions.end())
                             {
                                 p.options.ioOptions["FFmpeg/AudioChannelCount"] =
-                                    string::Format("{0}").arg(p.ioInfo.audio.channelCount);
+                                    dtk::Format("{0}").arg(p.ioInfo.audio.channelCount);
                             }
                             j = p.options.ioOptions.find("FFmpeg/AudioDataType");
                             if (j == p.options.ioOptions.end())
                             {
                                 p.options.ioOptions["FFmpeg/AudioDataType"] =
-                                    string::Format("{0}").arg(p.ioInfo.audio.dataType);
+                                    dtk::Format("{0}").arg(p.ioInfo.audio.dataType);
                             }
                             j = p.options.ioOptions.find("FFmpeg/AudioSampleRate");
                             if (j == p.options.ioOptions.end())
                             {
                                 p.options.ioOptions["FFmpeg/AudioSampleRate"] =
-                                    string::Format("{0}").arg(p.ioInfo.audio.sampleRate);
+                                    dtk::Format("{0}").arg(p.ioInfo.audio.sampleRate);
                             }
                             break;
                         }
@@ -157,8 +158,8 @@ namespace tl
             }
 
             logSystem->print(
-                string::Format("tl::timeline::Timeline {0}").arg(this),
-                string::Format(
+                dtk::Format("tl::timeline::Timeline {0}").arg(this),
+                dtk::Format(
                     "\n"
                     "    Time range: {0}\n"
                     "    Video: {1} {2}\n"

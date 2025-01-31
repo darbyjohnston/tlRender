@@ -8,7 +8,8 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/FileInfo.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 #include <opentimelineio/clip.h>
 
@@ -61,7 +62,7 @@ namespace tl
                 file::PathOptions(),
                 _context))
             {
-                _print(string::Format("Path: {0}").arg(path.get()));
+                _print(dtk::Format("Path: {0}").arg(path.get()));
             }
         }
 

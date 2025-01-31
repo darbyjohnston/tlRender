@@ -7,7 +7,7 @@
 #include <tlUI/Label.h>
 #include <tlUI/RowLayout.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -35,7 +35,7 @@ namespace tl
                 for (size_t i = 0; i < 6; ++i)
                 {
                     auto label = ui::Label::create(context);
-                    label->setText(string::Format("Label {0}").arg(i));
+                    label->setText(dtk::Format("Label {0}").arg(i));
                     label->setMarginRole(ui::SizeRole::Margin);
                     label->setBackgroundRole(ui::ColorRole::Base);
                     labels.push_back(label);

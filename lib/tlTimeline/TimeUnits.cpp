@@ -6,7 +6,8 @@
 
 #include <tlCore/Error.h>
 #include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 #include <cstdlib>
 
@@ -27,11 +28,11 @@ namespace tl
             switch (units)
             {
             case timeline::TimeUnits::Frames:
-                out = string::Format("{0}").
+                out = dtk::Format("{0}").
                     arg(time::isValid(time) ? time.to_frames() : 0);
                 break;
             case timeline::TimeUnits::Seconds:
-                out = string::Format("{0}").
+                out = dtk::Format("{0}").
                     arg(time::isValid(time) ? time.to_seconds() : 0.0, 2);
                 break;
             case timeline::TimeUnits::Timecode:

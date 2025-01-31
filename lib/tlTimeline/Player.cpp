@@ -7,8 +7,9 @@
 #include <tlTimeline/Util.h>
 
 #include <tlCore/Error.h>
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 namespace tl
 {
@@ -46,19 +47,19 @@ namespace tl
             {
                 std::vector<std::string> lines;
                 lines.push_back(std::string());
-                lines.push_back(string::Format("    Cache read ahead: {0}").
+                lines.push_back(dtk::Format("    Cache read ahead: {0}").
                     arg(playerOptions.cache.readAhead));
-                lines.push_back(string::Format("    Cache read behind: {0}").
+                lines.push_back(dtk::Format("    Cache read behind: {0}").
                     arg(playerOptions.cache.readBehind));
-                lines.push_back(string::Format("    Audio buffer frame count: {0}").
+                lines.push_back(dtk::Format("    Audio buffer frame count: {0}").
                     arg(playerOptions.audioBufferFrameCount));
-                lines.push_back(string::Format("    Mute timeout: {0}ms").
+                lines.push_back(dtk::Format("    Mute timeout: {0}ms").
                     arg(playerOptions.muteTimeout.count()));
-                lines.push_back(string::Format("    Sleep timeout: {0}ms").
+                lines.push_back(dtk::Format("    Sleep timeout: {0}ms").
                     arg(playerOptions.sleepTimeout.count()));
                 logSystem->print(
-                    string::Format("tl::timeline::Player {0}").arg(this),
-                    string::join(lines, "\n"));
+                    dtk::Format("tl::timeline::Player {0}").arg(this),
+                    dtk::join(lines, "\n"));
             }
 
             p.playerOptions = playerOptions;

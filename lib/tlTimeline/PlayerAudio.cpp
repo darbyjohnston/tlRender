@@ -6,8 +6,7 @@
 
 #include <tlTimeline/Util.h>
 
-#include <tlCore/Assert.h>
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {

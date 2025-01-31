@@ -8,7 +8,7 @@
 
 #include <tlPlay/FilesModel.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -76,21 +76,21 @@ namespace tl
             };
             const std::array<std::string, static_cast<size_t>(timeline::CompareMode::Count)> compareToolTips =
             {
-                string::Format(
+                dtk::Format(
                     "Show the A file\n"
                     "\n"
                     "Shortcut: {0}").
                     arg(ui::getLabel(
                         compareShortcuts[static_cast<size_t>(timeline::CompareMode::A)].first,
                         compareShortcuts[static_cast<size_t>(timeline::CompareMode::A)].second)),
-                string::Format(
+                dtk::Format(
                     "Show the B file\n"
                     "\n"
                     "Shortcut: {0}").
                     arg(ui::getLabel(
                         compareShortcuts[static_cast<size_t>(timeline::CompareMode::B)].first,
                         compareShortcuts[static_cast<size_t>(timeline::CompareMode::B)].second)),
-                string::Format(
+                dtk::Format(
                     "Wipe between the A and B files\n"
                     "\n"
                     "Use the Alt key + left mouse button to move the wipe\n"
@@ -103,7 +103,7 @@ namespace tl
                 "Show the difference between the A and B files",
                 "Show the A and B files side by side",
                 "Show the A file above the B file",
-                string::Format(
+                dtk::Format(
                     "Tile the A and B files\n"
                     "\n"
                     "Shortcut: {0}").

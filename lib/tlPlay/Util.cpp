@@ -5,8 +5,9 @@
 #include <tlPlay/Util.h>
 
 #include <tlCore/File.h>
-#include <tlCore/StringFormat.h>
 #include <tlCore/Path.h>
+
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -34,7 +35,7 @@ namespace tl
             const std::string& appName,
             const std::string& appDirPath)
         {
-            const std::string fileName = string::Format("{0}.{1}.log").
+            const std::string fileName = dtk::Format("{0}.{1}.log").
                 arg(appName).
                 arg(TLRENDER_VERSION);
             return file::Path(appDirPath, fileName).get();
@@ -44,7 +45,7 @@ namespace tl
             const std::string& appName,
             const std::string& appDirPath)
         {
-            const std::string fileName = string::Format("{0}.{1}.json").
+            const std::string fileName = dtk::Format("{0}.{1}.json").
                 arg(appName).
                 arg(TLRENDER_VERSION);
             return file::Path(appDirPath, fileName).get();

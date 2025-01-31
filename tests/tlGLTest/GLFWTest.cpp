@@ -7,8 +7,8 @@
 #include <tlGL/GLFWWindow.h>
 #include <tlGL/GL.h>
 
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 using namespace tl::gl;
 
@@ -43,24 +43,24 @@ namespace tl
             if (window)
             {
                 TLRENDER_ASSERT(window->getGLFW());
-                _print(string::Format("Window size: {0}").arg(window->getSize()));
-                _print(string::Format("Frame buffer size: {0}").arg(window->getFrameBufferSize()));
-                _print(string::Format("Content scale: {0}").arg(window->getContentScale()));
+                _print(dtk::Format("Window size: {0}").arg(window->getSize()));
+                _print(dtk::Format("Frame buffer size: {0}").arg(window->getFrameBufferSize()));
+                _print(dtk::Format("Content scale: {0}").arg(window->getContentScale()));
 
                 window->setSizeCallback(
                     [this](const math::Size2i& value)
                     {
-                        _print(string::Format("Window size: {0}").arg(value));
+                        _print(dtk::Format("Window size: {0}").arg(value));
                     });
                 window->setFrameBufferSizeCallback(
                     [this](const math::Size2i& value)
                     {
-                        _print(string::Format("Frame buffer size: {0}").arg(value));
+                        _print(dtk::Format("Frame buffer size: {0}").arg(value));
                     });
                 window->setContentScaleCallback(
                     [this](const math::Vector2f& value)
                     {
-                        _print(string::Format("Content scale: {0}").arg(value));
+                        _print(dtk::Format("Content scale: {0}").arg(value));
                     });
                 window->setRefreshCallback(
                     [this]
@@ -70,17 +70,17 @@ namespace tl
                 window->setCursorEnterCallback(
                     [this](bool value)
                     {
-                        _print(string::Format("Cursor enter: {0}").arg(value));
+                        _print(dtk::Format("Cursor enter: {0}").arg(value));
                     });
                 window->setCursorPosCallback(
                     [this](const math::Vector2f& value)
                     {
-                        _print(string::Format("Cursor position: {0}").arg(value));
+                        _print(dtk::Format("Cursor position: {0}").arg(value));
                     });
                 window->setButtonCallback(
                     [this](int button, int action, int mods)
                     {
-                        _print(string::Format("Button: {0} {1} {2}").
+                        _print(dtk::Format("Button: {0} {1} {2}").
                             arg(button).
                             arg(action).
                             arg(mods));
@@ -88,12 +88,12 @@ namespace tl
                 window->setScrollCallback(
                     [this](const math::Vector2f& value)
                     {
-                        _print(string::Format("Scroll: {0}").arg(value));
+                        _print(dtk::Format("Scroll: {0}").arg(value));
                     });
                 window->setKeyCallback(
                     [this](int key, int scanCode, int action, int mods)
                     {
-                        _print(string::Format("Key: {0}").
+                        _print(dtk::Format("Key: {0}").
                             arg(key).
                             arg(scanCode).
                             arg(action).
@@ -102,7 +102,7 @@ namespace tl
                 window->setCharCallback(
                     [this](unsigned int value)
                     {
-                        _print(string::Format("Char: {0}").arg(value));
+                        _print(dtk::Format("Char: {0}").arg(value));
                     });
                 window->setDropCallback(
                     [this](int size, const char** value)
@@ -112,7 +112,7 @@ namespace tl
                         {
                             s.push_back(value[i]);
                         }
-                        _print(string::Format("Drop: {0}").arg(string::join(s, ", ")));
+                        _print(dtk::Format("Drop: {0}").arg(dtk::join(s, ", ")));
                     });
 
                 window->show();

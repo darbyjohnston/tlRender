@@ -9,8 +9,6 @@
 
 #include <tlTimelineUI/TimelineWidget.h>
 
-#include <tlCore/StringFormat.h>
-
 namespace tl
 {
     namespace play_app

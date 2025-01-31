@@ -10,8 +10,10 @@
 #include <tlGL/GLFWWindow.h>
 
 #include <tlCore/Math.h>
-#include <tlCore/StringFormat.h>
 #include <tlCore/Time.h>
+
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -49,7 +51,7 @@ namespace tl
                         _options.windowSize,
                         { "-windowSize", "-ws" },
                         "Window size.",
-                        string::Format("{0}x{1}").arg(_options.windowSize.w).arg(_options.windowSize.h)),
+                        dtk::Format("{0}x{1}").arg(_options.windowSize.w).arg(_options.windowSize.h)),
                     app::CmdLineFlagOption::create(
                         _options.fullscreen,
                         { "-fullscreen", "-fs" },
@@ -58,14 +60,14 @@ namespace tl
                         _options.hud,
                         { "-hud" },
                         "Enable the HUD (heads up display).",
-                        string::Format("{0}").arg(_options.hud),
+                        dtk::Format("{0}").arg(_options.hud),
                         "0, 1"),
                     app::CmdLineValueOption<timeline::Playback>::create(
                         _options.playback,
                         { "-playback", "-p" },
                         "Playback mode.",
-                        string::Format("{0}").arg(_options.playback),
-                        string::join(timeline::getPlaybackLabels(), ", ")),
+                        dtk::Format("{0}").arg(_options.playback),
+                        dtk::join(timeline::getPlaybackLabels(), ", ")),
                     app::CmdLineValueOption<otime::RationalTime>::create(
                         _options.seek,
                         { "-seek" },
@@ -102,8 +104,8 @@ namespace tl
                         _options.lutOptions.order,
                         { "-lutOrder" },
                         "LUT operation order.",
-                        string::Format("{0}").arg(_options.lutOptions.order),
-                        string::join(timeline::getLUTOrderLabels(), ", "))
+                        dtk::Format("{0}").arg(_options.lutOptions.order),
+                        dtk::join(timeline::getLUTOrderLabels(), ", "))
                 });
             }
 
@@ -476,13 +478,13 @@ namespace tl
             {
                 _hud = value;
                 _renderDirty = true;
-                _log(string::Format("HUD: {0}").arg(_hud));
+                _log(dtk::Format("HUD: {0}").arg(_hud));
             }
 
             void App::_playbackCallback(timeline::Playback value)
             {
                 _player->setPlayback(value);
-                _log(string::Format("Playback: {0}").arg(_player->observePlayback()->get()));
+                _log(dtk::Format("Playback: {0}").arg(_player->observePlayback()->get()));
             }
         }
     }

@@ -14,7 +14,7 @@
 #include <tlTimeline/Edit.h>
 #include <tlTimeline/Util.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -1135,7 +1135,7 @@ namespace tl
                     (duration.rate() >= 1000.0) :
                     false;
                 const otime::RationalTime rescaled = duration.rescaled_to(_data->speed);
-                const std::string label = string::Format("{0}, {1}{2}").
+                const std::string label = dtk::Format("{0}, {1}{2}").
                     arg(_data->timeUnitsModel->getLabel(rescaled)).
                     arg(khz ? (duration.rate() / 1000.0) : duration.rate()).
                     arg(khz ? "kHz" : "FPS");

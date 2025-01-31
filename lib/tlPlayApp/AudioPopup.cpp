@@ -17,7 +17,7 @@
 #include <tlUI/RowLayout.h>
 #include <tlUI/ToolButton.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -209,7 +209,7 @@ namespace tl
                     for (size_t i = 0; i < p.info.channelCount; ++i)
                     {
                         auto checkBox = ui::CheckBox::create(
-                            string::Format("{0}").arg(i),
+                            dtk::Format("{0}").arg(i),
                             context,
                             p.channelMuteLayout);
                         p.channelMuteCheckBoxes.push_back(checkBox);

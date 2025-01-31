@@ -7,8 +7,9 @@
 #include <tlGL/GL.h>
 
 #include <tlCore/Color.h>
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 #include <iostream>
 
@@ -41,19 +42,19 @@ namespace tl
             glGetShaderiv(p.vertex, GL_COMPILE_STATUS, &success);
             if (!success)
             {
-                char infoLog[string::cBufferSize];
-                glGetShaderInfoLog(p.vertex, string::cBufferSize, NULL, infoLog);
-                auto lines = string::split(
+                char infoLog[dtk::cStringSize];
+                glGetShaderInfoLog(p.vertex, dtk::cStringSize, NULL, infoLog);
+                auto lines = dtk::split(
                     p.vertexSource,
                     { '\n', '\r' },
-                    string::SplitOptions::KeepEmpty);
+                    dtk::SplitOptions::KeepEmpty);
                 for (size_t i = 0; i < lines.size(); ++i)
                 {
-                    lines[i].insert(0, string::Format("{0}: ").arg(i));
+                    lines[i].insert(0, dtk::Format("{0}: ").arg(i));
                 }
                 lines.push_back(infoLog);
-                //std::cout << string::join(lines, '\n') << std::endl;
-                throw std::runtime_error(string::join(lines, '\n'));
+                //std::cout << dtk::join(lines, '\n') << std::endl;
+                throw std::runtime_error(dtk::join(lines, '\n'));
             }
 
             p.fragment = glCreateShader(GL_FRAGMENT_SHADER);
@@ -67,19 +68,19 @@ namespace tl
             glGetShaderiv(p.fragment, GL_COMPILE_STATUS, &success);
             if (!success)
             {
-                char infoLog[string::cBufferSize];
-                glGetShaderInfoLog(p.fragment, string::cBufferSize, NULL, infoLog);
-                auto lines = string::split(
+                char infoLog[dtk::cStringSize];
+                glGetShaderInfoLog(p.fragment, dtk::cStringSize, NULL, infoLog);
+                auto lines = dtk::split(
                     p.fragmentSource,
                     { '\n', '\r' },
-                    string::SplitOptions::KeepEmpty);
+                    dtk::SplitOptions::KeepEmpty);
                 for (size_t i = 0; i < lines.size(); ++i)
                 {
-                    lines[i].insert(0, string::Format("{0}: ").arg(i));
+                    lines[i].insert(0, dtk::Format("{0}: ").arg(i));
                 }
                 lines.push_back(infoLog);
-                //std::cout << string::join(lines, '\n') << std::endl;
-                throw std::runtime_error(string::join(lines, '\n'));
+                //std::cout << dtk::join(lines, '\n') << std::endl;
+                throw std::runtime_error(dtk::join(lines, '\n'));
             }
 
             p.program = glCreateProgram();
@@ -89,8 +90,8 @@ namespace tl
             glGetProgramiv(p.program, GL_LINK_STATUS, &success);
             if (!success)
             {
-                char infoLog[string::cBufferSize];
-                glGetProgramInfoLog(p.program, string::cBufferSize, NULL, infoLog);
+                char infoLog[dtk::cStringSize];
+                glGetProgramInfoLog(p.program, dtk::cStringSize, NULL, infoLog);
                 throw std::runtime_error(infoLog);
             }
         }

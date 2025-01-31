@@ -5,8 +5,8 @@
 #include <tlTimelineUI/IItem.h>
 
 #include <tlCore/Error.h>
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 #include <opentimelineio/marker.h>
 
@@ -241,7 +241,7 @@ namespace tl
         std::string IItem::_getDurationLabel(const otime::RationalTime& value)
         {
             const otime::RationalTime rescaled = value.rescaled_to(_data->speed);
-            return string::Format("{0}").
+            return dtk::Format("{0}").
                 arg(_data->timeUnitsModel->getLabel(rescaled));
         }
 

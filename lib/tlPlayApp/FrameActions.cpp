@@ -7,7 +7,7 @@
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -41,7 +41,7 @@ namespace tl
                         }
                     }
                 });
-            p.actions["Start"]->toolTip = string::Format(
+            p.actions["Start"]->toolTip = dtk::Format(
                 "Go to the start frame\n"
                 "\n"
                 "Shortcut: {0}").
@@ -64,7 +64,7 @@ namespace tl
                         }
                     }
                 });
-            p.actions["End"]->toolTip = string::Format(
+            p.actions["End"]->toolTip = dtk::Format(
                 "Go to the end frame\n"
                 "\n"
                 "Shortcut: {0}").
@@ -87,7 +87,7 @@ namespace tl
                         }
                     }
                 });
-            p.actions["Prev"]->toolTip = string::Format(
+            p.actions["Prev"]->toolTip = dtk::Format(
                 "Go to the previous frame\n"
                 "\n"
                 "Shortcut: {0}").
@@ -140,7 +140,7 @@ namespace tl
                         }
                     }
                 });
-            p.actions["Next"]->toolTip = string::Format(
+            p.actions["Next"]->toolTip = dtk::Format(
                 "Go to the next frame\n"
                 "\n"
                 "Shortcut: {0}").

@@ -5,9 +5,10 @@
 #include <tlCoreTest/TimeTest.h>
 
 #include <tlCore/Assert.h>
-#include <tlCore/StringFormat.h>
 #include <tlCore/Time.h>
 #include <tlCore/Timer.h>
+
+#include <dtk/core/Format.h>
 
 #include <sstream>
 
@@ -329,7 +330,7 @@ namespace tl
                 std::chrono::milliseconds(100),
                 [this, timer, &count]
                 {
-                    _print(string::Format("Timeout: {0}").arg(count));
+                    _print(dtk::Format("Timeout: {0}").arg(count));
                     ++count;
                     if (3 == count)
                     {
@@ -349,7 +350,7 @@ namespace tl
                     const std::chrono::steady_clock::time_point&,
                     const std::chrono::microseconds& ms)
                 {
-                    _print(string::Format("Timeout: {0} microseconds").arg(ms.count()));
+                    _print(dtk::Format("Timeout: {0} microseconds").arg(ms.count()));
                 });
             while (timer->isActive())
             {

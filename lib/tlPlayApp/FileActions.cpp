@@ -8,7 +8,7 @@
 
 #include <tlPlay/FilesModel.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -38,7 +38,7 @@ namespace tl
                         app->openDialog();
                     }
                 });
-            p.actions["Open"]->toolTip = string::Format(
+            p.actions["Open"]->toolTip = dtk::Format(
                 "Open a file\n"
                 "\n"
                 "Shortcut: {0}").
@@ -59,7 +59,7 @@ namespace tl
                         app->openSeparateAudioDialog();
                     }
                 });
-            p.actions["OpenSeparateAudio"]->toolTip = string::Format(
+            p.actions["OpenSeparateAudio"]->toolTip = dtk::Format(
                 "Open a file with separate audio\n"
                 "\n"
                 "Shortcut: {0}").
@@ -79,7 +79,7 @@ namespace tl
                         app->getFilesModel()->close();
                     }
                 });
-            p.actions["Close"]->toolTip = string::Format(
+            p.actions["Close"]->toolTip = dtk::Format(
                 "Close the current file\n"
                 "\n"
                 "Shortcut: {0}").
@@ -100,7 +100,7 @@ namespace tl
                         app->getFilesModel()->closeAll();
                     }
                 });
-            p.actions["CloseAll"]->toolTip = string::Format(
+            p.actions["CloseAll"]->toolTip = dtk::Format(
                 "Close all files\n"
                 "\n"
                 "Shortcut: {0}").

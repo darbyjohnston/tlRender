@@ -10,8 +10,6 @@
 
 #include <tlTimeline/TimeUnits.h>
 
-#include <tlCore/StringFormat.h>
-
 namespace tl
 {
     namespace ui

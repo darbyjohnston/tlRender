@@ -11,7 +11,8 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/File.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/externalReference.h>
@@ -103,7 +104,7 @@ namespace tl
             {
                 try
                 {
-                    _print(string::Format("Timeline: {0}").arg(path.get()));
+                    _print(dtk::Format("Timeline: {0}").arg(path.get()));
                     auto timeline = Timeline::create(path, _context);
                     _timeline(timeline);
                 }
@@ -116,7 +117,7 @@ namespace tl
             {
                 try
                 {
-                    _print(string::Format("Memory timeline: {0}").arg(path.get()));
+                    _print(dtk::Format("Memory timeline: {0}").arg(path.get()));
                     auto otioTimeline = timeline::create(path, _context);
                     toMemoryReferences(otioTimeline, path.getDirectory(), ToMemoryReference::Shared);
                     auto timeline = timeline::Timeline::create(otioTimeline, _context);
@@ -245,13 +246,13 @@ namespace tl
             try
             {
                 const file::Path path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg");
-                _print(string::Format("Path: {0}").arg(path.get()));
+                _print(dtk::Format("Path: {0}").arg(path.get()));
                 Options options;
                 options.fileSequenceAudio = FileSequenceAudio::None;
                 auto timeline = Timeline::create(path, _context, options);
                 const file::Path& audioPath = timeline->getAudioPath();
                 TLRENDER_ASSERT(audioPath.isEmpty());
-                _print(string::Format("Audio path: {0}").arg(audioPath.get()));
+                _print(dtk::Format("Audio path: {0}").arg(audioPath.get()));
             }
             catch (const std::exception& e)
             {
@@ -260,13 +261,13 @@ namespace tl
             try
             {
                 const file::Path path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg");
-                _print(string::Format("Path: {0}").arg(path.get()));
+                _print(dtk::Format("Path: {0}").arg(path.get()));
                 Options options;
                 options.fileSequenceAudio = FileSequenceAudio::BaseName;
                 auto timeline = Timeline::create(path, _context, options);
                 const file::Path& audioPath = timeline->getAudioPath();
                 TLRENDER_ASSERT(!audioPath.isEmpty());
-                _print(string::Format("Audio path: {0}").arg(audioPath.get()));
+                _print(dtk::Format("Audio path: {0}").arg(audioPath.get()));
             }
             catch (const std::exception& e)
             {
@@ -275,7 +276,7 @@ namespace tl
             try
             {
                 const file::Path path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg");
-                _print(string::Format("Path: {0}").arg(path.get()));
+                _print(dtk::Format("Path: {0}").arg(path.get()));
                 Options options;
                 options.fileSequenceAudio = FileSequenceAudio::FileName;
                 options.fileSequenceAudioFileName = file::Path(
@@ -286,7 +287,7 @@ namespace tl
                     options);
                 const file::Path& audioPath = timeline->getAudioPath();
                 TLRENDER_ASSERT(!audioPath.isEmpty());
-                _print(string::Format("Audio path: {0}").arg(audioPath.get()));
+                _print(dtk::Format("Audio path: {0}").arg(audioPath.get()));
             }
             catch (const std::exception& e)
             {
@@ -295,14 +296,14 @@ namespace tl
             try
             {
                 const file::Path path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg");
-                _print(string::Format("Path: {0}").arg(path.get()));
+                _print(dtk::Format("Path: {0}").arg(path.get()));
                 Options options;
                 options.fileSequenceAudio = FileSequenceAudio::Directory;
                 options.fileSequenceAudioDirectory = "";
                 auto timeline = Timeline::create(path, _context, options);
                 const file::Path& audioPath = timeline->getAudioPath();
                 TLRENDER_ASSERT(!audioPath.isEmpty());
-                _print(string::Format("Audio path: {0}").arg(audioPath.get()));
+                _print(dtk::Format("Audio path: {0}").arg(audioPath.get()));
             }
             catch (const std::exception& e)
             {

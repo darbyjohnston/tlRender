@@ -11,7 +11,9 @@
 
 #include <tlCore/File.h>
 #include <tlCore/FileInfo.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/imageSequenceReference.h>
@@ -132,13 +134,13 @@ namespace tl
                 mz_zip_reader_create(&reader);
                 if (!reader)
                 {
-                    throw std::runtime_error(string::Format(
+                    throw std::runtime_error(dtk::Format(
                         "{0}: Cannot create zip reader").arg(fileName));
                 }
                 int32_t err = mz_zip_reader_open_file(reader, fileName.c_str());
                 if (err != MZ_OK)
                 {
-                    throw std::runtime_error(string::Format(
+                    throw std::runtime_error(dtk::Format(
                         "{0}: Cannot open zip reader").arg(fileName));
                 }
             }
@@ -160,7 +162,7 @@ namespace tl
                 int32_t err = mz_zip_reader_entry_open(reader);
                 if (err != MZ_OK)
                 {
-                    throw std::runtime_error(string::Format(
+                    throw std::runtime_error(dtk::Format(
                         "{0}: Cannot open zip entry").arg(fileName));
                 }
             }
@@ -179,7 +181,7 @@ namespace tl
         {
             otio::SerializableObject::Retainer<otio::Timeline> out;
             const std::string fileName = path.get();
-            const std::string extension = string::toLower(path.getExtension());
+            const std::string extension = dtk::toLower(path.getExtension());
             if (".otio" == extension)
             {
                 out = dynamic_cast<otio::Timeline*>(
@@ -197,14 +199,14 @@ namespace tl
                         0);
                     if (err != MZ_OK)
                     {
-                        throw std::runtime_error(string::Format(
+                        throw std::runtime_error(dtk::Format(
                             "{0}: Cannot find zip entry").arg(contentFileName));
                     }
                     mz_zip_file* fileInfo = nullptr;
                     err = mz_zip_reader_entry_get_info(zipReader.reader, &fileInfo);
                     if (err != MZ_OK)
                     {
-                        throw std::runtime_error(string::Format(
+                        throw std::runtime_error(dtk::Format(
                             "{0}: Cannot get zip entry information").arg(contentFileName));
                     }
                     ZipReaderFile zipReaderFile(zipReader.reader, contentFileName);
@@ -216,7 +218,7 @@ namespace tl
                         fileInfo->uncompressed_size);
                     if (err != fileInfo->uncompressed_size)
                     {
-                        throw std::runtime_error(string::Format(
+                        throw std::runtime_error(dtk::Format(
                             "{0}: Cannot read zip entry").arg(contentFileName));
                     }
                     buf[fileInfo->uncompressed_size] = 0;
@@ -236,13 +238,13 @@ namespace tl
                             int32_t err = mz_zip_reader_locate_entry(zipReader.reader, mediaFileName.c_str(), 0);
                             if (err != MZ_OK)
                             {
-                                throw std::runtime_error(string::Format(
+                                throw std::runtime_error(dtk::Format(
                                     "{0}: Cannot find zip entry").arg(mediaFileName));
                             }
                             err = mz_zip_reader_entry_get_info(zipReader.reader, &fileInfo);
                             if (err != MZ_OK)
                             {
-                                throw std::runtime_error(string::Format(
+                                throw std::runtime_error(dtk::Format(
                                     "{0}: Cannot get zip entry information").arg(mediaFileName));
                             }
 
@@ -276,13 +278,13 @@ namespace tl
                                 int32_t err = mz_zip_reader_locate_entry(zipReader.reader, mediaFileName.c_str(), 0);
                                 if (err != MZ_OK)
                                 {
-                                    throw std::runtime_error(string::Format(
+                                    throw std::runtime_error(dtk::Format(
                                         "{0}: Cannot find zip entry").arg(mediaFileName));
                                 }
                                 err = mz_zip_reader_entry_get_info(zipReader.reader, &fileInfo);
                                 if (err != MZ_OK)
                                 {
-                                    throw std::runtime_error(string::Format(
+                                    throw std::runtime_error(dtk::Format(
                                         "{0}: Cannot get zip entry information").arg(mediaFileName));
                                 }
 
@@ -532,7 +534,7 @@ namespace tl
             auto logSystem = context->getLogSystem();
             logSystem->print(
                 "tl::timeline::create",
-                string::Format(
+                dtk::Format(
                     "\n"
                     "    Create from path: {0}\n"
                     "    Audio path: {1}").
@@ -551,7 +553,7 @@ namespace tl
                 }
                 else if (!out)
                 {
-                    error = string::Format("{0}: Cannot read timeline").arg(path.get());
+                    error = dtk::Format("{0}: Cannot read timeline").arg(path.get());
                 }
             }
             if (!out)

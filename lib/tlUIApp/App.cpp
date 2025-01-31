@@ -10,7 +10,7 @@
 
 #include <tlGL/GLFWWindow.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -102,7 +102,7 @@ namespace tl
                     _uiOptions.windowSize,
                     { "-windowSize", "-ws" },
                     "Window size.",
-                    string::Format("{0}x{1}").arg(_uiOptions.windowSize.w).arg(_uiOptions.windowSize.h)));
+                    dtk::Format("{0}x{1}").arg(_uiOptions.windowSize.w).arg(_uiOptions.windowSize.h)));
             cmdLineOptions2.push_back(
                 app::CmdLineFlagOption::create(
                     _uiOptions.fullscreen,

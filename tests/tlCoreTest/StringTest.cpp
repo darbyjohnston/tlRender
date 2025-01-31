@@ -6,7 +6,8 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 #include <iostream>
 #include <sstream>
@@ -155,7 +156,7 @@ namespace tl
         void StringTest::_convert()
         {
             {
-                _print(string::Format("{0}/{1}").arg(getLabel(true)).arg(getLabel(false)));
+                _print(dtk::Format("{0}/{1}").arg(getLabel(true)).arg(getLabel(false)));
             }
             {
                 int value = 0;

@@ -16,7 +16,9 @@
 
 #include <tlCore/AudioResample.h>
 #include <tlCore/LRUCache.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 #include <sstream>
 
@@ -96,9 +98,9 @@ namespace tl
             s.push_back(path.get());
             for (const auto& i : options)
             {
-                s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
+                s.push_back(dtk::Format("{0}:{1}").arg(i.first).arg(i.second));
             }
-            return string::join(s, ';');
+            return dtk::join(s, ';');
         }
 
         void ThumbnailCache::addInfo(const std::string& key, const io::Info& info)
@@ -129,14 +131,14 @@ namespace tl
             const io::Options& options)
         {
             std::vector<std::string> s;
-            s.push_back(string::Format("{0}").arg(height));
+            s.push_back(dtk::Format("{0}").arg(height));
             s.push_back(path.get());
-            s.push_back(string::Format("{0}").arg(time));
+            s.push_back(dtk::Format("{0}").arg(time));
             for (const auto& i : options)
             {
-                s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
+                s.push_back(dtk::Format("{0}:{1}").arg(i.first).arg(i.second));
             }
-            return string::join(s, ';');
+            return dtk::join(s, ';');
         }
 
         void ThumbnailCache::addThumbnail(
@@ -171,14 +173,14 @@ namespace tl
             const io::Options& options)
         {
             std::vector<std::string> s;
-            s.push_back(string::Format("{0}").arg(size));
+            s.push_back(dtk::Format("{0}").arg(size));
             s.push_back(path.get());
-            s.push_back(string::Format("{0}").arg(timeRange));
+            s.push_back(dtk::Format("{0}").arg(timeRange));
             for (const auto& i : options)
             {
-                s.push_back(string::Format("{0}:{1}").arg(i.first).arg(i.second));
+                s.push_back(dtk::Format("{0}:{1}").arg(i.first).arg(i.second));
             }
-            return string::join(s, ';');
+            return dtk::join(s, ';');
         }
 
         void ThumbnailCache::addWaveform(
@@ -757,14 +759,14 @@ namespace tl
                                 }
                             }
                             else if (
-                                string::compare(
+                                dtk::compare(
                                     ".otio",
                                     request->path.getExtension(),
-                                    string::Compare::CaseInsensitive) ||
-                                string::compare(
+                                    dtk::CaseCompare::Insensitive) ||
+                                dtk::compare(
                                     ".otioz",
                                     request->path.getExtension(),
-                                    string::Compare::CaseInsensitive))
+                                    dtk::CaseCompare::Insensitive))
                             {
                                 timeline::Options timelineOptions;
                                 timelineOptions.ioOptions = request->options;

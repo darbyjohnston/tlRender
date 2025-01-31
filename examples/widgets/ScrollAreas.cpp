@@ -9,7 +9,7 @@
 #include <tlUI/RowLayout.h>
 #include <tlUI/ScrollWidget.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -63,7 +63,7 @@ namespace tl
                 IWidget::sizeHintEvent(event);
                 TLRENDER_P();
                 p.margin = event.style->getSizeRole(ui::SizeRole::MarginLarge, _displayScale);
-                const std::string format = string::Format("{0}, {1}").
+                const std::string format = dtk::Format("{0}, {1}").
                     arg(ui::format(p.cellCount.x)).
                     arg(ui::format(p.cellCount.y));
                 const auto fontInfo = event.style->getFontRole(ui::FontRole::Label, _displayScale);
@@ -118,7 +118,7 @@ namespace tl
                         const size_t i = y * p.cellCount.x + x;
                         if (p.glyphs[i].empty())
                         {
-                            const std::string text = string::Format("{0}, {1}").
+                            const std::string text = dtk::Format("{0}, {1}").
                                 arg(y).
                                 arg(x);
                             p.textSize[i] = event.fontSystem->getSize(text, fontInfo);

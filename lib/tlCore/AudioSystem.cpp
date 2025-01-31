@@ -7,8 +7,9 @@
 #include <tlCore/Context.h>
 #include <tlCore/Error.h>
 #include <tlCore/LogSystem.h>
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 #if defined(TLRENDER_SDL2)
 #include <SDL2/SDL.h>
@@ -101,7 +102,7 @@ namespace tl
                 }
                 {
                     std::stringstream ss;
-                    ss << "Audio drivers: " << string::join(p.drivers, ", ");
+                    ss << "Audio drivers: " << dtk::join(p.drivers, ", ");
                     _log(ss.str());
                 }
                 {
@@ -327,7 +328,7 @@ namespace tl
                         log.push_back(ss.str());
                     }
                 }
-                _log(string::join(log, "\n"));
+                _log(dtk::join(log, "\n"));
             }
             if (defaultDevice != p.thread.defaultDevice)
             {

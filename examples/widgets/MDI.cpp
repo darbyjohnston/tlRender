@@ -7,7 +7,7 @@
 #include <tlUI/IntEditSlider.h>
 #include <tlUI/MDICanvas.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -37,7 +37,7 @@ namespace tl
                 {
                     auto slider = ui::IntEditSlider::create(context);
                     p.canvas->addWidget(
-                        string::Format("Slider {0}").arg(i),
+                        dtk::Format("Slider {0}").arg(i),
                         slider);
                 }
             }

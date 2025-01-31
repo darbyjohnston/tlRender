@@ -6,8 +6,6 @@
 
 #include <tlTimeline/MemoryReference.h>
 
-#include <tlCore/StringFormat.h>
-
 namespace tl
 {
     namespace timeline

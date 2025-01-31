@@ -7,7 +7,7 @@
 #include <tlUI/DrawUtil.h>
 #include <tlUI/ThumbnailSystem.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 #include <ctime>
 
@@ -113,17 +113,17 @@ namespace tl
             const uint64_t size = fileInfo.getSize();
             if (size < memory::megabyte)
             {
-                label = string::Format("{0}KB").
+                label = dtk::Format("{0}KB").
                     arg(size / static_cast<float>(memory::kilobyte), 2);
             }
             else if (size < memory::gigabyte)
             {
-                label = string::Format("{0}MB").
+                label = dtk::Format("{0}MB").
                     arg(size / static_cast<float>(memory::megabyte), 2);
             }
             else
             {
-                label = string::Format("{0}GB").
+                label = dtk::Format("{0}GB").
                     arg(size / static_cast<float>(memory::gigabyte), 2);
             }
             p.labels.push_back(label);

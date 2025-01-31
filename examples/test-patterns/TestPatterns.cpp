@@ -5,7 +5,8 @@
 #include "TestPatterns.h"
 
 #include <tlCore/Math.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 #include <cmath>
 
@@ -81,14 +82,14 @@ namespace tl
                     const int wholeSeconds = static_cast<int>(seconds.value());
                     const int frames = static_cast<int>(time.value()) % static_cast<int>(time.rate());
 
-                    const std::string secondsString = string::Format("{0}").arg(wholeSeconds);
+                    const std::string secondsString = dtk::Format("{0}").arg(wholeSeconds);
                     auto fontSystem = context->getSystem<image::FontSystem>();
                     const math::Size2i secondsSize = fontSystem->getSize(secondsString, _secondsFontInfo);
                     const math::Vector2i secondsPos(
                         _size.w / 2.F - secondsSize.w / 2.F,
                         _size.h / 2.F - secondsSize.h / 2.F);
 
-                    const std::string framesString = string::Format("{0}").arg(frames);
+                    const std::string framesString = dtk::Format("{0}").arg(frames);
                     const math::Size2i framesSize = fontSystem->getSize(framesString, _framesFontInfo);
                     const math::Vector2i framesPos(
                         _size.w / 2.F - framesSize.w / 2.F,

@@ -4,8 +4,8 @@
 
 #include <tlBaseApp/BaseApp.h>
 
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 #include <iostream>
 
@@ -28,7 +28,7 @@ namespace tl
             std::vector<std::string> out;
             for (int i = 0; i < argc; ++i)
             {
-                out.push_back(string::fromWide(argv[i]));
+                out.push_back(dtk::fromWide(argv[i]));
             }
             return out;
         }
@@ -151,7 +151,7 @@ namespace tl
                 }
                 catch (const std::exception& e)
                 {
-                    throw std::runtime_error(string::Format("Cannot parse option \"{0}\": {1}").
+                    throw std::runtime_error(dtk::Format("Cannot parse option \"{0}\": {1}").
                         arg(i->getMatchedName()).
                         arg(e.what()));
                 }
@@ -187,7 +187,7 @@ namespace tl
                 }
                 catch (const std::exception& e)
                 {
-                    throw std::runtime_error(string::Format("Cannot parse argument \"{0}\": {1}").
+                    throw std::runtime_error(dtk::Format("Cannot parse argument \"{0}\": {1}").
                         arg(i->getName()).
                         arg(e.what()));
                 }
@@ -212,10 +212,10 @@ namespace tl
                         const bool optional = i->isOptional();
                         args.push_back(
                             (optional ? "[" : "(") +
-                            string::toLower(i->getName()) +
+                            dtk::toLower(i->getName()) +
                             (optional ? "]" : ")"));
                     }
-                    ss << " " << string::join(args, " ");
+                    ss << " " << dtk::join(args, " ");
                 }
                 if (p.cmdLine.options.size())
                 {

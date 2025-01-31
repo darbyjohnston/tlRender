@@ -7,8 +7,9 @@
 #include <tlIO/System.h>
 
 #include <tlCore/Assert.h>
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 #include <sstream>
 
@@ -101,7 +102,7 @@ namespace tl
                     plugins.push_back(plugin->getName());
                 }
                 std::stringstream ss;
-                ss << "Plugins: " << string::join(plugins, ", ");
+                ss << "Plugins: " << dtk::join(plugins, ", ");
                 _print(ss.str());
             }
             {
@@ -128,7 +129,7 @@ namespace tl
                     extensions.push_back(extension);
                 }
                 std::stringstream ss;
-                ss << "Extensions: " << string::join(extensions, ", ");
+                ss << "Extensions: " << dtk::join(extensions, ", ");
                 _print(ss.str());
             }
             TLRENDER_ASSERT(!system->read(file::Path()));

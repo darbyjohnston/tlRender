@@ -53,8 +53,6 @@ set(HEADERS
     Size.h
     SizeInline.h
     String.h
-    StringFormat.h
-    StringFormatInline.h
     Time.h
     TimeInline.h
     Timer.h
@@ -91,7 +89,6 @@ set(SOURCE
     Range.cpp
     Size.cpp
     String.cpp
-    StringFormat.cpp
     Time.cpp
     Timer.cpp
     Vector.cpp)

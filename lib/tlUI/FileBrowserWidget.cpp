@@ -21,7 +21,8 @@
 #include <tlIO/System.h>
 
 #include <tlCore/File.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 #include <list>
 
@@ -81,7 +82,7 @@ namespace tl
                 for (const auto& extension : ioSystem->getExtensions())
                 {
                     p.extensions.push_back(extension);
-                    extensionsLabels.push_back(string::Format("*{0}").arg(extension));
+                    extensionsLabels.push_back(dtk::Format("*{0}").arg(extension));
                 }
             }
             p.extensions.push_back(std::string());

@@ -11,8 +11,8 @@
 #include <tlCore/Assert.h>
 #include <tlCore/Context.h>
 #include <tlCore/Error.h>
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 #include <array>
 #include <list>
@@ -513,8 +513,8 @@ namespace tl
                     }
 
                     context->log(
-                        string::Format("tl::timeline::GLRender {0}").arg(this),
-                        string::Format(
+                        dtk::Format("tl::timeline::GLRender {0}").arg(this),
+                        dtk::Format(
                             "\n"
                             "    Average render time: {0}ms\n"
                             "    Average rectangle count: {1}\n"

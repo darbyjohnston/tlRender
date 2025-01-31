@@ -12,7 +12,7 @@
 #include <tlUI/Label.h>
 #include <tlUI/RowLayout.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -50,7 +50,7 @@ namespace tl
                 for (const auto& i : intRanges)
                 {
                     auto label = ui::Label::create(context);
-                    label->setText(string::Format("{0} - {1}:").arg(i.getMin()).arg(i.getMax()));
+                    label->setText(dtk::Format("{0} - {1}:").arg(i.getMin()).arg(i.getMax()));
                     intLabels.push_back(label);
                     auto edit = ui::IntEditSlider::create(context);
                     edit->setRange(i);
@@ -72,7 +72,7 @@ namespace tl
                 for (const auto& i : floatRanges)
                 {
                     auto label = ui::Label::create(context);
-                    label->setText(string::Format("{0} - {1}:").arg(i.getMin()).arg(i.getMax()));
+                    label->setText(dtk::Format("{0} - {1}:").arg(i.getMin()).arg(i.getMax()));
                     floatLabels.push_back(label);
                     auto edit = ui::FloatEditSlider::create(context);
                     edit->setRange(i);
@@ -94,7 +94,7 @@ namespace tl
                 for (const auto& i : doubleRanges)
                 {
                     auto label = ui::Label::create(context);
-                    label->setText(string::Format("{0} - {1}:").arg(i.getMin()).arg(i.getMax()));
+                    label->setText(dtk::Format("{0} - {1}:").arg(i.getMin()).arg(i.getMax()));
                     doubleLabels.push_back(label);
                     auto edit = ui::DoubleEditSlider::create(context);
                     edit->setRange(i);

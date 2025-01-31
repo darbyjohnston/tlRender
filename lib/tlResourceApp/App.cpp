@@ -5,8 +5,8 @@
 #include <tlResourceApp/App.h>
 
 #include <tlCore/FileIO.h>
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -66,14 +66,14 @@ namespace tl
                 inputIO->readU8(data.data(), size);
 
                 auto outputIO = file::FileIO::create(_output, file::Mode::Write);
-                outputIO->write(string::Format("const std::vector<uint8_t> {0} = {\n").arg(_varName));
+                outputIO->write(dtk::Format("const std::vector<uint8_t> {0} = {\n").arg(_varName));
                 const size_t columns = 15;
                 for (size_t i = 0; i < size; i += columns)
                 {
                     outputIO->write("    ");
                     for (size_t j = i; j < i + columns && j < size; ++j)
                     {
-                        outputIO->write(string::Format("{0}, ").
+                        outputIO->write(dtk::Format("{0}, ").
                             arg(static_cast<int>(data[j])));
                     }
                     outputIO->write("\n");
@@ -82,7 +82,7 @@ namespace tl
 
                 const auto now = std::chrono::steady_clock::now();
                 const std::chrono::duration<float> diff = now - _startTime;
-                _print(string::Format("Seconds elapsed: {0}").arg(diff.count()));
+                _print(dtk::Format("Seconds elapsed: {0}").arg(diff.count()));
             }
             return _exit;
         }

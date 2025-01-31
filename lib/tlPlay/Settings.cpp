@@ -8,7 +8,8 @@
 #include <tlCore/File.h>
 #include <tlCore/FileIO.h>
 #include <tlCore/LogSystem.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 #include <iostream>
 
@@ -82,7 +83,7 @@ namespace tl
                     {
                         context->log(
                             "tl::play::Settings",
-                            string::Format("Cannot read settings file: {0}: {1}").
+                            dtk::Format("Cannot read settings file: {0}: {1}").
                             arg(_fileName).
                             arg(e.what()),
                             log::Type::Error);
@@ -105,7 +106,7 @@ namespace tl
                 {
                     context->log(
                         "tl::play::Settings",
-                        string::Format("Cannot write settings file: {0}: {1}").
+                        dtk::Format("Cannot write settings file: {0}: {1}").
                         arg(_fileName).
                         arg(e.what()),
                         log::Type::Error);

@@ -8,7 +8,7 @@
 
 #include <tlTimelineUI/TimelineWidget.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -42,7 +42,7 @@ namespace tl
                         }
                     }
                 });
-            p.actions["Stop"]->toolTip = string::Format(
+            p.actions["Stop"]->toolTip = dtk::Format(
                 "Stop playback\n"
                 "\n"
                 "Shortcut: {0}").
@@ -65,7 +65,7 @@ namespace tl
                         }
                     }
                 });
-            p.actions["Forward"]->toolTip = string::Format(
+            p.actions["Forward"]->toolTip = dtk::Format(
                 "Forward playback\n"
                 "\n"
                 "Shortcut: {0}").
@@ -88,7 +88,7 @@ namespace tl
                         }
                     }
                 });
-            p.actions["Reverse"]->toolTip = string::Format(
+            p.actions["Reverse"]->toolTip = dtk::Format(
                 "Reverse playback\n"
                 "\n"
                 "Shortcut: {0}").

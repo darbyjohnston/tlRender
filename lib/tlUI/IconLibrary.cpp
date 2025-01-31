@@ -9,7 +9,8 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/LRUCache.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 namespace
 {
@@ -365,7 +366,7 @@ namespace tl
                                 {
                                     try
                                     {
-                                        const std::string name = string::Format("{0}_{1}.png").
+                                        const std::string name = dtk::Format("{0}_{1}.png").
                                             arg((*i)->name).
                                             arg(dpi);
                                         (*i)->reader = p.thread.plugin->read(

@@ -7,7 +7,7 @@
 #include <tlUI/DrawUtil.h>
 #include <tlUI/LayoutUtil.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -157,7 +157,7 @@ namespace tl
             for (const auto& data : p.data)
             {
                 Private::DrawData::PercentageLabel label;
-                label.text = string::Format("{0}%").arg(data.percentage);
+                label.text = dtk::Format("{0}%").arg(data.percentage);
                 label.size = event.fontSystem->getSize(label.text, p.size.fontInfo);
                 label.glyphs = event.fontSystem->getGlyphs(label.text, p.size.fontInfo);
                 p.draw.percentageLabels.push_back(label);

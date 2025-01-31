@@ -8,8 +8,9 @@
 #include <tlGL/Init.h>
 
 #include <tlCore/Context.h>
-#include <tlCore/StringFormat.h>
 #include <tlCore/Vector.h>
+
+#include <dtk/core/Format.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -110,7 +111,7 @@ namespace tl
 #endif // TLRENDER_API_GL_4_1_Debug
             context->log(
                 "tl::gl::GLFWWindow",
-                string::Format("Create window: {0}").arg(size));
+                dtk::Format("Create window: {0}").arg(size));
             p.glfwWindow = glfwCreateWindow(
                 size.w,
                 size.h,
@@ -127,13 +128,13 @@ namespace tl
             glfwGetWindowContentScale(_p->glfwWindow, &p.contentScale.x, &p.contentScale.y);
             context->log(
                 "tl::gl::GLFWWindow",
-                string::Format("Window size: {0}").arg(p.size));
+                dtk::Format("Window size: {0}").arg(p.size));
             context->log(
                 "tl::gl::GLFWWindow",
-                string::Format("Frame buffer size: {0}").arg(p.frameBufferSize));
+                dtk::Format("Frame buffer size: {0}").arg(p.frameBufferSize));
             context->log(
                 "tl::gl::GLFWWindow",
-                string::Format("Content scale: {0}").arg(p.contentScale));
+                dtk::Format("Content scale: {0}").arg(p.contentScale));
 
             glfwSetWindowUserPointer(p.glfwWindow, this);
             glfwSetWindowSizeCallback(p.glfwWindow, _sizeCallback);
@@ -158,7 +159,7 @@ namespace tl
             const int glRevision = glfwGetWindowAttrib(p.glfwWindow, GLFW_CONTEXT_REVISION);
             context->log(
                 "tl::gl::GLFWWindow",
-                string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
+                dtk::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
         }
         
         GLFWWindow::GLFWWindow() :

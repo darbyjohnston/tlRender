@@ -15,7 +15,7 @@
 
 #include <tlIO/System.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/imageSequenceReference.h>
@@ -81,12 +81,12 @@ namespace tl
                             GridTestPattern::getClassName()
                             })
                         {
-                            //const std::string output = string::Format("{0}_{1}_pattern.mp4").arg(name).arg(size);
-                            const std::string output = string::Format("{0}_{1}.0.dpx").arg(name).arg(size);
+                            //const std::string output = dtk::Format("{0}_{1}_pattern.mp4").arg(name).arg(size);
+                            const std::string output = dtk::Format("{0}_{1}.0.dpx").arg(name).arg(size);
                             std::cout << "Output: " << output << std::endl;
                             otio::SerializableObject::Retainer<otio::Clip> otioClip(new otio::Clip);
                             //otio::SerializableObject::Retainer<otio::MediaReference> mediaReference(
-                            //    new otio::ExternalReference(string::Format("{0}").arg(output)));
+                            //    new otio::ExternalReference(dtk::Format("{0}").arg(output)));
                             otio::SerializableObject::Retainer<otio::ImageSequenceReference> mediaReference(
                                 new otio::ImageSequenceReference(
                                     "file://",
@@ -106,7 +106,7 @@ namespace tl
                             auto writerPlugin = _context->getSystem<io::System>()->getPlugin(file::Path(output));
                             if (!writerPlugin)
                             {
-                                throw std::runtime_error(string::Format("{0}: Cannot open").arg(output));
+                                throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(output));
                             }
                             image::Info info;
                             info.size.w = size.w;
@@ -115,7 +115,7 @@ namespace tl
                             info = writerPlugin->getWriteInfo(info);
                             if (image::PixelType::None == info.pixelType)
                             {
-                                throw std::runtime_error(string::Format("{0}: Cannot open").arg(output));
+                                throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(output));
                             }
                             io::Info ioInfo;
                             ioInfo.video.push_back(info);
@@ -123,7 +123,7 @@ namespace tl
                             auto writer = writerPlugin->write(file::Path(output), ioInfo);
                             if (!writer)
                             {
-                                throw std::runtime_error(string::Format("{0}: Cannot open").arg(output));
+                                throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(output));
                             }
 
                             // Create the offscreen buffer.
@@ -153,7 +153,7 @@ namespace tl
                                 const GLenum type = gl::getReadPixelsType(info.pixelType);
                                 if (GL_NONE == format || GL_NONE == type)
                                 {
-                                    throw std::runtime_error(string::Format("{0}: Cannot open").arg(output));
+                                    throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(output));
                                 }
                                 glReadPixels(
                                     0,
@@ -167,7 +167,7 @@ namespace tl
                             }
                         }
 
-                        otioTimeline->to_json_file(string::Format("{0}.otio").arg(size));
+                        otioTimeline->to_json_file(dtk::Format("{0}.otio").arg(size));
                     }
                 }
                 return _exit;

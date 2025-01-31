@@ -7,7 +7,8 @@
 #include <tlCore/Assert.h>
 #include <tlCore/File.h>
 #include <tlCore/FileIO.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 using namespace tl::file;
 
@@ -54,7 +55,7 @@ namespace tl
                 TLRENDER_ASSERT(!r);
             }
             {
-                _print(string::Format("CWD: {0}").arg(getCWD()));
+                _print(dtk::Format("CWD: {0}").arg(getCWD()));
             }
         }
 

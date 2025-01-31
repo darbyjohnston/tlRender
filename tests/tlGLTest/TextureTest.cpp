@@ -9,7 +9,7 @@
 #include <tlGL/Texture.h>
 #include <tlGL/TextureAtlas.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 using namespace tl::gl;
 
@@ -135,7 +135,7 @@ namespace tl
                         TextureAtlasItem item;
                         atlas->getItem(id, item);
                     }
-                    _print(string::Format("Texture atlas: {0}%").
+                    _print(dtk::Format("Texture atlas: {0}%").
                         arg(atlas->getPercentageUsed()));
                 }
                 catch (const std::exception& e)

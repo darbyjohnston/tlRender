@@ -7,7 +7,7 @@
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/Tools.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -79,7 +79,7 @@ namespace tl
                     });
                 if (!toolTips[i].empty())
                 {
-                    p.actions[labels[i]]->toolTip = string::Format(toolTips[i]).
+                    p.actions[labels[i]]->toolTip = dtk::Format(toolTips[i]).
                         arg(ui::getLabel(
                             p.actions[labels[i]]->shortcut,
                             p.actions[labels[i]]->shortcutModifiers));

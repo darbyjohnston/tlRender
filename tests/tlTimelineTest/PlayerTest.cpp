@@ -10,7 +10,8 @@
 #include <tlIO/System.h>
 
 #include <tlCore/Assert.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/externalReference.h>
@@ -63,7 +64,7 @@ namespace tl
             {
                 try
                 {
-                    _print(string::Format("Timeline: {0}").arg(path.get()));
+                    _print(dtk::Format("Timeline: {0}").arg(path.get()));
                     auto timeline = Timeline::create(path.get(), _context);
                     auto player = Player::create(timeline, _context);
                     TLRENDER_ASSERT(player->getTimeline());
@@ -78,7 +79,7 @@ namespace tl
             {
                 try
                 {
-                    _print(string::Format("Memory timeline: {0}").arg(path.get()));
+                    _print(dtk::Format("Memory timeline: {0}").arg(path.get()));
                     auto otioTimeline = timeline::create(path, _context);
                     toMemoryReferences(otioTimeline, path.getDirectory(), ToMemoryReference::Shared);
                     auto timeline = Timeline::create(otioTimeline, _context);
@@ -102,22 +103,22 @@ namespace tl
             const io::Info& ioInfo = player->getIOInfo();
             const double defaultSpeed = player->getDefaultSpeed();
             double speed = player->getSpeed();
-            _print(string::Format("Path: {0}").arg(path.get()));
-            _print(string::Format("Audio path: {0}").arg(audioPath.get()));
-            _print(string::Format("Time range: {0}").arg(timeRange));
+            _print(dtk::Format("Path: {0}").arg(path.get()));
+            _print(dtk::Format("Audio path: {0}").arg(audioPath.get()));
+            _print(dtk::Format("Time range: {0}").arg(timeRange));
             if (!ioInfo.video.empty())
             {
-                _print(string::Format("Video: {0}").arg(ioInfo.video.size()));
+                _print(dtk::Format("Video: {0}").arg(ioInfo.video.size()));
             }
             if (ioInfo.audio.isValid())
             {
-                _print(string::Format("Audio: {0} {1} {2}").
+                _print(dtk::Format("Audio: {0} {1} {2}").
                     arg(ioInfo.audio.channelCount).
                     arg(ioInfo.audio.dataType).
                     arg(ioInfo.audio.sampleRate));
             }
-            _print(string::Format("Default speed: {0}").arg(defaultSpeed));
-            _print(string::Format("Speed: {0}").arg(speed));
+            _print(dtk::Format("Default speed: {0}").arg(defaultSpeed));
+            _print(dtk::Format("Speed: {0}").arg(speed));
 
             // Test the playback speed.
             auto speedObserver = observer::ValueObserver<double>::create(

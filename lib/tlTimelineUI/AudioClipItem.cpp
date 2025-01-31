@@ -12,9 +12,6 @@
 
 #include <tlIO/Cache.h>
 
-#include <tlCore/Assert.h>
-#include <tlCore/StringFormat.h>
-
 namespace tl
 {
     namespace timelineui
