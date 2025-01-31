@@ -142,7 +142,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 #-------------------------------------------------------------------------------
 # Dependencies
 
-# Required dependencies
+# Base dependencies
 find_package(Threads REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(Imath REQUIRED)
@@ -227,6 +227,9 @@ if(TLRENDER_NFD)
         add_definitions(-DTLRENDER_NFD)
     endif()
 endif()
+
+# dtk dependencies
+find_package(dtk REQUIRED)
 
 # Qt dependencies
 if(TLRENDER_QT6 AND NOT "${TLRENDER_API}" STREQUAL "GLES_2")
