@@ -32,7 +32,8 @@
 
 #include <tlCore/Context.h>
 #include <tlCore/File.h>
-#include <tlCore/String.h>
+
+#include <dtk/core/String.h>
 
 #include <iomanip>
 #include <sstream>
@@ -110,7 +111,7 @@ namespace tl
 
         std::shared_ptr<IPlugin> System::getPlugin(const file::Path& path) const
         {
-            const std::string extension = string::toLower(path.getExtension());
+            const std::string extension = dtk::toLower(path.getExtension());
             for (const auto& i : _plugins)
             {
                 const auto& extensions = i->getExtensions();
@@ -155,7 +156,7 @@ namespace tl
         FileType System::getFileType(const std::string& extension) const
         {
             FileType out = FileType::Unknown;
-            const std::string lower = string::toLower(extension);
+            const std::string lower = dtk::toLower(extension);
             for (const auto& plugin : _plugins)
             {
                 for (auto fileType : { FileType::Movie, FileType::Sequence, FileType::Audio })
@@ -176,7 +177,7 @@ namespace tl
             const file::Path& path,
             const Options& options)
         {
-            const std::string extension = string::toLower(path.getExtension());
+            const std::string extension = dtk::toLower(path.getExtension());
             for (const auto& i : _plugins)
             {
                 const auto& extensions = i->getExtensions();
@@ -193,7 +194,7 @@ namespace tl
             const std::vector<file::MemoryRead>& memory,
             const Options& options)
         {
-            const std::string extension = string::toLower(path.getExtension());
+            const std::string extension = dtk::toLower(path.getExtension());
             for (const auto& i : _plugins)
             {
                 const auto& extensions = i->getExtensions();
@@ -210,7 +211,7 @@ namespace tl
             const Info& info,
             const Options& options)
         {
-            const std::string extension = string::toLower(path.getExtension());
+            const std::string extension = dtk::toLower(path.getExtension());
             for (const auto& i : _plugins)
             {
                 const auto& extensions = i->getExtensions();

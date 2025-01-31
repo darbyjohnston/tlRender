@@ -8,7 +8,8 @@
 
 #include <tlIO/STB.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 namespace tl
 {
@@ -27,7 +28,7 @@ namespace tl
                     const int comp = image::getChannelCount(info.pixelType);
                     const size_t bytes = image::getBitDepth(info.pixelType) / 8;
                     if (bytes > 1)
-                        throw std::runtime_error(string::Format("{0}: {1}").
+                        throw std::runtime_error(dtk::Format("{0}: {1}").
                             arg(fileName).
                             arg("Unsupported image depth"));
                     
@@ -36,19 +37,19 @@ namespace tl
                     file::Path path(fileName);
                     std::string ext = path.getExtension();
                     int res = 0;
-                    if (string::compare(
+                    if (dtk::compare(
                         ext,
                         ".tga",
-                        string::Compare::CaseInsensitive))
+                        dtk::CaseCompare::Insensitive))
                     {
                         res = stbi_write_tga(
                             fileName.c_str(), info.size.w, info.size.h, comp,
                             image->getData());
                     }
-                    else if (string::compare(
+                    else if (dtk::compare(
                         ext,
                         ".bmp",
-                        string::Compare::CaseInsensitive))
+                        dtk::CaseCompare::Insensitive))
                     {
                         res = stbi_write_bmp(
                             fileName.c_str(), info.size.w, info.size.h, comp,
@@ -56,13 +57,13 @@ namespace tl
                     }
                     else
                     {
-                        throw std::runtime_error(string::Format("{0}: {1}").
+                        throw std::runtime_error(dtk::Format("{0}: {1}").
                             arg(fileName).
                             arg("Unsupported image format"));
                     }
                     
                     if (res == 0)
-                        throw std::runtime_error(string::Format("{0}: {1}").
+                        throw std::runtime_error(dtk::Format("{0}: {1}").
                             arg(fileName).
                             arg("Save image failed"));
                 }

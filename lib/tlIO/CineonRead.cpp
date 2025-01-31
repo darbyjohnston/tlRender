@@ -4,8 +4,6 @@
 
 #include <tlIO/Cineon.h>
 
-#include <tlCore/StringFormat.h>
-
 #include <sstream>
 
 namespace tl

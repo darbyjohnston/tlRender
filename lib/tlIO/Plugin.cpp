@@ -4,9 +4,6 @@
 
 #include <tlIO/Plugin.h>
 
-#include <tlCore/Error.h>
-#include <tlCore/String.h>
-
 namespace tl
 {
     namespace io

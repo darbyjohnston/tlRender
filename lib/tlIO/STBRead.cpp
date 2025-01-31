@@ -12,7 +12,7 @@
 
 #include <tlIO/STB.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -36,7 +36,7 @@ namespace tl
                                                     &h, &n);
                         if (res == 0)
                             throw std::runtime_error(
-                                string::Format("{0}: {1}")
+                                dtk::Format("{0}: {1}")
                                     .arg(fileName)
                                     .arg("Corrupted image type"));
                             
@@ -51,7 +51,7 @@ namespace tl
                         if (image::PixelType::None == _info.pixelType)
                         {
                             throw std::runtime_error(
-                                string::Format("{0}: {1}")
+                                dtk::Format("{0}: {1}")
                                     .arg(fileName)
                                     .arg("Unsupported image type"));
                         }
@@ -63,7 +63,7 @@ namespace tl
                         res = stbi_info(fileName.c_str(), &w, &h, &n);
                         if (res == 0)
                             throw std::runtime_error(
-                                string::Format("{0}: {1}")
+                                dtk::Format("{0}: {1}")
                                     .arg(fileName)
                                     .arg("Corrupted image type"));
 
@@ -77,7 +77,7 @@ namespace tl
                         if (image::PixelType::None == _info.pixelType)
                         {
                             throw std::runtime_error(
-                                string::Format("{0}: {1}")
+                                dtk::Format("{0}: {1}")
                                     .arg(fileName)
                                     .arg("Unsupported image type"));
                         }

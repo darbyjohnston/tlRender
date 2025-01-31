@@ -8,6 +8,8 @@
 
 #include <tlCore/FileIO.h>
 
+#include <dtk/core/Util.h>
+
 namespace tl
 {
     //! NetPBM image I/O.
@@ -26,8 +28,7 @@ namespace tl
             Count,
             First = ASCII
         };
-        TLRENDER_ENUM(Data);
-        TLRENDER_ENUM_SERIALIZE(Data);
+        DTK_ENUM(Data);
 
         //! Get the number of bytes in a file scanline.
         size_t getFileScanlineByteCount(

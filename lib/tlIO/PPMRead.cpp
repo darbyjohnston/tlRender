@@ -4,7 +4,8 @@
 
 #include <tlIO/PPM.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 namespace tl
 {
@@ -25,7 +26,7 @@ namespace tl
                     _io->read(magic, 2);
                     if (magic[0] != 'P')
                     {
-                        throw std::runtime_error(string::Format("{0}: {1}").
+                        throw std::runtime_error(dtk::Format("{0}: {1}").
                             arg(fileName).
                             arg("Bad magic number"));
                     }
@@ -37,7 +38,7 @@ namespace tl
                     case '6': break;
                     default:
                     {
-                        throw std::runtime_error(string::Format("{0}: {1}").
+                        throw std::runtime_error(dtk::Format("{0}: {1}").
                             arg(fileName).
                             arg("Bad magic number"));
                     }
@@ -45,15 +46,15 @@ namespace tl
                     const int ppmType = magic[1] - '0';
                     _data = (2 == ppmType || 3 == ppmType) ? Data::ASCII : Data::Binary;
 
-                    char tmp[string::cBufferSize] = "";
-                    file::readWord(_io, tmp, string::cBufferSize);
+                    char tmp[dtk::cStringSize] = "";
+                    file::readWord(_io, tmp, dtk::cStringSize);
                     const int w = std::stoi(tmp);
-                    file::readWord(_io, tmp, string::cBufferSize);
+                    file::readWord(_io, tmp, dtk::cStringSize);
                     const int h = std::stoi(tmp);
                     _info.size.w = w;
                     _info.size.h = h;
 
-                    file::readWord(_io, tmp, string::cBufferSize);
+                    file::readWord(_io, tmp, dtk::cStringSize);
                     const int maxValue = std::stoi(tmp);
                     size_t channelCount = 0;
                     switch (ppmType)
@@ -68,7 +69,7 @@ namespace tl
                     _info.pixelType = image::getIntType(channelCount, bitDepth);
                     if (image::PixelType::None == _info.pixelType)
                     {
-                        throw std::runtime_error(string::Format("{0}: {1}").
+                        throw std::runtime_error(dtk::Format("{0}: {1}").
                             arg(fileName).
                             arg("Unsupported image type"));
                     }
@@ -79,7 +80,7 @@ namespace tl
                     const size_t dataByteCount = image::getDataByteCount(_info);
                     if (Data::Binary == _data && dataByteCount > fileDataByteCount)
                     {
-                        throw std::runtime_error(string::Format("{0}: {1}").
+                        throw std::runtime_error(dtk::Format("{0}: {1}").
                             arg(fileName).
                             arg("Incomplete file"));
                     }

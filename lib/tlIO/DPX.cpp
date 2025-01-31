@@ -6,9 +6,10 @@
 
 #include <tlIO/Cineon.h>
 
-#include <tlCore/Error.h>
-#include <tlCore/Memory.h>
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Error.h>
+#include <dtk/core/Format.h>
+#include <dtk/core/Memory.h>
+#include <dtk/core/String.h>
 
 #include <array>
 #include <cstring>
@@ -18,20 +19,18 @@ namespace tl
 {
     namespace dpx
     {
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             Version,
             "1.0",
             "2.0");
-        TLRENDER_ENUM_SERIALIZE_IMPL(Version);
 
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             Endian,
             "Auto",
             "MSB",
             "LSB");
-        TLRENDER_ENUM_SERIALIZE_IMPL(Endian);
 
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             Orient,
             "LeftRightTopBottom",
             "RightLeftTopBottom",
@@ -41,9 +40,8 @@ namespace tl
             "TopBottomRightLeft",
             "BottomTopLeftRight",
             "BottomTopRightLeft");
-        TLRENDER_ENUM_SERIALIZE_IMPL(Orient);
 
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             Transfer,
             "User",
             "FilmPrint",
@@ -58,14 +56,12 @@ namespace tl
             "PAL",
             "Z",
             "ZHomogeneous");
-        TLRENDER_ENUM_SERIALIZE_IMPL(Transfer);
 
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             Components,
             "Pack",
             "TypeA",
             "TypeB");
-        TLRENDER_ENUM_SERIALIZE_IMPL(Components);
 
         namespace
         {
@@ -204,7 +200,7 @@ namespace tl
             }
             else
             {
-                throw std::runtime_error(string::Format("{0}: {1}").
+                throw std::runtime_error(dtk::Format("{0}: {1}").
                     arg(io->getFileName()).
                     arg("Bad magic number"));
             }
@@ -227,7 +223,7 @@ namespace tl
             // Image information.
             if (out.image.elemSize != 1)
             {
-                throw std::runtime_error(string::Format("{0}: {1}").
+                throw std::runtime_error(dtk::Format("{0}: {1}").
                     arg(io->getFileName()).
                     arg("Unsupported file"));
             }
@@ -294,7 +290,7 @@ namespace tl
             }
             if (image::PixelType::None == imageInfo.pixelType)
             {
-                throw std::runtime_error(string::Format("{0}: {1}").
+                throw std::runtime_error(dtk::Format("{0}: {1}").
                     arg(io->getFileName()).
                     arg("Unsupported file"));
             }
@@ -302,21 +298,21 @@ namespace tl
             const size_t ioSize = io->getSize();
             if (dataByteCount > ioSize - out.file.imageOffset)
             {
-                throw std::runtime_error(string::Format("{0}: {1}").
+                throw std::runtime_error(dtk::Format("{0}: {1}").
                     arg(io->getFileName()).
                     arg("Incomplete file"));
             }
 
             if (out.image.elem[0].encoding)
             {
-                throw std::runtime_error(string::Format("{0}: {1}").
+                throw std::runtime_error(dtk::Format("{0}: {1}").
                     arg(io->getFileName()).
                     arg("Unsupported file"));
             }
 
             if (isValid(&out.image.elem[0].linePadding) && out.image.elem[0].linePadding)
             {
-                throw std::runtime_error(string::Format("{0}: {1}").
+                throw std::runtime_error(dtk::Format("{0}: {1}").
                     arg(io->getFileName()).
                     arg("Unsupported file"));
             }
@@ -953,7 +949,7 @@ namespace tl
             const io::Options& options)
         {
             if (info.video.empty() || (!info.video.empty() && !_isWriteCompatible(info.video[0], options)))
-                throw std::runtime_error(string::Format("{0}: {1}").
+                throw std::runtime_error(dtk::Format("{0}: {1}").
                     arg(path.get()).
                     arg("Unsupported video"));
             return Write::create(path, info, options, _logSystem);

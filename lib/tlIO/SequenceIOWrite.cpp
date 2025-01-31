@@ -4,10 +4,8 @@
 
 #include <tlIO/SequenceIO.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/File.h>
 #include <tlCore/LogSystem.h>
-#include <tlCore/StringFormat.h>
 
 #include <cstring>
 #include <sstream>

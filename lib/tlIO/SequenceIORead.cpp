@@ -4,10 +4,10 @@
 
 #include <tlIO/SequenceIOReadPrivate.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/File.h>
 #include <tlCore/LogSystem.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 #include <cstring>
 #include <sstream>
@@ -74,10 +74,10 @@ namespace tl
                         //! \todo How should this be handled?
                         if (auto logSystem = _logSystem.lock())
                         {
-                            const std::string id = string::Format("tl::io::ISequenceRead ({0}: {1})").
+                            const std::string id = dtk::Format("tl::io::ISequenceRead ({0}: {1})").
                                 arg(__FILE__).
                                 arg(__LINE__);
-                            logSystem->print(id, string::Format("{0}: {1}").
+                            logSystem->print(id, dtk::Format("{0}: {1}").
                                 arg(_path.get()).
                                 arg(e.what()),
                                 log::Type::Error);
@@ -303,13 +303,13 @@ namespace tl
                     if (diff.count() > 10.F)
                     {
                         p.thread.logTimer = now;
-                        const std::string id = string::Format("tl::io::ISequenceRead {0}").arg(this);
+                        const std::string id = dtk::Format("tl::io::ISequenceRead {0}").arg(this);
                         size_t requestsSize = 0;
                         {
                             std::unique_lock<std::mutex> lock(p.mutex.mutex);
                             requestsSize = p.mutex.videoRequests.size();
                         }
-                        logSystem->print(id, string::Format(
+                        logSystem->print(id, dtk::Format(
                             "\n"
                             "    Path: {0}\n"
                             "    Requests: {1}, {2} in progress\n"

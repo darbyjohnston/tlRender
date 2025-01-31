@@ -4,7 +4,7 @@
 
 #include <tlIO/SGI.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -120,7 +120,7 @@ namespace tl
                     _io->readU16(&_header.magic);
                     if (_header.magic != 474)
                     {
-                        throw std::runtime_error(string::Format("{0}: {1}").
+                        throw std::runtime_error(dtk::Format("{0}: {1}").
                             arg(fileName).
                             arg("Bad magic number"));
                     }
@@ -160,7 +160,7 @@ namespace tl
                     }
                     if (dataByteCount > fileDataByteCount)
                     {
-                        throw std::runtime_error(string::Format("{0}: {1}").
+                        throw std::runtime_error(dtk::Format("{0}: {1}").
                             arg(fileName).
                             arg("Incomplete file"));
                     }
@@ -170,7 +170,7 @@ namespace tl
                     _info.pixelType = image::getIntType(_header.channels, 1 == _header.bytes ? 8 : 16);
                     if (image::PixelType::None == _info.pixelType)
                     {
-                        throw std::runtime_error(string::Format("{0}: {1}").
+                        throw std::runtime_error(dtk::Format("{0}: {1}").
                             arg(fileName).
                             arg("Unsupported image type"));
                     }

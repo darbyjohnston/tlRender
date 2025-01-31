@@ -6,7 +6,7 @@
 
 #include <tlIO/SequenceIO.h>
 
-#include <tlCore/FileIO.h>
+#include <dtk/core/Util.h>
 
 namespace tl
 {
@@ -27,8 +27,7 @@ namespace tl
             Count,
             First = _1_0
         };
-        TLRENDER_ENUM(Version);
-        TLRENDER_ENUM_SERIALIZE(Version);
+        DTK_ENUM(Version);
 
         //! DPX endian options.
         enum class Endian
@@ -40,8 +39,7 @@ namespace tl
             Count,
             First = Auto
         };
-        TLRENDER_ENUM(Endian);
-        TLRENDER_ENUM_SERIALIZE(Endian);
+        DTK_ENUM(Endian);
 
         //! DPX header magic numbers.
         static const char magic[][5] =
@@ -65,8 +63,7 @@ namespace tl
             Count,
             First = LeftRightTopBottom
         };
-        TLRENDER_ENUM(Orient);
-        TLRENDER_ENUM_SERIALIZE(Orient);
+        DTK_ENUM(Orient);
 
         //! DPX channel descriptors.
         enum class Descriptor
@@ -116,8 +113,7 @@ namespace tl
             Count,
             First = User
         };
-        TLRENDER_ENUM(Transfer);
-        TLRENDER_ENUM_SERIALIZE(Transfer);
+        DTK_ENUM(Transfer);
 
         //! DPX colorimetric information for version 1.0.
         enum class Colorimetric_1_0
@@ -157,8 +153,7 @@ namespace tl
             Count,
             First = Pack
         };
-        TLRENDER_ENUM(Components);
-        TLRENDER_ENUM_SERIALIZE(Components);
+        DTK_ENUM(Components);
 
         //! DPX header.
         struct Header

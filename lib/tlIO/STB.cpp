@@ -4,9 +4,7 @@
 
 #include <tlIO/STB.h>
 
-#include <tlCore/Error.h>
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 #include <array>
 #include <sstream>
@@ -74,9 +72,9 @@ namespace tl
             const io::Options& options)
         {
             if (info.video.empty() || (!info.video.empty() && !_isWriteCompatible(info.video[0], options)))
-                throw std::runtime_error(string::Format("{0}: {1}").
-                                         arg(path.get()).
-                                         arg("Unsupported video"));
+                throw std::runtime_error(dtk::Format("{0}: {1}").
+                    arg(path.get()).
+                    arg("Unsupported video"));
             return Write::create(path, info, options, _logSystem);
         }
     }

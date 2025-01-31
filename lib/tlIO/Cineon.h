@@ -6,7 +6,7 @@
 
 #include <tlIO/SequenceIO.h>
 
-#include <tlCore/FileIO.h>
+#include <dtk/core/Util.h>
 
 namespace tl
 {
@@ -38,8 +38,7 @@ namespace tl
             Count,
             First = LeftRightTopBottom
         };
-        TLRENDER_ENUM(Orient);
-        TLRENDER_ENUM_SERIALIZE(Orient);
+        DTK_ENUM(Orient);
 
         //! Cineon file descriptors.
         enum class Descriptor
@@ -55,8 +54,7 @@ namespace tl
             Count,
             First = Luminance
         };
-        TLRENDER_ENUM(Descriptor);
-        TLRENDER_ENUM_SERIALIZE(Descriptor);
+        DTK_ENUM(Descriptor);
 
         //! Cineon header.
         struct Header

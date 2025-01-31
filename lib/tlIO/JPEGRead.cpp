@@ -4,8 +4,8 @@
 
 #include <tlIO/JPEG.h>
 
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 #include <cstring>
 
@@ -115,19 +115,19 @@ namespace tl
                     _error.pub.emit_message = warningFunc;
                     if (!jpegCreate(&_jpeg.decompress, &_error))
                     {
-                        throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
                     }
                     if (memory)
                     {
                         if (!jpegOpen(memory->p, memory->size, &_jpeg.decompress, &_error))
                         {
-                            throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
+                            throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
                         }
                     }
                     else
                     {
 #if defined(_WINDOWS)
-                        if (_wfopen_s(&_f.p, string::toWide(fileName).c_str(), L"rb") != 0)
+                        if (_wfopen_s(&_f.p, dtk::toWide(fileName).c_str(), L"rb") != 0)
                         {
                             _f.p = nullptr;
                         }
@@ -136,18 +136,18 @@ namespace tl
 #endif // _WINDOWS
                         if (!_f.p)
                         {
-                            throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
+                            throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
                         }
                         if (!jpegOpen(_f.p, &_jpeg.decompress, &_error))
                         {
-                            throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
+                            throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
                         }
                     }
 
                     image::PixelType pixelType = image::getIntType(_jpeg.decompress.out_color_components, 8);
                     if (image::PixelType::None == pixelType)
                     {
-                        throw std::runtime_error(string::Format("{0}: File not supported").arg(fileName));
+                        throw std::runtime_error(dtk::Format("{0}: File not supported").arg(fileName));
                     }
 
                     image::Info imageInfo(_jpeg.decompress.output_width, _jpeg.decompress.output_height, pixelType);

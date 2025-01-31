@@ -4,8 +4,8 @@
 
 #include <tlIO/TIFF.h>
 
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 #include <tiffio.h>
 
@@ -25,13 +25,13 @@ namespace tl
                     const std::shared_ptr<image::Image>& image)
                 {
 #if defined(_WINDOWS)
-                    _tiff.p = TIFFOpenW(string::toWide(fileName).c_str(), "w");
+                    _tiff.p = TIFFOpenW(dtk::toWide(fileName).c_str(), "w");
 #else // _WINDOWS
                     _tiff.p = TIFFOpen(fileName.c_str(), "w");
 #endif // _WINDOWS
                     if (!_tiff.p)
                     {
-                        throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
                     }
 
                     uint16_t tiffPhotometric = 0;
@@ -91,7 +91,7 @@ namespace tl
                     }
                     if (!tiffSamples || !tiffSampleDepth)
                     {
-                        throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
                     }
 
                     tiffCompression = COMPRESSION_NONE;
@@ -149,7 +149,7 @@ namespace tl
                     {
                         if (TIFFWriteScanline(_tiff.p, (tdata_t*)p, y) == -1)
                         {
-                            throw std::runtime_error(string::Format("{0}: Cannot write scanline: {1}").arg(fileName).arg(y));
+                            throw std::runtime_error(dtk::Format("{0}: Cannot write scanline: {1}").arg(fileName).arg(y));
                         }
                     }
                 }

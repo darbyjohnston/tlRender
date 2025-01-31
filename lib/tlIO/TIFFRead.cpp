@@ -4,8 +4,8 @@
 
 #include <tlIO/TIFF.h>
 
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 #include <tiffio.h>
 
@@ -100,14 +100,14 @@ namespace tl
                     else
                     {
 #if defined(_WINDOWS)
-                        _tiff.p = TIFFOpenW(string::toWide(fileName).c_str(), "r");
+                        _tiff.p = TIFFOpenW(dtk::toWide(fileName).c_str(), "r");
 #else // _WINDOWS
                         _tiff.p = TIFFOpen(fileName.c_str(), "r");
 #endif // _WINDOWS
                     }
                     if (!_tiff.p)
                     {
-                        throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
                     }
 
                     uint32_t  tiffWidth = 0;
@@ -156,7 +156,7 @@ namespace tl
                     }
                     if (image::PixelType::None == pixelType)
                     {
-                        throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
                     }
 
                     image::Info imageInfo(tiffWidth, tiffHeight, pixelType);

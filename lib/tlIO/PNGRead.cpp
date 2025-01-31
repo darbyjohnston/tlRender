@@ -4,9 +4,9 @@
 
 #include <tlIO/PNG.h>
 
-#include <tlCore/Memory.h>
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
+#include <dtk/core/Memory.h>
+#include <dtk/core/String.h>
 
 namespace tl
 {
@@ -166,7 +166,7 @@ namespace tl
                     else
                     {
 #if defined(_WINDOWS)
-                        if (_wfopen_s(&_f.p, string::toWide(fileName).c_str(), L"rb") != 0)
+                        if (_wfopen_s(&_f.p, dtk::toWide(fileName).c_str(), L"rb") != 0)
                         {
                             _f.p = nullptr;
                         }
@@ -175,7 +175,7 @@ namespace tl
 #endif // _WINDOWS
                         if (!_f.p)
                         {
-                            throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
+                            throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
                         }
                     }
 
@@ -194,14 +194,14 @@ namespace tl
                         channels,
                         bitDepth))
                     {
-                        throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
                     }
                     _scanlineSize = width * channels * bitDepth / 8;
 
                     image::PixelType pixelType = image::getIntType(channels, bitDepth);
                     if (image::PixelType::None == pixelType)
                     {
-                        throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
                     }
 
                     _info = image::Info(width, height, pixelType);
