@@ -43,13 +43,12 @@ namespace tl
                 uint8_t* out,
                 size_t                               size)
             {
-                char tmp[string::cBufferSize] = "";
+                char tmp[dtk::cStringSize] = "";
                 T* outP = reinterpret_cast<T*>(out);
                 for (int i = 0; i < size; ++i)
                 {
-                    file::readWord(io, tmp, string::cBufferSize);
-                    int value = 0;
-                    string::fromString(tmp, string::cBufferSize, value);
+                    file::readWord(io, tmp, dtk::cStringSize);
+                    const int value = std::atoi(tmp);
                     outP[i] = value;
                 }
             }

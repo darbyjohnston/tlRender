@@ -71,8 +71,8 @@
 //! Implementation macro for serializing enums.
 //! 
 //! Required includes:
-//! * tlCore/Error.h
-//! * tlCore/String.h
+//! * dtk/core/Error.h
+//! * dtk/core/String.h
 //! * algorithm
 #define TLRENDER_ENUM_SERIALIZE_IMPL(ENUM, ...) \
     std::ostream& operator << (std::ostream& os, ENUM in) \
@@ -91,11 +91,11 @@
             labels.end(), \
             [s](const std::string& value) \
             { \
-                return tl::string::compare(s, value, tl::string::Compare::CaseInsensitive); \
+                return dtk::compare(s, value, dtk::CaseCompare::Insensitive); \
             }); \
         if (i == labels.end()) \
         { \
-            throw tl::error::ParseError(); \
+            throw dtk::ParseError(); \
         } \
         out = static_cast<ENUM>(i - labels.begin()); \
         return is; \
@@ -116,11 +116,11 @@
             labels.end(), \
             [s](const std::string& value) \
             { \
-                return string::compare(s, value, string::Compare::CaseInsensitive); \
+                return dtk::compare(s, value, dtk::CaseCompare::Insensitive); \
             }); \
         if (i == labels.end()) \
         { \
-            throw tl::error::ParseError(); \
+            throw dtk::ParseError(); \
         } \
         out = static_cast<ENUM>(i - labels.begin()); \
     }

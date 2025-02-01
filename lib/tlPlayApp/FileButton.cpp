@@ -49,7 +49,7 @@ namespace tl
         {
             IButton::_init("tl::play_app::FileButton", context, parent);
             TLRENDER_P();
-            const std::string s = string::elide(item->path.get(-1, file::PathType::FileName));
+            const std::string s = dtk::elide(item->path.get(-1, file::PathType::FileName));
             setText(s);
             setCheckable(true);
             setHStretch(ui::Stretch::Expanding);

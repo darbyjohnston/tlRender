@@ -9,7 +9,7 @@
 #include <tlUI/RowLayout.h>
 #include <tlUI/ScrollWidget.h>
 
-#include <tlCore/String.h>
+#include <dtk/core/String.h>
 
 namespace tl
 {
@@ -145,10 +145,10 @@ namespace tl
             {
                 if (i < p.items.size())
                 {
-                    child->setVisible(string::contains(
+                    child->setVisible(dtk::contains(
                         p.items[i],
                         p.search,
-                        string::Compare::CaseInsensitive));
+                        dtk::CaseCompare::Insensitive));
                 }
                 ++i;
             }

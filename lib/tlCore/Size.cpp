@@ -4,8 +4,8 @@
 
 #include <tlCore/Size.h>
 
-#include <tlCore/Error.h>
-#include <tlCore/String.h>
+#include <dtk/core/Error.h>
+#include <dtk/core/String.h>
 
 #include <sstream>
 
@@ -51,10 +51,10 @@ namespace tl
         {
             std::string s;
             is >> s;
-            auto split = string::split(s, 'x');
+            auto split = dtk::split(s, 'x');
             if (split.size() != 2)
             {
-                throw error::ParseError();
+                throw dtk::ParseError();
             }
             {
                 std::stringstream ss(split[0]);
@@ -71,10 +71,10 @@ namespace tl
         {
             std::string s;
             is >> s;
-            auto split = string::split(s, 'x');
+            auto split = dtk::split(s, 'x');
             if (split.size() != 2)
             {
-                throw error::ParseError();
+                throw dtk::ParseError();
             }
             {
                 std::stringstream ss(split[0]);

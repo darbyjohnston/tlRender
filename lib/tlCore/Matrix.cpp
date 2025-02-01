@@ -4,8 +4,8 @@
 
 #include <tlCore/Matrix.h>
 
-#include <tlCore/Error.h>
-#include <tlCore/String.h>
+#include <dtk/core/Error.h>
+#include <dtk/core/String.h>
 
 #include <sstream>
 
@@ -76,7 +76,7 @@ namespace tl
                 ss << value.e[i];
                 s.push_back(ss.str());
             }
-            os << string::join(s, ',');
+            os << dtk::join(s, ',');
             return os;
         }
 
@@ -89,7 +89,7 @@ namespace tl
                 ss << value.e[i];
                 s.push_back(ss.str());
             }
-            os << string::join(s, ',');
+            os << dtk::join(s, ',');
             return os;
         }
 
@@ -97,10 +97,10 @@ namespace tl
         {
             std::string s;
             is >> s;
-            auto split = string::split(s, ',');
+            auto split = dtk::split(s, ',');
             if (split.size() != 9)
             {
-                throw error::ParseError();
+                throw dtk::ParseError();
             }
             for (size_t i = 0; i < 9; ++i)
             {
@@ -114,10 +114,10 @@ namespace tl
         {
             std::string s;
             is >> s;
-            auto split = string::split(s, ',');
+            auto split = dtk::split(s, ',');
             if (split.size() != 16)
             {
-                throw error::ParseError();
+                throw dtk::ParseError();
             }
             for (size_t i = 0; i < 16; ++i)
             {

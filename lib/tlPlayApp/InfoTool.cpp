@@ -107,14 +107,14 @@ namespace tl
                 {
                     bool filter = false;
                     if (!p.search.empty() &&
-                        !string::contains(
+                        !dtk::contains(
                             tag.first,
                             p.search,
-                            string::Compare::CaseInsensitive) &&
-                        !string::contains(
+                            dtk::CaseCompare::Insensitive) &&
+                        !dtk::contains(
                             tag.second,
                             p.search,
-                            string::Compare::CaseInsensitive))
+                            dtk::CaseCompare::Insensitive))
                     {
                         filter = true;
                     }

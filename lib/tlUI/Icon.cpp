@@ -6,7 +6,7 @@
 
 #include <tlUI/LayoutUtil.h>
 
-#include <tlCore/String.h>
+#include <dtk/core/String.h>
 
 namespace tl
 {

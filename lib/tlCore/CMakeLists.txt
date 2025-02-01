@@ -10,7 +10,6 @@ set(HEADERS
     ColorInline.h
     Context.h
     ContextInline.h
-    Error.h
     File.h
     FileIO.h
     FileIOInline.h
@@ -52,7 +51,6 @@ set(HEADERS
     RangeInline.h
     Size.h
     SizeInline.h
-    String.h
     Time.h
     TimeInline.h
     Timer.h
@@ -70,7 +68,6 @@ set(SOURCE
     Box.cpp
     Color.cpp
     Context.cpp
-    Error.cpp
     FileIO.cpp
     FileInfo.cpp
     FileLogSystem.cpp
@@ -88,13 +85,11 @@ set(SOURCE
     Random.cpp
     Range.cpp
     Size.cpp
-    String.cpp
     Time.cpp
     Timer.cpp
     Vector.cpp)
 if (WIN32)
     list(APPEND SOURCE
-        ErrorWin32.cpp
         FileIOWin32.cpp
         FileInfoWin32.cpp
         FileWin32.cpp

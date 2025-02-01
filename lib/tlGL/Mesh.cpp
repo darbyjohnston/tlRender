@@ -6,10 +6,11 @@
 
 #include <tlGL/GL.h>
 
-#include <tlCore/Error.h>
 #include <tlCore/Math.h>
 #include <tlCore/Mesh.h>
-#include <tlCore/String.h>
+
+#include <dtk/core/Error.h>
+#include <dtk/core/String.h>
 
 #include <array>
 

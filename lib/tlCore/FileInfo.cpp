@@ -4,8 +4,8 @@
 
 #include <tlCore/FileInfoPrivate.h>
 
-#include <tlCore/Error.h>
-#include <tlCore/String.h>
+#include <dtk/core/Error.h>
+#include <dtk/core/String.h>
 
 #include <algorithm>
 #include <array>
@@ -127,7 +127,7 @@ namespace tl
                     sequenceExtension = std::find(
                         options.sequenceExtensions.begin(),
                         options.sequenceExtensions.end(),
-                        string::toLower(p.getExtension())) !=
+                        dtk::toLower(p.getExtension())) !=
                         options.sequenceExtensions.end();
                 }
                 if (sequenceExtension)

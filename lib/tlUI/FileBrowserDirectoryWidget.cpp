@@ -9,7 +9,7 @@
 
 #include <tlIO/System.h>
 
-#include <tlCore/String.h>
+#include <dtk/core/String.h>
 
 namespace tl
 {
@@ -224,18 +224,18 @@ namespace tl
                     if (!p.options.search.empty())
                     {
                         const std::string fileName = fileInfo.getPath().get(-1, file::PathType::FileName);
-                        keep = string::contains(
+                        keep = dtk::contains(
                             fileName,
                             p.options.search,
-                            string::Compare::CaseInsensitive);
+                            dtk::CaseCompare::Insensitive);
                     }
                     if (file::Type::File == fileInfo.getType() &&
                         !p.options.extension.empty())
                     {
-                        keep = string::compare(
+                        keep = dtk::compare(
                             fileInfo.getPath().getExtension(),
                             p.options.extension,
-                            string::Compare::CaseInsensitive);
+                            dtk::CaseCompare::Insensitive);
                     }
                     if (keep)
                     {

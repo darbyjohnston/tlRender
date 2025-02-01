@@ -4,9 +4,9 @@
 
 #include <tlCore/FileIO.h>
 
-#include <tlCore/Error.h>
 #include <tlCore/Memory.h>
 
+#include <dtk/core/Error.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/String.h>
 
@@ -141,7 +141,7 @@ namespace tl
             if (!r)
             {
                 throw std::runtime_error(
-                    getErrorMessage(ErrorType::OpenTemp, std::string(), error::getLastError()));
+                    getErrorMessage(ErrorType::OpenTemp, std::string(), dtk::getLastError()));
             }
             WCHAR buf[MAX_PATH];
             if (GetTempFileNameW(path, L"", 0, buf))
@@ -160,7 +160,7 @@ namespace tl
             else
             {
                 throw std::runtime_error(
-                    getErrorMessage(ErrorType::OpenTemp, std::string(), error::getLastError()));
+                    getErrorMessage(ErrorType::OpenTemp, std::string(), dtk::getLastError()));
             }
 
             return out;
@@ -268,7 +268,7 @@ namespace tl
                     DWORD n;
                     if (!::ReadFile(p.f, in, static_cast<DWORD>(size * wordSize), &n, 0))
                     {
-                        throw std::runtime_error(getErrorMessage(ErrorType::Read, p.fileName, error::getLastError()));
+                        throw std::runtime_error(getErrorMessage(ErrorType::Read, p.fileName, dtk::getLastError()));
                     }
                     if (p.endianConversion && wordSize > 1)
                     {
@@ -283,7 +283,7 @@ namespace tl
                 if (!::ReadFile(p.f, in, static_cast<DWORD>(size * wordSize), &n, 0))
                 {
                     throw std::runtime_error(
-                        getErrorMessage(ErrorType::Read, p.fileName, error::getLastError()));
+                        getErrorMessage(ErrorType::Read, p.fileName, dtk::getLastError()));
                 }
                 if (p.endianConversion && wordSize > 1)
                 {
@@ -318,7 +318,7 @@ namespace tl
             if (!::WriteFile(p.f, inP, static_cast<DWORD>(size * wordSize), &n, 0))
             {
                 throw std::runtime_error(
-                    getErrorMessage(ErrorType::Write, p.fileName, error::getLastError()));
+                    getErrorMessage(ErrorType::Write, p.fileName, dtk::getLastError()));
             }
             p.pos += size * wordSize;
             p.size = std::max(p.pos, p.size);
@@ -382,7 +382,7 @@ namespace tl
             if (INVALID_HANDLE_VALUE == p.f)
             {
                 throw std::runtime_error(
-                    getErrorMessage(ErrorType::Open, fileName, error::getLastError()));
+                    getErrorMessage(ErrorType::Open, fileName, dtk::getLastError()));
             }
             p.fileName = fileName;
             p.mode = mode;
@@ -406,7 +406,7 @@ namespace tl
                 if (!p.mMap)
                 {
                     throw std::runtime_error(
-                        getErrorMessage(ErrorType::MemoryMap, fileName, error::getLastError()));
+                        getErrorMessage(ErrorType::MemoryMap, fileName, dtk::getLastError()));
                 }
 
                 p.memoryStart = reinterpret_cast<const uint8_t*>(MapViewOfFile(p.mMap, FILE_MAP_READ, 0, 0, 0));
@@ -439,7 +439,7 @@ namespace tl
                         if (error)
                         {
                             *error = getErrorMessage(
-                                ErrorType::CloseMemoryMap, p.fileName, error::getLastError());
+                                ErrorType::CloseMemoryMap, p.fileName, dtk::getLastError());
                         }
                     }
                     p.memoryStart = nullptr;
@@ -451,7 +451,7 @@ namespace tl
                     if (error)
                     {
                         *error = getErrorMessage(
-                            ErrorType::Close, p.fileName, error::getLastError());
+                            ErrorType::Close, p.fileName, dtk::getLastError());
                     }
                 }
                 p.mMap = nullptr;
@@ -503,7 +503,7 @@ namespace tl
                         0,
                         !seek ? FILE_BEGIN : FILE_CURRENT))
                     {
-                        throw std::runtime_error(getErrorMessage(ErrorType::Seek, fileName, error::getLastError()));
+                        throw std::runtime_error(getErrorMessage(ErrorType::Seek, fileName, dtk::getLastError()));
                     }
                 }
                 break;
@@ -521,7 +521,7 @@ namespace tl
                     !seek ? FILE_BEGIN : FILE_CURRENT))
                 {
                     throw std::runtime_error(
-                        getErrorMessage(ErrorType::Seek, fileName, error::getLastError()));
+                        getErrorMessage(ErrorType::Seek, fileName, dtk::getLastError()));
                 }
                 break;
             }
@@ -559,7 +559,7 @@ namespace tl
             if (INVALID_HANDLE_VALUE == h)
             {
                 throw std::runtime_error(
-                    getErrorMessage(ErrorType::Open, fileName, error::getLastError()));
+                    getErrorMessage(ErrorType::Open, fileName, dtk::getLastError()));
             }
             LARGE_INTEGER v;
             v.QuadPart = size;
@@ -571,13 +571,13 @@ namespace tl
             {
                 CloseHandle(h);
                 throw std::runtime_error(
-                    getErrorMessage(ErrorType::Seek, fileName, error::getLastError()));
+                    getErrorMessage(ErrorType::Seek, fileName, dtk::getLastError()));
             }
             if (!::SetEndOfFile(h))
             {
                 CloseHandle(h);
                 throw std::runtime_error(
-                    getErrorMessage(ErrorType::Write, fileName, error::getLastError()));
+                    getErrorMessage(ErrorType::Write, fileName, dtk::getLastError()));
             }
             CloseHandle(h);
         }

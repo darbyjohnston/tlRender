@@ -4,9 +4,10 @@
 
 #include <tlCore/Path.h>
 
-#include <tlCore/Error.h>
 #include <tlCore/Math.h>
-#include <tlCore/String.h>
+
+#include <dtk/core/Error.h>
+#include <dtk/core/String.h>
 
 #include <dtk/core/Format.h>
 
@@ -312,7 +313,7 @@ namespace tl
                 const auto i = _protocol.find_first_of(':');
                 if (i != std::string::npos)
                 {
-                    _protocolName = string::toLower(_protocol.substr(0, i + 1));
+                    _protocolName = dtk::toLower(_protocol.substr(0, i + 1));
                 }
             }
             else
@@ -364,7 +365,7 @@ namespace tl
             {
                 startSeparator = value[0];
             }
-            auto v = string::split(value, pathSeparators);
+            auto v = dtk::split(value, pathSeparators);
             if (startSeparator || v.size() > 1)
             {
                 v.pop_back();
@@ -374,7 +375,7 @@ namespace tl
             {
                 out += startSeparator;
             }
-            out += string::join(v, pathSeparator);
+            out += dtk::join(v, pathSeparator);
             return out;
         }
 

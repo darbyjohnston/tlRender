@@ -4,8 +4,6 @@
 
 #include <tlTimelineUI/IItem.h>
 
-#include <tlCore/Error.h>
-
 #include <dtk/core/Format.h>
 
 #include <opentimelineio/marker.h>

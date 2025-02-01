@@ -8,9 +8,8 @@
 
 #include <tlIO/System.h>
 
-#include <tlCore/Assert.h>
-#include <tlCore/Error.h>
-
+#include <dtk/core/Assert.h>
+#include <dtk/core/Error.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/String.h>
 

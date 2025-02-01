@@ -4,9 +4,10 @@
 
 #include <tlTimeline/Transition.h>
 
-#include <tlCore/Error.h>
-#include <tlCore/String.h>
 #include <tlCore/Time.h>
+
+#include <dtk/core/Error.h>
+#include <dtk/core/String.h>
 
 #include <opentimelineio/transition.h>
 

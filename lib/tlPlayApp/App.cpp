@@ -810,7 +810,7 @@ namespace tl
         void App::_settingsUpdate(const std::string& name)
         {
             TLRENDER_P();
-            const auto split = string::split(name, '/');
+            const auto split = dtk::split(name, '/');
             if (!split.empty() || name.empty())
             {
                 auto ioSystem = _context->getSystem<io::System>();

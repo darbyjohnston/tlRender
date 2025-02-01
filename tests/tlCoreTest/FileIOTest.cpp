@@ -140,7 +140,7 @@ namespace tl
                 for (auto readType : getReadTypeEnums())
                 {
                     auto io = FileIO::create(fileName, Mode::Read, readType);
-                    char buf[string::cBufferSize];
+                    char buf[dtk::cStringSize];
                     readWord(io, buf);
                     _print(buf);
                     TLRENDER_ASSERT(_text == buf);
@@ -158,7 +158,7 @@ namespace tl
                 for (auto readType : getReadTypeEnums())
                 {
                     io = FileIO::create(fileName, Mode::Read, readType);
-                    char buf[string::cBufferSize];
+                    char buf[dtk::cStringSize];
                     readLine(io, buf);
                     _print(buf);
                     TLRENDER_ASSERT(_text == buf);

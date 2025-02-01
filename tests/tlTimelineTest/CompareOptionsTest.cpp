@@ -6,8 +6,8 @@
 
 #include <tlTimeline/CompareOptions.h>
 
-#include <tlCore/Assert.h>
-#include <tlCore/String.h>
+#include <dtk/core/Assert.h>
+#include <dtk/core/String.h>
 
 using namespace tl::timeline;
 

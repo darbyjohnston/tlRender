@@ -6,8 +6,8 @@
 
 #include <tlTimeline/LUTOptions.h>
 
-#include <tlCore/Assert.h>
-#include <tlCore/String.h>
+#include <dtk/core/Assert.h>
+#include <dtk/core/String.h>
 
 using namespace tl::timeline;
 
@@ -30,10 +30,10 @@ namespace tl
                 _enum<LUTOrder>("LUTOrder", getLUTOrderEnums);
             }
             {
-                _print("LUT format names: " + string::join(getLUTFormatNames(), ", "));
+                _print("LUT format names: " + dtk::join(getLUTFormatNames(), ", "));
             }
             {
-                _print("LUT format extensions: " + string::join(getLUTFormatExtensions(), ", "));
+                _print("LUT format extensions: " + dtk::join(getLUTFormatExtensions(), ", "));
             }
         }
     }

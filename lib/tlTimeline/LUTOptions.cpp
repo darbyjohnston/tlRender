@@ -4,8 +4,8 @@
 
 #include <tlTimeline/LUTOptions.h>
 
-#include <tlCore/Error.h>
-#include <tlCore/String.h>
+#include <dtk/core/Error.h>
+#include <dtk/core/String.h>
 
 #if defined(TLRENDER_OCIO)
 #include <OpenColorIO/OpenColorTransforms.h>

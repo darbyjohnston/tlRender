@@ -6,7 +6,8 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/OS.h>
-#include <tlCore/String.h>
+
+#include <dtk/core/String.h>
 
 #include <sstream>
 
@@ -71,7 +72,7 @@ namespace tl
             {
                 const std::string env = "OSTEST";
                 const std::vector<std::string> value = { "a", "b", "c" };
-                TLRENDER_ASSERT(setEnv(env, string::join(value, envListSeparator)));
+                TLRENDER_ASSERT(setEnv(env, dtk::join(value, envListSeparator)));
                 std::vector<std::string> value2;
                 TLRENDER_ASSERT(getEnv(env, value2));
                 TLRENDER_ASSERT(value == value2);

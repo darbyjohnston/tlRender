@@ -8,9 +8,9 @@
 
 #include <tlIO/System.h>
 
-#include <tlCore/Error.h>
 #include <tlCore/FileInfo.h>
 
+#include <dtk/core/Error.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/String.h>
 

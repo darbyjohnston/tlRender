@@ -4,8 +4,8 @@
 
 #include <tlUI/Event.h>
 
-#include <tlCore/Error.h>
-#include <tlCore/String.h>
+#include <dtk/core/Error.h>
+#include <dtk/core/String.h>
 
 #include <sstream>
 
@@ -116,7 +116,7 @@ namespace tl
             {
                 out.push_back("Cmd");
             }
-            return string::join(out, '+');
+            return dtk::join(out, '+');
         }
 
         TLRENDER_ENUM_IMPL(

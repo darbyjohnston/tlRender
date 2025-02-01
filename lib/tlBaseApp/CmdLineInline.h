@@ -2,8 +2,8 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
-#include <tlCore/Error.h>
-#include <tlCore/String.h>
+#include <dtk/core/Error.h>
+#include <dtk/core/String.h>
 
 #include <algorithm>
 
@@ -63,7 +63,7 @@ namespace tl
                     }
                     else
                     {
-                        throw error::ParseError();
+                        throw dtk::ParseError();
                     }
                 }
             }
@@ -86,7 +86,7 @@ namespace tl
                     }
                     else
                     {
-                        throw error::ParseError();
+                        throw dtk::ParseError();
                     }
                 }
             }
@@ -96,7 +96,7 @@ namespace tl
         inline std::vector<std::string> CmdLineValueOption<T>::getHelpText() const
         {
             std::vector<std::string> out;
-            out.push_back(string::join(_names, ", ") + " (value)");
+            out.push_back(dtk::join(_names, ", ") + " (value)");
             out.push_back(_help);
             if (!_defaultValue.empty())
             {
@@ -168,7 +168,7 @@ namespace tl
             }
             else
             {
-                throw error::ParseError();
+                throw dtk::ParseError();
             }
         }
 
@@ -183,7 +183,7 @@ namespace tl
             }
             else
             {
-                throw error::ParseError();
+                throw dtk::ParseError();
             }
         }
     }

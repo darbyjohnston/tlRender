@@ -6,9 +6,9 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/Path.h>
-#include <tlCore/String.h>
 
 #include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 #include <iostream>
 
@@ -237,7 +237,7 @@ namespace tl
                 TLRENDER_ASSERT("a" == path);
             }
             {
-                _print(dtk::Format("Drives: {0}").arg(string::join(getDrives(), " ")));
+                _print(dtk::Format("Drives: {0}").arg(dtk::join(getDrives(), " ")));
             }
         }
     }

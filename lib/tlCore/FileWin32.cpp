@@ -4,7 +4,7 @@
 
 #include <tlCore/File.h>
 
-#include <tlCore/String.h>
+#include <dtk/core/String.h>
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -25,22 +25,22 @@ namespace tl
         {
             _STAT info;
             std::memset(&info, 0, sizeof(_STAT));
-            return 0 == _STAT_FNC(string::toWide(fileName).c_str(), &info);
+            return 0 == _STAT_FNC(dtk::toWide(fileName).c_str(), &info);
         }
 
         bool rm(const std::string& fileName)
         {
-            return 0 == _wremove(string::toWide(fileName).c_str());
+            return 0 == _wremove(dtk::toWide(fileName).c_str());
         }
 
         bool mkdir(const std::string& fileName)
         {
-            return 0 == _wmkdir(string::toWide(fileName).c_str());
+            return 0 == _wmkdir(dtk::toWide(fileName).c_str());
         }
 
         bool rmdir(const std::string& fileName)
         {
-            return 0 == _wrmdir(string::toWide(fileName).c_str());
+            return 0 == _wrmdir(dtk::toWide(fileName).c_str());
         }
 
         std::string getCWD()
@@ -50,7 +50,7 @@ namespace tl
             {
                 buf[0] = 0;
             }
-            std::string out = string::fromWide(buf);
+            std::string out = dtk::fromWide(buf);
             const size_t size = out.size();
             if (size > 0 && out[size - 1] != '\\')
             {
@@ -66,7 +66,7 @@ namespace tl
             DWORD r = GetTempPathW(MAX_PATH, buf);
             if (r && r < MAX_PATH)
             {
-                out = string::fromWide(buf);
+                out = dtk::fromWide(buf);
             }
             return out;
         }

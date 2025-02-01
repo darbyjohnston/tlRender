@@ -4,7 +4,7 @@
 
 #include <tlCore/FileInfoPrivate.h>
 
-#include <tlCore/String.h>
+#include <dtk/core/String.h>
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -23,12 +23,12 @@ namespace tl
         {
             struct _stati64 info;
             memset(&info, 0, sizeof(struct _stati64));
-            if (_wstati64(string::toWide(_path.get()).c_str(), &info) != 0)
+            if (_wstati64(dtk::toWide(_path.get()).c_str(), &info) != 0)
             {
                 if (error)
                 {
-                    char tmp[string::cBufferSize] = "";
-                    strerror_s(tmp, string::cBufferSize, errno);
+                    char tmp[dtk::cStringSize] = "";
+                    strerror_s(tmp, dtk::cStringSize, errno);
                     *error = tmp;
                 }
                 return false;
@@ -56,12 +56,12 @@ namespace tl
             const std::string glob =
                 appendSeparator(!path.empty() ? path : std::string(".")) + "*";
             WIN32_FIND_DATAW ffd;
-            HANDLE hFind = FindFirstFileW(string::toWide(glob).c_str(), &ffd);
+            HANDLE hFind = FindFirstFileW(dtk::toWide(glob).c_str(), &ffd);
             if (hFind != INVALID_HANDLE_VALUE)
             {
                 do
                 {
-                    const std::string fileName = string::fromWide(ffd.cFileName);
+                    const std::string fileName = dtk::fromWide(ffd.cFileName);
                     if (!listFilter(fileName, options))
                     {
                         listSequence(path, fileName, out, options);

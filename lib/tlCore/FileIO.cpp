@@ -4,8 +4,8 @@
 
 #include <tlCore/FileIO.h>
 
-#include <tlCore/Assert.h>
-#include <tlCore/Error.h>
+#include <dtk/core/Assert.h>
+#include <dtk/core/Error.h>
 
 #include <algorithm>
 #include <array>
@@ -168,7 +168,7 @@ namespace tl
 
         void readWord(const std::shared_ptr<FileIO>& io, char* out, size_t maxLen)
         {
-            TLRENDER_ASSERT(maxLen);
+            DTK_ASSERT(maxLen);
             out[0] = 0;
             enum class Parse
             {
@@ -216,7 +216,7 @@ namespace tl
 
         void readLine(const std::shared_ptr<FileIO>& io, char* out, size_t maxLen)
         {
-            TLRENDER_ASSERT(maxLen);
+            DTK_ASSERT(maxLen);
             size_t i = 0;
             if (!io->isEOF())
             {
@@ -244,8 +244,8 @@ namespace tl
             auto io = FileIO::create(fileName, Mode::Read);
             while (!io->isEOF())
             {
-                char buf[string::cBufferSize] = "";
-                readLine(io, buf, string::cBufferSize);
+                char buf[dtk::cStringSize] = "";
+                readLine(io, buf, dtk::cStringSize);
                 out.push_back(buf);
             }
             return out;

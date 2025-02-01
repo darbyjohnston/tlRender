@@ -6,8 +6,7 @@
 
 #include <tlTimeline/Util.h>
 
-#include <tlCore/Error.h>
-
+#include <dtk/core/Error.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/String.h>
 

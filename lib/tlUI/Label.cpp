@@ -6,7 +6,7 @@
 
 #include <tlUI/LayoutUtil.h>
 
-#include <tlCore/String.h>
+#include <dtk/core/String.h>
 
 namespace tl
 {
@@ -195,10 +195,10 @@ namespace tl
         void Label::_textUpdate()
         {
             TLRENDER_P();
-            const auto lines = string::split(
+            const auto lines = dtk::split(
                 p.text,
                 { '\n', '\r' },
-                string::SplitOptions::KeepEmpty);
+                dtk::SplitOptions::KeepEmpty);
             p.lines.clear();
             for (const auto& line : lines)
             {

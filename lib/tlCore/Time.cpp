@@ -4,9 +4,10 @@
 
 #include <tlCore/Time.h>
 
-#include <tlCore/Error.h>
 #include <tlCore/Math.h>
-#include <tlCore/String.h>
+
+#include <dtk/core/Error.h>
+#include <dtk/core/String.h>
 
 #include <array>
 #include <sstream>
@@ -106,7 +107,7 @@ namespace tl
             list.push_back(std::to_string(prefix));
             list.push_back(std::to_string(count));
             list.push_back(std::to_string(offset));
-            return string::join(list, ":");
+            return dtk::join(list, ":");
         }
 
         void stringToKeycode(
@@ -117,10 +118,10 @@ namespace tl
             int& count,
             int& offset)
         {
-            const auto pieces = string::split(string, ':');
+            const auto pieces = dtk::split(string, ':');
             if (pieces.size() != 5)
             {
-                throw error::ParseError();
+                throw dtk::ParseError();
             }
             id = std::stoi(pieces[0]);
             type = std::stoi(pieces[1]);
@@ -191,11 +192,11 @@ namespace tl
             int minute = 0;
             int second = 0;
             int frame = 0;
-            const auto pieces = string::split(in, ':');
+            const auto pieces = dtk::split(in, ':');
             size_t i = 0;
             if (pieces.size() != 4)
             {
-                throw error::ParseError();
+                throw dtk::ParseError();
             }
             hour = std::stoi(pieces[i]); ++i;
             minute = std::stoi(pieces[i]); ++i;
@@ -256,10 +257,10 @@ namespace opentime
         {
             std::string s;
             is >> s;
-            auto split = tl::string::split(s, '/');
+            auto split = dtk::split(s, '/');
             if (split.size() != 2)
             {
-                throw tl::error::ParseError();
+                throw dtk::ParseError();
             }
             out = RationalTime(std::stof(split[0]), std::stof(split[1]));
             return is;
@@ -269,10 +270,10 @@ namespace opentime
         {
             std::string s;
             is >> s;
-            auto split = tl::string::split(s, '/');
+            auto split = dtk::split(s, '/');
             if (split.size() != 3)
             {
-                throw tl::error::ParseError();
+                throw dtk::ParseError();
             }
             double startTime = 0.0;
             {

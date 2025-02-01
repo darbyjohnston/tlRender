@@ -4,8 +4,8 @@
 
 #include <tlPlayApp/Style.h>
 
-#include <tlCore/Error.h>
-#include <tlCore/String.h>
+#include <dtk/core/Error.h>
+#include <dtk/core/String.h>
 
 namespace tl
 {

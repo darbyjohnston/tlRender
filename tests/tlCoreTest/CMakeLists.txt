@@ -3,7 +3,6 @@ set(HEADERS
     BoxTest.h
     ColorTest.h
     ContextTest.h
-    ErrorTest.h
     FileIOTest.h
     FileInfoTest.h
     FileTest.h
@@ -22,7 +21,6 @@ set(HEADERS
     PathTest.h
     RangeTest.h
     SizeTest.h
-    StringTest.h
     TimeTest.h
     ValueObserverTest.h
     VectorTest.h)
@@ -32,7 +30,6 @@ set(SOURCE
     BoxTest.cpp
     ColorTest.cpp
     ContextTest.cpp
-    ErrorTest.cpp
     FileIOTest.cpp
     FileInfoTest.cpp
     FileTest.cpp
@@ -51,7 +48,6 @@ set(SOURCE
     PathTest.cpp
     RangeTest.cpp
     SizeTest.cpp
-    StringTest.cpp
     TimeTest.cpp
     ValueObserverTest.cpp
     VectorTest.cpp)

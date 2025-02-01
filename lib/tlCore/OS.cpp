@@ -4,7 +4,7 @@
 
 #include <tlCore/OS.h>
 
-#include <tlCore/String.h>
+#include <dtk/core/String.h>
 
 namespace tl
 {
@@ -26,7 +26,7 @@ namespace tl
             std::string value;
             if (getEnv(name, value))
             {
-                out = string::split(value, envListSeparator);
+                out = dtk::split(value, envListSeparator);
                 return true;
             }
             return false;

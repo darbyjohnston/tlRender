@@ -10,7 +10,6 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/Context.h>
-#include <tlCore/Error.h>
 
 #include <dtk/core/Format.h>
 

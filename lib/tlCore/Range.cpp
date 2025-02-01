@@ -4,8 +4,8 @@
 
 #include <tlCore/Range.h>
 
-#include <tlCore/Error.h>
-#include <tlCore/String.h>
+#include <dtk/core/Error.h>
+#include <dtk/core/String.h>
 
 #include <sstream>
 
@@ -97,10 +97,10 @@ namespace tl
         {
             std::string s;
             is >> s;
-            auto split = string::split(s, '-');
+            auto split = dtk::split(s, '-');
             if (split.size() != 2)
             {
-                throw error::ParseError();
+                throw dtk::ParseError();
             }
             int min = 0;
             int max = 0;
@@ -120,10 +120,10 @@ namespace tl
         {
             std::string s;
             is >> s;
-            auto split = string::split(s, '-');
+            auto split = dtk::split(s, '-');
             if (split.size() != 2)
             {
-                throw error::ParseError();
+                throw dtk::ParseError();
             }
             size_t min = 0;
             size_t max = 0;
@@ -143,10 +143,10 @@ namespace tl
         {
             std::string s;
             is >> s;
-            auto split = string::split(s, '-');
+            auto split = dtk::split(s, '-');
             if (split.size() != 2)
             {
-                throw error::ParseError();
+                throw dtk::ParseError();
             }
             float min = 0.F;
             float max = 0.F;
@@ -166,10 +166,10 @@ namespace tl
         {
             std::string s;
             is >> s;
-            auto split = string::split(s, '-');
+            auto split = dtk::split(s, '-');
             if (split.size() != 2)
             {
-                throw error::ParseError();
+                throw dtk::ParseError();
             }
             double min = 0.0;
             double max = 0.0;

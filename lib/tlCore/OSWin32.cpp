@@ -5,7 +5,6 @@
 #include <tlCore/OS.h>
 
 #include <tlCore/Memory.h>
-#include <tlCore/String.h>
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN

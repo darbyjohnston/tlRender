@@ -12,9 +12,7 @@
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Util.h>
 
-#include <tlCore/Error.h>
 #include <tlCore/LogSystem.h>
-#include <tlCore/String.h>
 
 namespace tl
 {

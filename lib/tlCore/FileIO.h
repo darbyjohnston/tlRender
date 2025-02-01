@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <tlCore/String.h>
 #include <tlCore/Util.h>
+
+#include <dtk/core/String.h>
 
 #include <nlohmann/json.hpp>
 
@@ -186,11 +187,11 @@ namespace tl
         std::string readContents(const std::shared_ptr<FileIO>&);
 
         //! Read a word from a file.
-        void readWord(const std::shared_ptr<FileIO>&, char*, size_t maxLen = string::cBufferSize);
+        void readWord(const std::shared_ptr<FileIO>&, char*, size_t maxLen = dtk::cStringSize);
 
         //! Read a line from a file.
         //! \todo Should we handle comments like readWord()?
-        void readLine(const std::shared_ptr<FileIO>&, char*, size_t maxLen = string::cBufferSize);
+        void readLine(const std::shared_ptr<FileIO>&, char*, size_t maxLen = dtk::cStringSize);
 
         //! Read all the lines from a file.
         std::vector<std::string> readLines(const std::string& fileName);

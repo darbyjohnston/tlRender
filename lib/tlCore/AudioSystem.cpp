@@ -5,7 +5,6 @@
 #include <tlCore/AudioSystem.h>
 
 #include <tlCore/Context.h>
-#include <tlCore/Error.h>
 #include <tlCore/LogSystem.h>
 
 #include <dtk/core/Format.h>

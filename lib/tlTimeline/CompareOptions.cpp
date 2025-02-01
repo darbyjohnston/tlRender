@@ -4,8 +4,8 @@
 
 #include <tlTimeline/CompareOptions.h>
 
-#include <tlCore/Error.h>
-#include <tlCore/String.h>
+#include <dtk/core/Error.h>
+#include <dtk/core/String.h>
 
 #include <algorithm>
 #include <array>

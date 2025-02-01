@@ -58,7 +58,6 @@
 #include <tlCoreTest/BoxTest.h>
 #include <tlCoreTest/ColorTest.h>
 #include <tlCoreTest/ContextTest.h>
-#include <tlCoreTest/ErrorTest.h>
 #include <tlCoreTest/FileIOTest.h>
 #include <tlCoreTest/FileInfoTest.h>
 #include <tlCoreTest/FileTest.h>
@@ -77,7 +76,6 @@
 #include <tlCoreTest/PathTest.h>
 #include <tlCoreTest/RangeTest.h>
 #include <tlCoreTest/SizeTest.h>
-#include <tlCoreTest/StringTest.h>
 #include <tlCoreTest/TimeTest.h>
 #include <tlCoreTest/ValueObserverTest.h>
 #include <tlCoreTest/VectorTest.h>
@@ -100,7 +98,6 @@ void coreTests(
     tests.push_back(core_tests::BoxTest::create(context));
     tests.push_back(core_tests::ColorTest::create(context));
     tests.push_back(core_tests::ContextTest::create(context));
-    tests.push_back(core_tests::ErrorTest::create(context));
     tests.push_back(core_tests::FileIOTest::create(context));
     tests.push_back(core_tests::FileInfoTest::create(context));
     tests.push_back(core_tests::FileTest::create(context));
@@ -119,7 +116,6 @@ void coreTests(
     tests.push_back(core_tests::PathTest::create(context));
     tests.push_back(core_tests::RangeTest::create(context));
     tests.push_back(core_tests::SizeTest::create(context));
-    tests.push_back(core_tests::StringTest::create(context));
     tests.push_back(core_tests::TimeTest::create(context));
     tests.push_back(core_tests::ValueObserverTest::create(context));
     tests.push_back(core_tests::VectorTest::create(context));

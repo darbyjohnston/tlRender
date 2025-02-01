@@ -51,7 +51,7 @@ namespace tl
         std::vector<std::string> CmdLineFlagOption::getHelpText() const
         {
             std::vector<std::string> out;
-            out.push_back(string::join(_names, ", "));
+            out.push_back(dtk::join(_names, ", "));
             out.push_back(_help);
             return out;
         }

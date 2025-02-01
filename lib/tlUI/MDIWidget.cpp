@@ -10,8 +10,8 @@
 #include <tlUI/RowLayout.h>
 #include <tlUI/ToolButton.h>
 
-#include <tlCore/Error.h>
-#include <tlCore/String.h>
+#include <dtk/core/Error.h>
+#include <dtk/core/String.h>
 
 namespace tl
 {

@@ -4,9 +4,9 @@
 
 #include <tlCore/Image.h>
 
-#include <tlCore/Assert.h>
-#include <tlCore/Error.h>
-#include <tlCore/String.h>
+#include <dtk/core/Assert.h>
+#include <dtk/core/Error.h>
+#include <dtk/core/String.h>
 
 #include <algorithm>
 #include <array>
@@ -366,19 +366,19 @@ namespace tl
         {
             std::string s;
             is >> s;
-            auto split = string::split(s, ':');
+            auto split = dtk::split(s, ':');
             if (0 == split.size() || split.size() > 2)
             {
-                throw error::ParseError();
+                throw dtk::ParseError();
             }
             if (2 == split.size())
             {
                 out.pixelAspectRatio = std::stof(split[1]);
             }
-            split = string::split(split[0], 'x');
+            split = dtk::split(split[0], 'x');
             if (split.size() != 2)
             {
-                throw error::ParseError();
+                throw dtk::ParseError();
             }
             out.w = std::stoi(split[0]);
             out.h = std::stoi(split[1]);
